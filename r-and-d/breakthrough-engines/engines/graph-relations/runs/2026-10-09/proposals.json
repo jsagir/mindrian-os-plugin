@@ -1,0 +1,1918 @@
+[
+  {
+    "id": "b2d27aba80a3",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:507",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "s_name": "Adoption-Capacity Theory",
+    "t_name": "Red Teaming",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 1.044118,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.6973284777598177,
+        "common": 4,
+        "z": 12.132,
+        "via": [
+          "PWS Triple Validation Compass",
+          "Scenario Planning",
+          "Reverse Salient Analysis",
+          "S-Curve Analysis"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Adoption-Capacity Theory",
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "Reverse Salient Analysis"
+          ],
+          [
+            "Adoption-Capacity Theory",
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "S-Curve Analysis"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.0023708694022523645,
+        "via": "PWS Triple Validation Compass"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "4eaa70d6602f",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:517",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:519",
+    "s_name": "PWS Triple Validation Compass",
+    "t_name": "Reverse Salient Analysis",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.892857,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.160257565168359,
+        "common": 3,
+        "z": 9.571,
+        "via": [
+          "Adoption-Capacity Theory",
+          "IP Due Diligence Framework",
+          "Red Teaming"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Adoption-Capacity Theory",
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "Reverse Salient Analysis"
+          ],
+          [
+            "Adoption-Capacity Theory",
+            "PWS Triple Validation Compass",
+            "IP Due Diligence Framework",
+            "Reverse Salient Analysis"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.0017554449251413393,
+        "via": "Red Teaming"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "8d041b22a49e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:514",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:693",
+    "s_name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+    "t_name": "Theory of Change",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.890756,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.4510302407481093,
+        "common": 2,
+        "z": 16.624,
+        "via": [
+          "Problem Definition Transformation Framework",
+          "Logic Trees (Issue, Hypothesis, Decision)"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "MECE (Mutually Exclusive, Collectively Exhaustive)",
+            "Logic Trees (Issue, Hypothesis, Decision)",
+            "Theory of Change",
+            "Problem Definition Transformation Framework"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.002144237438361413,
+        "via": "Problem Definition Transformation Framework"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "e94d211daf4d",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5635",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7944",
+    "s_name": "Problem",
+    "t_name": "Sub-issue",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.747899,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 12.154122935259068,
+        "common": 5,
+        "z": 49.406,
+        "via": [
+          "Issue 2",
+          "Issue 3",
+          "Issue 5",
+          "Issue 4"
+        ]
+      },
+      "holes": {
+        "score": 10.0,
+        "cycles": [
+          [
+            "Problem",
+            "Issue 2",
+            "Sub-issue",
+            "Issue 3"
+          ],
+          [
+            "Problem",
+            "Issue 2",
+            "Sub-issue",
+            "Issue 5"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "9bdf45249782",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:653",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:699",
+    "s_name": "PWS Pitch-Craft Distillation",
+    "t_name": "Trending to the Absurd",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.726891,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.0763121530230437,
+        "common": 4,
+        "z": 5.091,
+        "via": [
+          "Cynefin Framework",
+          "Beautiful Question Framework",
+          "Domain Selection",
+          "Jobs to Be Done (JTBD)"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Beautiful Question Framework",
+            "PWS Pitch-Craft Distillation",
+            "Jobs to Be Done (JTBD)",
+            "Trending to the Absurd"
+          ],
+          [
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Cynefin Framework",
+            "Trending to the Absurd"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.00161281270504085,
+        "via": "Beautiful Question Framework"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "95999c84d98d",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:653",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:654",
+    "s_name": "PWS Pitch-Craft Distillation",
+    "t_name": "PWS Value Proposition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.716387,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 1.8138855192585706,
+        "common": 4,
+        "z": 2.467,
+        "via": [
+          "Cynefin Framework",
+          "Beautiful Question Framework",
+          "Domain Selection",
+          "Jobs to Be Done (JTBD)"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Beautiful Question Framework",
+            "PWS Pitch-Craft Distillation",
+            "Jobs to Be Done (JTBD)",
+            "PWS Value Proposition"
+          ],
+          [
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Cynefin Framework",
+            "PWS Value Proposition"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.00161281270504085,
+        "via": "Beautiful Question Framework"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "493cfae0f524",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:517",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:523",
+    "s_name": "PWS Triple Validation Compass",
+    "t_name": "Six Thinking Hats",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.703782,
+    "agree": 3,
+    "methods": [
+      "bridge",
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 1.8425080939816079,
+        "common": 2,
+        "z": 5.793,
+        "via": [
+          "Red Teaming",
+          "BONO-Innovation Framework"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "Six Thinking Hats",
+            "BONO-Innovation Framework"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.0017554449251413393,
+        "via": "Red Teaming"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "bc43ed7fa355",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4036",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:654",
+    "s_name": "Emotional Intelligence in Leadership",
+    "t_name": "PWS Value Proposition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.693277,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.189601735020784,
+        "common": 5,
+        "z": 19.736,
+        "via": [
+          "Six Thinking Hats",
+          "Servant Leadership",
+          "Adaptive Leadership",
+          "Authentic Leadership"
+        ]
+      },
+      "holes": {
+        "score": 9.0,
+        "cycles": [
+          [
+            "Emotional Intelligence in Leadership",
+            "Stockdale Paradox",
+            "PWS Value Proposition",
+            "Servant Leadership"
+          ],
+          [
+            "Emotional Intelligence in Leadership",
+            "Stockdale Paradox",
+            "PWS Value Proposition",
+            "Adaptive Leadership"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "67a6c65f88a2",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:511",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:606",
+    "s_name": "Jobs to Be Done (JTBD)",
+    "t_name": "Domain Selection",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.684874,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 4.876844800120317,
+        "common": 6,
+        "z": 23.842,
+        "via": [
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "HSI Semantic Surprise Analysis Assistant",
+          "Trending to the Absurd"
+        ]
+      },
+      "holes": {
+        "score": 12.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "HSI Semantic Surprise Analysis Assistant",
+            "Domain Selection"
+          ],
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Domain Selection"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "6a97aba494ef",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:524",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:599",
+    "s_name": "Systems Thinking",
+    "t_name": "Cynefin Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.657563,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.7045523802277547,
+        "common": 5,
+        "z": 14.392,
+        "via": [
+          "Ackoff Pyramid",
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "Root Cause Analysis"
+        ]
+      },
+      "holes": {
+        "score": 8.0,
+        "cycles": [
+          [
+            "Ackoff Pyramid",
+            "Systems Thinking",
+            "Wicked Problem Detection Framework",
+            "Cynefin Framework"
+          ],
+          [
+            "Ackoff Pyramid",
+            "Systems Thinking",
+            "PWS Value Proposition",
+            "Cynefin Framework"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "94771ee95867",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:520",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:707",
+    "s_name": "Root Cause Analysis",
+    "t_name": "Wicked Problem Detection Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.647059,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.1184837294539545,
+        "common": 4,
+        "z": 36.052,
+        "via": [
+          "Cynefin Framework",
+          "Systems Thinking",
+          "Six Thinking Hats",
+          "Causal Loop Diagrams"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Systems Thinking",
+            "Root Cause Analysis",
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework"
+          ],
+          [
+            "Six Thinking Hats",
+            "Root Cause Analysis",
+            "Cynefin Framework",
+            "Wicked Problem Detection Framework"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "6a4f5038f642",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:522",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:913",
+    "s_name": "Scenario Planning",
+    "t_name": "HSI Semantic Surprise Analysis Assistant",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.647059,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.646400540877212,
+        "common": 4,
+        "z": 20.178,
+        "via": [
+          "Knowns and Unknowns Matrix Framework",
+          "Domain Selection",
+          "Reverse Salient Analysis",
+          "Jobs to Be Done (JTBD)"
+        ]
+      },
+      "holes": {
+        "score": 5.0,
+        "cycles": [
+          [
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Planning",
+            "Domain Selection",
+            "HSI Semantic Surprise Analysis Assistant"
+          ],
+          [
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Planning",
+            "Reverse Salient Analysis",
+            "HSI Semantic Surprise Analysis Assistant"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "098b8980a6ef",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:560",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:703",
+    "s_name": "Business Model Canvas",
+    "t_name": "Value Proposition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.647059,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.1765355615499775,
+        "common": 3,
+        "z": 22.023,
+        "via": [
+          "Competitive Advantage",
+          "HEART Framework",
+          "Platform Thinking"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Business Model Canvas",
+            "Competitive Advantage",
+            "Value Proposition",
+            "HEART Framework"
+          ],
+          [
+            "Business Model Canvas",
+            "Competitive Advantage",
+            "Value Proposition",
+            "Platform Thinking"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "4d1ce3afa46a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:523",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:599",
+    "s_name": "Six Thinking Hats",
+    "t_name": "Cynefin Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.642857,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.5961699227181048,
+        "common": 5,
+        "z": 13.332,
+        "via": [
+          "Beautiful Question Framework",
+          "PWS Value Proposition",
+          "Root Cause Analysis",
+          "Trending to the Absurd"
+        ]
+      },
+      "holes": {
+        "score": 6.0,
+        "cycles": [
+          [
+            "Beautiful Question Framework",
+            "Six Thinking Hats",
+            "Wicked Problem Detection Framework",
+            "Cynefin Framework"
+          ],
+          [
+            "Beautiful Question Framework",
+            "Six Thinking Hats",
+            "Root Cause Analysis",
+            "Cynefin Framework"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "edfaf24dd2e6",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:524",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8912",
+    "s_name": "Systems Thinking",
+    "t_name": "Explore Future Scenarios",
+    "s_label": "Framework",
+    "t_label": "ProcessStep",
+    "suggested_type": "RELATES_TO",
+    "direction": "undetermined",
+    "triage_score": 0.628151,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 4.200955640267397,
+        "common": 3,
+        "z": 15.084,
+        "via": [
+          "Scenario Planning",
+          "Identify Problem Space",
+          "Map Initial Problem Landscape"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Systems Thinking",
+            "Scenario Planning",
+            "Explore Future Scenarios",
+            "Identify Problem Space"
+          ],
+          [
+            "Systems Thinking",
+            "Scenario Planning",
+            "Explore Future Scenarios",
+            "Map Initial Problem Landscape"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "bc64bfe97554",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:524",
+    "s_name": "Red Teaming",
+    "t_name": "Systems Thinking",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.62395,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.3634168268907056,
+        "common": 5,
+        "z": 13.481,
+        "via": [
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "Reverse Salient Analysis",
+          "Six Thinking Hats"
+        ]
+      },
+      "holes": {
+        "score": 5.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Red Teaming",
+            "Six Thinking Hats",
+            "Systems Thinking"
+          ],
+          [
+            "Scenario Planning",
+            "Red Teaming",
+            "Nested Hierarchies",
+            "Systems Thinking"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "9b255b042ab2",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:599",
+    "s_name": "Red Teaming",
+    "t_name": "Cynefin Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.62395,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.461687784061673,
+        "common": 5,
+        "z": 15.247,
+        "via": [
+          "OODA Loop",
+          "Scenario Planning",
+          "Beautiful Question Framework",
+          "PWS Value Proposition"
+        ]
+      },
+      "holes": {
+        "score": 4.0,
+        "cycles": [
+          [
+            "OODA Loop",
+            "Red Teaming",
+            "PWS Value Proposition",
+            "Cynefin Framework"
+          ],
+          [
+            "OODA Loop",
+            "Red Teaming",
+            "Trending to the Absurd",
+            "Cynefin Framework"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "c616bbbd0e25",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:672",
+    "s_name": "Red Teaming",
+    "t_name": "Reverse Salient",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.621849,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.630223819113447,
+        "common": 3,
+        "z": 15.962,
+        "via": [
+          "Jobs to Be Done",
+          "S-Curve Analysis",
+          "Nested Hierarchies"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Red Teaming",
+            "S-Curve Analysis",
+            "Reverse Salient",
+            "Jobs to Be Done"
+          ],
+          [
+            "Red Teaming",
+            "S-Curve Analysis",
+            "Reverse Salient",
+            "Nested Hierarchies"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "0fd0b158a463",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:16818",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8579",
+    "s_name": "Selection Point",
+    "t_name": "Trend Exploration",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.605042,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.845067698763717,
+        "common": 2,
+        "z": 34.921,
+        "via": [
+          "In-Depth Agent Refinement",
+          "Trend Confirmation"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "Trend Confirmation",
+            "Selection Point",
+            "In-Depth Agent Refinement",
+            "Trend Exploration"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "4a273212fe5e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:642",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:654",
+    "s_name": "OODA Loop",
+    "t_name": "PWS Value Proposition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.605042,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.155515265439261,
+        "common": 4,
+        "z": 13.221,
+        "via": [
+          "Cynefin Framework",
+          "Beautiful Question Framework",
+          "Red Teaming",
+          "Strategic Decision Making for Leaders"
+        ]
+      },
+      "holes": {
+        "score": 4.0,
+        "cycles": [
+          [
+            "OODA Loop",
+            "Strategic Decision Making for Leaders",
+            "PWS Value Proposition",
+            "Beautiful Question Framework"
+          ],
+          [
+            "OODA Loop",
+            "Strategic Decision Making for Leaders",
+            "PWS Value Proposition",
+            "Red Teaming"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "94145762fde6",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:17276",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:523",
+    "s_name": "Stockdale Paradox",
+    "t_name": "Six Thinking Hats",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.60084,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.6401157066752186,
+        "common": 3,
+        "z": 18.173,
+        "via": [
+          "PWS Value Proposition",
+          "Emotional Intelligence in Leadership",
+          "Resulting"
+        ]
+      },
+      "holes": {
+        "score": 2.0,
+        "cycles": [
+          [
+            "Emotional Intelligence in Leadership",
+            "Stockdale Paradox",
+            "PWS Value Proposition",
+            "Six Thinking Hats"
+          ],
+          [
+            "Emotional Intelligence in Leadership",
+            "Stockdale Paradox",
+            "Resulting",
+            "Six Thinking Hats"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "794bff0dd803",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5582",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:9444",
+    "s_name": "IP Due Diligence Framework",
+    "t_name": "Financial Due Diligence Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.592437,
+    "agree": 2,
+    "methods": [
+      "bridge",
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.2122415312812223,
+        "common": 3,
+        "z": 15.671,
+        "via": [
+          "PWS Triple Validation Compass",
+          "Legal Due Diligence Framework",
+          "Mullins Model Validation"
+        ]
+      },
+      "bridge": {
+        "score": 0.0023708694022523645,
+        "via": "PWS Triple Validation Compass"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "57a7d1ad5c19",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:519",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:523",
+    "s_name": "Reverse Salient Analysis",
+    "t_name": "Six Thinking Hats",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.590336,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.0439036440891156,
+        "common": 5,
+        "z": 11.768,
+        "via": [
+          "Systems Thinking",
+          "PWS Value Proposition",
+          "Red Teaming",
+          "Causal Loop Diagrams"
+        ]
+      },
+      "holes": {
+        "score": 5.0,
+        "cycles": [
+          [
+            "Systems Thinking",
+            "Reverse Salient Analysis",
+            "Trending to the Absurd",
+            "Six Thinking Hats"
+          ],
+          [
+            "Reverse Salient Analysis",
+            "Red Teaming",
+            "Six Thinking Hats",
+            "Systems Thinking"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "f55e9d899634",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:511",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:521",
+    "s_name": "Jobs to Be Done (JTBD)",
+    "t_name": "S-Curve Analysis",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.586134,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.065865183150705,
+        "common": 4,
+        "z": 13.629,
+        "via": [
+          "Scenario Planning",
+          "Reverse Salient Analysis",
+          "Trending to the Absurd",
+          "Four Lenses of Innovation"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "S-Curve Analysis"
+          ],
+          [
+            "Reverse Salient Analysis",
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "S-Curve Analysis"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "daffcf666920",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:519",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:606",
+    "s_name": "Reverse Salient Analysis",
+    "t_name": "Domain Selection",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.581933,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.147985618003144,
+        "common": 4,
+        "z": 14.934,
+        "via": [
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "HSI Semantic Surprise Analysis Assistant",
+          "Trending to the Absurd"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Reverse Salient Analysis",
+            "HSI Semantic Surprise Analysis Assistant",
+            "Domain Selection"
+          ],
+          [
+            "PWS Value Proposition",
+            "Reverse Salient Analysis",
+            "HSI Semantic Surprise Analysis Assistant",
+            "Domain Selection"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "9a5561a7dc6f",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:508",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:522",
+    "s_name": "Beautiful Question Framework",
+    "t_name": "Scenario Planning",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.569328,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.421171820384968,
+        "common": 5,
+        "z": 15.502,
+        "via": [
+          "Cynefin Framework",
+          "Domain Selection",
+          "PWS Value Proposition",
+          "Red Teaming"
+        ]
+      },
+      "holes": {
+        "score": 2.0,
+        "cycles": [
+          [
+            "Beautiful Question Framework",
+            "Red Teaming",
+            "Scenario Planning",
+            "Cynefin Framework"
+          ],
+          [
+            "Beautiful Question Framework",
+            "Red Teaming",
+            "Scenario Planning",
+            "Domain Selection"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "91deec2841c1",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:614",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:699",
+    "s_name": "Four Lenses of Innovation",
+    "t_name": "Trending to the Absurd",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.567227,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.1149692934415962,
+        "common": 3,
+        "z": 19.045,
+        "via": [
+          "Domain Selection",
+          "Jobs to Be Done (JTBD)",
+          "S-Curve Analysis"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "Domain Selection",
+            "Trending to the Absurd"
+          ],
+          [
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "S-Curve Analysis",
+            "Trending to the Absurd"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "35c18d4f5578",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:521",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:640",
+    "s_name": "S-Curve Analysis",
+    "t_name": "Nested Hierarchies",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.558824,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.4462488362931727,
+        "common": 3,
+        "z": 21.323,
+        "via": [
+          "Reverse Salient Analysis",
+          "Red Teaming",
+          "Reverse Salient"
+        ]
+      },
+      "holes": {
+        "score": 2.0,
+        "cycles": [
+          [
+            "Reverse Salient Analysis",
+            "S-Curve Analysis",
+            "Reverse Salient",
+            "Nested Hierarchies"
+          ],
+          [
+            "Red Teaming",
+            "S-Curve Analysis",
+            "Reverse Salient",
+            "Nested Hierarchies"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "9cec686576d0",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4018",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:691",
+    "s_name": "Authentic Leadership",
+    "t_name": "The Golden Circle",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.556723,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 4.493185370896475,
+        "common": 2,
+        "z": 32.917,
+        "via": [
+          "PWS Value Proposition",
+          "Transformational Leadership"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "Transformational Leadership",
+            "Authentic Leadership",
+            "PWS Value Proposition",
+            "The Golden Circle"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "4a1b5f0cf860",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5143",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5146",
+    "s_name": "System Elements Mapping",
+    "t_name": "System Purpose Discovery",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.55042,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.377523513025843,
+        "common": 2,
+        "z": 34.921,
+        "via": [
+          "Interconnections Analysis",
+          "Interconnection Analysis"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "System Elements Mapping",
+            "Interconnections Analysis",
+            "System Purpose Discovery",
+            "Interconnection Analysis"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "44f88fbae5b7",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5147",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5154",
+    "s_name": "Stock and Flow Mapping",
+    "t_name": "Stocks and Flows Analysis",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.55042,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 7.104690292147695,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "System Purpose Discovery",
+          "Stock and Flow Analysis"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "System Purpose Discovery",
+            "Stock and Flow Mapping",
+            "Stock and Flow Analysis",
+            "Stocks and Flows Analysis"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "0f5774235c9d",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:512",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:524",
+    "s_name": "Knowns and Unknowns Matrix Framework",
+    "t_name": "Systems Thinking",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.544118,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.6999125895803866,
+        "common": 3,
+        "z": 11.838,
+        "via": [
+          "Ackoff Pyramid",
+          "Scenario Planning",
+          "Scenario Analysis Framework"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Ackoff Pyramid",
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Analysis Framework",
+            "Systems Thinking"
+          ],
+          [
+            "Ackoff Pyramid",
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Planning",
+            "Systems Thinking"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "112731c6154a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:512",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:606",
+    "s_name": "Knowns and Unknowns Matrix Framework",
+    "t_name": "Domain Selection",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.544118,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.065884368294803,
+        "common": 3,
+        "z": 17.357,
+        "via": [
+          "Cynefin Framework",
+          "Scenario Planning",
+          "HSI Semantic Surprise Analysis Assistant"
+        ]
+      },
+      "holes": {
+        "score": 2.0,
+        "cycles": [
+          [
+            "Knowns and Unknowns Matrix Framework",
+            "Scenario Planning",
+            "Domain Selection",
+            "HSI Semantic Surprise Analysis Assistant"
+          ],
+          [
+            "Knowns and Unknowns Matrix Framework",
+            "Cynefin Framework",
+            "Domain Selection",
+            "HSI Semantic Surprise Analysis Assistant"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "6cbb3c91405b",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5146",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5184",
+    "s_name": "System Purpose Discovery",
+    "t_name": "Stock and Flow Analysis",
+    "s_label": "ProcessStep",
+    "t_label": "Technique",
+    "suggested_type": "USES_TECHNIQUE",
+    "direction": "undetermined",
+    "triage_score": 0.544118,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.377523513025843,
+        "common": 2,
+        "z": 34.921,
+        "via": [
+          "Stock and Flow Mapping",
+          "Stocks and Flows Analysis"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "System Purpose Discovery",
+            "Stock and Flow Mapping",
+            "Stock and Flow Analysis",
+            "Stocks and Flows Analysis"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "81ed0f2ee862",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4036",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:671",
+    "s_name": "Emotional Intelligence in Leadership",
+    "t_name": "Resulting",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.537815,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.781431700997919,
+        "common": 2,
+        "z": 25.477,
+        "via": [
+          "Six Thinking Hats",
+          "Stockdale Paradox"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "Emotional Intelligence in Leadership",
+            "Stockdale Paradox",
+            "Resulting",
+            "Six Thinking Hats"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "9accbc89b32a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:522",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:614",
+    "s_name": "Scenario Planning",
+    "t_name": "Four Lenses of Innovation",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.537815,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.7189034424165124,
+        "common": 3,
+        "z": 15.084,
+        "via": [
+          "Domain Selection",
+          "Jobs to Be Done (JTBD)",
+          "S-Curve Analysis"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "S-Curve Analysis"
+          ],
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "Four Lenses of Innovation",
+            "Domain Selection"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "e1dfc4c4653a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:519",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:599",
+    "s_name": "Reverse Salient Analysis",
+    "t_name": "Cynefin Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.533613,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.6916047103517107,
+        "common": 4,
+        "z": 11.444,
+        "via": [
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "Trending to the Absurd",
+          "Usher's Model of Cumulative Synthesis"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Reverse Salient Analysis",
+            "Usher's Model of Cumulative Synthesis",
+            "Cynefin Framework"
+          ],
+          [
+            "Reverse Salient Analysis",
+            "Usher's Model of Cumulative Synthesis",
+            "Cynefin Framework",
+            "PWS Value Proposition"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "138c6d742aa2",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:556",
+    "s_name": "Red Teaming",
+    "t_name": "BONO-Innovation Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.527311,
+    "agree": 2,
+    "methods": [
+      "bridge",
+      "holes"
+    ],
+    "detail": {
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "Six Thinking Hats",
+            "BONO-Innovation Framework"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.0023708694022523645,
+        "via": "PWS Triple Validation Compass"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "990c3c10da45",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:511",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:599",
+    "s_name": "Jobs to Be Done (JTBD)",
+    "t_name": "Cynefin Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.521008,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.463161343038359,
+        "common": 4,
+        "z": 12.132,
+        "via": [
+          "Scenario Planning",
+          "PWS Value Proposition",
+          "Trending to the Absurd",
+          "PWS Pitch-Craft Distillation"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "Scenario Planning",
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Cynefin Framework"
+          ],
+          [
+            "Jobs to Be Done (JTBD)",
+            "PWS Pitch-Craft Distillation",
+            "Cynefin Framework",
+            "PWS Value Proposition"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  },
+  {
+    "id": "b03c074d2df8",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:518",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5582",
+    "s_name": "Red Teaming",
+    "t_name": "IP Due Diligence Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.521008,
+    "agree": 2,
+    "methods": [
+      "bridge",
+      "holes"
+    ],
+    "detail": {
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "PWS Triple Validation Compass",
+            "Red Teaming",
+            "Reverse Salient Analysis",
+            "IP Due Diligence Framework"
+          ]
+        ]
+      },
+      "bridge": {
+        "score": 0.0023708694022523645,
+        "via": "PWS Triple Validation Compass"
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null
+  }
+]

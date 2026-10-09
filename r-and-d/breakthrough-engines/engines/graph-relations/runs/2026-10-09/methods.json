@@ -1,0 +1,73 @@
+{
+  "nodes": 2443,
+  "edges": 978,
+  "hub_nodes_skipped": 0,
+  "holes": {
+    "holes": 150,
+    "null_mean": 76.125,
+    "null_sd": 12.426210777454013,
+    "z": 5.945094713348821
+  },
+  "ripser": null,
+  "communities": 1813,
+  "top_bridges": [
+    {
+      "name": "PWS Pitch-Craft Distillation",
+      "betweenness": 0.01114,
+      "participation": 0.114
+    },
+    {
+      "name": "PWS Triple Validation Compass",
+      "betweenness": 0.00305,
+      "participation": 0.778
+    },
+    {
+      "name": "Beautiful Question Framework",
+      "betweenness": 0.00413,
+      "participation": 0.391
+    },
+    {
+      "name": "Red Teaming",
+      "betweenness": 0.00362,
+      "participation": 0.484
+    },
+    {
+      "name": "Problem Definition Transformation Framework",
+      "betweenness": 0.00278,
+      "participation": 0.772
+    },
+    {
+      "name": "Jobs to Be Done (JTBD)",
+      "betweenness": 0.00316,
+      "participation": 0.464
+    },
+    {
+      "name": "Business Model Canvas",
+      "betweenness": 0.00262,
+      "participation": 0.617
+    },
+    {
+      "name": "Financial Due Diligence Framework",
+      "betweenness": 0.00245,
+      "participation": 0.612
+    },
+    {
+      "name": "Scenario Planning",
+      "betweenness": 0.00274,
+      "participation": 0.427
+    },
+    {
+      "name": "Legal Due Diligence Framework",
+      "betweenness": 0.00284,
+      "participation": 0.32
+    }
+  ],
+  "atypicality": {
+    "n": 1,
+    "p10": 4.2485291572496005,
+    "median": 4.2485291572496005
+  },
+  "name_issues": 51,
+  "dropped_existing": 0,
+  "seconds": 2.0
+}

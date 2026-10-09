@@ -1,0 +1,1486 @@
+[
+  {
+    "id": "2f954133edae",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:516",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:648",
+    "s_name": "PEST Analysis",
+    "t_name": "PEST",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.726891,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 7.281127122849533,
+        "common": 4,
+        "z": 49.406,
+        "via": [
+          "Adoption-Capacity Theory",
+          "Scenario Planning",
+          "Macro Trends",
+          "Structured Trend Extrapolation Process"
+        ]
+      },
+      "holes": {
+        "score": 4.0,
+        "cycles": [
+          [
+            "Adoption-Capacity Theory",
+            "PEST Analysis",
+            "Structured Trend Extrapolation Process",
+            "PEST"
+          ],
+          [
+            "Scenario Planning",
+            "PEST Analysis",
+            "Macro Trends",
+            "PEST"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "d612771086e3",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4782",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8369",
+    "s_name": "H",
+    "t_name": "C",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.705882,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.259868632271478,
+        "common": 3,
+        "z": 24.642,
+        "via": [
+          "G",
+          "F",
+          "E"
+        ]
+      },
+      "holes": {
+        "score": 3.0,
+        "cycles": [
+          [
+            "H",
+            "G",
+            "C",
+            "F"
+          ],
+          [
+            "H",
+            "G",
+            "C",
+            "E"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "suspect_name"
+  },
+  {
+    "id": "4cefa42663b4",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:519",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:672",
+    "s_name": "Reverse Salient Analysis",
+    "t_name": "Reverse Salient",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.579832,
+    "agree": 3,
+    "methods": [
+      "gaps",
+      "holes",
+      "semantic"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 2.1227701416983664,
+        "common": 2,
+        "z": 9.99,
+        "via": [
+          "S-Curve Analysis",
+          "Nested Hierarchies"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "Reverse Salient Analysis",
+            "S-Curve Analysis",
+            "Reverse Salient",
+            "Nested Hierarchies"
+          ]
+        ]
+      },
+      "semantic": {
+        "score": 0.4479999369541053,
+        "common": 2
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "ff8d5bb7874c",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5145",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:5151",
+    "s_name": "Interconnections Analysis",
+    "t_name": "Interconnection Analysis",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.556723,
+    "agree": 2,
+    "methods": [
+      "gaps",
+      "holes"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 7.104690292147695,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "System Elements Mapping",
+          "System Purpose Discovery"
+        ]
+      },
+      "holes": {
+        "score": 1.0,
+        "cycles": [
+          [
+            "System Elements Mapping",
+            "Interconnections Analysis",
+            "System Purpose Discovery",
+            "Interconnection Analysis"
+          ]
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "9ed3bf846f4e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4231",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:944",
+    "s_name": "Research, Validation, and Early Business Framing",
+    "t_name": "Research Validation and Early Business Framing",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.25,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 1.0,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "2831bc3ec3af",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:264",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:4450",
+    "s_name": "Trend Detection Framework",
+    "t_name": "trend_detection_framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.247899,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.9999999999999999,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "efc04df02110",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:650",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:667",
+    "s_name": "PWS (Problems Worth Solving)",
+    "t_name": "Problems Worth Solving",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.245798,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.9515138920214212,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "b5dfa2aabece",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:932",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:933",
+    "s_name": "Innovation Management Framework",
+    "t_name": "Management innovation",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.243697,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.9502499203597023,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "d956329c8a7e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:703",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:840",
+    "s_name": "Value Proposition",
+    "t_name": "PWS Value Proposition Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.241597,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.9464568020972352,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "07a8295137ca",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:651",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:665",
+    "s_name": "PWS Framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
+    "t_name": "Problem exploration framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.239496,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.8812010359101718,
+        "common": 1
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "b075cc3906e0",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:260",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:618",
+    "s_name": "Harnessing Trends Method / Four Lenses",
+    "t_name": "Harnessing Trends Method",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.233193,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.774012278778367,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "7ca1a1a4556a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:823",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:91",
+    "s_name": "Lean Startup",
+    "t_name": "Lean Startup (Build-Measure-Learn)",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.231092,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.756806547414461,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "a9d714c5a481",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:595",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:838",
+    "s_name": "Competitive Advantage",
+    "t_name": "Can we Win / Competitive Advantage Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.228992,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.7567716812244405,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "88bc830ee44c",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:703",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:848",
+    "s_name": "Value Proposition",
+    "t_name": "Value Proposition Design",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.226891,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.7488280481095861,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "a8dad9a65028",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7943",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7946",
+    "s_name": "Issue 2",
+    "t_name": "Issue 3",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.22479,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "9ff72ba32ed6",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7943",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7947",
+    "s_name": "Issue 2",
+    "t_name": "Issue 5",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.222689,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "7ede112f9403",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:620",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:919",
+    "s_name": "Hierarchy Mapping",
+    "t_name": "Nested Hierarchy Mapping",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.220588,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.7284647376502167,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "a01c4963e900",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7943",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7948",
+    "s_name": "Issue 2",
+    "t_name": "Issue 4",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.220588,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "4fe76de35ec2",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7943",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7949",
+    "s_name": "Issue 2",
+    "t_name": "Issue 1",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.218487,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "4571e6138242",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:515",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:843",
+    "s_name": "Mullins Model",
+    "t_name": "Mullins Model for the Business Case / Mullins Model Validation",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.216387,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.7219429896986026,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "a49b2ca4de5d",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7946",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7947",
+    "s_name": "Issue 3",
+    "t_name": "Issue 5",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.216387,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "cee769bf5971",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7946",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7948",
+    "s_name": "Issue 3",
+    "t_name": "Issue 4",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.214286,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "07bb045feebe",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:879",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:880",
+    "s_name": "Logic Assessment",
+    "t_name": "Business Communication Logic Assessment",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.214286,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.7047171273696436,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "7bbf77eb35dd",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7946",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7949",
+    "s_name": "Issue 3",
+    "t_name": "Issue 1",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.212185,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "6120553a4d26",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7947",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7948",
+    "s_name": "Issue 5",
+    "t_name": "Issue 4",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.210084,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "e5a531221154",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:514",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:878",
+    "s_name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+    "t_name": "MECE Mutually Exclusive Collectively Exhaustive",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.207983,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.678430137850869,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "4d6ae1a4445a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7947",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7949",
+    "s_name": "Issue 5",
+    "t_name": "Issue 1",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.207983,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "e69f05c7c53e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7948",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:7949",
+    "s_name": "Issue 4",
+    "t_name": "Issue 1",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.205882,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.183317599933474,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "Problem",
+          "Sub-issue"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "9d1a2253465a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8371",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8504",
+    "s_name": "G",
+    "t_name": "E",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.203782,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 6.056868983916745,
+        "common": 2,
+        "z": 49.406,
+        "via": [
+          "H",
+          "C"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "suspect_name"
+  },
+  {
+    "id": "90857904e0e6",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:649",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:842",
+    "s_name": "PWS",
+    "t_name": "PWS system",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.197479,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.640351497179181,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "d0e15d3325e1",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:771",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:772",
+    "s_name": "Mind Mapping",
+    "t_name": "Mind Mapping Da Vinci Style",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.195378,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.6377523769585965,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "10fddbb6c2f1",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8371",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8378",
+    "s_name": "G",
+    "t_name": "F",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.193277,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.149416504317866,
+        "common": 2,
+        "z": 40.332,
+        "via": [
+          "H",
+          "C"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "suspect_name"
+  },
+  {
+    "id": "89fde201f5d4",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8378",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:8504",
+    "s_name": "F",
+    "t_name": "E",
+    "s_label": "ProcessStep",
+    "t_label": "ProcessStep",
+    "suggested_type": "LEADS_TO",
+    "direction": "undetermined",
+    "triage_score": 0.191176,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 5.149416504317866,
+        "common": 2,
+        "z": 40.332,
+        "via": [
+          "H",
+          "C"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "suspect_name"
+  },
+  {
+    "id": "22eb35b4b1b4",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:627",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:773",
+    "s_name": "JTBD",
+    "t_name": "Jobs to Be Done / JTBD",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.186975,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.6293917363287276,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "64ce19e40178",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:636",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:878",
+    "s_name": "MECE",
+    "t_name": "MECE Mutually Exclusive Collectively Exhaustive",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.168067,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.6028267878004776,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "1db40776e737",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:888",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:890",
+    "s_name": "Clear Domain Questions",
+    "t_name": "Complex Domain Questions",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.165966,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.60143307013702,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "525cad177813",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:141",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:641",
+    "s_name": "Innovation Portfolio Now/New/Next",
+    "t_name": "Now, New, Next",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.157563,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5779921917053599,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "512c6b592499",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:889",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:890",
+    "s_name": "Complicated Domain Questions",
+    "t_name": "Complex Domain Questions",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.155462,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.573617414796645,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "54b09e408a05",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:522",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:681",
+    "s_name": "Scenario Planning",
+    "t_name": "Shell Scenario Planning Method",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.147059,
+    "agree": 1,
+    "methods": [
+      "gaps"
+    ],
+    "detail": {
+      "gaps": {
+        "score": 3.520957345583526,
+        "common": 2,
+        "z": 15.974,
+        "via": [
+          "Knowns and Unknowns Matrix Framework",
+          "Futures Wheel"
+        ]
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "1583cbe20854",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:614",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:911",
+    "s_name": "Four Lenses of Innovation",
+    "t_name": "Four Lenses Innovation",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.144958,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5587486830268359,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "2f196587ad9e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:662",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:665",
+    "s_name": "Problem Exploration Framework",
+    "t_name": "Problem exploration framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.128151,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5419257732721395,
+        "common": 1
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "bc596fd0be8f",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:643",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:753",
+    "s_name": "Opportunity Recognition as Pattern Recognition",
+    "t_name": "Pattern Recognition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.121849,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5364075384125853,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "dec599508eff",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:512",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:901",
+    "s_name": "Knowns and Unknowns Matrix Framework",
+    "t_name": "Knowns and Unknowns Matrix",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.102941,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5142241528828215,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "211d57029c49",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:795",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:796",
+    "s_name": "Black Hat Thinking",
+    "t_name": "Blue Hat Thinking",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.092437,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.5086703990432531,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "f4620cffb35a",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:514",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:636",
+    "s_name": "MECE (Mutually Exclusive, Collectively Exhaustive)",
+    "t_name": "MECE",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.077731,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.4846569885887916,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "6747ff398f0e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:664",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:841",
+    "s_name": "Problem Worth Solving",
+    "t_name": "Problem Worth Solving methodology",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.058824,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.46738268740107086,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "45d5e554b5d4",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:881",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:882",
+    "s_name": "Deductive Relationship",
+    "t_name": "Inductive Relationship",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.052521,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.461381981580931,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "c520d3314d8e",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:130",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:616",
+    "s_name": "Red Hat Analysis",
+    "t_name": "Green Hat Analysis",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.05042,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.4591056765139926,
+        "common": 1
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "80f7c0018fc5",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:649",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:840",
+    "s_name": "PWS",
+    "t_name": "PWS Value Proposition Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.033613,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.4504802299364528,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "5eff2fb937fd",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:654",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:840",
+    "s_name": "PWS Value Proposition",
+    "t_name": "PWS Value Proposition Framework",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.016807,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.4402491204050053,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  },
+  {
+    "id": "08bfb3cff7a8",
+    "s": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:654",
+    "t": "4:b76b59aa-d9cc-4138-8b76-f86ae70be9fa:703",
+    "s_name": "PWS Value Proposition",
+    "t_name": "Value Proposition",
+    "s_label": "Framework",
+    "t_label": "Framework",
+    "suggested_type": "FEEDS_INTO",
+    "direction": "undetermined",
+    "triage_score": 0.010504,
+    "agree": 1,
+    "methods": [
+      "semantic"
+    ],
+    "detail": {
+      "semantic": {
+        "score": 0.43681616188763817,
+        "common": 0
+      }
+    },
+    "evidence": [],
+    "status": "proposed",
+    "atypicality_z": null,
+    "issue": "possible_duplicate"
+  }
+]

@@ -1,0 +1,10 @@
+seed 1:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 2:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 3:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 4:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 5:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 6:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 7:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+seed 8:  legacy: planted-with-correct-direction 2/2, precision@5 0.40;  hybrid: planted-with-correct-direction 2/2, precision@5 0.40;
+TOTAL legacy planted 16/16, mean precision@5 0.400
+TOTAL hybrid planted 16/16, mean precision@5 0.400

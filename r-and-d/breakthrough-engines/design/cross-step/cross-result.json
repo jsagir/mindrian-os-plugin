@@ -1,0 +1,450 @@
+[
+ {
+  "gap": "G1",
+  "status": "OPEN_GAP",
+  "score": 0.29,
+  "external": null,
+  "url": null
+ },
+ {
+  "gap": "G2",
+  "status": "OPEN_GAP",
+  "score": 0.43,
+  "external": null,
+  "url": null
+ },
+ {
+  "gap": "G3",
+  "status": "OPEN_GAP",
+  "score": 0.33,
+  "external": null,
+  "url": null
+ },
+ {
+  "gap": "G4",
+  "status": "FILLED_EXTERNALLY",
+  "score": 0.67,
+  "external": "Cross-domain Literature Mining: Finding Bridging ...",
+  "url": "https://computationalcreativity.net/iccc2012/wp-content/uploads/2012/05/033-Jursic.pdf"
+ },
+ {
+  "gap": "G5",
+  "status": "OPEN_GAP",
+  "score": 0.25,
+  "external": null,
+  "url": null
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Opening Knowledge Gaps Drives Scientific Progress",
+  "url": "https://arxiv.org/html/2509.21899v1"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "(PDF) Opening Knowledge Gaps Drives Scientific Progress",
+  "url": "https://www.researchgate.net/publication/395943964_Opening_Knowledge_Gaps_Drives_Scientific_Progress"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[2509.21899] Opening Knowledge Gaps Drives Scientific Progress",
+  "url": "https://arxiv.org/abs/2509.21899"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "persistent homology in nLab",
+  "url": "https://ncatlab.org/nlab/show/persistent+homology"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Publications: MPI-CBG",
+  "url": "https://www.mpi-cbg.de/research/researchgroups/currentgroups/heather-harrington/publications"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Bidirectional Topic Matching: Quantifying Thematic Intersections Between Climate Change and Climate Mitigation News Corpora Through Topic Modelling - ACL Anthology",
+  "url": "https://aclanthology.org/2025.climatenlp-1.14"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "AHow I Evaluate BERTopic as a Text Clustering Pipeline | by Alex Chen | Everyday AI | Medium",
+  "url": "https://medium.com/everyday-ai/ahow-i-evaluate-bertopic-as-a-text-clustering-pipeline-370fc94b848d"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[2412.18376] Bidirectional Topic Matching: Quantifying Thematic Overlap Between Corpora Through Topic Modelling",
+  "url": "https://arxiv.org/abs/2412.18376"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "BERTopic",
+  "url": "https://maartengr.github.io/BERTopic/index.html"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[Literature Review] Bidirectional Topic Matching: Quantifying Thematic Overlap Between\n  Corpora Through Topic Modelling",
+  "url": "https://www.themoonlight.io/en/review/bidirectional-topic-matching-quantifying-thematic-overlap-between-corpora-through-topic-modelling"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise",
+  "url": "https://arxiv.org/html/2507.00310v3"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise | alphaXiv",
+  "url": "https://www.alphaxiv.org/abs/2507.00310v2"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise | alphaXiv",
+  "url": "https://www.alphaxiv.org/abs/2507.00310"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "NeurIPS Poster AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise",
+  "url": "https://neurips.cc/virtual/2025/poster/116398"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Ai2's AutoDiscovery Analyzes Data for New Hypotheses",
+  "url": "https://theaieconomy.substack.com/p/ai2-autodiscovery-analyzes-datasets-for-new-hypotheses"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Brian Uzzi Atypical Combinations and Scientific Impact",
+  "url": "https://www.kellogg.northwestern.edu/faculty/uzzi/htm/papers/science-2013-uzzi-468-72.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[PDF] Atypical Combinations and Scientific Impact",
+  "url": "https://sonic.northwestern.edu/wp-content/uploads/2013/09/01.-Uzzi-Atypical-combinations-and-Sci-Impact.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Ethics in Science Lecture Series: Atypical Combinations and Scientific Impact with Professor Brian Uzzi – TIMES",
+  "url": "https://www2.times.uh.edu/2014/12/04/ethics-in-science-lecture-series-atypical-combinations-and-scientific-impact-with-professor-brian-uzzi"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Atypical combinations and scientific impact.",
+  "url": "https://pubmed.ncbi.nlm.nih.gov/24159044"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[PDF] Atypical Combinations and Scientific Impact | Semantic Scholar",
+  "url": "https://www.semanticscholar.org/paper/Atypical-Combinations-and-Scientific-Impact-Uzzi-Mukherjee/45ad5446c33f66744d83c6666a8a07ee92ffd205"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Bisociative Discovery of Interesting Relations Between ...",
+  "url": "https://www.uni-konstanz.de/mmsp/pubsys/publishedFiles/NaThKo11.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Creative Exploration Using Topic Based Bisociative Networks",
+  "url": "https://arxiv.org/html/1801.10084v1"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Towards creative information exploration based on ...",
+  "url": "https://pure.ulster.ac.uk/ws/portalfiles/portal/11215574/BisociationKoestler.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "(PDF) Towards Bisociative Knowledge Discovery",
+  "url": "https://www.researchgate.net/publication/233841537_Towards_Bisociative_Knowledge_Discovery"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Persistent Homology: A Pedagogical Introduction with Biological Applications",
+  "url": "https://arxiv.org/html/2505.06583v1"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Frontiers | Topology Applied to Machine Learning: From Global to Local",
+  "url": "https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2021.668302/full"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "An introduction to persistent homology",
+  "url": "https://www.youtube.com/watch?v=UxEH7WySO60"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "reference request - Research directions in persistent homology - MathOverflow",
+  "url": "https://mathoverflow.net/questions/260060/research-directions-in-persistent-homology"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "RETHINKING PERSISTENT HOMOLOGY FOR VISUAL ...",
+  "url": "https://proceedings.mlr.press/v196/khramtsova22a/khramtsova22a.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Opportunity Gaps - by Daniel Kyne - Full Stack Researcher",
+  "url": "https://fullstackresearcher.substack.com/p/opportunity-gaps"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Strategic Innovation Research with AI and Text Analysis - InfraNodus.Com",
+  "url": "https://infranodus.com/docs/innovation-strategy"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Competitive Gap Analysis for Startups Chasing Real Opportunities",
+  "url": "https://qubit.capital/blog/competitive-analysis-investors"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "What is a gap analysis? How to drive meaningful change in your business | Planio",
+  "url": "https://plan.io/blog/gap-analysis"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "What is Gap Analysis? Steps, Template, Examples | Appinio Blog",
+  "url": "https://www.appinio.com/en/blog/market-research/gap-analysis"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[PDF] Harnessing Large Language Models for Scientific Novelty Detection | Semantic Scholar",
+  "url": "https://www.semanticscholar.org/paper/Harnessing-Large-Language-Models-for-Scientific-Liu-Yang/c863800ec76e62fed66bbf5ec84ceae8642fd910"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "GitHub - SenticNet/novelty-detection: This repository contains the official implementation of LLM-based Scientific Novelty Detection, a framework that leverages large language models (LLMs) for benchmark construction, idea-level retriever distillation, and retrieval-augmented novelty detection. · GitHub",
+  "url": "https://github.com/SenticNet/novelty-detection"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Hypothesis Generation Project Page",
+  "url": "https://chicagohai.github.io/hypogenic-demo"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "A Survey on Hypothesis Generation for Scientific Discovery in the Era of Large Language Models | alphaXiv",
+  "url": "https://www.alphaxiv.org/abs/2504.05496"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "[PDF] Literature-Grounded Novelty Assessment of Scientific Ideas",
+  "url": "https://aclanthology.org/2025.sdp-1.9.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Has Technological Progress Stalled? – The Scholar's Stage",
+  "url": "https://scholars-stage.org/has-technological-progress-stalled"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Is Technological Progress Slowing? - by Matt Clancy",
+  "url": "https://mattsclancy.substack.com/p/is-technological-progress-slowing"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Apple's AI Progress Lagging Behind Rivals; ChatGPT Outperforms Siri by 30%",
+  "url": "https://finance.yahoo.com/news/apples-ai-progress-lagging-behind-192343977.html"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Global DEI Progress Has Stalled According to Experts From Solvay, Bloomberg, and Belgium - Business Insider",
+  "url": "https://www.businessinsider.com/global-dei-progress-stalled-according-to-experts-2022-5"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "How Progress Ends: Technology, Innovation, and the Fate of Nations",
+  "url": "https://www.youtube.com/watch?v=oTuDekDmiIE"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Borrowed Innovation: How to Find Great Ideas Outside Your Industry | Kromatic Blog",
+  "url": "https://kromatic.com/blog/borrowed-innovation-where-do-you-get-your-innovation-ideas"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Baldwin Bottlenecks 5-27-15",
+  "url": "https://www.hbs.edu/ris/Publication%20Files/15-028_ec57f2ea-890d-4243-b9f3-60784359bab9.pdf"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "DocUnlock wants to solve a customs bottleneck",
+  "url": "https://finance.yahoo.com/news/docunlock-wants-solve-customs-bottleneck-174059395.html"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "5 Insightful Bottleneck Analysis Examples | MOSIMTEC",
+  "url": "https://mosimtec.com/5-insightful-bottleneck-analysis-examples"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "Cerebras and Ranovus receive $45m DARPA contract to “solve” compute bottleneck - SDxCentral",
+  "url": "https://www.sdxcentral.com/news/cerebras-and-ranovus-receive-45m-darpa-contract-to-solve-compute-bottleneck"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US8898494B2 - Power budgeting between a processing core, a graphics core, and a bus on an integrated circuit when a limit is reached - Google Patents",
+  "url": "https://patents.google.com/patent/US8898494B2/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US11636063B2 - Hardware accelerated anomaly detection using a min/max collector in a system on a chip - Google Patents",
+  "url": "https://patents.google.com/patent/US11636063B2/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US11329890B2 - Network-aware workload management using artificial intelligence and exploitation of asymmetric link for allocating network resources - Google Patents",
+  "url": "https://patents.google.com/patent/US11329890B2/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US20240134769A1 - Systems and methods for agile and explainable optimization of efficient hardware/software codesigns for domain-specific computing systems using bottleneck analysis - Google Patents",
+  "url": "https://patents.google.com/patent/US20240134769A1/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US6332163B1 - Method for providing communication services over a computer network system - Google Patents",
+  "url": "https://patents.google.com/patent/US6332163B1/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US6817823B2 - Method, device and system for semiconductor wafer transfer - Google Patents",
+  "url": "https://patents.google.com/patent/US6817823B2/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US7825543B2 - Wireless energy transfer - Google Patents",
+  "url": "https://patents.google.com/patent/US7825543B2/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "CN1614527A - Method and system for automating issue resolution in manufacturing execution and material control systems - Google Patents",
+  "url": "https://patents.google.com/patent/CN1614527A/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "US20180131907A1 - Virtual reality and augmented reality for industrial automation - Google Patents",
+  "url": "https://patents.google.com/patent/US20180131907A1/en"
+ },
+ {
+  "gap": null,
+  "status": "EXTERNAL_NOT_IN_ROOM",
+  "score": null,
+  "external": "WO2010109261A1 - Dust cleaning and collecting device based on electrostatic principles - Google Patents",
+  "url": "https://patents.google.com/patent/WO2010109261A1/en"
+ }
+]

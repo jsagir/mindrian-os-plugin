@@ -1,0 +1,54 @@
+[
+ {
+  "id": "kedrick-58",
+  "claim": "Gap-opening papers are 58% more likely to reach the top 1% most cited.",
+  "jev_choice": "not_stated",
+  "jev_probabilities": {
+   "supported": 0.0,
+   "contradicted": 0.14,
+   "not_stated": 0.86
+  },
+  "jev_confidence": 0.79,
+  "model": "jev-1.13.0",
+  "status": "PROPOSED: judgment, navigator decides"
+ },
+ {
+  "id": "autodisc-67",
+  "claim": "67% of the surprising discoveries made by AutoDiscovery are surprising to domain experts.",
+  "jev_choice": "supported",
+  "jev_probabilities": {
+   "supported": 1.0,
+   "contradicted": 0.0,
+   "not_stated": 0.0
+  },
+  "jev_confidence": 1.0,
+  "model": "jev-1.13.0",
+  "status": "PROPOSED: judgment, navigator decides"
+ },
+ {
+  "id": "autodisc-98",
+  "claim": "AutoDiscovery reaches 98% implementation validity.",
+  "jev_choice": "not_stated",
+  "jev_probabilities": {
+   "supported": 0.0,
+   "contradicted": 0.0,
+   "not_stated": 1.0
+  },
+  "jev_confidence": 1.0,
+  "model": "jev-1.13.0",
+  "status": "PROPOSED: judgment, navigator decides"
+ },
+ {
+  "id": "bidir-0.5",
+  "claim": "Topics with a topic uniqueness value of 0.5 or higher are classified as unique.",
+  "jev_choice": "supported",
+  "jev_probabilities": {
+   "supported": 1.0,
+   "contradicted": 0.0,
+   "not_stated": 0.0
+  },
+  "jev_confidence": 1.0,
+  "model": "jev-1.13.0",
+  "status": "PROPOSED: judgment, navigator decides"
+ }
+]

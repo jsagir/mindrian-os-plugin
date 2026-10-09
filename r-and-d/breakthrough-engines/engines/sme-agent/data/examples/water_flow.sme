@@ -1,0 +1,10 @@
+(defDescription simple-water-flow
+ entities (water beaker vial pipe)
+ expressions (((flow beaker vial water pipe) :name wflow)
+  ((pressure beaker) :name pressure-beaker)
+  ((pressure vial) :name pressure-vial)
+  ((greater pressure-beaker pressure-vial) :name >pressure)
+  ((greater (diameter beaker) (diameter vial)) :name >diameter)
+  ((cause >pressure wflow) :name cause-flow)
+  (flat-top water)
+  (liquid water)))

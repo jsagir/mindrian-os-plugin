@@ -1,0 +1,8 @@
+(defDescription simple-heat-flow
+ entities (coffee ice-cube bar heat)
+ expressions (((flow coffee ice-cube heat bar) :name hflow)
+  ((temperature coffee) :name temp-coffee)
+  ((temperature ice-cube) :name temp-ice-cube)
+  ((greater temp-coffee temp-ice-cube) :name >temperature)
+  (flat-top coffee)
+  (liquid coffee)))

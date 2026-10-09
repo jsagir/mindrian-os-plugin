@@ -1,0 +1,10 @@
+{
+  "surface": "bono",
+  "_note": "BONO Research / Debate Engine (/mos:bono), the seq+parallel exemplar from the f-shapes explainer: a Shape-F front door, a parallel cell fan-out across the subdomain x hat grid, a sequential inter-hat debate, between two judgment gates. Shape ids + generic flow handles only; no user content, no Brain wire (Part 8).",
+  "hitl_stages": [
+    { "stage": "Confirm the what-if hypothesis", "shapes": ["F.1"], "mode": "gate" },
+    { "stage": "Cell fan-out across subdomain x hat grid", "shapes": ["F.8"], "mode": "parallel" },
+    { "stage": "Inter-hat debate (collected readings argued in turn)", "shapes": ["F.9"], "mode": "ordered" },
+    { "stage": "Approve and file synthesis (files only on APPROVE)", "shapes": ["F.0"], "mode": "gate" }
+  ]
+}

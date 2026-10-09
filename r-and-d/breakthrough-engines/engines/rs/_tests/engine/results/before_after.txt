@@ -1,0 +1,45 @@
+Synthetic room: 5 sections x 8 notes + 4 planted notes (2 planted pairs).
+Planted: {"structural_transfer": [["alpha/planted-p", "delta/planted-q"]], "semantic_implementation": [["beta/planted-x", "epsilon/planted-y"]]}
+Dense encoder: STUB concept-collapsing embedder (not a real model).
+
+== before_legacy (exit 0) :: rs-engine: 10/40 pairs written to /sessions/rcw-01nbqejhymnvq6brqdfzjcs6/tmp/rs-engine-cmp-3whckyi1/before_legacy.json (model=all-MiniLM-L6-v2, edges=0)
+  delta/planted-q            alpha/planted-p            structural lsa=0.000 sem=0.862 abs=0.862 PLANTED
+  beta/planted-x             epsilon/planted-y          semantic_i lsa=0.522 sem=0.031 abs=0.491 PLANTED
+  delta/delta-note-07        delta/planted-q            semantic_i lsa=0.466 sem=0.028 abs=0.438 
+  beta/beta-note-04          delta/delta-note-04        structural lsa=0.000 sem=0.432 abs=0.432 
+  alpha/alpha-note-02        alpha/planted-p            semantic_i lsa=0.452 sem=0.024 abs=0.428 
+  alpha/alpha-note-07        alpha/planted-p            semantic_i lsa=0.431 sem=0.027 abs=0.404 
+  beta/beta-note-04          delta/delta-note-01        structural lsa=0.000 sem=0.386 abs=0.386 
+  alpha/alpha-note-04        alpha/planted-p            semantic_i lsa=0.420 sem=0.036 abs=0.384 
+  epsilon/planted-y          gamma/gamma-note-01        structural lsa=0.000 sem=0.380 abs=0.380 
+  epsilon/planted-y          gamma/gamma-note-07        structural lsa=0.000 sem=0.378 abs=0.378 
+  planted recovered in top-10: 2/2; direction correct: 2/2; ranks: {('alpha/planted-p', 'delta/planted-q'): (1, 'structural_transfer', 'structural_transfer'), ('beta/planted-x', 'epsilon/planted-y'): (2, 'semantic_implementation', 'semantic_implementation')}
+
+== after_legacy (exit 0) :: rs-engine: 10/40 pairs written to /sessions/rcw-01nbqejhymnvq6brqdfzjcs6/tmp/rs-engine-cmp-3whckyi1/after_legacy.json (model=all-MiniLM-L6-v2, edges=0)
+  delta/planted-q            alpha/planted-p            structural lsa=0.000 sem=0.862 abs=0.862 PLANTED
+  beta/planted-x             epsilon/planted-y          semantic_i lsa=0.522 sem=0.031 abs=0.491 PLANTED
+  delta/delta-note-07        delta/planted-q            semantic_i lsa=0.466 sem=0.028 abs=0.438 
+  beta/beta-note-04          delta/delta-note-04        structural lsa=0.000 sem=0.432 abs=0.432 
+  alpha/alpha-note-02        alpha/planted-p            semantic_i lsa=0.452 sem=0.024 abs=0.428 
+  alpha/alpha-note-07        alpha/planted-p            semantic_i lsa=0.431 sem=0.027 abs=0.404 
+  beta/beta-note-04          delta/delta-note-01        structural lsa=0.000 sem=0.386 abs=0.386 
+  alpha/alpha-note-04        alpha/planted-p            semantic_i lsa=0.420 sem=0.036 abs=0.384 
+  epsilon/planted-y          gamma/gamma-note-01        structural lsa=0.000 sem=0.380 abs=0.380 
+  epsilon/planted-y          gamma/gamma-note-07        structural lsa=0.000 sem=0.378 abs=0.378 
+  planted recovered in top-10: 2/2; direction correct: 2/2; ranks: {('alpha/planted-p', 'delta/planted-q'): (1, 'structural_transfer', 'structural_transfer'), ('beta/planted-x', 'epsilon/planted-y'): (2, 'semantic_implementation', 'semantic_implementation')}
+
+== after_hybrid (exit 0) :: rs-engine: 10/40 pairs written to /sessions/rcw-01nbqejhymnvq6brqdfzjcs6/tmp/rs-engine-cmp-3whckyi1/after_hybrid.json (model=all-MiniLM-L6-v2, edges=0)
+  delta/planted-q            alpha/planted-p            structural lsa=0.000 sem=0.862 abs=2.996 PLANTED
+  beta/planted-x             epsilon/planted-y          semantic_i lsa=0.522 sem=0.031 abs=2.071 PLANTED
+  beta/beta-note-04          delta/delta-note-04        structural lsa=0.000 sem=0.432 abs=1.375 
+  epsilon/planted-y          gamma/gamma-note-01        structural lsa=0.000 sem=0.380 abs=1.206 
+  beta/beta-note-04          delta/delta-note-01        structural lsa=0.000 sem=0.386 abs=1.200 
+  epsilon/planted-y          gamma/gamma-note-07        structural lsa=0.000 sem=0.378 abs=1.199 
+  beta/beta-note-01          delta/delta-note-04        structural lsa=0.000 sem=0.347 abs=1.049 
+  beta/beta-note-04          delta/delta-note-06        structural lsa=0.000 sem=0.345 abs=1.047 
+  beta/beta-note-01          alpha/planted-p            structural lsa=0.041 sem=0.344 abs=1.008 
+  epsilon/planted-y          gamma/gamma-note-00        structural lsa=0.000 sem=0.324 abs=1.000 
+  planted recovered in top-10: 2/2; direction correct: 2/2; ranks: {('alpha/planted-p', 'delta/planted-q'): (1, 'structural_transfer', 'structural_transfer'), ('beta/planted-x', 'epsilon/planted-y'): (2, 'semantic_implementation', 'semantic_implementation')}
+
+legacy path reproduces original pairs exactly: True
+hybrid pair keys are a superset of original pair keys: True

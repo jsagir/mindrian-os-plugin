@@ -1,0 +1,756 @@
+{
+  "metadata": {
+    "mode": "internal",
+    "room_dir": "/sessions/rcw-01nbqejhymnvq6brqdfzjcs6/tmp/rs-engine-cmp-3whckyi1/room",
+    "artifact_count": 40,
+    "topk_requested": 10,
+    "threshold": 0.0,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "thesis_generated": false,
+    "no_thesis": false,
+    "edges_written": 0,
+    "timestamp": "2026-10-08T19:57:56.501658+00:00",
+    "engine_version": "1",
+    "schema": "2026.1",
+    "scoring": "hybrid",
+    "min_percentile": 0.9,
+    "lex_weight": 0.5,
+    "dense_degraded": false,
+    "scoring_warnings": [],
+    "provenance": {
+      "computed_at": "2026-10-08T19:57:56.497688+00:00",
+      "seed": 256,
+      "signals": {
+        "structural_lsa": "tfidf+svd topic-membership L1 (lib.core.rs_math.build_lsa_matrix)",
+        "lexical": "bm25 k1=1.5 b=0.75 cosine (rs-engine.bm25_similarity_matrix)",
+        "dense": "all-MiniLM-L6-v2"
+      },
+      "normalisation": "z-score of each signal over the upper-triangle pair distribution; gap gated by empirical percentile of |gap| (average rank for ties)",
+      "ranking": "deterministic code; no LLM involved",
+      "numpy": "2.2.6",
+      "python": "3.10.12"
+    }
+  },
+  "pairs": [
+    {
+      "source_artifact_id": "delta/planted-q",
+      "source_title": "delta note 0",
+      "source_section": "delta",
+      "target_artifact_id": "alpha/planted-p",
+      "target_title": "alpha note 0",
+      "target_section": "alpha",
+      "lsa_score": 0.0,
+      "semantic_score": 0.862,
+      "signed_diff": 2.996,
+      "abs_diff": 2.996,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.862,
+      "raw_abs_diff": 0.862,
+      "lexical_score": 0.0002,
+      "structural_percentile": 0.1694,
+      "dense_percentile": 0.9576,
+      "structural_z": -0.5434,
+      "dense_z": 2.4526,
+      "hybrid_signed_gap": 2.996,
+      "gap_percentile": 1.0,
+      "gap_z": 11.297,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "delta/planted-q",
+            "url": "delta/planted-q.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "We propose a method using bribricuic telsolnusum kosolmenum vextelrium darhalpoum in the system."
+          },
+          {
+            "side": "target",
+            "source_id": "alpha/planted-p",
+            "url": "alpha/planted-p.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The main problem is that ritelcuon menhallinum nustelmenex mentelhalic cucutuex in the system."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": true,
+          "problem_side": "target",
+          "problem_sentence": "The main problem is that ritelcuon menhallinum nustelmenex mentelhalic cucutuex in the system.",
+          "method_side": "source",
+          "method_sentence": "We propose a method using bribricuic telsolnusum kosolmenum vextelrium darhalpoum in the system.",
+          "claim_similarity": 0.9784,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.6277,
+          "dense_minus_bm25": 0.9487,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/planted-x",
+      "source_title": "beta note 0",
+      "source_section": "beta",
+      "target_artifact_id": "epsilon/planted-y",
+      "target_title": "epsilon note 0",
+      "target_section": "epsilon",
+      "lsa_score": 0.5223,
+      "semantic_score": 0.0311,
+      "signed_diff": -2.0709,
+      "abs_diff": 2.0709,
+      "direction": "semantic_implementation",
+      "scoring": "hybrid",
+      "raw_signed_diff": -0.4912,
+      "raw_abs_diff": 0.4912,
+      "lexical_score": 0.7387,
+      "structural_percentile": 0.8562,
+      "dense_percentile": 0.2054,
+      "structural_z": 1.4426,
+      "dense_z": -0.6283,
+      "hybrid_signed_gap": -2.0709,
+      "gap_percentile": 0.9987,
+      "gap_z": 7.481,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/planted-x",
+            "url": "beta/planted-x.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The clinic uses dulvex tavrin marqin osquil fennor brenta serrix for every record in the review."
+          },
+          {
+            "side": "target",
+            "source_id": "epsilon/planted-y",
+            "url": "epsilon/planted-y.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "The clinic uses dulvex tavrin marqin osquil fennor brenta serrix for every record in the review.",
+          "method_side": "target",
+          "method_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review.",
+          "claim_similarity": 0.0275,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": -0.6508,
+          "dense_minus_bm25": -0.6508,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/beta-note-04",
+      "source_title": "beta note 4",
+      "source_section": "beta",
+      "target_artifact_id": "delta/delta-note-04",
+      "target_title": "delta note 4",
+      "target_section": "delta",
+      "lsa_score": 0.0,
+      "semantic_score": 0.4322,
+      "signed_diff": 1.3752,
+      "abs_diff": 1.3752,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.4322,
+      "raw_abs_diff": 0.4322,
+      "lexical_score": 0.0179,
+      "structural_percentile": 0.258,
+      "dense_percentile": 0.8549,
+      "structural_z": -0.5164,
+      "dense_z": 0.8588,
+      "hybrid_signed_gap": 1.3752,
+      "gap_percentile": 0.9974,
+      "gap_z": 4.612,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/beta-note-04",
+            "url": "beta/beta-note-04.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Darlinoric koteloron result system linlinsolum darlinoric linlinsolum stage linlinsolum output record source."
+          },
+          {
+            "side": "target",
+            "source_id": "delta/delta-note-04",
+            "url": "delta/delta-note-04.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Model team quadarcuic quadarcuic mentelgarex mentelgarex quadarcuic stage dardartuum record measure record."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "Darlinoric koteloron result system linlinsolum darlinoric linlinsolum stage linlinsolum output record source.",
+          "method_side": "target",
+          "method_sentence": "Model team quadarcuic quadarcuic mentelgarex mentelgarex quadarcuic stage dardartuum record measure record.",
+          "claim_similarity": 0.6405,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.525,
+          "dense_minus_bm25": 0.6688,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "epsilon/planted-y",
+      "source_title": "epsilon note 0",
+      "source_section": "epsilon",
+      "target_artifact_id": "gamma/gamma-note-01",
+      "target_title": "gamma note 1",
+      "target_section": "gamma",
+      "lsa_score": 0.0,
+      "semantic_score": 0.3796,
+      "signed_diff": 1.2064,
+      "abs_diff": 1.2064,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3796,
+      "raw_abs_diff": 0.3796,
+      "lexical_score": 0.0008,
+      "structural_percentile": 0.1422,
+      "dense_percentile": 0.8498,
+      "structural_z": -0.5424,
+      "dense_z": 0.664,
+      "hybrid_signed_gap": 1.2064,
+      "gap_percentile": 0.9961,
+      "gap_z": 3.916,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "epsilon/planted-y",
+            "url": "epsilon/planted-y.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review."
+          },
+          {
+            "side": "target",
+            "source_id": "gamma/gamma-note-01",
+            "url": "gamma/gamma-note-01.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Cuhalpoex data garbafiex result review data halzemquaar baponusum baponusum baponusum signal level."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review.",
+          "method_side": "target",
+          "method_sentence": "Cuhalpoex data garbafiex result review data halzemquaar baponusum baponusum baponusum signal level.",
+          "claim_similarity": 0.6617,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.681,
+          "dense_minus_bm25": 0.7343,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/beta-note-04",
+      "source_title": "beta note 4",
+      "source_section": "beta",
+      "target_artifact_id": "delta/delta-note-01",
+      "target_title": "delta note 1",
+      "target_section": "delta",
+      "lsa_score": 0.0,
+      "semantic_score": 0.3863,
+      "signed_diff": 1.2005,
+      "abs_diff": 1.2005,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3863,
+      "raw_abs_diff": 0.3863,
+      "lexical_score": 0.021,
+      "structural_percentile": 0.1492,
+      "dense_percentile": 0.8511,
+      "structural_z": -0.5117,
+      "dense_z": 0.6888,
+      "hybrid_signed_gap": 1.2005,
+      "gap_percentile": 0.9949,
+      "gap_z": 3.891,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/beta-note-04",
+            "url": "beta/beta-note-04.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Linlinsolum team source halhalsolon basis linlinsolum signal report halhalsolon soldartuic halhalsolon review."
+          },
+          {
+            "side": "target",
+            "source_id": "delta/delta-note-01",
+            "url": "delta/delta-note-01.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Britelpoex group group step dardartuum record stage linpogaric linpogaric group sollinzemar quadarcuic."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "Linlinsolum team source halhalsolon basis linlinsolum signal report halhalsolon soldartuic halhalsolon review.",
+          "method_side": "target",
+          "method_sentence": "Britelpoex group group step dardartuum record stage linpogaric linpogaric group sollinzemar quadarcuic.",
+          "claim_similarity": 0.4576,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.8338,
+          "dense_minus_bm25": 0.57,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "epsilon/planted-y",
+      "source_title": "epsilon note 0",
+      "source_section": "epsilon",
+      "target_artifact_id": "gamma/gamma-note-07",
+      "target_title": "gamma note 7",
+      "target_section": "gamma",
+      "lsa_score": 0.0,
+      "semantic_score": 0.3776,
+      "signed_diff": 1.1991,
+      "abs_diff": 1.1991,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3776,
+      "raw_abs_diff": 0.3776,
+      "lexical_score": 0.0007,
+      "structural_percentile": 0.1358,
+      "dense_percentile": 0.8485,
+      "structural_z": -0.5426,
+      "dense_z": 0.6564,
+      "hybrid_signed_gap": 1.1991,
+      "gap_percentile": 0.9936,
+      "gap_z": 3.885,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "epsilon/planted-y",
+            "url": "epsilon/planted-y.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review."
+          },
+          {
+            "side": "target",
+            "source_id": "gamma/gamma-note-07",
+            "url": "gamma/gamma-note-07.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Baponusum process result darhalhalic report baponusum firiquaic data plan baponusum halquakoum result."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review.",
+          "method_side": "target",
+          "method_sentence": "Baponusum process result darhalhalic report baponusum firiquaic data plan baponusum halquakoum result.",
+          "claim_similarity": 0.5728,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.6797,
+          "dense_minus_bm25": 0.7458,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/beta-note-01",
+      "source_title": "beta note 1",
+      "source_section": "beta",
+      "target_artifact_id": "delta/delta-note-04",
+      "target_title": "delta note 4",
+      "target_section": "delta",
+      "lsa_score": 0.0,
+      "semantic_score": 0.3467,
+      "signed_diff": 1.0488,
+      "abs_diff": 1.0488,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3467,
+      "raw_abs_diff": 0.3467,
+      "lexical_score": 0.0242,
+      "structural_percentile": 0.3755,
+      "dense_percentile": 0.8447,
+      "structural_z": -0.5068,
+      "dense_z": 0.542,
+      "hybrid_signed_gap": 1.0488,
+      "gap_percentile": 0.9923,
+      "gap_z": 3.265,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/beta-note-01",
+            "url": "beta/beta-note-01.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Value review result tuzembaex model telririic linlinsolum team linlinsolum koteloron kotelcuum process."
+          },
+          {
+            "side": "target",
+            "source_id": "delta/delta-note-04",
+            "url": "delta/delta-note-04.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Model team quadarcuic quadarcuic mentelgarex mentelgarex quadarcuic stage dardartuum record measure record."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "Value review result tuzembaex model telririic linlinsolum team linlinsolum koteloron kotelcuum process.",
+          "method_side": "target",
+          "method_sentence": "Model team quadarcuic quadarcuic mentelgarex mentelgarex quadarcuic stage dardartuum record measure record.",
+          "claim_similarity": 0.5628,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.5148,
+          "dense_minus_bm25": 0.4236,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/beta-note-04",
+      "source_title": "beta note 4",
+      "source_section": "beta",
+      "target_artifact_id": "delta/delta-note-06",
+      "target_title": "delta note 6",
+      "target_section": "delta",
+      "lsa_score": 0.0,
+      "semantic_score": 0.3446,
+      "signed_diff": 1.0473,
+      "abs_diff": 1.0473,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3446,
+      "raw_abs_diff": 0.3446,
+      "lexical_score": 0.0199,
+      "structural_percentile": 0.2006,
+      "dense_percentile": 0.8421,
+      "structural_z": -0.5133,
+      "dense_z": 0.5339,
+      "hybrid_signed_gap": 1.0473,
+      "gap_percentile": 0.991,
+      "gap_z": 3.259,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/beta-note-04",
+            "url": "beta/beta-note-04.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Linlinsolum team source halhalsolon basis linlinsolum signal report halhalsolon soldartuic halhalsolon review."
+          },
+          {
+            "side": "target",
+            "source_id": "delta/delta-note-06",
+            "url": "delta/delta-note-06.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Cuzemquaar quadarcuic sollinzemar value result source quadarcuic data linpogaric review report mentelgarex."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "Linlinsolum team source halhalsolon basis linlinsolum signal report halhalsolon soldartuic halhalsolon review.",
+          "method_side": "target",
+          "method_sentence": "Cuzemquaar quadarcuic sollinzemar value result source quadarcuic data linpogaric review report mentelgarex.",
+          "claim_similarity": 0.666,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.6733,
+          "dense_minus_bm25": 0.6098,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "beta/beta-note-01",
+      "source_title": "beta note 1",
+      "source_section": "beta",
+      "target_artifact_id": "alpha/planted-p",
+      "target_title": "alpha note 0",
+      "target_section": "alpha",
+      "lsa_score": 0.0408,
+      "semantic_score": 0.3441,
+      "signed_diff": 1.0083,
+      "abs_diff": 1.0083,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.3032,
+      "raw_abs_diff": 0.3032,
+      "lexical_score": 0.0003,
+      "structural_percentile": 0.2702,
+      "dense_percentile": 0.8408,
+      "structural_z": -0.4762,
+      "dense_z": 0.5321,
+      "hybrid_signed_gap": 1.0083,
+      "gap_percentile": 0.9897,
+      "gap_z": 3.098,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "beta/beta-note-01",
+            "url": "beta/beta-note-01.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Input linlinsolum source kotelcuum process measure telririic plan vexmenfiic soldartuic level kotulinon."
+          },
+          {
+            "side": "target",
+            "source_id": "alpha/planted-p",
+            "url": "alpha/planted-p.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "This limitation affects mentelhalic ritelcuon nustelmenex quakobaar darnusquaum in the system."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": true,
+          "problem_side": "target",
+          "problem_sentence": "This limitation affects mentelhalic ritelcuon nustelmenex quakobaar darnusquaum in the system.",
+          "method_side": "source",
+          "method_sentence": "Input linlinsolum source kotelcuum process measure telririic plan vexmenfiic soldartuic level kotulinon.",
+          "claim_similarity": 0.3479,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.335,
+          "dense_minus_bm25": 0.8062,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    },
+    {
+      "source_artifact_id": "epsilon/planted-y",
+      "source_title": "epsilon note 0",
+      "source_section": "epsilon",
+      "target_artifact_id": "gamma/gamma-note-00",
+      "target_title": "gamma note 0",
+      "target_section": "gamma",
+      "lsa_score": 0.0,
+      "semantic_score": 0.324,
+      "signed_diff": 0.9996,
+      "abs_diff": 0.9996,
+      "direction": "structural_transfer",
+      "scoring": "hybrid",
+      "raw_signed_diff": 0.324,
+      "raw_abs_diff": 0.324,
+      "lexical_score": 0.0012,
+      "structural_percentile": 0.1595,
+      "dense_percentile": 0.8344,
+      "structural_z": -0.5419,
+      "dense_z": 0.4577,
+      "hybrid_signed_gap": 0.9996,
+      "gap_percentile": 0.9884,
+      "gap_z": 3.062,
+      "verification": {
+        "source_trail": [
+          {
+            "side": "source",
+            "source_id": "epsilon/planted-y",
+            "url": "epsilon/planted-y.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review."
+          },
+          {
+            "side": "target",
+            "source_id": "gamma/gamma-note-00",
+            "url": "gamma/gamma-note-00.md",
+            "doi": null,
+            "retrieval_date": "2026-10-08",
+            "retrieval_date_source": "recorded",
+            "extracted_sentence": "Cuhalpoex record stage review baponusum darhalhalic halquakoum signal process review vexcukoar baponusum."
+          }
+        ],
+        "claim_evidence": {
+          "level": "claim",
+          "roles_labelled": false,
+          "problem_side": "source",
+          "problem_sentence": "The factory uses tavrin yostal marqin brenta dulvex kelmor vandor for every record in the review.",
+          "method_side": "target",
+          "method_sentence": "Cuhalpoex record stage review baponusum darhalhalic halquakoum signal process review vexcukoar baponusum.",
+          "claim_similarity": 0.4847,
+          "embedder": "dense"
+        },
+        "second_signal": {
+          "status": "confirmed",
+          "method": "dense percentile vs two independent lexical percentiles (LSA topic-membership, BM25); direction must agree",
+          "dense_minus_lsa": 0.6656,
+          "dense_minus_bm25": 0.6842,
+          "min_margin": 0.1
+        },
+        "novelty": {
+          "status": "unchecked_external",
+          "note": "no prior report and not a duplicate; web/literature novelty check NOT run (offline)",
+          "checked_against": [
+            "in-pair duplicate",
+            "prior results file"
+          ]
+        },
+        "judge": "none (ranking and checks are deterministic code)"
+      }
+    }
+  ]
+}

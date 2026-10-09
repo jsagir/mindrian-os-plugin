@@ -1,0 +1,567 @@
+#!/usr/bin/env node
+/**
+ * write-whitespace-sections.cjs -- Per-Section WHITESPACE.md Writer
+ * ==================================================================
+ * Reads .mindrian/whitespace-results.json and writes a WHITESPACE.md
+ * file into each room section folder, making detected gaps immediately
+ * visible in Claude's context when opening any section.
+ *
+ * ICM-native: the folder structure delivers intelligence without
+ * extra queries. Larry sees the gaps the moment a section folder
+ * is opened.
+ *
+ * Usage: node scripts/write-whitespace-sections.cjs /path/to/room
+ *        node scripts/write-whitespace-sections.cjs --room /path/to/room
+ *
+ * Output: room/[section]/WHITESPACE.md for each section directory
+ *
+ * 2026 revision:
+ *  - main() ran at require time and called process.exit, so the module could not be tested or
+ *    reused. main(argv) now returns the exit code and runs only under require.main; the pure
+ *    builders and helpers are exported.
+ *  - Markdown table cells: `|` and newlines in an artifact title or framework name no longer
+ *    break the row (escaped / flattened).
+ *  - Gate labels: only the FIRST `_` was replaced ("anchor_gate_x" lost only one), now all.
+ *  - Gaps whose nearest artifacts have no section folder were silently dropped (the
+ *    "unclassified" bucket has no directory); the count is now reported on stderr.
+ *  - Frontmatter gains schema_version / gap_method / computed_at when the results carry them, and
+ *    each gap shows its corpus percentile, second-signal status and source count when present
+ *    (additive lines; existing lines and the table header are unchanged, a Percentile column is
+ *    appended only when the results have novelty_percentile).
+ *  - Files are written atomically (tmp then rename).
+ *  - Note: these generated WHITESPACE.md files live inside the corpus folders; compute-hsi.py and
+ *    compute-whitespace-embeddings.py now skip them so they are not scored as artifacts.
+ */
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Extract section name from an artifact ID or path.
+ * Artifact IDs look like "problem-definition/some-artifact.md".
+ * Returns the first path component, or "unclassified" if none.
+ * @param {string} artifactId
+ * @returns {string}
+ */
+function extractSection(artifactId) {
+  if (!artifactId || typeof artifactId !== 'string') return 'unclassified';
+  const parts = artifactId.replace(/^\/+/, '').split('/');
+  return parts.length > 1 ? parts[0] : 'unclassified';
+}
+
+/**
+ * Convert a kebab-case section name to a Title Case label.
+ * @param {string} section
+ * @returns {string}
+ */
+function sectionLabel(section) {
+  return section
+    .split('-')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/**
+ * Round a number to 3 decimal places.
+ * @param {number} n
+ * @returns {number}
+ */
+function r3(n) {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0;
+}
+
+/** Table-cell-safe text: flatten newlines, escape pipes. */
+function cell(text) {
+  return String(text === undefined || text === null ? '' : text)
+    .replace(/\r?\n+/g, ' ')
+    .replace(/\|/g, '\\|');
+}
+
+/** 'anchor_gate_x' -> 'Anchor Gate X' (every underscore). */
+function gateLabel(g) {
+  return String(g).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function writeAtomic(target, content) {
+  const tmp = `${target}.tmp-${process.pid}`;
+  fs.writeFileSync(tmp, content, 'utf-8');
+  fs.renameSync(tmp, target);
+}
+
+// ---------------------------------------------------------------------------
+// Core logic
+// ---------------------------------------------------------------------------
+
+function main(argvIn) {
+  // --- Parse CLI args ---
+  let roomDir = null;
+  const args = Array.isArray(argvIn) ? argvIn : process.argv.slice(2);
+
+  if (args.length === 0) {
+    process.stderr.write(
+      'Usage: node scripts/write-whitespace-sections.cjs /path/to/room\n' +
+      '       node scripts/write-whitespace-sections.cjs --room /path/to/room\n'
+    );
+    return 1;
+  }
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--room' && args[i + 1]) {
+      roomDir = args[i + 1];
+      i++;
+    } else if (!args[i].startsWith('-')) {
+      roomDir = args[i];
+    }
+  }
+
+  if (!roomDir) {
+    process.stderr.write('Error: No room path provided.\n');
+    return 1;
+  }
+
+  const resolvedRoom = path.resolve(roomDir);
+
+  // --- Load whitespace-results.json ---
+  const resultsPath = path.join(resolvedRoom, '.mindrian', 'whitespace-results.json');
+  if (!fs.existsSync(resultsPath)) {
+    // No whitespace results -- skip gracefully
+    process.stdout.write('No whitespace-results.json found. Skipping.\n');
+    return 0;
+  }
+
+  let data;
+  try {
+    const raw = fs.readFileSync(resultsPath, 'utf-8');
+    data = JSON.parse(raw);
+  } catch (e) {
+    process.stderr.write('Error: Could not parse whitespace-results.json\n');
+    return 1;
+  }
+
+  const metadata = data.metadata || {};
+  const gaps = data.gaps || [];
+  const noveltyScores = data.novelty_scores || [];
+  const timestamp = metadata.timestamp || new Date().toISOString();
+
+  // Check for interpretation-results.json (Phase 62 enrichment)
+  const interpPath = path.join(resolvedRoom, '.mindrian', 'interpretation-results.json');
+  let interpGapMap = {};
+  if (fs.existsSync(interpPath)) {
+    try {
+      const interpData = JSON.parse(fs.readFileSync(interpPath, 'utf-8'));
+      if (interpData && Array.isArray(interpData.gaps)) {
+        for (const ig of interpData.gaps) {
+          if (ig.brain_framework) {
+            interpGapMap[ig.brain_framework] = ig;
+          }
+        }
+      }
+    } catch (e) {
+      // Malformed interpretation -- continue without enrichment
+    }
+  }
+
+  // Check for topic-forest.json (Phase 63 hierarchical context)
+  const forestPath = path.join(resolvedRoom, '.mindrian', 'topic-forest.json');
+  let topicForest = null;
+  if (fs.existsSync(forestPath)) {
+    try {
+      topicForest = JSON.parse(fs.readFileSync(forestPath, 'utf-8'));
+    } catch (e) {
+      // Malformed topic forest -- continue without hierarchical context
+    }
+  }
+
+  // --- Group gaps by section ---
+  // Each gap has nearest_room_artifacts which can be objects or strings.
+  // Extract section from artifact_id or the string itself.
+  const gapsBySection = {};
+  let unclassifiedGaps = 0;
+
+  for (const gap of gaps) {
+    const nearestArtifacts = gap.nearest_room_artifacts || [];
+    const sections = new Set();
+
+    for (const artifact of nearestArtifacts) {
+      let artifactId;
+      if (typeof artifact === 'string') {
+        artifactId = artifact;
+      } else if (artifact && artifact.artifact_id) {
+        artifactId = artifact.artifact_id;
+      }
+      const sec = extractSection(artifactId);
+      sections.add(sec);
+    }
+
+    // If no sections found, classify as unclassified
+    if (sections.size === 0) {
+      sections.add('unclassified');
+    }
+
+    for (const sec of sections) {
+      if (sec === 'unclassified') unclassifiedGaps++;
+      if (!gapsBySection[sec]) gapsBySection[sec] = [];
+      gapsBySection[sec].push(gap);
+    }
+  }
+
+  // --- Group novelty scores by section ---
+  const noveltyBySection = {};
+
+  for (const ns of noveltyScores) {
+    const sec = ns.section || extractSection(ns.artifact_id);
+    if (!noveltyBySection[sec]) noveltyBySection[sec] = [];
+    noveltyBySection[sec].push(ns);
+  }
+
+  // --- Discover all section directories in the room ---
+  let entries;
+  try {
+    entries = fs.readdirSync(resolvedRoom, { withFileTypes: true });
+  } catch (e) {
+    process.stderr.write(`Error: Cannot read room directory: ${resolvedRoom}\n`);
+    return 1;
+  }
+
+  const sectionDirs = entries
+    .filter(e => e.isDirectory() && !e.name.startsWith('.') && e.name !== 'node_modules')
+    .map(e => e.name);
+
+  if (sectionDirs.length === 0) {
+    process.stdout.write('No section directories found in room. Skipping.\n');
+    return 0;
+  }
+
+  const resultMeta = {
+    schema_version: metadata.schema_version || null,
+    gap_method: (metadata.gap_selection && metadata.gap_selection.method) || null,
+    computed_at: (metadata.provenance && metadata.provenance.computed_at) || null,
+  };
+
+  // --- Write WHITESPACE.md to each section ---
+  let sectionsWritten = 0;
+  let totalGapsDistributed = 0;
+
+  for (const section of sectionDirs) {
+    const sectionGaps = gapsBySection[section] || [];
+    const sectionNovelty = noveltyBySection[section] || [];
+    const sectionPath = path.join(resolvedRoom, section, 'WHITESPACE.md');
+
+    // Skip if section has no gaps and no novelty scores
+    if (sectionGaps.length === 0 && sectionNovelty.length === 0) {
+      const minimal = buildMinimalWhitespace(section, timestamp, topicForest);
+      writeAtomic(sectionPath, minimal);
+      sectionsWritten++;
+      continue;
+    }
+
+    const content = buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp, interpGapMap, topicForest, resultMeta);
+    writeAtomic(sectionPath, content);
+    sectionsWritten++;
+    totalGapsDistributed += sectionGaps.length;
+  }
+
+  process.stdout.write(
+    `Wrote WHITESPACE.md to ${sectionsWritten} sections, ${totalGapsDistributed} total gaps distributed.\n`
+  );
+  if (unclassifiedGaps > 0) {
+    process.stderr.write(
+      `Note: ${unclassifiedGaps} gap(s) had no nearest artifact in a section folder and were not written to any WHITESPACE.md.\n`
+    );
+  }
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Markdown builders
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a minimal WHITESPACE.md for sections with no gaps or novelty.
+ * @param {string} section
+ * @param {string} timestamp
+ * @param {Object|null} topicForest - topic-forest.json data
+ * @returns {string}
+ */
+function buildMinimalWhitespace(section, timestamp, topicForest) {
+  const lines = [
+    '---',
+    `section: ${section}`,
+    'gaps: 0',
+    'avg_novelty: 0',
+    `last_updated: ${timestamp}`,
+    '---',
+    '',
+    `# Whitespace Gaps: ${sectionLabel(section)}`,
+    '',
+    'No whitespace gaps detected in this section. All territory appears well-covered.',
+    '',
+  ];
+
+  // Add topic tree context if available
+  const treeContext = buildTopicTreeContext(section, topicForest);
+  if (treeContext) {
+    lines.push(treeContext);
+    lines.push('');
+  }
+
+  lines.push('---');
+  lines.push('*Generated by MindrianOS whitespace pipeline*');
+  lines.push(`*Run \`python3 scripts/compute-whitespace-gaps.py {room}\` to refresh*`);
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+/**
+ * Build a full WHITESPACE.md with gaps and novelty scores.
+ * @param {string} section
+ * @param {Array} sectionGaps
+ * @param {Array} sectionNovelty
+ * @param {string} timestamp
+ * @param {Object} interpGapMap - interpretation enrichment keyed by brain_framework
+ * @param {Object|null} topicForest - topic-forest.json data
+ * @returns {string}
+ */
+function buildWhitespaceMd(section, sectionGaps, sectionNovelty, timestamp, interpGapMap, topicForest, resultMeta) {
+  resultMeta = resultMeta || {};
+  // Compute average novelty
+  let avgNovelty = 0;
+  if (sectionNovelty.length > 0) {
+    const sum = sectionNovelty.reduce((acc, ns) => acc + (ns.novelty_score || 0), 0);
+    avgNovelty = r3(sum / sectionNovelty.length);
+  }
+
+  const lines = [];
+
+  // Frontmatter
+  lines.push('---');
+  lines.push(`section: ${section}`);
+  lines.push(`gaps: ${sectionGaps.length}`);
+  lines.push(`avg_novelty: ${avgNovelty}`);
+  lines.push(`last_updated: ${timestamp}`);
+  if (resultMeta.schema_version) lines.push(`schema_version: ${resultMeta.schema_version}`);
+  if (resultMeta.gap_method) lines.push(`gap_method: ${resultMeta.gap_method}`);
+  lines.push('---');
+  lines.push('');
+
+  // Header
+  lines.push(`# Whitespace Gaps: ${sectionLabel(section)}`);
+  lines.push('');
+  lines.push(`${sectionGaps.length} gap(s) detected in this section's knowledge territory.`);
+  lines.push('');
+
+  // Detected Gaps
+  if (sectionGaps.length > 0) {
+    lines.push('## Detected Gaps');
+    lines.push('');
+
+    for (let i = 0; i < sectionGaps.length; i++) {
+      const gap = sectionGaps[i];
+      const density = r3(gap.density_score || 0);
+      const rank = r3(gap.strategic_rank || 0);
+
+      // Check interpretation enrichment
+      const interp = (interpGapMap || {})[gap.brain_framework];
+      const problemType = (interp && interp.problem_type) || gap.problem_type || '';
+      const frameworkChain = (interp && interp.framework_chain) || [];
+      const validated = interp && interp.validated;
+      const validationGates = (interp && interp.validation) || {};
+
+      // Gap heading with problem type badge
+      const badge = problemType ? ` [${problemType}]` : '';
+      lines.push(`### ${i + 1}. ${gap.brain_framework}${badge} (density: ${density})`);
+
+      // Framework chain suggestion
+      if (frameworkChain.length > 0) {
+        lines.push(`- **Explore via:** ${frameworkChain.join(' -> ')}`);
+      }
+
+      // Validation status
+      if (interp) {
+        const passedGates = (validationGates.gates_passed || []).map(g =>
+          gateLabel(g)
+        );
+        if (validated) {
+          lines.push(`- **Confidence:** Validated (${passedGates.join(' + ')})`);
+        } else {
+          lines.push(`- **Confidence:** Unvalidated`);
+        }
+      }
+
+      // Strategic rank
+      lines.push(`- **Strategic rank:** ${rank}`);
+
+      // Corpus-relative evidence (2026 results only)
+      if (typeof gap.gap_percentile === 'number') {
+        lines.push(`- **Sparsity percentile among Brain frameworks:** ${r3(gap.gap_percentile)}`);
+      }
+      if (gap.second_signal && typeof gap.second_signal === 'object' && gap.second_signal.confirmed !== undefined && gap.second_signal.confirmed !== null) {
+        lines.push(`- **Second signal:** ${gap.second_signal.confirmed ? 'confirmed' : 'not confirmed'} (${gap.second_signal.method || 'unspecified'})`);
+      }
+      if (Array.isArray(gap.source_trail) && gap.source_trail.length > 0) {
+        lines.push(`- **Sources:** ${gap.source_trail.length} traced in whitespace-results.json (source_trail)`);
+      }
+      if (gap.novelty_check && gap.novelty_check.external_literature === 'not_run') {
+        lines.push('- **Novelty check:** in-room only; external literature not checked');
+      }
+
+      // Nearest Brain frameworks (the gap IS a brain framework, list it)
+      lines.push(`- **Nearest Brain frameworks:** ${gap.brain_framework}`);
+
+      // Nearest room artifacts
+      const nearestArtifacts = gap.nearest_room_artifacts || [];
+      const artifactNames = nearestArtifacts.map(a => {
+        if (typeof a === 'string') return a;
+        return a.title || a.artifact_id || 'unknown';
+      });
+      lines.push(`- **Nearest room artifacts:** ${artifactNames.join(', ') || 'none'}`);
+
+      // Status
+      lines.push('- **Status:** detected');
+      lines.push('');
+    }
+  }
+
+  // Section Novelty Scores
+  if (sectionNovelty.length > 0) {
+    lines.push('## Section Novelty Scores');
+    lines.push('');
+    const withPct = sectionNovelty.some(ns => typeof ns.novelty_percentile === 'number');
+    lines.push(withPct ? '| Artifact | Novelty | Nearest Framework | Percentile |' : '| Artifact | Novelty | Nearest Framework |');
+    lines.push(withPct ? '|----------|---------|-------------------|------------|' : '|----------|---------|-------------------|');
+
+    for (const ns of sectionNovelty) {
+      const title = cell(ns.title || ns.artifact_id || 'unknown');
+      const score = r3(ns.novelty_score || 0);
+      const framework = cell(ns.nearest_brain_framework || 'unknown');
+      lines.push(withPct
+        ? `| ${title} | ${score} | ${framework} | ${typeof ns.novelty_percentile === 'number' ? r3(ns.novelty_percentile) : ''} |`
+        : `| ${title} | ${score} | ${framework} |`);
+    }
+
+    lines.push('');
+  }
+
+  // Topic Tree Context (Phase 63 hierarchical enrichment)
+  const treeContext = buildTopicTreeContext(section, topicForest);
+  if (treeContext) {
+    lines.push(treeContext);
+    lines.push('');
+  }
+
+  // Footer
+  lines.push('---');
+  lines.push('*Generated by MindrianOS whitespace pipeline*');
+  lines.push(`*Run \`python3 scripts/compute-whitespace-gaps.py {room}\` to refresh*`);
+  lines.push('');
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Topic Tree Context builder (Phase 63 hierarchical enrichment)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a "Topic Tree Context" markdown section from topic-forest.json data.
+ * Shows whitespace branches relevant to this section (by matching nearest
+ * framework names to section gap frameworks).
+ *
+ * @param {string} section - section directory name
+ * @param {Object|null} topicForest - parsed topic-forest.json
+ * @returns {string|null} markdown section or null if no data
+ */
+function buildTopicTreeContext(section, topicForest) {
+  if (!topicForest) return null;
+
+  const metadata = topicForest.metadata || {};
+  const whitespace_branches = topicForest.whitespace_branches || [];
+
+  if (whitespace_branches.length === 0) return null;
+
+  // Build label ancestry map from tree for path display
+  const parentMap = {};
+  const labelMap = {};
+
+  function buildAncestry(node, ancestors) {
+    if (!node) return;
+    labelMap[node.id] = node.label || node.id;
+    parentMap[node.id] = ancestors.slice();
+    const newAncestors = [...ancestors, node.label || node.id];
+    for (const child of (node.children || [])) {
+      buildAncestry(child, newAncestors);
+    }
+  }
+
+  if (topicForest.tree) {
+    buildAncestry(topicForest.tree, []);
+  }
+
+  // Format branches
+  const branchLines = [];
+  for (const wb of whitespace_branches) {
+    const nodeLabel = wb.label || labelMap[wb.node_id] || wb.node_id;
+    const ancestors = parentMap[wb.node_id] || [];
+    const frameworks = (wb.nearest_frameworks || []).join(', ');
+
+    // Build path: parent > ... > branch
+    let pathStr;
+    if (ancestors.length > 0) {
+      // Show last ancestor + branch label
+      const parent = ancestors[ancestors.length - 1];
+      pathStr = `**${parent} > ${nodeLabel}**`;
+    } else {
+      pathStr = `**${nodeLabel}**`;
+    }
+
+    branchLines.push(
+      `- ${pathStr} (depth ${wb.depth || 0})` +
+      (frameworks ? ` -- Frameworks: ${frameworks}` : '')
+    );
+  }
+
+  if (branchLines.length === 0) return null;
+
+  const lines = [];
+
+  // Strategy comment
+  const strategy = metadata.strategy || 'unknown';
+  const granLevels = metadata.granularity_levels || 0;
+  lines.push(`<!-- TopicForest: strategy=${strategy}, granularity=${granLevels} levels -->`);
+  lines.push('');
+  lines.push('## Topic Tree Context');
+  lines.push('');
+  lines.push('The following branches in the knowledge tree have Brain coverage but no room artifacts:');
+  lines.push('');
+  lines.push(...branchLines);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Entry point
+// ---------------------------------------------------------------------------
+
+if (require.main === module) {
+  process.exit(main() || 0);
+}
+
+module.exports = {
+  main,
+  extractSection,
+  sectionLabel,
+  r3,
+  cell,
+  gateLabel,
+  buildMinimalWhitespace,
+  buildWhitespaceMd,
+  buildTopicTreeContext,
+};

@@ -1,0 +1,557 @@
+#!/usr/bin/env node
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 215-03 -- The Opportunity Statement emitter.
+ *
+ * The turnstile between a Eureka and a banked opportunity. A Eureka is a
+ * curiosity ("whoa, those two connect"); an Opportunity Statement is banked,
+ * ranked, repeatable ("here is the market, the risk, and who funds it"). This
+ * module turns a SCORED candidate pair (from the Plan 01 AHP score + the Plan 02
+ * three-dimension classifier + the tail-quadrant flag) into the ONE canonical
+ * banked shape, gated by the SEED-050 critic.
+ *
+ * Shape provenance (source of record, NOT a net-new framework):
+ *   - SEED-048 addendum, commit 360e4826 (the canonical Opportunity Statement
+ *     formula: what combines with what, unmet need each side, who it is for,
+ *     what kills it, next steps, market/impact tier, rank score).
+ *   - the room's jhtv-d15 entry, section 3 (the same formula, drafted by hand).
+ *   Phase 363.1 D-05 / D-29: the trailing clause is now ". Rank: N" (was
+ *   ". Score: rank N (composite X.XX)"); the composite stays in fields.composite
+ *   and the JSON, never in the prose. The pre-D-05 stored artifact still carries
+ *   the legacy label (see tests/test-215-reproduction.cjs LEGACY_SCORE_LABEL).
+ *   - Brain-routed (Part 8 generic query, confidence 0.90) to "PWS Value
+ *     Proposition" -- this is PWS Value Proposition specialized for portfolio
+ *     candidates, NOT a new framework (Canon Part 7, reuse before build).
+ *
+ * Critic honesty (215-RESEARCH.md Pitfall 4): a surprising pair is a curiosity,
+ * NOT a bankable opportunity. A statement is banked ONLY after a real SEED-050
+ * critic pass. When the Phase 212 critic module is absent from the tree, the
+ * statement is stamped critic 'pending' and banked false -- NEVER a fabricated
+ * pass. banked can NEVER be true on the 'pending' path.
+ *
+ * Egress posture (Canon Part 8, T-215-07): the statement is a LOCAL room
+ * derivative; potential_tier is an abstract tier ENUM, never a real market-size
+ * figure, so nothing minted here can carry a K/M/B money figure across any wire.
+ *
+ * Pure CJS, node built-ins only. No em-dashes anywhere (hyphens only), LTR,
+ * plain ASCII prose (the Plan 04 runner renders the markdown around this text).
+ */
+'use strict';
+
+const path = require('node:path');
+
+// Repo root from lib/core/eureka/ -> three levels up.
+const REPO_ROOT = path.join(__dirname, '..', '..', '..');
+
+// ---------- The three portfolio dimensions ----------
+// Byte-match the ahp-weights CRITERIA and the portfolio-dimensions DIMS WITHOUT
+// importing either module (Part 7 leaf emitter). This is the fixed precedence
+// order the risks / next-steps derivations iterate for determinism.
+const DIMS = Object.freeze(['strategic_fit', 'validated_demand', 'tech_econ_feasibility']);
+
+// ---------- CLAUSE_LABELS: the frozen canonical clause markers ----------
+// ONE source of truth for the formula so it can never drift silently between
+// this module, its test, and the Plan 05 reproduction check. The text is
+// assembled by interleaving these markers with the derived slot values, in this
+// exact order. Byte-exact per SEED-048 addendum 360e4826.
+const CLAUSE_LABELS = Object.freeze([
+  'Combining ',            // 0  -> tech_a
+  ' (unmet need: ',        // 1  -> unmet_need_a
+  ') and ',                // 2  -> tech_b
+  ' (unmet need: ',        // 3  -> unmet_need_b
+  ') creates a ',          // 4  -> novel_application
+  ' that addresses ',      // 5  -> gap
+  ', for ',                // 6  -> audience
+  '. Key risks: ',         // 7  -> risks
+  '. Next steps: ',        // 8  -> next_steps
+  '. Estimated potential: ', // 9 -> potential_tier
+  '. Rank: ',              // 10 -> rank (Phase 363.1 D-05: rank only, never a composite; D-29)
+]);
+
+// ---------- Required candidate slots (Test 6 / OPP_STATEMENT_INPUT) ----------
+function requireString(value, label, errs) {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    errs.push(label);
+  }
+}
+
+function validateCandidate(candidate) {
+  const errs = [];
+  if (!candidate || typeof candidate !== 'object') {
+    throw new Error('OPP_STATEMENT_INPUT: candidate must be an object');
+  }
+  const a = candidate.a || {};
+  const b = candidate.b || {};
+  requireString(a.title, 'a.title', errs);
+  requireString(a.primary_problem, 'a.primary_problem', errs);
+  requireString(a.section, 'a.section', errs);
+  requireString(b.title, 'b.title', errs);
+  requireString(b.primary_problem, 'b.primary_problem', errs);
+  requireString(b.section, 'b.section', errs);
+  if (!Array.isArray(candidate.shared_problems) || candidate.shared_problems.length === 0
+    || typeof candidate.shared_problems[0] !== 'string'
+    || candidate.shared_problems[0].trim().length === 0) {
+    errs.push('shared_problems[0]');
+  }
+  if (typeof candidate.score !== 'number' || !Number.isFinite(candidate.score)) {
+    errs.push('score');
+  }
+  if (typeof candidate.rank !== 'number' || !Number.isFinite(candidate.rank)) {
+    errs.push('rank');
+  }
+  if (errs.length > 0) {
+    throw new Error('OPP_STATEMENT_INPUT: missing or invalid slot(s): ' + errs.join(', '));
+  }
+}
+
+// ---------- Slot derivations (all deterministic, weak-dimension-reasoned) ----------
+
+function weakSet(side) {
+  return Array.isArray(side.weak_dimensions) ? side.weak_dimensions : [];
+}
+
+// unmet_need_a/b: derive from the FIRST weak dimension (fixed precedence), else
+// the honest "underexploited reach" baseline when a side has no weak dimension.
+function unmetNeed(side) {
+  const weak = weakSet(side);
+  const problem = side.primary_problem;
+  if (weak.indexOf('validated_demand') !== -1) {
+    return 'unvalidated demand around ' + problem;
+  }
+  if (weak.indexOf('tech_econ_feasibility') !== -1) {
+    return 'unproven feasibility path for ' + problem;
+  }
+  if (weak.indexOf('strategic_fit') !== -1) {
+    return 'no strategic home for ' + problem;
+  }
+  return 'underexploited reach of ' + problem;
+}
+
+// next_steps: for EACH dimension weak on EITHER side, the matching validation
+// move; joined with '; ' in DIMS order (deterministic).
+function nextSteps(candidate, audience) {
+  const union = new Set([].concat(weakSet(candidate.a), weakSet(candidate.b)));
+  const moves = [];
+  for (const dim of DIMS) {
+    if (!union.has(dim)) continue;
+    if (dim === 'validated_demand') {
+      moves.push('customer-discovery interviews with ' + audience);
+    } else if (dim === 'tech_econ_feasibility') {
+      moves.push('joint feasibility prototype across both assets');
+    } else if (dim === 'strategic_fit') {
+      moves.push('map to a named district/tier-1 problem owner');
+    }
+  }
+  if (moves.length === 0) {
+    // no side is weak anywhere: the combine itself is the thing to validate.
+    return 'validate the combine hypothesis end to end';
+  }
+  return moves.join('; ');
+}
+
+// risks: the UNRESOLVED weaknesses -- dimensions weak on BOTH sides are what
+// kills it. When no shared weakness exists, the combine itself is the risk.
+function risks(candidate) {
+  const wa = new Set(weakSet(candidate.a));
+  const wb = weakSet(candidate.b);
+  const shared = [];
+  for (const dim of DIMS) {
+    if (wa.has(dim) && wb.indexOf(dim) !== -1) shared.push(dim);
+  }
+  if (shared.length === 0) {
+    return 'integration risk: the combine itself is the unproven step';
+  }
+  const phrases = shared.map((dim) => {
+    if (dim === 'validated_demand') return 'both sides unvalidated on demand';
+    if (dim === 'tech_econ_feasibility') return 'both sides unproven on feasibility';
+    return 'both sides without a strategic home';
+  });
+  return phrases.join('; ');
+}
+
+// potential_tier: score quartile ENUM (never a real figure), plus the gem flag.
+function potentialTier(candidate) {
+  const s = candidate.score;
+  let tier;
+  if (s >= 0.75) tier = 'tier-1 (portfolio-lead)';
+  else if (s >= 0.5) tier = 'tier-2 (develop)';
+  else if (s >= 0.25) tier = 'tier-3 (watch)';
+  else tier = 'tier-4 (park)';
+  if (candidate.tail === true) {
+    tier += ' - WEAK-SIGNAL TAIL';
+  }
+  return tier;
+}
+
+// Phase 363.1 D-05 (honoring D-29): the statement PROSE names the rank only. The
+// composite is a sort key, so it is never interpolated into text; it stays a
+// number in fields.composite (and the report JSON) for whoever needs it.
+function scoreLabel(candidate) {
+  return String(candidate.rank);
+}
+
+// Slot hygiene: titles, problems and sections come from room data and are spliced
+// into one sentence. Collapse any line breaks/tabs (a title with a newline made a
+// multi-line "statement") and map en/em dashes to a hyphen (house rule).
+function clean(s) {
+  return String(s).replace(/[\u2013\u2014]/g, '-').replace(/\s+/g, ' ').trim();
+}
+
+function deriveFields(rawCandidate) {
+  const candidate = Object.assign({}, rawCandidate, {
+    a: Object.assign({}, rawCandidate.a, {
+      title: clean(rawCandidate.a.title),
+      primary_problem: clean(rawCandidate.a.primary_problem),
+      section: clean(rawCandidate.a.section),
+    }),
+    b: Object.assign({}, rawCandidate.b, {
+      title: clean(rawCandidate.b.title),
+      primary_problem: clean(rawCandidate.b.primary_problem),
+      section: clean(rawCandidate.b.section),
+    }),
+    shared_problems: [clean(rawCandidate.shared_problems[0])].concat(rawCandidate.shared_problems.slice(1)),
+  });
+  const firstShared = candidate.shared_problems[0];
+  const audience = 'tech-transfer / portfolio operators triaging ' + firstShared + ' assets';
+  return {
+    tech_a: candidate.a.title,
+    unmet_need_a: unmetNeed(candidate.a),
+    tech_b: candidate.b.title,
+    unmet_need_b: unmetNeed(candidate.b),
+    novel_application: candidate.a.section + ' x ' + candidate.b.section + ' approach to ' + firstShared,
+    gap: 'the ' + firstShared + ' gap neither side closes alone',
+    audience: audience,
+    risks: risks(candidate),
+    next_steps: nextSteps(candidate, audience),
+    potential_tier: potentialTier(candidate),
+    score_label: scoreLabel(candidate),
+    composite: candidate.score,
+  };
+}
+
+// Assemble the single canonical statement string from CLAUSE_LABELS interleaved
+// with the derived slots (byte-stable order).
+function assembleText(fields) {
+  const slots = [
+    fields.tech_a, fields.unmet_need_a, fields.tech_b, fields.unmet_need_b,
+    fields.novel_application, fields.gap, fields.audience, fields.risks,
+    fields.next_steps, fields.potential_tier, fields.score_label,
+  ];
+  let out = '';
+  for (let i = 0; i < CLAUSE_LABELS.length; i += 1) {
+    out += CLAUSE_LABELS[i] + slots[i];
+  }
+  return out;
+}
+
+// ---------- Critic gate seam (SEED-050, Phase 212) ----------
+// Honesty rule (in code, non-negotiable): banked can NEVER be true on the
+// 'pending' path -- that would bank an unverified Eureka, the exact Pitfall 4
+// failure. banked is true ONLY when a resolved critic returns a passing verdict.
+
+// _test override: undefined = no override (real guarded require); null = force
+// the absent/pending path; a function = the injected verdict producer.
+let _criticOverride;
+let _criticOverridden = false;
+
+function setCriticForTest(fnOrNull) {
+  if (arguments.length === 0 || fnOrNull === undefined) {
+    _criticOverridden = false;
+    _criticOverride = undefined;
+    return;
+  }
+  _criticOverridden = true;
+  _criticOverride = fnOrNull; // function or null
+}
+
+// Guarded require of the Phase 212 critic. Present -> the module (or the test
+// stub). Absent (MODULE_NOT_FOUND) -> null, which drives critic 'pending'. Any
+// OTHER throw from the critic module PROPAGATES: a broken critic must be seen,
+// not swallowed (T-215-06).
+function resolveCritic() {
+  if (_criticOverridden) return _criticOverride; // function or null
+  try {
+    // eslint-disable-next-line global-require
+    return require(path.join(REPO_ROOT, 'lib', 'core', 'eureka-critic.cjs'));
+  } catch (err) {
+    if (err && err.code === 'MODULE_NOT_FOUND') return null;
+    throw err;
+  }
+}
+
+// A verdict is a "pass" when it explicitly says so (stub seam) or when the real
+// 212 critic routes the candidate 'transferable' (its passing verdict enum).
+function verdictPasses(verdict) {
+  return !!(verdict && (verdict.pass === true || verdict.verdict === 'transferable'));
+}
+
+// criticCandidateFor: the ONE candidate shape both the synchronous gate and
+// the async resolution pass send to the Phase 212 critic's stageA. A single
+// source so the two paths can never drift (the GAP-1 lesson: two code paths
+// claiming the same contract must share the bytes that define it).
+function criticCandidateFor(fields, text) {
+  return {
+    text: typeof text === 'string' ? text : '',
+    mechanismText: (fields && typeof fields.novel_application === 'string') ? fields.novel_application : '',
+    sourceDomainTag: 'unknown',
+    targetDomainTag: 'unknown',
+    differential: {},
+  };
+}
+
+function runCriticGate(fields, text) {
+  const critic = resolveCritic();
+
+  // Absent (or force-absent) -> the honest degrade state.
+  if (critic === null || critic === undefined) {
+    return { critic: 'pending', banked: false };
+  }
+
+  let verdict;
+  if (typeof critic === 'function') {
+    // Injected synchronous verdict producer (the _test seam).
+    verdict = critic(fields, text);
+  } else if (critic && typeof critic.stageA === 'function') {
+    // The real Phase 212 module. Its declared Stage A entry is async and
+    // encoder-dependent, which does not compose with this synchronous
+    // deterministic emitter (the Plan 04 runner consumes a plain object). We
+    // invoke it best-effort: a Promise (the real async path) cannot be resolved
+    // here, so we stay honest -- critic 'pending', banked false, NEVER a
+    // fabricated pass. The async runner that awaits the real verdict is
+    // resolveCriticVerdicts below (the Phase 219 GAP-1 fix); this synchronous
+    // seam never claims a verification it did not obtain.
+    try {
+      const res = critic.stageA(criticCandidateFor(fields, text), {});
+      if (res && typeof res.then === 'function') {
+        // Swallow the discarded Promise's eventual rejection: this sync seam
+        // is not going to consume it, and an unhandled rejection from a
+        // later-failing async critic must never crash the batch runner
+        // (surfaced by the GAP-1 async-stub test).
+        if (typeof res.catch === 'function') res.catch(function () {});
+        return { critic: 'pending', banked: false };
+      }
+      verdict = res;
+      // stageA's degraded (encoder-unavailable) envelope is a NON-evaluation, the
+      // same as in the async pass: stay pending rather than record a fake verdict.
+      if (verdict && typeof verdict === 'object' && verdict.degraded === true) {
+        return { critic: 'pending', banked: false };
+      }
+    } catch (err) {
+      // A critic that throws at call time degrades honestly to pending here
+      // (the record stays unbanked); it is never counted as a pass.
+      return { critic: 'pending', banked: false };
+    }
+  } else {
+    // Resolved to something that is neither a verdict function nor a critic
+    // module -- treat as unavailable, stay pending.
+    return { critic: 'pending', banked: false };
+  }
+
+  // An injected producer that returns nothing produced no verdict: pending, never
+  // critic:undefined.
+  if (verdict === undefined || verdict === null) {
+    return { critic: 'pending', banked: false };
+  }
+  return { critic: verdict, banked: verdictPasses(verdict) };
+}
+
+// ---------- The async critic-resolution pass (Phase 219 GAP-1 fix) ----------
+//
+// The "future async runner" the gate's comment promised, built. The RCA
+// (.planning/debug/219-live-checkpoint-two-structural-gaps.md, GAP-1): on any
+// LIVE room the real Phase 212 critic's stageA returns a Promise the
+// synchronous emitter cannot await, so 100% of statements stayed 'pending' /
+// unbanked forever and REQ-1 banking was structurally unsatisfiable.
+//
+// Design: a SEPARATE bounded pass that runs AFTER the synchronous emission
+// batch completes (the standalone runner, retired in Phase 366-22, called it
+// before the banking pass), awaiting each pending statement's real stageA verdict and
+// updating critic + banked in place. The synchronous emission pipeline is
+// untouched -- the sync honest-degrade contract (and every test pinning it)
+// stays byte-identical.
+//
+// HONESTY FLOOR (unchanged, non-negotiable): this pass adds the ABILITY to
+// resolve, never lowers the floor. A resolution that genuinely cannot
+// complete -- critic absent, stageA rejects, per-statement timeout, batch
+// deadline, or stageA's degraded encoder-unavailable envelope (a
+// NON-evaluation, not a verdict) -- leaves the statement exactly as it was:
+// critic 'pending', banked false. banked flips true ONLY on a resolved
+// PASSING verdict (verdictPasses, the same predicate the sync gate uses).
+//
+// BOUNDS (the vec0 / FTS5 capability-probe discipline): per-statement timeout
+// + a batch deadline so a portfolio report never hangs resolving hundreds of
+// statements against a slow or offline critic. Env-tunable, read at call time:
+//   MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS  per-statement cap (default 30000)
+//   MINDRIAN_CRITIC_RESOLVE_BATCH_MS    whole-pass cap    (default 120000;
+//                                       0 disables the pass entirely -- the
+//                                       operator kill switch)
+
+function envMs(name, fallback) {
+  const v = parseInt(process.env[name], 10);
+  return (Number.isFinite(v) && v >= 0) ? v : fallback;
+}
+
+// withCriticTimeout: bound one stageA await. The timer is cleared on settle,
+// and deliberately NOT unref'd: when the awaited Promise never resolves and
+// holds no handles of its own, an unref'd timer would let the event loop
+// drain and the process exit silently MID-AWAIT (observed in the GAP-1 test
+// run). The ref'd timer holds the loop open for at most `ms` -- which is
+// exactly the bound this function exists to enforce.
+function withCriticTimeout(promise, ms) {
+  if (!(ms > 0)) {
+    return Promise.reject(new Error('CRITIC_RESOLVE_TIMEOUT'));
+  }
+  return new Promise(function (resolve, reject) {
+    const timer = setTimeout(function () {
+      reject(new Error('CRITIC_RESOLVE_TIMEOUT'));
+    }, ms);
+    Promise.resolve(promise).then(
+      function (v) { clearTimeout(timer); resolve(v); },
+      function (e) { clearTimeout(timer); reject(e); }
+    );
+  });
+}
+
+/**
+ * resolveCriticVerdict(statement, opts) -> { resolved, banked?, reason? }
+ *
+ * Awaits the REAL Phase 212 critic verdict for ONE statement whose sync
+ * emission left it critic 'pending', mutating statement.critic +
+ * statement.banked in place on success. Never throws; never fabricates.
+ *
+ *   opts.timeoutMs   per-call bound (default MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS)
+ *   opts.criticOpts  forwarded to stageA (e.g. { encodeFn } injection)
+ */
+async function resolveCriticVerdict(statement, opts) {
+  const options = opts || {};
+  if (!statement || typeof statement !== 'object') {
+    return { resolved: false, reason: 'invalid_statement' };
+  }
+  if (statement.critic !== 'pending') {
+    return { resolved: false, reason: 'already_resolved' };
+  }
+  const critic = resolveCritic();
+  if (!critic || typeof critic.stageA !== 'function') {
+    // Absent module, or a sync-only injected producer (which, had it been
+    // present at emission time, would already have resolved synchronously).
+    return { resolved: false, reason: 'critic_unavailable' };
+  }
+  const timeoutMs = Number.isFinite(options.timeoutMs)
+    ? options.timeoutMs
+    : envMs('MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS', 30000);
+
+  let verdict;
+  try {
+    verdict = await withCriticTimeout(
+      critic.stageA(criticCandidateFor(statement.fields || {}, statement.text), options.criticOpts || {}),
+      timeoutMs
+    );
+  } catch (_err) {
+    // Reject or timeout: the verdict was never obtained -> stays pending.
+    return { resolved: false, reason: 'resolution_failed' };
+  }
+  if (!verdict || typeof verdict !== 'object') {
+    return { resolved: false, reason: 'empty_verdict' };
+  }
+  if (verdict.degraded === true) {
+    // stageA's encoder-unavailable envelope: the critic never actually
+    // evaluated the candidate. Recording it as a resolved fail would let the
+    // 'all' banking predicate bank statements the critic never looked at.
+    return { resolved: false, reason: 'encoder_degraded' };
+  }
+  statement.critic = verdict;
+  statement.banked = verdictPasses(verdict);
+  return { resolved: true, banked: statement.banked };
+}
+
+/**
+ * resolveCriticVerdicts(statements, opts)
+ *   -> { attempted, resolved, banked, pending, deadline_hit }
+ *
+ * Sequential bounded batch over an array of statement objects (the
+ * buildOpportunityStatement result shape). Statements already resolved are
+ * skipped untouched (idempotent). When the batch deadline passes, every
+ * REMAINING pending statement is left honestly 'pending' instead of blocking
+ * the report forever.
+ */
+async function resolveCriticVerdicts(statements, opts) {
+  const options = opts || {};
+  const list = Array.isArray(statements) ? statements : [];
+  const timeoutMs = Number.isFinite(options.timeoutMs)
+    ? options.timeoutMs
+    : envMs('MINDRIAN_CRITIC_RESOLVE_TIMEOUT_MS', 30000);
+  const batchMs = Number.isFinite(options.batchMs)
+    ? options.batchMs
+    : envMs('MINDRIAN_CRITIC_RESOLVE_BATCH_MS', 120000);
+  const deadline = Date.now() + batchMs;
+
+  const out = { attempted: 0, resolved: 0, banked: 0, pending: 0, deadline_hit: false };
+  for (let i = 0; i < list.length; i += 1) {
+    const st = list[i];
+    if (!st || typeof st !== 'object' || st.critic !== 'pending') continue;
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      out.deadline_hit = true;
+      out.pending += 1;
+      continue;
+    }
+    out.attempted += 1;
+    // eslint-disable-next-line no-await-in-loop
+    const r = await resolveCriticVerdict(st, {
+      timeoutMs: Math.min(timeoutMs, remaining),
+      criticOpts: options.criticOpts,
+    });
+    if (r.resolved === true) {
+      out.resolved += 1;
+      if (r.banked === true) out.banked += 1;
+    } else {
+      out.pending += 1;
+    }
+  }
+  return out;
+}
+
+// ---------- Public entry ----------
+
+/**
+ * buildOpportunityStatement(candidate) -> { text, fields, banked, critic, weak_dimensions }
+ *
+ * candidate = {
+ *   a: { id, title, primary_problem, section, weak_dimensions },
+ *   b: { id, title, primary_problem, section, weak_dimensions },
+ *   shared_problems, dims, score, rank, tail
+ * }
+ */
+function buildOpportunityStatement(candidate) {
+  validateCandidate(candidate);
+  const fields = deriveFields(candidate);
+  const text = assembleText(fields);
+  const gate = runCriticGate(fields, text);
+  return {
+    text: text,
+    fields: fields,
+    banked: gate.banked,
+    critic: gate.critic,
+    weak_dimensions: {
+      a: weakSet(candidate.a).slice(),
+      b: weakSet(candidate.b).slice(),
+    },
+  };
+}
+
+module.exports = {
+  buildOpportunityStatement: buildOpportunityStatement,
+  // Phase 219 GAP-1: the bounded async critic-resolution pass (the "future
+  // async runner" the sync gate's comment always named). The batch runner
+  // calls resolveCriticVerdicts AFTER emission, BEFORE banking.
+  resolveCriticVerdict: resolveCriticVerdict,
+  resolveCriticVerdicts: resolveCriticVerdicts,
+  CLAUSE_LABELS: CLAUSE_LABELS,
+  DIMS: DIMS,
+  _test: {
+    setCriticForTest: setCriticForTest,
+    deriveFields: deriveFields,
+    assembleText: assembleText,
+  },
+};

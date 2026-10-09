@@ -1,0 +1,912 @@
+#!/usr/bin/env node
+'use strict';
+
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ * Phase 89.5 Plan 04 -- rs-discovery-engine top-level orchestrator.
+ *
+ * The v1.11.0 capstone: a single runDiscovery(topic, opts) entry point
+ * that chains every Reverse Salient phase end-to-end and returns the
+ * full RSDiscovery bundle with chain metadata + persisted graph nodes.
+ *
+ * Pipeline (sequential, deterministic):
+ *
+ *   runDiscovery(topic, opts)
+ *     |
+ *     +-- Canon Part 8 input audit (auditQueryObject)
+ *     |
+ *     +-- Phase 0: Upstream chain awareness
+ *     |     chain-feeder.lookupUpstream(problem_type, stage)
+ *     |       (Mode A: Brain reachable; Mode B: Brain unreachable -> ready)
+ *     |     if state === 'pause' -> bubble verbatim; NO further phases run
+ *     |
+ *     +-- Phase 1: Domain Analysis (89.1)
+ *     |     rs-domain-analyzer.analyzeDomain(topic)
+ *     |     rs-query-matrix.generateQueryMatrix(domain_analysis)
+ *     |
+ *     +-- Phase 1.5: External Research Fetching (89.2)
+ *     |     rs-fetcher-academic.fetchAcademic(query_array)
+ *     |     rs-fetcher-patents.fetchPatents(query_array)
+ *     |     rs-fetcher-industry.fetchIndustry(query_array)
+ *     |     rs-fetcher-experts.mapExperts(academic.papers)
+ *     |
+ *     +-- Phase 2: Preprocessing (89.2)
+ *     |     rs-preprocessor.preprocess(documents, {domain_analysis})
+ *     |
+ *     +-- Phase 3: Detection + Classification + Scoring (89.2)
+ *     |     rs-differential-scorer.score(query_concept, doc_concept) per pair
+ *     |     rs-innovation-classifier.classify(scored_pair)
+ *     |     rs-breakthrough-scorer.scoreBreakthrough(classified_pair)
+ *     |
+ *     +-- Phase 4: Synthesis (89.2 + 89.5-01 + 89.3)
+ *     |     rs-thesis-generator.generateThesis(classified_pair, breakthrough)
+ *     |     rs-commercial-assessor.assess(rs_discovery)         (89.5-01)
+ *     |     rs-expert-mapper.mapAuthorsToAura(experts, opts)    (89.3)
+ *     |
+ *     +-- Output Layer (89.3)
+ *     |     detectTier(opts) -> 'tier1' (Aura) | 'tier0' (SQLite)
+ *     |     if tier1: try rs-neo4j-writer.writeDiscovery; on
+ *     |       AuraUnreachableError -> fallback to rs-sqlite-mirror
+ *     |     if tier0: rs-sqlite-mirror.writeDiscovery
+ *     |     rs-mind-map.renderMindMap
+ *     |
+ *     +-- Chain Downstream (89.4)
+ *           rs-chain-feeder.emitChainMetadata per discovery
+ *
+ * Returns the full bundle:
+ *   {topic, domain_analysis, query_matrix, fetched_results, preprocessed,
+ *    scored, classified, breakthroughs, theses, commercial,
+ *    output: {written, mind_map, experts}, chain_metadata}
+ *
+ * Tier 0 / Tier 1 + Mode A / Mode B graceful degradation: orchestrator
+ * never crashes when Aura or Brain are unreachable. Mirrors 89.3
+ * detectTier + 89.4-02 lookupUpstream graceful patterns.
+ *
+ * CANON PART 8 INVARIANTS (load-bearing):
+ *   - auditQueryObject runs at orchestrator entry on (topic, opts).
+ *   - The orchestrator NEVER directly imports brain-client.cjs. ALL Brain
+ *     queries route through chain-feeder.lookupUpstream which already
+ *     wraps brainClient.query per the 89.4-02 chokepoint reuse pattern.
+ *   - The orchestrator NEVER calls fetch() directly. The 89.2 fetchers
+ *     each have their own audit chokepoint per rs-egress-prompts.cjs.
+ *
+ * CANON PART 7 (Reuse Before Build): every phase module is consumed via
+ * require(); the orchestrator is composition, NOT duplication.
+ *
+ * Pure CJS, zero runtime deps, no Node built-ins beyond core require.
+ *
+ * 2026 changes (all additive unless noted; see rs/CHANGES-engine.md):
+ *   - The persisted discovery is now the HIGHEST-scoring breakthrough
+ *     (opts.write_strategy 'best', default). It used to be breakthroughs[0],
+ *     which is whichever document the preprocessor emitted first.
+ *     opts.write_strategy = 'first' restores the old behaviour.
+ *   - The per-document scoring loop is bounded (opts.max_items, env
+ *     RS_DISCOVERY_MAX_ITEMS, default 500) and a failure on one document no
+ *     longer discards the whole run: it is recorded in provenance.item_errors
+ *     and stderr. If EVERY item fails, the first error is thrown. Canon
+ *     Part 8 violations (ExternalEgressViolation) always bubble.
+ *   - The bundle gains `verification` (per breakthrough: source trail,
+ *     second-signal check, novelty status) and `provenance` (what ran,
+ *     when, with which limits). Existing bundle keys are untouched.
+ *   - The empty-discovery chain_metadata entry uses classification 'none'
+ *     like the rest of the file (Phase 355 D-04), not 'structural_transfer'.
+ *   - CLI: stdout is flushed before exit (process.exit after a large pipe
+ *     write could truncate the JSON bundle).
+ *
+ * License: BSL-1.1.
+ */
+
+// ---------- Defense-in-depth chokepoints ----------
+
+const { auditQueryObject } = require('../lib/core/rs-egress-prompts.cjs');
+const { ExternalEgressViolation } = require('../lib/core/rs-egress-violations.cjs');
+
+// ---------- Phase modules (Canon Part 7 reuse) ----------
+//
+// All 89.1 + 89.2 + 89.3 + 89.4 + 89.5-01 modules are required EAGERLY
+// at module load. Lazy require would save startup latency on the
+// no-args path but the tradeoff is worse: lazy paths obscure the
+// dependency graph at audit time, and v1.11.0-beta.1 needs the
+// dependency surface to be mechanically grep-able.
+
+const domainAnalyzer = require('../lib/core/rs-domain-analyzer.cjs');
+const queryMatrix = require('../lib/core/rs-query-matrix.cjs');
+const fetcherAcademic = require('../lib/core/rs-fetcher-academic.cjs');
+
+// Phase 130.5 Plan 03 -- shared corpus substrate. The academic corpus fetch is
+// repointed off the private fetcherAcademic.fetchAcademic path onto the unified
+// fetchCorpus (lib/core/research-corpus.cjs) wrapped by the shared on-disk cache
+// (lib/core/research-cache.cjs). This closes the duplicate-fetcher /
+// duplicate-API-quota drift the 2026-05-15 audit flagged: a paper fetched by
+// /mos:research is reused, not re-fetched. Both modules are added to the `m`
+// indirection object below so the test suite can inject deterministic stubs
+// without monkey-patching require's cache. Canon Part 8 is preserved: fetchCorpus
+// runs its own pre-egress audit per query, the engine's auditQueryObject(opts)
+// input audit stays first, and there is still ZERO direct fetch( in this file
+// (the network lives inside fetchCorpus / rs-fetcher-academic). Brain is still
+// reached ONLY via chain-feeder.lookupUpstream -- this module adds no Brain path.
+const { fetchCorpus } = require('../lib/core/research-corpus.cjs');
+const researchCache = require('../lib/core/research-cache.cjs');
+const fetcherPatents = require('../lib/core/rs-fetcher-patents.cjs');
+const fetcherIndustry = require('../lib/core/rs-fetcher-industry.cjs');
+const fetcherExperts = require('../lib/core/rs-fetcher-experts.cjs');
+const preprocessor = require('../lib/core/rs-preprocessor.cjs');
+const differentialScorer = require('../lib/core/rs-differential-scorer.cjs');
+const innovationClassifier = require('../lib/core/rs-innovation-classifier.cjs');
+const breakthroughScorer = require('../lib/core/rs-breakthrough-scorer.cjs');
+const thesisGenerator = require('../lib/core/rs-thesis-generator.cjs');
+const commercialAssessor = require('../lib/core/rs-commercial-assessor.cjs');
+const neo4jWriter = require('../lib/core/rs-neo4j-writer.cjs');
+const sqliteMirror = require('../lib/core/rs-sqlite-mirror.cjs');
+const mindMap = require('../lib/core/rs-mind-map.cjs');
+const expertMapper = require('../lib/core/rs-expert-mapper.cjs');
+const chainFeeder = require('../lib/core/rs-chain-feeder.cjs');
+
+// ---------- Tier dispatch ----------
+//
+// Determines whether the output layer writes to Tier 1 (Aura via
+// rs-neo4j-writer) or Tier 0 (SQLite via rs-sqlite-mirror). Mirrors the
+// 89.3 detectTier convention: explicit opts.tier wins; otherwise infer
+// from opts.aura_url / opts.driver / NEO4J_URI env. Fallback is Tier 0
+// (the safe default; SQLite always works given a writable room_dir).
+
+function detectTier(opts) {
+  opts = opts || {};
+  if (opts.tier === 'tier0' || opts.tier === 'tier1') return opts.tier;
+  if (opts.driver && typeof opts.driver.session === 'function') return 'tier1';
+  if (typeof opts.aura_url === 'string' && opts.aura_url.length > 0) return 'tier1';
+  if (typeof process.env.NEO4J_URI === 'string' && process.env.NEO4J_URI.length > 0) return 'tier1';
+  return 'tier0';
+}
+
+// ---------- Test-mock surface ----------
+//
+// applyTestMocks lets the test suite substitute deterministic mocks for
+// any phase module without monkey-patching require's cache. Production
+// callers MUST NOT pass _test_mocks; the option is gated behind the
+// underscore prefix to mark it as a test-only surface.
+
+function applyTestMocks(opts, modules) {
+  if (!opts || !opts._test_mocks || typeof opts._test_mocks !== 'object') {
+    return modules;
+  }
+  // Shallow merge: any key present in _test_mocks overrides the
+  // production module. Missing keys fall through to the real require.
+  const merged = {};
+  const keys = Object.keys(modules);
+  for (let i = 0; i < keys.length; i += 1) {
+    const k = keys[i];
+    merged[k] = (opts._test_mocks[k] !== undefined) ? opts._test_mocks[k] : modules[k];
+  }
+  return merged;
+}
+
+// ---------- Helpers ----------
+
+function flattenQueryMatrix(matrix) {
+  if (!matrix || typeof matrix !== 'object') return [];
+  const buckets = ['a_intersect_b', 'a_leads_to_b', 'b_leads_to_a', 'adjacent'];
+  const out = [];
+  for (let i = 0; i < buckets.length; i += 1) {
+    const arr = matrix[buckets[i]];
+    if (Array.isArray(arr)) {
+      for (let j = 0; j < arr.length; j += 1) {
+        if (typeof arr[j] === 'string' && arr[j].length > 0) {
+          out.push(arr[j]);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+// ---------- fetchAcademicViaCorpus (Phase 130.5-03 migration) ----------
+//
+// The behavior-preserving replacement for the old
+// m.fetcherAcademic.fetchAcademic(flat_queries, ...) call site. For each query:
+//   1. Cache lookup via m.researchCache.getCached(roomDir, 'openalex', query).
+//      On a hit, reuse the cached results (no external fetch).
+//   2. On a miss, await m.fetchCorpus({ source: 'openalex', query, limit }) then
+//      m.researchCache.putCached(roomDir, 'openalex', query, results).
+// The per-query result arrays are concatenated and deduped with the SAME academic
+// dedupe (m.fetcherAcademic._test.dedupe) the old path used, so the resulting
+// papers[] is byte-identical in shape and order. The envelope is the same
+// { tier, source, results, papers, telemetry } shape aggregateDocuments and
+// fetcherExperts.mapExperts already consume (papers === results; telemetry is a
+// per-query {source, status, cache} trace).
+//
+// 'openalex' is the default academic source (the old fetchAcademic ran openalex
+// first and first-seen won on dedupe, so openalex is the byte-identity anchor).
+//
+// roomDir-less callers: if roomDir is not a non-empty string, the cache wrap
+// degrades to a direct fetchCorpus call (no getCached / no putCached, no throw)
+// so behavior is unchanged for cache-less call paths.
+//
+// Canon Part 8: fetchCorpus runs auditQueryString(query, 'research-corpus')
+// internally before any dispatch, so a forbidden query throws
+// ExternalEgressViolation pre-egress with ZERO network call -- the engine's
+// gate-level auditQueryObject already rejected adversarial opts before this
+// helper runs (defense-in-depth). There is NO direct fetch( here.
+
+async function fetchAcademicViaCorpus(m, flatQueries, roomDir, opts) {
+  const queries = Array.isArray(flatQueries) ? flatQueries : [];
+  const limit = (opts && typeof opts.limit === 'number') ? opts.limit : undefined;
+  const cacheOk = typeof roomDir === 'string' && roomDir.length > 0;
+
+  const collected = [];
+  const telemetry = [];
+
+  for (let i = 0; i < queries.length; i += 1) {
+    const query = queries[i];
+    if (typeof query !== 'string' || query.length === 0) continue;
+
+    let results = null;
+    let cacheState = 'bypass';
+
+    if (cacheOk) {
+      // Cache lookup. getCached returns null on miss / corrupt / past-TTL.
+      const cached = m.researchCache.getCached(roomDir, 'openalex', query);
+      if (Array.isArray(cached)) {
+        results = cached;
+        cacheState = 'hit';
+      }
+    }
+
+    if (results === null) {
+      // Miss (or cache-less path) -> fetch through the unified substrate.
+      const fetchArgs = { source: 'openalex', query: query };
+      if (typeof limit === 'number') fetchArgs.limit = limit;
+      const fetched = await m.fetchCorpus(fetchArgs);
+      results = Array.isArray(fetched) ? fetched : [];
+      cacheState = cacheOk ? 'miss' : 'bypass';
+      if (cacheOk) {
+        // Persist for the next (source, query) repeat. putCached writes
+        // atomically and never throws on a normal write.
+        m.researchCache.putCached(roomDir, 'openalex', query, results);
+      }
+    }
+
+    for (let j = 0; j < results.length; j += 1) {
+      collected.push(results[j]);
+    }
+    telemetry.push({ source: 'openalex', status: 'ok', cache: cacheState });
+  }
+
+  // Dedupe with the SAME academic dedupe the old path used so papers[] keys +
+  // ordering are byte-identical (first-seen wins). Fall back to identity if the
+  // test surface is unavailable on a stubbed fetcherAcademic.
+  const dedupe = (m.fetcherAcademic && m.fetcherAcademic._test
+    && typeof m.fetcherAcademic._test.dedupe === 'function')
+    ? m.fetcherAcademic._test.dedupe
+    : function (arr) { return Array.isArray(arr) ? arr.slice() : []; };
+  const papers = dedupe(collected);
+
+  return {
+    tier: 'paid',
+    source: 'openalex',
+    results: papers.slice(),
+    papers: papers,
+    telemetry: telemetry,
+  };
+}
+
+function aggregateDocuments(fetched_results) {
+  // Combine the 3 fetcher outputs into a single document stream for the
+  // preprocessor. Each fetcher returns a different shape; we normalize
+  // to the {id, title, abstract, signal, source} contract preprocessor
+  // already understands.
+  const out = [];
+  if (fetched_results && fetched_results.academic && Array.isArray(fetched_results.academic.papers)) {
+    for (const p of fetched_results.academic.papers) out.push(p);
+  }
+  if (fetched_results && fetched_results.patents && Array.isArray(fetched_results.patents.patents)) {
+    for (const p of fetched_results.patents.patents) out.push(p);
+  }
+  if (fetched_results && fetched_results.industry && Array.isArray(fetched_results.industry.signals)) {
+    for (const s of fetched_results.industry.signals) out.push(s);
+  }
+  return out;
+}
+
+function pickQueryConcept(domainAnalysis, preprocessedItem) {
+  // Pick a representative query_concept for the differential scorer.
+  // Prefer the first concept on the preprocessed item; fall back to
+  // domain analysis primary_domain. Both are scrub-validated by their
+  // own modules, so concatenating here cannot leak.
+  if (preprocessedItem && Array.isArray(preprocessedItem.concepts) && preprocessedItem.concepts.length > 0) {
+    return preprocessedItem.concepts[0];
+  }
+  if (domainAnalysis && typeof domainAnalysis.primary_domain === 'string') {
+    return domainAnalysis.primary_domain;
+  }
+  return 'topic';
+}
+
+function pickDocConcept(preprocessedItem) {
+  // Pick a representative doc_concept for the differential scorer.
+  // Prefer the first method on the preprocessed item; fall back to a
+  // technical term. Per 89.2 scorer contract, both arguments must be
+  // non-empty strings.
+  if (preprocessedItem && Array.isArray(preprocessedItem.methods) && preprocessedItem.methods.length > 0) {
+    return preprocessedItem.methods[0];
+  }
+  if (preprocessedItem && Array.isArray(preprocessedItem.technical_terms) && preprocessedItem.technical_terms.length > 0) {
+    return preprocessedItem.technical_terms[0];
+  }
+  return 'document';
+}
+
+// ---------- 2026 helpers: bounds, write selection, evidence ----------
+
+const DEFAULT_MAX_ITEMS = 500;
+
+function resolveMaxItems(opts) {
+  const fromOpts = opts && Number(opts.max_items);
+  if (Number.isFinite(fromOpts) && fromOpts > 0) return Math.floor(fromOpts);
+  const fromEnv = Number(process.env.RS_DISCOVERY_MAX_ITEMS);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return Math.floor(fromEnv);
+  return DEFAULT_MAX_ITEMS;
+}
+
+function breakthroughScore(b) {
+  return (b && b.breakthrough && typeof b.breakthrough.score === 'number' &&
+    Number.isFinite(b.breakthrough.score)) ? b.breakthrough.score : -Infinity;
+}
+
+// Index of the breakthrough to persist. 'best' = max score, ties and
+// score-less input resolve to the lowest index (so mocks that omit scores,
+// or all-equal scores, behave exactly like the old breakthroughs[0]).
+function selectWriteIndex(breakthroughs, strategy) {
+  if (!Array.isArray(breakthroughs) || breakthroughs.length === 0) return -1;
+  if (strategy === 'first') return 0;
+  let best = 0;
+  let bestScore = breakthroughScore(breakthroughs[0]);
+  for (let i = 1; i < breakthroughs.length; i += 1) {
+    const sc = breakthroughScore(breakthroughs[i]);
+    if (sc > bestScore) { best = i; bestScore = sc; }
+  }
+  return best;
+}
+
+function firstSentenceContaining(text, needle) {
+  if (typeof text !== 'string' || text.length === 0) return null;
+  const sentences = text.split(/(?<=[.!?])\s+|\n+/).map(function (x) { return x.trim(); })
+    .filter(function (x) { return x.length >= 20 && x.length <= 500; });
+  if (sentences.length === 0) return null;
+  if (typeof needle === 'string' && needle.length > 0) {
+    const n = needle.toLowerCase();
+    for (let i = 0; i < sentences.length; i += 1) {
+      if (sentences[i].toLowerCase().indexOf(n) !== -1) return sentences[i];
+    }
+  }
+  return sentences[0];
+}
+
+// Verification block for one discovery: where the evidence came from, whether
+// a second independent source type mentions the same concept, and an honest
+// novelty status. Deterministic, no network, no LLM.
+function buildEvidence(item, queryConcept, docConcept, allItems, runDate) {
+  const it = (item && typeof item === 'object') ? item : {};
+  const text = typeof it.abstract === 'string' ? it.abstract
+    : (typeof it.text === 'string' ? it.text : '');
+  const sentence = firstSentenceContaining(text, docConcept);
+  const url = it.url || it.link || (it.doi ? 'https://doi.org/' + it.doi : '') || '';
+  const needle = (typeof docConcept === 'string') ? docConcept.toLowerCase() : '';
+  const others = [];
+  if (needle.length > 0 && Array.isArray(allItems)) {
+    for (let i = 0; i < allItems.length; i += 1) {
+      const o = allItems[i];
+      if (!o || o === item) continue;
+      if (o.source && it.source && o.source === it.source) continue;
+      const t = (typeof o.abstract === 'string' ? o.abstract : (typeof o.text === 'string' ? o.text : '')).toLowerCase();
+      if (t.indexOf(needle) !== -1 && others.indexOf(o.source || 'unknown') === -1) others.push(o.source || 'unknown');
+    }
+  }
+  return {
+    source_trail: [{
+      source_id: it.id !== undefined ? String(it.id) : null,
+      title: it.title || null,
+      url: url,
+      doi: it.doi || null,
+      year: it.year || null,
+      source_type: it.source || null,
+      retrieval_date: String(it.retrieved_at || runDate).slice(0, 10),
+      retrieval_date_source: it.retrieved_at ? 'recorded' : 'run_time',
+      extracted_sentence: sentence,
+      query_concept: queryConcept,
+      doc_concept: docConcept,
+    }],
+    second_signal: {
+      status: others.length > 0 ? 'corroborated' : 'single_source_type',
+      other_source_types: others,
+      method: 'doc concept appears in an item from a different source type (academic / patent / industry)',
+    },
+    novelty: {
+      status: 'unchecked_external',
+      note: 'no novelty search is run in this orchestrator; treat as unverified until checked against the literature',
+    },
+    judge: 'none (deterministic code; thesis text, if LLM generated, is triage only)',
+  };
+}
+
+// ---------- runDiscovery (the public entry point) ----------
+//
+// Inputs:
+//   topic  string  the discovery topic; user-controlled. Audited at
+//                  the gate (rs-domain-analyzer also audits internally).
+//   opts   optional object:
+//     room_dir         string   path to the room directory (Tier 0 dispatch)
+//     aura_url         string   Aura connection URL (Tier 1 dispatch hint)
+//     driver           object   pre-built Aura driver (Tier 1 dispatch)
+//     problem_type     string   for chain-feeder.lookupUpstream
+//     stage            string   for chain-feeder.lookupUpstream
+//     active_context   object   for chain-feeder.emitChainMetadata
+//     _test_mocks      object   PRIVATE; per-module mock map for tests
+//
+// Output (happy path):
+//   {topic, domain_analysis, query_matrix, fetched_results, preprocessed,
+//    scored, classified, breakthroughs, theses, commercial,
+//    output: {written, mind_map, experts}, chain_metadata}
+//
+// Output (pause):
+//   {state: 'pause', missing_upstream, suggested_action}  // bubbled verbatim
+//
+// Throws:
+//   ExternalEgressViolation  if (topic, opts) contain FORBIDDEN_PATTERNS
+//                            (audit at the gate; NO module is invoked)
+//   propagates ExternalEgressViolation from any downstream module
+//                            (per-module audit chokepoints; defense-in-depth)
+
+async function runDiscovery(topic, opts) {
+  opts = opts || {};
+
+  // SEAM A: Canon Part 8 input audit. Throws ExternalEgressViolation
+  // BEFORE any module is touched. Adversarial bytes nested in opts
+  // (e.g., opts.meeting_transcript) are caught by the JSON.stringify
+  // walk inside auditQueryObject. T5 covers this contract.
+  //
+  // We sanitize opts to omit the _test_mocks reference because mock
+  // function instances are not JSON-serializable and would cause
+  // auditQueryObject to throw a TypeError instead of the precise
+  // ExternalEgressViolation that callers expect.
+  const auditOpts = {};
+  const optKeys = Object.keys(opts);
+  for (let i = 0; i < optKeys.length; i += 1) {
+    if (optKeys[i] !== '_test_mocks' && optKeys[i] !== 'driver') {
+      auditOpts[optKeys[i]] = opts[optKeys[i]];
+    }
+  }
+  auditQueryObject({ topic: topic, opts: auditOpts }, 'rs-discovery-engine-input');
+
+  // Apply test mocks if present (test surface; production passes through).
+  const m = applyTestMocks(opts, {
+    domainAnalyzer: domainAnalyzer,
+    queryMatrix: queryMatrix,
+    fetcherAcademic: fetcherAcademic,
+    // Phase 130.5-03 shared corpus substrate (mockable like every other dep).
+    fetchCorpus: fetchCorpus,
+    researchCache: researchCache,
+    fetcherPatents: fetcherPatents,
+    fetcherIndustry: fetcherIndustry,
+    fetcherExperts: fetcherExperts,
+    preprocessor: preprocessor,
+    differentialScorer: differentialScorer,
+    innovationClassifier: innovationClassifier,
+    breakthroughScorer: breakthroughScorer,
+    thesisGenerator: thesisGenerator,
+    commercialAssessor: commercialAssessor,
+    expertMapper: expertMapper,
+    neo4jWriter: neo4jWriter,
+    sqliteMirror: sqliteMirror,
+    mindMap: mindMap,
+    chainFeeder: chainFeeder,
+  });
+
+  // ---------- Phase 0: Upstream chain awareness ----------
+  //
+  // chain-feeder.lookupUpstream is the ONLY Brain touch in the
+  // orchestrator. It wraps brainClient.query per 89.4-02 chokepoint
+  // reuse and degrades gracefully (returns {state: 'ready'}) when Brain
+  // is unreachable. T3 + T7 cover this contract.
+
+  const upstream = await m.chainFeeder.lookupUpstream(
+    opts.problem_type,
+    opts.stage,
+    opts.upstreamLookupOpts || {}
+  );
+
+  if (upstream && upstream.state === 'pause') {
+    // Pause envelope bubbled verbatim. Caller (Decision Gate UI in
+    // 89.5-05 / 91) renders the missing_upstream + suggested_action
+    // for user review. NO further phase modules run. T7 verifies.
+    return {
+      state: 'pause',
+      missing_upstream: upstream.missing_upstream || [],
+      suggested_action: upstream.suggested_action || 'Run Methodology',
+    };
+  }
+
+  // ---------- Phase 1: Domain Analysis (89.1) ----------
+
+  const domain_analysis = await m.domainAnalyzer.analyzeDomain(topic);
+  const query_matrix = m.queryMatrix.generateQueryMatrix(domain_analysis);
+
+  // ---------- Phase 1.5: External Research Fetching (89.2) ----------
+  //
+  // Sequential invocation for v1.11.0-beta.1. Promise.all parallelization
+  // is deferred to v1.11.0-stable per kickoff guidance: per-fetcher
+  // rate-limit budgets are stored as module-private state (academic.cjs
+  // computeRemainingBudget), so the parallel-async win is small and the
+  // sequential trace is easier to debug for the beta cohort.
+
+  const flat_queries = flattenQueryMatrix(query_matrix);
+
+  // Phase 130.5-03: the academic corpus fetch now flows through the unified
+  // fetchCorpus + the shared research-cache (fetchAcademicViaCorpus), NOT the
+  // private m.fetcherAcademic.fetchAcademic path. Behavior-preserving: the
+  // returned academic envelope carries papers[] in the same shape + order the
+  // old path produced, so aggregateDocuments + fetcherExperts.mapExperts + every
+  // downstream phase is byte-unchanged. A repeat (source, query) is served from
+  // cache (duplicate-quota drift closed). roomDir-less callers degrade to a
+  // direct fetchCorpus (no cache) so cache-less behavior is unchanged.
+  const academic = await fetchAcademicViaCorpus(
+    m,
+    flat_queries,
+    opts.room_dir,
+    opts.fetcherOpts || {}
+  );
+  const patents = await m.fetcherPatents.fetchPatents(flat_queries, opts.fetcherOpts || {});
+  const industry = await m.fetcherIndustry.fetchIndustry(flat_queries, opts.fetcherOpts || {});
+
+  // mapExperts is sync; experts are derived from academic papers.
+  const expertsRaw = m.fetcherExperts.mapExperts(
+    (academic && Array.isArray(academic.papers)) ? academic.papers : []
+  );
+
+  const fetched_results = {
+    academic: academic,
+    patents: patents,
+    industry: industry,
+    experts: expertsRaw,
+  };
+
+  // ---------- Phase 2: Preprocessing (89.2) ----------
+
+  const documents = aggregateDocuments(fetched_results);
+  const preprocessed = m.preprocessor.preprocess(documents, { domain_analysis: domain_analysis });
+
+  // Defensive: preprocess may return an envelope on Canon Part 8 input
+  // rejection ({error, reason}); treat as empty for downstream phases.
+  const preprocessedAll = Array.isArray(preprocessed) ? preprocessed : [];
+  const maxItems = resolveMaxItems(opts);
+  const truncated = preprocessedAll.length > maxItems;
+  const preprocessedArr = truncated ? preprocessedAll.slice(0, maxItems) : preprocessedAll;
+  if (truncated) {
+    process.stderr.write('rs-discovery-engine: ' + preprocessedAll.length +
+      ' preprocessed items exceed max_items=' + maxItems + '; scoring the first ' + maxItems + '\n');
+  }
+  const runDate = new Date().toISOString().slice(0, 10);
+  const itemErrors = [];
+
+  // ---------- Phase 3: Detection + Classification + Scoring (89.2) ----------
+  //
+  // scored / classified / breakthroughs stay index-aligned with `kept`
+  // (the preprocessed items that scored successfully).
+
+  const scored = [];
+  const classified = [];
+  const breakthroughs = [];
+  const kept = [];
+  const keptConcepts = [];
+
+  for (let i = 0; i < preprocessedArr.length; i += 1) {
+    const item = preprocessedArr[i];
+    const queryConcept = pickQueryConcept(domain_analysis, item);
+    const docConcept = pickDocConcept(item);
+    try {
+      const scoredEntry = await m.differentialScorer.score(
+        queryConcept,
+        docConcept,
+        opts.scorerOpts || {}
+      );
+      // Tag the scored entry with the originating concepts so the
+      // classifier and downstream layers can read them.
+      const scoredPair = Object.assign({}, scoredEntry, {
+        query_concept: queryConcept,
+        doc_concept: docConcept,
+      });
+
+      const classifiedPair = m.innovationClassifier.classify(scoredPair);
+
+      // Breakthrough scorer expects a classified_pair with passes-through
+      // concept fields; the classifier already builds that shape.
+      const breakthroughPair = m.breakthroughScorer.scoreBreakthrough(classifiedPair, {
+        industry_signal_count: (industry && Array.isArray(industry.signals)) ? industry.signals.length : 0,
+        pair_density: 1.0,
+      });
+      scored.push(scoredPair);
+      classified.push(classifiedPair);
+      breakthroughs.push(breakthroughPair);
+      kept.push(item);
+      keptConcepts.push({ q: queryConcept, d: docConcept });
+    } catch (err) {
+      // Canon Part 8: egress violations always bubble, never get recorded away.
+      if (err && (err.name === 'ExternalEgressViolation' ||
+          (ExternalEgressViolation && err instanceof ExternalEgressViolation))) {
+        throw err;
+      }
+      itemErrors.push({ index: i, id: (item && item.id !== undefined) ? String(item.id) : null,
+        message: String((err && err.message) || err).slice(0, 200) });
+      process.stderr.write('rs-discovery-engine: item ' + i + ' failed and was skipped: ' +
+        itemErrors[itemErrors.length - 1].message + '\n');
+      if (itemErrors.length === preprocessedArr.length) {
+        throw err; // nothing succeeded: do not return an empty bundle that hides a systemic failure
+      }
+    }
+  }
+
+  // ---------- Phase 4: Synthesis (89.2 + 89.5-01 + 89.3) ----------
+
+  const theses = [];
+  const commercial = [];
+
+  for (let i = 0; i < classified.length; i += 1) {
+    const classifiedPair = classified[i];
+    const breakthroughPair = breakthroughs[i] || {};
+
+    // Phase 355 D-04: a 'none' classification (neither lsa nor bert cleared
+    // its floor) carries no directional signal to bridge -- route it PAST
+    // thesis generation instead of calling generateThesis (which would
+    // just return its existing {error:'invalid_input',
+    // reason:'invalid_classification'} envelope for a value it does not
+    // recognize, unchanged). The pair is KEPT here (never dropped from
+    // theses[]), tagged with skipped_reason 'no_direction' so downstream
+    // readers can tell "no thesis because no direction" apart from "no
+    // thesis because the classifier input was malformed".
+    const thesis = (classifiedPair && classifiedPair.classification === 'none')
+      ? { skipped: true, skipped_reason: 'no_direction' }
+      : m.thesisGenerator.generateThesis(
+          classifiedPair,
+          (breakthroughPair && breakthroughPair.breakthrough) ? breakthroughPair.breakthrough : null
+        );
+    theses.push(thesis);
+
+    // Commercial assessor consumes the breakthrough envelope (which
+    // already carries classification + bridge_concept pass-throughs).
+    const commercialEntry = m.commercialAssessor.assess(breakthroughPair, {
+      industry_signals_count: (industry && Array.isArray(industry.signals)) ? industry.signals.length : 0,
+    });
+    commercial.push(commercialEntry);
+  }
+
+  // Phase 94-02 thesis-merge fix.
+  //
+  // The Phase 4 Synthesis loop above pushes generated thesis strings into
+  // theses[] in lockstep with breakthroughs[]. The downstream writer
+  // (rs-sqlite-mirror.writeDiscovery) declares thesis as a REQUIRED_FIELD
+  // at lib/core/rs-sqlite-mirror.cjs line 61 and rejects any payload
+  // whose thesis is not a non-empty string (validateRequiredFields lines
+  // 121-130). Pre-94-02, breakthroughs[i] never carried thesis, so
+  // writerPayload selection at lines 429-435 dropped it on the floor and
+  // /mos:rs-fetch tier 0 threw TypeError before ever writing a row.
+  //
+  // We fold theses[i] into breakthroughs[i] here, after Phase 4 closes
+  // and before Output Layer reads breakthroughs[0] as writerPayload.
+  // theses[i] is a string on the success path (rs-thesis-generator
+  // line 167-176) and an {error, reason} envelope on validation failure;
+  // we coerce non-string thesis to the same 'no_thesis' sentinel the
+  // empty-fallback branch uses below so the consumer schema is honored
+  // even on degenerate upstream input.
+  for (let i = 0; i < breakthroughs.length; i += 1) {
+    const t = theses[i];
+    breakthroughs[i] = Object.assign({}, breakthroughs[i], {
+      thesis: (typeof t === 'string' && t.length > 0) ? t : 'no_thesis',
+    });
+  }
+
+  // Expert mapper resolves authors to Aura nodes (Tier 1) or SQLite
+  // (Tier 0). Pass tier hints through opts.
+  const expertMapperOpts = {};
+  if (opts.driver) expertMapperOpts.driver = opts.driver;
+  if (typeof opts.room_dir === 'string') expertMapperOpts.roomDir = opts.room_dir;
+  // Force tier='sqlite' if neither driver nor room_dir is present so
+  // mapAuthorsToAura's detectTier does not throw.
+  if (!opts.driver && typeof opts.room_dir !== 'string') {
+    expertMapperOpts.tier = 'sqlite';
+    expertMapperOpts.roomDir = process.cwd();
+  }
+  const experts = await m.expertMapper.mapAuthorsToAura(
+    Array.isArray(expertsRaw) ? expertsRaw : [],
+    expertMapperOpts
+  );
+
+  // ---------- Output Layer (89.3) ----------
+
+  const tier = detectTier(opts);
+
+  const writeIndex = selectWriteIndex(breakthroughs, opts.write_strategy);
+  const writerPayload = (writeIndex >= 0)
+    ? breakthroughs[writeIndex]   // highest-scoring discovery (2026); 'first' restores breakthroughs[0]
+    : {                  // empty discovery -> minimal valid envelope
+        query_concept: (typeof topic === 'string' && topic.length > 0) ? topic : 'topic',
+        doc_concept: 'no_results',
+        // Phase 355 D-04: no discovery means no classifier ran at all, so
+        // 'none' (no directional signal), not a fabricated structural_transfer
+        // default.
+        classification: 'none',
+        // Phase 94-02: rs-sqlite-mirror REQUIRED_FIELDS line 61 declares
+        // thesis mandatory. Empty-discovery branch carries a sentinel
+        // string (not the plan's locked-decision object stub; consumer
+        // validateRequiredFields requires non-empty string per lines
+        // 121-130 of lib/core/rs-sqlite-mirror.cjs). Producer + consumer
+        // agree on string shape.
+        thesis: 'no_thesis',
+      };
+
+  let written = null;
+  if (tier === 'tier1') {
+    // Try Aura first; on AuraUnreachableError fall back to SQLite.
+    // Mirrors 89.3 graceful degradation pattern. T2 verifies.
+    try {
+      const result = await m.neo4jWriter.writeDiscovery(writerPayload, {
+        driver: opts.driver,
+        context: opts.writer_context || {},
+      });
+      written = Object.assign({}, result, { tier: 'tier1' });
+    } catch (err) {
+      const isAuraUnreachable =
+        (err && err.name === 'AuraUnreachableError') ||
+        (m.neo4jWriter.AuraUnreachableError && err instanceof m.neo4jWriter.AuraUnreachableError) ||
+        (neo4jWriter.AuraUnreachableError && err instanceof neo4jWriter.AuraUnreachableError);
+      if (!isAuraUnreachable) {
+        // Other errors (TypeError, ExternalEgressViolation) bubble up.
+        throw err;
+      }
+      // Aura unreachable -> Tier 0 fallback.
+      const fallback = await m.sqliteMirror.writeDiscovery(writerPayload, {
+        roomDir: opts.room_dir || process.cwd(),
+        context: opts.writer_context || {},
+      });
+      written = Object.assign({}, fallback, { tier: 'tier0', fallback_reason: 'aura_unreachable' });
+    }
+  } else {
+    const result = await m.sqliteMirror.writeDiscovery(writerPayload, {
+      roomDir: opts.room_dir || process.cwd(),
+      context: opts.writer_context || {},
+    });
+    written = Object.assign({}, result, { tier: 'tier0' });
+  }
+
+  // Mind map render. Pass tier hint so detectTier inside rs-mind-map
+  // does not throw on missing driver/roomDir.
+  const mindMapOpts = {};
+  if (opts.driver) mindMapOpts.driver = opts.driver;
+  if (typeof opts.room_dir === 'string') mindMapOpts.roomDir = opts.room_dir;
+  if (!opts.driver && typeof opts.room_dir !== 'string') {
+    mindMapOpts.tier = 'sqlite';
+    mindMapOpts.roomDir = process.cwd();
+  }
+  const mind_map = await m.mindMap.renderMindMap({}, mindMapOpts);
+
+  // ---------- Chain Downstream (89.4) ----------
+  //
+  // Per-discovery emitChainMetadata. The verb is selected
+  // deterministically per breakthrough_score; the spawn_skill is
+  // selected per SKILL_SPAWN_RULES. Mode B (Brain unreachable) does
+  // not affect emitChainMetadata; the function is fully local.
+  // T1 + T3 + T4 verify.
+
+  const active_context = opts.active_context || {};
+  const chain_metadata = [];
+  for (let i = 0; i < breakthroughs.length; i += 1) {
+    const b = breakthroughs[i];
+    const c = classified[i] || {};
+    // Phase 355 D-04: an absent/non-string classification means no
+    // classifier ran, not a fabricated structural_transfer default -- fall
+    // back to 'none' (emitChainMetadata's own unknown-rs_type branch maps
+    // this to feeds_into 'JTBD', a safe generic default).
+    const rsType = (typeof c.classification === 'string') ? c.classification : 'none';
+    const score = (b && b.breakthrough && typeof b.breakthrough.score === 'number')
+      ? b.breakthrough.score
+      : 0;
+    const entry = m.chainFeeder.emitChainMetadata(rsType, score, active_context);
+    chain_metadata.push(entry);
+  }
+
+  // If breakthroughs is empty, still emit one chain_metadata entry so
+  // downstream consumers always have a non-empty array. The plan T1
+  // requires >=1 entry per discovery; we treat the topic itself as
+  // the implicit discovery in the empty path.
+  if (chain_metadata.length === 0) {
+    // 2026: 'none' (no classifier ran), consistent with Phase 355 D-04 above;
+    // the old literal 'structural_transfer' fabricated a direction.
+    const entry = m.chainFeeder.emitChainMetadata('none', 0, active_context);
+    chain_metadata.push(entry);
+  }
+
+  // ---------- Verification + provenance (2026, additive) ----------
+
+  const verification = breakthroughs.map(function (b, i) {
+    return buildEvidence(kept[i], keptConcepts[i].q, keptConcepts[i].d, preprocessedArr, runDate);
+  });
+  const provenance = {
+    schema_version: '2026.1',
+    computed_at: new Date().toISOString(),
+    tier: tier,
+    write_strategy: opts.write_strategy === 'first' ? 'first' : 'best',
+    written_index: writeIndex,
+    limits: { max_items: maxItems },
+    counts: { preprocessed: preprocessedAll.length, scored: scored.length, skipped: itemErrors.length },
+    truncated: truncated,
+    item_errors: itemErrors,
+    ranking: 'deterministic code from the injected scorer modules; no LLM is used for ranking here',
+  };
+
+  // ---------- Assemble bundle ----------
+
+  return {
+    topic: topic,
+    domain_analysis: domain_analysis,
+    query_matrix: query_matrix,
+    fetched_results: fetched_results,
+    preprocessed: preprocessedArr,
+    scored: scored,
+    classified: classified,
+    breakthroughs: breakthroughs,
+    theses: theses,
+    commercial: commercial,
+    output: {
+      written: written,
+      mind_map: mind_map,
+      experts: experts,
+    },
+    chain_metadata: chain_metadata,
+    verification: verification,
+    provenance: provenance,
+  };
+}
+
+// ---------- Exports ----------
+
+module.exports = {
+  runDiscovery: runDiscovery,
+  // Test surface (private; do NOT consume in production).
+  _test: {
+    detectTier: detectTier,
+    applyTestMocks: applyTestMocks,
+    flattenQueryMatrix: flattenQueryMatrix,
+    fetchAcademicViaCorpus: fetchAcademicViaCorpus,
+    aggregateDocuments: aggregateDocuments,
+    pickQueryConcept: pickQueryConcept,
+    pickDocConcept: pickDocConcept,
+    selectWriteIndex: selectWriteIndex,
+    buildEvidence: buildEvidence,
+    resolveMaxItems: resolveMaxItems,
+  },
+};
+
+// ---------- Optional CLI entry ----------
+//
+// Allows manual invocation for smoke testing:
+//   node scripts/rs-discovery-engine.cjs "quantum brain imaging"
+
+if (require.main === module) {
+  const cliTopic = process.argv[2];
+  if (typeof cliTopic !== 'string' || cliTopic.length === 0) {
+    process.stderr.write('Usage: node scripts/rs-discovery-engine.cjs <topic>\n');
+    process.exit(1);
+  }
+  runDiscovery(cliTopic, {
+    room_dir: process.env.RS_ROOM_DIR || process.cwd(),
+  })
+    .then(function (bundle) {
+      // exitCode (not process.exit) so a large bundle piped to another
+      // process is fully flushed before the event loop drains.
+      process.stdout.write(JSON.stringify(bundle, null, 2) + '\n');
+      process.exitCode = 0;
+    })
+    .catch(function (err) {
+      process.stderr.write('rs-discovery-engine error: ' + (err && err.message ? err.message : String(err)) + '\n');
+      process.exitCode = 1;
+    });
+}

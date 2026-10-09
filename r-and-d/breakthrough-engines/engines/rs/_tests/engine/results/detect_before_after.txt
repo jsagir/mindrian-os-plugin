@@ -1,0 +1,14 @@
+detect-reverse-salients.py before/after on one synthetic .hsi-results.json (4 sections x 3 artifacts, 54 cross-section pairs + 2 planted)
+== before (original): exit 0; RS: 2 reverse salients found (1 structural, 1 semantic), top breakthrough: 0.685
+  RS-0002 ops/ops-2       ->tech/tech-2      semantic_i diff=0.950 bt=0.685 second_signal=-  <- planted: no real gap (lsa 0.40 vs sem 0.42)
+  RS-0001 tech/tech-2     ->legal/legal-2    structural diff=0.414 bt=0.334 second_signal=-
+== after --scoring legacy: exit 0; RS: 2 reverse salients found (1 structural, 1 semantic), top breakthrough: 0.685
+  RS-0002 ops/ops-2       ->tech/tech-2      semantic_i diff=0.950 bt=0.685 second_signal=-  <- planted: no real gap (lsa 0.40 vs sem 0.42)
+  RS-0001 tech/tech-2     ->legal/legal-2    structural diff=0.414 bt=0.334 second_signal=-
+== after --scoring hybrid (new default): exit 0; RS: 6 reverse salients found (4 structural, 2 semantic), top breakthrough: 0.685
+  RS-0006 ops/ops-2       ->tech/tech-2      semantic_i diff=0.950 bt=0.685 second_signal=weak_gap_driven_by_integrative_factor  <- planted: no real gap (lsa 0.40 vs sem 0.42)
+  RS-0002 legal/legal-1   ->ops/ops-0        semantic_i diff=0.742 bt=0.520 second_signal=confirmed
+  RS-0001 market/market-0 ->legal/legal-1    structural diff=0.620 bt=0.429 second_signal=confirmed  <- planted: same words, different meaning (sem 0.05)
+  RS-0004 market/market-0 ->ops/ops-2        structural diff=0.554 bt=0.389 second_signal=confirmed
+  RS-0005 market/market-2 ->tech/tech-1      structural diff=0.526 bt=0.349 second_signal=confirmed
+  RS-0003 tech/tech-2     ->legal/legal-2    structural diff=0.414 bt=0.334 second_signal=confirmed

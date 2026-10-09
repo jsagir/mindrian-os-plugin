@@ -1,0 +1,985 @@
+/*
+ * Copyright (c) 2026 Mindrian. BSL 1.1.
+ *
+ * Phase 89-07 Wave 1 -- ReverseSalientAgent substrate.
+ *
+ * Wraps scripts/rs-engine.py output as graph-native typed cascade edges via
+ * the Phase 109 navigation chokepoint (5 read functions) + the Phase 90
+ * BRAIN.md quadruple read (LOCAL only) + the Phase 87 typed-edge primitives
+ * exposed by lib/core/lazygraph-ops.cjs (upsertEdge added Wave 1).
+ *
+ * Graph-native HARD RULE (memory feedback_reverse_salient_agent_graph_native.md):
+ *   1. READS go through lib/core/navigation.cjs ONLY (no direct DB module).
+ *   2. WRITES emit typed cascade edges (INFORMS, CONTRADICTS, CONVERGES,
+ *      INVALIDATES, ENABLES) via the upsertEdge primitive.
+ *   3. BRAIN reads via folder-memory.readQuadruple ONLY (Canon Part 8 LOCAL
+ *      pre-derived; the agent never queries Brain at runtime).
+ *   4. NO direct DB module imports (Phase 109 D-06 chokepoint).
+ *   5. NO Brain client imports (Canon Part 8 -- zero Brain queries from agent).
+ *   6. Shell out to whichever backend the active flag selects (rs-engine.py
+ *      or rs-engine.cjs) -- never inline rs-math logic directly in this agent.
+ *
+ * F.0 dispatch + persona suffix + telemetry mirror land in Wave 2 (89-07-02).
+ * Pattern doc + release plumbing land in Wave 3 (89-07-03).
+ *
+ * Pure CJS, node built-ins only, zero new runtime dependencies.
+ */
+
+'use strict';
+
+const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
+
+// 2026: errors that used to be swallowed silently are reported when
+// RS_AGENT_DEBUG=1 (stderr only; never changes return values).
+function debugLog(where, err) {
+  if (process.env.RS_AGENT_DEBUG === '1') {
+    process.stderr.write('[reverse-salient-agent] ' + where + ': ' +
+      String((err && err.message) || err) + '\n');
+  }
+}
+
+// 2026: resolve `rel` under `base` and refuse anything that escapes it
+// (artifact ids come from engine output and must not read outside the room).
+function resolveInside(base, rel) {
+  if (typeof base !== 'string' || typeof rel !== 'string' || rel.length === 0) return null;
+  const root = path.resolve(base);
+  const full = path.resolve(root, rel);
+  const relative = path.relative(root, full);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) return null;
+  return full;
+}
+
+const DEFAULT_ENGINE_TIMEOUT_MS = 60000;
+
+// ---------- Whitelisted imports (Canon Part 8) ----------
+//
+// Allowed:
+//   - lib/core/navigation.cjs                  (Phase 109 chokepoint)
+//   - lib/core/folder-memory.cjs                (Phase 90 LOCAL Brain read)
+//   - lib/core/navigation/memory-events.cjs     (Phase 109 logEvent)
+//   - lib/core/lazygraph-ops.cjs                (Phase 87 typed-edge primitives)
+//   - lib/core/rs-backend-dispatch.cjs          (Phase 272 D-04 dispatch chokepoint)
+//   - lib/core/rs-engine.cjs                    (Phase 272 CJS backend, in-process)
+//   - node:child_process                        (rs-engine.py invocation)
+//   - node:path / node:fs / node:crypto         (built-ins)
+//
+// Forbidden (anti-pattern grep guards in tests):
+//   - direct DB module imports (chokepoint violation)
+//   - direct Brain client imports (Canon Part 8 violation)
+//   - rs-math vectorization symbols (rs-math reimplementation)
+//
+// PHASE 355-17 NOTE on rule 5 (D-08, D-17, HIPS-04, HIPS-05): this module
+// now requires lib/core/verification-stamp.cjs directly (never brain-client
+// by name -- the anti-pattern guards above still hold unchanged).
+// verification-stamp.cjs is the ONE narrow, read-only exception to "zero
+// Brain queries from agent": it sends only an already-resolved canon
+// Framework name pair (never room or user content, D-10/D-48) through the
+// one wire door (brain-client.cjs::callTool, required lazily INSIDE
+// verification-stamp.cjs, never here), asks Theo find_connections once per
+// distinct pair, and degrades to an honest unverified stamp on any outage.
+// Rule 5's original intent (never query Brain for pattern-matching during
+// finding generation) is unaffected -- this is a post-hoc verification
+// stamp on a finding this agent already computed locally, not a
+// Brain-driven decision. See verification-stamp.cjs's own header (POSTURE:
+// autonomous_safe, read-only, consequence low) for the full contract.
+const navigation = require('../core/navigation.cjs');
+const folderMemory = require('../core/folder-memory.cjs');
+const rsBackendDispatch = require('../core/rs-backend-dispatch.cjs');
+// rs-engine.cjs itself lazy-requires @huggingface/transformers internally
+// (PATTERNS.md convention 3); requiring it here at top level does not pull
+// in the heavy dependency until embedTexts is actually called.
+const rsEngineCjs = require('../core/rs-engine.cjs');
+// Phase 355-17 (HIPS-04, HIPS-05): the verification-stamp adapter and
+// formatter. Requiring these never opens a socket -- verification-stamp.cjs
+// only reaches the wire door when stampFindings/stampFinding actually runs
+// and deps.callTool is absent (see its own header).
+const verificationStamp = require('../core/verification-stamp.cjs');
+const verificationStampFormat = require('../core/verification-stamp-format.cjs');
+const floorDisclosure = require('../core/floor-disclosure.cjs');
+// memory-events kept as a lazy import in detectAndSurface to avoid coupling
+// the substrate test to logEvent semantics; Wave 2 will wire it for real.
+
+// ---------- Cascade-edge mapping (RESEARCH SCOPE B Section 2) ----------
+//
+// Maps the rs-engine output `direction` field (NOT the invocation mode) to
+// one of the 5 typed cascade edges. The mapping basis is documented in the
+// 89-07-01-PLAN.md graph_native_invariant_check section: direction is the
+// OUTPUT FIELD describing the actual finding kind; mode is a CALL PARAMETER.
+//
+//   structural_transfer + abs(signed_diff) <= 0.7 -> INFORMS
+//   structural_transfer + abs(signed_diff) >  0.7 -> ENABLES
+//   semantic_implementation + abs(sd) <= 0.7      -> CONVERGES
+//   semantic_implementation + abs(sd) >  0.7      -> INVALIDATES
+//   whitespace / blindspot                        -> CONTRADICTS
+//   anything else (Pitfall 1 default)             -> INFORMS
+function mapDirectionToCascadeEdge(direction, signed_diff) {
+  const sd = (typeof signed_diff === 'number') ? signed_diff : 0;
+  const dir = (typeof direction === 'string') ? direction : '';
+  if (dir === 'structural_transfer') {
+    return Math.abs(sd) > 0.7 ? 'ENABLES' : 'INFORMS';
+  }
+  if (dir === 'semantic_implementation') {
+    return Math.abs(sd) > 0.7 ? 'INVALIDATES' : 'CONVERGES';
+  }
+  if (dir === 'whitespace' || dir === 'blindspot') {
+    return 'CONTRADICTS';
+  }
+  // Pitfall 1 default: unknown direction string maps to INFORMS rather than
+  // throwing, so a forward-compatible rs-engine output (Plan 89-04 / 89-05
+  // adding new direction values) does not crash the agent.
+  return 'INFORMS';
+}
+
+// ---------- Phase 109 navigation reads (chokepoint adherence) ----------
+//
+// gatherFocusContext composes the 5 navigation.cjs functions used by the
+// agent. Returns null when there is no active focus, so callers can skip
+// finding generation gracefully. Never throws.
+function gatherFocusContext(db, sessionId) {
+  try {
+    const focus = navigation.getActiveFocus(db, sessionId);
+    if (!focus) return null;
+    const neighborhood = navigation.getNeighborhood(db, focus.focusNodeId, {
+      maxDepth: 2,
+      topK: 20,
+      edgeTypes: ['CONTRADICTS', 'INVALIDATES', 'CASCADES_TO', 'INFORMS'],
+    });
+    // Phase 348 (SUPER-05): DEFAULT (superseded excluded). The reverse-
+    // salient scan is looking for live tension, not a settled disagreement.
+    const contradictions = navigation.findContradictions(db, focus.focusNodeId);
+    const unsupported = navigation.findUnsupportedClaims(db);
+    const stale = navigation.findStaleDecisions(db, { staleAfterSessions: 5 });
+    const sevenDaysAgo = Date.now() - (7 * 24 * 3600 * 1000);
+    const recentChanges = navigation.findRecentChanges(db, sevenDaysAgo, { limit: 50 });
+    return { focus, neighborhood, contradictions, unsupported, stale, recentChanges };
+  } catch (_e) {
+    // Defensive: if any navigation function throws (e.g. db schema not yet
+    // initialized in a fresh tmp room), the agent surfaces no finding rather
+    // than crashing. Wave 2 will wire telemetry on this path.
+    debugLog('gatherFocusContext', _e);
+    return null;
+  }
+}
+
+// ---------- Phase 90 BRAIN.md quadruple read (LOCAL only; Canon Part 8) ----------
+//
+// gatherBrainContext returns one of three shapes:
+//   { brain: <payload>, graceful_degradation: null }      -- fresh
+//   { brain: null,      graceful_degradation: 'stale_or_offline' }
+//   { brain: null,      graceful_degradation: 'no_quadruple' }
+//
+// Never throws. The agent NEVER queries Brain at runtime; the brain payload
+// surfaced here was written by a prior /mos:brain-derive run (Phase 90).
+function gatherBrainContext(sectionPath) {
+  try {
+    const quadruple = folderMemory.readQuadruple(sectionPath);
+    if (!quadruple) return { brain: null, graceful_degradation: 'no_quadruple' };
+    if (!folderMemory.isQuadrupleFresh(quadruple)) {
+      return { brain: null, graceful_degradation: 'stale_or_offline' };
+    }
+    return { brain: quadruple.brain || null, graceful_degradation: null };
+  } catch (_e) {
+    debugLog('gatherBrainContext', _e);
+    return { brain: null, graceful_degradation: 'no_quadruple' };
+  }
+}
+
+// ---------- Schema-tolerant rs-engine reader (Pitfall 7 forward-compat) ----------
+//
+// readPairField + normalizePair accept canonical field names AND known
+// alternates so the agent can consume rs-engine output across Plans 89-01
+// (Mode A) / 89-04 (Mode B) / 89-05 (Mode C) without re-edits.
+function readPairField(pair, primary, fallback) {
+  if (pair && Object.prototype.hasOwnProperty.call(pair, primary)) return pair[primary];
+  if (fallback && pair && Object.prototype.hasOwnProperty.call(pair, fallback)) return pair[fallback];
+  return undefined;
+}
+
+/*
+ * rsEndpoints(pair, roomDir) -> { fromHandle, toHandle, fromVia, toVia,
+ * fromTitle, toTitle }. Phase 355-17 (D-08, D-48): each side's carried name
+ * is read LOCALLY from the artifact's own file (frontmatter framework:,
+ * then methodology:, then the pair's own title, matching hsi-to-graph.cjs's
+ * hsiEndpoints idiom), resolved through the one local snapshot. A missing
+ * file degrades gracefully to title-only resolution (extractCarried on an
+ * empty string still carries the fallback title through); never guesses,
+ * never asks Theo to resolve a name.
+ */
+function rsEndpoints(pair, roomDir) {
+  function resolveOne(artifactId, fallbackTitle) {
+    let raw = '';
+    if (roomDir && artifactId) {
+      try {
+        // 2026: artifact ids come from engine output; never read outside the room.
+        const full = resolveInside(roomDir, String(artifactId) + '.md');
+        raw = full ? fs.readFileSync(full, 'utf8') : '';
+      } catch (_e) {
+        debugLog('rsEndpoints', _e);
+        raw = '';
+      }
+    }
+    const carried = verificationStamp.extractCarried(raw, fallbackTitle);
+    return Object.assign({ title: fallbackTitle }, verificationStamp.resolveEndpoint(carried));
+  }
+  const from = resolveOne(pair && pair.source_artifact_id, pair && pair.source_title);
+  const to = resolveOne(pair && pair.target_artifact_id, pair && pair.target_title);
+  return {
+    fromHandle: from.name,
+    toHandle: to.name,
+    fromVia: from.via,
+    toVia: to.via,
+    fromTitle: from.title,
+    toTitle: to.title,
+  };
+}
+
+function normalizePair(pair) {
+  const p = (pair && typeof pair === 'object') ? pair : {};
+  // 2026: rs-engine.py's hybrid scoring reports signed_diff/abs_diff in
+  // z-score units (roughly 0..6). mapDirectionToCascadeEdge and the persisted
+  // edge properties are defined on the raw [-1, 1] scale (the 0.7 cut), so
+  // prefer the raw_* keys the engine now also writes. Older engine output
+  // (no raw_* keys, or --scoring legacy) falls through unchanged.
+  const rawSigned = (typeof p.raw_signed_diff === 'number') ? p.raw_signed_diff : undefined;
+  const rawAbs = (typeof p.raw_abs_diff === 'number') ? p.raw_abs_diff : undefined;
+  return {
+    source_artifact_id: readPairField(p, 'source_artifact_id'),
+    source_section: readPairField(p, 'source_section'),
+    source_title: readPairField(p, 'source_title'),
+    target_artifact_id: readPairField(p, 'target_artifact_id'),
+    target_section: readPairField(p, 'target_section'),
+    target_title: readPairField(p, 'target_title'),
+    signed_diff: rawSigned !== undefined ? rawSigned : readPairField(p, 'signed_diff', 'signed_delta'),
+    abs_diff: rawAbs !== undefined ? rawAbs : readPairField(p, 'abs_diff'),
+    direction: readPairField(p, 'direction', 'innovation_type'),
+    lsa_score: readPairField(p, 'lsa_score'),
+    semantic_score: readPairField(p, 'semantic_score'),
+    // 2026 additive passthrough (data only; never rendered, see D-29).
+    scoring: readPairField(p, 'scoring'),
+    gap_percentile: readPairField(p, 'gap_percentile'),
+    gap_z: readPairField(p, 'gap_z'),
+    verification: readPairField(p, 'verification'),
+  };
+}
+
+// ---------- backend-dispatched engine invocation (HARD RULE 6, D-09 amended) ----------
+//
+// Routes through lib/core/rs-backend-dispatch.cjs::resolveBackend() (Phase 272
+// D-04 chokepoint) -- this is the ONLY place the agent decides which backend
+// runs. 'python' preserves the original execFileSync shell-out to
+// scripts/rs-engine.py verbatim (unchanged code path, unchanged error
+// handling). 'cjs' (the D-04 default) calls lib/core/rs-engine.cjs's
+// runModeInternal in-process, then both branches read back the SAME
+// .rs-engine-results.json file the invoked backend just wrote -- both
+// backends produce the same on-disk contract, so this downstream code needs
+// no branching. Returns:
+//   { ok: true,  pairs: [<normalized pair>...] }
+//   { ok: false, reason: <string>,             pairs: [] }
+//
+// Reasons surfaced (for graceful Wave-2 telemetry mirroring):
+//   - invalid_room_dir
+//   - rs_engine_invocation_failed
+//   - rs_engine_results_missing
+//   - rs_engine_results_parse_failed
+//
+// async: the 'cjs' branch calls rs-engine.cjs's async runModeInternal, so
+// this function returns a Promise regardless of which backend runs. Callers
+// (detectAndSurface in this file; commands/find-bottlenecks.md's Agent-First
+// Flow) must await it.
+async function runRsEngine(opts) {
+  const o = (opts && typeof opts === 'object') ? opts : {};
+  const roomDir = o.roomDir;
+  const mode = (typeof o.mode === 'string') ? o.mode : 'internal';
+  if (typeof roomDir !== 'string' || roomDir.length === 0) {
+    return { ok: false, reason: 'invalid_room_dir', pairs: [] };
+  }
+  const backend = rsBackendDispatch.resolveBackend();
+  const startedAtMs = Date.now();
+  const resultsPath = path.join(roomDir, '.rs-engine-results.json');
+  // Phase 355-17 (D-08, D-16): populated only by the 'cjs' branch's stampFn
+  // below (a Map<pairKey, Stamp>, direction-aware, one entry per pair the
+  // engine actually wrote). The 'python' branch leaves this null -- D-16's
+  // scope is the cjs write boundary only, so detectAndSurface stamps its
+  // surfaced finding individually in that case (no stored edge props).
+  let stampsByPairKey = null;
+
+  if (backend === 'python') {
+    const py = process.env.MINDRIAN_PYTHON || 'python3';
+    const script = path.join(__dirname, '..', '..', 'scripts', 'rs-engine.py');
+    // 2026: --output pins the results to the file this function reads back, so
+    // external/hybrid modes (which default to research/<slug>/) no longer
+    // surface as rs_engine_results_missing. --threshold was previously dropped
+    // on the python path; --topic is required by the external/hybrid modes.
+    const args = ['--mode', mode, '--room', roomDir, '--output', resultsPath];
+    if (o.topk) args.push('--topk', String(o.topk));
+    if (typeof o.threshold === 'number' && Number.isFinite(o.threshold)) {
+      args.push('--threshold', String(o.threshold));
+    }
+    if (typeof o.topic === 'string' && o.topic.length > 0) args.push('--topic', o.topic);
+    if (o.scoring === 'hybrid' || o.scoring === 'legacy') args.push('--scoring', o.scoring);
+    if (o.no_thesis) args.push('--no-thesis');
+    const envTimeout = Number(process.env.RS_ENGINE_TIMEOUT_MS);
+    const timeoutMs = (Number.isFinite(o.timeoutMs) && o.timeoutMs > 0) ? o.timeoutMs
+      : (Number.isFinite(envTimeout) && envTimeout > 0) ? envTimeout
+      : DEFAULT_ENGINE_TIMEOUT_MS;
+    try {
+      execFileSync(py, [script].concat(args), {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: timeoutMs,
+        maxBuffer: 16 * 1024 * 1024,
+      });
+    } catch (e) {
+      // Phase 127.2-03 Task 1 (Finding F2): forward the child python process's
+      // stderr LAST 200 chars to result.detail.diagnostic so callers can
+      // self-recover from missing-deps / import errors (the Windows tester
+      // 2026-05-23 silent-failure class). Truncate at the START so the tail
+      // (which carries the exception name + actionable fix line printed by
+      // rs_corpus -- e.g. "Run: pip install -r requirements-hsi.txt") is the
+      // half that survives the cap. Backward compatible: ok / reason / detail
+      // (e.message) unchanged; detail upgraded from plain string to object
+      // ONLY when stderr is present, so legacy callers reading detail as a
+      // string still get the truncated message via detail.message.
+      const message = String((e && e.message) || '').slice(0, 120);
+      const stderrRaw = (e && e.stderr) ? String(e.stderr) : '';
+      const diagnostic = stderrRaw.length > 200 ? stderrRaw.slice(-200) : stderrRaw;
+      const detail = stderrRaw.length > 0
+        ? { message: message, diagnostic: diagnostic }
+        : message;
+      return {
+        ok: false,
+        reason: 'rs_engine_invocation_failed',
+        detail: detail,
+        pairs: [],
+      };
+    }
+  } else {
+    // 'cjs' backend (D-04 default): in-process rs-engine.cjs, no python3
+    // resolution or child process needed. runModeInternal is documented as
+    // "never throws" (graceful degradation on empty vocabulary / unavailable
+    // encoder), but this branch still guards defensively so a genuinely
+    // unexpected failure (e.g. an fs error) maps into the SAME error
+    // contract the Python branch's catch block above produces -- callers of
+    // runRsEngine see one consistent shape regardless of which backend ran.
+    // Phase 355-17 (D-08, D-16, HIPS-04, HIPS-05): stampFn resolves each
+    // computed pair's endpoints locally (rsEndpoints) and asks Theo once per
+    // distinct pair (verificationStamp.stampFindings), BEFORE
+    // rs-engine.cjs's runModeInternal writes any edge -- awaited inside
+    // runModeInternal, per its own opts.stampFn contract. The returned Map's
+    // values are already-flattened node props (toNodeProps), so rs-engine.cjs
+    // itself never needs to require the stamp module. rsStamps additionally
+    // keeps the full Stamp objects (keyed the same way) so detectAndSurface
+    // can reuse them for the surfaced finding without a second Theo call.
+    const rsStamps = new Map();
+    async function stampFn(pairDicts) {
+      const list = Array.isArray(pairDicts) ? pairDicts : [];
+      if (list.length === 0) return new Map();
+      const endpointsByIndex = list.map((p) => rsEndpoints(p, roomDir));
+      const findings = list.map((p, i) => Object.assign({ direction: p.direction }, endpointsByIndex[i]));
+      const stamps = await verificationStamp.stampFindings(findings, o.deps);
+      const propsMap = new Map();
+      list.forEach((p, i) => {
+        const key = String(p.source_artifact_id) + '\u0000' + String(p.target_artifact_id);
+        propsMap.set(key, verificationStamp.toNodeProps(stamps[i]));
+        rsStamps.set(key, stamps[i]);
+      });
+      return propsMap;
+    }
+    try {
+      await rsEngineCjs.runModeInternal(roomDir, {
+        topk: o.topk,
+        threshold: o.threshold,
+        noThesis: o.no_thesis,
+        stampFn,
+      });
+    } catch (e) {
+      return {
+        ok: false,
+        reason: 'rs_engine_invocation_failed',
+        detail: { message: String((e && e.message) || '').slice(0, 120) },
+        pairs: [],
+      };
+    }
+    stampsByPairKey = rsStamps;
+  }
+  if (!fs.existsSync(resultsPath)) {
+    return { ok: false, reason: 'rs_engine_results_missing', pairs: [] };
+  }
+  // 2026: a results file older than this invocation means the python engine
+  // did not write one (exit 0 with nothing written, or a swallowed failure).
+  // Reading it would surface findings from a previous run as if they were
+  // current. Python backend only: rs-engine.cjs owns its own write contract.
+  try {
+    if (backend === 'python' && fs.statSync(resultsPath).mtimeMs < startedAtMs - 2000) {
+      return { ok: false, reason: 'rs_engine_results_stale', pairs: [] };
+    }
+  } catch (_e) {
+    debugLog('runRsEngine stat', _e);
+    return { ok: false, reason: 'rs_engine_results_missing', pairs: [] };
+  }
+  let raw;
+  try {
+    raw = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+  } catch (_e) {
+    debugLog('runRsEngine parse', _e);
+    return { ok: false, reason: 'rs_engine_results_parse_failed', pairs: [] };
+  }
+  const pairs = (raw && Array.isArray(raw.pairs)) ? raw.pairs.map(normalizePair) : [];
+  return { ok: true, pairs, stampsByPairKey, metadata: (raw && raw.metadata) || null };
+}
+
+// ---------- Compose finding (deterministic id for idempotent re-fires) ----------
+//
+// finding.id = first 32 chars of sha256(source_artifact_id|target_artifact_id|direction).
+// Same pair + same direction across runs = same id. The cascade-edge upsert
+// in emitFindingEdge is itself idempotent (ON CONFLICT in the SQL); the
+// deterministic id is for external referents (telemetry, F.0 dispatch links,
+// downstream cascade traces) per Pitfall 6 in 89-07-RESEARCH.md.
+function composeFinding(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const pair = a.pair || {};
+  const idBasis =
+    String(pair.source_artifact_id) +
+    '|' +
+    String(pair.target_artifact_id) +
+    '|' +
+    String(pair.direction);
+  const id = crypto.createHash('sha256').update(idBasis).digest('hex').slice(0, 32);
+  const brain = (a.brainContext && a.brainContext.brain) || null;
+  const chainText = (brain && Array.isArray(brain.framework_chain_predictions))
+    ? brain.framework_chain_predictions.slice(0, 3).join(' -> ')
+    : '';
+  const sourceLabel = String(pair.source_title || pair.source_artifact_id || '?')
+    + ' (' + String(pair.source_section || '?') + ')';
+  const targetLabel = String(pair.target_title || pair.target_artifact_id || '?')
+    + ' (' + String(pair.target_section || '?') + ')';
+  // Phase 355-17 (D-29): no differential or similarity number is rendered
+  // here -- signed_diff/abs_diff stay as data fields on the finding (used
+  // by mapDirectionToCascadeEdge, telemetry) but never appear in body_text.
+  // A verification stamp (attached by detectAndSurface below) is the
+  // evidence shown to the user now, not a raw decimal.
+  const body_text =
+    sourceLabel +
+    ' is lagging relative to ' +
+    targetLabel;
+  return {
+    id,
+    source_artifact_id: pair.source_artifact_id,
+    target_artifact_id: pair.target_artifact_id,
+    direction: pair.direction,
+    signed_diff: pair.signed_diff,
+    abs_diff: pair.abs_diff,
+    body_text,
+    brain_chain_text: chainText,
+    // 2026 additive: machine-readable evidence from rs-engine.py (source
+    // trail, second-signal check, novelty status). Data only: it is NOT part
+    // of body_text and is never rendered (D-29 forbids scalars in the render).
+    verification: pair.verification || null,
+    scoring: pair.scoring || null,
+  };
+}
+
+// ---------- Emit cascade edge on user APPROVE ----------
+//
+// On APPROVE, calls lazygraph-ops.upsertEdge with the mapped cascade type.
+// REJECT and DEFER paths are skip-stubs; the F.0 dispatcher (Wave 2) writes
+// REJECTED_BECAUSE / DEFERRED edges along its own path so this helper does
+// NOT duplicate.
+//
+// upsertEdge is loaded lazily so test-reverse-salient-cascade-emit.cjs can
+// substitute the lazygraph-ops module in require.cache before the agent's
+// first emit call. The lazy require pattern is per-call inside this function.
+function emitFindingEdge(db, finding, userResponse) {
+  if (userResponse !== 'APPROVE') {
+    const reason =
+      userResponse === 'REJECT' ? 'rejected_handled_by_f0_dispatcher' :
+      userResponse === 'DEFER' ? 'deferred_handled_by_f0_dispatcher' :
+      'unknown_response_skipped';
+    return { skipped: true, reason };
+  }
+  if (!finding || typeof finding !== 'object') {
+    return { ok: false, reason: 'invalid_finding' };
+  }
+  const edgeType = mapDirectionToCascadeEdge(finding.direction, finding.signed_diff);
+  let lazygraph;
+  try {
+    lazygraph = require('../core/lazygraph-ops.cjs');
+  } catch (e) {
+    return {
+      ok: false,
+      reason: 'lazygraph_load_failed',
+      detail: String((e && e.message) || '').slice(0, 80),
+    };
+  }
+  if (!lazygraph || typeof lazygraph.upsertEdge !== 'function') {
+    return { ok: false, reason: 'upsertEdge_not_available' };
+  }
+  try {
+    const result = lazygraph.upsertEdge(db, {
+      type: edgeType,
+      source: finding.source_artifact_id,
+      target: finding.target_artifact_id,
+      properties: {
+        source: 'rs-engine',
+        agent: 'reverse-salient',
+        signed_diff: finding.signed_diff,
+        abs_diff: finding.abs_diff,
+        finding_id: finding.id,
+      },
+    });
+    return { ok: true, edgeType, result };
+  } catch (e) {
+    return {
+      ok: false,
+      reason: 'edge_emit_threw',
+      detail: String((e && e.message) || '').slice(0, 80),
+    };
+  }
+}
+
+// ---------- High-level surface (Wave 2 wires F.0 + persona + telemetry) ----------
+//
+// detectAndSurface composes runRsEngine -> gatherFocusContext ->
+// gatherBrainContext -> composeFinding for the top-k pairs. Wave 2 will wrap
+// this with a surfaceFinding helper that fires the F.0 dispatcher with
+// persona-aware framing and mirrors the selector_presentation /
+// selector_response telemetry events.
+async function detectAndSurface(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const rs = await runRsEngine({
+    roomDir: a.roomDir,
+    mode: a.mode || 'internal',
+    topk: a.topk,
+    threshold: a.threshold,
+    topic: a.topic,
+    scoring: a.scoring,
+    timeoutMs: a.timeoutMs,
+    no_thesis: a.no_thesis,
+    deps: a.deps,
+  });
+  if (!rs.ok) {
+    // Phase 127.2-03 (Finding F2) contract: runRsEngine() populates `detail`
+    // (message + truncated stderr diagnostic) specifically so callers can
+    // self-recover from missing-deps / import / schema errors. This early
+    // return used to drop it, silently regressing F2 one call-frame up from
+    // where it was fixed (RCA rs-engine-python-insert-not-null-and-detail-
+    // drop-regression). Forward it unchanged.
+    return { ok: false, reason: rs.reason, detail: rs.detail, findings: [] };
+  }
+  const focusContext = a.db ? gatherFocusContext(a.db, a.sessionId) : null;
+  const sectionPath = a.sectionPath || a.roomDir;
+  const brainContext = gatherBrainContext(sectionPath);
+  const limit = (typeof a.topk === 'number' && a.topk > 0) ? a.topk : 1;
+  const shownPairs = rs.pairs.slice(0, limit);
+  const findings = shownPairs.map((pair) =>
+    composeFinding({ pair, focusContext, brainContext })
+  );
+  // Phase 355-17 (D-08, D-16, D-17, HIPS-04, HIPS-05): every surfaced
+  // finding carries a verification stamp. The 'cjs' backend's
+  // rs.stampsByPairKey (already computed once, at the rs-engine write
+  // boundary) is reused here when present -- no second Theo call for the
+  // same pair. The 'python' backend has no stored props to reuse (D-16's
+  // scope is the cjs write boundary only), so its surfaced finding is
+  // stamped individually here, after reading results.
+  for (let i = 0; i < findings.length; i += 1) {
+    const pair = shownPairs[i];
+    const key = String(pair.source_artifact_id) + '\u0000' + String(pair.target_artifact_id);
+    let stamp = rs.stampsByPairKey && rs.stampsByPairKey.get(key);
+    if (!stamp) {
+      const endpoints = rsEndpoints(pair, a.roomDir);
+      stamp = await verificationStamp.stampFinding(Object.assign({ direction: pair.direction }, endpoints), a.deps);
+    }
+    findings[i].stamp = stamp;
+    findings[i].stamp_lines = verificationStampFormat.formatStampLines(stamp, 'cli');
+    findings[i].disclosure = floorDisclosure.disclosureLine('find-bottlenecks');
+  }
+  return { ok: true, findings, focusContext, brainContext };
+}
+
+/*
+ * renderBottleneckFinding(finding, stamp) -> string[]. The pure render seam
+ * (Phase 355-17, D-27, D-29): body_text, then the framework chain line if
+ * present, then the finding's verification stamp block
+ * (formatStampLines(..., 'cli')), then disclosureLine('find-bottlenecks').
+ * No differential or similarity number, anywhere -- assertNoScalar sweeps
+ * the whole rendered array as the last-resort backstop. `stamp` overrides
+ * `finding.stamp`/`finding.stamp_lines` when supplied directly (the render
+ * seam is testable against a recorded finding + stamp with no live call).
+ */
+function renderBottleneckFinding(finding, stamp) {
+  const f = (finding && typeof finding === 'object') ? finding : {};
+  const bodyText = String(f.body_text || '');
+  const chainText = String(f.brain_chain_text || '');
+  const stampToUse = stamp || f.stamp || null;
+  const lines = [];
+  if (bodyText.length > 0) lines.push(bodyText);
+  if (chainText.length > 0) lines.push('Framework chain: ' + chainText);
+  if (stampToUse) {
+    lines.push.apply(lines, verificationStampFormat.formatStampLines(stampToUse, 'cli'));
+  } else if (Array.isArray(f.stamp_lines) && f.stamp_lines.length > 0) {
+    lines.push.apply(lines, f.stamp_lines);
+  }
+  lines.push(floorDisclosure.disclosureLine('find-bottlenecks'));
+  return verificationStampFormat.assertNoScalar(lines).lines;
+}
+
+// =====================================================================
+// Phase 89-07 Wave 2 -- F.0 dispatch + persona suffix + telemetry mirror.
+// =====================================================================
+//
+// Wave 2 wires the Wave-1 substrate to:
+//   - lib/hmi/selector-dispatcher.cjs (88.2-04+05 pickShape -> F.0)
+//   - lib/hmi/shape-f0-renderer.cjs (88.2-05 buildRejectedBecauseEdge)
+//   - lib/hmi/selector-telemetry.cjs (88.2-03 recordSelectorMirror dual-surface)
+//   - lib/core/reverse-salient-persona-suffix.cjs (Wave-2 7-key persona map)
+//
+// Imports use lazy require inside helpers so tests can substitute the
+// require.cache slot before the agent's first call. Pattern matches Wave-1
+// emitFindingEdge lazy-require for lazygraph-ops.
+
+// ---------- Resolve persona key + suffix from role_blend ----------
+//
+// resolvePersonaKey returns the canonical role key chosen for telemetry
+// (e.g. 'founder', 'researcher', 'default'). resolvePersonaSuffix wraps
+// the persona-suffix module's suffixFor() with a try/catch fence so a
+// broken module load can never bring down the agent.
+function resolvePersonaKey(roleBlend) {
+  try {
+    const personaSuffix = require('../core/reverse-salient-persona-suffix.cjs');
+    if (!roleBlend || typeof roleBlend !== 'object') return 'default';
+    const keys = Object.keys(roleBlend)
+      .filter((k) => personaSuffix.CANONICAL_KEYS.indexOf(k) !== -1)
+      .sort();
+    let best = null;
+    let bestWeight = 0;
+    for (const k of keys) {
+      const w = roleBlend[k];
+      if (typeof w === 'number' && Number.isFinite(w) && w > bestWeight) {
+        best = k;
+        bestWeight = w;
+      }
+    }
+    return (best && bestWeight > 0) ? best : 'default';
+  } catch (_e) {
+    debugLog('resolvePersonaKey', _e);
+    return 'default';
+  }
+}
+
+function resolvePersonaSuffix(roleBlend) {
+  try {
+    const personaSuffix = require('../core/reverse-salient-persona-suffix.cjs');
+    return personaSuffix.suffixFor(roleBlend);
+  } catch (_e) {
+    debugLog('resolvePersonaSuffix', _e);
+    return 'lagging component';
+  }
+}
+
+// ---------- Telemetry helpers (Canon Part 8 scalar-only payloads) ----------
+//
+// emitDetected fires the reverse_salient_detected memory_event. The payload
+// carries 9 scalar fields per Canon Part 8 audit. Suppression paths (tier 0,
+// JUST_TALK, dispatcher error) STILL fire this event with surfaced=false +
+// suppress_reason set (Pitfall 5).
+//
+// emitActedOn fires the reverse_salient_acted_on memory_event. The payload
+// carries 4 scalar fields. The reject reason TEXT never appears -- only
+// reason_present (boolean). The reject reason text lives in the
+// REJECTED_BECAUSE typed edge written by buildRejectedBecauseEdge.
+function emitDetected(roomDir, finding, ctx) {
+  try {
+    const telemetry = require('../hmi/selector-telemetry.cjs');
+    if (!telemetry || typeof telemetry.recordSelectorMirror !== 'function') {
+      return { ok: false, reason: 'telemetry_module_unavailable' };
+    }
+    const payload = {
+      finding_id: String(finding && finding.id || ''),
+      direction: String(finding && finding.direction || ''),
+      abs_diff: Number(finding && finding.abs_diff) || 0,
+      signed_diff: Number(finding && finding.signed_diff) || 0,
+      tier: Number(ctx.tier) || 0,
+      persona_key: String(ctx.persona_key || 'default'),
+      surfaced: Boolean(ctx.surfaced),
+      suppress_reason: ctx.suppress_reason === null || ctx.suppress_reason === undefined
+        ? null
+        : String(ctx.suppress_reason),
+      brain_offline_flag: Boolean(ctx.brain_offline_flag),
+    };
+    return telemetry.recordSelectorMirror(roomDir, 'reverse_salient_detected', payload);
+  } catch (_e) {
+    debugLog('emitDetected', _e);
+    return { ok: false, reason: 'detected_telemetry_threw' };
+  }
+}
+
+function emitActedOn(roomDir, finding, response, latency_ms, reason_present) {
+  try {
+    const telemetry = require('../hmi/selector-telemetry.cjs');
+    if (!telemetry || typeof telemetry.recordSelectorMirror !== 'function') {
+      return { ok: false, reason: 'telemetry_module_unavailable' };
+    }
+    const safeLatency = Number.isFinite(latency_ms) ? Math.max(0, Math.floor(latency_ms)) : 0;
+    const payload = {
+      finding_id: String(finding && finding.id || ''),
+      response: String(response || ''),
+      latency_ms: safeLatency,
+      reason_present: Boolean(reason_present),
+    };
+    return telemetry.recordSelectorMirror(roomDir, 'reverse_salient_acted_on', payload);
+  } catch (_e) {
+    debugLog('emitActed', _e);
+    return { ok: false, reason: 'acted_telemetry_threw' };
+  }
+}
+
+// ---------- Wave-2 surfaceFinding (the F.0 dispatch surface) ----------
+//
+// Routes every Wave-1 finding through the F.0 Mini Decision Gate via the
+// 88.2-04+05 dispatcher. Honors the 4 canonical refuse paths:
+//   - tier === 0          -> suppress + telemetry suppress_reason='tier_0'
+//   - operator JUST_TALK  -> suppress + telemetry suppress_reason='just_talk'
+//   - dispatcher error    -> suppress + telemetry suppress_reason=<dispatch_err>
+//   - tier>=1 non-JT      -> F.0 surface fires; telemetry surfaced=true
+//
+// Persona suffix from role_blend goes into the F.0 header per RESEARCH
+// SCOPE B Section 6. parent_decision_id = 'rs-finding:' + finding.id ties
+// the dispatched surface to the deterministic Wave-1 finding id (Pitfall 6).
+//
+// GRAPH-NATIVE INVARIANT 4 (89-07-VALIDATION.md): F.0 surface fires for
+// accept/reject/defer. This function is the entry point that proves it.
+function surfaceFinding(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const finding = a.finding || {};
+  const roomDir = a.roomDir;
+  const tier = (typeof a.tier === 'number') ? a.tier : 1;
+  const operator = (typeof a.operator === 'string' && a.operator.length > 0) ? a.operator : null;
+  const roleBlend = a.roleBlend || null;
+  const personaKey = resolvePersonaKey(roleBlend);
+  const personaSuffixText = resolvePersonaSuffix(roleBlend);
+  const brainOfflineFlag = Boolean(a.brainOfflineFlag);
+  const parentDecisionId = 'rs-finding:' + String(finding.id || '');
+
+  // Suppression check 1: tier 0 -- short-circuit pre-dispatch.
+  if (tier === 0) {
+    emitDetected(roomDir, finding, {
+      tier: tier,
+      persona_key: personaKey,
+      surfaced: false,
+      suppress_reason: 'tier_0',
+      brain_offline_flag: brainOfflineFlag,
+    });
+    return { surfaced: false, suppress_reason: 'tier_0' };
+  }
+
+  // Suppression check 2: JUST_TALK operator -- short-circuit pre-dispatch.
+  // Per Canon Part 3 + render-v2 step 6, JUST_TALK suppresses ALL selector
+  // output. The dispatcher itself would also refuse; we short-circuit
+  // earlier to avoid a wasted pickShape() call and to record the more
+  // semantic suppress_reason='just_talk' (vs the dispatcher's
+  // 'render_v2_compaction_violation' error code).
+  if (operator === 'JUST_TALK') {
+    emitDetected(roomDir, finding, {
+      tier: tier,
+      persona_key: personaKey,
+      surfaced: false,
+      suppress_reason: 'just_talk',
+      brain_offline_flag: brainOfflineFlag,
+    });
+    return { surfaced: false, suppress_reason: 'just_talk' };
+  }
+
+  // Phase 121.5-10 Sub-plan K (audit Section 5.3): the locked [■ BRAIN]
+  // chip replaces the prior `-- mindrianOS -- reverse salient -- <persona>
+  // --` header. The persona suffix (Phase 89-07 extension via
+  // resolvePersonaSuffix) moves into the body slot directly beneath the
+  // chip so the two-row chip+context format preserves the persona signal
+  // without violating the 12-char chip rule. F.0 closed vocabulary
+  // (Approve / Reject / Defer) STAYS verbatim per the F.0 specification
+  // (no RECOMMENDED in F.0; the shape itself is the recommendation
+  // surface). The body composition (persona + body_text + framework chain)
+  // continues to render in zones.body via the F.0 renderer.
+  const header = '[■ BRAIN]';
+  const personaLine = personaSuffixText && personaSuffixText.length > 0
+    ? '(' + personaSuffixText + ' lens)\n\n' : '';
+  // Phase 355-17 (D-27, D-29): the evidence block is body_text + framework
+  // chain + the finding's verification stamp block + disclosure line, via
+  // the pure renderBottleneckFinding seam -- no differential or similarity
+  // number anywhere in zones.body.
+  const evidenceLines = renderBottleneckFinding(finding, finding.stamp);
+  const body = personaLine + evidenceLines.join('\n');
+
+  // Dispatch via the canonical 88.2-04+05 pickShape entry point.
+  // emitTelemetry:false because the agent owns the dual-surface mirror via
+  // emitDetected/emitActedOn. The dispatcher's own JSONL telemetry is
+  // separate from the agent's memory_event telemetry per D-AMEND-02.
+  let dispatchResult;
+  try {
+    const dispatcher = require('../hmi/selector-dispatcher.cjs');
+    dispatchResult = dispatcher.pickShape({
+      requestedShape: 'F.0',
+      roomDir: roomDir,
+      operator: operator,
+      tier: tier,
+      payload: {
+        header: header,
+        body: body,
+        parent_decision_id: parentDecisionId,
+        emitTelemetry: false,
+      },
+    });
+  } catch (e) {
+    const reason = 'dispatch_threw:' + String((e && e.message) || '').slice(0, 40);
+    emitDetected(roomDir, finding, {
+      tier: tier,
+      persona_key: personaKey,
+      surfaced: false,
+      suppress_reason: reason,
+      brain_offline_flag: brainOfflineFlag,
+    });
+    return { surfaced: false, suppress_reason: reason };
+  }
+
+  // Dispatcher returned an error envelope -> record suppression with the
+  // dispatcher's error string as the suppress_reason.
+  if (dispatchResult && dispatchResult.shape === 'error') {
+    const reason = (dispatchResult.rendered && dispatchResult.rendered.error)
+      ? String(dispatchResult.rendered.error)
+      : 'dispatch_failed';
+    emitDetected(roomDir, finding, {
+      tier: tier,
+      persona_key: personaKey,
+      surfaced: false,
+      suppress_reason: reason,
+      brain_offline_flag: brainOfflineFlag,
+    });
+    return { surfaced: false, suppress_reason: reason };
+  }
+
+  // F.0 surfaced successfully.
+  emitDetected(roomDir, finding, {
+    tier: tier,
+    persona_key: personaKey,
+    surfaced: true,
+    suppress_reason: null,
+    brain_offline_flag: brainOfflineFlag,
+  });
+  return {
+    surfaced: true,
+    suppress_reason: null,
+    dispatchResult: dispatchResult,
+    parent_decision_id: parentDecisionId,
+    surfaceStartedAtMs: Date.now(),
+    persona_key: personaKey,
+  };
+}
+
+// ---------- Wave-2 handleUserResponse (post-F.0 graph wiring) ----------
+//
+// APPROVE -> emitFindingEdge (Wave-1 cascade emit) + reverse_salient_acted_on.
+// REJECT  -> buildRejectedBecauseEdge (88.2-05) with reason + parent_decision_id
+//            + reverse_salient_acted_on (reason_present:true; reason text
+//            stays in the REJECTED_BECAUSE edge, never in telemetry).
+// DEFER   -> reverse_salient_acted_on with response='DEFER' for Phase 116
+//            unresolved-tension-hook consumption.
+//
+// All three paths produce a typed graph artifact (cascade edge or
+// REJECTED_BECAUSE event or acted_on event). Canon Part 4 invariant: every
+// choice is graph data; zero silent dismiss paths.
+function handleUserResponse(args) {
+  const a = (args && typeof args === 'object') ? args : {};
+  const finding = a.finding || {};
+  const roomDir = a.roomDir;
+  const userResponse = a.userResponse;
+  const reason = (typeof a.reason === 'string' && a.reason.length > 0) ? a.reason : null;
+  const surfaceStartedAtMs = Number.isFinite(a.surfaceStartedAtMs) ? a.surfaceStartedAtMs : Date.now();
+  const latency_ms = Date.now() - surfaceStartedAtMs;
+  const parentDecisionId = 'rs-finding:' + String(finding.id || '');
+
+  if (userResponse === 'APPROVE') {
+    // Cascade edge writes via Wave-1 emitFindingEdge (the lazygraph primitive
+    // chain). Tests pass `db: null` -> we record acted_on but skip the edge
+    // emit, surfacing { deferred_db: true } so the test can assert telemetry
+    // independently of the SQL substrate.
+    let edgeResult = { ok: true, deferred_db: true };
+    if (a.db) {
+      edgeResult = emitFindingEdge(a.db, finding, 'APPROVE');
+    }
+    emitActedOn(roomDir, finding, 'APPROVE', latency_ms, false);
+    return {
+      handled: true,
+      response: 'APPROVE',
+      edgeResult: edgeResult,
+      latency_ms: latency_ms,
+    };
+  }
+
+  if (userResponse === 'REJECT') {
+    let edgeResult = { ok: false, reason: 'f0_renderer_unavailable' };
+    try {
+      const f0Renderer = require('../hmi/shape-f0-renderer.cjs');
+      if (f0Renderer && typeof f0Renderer.buildRejectedBecauseEdge === 'function') {
+        edgeResult = f0Renderer.buildRejectedBecauseEdge({
+          roomDir: roomDir,
+          reason: reason || 'no_reason_provided',
+          parent_decision_id: parentDecisionId,
+        });
+      }
+    } catch (e) {
+      edgeResult = {
+        ok: false,
+        reason: 'reject_edge_threw',
+        detail: String((e && e.message) || '').slice(0, 80),
+      };
+    }
+    emitActedOn(roomDir, finding, 'REJECT', latency_ms, Boolean(reason));
+    return {
+      handled: true,
+      response: 'REJECT',
+      edgeResult: edgeResult,
+      latency_ms: latency_ms,
+    };
+  }
+
+  if (userResponse === 'DEFER') {
+    // DEFERRED memory_event for Phase 116 unresolved-tension-hook consumption.
+    // The reverse_salient_acted_on event with response='DEFER' is the
+    // canonical signal Phase 116 reads (per RESEARCH cross-phase wiring).
+    emitActedOn(roomDir, finding, 'DEFER', latency_ms, false);
+    return {
+      handled: true,
+      response: 'DEFER',
+      latency_ms: latency_ms,
+    };
+  }
+
+  return {
+    handled: false,
+    reason: 'unknown_user_response',
+  };
+}
+
+module.exports = {
+  // Wave-1 substrate exports preserved.
+  gatherFocusContext,
+  gatherBrainContext,
+  composeFinding,
+  emitFindingEdge,
+  mapDirectionToCascadeEdge,
+  runRsEngine,
+  detectAndSurface,
+  // Wave-2 additions.
+  surfaceFinding,
+  handleUserResponse,
+  resolvePersonaKey,
+  resolvePersonaSuffix,
+  emitDetected,
+  emitActedOn,
+  // Phase 355-17 additions (HIPS-04, HIPS-05, D-08, D-16, D-48).
+  rsEndpoints,
+  renderBottleneckFinding,
+  // Internal helpers exposed for substrate tests; not part of the public API.
+  _internal: { normalizePair, readPairField, resolveInside },
+};

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# check-hsi-deps -- Report HSI tier availability
+# Exit codes: 0=tier1+, 1=no python, 2=no numpy (nothing to compute with)
+# Output to stdout: "tier:0", "tier:1", or "tier:2"  (the contract callers parse; unchanged)
+# Diagnostics go to stderr only, e.g. "detail:numpy=yes sklearn=no st=no pinecone=no".
+#
+# 2026 revision: compute-hsi.py now has a numpy TF-IDF/SVD fallback, so scikit-learn is optional
+# for Tier 1. The original exited 2 / tier:0 without scikit-learn even though numpy was enough
+# to run the LSA path. Set HSI_REQUIRE_SKLEARN=1 to restore the strict check.
+
+set -euo pipefail
+
+PY=""
+for cand in python3 python; do
+  if command -v "$cand" &>/dev/null && "$cand" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' 2>/dev/null; then
+    PY="$cand"
+    break
+  fi
+done
+
+if [ -z "$PY" ]; then
+  echo "tier:0"
+  echo "detail:python3=no" >&2
+  exit 1
+fi
+
+has() { "$PY" -c "import $1" 2>/dev/null; }
+
+has_numpy=no; has_sklearn=no; has_st=no; has_pinecone=no
+has numpy && has_numpy=yes
+has sklearn && has_sklearn=yes
+has sentence_transformers && has_st=yes
+if has pinecone && [ -n "${PINECONE_API_KEY:-}" ]; then has_pinecone=yes; fi
+
+echo "detail:python=$PY numpy=$has_numpy sklearn=$has_sklearn sentence_transformers=$has_st pinecone=$has_pinecone" >&2
+
+# Tier 1 minimum: numpy (scikit-learn when strict mode is requested)
+if [ "$has_numpy" != "yes" ] || { [ "${HSI_REQUIRE_SKLEARN:-0}" = "1" ] && [ "$has_sklearn" != "yes" ]; }; then
+  echo "tier:0"
+  exit 2
+fi
+
+if [ "$has_pinecone" = "yes" ] && [ "$has_st" = "yes" ]; then
+  echo "tier:2"
+elif [ "$has_st" = "yes" ]; then
+  echo "tier:1"
+else
+  # numpy present but no embedder -- LSA-only (and BM25) still works
+  echo "tier:1"
+fi
+exit 0
