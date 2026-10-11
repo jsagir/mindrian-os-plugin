@@ -228,10 +228,14 @@ function createServer() {
   // delivers `instructions` to the client model at initialize) instead of
   // depending on per-user Project setup. See lib/mcp/runtime-instructions.cjs.
   const { RUNTIME_INSTRUCTIONS } = require('../lib/mcp/runtime-instructions.cjs');
+  const { renderFace } = require('../lib/mcp/theo-faces.cjs');
   const s = new McpServer(
     {
       name: 'mindrian-os',
+      title: 'Larry | MindrianOS (powered by Claude)',
       version,
+      icons: [{ src: 'data:image/svg+xml;base64,' + Buffer.from(renderFace()).toString('base64'),
+        mimeType: 'image/svg+xml', sizes: ['any'] }],
     },
     { instructions: RUNTIME_INSTRUCTIONS }
   );

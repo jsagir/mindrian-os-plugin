@@ -41,12 +41,17 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+#app { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* Layout */
 .wiki-layout {
   display: flex;
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 .wiki-sidebar {
   width: 260px;
@@ -58,6 +63,7 @@ body {
 }
 .wiki-main {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
   padding: 24px 32px;
 }
@@ -185,6 +191,7 @@ body {
 .accent-bar {
   display: flex;
   height: 3px;
+  flex-shrink: 0;
 }
 .accent-bar span { flex: 1; }
 .accent-bar span:nth-child(1) { background: var(--ds-red); }
@@ -227,44 +234,12 @@ body {
 <body>
 <div id="app" class="loading">Loading Wiki...</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
 <script>
 (async function() {
-  const app = new App();
-  let connected = false;
-  try {
-    await app.connect();
-    connected = true;
-  } catch (e) {
-    console.warn('MCP Apps bridge not available');
-  }
-
   let roomData = null;
   let activeArticle = null;
-
-  app.ontoolresult = function(result) {
-    try {
-      const text = result.content && result.content[0] && result.content[0].text;
-      if (text) {
-        roomData = JSON.parse(text);
-        render(roomData);
-      }
-    } catch (e) {
-      document.getElementById('app').innerHTML = '<p>Error parsing data</p>';
-    }
-  };
-
-  window.refreshWiki = async function() {
-    if (connected) {
-      try {
-        const result = await app.callServerTool({ name: 'room-wiki', arguments: {} });
-        if (result && result.content && result.content[0]) {
-          roomData = JSON.parse(result.content[0].text);
-          render(roomData);
-        }
-      } catch (e) { console.error('Refresh failed:', e); }
-    }
-  };
+  const view = MindrianView.connect('room-wiki', function(data) { roomData = data; render(data); });
+  window.refreshWiki = function() { return view.refresh(); };
 
   window.selectArticle = function(sectionId, articleIdx) {
     if (!roomData) return;
@@ -278,11 +253,9 @@ body {
     var el = document.getElementById(linkId);
     if (el) el.classList.add('active');
     // Update model context
-    if (connected) {
-      app.updateModelContext({
-        content: [{ type: 'text', text: 'User is reading: ' + sec.label + ' / ' + sec.articles[articleIdx].title }]
-      }).catch(function() {});
-    }
+    view.updateModelContext({
+      content: [{ type: 'text', text: 'User is reading: ' + sec.label + ' / ' + sec.articles[articleIdx].title }]
+    });
   };
 
   window.filterEntries = function(query) {

@@ -200,48 +200,11 @@ body {
 <body>
 <div id="app" class="loading">Loading Data Room...</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
 <script>
 (async function() {
-  // Connect to MCP Apps bridge
-  const app = new App();
-  let connected = false;
-  try {
-    await app.connect();
-    connected = true;
-  } catch (e) {
-    console.warn('MCP Apps bridge not available, using tool result data');
-  }
-
   let roomData = null;
-
-  // Receive tool result data
-  app.ontoolresult = function(result) {
-    try {
-      const text = result.content && result.content[0] && result.content[0].text;
-      if (text) {
-        roomData = JSON.parse(text);
-        render(roomData);
-      }
-    } catch (e) {
-      document.getElementById('app').innerHTML = '<p>Error parsing room data</p>';
-    }
-  };
-
-  // Refresh handler -- calls back to MCP tool
-  window.refreshDashboard = async function() {
-    if (connected) {
-      try {
-        const result = await app.callServerTool({ name: 'room-dashboard', arguments: {} });
-        if (result && result.content && result.content[0]) {
-          roomData = JSON.parse(result.content[0].text);
-          render(roomData);
-        }
-      } catch (e) {
-        console.error('Refresh failed:', e);
-      }
-    }
-  };
+  const view = MindrianView.connect('room-dashboard', function(data) { roomData = data; render(data); });
+  window.refreshDashboard = function() { return view.refresh(); };
 
   function escapeHtml(str) {
     if (!str) return '';

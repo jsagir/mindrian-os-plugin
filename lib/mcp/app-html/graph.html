@@ -40,8 +40,12 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   overflow: hidden;
 }
+#app { position: relative; min-height: 0; flex: 1; }
 
 /* Header */
 .graph-header {
@@ -51,7 +55,9 @@ body {
   padding: 8px 16px;
   background: var(--ds-surface);
   border-bottom: 1px solid var(--ds-border);
-  height: 48px;
+  min-height: 48px;
+  flex-wrap: wrap;
+  gap: 6px 12px;
 }
 .graph-title {
   font-family: var(--ds-font-display);
@@ -97,15 +103,15 @@ body {
 
 /* Sidebar */
 .graph-sidebar {
-  position: fixed;
-  top: 51px;
+  position: absolute;
+  top: var(--graph-toolbar-height, 51px);
   left: 0;
   width: 180px;
   background: var(--ds-surface);
   border-right: 1px solid var(--ds-border);
   padding: 12px;
   z-index: 80;
-  height: calc(100vh - 51px);
+  bottom: 0;
   overflow-y: auto;
 }
 .sidebar-title {
@@ -135,7 +141,7 @@ body {
 /* Graph container */
 .cy-container {
   position: absolute;
-  top: 51px;
+  top: var(--graph-toolbar-height, 51px);
   left: 180px;
   right: 0;
   bottom: 0;
@@ -182,7 +188,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 200px;
   color: var(--ds-muted);
   font-family: var(--ds-font-mono);
 }
@@ -192,7 +198,6 @@ body {
 <div id="app" class="loading">Loading Graph...</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@modelcontextprotocol/ext-apps/dist/src/app-with-deps.js"></script>
 <script>
 (async function() {
   var THREAD_COLORS = {
@@ -214,45 +219,15 @@ body {
     'CO_OCCURS': '#C8A43C'
   };
 
-  var app = new App();
-  var connected = false;
-  try {
-    await app.connect();
-    connected = true;
-  } catch (e) {
-    console.warn('MCP Apps bridge not available');
-  }
-
-  var cy = null;
-  var roomData = null;
-
-  app.ontoolresult = function(result) {
-    try {
-      var text = result.content && result.content[0] && result.content[0].text;
-      if (text) {
-        roomData = JSON.parse(text);
-        render(roomData);
-      }
-    } catch (e) {
-      document.getElementById('app').innerHTML = '<p>Error parsing graph data</p>';
-    }
-  };
-
-  window.refreshGraph = async function() {
-    if (connected) {
-      try {
-        var result = await app.callServerTool({ name: 'room-graph', arguments: {} });
-        if (result && result.content && result.content[0]) {
-          roomData = JSON.parse(result.content[0].text);
-          render(roomData);
-        }
-      } catch (e) { console.error('Refresh failed:', e); }
-    }
-  };
+  let roomData = null;
+  let cy = null;
+  const view = MindrianView.connect('room-graph', function(data) { roomData = data; render(data); });
+  window.refreshGraph = function() { return view.refresh(); };
 
   window.setLayout = function(name) {
     if (!cy) return;
-    cy.layout({ name: name, animate: true, animationDuration: 500, padding: 40 }).run();
+    view.setArguments({ layout: name });
+    cy.layout({ name: name, animate: !matchMedia('(prefers-reduced-motion: reduce)').matches, animationDuration: 500, padding: 40 }).run();
     document.querySelectorAll('.layout-btn').forEach(function(btn) {
       btn.classList.toggle('active', btn.dataset.layout === name);
     });
@@ -333,8 +308,11 @@ body {
 
     document.getElementById('app').innerHTML = html;
     document.getElementById('app').className = '';
+    document.getElementById('app').style.setProperty('--graph-toolbar-height',
+      document.querySelector('.graph-header').getBoundingClientRect().height + 3 + 'px');
 
     // Initialize Cytoscape
+    if (cy) cy.destroy();
     cy = cytoscape({
       container: document.getElementById('cy'),
       elements: nodes.concat(edges),
@@ -408,11 +386,9 @@ body {
       panel.style.display = 'block';
 
       // Update model context on node click
-      if (window.connected) {
-        app.updateModelContext({
-          content: [{ type: 'text', text: 'User selected graph node: ' + node.data('label') + ' (type: ' + node.data('type') + ')' }]
-        }).catch(function() {});
-      }
+      view.updateModelContext({
+        content: [{ type: 'text', text: 'User selected graph node: ' + node.data('label') + ' (type: ' + node.data('type') + ')' }]
+      });
     });
 
     // Background click hides panel
