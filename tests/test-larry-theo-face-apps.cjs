@@ -143,7 +143,7 @@ async function browserChecks(records, faces) {
 
   async function open(name, options = {}) {
     await page.goto('http://mindrian-host.test/');
-    await page.evaluate(({ record, width, failConnect, blockSdk }) => {
+    await page.evaluate(({ record, width, failConnect, blockSdk, cancelInitial }) => {
       window.blockSdk = blockSdk;
       window.hostMessages = [];
       window.pendingCalls = [];
@@ -168,16 +168,17 @@ async function browserChecks(records, faces) {
         window.hostMessages.push(message);
         if (message.method === 'ui/initialize') {
           if (failConnect) return send({ id: message.id, error: { code: -32603, message: 'Synthetic connection failure' } });
+          // Deliver before the initialize response: an App that waits to install
+          // callbacks until connect() finishes must lose this notification.
+          send({ method: 'ui/notifications/tool-input', params: { arguments: record.input } });
+          if (cancelInitial) send({ method: 'ui/notifications/tool-cancelled', params: { reason: 'Synthetic cancellation' } });
+          else window.deliver(record.result);
           send({ id: message.id, result: {
             protocolVersion: message.params.protocolVersion,
             hostInfo: { name: 'test-claude-host', version: '1' },
             hostCapabilities: { serverTools: {}, updateModelContext: { text: {} } },
             hostContext: { theme: 'dark', displayMode: 'inline' },
           } });
-          // Both notifications arrive during initialization, before the app's
-          // connect() promise can finish. This catches the previous lost result.
-          send({ method: 'ui/notifications/tool-input', params: { arguments: record.input } });
-          window.deliver(record.result);
         } else if (message.method === 'tools/call') {
           window.pendingCalls.push(message);
         } else if (message.id !== undefined && message.method) {
@@ -186,7 +187,8 @@ async function browserChecks(records, faces) {
       });
       iframe.srcdoc = record.html;
       document.body.append(iframe);
-    }, { record: records[name], width: options.width || 900, failConnect: !!options.failConnect, blockSdk: !!options.blockSdk });
+    }, { record: records[name], width: options.width || 900, failConnect: !!options.failConnect, blockSdk: !!options.blockSdk,
+      cancelInitial: !!options.cancelInitial });
     if (!options.blockSdk) {
       await page.waitForFunction(() => window.hostMessages.some(message => message.method === 'ui/initialize'));
     }
@@ -301,6 +303,19 @@ async function browserChecks(records, faces) {
       }
       await frame.evaluate(() => window.MindrianIdentity.setState('reframe', 'Canonical reframe'));
       await frame.locator('#mindrian-identity').screenshot({ path: path.join(screenshots, 'canonical-reframe.png') });
+    });
+    await check('cancellation during initialization stays cancelled after connection', async () => {
+      const frame = await open('room-dashboard', { cancelInitial: true });
+      await state(frame, 'could');
+      await page.waitForFunction(() => window.hostMessages.some(message => message.method === 'ui/notifications/initialized'));
+      // The connected refresh proves connect() completed without replacing the
+      // cancellation with an indefinite waiting state.
+      assert.match(await frame.locator('#mindrian-status').innerText(), /cancelled/);
+      await frame.evaluate(() => { void window.MindrianView.refresh(); });
+      await state(frame, 'think');
+      await page.waitForFunction(() => window.pendingCalls.length === 1);
+      await page.evaluate(result => window.finishRefresh(result), records['room-dashboard'].result);
+      await state(frame, 'rest');
     });
     await check('connection rejection and blocked SDK show the honest limit', async () => {
       for (const options of [{ failConnect: true }, { blockSdk: true }]) {
