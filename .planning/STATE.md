@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phase 369.2 COMPLETE (34 of 34 plans); v2.0.0-beta.65 CUT 2026-10-06 (tag at origin, npm latest and next, acceptance 24/24 after eval re-run); next: 369.3b, 369.4, 369.5, 369.6, one cut each
-last_updated: "2026-10-06T21:00:00.000Z"
-last_activity: 2026-10-06 ~20:40 -- v2.0.0-beta.65 CUT (Phase 369.2 complete: plans 13-34, closure PASS 27/0/3 known); release commit 851228da6; eval-refresh recovery path; Theo applied beta.64 placeholder registry; blog article and update mail drafted, not sent
+last_updated: "2026-10-11T15:14:22.718Z"
+last_activity: 2026-10-11 - Completed quick task 261011-omz: explicit Larry/MindrianOS identity, canonical Theo faces and validated Desktop dev preview; no public release
 progress:
   total_phases: 121
   completed_phases: 48
@@ -9313,10 +9313,11 @@ Progress: [█████████░] 92%
 | 261001-q5t | Route scripts/collect-cold-install-evidence.cjs update-path note through lib/core/update-path.cjs PLUGIN_UPDATE_COMMAND; root cause 960a7a2ec (341-06) retyped the literal after be641e88d (339-02) pinned D-08 single-source. Test untouched. | 2026-10-01 | 98517bc52 | Verified (test-339-update-path-single-source green; run-all-339 15/1, dist bundle staleness red pre-exists on HEAD) | [261001-q5t-single-source-update-path-in-cold-instal](./quick/261001-q5t-single-source-update-path-in-cold-instal/) |
 | 261001-rdv | Regenerate dist bundles for the 2.0.0-beta.52 placeholder (stamp was beta.36, the one red in run-all-339). release.sh never regenerates dist/, so the placeholder rebuild is dev-time, as in 48675a655. 239 generated files, no source edits. | 2026-10-01 | e1cc1fc8d | Verified (check-stale fresh; run-all-339 16/0; skill mirrors --check 0; run-all-234 9/2, both reds reproduce on clean HEAD) | [261001-rdv-rebuild-out-of-date-dist-bundles](./quick/261001-rdv-rebuild-out-of-date-dist-bundles/) |
 | 261005-lzg | Add a one-line pointer to SEED-121 (the LarrAI review spine) in agents/larry-extended.md | 2026-10-05 | e5489101b | Docs only (one YAML frontmatter comment; shape, connector and projection checks unchanged; tests 114 and 115 green; harness-manifest fingerprint hand-off noted in SUMMARY) | [261005-lzg-add-a-one-line-pointer-to-seed-121-the-l](./quick/261005-lzg-add-a-one-line-pointer-to-seed-121-the-l/) |
+| 261011-omz | Explicit Larry/MindrianOS identity, first-reply Claude disclosure, canonical Theo faces and working MCP view lifecycle; validated Desktop dev preview | 2026-10-11 | 2c34f25ff | Verified (initialize 18, containment 22, real SDK/browser 11; actual Claude host untested) | [261011-omz-make-larry-and-mindrianos-activation-and](./quick/261011-omz-make-larry-and-mindrianos-activation-and/) |
 
 ## Session Continuity
 
-Last activity: 2026-10-01 - Phase 365 executed 17/17 plans + 365-REPAIR-01 (full run PASSED=66 FAILED=0 KNOWN=6 at f2ffc10cc); verification human_needed (365-UAT.md); code review issues_found (CR-01 blocker). Previous: 2026-07-30 - Completed quick task 260730-mps: Fixed total outage of all 6 MCP methodology prompts (Desktop/Cowork) -- legacy server.prompt() overload shape mismatch against SDK 1.29.0, keyValidator._parse crash. Committed on main (bfcd7998, 7eb6dce1), NOT yet released.
+Last activity: 2026-10-11 - Completed quick task 261011-omz: explicit Larry/MindrianOS identity, canonical Theo faces and validated Desktop dev preview; no public release
 Last session: 2026-10-01T17:15:49.669Z
 Stopped at: Completed 366-04-PLAN.md
 
