@@ -5,7 +5,7 @@ milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
 stopped_at: Phase 369.2 COMPLETE (34 of 34 plans); v2.0.0-beta.65 CUT 2026-10-06 (tag at origin, npm latest and next, acceptance 24/24 after eval re-run); next: 369.3b, 369.4, 369.5, 369.6, one cut each
 last_updated: "2026-10-11T15:14:22.718Z"
-last_activity: 2026-10-12 - Completed quick task 261012-rey: on-stop budget re-based, SPEC-5 leg in the release suite; next executor 261012-rxc (room_search walks every file); egress-guard S1 fix (261012-sbz) planned as the blocker
+last_activity: 2026-10-12 - Completed quick task 261012-rxc: room_search walks every file (500 cap lifted, truncation signal); next executor 261012-ri7 (wiki walker), then 261012-sbz (egress S1 blocker)
 progress:
   total_phases: 121
   completed_phases: 48
@@ -9163,6 +9163,7 @@ Progress: [█████████░] 92%
 
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
+| 261012-rxc | room_search walks every room file with an honest truncation signal and one read per file for both tiers (sweep search-surface-qa-sweep-20261012 item 2, navigator shape a 2026-10-12): SEARCH_MAX_FILES 500 -> 5,000 safety bound; envelope gains scanned, walkable, truncated; empty reasons say when the walk stopped; mindrianOS 1,121 of 1,121 and motj-ecosystem 833 of 833 walked (was 500), the 10 hidden-file probes all found (was 0 of 10), reads per file 1 (was 2), mindrianOS sentence median 251.9 ms, kfn measure unchanged (nl 10 of 10, kw 9 of 10), run-all-198 18/0, no room write. Not pushed, not released. | 2026-10-12 | ca9b5722d, 287c76a76 | Verified (orchestrator re-ran the walk, the test and run-all-198) | [261012-rxc-room-search-walks-every-room-file-with-a](./quick/261012-rxc-room-search-walks-every-room-file-with-a/) |
 | 261012-rey | on-stop adapter line budget re-based and the SPEC-5 leg wired into the release suite (sweep search-surface-qa-sweep-20261012 item 6, navigator option b1 2026-10-12): LINE_BUDGETS on-stop 570 -> 680 (measured 658 by split at 2c0eae9f5, rule smallest multiple of 10 at least M+20), hard leg in tests/run-all-366.sh (2c), test prints its verdict after the run from the exit code; run-all-198 17/0, run-all-366 71/0 KNOWN 1, suite-gate PASS, doctor --acceptance 24/24 before and after; SEED-125 filed for the thin on-stop refactor; red for 76 days before this. Not pushed, not released. | 2026-10-12 | 2c0eae9f5, 3aead34aa, 8a73d929c | Verified (orchestrator re-ran the test and run-all-198) | [261012-rey-on-stop-adapter-line-budget-re-based-to-](./quick/261012-rey-on-stop-adapter-line-budget-re-based-to-/) |
 | 261012-rew | room_search description tells the host model a plain question works (sweep search-surface-qa-sweep-20261012 item 1): description and query describe rewritten (801 and 128 bytes), the two 267 wire pins updated byte-exact, one CHANGELOG Fixed line; test-234 204/204, test-267 zod4-contract 4/4, dual-era 5/5, run-all-267 33/33, connector-registry OK; not pushed, not released. | 2026-10-12 | e54d85ec2 | Verified (orchestrator re-ran the tests) | [261012-rew-room-search-description-tells-the-model-](./quick/261012-rew-room-search-description-tells-the-model-/) |
 | 261012-kfn | room_search understands full-sentence questions (spike 010 follow-up; navigator "DO 1" 2026-10-12): the exact-phrase tier is unchanged and runs first; when it finds nothing a word-split BM25 tier ranks the same files, with a relevance floor (at least min(2, words) distinct words and idf_share 0.55) so an unanswerable question returns empty with reason below_relevance_floor. Measured on rethinking-mindrianos (424 md), read-only: sentences top-5 0 -> 10 of 10, keywords 7 -> 9 of 10, 3 negative controls all empty, median 394 / 458 tokens; cost: a sentence query 56 -> 170 ms. Tool description still says substring (follow-up: description + 267 wire pins). Not pushed, not released. | 2026-10-12 | 19db43789, 32fcb604b | Verified (independently re-run by orchestrator) | [261012-kfn-natural-language-room-search-word-split-](./quick/261012-kfn-natural-language-room-search-word-split-/) |
@@ -9320,7 +9321,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last activity: 2026-10-12 - Completed quick task 261012-rey: on-stop budget re-based, SPEC-5 leg in the release suite; next executor 261012-rxc (room_search walks every file); egress-guard S1 fix (261012-sbz) planned as the blocker
+Last activity: 2026-10-12 - Completed quick task 261012-rxc: room_search walks every file (500 cap lifted, truncation signal); next executor 261012-ri7 (wiki walker), then 261012-sbz (egress S1 blocker)
 Last session: 2026-10-01T17:15:49.669Z
 Stopped at: Completed 366-04-PLAN.md
 

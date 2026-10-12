@@ -1,0 +1,726 @@
+{
+ "ran": "2026-10-12T17:31:08.453Z",
+ "head": "287c76a76",
+ "rooms": {
+  "mindrianOS": {
+   "walkable": 1121,
+   "walker": {
+    "visited": 1121,
+    "returned": {
+     "scanned": 1121,
+     "walkable": 1121,
+     "truncated": false
+    },
+    "same_order_as_unbounded_walk": true
+   },
+   "probes": {
+    "beyond_total": 5,
+    "beyond_found": 5,
+    "control_total": 3,
+    "control_found": 3,
+    "scoped_total": 8,
+    "scoped_found": 8,
+    "nl_found": 8,
+    "nl_total": 8,
+    "identity_with_cluster_a": 5,
+    "cluster_a_beyond_rows": 5,
+    "rows": [
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 525,
+      "term_sha8": "cd11917e",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "phrase",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 633,
+      "term_sha8": "006b3c65",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "phrase",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 518,
+      "term_sha8": "a36d9478",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "phrase",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 967,
+      "term_sha8": "42b28e64",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "phrase",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 1111,
+      "term_sha8": "f1e14133",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 137,
+      "term_sha8": "2c64a671",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 316,
+      "term_sha8": "947c91a7",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "phrase",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 475,
+      "term_sha8": "29984379",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 1121,
+      "walkable": 1121,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     }
+    ]
+   },
+   "handler": {
+    "room_dir_ok": true,
+    "keys": [
+     "room_dir",
+     "query",
+     "tier",
+     "results",
+     "scanned",
+     "walkable",
+     "truncated"
+    ],
+    "tier": "phrase",
+    "results": 5,
+    "scanned": 1121,
+    "walkable": 1121,
+    "truncated": false,
+    "chars_added_by_new_fields": 49
+   },
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 30,
+     "scanned": 1121,
+     "walkable": 1121,
+     "truncated": false,
+     "runs_ms": [
+      98.9,
+      98,
+      102.2,
+      99.1,
+      95.5
+     ],
+     "median_ms": 98.9,
+     "min_ms": 95.5,
+     "max_ms": 102.2,
+     "io": {
+      "distinct_files_read": 1121,
+      "total_reads": 1121,
+      "files_read_twice": 0,
+      "statSync_calls": 1121,
+      "readdirSync_calls": 214
+     },
+     "cluster_a_median_ms_500_files_two_walks": 54.5
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 1,
+     "scanned": 1121,
+     "walkable": 1121,
+     "truncated": false,
+     "runs_ms": [
+      247,
+      251.9,
+      241.2,
+      254.2,
+      257.9
+     ],
+     "median_ms": 251.9,
+     "min_ms": 241.2,
+     "max_ms": 257.9,
+     "io": {
+      "distinct_files_read": 1121,
+      "total_reads": 1121,
+      "files_read_twice": 0,
+      "statSync_calls": 1121,
+      "readdirSync_calls": 214
+     },
+     "cluster_a_median_ms_500_files_two_walks": 197.7
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "scanned": 1121,
+     "walkable": 1121,
+     "truncated": false,
+     "runs_ms": [
+      246.1,
+      243.4,
+      229.3,
+      227.1,
+      227.2
+     ],
+     "median_ms": 229.3,
+     "min_ms": 227.1,
+     "max_ms": 246.1,
+     "io": {
+      "distinct_files_read": 1121,
+      "total_reads": 1121,
+      "files_read_twice": 0,
+      "statSync_calls": 1121,
+      "readdirSync_calls": 214
+     },
+     "cluster_a_median_ms_500_files_two_walks": 197
+    }
+   },
+   "cluster_a_extrapolation_ms_all_files_two_walks": 350
+  },
+  "motj-ecosystem": {
+   "walkable": 833,
+   "walker": {
+    "visited": 833,
+    "returned": {
+     "scanned": 833,
+     "walkable": 833,
+     "truncated": false
+    },
+    "same_order_as_unbounded_walk": true
+   },
+   "probes": {
+    "beyond_total": 5,
+    "beyond_found": 5,
+    "control_total": 3,
+    "control_found": 3,
+    "scoped_total": 8,
+    "scoped_found": 8,
+    "nl_found": 8,
+    "nl_total": 8,
+    "identity_with_cluster_a": 5,
+    "cluster_a_beyond_rows": 5,
+    "rows": [
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 592,
+      "term_sha8": "0072bd7b",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 627,
+      "term_sha8": "dc2a423f",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 625,
+      "term_sha8": "29e5b9a8",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 707,
+      "term_sha8": "4d0b0d2c",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "beyond-boundary",
+      "walk_index": 585,
+      "term_sha8": "cefd7147",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 207,
+      "term_sha8": "a2337e8e",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 277,
+      "term_sha8": "96a99b4e",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 143,
+      "term_sha8": "986e64ff",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 833,
+      "walkable": 833,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     }
+    ]
+   },
+   "handler": {
+    "room_dir_ok": true,
+    "keys": [
+     "room_dir",
+     "query",
+     "tier",
+     "results",
+     "scanned",
+     "walkable",
+     "truncated"
+    ],
+    "tier": "phrase",
+    "results": 2,
+    "scanned": 833,
+    "walkable": 833,
+    "truncated": false,
+    "chars_added_by_new_fields": 47
+   },
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 27,
+     "scanned": 833,
+     "walkable": 833,
+     "truncated": false,
+     "runs_ms": [
+      92.2,
+      100.6,
+      102.8,
+      98.9,
+      102.9
+     ],
+     "median_ms": 100.6,
+     "min_ms": 92.2,
+     "max_ms": 102.9,
+     "io": {
+      "distinct_files_read": 833,
+      "total_reads": 833,
+      "files_read_twice": 0,
+      "statSync_calls": 833,
+      "readdirSync_calls": 228
+     },
+     "cluster_a_median_ms_500_files_two_walks": 51.3
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 2,
+     "scanned": 833,
+     "walkable": 833,
+     "truncated": false,
+     "runs_ms": [
+      193.7,
+      187.7,
+      196.2,
+      195.1,
+      217.9
+     ],
+     "median_ms": 195.1,
+     "min_ms": 187.7,
+     "max_ms": 217.9,
+     "io": {
+      "distinct_files_read": 833,
+      "total_reads": 833,
+      "files_read_twice": 0,
+      "statSync_calls": 833,
+      "readdirSync_calls": 228
+     },
+     "cluster_a_median_ms_500_files_two_walks": 167.6
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "scanned": 833,
+     "walkable": 833,
+     "truncated": false,
+     "runs_ms": [
+      177.8,
+      176.6,
+      182.4,
+      178,
+      178.6
+     ],
+     "median_ms": 178,
+     "min_ms": 176.6,
+     "max_ms": 182.4,
+     "io": {
+      "distinct_files_read": 833,
+      "total_reads": 833,
+      "files_read_twice": 0,
+      "statSync_calls": 833,
+      "readdirSync_calls": 228
+     },
+     "cluster_a_median_ms_500_files_two_walks": 159
+    }
+   },
+   "cluster_a_extrapolation_ms_all_files_two_walks": 260
+  },
+  "rethinking-mindrianos": {
+   "walkable": 424,
+   "walker": {
+    "visited": 424,
+    "returned": {
+     "scanned": 424,
+     "walkable": 424,
+     "truncated": false
+    },
+    "same_order_as_unbounded_walk": true
+   },
+   "probes": {
+    "beyond_total": 0,
+    "beyond_found": 0,
+    "control_total": 3,
+    "control_found": 3,
+    "scoped_total": 3,
+    "scoped_found": 3,
+    "nl_found": 3,
+    "nl_total": 3,
+    "identity_with_cluster_a": 0,
+    "cluster_a_beyond_rows": 0,
+    "rows": [
+     {
+      "kind": "control-inside",
+      "walk_index": 310,
+      "term_sha8": "5947965b",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 424,
+      "walkable": 424,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 120,
+      "term_sha8": "4f238358",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 424,
+      "walkable": 424,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     },
+     {
+      "kind": "control-inside",
+      "walk_index": 169,
+      "term_sha8": "fb02dcc0",
+      "tier": "phrase",
+      "found": true,
+      "truncated": false,
+      "scanned": 424,
+      "walkable": 424,
+      "section_scoped_found": true,
+      "nl_tier": "words",
+      "nl_found": true,
+      "nl_reason_code": null
+     }
+    ]
+   },
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 16,
+     "scanned": 424,
+     "walkable": 424,
+     "truncated": false,
+     "runs_ms": [
+      31,
+      31.2,
+      30.5,
+      29,
+      31
+     ],
+     "median_ms": 31,
+     "min_ms": 29,
+     "max_ms": 31.2,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 424,
+      "files_read_twice": 0,
+      "statSync_calls": 424,
+      "readdirSync_calls": 141
+     },
+     "cluster_a_median_ms_500_files_two_walks": 30.8
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 2,
+     "scanned": 424,
+     "walkable": 424,
+     "truncated": false,
+     "runs_ms": [
+      94.6,
+      98.9,
+      97.3,
+      93.5,
+      98.4
+     ],
+     "median_ms": 97.3,
+     "min_ms": 93.5,
+     "max_ms": 98.9,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 424,
+      "files_read_twice": 0,
+      "statSync_calls": 424,
+      "readdirSync_calls": 141
+     },
+     "cluster_a_median_ms_500_files_two_walks": 126
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "scanned": 424,
+     "walkable": 424,
+     "truncated": false,
+     "runs_ms": [
+      87.6,
+      87.2,
+      90.9,
+      93.2,
+      89.9
+     ],
+     "median_ms": 89.9,
+     "min_ms": 87.2,
+     "max_ms": 93.2,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 424,
+      "files_read_twice": 0,
+      "statSync_calls": 424,
+      "readdirSync_calls": 141
+     },
+     "cluster_a_median_ms_500_files_two_walks": 115.5
+    }
+   },
+   "cluster_a_extrapolation_ms_all_files_two_walks": 133
+  }
+ },
+ "envelope": {
+  "mindrianOS": {
+   "chars_added": 49,
+   "approx_tokens_chars_over_4": 13
+  },
+  "motj-ecosystem": {
+   "chars_added": 47,
+   "approx_tokens_chars_over_4": 12
+  }
+ },
+ "gates": [
+  {
+   "label": "mindrianOS walker visits all 1121 walkable files in order, returns scanned=walkable=1121, truncated false",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS beyond-cap probes found 5 of 5 (expect all, truncated false, scanned 1121)",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS in-cap controls found 3 of 3",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS section-scoped calls found 8 of 8",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS handler envelope: room ok, scanned=walkable=1121, truncated false, keys room_dir,query,tier,results,scanned,walkable,truncated",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS a sentence query for the word tier was derived",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS sentence query reads each file once (total 1121, distinct 1121, walkable 1121)",
+   "ok": true
+  },
+  {
+   "label": "mindrianOS sentence query median 251.9 ms is under 2000 ms",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem walker visits all 833 walkable files in order, returns scanned=walkable=833, truncated false",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem beyond-cap probes found 5 of 5 (expect all, truncated false, scanned 833)",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem in-cap controls found 3 of 3",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem section-scoped calls found 8 of 8",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem handler envelope: room ok, scanned=walkable=833, truncated false, keys room_dir,query,tier,results,scanned,walkable,truncated",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem a sentence query for the word tier was derived",
+   "ok": true
+  },
+  {
+   "label": "motj-ecosystem sentence query reads each file once (total 833, distinct 833, walkable 833)",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos walker visits all 424 walkable files in order, returns scanned=walkable=424, truncated false",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos beyond-cap probes found 0 of 0 (expect all, truncated false, scanned 424)",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos in-cap controls found 3 of 3",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos section-scoped calls found 3 of 3",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos a sentence query for the word tier was derived",
+   "ok": true
+  },
+  {
+   "label": "rethinking-mindrianos sentence query reads each file once (total 424, distinct 424, walkable 424)",
+   "ok": true
+  }
+ ],
+ "all_gates_passed": true
+}
