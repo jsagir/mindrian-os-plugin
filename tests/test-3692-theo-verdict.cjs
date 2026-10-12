@@ -23,6 +23,8 @@
  *   V3  lexicon hygiene: no room.db created, read time, memoization.
  *   V4  fast path: the test-354 Case E typed rows answer typed_question.
  *   V5  no echo: no refusal carries the matched term, canary or city bytes.
+ *   V8  matched kind and size: the refusal names the entry kind and word count,
+ *       never the words (quick 261012-sph, D-A). Runs after V5, before V6.
  *   V6  hook budget: 10 spawns with a bound room, p95 under 400 ms.
  *
  * Isolation: HOME, USERPROFILE, MINDRIAN_ROOMS_HOME in mkdtemp dirs; the Brain
@@ -100,6 +102,18 @@ const PRIVATE_CORPUS = Object.freeze([
 const CANARY_CYPHER = 'MATCH (f:Framework) WHERE f.name = "CANARY7F3A2B" RETURN f';
 const LEX_SENTENCE = 'How should I validate the solar cold locker with resellers?';
 const LEX_TERM = 'solar cold locker';
+
+// Quick 261012-sph (V8): canary entries. Nothing from this list may appear in
+// any refusal text or any new field (Canon Part 8, no echo).
+const CANARY_TERM_A = 'zephyrquill vantrobe';
+const CANARY_TERM_B = 'korvath lumenstile drimbo';
+const CANARY_Q1 = 'Which framework fits the zephyrquill vantrobe?';
+const CANARY_Q2 = 'Which framework fits the zephyrquill vantrobe and the korvath lumenstile drimbo?';
+const CANARY_TOKENS = Object.freeze([
+  'zephyrquill', 'vantrobe', 'korvath', 'lumenstile', 'drimbo', 'quorvex', 'plinth',
+  'drovak', 'misslen', 'teyvar', 'oskelt', 'zorbel', 'vexa', 'vexf', 'solar', 'locker',
+]);
+const SHIM_SRC = path.join(__dirname, '..', 'scripts', 'mindrian-brain-mcp-client.cjs');
 
 // The test-354 Case E typed rows (lines 90-145 there): the three internal
 // templates instantiated with canonical inputs. Must stay typed_question.
@@ -207,6 +221,10 @@ async function main() {
   const brain = require(brainPath);
   const guardPath = path.join(ROOT, 'lib', 'core', 'part8-egress-guard.cjs');
   const guard = require(guardPath);
+  // Quick 261012-sph: required after the brain-client above, so both bind to the
+  // brain-client instance that sees the capture URL.
+  const refusalMod = require(path.join(ROOT, 'lib', 'core', 'refusal-messaging.cjs'));
+  const theoAsk = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'theo-ask.cjs'));
 
   let lexMod = null;
   try { lexMod = require(path.join(ROOT, 'lib', 'core', 'part8-room-lexicon.cjs')); } catch (_e) { lexMod = null; }
@@ -229,6 +247,20 @@ async function main() {
   fs.mkdirSync(path.join(corruptRoom, '.mindrian'), { recursive: true });
   fs.writeFileSync(path.join(corruptRoom, 'ROOM.md'), '---\nventure_name: Corrupt Fixture\n---\n# Corrupt\n');
   fs.writeFileSync(path.join(corruptRoom, '.mindrian', 'room.db'), 'this is not a sqlite database, it is text');
+
+  // Quick 261012-sph: a second room with 2 canary room terms (2 and 3 words).
+  const canaryRoom = buildRoom363({});
+  {
+    const db = roomDbMod.openRoomDb(canaryRoom.roomDir, { allowExtension: true });
+    try {
+      [CANARY_TERM_A, CANARY_TERM_B].forEach(function (name) {
+        const w = nav.writeEntityNode(db, { entityType: 'technology', name: name, sessionId: 's3692sph' });
+        if (!w || w.ok !== true) throw new Error('fixture: canary writeEntityNode failed ' + JSON.stringify(w));
+      });
+    } finally {
+      roomDbMod.closeRoomDb(db);
+    }
+  }
 
   function bind(dir) {
     if (dir) process.env.CLAUDE_ACTIVE_ROOM = dir; else delete process.env.CLAUDE_ACTIVE_ROOM;
@@ -500,6 +532,259 @@ async function main() {
   });
 
   // ======================================================================
+  // V8: matched kind and size (quick 261012-sph, D-A, D-NM)
+  // The refusal names the kind of the matched entry and its word count,
+  // never the words. V5 above stays the original no-echo proof.
+  // ======================================================================
+  const assert = require('node:assert');
+  const matchOutputs = []; // { src, obj, text } for the V8g sweep
+  function collect(src, obj, text) {
+    matchOutputs.push({ src: src, obj: obj, text: (typeof text === 'string') ? text : JSON.stringify(obj) });
+  }
+  function seamEntry(kind, text) {
+    const tokens = text.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    return { kind: kind, text: text, tokens: tokens, needle: ' ' + tokens.join(' ') + ' ' };
+  }
+  function seamVerdict(lexicon, q) {
+    return guard.theoVerdict({ question: q }, { toolName: 'brain_ask', roomDir: null, lexicon: lexicon });
+  }
+  const C1_2 = 'The question matched one term this room uses, 2 words long, so it was not sent to Theo. Reword without that phrase.';
+  const C1_FILE = 'The question matched one room artifact title, 2 words long, so it was not sent to Theo. Reword without that phrase.';
+  let askSentinel = null; // the V8c ask sentinel on the canary room, used by V8e and V8f
+
+  await leg('V8a: a lexicon block carries exactly 3 new fields; every other block and every allow keeps the 4 old keys', async function () {
+    const OLD_KEYS = ['class', 'reason', 'token_class', 'verdict'];
+    const NEW_KEYS = ['class', 'matched_count', 'matched_kind', 'matched_token_count', 'reason', 'token_class', 'verdict'];
+    bind(room.roomDir);
+    const lex = tv(LEX_SENTENCE, 'question', 'brain_ask', room.roomDir);
+    collect('verdict', lex);
+    assert.deepStrictEqual(Object.keys(lex).sort(), NEW_KEYS);
+    assert.strictEqual(lex.matched_kind, 'room_term');
+    assert.strictEqual(lex.matched_token_count, 3);
+    assert.strictEqual(lex.matched_count, 1);
+    bind(canaryRoom.roomDir);
+    const can = tv(CANARY_Q1, 'question', 'brain_ask', canaryRoom.roomDir);
+    collect('verdict', can);
+    assert.deepStrictEqual(Object.keys(can).sort(), NEW_KEYS);
+    assert.strictEqual(can.matched_kind, 'room_term');
+    assert.strictEqual(can.matched_token_count, 2);
+    assert.strictEqual(can.matched_count, 1);
+    bind(null);
+    const cy = tv(CANARY_CYPHER, 'cypher', 'brain_query', null);
+    assert.deepStrictEqual(Object.keys(cy).sort(), OLD_KEYS);
+    const al = tv(PB803_GENERIC, 'question', 'brain_ask', null);
+    assert.deepStrictEqual(Object.keys(al).sort(), OLD_KEYS);
+  });
+
+  await leg('V8b: the count, the claim size, the artifact size, the cap and the sentence builder', async function () {
+    bind(canaryRoom.roomDir);
+    const two = tv(CANARY_Q2, 'question', 'brain_ask', canaryRoom.roomDir);
+    collect('verdict', two);
+    assert.strictEqual(two.matched_count, 2);
+    assert.ok(two.matched_token_count === 2 || two.matched_token_count === 3, 'first hit size ' + two.matched_token_count);
+    const s2 = brain._describeLexiconMatch(two);
+    assert.ok(s2.indexOf('matched 2 entries from this room') !== -1, s2);
+    assert.ok(s2.endsWith('Reword without those phrases.'), s2);
+    bind(null);
+
+    const rf = seamVerdict([seamEntry('room_file', 'quorvex plinth')], 'Which framework fits the quorvex plinth?');
+    collect('verdict', rf);
+    assert.strictEqual(rf.matched_kind, 'room_file');
+    assert.strictEqual(rf.matched_token_count, 2);
+    assert.strictEqual(rf.matched_count, 1);
+    assert.strictEqual(brain._describeLexiconMatch(rf), C1_FILE);
+
+    const claim = seamEntry('claim', 'drovak misslen teyvar oskelt');
+    claim.content = ['drovak', 'misslen', 'teyvar', 'oskelt'];
+    claim.need = 3;
+    const cl = seamVerdict([claim], 'Which framework fits teyvar, drovak and misslen?');
+    collect('verdict', cl);
+    assert.strictEqual(cl.matched_kind, 'claim');
+    assert.strictEqual(cl.matched_token_count, 3);
+    assert.strictEqual(cl.matched_count, 1);
+    assert.strictEqual(brain._describeLexiconMatch(cl),
+      'The question shares 3 words with one claim recorded in this room, so it was not sent to Theo. Reword it with fewer of those words.');
+
+    const six = ['vexa', 'vexb', 'vexc', 'vexd', 'vexe', 'vexf'].map(function (w) { return seamEntry('room_term', w + ' zorbel'); });
+    const cap = seamVerdict(six, 'Which framework fits vexa zorbel, vexb zorbel, vexc zorbel, vexd zorbel, vexe zorbel and vexf zorbel?');
+    collect('verdict', cap);
+    assert.strictEqual(cap.matched_count, 5);
+    const sc = brain._describeLexiconMatch(cap);
+    assert.ok(sc.indexOf('The question matched 5 or more entries from this room (the first: a term this room uses, 2 words long)') === 0, sc);
+
+    [null, { matched_kind: 'identifier', matched_token_count: 2 }, { matched_kind: 'CANARY7F3A2B', matched_token_count: 2 },
+      { matched_kind: 'room_term', matched_token_count: '2' }, { matched_kind: 'room_term', matched_token_count: 0 },
+      { matched_kind: 'room_term', matched_token_count: 2.5 }].forEach(function (bad) {
+      assert.strictEqual(brain._describeLexiconMatch(bad), null, 'must be null for ' + JSON.stringify(bad));
+    });
+    assert.ok(lexMod && Array.isArray(lexMod.KINDS) && lexMod.KINDS.length === 6, 'lexicon KINDS');
+    lexMod.KINDS.forEach(function (k) {
+      const s = brain._describeLexiconMatch({ matched_kind: k, matched_token_count: 2 });
+      assert.strictEqual(typeof s, 'string', 'kind ' + k + ' gave no sentence');
+    });
+  });
+
+  await leg('V8c: ask, search and query on a lexicon match return the sentinel with the 3 fields, zero requests on the wire', async function () {
+    bind(canaryRoom.roomDir);
+    const bad = [];
+    for (const verb of VERBS) {
+      const row = await driveVerb(verb, CANARY_Q1);
+      const r = row.result;
+      collect('sentinel', r);
+      if (row.wire !== 0) bad.push(verb + ' wire=' + row.wire);
+      if (!r || r.error !== 'egress_blocked') { bad.push(verb + ' not a sentinel'); continue; }
+      if (r.tool !== SENTINEL_TOOL[verb]) bad.push(verb + ' tool ' + r.tool);
+      if (r.egress_class !== 'room_content') bad.push(verb + ' class ' + r.egress_class);
+      if (r.token_class !== 'room_term') bad.push(verb + ' token_class ' + r.token_class);
+      if (r.matched_kind !== 'room_term') bad.push(verb + ' matched_kind ' + r.matched_kind);
+      if (r.matched_token_count !== 2) bad.push(verb + ' matched_token_count ' + r.matched_token_count);
+      if (r.matched_count !== 1) bad.push(verb + ' matched_count ' + r.matched_count);
+      if (r.reason !== C1_2) bad.push(verb + ' reason ' + r.reason);
+      if (verb === 'ask') askSentinel = r;
+    }
+    ok(bad.length === 0, bad.join(' | '));
+    bind(room.roomDir);
+    const lexRow = await driveVerb('ask', LEX_SENTENCE);
+    collect('sentinel', lexRow.result);
+    ok(lexRow.wire === 0 && lexRow.result && String(lexRow.result.reason).indexOf('3 words long') !== -1, JSON.stringify(lexRow.result));
+    bind(null);
+  });
+
+  await leg('V8d: the CLI hook stderr names the kind and size; other blocks keep the old text', async function () {
+    const h = spawnHook('ask', CANARY_Q1, canaryRoom.roomDir);
+    assert.strictEqual(h.status, 2);
+    const line = h.stderr.replace(/\n$/, '');
+    collect('hook', null, line);
+    assert.strictEqual(line, 'Canon Part 8: blocked (room_content, room_term). ' + C1_2);
+    const other = spawnHook('ask', PRIVATE_CORPUS[2].text, null);
+    assert.strictEqual(other.status, 2);
+    assert.strictEqual(other.stderr.indexOf('words long'), -1, other.stderr);
+  });
+
+  await leg('V8e: the chokepoint copy, the third next move and the shim forwarding', async function () {
+    assert.ok(askSentinel, 'V8c did not produce the ask sentinel');
+    const src = fs.readFileSync(SHIM_SRC, 'utf8');
+    const marker = 'function honestRefusal(result, toolName) {';
+    const startIdx = src.indexOf(marker);
+    assert.ok(startIdx !== -1, 'honestRefusal not found in the shim source');
+    let depth = 0; let bodyEnd = -1;
+    for (let i = startIdx; i < src.length; i += 1) {
+      if (src[i] === '{') depth += 1;
+      else if (src[i] === '}') { depth -= 1; if (depth === 0) { bodyEnd = i + 1; break; } }
+    }
+    assert.ok(bodyEnd !== -1, 'closing brace of honestRefusal not found');
+    // eslint-disable-next-line no-new-func
+    const honestRefusal = new Function('refusalResponse', src.slice(startIdx, bodyEnd) + '\nreturn honestRefusal;')(refusalMod.refusalResponse);
+    const r = honestRefusal(askSentinel, 'brain_ask');
+    collect('refusal', r);
+    assert.strictEqual(r.kind, 'egress_blocked');
+    assert.strictEqual(r.token_class, 'room_term');
+    assert.strictEqual(r.matched_kind, 'room_term');
+    assert.strictEqual(r.matched_token_count, 2);
+    assert.strictEqual(r.matched_count, 1);
+    assert.ok(/class: room_content/.test(r.reason), r.reason);
+    assert.ok(r.reason.indexOf('one term this room uses, 2 words long') !== -1, r.reason);
+    assert.deepStrictEqual(r.next_moves, ['reword_without_matched_phrase', 'rephrase_generically', 'continue_without']);
+
+    const ctx = { tool: 'brain_ask', egress_class: 'room_content', token_class: 'room_term', matched_kind: 'room_term', matched_token_count: 2, matched_count: 1 };
+    const rendered = refusalMod.renderRefusal('egress_blocked', ctx);
+    collect('render', null, rendered);
+    assert.ok(rendered.indexOf(C1_2) !== -1, rendered);
+    assert.ok(!/unreachable/i.test(rendered) && !/\bdown\b/i.test(rendered), rendered);
+
+    const plain = refusalMod.refusalResponse('egress_blocked', { tool: 'brain_ask', egress_class: 'content_set' });
+    collect('refusal', plain);
+    assert.deepStrictEqual(plain.next_moves, ['rephrase_generically', 'continue_without']);
+    assert.ok(!Object.prototype.hasOwnProperty.call(plain, 'matched_kind'));
+    assert.ok(!Object.prototype.hasOwnProperty.call(plain, 'matched_token_count'));
+
+    const forged = refusalMod.refusalResponse('egress_blocked', { tool: 'brain_ask', egress_class: 'room_content', matched_kind: 'CANARY7F3A2B zephyrquill', matched_token_count: '2' });
+    assert.ok(!Object.prototype.hasOwnProperty.call(forged, 'matched_kind'));
+    assert.ok(!Object.prototype.hasOwnProperty.call(forged, 'matched_token_count'));
+    assert.deepStrictEqual(forged.next_moves, ['rephrase_generically', 'continue_without']);
+    const fj = JSON.stringify(forged);
+    assert.ok(fj.indexOf('CANARY7F3A2B') === -1 && fj.indexOf('zephyrquill') === -1, fj);
+
+    const nine = refusalMod.refusalResponse('egress_blocked', Object.assign({}, ctx, { matched_count: 9 }));
+    collect('refusal', nine);
+    assert.strictEqual(nine.matched_kind, 'room_term');
+    assert.strictEqual(nine.matched_token_count, 2);
+    assert.ok(!Object.prototype.hasOwnProperty.call(nine, 'matched_count'));
+
+    assert.ok(src.indexOf("honestRefusal(raw, 'brain_ask')") !== -1, 'the brain_ask branch must call honestRefusal');
+  });
+
+  await leg('V8f: theo-ask records the kind and size on each egress refusal and on the not-asked result', async function () {
+    assert.ok(askSentinel, 'V8c did not produce the ask sentinel');
+    const now = function () { return '2026-10-12T00:00:00.000Z'; };
+    const handles = { problem_type: 'IllDefined', frameworks: [] };
+    const allRefused = await theoAsk.askTheoForNest(handles, {
+      callTool: async function (name) { return Object.assign({}, askSentinel, { tool: name }); },
+      now: now, origin: 'https://theo.invalid',
+    });
+    collect('theo_ask', allRefused);
+    assert.strictEqual(allRefused.asked, false);
+    assert.strictEqual(allRefused.not_asked, 'egress_blocked');
+    assert.strictEqual(allRefused.not_asked_line, 'not asked: the question named something from this room');
+    assert.strictEqual(allRefused.matched_kind, 'room_term');
+    assert.strictEqual(allRefused.matched_token_count, 2);
+    assert.strictEqual(allRefused.matched_count, 1);
+
+    const partial = await theoAsk.askTheoForNest(handles, {
+      callTool: async function (name) {
+        if (name === 'find_frameworks_for_problem_type') return { rows: [{ chapters: [] }] };
+        return Object.assign({}, askSentinel, { tool: name });
+      },
+      now: now, origin: 'https://theo.invalid',
+    });
+    collect('theo_ask', partial);
+    assert.strictEqual(partial.asked, true);
+    assert.strictEqual(partial.refusals.length, 2);
+    partial.refusals.forEach(function (rec) {
+      assert.strictEqual(rec.kind, 'egress_blocked');
+      assert.strictEqual(rec.matched_kind, 'room_term');
+      assert.strictEqual(rec.matched_token_count, 2);
+    });
+
+    const forgedAsk = await theoAsk.askTheoForNest(handles, {
+      callTool: async function (name) { return Object.assign({}, askSentinel, { tool: name, matched_kind: 'CANARY7F3A2B' }); },
+      now: now, origin: 'https://theo.invalid',
+    });
+    collect('theo_ask', forgedAsk);
+    assert.ok(!Object.prototype.hasOwnProperty.call(forgedAsk, 'matched_kind'));
+    assert.ok(JSON.stringify(forgedAsk).indexOf('CANARY7F3A2B') === -1);
+  });
+
+  await leg('V8g: no new output carries a token of any canary entry; every new field is a closed kind or an integer', async function () {
+    ok(matchOutputs.length >= 12, 'too few outputs collected: ' + matchOutputs.length);
+    const hay = matchOutputs.map(function (o) { return o.text; }).join('\n').toLowerCase();
+    CANARY_TOKENS.forEach(function (t) {
+      ok(hay.indexOf(t) === -1, 'an output carries the canary token "' + t + '"');
+    });
+    let withCount = { verdict: 0, sentinel: 0, refusal: 0, theo_ask: 0 };
+    function walk(v) {
+      if (v === null || typeof v !== 'object') return;
+      if (Array.isArray(v)) { v.forEach(walk); return; }
+      if (Object.prototype.hasOwnProperty.call(v, 'matched_kind')) {
+        ok(lexMod.KINDS.indexOf(v.matched_kind) !== -1, 'matched_kind is not a lexicon kind: ' + String(v.matched_kind));
+      }
+      ['matched_token_count', 'matched_count'].forEach(function (k) {
+        if (Object.prototype.hasOwnProperty.call(v, k)) ok(Number.isInteger(v[k]), k + ' is not an integer');
+      });
+      Object.keys(v).forEach(function (k) { walk(v[k]); });
+    }
+    matchOutputs.forEach(function (o) {
+      walk(o.obj);
+      if (o.obj && typeof o.obj === 'object' && (Object.prototype.hasOwnProperty.call(o.obj, 'matched_token_count') ||
+        (Array.isArray(o.obj.refusals) && o.obj.refusals.some(function (x) { return x && x.matched_token_count !== undefined; })))) {
+        if (withCount[o.src] !== undefined) withCount[o.src] += 1;
+      }
+    });
+    ok(withCount.verdict >= 1 && withCount.sentinel >= 1 && withCount.refusal >= 1 && withCount.theo_ask >= 1, JSON.stringify(withCount));
+    bind(null);
+  });
+
+  // ======================================================================
   // V6: hook budget
   // ======================================================================
   await leg('V6: 10 hook spawns on a plain question with a bound room, p95 under 400 ms', async function () {
@@ -524,6 +809,7 @@ async function main() {
   globalThis.fetch = realFetch;
   await capture.stopCaptureServer(cap.server);
   try { room.cleanup(); } catch (_e) { /* best-effort */ }
+  try { canaryRoom.cleanup(); } catch (_e) { /* best-effort */ }
   try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
 
   console.log('PASS: ' + passed + ' FAIL: ' + failed);
