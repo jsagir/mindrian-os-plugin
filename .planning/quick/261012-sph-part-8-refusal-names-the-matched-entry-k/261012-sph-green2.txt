@@ -1,0 +1,33 @@
+(node:450230) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: V1a: theoVerdict is exported with 9 token classes
+PASS: V1b: the 10 Phase 0 prompts give 9 allow (2 typed_question, 7 generic_question) and 1 block content_set
+PASS: V1c: PB8-03 generic allows, the leaky sentence blocks content_set
+PASS: V1d: each of the 10 test-354 PRIVATE canaries blocks (content_set or room_content)
+PASS: V1e: the CANARY7F3A2B cypher blocks room_content with token_class identifier
+PASS: V1f: a bound room lexicon blocks "solar cold locker" (room_term); no room bound allows the same sentence
+PASS: V1g: a bound room with a corrupt room.db blocks room_check_unavailable (fail closed)
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+  V2a phase0 disagreements=0 of 10; all-rows disagreements=0 of 23
+PASS: V2a: every row (no room bound) gives one disposition across ask, search, query and the hook; phase0 disagreements=0
+PASS: V2b: the expected disposition holds on every row (allow reaches the wire, block leaves zero captured requests)
+PASS: V2c: every block returns {error:egress_blocked, tool, egress_class, token_class}; brain_query never returns null
+PASS: V2d: with the room bound, the "solar cold locker" sentence blocks on all four; the plain Phase 0 rows still allow
+PASS: V2e: a bound room with a corrupt room.db blocks every verb and the hook (room_check_unavailable)
+PASS: V3a: loadRoomLexicon creates nothing in a room with no room.db
+  V3b lexicon read ms=3.48 entries=6
+PASS: V3b: lexicon read on the 363 fixture room is under 50 ms
+PASS: V3c: a second call with an unchanged room.db mtime returns the memoized object
+PASS: V4: every test-354 Case E typed row answers typed_question
+PASS: V5: no refusal carries the matched room term, the canary, the city or a private marker
+PASS: V8a: a lexicon block carries exactly 3 new fields; every other block and every allow keeps the 4 old keys
+PASS: V8b: the count, the claim size, the artifact size, the cap and the sentence builder
+PASS: V8c: ask, search and query on a lexicon match return the sentinel with the 3 fields, zero requests on the wire
+PASS: V8d: the CLI hook stderr names the kind and size; other blocks keep the old text
+PASS: V8e: the chokepoint copy, the third next move and the shim forwarding
+PASS: V8f: theo-ask records the kind and size on each egress refusal and on the not-asked result
+PASS: V8g: no new output carries a token of any canary entry; every new field is a closed kind or an integer
+  V6 hook ms min=135 median=142 p95=152
+PASS: V6: 10 hook spawns on a plain question with a bound room, p95 under 400 ms
+PASS: V7: no stray socket was opened (net guard)
+PASS: 26 FAIL: 0
