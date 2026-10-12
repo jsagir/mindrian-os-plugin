@@ -109,6 +109,13 @@ run_if "SPEC-2 room_search finds .html content, rejects markup-only false positi
   lib/mcp/tools/room.cjs \
   node tests/test-room-search-html-blindness.cjs
 
+# room_search natural-language word tier (quick task 261012-kfn): when the exact
+# phrase finds nothing, a BM25 word tier ranks files by the query words, and a
+# relevance floor returns an empty result with a reason for an unanswerable question.
+run_if "SPEC-2 room_search natural-language word tier (BM25 + relevance floor, quick 261012-kfn)" \
+  lib/mcp/tools/room.cjs \
+  node tests/test-room-search-natural-language.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-3 -- server-side chain execution honoring postures (halt-at-material).
 # ---------------------------------------------------------------------------
