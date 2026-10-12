@@ -1375,7 +1375,7 @@
       },
       {
         "name": "room_search",
-        "description": "Search the markdown and HTML entries of this session's bound room by case-insensitive substring, optionally scoped to a single section. Read-only, no side effects. It answers literal-recall questions well: a project name, a person, a funder, any term you expect to appear verbatim in the text. It does NOT do semantic or fuzzy matching, so for a conceptual or relational question reach for room_graph and run a graph query instead of guessing at keywords.",
+        "description": "Search the markdown and HTML entries of this session's bound room, optionally scoped to a single section. Read-only, no side effects, and local to this machine. Send a plain question, a full sentence, or a single term. The tool first looks for your exact text, ignoring case. When no file holds that exact text, the tool ranks the files by the meaningful words in your question. It returns the best line from each of the top files. The reply names the tier that answered, phrase or words. An empty reply carries a reason and means the room holds no answer for this wording, so tell the person that. Matching is literal, with no semantic or fuzzy search, so a file that uses other words than yours is not found. For a question about how things in the room connect, use room_graph and run a graph query.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -1383,7 +1383,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 500,
-              "description": "Search text (case-insensitive substring match)."
+              "description": "A plain question, a full sentence, or a single term. Case-insensitive. The exact text is tried first, then its meaningful words."
             },
             "section": {
               "type": "string",

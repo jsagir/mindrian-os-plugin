@@ -3,6 +3,9 @@
 ### Added
 - **A cut now asks, after the post-publish check, whether to send the key-holder announcement.** The default is No and a person must answer: no terminal, CI or an auto-yes flag means No. A Yes needs a verified Resend sender. Holders go out in 5 bcc batches (never more than 49 to a batch); each message has the sender in To and Reply-To, a List-Unsubscribe mailto and the batch in bcc, so nobody sees another holder. A ledger outside git stops a double send, and a retry with `--resend-keyholder-notice` mails only people not yet mailed. `--no-keyholder-notice` opts out. Step 9.9 never aborts the cut.
 
+### Fixed
+- **`room_search` now tells the host model that a plain question works.** The tool description and the query field say that the exact text is tried first and the meaningful words second, that an empty answer carries a reason and means the room holds no answer for that wording, and that the match is literal and stays on this machine. The search gained its word pass in quick 261012-kfn, but the old description still said substring only and sent conceptual questions to `room_graph`.
+
 ## [2.0.0-beta.65] - 2026-10-06
 
 ### Changed
