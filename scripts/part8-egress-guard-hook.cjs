@@ -279,6 +279,23 @@ function main() {
     if (klass === 'room_content' || klass === 'room_check_unavailable') {
       // Phase 369.2 Plan 01: a Theo free-form block names its class and token
       // class, never the token and never the matched pattern.
+      // Quick 261012-sph: a lexicon match also names the entry kind and the
+      // word count, never the token. The require runs on the block path only
+      // (about 50 to 70 ms, inside the 2000 ms hook budget; V6 measures the
+      // allow path). A failed require keeps the old text and still exits 2.
+      let matchedSentence = null;
+      if (klass === 'room_content') {
+        try {
+          matchedSentence = require(BRAIN_CLIENT_PATH)._describeLexiconMatch(verdictObj);
+        } catch (_) {
+          matchedSentence = null;
+        }
+      }
+      if (typeof matchedSentence === 'string') {
+        return block(
+          'Canon Part 8: blocked (' + klass + ', ' + (verdictObj.token_class || 'none') + '). ' + matchedSentence
+        );
+      }
       return block(
         'Canon Part 8: outbound Theo payload carries room content (' + klass + ', ' +
         (verdictObj.token_class || 'none') + '). Blocked.'
