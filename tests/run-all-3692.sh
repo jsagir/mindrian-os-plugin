@@ -83,6 +83,7 @@ run_known() {
 
 # --- 1. Guarded legs, one run_if per planned test file (the label names the plan that lands it) -
 run_if "3692: Theo verdict, the egress guard speaks to Theo (369.2-01)"          tests/test-3692-theo-verdict.cjs      node tests/test-3692-theo-verdict.cjs
+run_if "3692: lexicon drops generic-only room names (quick 261012-sbz)"  tests/test-3692-lexicon-generic-entries.cjs  node tests/test-3692-lexicon-generic-entries.cjs
 run_if "3692: web lines go out free, the real-corpus seam (369.2-02)"           tests/test-3692-web-lines.cjs         node tests/test-3692-web-lines.cjs
 run_if "3692: W1 closure bar, the beta.61 real-room run (369.2-03)"             tests/test-3692-w1-closure.cjs        node tests/test-3692-w1-closure.cjs
 run_if "3692: perspective plans reach the web (369.2-04)"                       tests/test-3692-perspectives-web.cjs  node tests/test-3692-perspectives-web.cjs
