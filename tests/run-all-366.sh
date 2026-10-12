@@ -130,6 +130,11 @@ run_if "pin 363 run quick"                     tests/test-363-run-quick.cjs     
 # The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "198 SPEC-5 adapter budget (import audit + line-count)" node tests/test-198-adapter-budget.test.cjs
 
+# --- (2d) quick 261012-sc0: the Part 8 guard survey gate rides the release suite ---
+# The gate fails the cut when the egress guard refuses a generic methodology question in a synthetic room that the committed baseline allows,
+# or lets a private string through (navigator decision 2026-10-12). The leg is a hard run (not run_if), so a missing or red gate fails the cut.
+run "3692 Part 8 guard survey gate (synthetic rooms, quick 261012-sc0)" node tests/test-3692-guard-survey-gate.cjs
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
