@@ -1,0 +1,1 @@
+  suite-gate: PASS -- tests/run-all-366.sh

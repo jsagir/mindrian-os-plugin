@@ -1,0 +1,5 @@
+M=658
+B=680
+rule=smallest multiple of 10 >= M+20
+HEAD=2c0eae9f5
+last_on_stop_commit=26629ecff 2026-10-06

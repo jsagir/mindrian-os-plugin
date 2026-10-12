@@ -1,0 +1,646 @@
+--- 198 aggregator self-check (run/run_if helpers wired) ---
+>>> 198 aggregator self-check (run/run_if helpers wired): PASSED
+
+--- 198 Part 8 local-only floor (zero Brain/network token in new lib/mcp modules) ---
+PASS: test-198-local-only (Part 8 floor) -- 20 of 20 198 modules present, zero Brain-egress token
+>>> 198 Part 8 local-only floor (zero Brain/network token in new lib/mcp modules): PASSED
+
+--- 198 parity transcript scaffold (SPEC-6, SKIP-safe internally) ---
+Parity hosts: Claude Code CLI + one elicitation-capable MCP host (VS Code / MCP Inspector).
+
+--- Step 1: bind room (room_bind) ---
+>>> Step 1: bind room (room_bind): PASSED
+
+--- Step 2: reach a card (gate_render superset schema) ---
+>>> Step 2: reach a card (gate_render superset schema): PASSED
+
+--- Step 3: chain_run with halt (2 autonomous_safe + 1 material) ---
+>>> Step 3: chain_run with halt (2 autonomous_safe + 1 material): PASSED
+
+--- Step 4: gate_answer approve (resumes the halted material step) ---
+>>> Step 4: gate_answer approve (resumes the halted material step): PASSED
+
+--- Step 5: gated write (through navigation.cjs, the one chokepoint) ---
+>>> Step 5: gated write (through navigation.cjs, the one chokepoint): PASSED
+
+--- Step 6: artifact_file (files the resulting artifact) ---
+>>> Step 6: artifact_file (files the resulting artifact): PASSED
+
+--- CLI leg: capture governed transcript (typed writes + gate sequence) ---
+(node:230919) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PARITY_LEG_CAPTURED host=cli nodes=3 edges=1 gates=3 -> tests/artifacts/198-parity-cli.json
+>>> CLI leg: capture governed transcript (typed writes + gate sequence): PASSED
+
+--- Two-host parity diff (empty node/edge diff + identical gate sequence) ---
+PARITY_DIFF_EMPTY hosts=cli+vscode (identical typed graph writes + identical gate sequence)
+>>> Two-host parity diff (empty node/edge diff + identical gate sequence): PASSED
+
+========================================
+  Summary (198 parity transcript)
+  Passed: 8   Failed: 0   Skipped: 0
+========================================
+>>> 198 parity transcript scaffold (SPEC-6, SKIP-safe internally): PASSED
+
+--- SPEC-1 two-session concurrency guard (MCP tool surface) ---
+PASS: test-198-concurrency-mcp (two sessions, interleaved writes, each lands in its own room; 2026-07-08 stale-room defect reproduced-then-impossible)
+>>> SPEC-1 two-session concurrency guard (MCP tool surface): PASSED
+
+--- SPEC-2 contract-version + per-tool schema validity ---
+  ok - CONTRACT_VERSION is semver-shaped (1.1.0)
+  ok - getContractVersion() matches CONTRACT_VERSION
+  ok - registration health is complete with zero failed modules (flag off): 
+  ok - contract_version registers (flag off)
+  ok - room_list registers (flag off, read-only)
+  ok - room_state_bound registers (flag off, read-only)
+  ok - room_search registers (flag off, read-only)
+  ok - graph_query registers (flag off, read-only)
+  ok - graph_write ALWAYS registers, flag off included (234-05: discovery is not permission)
+  ok - memory_event ALWAYS registers, flag off included (234-05: discovery is not permission)
+  ok - gate_render registers (flag off, read-only HITL surface)
+  ok - gate_answer registers (flag off, read-only HITL surface)
+  ok - suggest_next registers (flag off, read-only)
+  ok - reach_candidates registers (flag off, read-only)
+  ok - contradiction_check registers (flag off, read-only)
+  ok - whitespace_scan registers (flag off, read-only)
+  ok - framework_run registers (flag off, read-only resolve + gate)
+  ok - view_compile registers (flag off, read-only)
+  ok - status_read registers (flag off, read-only)
+  ok - artifact_file ALWAYS registers, flag off included (234-05: discovery is not permission)
+  ok - no duplicate tool names (flag off)
+  ok - registration health is complete with zero failed modules (flag on): 
+  ok - graph_write registers (flag on)
+  ok - memory_event registers (flag on)
+  ok - artifact_file registers (flag on)
+  ok - no duplicate tool names (flag on)
+  ok - the tool catalog is IDENTICAL flag-on vs flag-off (234-05: the flag gates calls, not registration)
+  ok - contract_version inputSchema is a zod object
+  ok - room_artifact inputSchema is a zod object
+  ok - room_artifact.path is a zod schema
+  ok - room_artifact.max_bytes is a zod schema
+  ok - chain_resolve inputSchema is a zod object
+  ok - chain_resolve.chain is a zod schema
+  ok - chain_run inputSchema is a zod object
+  ok - chain_run.chain is a zod schema
+  ok - chain_run.gate_answer is a zod schema
+  ok - chain_run.subject_node_id is a zod schema
+  ok - chain_run.evidence_node_ids is a zod schema
+  ok - claim_verify inputSchema is a zod object
+  ok - claim_verify.claim_id is a zod schema
+  ok - claim_verify.against_id is a zod schema
+  ok - claim_verify.against_kind is a zod schema
+  ok - claim_verify.method is a zod schema
+  ok - claim_verify.result is a zod schema
+  ok - claim_verify.rung is a zod schema
+  ok - claim_verify.checked_by is a zod schema
+  ok - claim_verify.checked_at is a zod schema
+  ok - claim_verify.note_handle is a zod schema
+  ok - claim_verify.resolves_dispute is a zod schema
+  ok - claim_read inputSchema is a zod object
+  ok - claim_read.claim_id is a zod schema
+  ok - claim_read.query is a zod schema
+  ok - claim_read.limit is a zod schema
+  ok - claim_write inputSchema is a zod object
+  ok - claim_write.knowledge_type is a zod schema
+  ok - claim_write.text is a zod schema
+  ok - claim_write.source_segment is a zod schema
+  ok - claim_write.source_speaker is a zod schema
+  ok - claim_write.conditions is a zod schema
+  ok - claim_write.counter_conditions is a zod schema
+  ok - claim_write.valid_from is a zod schema
+  ok - claim_write.valid_until is a zod schema
+  ok - claim_write.disambiguation is a zod schema
+  ok - context_assemble inputSchema is a zod object
+  ok - context_assemble.fragment_window is a zod schema
+  ok - context_assemble.fragment_char_cap is a zod schema
+  ok - context_assemble.top_k is a zod schema
+  ok - context_assemble.max_depth is a zod schema
+  ok - context_assemble.focus_node_id is a zod schema
+  ok - context_assemble.estimate_only is a zod schema
+  ok - detect_dual_path inputSchema is a zod object
+  ok - detect_dual_path.text is a zod schema
+  ok - extract_shallow inputSchema is a zod object
+  ok - extract_shallow.text is a zod schema
+  ok - extract_shallow.sessionId is a zod schema
+  ok - room_changes inputSchema is a zod object
+  ok - room_changes.collection is a zod schema
+  ok - room_changes.after is a zod schema
+  ok - room_changes.epoch is a zod schema
+  ok - room_changes.limit is a zod schema
+  ok - room_changes.mode is a zod schema
+  ok - room_changes.snapshot_cursor is a zod schema
+  ok - gate_list inputSchema is a zod object
+  ok - gate_list.gate_id is a zod schema
+  ok - gate_render inputSchema is a zod object
+  ok - gate_render.gate_id is a zod schema
+  ok - gate_render.mirror_of is a zod schema
+  ok - gate_render.header is a zod schema
+  ok - gate_render.kind is a zod schema
+  ok - gate_render.ambiguous is a zod schema
+  ok - gate_render.select_mode is a zod schema
+  ok - gate_render.options is a zod schema
+  ok - gate_render.subject_node_id is a zod schema
+  ok - gate_render.evidence_node_ids is a zod schema
+  ok - gate_render.approving is a zod schema
+  ok - gate_answer inputSchema is a zod object
+  ok - gate_answer.gate_id is a zod schema
+  ok - gate_answer.chosen is a zod schema
+  ok - gate_answer.verdict is a zod schema
+  ok - graph_reason inputSchema is a zod object
+  ok - graph_reason.mode is a zod schema
+  ok - graph_reason.node_id is a zod schema
+  ok - graph_reason.max_depth is a zod schema
+  ok - graph_reason.max_results is a zod schema
+  ok - graph_query inputSchema is a zod object
+  ok - graph_query.node_id is a zod schema
+  ok - graph_query.max_depth is a zod schema
+  ok - graph_query.top_k is a zod schema
+  ok - graph_write inputSchema is a zod object
+  ok - graph_write.source_id is a zod schema
+  ok - graph_write.target_id is a zod schema
+  ok - graph_write.edge_type is a zod schema
+  ok - graph_write.properties is a zod schema
+  ok - graph_write.read_version is a zod schema
+  ok - memory_event inputSchema is a zod object
+  ok - memory_event.label is a zod schema
+  ok - memory_event.payload is a zod schema
+  ok - memory_event.dedupe_key is a zod schema
+  ok - identity_write inputSchema is a zod object
+  ok - identity_write.canonical_role is a zod schema
+  ok - identity_write.journey_stage is a zod schema
+  ok - identity_write.problem_type is a zod schema
+  ok - identity_write.venture_stage is a zod schema
+  ok - identity_write.larry_persona is a zod schema
+  ok - identity_write.brain_persona is a zod schema
+  ok - identity_write.user_id is a zod schema
+  ok - identity_write.role_blend is a zod schema
+  ok - question_read inputSchema is a zod object
+  ok - question_read.history is a zod schema
+  ok - question_set inputSchema is a zod object
+  ok - question_set.text is a zod schema
+  ok - question_set.origin is a zod schema
+  ok - question_set.account is a zod schema
+  ok - question_set.relocate is a zod schema
+  ok - question_set.cancel is a zod schema
+  ok - question_set.based_on_version is a zod schema
+  ok - research_run inputSchema is a zod object
+  ok - research_run.op is a zod schema
+  ok - research_run.room is a zod schema
+  ok - research_run.question_set is a zod schema
+  ok - research_run.run_id is a zod schema
+  ok - research_run.grant_id is a zod schema
+  ok - research_run.gate_id is a zod schema
+  ok - research_run.mode is a zod schema
+  ok - research_run.terms is a zod schema
+  ok - research_run.max_candidates is a zod schema
+  ok - research_run.perspective is a zod schema
+  ok - research_run.run_tag is a zod schema
+  ok - research_run.limit is a zod schema
+  ok - research_run.offset is a zod schema
+  ok - research_run.offline is a zod schema
+  ok - room_list inputSchema is a zod object
+  ok - room_state_bound inputSchema is a zod object
+  ok - room_search inputSchema is a zod object
+  ok - room_search.query is a zod schema
+  ok - room_search.section is a zod schema
+  ok - suggest_next inputSchema is a zod object
+  ok - suggest_next.user_text is a zod schema
+  ok - suggest_next.section is a zod schema
+  ok - reach_candidates inputSchema is a zod object
+  ok - reach_candidates.user_text is a zod schema
+  ok - reach_candidates.section is a zod schema
+  ok - contradiction_check inputSchema is a zod object
+  ok - contradiction_check.node_id is a zod schema
+  ok - contradiction_check.include_superseded is a zod schema
+  ok - whitespace_scan inputSchema is a zod object
+  ok - framework_run inputSchema is a zod object
+  ok - framework_run.chain is a zod schema
+  ok - framework_run.subject_node_id is a zod schema
+  ok - framework_run.evidence_node_ids is a zod schema
+  ok - status_read inputSchema is a zod object
+  ok - status_read.context_window is a zod schema
+  ok - status_read.spend_usd is a zod schema
+  ok - status_read.cap_usd is a zod schema
+  ok - stop_gate_check inputSchema is a zod object
+  ok - stop_gate_check.session_id is a zod schema
+  ok - stop_gate_check.transcript_path is a zod schema
+  ok - stop_gate_check.output_text is a zod schema
+  ok - stop_gate_check.ran_entries is a zod schema
+  ok - stop_gate_check.preceding_user_text is a zod schema
+  ok - view_compile inputSchema is a zod object
+  ok - view_compile.view is a zod schema
+  ok - view_compile.page_id is a zod schema
+  ok - artifact_file inputSchema is a zod object
+  ok - artifact_file.section is a zod schema
+  ok - artifact_file.filename is a zod schema
+  ok - artifact_file.content is a zod schema
+  ok - artifact_file.epistemic_type is a zod schema
+  ok - artifact_file.evidence_node_ids is a zod schema
+  ok - artifact_file (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - chain_resolve (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - chain_run (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - claim_read (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - claim_verify (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - claim_write (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - context_assemble (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - contract_version (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - contradiction_check (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - detect_dual_path (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - extract_shallow (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - framework_run (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - gate_answer (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - gate_list (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - gate_render (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - graph_query (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - graph_reason (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - graph_write (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - identity_write (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - memory_event (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - question_read (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - question_set (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - reach_candidates (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - research_run (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_artifact (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_changes (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_list (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_search (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_state_bound (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - status_read (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - stop_gate_check (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - suggest_next (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - view_compile (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - whitespace_scan (declared in mcp-tool-connectors.json) is registered by the tools/ seam
+  ok - room_artifact schema PARSES a synthesized sample input
+  ok - chain_resolve schema PARSES a synthesized sample input
+  ok - chain_run schema PARSES a synthesized sample input
+  ok - claim_verify schema PARSES a synthesized sample input
+  ok - claim_read schema PARSES a synthesized sample input
+  ok - claim_write schema PARSES a synthesized sample input
+  ok - context_assemble schema PARSES a synthesized sample input
+  ok - detect_dual_path schema PARSES a synthesized sample input
+  ok - extract_shallow schema PARSES a synthesized sample input
+  ok - room_changes schema PARSES a synthesized sample input
+  ok - gate_list schema PARSES a synthesized sample input
+  ok - gate_render schema PARSES a synthesized sample input
+  ok - gate_answer schema PARSES a synthesized sample input
+  ok - graph_reason schema PARSES a synthesized sample input
+  ok - graph_query schema PARSES a synthesized sample input
+  ok - graph_write schema PARSES a synthesized sample input
+  ok - memory_event schema PARSES a synthesized sample input
+  ok - identity_write schema PARSES a synthesized sample input
+  ok - question_read schema PARSES a synthesized sample input
+  ok - question_set schema PARSES a synthesized sample input
+    note - research_run: optional field(s) the generator cannot satisfy, left absent: run_tag
+  ok - research_run schema PARSES a synthesized sample input
+  ok - room_search schema PARSES a synthesized sample input
+  ok - suggest_next schema PARSES a synthesized sample input
+  ok - reach_candidates schema PARSES a synthesized sample input
+  ok - contradiction_check schema PARSES a synthesized sample input
+  ok - framework_run schema PARSES a synthesized sample input
+  ok - status_read schema PARSES a synthesized sample input
+  ok - stop_gate_check schema PARSES a synthesized sample input
+  ok - view_compile schema PARSES a synthesized sample input
+  ok - artifact_file schema PARSES a synthesized sample input
+  ok - room_search schema REJECTS a missing query
+  ok - room_search schema PARSES a valid query
+  ok - graph_write schema REJECTS a missing target_id
+  ok - graph_write schema PARSES a valid edge write payload
+  ok - framework_run schema REJECTS an empty chain
+  ok - framework_run schema PARSES a valid chain
+  ok - artifact_file schema REJECTS a missing content
+  ok - artifact_file schema PARSES a valid filing payload
+PASS: test-198-contract-schema (261 assertions -- contract_version semver + register-core-tools seam + per-tool zod schema validity + mcp-tool-connectors.json completeness + synthesized sample-input round trips, flag-gated write registration)
+>>> SPEC-2 contract-version + per-tool schema validity: PASSED
+
+--- SPEC-2 graph write chokepoint guard (navigation.cjs only) ---
+  ok - graph.cjs requires navigation.cjs
+  ok - graph.cjs has zero sqlite/room.db/new Database tokens
+  ok - graph.cjs never calls db.prepare directly (all graph-store access delegates through navigation.cjs)
+(node:230947) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - graph_write delegates the SAME db handle to navigation.writeEdge (chokepoint)
+  ok - graph_write never touches db.prepare directly (chokepoint discipline)
+  ok - graph_write result comes from navigation.writeEdge, not a second writer
+  ok - memory_event delegates the SAME db handle to navigation.logMemoryEvent (chokepoint)
+  ok - memory_event always logs the closed 'mcp_client_event_logged' type (never a caller-picked internal type)
+  ok - memory_event never touches db.prepare directly (chokepoint discipline)
+  ok - memory_event result comes from navigation.logMemoryEvent, not a second writer
+  ok - a real graph-store handle opens through navigation.openRoomDbForCaller once the db exists
+  ok - a real graph_write through the chokepoint returns ok:true
+  ok - the edge actually landed in the graph store (real write, not a mock)
+  ok - a real memory_event through the chokepoint returns ok:true
+  ok - the memory_event node actually landed in the graph store (real write, not a mock)
+  ok - BYPASS_EDGE_TYPE is genuinely outside the chokepoint vocabulary (test fixture sanity)
+  ok - a write attempted around the chokepoint's governed edge vocabulary is REJECTED
+  ok - the rejected bypass edge did NOT land in the graph store
+PASS: test-198-chokepoint-guard (18 assertions -- graph_write/memory_event route exclusively through navigation.cjs; a chokepoint-vocabulary bypass is rejected; a poisoned db handle proves graph.cjs never opens the graph store directly)
+>>> SPEC-2 graph write chokepoint guard (navigation.cjs only): PASSED
+
+--- SPEC-2 room_search ranks before capping (late relevant match survives) ---
+  ok - search returns a non-empty result array
+  ok - late-directory relevant match survives ranking (would have been dropped by the old arrival-order cap)
+  ok - relevant file ranks first (highest relevance, not last-walked)
+  ok - no single file monopolizes the payload (per-file slice cap holds)
+  ok - result count still bounded by SEARCH_MAX_RESULTS
+  ok - each result carries a match_count relevance signal
+  ok - relevant file match_count reflects full tally (> display slice)
+PASS: test-room-search-rank-before-cap -- 7 checks
+>>> SPEC-2 room_search ranks before capping (late relevant match survives): PASSED
+
+--- SPEC-2 room_search finds .html content, rejects markup-only false positives ---
+  ok - room_search finds a term that appears only inside an .html file body
+  ok - the hit is attributed to the .html file
+  ok - the hit reports the TRUE 1-based source line (computed, not guessed)
+  ok - the hit snippet is de-tagged (no < or >)
+  ok - the hit carries the extracted:true provenance marker
+  ok - a tag/attribute markup-only token produces zero hits
+  ok - a class-token markup-only value produces zero hits
+  ok - a <script> interior identifier produces zero hits
+  ok - a <style> interior selector produces zero hits
+  ok - entity decoding lets a search for at&t match AT&amp;T in source
+  ok - adjacent block cells do not mint the false joined token FooBar
+  ok - adjacent block cells DO produce the space-joined text "foo bar"
+  ok - a .docx file in the room is still skipped (D-03)
+  ok - a .txt file in the room is still skipped (D-02)
+  ok - md-only room still returns a hit
+  ok - md result object has exactly file, line, snippet, match_count (no extracted key)
+  ok - a late-walked, term-dense .html file survives the 50-slot cap
+  ok - the relevant .html file ranks first
+  ok - per-file slice cap (max 5) still holds with .html in the walk
+  ok - result count stays bounded by the 50-slot cap
+  ok - searchRoom does not throw when a malformed .html file is in the room
+  ok - a sibling well-formed file in the same room still returns its hit
+PASS: test-room-search-html-blindness -- 22 checks
+>>> SPEC-2 room_search finds .html content, rejects markup-only false positives: PASSED
+
+--- SPEC-2 room_search natural-language word tier (BM25 + relevance floor, quick 261012-kfn) ---
+  ok - sentence query uses the words tier
+  ok - sentence query puts the pelican ledger first
+  ok - each word-tier row has numeric line, match_count and words_matched
+  ok - words list is returned
+  ok - phrase query uses the phrase tier
+  ok - phrase hit file comes first
+  ok - no row from the word-only file
+  ok - control: the word tier alone ranks the scatter file first
+  ok - phrase-tier rows are deep-equal to searchRoom
+  ok - searchRoom still returns an array
+  ok - md phrase row key set is exactly file, line, match_count, snippet
+  ok - no search words: tier none for "What is it about, and why?"
+  ok - no search words: reason_code for "What is it about, and why?"
+  ok - no search words: reason text for "What is it about, and why?"
+  ok - no search words: tier none for "a b c d"
+  ok - no search words: reason_code for "a b c d"
+  ok - no search words: reason text for "a b c d"
+  ok - unanswerable question returns no results
+  ok - unanswerable question: below_relevance_floor
+  ok - unknown words return no results
+  ok - unknown words: no_match
+  ok - walrus question finds the real file
+  ok - walrus question never returns the symlinked file
+  ok - outside text never appears in the output
+  ok - symlinked directory is never read (result)
+  ok - symlinked directory is never read (before the floor)
+  ok - scope outside the room reads nothing
+  ok - word in file 500 is found
+  ok - word in file 501 is not found
+  ok - word in file 501: no_match
+  ok - html file is found by the word tier
+  ok - html row is marked extracted
+  ok - html row carries the true 1-based line
+  ok - html snippet has no angle brackets
+  ok - markup-only tokens are not found
+  ok - markup-only tokens: no_match
+  ok - section scope excludes files outside the section
+  ok - room_search handler is registered
+(node:230968) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - envelope room_dir is the fixture room (got /tmp/mos-room-nl-SHP4jA)
+  ok - envelope sentence query: tier words
+  ok - envelope sentence query: words array
+  ok - envelope sentence query: results
+  ok - envelope sentence query: no reason fields
+  ok - envelope bakery question: tier none
+  ok - envelope bakery question: empty results
+  ok - envelope bakery question: reason_code and reason
+  ok - envelope phrase query: tier phrase
+  ok - envelope phrase query: no words key
+  ok - test file has no em-dash
+  ok - test file has no en-dash
+PASS: test-room-search-natural-language -- 50 checks
+>>> SPEC-2 room_search natural-language word tier (BM25 + relevance floor, quick 261012-kfn): PASSED
+
+--- SPEC-3 chain_run halts at material step, resumes after gate_answer approve ---
+  ok - recipe-maps.postureForCommand(autonomous_safe command) -> autonomous_safe:true, posture:"run"
+  ok - recipe-maps.postureForCommand(material command) -> autonomous_safe:false, posture:"halt"
+  ok - recipe-maps.postureForCommand(unknown command) withhold-defaults to halt (never fabricates safe)
+(node:230975) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - chain_run returns ok:true
+  ok - chain_run does NOT complete (halted at the material step)
+  ok - chain_run ran exactly the 2 autonomous_safe steps, in order
+  ok - chain_run did NOT execute the material step before any approval
+  ok - chain_run names the material step as the halt point
+  ok - chain_run returns a gate_render payload (gate_id + rendered card)
+  ok - a reject verdict does NOT execute the material step
+  ok - a reject verdict leaves the executed log unchanged (material step never ran)
+  ok - a consumed gate_id cannot be replayed (single-use ledger, T-198-12)
+  ok - a forged/unknown gate_id is rejected, never resumes
+  ok - a second fresh chain_run also halts at the material step
+  ok - the material step still has not executed pre-approval
+  ok - an approve verdict resumes and executes the material step
+  ok - the material step (and ONLY it, once) now appears in the executed log
+  ok - an approve verdict on a chain with no remaining steps completes the chain
+PASS: test-198-chain-run-halt (18 assertions -- real registry postures, halt-at-material, single-use resume ledger, approve executes / reject-defer does not, replay/forgery rejected)
+>>> SPEC-3 chain_run halts at material step, resumes after gate_answer approve: PASSED
+
+--- SPEC-4 gate renderer ladder (elicitation / thin-adapter card / structured text) ---
+PASS: test-198-gate-renderers (SPEC-4: one gate, three renderers, three identical gate_answer payloads)
+>>> SPEC-4 gate renderer ladder (elicitation / thin-adapter card / structured text): PASSED
+
+--- SPEC-4 T2 gate-card node fields (subjectNodeId/evidenceNodeIds) ---
+(node:230989) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: test-h27-gate-card-node-fields (67 assertions -- Task 1: normalizeCard subjectNodeId/evidenceNodeIds; Task 2: call-site coverage)
+>>> SPEC-4 T2 gate-card node fields (subjectNodeId/evidenceNodeIds): PASSED
+
+--- SPEC-5 hooks/ adapter-only budget (import audit + line-count) ---
+(node:230996) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+ok 1 - migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+  ---
+  duration_ms: 1.709591
+  type: 'test'
+  ...
+# Subtest: checkAdapterBudget() passes against the real committed tree today
+ok 2 - checkAdapterBudget() passes against the real committed tree today
+  ---
+  duration_ms: 1.774109
+  type: 'test'
+  ...
+# Subtest: import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+ok 3 - import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+  ---
+  duration_ms: 0.846319
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+ok 4 - import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+  ---
+  duration_ms: 0.607591
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+ok 5 - import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+  ---
+  duration_ms: 0.53659
+  type: 'test'
+  ...
+# Subtest: import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+ok 6 - import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+  ---
+  duration_ms: 0.332065
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS a script that exceeds its recorded ceiling
+ok 7 - line-count budget FAILS a script that exceeds its recorded ceiling
+  ---
+  duration_ms: 0.816504
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+ok 8 - line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+  ---
+  duration_ms: 0.101016
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+ok 9 - scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+  ---
+  duration_ms: 0.355201
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+ok 10 - scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+  ---
+  duration_ms: 0.446145
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+ok 11 - scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+  ---
+  duration_ms: 0.236535
+  type: 'test'
+  ...
+# Subtest: sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+ok 12 - sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+  ---
+  duration_ms: 0.067012
+  type: 'test'
+  ...
+# Subtest: data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+ok 13 - data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+  ---
+  duration_ms: 0.159651
+  type: 'test'
+  ...
+# Subtest: 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+ok 14 - 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+  ---
+  duration_ms: 379.715597
+  type: 'test'
+  ...
+# Subtest: gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+ok 15 - gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+  ---
+  duration_ms: 502.383537
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 920.862257
+PASS: test-198-adapter-budget (15 of 15 tests passed)
+>>> SPEC-5 hooks/ adapter-only budget (import audit + line-count): PASSED
+
+--- SPEC-5 hooks.json top level is hooks-only (loader unknown-keys warning, quick 260911-juq) ---
+TAP version 13
+# Subtest: Arm 1: hooks/hooks.json top-level keys are exactly ["hooks"] (the fix holds)
+ok 1 - Arm 1: hooks/hooks.json top-level keys are exactly ["hooks"] (the fix holds)
+  ---
+  duration_ms: 1.552461
+  type: 'test'
+  ...
+# Subtest: Arm 2: data/hooks-markers.json carries both markers, nothing lost in the move
+ok 2 - Arm 2: data/hooks-markers.json carries both markers, nothing lost in the move
+  ---
+  duration_ms: 0.233298
+  type: 'test'
+  ...
+# Subtest: Arm 3: migratedSurfaces() resolves all 3 scripts through the sidecar (guards against a silently-dead path)
+ok 3 - Arm 3: migratedSurfaces() resolves all 3 scripts through the sidecar (guards against a silently-dead path)
+  ---
+  duration_ms: 0.716137
+  type: 'test'
+  ...
+# Subtest: Arm 4: the top-level-keys guard is not vacuous -- an extra key fails the same assertion
+ok 4 - Arm 4: the top-level-keys guard is not vacuous -- an extra key fails the same assertion
+  ---
+  duration_ms: 0.920334
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10.227327
+>>> SPEC-5 hooks.json top level is hooks-only (loader unknown-keys warning, quick 260911-juq): PASSED
+
+--- SPEC-5 Stop-gate bounded escape reaches BOTH ceilings on the MCP-first path ---
+test-198-stop-gate-retry-ceiling
+  ok   Floor 0a: the harness is hermetic -- no live room resolves, so closeOutRoom cannot touch real STATE.md
+  ok   Floor 0b: both fixtures reach a genuine intercept verdict in the shipped predicate
+  ok   Floor 0c: the two fixtures carry the retry-key shapes each leg depends on (stable vs flapping)
+  ok   LEG A: a repeated force-fire on the MCP-first path STOPS at MAX_FORCE_RETRIES (per-gate ceiling reached and respected)
+  ok   LEG A: the bounded escape RESETS the counters, so the navigator is not permanently locked out of future gates
+  ok   LEG B: a FLAPPING gate identity (which the per-gate counter cannot catch) STOPS at MAX_SESSION_INTERCEPTS
+  ok   LEG B: the per-gate counter genuinely never reached its own ceiling, proving the SESSION counter did the bounding
+  ok   WIRING: the MCP handler bumps the SAME on-disk store the CLI Stop hook reads (one counting path, not two)
+  ok   NON-REGRESSION: a terminal verdict CLEARS both counters, so an unrelated later gate starts from a fresh budget
+  ok   NON-REGRESSION: a fresh session still force-fires its first genuine gate (the ceiling bounds the loop, it does not disable the gate)
+  ok   NON-REGRESSION: the ceiling is per-session, so one session exhausting its budget never gags a concurrent session
+  ok   DEAD-BRANCH REPAIR: a terminal MCP verdict actually REACHES the lifecycle consumption wire (not just contains it in dead source)
+  ok   DEAD-BRANCH REPAIR: an ACTIVE force-loop still does NOT consume, so the record survives to be re-checked
+  ok   Constitutional floor is byte-untouched: MAX_FORCE_RETRIES=3, MAX_SESSION_INTERCEPTS=12, still declared in exactly one place
+  ok   ANTI-DRIFT: the MCP handler no longer hardcodes either counter to zero
+
+PASS test-198-stop-gate-retry-ceiling (15 assertions)
+>>> SPEC-5 Stop-gate bounded escape reaches BOTH ceilings on the MCP-first path: PASSED
+
+--- SPEC-7 flag-off byte-identical parity + rollback rehearsal ---
+MCP_FIRST_DEPRECATED_ACTIVE_WRITE session=undefined room=room-c
+MCP_FIRST_DEPRECATED_ACTIVE_WRITE session=some-session-not-bound-anywhere room=room-c
+MCP_FIRST_DEPRECATED_ACTIVE_WRITE session=some-session-not-bound-anywhere room=room-c
+PASS: test-198-flag-off-parity (amended 248-01/CTX-02: flag-off + unbound stays byte-identical legacy; flag-off + bound now resolves the binding)
+>>> SPEC-7 flag-off byte-identical parity + rollback rehearsal: PASSED
+
+--- SPEC-8 198 Plurai invocation-parity gate ---
+(node:231157) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PLURAI_GATE_OK method=two_host_invocation_parity verdict=parity
+>>> SPEC-8 198 Plurai invocation-parity gate: PASSED
+
+========================================
+  Summary (198 verification)
+  Passed: 17   Failed: 0   Skipped: 0
+========================================

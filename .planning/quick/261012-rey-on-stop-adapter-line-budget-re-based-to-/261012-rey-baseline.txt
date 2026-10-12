@@ -1,0 +1,4 @@
+HEAD=656d986bd
+doctor_before_exit=0 duration_s=89
+Acceptance full: 24/24 points passed.
+failed_ids_before: (none; all 24 'done ok')
