@@ -116,6 +116,13 @@ run_if "SPEC-2 room_search natural-language word tier (BM25 + relevance floor, q
   lib/mcp/tools/room.cjs \
   node tests/test-room-search-natural-language.cjs
 
+# room_search walk bound (quick task 261012-rxc): the walk reads every file up to
+# a 5,000-file safety bound, reads each file once for both tiers, and reports
+# scanned, walkable and truncated so an early stop is never a false "no file".
+run_if "SPEC-2 room_search walks every file up to 5,000 and reports truncation (quick 261012-rxc)" \
+  lib/mcp/tools/room.cjs \
+  node tests/test-room-search-walk-bound.cjs
+
 # ---------------------------------------------------------------------------
 # SPEC-3 -- server-side chain execution honoring postures (halt-at-material).
 # ---------------------------------------------------------------------------
