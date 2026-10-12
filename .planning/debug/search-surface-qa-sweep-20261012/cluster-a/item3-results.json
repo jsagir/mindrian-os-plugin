@@ -1,0 +1,566 @@
+{
+ "ran": "2026-10-12T16:42:45.593Z",
+ "head": "63b25583d",
+ "runs_per_query": 5,
+ "rooms": {
+  "mindrianOS": {
+   "walkable": 1121,
+   "walked": 500,
+   "walked_bytes": 5816942,
+   "all_walkable_bytes": 8438520,
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 22,
+     "query_word_count": 1,
+     "warmup_ms": 55,
+     "runs_ms": [
+      54.7,
+      54.4,
+      54.5,
+      51.3,
+      54.8
+     ],
+     "median_ms": 54.5,
+     "min_ms": 51.3,
+     "max_ms": 54.8,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 500,
+      "files_read_twice": 0,
+      "statSync_calls": 500,
+      "readdirSync_calls": 72
+     }
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 1,
+     "query_word_count": 5,
+     "warmup_ms": 203.5,
+     "runs_ms": [
+      206.3,
+      193.4,
+      197.7,
+      195.9,
+      209.9
+     ],
+     "median_ms": 197.7,
+     "min_ms": 193.4,
+     "max_ms": 209.9,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 1000,
+      "files_read_twice": 500,
+      "statSync_calls": 1000,
+      "readdirSync_calls": 144
+     }
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "query_word_count": 3,
+     "warmup_ms": 193.1,
+     "runs_ms": [
+      189.7,
+      197,
+      196.2,
+      197.6,
+      204
+     ],
+     "median_ms": 197,
+     "min_ms": 189.7,
+     "max_ms": 204,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 1000,
+      "files_read_twice": 500,
+      "statSync_calls": 1000,
+      "readdirSync_calls": 144
+     }
+    }
+   },
+   "walk_split_sentence": {
+    "walk1_phrase_ms_median": 50.7,
+    "walk2_word_ms_median": 168.9,
+    "sum": 219.6
+   }
+  },
+  "motj-ecosystem": {
+   "walkable": 833,
+   "walked": 500,
+   "walked_bytes": 3415656,
+   "all_walkable_bytes": 6167619,
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 23,
+     "query_word_count": 1,
+     "warmup_ms": 52.2,
+     "runs_ms": [
+      53.4,
+      49.8,
+      51.3,
+      52.3,
+      51.2
+     ],
+     "median_ms": 51.3,
+     "min_ms": 49.8,
+     "max_ms": 53.4,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 500,
+      "files_read_twice": 0,
+      "statSync_calls": 500,
+      "readdirSync_calls": 124
+     }
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 2,
+     "query_word_count": 5,
+     "warmup_ms": 168.4,
+     "runs_ms": [
+      163.6,
+      167.9,
+      167.8,
+      166.6,
+      167.6
+     ],
+     "median_ms": 167.6,
+     "min_ms": 163.6,
+     "max_ms": 167.9,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 1000,
+      "files_read_twice": 500,
+      "statSync_calls": 1000,
+      "readdirSync_calls": 248
+     }
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "query_word_count": 5,
+     "warmup_ms": 158.2,
+     "runs_ms": [
+      156.9,
+      159,
+      157.6,
+      168.4,
+      171.7
+     ],
+     "median_ms": 159,
+     "min_ms": 156.9,
+     "max_ms": 171.7,
+     "io": {
+      "distinct_files_read": 500,
+      "total_reads": 1000,
+      "files_read_twice": 500,
+      "statSync_calls": 1000,
+      "readdirSync_calls": 248
+     }
+    }
+   },
+   "walk_split_sentence": {
+    "walk1_phrase_ms_median": 47.6,
+    "walk2_word_ms_median": 113.8,
+    "sum": 161.4
+   }
+  },
+  "rethinking-mindrianos": {
+   "walkable": 424,
+   "walked": 424,
+   "walked_bytes": 4608607,
+   "all_walkable_bytes": 4608607,
+   "queries": {
+    "keyword-phrase-hit": {
+     "tier": "phrase",
+     "reason_code": null,
+     "results": 16,
+     "query_word_count": 1,
+     "warmup_ms": 30.8,
+     "runs_ms": [
+      30.5,
+      29.2,
+      33.6,
+      31.8,
+      30.8
+     ],
+     "median_ms": 30.8,
+     "min_ms": 29.2,
+     "max_ms": 33.6,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 424,
+      "files_read_twice": 0,
+      "statSync_calls": 424,
+      "readdirSync_calls": 141
+     }
+    },
+    "sentence-word-tier": {
+     "tier": "words",
+     "reason_code": null,
+     "results": 2,
+     "query_word_count": 5,
+     "warmup_ms": 124.7,
+     "runs_ms": [
+      126,
+      124,
+      121.8,
+      131.1,
+      126.1
+     ],
+     "median_ms": 126,
+     "min_ms": 121.8,
+     "max_ms": 131.1,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 848,
+      "files_read_twice": 424,
+      "statSync_calls": 848,
+      "readdirSync_calls": 282
+     }
+    },
+    "sentence-below-floor": {
+     "tier": "none",
+     "reason_code": "below_relevance_floor",
+     "results": 0,
+     "query_word_count": 3,
+     "warmup_ms": 116.2,
+     "runs_ms": [
+      113.5,
+      115.5,
+      116.4,
+      116.7,
+      112.8
+     ],
+     "median_ms": 115.5,
+     "min_ms": 112.8,
+     "max_ms": 116.7,
+     "io": {
+      "distinct_files_read": 424,
+      "total_reads": 848,
+      "files_read_twice": 424,
+      "statSync_calls": 848,
+      "readdirSync_calls": 282
+     }
+    }
+   },
+   "walk_split_sentence": {
+    "walk1_phrase_ms_median": 26.9,
+    "walk2_word_ms_median": 95.8,
+    "sum": 122.7
+   }
+  }
+ },
+ "scaling_points": [
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 17,
+   "bytes": 62218,
+   "one_walk_ms": 0.8,
+   "miss_query_total_ms": 2.9
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 21,
+   "bytes": 115572,
+   "one_walk_ms": 1.1,
+   "miss_query_total_ms": 4.1
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 35,
+   "bytes": 508142,
+   "one_walk_ms": 9.2,
+   "miss_query_total_ms": 20.3
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 7,
+   "bytes": 48585,
+   "one_walk_ms": 0.3,
+   "miss_query_total_ms": 1.1
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 5,
+   "bytes": 6834,
+   "one_walk_ms": 0.1,
+   "miss_query_total_ms": 0.4
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 19,
+   "bytes": 134486,
+   "one_walk_ms": 1.2,
+   "miss_query_total_ms": 4.6
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 6,
+   "bytes": 51152,
+   "one_walk_ms": 0.8,
+   "miss_query_total_ms": 2.6
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 74,
+   "bytes": 530949,
+   "one_walk_ms": 4.9,
+   "miss_query_total_ms": 21.1
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 47,
+   "bytes": 361839,
+   "one_walk_ms": 2.5,
+   "miss_query_total_ms": 9.6
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 11,
+   "bytes": 45686,
+   "one_walk_ms": 0.4,
+   "miss_query_total_ms": 1.7
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 16,
+   "bytes": 93671,
+   "one_walk_ms": 0.7,
+   "miss_query_total_ms": 2.8
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 64,
+   "bytes": 536686,
+   "one_walk_ms": 3.8,
+   "miss_query_total_ms": 14.1
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 157,
+   "bytes": 3236189,
+   "one_walk_ms": 21,
+   "miss_query_total_ms": 107.3
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 58,
+   "bytes": 649932,
+   "one_walk_ms": 5.2,
+   "miss_query_total_ms": 23.2
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 500,
+   "bytes": 1828346,
+   "one_walk_ms": 34.4,
+   "miss_query_total_ms": 94.6
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 8,
+   "bytes": 14754,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.6
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "section",
+   "files": 20,
+   "bytes": 93539,
+   "one_walk_ms": 0.8,
+   "miss_query_total_ms": 3.1
+  },
+  {
+   "room": "mindrianOS",
+   "scope": "whole-room",
+   "files": 500,
+   "bytes": 5816942,
+   "one_walk_ms": 49.9,
+   "miss_query_total_ms": 198.6
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 6,
+   "bytes": 8550,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.5
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 6,
+   "bytes": 8821,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.5
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 5,
+   "bytes": 103100,
+   "one_walk_ms": 0.7,
+   "miss_query_total_ms": 4.9
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 6,
+   "bytes": 8522,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.5
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 6,
+   "bytes": 8521,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.4
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 8,
+   "bytes": 30170,
+   "one_walk_ms": 0.3,
+   "miss_query_total_ms": 1
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 8,
+   "bytes": 13375,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.6
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 15,
+   "bytes": 152946,
+   "one_walk_ms": 2,
+   "miss_query_total_ms": 6
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 500,
+   "bytes": 3208005,
+   "one_walk_ms": 49.1,
+   "miss_query_total_ms": 174
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "section",
+   "files": 19,
+   "bytes": 71128,
+   "one_walk_ms": 1,
+   "miss_query_total_ms": 3
+  },
+  {
+   "room": "motj-ecosystem",
+   "scope": "whole-room",
+   "files": 500,
+   "bytes": 3415656,
+   "one_walk_ms": 48.1,
+   "miss_query_total_ms": 153.2
+  },
+  {
+   "room": "rethinking-mindrianos",
+   "scope": "section",
+   "files": 6,
+   "bytes": 10551,
+   "one_walk_ms": 0.2,
+   "miss_query_total_ms": 0.5
+  },
+  {
+   "room": "rethinking-mindrianos",
+   "scope": "section",
+   "files": 358,
+   "bytes": 4136901,
+   "one_walk_ms": 25.2,
+   "miss_query_total_ms": 109.9
+  },
+  {
+   "room": "rethinking-mindrianos",
+   "scope": "section",
+   "files": 52,
+   "bytes": 447463,
+   "one_walk_ms": 2.8,
+   "miss_query_total_ms": 12.2
+  },
+  {
+   "room": "rethinking-mindrianos",
+   "scope": "whole-room",
+   "files": 424,
+   "bytes": 4608607,
+   "one_walk_ms": 26.8,
+   "miss_query_total_ms": 120.3
+  }
+ ],
+ "fit_by_files": {
+  "a": 0.45,
+  "b": 0.31154,
+  "r2": 0.908,
+  "n": 33
+ },
+ "fit_by_mb": {
+  "a": 1.68,
+  "b": 36.0701,
+  "r2": 0.916,
+  "n": 33
+ },
+ "extrapolation_UNVERIFIED": {
+  "mindrianOS": {
+   "walkable": 1121,
+   "walked_now": 500,
+   "predicted_total_ms_if_all_walked_by_files": 350,
+   "predicted_total_ms_if_all_walked_by_mb": 292,
+   "walked_mb_now": 5.5,
+   "all_walkable_mb": 8
+  },
+  "motj-ecosystem": {
+   "walkable": 833,
+   "walked_now": 500,
+   "predicted_total_ms_if_all_walked_by_files": 260,
+   "predicted_total_ms_if_all_walked_by_mb": 214,
+   "walked_mb_now": 3.3,
+   "all_walkable_mb": 5.9
+  },
+  "rethinking-mindrianos": {
+   "walkable": 424,
+   "walked_now": 424,
+   "predicted_total_ms_if_all_walked_by_files": 133,
+   "predicted_total_ms_if_all_walked_by_mb": 160,
+   "walked_mb_now": 4.4,
+   "all_walkable_mb": 4.4
+  }
+ }
+}

@@ -1,0 +1,17 @@
+== mindrianOS walkable 1121 walked 500 walked_MB 5.5 all_MB 8.0
+   keyword-phrase-hit: tier phrase reason null results 22 median 54.5 min 51.3 max 54.8 warmup 55 | reads {"distinct_files_read":500,"total_reads":500,"files_read_twice":0,"statSync_calls":500,"readdirSync_calls":72}
+   sentence-word-tier: tier words reason null results 1 median 197.7 min 193.4 max 209.9 warmup 203.5 | reads {"distinct_files_read":500,"total_reads":1000,"files_read_twice":500,"statSync_calls":1000,"readdirSync_calls":144}
+   sentence-below-floor: tier none reason below_relevance_floor results 0 median 197 min 189.7 max 204 warmup 193.1 | reads {"distinct_files_read":500,"total_reads":1000,"files_read_twice":500,"statSync_calls":1000,"readdirSync_calls":144}
+   walk split (sentence): {"walk1_phrase_ms_median":50.7,"walk2_word_ms_median":168.9,"sum":219.6}
+== motj-ecosystem walkable 833 walked 500 walked_MB 3.3 all_MB 5.9
+   keyword-phrase-hit: tier phrase reason null results 23 median 51.3 min 49.8 max 53.4 warmup 52.2 | reads {"distinct_files_read":500,"total_reads":500,"files_read_twice":0,"statSync_calls":500,"readdirSync_calls":124}
+   sentence-word-tier: tier words reason null results 2 median 167.6 min 163.6 max 167.9 warmup 168.4 | reads {"distinct_files_read":500,"total_reads":1000,"files_read_twice":500,"statSync_calls":1000,"readdirSync_calls":248}
+   sentence-below-floor: tier none reason below_relevance_floor results 0 median 159 min 156.9 max 171.7 warmup 158.2 | reads {"distinct_files_read":500,"total_reads":1000,"files_read_twice":500,"statSync_calls":1000,"readdirSync_calls":248}
+   walk split (sentence): {"walk1_phrase_ms_median":47.6,"walk2_word_ms_median":113.8,"sum":161.4}
+== rethinking-mindrianos walkable 424 walked 424 walked_MB 4.4 all_MB 4.4
+   keyword-phrase-hit: tier phrase reason null results 16 median 30.8 min 29.2 max 33.6 warmup 30.8 | reads {"distinct_files_read":424,"total_reads":424,"files_read_twice":0,"statSync_calls":424,"readdirSync_calls":141}
+   sentence-word-tier: tier words reason null results 2 median 126 min 121.8 max 131.1 warmup 124.7 | reads {"distinct_files_read":424,"total_reads":848,"files_read_twice":424,"statSync_calls":848,"readdirSync_calls":282}
+   sentence-below-floor: tier none reason below_relevance_floor results 0 median 115.5 min 112.8 max 116.7 warmup 116.2 | reads {"distinct_files_read":424,"total_reads":848,"files_read_twice":424,"statSync_calls":848,"readdirSync_calls":282}
+   walk split (sentence): {"walk1_phrase_ms_median":26.9,"walk2_word_ms_median":95.8,"sum":122.7}
+fit by files {"a":0.45,"b":0.31154,"r2":0.908,"n":33} by MB {"a":1.68,"b":36.0701,"r2":0.916,"n":33}
+extrapolation (UNVERIFIED) {"mindrianOS":{"walkable":1121,"walked_now":500,"predicted_total_ms_if_all_walked_by_files":350,"predicted_total_ms_if_all_walked_by_mb":292,"walked_mb_now":5.5,"all_walkable_mb":8},"motj-ecosystem":{"walkable":833,"walked_now":500,"predicted_total_ms_if_all_walked_by_files":260,"predicted_total_ms_if_all_walked_by_mb":214,"walked_mb_now":3.3,"all_walkable_mb":5.9},"rethinking-mindrianos":{"walkable":424,"walked_now":424,"predicted_total_ms_if_all_walked_by_files":133,

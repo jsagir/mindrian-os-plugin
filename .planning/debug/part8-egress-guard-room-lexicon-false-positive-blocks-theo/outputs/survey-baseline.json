@@ -1,0 +1,766 @@
+{
+  "aggregate": {
+    "rooms": 34,
+    "rooms_with_fp": 9,
+    "fp_total": 30,
+    "fetch_calls": 0
+  },
+  "rooms": [
+    {
+      "room": "R01",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 805,
+      "entries_by_kind": {
+        "room_file": 50,
+        "room_term": 753,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 17,
+      "false_positives": 7,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "N2",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "N5",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "N6",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D1",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D11",
+          "class": "room_content",
+          "token_class": "room_term"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R02",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 121,
+      "entries_by_kind": {
+        "room_file": 80,
+        "room_term": 39,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 4,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R03",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 227,
+      "entries_by_kind": {
+        "room_file": 225,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 6,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R04",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 649,
+      "entries_by_kind": {
+        "room_file": 4,
+        "claim": 182,
+        "room_term": 463
+      },
+      "load_ms": 12,
+      "false_positives": 9,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "N2",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "N5",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "N6",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D7",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D11",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D15",
+          "class": "room_content",
+          "token_class": "room_term"
+        },
+        {
+          "id": "D19",
+          "class": "room_content",
+          "token_class": "room_term"
+        }
+      ],
+      "negatives_allowed": [
+        "X4"
+      ]
+    },
+    {
+      "room": "R05",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 2,
+      "entries_by_kind": {
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R06",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 84,
+      "entries_by_kind": {
+        "claim": 82,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 7,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R07",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 2,
+      "entries_by_kind": {
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 2,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R08",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 9,
+      "entries_by_kind": {
+        "room_file": 7,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R09",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 60,
+      "entries_by_kind": {
+        "room_file": 58,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R10",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 69,
+      "entries_by_kind": {
+        "room_file": 19,
+        "claim": 49,
+        "room_name": 1
+      },
+      "load_ms": 3,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R11",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 21,
+      "entries_by_kind": {
+        "room_file": 21
+      },
+      "load_ms": 0,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R12",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R13",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R14",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 82,
+      "entries_by_kind": {
+        "room_file": 15,
+        "claim": 65,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 4,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R15",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 9,
+      "entries_by_kind": {
+        "claim": 8,
+        "room_name": 1
+      },
+      "load_ms": 3,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R16",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 281,
+      "entries_by_kind": {
+        "room_file": 1,
+        "claim": 267,
+        "person": 11,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 13,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R17",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 8,
+      "entries_by_kind": {
+        "claim": 6,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 69,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R18",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 12,
+      "entries_by_kind": {
+        "room_file": 8,
+        "claim": 1,
+        "room_term": 1,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R19",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 6,
+      "entries_by_kind": {
+        "claim": 4,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R20",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 2,
+      "entries_by_kind": {
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R21",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 2764,
+      "entries_by_kind": {
+        "room_file": 329,
+        "claim": 2434,
+        "room_name": 1
+      },
+      "load_ms": 85,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R22",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 29,
+      "entries_by_kind": {
+        "room_file": 27,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R23",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R24",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 118,
+      "entries_by_kind": {
+        "room_file": 44,
+        "claim": 72,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 4,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R25",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 2,
+      "entries_by_kind": {
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R26",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R27",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "venture_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R28",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 203,
+      "entries_by_kind": {
+        "room_file": 30,
+        "claim": 172,
+        "room_name": 1
+      },
+      "load_ms": 11,
+      "false_positives": 2,
+      "fp_detail": [
+        {
+          "id": "N1",
+          "class": "room_content",
+          "token_class": "room_file"
+        },
+        {
+          "id": "D3",
+          "class": "room_content",
+          "token_class": "room_file"
+        }
+      ],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R29",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 3461,
+      "entries_by_kind": {
+        "room_file": 19,
+        "claim": 3440,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 164,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R30",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 17,
+      "entries_by_kind": {
+        "claim": 16,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R31",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 14,
+      "entries_by_kind": {
+        "claim": 13,
+        "room_name": 1
+      },
+      "load_ms": 1,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R32",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R33",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 75,
+      "entries_by_kind": {
+        "claim": 73,
+        "venture_name": 1,
+        "room_name": 1
+      },
+      "load_ms": 3,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    },
+    {
+      "room": "R34",
+      "lexicon_ok": true,
+      "lexicon_source": "room.db",
+      "entries_total": 1,
+      "entries_by_kind": {
+        "room_name": 1
+      },
+      "load_ms": 0,
+      "false_positives": 0,
+      "fp_detail": [],
+      "negatives_allowed": [
+        "X4",
+        "X8"
+      ]
+    }
+  ]
+}

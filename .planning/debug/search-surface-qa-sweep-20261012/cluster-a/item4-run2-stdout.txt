@@ -1,0 +1,73 @@
+run 2 separation: {
+ "nl_positives": 16,
+ "nl_positives_with_target_in_word_scores": 16,
+ "min_positive_target_idf_share": 0.399,
+ "max_negative_best_idf_share": 0.36,
+ "min_positive_target_words_matched": 4,
+ "max_negative_best_words_matched": 4,
+ "positives_target_fails_floor": [
+  "A1",
+  "A4",
+  "B7"
+ ],
+ "positives_empty_result": [],
+ "negatives_with_results": [],
+ "negatives_empty_with_floor_reason": [
+  "N1",
+  "N2",
+  "N3"
+ ],
+ "rank_top5_nl": 13,
+ "rank1_nl": 11,
+ "rank_top5_kw": 15,
+ "rank1_kw": 7,
+ "set_A": {
+  "n": 8,
+  "nl_top5": 6,
+  "nl_top1": 5,
+  "kw_top5": 7,
+  "kw_top1": 1,
+  "nl_median_payload_tokens_proxy": 350,
+  "kw_median_payload_tokens_proxy": 268,
+  "min_target_idf_share": 0.399
+ },
+ "set_B": {
+  "n": 8,
+  "nl_top5": 7,
+  "nl_top1": 6,
+  "kw_top5": 8,
+  "kw_top1": 6,
+  "nl_median_payload_tokens_proxy": 290,
+  "kw_median_payload_tokens_proxy": 158,
+  "min_target_idf_share": 0.473
+ }
+}
+┌─────────┬──────┬─────────┬─────────┬──────┬────────┬──────────┬──────────────┬───────────────┬─────────────┬──────────┬─────────┬──────┬────────┬──────────────┐
+│ (index) │ id   │ nl_tier │ nl_rank │ nl_n │ nl_tok │ nl_words │ nl_tgt_share │ nl_best_share │ nl_tgt_pass │ kw_tier  │ kw_rank │ kw_n │ kw_tok │ kw_tgt_share │
+├─────────┼──────┼─────────┼─────────┼──────┼────────┼──────────┼──────────────┼───────────────┼─────────────┼──────────┼─────────┼──────┼────────┼──────────────┤
+│ 0       │ 'A1' │ 'words' │ null    │ 5    │ 294    │ '5/9'    │ 0.48         │ 0.708         │ false       │ 'phrase' │ null    │ 50   │ 2114   │ 1            │
+│ 1       │ 'A2' │ 'words' │ 1       │ 5    │ 377    │ '7/8'    │ 0.825        │ 0.825         │ true        │ 'phrase' │ 3       │ 4    │ 268    │ 1            │
+│ 2       │ 'A3' │ 'words' │ 1       │ 5    │ 350    │ '8/9'    │ 0.848        │ 0.848         │ true        │ 'phrase' │ 2       │ 2    │ 112    │ 1            │
+│ 3       │ 'A4' │ 'words' │ null    │ 5    │ 371    │ '4/8'    │ 0.399        │ 0.752         │ false       │ 'phrase' │ 4       │ 7    │ 276    │ 1            │
+│ 4       │ 'A5' │ 'words' │ 1       │ 5    │ 347    │ '8/9'    │ 0.748        │ 0.748         │ true        │ 'phrase' │ 2       │ 2    │ 115    │ 1            │
+│ 5       │ 'A6' │ 'words' │ 1       │ 5    │ 365    │ '10/11'  │ 0.897        │ 0.897         │ true        │ 'phrase' │ 1       │ 3    │ 166    │ 1            │
+│ 6       │ 'A7' │ 'words' │ 1       │ 5    │ 333    │ '7/9'    │ 0.613        │ 0.613         │ true        │ 'phrase' │ 3       │ 17   │ 936    │ 1            │
+│ 7       │ 'A8' │ 'words' │ 5       │ 5    │ 232    │ '8/11'   │ 0.821        │ 0.821         │ true        │ 'phrase' │ 2       │ 5    │ 202    │ 1            │
+│ 8       │ 'B1' │ 'words' │ 1       │ 1    │ 106    │ '11/12'  │ 0.904        │ 0.904         │ true        │ 'phrase' │ 1       │ 2    │ 125    │ 1            │
+│ 9       │ 'B2' │ 'words' │ 1       │ 1    │ 67     │ '6/8'    │ 0.731        │ 0.731         │ true        │ 'phrase' │ 1       │ 1    │ 80     │ 1            │
+│ 10      │ 'B3' │ 'words' │ 5       │ 5    │ 347    │ '7/9'    │ 0.724        │ 0.724         │ true        │ 'phrase' │ 1       │ 20   │ 1138   │ 1            │
+│ 11      │ 'B4' │ 'words' │ 1       │ 4    │ 398    │ '9/10'   │ 0.856        │ 0.856         │ true        │ 'phrase' │ 1       │ 1    │ 58     │ 1            │
+│ 12      │ 'B5' │ 'words' │ 1       │ 5    │ 466    │ '10/11'  │ 0.936        │ 0.936         │ true        │ 'phrase' │ 1       │ 2    │ 153    │ 1            │
+│ 13      │ 'B6' │ 'words' │ 1       │ 2    │ 189    │ '9/10'   │ 0.87         │ 0.87          │ true        │ 'phrase' │ 2       │ 7    │ 388    │ 1            │
+│ 14      │ 'B7' │ 'words' │ null    │ 3    │ 290    │ '6/9'    │ 0.473        │ 0.473         │ false       │ 'phrase' │ 1       │ 7    │ 504    │ 1            │
+│ 15      │ 'B8' │ 'words' │ 1       │ 1    │ 101    │ '10/15'  │ 0.659        │ 0.659         │ true        │ 'phrase' │ 2       │ 2    │ 158    │ 1            │
+└─────────┴──────┴─────────┴─────────┴──────┴────────┴──────────┴──────────────┴───────────────┴─────────────┴──────────┴─────────┴──────┴────────┴──────────────┘
+┌─────────┬──────┬───────┬───────────┬─────────────────────────┬────────────────┬────────────┬────────────┬─────────────┐
+│ (index) │ id   │ words │ n_results │ reason                  │ any_word_files │ best_words │ best_share │ best_passes │
+├─────────┼──────┼───────┼───────────┼─────────────────────────┼────────────────┼────────────┼────────────┼─────────────┤
+│ 0       │ 'N1' │ 5     │ 0         │ 'below_relevance_floor' │ 80             │ 1          │ 0.062      │ false       │
+│ 1       │ 'N2' │ 8     │ 0         │ 'below_relevance_floor' │ 147            │ 4          │ 0.36       │ false       │
+│ 2       │ 'N3' │ 6     │ 0         │ 'below_relevance_floor' │ 57             │ 2          │ 0.208      │ false       │
+└─────────┴──────┴───────┴───────────┴─────────────────────────┴────────────────┴────────────┴────────────┴─────────────┘
+(node:158599) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

@@ -1,0 +1,308 @@
+{
+  "label": "rethink",
+  "room_bound": true,
+  "positives": [
+    {
+      "id": "N1",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 188.8
+    },
+    {
+      "id": "N2",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 3
+    },
+    {
+      "id": "N3",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0.1
+    },
+    {
+      "id": "N4",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 2.4
+    },
+    {
+      "id": "N5",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 1.1
+    },
+    {
+      "id": "N6",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 1
+    },
+    {
+      "id": "D1",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.9
+    },
+    {
+      "id": "D2",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D3",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.9
+    },
+    {
+      "id": "D4",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D5",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.8
+    },
+    {
+      "id": "D6",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D7",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.8
+    },
+    {
+      "id": "D8",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D9",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.7
+    },
+    {
+      "id": "D10",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D11",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 1.1
+    },
+    {
+      "id": "D12",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D13",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 1.1
+    },
+    {
+      "id": "D14",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D15",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.8
+    },
+    {
+      "id": "D16",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D17",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.8
+    },
+    {
+      "id": "D18",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    },
+    {
+      "id": "D19",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.8
+    },
+    {
+      "id": "D20",
+      "verdict": "allow",
+      "class": "typed_question",
+      "token_class": null,
+      "reason": "closed-vocabulary methodology question",
+      "ms": 0
+    }
+  ],
+  "negatives": [
+    {
+      "id": "X1",
+      "verdict": "block",
+      "class": "content_set",
+      "token_class": null,
+      "reason": "forbidden pattern hit: \\$[0-9][\\d,.]*[KMB]?\\b",
+      "ms": 0.1
+    },
+    {
+      "id": "X2",
+      "verdict": "block",
+      "class": "room_content",
+      "token_class": "private_context",
+      "reason": "the string carries private venture context",
+      "ms": 0.8
+    },
+    {
+      "id": "X3",
+      "verdict": "block",
+      "class": "content_set",
+      "token_class": null,
+      "reason": "forbidden pattern hit: @[a-zA-Z0-9._-]+\\.[a-zA-Z]{2,}",
+      "ms": 0
+    },
+    {
+      "id": "X4",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 0.9
+    },
+    {
+      "id": "X5",
+      "verdict": "block",
+      "class": "content_set",
+      "token_class": null,
+      "reason": "forbidden pattern hit: \\b[A-Z][a-z]+\\s+(?:Corp|Inc|Ltd|LLC|Robotics|Ventures|Fintech)\\b",
+      "ms": 0
+    },
+    {
+      "id": "X6",
+      "verdict": "block",
+      "class": "room_content",
+      "token_class": "identifier",
+      "reason": "the string carries an identifier no methodology handle matches",
+      "ms": 2.2
+    },
+    {
+      "id": "X7",
+      "verdict": "block",
+      "class": "room_content",
+      "token_class": "private_context",
+      "reason": "the string carries private venture context",
+      "ms": 1.1
+    },
+    {
+      "id": "X8",
+      "verdict": "allow",
+      "class": "generic_question",
+      "token_class": null,
+      "reason": "plain methodology question with no room-local token",
+      "ms": 1
+    },
+    {
+      "id": "X9",
+      "verdict": "block",
+      "class": "content_set",
+      "token_class": null,
+      "reason": "forbidden pattern hit: \\b[A-Z][a-z]+\\s+(?:Corp|Inc|Ltd|LLC|Robotics|Ventures|Fintech)\\b",
+      "ms": 0
+    },
+    {
+      "id": "X10",
+      "verdict": "block",
+      "class": "room_content",
+      "token_class": "private_context",
+      "reason": "the string carries private venture context",
+      "ms": 3.7
+    }
+  ],
+  "summary": {
+    "positives_total": 26,
+    "false_positives": 0,
+    "by_class": {},
+    "negatives_total": 10,
+    "negatives_refused": 8,
+    "negatives_allowed_LEAK": [
+      "X4",
+      "X8"
+    ],
+    "fetch_calls": 0
+  }
+}

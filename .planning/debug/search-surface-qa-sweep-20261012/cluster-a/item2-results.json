@@ -1,0 +1,1191 @@
+{
+ "ran": "2026-10-12T16:41:35.458Z",
+ "head": "63b25583d",
+ "rooms": {
+  "mindrianOS": {
+   "walkable_total": 1121,
+   "md": 1081,
+   "html": 40,
+   "walk_stats": {
+    "dotSkipped": 90,
+    "symlinkSkipped": 0,
+    "extSkipped": 34,
+    "containSkipped": 0,
+    "maxDepth": 8
+   },
+   "reproduction_equals_real_first_500": true,
+   "real_walker_visited": 500,
+   "beyond_boundary": 621,
+   "beyond_pct": 55.4,
+   "file_500_section": "solution-design",
+   "file_501_section": "solution-design",
+   "sections_total": 20,
+   "sections_fully_hidden": 3,
+   "sections_partly_hidden": 1,
+   "beyond_reachable_only_by_section_scope": 578,
+   "unreachable_by_any_call": 43,
+   "unreachable_by_any_call_by_section": {
+    "sub-rooms": 43
+   },
+   "sections": [
+    {
+     "section": "(room root)",
+     "walkable": 8,
+     "beyond": 0
+    },
+    {
+     "section": "business-model",
+     "walkable": 17,
+     "beyond": 0
+    },
+    {
+     "section": "competitive-analysis",
+     "walkable": 21,
+     "beyond": 0
+    },
+    {
+     "section": "exports",
+     "walkable": 35,
+     "beyond": 0
+    },
+    {
+     "section": "financial-model",
+     "walkable": 7,
+     "beyond": 0
+    },
+    {
+     "section": "funding",
+     "walkable": 1,
+     "beyond": 0
+    },
+    {
+     "section": "legal-ip",
+     "walkable": 5,
+     "beyond": 0
+    },
+    {
+     "section": "market-analysis",
+     "walkable": 19,
+     "beyond": 0
+    },
+    {
+     "section": "marketing",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "meetings",
+     "walkable": 74,
+     "beyond": 0
+    },
+    {
+     "section": "methodology",
+     "walkable": 47,
+     "beyond": 0
+    },
+    {
+     "section": "opportunity-bank",
+     "walkable": 11,
+     "beyond": 0
+    },
+    {
+     "section": "personas",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "problem-definition",
+     "walkable": 16,
+     "beyond": 0
+    },
+    {
+     "section": "product-evolution",
+     "walkable": 64,
+     "beyond": 0
+    },
+    {
+     "section": "research",
+     "walkable": 157,
+     "beyond": 0
+    },
+    {
+     "section": "solution-design",
+     "walkable": 58,
+     "beyond": 50
+    },
+    {
+     "section": "sub-rooms",
+     "walkable": 543,
+     "beyond": 543
+    },
+    {
+     "section": "team",
+     "walkable": 8,
+     "beyond": 8
+    },
+    {
+     "section": "team-execution",
+     "walkable": 20,
+     "beyond": 20
+    }
+   ],
+   "probes_eligible_beyond": 5,
+   "probes": [
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 525,
+     "ext": ".md",
+     "section": "solution-design",
+     "term_len": 8,
+     "term_sha8": "cd11917e",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 1,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 5
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 633,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 14,
+     "term_sha8": "006b3c65",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 1,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 518,
+     "ext": ".md",
+     "section": "solution-design",
+     "term_len": 10,
+     "term_sha8": "a36d9478",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 1,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 967,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 10,
+     "term_sha8": "42b28e64",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 1,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 1111,
+     "ext": ".md",
+     "section": "team-execution",
+     "term_len": 9,
+     "term_sha8": "f1e14133",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 2
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 137,
+     "ext": ".md",
+     "section": "meetings",
+     "term_len": 8,
+     "term_sha8": "2c64a671",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 316,
+     "ext": ".md",
+     "section": "product-evolution",
+     "term_len": 10,
+     "term_sha8": "947c91a7",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 1,
+     "nl_tier": "phrase",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 475,
+     "ext": ".md",
+     "section": "research",
+     "term_len": 12,
+     "term_sha8": "29984379",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    }
+   ],
+   "elapsed_ms": 7130
+  },
+  "motj-ecosystem": {
+   "walkable_total": 833,
+   "md": 798,
+   "html": 35,
+   "walk_stats": {
+    "dotSkipped": 101,
+    "symlinkSkipped": 0,
+    "extSkipped": 76,
+    "containSkipped": 0,
+    "maxDepth": 6
+   },
+   "reproduction_equals_real_first_500": true,
+   "real_walker_visited": 500,
+   "beyond_boundary": 333,
+   "beyond_pct": 40,
+   "file_500_section": "sub-rooms",
+   "file_501_section": "sub-rooms",
+   "sections_total": 16,
+   "sections_fully_hidden": 2,
+   "sections_partly_hidden": 1,
+   "beyond_reachable_only_by_section_scope": 97,
+   "unreachable_by_any_call": 236,
+   "unreachable_by_any_call_by_section": {
+    "sub-rooms": 236
+   },
+   "sections": [
+    {
+     "section": "(room root)",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "assets",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "business-model",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "competitive-analysis",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "financial-model",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "funding",
+     "walkable": 1,
+     "beyond": 0
+    },
+    {
+     "section": "governance",
+     "walkable": 5,
+     "beyond": 0
+    },
+    {
+     "section": "legal-ip",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "market-analysis",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "opportunity-bank",
+     "walkable": 8,
+     "beyond": 0
+    },
+    {
+     "section": "problem-definition",
+     "walkable": 8,
+     "beyond": 0
+    },
+    {
+     "section": "r-and-d",
+     "walkable": 2,
+     "beyond": 0
+    },
+    {
+     "section": "solution-design",
+     "walkable": 15,
+     "beyond": 0
+    },
+    {
+     "section": "sub-rooms",
+     "walkable": 736,
+     "beyond": 311
+    },
+    {
+     "section": "team",
+     "walkable": 3,
+     "beyond": 3
+    },
+    {
+     "section": "team-execution",
+     "walkable": 19,
+     "beyond": 19
+    }
+   ],
+   "probes_eligible_beyond": 5,
+   "probes": [
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 592,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 9,
+     "term_sha8": "0072bd7b",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 0
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 627,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 9,
+     "term_sha8": "dc2a423f",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 2,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 0
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 625,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 7,
+     "term_sha8": "29e5b9a8",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 0
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 707,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 11,
+     "term_sha8": "4d0b0d2c",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 0
+    },
+    {
+     "kind": "beyond-boundary",
+     "walk_index": 585,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 10,
+     "term_sha8": "cefd7147",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 0,
+     "searchRoom_count": 0,
+     "detailed_tier": "none",
+     "detailed_results": 0,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results",
+      "reason_code",
+      "reason"
+     ],
+     "reason_code": "no_match",
+     "reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "none",
+     "handler_results": 0,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "none",
+     "nl_results": 0,
+     "nl_reason_code": "no_match",
+     "nl_reason": "No file contains this exact text or any of its search words.",
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words",
+      "reason_code",
+      "reason"
+     ],
+     "section_scoped_results_lowercased_slug": 0
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 207,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 8,
+     "term_sha8": "a2337e8e",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 2,
+     "detailed_tier": "phrase",
+     "detailed_results": 2,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 2,
+     "handler_err": null,
+     "nl_query_word_count": 2,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 2
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 277,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 11,
+     "term_sha8": "96a99b4e",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 143,
+     "ext": ".md",
+     "section": "sub-rooms",
+     "term_len": 9,
+     "term_sha8": "986e64ff",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    }
+   ],
+   "elapsed_ms": 6422
+  },
+  "rethinking-mindrianos": {
+   "walkable_total": 424,
+   "md": 424,
+   "html": 0,
+   "walk_stats": {
+    "dotSkipped": 9,
+    "symlinkSkipped": 0,
+    "extSkipped": 0,
+    "containSkipped": 0,
+    "maxDepth": 5
+   },
+   "reproduction_equals_real_first_500": true,
+   "real_walker_visited": 424,
+   "beyond_boundary": 0,
+   "beyond_pct": 0,
+   "file_500_section": null,
+   "file_501_section": null,
+   "sections_total": 5,
+   "sections_fully_hidden": 0,
+   "sections_partly_hidden": 0,
+   "beyond_reachable_only_by_section_scope": 0,
+   "unreachable_by_any_call": 0,
+   "unreachable_by_any_call_by_section": {},
+   "sections": [
+    {
+     "section": "(room root)",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "funding",
+     "walkable": 4,
+     "beyond": 0
+    },
+    {
+     "section": "opportunity-bank",
+     "walkable": 6,
+     "beyond": 0
+    },
+    {
+     "section": "research",
+     "walkable": 358,
+     "beyond": 0
+    },
+    {
+     "section": "solution-design",
+     "walkable": 52,
+     "beyond": 0
+    }
+   ],
+   "probes_eligible_beyond": 0,
+   "probes": [
+    {
+     "kind": "control-inside",
+     "walk_index": 310,
+     "ext": ".md",
+     "section": "research",
+     "term_len": 8,
+     "term_sha8": "5947965b",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 120,
+     "ext": ".md",
+     "section": "research",
+     "term_len": 9,
+     "term_sha8": "4f238358",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    },
+    {
+     "kind": "control-inside",
+     "walk_index": 169,
+     "ext": ".md",
+     "section": "research",
+     "term_len": 8,
+     "term_sha8": "fb02dcc0",
+     "expected_hits_if_unbounded": 1,
+     "hits_inside_first_500": 1,
+     "searchRoom_count": 1,
+     "detailed_tier": "phrase",
+     "detailed_results": 1,
+     "detailed_keys": [
+      "tier",
+      "words",
+      "results"
+     ],
+     "reason_code": null,
+     "reason": null,
+     "handler_keys_keyword": [
+      "room_dir",
+      "query",
+      "tier",
+      "results"
+     ],
+     "handler_room_ok": true,
+     "handler_tier": "phrase",
+     "handler_results": 1,
+     "handler_err": null,
+     "nl_query_word_count": 3,
+     "nl_tier": "words",
+     "nl_results": 1,
+     "nl_reason_code": null,
+     "nl_reason": null,
+     "handler_keys_nl": [
+      "room_dir",
+      "query",
+      "tier",
+      "results",
+      "words"
+     ],
+     "section_scoped_results_lowercased_slug": 1
+    }
+   ],
+   "elapsed_ms": 1529
+  }
+ }
+}

@@ -1,0 +1,29 @@
+== mindrianOS: walkable 1121 (md 1081, html 40), beyond 621 (55.4%), repro==real: true, real visited 500
+   reachable only by section scope 578, unreachable by any call 43 {"sub-rooms":43}
+   sections 20, fully hidden 3, partly hidden 1, walk stats {"dotSkipped":90,"symlinkSkipped":0,"extSkipped":34,"containSkipped":0,"maxDepth":8}
+   beyond-boundary idx 525 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 5
+   beyond-boundary idx 633 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 1
+   beyond-boundary idx 518 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 1
+   beyond-boundary idx 967 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 1
+   beyond-boundary idx 1111 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 2
+   control-inside idx 137 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+   control-inside idx 316 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL phrase/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+   control-inside idx 475 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+== motj-ecosystem: walkable 833 (md 798, html 35), beyond 333 (40%), repro==real: true, real visited 500
+   reachable only by section scope 97, unreachable by any call 236 {"sub-rooms":236}
+   sections 16, fully hidden 2, partly hidden 1, walk stats {"dotSkipped":101,"symlinkSkipped":0,"extSkipped":76,"containSkipped":0,"maxDepth":6}
+   beyond-boundary idx 592 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 0
+   beyond-boundary idx 627 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 0
+   beyond-boundary idx 625 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 0
+   beyond-boundary idx 707 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 0
+   beyond-boundary idx 585 .md unbounded_hits 1 inside500 0 -> searchRoom 0 tier none reason no_match | NL none/0/no_match | handler room_ok true tier none n 0 keys room_dir,query,tier,results,words,reason_code,reason | scoped 0
+   control-inside idx 207 .md unbounded_hits 1 inside500 1 -> searchRoom 2 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 2 keys room_dir,query,tier,results | scoped 2
+   control-inside idx 277 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+   control-inside idx 143 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+== rethinking-mindrianos: walkable 424 (md 424, html 0), beyond 0 (0%), repro==real: true, real visited 424
+   reachable only by section scope 0, unreachable by any call 0 {}
+   sections 5, fully hidden 0, partly hidden 0, walk stats {"dotSkipped":9,"symlinkSkipped":0,"extSkipped":0,"containSkipped":0,"maxDepth":5}
+   control-inside idx 310 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+   control-inside idx 120 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+   control-inside idx 169 .md unbounded_hits 1 inside500 1 -> searchRoom 1 tier phrase reason null | NL words/1/null | handler room_ok true tier phrase n 1 keys room_dir,query,tier,results | scoped 1
+done

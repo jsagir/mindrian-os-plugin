@@ -1,0 +1,124 @@
+PASS: test-198-adapter-budget (17 assertions -- see TAP output above for the per-check trace)
+(node:127287) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+ok 1 - migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+  ---
+  duration_ms: 6.498872
+  type: 'test'
+  ...
+# Subtest: checkAdapterBudget() passes against the real committed tree today
+not ok 2 - checkAdapterBudget() passes against the real committed tree today
+  ---
+  duration_ms: 11.564529
+  type: 'test'
+  location: '/home/jsagi/dev/MindrianOS-Plugin/tests/test-198-adapter-budget.test.cjs:98:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    combined import-audit + line-budget gate is green: {"pass":false,"importAudit":{"pass":true,"files":[{"script":"scripts/statusline-mos-dispatch","pass":true,"violation":null},{"script":"scripts/sessionstart-coordinator.cjs","pass":true,"violation":null},{"script":"scripts/on-stop","pass":true,"violation":null}]},"lineBudget":{"pass":false,"files":[{"script":"scripts/statusline-mos-dispatch","lines":128,"budget":150,"pass":true},{"script":"scripts/sessionstart-coordinator.cjs","lines":250,"budget":280,"pass":true},{"script":"scripts/on-stop","lines":658,"budget":570,"pass":false}]}}
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/home/jsagi/dev/MindrianOS-Plugin/tests/test-198-adapter-budget.test.cjs:100:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+ok 3 - import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+  ---
+  duration_ms: 7.896291
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+ok 4 - import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+  ---
+  duration_ms: 4.447361
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+ok 5 - import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+  ---
+  duration_ms: 0.972415
+  type: 'test'
+  ...
+# Subtest: import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+ok 6 - import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+  ---
+  duration_ms: 13.288037
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS a script that exceeds its recorded ceiling
+ok 7 - line-count budget FAILS a script that exceeds its recorded ceiling
+  ---
+  duration_ms: 6.605753
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+ok 8 - line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+  ---
+  duration_ms: 0.484998
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+ok 9 - scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+  ---
+  duration_ms: 0.462512
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+ok 10 - scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+  ---
+  duration_ms: 0.539447
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+ok 11 - scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+  ---
+  duration_ms: 0.325886
+  type: 'test'
+  ...
+# Subtest: sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+ok 12 - sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+  ---
+  duration_ms: 0.063927
+  type: 'test'
+  ...
+# Subtest: data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+ok 13 - data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+  ---
+  duration_ms: 6.923371
+  type: 'test'
+  ...
+# Subtest: 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+ok 14 - 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+  ---
+  duration_ms: 612.918043
+  type: 'test'
+  ...
+# Subtest: gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+ok 15 - gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+  ---
+  duration_ms: 693.347956
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 14
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1403.249861
