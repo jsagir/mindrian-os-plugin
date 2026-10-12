@@ -1,0 +1,10 @@
+PASS: L0: fixture validity, generic names inside the union, retention names outside, snapshot size
+PASS: L1: lexicon build keeps no generic-only entry and keeps the room specific entries
+PASS: L2: the 26 methodology questions allow with the fixture room bound
+PASS: L3: the 26 methodology questions allow with no room bound
+PASS: L4: retention, real room content still blocks with the right token class
+PASS: L5: the solar cold locker sentence blocks with the room bound and allows with none
+PASS: L6: the 10 negatives block with the room bound and with no room bound
+PASS: L7: the CLI hook agrees with classify (generic allows, room content blocks)
+PASS: L8: no network call was made
+PASS: 9 FAIL: 0

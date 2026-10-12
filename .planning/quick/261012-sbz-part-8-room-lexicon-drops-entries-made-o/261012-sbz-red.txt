@@ -1,0 +1,10 @@
+PASS: L0: fixture validity, generic names inside the union, retention names outside, snapshot size
+FAIL: L1: lexicon build keeps no generic-only entry and keeps the room specific entries :: room_file entry titled with a core section slug is kept: market-analysis
+FAIL: L2: the 26 methodology questions allow with the fixture room bound :: 11 of 26 blocked: N1 verdict=block class=room_content token_class=room_file; N2 verdict=block class=room_content token_class=room_term; N5 verdict=block class=room_content token_class=room_term; N6 verdict=block class=room_content token_class=room_term; D1 verdict=block class=room_content token_class=room_term; D3 verdict=block class=room_content token_class=room_file; D9 verdict=block class=room_content token_class=room_term; D13 verdict=block class=room_content token_class=room_term; D15 verdict=block class=room_content token_class=room_term; D17 verdict=block class=room_content token_class=room_term; D19 verdict=block class=room_content token_class=room_term
+PASS: L3: the 26 methodology questions allow with no room bound
+PASS: L4: retention, real room content still blocks with the right token class
+PASS: L5: the solar cold locker sentence blocks with the room bound and allows with none
+FAIL: L6: the 10 negatives block with the room bound and with no room bound :: bound X4 expected room_content/identifier, got verdict=block class=room_content token_class=room_term
+FAIL: L7: the CLI hook agrees with classify (generic allows, room content blocks) :: N1 hook exit 2, expected 0
+PASS: L8: no network call was made
+PASS: 5 FAIL: 4

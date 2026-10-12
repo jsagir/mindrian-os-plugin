@@ -1,0 +1,1550 @@
+--- 3692: Theo verdict, the egress guard speaks to Theo (369.2-01) ---
+(node:298762) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: V1a: theoVerdict is exported with 9 token classes
+PASS: V1b: the 10 Phase 0 prompts give 9 allow (2 typed_question, 7 generic_question) and 1 block content_set
+PASS: V1c: PB8-03 generic allows, the leaky sentence blocks content_set
+PASS: V1d: each of the 10 test-354 PRIVATE canaries blocks (content_set or room_content)
+PASS: V1e: the CANARY7F3A2B cypher blocks room_content with token_class identifier
+PASS: V1f: a bound room lexicon blocks "solar cold locker" (room_term); no room bound allows the same sentence
+PASS: V1g: a bound room with a corrupt room.db blocks room_check_unavailable (fail closed)
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+  V2a phase0 disagreements=0 of 10; all-rows disagreements=0 of 23
+PASS: V2a: every row (no room bound) gives one disposition across ask, search, query and the hook; phase0 disagreements=0
+PASS: V2b: the expected disposition holds on every row (allow reaches the wire, block leaves zero captured requests)
+PASS: V2c: every block returns {error:egress_blocked, tool, egress_class, token_class}; brain_query never returns null
+PASS: V2d: with the room bound, the "solar cold locker" sentence blocks on all four; the plain Phase 0 rows still allow
+PASS: V2e: a bound room with a corrupt room.db blocks every verb and the hook (room_check_unavailable)
+PASS: V3a: loadRoomLexicon creates nothing in a room with no room.db
+  V3b lexicon read ms=1.31 entries=6
+PASS: V3b: lexicon read on the 363 fixture room is under 50 ms
+PASS: V3c: a second call with an unchanged room.db mtime returns the memoized object
+PASS: V4: every test-354 Case E typed row answers typed_question
+PASS: V5: no refusal carries the matched room term, the canary, the city or a private marker
+  V6 hook ms min=138 median=162 p95=178
+PASS: V6: 10 hook spawns on a plain question with a bound room, p95 under 400 ms
+PASS: V7: no stray socket was opened (net guard)
+PASS: 19 FAIL: 0
+>>> 3692: Theo verdict, the egress guard speaks to Theo (369.2-01): PASSED
+
+--- 3692: web lines go out free, the real-corpus seam (369.2-02) ---
+MOS_369_2_A4=keep
+PASS: W0 A4 value read (keep)
+(node:300685) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: W1 fetchCorpusEnvelope sends a fenced-city query unchanged (1 call, q byte-identical)
+PASS: W2 person, venture, money figure and email leave unchanged (1 call each)
+PASS: W3 buildAcademicQuery carries the encoded string
+PASS: W4a buildIndustryQuery accepts a venture name plus a city (refined sub-queries carry it)
+PASS: W4b buildPatentsQuery accepts a venture name plus a city
+PASS: W5 brain-cypher still refuses a CONTENT-SET string with zero calls (Canon Part 8)
+PASS: W6 A4=keep credential strings refused (matched credential, empty sample) with zero calls
+PASS: W7 composePatternQueries keeps a money-figure keyword (ok true, a query carries 3.5M)
+PASS: W8 composeFamily: web stamps audit not_applicable and keeps the phrase; theo destination keeps the strict audit with no echo
+PASS: W9 validateExecutedQuery: audit not_applicable ok under a covering run grant, tripped refused audit_tripped
+PASS: W10 egress policy: six non-web lines; a research override is ignored as override_unknown_line:research
+PASS: W11 appendAudit: openalex not_applicable written with no policy read; typesafe with judge_jev off refused; key-shaped q refused
+W12 measured: replay calls=3 carrying phrase=3 audit records=3 with phrase=3 unknown_error=0
+PASS: W12 quick run through the REAL corpus sends the fenced-city string byte for byte and the ledger records it
+W13 measured: replay calls=8 carrying phrase=2 audit records=8 unknown_error=0
+PASS: W13 deep fetch round through the REAL corpus sends a limiter slot that names a city
+PASS: W14 offline sends nothing: quick plan_only reason offline, deep refuses offline, zero calls, no audit line
+PASS: W-net no fetch escaped the replay (net guard attempts 0)
+--- test-3692-web-lines ---
+PASS: 17 FAIL: 0
+>>> 3692: web lines go out free, the real-corpus seam (369.2-02): PASSED
+
+--- 3692: W1 closure bar, the beta.61 real-room run (369.2-03) ---
+Phase 369.2-03 W1 closure bar (beta.61), green since plans 01 to 11 landed (369.2-12)
+PASS: C1 quick: Haifa, the venture and the named person are sent unchanged after one grant, logged and audited
+PASS: C2 deep: at least one lane ran and no audit record of the deep run is unknown_error
+PASS: C3 perspective: an eureka quick plan reaches the web (researchable openalex leaf, approved, run-quick done, replay log gains a plan string)
+PASS: C4 card: the plan answer lists every composed search string in its grant card, byte for byte
+PASS: C5 Theo: the Brain client still refuses the city (egress_blocked, content_set, zero requests on the wire)
+PASS: C6 offline: --offline sends nothing (plan only, zero search strings in the replay log, no receipt)
+PASS: 6 FAIL: 0
+>>> 3692: W1 closure bar, the beta.61 real-room run (369.2-03): PASSED
+
+--- 3692: perspective plans reach the web (369.2-04) ---
+(node:301647) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: P1 eureka: sentence titles give a researchable web leaf that composes
+PASS: P2 analogies: sentence titles give a researchable web leaf that composes
+PASS: P3 whitespace: a sentence zone name (over four words) gives a web leaf that composes
+PASS: P4 hsi: sentence titles give a researchable web leaf that composes
+PASS: P5 rs: sentence titles give a researchable web leaf that composes
+PASS: P6 connections: Theo leaves kept, plus a cn:literature_link web leaf that composes
+PASS: P7 no perspective module claims a Part 8 cause for a room-only leaf
+PASS: P8 a title too long for a web slot still yields a room-only leaf (no slots, corpus room)
+PASS: P8b the room-only reason reads the new wording, no Part 8 claim
+PASS: P9 connections Theo leaves carry only canon names that pass the strict term rule
+PASS: P10 zero network attempts
+--- test-3692-perspectives-web ---
+PASS: 11 FAIL: 0
+>>> 3692: perspective plans reach the web (369.2-04): PASSED
+
+--- 3692: grant card lists every exact string (369.2-09) ---
+G1 measured: plan q count=3 payload.queries=3 missing from body=0
+(node:301654) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: G1 the card lists every composed q byte for byte; payload.queries equals the plan q list
+PASS: G2 the proposal is a run grant whose approved_hashes are exactly the plan q_hash set
+G3 measured: standing verdict reasons=["hash_not_approved","hash_not_approved","hash_not_approved"] cardFor next=grant reason=hash_not_approved proposal lifetime=run
+PASS: G3 a standing grant covering every slot term does not cover a web query; no new_term; the card is the run card
+PASS: G4 card wording: question, two options, exact-strings line; no template id, policy code or standing in the body
+G5 measured: approve code=0 ok=true reason=undefined grant lifetime=run run_id match=true
+G5 measured: run-quick status=done card strings=3 logged=3 distinct=3
+PASS: G5 CLI grant approve takes a run proposal; run-quick answers done; the replay log holds exactly the card strings
+G6 measured: unit ok=true tampered=hash_not_approved runQuick status=reask reason=hash_not_approved fetch calls=0
+PASS: G6 a q not in approved_hashes still refuses hash_not_approved, zero fetch (OK-03)
+PASS: G7 the Theo card is byte-identical to the card on 0d9e48602
+PASS: G8 no occurrence of the word grant in the card header, question, option labels or body; the two answer lines
+PASS: G-net no fetch escaped the replay (net guard attempts 0)
+--- test-3692-grant-card ---
+PASS: 9 FAIL: 0
+>>> 3692: grant card lists every exact string (369.2-09): PASSED
+
+--- 3692: search ledger (369.2-13) ---
+PASS: I1 stable ids: same six inputs, same id, across a disk round trip
+PASS: I1 fields: a minted op carries the whole row shape and starts planned
+PASS: I2 one terminal state: order enforced, terminal is final, sweep leaves none open
+PASS: I3 proof: empty needs a counted zero; a failed call is never empty
+PASS: I4 travel: refused and not-executed ops reach completion().incomplete with label and reason
+PASS: I5 counterevidence (C17): falsifiers that ran in round one count as performed
+PASS: I6 fallback: all four fields or refused
+PASS: I7 complete comes from the ledger: mandatory ops and counterevidence decide
+PASS: F1 file: operations.json beside the run, atomic write, never room.db
+PASS: F2 reasons: closed vocabulary plus four prefix families
+PASS: F3 exports and constants match the plan
+PASS: DASH no em-dash or en-dash in the test or the module
+PASS: 12 FAIL: 0
+>>> 3692: search ledger (369.2-13): PASSED
+
+--- 3692: ledger wiring (369.2-14) ---
+(node:301691) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+L1 measured: fetch queries=3 ops=3 states={"executed_with_results":2,"executed_empty":1} complete=true
+PASS: L1 quick run writes operations.json: one op per fetch query, all terminal, run.operations equals the file, completion sums up
+L2 measured: failed op state=not_executed attempted=true reason=provider_failed:http_error complete=false
+PASS: L2 a provider 500 is not_executed with attempted true and provider_failed:<class>, never executed_empty
+L3 measured: refusal={"reason":"bad_slot","slot":"term"} refused ops for L1=1 reason=bad_slot:term
+PASS: L3 a refused slot keeps leaf.refusal on the saved plan and a refused_before_fetch op in the ledger
+L4 measured: ops=28 round1=17 round2=4 ce=3 falsifier=7 states={"executed_empty":4,"executed_with_results":12,"not_executed":12} complete=false
+PASS: L4 deep run to synthesize: every op terminal, round-one, round-two and counterevidence ops present, run.completion present
+L5 measured: lanes at default=4 lanes at breadth 2=2 lane_cap ops=2
+PASS: L5 lanes cut by the fan-out cap become not_executed ops with reason lane_cap
+L6 measured: over_cap gaps=3 search_cap CE ops=3 states={"executed_empty":3,"not_executed":18,"executed_with_results":5}
+PASS: L6 counterevidence branches cut by the search cap become not_executed ops with reason search_cap
+L7 measured: ids at init=21 ids at synthesize=28
+PASS: L7 operation ids are unchanged across loadState, nextDeepStep and later rounds
+L8 measured: executed ops=3 audit rows=3
+PASS: L8 each executed op audit_ref.q_hash matches exactly one research-audit.jsonl record
+L9 measured: theo ops=3 checks=3 states={"executed_empty":2,"executed_with_results":1}
+PASS: L9 a plan with theo leaves mints one theo op per leaf and maps each check outcome
+L11 measured: nextDeepStep=ledger_corrupt fetchRound=ledger_corrupt
+PASS: L11 a torn operations.json refuses the deep step with ledger_corrupt, never reads as an empty ledger
+PASS: L10 no em-dash or en-dash in this file
+PASS: net guard: zero network attempts
+--- test-3692-ledger-wiring ---
+PASS: 12 FAIL: 0
+>>> 3692: ledger wiring (369.2-14): PASSED
+
+--- 3692: counterevidence budget (369.2-15) ---
+(node:302061) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+B1 measured: cap=8 ce_reserve=2 pass executed=2 run.counterevidence.executed=3 status=partial searches_used=8 stop=budget
+PASS: B1 cap 8 with the default reserve: ce_reserve is 2 and the counterevidence pass executes at least one search
+B2 measured: ce_reserve=0 CE pass ops=3 states={"not_executed":3} status=partial executed=4 planned=7 complete=false
+PASS: B2 cap 8 with ceReserve 0: the pass ops are not_executed with search_cap, status partial, completion false
+B3 measured: cap=16 ce_reserve=3 pass executed=3 run.counterevidence={"status":"complete","planned":7,"executed":7,"failed":0} searches_used=16
+PASS: B3 cap 16: ce_reserve 3, the pass executes at least 3 searches, status complete
+B4 measured: falsifier ops=7 round-one falsifiers=4 run.counterevidence.executed=7 no-extra-pass status=complete executed=4 planned=4
+PASS: B4 C17: falsifiers are counted from operation ids across all rounds, so a pass that added zero searches still reads complete
+B5 measured: keys=status,planned,executed,failed,reasons,ran,skipped,skipped_reason,partial,queries,gaps
+PASS: B5 run.counterevidence carries status, planned, executed, failed, reasons and keeps the old fields
+B6 measured: searches_used=1 falsifier executed=0 status=not_run ran=false complete=false unresolved has CE flag=9
+PASS: B6 a needed pass with no falsifier executed anywhere is not_run, ran false, never complete
+B7 measured: reserve by cap={"1":0,"3":1,"8":2,"16":3} cap 8 round-and-follow-up searches=6 (bound 6)
+PASS: B7 reserve formula (16 -> 3, 8 -> 2, 3 -> 1, 1 -> 0) and rounds never spend the reserve
+B9 measured: counterevidence status=complete completion.complete=false incomplete=12 no_query_composed=9
+PASS: B9 ruling: researchable web leaves no limiter lane owns stay mandatory, so a scientific-roadmapping run is never complete and says which dimensions were not executed and why
+PASS: B8 no em-dash or en-dash in this file
+PASS: net guard: zero network attempts
+--- test-3692-ce-budget ---
+PASS: 10 FAIL: 0
+>>> 3692: counterevidence budget (369.2-15): PASSED
+
+--- 3692: wording (369.2-16) ---
+(node:302124) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+WD1 measured: ce={"status":"partial","planned":9,"executed":3} answer=The deep run made 8 of 26 planned searches and kept 1 checked rows; the main question now reads unresolved. It stopped because the search budget ran out. "Field scan: what argues against it" was not searched: the run's search budget ran out before it. "Is the cathode capacity limit derived from first principles" was not searched: the run's search budget ran out before it. "Which reviews attack the electrolyte cost floor" was not searched: the run's search budget ran out before it. 9 more questions were not searched. These searches ran and returned no records: "limiter binds first unlocks AND (success OR adoption OR "case study")" (OpenAlex) and 2 more. That is what these searches returned, not proof the literature is silent. Only 3 of 9 searches for evidence against it ran (the run's search budget ran out).
+PASS: WD1 cap 8: the answer says only some of the searches for evidence against it ran, with the search-budget reason
+WD1b measured: ce status=not_run answer=The deep run made 1 of 21 planned searches and kept 0 checked rows; the main question now reads unresolved. It stopped because the search budget ran out. "Field scan: what is deployed today" was not searched: the run's search budget ran out before it. "Field scan: what the field calls it" was not searched: the run's search budget ran out before it. "Field scan: what is new" was not searched: the run's search budget ran out before it. 13 more questions were not searched. Not verified: the searches for evidence against it did not run (the run's search budget ran out).
+PASS: WD1b a deep run whose falsifier operations never ran says Not verified and the reason
+WD2 measured: lane_cap ops=2 first label=Is the cathode capacity limit derived from first principles answer=The deep run made 15 of 26 planned searches and kept 2 checked rows; the main question now reads unresolved. It stopped because the search budget ran out. "Is the cathode capacity limit derived from first principles" was not searched: the run looks at a limited number of lines of inquiry at once, and this one was past the limit. "Which reviews attack the electrolyte cost floor" was not searched: the run looks at a limited number of lines of inquiry at once, and this one was past the limit. "Can solid-state cells reach 400 Wh/kg at pack level" was not searched: no search phrase could be formed from its words. 8 more questions were not searched. These searches ran and returned no records: "limiter binds first unlocks AND (success OR adoption OR "case study")" (OpenAlex) and 3 more. That is what these searches returned, not proof the literature is silent. The searches for evidence against it ran (7).
+PASS: WD2 a lane cut by the fan-out cap is named by its question and the limit, never an id
+WD3 measured: executed_empty ops=3 answer=No published work turned up under the main wording or its synonyms (OpenAlex exact-phrase count 0 for the main search and OpenAlex exact-phrase count 0 for the synonym cover, floor 3), so the gap held up in this search. These searches ran and returned no records: ""thin-film sensors"" (OpenAlex) and 2 more. That is what these searches returned, not proof the literature is silent.
+PASS: WD3 an empty result names its query and provider and says it is not proof the literature is silent
+WD4 measured: no-extra status=complete executed=4 words=The searches for evidence against it ran inside the first round (4), so no extra pass was needed. | own answer ends: OR "case study")" (OpenAlex) and 3 more. That is what these searches returned, not proof the literature is silent. The searches for evidence against it ran (7).
+PASS: WD4 C17: evidence-against work done in round one reads as ran inside the first round
+WD5 lint: lines=6 violations=0
+PASS: WD5 the register lint finds no violation in any answer line above
+WD6 measured: exit=0 report chars=10238
+WD6 Quick It got: It got:    ran. 0 evidence rows; 3 of 3 planned searches ran (3 with records, 0 came back empty). Verdict: thin.
+WD6 Quick It could not: It could not: nothing it promised was left undone. Beyond that, it could not reach the web without the grant and the reader; check what the papers actually say (that is the reader's job).
+WD6 Deep It got: It got:    ran. Lanes planned 3, ran 2, empty 2, unavailable 0; 3 evidence rows; 9 of 9 planned searches ran (2 with records, 7 came back empty); counterevidence 3 of 3 searches executed (complete); synthesis done (stopped on saturation).
+WD6 Deep It could not: It could not: nothing it promised was left undone. Beyond that, it could not judge the evidence. The rows here were written by this harness from the titles of what came back, a mechanical stand-in for the analyst lane, so this run checks the machinery, not the research.
+WD6 gate: exit=0   real-room-gate: PASS -- a receipt for HEAD 0defa83361ac exists. /     read by test-3692-16 at 2026-10-12T17:41:29.382Z (version 2.0.0-beta.66) /     quick: ran (searches_planned=3, searches_executed=3, rows=0, lanes_ran=0, lanes_empty=1, lanes_unavailable=0, operations_planned=3, executed_with_res
+PASS: WD6 the real-room report and receipt read completion, and the release gate still accepts the receipt
+WD7 measured lines: ["\"First question\" was not searched: the run's search budget ran out before it; and no search phrase could be formed from its words.","\"Does the sensor drift rate stay inside the stated tolerance band when the host volume\" was not searched: the run looks at a limited number of lines of inquiry at once, and this one was past the limit.","\"Third\" was not searched: the time budget ran out.","2 more questions were not searched."]
+PASS: WD7 job-lines: exact reason words, label cut, collapse by dimension, the rest counted, the four sentences
+WD9 measured: verdict=unresolved complete=false answer=This could not be answered: a search failed, was blocked, was not run, or came back with no count, so nothing is concluded. "Is there published work on thin-film sensors for milk quality" was not searched: one of its search terms could not be used. These searches ran and returned no records: ""thin-film sensors" OR "dielectric probes"" (OpenAlex) and 1 more. That is what these searches returned, not proof the literature is silent.
+PASS: WD9 a refused search slot reads as not searched with its reason, keeps the verdict unresolved, and the card has a Not searched section
+WD7c lint: violations=0
+PASS: WD7c the quick evidence card: rows, searches, local checks and Theo skips read as jobs and moves, zero lint violations
+WD8c lint: violations=0
+PASS: WD8c the deep plan review card (SR and fiber-sensing) names the lens by its question, paths and limiters by label, zero lint violations
+WD9c lint: violations=0
+PASS: WD9c the extend card and the not-ready cards read as jobs and moves, zero lint violations
+WD10 measured: confirmed findings=0 (first limiter "Interface resistance at the anode", second "Volume swing of the host")
+PASS: WD10 no card says confirmed, and a limiter the field scan refuted reads as already overcome, never as a code
+PASS: WD8 no em-dash or en-dash in this file or the lint helper
+PASS: net guard: zero network attempts
+--- test-3692-wording ---
+PASS: 15 FAIL: 0
+>>> 3692: wording (369.2-16): PASSED
+
+--- 3692: routing (369.2-17) ---
+(node:305143) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: R0 no_nameable_limiter still refuses a deep plan, and a handwritten query still refuses
+PASS: R5a every limiter slot unbound: no quoted statement, lanes and leaves carry bad_slot:limiter
+PASS: R5b the 132-character sentence limiter is never quoted, bad_slot:limiter is present
+PASS: R5c ledger holds refused_before_fetch bad_slot:limiter and the card asks for the wall in a few words
+PASS: R5d a sentence assumed limiter and a sentence goal are CE gaps, a term-shaped goal composes
+PASS: R5e a 5-word limiter statement with no punctuation is a CE gap bad_slot:limiter, a 4-word goal target composes
+PASS: R6a mu.verify with {term, term2} is refused unused_slot:term2, no query
+PASS: R6b a consumed slot still composes (eu.transfer term2, ws.gap synonyms)
+PASS: R6c a quick plan with the unused slot is local-only, the leaf and the card name it
+PASS: R6d consumedSlots(lensId) is the union of needs over round one and round two
+R3a queries by leaf L1/L2/L3 = 1/1/2
+PASS: R3a two leaves on one lens: every researchable leaf has a round-one query, the L2 term is sent
+PASS: R3b CODE-03 plan driven to synthesize: every researchable leaf has a terminal ledger op
+R3c leaves on the lens 3, queries spent 5, by leaf {"L1":1,"L4":1,"L5":1,"L2":2}
+PASS: R3c three leaves on one lens: at least 3 queries when the cap allows, search_cap ops when it does not
+PASS: R3d roundOneQueries repeats on the saved plan and the run grant approves every query it returns
+R4a round-one queries 10, ALPHAMARK in 2, LIMMARK in 2
+PASS: R4a SR plan: the L1 marker is sent in a round-one query beside the limiter queries
+R4b BETAMARK in 0 queries, L6 refusal {"reason":"unused_slot:term","slot":"term"}
+PASS: R4b SR plan: the L6 extra term is in a query or the leaf is refused unused_slot:term
+PASS: R4c a limiter-lane leaf with a non-ci lens and its own term sends that term, the ci queries stay
+PASS: R7 no em-dash or en-dash in this file
+PASS: net guard: zero network attempts
+--- test-3692-routing ---
+PASS: 19 FAIL: 0
+>>> 3692: routing (369.2-17): PASSED
+
+--- 3692: recovery (369.2-20) ---
+PASS: C9 FIXTURE: deep run initialised
+PASS: C9b record before fetch_round answers wrong_step
+(node:305501) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: C9a FIXTURE: a lane closed on an empty fetch
+PASS: C9a record against the closed lane answers lane_already_closed
+PASS: C9a the answer names the lane, the closure reason and an ISO time
+PASS: C9c a normal lane recorded once is accepted
+PASS: C9c the second record of the same lane answers already_recorded
+PASS: Q13a a literal "<" quote matches "&lt;" text
+PASS: Q13a an encoded quote matches the encoded text
+PASS: Q13a an encoded quote matches literal text
+PASS: Q13b "&" matches "&amp;" text
+PASS: Q13b "&amp;" matches "&amp;" text
+PASS: Q13b "&amp;" matches literal "&" text
+PASS: Q13b numeric entities decode both ways (&#60; and &#x3c;)
+PASS: Q13c contentHash of entity-bearing records equals the pre-plan value
+PASS: Q13c the stored index content_hash values are unchanged
+PASS: Q13h a kept entity row carries the pre-plan content_hash
+PASS: Q13d FIXTURE: an entity record and a second record are fetched
+PASS: Q13d attempt 1 (a wrong number) drops as unverified_quote
+PASS: Q13d attempt 2 (corrected quote, same record id) is accepted and keeps 1
+PASS: Q13d attempt 3 answers already_recorded
+PASS: Q13d the corrected row is stored with a unique row_id
+PASS: Q13d FIXTURE: one row kept, one dropped
+PASS: Q13d a correction naming a record id that did not drop answers already_recorded
+PASS: Q13d no window opens when every row was kept (the entity quote now verifies)
+PASS: Q13d the window is closed once the validate step has run
+PASS: Q13e a paraphrase still drops as unverified_quote
+PASS: Q13e an unknown record still drops as unknown_record
+PASS: Q13f validateRows reports dropped_ids.unverified_quote
+PASS: Q13f the exports decodeEntities and quoteKey exist
+PASS: Q13g no em-dash or en-dash in this file
+PASS: C9 no fetch escaped the replay
+--- test-3692-recovery ---
+PASS: 32 FAIL: 0
+>>> 3692: recovery (369.2-20): PASSED
+
+--- 3692: thin answers (369.2-18) ---
+(node:305843) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+T1 measured: verdict=thin searches=3 rows_that_bear_old_rule=0 bearing_records={"count":2,"ids":["https://openalex.org/W9369201","https://openalex.org/W9369202"]}
+PASS: T1 the two lane-B records of the INPUT session count as 2 bearing records (before this plan: 0)
+T2 measured: answer=There is not enough here to call it (OpenAlex exact-phrase count 2 for the main search); 2 records match the question, and none were read for or against it.
+PASS: T2 a thin verdict says how many records match the question and that none were read for or against it
+PASS: T2b answerLine: 0 bearing, 1 bearing, rows present, and no bearing count each read as specified
+T3 measured: verdict=thin bearing_records={"count":0,"ids":[]} answer=There is not enough here to call it (OpenAlex exact-phrase count 1 for the main search); no fetched record matches the question.
+PASS: T3 a record sharing one content token with every needle is not bearing; the thin line says none match
+T4 measured: term sets=9 flagged=6 identical=true
+PASS: T4 localRoomCheck is identical before and after the content-tokens move on the 363 fixture room
+PASS: T5 content-tokens.cjs has no requires and three exports; quick.cjs no longer defines contentTokens
+PASS: T6 no em-dash or en-dash in this file or in the fixture body file
+PASS: T0 no fetch escaped the replay
+--- test-3692-thin ---
+PASS: 8 FAIL: 0
+>>> 3692: thin answers (369.2-18): PASSED
+
+--- 3692: roll-up (369.2-18) ---
+U1 measured: partial=false rollup={"ok":true,"section":"market-analysis","fields":["confidence","verification"],"entries":4,"path":".reasoning/market-analysis/REASONING.md","note":"MINTO.md is not edited here; it regenerates on the next vault-section-minto generator run."} not_landed=[]
+PASS: U1 a section with a directory and no REASONING.md: the roll-up generates it and lands
+U2 measured: partial=true rollup={"ok":false,"reason":"no_reasoning_file","section":"pedagogy-notes","note":"No section named pedagogy-notes exists in this room, so nothing was rolled up. MINTO.md is not edited here; it regenerates on the next vault-section-minto generator run."} not_landed=[{"what":"roll-up","reason":"no_reasoning_file"}]
+PASS: U2 a section the room does not have stays an honest partial with a note naming it, and nothing is created
+PASS: U3 an existing REASONING.md rolls up exactly as before (no new violation, MINTO.md untouched)
+U4 measured: rollup={"ok":false,"reason":"no_reasoning_file","section":"market-analysis","note":"No REASONING.md exists for market-analysis yet, so nothing was rolled up (it could not be generated: No room STATE.md found). MINTO.md is not edited here; it regenerates on the next vault-section-minto generator run."}
+PASS: U4 a section directory with no STATE.md: generation cannot run, the partial stays and says it could not be generated
+PASS: U5 no em-dash or en-dash in this file
+PASS: U0 no fetch escaped
+--- test-3692-rollup ---
+PASS: 6 FAIL: 0
+(node:305878) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 3692: roll-up (369.2-18): PASSED
+
+--- 3692: query kinds (369.2-21) ---
+(node:305893) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: K0 the fixture builds in quick and deep mode and names no real person
+K1 measured (deep): direct=1 practice=1 mechanism=1 adjacent=1
+K1 direct q: "thin-wire detection" AND (alternative OR substitute)
+K1 practice q: "optical time domain reflectometry" AND (alternative OR substitute)
+K1 mechanism q: "fiber backscatter" AND (alternative OR substitute)
+K1 adjacent q: "powerline detection" AND (alternative OR substitute)
+PASS: K1 deep: L1 carries direct, practice, mechanism and adjacent queries tagged with their kind before any fetch
+PASS: K1 quick: direct and practice are in the plan; every kind is a query or a queries_cut entry with its kind
+K2 measured (deep L1 ops): ["direct","practice","mechanism","adjacent"]
+PASS: K2 deep initDeepState mints ops with the kind field set (practice, mechanism, adjacent beside direct)
+K2 measured (quick): cut kinds=["adjacent","practice","direct","mechanism","adjacent","direct","direct"] quick_cap ops=["adjacent","falsifier","falsifier","falsifier","falsifier","direct","falsifier"]
+PASS: K2 quick run: a kind the cap cut is a not_executed op with reason quick_cap and its kind
+K3 measured: shaped="keep nimbus robotics cold lockers working haifa summers"
+PASS: K3 shapeWebPhrase keeps the venture, product and city words, drops the question word, and is unquoted
+PASS: K3 the card lists the exact shaped string, and no sentence is quoted whole
+PASS: K4 a short phrase that is not a sentence stays quoted exactly as before
+PASS: K5 a value with fewer than 2 content tokens is refused bad_slot
+PASS: K6 a limiter slot is never shaped; plan 17 bad_slot:limiter still refuses an unbound limiter
+PASS: K7 a theo leaf is never shaped and never composes kinds
+PASS: K8 query_kinds is validated and changes the plan hash
+PASS: K9 no em-dash or en-dash in this file
+PASS: K10 no network escaped the replay
+--- test-3692-query-kinds ---
+PASS: 14 FAIL: 0
+>>> 3692: query kinds (369.2-21): PASSED
+
+--- 3692: quick cap (369.2-22) ---
+QC1 measured (cap 3): L1=1 L2=0 L3=0 L4=0 L6=2 L5=0
+(node:305912) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: QC1 the SW-14 plan: the limiter leaf L6 holds at least 1 query
+QC2 measured: L1=0 L2=0 L3=1 L4=2 L6=0 L5=0 ranking=["LM2","LM1"]
+PASS: QC2 two limiters: the leaf of the higher-ranked limiter is served first, then the next, then the rest
+QC3 measured: ["practice:ce.exact","practice:ce.prior_success","direct:ce.exact"]
+PASS: QC3 inside a limiter leaf the practice query precedes the direct query
+QC4 measured: quick_unreached=[{"limiter_id":"LM3","label":"Wall three about carrier tracking"},{"limiter_id":"LM4","label":"Wall four about neighbouring product rules"}] cut=7
+PASS: QC4 the plan review card says, before the run, which walls a quick run cannot reach
+PASS: QC4 the quick grant card from cardFor says it too, before anything is sent
+QC5 measured: cut=7 quick_cap ops=7
+PASS: QC5 a run closes every trimmed query as not_executed quick_cap, and the answer names a question left out
+QC6 measured: L1=2 L2=1 L3=0 L4=0 L6=0 L5=0
+PASS: QC6 a plan with no limiter keeps leaf order and says nothing about walls
+PASS: QC net guard: no real network call
+PASS: QC no em or en dash in this file
+--- test-3692-quick-cap ---
+PASS: 9 FAIL: 0
+>>> 3692: quick cap (369.2-22): PASSED
+
+--- 3692: baseline (369.2-23) ---
+BP1 measured: deployed_practice=limiter binds first unlocks AND (success OR adoption OR "case study") | primary_terminology=limiter binds first unlocks | recent_state_of_the_art=limiter binds first unlocks AND (review OR survey OR "systematic review") | challenge_source=limiter binds first unlocks AND (limitation OR failure OR "no effect")
+(node:306230) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: BP1 a deep plan with a limiter carries four field-scan queries, one per facet, kind baseline, round 0
+PASS: BP1b no baseline on a deep plan with no limiter, and none on a quick plan
+PASS: BP1c the top-ranked limiter leaf practice kind feeds the deployed_practice query
+PASS: BP2 the plan review card lists the field scan first, every string exactly as it will be sent
+PASS: BP3 the run grant covers the baseline strings; a round 0 string not on the card refuses hash_not_approved
+PASS: BP4 baseline_max 0 turns the scan off, 2 keeps deployed_practice and primary_terminology, above 4 is refused
+BE1 measured: first step=fetch_round round=0 lanes=["BL:4"] baseline ops=4 states=executed_with_results,executed_empty,executed_empty,executed_empty fetch rounds=0,1,2
+PASS: BE1 a deep SR run with plan.baseline opens with round 0 (lane BL, 4 queries); every baseline op ends terminal; round one is still round 1
+BE2 measured: LM1 rank before=1 after=4 baseline={"LM1":"contradicted","LM2":null,"LM3":null,"LM4":null} order after=LM2>LM3>LM4>LM1
+PASS: BE2 brief test 20: a contradicted limiter does not lead after round 0 and is not the next binding constraint
+BE3 measured: today=LM1>LM2>LM3>LM4 none=LM1>LM2>LM3>LM4 supports=LM1>LM2>LM3>LM4 LM1=supported
+PASS: BE3 without a contradicting row the round-one lane order equals today; a supports row gives supported and the same order
+BE4 measured: card=F.3 new queries=2 lanes executed before approval=["BL","BL","BL","BL"] round-one lane order=LM2>LM3>LM1
+BE4 measured (declined): round-one lane order=LM2>LM1 stop_reason=cap
+PASS: BE4 a lane the re-rank promotes goes through the extend card; nothing for it is fetched before approval; declining continues with the approved lanes
+BE5 measured: cap=8 ce_reserve=2 baseline executed=3 round and baseline searches=6 ce pass executed=2 searches_used=8 status=partial
+PASS: BE5 the cap-8 replay still executes at least one counterevidence search; baseline searches count against the cap
+BE6 measured: shared string executed 1 time(s) in round 1; baseline ops 3
+PASS: BE6 a baseline string equal to a round-one string is run once, in round one
+PASS: BP net guard: no real network call
+PASS: BP no em or en dash in this file
+--- test-3692-baseline ---
+PASS: 14 FAIL: 0
+>>> 3692: baseline (369.2-23): PASSED
+
+--- 3692: providers (369.2-25) ---
+PASS: PV1 patent lens refused before dispatch
+PASS: PV1 zero fetch calls and no PubMed request
+PASS: PV1 the lens operation is refused_before_fetch with the same reason
+PASS: PV2 findings carry source patents and the id 4902126
+PASS: PV2 the request carried the X-Api-Key header
+PASS: PV2 the key is in no url
+PASS: PV2 the key value appears in no result, log or ledger field
+PASS: PV2 the corpus envelope rows carry source patents and US4902126
+PASS: PV3 one Tavily request with include_domains patents.google.com
+PASS: PV3 the lens operation records the four invariant-6 fields
+PASS: PV3 the fallback is visible on the lens result, not silent
+PASS: PV3 the Tavily key value appears in no result or log
+PASS: PV3 without allowFallback the PV1 refusal stands, zero calls
+PASS: PV3 a fallback grant with no Tavily key still refuses, zero calls
+PASS: PV4 patent and industry listed unavailable by name
+PASS: PV4 the searched lens list excludes both and keeps scholarly
+PASS: PV4 no patent, Tavily or PubMed request was made
+PASS: PV5 LENS_TO_SOURCE.patent is not pubmed
+PASS: PV5 SOURCE_TO_TIER has an entry for patents
+PASS: PF1 preflight names industry as tavily with reason no_key
+PASS: PF1 preflight names the patent lane
+PASS: PF1 preflight lists scholarly as available
+PASS: PF1 zero Tavily and zero PatentsView requests
+PASS: PF1 result.lens_set drops both and keeps scholarly
+PASS: PF1 each unavailable lens has a refused_before_fetch operation
+PASS: PF1 scholarly still searched
+PASS: PF1 a run with every lens available carries no preflight or answer_line key
+PASS: PF2 the answer line is the one sentence naming the three Tavily lenses
+PASS: PF2 the answer line has no dash characters
+PASS: PF2 one unavailable Tavily lens reads in the singular
+PASS: PF2 with a Tavily key set there is no answer line and no unavailable lens
+PASS: PF3 the module loads and exports check and matrix
+PASS: PF3 one row per lens with a provider and a state
+PASS: PF3 industry on tavily is no key with the key unset
+PASS: PF3 patent has a patent provider and no key
+PASS: PF3 brain is on theo
+PASS: PF3 the judge row is judge_jev on typesafe and line off by default
+PASS: PF3 a theo row and a planner row are present
+PASS: PF3 industry is ready with a test key set
+PASS: PF3 no key value in the rows or in check()
+PASS: PF3 check() returns a status, a detail, and one line per row
+PASS: PF3 matrix and check made zero network calls
+PASS: PF4 doctor --json carries the research-providers module result
+PASS: PF5 the doctor module contract-parity test passes with the new entry
+PASS: PF5 the doctor doc-parity test reports no violation caused by the new entry
+PASS: net guard: no fetch escaped the stubs
+--- test-3692-providers ---
+PASS: 46 FAIL: 0
+>>> 3692: providers (369.2-25): PASSED
+
+--- 3692: readiness (369.2-27) ---
+RC1 measured: {"claims_total":0,"confirmed_claim_count":0,"confirmed_other_by_type":{"WhitespaceZone":2},"confirmed_other_count":2}
+PASS: RC1 brief test 22: confirmed whitespace zones never count as confirmed claims
+RC2 measured: {"claims_total":2,"confirmed_claim_count":1,"confirmed_other_by_type":{"WhitespaceZone":1},"confirmed_other_count":1}
+PASS: RC2 a confirmed claim counts, a proposed CausalClaim only adds to the total
+RC3 measured: {"claims_total":1,"confirmed_claim_count":0,"confirmed_other_by_type":{"EvidenceClaim":1,"assumption":1,"decision":1},"confirmed_other_count":3}
+PASS: RC3 a confirmed EvidenceClaim and a confirmed decision are other nodes, never claims
+RC4 measured: {"claims_total":0,"confirmed_claim_count":0,"confirmed_other_by_type":{},"confirmed_other_count":0,"schema_note":"no_review_status"}
+PASS: RC4 a legacy nodes table without review_status answers zeros with a schema note, and nothing is written
+PASS: RC5 no em-dash or en-dash in this file
+--- test-3692-readiness ---
+PASS: 5 FAIL: 0
+>>> 3692: readiness (369.2-27): PASSED
+
+--- 3692: judge line (369.2-27) ---
+(node:307884) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+JL1 measured: state=no_key next_step=No model judged these pairs: no Jev key is set on this machine. Read the pairs that passed and judge them yourself, or set TYPESAFE_API_KEY and run the Jev judge in Claude Code.
+PASS: JL1 no key: judgeState says no_key with the exact sentence, and the MCP next_step is that sentence
+PASS: JL1b a key in the secrets file counts as present: line_off, never no_key; the value is not returned
+JL2 measured: state=line_off next_step=No model judged these pairs: the judge line is off by this room's policy. Read the pairs that passed and judge them yourself.
+PASS: JL2 key set, the judge_jev line off (shipped default): line_off with the exact sentence on both
+PASS: JL2b a policy with the judge_jev line on gives available and the MCP-surface sentence
+JL3 measured: exit=3 {"ok":false,"reason":"no_key","line":"No model judged these pairs: no Jev key is set on this machine. Read the pairs that passed and judge them yourself, or set TYPESAFE_API_KEY and run the Jev judge in Claude Code."}
+PASS: JL3 eureka-jev-judge with no key: {ok:false, reason:no_key, line}, exit 3
+JL4 measured: a=no_key b=line_off
+PASS: JL4 research-planner perspective-judge carries judge_state and line; no key value in any output
+PASS: JL5 no em-dash or en-dash in this file
+PASS: net guard: zero network attempts
+--- test-3692-judge-line ---
+PASS: 8 FAIL: 0
+>>> 3692: judge line (369.2-27): PASSED
+
+--- 3692: analogies (369.2-28) ---
+(node:307968) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: AN1 an encoding pairs B with A: lane structural, signal source encoding, counted
+PASS: AN2 the same room without the sapphire-encoding frontmatter finds no pair for A
+C02 measurement: structural pairs for A before=0 after=1; structural_from_encoding before=0 after=1
+PASS: AN3 with and without the encoding differ (C02 before and after)
+PASS: AN4 the planted analogies pair is unchanged: same candidates and order, no encoding signal
+PASS: AN5 zero network attempts
+--- test-3692-analogies ---
+PASS: 5 FAIL: 0
+>>> 3692: analogies (369.2-28): PASSED
+
+--- 3692: the four commands (369.2-29) ---
+FC1 measured: 4 of 4 command files have the heading
+PASS: FC1 each command body carries the Plan-run route with its perspective, the card steps and the file step
+PASS: FC1b the frontmatter of the four commands is byte-identical to HEAD
+FC2 measured: rs leaves=9 researchable openalex=8
+PASS: FC2 perspective-recall rs answers ok with a researchable openalex leaf
+FC2 measured: analogies leaves=2 researchable openalex=1
+PASS: FC2 perspective-recall analogies answers ok with a researchable openalex leaf
+FC2 measured: connections leaves=7 researchable openalex=3
+PASS: FC2 perspective-recall connections answers ok with a researchable openalex leaf
+FC2 measured: hsi leaves=8 researchable openalex=7
+PASS: FC2 perspective-recall hsi answers ok with a researchable openalex leaf
+FC3 measured: review approve code=0 ok=true
+FC3 measured: run-quick code=0 status=done logged=3 planned strings=3 outside plan=0
+PASS: FC3 one full route (rs): review approve, then run-quick answers done; the replay log holds the plan strings
+FC4 measured: build-skill-mirrors exit=0
+PASS: FC4 build-skill-mirrors exits 0
+FC4 measured: build-connector-registry exit=0
+PASS: FC4 build-connector-registry exits 0
+FC4 measured: build-orchestration-projection exit=0
+PASS: FC4 build-orchestration-projection exits 0
+FC4 measured: check-render-coverage exit=0
+PASS: FC4 check-render-coverage exits 0
+FC4 measured: check-shape-declaration exit=0
+PASS: FC4 check-shape-declaration exits 0
+PASS: FC5 no em or en dash in the new sections, the four mirrors, or this test; zero network attempts
+--- test-3692-four-commands ---
+PASS: 13 FAIL: 0
+>>> 3692: the four commands (369.2-29): PASSED
+
+--- 3692: seed118 room (369.2-31) ---
+PASS: S1 seed: real-room-run births the room (exit 0, registered, seeded counts equal seed.json, no failures)
+PASS: S2 plan: quick set plans ok and ready, refusals only the expected typed ones
+PASS: S2 plan: deep set plans ok and ready, refusals only the expected typed ones
+PASS: S2 plan: the deep plan on HEAD shows the D4 and D5 refusals the fixture exists to trigger
+PASS: S3 sets: the governing question names the fenced city, the invented person and the invented product
+PASS: S3 sets: quick L1 term is six words or fewer and carries the city and the product
+PASS: S3 sets: quick L1 carries query_kinds practice and adjacent (the positive finding)
+PASS: S3 sets (D2): two deep leaves on mu.blind_spot with the two terms
+PASS: S3 sets (D3): a scientific-roadmapping set with a marker term on L1 (mu.verify) and an extra term on L6
+PASS: S3 sets (D4): the limiter sentence is a limiter statement and no leaf binds slots.limiter for it
+PASS: S3 sets (D5): optical time domain reflectometry sits in term2 on a mu.blind_spot leaf
+PASS: S3 sets (D8): the deep budget is 8 searches and the goal target is term-shaped
+PASS: S3 sets (D1): a patent need is recorded and its replay body exists
+PASS: S3 sets (D11): three Theo probes (plain, room term, private) are recorded
+PASS: S3 sets (D6, D12): recorded as known preconditions
+PASS: S4 bridge (D10): the encoding names entities and shares none with any other artifact
+PASS: S4 bridge (D10): the encoding is a sapphire-encoding with Function, Behavior and Structure
+PASS: S5 replay: every seed118 route row maps to a body id present in seed118-bodies.json
+PASS: S5 replay: the route module exports the merged bodies (363, 369.2 and SEED-118 files)
+PASS: S5 replay: a spawned child fetches the practice term through the preload and gets a non-empty body
+PASS: S5 replay: the problem term answers an empty body and the lane B term answers two records
+PASS: S6 names: no em or en dash in any fixture file, the bodies or this test
+PASS: S6 names: every person in the room is in the invented-name allowlist
+PASS: S6 names: the bodies are marked synthetic and no record names an author
+PASS: 24 FAIL: 0
+>>> 3692: seed118 room (369.2-31): PASSED
+
+--- 3692: phase closure (369.2-32) ---
+Phase 369.2-32 and 369.2-33 closure test (X0, RD, R355, D1-D12, WL, PF, TV, BL, OK, SC, LINT)
+PASS: X0 two --seed flags run both rooms into ONE receipt (top-level blocks kept, rooms array of two), the gate accepts it, every room has the four new sections
+PASS: RD the report prints the readiness counts (claims apart from other confirmed nodes) and the Eureka judge line for the seed118 room
+  room-control: sent 3 strings, 2 hold a room title, evidence with a source 15
+PASS: R355:room-control a quick run through the canvas on room-control sends the room's own terms and returns evidence with sources
+  room-extend: sent 2 strings, 2 hold a room title, evidence with a source 10
+PASS: R355:room-extend a quick run through the canvas on room-extend sends the room's own terms and returns evidence with sources
+  room-ill-defined: sent 2 strings, 2 hold a room title, evidence with a source 10
+PASS: R355:room-ill-defined a quick run through the canvas on room-ill-defined sends the room's own terms and returns evidence with sources
+  D1 measured: patent lane refused provider_unavailable:patent, requests 0, PubMed requests 0
+PASS: D1 the patent need: the patent lane is refused provider_unavailable:patent before dispatch, and no PubMed request goes out
+  D2 measured: L3 queries 1 ops executed_empty | L4 queries 1 ops not_executed
+PASS: D2 both mu.blind_spot leaves of the deep run have a query and a terminal operation
+  D3 measured: SEEDMARK_alpha in 2 sent strings; L6 refusal unused_slot:term (1 op)
+PASS: D3 the marker term is sent; the extra term on the limiter leaf is a typed refusal unused_slot:term, never sent
+  D4 measured: bad_slot:limiter ops 3 (L7,L8,CE:LM1); sentence in 0 strings
+PASS: D4 the limiter sentence is never sent; the wall is refused bad_slot:limiter; the plan card asks for it in a few words
+  D5 measured: L5 unused_slot:term2 before fetch, queries sent for it 0
+PASS: D5 the extra term on a term-only lens is refused unused_slot:term2 before any fetch
+  D7 measured: round 1 mu-blind_spot record call -> lane_already_closed closed_reason empty_fetch
+PASS: D7 a lane an empty fetch closed answers lane_already_closed with closed_reason empty_fetch
+  D8 measured: max_searches 8, counterevidence executed 3 of 4 planned, status partial, reasons ["bad_slot:limiter"]
+PASS: D8 at max_searches 8 the counterevidence pass still executes a search and reports its status
+KNOWN D6 (369.5 CODE-08): writeEdge to a missing endpoint on a legacy db with REFERENCES nodes(id) returns edge_write_failed, detail FOREIGN KEY constraint failed
+KNOWN D12 (needs live Theo): a label-less brain_query is refused by Theo's read allow-list and cannot be checked offline
+  D9 measured: judge_state no_key on the CLI; the report block carries the same sentence
+PASS: D9 Eureka with no judge key: the report and the CLI JSON both carry the no-key sentence
+KNOWN D9 flags (369.5 SW-18): room_and_tag_required
+  D10 measured: structural 6, structural_from_encoding 1, candidates 6, pairs through the encoding 1, structural pairs listed 6
+PASS: D10 analogies on the room: at least 1 structural pair through the spider-silk encoding
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+  D11 measured: plain_methodology allow [ask:allow/allow search:allow/allow query:allow/allow] | room_term block (name) [ask:block/block search:block/block query:block/block] | private_sentence block (private_context) [ask:block/block search:block/block query:block/block]
+PASS: D11 the three Theo probes: plain allows, the room term and the private sentence block, on ask, search, query and the hook
+  WL measured: quick sent 2 string(s), audit 2 | deep sent 2 string(s), audit 2 | eureka Nimbus Robotics mast in Haifa sent 1 string(s), audit 1 | eureka Orla Venn PhD trial site sent 1 string(s), audit 1
+PASS: WL Haifa, Orla Venn PhD and Nimbus Robotics leave unchanged after one grant, from quick, deep and the eureka perspective
+  PF measured: practice 3 records, adjacent 3 records, problem term 0 records and named in the answer line
+PASS: PF the practice kind finds optical time domain reflectometry and powerline detection; the problem term comes back empty and named
+  TV measured: There is not enough here to call it (OpenAlex exact-phrase count 2 for the main search); 2 records match the question, and none were read for or against it.
+PASS: TV the quick lane-B leg: the thin line counts 2 bearing records
+  BL measured: LM1 baseline contradicted, ranking ["LM2","LM1"], next binding constraint LM2, steps fetch_round:0 dispatch_lanes:0 validate:1 fetch_round:1 validate:1 extend_card:1 counterevidence:1 synthesize:1
+PASS: BL the field scan runs first and demotes the entanglement limiter the field already overcame
+  BL0 measured: deployed_practice -> seed118_baseline_countermeasure | primary_terminology -> seed118_baseline_countermeasure | recent_state_of_the_art -> prior_review_two | challenge_source -> seed118_baseline_countermeasure
+PASS: BL0 the baseline replay route matches the field-scan strings the planner really composes for the seed118 deep set
+  OK-02 measured: status wish, errors ["no_nameable_limiter"], next revise
+PASS: OK-02 a deep plan with no nameable limiter is still a wish with no deep run
+  OK-03 measured: raw_query_refused (exit 2)
+PASS: OK-03 a handwritten query string in an edit is still refused
+  OK-04 measured: filed false after the grant and the run; basket card F.8; file-run with no selection no_approved_selection
+PASS: OK-04 a grant never files: the basket is its own card and filing needs its own approved selection
+  OK-05 measured: kept 1, dropped {"missing_field":0,"forbidden_key":0,"unknown_record":1,"unverified_quote":1,"hash_mismatch":0,"bad_label":0,"retracted_support":0}
+PASS: OK-05 a paraphrase drops unverified_quote and an unknown record drops unknown_record
+  OK-06 measured: partial true, roll-up no_reasoning_file
+PASS: OK-06 a roll-up into a section the room does not have is an honest partial
+  SC measured: industry tavily/no_key before the run; fallback fields authorized_by,fallback_provider,original_provider,reason
+PASS: SC no Tavily key: the industry lane is named unavailable before the run; with a fallback grant the patent fallback records its four fields
+  LINT measured: 30 texts, 535 lines, violations 0
+PASS: LINT every answer line, card body and report line of the closure runs passes the jobs-and-moves lint
+PASS: 27 FAIL: 0 KNOWN: 3
+>>> 3692: phase closure (369.2-32): PASSED
+
+--- 3692: part8-egress-guard self-test ---
+PASS: G1 find_frameworks_for_problem_type {problem_type} is known_tool_shape
+PASS: G2 commands_for_problem_type with and without limit is known_tool_shape
+PASS: G3 framework_neighborhood {framework: canonical} is known_tool_shape
+PASS: G4a an off-enum problem_type is never allowed on any of the two problem-type reads
+PASS: G4b an extra key is never allowed
+PASS: G4c a limit outside the integer 1..100 is never allowed
+PASS: G4d a framework handle that is not canonical is never allowed
+PASS: part8-egress-guard unit + CSV parity (PB8-01/03/05/09) -- all assertions green
+>>> 3692: part8-egress-guard self-test: PASSED
+
+--- 3692: 200 brain projection ---
+(node:323038) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  (a) outbound is generic-only through the REAL 196 guard, no person byte -- PASS
+  (b) smuggled person byte (slug/domain) never egresses -- PASS
+  (c) guard block/ambiguous/throw -> [] no throw -- PASS
+  (d) Brain absent -> [] pure Tier-0 degrade, no throw -- PASS
+  (e) read-back drops person-echo handles, keeps generic -- PASS
+
+PASS test-200-brain-projection
+>>> 3692: 200 brain projection: PASSED
+
+--- 3692: part8-egress-guard hook ---
+PASS: part8-egress-guard-hook (PB8-04/05/07/08 + T3) -- exit codes + F.1 gate contract green
+>>> 3692: part8-egress-guard hook: PASSED
+
+--- 3692: 245 egress contentless ---
+--- LEG 1: classify() unit verdicts ---
+LEG 1 ok (32 assertions)
+--- LEG 2: part8-egress-guard-hook.cjs child-process exit codes ---
+(node:323181) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+A1 EVIDENCE (CONTENT-SET block, stderr line 1): Canon Part 8: outbound Brain payload carries CONTENT-SET (content_set). Blocked. forbidden pattern hit: @[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}
+A1 EVIDENCE (ambiguous disposition, stderr line 1): (empty -- allowed, no stderr)
+LEG 2 ok (49 assertions cumulative)
+PASS: test-245-egress-contentless (unit leg + hook leg, 49 assertions)
+>>> 3692: 245 egress contentless: PASSED
+
+--- 3692: 246 census guard ---
+--- test-246-census-guard: every CENSUS_QUERIES string is content-free at the Part 8 boundary ---
+PASS: test-246-census-guard (112 assertions over 15 census queries)
+>>> 3692: 246 census guard: PASSED
+
+--- 3692: 260906 FDA known-tool shapes ---
+--- Arm A: happy path ---
+Arm A ok (14 assertions cumulative)
+--- Arm B: wrong tool name ---
+Arm B ok (32 assertions cumulative)
+--- Arm C: smuggling negative (load-bearing) ---
+Arm C ok (40 assertions cumulative)
+--- Arm D: drift and shape negatives ---
+Arm D ok (70 assertions cumulative)
+--- Arm E: no-regression ---
+Arm E ok (79 assertions cumulative)
+--- Arm F: exported seams ---
+Arm F ok (87 assertions cumulative)
+LEG 1 ok (87 assertions)
+--- LEG 2: part8-egress-guard-hook.cjs child-process exit codes ---
+(node:323585) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+SKIP: no live plugin-scoped name found containing "find_connections"
+PASS: test-260906-fda-known-tool-shapes (95 assertions)
+>>> 3692: 260906 FDA known-tool shapes: PASSED
+
+--- 3692: 260917 DGF part8 hook disposition ---
+PASS: test-260917-dgf-part8-hook-disposition (all legs green)
+>>> 3692: 260917 DGF part8 hook disposition: PASSED
+
+--- 3692: 245 brain envelope shape ---
+--- CLAIM (a): updatedToolOutput is a host-consumable envelope, never the bug shape ---
+CLAIM (a) ok (15 assertions)
+--- CLAIM (b): content blocks round-trip non-empty, both Tri-Polar scopes ---
+CLAIM (b) ok (40 assertions cumulative)
+--- CLAIM (c): content-free graph introspection is never blocked (allow, 369.2-08) ---
+CLAIM (c) ok (53 assertions cumulative)
+--- CLAIM (d): user content is STILL blocked, on brain_query AND brain_search ---
+CLAIM (d) ok (66 assertions cumulative)
+PASS: test-245-brain-envelope-shape (claims a, b, c, d -- 66 assertions)
+>>> 3692: 245 brain envelope shape: PASSED
+
+--- 3692: 354 egress typed question ---
+Phase 354-06 (THEO-03) egress typed-question regression
+
+  ok - Case A: brain.ask(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content
+  ok - Case B1: brain.search(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content
+  ok - Case B2: brain.smartSearch(PRIVATE) opens no Brain wire, egress_blocked/content_set-or-room_content
+  ok - Case C: classify(PRIVATE) never returns allow, class content_set or room_content
+  ok - Case D[0]: private corpus sentence refused, zero captured bytes ("cedar")
+  ok - Case D[1]: private corpus sentence refused, zero captured bytes ("Meridian")
+  ok - Case D[2]: private corpus sentence refused, zero captured bytes ("Solstice")
+  ok - Case D[3]: private corpus sentence refused, zero captured bytes ("Blackwood")
+  ok - Case D[4]: private corpus sentence refused, zero captured bytes ("Northwind")
+  ok - Case D[5]: private corpus sentence refused, zero captured bytes ("Ashgrove")
+  ok - Case D[6]: private corpus sentence refused, zero captured bytes ("Halcyon")
+  ok - Case D[7]: private corpus sentence refused, zero captured bytes ("Cobalt")
+  ok - Case D[8]: private corpus sentence refused, zero captured bytes ("Ridgeline")
+  ok - Case D[9]: private corpus sentence refused, zero captured bytes ("Ferrow")
+(node:323988) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - Case E[0]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a undefined definition simple problem")
+  ok - Case E[1]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a undefined definition complex problem")
+  ok - Case E[2]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a undefined definition wicked problem")
+  ok - Case E[3]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a ill-defined definition simple problem")
+  ok - Case E[4]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a ill-defined definition complex problem")
+  ok - Case E[5]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a ill-defined definition wicked problem")
+  ok - Case E[6]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a well-defined definition simple problem")
+  ok - Case E[7]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a well-defined definition complex problem")
+  ok - Case E[8]: generic corpus question allows and forwards (brain-router.cjs::brainRoute: "recommend a framework for a well-defined definition wicked problem")
+  ok - Case E[9]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a undefined problem at the discovery stage?")
+  ok - Case E[10]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a undefined problem at the investment stage?")
+  ok - Case E[11]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a undefined problem at the scoping stage?")
+  ok - Case E[12]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a undefined problem at the execution stage?")
+  ok - Case E[13]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a ill-defined problem at the discovery stage?")
+  ok - Case E[14]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a ill-defined problem at the investment stage?")
+  ok - Case E[15]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a ill-defined problem at the scoping stage?")
+  ok - Case E[16]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a ill-defined problem at the execution stage?")
+  ok - Case E[17]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a well-defined problem at the discovery stage?")
+  ok - Case E[18]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a well-defined problem at the investment stage?")
+  ok - Case E[19]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a well-defined problem at the scoping stage?")
+  ok - Case E[20]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a well-defined problem at the execution stage?")
+  ok - Case E[21]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a wicked problem at the discovery stage?")
+  ok - Case E[22]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a wicked problem at the investment stage?")
+  ok - Case E[23]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a wicked problem at the scoping stage?")
+  ok - Case E[24]: generic corpus question allows and forwards (rs-chain-feeder.cjs::_buildUpstreamQuestion: "what frameworks feed into the reverse salient framework for a wicked problem at the execution stage?")
+  ok - Case E[25]: generic corpus question allows and forwards (rs-explain-command.cjs::feeds_into_query: "what frameworks chain from Design Thinking via FEEDS_INTO?")
+  ok - Case E[26]: generic corpus question allows and forwards (rs-explain-command.cjs::feeds_into_query: "what frameworks chain from Adaptive Leadership via FEEDS_INTO?")
+  ok - Case E[27]: generic corpus question allows and forwards (rs-explain-command.cjs::feeds_into_query: "what frameworks chain from Black Hat Analysis via FEEDS_INTO?")
+  ok - Case E[28]: generic corpus question allows and forwards (rs-explain-command.cjs::methodology_chain: "what methodology chain follows diagnose?")
+  ok - Case E[29]: generic corpus question allows and forwards (rs-explain-command.cjs::methodology_chain: "what methodology chain follows act?")
+  ok - Case E[30]: generic corpus question allows and forwards (rs-explain-command.cjs::methodology_chain: "what methodology chain follows research?")
+  ok - Case G1 (369.2 CODE-07): plain question allows on classify for ask, search and query
+  ok - Case G2 (369.2 CODE-07): brain.ask(plain) reaches the wire once as brain_ask
+  ok - Case G3 (369.2 CODE-07): brain.search(plain) reaches the wire as brain_search
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+  ok - Case G4 (369.2 CODE-07): brain.query(plain) reaches the wire as brain_query
+  ok - Case F: shim end-to-end -- brain_ask(PRIVATE) renders the honest egress_blocked refusal
+
+50 passed, 0 failed.
+PASS: test-354-egress-typed-question
+>>> 3692: 354 egress typed question: PASSED
+
+--- 3692: 239 query egress canary ---
+Phase 239-05 (BRAIN-02) query egress canary suite
+    LEG 1 captured (must be empty of canary): []
+  ok  LEG 1: opportunity.domain canary caught before the wire
+    LEG 2 captured (must be empty of canary): []
+  ok  LEG 2: Blue Hat methodology_notes canary caught before the wire
+    LEG 3 captured (must be empty of both PII forms): []
+  ok  LEG 3: PII canary (jane@startup.com) caught before the wire
+    LEG 4 verdicts: bare-cypher={"verdict":"block","class":"room_content","token_class":"identifier","reason":"the string carries an identifier no methodology handle matches"} templated-cypher={"verdict":"block","class":"room_content","token_class":"identifier","reason":"the string carries an identifier no methodology handle matches"} raw-field={"verdict":"block","class":"room_content","token_class":"identifier","reason":"the string carries an identifier no methodology handle matches"}
+  ok  LEG 4: template-laundering regression (T4)
+    LEG 5: sanitizeCypherInput(jane@startup.com) = janestartup.com | raw verdict=block | sanitized verdict=allow
+    LEG 5 source-order: classify( at char 1102, sanitizeCypherInput( at char 1853 (ordering holds)
+  ok  LEG 5: sanitize-before-classify ordering regression (T5)
+(node:324004) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[mindrian-os] brain_query_unrecognized_shape: the Brain returned a response shape (object, keys: [ok]) that query() does not recognize. This is a CONTRACT MISMATCH, NOT an empty answer -- the caller still receives records: [] so it does not crash, but every downstream reader should treat this as unresolved until the response contract is reconciled.
+    LEG 6: captured.length=2 tool names=["brain_query","brain_query"]
+  ok  LEG 6: anti-vacuity -- a should-pass payload actually reaches the wire
+  ok  LEG 7: automated companion -- classify( present in both guarded functions
+  ok  LEG 8 (369.2 CODE-07): a plain methodology question reaches the wire through query()
+
+Phase 239-05 canary suite: PASS (0 failures)
+>>> 3692: 239 query egress canary: PASSED
+
+--- 3692: 257 shim honest refusal ---
+Phase 257-06 (LOCUS-01/LOCUS-02) shim honest-refusal wire suite
+  ok  Arm 1: G1 on the wire -- a blocked brain_ask names itself, zero bytes reach the Brain
+  ok  Arm 2: anti-regression -- the measured BEFORE (empty, refusal-less) shape cannot return
+  ok  Arm 3: block is not outage -- mode_rationale and BRAIN_UNREACHABLE stay absent
+  ok  Arm 5: no laundering -- the canary appears nowhere in the response or on the wire
+  ok  Arm 4 (369.2 CODE-07): the formerly ambiguous text is a plain question - it proceeds with no egress_disclosure
+  ok  Arm 6: the other tools -- brain_search and brain_write convert the sentinel to a typed refusal
+  ok  Arm 7 (369.2 CODE-07): G2 closed -- brain_query on a block reports egress_blocked, never unreachable
+  ok  Arm 8: honestRefusal() unit arms (extracted from the real shim source)
+  ok  Arm 9 (369.2 CODE-07): brain_query on a block answers kind egress_blocked with a token_class
+  hygiene: 3 shim process(es) spawned this run, none still alive after cleanup
+
+Phase 257-06 shim honest-refusal suite: PASS (0 failures)
+>>> 3692: 257 shim honest refusal: PASSED
+
+--- 3692: 254 ambiguous disclosure ---
+Phase 254-05 (COMP-02) ambiguous-disclosure suite
+(node:324268) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+    Arm 1 disclosure: {"verdict":"ambiguous","egress_class":"unproven_packet","reason":"packet shape not proven","tool":"brain_packet_probe","disposition":"proceeded"}
+  ok  Arm 1: an ambiguous verdict proceeds and discloses
+  ok  Arm 2: a block verdict stays byte-unchanged, no disclosure
+  ok  Arm 3: an allow verdict returns no egress_disclosure at all
+  ok  Arm 4: transport exhaustion returns bare null, never decorated
+    Arm 5 wire (must contain canary): [{"name":"brain_packet_probe","arguments":{"job":"framework_chain","note":"CANARY254D2A9 unrelated content probe"}}]
+    Arm 5 disclosure (must NOT contain canary): {"verdict":"ambiguous","egress_class":"unproven_packet","reason":"packet shape not proven","tool":"brain_packet_probe","disposition":"proceeded"}
+  ok  Arm 5: the disclosure names the verdict, never carries the canary
+  ok  Arm 6: a tier_denied sentinel is never decorated
+  ok  Arm 7 (369.2 CODE-07): the belt is first with no key gate -- a block is refused the same with or without a key
+  ok  Arm 8 (369.2 CODE-07): query() on a plain question normalizes to { records } with no egress_disclosure anywhere
+  ok  Arm 9 (369.2 CODE-07): an unproven packet proceeds and discloses, naming the class never the content
+  ok  Arm 10 (369.2 CODE-07): a free-form Theo string is allow or block, never ambiguous
+
+Phase 254-05 ambiguous-disclosure suite: PASS (0 failures)
+>>> 3692: 254 ambiguous disclosure: PASSED
+
+--- 3692: 130.5 corpus migration ---
+(node:324283) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS A byte-identical: old-path (no cache) vs migrated cache-wrapped path produce identical downstream bundles
+PASS B cache hit on repeat: second run over the same query set issues fewer fetchCorpus calls than the first
+PASS C2 web line: the planted room string dispatches once, words unchanged (369.2 ruling 2026-10-05)
+PASS C3 A4=keep credential-shaped string is refused pre-dispatch: zero calls, no echo (369.2 ruling 2026-10-05)
+
+=== 130.5-03 corpus-migration suite: 4/4 passed ===
+>>> 3692: 130.5 corpus migration: PASSED
+
+--- 3692: 221 envelopes ---
+=== 221-01 envelope suite: starting ===
+  ok  A0 frozen enums: 13 stages, 5 statuses, 13 failure classes (incl. spend_limit_exceeded)
+  ok  A1 makeStageEnvelope: every annex-2 key present, ISO stamps, defaults filled
+  ok  A1b fingerprints: sha256 hex computed when input/output provided
+  ok  A2 validateStageEnvelope rejects each violation by name
+  ok  A3 forcedFailure: null with no env; env seam deterministic + latched once; opts seam identical
+  ok  A4 the forced path emits NOTHING on stderr (silent seam)
+  ok  A5 D-11 structural override: spend_limit_exceeded forces retryable:false at construction
+(node:324290) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  B1 missing key: blocked/missing_credential envelope, NOT an empty array, zero fetch
+  ok  B2 forced timeout vs http vs parse: three DISTINCT envelopes, ZERO network
+  ok  B3 Brain: unavailable -> blocked/engine_unavailable; query throw -> failed/query_error
+  ok  B4 empty_valid DISTINCT from failed: a live zero-hit fetch is a finding
+  ok  B4b results present: ok envelope with payload.results (normalized items)
+  ok  B5 legacy contract: fetchCorpus arrays + sci-bot object + TypeErrors byte-preserved
+  ok  B6b web line: the planted string dispatches once through BOTH entry points, q unchanged (369.2 ruling 2026-10-05)
+  ok  B6c A4=keep credential-shaped web query is refused by BOTH entry points: zero fetch, no echo (369.2 ruling 2026-10-05)
+  ok  B6d brain-cypher (the Theo line) still throws on the planted string through BOTH entry points: zero Brain call, zero fetch (369.2 ruling 2026-10-05)
+  ok  C1 forced timeout surfaces as a typed per-provider envelope; rotation completes on remaining providers
+  ok  C2 live zero-hit is empty_valid: distinguishable from a dead provider
+  ok  C3 cache HIT carries ok + research-cache provenance; cache-read failure falls through with a warning
+  ok  C4 additive contract: 219-05 fields present + UNRENAMED; legacy _fetchCorpus seam unbroken
+=== 221-01 envelope suite: 20 passed, 0 failed ===
+>>> 3692: 221 envelopes: PASSED
+
+--- 3692: research-corpus ---
+=== 130.5-01 research-corpus suite: starting ===
+(node:324301) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  Test 1: openalex happy path -> normalized paper shape, source===openalex
+  ok  Test 2b: web line - the planted string dispatches once, q unchanged (369.2 ruling 2026-10-05)
+  ok  Test 2c: A4=keep credential-shaped web query is refused pre-dispatch, zero fetch, no echo (369.2 ruling 2026-10-05)
+  ok  Test 2d: brain-cypher (the Theo line) still throws on the planted string, zero Brain call, zero fetch (369.2 ruling 2026-10-05)
+  ok  Test 3: sci-bot returns disabled no-op envelope, zero fetch
+  ok  Test 4: brain-cypher degrades when unavailable, generic handle when available, audit pre-rejects
+  ok  Test 5: unknown source throws TypeError; zero child_process/python in source
+=== 130.5-01 research-corpus suite: 7/7 passed ===
+>>> 3692: research-corpus: PASSED
+
+--- 3692: rs-fetcher academic ---
+=== 89.2-02 fetcher-academic suite: starting ===
+(node:324308) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  Test 1: happy path 6 sources (with API keys set)  (88ms)
+  ok  Test 2: dedup determinism (same input twice == identical output)  (8ms)
+  ok  Test 3: API-key-missing graceful (scopus + ieee + nature unset)  (3ms)
+  ok  Test 4: 429 rate-limit graceful (openalex returns 429)  (3ms)
+  ok  Test 5: timeout graceful (openalex throws AbortError)  (3ms)
+  ok  Test 6: malformed response graceful (arXiv returns non-XML)  (4ms)
+  ok  Test 7: per-source budget exhausted (openalex skipped)  (4ms)
+  ok  W1 web line: adversarial strings dispatch unchanged (academic) (369.2 ruling 2026-10-05)  (9ms)
+  ok  W2 A4=keep credential-shaped query (academic) is refused pre-dispatch: zero fetch, no echo (369.2 ruling 2026-10-05)  (2ms)
+  ok  Test 12: chokepoint exclusivity (every fetch() inside per-source dispatcher)  (1ms)
+  ok  V1: validator Check A telemetry-file-absent -> {severity: null}  (1ms)
+  ok  V2: validator Check B per-source budget exceeded -> warning  (2ms)
+  ok  V3: validator Check C status enum violation -> warning  (1ms)
+  ok  V4: validator Check D query_text literal present -> CRITICAL canon_boundary  (1ms)
+  ok  V5: validator Check E query_text_hash format violation -> warning  (1ms)
+  ok  V6: validator Check F fetched_at malformed -> warning  (1ms)
+  ok  A1: zero forbidden matches across captured payloads + URLs  (8ms)
+  ok  A2: FORBIDDEN_PATTERNS parity (rs-egress-prompts === cross-room-aggregator)  (0ms)
+=== 89.2-02 fetcher-academic suite: 18/18 passed ===
+>>> 3692: rs-fetcher academic: PASSED
+
+--- 3692: rs-fetcher patents ---
+=== 89.2-03 fetcher-patents suite: starting ===
+(node:324315) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  Test 1: happy path 2 sources (Google Patents + USPTO)  (80ms)
+  ok  Test 2: dedup determinism (same input twice == identical output)  (4ms)
+  ok  Test 3: Google Patents 429 rate-limit graceful (uspto continues)  (1ms)
+  ok  Test 4: USPTO timeout graceful (google_patents continues)  (2ms)
+  ok  Test 5: Google Patents malformed (no JSON-LD) graceful  (2ms)
+  ok  Test 6: USPTO malformed JSON graceful (api_error logged)  (1ms)
+  ok  Test 7: per-source budget exhausted (google_patents skipped)  (1ms)
+  ok  W1 web line: adversarial strings dispatch unchanged (patents) (369.2 ruling 2026-10-05)  (17ms)
+  ok  W2 A4=keep credential-shaped query (patents) is refused pre-dispatch: zero fetch, no echo (369.2 ruling 2026-10-05)  (2ms)
+  ok  V1: validator Check A telemetry-file-absent -> {severity: null}  (1ms)
+  ok  V2: validator Check B per-source budget exceeded -> warning  (2ms)
+  ok  V3: validator Check C status enum violation -> warning  (2ms)
+  ok  V4: validator Check D query_text literal present -> CRITICAL canon_boundary  (2ms)
+  ok  V5: validator Check E query_text_hash format violation -> warning  (1ms)
+  ok  V6: validator Check F fetched_at malformed -> warning  (2ms)
+  ok  A1: zero forbidden matches across captured payloads + URLs  (2ms)
+  ok  A2: FORBIDDEN_PATTERNS parity (rs-egress-prompts === cross-room-aggregator)  (0ms)
+=== 89.2-03 fetcher-patents suite: 17/17 passed ===
+>>> 3692: rs-fetcher patents: PASSED
+
+--- 3692: 363 corpus honesty ---
+(node:324322) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: L1 HTTP 429 -> failed / http_error / retryable (never empty_valid)
+PASS: L2 HTTP 500 -> failed / http_error / retryable
+PASS: L3 timeout (AbortError) -> failed / network_timeout / retryable
+PASS: L4 network TypeError -> failed / network_timeout / retryable
+PASS: L5 429 with remaining-usd 0 -> failed and names budget_exhausted
+PASS: L6 200 with meta.count 0 and no results -> empty_valid with meta.count 0
+PASS: L7 200 with meta.count 240 -> ok with count, cost_usd, remaining_usd, x_query
+PASS: L8 key rides only as Authorization Bearer; absent from URL, telemetry, envelope, errors
+PASS: L9 keyless: no Authorization header, mailto present
+PASS: L10 quoted phrases and uppercase OR reach the search parameter byte-identical
+PASS: L11 select gains type, cited_by_count, is_retracted, primary_location; per-page = min(limit, 200)
+PASS: L12 papers carry is_retracted, type, cited_by_count, venue, is_in_doaj; legacy fields intact
+PASS: L13 fetchOpenAlex envelope shape and fetchCorpus [] degrade unchanged
+PASS: L14b web line: a room string on openalex dispatches once with q unchanged (369.2 ruling 2026-10-05)
+PASS: L14c A4=keep credential-shaped query refused pre-dispatch: zero calls, no echo (369.2 ruling 2026-10-05)
+PASS: L14d brain-cypher (the Theo line) still throws ExternalEgressViolation on the room string with zero calls (369.2 ruling 2026-10-05)
+PASS: L15 spent local budget -> blocked / spend_limit_exceeded / not retryable, envelope valid, zero calls
+PASS: L16 all six failure and success shapes validate as stage envelopes
+PASS: H1 no em-dash or en-dash characters in this test file
+PASS: H2 net guard: zero unstubbed network attempts
+--- test-363-corpus-honesty ---
+PASS: 20 FAIL: 0
+>>> 3692: 363 corpus honesty: PASSED
+
+--- 3692: 220 part8 egress ---
+test-220-part8-egress: REQ-5 fence on the tavily-extract source
+        planted against pattern: @[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}
+(node:324329) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  PASS: Gate 1a: a candidate marker actually matches the live FORBIDDEN_PATTERNS (derivation holds)
+  PASS: Gate 1b-web (369.2 ruling 2026-10-05): planted room-content URL dispatches exactly once, urls unchanged
+  PASS: Gate 1c (369.2 ruling 2026-10-05): A4=keep credential-shaped URL is refused pre-dispatch: ExternalEgressViolation, zero fetch, no echo
+  PASS: Gate 2a: clean URL -> captured body carries ONLY {api_key, urls, extract_depth, format}
+  PASS: Gate 2b: negative self-check -- an injected extra field IS caught by the walk
+  PASS: Gate 2c: negative self-check -- an oversize generic field IS caught by the walk
+  PASS: Gate 3a: chokepoint uniqueness -- api.tavily.com/extract lives ONLY in lib/core/research-corpus.cjs
+  PASS: Gate 3b: chokepoint uniqueness -- adapterTavilyExtract never referenced outside research-corpus.cjs
+
+Part 8 egress fence: PASS=8 FAIL=0
+>>> 3692: 220 part8 egress: PASSED
+
+--- 3692: 214 online fence ---
+  ok   Test 1: clean pattern -> ok:true, all three families, audited === queries.length
+  ok   Test 2: injected auditFn called once per query, synchronously, before return
+  ok   Test 3b: web line - the money figure composes and dispatches (369.2 ruling 2026-10-05)
+  ok   Test 3c and 4b: A4=keep credential keyword -> local-only degrade, zero-leak envelope (369.2 ruling 2026-10-05)
+  ok   Test 5: all-empty pattern -> empty_pattern, auditFn never called
+  ok   Test 6: module is a reuse-only fence with zero network surface
+
+6 passed
+(node:324341) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 3692: 214 online fence: PASSED
+
+--- 3692: 363 families ---
+PASS: F1 FAMILIES has exactly the five ids, each template with id, role, render
+PASS: F2 whitespace-gap composes four queries with the exact expected bytes
+PASS: F3 each query carries q_hash, audit pass, family, template_id, role, slot_terms
+PASS: F4 the other four families compose ok within 200 chars
+PASS: F5 egress violation (theo destination) returns local-only with no echo; the same slot composes on the web line
+PASS: F6 slot rule violations return bad_slot without echo
+PASS: F7 unknown family refused; template subset composes only listed ids
+PASS: F8 injected auditFn (theo destination): once per slot value then once per composed string; throw maps to egress_violation; zero calls on the web line
+PASS: F9 composeForLeaf maps lens ids to families and returns round-one queries
+PASS: F10 isRawQueryEdit and slotTerms
+PASS: F11 deterministic, and the module performs no I/O
+--- 363-08 families ---
+PASS: 11 FAIL: 0
+>>> 3692: 363 families: PASSED
+
+--- 3692: 366 egress policy ---
+(node:324355) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: E0 the reader module loads
+PASS: E1 loadEgressPolicy returns the six non-web lines with the planning defaults (369.2-05)
+PASS: E1b a line with no entry (or a null line) is never allowed
+PASS: E2 a room override can turn theo off; judge_jev true cannot widen and is reported (369.2-05: research is not a line)
+PASS: E2b a bare boolean override works the same; an unknown line (research included, 369.2-05) is ignored and named
+PASS: E3 offline returns every line off
+PASS: E4 lineForProvider maps the non-web vendors, is null for a web provider and for an unknown one; WEB_PROVIDERS lists the web ones (369.2-05)
+PASS: E4b every provider string the planner can write maps to a non-null line or is a web provider (369.2-05)
+PASS: E5 appendAudit refuses an off non-web line (theo) with egress_line_off and writes nothing; a web record is never policy-gated (369.2-05)
+PASS: E5b an allowed line writes; an injected policy is honored; an unknown provider is refused
+PASS: E5c the closed key set is unchanged and a bad record still reports its own reason first
+PASS: E6 a malformed override is ignored, named, and never throws
+PASS: E6b an override that is a symlink out of the room is ignored
+PASS: E6c a room that does not exist or a non-string room still returns the plugin default
+PASS: E7 a room override naming research is ignored and named: the web line is not policy-gated, the run reaches the fetcher (369.2-05)
+PASS: E7b opts.offline gives the same answer with no override file
+PASS: E8 CLI: recall --offline, judge --offline, run-quick --offline completes, exit 0, nothing sent
+PASS: E8b CLI: a connections plan under --offline makes zero Theo calls and still exits 0
+PASS: E8c the --offline flag is valueless and only on the three commands; elsewhere it is refused
+PASS: E9 theo line off: runTheoLane makes zero calls and each leaf reports the off line
+PASS: E9b theo-only plan with the theo line off: runQuick answers plan only and makes zero calls
+PASS: E9c research on, theo off, mixed plan: openalex still runs, the lane reports the off line
+PASS: E10 default policy: research stays on per grant, the run fetches and audits openalex rows
+PASS: zero network attempts
+--- test-366-egress-policy ---
+PASS: 24 FAIL: 0
+>>> 3692: 366 egress policy: PASSED
+
+--- 3692: 363 CLI ---
+(node:324413) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: C1 buildPlan: ready plan saved, hashed, rung and structure and engine set
+PASS: C2 restated-only: incomplete, D-00 named, card offers no run
+PASS: C3 web slot naming an email composes; the string is in the plan; rest built
+PASS: C4 lens selection: diffusion from larry, missing df leaves need lens leaves
+PASS: C5 cardFor: a run grant runs bare, anything else asks F.0 with the run proposal, deep asks F.6
+PASS: C6 approvals: run grant and standing grant persist with decision nodes, no fetch, no filing
+PASS: C7 pending cards: surfaced once, filed runs skipped
+PASS: C8 nextMove: weakest branch to the next framework, honest none otherwise
+PASS: C9 CLI quick run: plan, grant approve, run-quick, basket, file-run, status, pending
+PASS: C10 CLI deep loop: plan, review approve, deep steps to done, basket
+PASS: C11 argv hygiene: free text refused with exit 2, marker never printed
+PASS: C12 file-run gate: no --approved-via, approved false, or a grant selection writes nothing
+PASS: X1 revise: reword recomposes, stale run approval revoked, raw query refused, started run refused
+PASS: X2 CLI escalate, validate-rows, grant propose and revoke
+PASS: X3 buildPlanLive: stub client gets handles only, plan names the live source
+PASS: C13 deep plan card: no rendered line contains [object Object], ranked-by line names limiters, both engines
+PASS: C14 drop_path on a freshly built plan removes dropped limiters from the ranking, first ranked id is a string
+PASS: C15 a deep plan with no nameable limiter is a wish in founder and researcher rooms, no deep_run, no fetch
+PASS: C16 a scientific-roadmapping deep plan that loses its last limiter through drop_path becomes a wish
+PASS: C17 escalate from a limiterless quick run answers needs_limiter; add_limiter turns it into a reviewable deep plan
+PASS: C18 CLI grant approve of the run proposal writes a run grant for that run_id, never a standing grant (369.2 R02)
+PASS: C-dash the facade, the CLI and this test carry no em-dash or en-dash
+PASS: net guard: zero network attempts
+--- 363-15 planner facade and CLI door ---
+PASS: 23 FAIL: 0
+>>> 3692: 363 CLI: PASSED
+
+--- 3692: 366 MCP plan only ---
+(node:325254) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: P1 an override naming research is ignored (369.2-05): run_quick answers reask with a gate, never plan_only, never run_refused
+PASS: P2 the plan_only answer sends nothing and writes no run state or audit row
+PASS: P3 offline true with no override: plan_only, offline true, the next step says offline was on
+PASS: P4 no override, offline absent, no grant: the existing reask answer
+PASS: P5 offline is a boolean in the schema; the description names offline and the canon-name lookup
+PASS: P6 the wire snapshot entry for research_run equals the live registration
+--- test-366-mcp-plan-only ---
+PASS: 6 FAIL: 0
+>>> 3692: 366 MCP plan only: PASSED
+
+--- 3692: 363 grants ---
+PASS: G1 writeGrant then readGrants round-trips; a fresh child reads the same grant
+PASS: G2 each re-ask reason fires alone, and the fixed order holds when two apply
+PASS: G3 a standing grant covering every term still refuses a web query with hash_not_approved; extendTerms still records terms
+PASS: G4 run grant rejects an unapproved round-one hash and accepts round-two in-family within cap
+PASS: G5 standing round 2 is multi_step; a run grant at cap is cap_exceeded
+PASS: G6 throttle: two ambient runs in an hour exceed; passes after the hour
+PASS: G7 expiry edge: 30 days minus a minute passes; plus a minute fails
+PASS: G8 revokeGrant makes later queries grant_revoked; a foreign policy is grant_reversioned
+PASS: G9 writeGrant refuses out-of-scope standing, filing keys; room_mismatch across rooms
+PASS: G10 a corrupt grants file is quarantined and readGrants never throws
+PASS: G11 grantCard is an F.0 card with three options and a complete plain body
+PASS: G12 static: grants.cjs does no network I/O and isRawQueryEdit is reused, not copied
+PASS: G13 no fetch attempted by any leg
+--- 363-09 grants ---
+PASS: 13 FAIL: 0
+>>> 3692: 363 grants: PASSED
+
+--- 3692: seed104 grant family loop ---
+(node:325275) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: S0 whitespace run proposal, card, run grant and queries are byte-identical to the golden
+PASS: S1 web destination composes room phrases; theo destination refuses prose with term_not_composed, no echo; over-cap stays bad_slot
+PASS: S2 writeGrant and extendTerms accept a web phrase; an over-cap or control-character term is refused before any write
+PASS: S3 planFamilies keeps researchable openalex round-1 families in FAMILY_IDS order; proposal families option
+PASS: S4 extendTerms widens families with one version bump; the identical call is a no-op
+PASS: S5 scopeGain names only what approving would add
+PASS: S6 question-templates FAMILY_IDS equals the families module keys
+PASS: G9b SEED-104 supersedes the Phase 363 D-04 single-family standing scope; bound is FAMILY_IDS
+PASS: S7 a standing grant never produces grant_scope_cannot_cover_plan for a web plan; the card offers the run grant; an approved plan runs
+PASS: S8 a stored plan carrying a room phrase asks for the grant with the exact string, no fetch; proposeGrant refuses only over-cap
+PASS: S9 the standing door widens families once; the identical call is a no-op; it never authorizes the web run
+PASS: E1 eureka_recall, grant_request, one approval, run_quick done; no reask, no prose term
+PASS: E3 a claim pair is a local-only leaf; every query and slot term is composable; no prose in any URL
+PASS: E2 a whitespace-only standing grant is not widened; one run approval covers the concept-evidence run; run_quick done
+PASS: E4 a standing grant never gives the stuck refusal on the web: run_quick and grant_request offer the run approval; no fetch
+PASS: E5 a stored plan with a room phrase is not refused term_not_composed at run_quick; zero fetches before approval
+PASS: E6 abstractTerm: field title first, then a side-unique entity handle, then a canon handle; never first-sentence prose
+PASS: E7 questionSetFor: a pair with no clean term is a local-only leaf; a side-unique entity gives it a term
+PASS: Z net guard counted zero fetch attempts
+--- SEED-104 grant family loop ---
+PASS: 19 FAIL: 0
+>>> 3692: seed104 grant family loop: PASSED
+
+--- 3692: 363 run quick ---
+PASS: modules load (verdict.cjs, quick.cjs)
+(node:325283) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: Q1 gap confirmed: three audit records, literature_gap candidate, no escalation
+PASS: Q2 covered elsewhere: deterministic synonym row supports ws:covered_elsewhere, settled
+PASS: Q3 contested with no named limiter: exactly one offer, and it asks what blocks the gap
+PASS: Q3b contested with a named limiter: exactly one deep offer, run deep on this?
+PASS: Q4 budget 429: unresolved, never gap-confirmed, audit failed with failure_class
+PASS: Q5 500, timeout and network failures each give unresolved
+PASS: Q6 a body with no meta.count gives unresolved
+PASS: Q7 no grant: reask no_grant, F.0 card, zero calls, no audit record
+PASS: Q8 other strings approved: reask hash_not_approved, zero calls, card lists the exact strings
+PASS: Q9 cache: second run makes zero calls, cache_hit audit records with the cached count
+PASS: Q10 caps: four queries refused before fetching; at most five records per query kept
+PASS: Q11 local room check: fs only, flags extraction_failure, never reads .mindrian
+PASS: Q12 escalateToDeep: deep seed, same perspective and pyramid, valid, no side effects
+PASS: Q13 evidenceCard: shape, options, row ids, attributed counts, no praise, no dash
+PASS: Q14 time budget: a slow fetch stops the run with stop_reason time and verdict unresolved
+PASS: Q15 Part 8: marker in no audit record, URL or card; the key never reaches a file
+PASS: net guard: zero network attempts
+PASS: global fetch restored to the net guard
+--- 363-12 quick research run ---
+PASS: 19 FAIL: 0
+>>> 3692: 363 run quick: PASSED
+
+--- 3692: 365 never-do ambient ---
+PASS: A1 AMBIENT_OUTCOMES keeps every earlier outcome in order and appends halted_constraint right after them
+(node:325421) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: A2 a standing grant plus a never-do term -> halted_constraint / constraint_named, zero fetches, no run recorded (control: plan_card_reask, then its approved run sends)
+PASS: A3 a command, a return section and a provider entry each halt (zero fetches, trip names the entry)
+PASS: A4 a malformed never-do.json -> halted_constraint / constraints_malformed, zero fetches, no run recorded
+PASS: A5a halt run dir keeps plan.json and card.json; card is a gate card with the whole why in a capped header
+PASS: A5b planner.pendingCards returns the card with kind halted_constraint
+PASS: A5c a malformed list gets the unreadable-list header (floor sentence kept), constraint null
+PASS: A5d a long why is trimmed to keep the header at 400 characters with the floor sentence whole
+PASS: A6 a second pass while the card is unsurfaced -> halted_constraint deduped, one card, no extra run dir, zero fetches
+PASS: A7 a trip line per halt: surface ambient, reason, kind, value, step_command, run_id, and no why
+PASS: A8 no never-do file -> plan_card_reask under a standing grant (its approved run sends), plan_card_no_grant without; a non-matching list changes nothing
+PASS: A9 a no-grant plan-only card carries never_do_proposal: kind term, the zone term, at most 2 alternatives from other fields
+PASS: A9b the halted_constraint card.json also carries a never_do_proposal built from the same fields
+PASS: A10 a re-ask plan-only card (runQuick reask) carries the same proposal
+PASS: A11 plan-only payload keys (ambient, plan_only, run_id, reask_reason, grant fields) and proposal.json are unchanged
+PASS: order: checkStep sits before coverFor, grants.recordRun and runQuick
+PASS: dash guard: no em-dash or en-dash in ambient.cjs, this test, or any written card or trip file
+PASS: net guard: zero real fetch attempts
+--- 365-10 ambient never-do halt ---
+PASS: 18 FAIL: 0
+>>> 3692: 365 never-do ambient: PASSED
+
+--- 3692: 363 acceptance whitespace ---
+(node:325428) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: W1 quick run, gap confirmed: verdict, plurality, three audit records, literature_gap, answer line
+PASS: W2 covered under another term: synonym hits give settled, the gap is only absent from the room
+PASS: W3 extraction failure: a room artifact already names the term, flagged locally, no request for that leaf
+PASS: W4 irrelevant: ws:irrelevant is not researchable, shown as such, and never searched
+PASS: W4b a deep whitespace plan with no nameable limiter is a wish: no review card, no run (quick-wish-gate)
+PASS: W5 thin card offers deep once; escalate, review approve, deep loop to done with counterevidence and a stop reason
+PASS: W5b deep run answers the same two-halved question directly: gap confirmed (strengthened) and covered under another term (weakened)
+PASS: W6 basket then file-run: approved selection files the run home and the opportunity (opt-in); approved false files nothing
+PASS: W7 a one-section zone returns context_insufficient: nothing planned, nothing sent, nothing written
+PASS: W8 MCP door: run_quick returns the same verdict as the CLI for the same replay; deep_plan says the deep run executes in Claude Code
+PASS: W9 ambient branch with a standing grant: a pending run card the CLI pending door returns exactly once, nothing sent; approved through the CLI, run-quick sends and returns the evidence card
+PASS: W9b KNOWN LIMITATION: production-shaped whitespace results carry no zone_term, so the ambient branch answers context_insufficient (no_zone_term)
+PASS: dash guard: no em-dash or en-dash in this test
+PASS: net guard: the only fetches were the recorded replay (zero real attempts)
+PASS: global fetch restored to the net guard
+--- 363-20 acceptance: whitespace slice, both modes ---
+PASS: 15 FAIL: 0
+ACCEPTANCE_METRICS {"note":"offline replay: latency is engine and process overhead only, not network","quick_run_cli_ms":{"n":6,"p50":212.7,"p90":243.9},"plan_cli_ms":{"n":6,"p50":200.7,"p90":298.6},"grant_approve_cli_ms":{"n":6,"p50":275.5,"p90":288.6},"deep_loop_total_ms":{"n":3,"p50":2411.4,"p90":2453.1},"deep_cli_call_ms":{"n":31,"p50":199.6,"p90":221.8},"mcp_run_quick_ms":15.6,"rows_per_query":[0,0,0],"deep":{"searches":3,"stop_reason":"saturation","steps":6,"cli_calls":12,"unresolved":1},"deep_direct":{"gap":{"governing":"strengthened","primary_count":0,"cover_count":0,"stop_reason":"saturation","searches":3},"covered":{"governing":"weakened","primary_count":0,"cover_count":240,"stop_reason":"saturation","searches":3}},"replay_rows_settled":[{"template_id":"ws.exact","count":0,"result_count":0},{"template_id":"ws.prior_attempts","count":240,"result_count":5},{"template_id":"ws.synonym_cover","count":240,"result_count":5}],"legs_ms":{"W1":1097.1,"W2":866.5,"W3":832.4,"W4":1190.7,"W4b":342.8,"W5":4176.8,"W5b":5203.6,"W6":662.9,"W7":226.1,"W8":1433.2,"W9":1095.1,"W9b":163.3}}
+>>> 3692: 363 acceptance whitespace: PASSED
+
+--- 3692: 363 part8 sweep ---
+PASS: setup: the marker is planted in room prose and in seeded room.db nodes
+(node:326362) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: D1 CLI quick flow runs under the fake key
+PASS: D2 CLI deep flow runs under the fake key
+PASS: D3 CLI filing (basket, file-run) under the fake key
+PASS: D4 MCP tool ops (plan, grant gate, run_quick, deep_plan, basket, file, pending, grant_status) under the fake key
+PASS: D5 ambient branch under the fake key: the pass queues a run card and sends nothing; the approved run then runs
+PASS: D6 structure live refresh reads only generic handles through the guarded client
+PASS: D7 a failing search writes the shared egress telemetry sink (hash only)
+PASS: S1 the marker and the key are in no child argv, stdout or stderr (20 children)
+PASS: S2 the marker and the key are in no MCP response and no in-process door result
+PASS: S3 the shared egress telemetry sink holds no marker, no key and no query text (15 entries)
+PASS: S4 no cache file name or content carries the marker or the key
+PASS: S5 no Theo call argument carries the marker or a room-derived term; the live-refresh reads are handles only
+PASS: S6 every audit record holds an approved q (round one from the plan files, later rounds only from approved phrases) and no marker or key
+PASS: S7 no door copied room text: no room file and no room.db node gained the marker (6 rooms)
+PASS: S8 the API key is in no file under any room or the test home
+PASS: S9 every replayed request carried the key only as a Bearer header, never in a URL or another header
+PASS: dash guard: no em-dash or en-dash in this test
+PASS: net guard: the only fetches were the recorded replay (zero real attempts)
+PASS: global fetch restored to the net guard
+--- 363-20 Part 8 sweep over every door ---
+PASS: 20 FAIL: 0
+>>> 3692: 363 part8 sweep: PASSED
+
+--- 3692: 363 ambient ---
+PASS: M0 ambient.cjs exports maybeQuick, whitespaceQuestionSet, AMBIENT_OUTCOMES
+(node:326513) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: M1 no whitespace finding -> skipped_no_whitespace, zero calls
+PASS: M2 a 1-section gap -> context_insufficient, zero calls, nothing under research-runs
+PASS: M3 2-section gap, no grant -> plan_card_no_grant: plan.json + card.json, pending, zero egress, no audit
+PASS: M4 a standing grant for another term -> plan_card_reask (run-grant proposal, no new_term), zero calls, the card lists every exact string
+PASS: M5 standing grant: the pass queues plan_card_reask and sends nothing; after that run is approved, one quick run sends at most 3 strings, audit written, evidence card returned, unfiled
+PASS: M6 a recorded ambient run: same delta -> already_run_for_delta; a second delta inside the hour -> throttled; a later hour -> a card, never a send (zero calls)
+PASS: M6b the throttle is not consulted for a run grant: inside the throttled hour a pass queues a throttle outcome, and an approved run still sends
+PASS: M7 a tiny remaining budget -> budget_exhausted before any call or write
+PASS: M8a maybeQuick touches neither the 355.1 ambient ledger nor the delta-state file
+PASS: M9a runAmbientInChild calls maybeQuick once, after composition, while the run is still running
+PASS: M9b a maybeQuick that throws does not change the returned ambient state
+PASS: M9c the real branch runs inside the ambient child: it queues the run card and sends nothing; after that run is approved one quick run sends
+PASS: M8b the 355.1 ambient ledger and delta state still validate with unchanged key sets and no research producer id
+PASS: M9d source pin: the require and the call sit after composition, before recordAmbientRun and the lock release
+PASS: M10 deep never: no deep.cjs require, and a saved deep plan is never started
+PASS: M11 Part 8: the pass sends nothing; over the approved run the planted marker is in no replay URL, no audit record, no run state and no argv
+PASS: M12 a covering standing grant -> plan_card_reask with a run-grant proposal over the plan q_hashes, zero calls (369.2 R02)
+PASS: M13 after approvePlanReview on the card run_id, one quick run sends exactly the card strings, audit written, evidence card returned, unfiled (369.2 R02)
+PASS: dash guard: no em-dash or en-dash in ambient.cjs, this test, or any written card/run file
+PASS: net guard: zero real fetch attempts
+--- 363-16 ambient quick research run ---
+PASS: 21 FAIL: 0
+>>> 3692: 363 ambient: PASSED
+
+--- 3692: 363 MCP tool ---
+(node:326553) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: M1 the server lists research_run with an honest description
+PASS: M2 planners and plan answer exactly as the facade does
+PASS: M3 grant_request mints a gate; nothing persists until gate_answer approve_run; single use
+PASS: M4 a fresh server process reads the approved run grant through grant_status
+PASS: M5 run_quick with the run grant returns the evidence card; without one returns the F.0 card and fetches nothing
+PASS: M6 deep_plan returns the F.6 gate and says deep execution runs in Claude Code
+PASS: M7 basket mints an F.8 gate; file needs a consumed basket gate from this tool
+PASS: M8 every response carries pending cards exactly once
+PASS: M9 grant_revoke revokes the run grant and a later run_quick asks again
+PASS: M10 the zod schema rejects an unknown op and a non-object question_set without echoing input
+PASS: M11 Part 8: no brain or theo reach, the planted marker never leaves
+PASS: M12 the connectors export declares research_run as an F.6 mcp-tool
+PASS: M13 grant_request without run_id refuses run_id_required; with run_id its gate offers approve_run and not_now only (369.2 R02)
+PASS: dash guard: no em-dash or en-dash in the tool or this test
+PASS: net guard: the only fetches were the recorded replay (zero real attempts)
+PASS: global fetch restored to the net guard
+--- 363-17 research_run MCP tool ---
+PASS: 16 FAIL: 0
+>>> 3692: 363 MCP tool: PASSED
+
+--- 3692: 366 Theo lateral lane ---
+(node:326651) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: Y1a validateQuestionSet accepts corpus theo, still refuses an unknown corpus
+PASS: Y1b plan validator, add_leaf and toggle_source keep theo; unknown corpus refused
+PASS: Y2 a connections plan is ready, quick, with theo lateral leaves
+PASS: Y3a buildRunGrant adds provider theo and the pair hashes; openalex-only output matches the golden
+PASS: Y3a2 standing scope stays openalex-only
+PASS: Y3a3 writeGrant accepts the theo run grant with an empty families list; refuses other empty-family grants
+PASS: Y3b the theo card names Theo, canon names only, the pair count; openalex cards equal the golden
+PASS: Y3b2 a mixed plan card names both providers
+PASS: Y4a no grant yet: coverFor asks, the lane makes zero calls
+PASS: Y4b the reask card for a theo plan is the run-grant card that names Theo
+PASS: Y4c a run grant lets runQuick call find_connections once per theo leaf, canon names only, no OpenAlex fetch
+PASS: Y5 each call wrote one 23-key audit row with provider theo
+PASS: Y6a an expired run grant: zero calls, grant_expired
+PASS: Y6b a standing grant only never covers Theo: provider_not_in_policy, zero calls
+PASS: Y6c validateTheoCall order and cap
+PASS: Y7 a slot outside the canon snapshot is skipped and counted, never sent
+PASS: Y8 a verified lateral path settles its leaf, yields one candidate, and the filer reads the lane stamp
+PASS: Y8b the theo-only run answers about the lateral checks and offers no deep run
+PASS: Y9 a mixed plan runs openalex first, then the lane
+PASS: Y10 attachQueries still composes nothing for theo leaves and openalex leaves still compose
+PASS: Y10b theo-lane exports and the lane module is on disk
+PASS: Y10c the lane has no second wire door: find_connections only through stampFinding
+PASS: zero network attempts
+--- test-366-theo-lateral-lane ---
+PASS: 23 FAIL: 0
+>>> 3692: 366 Theo lateral lane: PASSED
+
+--- 3692: mux card before answer ---
+quick 261005-mux: a yes is a card, never prose
+  PASS H1 card shown and the answer matches: allow
+  PASS H2 card missing (typed "i accept"): deny with "never shown as a card"
+  PASS H3 card shown, answer is another option: deny with "does not match the card"
+  PASS H4 no transcript_path: allow and log surface_degraded
+  PASS H5 gate id absent from the transcript: allow and log gate_not_in_transcript
+  PASS H6 the hooks.json matcher fires on gate_answer (both server scopes), never on gate_render
+    5 MB cold start (n=5): min 40.5 ms, median 41.0 ms, max 55.7 ms, budget 2000 ms
+  PASS H7 cold start on a 5 MB transcript stays inside the hooks.json PreToolUse budget (2000 ms)
+  PASS H8 garbage stdin, empty stdin and a foreign tool name all allow with exit 0
+  PASS H9 a card shown BEFORE the gate_render does not count: deny
+  PASS S1 research grant, dialog cancelled: the gate stays open and a relayed gate_answer is card_pending
+  PASS S1b gate_render, dialog cancelled: the gate stays open and a relayed gate_answer is card_pending
+  PASS S2 run card, dialog accepted: consumed inline, a later relayed gate_answer is unknown_gate (pins today)
+  PASS B1 basket gate_render with no card fired since: the hook denies a typed "i accept" (never shown as a card), a fired card allows
+  PASS B2 basket dialog cancelled: the gate stays open, a relayed gate_answer is card_pending, nothing is filed
+  PASS B3 basket dialog accepted with a selection: filed once through op file, a second answer and a second file are refused
+  PASS S4 an elicitation entry whose dialog was ACCEPTED but not consumed inline (chain_run) lets exactly that choice through
+    mintGate sites: 8, naming a renderer: 8
+  PASS S3 every gateLedger.mintGate( call site stores a renderer
+  PASS D1 the doctrine sentence is in larry-extended, research.md and larry-personality; the research mirror is fresh
+  PASS D2 dash guard over the touched files; CHANGELOG entry present
+PASS=19 FAIL=0
+>>> 3692: mux card before answer: PASSED
+
+--- 3692: 366 guard navigator release ---
+PASS: G1 no receipt: not navigator_released
+PASS: G1b malformed gate id: not navigator_released
+PASS: G1c a non-object receipt: not navigator_released
+PASS: G2 receipt matching raw: allow navigator_released
+PASS: G2b the reason carries no term bytes
+PASS: G3 receipt term differs from raw: not allow
+PASS: G3b a trailing space is a different term
+PASS: G4 full envelope with a matching receipt: allow
+PASS: G4b envelope with only intent: allow
+PASS: G5 prose intent: not allow
+PASS: G5b over-cap intent: not allow
+PASS: G5c a one-word intent outside the closed vocabulary: not allow
+PASS: G5d perspective off the enum: not allow
+PASS: G5e section that is not a slug: not allow
+PASS: G6 a fifth key: not allow
+PASS: G6b an unknown key beside raw: not allow
+PASS: G6c no raw: not allow
+PASS: G7 content hit in raw blocks even with a receipt
+PASS: G7b content hit in any other value blocks
+PASS: G8 tool "find_connections": the receipt changes nothing
+PASS: G8 tool "framework_step": the receipt changes nothing
+PASS: G8 tool "brain_ask": the receipt changes nothing
+PASS: G8 tool "brain_search": the receipt changes nothing
+PASS: G8 tool "recommend_chain": the receipt changes nothing
+PASS: G8 tool "case_story": the receipt changes nothing
+PASS: G8 tool "": the receipt changes nothing
+PASS: G8b find_connections keeps its own verdict class
+PASS: G10 the arm is called inside classify
+PASS: G10b the arm call is after the content scan
+PASS: G10c navigator_released appears at least twice in the guard
+PASS: G10d the helper is exported
+PASS: G10e the helper carries a docblock that names the ordering and the single widened path
+PASS: G11 a free-form tool name never reaches the arm
+PASS: G11b the arm proves by shape and receipt alone (no free-form scan)
+PASS: G11c a namespaced tool name that contains normalize_framework_name allows with a receipt
+PASS: G9 tests/test-220-part8-egress.cjs exits 0
+PASS: G9 tests/test-223-part8-egress.cjs exits 0
+PASS: G9 tests/test-345-part8.cjs exits 0
+PASS: G9 tests/test-346-part8-enum-only.cjs exits 0
+PASS: G9 tests/test-355-part8-egress.cjs exits 0
+PASS: G9 tests/test-3551-part8-egress.cjs exits 0
+PASS: G9 tests/test-363-part8-sweep.cjs exits 0
+PASS: G9 tests/test-213-part8-boundary.cjs exits 0
+PASS: G9 tests/test-part8-poison-transcript.cjs exits 0
+PASS: G9 tests/test-361-theo-parity.cjs exits 0
+PASS: G9 tests/part8-egress-guard-hook.test.cjs exits 0
+PASS: G9 tests/test-254-normalize-roundtrip-probe.cjs exits 0
+PASS: zero network attempts
+--- test-366-guard-navigator-release ---
+PASS: 48 FAIL: 0
+>>> 3692: 366 guard navigator release: PASSED
+
+--- 3692: 369 hook require graph ---
+test-369-hook-require-graph
+  roots: 58 node scripts (from 11 run-hook.cmd bash scripts, 25 bash files scanned)
+  reachable files: 388
+  non-literal require sites (advisory, not provable statically): 154
+  unresolved relative requires (advisory, usually guarded optional requires): 0
+  PASS arm 1: no TypeScript reachable from any hooks.json entry (0 TypeScript modules reachable from hooks)
+  0 TypeScript modules reachable from hooks
+  PASS arm 2: mutation - a root requiring ./a.cjs which requires ./b.ts is reported with its path chain (chain root.cjs -> a.cjs -> b.ts)
+  PASS arm 2b: mutation - a require literal naming a .mts is a violation even when the file is absent
+  PASS arm 2c: a clean tree reports no violation
+  PASS arm 3: hook cold-start baseline fixture exists, parses, and every measured p95_ms is below its timeout_ms (44 measured entries, n=10, node v22.23.1)
+
+test-369-hook-require-graph: 5 passed, 0 failed
+>>> 3692: 369 hook require graph: PASSED
+
+--- 3692: 257 brain tool egress invariant (healed by plan 08) ---
+(node:327676) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Phase 257-07 (LOCUS-03, D-06) brain-tool egress invariant
+  ok  Arm 1a: tools/list returns a non-empty array
+  ok  Arm 1b: FORWARD -- every EXPECTATION_MAP entry exists in the live tools/list (a rename fails here)
+  ok  Arm 1c: INVERSE -- every live tools/list entry exists in EXPECTATION_MAP (a newly-added tool fails here)
+  ok  Arm 2: zero egress on a canary, per canary-carrying tool (brain_ask, brain_query, brain_search, brain_write)
+  ok  Arm 2b: non-canary-carrying tools (brain_schema, brain_stats) complete without error
+  ok  Arm 3: honest typed refusal, per tool
+  ok  Arm 4 (369.2 CODE-07): the formerly ambiguous text proceeds; a question naming a venture is refused before the wire
+  ok  Arm 5: allow still works -- the guard discriminates, it does not block unconditionally
+  ok  Arm 6: no laundering -- the canary appears nowhere in any Arm 2 response or the capture record
+  ok  Arm 7a: the belt self-check (Arm 2 shape) can fail -- run against a real call that DID reach the wire
+  ok  Arm 7b: the honest-refusal self-check (Arm 3 shape) can fail -- run with a deliberately wrong expected kind
+  hygiene: 1 shim process(es) spawned this run, none still alive after cleanup
+  wall time: 504ms
+
+Phase 257-07 brain-tool egress invariant: PASS (0 failures)
+>>> 3692: 257 brain tool egress invariant (healed by plan 08): PASSED
+
+--- 3692: rs-fetcher industry (healed by plans 02 and 06) ---
+=== 89.2-04 fetcher-industry suite: starting ===
+(node:327691) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  Test 1: happy path Tavily orchestration (3 refined sub-queries)  (94ms)
+  ok  Test 2: dedup determinism (same input twice == identical output)  (14ms)
+  ok  Test 3: TAVILY_API_KEY missing -> graceful empty + api_key_missing telemetry  (2ms)
+  ok  Test 4: Tavily 429 rate-limit graceful (no throw; rate_limited telemetry)  (3ms)
+  ok  Test 5: Tavily timeout graceful (no throw; timeout telemetry)  (2ms)
+  ok  Test 6: Tavily malformed JSON graceful (api_error telemetry)  (2ms)
+  ok  Test 7: per-source budget exhausted (Tavily skipped)  (1ms)
+  ok  W1 web line: adversarial strings dispatch unchanged (industry) (369.2 ruling 2026-10-05)  (12ms)
+  ok  W2 A4=keep credential-shaped query (industry) is refused pre-dispatch: zero fetch, no echo (369.2 ruling 2026-10-05)  (3ms)
+  ok  V1: validator Check A telemetry-file-absent -> {severity: null}  (1ms)
+  ok  V2: validator Check B per-source budget exceeded -> warning  (2ms)
+  ok  V3: validator Check C status enum violation -> warning  (1ms)
+  ok  V4: validator Check D query_text literal present -> CRITICAL canon_boundary  (2ms)
+  ok  V5: validator Check E query_text_hash format violation -> warning  (1ms)
+  ok  V6: validator Check F fetched_at malformed -> warning  (1ms)
+  ok  A1: no credential shape in any captured payload, URL or body (369.2 ruling 2026-10-05)  (2ms)
+  ok  A2: FORBIDDEN_PATTERNS parity (rs-egress-prompts === cross-room-aggregator)  (0ms)
+=== 89.2-04 fetcher-industry suite: 17/17 passed ===
+>>> 3692: rs-fetcher industry (healed by plans 02 and 06): PASSED
+
+--- 3692: muy real-room rule (healed by the beta.61 CHANGELOG, plan 12) ---
+PASS: G1 gate with an empty receipt dir refuses and names the run command
+PASS: G2 a receipt for another sha is refused and both shas are shown
+PASS: G3 a receipt for HEAD with a reader and four blocks passes and prints the reader and the four counts
+PASS: G4 no desktop leg prints a WARN naming desktop; a set leg prints none
+PASS: G5 the audited opt-out passes and names the flag and the consequence; dry-run reports without aborting
+PASS: G11 a receipt with a reader and four blocks but no negative leg is refused: NO NEGATIVE LEG
+PASS: G12 a receipt whose negative leg ran a job is refused, naming the job and the injection
+PASS: G12f (plan 27) a receipt whose negative leg lacks the reminted room, or where a job ran on it, is refused naming the job and room_db_reminted
+PASS: G13 a receipt with both legs passes and prints the negative-leg line with the reasons
+PASS: G6 real-room-run --offline births a room through the chokepoint and prints the four-section report, no receipt
+PASS: G6b real-room-run refuses a rooms home under the real ~/MindrianRooms
+PASS: G7 --read-by writes the receipt; --desktop-verified updates only that leg; the gate refuses an offline receipt
+INFO: gate kinds exercised hermetically on the real offline receipt: OFFLINE, OK, NONEGATIVE, NEGATIVE_RAN
+PASS: G14 gate kinds on the real offline receipt: OFFLINE, OK, NONEGATIVE, NEGATIVE_RAN (reminted room missing, a job ran on it)
+PASS: G8 doctor carries a real-room-run point: warns when no receipt, ok when the latest equals HEAD
+PASS: G9 release.sh --dry-run lists Step 2.6 after Step 2.5 and before Step 3, reports, and honors the opt-out
+PASS: G9b release.sh real path: the lib is sourced in the preamble and Step 2.6 aborts before Step 3
+PASS: G10a no em or en dash in the files and lines this task added
+PASS: G10b CHANGELOG names the real-room release rule (in any section)
+PASS: G10c the ruling system carries RULE 10 naming the step, the receipt, the opt-out and the Desktop leg
+PASS: G10d the release-process include points at RULE 10
+
+test-muy-real-room-rule: 20 passed, 0 failed
+>>> 3692: muy real-room rule (healed by the beta.61 CHANGELOG, plan 12): PASSED
+
+--- 3692: skill-mirrors generator --check ---
+build-skill-mirrors --check: OK (113 mirrors match expected content; skip-list verified: trending-to-absurd)
+>>> 3692: skill-mirrors generator --check: PASSED
+
+--- 3692: connector-registry generator --check ---
+connector-registry: OK
+(node:329318) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 3692: connector-registry generator --check: PASSED
+
+--- 3692: orchestration-projection generator --check ---
+orchestration-projection: OK
+>>> 3692: orchestration-projection generator --check: PASSED
+
+--- 3692: render-coverage check ---
+render-coverage report: 17 covered, 0 excluded, 0 gap (17 entries)
+render-coverage md-keyspace: 198 wired, 2 excluded, 0 unwired (200 declaring commands)
+>>> 3692: render-coverage check: PASSED
+
+--- 3692: shape-declaration check ---
+WARN: shape-declaration advisory (Phase 210): 53 violation(s) detected; not blocking (run with --strict to restore hard-fail)
+WARN:   - surface commands/admin.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/correct-reference-now.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/doctor.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/dogfood-flush.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/export.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/feynman-timeline-refresh.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/heal.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/help.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/hmi-status.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/models.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/mos.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/onboard.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/organize.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/publish.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/query.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/radar.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/rooms.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/scheduled-tasks.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/setup.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/snapshot.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/splash.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/stance.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/update.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/vault.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/visualize.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface agents/larry-extended.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/admin/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/conversation-mode/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/correct-reference-now/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/doctor/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/dogfood-flush/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/export/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/feynman-timeline-refresh/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/heal/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/help/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/hmi-status/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/intelligence-orchestrator/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/models/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/mos/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/onboard/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/organize/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/publish/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/query/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/radar/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/rooms/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/scheduled-tasks/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/setup/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/snapshot/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/splash/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/stance/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/update/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/vault/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/visualize/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+Recovery: run node scripts/backfill-hitl-shape.cjs, or hand-author the missing declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason if this skill reaches no fork.
+(node:329339) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 3692: shape-declaration check: PASSED
+
+--- 3692: CIRS plan-declaration check ---
+check-cirs-declaration: OK (34 plan(s))
+>>> 3692: CIRS plan-declaration check: PASSED
+
+--- 3692: no new dependency (package.json + npm-shrinkwrap.json vs the phase start) ---
+PASS: dependency sets equal the phase start d79fd0575 (20 package.json deps, 148 shrinkwrap packages)
+>>> 3692: no new dependency (package.json + npm-shrinkwrap.json vs the phase start): PASSED
+
+--- 3692: dash guard ---
+>>> 3692: dash guard: PASSED
+
+Phase 369.2: PASSED=70 FAILED=0 SKIPPED=0 KNOWN=0

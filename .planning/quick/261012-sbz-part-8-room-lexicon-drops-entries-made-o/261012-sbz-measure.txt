@@ -1,0 +1,43 @@
+## BEFORE (pre-change guard+lexicon), 26 set
+corpus: base
+positives: 26
+positives_blocked_without_room: 0
+rooms: 34
+rooms_with_induced_fp: 9
+induced_fp_total: 30
+evaluations: 884
+by_class: {"room_content:room_term":14,"room_content:room_file":16}
+negatives_leaked_when_room_bound_vs_no_room: 0
+negatives_allowed_no_room: 0
+
+## AFTER (S1), 26 set
+corpus: base
+positives: 26
+positives_blocked_without_room: 0
+rooms: 34
+rooms_with_induced_fp: 1
+induced_fp_total: 6
+evaluations: 884
+by_class: {"room_content:room_term":6}
+negatives_leaked_when_room_bound_vs_no_room: 0
+negatives_allowed_no_room: 0
+
+## AFTER (S1), extended set
+corpus: ext
+positives: 522
+positives_blocked_without_room: 37
+rooms: 34
+rooms_with_induced_fp: 6
+induced_fp_total: 50
+evaluations: 16490
+by_class: {"room_content:room_term":39,"room_content:room_file":10,"room_content:claim":1}
+negatives_leaked_when_room_bound_vs_no_room: 0
+negatives_allowed_no_room: 0
+
+## Retention (entries refused by the pre-change lexicon that the S1 lexicon no longer refuses)
+room_file: {"entries":937,"base_refused":937,"kept_refused":866,"lost":71}
+room_term: {"entries":1256,"base_refused":1252,"kept_refused":1118,"lost":134}
+venture_name: {"entries":20,"base_refused":20,"kept_refused":20,"lost":0}
+room_name: {"entries":31,"base_refused":31,"kept_refused":31,"lost":0}
+claim: {"entries":6884,"base_refused":6884,"kept_refused":6884,"lost":0}
+person: {"entries":11,"base_refused":11,"kept_refused":11,"lost":0}
