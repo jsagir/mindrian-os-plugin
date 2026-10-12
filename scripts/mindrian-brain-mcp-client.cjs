@@ -119,7 +119,14 @@ function asContent(obj) {
 function honestRefusal(result, toolName) {
   if (result == null) return refusalResponse('unreachable', { tool: toolName });
   if (result && typeof result === 'object' && result.error === 'egress_blocked') {
-    return refusalResponse('egress_blocked', { tool: toolName, egress_class: result.egress_class, token_class: result.token_class || undefined });
+    return refusalResponse('egress_blocked', {
+      tool: toolName,
+      egress_class: result.egress_class,
+      token_class: result.token_class || undefined,
+      matched_kind: result.matched_kind,
+      matched_token_count: result.matched_token_count,
+      matched_count: result.matched_count,
+    });
   }
   return result;
 }
@@ -211,10 +218,11 @@ server.registerTool(
     // branch immediately above. CRITICAL: signals must NOT carry the
     // transport-outage flag the branch above sets -- that would re-create the
     // exact refusal-versus-outage conflation this branch exists to fix, one
-    // layer up in the signals plane. Only `tool` and `egress_class` cross
+    // layer up in the signals plane. Only `tool`, `egress_class`,
+    // `token_class` and the 3 matched fields (a closed kind and integers) cross
     // into refusalResponse; the question text is never echoed.
     if (raw && typeof raw === 'object' && raw.error === 'egress_blocked') {
-      const refusal = refusalResponse('egress_blocked', { tool: 'brain_ask', egress_class: raw.egress_class });
+      const refusal = honestRefusal(raw, 'brain_ask');
       return asContent(wrapDirective({
         directive: { guided: { questions: [], framework: null, stage: 'tier_0_' + refusal.kind } },
         next_gate: { sub_shape: 'F.1', options: refusal.next_moves.slice() },
