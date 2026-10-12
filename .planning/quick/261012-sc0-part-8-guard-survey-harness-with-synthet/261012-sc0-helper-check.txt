@@ -1,0 +1,10 @@
+nodesFor deterministic for 6 rooms
+gate-lexgen nodes 46 room.db bytes 237568 ms 331
+gate-scaffold nodes 23 room.db bytes 225280 ms 111
+gate-claims nodes 6 room.db bytes 225280 ms 112
+gate-noise nodes 129 room.db bytes 262144 ms 260
+gate-segment nodes 2 room.db bytes 225280 ms 100
+gate-empty nodes 0 room.db bytes 225280 ms 89
+total build ms 1007
+(node:358914) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

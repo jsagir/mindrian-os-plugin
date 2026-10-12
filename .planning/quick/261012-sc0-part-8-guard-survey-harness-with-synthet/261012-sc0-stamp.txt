@@ -1,0 +1,38 @@
+--- stamp: old baseline against the measurement
+DELTA catalog baseline={"B":415,"C":96,"D":11,"total":522} measured={"B":415,"C":96,"D":11,"total":522} OK
+DELTA pos26.blocked_no_room baseline=0 measured=0 OK
+DELTA pos26.induced baseline=[] measured=["gate-segment:N6:room_term"] FAIL
+DELTA ext.induced_total baseline=0 measured=0 OK
+DELTA ext.blocked_no_room baseline=0 measured=37 FAIL
+DELTA negatives.leaks baseline=[] measured=[] OK
+DELTA retention.claim baseline=absent measured={"entries":7,"refused":7} NEW
+DELTA retention.person baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA retention.room_file baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA retention.room_name baseline=absent measured={"entries":6,"refused":6} NEW
+DELTA retention.room_term baseline={"entries":999,"refused":999} measured={"entries":41,"refused":41} FAIL
+DELTA retention.venture_name baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA must_refuse.failed baseline=[] measured=[] OK
+DELTA known_leaks.GAP1 baseline=status=open measured=allowed_in=7 OK
+DELTA known_leaks.GAP2 baseline=status=open measured=allowed_in=7 OK
+DELTA fetch_calls baseline=0 measured=0 OK
+--- stamp: new baseline against the measurement
+DELTA catalog baseline={"B":415,"C":96,"D":11,"total":522} measured={"B":415,"C":96,"D":11,"total":522} OK
+DELTA pos26.blocked_no_room baseline=0 measured=0 OK
+DELTA pos26.induced baseline=["gate-segment:N6:room_term"] measured=["gate-segment:N6:room_term"] OK
+DELTA ext.induced_total baseline=0 measured=0 OK
+DELTA ext.blocked_no_room baseline=37 measured=37 OK
+DELTA negatives.leaks baseline=[] measured=[] OK
+DELTA retention.claim baseline={"entries":7,"refused":7} measured={"entries":7,"refused":7} OK
+DELTA retention.person baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA retention.room_file baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA retention.room_name baseline={"entries":6,"refused":6} measured={"entries":6,"refused":6} OK
+DELTA retention.room_term baseline={"entries":41,"refused":41} measured={"entries":41,"refused":41} OK
+DELTA retention.venture_name baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA must_refuse.failed baseline=[] measured=[] OK
+DELTA known_leaks.GAP1 baseline=status=open measured=allowed_in=7 OK
+DELTA known_leaks.GAP2 baseline=status=open measured=allowed_in=7 OK
+DELTA fetch_calls baseline=0 measured=0 OK
+STAMP: wrote /home/jsagi/dev/MindrianOS-Plugin/tests/fixtures/3692/guard-survey-baseline.json
+MEASURED_SHA256: 9fb08281a435c35fd1d444d961c95261fb06f0d08185bcd01fdfaa28f731ed8d
+(node:360463) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

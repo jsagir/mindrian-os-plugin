@@ -1,0 +1,27 @@
+PASS: L0 static checks
+PASS: C0 comparator self-check (9 regressions fail, 3 improvements pass)
+DELTA catalog baseline={"B":415,"C":96,"D":11,"total":522} measured={"B":415,"C":96,"D":11,"total":522} OK
+DELTA pos26.blocked_no_room baseline=0 measured=0 OK
+DELTA pos26.induced baseline=[] measured=["gate-segment:N6:room_term"] FAIL
+DELTA ext.induced_total baseline=0 measured=0 OK
+DELTA ext.blocked_no_room baseline=0 measured=37 FAIL
+DELTA negatives.leaks baseline=[] measured=[] OK
+DELTA retention.claim baseline=absent measured={"entries":7,"refused":7} NEW
+DELTA retention.person baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA retention.room_file baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA retention.room_name baseline=absent measured={"entries":6,"refused":6} NEW
+DELTA retention.room_term baseline={"entries":999,"refused":999} measured={"entries":41,"refused":41} FAIL
+DELTA retention.venture_name baseline=absent measured={"entries":1,"refused":1} NEW
+DELTA must_refuse.failed baseline=[] measured=[] OK
+DELTA known_leaks.GAP1 baseline=status=fixed measured=allowed_in=7 FAIL
+DELTA known_leaks.GAP2 baseline=status=fixed measured=allowed_in=7 FAIL
+DELTA fetch_calls baseline=0 measured=0 OK
+GATE: FAIL (5 rows)
+FAIL: M measurement against the baseline: 5 rows failed
+PASS: H CLI hook agrees with classify
+PASS: N net and time (fetch calls 0, 1878 ms of 60000 ms)
+PASS: 4 FAIL: 1
+MEASURED_SHA256: 9fb08281a435c35fd1d444d961c95261fb06f0d08185bcd01fdfaa28f731ed8d
+ELAPSED_MS: 1878
+(node:360066) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

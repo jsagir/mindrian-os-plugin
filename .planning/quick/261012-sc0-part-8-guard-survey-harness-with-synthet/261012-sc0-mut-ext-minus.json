@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "stamped": {
+    "date": "2026-10-12",
+    "head": "46a87b29c",
+    "reason": "initial stamp after the S1 lexicon fix (quick 261012-sbz); GAP1 and GAP2 open"
+  },
+  "rooms": [
+    "gate-lexgen",
+    "gate-scaffold",
+    "gate-claims",
+    "gate-noise",
+    "gate-segment",
+    "gate-empty"
+  ],
+  "catalog": {
+    "B": 415,
+    "C": 96,
+    "D": 11,
+    "total": 522
+  },
+  "pos26": {
+    "blocked_no_room": 0,
+    "induced": [
+      "gate-segment:N6:room_term"
+    ]
+  },
+  "ext": {
+    "blocked_no_room": 36,
+    "induced_total": 0,
+    "induced_by_class": {}
+  },
+  "negatives": {
+    "evaluations": 70,
+    "leaks": []
+  },
+  "retention": {
+    "claim": {
+      "entries": 7,
+      "refused": 7
+    },
+    "person": {
+      "entries": 1,
+      "refused": 1
+    },
+    "room_file": {
+      "entries": 1,
+      "refused": 1
+    },
+    "room_name": {
+      "entries": 6,
+      "refused": 6
+    },
+    "room_term": {
+      "entries": 41,
+      "refused": 41
+    },
+    "venture_name": {
+      "entries": 1,
+      "refused": 1
+    }
+  },
+  "must_refuse": {
+    "total": 10,
+    "failed": []
+  },
+  "known_leaks": [
+    {
+      "id": "GAP1",
+      "status": "open",
+      "allowed_in": 7,
+      "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money",
+      "fixed_on": null
+    },
+    {
+      "id": "GAP2",
+      "status": "open",
+      "allowed_in": 7,
+      "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money",
+      "fixed_on": null
+    }
+  ]
+}
