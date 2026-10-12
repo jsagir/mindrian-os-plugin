@@ -1,0 +1,257 @@
+--- a/lib/wiki/wiki-server.cjs
++++ b/lib/wiki/wiki-server.cjs
+@@ -9,12 +9,11 @@
+ const express = require('express');
+ const path = require('path');
+ const fs = require('fs');
+-const crypto = require('crypto');
+ const matter = require('gray-matter');
+ const { scanRoom, renderPage, buildPageIndex, SECTION_COLORS, isPrivateRoomPath } = require('./page-renderer.cjs');
+ const { wrapInLayout, renderInfobox, renderSidebar, renderBacklinks, renderSeeAlso, renderGraphLinks } = require('./wiki-layout.cjs');
+ const { getPageLinks, getBacklinks, getSeeAlso, getGraphData, EDGE_DISPLAY } = require('./graph-links.cjs');
+-const { buildSearchIndex, search, rebuildIndex } = require('./wiki-search.cjs');
++const roomSearch = require('../core/room-search.cjs');
+ const { buildPageContext, handleChatMessage } = require('./wiki-chat.cjs');
+ const { startWatcher, addSSEClient } = require('./wiki-watcher.cjs');
+ const { getRoomHomeData, renderRoomHomeBody } = require('./room-home.cjs');
+@@ -45,22 +44,14 @@
+     console.warn(`[wiki] ${roomData.scanWarnings.length} file(s) scanned with a warning (first: ${first})`);
+   }
+ 
+-  // Build search index from initial scan
+-  buildSearchIndex(roomData.pages);
+-  let indexedSignature = pagesSignature(roomData.pages);
+-
+   // ── Helper: rebuild room index ──
+-  // Always rescans and rebuilds the wikilink index. The FlexSearch index is
+-  // rebuilt only when the page set changed (a view with no file change must
+-  // not pay the index build; measured 414 to 551 ms at 418 pages).
++  // Rescans the room and rebuilds the wikilink index. There is no search
++  // index: /api/search walks the room per query through lib/core/room-search.cjs
++  // (quick 261012-u58), the same engine as the room_search MCP tool, limited
++  // to the pages this scan found.
+   function rebuild() {
+     roomData = scanRoom(absRoom);
+     pageIndex = buildPageIndex(roomData.pages);
+-    const signature = pagesSignature(roomData.pages);
+-    if (signature !== indexedSignature) {
+-      rebuildIndex(roomData.pages);
+-      indexedSignature = signature;
+-    }
+   }
+ 
+   // JSON body parsing for chat endpoint
+@@ -142,11 +133,13 @@
+   });
+ 
+   // ── Route: API - Search ──
++  // One lexical door (quick 261012-u58): the room_search engine over the
++  // scanned pages. The body is { tier, results, scanned, walkable, truncated }
++  // plus reason_code and reason when results is empty. It never echoes the
++  // query (test-visible-room-leak checks the body for private sentinels).
+   app.get('/api/search', (req, res) => {
+-    const q = req.query.q || '';
+-    const limit = parseInt(req.query.limit || '20', 10);
+-    const results = search(q, limit);
+-    res.json(results);
++    const out = searchWikiPages(absRoom, roomData.pages, { q: req.query.q, section: req.query.section, limit: req.query.limit });
++    res.status(out.status).json(out.body);
+   });
+ 
+   // ── Route: API - Larry's Briefing (D-06, SPEC Req 4) ──
+@@ -198,8 +191,10 @@
+ 
+   // ── Route: Server-rendered search page (no-JS fallback) ──
+   app.get('/wiki/search', (req, res) => {
+-    const q = req.query.q || '';
+-    const results = q ? search(q, 50) : [];
++    const q = typeof req.query.q === 'string' ? req.query.q : '';
++    const out = q.trim() ? searchWikiPages(absRoom, roomData.pages, { q, section: req.query.section, limit: 50 }) : null;
++    const results = out && out.status === 200 ? out.body.results : [];
++    const emptyText = out && out.status === 200 && out.body.reason ? out.body.reason : (out && out.status !== 200 ? 'That search could not run.' : 'No results found.');
+ 
+     const resultItems = results.map(r =>
+       `<div class="section-card">
+@@ -215,7 +210,7 @@
+         <input type="search" name="q" value="${escHtml(q)}" placeholder="Search room..." style="width:100%;padding:8px 12px;background:var(--surface);color:var(--text);border:1px solid var(--border);font-family:Inter,sans-serif;font-size:15px">
+       </form>
+       ${q ? `<p style="color:var(--text-muted);margin-bottom:16px">${results.length} result${results.length !== 1 ? 's' : ''} for "${escHtml(q)}"</p>` : ''}
+-      ${resultItems || (q ? '<p style="color:var(--text-muted)">No results found.</p>' : '')}
++      ${resultItems || (q ? '<p style="color:var(--text-muted)">' + escHtml(emptyText) + '</p>' : '')}
+     `;
+ 
+     const sidebar = renderSidebar(roomData.sections, null);
+@@ -749,18 +744,80 @@
+ }
+ 
+ /**
+- * Hash of the page set that the search index is built from (id, title and
+- * content of every page). Two scans with an equal signature need no new
+- * FlexSearch index.
+- * @param {Map} pages
+- * @returns {string}
++ * Page id of a room-relative file path: forward slashes, no .md (the id
++ * scanRoom gives the page). A root file keeps its basename.
+  */
+-function pagesSignature(pages) {
+-  const hash = crypto.createHash('sha1');
+-  for (const [id, page] of pages) {
+-    hash.update(id).update('\0').update(String(page.title)).update('\0').update(page.content).update('\0');
++function toPageId(rel) {
++  return rel.split(path.sep).join('/').replace(/\.md$/, '');
++}
++
++// Excerpt window around the first match (the old index used 150 characters).
++const EXCERPT_WINDOW = 160;
++const EXCERPT_LEAD = 60;
++
++function termRegExp(terms, wholeWords) {
++  const list = (terms || []).filter((t) => typeof t === 'string' && t.length > 0)
++    .sort((a, b) => b.length - a.length)
++    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
++  if (list.length === 0) return null;
++  const body = '(?:' + list.join('|') + ')';
++  return new RegExp(wholeWords ? '(?<![\\p{L}\\p{N}])' + body + '(?![\\p{L}\\p{N}])' : body, 'giu');
++}
++
++function excerptFor(row, page, terms, wholeWords) {
++  let text = String(row.snippet);
++  if (text.length >= 200) {
++    try {
++      const full = fs.readFileSync(page.path, 'utf8').split(/\r?\n/)[row.line - 1];
++      if (typeof full === 'string') text = full.trim();
++    } catch (_e) { /* keep the snippet */ }
++  }
++  text = text.replace(/[\u0000\u0001]/g, '');
++  const re = termRegExp(terms, wholeWords);
++  let start = 0;
++  if (re) {
++    const m = re.exec(text);
++    re.lastIndex = 0;
++    if (m) start = Math.max(0, m.index - EXCERPT_LEAD);
++  }
++  const end = Math.min(text.length, start + EXCERPT_WINDOW);
++  const windowText = text.slice(start, end);
++  const marked = re ? windowText.replace(re, '\u0000$&\u0001') : windowText;
++  const html = escHtml(marked).replace(/\u0000/g, '<mark>').replace(/\u0001/g, '</mark>');
++  return (start > 0 ? '...' : '') + html + (end < text.length ? '...' : '');
++}
++
++function searchWikiPages(absRoom, pages, params) {
++  const q = typeof params.q === 'string' ? params.q.trim() : '';
++  if (q.length > 500) return { status: 400, body: { error: 'query_too_long' } };
++  let section = params.section;
++  if (section === undefined || section === '') section = null;
++  if (section !== null && (typeof section !== 'string' || !roomSearch.SECTION_RE.test(section))) {
++    return { status: 400, body: { error: 'invalid_section' } };
++  }
++  const n = parseInt(params.limit, 10);
++  const limit = Number.isInteger(n) && n >= 1 ? Math.min(n, 50) : 20;
++  if (!q) return { status: 200, body: { tier: 'none', results: [], scanned: 0, walkable: 0, truncated: false } };
++  let found;
++  try {
++    found = roomSearch.searchRoomDetailed(absRoom, q, section, { includeFile: (rel) => pages.has(toPageId(rel)), maxPerFile: 1 });
++  } catch (_e) {
++    return { status: 400, body: { error: 'invalid_section' } };
++  }
++  const terms = found.tier === 'phrase' ? [q] : found.words;
++  const results = [];
++  const seen = new Set();
++  for (const row of found.results) {
++    if (results.length >= limit) break;
++    const id = toPageId(row.file);
++    const page = pages.get(id);
++    if (!page || seen.has(id)) continue;
++    seen.add(id);
++    results.push({ id, title: page.title, section: page.section, line: row.line, excerpt: excerptFor(row, page, terms, found.tier !== 'phrase') });
+   }
+-  return hash.digest('hex');
++  const body = { tier: found.tier, results, scanned: found.scanned, walkable: found.walkable, truncated: found.truncated };
++  if (found.results.length === 0) { body.reason_code = found.reason_code; body.reason = found.reason; }
++  return { status: 200, body };
+ }
+ 
+ /**
+@@ -819,4 +876,4 @@
+   startWikiServer(roomDir, port);
+ }
+ 
+-module.exports = { startWikiServer };
++module.exports = { startWikiServer, _internal: { searchWikiPages, excerptFor, toPageId } };
+--- a/lib/wiki/wiki-layout.cjs
++++ b/lib/wiki/wiki-layout.cjs
+@@ -181,12 +181,13 @@
+         timer = setTimeout(function() {
+           fetch('/api/search?q=' + encodeURIComponent(q))
+             .then(function(r) { return r.json(); })
+-            .then(function(results) {
++            .then(function(data) {
++              var results = data && Array.isArray(data.results) ? data.results : [];
+               if (!results.length) {
+-                dropdown.innerHTML = '<div class="search-empty">No results</div>';
++                dropdown.innerHTML = '<div class="search-empty">' + escH(data && data.reason ? data.reason : 'No results') + '</div>';
+               } else {
+                 dropdown.innerHTML = results.map(function(r) {
+-                  return '<a href="/wiki/' + r.id + '" class="search-item">' +
++                  return '<a href="/wiki/' + escH(r.id) + '" class="search-item">' +
+                     '<span class="search-item-title">' + escH(r.title) + '</span>' +
+                     '<span class="search-item-section">' + escH(r.section) + '</span>' +
+                     '<span class="search-item-excerpt">' + r.excerpt + '</span>' +
+@@ -207,7 +208,7 @@
+         if (!e.target.closest('.search-wrapper')) dropdown.style.display = 'none';
+       });
+ 
+-      function escH(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
++      function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+     })();
+ 
+     // ── SSE auto-refresh ──
+--- a/tests/test-visible-room-nested-scan.cjs
++++ b/tests/test-visible-room-nested-scan.cjs
+@@ -17,17 +17,6 @@
+ 
+ const REPO_ROOT = path.resolve(__dirname, '..');
+ 
+-// The signature spy must be installed BEFORE wiki-server.cjs is required:
+-// wiki-server destructures rebuildIndex at require time.
+-const wikiSearch = require(path.join(REPO_ROOT, 'lib', 'wiki', 'wiki-search.cjs'));
+-let rebuildCalls = 0;
+-{
+-  const original = wikiSearch.rebuildIndex;
+-  wikiSearch.rebuildIndex = function countingRebuildIndex(...args) {
+-    rebuildCalls += 1;
+-    return original.apply(this, args);
+-  };
+-}
+ 
+ const pageRenderer = require(path.join(REPO_ROOT, 'lib', 'wiki', 'page-renderer.cjs'));
+ const wikiExport = require(path.join(REPO_ROOT, 'lib', 'wiki', 'wiki-export.cjs'));
+@@ -404,7 +393,7 @@
+ 
+       const search = await httpGet(port, '/api/search?q=zebranestedonly');
+       assert.equal(search.status, 200);
+-      const results = JSON.parse(search.body);
++      const results = JSON.parse(search.body).results;
+       assert.ok(
+         Array.isArray(results) && results.some((r) => r.id === 'research/deep/a/b'),
+         `search must return the nested page; got ${search.body}`
+@@ -414,17 +403,12 @@
+       assert.equal(trav.status, 404, 'encoded traversal on the page route');
+     });
+ 
+-    check('[server] signature: no file change means no FlexSearch rebuild; a change is searchable', async () => {
+-      const before = rebuildCalls;
+-      await httpGet(port, '/wiki/research/flat');
+-      await httpGet(port, '/wiki/research/flat');
+-      assert.equal(rebuildCalls - before, 0, 'two views with no file change must add 0 rebuildIndex calls');
+-
++    check('[server] fresh: a new nested file is searchable after the next scan', async () => {
+       write(room, 'research/deep/a/fresh.md', '# Fresh\nzebrafreshmarker\n');
+       const view = await httpGet(port, '/wiki/research/flat');
+       assert.equal(view.status, 200);
+       const search = await httpGet(port, '/api/search?q=zebrafreshmarker');
+-      const results = JSON.parse(search.body);
++      const results = JSON.parse(search.body).results;
+       assert.ok(
+         Array.isArray(results) && results.some((r) => r.id === 'research/deep/a/fresh'),
+         `search must find the new nested file; got ${search.body}`
