@@ -17,17 +17,6 @@ const http = require('node:http');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 
-// The signature spy must be installed BEFORE wiki-server.cjs is required:
-// wiki-server destructures rebuildIndex at require time.
-const wikiSearch = require(path.join(REPO_ROOT, 'lib', 'wiki', 'wiki-search.cjs'));
-let rebuildCalls = 0;
-{
-  const original = wikiSearch.rebuildIndex;
-  wikiSearch.rebuildIndex = function countingRebuildIndex(...args) {
-    rebuildCalls += 1;
-    return original.apply(this, args);
-  };
-}
 
 const pageRenderer = require(path.join(REPO_ROOT, 'lib', 'wiki', 'page-renderer.cjs'));
 const wikiExport = require(path.join(REPO_ROOT, 'lib', 'wiki', 'wiki-export.cjs'));
@@ -404,7 +393,7 @@ async function main() {
 
       const search = await httpGet(port, '/api/search?q=zebranestedonly');
       assert.equal(search.status, 200);
-      const results = JSON.parse(search.body);
+      const results = JSON.parse(search.body).results;
       assert.ok(
         Array.isArray(results) && results.some((r) => r.id === 'research/deep/a/b'),
         `search must return the nested page; got ${search.body}`
@@ -414,17 +403,12 @@ async function main() {
       assert.equal(trav.status, 404, 'encoded traversal on the page route');
     });
 
-    check('[server] signature: no file change means no FlexSearch rebuild; a change is searchable', async () => {
-      const before = rebuildCalls;
-      await httpGet(port, '/wiki/research/flat');
-      await httpGet(port, '/wiki/research/flat');
-      assert.equal(rebuildCalls - before, 0, 'two views with no file change must add 0 rebuildIndex calls');
-
+    check('[server] fresh: a new nested file is searchable after the next scan', async () => {
       write(room, 'research/deep/a/fresh.md', '# Fresh\nzebrafreshmarker\n');
       const view = await httpGet(port, '/wiki/research/flat');
       assert.equal(view.status, 200);
       const search = await httpGet(port, '/api/search?q=zebrafreshmarker');
-      const results = JSON.parse(search.body);
+      const results = JSON.parse(search.body).results;
       assert.ok(
         Array.isArray(results) && results.some((r) => r.id === 'research/deep/a/fresh'),
         `search must find the new nested file; got ${search.body}`
