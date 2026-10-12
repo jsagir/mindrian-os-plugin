@@ -264,7 +264,7 @@ async function main() {
     // Sanity guard for the bad-frontmatter fixture: gray-matter must throw.
     const matter = require('gray-matter');
     let grayMatterThrows = false;
-    try { matter(BAD_FM_TEXT); } catch (_e) { grayMatterThrows = true; }
+    try { matter(BAD_FM_TEXT, {}); } catch (_e) { grayMatterThrows = true; }
 
     if (!fx.symlinks) console.log('  SKIP - symlink checks (symlink not permitted)');
 
@@ -436,9 +436,13 @@ async function main() {
       const bad = await httpRequest(port, 'POST', '/api/save/research/..%2F..%2Fx', { markdown: 'zx-ri7-bad' });
       assert.equal(bad.status, 404, 'encoded traversal on the save route');
 
+      const nestedFile = path.join(room, 'research', 'name', 'name.md');
+      const original = fs.readFileSync(nestedFile, 'utf8');
       const ok = await httpRequest(port, 'POST', '/api/save/research/name%2Fname', { markdown: 'zx-ri7-saved' });
       assert.equal(ok.status, 200, 'nested save');
-      const onDisk = fs.readFileSync(path.join(room, 'research', 'name', 'name.md'), 'utf8');
+      const onDisk = fs.readFileSync(nestedFile, 'utf8');
+      // Restore the fixture text: the export check below needs its wikilinks.
+      fs.writeFileSync(nestedFile, original, 'utf8');
       assert.ok(onDisk.includes('zx-ri7-saved'), 'the nested file must carry the new body');
     });
 
