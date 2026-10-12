@@ -1,0 +1,279 @@
+{
+  "_note": "Quick 261012-sc0. Every string is synthetic. Source: debug session scripts corpus.cjs and corpus-ext.cjs. The 26 positives are frozen here; the extended set is generated at run time from the shipped catalog.",
+  "positives_26": [
+    {
+      "id": "N1",
+      "q": "which framework tests a business model's riskiest assumption first"
+    },
+    {
+      "id": "N2",
+      "q": "how does the lean canvas relate to the value proposition canvas"
+    },
+    {
+      "id": "N3",
+      "q": "what is the difference between an ill-defined and a wicked problem"
+    },
+    {
+      "id": "N4",
+      "q": "which framework comes after jobs to be done in the PWS sequence"
+    },
+    {
+      "id": "N5",
+      "q": "explain dominant design"
+    },
+    {
+      "id": "N6",
+      "q": "what does customer segment mean in the lean canvas"
+    },
+    {
+      "id": "D1",
+      "q": "explain Adoption-Capacity Theory",
+      "framework_index": 10
+    },
+    {
+      "id": "D2",
+      "q": "when should I use Base-Rate-Check",
+      "framework_index": 30
+    },
+    {
+      "id": "D3",
+      "q": "what is Business Model Canvas and how does it work",
+      "framework_index": 50
+    },
+    {
+      "id": "D4",
+      "q": "which problem type fits Competitive Advantage",
+      "framework_index": 70
+    },
+    {
+      "id": "D5",
+      "q": "explain Creative Destruction",
+      "framework_index": 90
+    },
+    {
+      "id": "D6",
+      "q": "when should I use Deductive Relationship",
+      "framework_index": 110
+    },
+    {
+      "id": "D7",
+      "q": "what is Domain Selection and how does it work",
+      "framework_index": 130
+    },
+    {
+      "id": "D8",
+      "q": "which problem type fits Fishbone Diagrams",
+      "framework_index": 150
+    },
+    {
+      "id": "D9",
+      "q": "explain Harnessing Trends Method",
+      "framework_index": 170
+    },
+    {
+      "id": "D10",
+      "q": "when should I use Innovation Management Framework",
+      "framework_index": 190
+    },
+    {
+      "id": "D11",
+      "q": "what is Knowns and Unknowns Matrix Framework and how does it work",
+      "framework_index": 210
+    },
+    {
+      "id": "D12",
+      "q": "which problem type fits McKinsey Three Horizons",
+      "framework_index": 230
+    },
+    {
+      "id": "D13",
+      "q": "explain OODA Loop",
+      "framework_index": 250
+    },
+    {
+      "id": "D14",
+      "q": "when should I use Problem Taxonomy (Search Gradient)",
+      "framework_index": 270
+    },
+    {
+      "id": "D15",
+      "q": "what is Real Options Reasoning and how does it work",
+      "framework_index": 290
+    },
+    {
+      "id": "D16",
+      "q": "which problem type fits Scientific Method",
+      "framework_index": 310
+    },
+    {
+      "id": "D17",
+      "q": "explain Stock and Flow Diagrams",
+      "framework_index": 330
+    },
+    {
+      "id": "D18",
+      "q": "when should I use Technology Adoption Lifecycle",
+      "framework_index": 350
+    },
+    {
+      "id": "D19",
+      "q": "what is The Three Box Solution and how does it work",
+      "framework_index": 370
+    },
+    {
+      "id": "D20",
+      "q": "which problem type fits Truth-Seeking Groups / Decision Pods",
+      "framework_index": 390
+    }
+  ],
+  "derived_from": {
+    "file": "data/framework-names.json",
+    "snapshot_date": "2026-10-06",
+    "start": 10,
+    "stride": 20
+  },
+  "extended": {
+    "frameworks": {
+      "prefix": "explain ",
+      "includes_curated_extras": true
+    },
+    "commands": {
+      "prefix": "how do I ",
+      "min": 12,
+      "max": 140,
+      "reject_regex": "[\\/`<>@$]|\\d{2,}"
+    },
+    "sections": {
+      "template": "what belongs in a {label} section"
+    }
+  },
+  "negatives": [
+    {
+      "id": "X1",
+      "q": "Orla Venn said her company reached $4.2M revenue last quarter, which framework fits?",
+      "expect_class": "content_set",
+      "expect_token_class": null
+    },
+    {
+      "id": "X2",
+      "q": "our startup pivoted to selling to hospitals, which framework fits that move",
+      "expect_class": "room_content",
+      "expect_token_class": "private_context"
+    },
+    {
+      "id": "X3",
+      "q": "which framework should orla.venn@fennickrobotics.example use for pricing",
+      "expect_class": "content_set",
+      "expect_token_class": null
+    },
+    {
+      "id": "X4",
+      "q": "explain the lean canvas AKIAIOSFODNN7EXAMPLE framework",
+      "expect_class": "room_content",
+      "expect_token_class": "identifier"
+    },
+    {
+      "id": "X5",
+      "q": "Fennick Robotics plans to sell the Thessaly gripper to Harbor Quill Partners after the Tuesday pilot",
+      "expect_class": "content_set",
+      "expect_token_class": null
+    },
+    {
+      "id": "X6",
+      "q": "what framework applies to artifact MOS2026X7 in the pricing section",
+      "expect_class": "room_content",
+      "expect_token_class": "identifier"
+    },
+    {
+      "id": "X7",
+      "q": "this is confidential: which framework tests the riskiest assumption",
+      "expect_class": "room_content",
+      "expect_token_class": "private_context"
+    },
+    {
+      "id": "X8",
+      "q": "which framework helps when the budget is $750K",
+      "expect_class": "content_set",
+      "expect_token_class": null
+    },
+    {
+      "id": "X9",
+      "q": "on 14 March 2026 Fennick Robotics Ltd signed the term sheet, which framework fits",
+      "expect_class": "content_set",
+      "expect_token_class": null
+    },
+    {
+      "id": "X10",
+      "q": "which framework fits my customers and my pricing",
+      "expect_class": "room_content",
+      "expect_token_class": "private_context"
+    }
+  ],
+  "known_leaks": [
+    {
+      "id": "GAP1",
+      "q_parts": [
+        "explain the lean canvas sk-",
+        "ant-api03-AbCdEf0123456789AbCdEf0123456789 framework"
+      ],
+      "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money"
+    },
+    {
+      "id": "GAP2",
+      "q": "which framework helps when the budget is 750000 dollars",
+      "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money"
+    }
+  ],
+  "must_refuse": [
+    {
+      "room": "gate-lexgen",
+      "q": "which framework fits Tamsin Rourke",
+      "token_class": "person"
+    },
+    {
+      "room": "gate-lexgen",
+      "q": "which framework fits Quillfern Labs",
+      "token_class": "room_term"
+    },
+    {
+      "room": "gate-lexgen",
+      "q": "which framework fits Brightmoor Kiln",
+      "token_class": "venture_name"
+    },
+    {
+      "room": "gate-lexgen",
+      "q": "which framework fits Veldmark",
+      "token_class": "room_term"
+    },
+    {
+      "room": "gate-lexgen",
+      "q": "Larkspur depots cut chiller downtime by forty percent after the retrofit",
+      "token_class": "claim"
+    },
+    {
+      "room": "gate-lexgen",
+      "q": "How should I validate the solar cold locker with resellers?",
+      "token_class": "room_term"
+    },
+    {
+      "room": "gate-scaffold",
+      "q": "which framework fits Orvash pilot debrief",
+      "token_class": "room_file"
+    },
+    {
+      "room": "gate-claims",
+      "q": "which framework explains why Orvash kiosks lifted repeat orders in the Belnex pilot",
+      "token_class": "claim"
+    },
+    {
+      "room": "gate-claims",
+      "q": "Higher Nexmoor deposit fees cause fewer Brightspur returns within ninety days",
+      "token_class": "claim"
+    },
+    {
+      "room": "gate-segment",
+      "q": "what does customer segment mean in the lean canvas",
+      "token_class": "room_term"
+    }
+  ]
+}
