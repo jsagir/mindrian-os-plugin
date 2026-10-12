@@ -35,7 +35,7 @@
 // Node built-in test runner + assert only. No em-dashes. CJS only.
 'use strict';
 
-const { test } = require('node:test');
+const { test: nodeTest } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -58,6 +58,19 @@ const hasAuditApi = typeof audit.auditHookScripts === 'function'
 if (!hasAuditApi) {
   console.log('SKIP: test-198-adapter-budget -- hook-adapter-audit.cjs present but audit API not exported yet.');
   process.exit(0);
+}
+
+// Count the subtests so the summary line at the bottom reports real numbers.
+// A subtest counts as passed only when its body resolves. Every test(...) call
+// site below stays as written; this wrapper hands the body to node:test.
+let declared = 0;
+let passed = 0;
+function test(name, fn) {
+  declared += 1;
+  return nodeTest(name, async (t) => {
+    await fn(t);
+    passed += 1;
+  });
 }
 
 const EXPECTED_MIGRATED_SURFACES = [
@@ -348,13 +361,21 @@ test(
 
 // node:test sets the process exit code from its own pass/fail tally (verified
 // live: exit 0 when every subtest above passes, exit 1 the moment one does
-// not) -- tests/run-all-198.sh's run() checks that exit code directly, not
-// this text. The line below is a human-readable summary only, printed
-// unconditionally as the LAST line of a successful synchronous run (D-06:
-// import-audit + line-count budget: real tree green, comment-strip proven,
-// guard fires on a real violation, lib/mcp/* plumbing exempted, budget fails
-// closed on an unbudgeted or oversized surface; Phase 198-09: on-stop's
-// flag-ON branch audit green, hooks.json Stop marker present, the
-// 2026-07-03 irrelevant-gate replay returns fire:false, gate-dedup fire-once
-// proven end to end through handleStopEvent).
-console.log('PASS: test-198-adapter-budget (17 assertions -- see TAP output above for the per-check trace)');
+// not) -- tests/run-all-198.sh and tests/run-all-366.sh check that exit code
+// directly, not this text. The exit code is the verdict. The line below is a
+// human-readable summary, printed after the run from the same exit code, and
+// the count comes from the run, not from a literal. Quick 261012-rey replaced
+// the earlier line, which printed PASS first (at module load, before any test
+// ran) and claimed 17 assertions against 15 tests. fs.writeSync is used
+// because console.log in an exit handler can drop the line on a pipe.
+process.on('exit', (code) => {
+  const ok = code === 0 && passed === declared;
+  const line = ok
+    ? 'PASS: test-198-adapter-budget (' + passed + ' of ' + declared + ' tests passed)'
+    : 'FAIL: test-198-adapter-budget (' + passed + ' of ' + declared + ' tests passed, exit ' + code + ')';
+  try {
+    fs.writeSync(1, line + '\n');
+  } catch (_e) {
+    // stdout closed; the exit code still carries the verdict
+  }
+});
