@@ -7,7 +7,8 @@
 //   - a question with no usable words, or no matching words, or too few
 //     matching words, returns an empty result with a reason code;
 //   - the word tier never follows a symlink, never reads outside the room,
-//     never reads past the 500-file walk bound, and reads html as text;
+//     reads every file of a 501-file room (5,000-file bound, quick 261012-rxc),
+//     and reads html as text;
 //   - the tool envelope carries tier, words and reason fields.
 //
 // RED state: before the word tier exists, the exports are missing and this
@@ -163,8 +164,8 @@ async function main() {
   const inb = searchRoomDetailed(B, 'Where is zzinbound with zzinother?', null);
   check('word in file 500 is found', inb.results.some((r) => r.file === 'f-499.md'));
   const pastb = searchRoomDetailed(B, 'Where is zzpastbound with zzpastother?', null);
-  check('word in file 501 is not found', pastb.results.length === 0);
-  check('word in file 501: no_match', pastb.reason_code === 'no_match');
+  check('word in file 501 is found (quick 261012-rxc reads every file up to 5,000)', pastb.results.some((r) => r.file === 'f-500.md'));
+  check('501-file room: scanned 501, walkable 501, truncated false', pastb.scanned === 501 && pastb.walkable === 501 && pastb.truncated === false);
 
   // --- HTML ------------------------------------------------------------------
   const htm = searchRoomDetailed(R, 'Which census counted kestrel nests near the quarry?', null);
