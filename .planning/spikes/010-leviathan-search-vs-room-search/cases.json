@@ -1,0 +1,12 @@
+[
+{"id":1,"target":"research/2026-09-23-algorithm-rd-briefing-mirror/06-brain.md","nl":"Which layers of the Brain knowledge graph did the algorithm R&D briefing rate as absent?","kw":"CrossDomainInnovation"},
+{"id":2,"target":"research/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md","nl":"Should we retire the Python LSA pipeline, and what k did we plan for reciprocal rank fusion?","kw":"RRF fusion"},
+{"id":3,"target":"research/2026-07-30-phase-244-semantic-trigger-tier/2026-07-30-phase-244-semantic-trigger-tier.md","nl":"How does the trigger sensor judge relevance from a corpus instead of a hardcoded word list?","kw":"semantic trigger"},
+{"id":4,"target":"research/2026-10-03-scientific-roadmap-364-close-out.md","nl":"Why does the scientific roadmap command say Theo has not authored the step yet?","kw":"scientific roadmap"},
+{"id":5,"target":"research/2026-07-05-cross-domain-ratification-analogies/2026-07-05-cross-domain-ratification-analogies.md","nl":"What analogies from other fields explain the gap between a converged verdict and scheduled work?","kw":"ratification gap"},
+{"id":6,"target":"research/2026-07-11-card-fire-backstop-hardening/README.md","nl":"What was the third defect found in the Stop-hook card-fire check that flagged numbered lists?","kw":"card-fire backstop"},
+{"id":7,"target":"research/2026-08-27-capability-radar-265/2026-08-27-capability-radar-265.md","nl":"Did any of the five PWS engines actually spawn a Claude Code subagent?","kw":"capability radar"},
+{"id":8,"target":"research/2026-09-07-harness-manifest-v2-design-trail.md","nl":"What is the reasoning behind the second version of the harness manifest?","kw":"harness manifest"},
+{"id":9,"target":"research/2026-07-05-eureka-critic-brain-mcp-plan/agent-05-stateless-critic-mcp-pattern.md","nl":"Is sending only scalars and enums to a remote judge a recognized privacy pattern?","kw":"stateless critic"},
+{"id":10,"target":"research/2026-07-07-fable-max-pack/local-embedding-spine/local-embedding-spine.md","nl":"Which algorithms are in the local embedding spine inventory?","kw":"embedding spine"}
+]

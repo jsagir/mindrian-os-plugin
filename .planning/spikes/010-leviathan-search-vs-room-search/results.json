@@ -1,0 +1,1375 @@
+{
+ "ran": "2026-10-12T11:28:43.971Z",
+ "room": "rethinking-mindrianos (424 md)",
+ "summary": {
+  "nl/room_search": {
+   "top1": 0,
+   "top5": 0,
+   "zeroHit": 10,
+   "medTokens": 1,
+   "medMs": 45.6,
+   "of": 10
+  },
+  "nl/flexsearch": {
+   "top1": 1,
+   "top5": 1,
+   "zeroHit": 8,
+   "medTokens": 1,
+   "medMs": 0.1,
+   "of": 10
+  },
+  "nl/leviathan": {
+   "top1": 10,
+   "top5": 10,
+   "zeroHit": 0,
+   "medTokens": 689,
+   "medMs": 17.8,
+   "of": 10
+  },
+  "kw/room_search": {
+   "top1": 4,
+   "top5": 7,
+   "zeroHit": 2,
+   "medTokens": 458,
+   "medMs": 58.4,
+   "of": 10
+  },
+  "kw/flexsearch": {
+   "top1": 1,
+   "top5": 2,
+   "zeroHit": 3,
+   "medTokens": 189,
+   "medMs": 0.1,
+   "of": 10
+  },
+  "kw/leviathan": {
+   "top1": 6,
+   "top5": 8,
+   "zeroHit": 0,
+   "medTokens": 599,
+   "medMs": 11.4,
+   "of": 10
+  }
+ },
+ "rows": [
+  {
+   "case": 1,
+   "form": "nl",
+   "q": "Which layers of the Brain knowledge graph did the algorithm R&D briefing rate as absent?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 45.6,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0.1,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 302,
+    "tokens": 613,
+    "ms": 12.2,
+    "top": [
+     "research/2026-09-23-algorithm-rd-briefing-mirror/06-brain.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/ROOM.md",
+     "research/2026-07-07-fable-max-pack/INTENTIONS-MAP.md",
+     "research/2026-09-23-engine-intent-opportunity-review-and-pws-author-ruling.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/09-impl.md"
+    ]
+   }
+  },
+  {
+   "case": 1,
+   "form": "kw",
+   "q": "CrossDomainInnovation",
+   "room_search": {
+    "rank": 1,
+    "n": 6,
+    "tokens": 458,
+    "ms": 43.3,
+    "top": [
+     "research/2026-09-23-algorithm-rd-briefing-mirror/06-brain.md",
+     "research/2026-09-23-theo-handoff-phase-355-seams.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/09-impl.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/ROOM.md",
+     "solution-design/2026-07-05-rebuild-vs-surgery/02-moat-embedding-audit.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 6,
+    "tokens": 449,
+    "ms": 8.4,
+    "top": [
+     "research/2026-09-23-algorithm-rd-briefing-mirror/06-brain.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/ROOM.md",
+     "research/2026-09-23-theo-handoff-phase-355-seams.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/09-impl.md",
+     "research/2026-07-05-rebuild-vs-surgery/02-moat-embedding-audit.md"
+    ]
+   }
+  },
+  {
+   "case": 2,
+   "form": "nl",
+   "q": "Should we retire the Python LSA pipeline, and what k did we plan for reciprocal rank fusion?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 38.1,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0.4,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 277,
+    "tokens": 696,
+    "ms": 18.9,
+    "top": [
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "research/2026-07-05-rebuild-vs-surgery/02-moat-embedding-audit.md"
+    ]
+   }
+  },
+  {
+   "case": 2,
+   "form": "kw",
+   "q": "RRF fusion",
+   "room_search": {
+    "rank": 2,
+    "n": 14,
+    "tokens": 1696,
+    "ms": 46.4,
+    "top": [
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "research/2026-07-07-fable-max-pack/p215-portfolio-fusion/p215-portfolio-fusion.md",
+     "research/2026-07-07-fable-max-pack/local-embedding-spine/local-embedding-spine.md",
+     "research/2026-07-07-fable-max-pack/00-mining/embedding-audit.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 1,
+    "tokens": 89,
+    "ms": 0.1,
+    "top": [
+     "research/2026-09-08-techniques-modern-ai-systems-revised-capture.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 55,
+    "tokens": 691,
+    "ms": 11.4,
+    "top": [
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/agent-03-fusion-lsa-retirement.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "research/2026-07-07-fable-max-pack/p215-portfolio-fusion/p215-portfolio-fusion.md"
+    ]
+   }
+  },
+  {
+   "case": 3,
+   "form": "nl",
+   "q": "How does the trigger sensor judge relevance from a corpus instead of a hardcoded word list?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 41.8,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 262,
+    "tokens": 702,
+    "ms": 11,
+    "top": [
+     "research/2026-07-30-phase-244-semantic-trigger-tier/2026-07-30-phase-244-semantic-trigger-tier.md",
+     "research/2026-07-31-dial-rethink-decoupled-from-sensor-bank/2026-07-31-dial-rethink-decoupled-from-sensor-bank.md",
+     "research/2026-07-07-fable-max-pack/opportunity-harvest-formula/opportunity-harvest-formula.md",
+     "research/2026-07-07-fable-max-pack/local-embedding-spine/local-embedding-spine.md",
+     "research/2026-07-07-fable-max-pack/00-mining/eureka-spine.md"
+    ]
+   }
+  },
+  {
+   "case": 3,
+   "form": "kw",
+   "q": "semantic trigger",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 74.4,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 5,
+    "tokens": 486,
+    "ms": 0.5,
+    "top": [
+     "research/2026-09-23-origin-concept-algorithmic-generation-of-rs-solutions.md",
+     "research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md",
+     "research/2026-09-08-techniques-modern-ai-systems-revised-capture.md",
+     "research/2026-09-05-canon-currency-audit-340.md",
+     "research/2026-09-11-plugin-landings-axz-ddd.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 3,
+    "n": 175,
+    "tokens": 654,
+    "ms": 21.3,
+    "top": [
+     "research/2026-09-07-theo-mcp-investigation-three-threads-ratified.md",
+     "research/2026-07-07-fable-max-pack/p215-portfolio-fusion/p215-portfolio-fusion.md",
+     "research/2026-07-30-phase-244-semantic-trigger-tier/2026-07-30-phase-244-semantic-trigger-tier.md",
+     "research/2026-09-11-plugin-landings-axz-ddd.md",
+     "research/2026-07-31-dial-rethink-decoupled-from-sensor-bank/2026-07-31-dial-rethink-decoupled-from-sensor-bank.md"
+    ]
+   }
+  },
+  {
+   "case": 4,
+   "form": "nl",
+   "q": "Why does the scientific roadmap command say Theo has not authored the step yet?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 109.7,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": 1,
+    "n": 1,
+    "tokens": 104,
+    "ms": 0.1,
+    "top": [
+     "research/2026-10-03-scientific-roadmap-364-close-out.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 362,
+    "tokens": 702,
+    "ms": 18.7,
+    "top": [
+     "research/2026-10-03-scientific-roadmap-364-close-out.md",
+     "research/2026-10-01-deep-research-planner-363-close-out.md",
+     "research/2026-08-23-scientific-roadmapping-orchestrator/2026-08-23-scientific-roadmapping-orchestrator.md",
+     "research/2026-09-29-deep-research-planner-oss-learnings-and-pws-question-agents.md",
+     "research/2026-08-25-command-framework-sync-drift-detection-and-graph-orchestrator/2026-08-25-command-framework-sync-drift-detection-and-graph-orchestrator.md"
+    ]
+   }
+  },
+  {
+   "case": 4,
+   "form": "kw",
+   "q": "scientific roadmap",
+   "room_search": {
+    "rank": 1,
+    "n": 4,
+    "tokens": 942,
+    "ms": 89.7,
+    "top": [
+     "research/2026-10-03-scientific-roadmap-364-close-out.md",
+     "research/2026-08-23-scientific-roadmapping-orchestrator/2026-08-23-scientific-roadmapping-orchestrator.md",
+     "research/2026-10-01-deep-research-planner-363-close-out.md",
+     "research/2026-09-29-deep-research-planner-oss-learnings-and-pws-question-agents.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": 1,
+    "n": 3,
+    "tokens": 333,
+    "ms": 0.1,
+    "top": [
+     "research/2026-10-03-scientific-roadmap-364-close-out.md",
+     "research/2026-10-01-deep-research-planner-363-close-out.md",
+     "research/2026-09-29-deep-research-planner-oss-learnings-and-pws-question-agents.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 104,
+    "tokens": 626,
+    "ms": 13.3,
+    "top": [
+     "research/2026-10-03-scientific-roadmap-364-close-out.md",
+     "research/2026-08-23-scientific-roadmapping-orchestrator/2026-08-23-scientific-roadmapping-orchestrator.md",
+     "research/2026-10-01-deep-research-planner-363-close-out.md",
+     "research/2026-09-29-deep-research-planner-oss-learnings-and-pws-question-agents.md",
+     "research/2026-09-23-algorithm-rd-briefing-mirror/03-tier1.md"
+    ]
+   }
+  },
+  {
+   "case": 5,
+   "form": "nl",
+   "q": "What analogies from other fields explain the gap between a converged verdict and scheduled work?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 77.4,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0.1,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 301,
+    "tokens": 689,
+    "ms": 10.9,
+    "top": [
+     "research/2026-07-05-cross-domain-ratification-analogies/2026-07-05-cross-domain-ratification-analogies.md",
+     "solution-design/2026-07-05-cross-domain-ratification-analogies/2026-07-05-cross-domain-ratification-analogies.md",
+     "research/2026-07-05-reverse-salient-ratification-gap/2026-07-05-reverse-salient-ratification-gap.md",
+     "solution-design/2026-07-05-reverse-salient-ratification-gap/2026-07-05-reverse-salient-ratification-gap.md",
+     "research/2026-07-05-cross-domain-ratification-analogies/ROOM.md"
+    ]
+   }
+  },
+  {
+   "case": 5,
+   "form": "kw",
+   "q": "ratification gap",
+   "room_search": {
+    "rank": 5,
+    "n": 13,
+    "tokens": 1883,
+    "ms": 58.4,
+    "top": [
+     "solution-design/2026-07-05-reverse-salient-ratification-gap/2026-07-05-reverse-salient-ratification-gap.md",
+     "solution-design/2026-07-05-cross-domain-ratification-analogies/2026-07-05-cross-domain-ratification-analogies.md",
+     "solution-design/2026-07-05-cross-domain-ratification-analogies/ROOM.md",
+     "research/2026-07-05-cross-domain-ratification-analogies/ROOM.md",
+     "research/2026-07-05-cross-domain-ratification-analogies/2026-07-05-cross-domain-ratification-analogies.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 5,
+    "tokens": 495,
+    "ms": 0.2,
+    "top": [
+     "solution-design/MINTO.md",
+     "research/2026-09-07-resume-mindrian-workroom-seed-091.md",
+     "research/2026-09-07-theo-mcp-investigation-three-threads-ratified.md",
+     "research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md",
+     "research/2026-10-04-phase-369-ui-shell-close-out.md"
+    ]
+   },
+   "leviathan": {
+    "rank": null,
+    "n": 242,
+    "tokens": 588,
+    "ms": 8.4,
+    "top": [
+     "solution-design/MINTO.md",
+     "research/2026-07-05-statusline-ratification-cue/2026-07-05-statusline-ratification-cue.md",
+     "solution-design/2026-07-05-statusline-ratification-cue/2026-07-05-statusline-ratification-cue.md",
+     "research/2026-07-05-statusline-ratification-cue/ROOM.md",
+     "solution-design/2026-07-05-statusline-ratification-cue/ROOM.md"
+    ]
+   }
+  },
+  {
+   "case": 6,
+   "form": "nl",
+   "q": "What was the third defect found in the Stop-hook card-fire check that flagged numbered lists?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 42.3,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0.2,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 282,
+    "tokens": 666,
+    "ms": 11.9,
+    "top": [
+     "research/2026-07-11-card-fire-backstop-hardening/README.md",
+     "research/2026-07-17-phase-230-skill-fleet-optimization/2026-07-17-phase-230-skill-fleet-optimization.md",
+     "research/2026-07-22-room-bind-no-session-id-and-monday-class-qa/2026-07-22-room-bind-no-session-id-and-monday-class-qa.md",
+     "research/2026-07-07-fable-max-pack/00-mining/intentions-surfaces.md",
+     "research/2026-09-23-larry-extended-x-jev-gate-triad-replay.md"
+    ]
+   }
+  },
+  {
+   "case": 6,
+   "form": "kw",
+   "q": "card-fire backstop",
+   "room_search": {
+    "rank": 1,
+    "n": 1,
+    "tokens": 46,
+    "ms": 39.8,
+    "top": [
+     "research/2026-07-11-card-fire-backstop-hardening/README.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 26,
+    "tokens": 545,
+    "ms": 6.1,
+    "top": [
+     "research/2026-07-11-card-fire-backstop-hardening/README.md",
+     "research/2026-07-11-card-fire-backstop-hardening/ROOM.md",
+     "research/2026-07-11-card-fire-backstop-hardening/MINTO.md",
+     "research/2026-07-14-academy-tester-qa-silent-skip-false-success/2026-07-14-academy-tester-qa-silent-skip-false-success.md",
+     "research/2026-07-17-phase-230-skill-fleet-optimization/2026-07-17-phase-230-skill-fleet-optimization.md"
+    ]
+   }
+  },
+  {
+   "case": 7,
+   "form": "nl",
+   "q": "Did any of the five PWS engines actually spawn a Claude Code subagent?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 36,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0.2,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 291,
+    "tokens": 731,
+    "ms": 30.6,
+    "top": [
+     "research/2026-08-27-capability-radar-265/2026-08-27-capability-radar-265.md",
+     "research/2026-08-27-capability-radar-265-second-pass/2026-08-27-capability-radar-265-second-pass.md",
+     "research/2026-09-27-ambient-trigger-room-starts-the-run.md",
+     "research/2026-07-07-fable-max-pack/intelligence-conductor/intelligence-conductor.md",
+     "research/2026-09-23-hidden-in-plain-sight-jev-through-theo-design.md"
+    ]
+   }
+  },
+  {
+   "case": 7,
+   "form": "kw",
+   "q": "capability radar",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 102.5,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 120,
+    "tokens": 599,
+    "ms": 29.7,
+    "top": [
+     "research/2026-08-27-capability-radar-265/2026-08-27-capability-radar-265.md",
+     "research/2026-08-27-capability-radar-265-second-pass/2026-08-27-capability-radar-265-second-pass.md",
+     "research/2026-08-27-bare-plugin-path-resolution/2026-08-27-bare-plugin-path-resolution.md",
+     "research/2026-10-02-UI-UX-PRIOR-ART-INVENTORY.md",
+     "research/2026-07-08-fable-wave2-room-rethink/capability-registration/capability-registration.md"
+    ]
+   }
+  },
+  {
+   "case": 8,
+   "form": "nl",
+   "q": "What is the reasoning behind the second version of the harness manifest?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 77,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 1,
+    "tokens": 89,
+    "ms": 0.2,
+    "top": [
+     "research/2026-09-08-techniques-modern-ai-systems-revised-capture.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 253,
+    "tokens": 672,
+    "ms": 17.8,
+    "top": [
+     "research/2026-09-07-harness-manifest-v2-design-trail.md",
+     "research/ROOM.md",
+     "research/2026-09-06-worktree-version-contamination.md",
+     "research/2026-07-07-fable-max-pack/00-mining/intentions-brain-mcp-graph.md",
+     "research/2026-07-05-architectural-mandates-m-series/2026-07-05-architectural-mandates-m-series.md"
+    ]
+   }
+  },
+  {
+   "case": 8,
+   "form": "kw",
+   "q": "harness manifest",
+   "room_search": {
+    "rank": 1,
+    "n": 3,
+    "tokens": 287,
+    "ms": 57.5,
+    "top": [
+     "research/2026-09-07-harness-manifest-v2-design-trail.md",
+     "research/ROOM.md",
+     "research/2026-07-07-fable-max-pack/INTENTIONS-MAP.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": 2,
+    "n": 5,
+    "tokens": 483,
+    "ms": 0.3,
+    "top": [
+     "research/2026-09-06-worktree-version-contamination.md",
+     "research/2026-09-07-harness-manifest-v2-design-trail.md",
+     "research/2026-09-08-techniques-modern-ai-systems-revised-capture.md",
+     "research/2026-10-04-phase-369.1-desktop-plugin-install-close-out.md",
+     "research/ROOM.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 72,
+    "tokens": 562,
+    "ms": 14.6,
+    "top": [
+     "research/2026-09-07-harness-manifest-v2-design-trail.md",
+     "research/ROOM.md",
+     "research/2026-07-07-fable-max-pack/00-mining/intentions-brain-mcp-graph.md",
+     "research/2026-09-06-worktree-version-contamination.md",
+     "research/2026-09-23-larry-extended-x-jev-gate-triad-replay.md"
+    ]
+   }
+  },
+  {
+   "case": 9,
+   "form": "nl",
+   "q": "Is sending only scalars and enums to a remote judge a recognized privacy pattern?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 68.1,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 278,
+    "tokens": 677,
+    "ms": 24.5,
+    "top": [
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/agent-05-stateless-critic-mcp-pattern.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/agent-05-stateless-critic-mcp-pattern.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md",
+     "research/2026-07-07-fable-max-pack/00-mining/prior-art-digest.md"
+    ]
+   }
+  },
+  {
+   "case": 9,
+   "form": "kw",
+   "q": "stateless critic",
+   "room_search": {
+    "rank": null,
+    "n": 1,
+    "tokens": 58,
+    "ms": 61.7,
+    "top": [
+     "solution-design/MINTO.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 2,
+    "tokens": 189,
+    "ms": 0,
+    "top": [
+     "solution-design/MINTO.md",
+     "research/2026-09-23-hidden-in-plain-sight-jev-through-theo-design.md"
+    ]
+   },
+   "leviathan": {
+    "rank": 2,
+    "n": 123,
+    "tokens": 689,
+    "ms": 10.1,
+    "top": [
+     "solution-design/MINTO.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/agent-05-stateless-critic-mcp-pattern.md",
+     "solution-design/2026-07-05-eureka-critic-brain-mcp-plan/agent-05-stateless-critic-mcp-pattern.md",
+     "research/2026-09-23-algorithm-engines-external-service-rethink.md",
+     "research/2026-07-05-eureka-critic-brain-mcp-plan/2026-07-05-eureka-technical-diligence.md"
+    ]
+   }
+  },
+  {
+   "case": 10,
+   "form": "nl",
+   "q": "Which algorithms are in the local embedding spine inventory?",
+   "room_search": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 42,
+    "top": []
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 0,
+    "tokens": 1,
+    "ms": 0,
+    "top": []
+   },
+   "leviathan": {
+    "rank": 1,
+    "n": 240,
+    "tokens": 638,
+    "ms": 12.9,
+    "top": [
+     "research/2026-07-07-fable-max-pack/local-embedding-spine/local-embedding-spine.md",
+     "research/2026-07-05-rebuild-vs-surgery/ROOM.md",
+     "solution-design/2026-07-05-rebuild-vs-surgery/ROOM.md",
+     "research/2026-07-07-fable-max-pack/EXECUTION-PLAYBOOK.md",
+     "research/2026-09-23-algorithm-engines-external-service-rethink.md"
+    ]
+   }
+  },
+  {
+   "case": 10,
+   "form": "kw",
+   "q": "embedding spine",
+   "room_search": {
+    "rank": 4,
+    "n": 11,
+    "tokens": 1423,
+    "ms": 41.1,
+    "top": [
+     "research/2026-07-07-fable-max-pack/seed-graph-derive-drain-heal/seed-graph-derive-drain-heal.md",
+     "research/2026-07-07-fable-max-pack/EXECUTION-PLAYBOOK.md",
+     "research/2026-07-07-fable-max-pack/seed-meeting-dikw-v2/seed-meeting-dikw-v2.md",
+     "research/2026-07-07-fable-max-pack/local-embedding-spine/local-embedding-spine.md",
+     "research/2026-07-07-fable-max-pack/BRAIN-EQUIPPING-RUNBOOK.md"
+    ]
+   },
+   "flexsearch": {
+    "rank": null,
+    "n": 1,
+    "tokens": 65,
+    "ms": 0,
+    "top": [
+     "research/MINTO.md"
+    ]
+   },
+   "leviathan": {
+    "rank": null,
+    "n": 159,
+    "tokens": 598,
+    "ms": 9.3,
+    "top": [
+     "research/2026-07-07-fable-max-pack/00-mining/embedding-audit.md",
+     "research/2026-07-07-fable-max-pack/local-embedding-spine/ROOM.md",
+     "research/2026-07-05-rebuild-vs-surgery/04-synthesis-rebuild-vs-surgery.md",
+     "solution-design/2026-07-05-rebuild-vs-surgery/04-synthesis-rebuild-vs-surgery.md",
+     "research/2026-09-03-rs-pipeline-vector-repoint-and-expert-degrade/2026-09-03-rs-pipeline-vector-repoint-and-expert-degrade.md"
+    ]
+   }
+  }
+ ],
+ "events": [
+  {
+   "ts": "2026-10-12T11:28:39.396Z",
+   "label": "flex-build",
+   "ms": 217.617831,
+   "pages": 61,
+   "sampleKey": "funding/BRAIN"
+  },
+  {
+   "ts": "2026-10-12T11:28:39.538Z",
+   "label": "query",
+   "case": 1,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 45.6
+  },
+  {
+   "ts": "2026-10-12T11:28:39.539Z",
+   "label": "query",
+   "case": 1,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0.1
+  },
+  {
+   "ts": "2026-10-12T11:28:39.576Z",
+   "label": "query",
+   "case": 1,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 613,
+   "ms": 12.2
+  },
+  {
+   "ts": "2026-10-12T11:28:39.704Z",
+   "label": "query",
+   "case": 1,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 1,
+   "tokens": 458,
+   "ms": 43.3
+  },
+  {
+   "ts": "2026-10-12T11:28:39.704Z",
+   "label": "query",
+   "case": 1,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:39.730Z",
+   "label": "query",
+   "case": 1,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 449,
+   "ms": 8.4
+  },
+  {
+   "ts": "2026-10-12T11:28:39.855Z",
+   "label": "query",
+   "case": 2,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 38.1
+  },
+  {
+   "ts": "2026-10-12T11:28:39.856Z",
+   "label": "query",
+   "case": 2,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0.4
+  },
+  {
+   "ts": "2026-10-12T11:28:39.910Z",
+   "label": "query",
+   "case": 2,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 696,
+   "ms": 18.9
+  },
+  {
+   "ts": "2026-10-12T11:28:40.057Z",
+   "label": "query",
+   "case": 2,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 2,
+   "tokens": 1696,
+   "ms": 46.4
+  },
+  {
+   "ts": "2026-10-12T11:28:40.059Z",
+   "label": "query",
+   "case": 2,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 89,
+   "ms": 0.1
+  },
+  {
+   "ts": "2026-10-12T11:28:40.092Z",
+   "label": "query",
+   "case": 2,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 691,
+   "ms": 11.4
+  },
+  {
+   "ts": "2026-10-12T11:28:40.216Z",
+   "label": "query",
+   "case": 3,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 41.8
+  },
+  {
+   "ts": "2026-10-12T11:28:40.216Z",
+   "label": "query",
+   "case": 3,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:40.251Z",
+   "label": "query",
+   "case": 3,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 702,
+   "ms": 11
+  },
+  {
+   "ts": "2026-10-12T11:28:40.453Z",
+   "label": "query",
+   "case": 3,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 74.4
+  },
+  {
+   "ts": "2026-10-12T11:28:40.455Z",
+   "label": "query",
+   "case": 3,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 486,
+   "ms": 0.5
+  },
+  {
+   "ts": "2026-10-12T11:28:40.519Z",
+   "label": "query",
+   "case": 3,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 3,
+   "tokens": 654,
+   "ms": 21.3
+  },
+  {
+   "ts": "2026-10-12T11:28:40.810Z",
+   "label": "query",
+   "case": 4,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 109.7
+  },
+  {
+   "ts": "2026-10-12T11:28:40.811Z",
+   "label": "query",
+   "case": 4,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": 1,
+   "tokens": 104,
+   "ms": 0.1
+  },
+  {
+   "ts": "2026-10-12T11:28:40.865Z",
+   "label": "query",
+   "case": 4,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 702,
+   "ms": 18.7
+  },
+  {
+   "ts": "2026-10-12T11:28:41.126Z",
+   "label": "query",
+   "case": 4,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 1,
+   "tokens": 942,
+   "ms": 89.7
+  },
+  {
+   "ts": "2026-10-12T11:28:41.127Z",
+   "label": "query",
+   "case": 4,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": 1,
+   "tokens": 333,
+   "ms": 0.1
+  },
+  {
+   "ts": "2026-10-12T11:28:41.169Z",
+   "label": "query",
+   "case": 4,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 626,
+   "ms": 13.3
+  },
+  {
+   "ts": "2026-10-12T11:28:41.412Z",
+   "label": "query",
+   "case": 5,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 77.4
+  },
+  {
+   "ts": "2026-10-12T11:28:41.413Z",
+   "label": "query",
+   "case": 5,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0.1
+  },
+  {
+   "ts": "2026-10-12T11:28:41.452Z",
+   "label": "query",
+   "case": 5,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 689,
+   "ms": 10.9
+  },
+  {
+   "ts": "2026-10-12T11:28:41.621Z",
+   "label": "query",
+   "case": 5,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 5,
+   "tokens": 1883,
+   "ms": 58.4
+  },
+  {
+   "ts": "2026-10-12T11:28:41.622Z",
+   "label": "query",
+   "case": 5,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 495,
+   "ms": 0.2
+  },
+  {
+   "ts": "2026-10-12T11:28:41.653Z",
+   "label": "query",
+   "case": 5,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": null,
+   "tokens": 588,
+   "ms": 8.4
+  },
+  {
+   "ts": "2026-10-12T11:28:41.782Z",
+   "label": "query",
+   "case": 6,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 42.3
+  },
+  {
+   "ts": "2026-10-12T11:28:41.784Z",
+   "label": "query",
+   "case": 6,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0.2
+  },
+  {
+   "ts": "2026-10-12T11:28:41.819Z",
+   "label": "query",
+   "case": 6,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 666,
+   "ms": 11.9
+  },
+  {
+   "ts": "2026-10-12T11:28:41.950Z",
+   "label": "query",
+   "case": 6,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 1,
+   "tokens": 46,
+   "ms": 39.8
+  },
+  {
+   "ts": "2026-10-12T11:28:41.950Z",
+   "label": "query",
+   "case": 6,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:41.969Z",
+   "label": "query",
+   "case": 6,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 545,
+   "ms": 6.1
+  },
+  {
+   "ts": "2026-10-12T11:28:42.111Z",
+   "label": "query",
+   "case": 7,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 36
+  },
+  {
+   "ts": "2026-10-12T11:28:42.111Z",
+   "label": "query",
+   "case": 7,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0.2
+  },
+  {
+   "ts": "2026-10-12T11:28:42.199Z",
+   "label": "query",
+   "case": 7,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 731,
+   "ms": 30.6
+  },
+  {
+   "ts": "2026-10-12T11:28:42.533Z",
+   "label": "query",
+   "case": 7,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 102.5
+  },
+  {
+   "ts": "2026-10-12T11:28:42.533Z",
+   "label": "query",
+   "case": 7,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:42.622Z",
+   "label": "query",
+   "case": 7,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 599,
+   "ms": 29.7
+  },
+  {
+   "ts": "2026-10-12T11:28:42.853Z",
+   "label": "query",
+   "case": 8,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 77
+  },
+  {
+   "ts": "2026-10-12T11:28:42.855Z",
+   "label": "query",
+   "case": 8,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 89,
+   "ms": 0.2
+  },
+  {
+   "ts": "2026-10-12T11:28:42.910Z",
+   "label": "query",
+   "case": 8,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 672,
+   "ms": 17.8
+  },
+  {
+   "ts": "2026-10-12T11:28:43.108Z",
+   "label": "query",
+   "case": 8,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 1,
+   "tokens": 287,
+   "ms": 57.5
+  },
+  {
+   "ts": "2026-10-12T11:28:43.109Z",
+   "label": "query",
+   "case": 8,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": 2,
+   "tokens": 483,
+   "ms": 0.3
+  },
+  {
+   "ts": "2026-10-12T11:28:43.156Z",
+   "label": "query",
+   "case": 8,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 562,
+   "ms": 14.6
+  },
+  {
+   "ts": "2026-10-12T11:28:43.369Z",
+   "label": "query",
+   "case": 9,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 68.1
+  },
+  {
+   "ts": "2026-10-12T11:28:43.369Z",
+   "label": "query",
+   "case": 9,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:43.447Z",
+   "label": "query",
+   "case": 9,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 677,
+   "ms": 24.5
+  },
+  {
+   "ts": "2026-10-12T11:28:43.631Z",
+   "label": "query",
+   "case": 9,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 58,
+   "ms": 61.7
+  },
+  {
+   "ts": "2026-10-12T11:28:43.631Z",
+   "label": "query",
+   "case": 9,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 189,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:43.660Z",
+   "label": "query",
+   "case": 9,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": 2,
+   "tokens": 689,
+   "ms": 10.1
+  },
+  {
+   "ts": "2026-10-12T11:28:43.780Z",
+   "label": "query",
+   "case": 10,
+   "form": "nl",
+   "engine": "room_search",
+   "rank": null,
+   "tokens": 1,
+   "ms": 42
+  },
+  {
+   "ts": "2026-10-12T11:28:43.781Z",
+   "label": "query",
+   "case": 10,
+   "form": "nl",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 1,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:43.818Z",
+   "label": "query",
+   "case": 10,
+   "form": "nl",
+   "engine": "leviathan",
+   "rank": 1,
+   "tokens": 638,
+   "ms": 12.9
+  },
+  {
+   "ts": "2026-10-12T11:28:43.942Z",
+   "label": "query",
+   "case": 10,
+   "form": "kw",
+   "engine": "room_search",
+   "rank": 4,
+   "tokens": 1423,
+   "ms": 41.1
+  },
+  {
+   "ts": "2026-10-12T11:28:43.942Z",
+   "label": "query",
+   "case": 10,
+   "form": "kw",
+   "engine": "flexsearch",
+   "rank": null,
+   "tokens": 65,
+   "ms": 0
+  },
+  {
+   "ts": "2026-10-12T11:28:43.971Z",
+   "label": "query",
+   "case": 10,
+   "form": "kw",
+   "engine": "leviathan",
+   "rank": null,
+   "tokens": 598,
+   "ms": 9.3
+  }
+ ]
+}
