@@ -5,6 +5,7 @@
 
 ### Fixed
 - **`room_search` now tells the host model that a plain question works.** The tool description and the query field say that the exact text is tried first and the meaningful words second, that an empty answer carries a reason and means the room holds no answer for that wording, and that the match is literal and stays on this machine. The search gained its word pass in quick 261012-kfn, but the old description still said substring only and sent conceptual questions to `room_graph`.
+- **The Stop hook size check is green again and now runs before every release.** `scripts/on-stop` had grown to 658 lines against a 570-line budget since 2026-07-28 (phases 241, 240.1 and 369.25), and no release step ran the check, so the red stayed hidden. The budget is re-measured at 680 (658 lines plus the 198-09 margin rule). The check is now a hard leg of the release suite (`tests/run-all-366.sh`), and its summary line says FAIL, not PASS, when a check fails. Moving the inline close-out code out of the hook is filed for a later phase.
 
 ## [2.0.0-beta.65] - 2026-10-06
 

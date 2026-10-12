@@ -125,6 +125,11 @@ run_if "seed104 room check tokens"            tests/test-seed104-room-check-toke
 run_if "pin 363 grants"                        tests/test-363-grants.cjs                      node tests/test-363-grants.cjs
 run_if "pin 363 run quick"                     tests/test-363-run-quick.cjs                   node tests/test-363-run-quick.cjs
 
+# --- (2c) quick 261012-rey: the Phase 198 SPEC-5 adapter budget rides the release suite ---
+# The on-stop line budget was red on main from 2026-07-28 to 2026-10-12 because no release step ran the test.
+# The leg is a hard run (not run_if), so a missing or red test fails the cut.
+run "198 SPEC-5 adapter budget (import audit + line-count)" node tests/test-198-adapter-budget.test.cjs
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
