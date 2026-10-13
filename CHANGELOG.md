@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.66 (in progress)
+## [2.0.0-beta.67] - 2026-10-13
 
 ### Removed
 - **`/mos:query` is retired; use `/mos:graph`.** It only forwarded to `/mos:graph` since v1.13 and was due to go in v1.14.0. `/mos:graph` takes the same plain-English question about your room. Claude Desktop and Cowork keep the same graph through the `room_graph` and `graph_query` tools. Typing `/mos:query` now gets the same reply as any command that does not exist (quick 261012-v17).
