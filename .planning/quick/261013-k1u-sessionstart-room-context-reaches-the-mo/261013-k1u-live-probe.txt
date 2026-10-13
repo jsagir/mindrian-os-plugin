@@ -1,0 +1,29 @@
+# quick 261013-k1u live proof (Claude Code 2.1.296 (Claude Code))
+# plugin: git archive of HEAD e3afaaca0 plus a byte copy of node_modules, --plugin-dir
+# room: synthetic buildFixture room (14 sections x 3 entry files, sealed true), cwd = the fixture room dir
+# env -i: PATH, HOME=<scratch home>, MINDRIAN_ROOMS_HOME/ROOT=<fixture>, MINDRIAN_BRAIN_URL=http://127.0.0.1:9, MINDRIAN_DOGFOOD_DRAIN_SKIP=1
+# flags: --strict-mcp-config --mcp-config <empty mcpServers> --model sonnet --effort low --output-format stream-json --verbose --include-hook-events --debug-file
+## P1
+probe: head text 'You are scoped to the room: venture' (--tools "")
+debug: Hook SessionStart (Loading room context...) provided additionalContext (9000 chars)
+debug (coordinator hook, same statusMessage): Hook SessionStart (Loading room context...) provided additionalContext (649 chars)
+session-start hook_response: outcome success, exit_code 0, stdout parses, additionalContext 9000 chars, systemMessage "loaded room: venture, 14 active sections, MINTO health warn"
+model answer: OK YES
+persisted-output: stream 0, transcript 0; Output too large: stream 0, transcript 0
+## P2
+probe: former tail heading 'NAVIGATION CARD-FIRE CONTRACT' (--tools "")
+debug: Hook SessionStart (Loading room context...) provided additionalContext (8951 chars)
+debug (coordinator hook, same statusMessage): Hook SessionStart (Loading room context...) provided additionalContext (649 chars)
+session-start hook_response: outcome success, exit_code 0, stdout parses, additionalContext 8951 chars, systemMessage "loaded room: venture, 14 active sections, MINTO health low"
+model answer: OK YES
+persisted-output: stream 0, transcript 0; Output too large: stream 0, transcript 0
+## P3
+probe: pointer, Read the full session context file, heading 'Proactive Room Intelligence' (--tools Read --allowedTools Read)
+debug: Hook SessionStart (Loading room context...) provided additionalContext (8935 chars)
+debug (coordinator hook, same statusMessage): Hook SessionStart (Loading room context...) provided additionalContext (855 chars)
+session-start hook_response: outcome success, exit_code 0, stdout parses, additionalContext 8935 chars, systemMessage "loaded room: venture, 14 active sections, MINTO health low"
+tool_use: Read file_path=<fixture room>/.mindrian/session-context.txt? true
+model answer: OK YES
+persisted-output: stream 0, transcript 0; Output too large: stream 0, transcript 0
+## verdict
+N at most 9,000 in 3 of 3 runs; outcome success 3 of 3; 0 persisted-output for session-start; OK YES for P1, P2 and P3.

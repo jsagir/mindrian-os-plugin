@@ -426,6 +426,15 @@ Classification of every item: see Evidence > Summary table.
   root_cause: the derive queue stores an absolute path, and the drain trusts it.
   implication: proposed task T24 (below). The source room.db needs a restore decision (pre-run byte copy kept in the scratchpad; the main session holds the path).
 
+- timestamp: 2026-10-13T13:00:00Z
+  source: quick 261013-k1u
+  item: T14 and T23 landed (I-1, X-1, X-2)
+  classification: T14 and T23 FIXED in the dev tree (not released). I-8 NEW FAILURE (low), filed as T25.
+  commits: 01c0e5e0f (T14: lib/core/session-context-envelope.cjs encodes the envelope with JSON.stringify; ANSI and C0 bytes are removed; the bash fallback strips ANSI and C0 bytes before it escapes), e3afaaca0 (T23: block markers, BLOCK_POLICY budget of 9,000 characters, room identity first, long blocks and the long doctrine behind pointers; full context in <room>/.mindrian/session-context.txt; doctrine moved line for line to references/personality/session-start-doctrine.md; the NAV card-fire contract stays inline).
+  inline_lengths (synthetic 14 x 3 fixture, sealed room, Linux ARM64, unit = JS string length): minimal 8,855; balanced 8,962; rich 8,958; Cursor flat (minimal) 8,891; bash fallback (minimal) 5,978 (C-locale byte cut at 8,500); cold first install 4,886 (nothing cut). Before: rich 24,198 and invalid JSON in every tier.
+  live (Claude Code 2.1.296, claude -p --plugin-dir on a git archive of e3afaaca0, synthetic room, env -i, refused Brain origin, no MCP servers): session-start "provided additionalContext" N = 9,000 (P1), 8,951 (P2), 8,935 (P3); outcome success 3 of 3; 0 persisted-output and 0 "Output too large" in the stream and the transcript; answers: P1 head 'You are scoped to the room: venture' OK YES; P2 former tail 'NAVIGATION CARD-FIRE CONTRACT' OK YES; P3 pointer (Read of the full session context file, 'Proactive Room Intelligence') OK YES. Evidence: .planning/quick/261013-k1u-sessionstart-room-context-reaches-the-mo/261013-k1u-live-probe.txt.
+  i8_new: NEW FAILURE (low). The bash string literals in scripts/session-start hold the two characters backslash and n; the old escape_for_json and the new JSON.stringify encoder both keep them, so the model reads a literal "\n" (42 times in a room context, 33 times in the cold context, counted at 01c729151). Not decoded in the encoder, because a Windows path such as C:\Users\nadia would break. Proposed task T25.
+
 ## Eliminated
 
 - hypothesis: "Claude Code cannot enforce hook timeouts on Windows" is the reason the 10 s budget did not stop session-start.
@@ -611,6 +620,8 @@ WARNING (sequencing, named by both investigators): Do not change the hooks.json 
 24. T24 (P1, I-7; added by the X-1 runtime check): Make the derive drain target the room that owns the queue, not the stored absolute roomDir (or store a room-relative marker and resolve it against the owning room).
     - Files: scripts/gsd-graph-derive-drain.cjs (:426, :440, :468-474), scripts/gsd-graph-derive-sweep.cjs (:156), a test.
     - Acceptance: a fixture room copied to a new path, with a queue entry that names the old path, drains into the copy only; the old path gets 0 writes (file mtimes and room.db row counts unchanged).
+25. T25 (P2, I-8): replace the bash-literal backslash-n in the session-start templates with real line feeds at the producer ($'\n' or a printf %b on template text only); do not decode in the encoder, because a Windows path such as C:\Users\nadia would break.
 - Amendment from the X-1 runtime check: T14 alone removes the drop (run ctrl-ansi); T13 alone does not (runs ctrl-prewarm, ctrl-detach). Rank T14 as P0 with T1. T13 must also cover the scout-cadence subshell (:1776). T14 acceptance adds one live `claude -p --plugin-dir` run with "provided additionalContext" for session-start in the debug log.
+- Amendment from quick 261013-k1u: T14 and T23 landed in quick 261013-k1u (commits 01c0e5e0f and e3afaaca0); T1, T7, T12 and T13 stay open, so this file stays in debug/, not resolved/.
 
 Triage item (not a quick): the post-write cascade returns "skipped" for central-registry room paths (lib/core/intelligence-cascade.cjs:182-184, :652-654; reached from scripts/post-write:256), so the write path never recomputes STATE.md for those rooms. Open a separate /gsd-debug session.

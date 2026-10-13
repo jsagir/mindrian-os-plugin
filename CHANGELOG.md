@@ -3,6 +3,10 @@
 ### Added
 - 
 
+### Fixed
+- **Larry knows your room again when a session starts.** The session-start hook wrote colour codes inside its JSON message, so Claude Code saw a broken message and threw the whole room context away; Larry started every room session blind. The hook now writes clean JSON every time, and a release test checks it in every context size.
+- **The room context now fits Claude Code's limit of 10,000 characters for one hook.** It used to send about 22,000 characters, and Claude Code showed Larry only the first 2,400. The context now starts with who Larry is, which room you are in and its stage, then the room's governing thoughts and open gates, then the top signals, and it stays under 9,000 characters. The long parts (the Room Map, the full room analysis, the full doctrine) are saved to files that the context names, so nothing is lost: Larry reads them when a question needs them.
+
 ## [2.0.0-beta.67] - 2026-10-13
 
 ### Removed

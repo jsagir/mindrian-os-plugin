@@ -1,0 +1,19 @@
+1 node lib/memory/session-start-triple-injection.test.cjs
+1 node lib/memory/session-start-brain-staleness.test.cjs
+0 node lib/memory/post-compact-reinjection.test.cjs
+0 node tests/test-251-skeleton-split.cjs
+0 node tests/test-209-session-start-exemplar.cjs
+0 node tests/test-267-1-first-install-hooked-audit.cjs
+0 node tests/test-session-start-banner.cjs
+0 node tests/test-session-start-node-preflight.cjs
+0 node tests/test-install-state-record.cjs
+0 node tests/test-36925-injection.cjs
+0 node tests/test-36925-readiness-gate.cjs
+1 node tests/test-l8g-theo-bare.cjs
+0 node tests/test-hook-envelope-shape.cjs
+0 node tests/test-245-trigger-arms.cjs
+0 node tests/test-267-2-w0-revert.cjs
+0 node lib/memory/room-minto-hook.test.cjs
+0 node tests/test-198-adapter-budget.test.cjs
+0 bash tests/run-all-251.sh
+0 bash -n scripts/session-start
