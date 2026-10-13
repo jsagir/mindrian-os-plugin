@@ -1,8 +1,8 @@
 {
   "snapshot_note": "Every live :Framework name read from Theo via lib/core/brain-client.cjs askOp ('list_frameworks'), not only the FEEDS_INTO-linked subset. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-10-06",
+  "snapshot_date": "2026-10-13",
   "source": "theo list_frameworks via lib/core/brain-client.cjs askOp",
-  "source_sha256": "3d7fd83e19e5725e96b6dfa30b683f074d60bf28802b44722a0d940a36687f06",
+  "source_sha256": "b92a2f389b2d8bb9a765886698ede514226fce46089d2aee087e6294232bd15f",
   "framework_names": [
     "10-10-10 Decision Method",
     "12 Leverage Points",
@@ -114,6 +114,7 @@
     "Dailies",
     "DCF Discounted Cash Flow",
     "Decision Trees",
+    "Decomplexifying",
     "Deductive Relationship",
     "Deep Complex Questions",
     "Defense Innovation",
@@ -150,6 +151,7 @@
     "ESG Due Diligence Framework",
     "ESG Materiality Assessment",
     "Evolution as adaptation model",
+    "Extensive Searching",
     "Feedback Loop Analysis",
     "Feedback loops",
     "Financial Due Diligence Framework",
@@ -192,6 +194,7 @@
     "Idealized Design",
     "IDEO Deep Dive / Structured Brainstorming Techniques",
     "Inductive Relationship",
+    "Innovation Accounting",
     "Innovation Culture",
     "Innovation Finance",
     "Innovation Management Framework",
@@ -200,6 +203,7 @@
     "Innovation Portfolio Now/New/Next",
     "Innovation Process",
     "Insight Psychology",
+    "Intensive Searching",
     "Interactive Planning",
     "Invention Disclosure Strategic Framework",
     "IP Due Diligence Framework",
@@ -269,6 +273,7 @@
     "Pattern Recognition",
     "PEST Analysis",
     "Photonic Interconnect Multi-Agent System",
+    "Pivot",
     "Platform Thinking",
     "Portfolio Approach",
     "Poverty",
@@ -425,8 +430,8 @@
   ],
   "stale_review": [],
   "theo_stamp": {
-    "mapped_by": "command-registry@2.0.0-beta.64",
-    "plugin_version": "2.0.0-beta.64",
-    "refreshed_at": "2026-10-06T18:13:54.234Z"
+    "mapped_by": "command-registry@2.0.0-beta.66",
+    "plugin_version": "2.0.0-beta.66",
+    "refreshed_at": "2026-10-13T01:15:03.288Z"
   }
 }
