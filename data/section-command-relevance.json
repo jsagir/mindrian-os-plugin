@@ -1,5 +1,5 @@
 {
-  "provenance": "navigator-supplied 2026-10-06; a model relevance judgment from the eleven section contracts and data/section-job-canon.json; 'existing' is section contract text, 'supporting' and 'additional_fit' are judgment; filed verbatim from .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/369.25-SECTION-COMMAND-RELEVANCE.md; LOCAL prior, never sent to Theo (Canon Part 8)",
+  "provenance": "navigator-supplied 2026-10-06; a model relevance judgment from the eleven section contracts and data/section-job-canon.json; 'existing' is section contract text, 'supporting' and 'additional_fit' are judgment; filed verbatim from .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/369.25-SECTION-COMMAND-RELEVANCE.md; LOCAL prior, never sent to Theo (Canon Part 8); 2026-10-12: quick 261012-v17 removed the retired command query from areas.room-access-and-overview",
   "sections": {
     "problem-definition": {
       "existing": ["beautiful-question", "diagnose", "explore-domains"],
@@ -99,7 +99,7 @@
       "why": "Choose, dispatch, schedule or explain work across the relevant sections."
     },
     "room-access-and-overview": {
-      "commands": ["ignite", "new-project", "discover", "rooms", "organize", "room", "mos", "onboard", "help", "splash", "status", "dashboard", "radar", "graph", "query"],
+      "commands": ["ignite", "new-project", "discover", "rooms", "organize", "room", "mos", "onboard", "help", "splash", "status", "dashboard", "radar", "graph"],
       "why": "Create, enter, navigate and inspect the room and its contents."
     },
     "quality-and-platform-maintenance": {

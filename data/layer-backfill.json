@@ -359,11 +359,6 @@
     "layer_why": "Presents a single human-ratified decision gate over one harvested candidate and files the qualify/reject verdict, the same single-hitl-fork cycle shape as a methodology command.",
     "rubric_stopped_at": 3
   },
-  "commands/query.md": {
-    "layer": "none",
-    "layer_why": "Deprecated alias for /mos:graph; the underlying job is a read-only natural-language graph query and render.",
-    "rubric_stopped_at": 3
-  },
   "commands/radar.md": {
     "layer": "none",
     "layer_why": "Tracks new Claude capabilities and displays them; a capability-awareness diagnostic view, engineering no rung.",

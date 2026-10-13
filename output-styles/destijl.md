@@ -29,7 +29,7 @@ Standard form: `-- Room Name -- section -- Stage --`. Compact form on narrow ter
 | A | Mondrian Board: progress bars per section (e.g. /mos:status) |
 | B | Semantic Tree: folder tree with state glyphs (e.g. /mos:help) |
 | C | Room Card: governing thought + entries + edges + MINTO health (e.g. /mos:room [section]) |
-| D | Document View: frontmatter + full content (e.g. /mos:query) |
+| D | Document View: frontmatter + full content (e.g. /mos:wiki) |
 | E | Action Report: changes + new edges + summary (e.g. /mos:act, /mos:doctor) |
 | F.0 | Mini Decision Gate: tiny binary gate |
 | F.1 | Next Move selector: 3-5 verbs from the canonical ten |

@@ -469,12 +469,6 @@
       "label_source": "two-model-blind-agreement"
     },
     {
-      "command": "/mos:query",
-      "irreversible": false,
-      "reason": "Reads, analyzes or writes working material inside the room",
-      "label_source": "two-model-blind-agreement"
-    },
-    {
       "command": "/mos:radar",
       "irreversible": false,
       "reason": "Reads public changelog into a local ledger",

@@ -27,8 +27,9 @@
  *
  * Hermetic: pure-function softAliasRun has zero I/O. emitForLLM is the
  * only side-effect path (single stdout write). No network, no fs, no
- * spawn. Canon Part 7: ONE runner that the 5 (heal/query/organize/
- * hmi-status/visualize) soft-alias stubs share -- no per-stub logic.
+ * spawn. Canon Part 7: ONE runner that the 4 (heal/organize/
+ * hmi-status/visualize) soft-alias stubs share; the query stub was retired
+ * by quick 261012-v17 -- no per-stub logic.
  * Canon Part 8: no Brain query, no telemetry egress.
  */
 'use strict';

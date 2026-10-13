@@ -20,9 +20,9 @@
   "render_counts": {
     "card_emission": 17,
     "render_only_excluded": 0,
-    "md_declared_wired": 97,
+    "md_declared_wired": 96,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 103,
+    "skill_declared_wired": 102,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -447,11 +447,6 @@
     },
     {
       "surface": "commands/qualify-opportunity.md",
-      "declared_shape": "F.1",
-      "wired": true
-    },
-    {
-      "surface": "commands/query.md",
       "declared_shape": "F.1",
       "wired": true
     },
@@ -966,11 +961,6 @@
     },
     {
       "surface": "skills/qualify-opportunity/SKILL.md",
-      "declared_shape": "F.1",
-      "wired": true
-    },
-    {
-      "surface": "skills/query/SKILL.md",
       "declared_shape": "F.1",
       "wired": true
     },

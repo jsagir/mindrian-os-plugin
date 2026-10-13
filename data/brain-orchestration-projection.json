@@ -1909,12 +1909,6 @@
       }
     },
     {
-      "id": "command:/mos:query",
-      "kind": "command",
-      "methodology_tier": "mindrian-operation",
-      "name": "/mos:query"
-    },
-    {
       "id": "command:/mos:radar",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3281,12 +3275,6 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "qualify-opportunity"
-    },
-    {
-      "id": "skill:query",
-      "kind": "skill",
-      "methodology_tier": "mindrian-operation",
-      "name": "query"
     },
     {
       "id": "skill:radar",

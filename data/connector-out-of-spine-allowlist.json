@@ -38,7 +38,6 @@
     "/mos:scheduled-tasks": "System / admin / config surface; manages scheduled tasks, fires no reach.",
     "/mos:organize": "Deprecated stub; removal v1.14.0, no work.",
     "/mos:heal": "Deprecated stub; removal v1.14.0, no work.",
-    "/mos:query": "Deprecated stub; removal v1.14.0, no work.",
     "/mos:visualize": "Deprecated stub; removal v1.14.0, no work.",
     "/mos:hmi-status": "Deprecated stub; removal v1.14.0, no work.",
     "/mos:rs-fetch": "Connector owned by Phase 143.3 Tier A (reverse-salient fetch), not 144.1.",

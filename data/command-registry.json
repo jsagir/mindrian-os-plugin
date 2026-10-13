@@ -1563,26 +1563,6 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
-      "command": "/mos:query",
-      "kind": "utility",
-      "surface": "navigator",
-      "visibility": null,
-      "frameworks": [],
-      "produces": null,
-      "executable": null,
-      "inputs": [],
-      "autonomous_safe": false,
-      "body_shape": "D",
-      "layer": "none",
-      "serves_jtbd": [
-        "audit-room",
-        "explore"
-      ],
-      "teaching": "Deprecated alias. Use /mos:graph to ask natural-language questions of the knowledge graph; query and graph share the same translator. Scheduled removal: v1.14.0.",
-      "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
-    },
-    {
       "command": "/mos:radar",
       "kind": "utility",
       "surface": "navigator",

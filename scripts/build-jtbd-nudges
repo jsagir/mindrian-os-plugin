@@ -155,7 +155,7 @@ candidates = [
     {'cmd': '/mos:file-meeting', 'desc': 'File a meeting transcript', 'stages': ['all']},
     {'cmd': '/mos:opportunities', 'desc': 'Discover relevant grants and funding', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
     {'cmd': '/mos:persona', 'desc': 'Get 6 perspectives on your work', 'stages': ['Validation', 'Design', 'Investment']},
-    {'cmd': '/mos:query', 'desc': 'Ask your knowledge graph anything', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
+    {'cmd': '/mos:graph', 'desc': 'Ask your knowledge graph anything', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},
     {'cmd': '/mos:grade', 'desc': 'Honest assessment of your venture', 'stages': ['Validation', 'Design', 'Investment']},
     {'cmd': '/mos:present', 'desc': 'Generate your Data Room dashboard', 'stages': ['Design', 'Investment']},
     {'cmd': '/mos:act', 'desc': 'Larry runs a framework autonomously', 'stages': ['Discovery', 'Validation', 'Design', 'Investment']},

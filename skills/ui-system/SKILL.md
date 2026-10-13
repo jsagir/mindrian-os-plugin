@@ -72,7 +72,7 @@ Folder tree with state glyphs. `down-arrow` expanded, `>` collapsed+content, `>`
 Governing thought (quoted), entries list (status+name+date+depth), graph edges (type+target+count), MINTO health assessment. Floating signal badge if HIGH contradiction/convergence.
 
 ### Shape D: Document View
-**Used by:** `/mos:open [artifact]`, `/mos:query`
+**Used by:** `/mos:open [artifact]`, `/mos:wiki`
 Frontmatter as key-value pairs (no YAML markers). Full content (markdown preserved). Edges at bottom. Footer suggests following edges.
 
 ### Shape E: Action Report

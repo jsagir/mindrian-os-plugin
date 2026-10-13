@@ -223,7 +223,6 @@
   "deprecated_aliases": {
     "_note": "Per Phase 121.5-08 Sub-plan J. Old commands stay as soft-alias stubs but do NOT appear in /mos:help groups -- they redirect to the canonical command. This map doubles as the EXCLUSION REGISTRY read by scripts/check-help-coverage.cjs: reason for every key is `deprecated`, cross-checked against each command's frontmatter `deprecated: true`. A deprecated command absent from this map is a hard-fail (unlisted_deprecated) so a deprecation can never silently vanish from coverage.",
     "heal": "doctor --heal-room",
-    "query": "graph",
     "organize": "rooms organize",
     "hmi-status": "doctor --ui-compliance",
     "visualize": "dashboard --mermaid"

@@ -203,10 +203,6 @@
     "hitl_shape": "F.1",
     "hitl_why": "Graph exploration offers one next move from the current node."
   },
-  "commands/query.md": {
-    "hitl_shape": "F.1",
-    "hitl_why": "A natural-language graph query returns a result with one next move."
-  },
   "commands/visualize.md": {
     "hitl_shape": "F.1",
     "hitl_why": "A rendered view offers one next move on what to open next."
