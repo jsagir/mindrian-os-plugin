@@ -23,6 +23,11 @@ State on 2026-10-13: root cause found (diagnose only). No code changed. The fixe
 - test: none open (goal find_root_cause_only).
 - expecting: not applicable.
 - next_action: open the /gsd-quick tasks in the Resolution order.
+- x1_verdict (2026-10-13T11:19Z, runtime, method 1 plus control runs; evidence entry "X-1 runtime check"): X-1 CONFIRMED in effect, REFUTED in mechanism. Effect CONFIRMED: Claude Code 2.1.296 drops the whole session-start context on a room session (4 of 4 headless runs whose session-start stdout held ESC bytes: A, A2, ctrl-prewarm, ctrl-detach; the model probe answered NO in each; 10 of 10 real 2.1.296 records in the owner's transcripts are refusals). Mechanism REFUTED as an AND: invalid JSON (I-1) alone drops the context; the pipe holder (F6) only selects which refusal message fires. With both holders detached and ANSI left in, Claude Code still refuses ("Hook output looks like a JSON object but is not valid JSON"). With ANSI stripped and holders left in, Claude Code accepts. So the X-1 claim "a fix to either I-1 or the F6 holder removes the condition" is false: only T14 restores the context.
+- x2_new (runtime): after T14, Claude Code 2.1.296 still does not inline the context. Each hook additionalContext above 10,000 chars (binary constant vRs=1e4) is saved to a file and replaced by a 2,407-char preview. session-start sends 21,881 chars, so the tail (for example the NAVIGATION CARD-FIRE CONTRACT doctrine) never reaches the model (probe NO in 2 of 2 ANSI-fixed runs; head probe YES).
+- f6_correction (runtime): brain-prewarm is not the only post-exit holder. The scout-cadence subshell (session-start:1776) held the hook pipes 6.3 to 6.4 s after exit in 3 of 3 harness runs (first run in 24 h per room).
+- i7_new (side effect of this check, NEW FAILURE): a copied room is not isolated. The copy's .mindrian/graph-derive-queue.json holds the absolute source roomDir, and the SessionStart drain derives against that path. 4 runs wrote 4 derivation_skipped memory_event nodes into the SOURCE room.db.
+- next_action: main session: decide the room.db restore (NEEDS_HUMAN in the report); then re-rank T14 above T13, add T23 (X-2) and T24 (I-7) as proposed below.
 
 ## Meta
 
@@ -136,7 +141,7 @@ Classification of every item: see Evidence > Summary table.
 | F3 on-stop about 40 s | P0 | NEW FAILURE | Runs compute-state synchronously on every reply, plus a fixed 1 s wait floor from a broken killer subshell |
 | F4 compute-state 58 s | P1 | NEW FAILURE | Forks F x (S - 1) greps plus about 13 per section; runs on SessionStart, Stop, SubagentStop, TaskCompleted, CwdChanged |
 | F5 node fan-out | P1 | NEW FAILURE (cost) | 9 of 9 SessionStart groups start node; session-start starts node 34 to 35 times; 20 sites read one JSON field |
-| F6 background subshells | P1 | SessionStart half NEW FAILURE (narrow); Stop half WORKING, latent defect | Subshell redirects only the inner command; brain-prewarm holds the pipes 14.8 s; on-stop:154 hidden by the line-401 wait |
+| F6 background subshells | P1 | SessionStart half NEW FAILURE (narrow); Stop half WORKING, latent defect | Subshell redirects only the inner command; brain-prewarm holds the pipes 14.8 s; scout-cadence holds them 6.3 s on its first run in 24 h (X-1 runtime check); on-stop:154 hidden by the line-401 wait |
 | F7 sync auto-update | P1 | WORKING (no stall hazard; cosmetic defect) | self-update is a no-op stub; branch unreachable on 2.0.0-beta; prints a false failure line when reached |
 | F8 brain-prewarm exit | P2 | NEW FAILURE (re-stated) | Race timer stays armed; process lives 15.1 to 20.2 s; it does exit |
 | F9 intent-classifier stderr | P2 | Warning: KNOWN TRACKED BUG (doctor-auto-heal-qa-sweep-2026-09-16.md F12); cycle: NEW FAILURE | Require cycle makes BEHAVIORAL_CHANNEL_CEILING NaN in the hook process |
@@ -145,7 +150,9 @@ Classification of every item: see Evidence > Summary table.
 | F12 registry status drift | P2 | NEW FAILURE | `status` duplicates `active`; only scripts/room-registry keeps them in step |
 | Rich-tier rule | not ranked (report fix 6) | NEW FAILURE | Tier input /tmp/mindrian-context-state has no writer since 2026-04-05; tier is always rich; balanced also runs analyze-room |
 | I-1 invalid JSON envelope | not in report | NEW FAILURE | escape_for_json leaves ANSI ESC bytes; stdout fails JSON.parse in 9 of 9 runs |
-| X-1 I-1 with F6 in Claude Code 2.1.296 | not in report | NEW FAILURE (code reading; runtime UNVERIFIED) | An invalid-JSON capture whose pipes stay open more than 500 ms after exit is refused |
+| X-1 I-1 with F6 in Claude Code 2.1.296 | not in report | NEW FAILURE, runtime CONFIRMED in effect; AND-mechanism REFUTED | The session-start context is dropped on every room session; invalid JSON alone causes it; the holder only selects the refusal message |
+| X-2 additionalContext size cap | not in report | NEW FAILURE (runtime) | Claude Code 2.1.296 saves any hook additionalContext above 10,000 chars to a file and inlines a 2,407-char preview; session-start sends 21,881 |
+| I-7 copied room drains into the source room | not in report | NEW FAILURE (runtime; found as a side effect) | graph-derive-queue.json stores an absolute roomDir; the SessionStart drain derives against it |
 | I-2 analyze-room abort | not in report | NEW FAILURE (low) | set -euo pipefail ends analyze-room at line 923 on a file without `status:` |
 | I-4 argv not env | not in report | NEW FAILURE (low) | An env assignment placed after `node -e` becomes argv at session-start:1499 |
 | I-5 first-session coordinator | not in report | NEW FAILURE (seen in 369-HOOK-COLD-START.md observation 2, never filed) | First-session path runs 3 doctors and 4 server or shim starts synchronously (12.2 s) |
@@ -378,6 +385,47 @@ Classification of every item: see Evidence > Summary table.
   windows_projection: network-bound and platform-independent. ASSUMED: a contributor to the report's 22.6 s.
   root_cause: the pending fetch keeps node alive until the socket gives up, and the fetch repeats on every session while no offset is recorded.
 
+- timestamp: 2026-10-13T11:19:46Z
+  source: X-1 runtime check (one gsd-debugger agent; read-only for the plugin code)
+  item: X-1 runtime check (confirm or refute X-1 in a live Claude Code 2.1.296 session)
+  classification: X-1 effect CONFIRMED at runtime (NEW FAILURE). The X-1 AND-mechanism is REFUTED: I-1 alone is sufficient.
+  method: method 1 (strongest available). `claude -p` 2.1.296 with `--plugin-dir` on a scratch plugin copy (`git archive` of 6f9b0d1db plus a byte copy of node_modules), cwd = a scratch copy of a real room (pseudonym X1R, 147 .md, read through a scratch registry in MINDRIAN_ROOMS_HOME), `env -i` with a fresh scratch HOME per run, MINDRIAN_BRAIN_URL=http://127.0.0.1:9, MINDRIAN_BRAIN_KEY unset, `--tools ""`, `--strict-mcp-config` with an empty server list, `--model sonnet --effort low`, `--output-format stream-json --verbose --include-hook-events`, `--debug-file`. The room copy and the scratch registry were restored before each run. Records read: stream-json hook_response events, the debug log, and the session transcript JSONL (hook attachments). Controls: scratch copies of the plugin with one or two lines of scripts/session-start changed (never the dev tree). Pipe hold measured outside Claude Code with a spawn harness (exit time, stdout and stderr 'end', 'close', and the processes that hold the hook socket at exit + 600 ms and + 3,000 ms). Canon Part 8: no Brain call left the machine (refused loopback origin; no tools; no MCP servers). Room-derived output stays in the scratchpad, not in git.
+  runs (session-start hook only; model probe in the last column):
+    - A (HEAD): stdout 22,811 chars, 32 ESC bytes, node JSON.parse FAIL at char 4110. Claude Code: hook_response outcome "error", exit_code 0, stderr "hook output opens a JSON payload that never completed before its stdio went quiet; refusing to read the partial capture as a verdict". Transcript: attachment hook_non_blocking_error, durationMs 8902. SessionStart hook_additional_context = 1,021 chars (agentshield 104 + coordinator 917 only). Probe (tail heading NAVIGATION CARD-FIRE CONTRACT): "OK NO".
+    - A2 (HEAD, second probe): same refusal; durationMs 9257; context 1,021 chars. Probe (head text "You are Larry"): "OK NO".
+    - ctrl-prewarm (brain-prewarm subshell redirected as a whole): same refusal text; durationMs 9371; context 815 chars. Probe tail: "OK NO".
+    - ctrl-detach (brain-prewarm and scout-cadence subshells redirected; ANSI kept; harness hold 0 ms): Claude Code outcome "error", stderr "Hook output looks like a JSON object but is not valid JSON - JSON Parse error: Unterminated string. Emit the payload with a JSON encoder (jq, ConvertTo-Json, json.dumps) rather than string concatenation so backslashes and quotes inside strings are escaped." (the original has an em-dash where this file has " - "). Transcript hook_non_blocking_error, durationMs 8867; context 815 chars. Probe tail: "OK NO".
+    - ctrl-ansi (ANSI CSI and other C0 bytes stripped before escape_for_json; holders kept): stdout 22,475 chars, 0 ESC, JSON.parse OK. Claude Code: outcome "success", debug "Hook SessionStart (Loading room context...) provided additionalContext (21881 chars)", durationMs 9006. Probe tail: "OK NO" (see X-2).
+    - ansi2 (same plugin as ctrl-ansi, head probe): success, 21,907 chars provided, durationMs 10175. Probe head: "OK YES".
+    - ctrl-both (ANSI stripped and brain-prewarm redirected): success, 21,881 chars provided, durationMs 11043. Probe tail: "OK NO".
+  debug_log_lines (run A; plugin path shortened to $P): `Hooks: SessionStart:startup ["$P/hooks/run-hook.cmd" session-start] (plugin mos@inline) finished with status 0 (8902ms)`, then the "not valid JSON" line above, then `[ERROR] "Hook SessionStart:startup (SessionStart) error: status code 0\nstdout:\n{...`. No "provided additionalContext" line exists for session-start in runs A, A2, ctrl-prewarm and ctrl-detach.
+  pipe_hold (harness, same env, outside Claude Code): HEAD exit 8,704 ms, close 23,602 ms, hold 14,898 ms (brain-prewarm). ctrl-prewarm hold 6,319 / 6,399 / 6,321 ms in 3 of 3 runs; holder at + 600 ms and + 3,000 ms = a session-start subshell whose children are `node $P/scripts/scout-cadence-runner.cjs $ROOM` and a `node -e` that requires lib/core/rs-engine.cjs. ctrl-detach hold 0 ms (exit 8,721 ms = close 8,721 ms).
+  timing: Claude Code session-start hook duration 8.9 to 11.0 s on this 147 .md room (Linux ARM64). The first prompt waited for the slowest SessionStart group, the coordinator first-session path: 11,896 ms (I-5); every run used a fresh HOME.
+  file_line: plugin side: scripts/session-start:1870-1878 (escape_for_json), :1965 (brain-prewarm), :1776 (scout-cadence). Claude Code 2.1.296 binary: refusal selector `tbt` (returns no refusal when neither stdioIncomplete nor stdioClosedWithoutEnd is set) in the source near byte offset 0xcda7400; executor branch: a refusal from `lwt` yields hook_non_blocking_error for SessionStart (SessionStart is not in the blocking set `Kge`); otherwise a JSON validation error yields hook_non_blocking_error too.
+  found: (1) The context is dropped whenever stdout is invalid JSON: 4 of 4 runs with ESC bytes, with or without a holder. (2) The holder only decides which refusal fires: stdio-quiet refusal with a holder longer than the 500 ms quiet window, JSON-validation error without one. (3) Valid JSON is accepted with the holders still running (ctrl-ansi), because a parsed benign SessionStart document passes `obt`. (4) Weaker evidence, the owner's own transcripts under ~/.claude/projects (installed plugin 2.0.0-beta.37 to beta.59, Claude Code 2.1.216 to 2.1.296, 2026-09-14 to 2026-10-13): 234 session-start hook records. 139 are hook_non_blocking_error, and all 139 have ESC bytes and invalid JSON (61 JSON-validation errors on Claude Code 2.1.268 to 2.1.284; 78 stdio-quiet refusals on 2.1.285 to 2.1.296; 10 of 10 records on 2.1.296 are refusals). 92 are hook_success with valid JSON and 0 ESC; in all 92 the following hook_additional_context is a persisted-output preview (X-2). 3 are hook_success with invalid JSON, all on Claude Code 2.1.216 (older plain-text handling). So on Claude Code 2.1.268 and later, 0 of 231 records put the full session-start context inline.
+  root_cause: escape_for_json passes ESC bytes from the compute-state Room Map and analyze-room EDGE lines into the JSON string (I-1). Claude Code refuses an invalid JSON object on SessionStart and never uses its text as context (seen on every version from 2.1.268, the first version after 2.1.216 in the sample; 2.1.216 still read it as plain text). Since 2.1.285 a held pipe changes the refusal message, not the outcome.
+  implication: T14 is the necessary and sufficient fix for the drop; rank it P0 with T1. T13 alone restores nothing (it is still needed for the pipe hold and for Windows timing). T14's acceptance must also run one live `claude -p --plugin-dir` session and find "provided additionalContext" for session-start in the debug log. After T14, X-2 still limits what the model sees.
+
+- timestamp: 2026-10-13T11:19:46Z
+  source: X-1 runtime check
+  item: X-2 Claude Code 2.1.296 caps each hook additionalContext at 10,000 chars (not in report)
+  classification: NEW FAILURE (runtime). Claude Code platform limit, so it is a plugin design constraint, not a Claude Code defect.
+  checked: transcripts of ctrl-ansi, ansi2 and ctrl-both; the 2.1.296 binary.
+  file_line: binary: `async function dce(e,n,r,{threshold:s=vRs,...}){if(e.length<=s)return e; ... _4(e,\`hook-${n}-${r}\`...)` with `vRs=1e4`; called for every hook additionalContext, systemMessage and stdout. Plugin: scripts/session-start builds a 21,881 to 21,907 char context on X1R; the NAV_CARD_FIRE_DOCTRINE block is appended last (session-start, the line before escape_for_json).
+  found: the SessionStart hook_additional_context item for session-start is 2,407 chars: a `<persisted-output>` block that says "Output too large (21.4KB). Full output saved to: <session dir>/tool-results/hook-<uuid>-8-additionalContext.txt" followed by a preview of the first part. The head text reached the model (probe YES); the tail doctrine did not (probe NO in 2 of 2). The owner's transcripts show the same preview in 92 of 92 valid-JSON session-start records (Claude Code 2.1.270 to 2.1.291).
+  root_cause: session-start emits one context block more than 2 times the per-hook inline limit, and it puts the session doctrine at the end.
+  implication: proposed task T23 (below). The SEED-128 fix plan (T1 cached injection) must also keep the block under 10,000 chars, or the model reads only the first 2 KB.
+
+- timestamp: 2026-10-13T11:19:46Z
+  source: X-1 runtime check (side effect found during the check)
+  item: I-7 a copied room drains into its source room (not in report)
+  classification: NEW FAILURE (runtime). Affects every QA or test procedure that copies a room and runs SessionStart hooks, and any moved or renamed room.
+  checked: a byte diff of the source room against the pre-run copy; read-only snapshots of both room.db files compared with sqlite (immutable mode).
+  file_line: scripts/gsd-graph-derive-sweep.cjs:156 writes `{ roomDir: <absolute resolved path>, enqueued_at }` into <room>/.mindrian/graph-derive-queue.json; scripts/gsd-graph-derive-drain.cjs:426 and :440 take `entry.roomDir` as the derivation target instead of the room that owns the queue (runDerivation at :468-474).
+  found: the X1R copy carried a queue entry (enqueued 2026-07-08) with the absolute source path. In 4 of the 7 headless runs (11:08:19Z, 11:09:33Z, 11:14:59Z, 11:17:21Z) the SessionStart drain wrote 1 memory_event node (event_type derivation_skipped, reason encoder_unavailable, pairs_skipped 1431, created_by system, no room text) and 1 room_change_log row into the SOURCE room.db: nodes 801 to 805, room_change_log 6 to 10. The empty room.db-wal and the room.db-shm files of the source room were removed (checkpoint), and room.db grew from 3,350,528 to 3,354,624 bytes. No other source file changed. The other 3 runs added no row (dedupe, ASSUMED). The encoder was unavailable only because HOME was a scratch directory; with the real HOME the drain would write proposed edges into the source room (ASSUMED).
+  root_cause: the derive queue stores an absolute path, and the drain trusts it.
+  implication: proposed task T24 (below). The source room.db needs a restore decision (pre-run byte copy kept in the scratchpad; the main session holds the path).
+
 ## Eliminated
 
 - hypothesis: "Claude Code cannot enforce hook timeouts on Windows" is the reason the 10 s budget did not stop session-start.
@@ -422,6 +470,18 @@ Classification of every item: see Evidence > Summary table.
 - hypothesis: the cost pattern is an artifact of the synthetic fixtures.
   evidence: real-room copies show the same pattern (R1 6,261 and R2 4,902 analyze-room execs; real-M and real-L follow the compute-state fit) (A, B).
   timestamp: 2026-10-13T10:52:31Z
+- hypothesis: (X-1 mechanism) the session-start context is dropped only when stdout is invalid JSON AND a background job holds the pipes past the 500 ms quiet window.
+  evidence: with both holders detached (harness hold 0 ms) and ANSI kept, Claude Code 2.1.296 still dropped the context with a JSON-validation error (run ctrl-detach). Invalid JSON alone is sufficient (X-1 runtime check).
+  timestamp: 2026-10-13T11:19:46Z
+- hypothesis: a fix to the F6 holder alone (T13 or T5) restores the session-start context.
+  evidence: runs ctrl-prewarm and ctrl-detach: refused in 2 of 2; the model probe answered NO (X-1 runtime check).
+  timestamp: 2026-10-13T11:19:46Z
+- hypothesis: brain-prewarm is the only long post-exit holder of the SessionStart pipes.
+  evidence: with brain-prewarm redirected, the scout-cadence subshell held the pipes 6.3 to 6.4 s after exit in 3 of 3 harness runs (first run in 24 h for the room) (X-1 runtime check).
+  timestamp: 2026-10-13T11:19:46Z
+- hypothesis: once stdout is valid JSON (T14), the full session-start context reaches the model.
+  evidence: Claude Code 2.1.296 inlines at most 10,000 chars per hook additionalContext; the 21,881-char context became a 2,407-char preview plus a file; the tail heading probe answered NO in 2 of 2 (X-2).
+  timestamp: 2026-10-13T11:19:46Z
 - hypothesis: hmi-compliance-poll cost is spawn-bound.
   evidence: 1 child spawn; its cost is node start plus about 560 file reads (B).
   timestamp: 2026-10-13T10:52:31Z
@@ -466,7 +526,7 @@ See Resolution > Proposed /gsd-quick tasks. Each task names its files, its requi
 
 ## Resolution
 
-root_cause: SessionStart runs two bash programs, analyze-room and compute-state, synchronously before it prints its context, and both start one or more processes per file, per section pair and per term (about 6,000 to 10,000 process starts per SessionStart on a 133 to 150 .md room; 12.5 to 35.7 s for the whole session-start on native Linux ARM64). The tier rule that should skip analyze-room reads /tmp/mindrian-context-state, which no code writes since 2026-04-05, so every session takes the rich tier, and the balanced tier runs analyze-room too. on-stop runs compute-state again on every assistant reply and adds a fixed 1 s wait, so each Stop costs about 740 to 4,200 spawns on rooms of 66 to 529 .md. Nothing bounds these runs: hooks.json writes every budget in milliseconds while Claude Code 2.1.296 reads seconds (10000 = 2 h 46 min), and 8 of 9 SessionStart scripts and on-stop have no whole-script deadline; Windows process-tree kill semantics are UNVERIFIED and not needed to explain the 2,226 s run. On Windows ARM64, Git Bash runs as x64 under emulation, so each process start costs 45 to 89 ms and the same counts become minutes per SessionStart and tens of seconds per Stop. Secondary defects on the same path: brain-prewarm holds the hook pipes 15 to 20 s, session-start prints invalid JSON (ANSI ESC bytes), and in Claude Code 2.1.296 these two together meet a capture-refusal condition (code reading; runtime UNVERIFIED).
+root_cause: SessionStart runs two bash programs, analyze-room and compute-state, synchronously before it prints its context, and both start one or more processes per file, per section pair and per term (about 6,000 to 10,000 process starts per SessionStart on a 133 to 150 .md room; 12.5 to 35.7 s for the whole session-start on native Linux ARM64). The tier rule that should skip analyze-room reads /tmp/mindrian-context-state, which no code writes since 2026-04-05, so every session takes the rich tier, and the balanced tier runs analyze-room too. on-stop runs compute-state again on every assistant reply and adds a fixed 1 s wait, so each Stop costs about 740 to 4,200 spawns on rooms of 66 to 529 .md. Nothing bounds these runs: hooks.json writes every budget in milliseconds while Claude Code 2.1.296 reads seconds (10000 = 2 h 46 min), and 8 of 9 SessionStart scripts and on-stop have no whole-script deadline; Windows process-tree kill semantics are UNVERIFIED and not needed to explain the 2,226 s run. On Windows ARM64, Git Bash runs as x64 under emulation, so each process start costs 45 to 89 ms and the same counts become minutes per SessionStart and tens of seconds per Stop. Secondary defects on the same path: brain-prewarm holds the hook pipes 15 to 20 s and scout-cadence 6.3 s on its daily run; session-start prints invalid JSON (ANSI ESC bytes), and Claude Code 2.1.296 therefore drops the whole session-start context on every room session (runtime CONFIRMED; invalid JSON alone is sufficient; the held pipe only changes the refusal message). With valid JSON, Claude Code 2.1.296 still inlines only a 2,407-char preview, because the 21,881-char context is above its 10,000-char per-hook limit (X-2).
 fix: not applied (goal find_root_cause_only)
 verification: not applicable
 files_changed: none
@@ -544,5 +604,13 @@ WARNING (sequencing, named by both investigators): Do not change the hooks.json 
 22. T22 (P2, F11, optional; recommend no change): Exclude `*.tmp~*` directories from the retained version slots in cache-prune, and remove one only when it is older than 24 h.
     - Files: lib/core/cache-prune.cjs and its test.
     - Acceptance: a fixture with the active version, one old version and one 2-day-old .tmp~ directory keeps the first two and removes the third; a 1-hour-old .tmp~ directory stays. Risk: Claude Code owns this directory.
+
+23. T23 (P1, X-2; added by the X-1 runtime check): Keep the session-start additionalContext at or below 9,500 chars, with the session doctrine and the room identity first; move the long blocks (Room Map, Proactive Room Intelligence) into a file that the context names.
+    - Files: scripts/session-start (context assembly and the NAV_CARD_FIRE_DOCTRINE append before escape_for_json).
+    - Acceptance: on X1R-size and SYN rooms, the parsed additionalContext length is at most 9,500 chars; one live `claude -p --plugin-dir` run shows no `<persisted-output>` in the SessionStart hook_additional_context and a tail-heading probe answers YES.
+24. T24 (P1, I-7; added by the X-1 runtime check): Make the derive drain target the room that owns the queue, not the stored absolute roomDir (or store a room-relative marker and resolve it against the owning room).
+    - Files: scripts/gsd-graph-derive-drain.cjs (:426, :440, :468-474), scripts/gsd-graph-derive-sweep.cjs (:156), a test.
+    - Acceptance: a fixture room copied to a new path, with a queue entry that names the old path, drains into the copy only; the old path gets 0 writes (file mtimes and room.db row counts unchanged).
+- Amendment from the X-1 runtime check: T14 alone removes the drop (run ctrl-ansi); T13 alone does not (runs ctrl-prewarm, ctrl-detach). Rank T14 as P0 with T1. T13 must also cover the scout-cadence subshell (:1776). T14 acceptance adds one live `claude -p --plugin-dir` run with "provided additionalContext" for session-start in the debug log.
 
 Triage item (not a quick): the post-write cascade returns "skipped" for central-registry room paths (lib/core/intelligence-cascade.cjs:182-184, :652-654; reached from scripts/post-write:256), so the write path never recomputes STATE.md for those rooms. Open a separate /gsd-debug session.
