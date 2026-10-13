@@ -1,0 +1,32 @@
+test-341-registry-drift.cjs
+  PASS: arm 1: diffRegistries reports the one missing command
+  PASS: arm 2: visibility change appears in visibilityChanged, not removed
+check-registry-drift: baseline source = env (/home/jsagi/dev/MindrianOS-Plugin/tests/fixtures/341-registry-drift-baseline.json)
+check-registry-drift: deprecations source = data/command-deprecations.json (1 valid entries)
+  PASS: arm 3: check() against the real repo (fixture baseline) is ok today
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-1WcUvP/baseline.json)
+check-registry-drift: deprecations source = data/command-deprecations.json (1 valid entries)
+  PASS: arm 4: an invented baseline command is reported as removed
+  PASS: arm 5: run-harness.cjs --check exits 0 and names registry-drift
+  PASS: arm 6: run-harness.cjs --tier pre-tag still exits 0 with a logged policy pointed at a violating baseline
+  INFO: evidence_log /home/jsagi/.mindrian/registry-drift.jsonl exists=false empty=true
+  PASS: arm 7: evidence_log does not exist yet, or is empty (starting state honestly recorded)
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-naquHy/baseline.json)
+check-registry-drift: deprecations source = /tmp/mos-341-registry-drift-LZRRF4/deprecations.json (0 valid entries)
+  PASS: arm 8: a removal with no deprecation entry still fails with the unchanged message
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-naquHy/baseline.json)
+check-registry-drift: deprecations source = /tmp/mos-341-registry-drift-f1M2BF/deprecations.json (1 valid entries)
+  PASS: arm 9: a removal with a valid deprecation entry passes and is named
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-naquHy/baseline.json)
+check-registry-drift: deprecations source = /tmp/mos-341-registry-drift-uofW8p/deprecations.json (1 valid entries)
+  PASS: arm 10: an entry whose command is still in the registry fails as STALE
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-naquHy/baseline.json)
+check-registry-drift: deprecations source = /tmp/mos-341-registry-drift-vh6bwe/deprecations.json (0 valid entries)
+  PASS: arm 11: a malformed entry fails, accepts nothing, and the removal still fails
+  PASS: arm 12: validateDeprecations rejects four bad inputs
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-dgKyPD/baseline.json)
+check-registry-drift: deprecations source = data/command-deprecations.json (1 valid entries)
+  PASS: arm 13: the real registry and data file accept /mos:query
+  PASS: arm 14: the v2.0.0-beta.65 baseline exits 0 and prints the accepted line
+  PASS: arm 15: the run-all-366 leg command exits 0 and states its baseline source
+RESULT: PASS=15 FAIL=0

@@ -1,0 +1,1984 @@
+--- seed103 claude routing (one home for model ids) ---
+test-seed103-claude-routing: 36 assertions passed
+>>> seed103 claude routing (one home for model ids): PASSED
+
+--- seed103 eureka perspective end to end ---
+PASS: recall ok
+PASS: things found across two sections
+PASS: section-less claim inherits its section through SOURCED_FROM
+PASS: scaffold BRAIN rows are never things
+PASS: A1-M1 recalled (shared entity + lexical)
+PASS: A1-M1 carries shared_entity and lexical lanes
+PASS: A1-M1 carries the ICM declared-coupling lane
+PASS: A2-M2 recalled (shared entity only)
+PASS: known pair A1-M2 excluded (existing edge)
+PASS: known pair A2-M1 excluded (existing opportunity)
+PASS: known pairs form the exclusion set
+PASS: no same-section pair
+PASS: couplings from CONTEXT.md Inputs
+PASS: cap respected and truncation reported
+PASS: things.jsonl written
+PASS: candidates.jsonl written with header
+PASS: STATUS.md derived: stage 02
+PASS: question set validates
+PASS: eureka template registered with doors
+PASS: eu.transfer lens maps to concept-evidence with ce.pair
+PASS: round-one queries compose for the first leaf
+PASS: planner accepts the question set
+(node:715375) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: judge none writes verdicts
+PASS: STATUS.md derived: stage 03
+PASS: measured bucket reads medium and routes to a human
+PASS: stage A fabricated-quantity gate fires
+PASS: a throwing judge never breaks the stage
+PASS: editing candidates.jsonl steers the next stage
+PASS: research_run declares MCP annotations
+PASS: research_run description names the eureka ops
+PASS: MCP eureka_recall runs on the bound room
+PASS: MCP eureka_recall returns a plan and a next step
+PASS: MCP eureka_candidates page 1: has_more and next_offset
+PASS: MCP eureka_candidates last page: no more
+PASS: MCP eureka_judge runs Stage A with judge none
+PASS: MCP eureka_candidates carries verdict fields after the judge
+PASS: MCP refusal carries an actionable hint
+PASS: MCP eureka_candidates without run_tag refuses with a hint
+PASS: zero network attempts
+--- test-seed103-eureka-perspective ---
+PASS: 39 FAIL: 0
+>>> seed103 eureka perspective end to end: PASSED
+
+--- 218 what/why classifier (entity-classifier transport pin) ---
+(node:715382) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - (m1) embedding routing: WHAT/WHY confident, ambiguous not confident
+  ok - (m2) reference set embedded exactly once across two calls
+  ok - (m3) unavailable encoder degrades to ok:false, never throws
+  ok - (m4) Part 7 reuse: module requires entity-extractor and FRAMEWORK_TERMS is a Set
+  ok - (m5) zero-transport: embedding module carries no LLM host and no brain host
+  ok - WHY reroute round-trips model labels with source model
+  ok - no resolvable key degrades to pass-through fallback
+  ok - transport throw / non-JSON / non-2xx all degrade to fallback
+  ok - empty candidate list returns empty labels without a transport call
+  ok - synthetic biotech fixture: framework WHY, companies WHAT, generic prompt
+  ok - domain-agnostic: module source carries zero workspace vocabulary
+  ok - zero-Brain: no brain-host substring and no brain-client require
+  ok - tier-1 emits additive frameworkTerms without disturbing entities
+  ok - frameworkTerms deduped case-insensitively and capped
+  ok - entity-classifier is the only eureka module carrying the transport
+  ok - integration: WHY reroute captures framework_terms, never mints WHY nodes
+  ok - integration: throwing classifier degrades to pass-through, still commits
+  ok - integration: synthetic biotech room routes WHY vs WHAT correctly
+  ok - integration: re-run unions framework_terms and preserves review_status
+  ok - integration (v): embedding-alone resolution, zero LLM calls
+  ok - integration (vi): minimal escalation routes only the unconfident candidate
+  ok - integration (vii): honest no-LLM degrade discloses low-confidence best-guess
+
+22/22 tier-2 classifier checks passed
+>>> 218 what/why classifier (entity-classifier transport pin): PASSED
+
+--- 119-01 scaffold (llm-name-suggester HAIKU_MODEL_ID gate) ---
+OK: 119-01 scaffold complete (1 EVENT_TYPES string + llm-name-suggester LOCAL invariant + Haiku 4.5 model ID + verbatim F.1 labels reserved + zero em-dashes)
+>>> 119-01 scaffold (llm-name-suggester HAIKU_MODEL_ID gate): PASSED
+
+--- 232 briefing ---
+  ok - Test 1: null key -> {ok:false, error:no_api_key}, no network
+  ok - Test 2: valid JSON text block -> {ok:true, briefing:{...}}
+  ok - Test 2b: fenced JSON is unwrapped and parsed
+  ok - Test 3: HTTP 500 -> {ok:false, error:api_error}
+  ok - Test 4: non-JSON text block -> {ok:false, error:api_error}
+
+test-232-briefing.cjs: 5/5 passed
+(node:715443) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 232 briefing: PASSED
+
+--- candidate producer ---
+test-candidate-producer (GDH-05 producer, D-169-06)
+  ok - produceCandidates returns an array of candidate tuples from a stub llm
+  ok - the producer emits BOTH a CONTRADICTS AND a CONVERGES candidate (D-169-06)
+  ok - every emitted edge_type is in the frozen cascade subset
+  ok - every candidate carries source + target + reason fields
+  ok - the injected stub llm is the only model touched (Part 8: no Brain)
+
+PASS (5/5)
+>>> candidate producer: PASSED
+
+--- 233 derivation default gate ---
+test-233-derivation-default-gate (RCA 4b: gate the dead hosted-API default)
+  ok - 1. no deriveFn + no opt-in throws synchronously
+  ok - 1b. the error names deriveFn_required_no_hosted_default
+  ok - 2. the hosted producer was NEVER invoked (call count 0, no network reached)
+  ok - 3. it threw BEFORE opening room.db (no .mindrian written to the room)
+  ok - 4. opt-in set but ANTHROPIC_API_KEY absent still throws the gated error
+  ok - 5. opt-in set but ANTHROPIC_API_KEY empty still throws the gated error
+  ok - 6. explicit opt-in + a non-empty key resolves deriveFn to produceCandidates (the spy WAS invoked, so the gate opens on deliberate configuration)
+  ok - 7. an injected deriveFn is unaffected with the gate CLOSED
+  ok - 8. an injected deriveFn is unaffected with the gate OPEN
+  ok - 9. the message points at the LOCAL score-based escape hatch and the opt-in
+  ok - 10. the message leaks no runtime data (no room path, no key value) [T-233-08]
+
+PASS (11/11) -- RCA 4b gate holds; the dead default is no longer reachable by accident
+(node:715457) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 233 derivation default gate: PASSED
+
+--- 233 drain/backfill producer parity ---
+test-233-drain-backfill-producer-parity (RCA 4b/4e: one producer, two triggers)
+  ok - A1. the headless drain carries a LIVE classifier.scoreBasedDeriveFn default assignment
+  ok - A2. the in-session backfill carries a LIVE classifier.scoreBasedDeriveFn default assignment
+  ok - A3. neither module carries a LIVE reference to the gated hosted producer (graph-candidate-producer); the drain header PROSE that names it is stripped first
+  ok - A4. the stripper is honest: the UNSTRIPPED drain source DOES mention graph-candidate-producer in prose, so A3 is a real gate and not a vacuous one
+  ok - A5. [4e] the stale "and CLEARS the drained entry" doctrine phrase is gone
+  ok - A6. [4e] the header states the real reconcile behavior and the division of labor
+  ok - A7. [4e] the already-correct "Failure discipline" paragraph is intact (untouched by 233-02)
+(node:715464) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - B0. the two fixture rooms enumerate the identical artifact id set with identical, deterministic mtime ordering (so B3/B6 measure the producer, not filesystem timestamp granularity)
+[graph-backfill] room: scored 3/3 pairs
+  ok - B1. the headless drain default path INVOKED classifier.scoreBasedDeriveFn (a different producer would leave this list empty)
+  ok - B2. the in-session backfill default path INVOKED THE SAME classifier.scoreBasedDeriveFn
+  ok - B3. both triggers drove the producer over the IDENTICAL pair set for byte-identical rooms (3 pairs each)
+  ok - B4. both triggers handed the producer the same D-04 seam shape (scoreOpts + onOutcome), so probe and scoring cannot diverge on either path
+  ok - B5. the headless path actually LANDED cascade edges in room.db (3 edges), so B6 compares real output not two empties
+  ok - B6. FUNCTIONAL parity: identical input pairs produced the IDENTICAL cascade edge set on disk through both triggers
+  ok - B7. both triggers landed the edges PROPOSED, never auto-confirmed (Canon Part 3/9: only a human confirms)
+
+PASS (15/15) -- RCA 4b/4e: headless and in-session share ONE default producer
+>>> 233 drain/backfill producer parity: PASSED
+
+--- 169 brain boundary ---
+test-169-brain-boundary (Part 8)
+  ok - every one of the SIX Phase-169 surfaces exists to be swept
+  ok - no Brain-WRITE token in any of the six surfaces (incl. brain-derive: READ allowed, WRITE forbidden)
+  ok - no Brain-HOST egress in any LOCAL-only surface (the Brain host is the real boundary; api.anthropic.com is not)
+  ok - no raw external fetch( egress in any LOCAL-only surface (api.anthropic.com transport exempt)
+  ok - no external http(s) endpoint (non-github, non-anthropic) in any LOCAL-only surface
+  ok - sweep regexes are sharp on a planted artifact-body token (RED then GREEN self-test)
+
+PASS (6/6)
+>>> 169 brain boundary: PASSED
+
+--- 363 families ---
+PASS: F1 FAMILIES has exactly the five ids, each template with id, role, render
+PASS: F2 whitespace-gap composes four queries with the exact expected bytes
+PASS: F3 each query carries q_hash, audit pass, family, template_id, role, slot_terms
+PASS: F4 the other four families compose ok within 200 chars
+PASS: F5 egress violation (theo destination) returns local-only with no echo; the same slot composes on the web line
+PASS: F6 slot rule violations return bad_slot without echo
+PASS: F7 unknown family refused; template subset composes only listed ids
+PASS: F8 injected auditFn (theo destination): once per slot value then once per composed string; throw maps to egress_violation; zero calls on the web line
+PASS: F9 composeForLeaf maps lens ids to families and returns round-one queries
+PASS: F10 isRawQueryEdit and slotTerms
+PASS: F11 deterministic, and the module performs no I/O
+--- 363-08 families ---
+PASS: 11 FAIL: 0
+>>> 363 families: PASSED
+
+--- 363 mcp tool (research_run) ---
+(node:715506) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: M1 the server lists research_run with an honest description
+PASS: M2 planners and plan answer exactly as the facade does
+PASS: M3 grant_request mints a gate; nothing persists until gate_answer approve_run; single use
+PASS: M4 a fresh server process reads the approved run grant through grant_status
+PASS: M5 run_quick with the run grant returns the evidence card; without one returns the F.0 card and fetches nothing
+PASS: M6 deep_plan returns the F.6 gate and says deep execution runs in Claude Code
+PASS: M7 basket mints an F.8 gate; file needs a consumed basket gate from this tool
+PASS: M8 every response carries pending cards exactly once
+PASS: M9 grant_revoke revokes the run grant and a later run_quick asks again
+PASS: M10 the zod schema rejects an unknown op and a non-object question_set without echoing input
+PASS: M11 Part 8: no brain or theo reach, the planted marker never leaves
+PASS: M12 the connectors export declares research_run as an F.6 mcp-tool
+PASS: M13 grant_request without run_id refuses run_id_required; with run_id its gate offers approve_run and not_now only (369.2 R02)
+PASS: dash guard: no em-dash or en-dash in the tool or this test
+PASS: net guard: the only fetches were the recorded replay (zero real attempts)
+PASS: global fetch restored to the net guard
+--- 363-17 research_run MCP tool ---
+PASS: 16 FAIL: 0
+>>> 363 mcp tool (research_run): PASSED
+
+--- 363 plan schema ---
+PASS: P0 plan.cjs loads and exports the contract
+PASS: P1 complete quick fixture passes validatePlan
+PASS: P1 complete deep fixture passes validatePlan
+PASS: P2 malformed plans fail with named errors
+PASS: P2 quick budget over the quick cap fails
+PASS: P3 planHash is stable across key order and excluded fields
+PASS: P3 planHash changes on any leaf, query, budget, perspective or limiter edit
+PASS: P4 drop_leaf records the drop in pyramid.dropped and the ratchet, increments revision
+PASS: P4 the fourth edit returns revision_cap
+PASS: P5 an edit carrying a q key is refused and never echoed
+PASS: P6 reword_leaf calls recompose exactly once with the reworded leaf
+PASS: P6 a local-only recompose refusal leaves the plan unchanged without the string
+PASS: P7 set_budget above a cap returns over_cap
+PASS: P7 toggle_scientific flips the flag and records S5:navigator_toggle
+PASS: P7 toggle_counterevidence off on a deep plan is refused
+PASS: P7 drop_path records the path and its limiters in the ratchet
+PASS: P8 planReviewCard(deep) is a renderable F.6 card with every audited string
+PASS: P8 the card options follow the plan mode
+PASS: P9 the card never prints a problem-type label or the retired mode names
+PASS: P10 validateRunResult accepts a complete fixture and rejects bad ones
+PASS: P10 newRunId matches rp-YYYY-MM-DD-8hex
+PASS: P10 BUDGETS constants match the disclosed defaults
+PASS: P11 every require in lib/core/research-planner is a node built-in or repo-relative (DRP363-18)
+PASS: P12 no em-dash or en-dash in plan.cjs or the card body
+PASS: P12 CONTEXT.md has no long dash
+PASS: P12 CONTEXT.md carries the folder contract headings and the SEED-098 reuse contract
+PASS: P13 no network was attempted
+--- 363-05 plan schema ---
+PASS: 27 FAIL: 0
+>>> 363 plan schema: PASSED
+
+--- 270 tool schema budget ---
+Phase 270-06 (MEMOP-10): tool-schema token baseline, measured not assumed
+  ok - harness reached real data
+  ok - the measured surface matches the recorded AFTER toolCount
+  ok - the measured totalBytes is within 10 percent of the recorded AFTER
+  ok - router tools and atomic tools are accounted separately
+  ok - the phase's token effect is stated as a measured delta
+
+budget: 48 tools, 24876 desc bytes, 32768 schema bytes, 57644 total, ~14411 approx tokens (router 9 / atomic 39)
+delta 270-06 -> 369-41: toolCount +12 (33.33%), totalBytes +28387 (99.02%), approxTokens +7097 (99.02%)
+
+5 passed, 0 failed
+>>> 270 tool schema budget: PASSED
+
+--- 234 tool description floor ---
+Phase 234-02 (D-03): every MCP tool description clears the instruction floor
+  ok - server answered tools/list (harness reached ground truth)
+  ok - tools/list returned a non-trivial catalog (>= 20 tools, got 48)
+  ok - every tool description is >= 120 chars (D-03 instruction floor)
+  ok - rewritten tool `meeting` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `room_graph` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `room_list` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `analysis` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `room_content` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `room_search` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `export` is registered (presence pin, not a coverage gate)
+  ok - rewritten tool `orchestration` is registered (presence pin, not a coverage gate)
+  ok - `room_state` description starts with a capital letter
+  ok - `room_state` description ends with a sentence terminator
+  ok - `room_state` description is <= 2048 bytes (got 456)
+  ok - `room_state` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_content` description starts with a capital letter
+  ok - `room_content` description ends with a sentence terminator
+  ok - `room_content` description is <= 2048 bytes (got 960)
+  ok - `room_content` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_graph` description starts with a capital letter
+  ok - `room_graph` description ends with a sentence terminator
+  ok - `room_graph` description is <= 2048 bytes (got 539)
+  ok - `room_graph` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `methodology` description starts with a capital letter
+  ok - `methodology` description ends with a sentence terminator
+  ok - `methodology` description is <= 2048 bytes (got 128)
+  ok - `methodology` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `analysis` description starts with a capital letter
+  ok - `analysis` description ends with a sentence terminator
+  ok - `analysis` description is <= 2048 bytes (got 567)
+  ok - `analysis` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `intelligence` description starts with a capital letter
+  ok - `intelligence` description ends with a sentence terminator
+  ok - `intelligence` description is <= 2048 bytes (got 130)
+  ok - `intelligence` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `meeting` description starts with a capital letter
+  ok - `meeting` description ends with a sentence terminator
+  ok - `meeting` description is <= 2048 bytes (got 1207)
+  ok - `meeting` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `export` description starts with a capital letter
+  ok - `export` description ends with a sentence terminator
+  ok - `export` description is <= 2048 bytes (got 725)
+  ok - `export` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `orchestration` description starts with a capital letter
+  ok - `orchestration` description ends with a sentence terminator
+  ok - `orchestration` description is <= 2048 bytes (got 897)
+  ok - `orchestration` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_bind` description starts with a capital letter
+  ok - `room_bind` description ends with a sentence terminator
+  ok - `room_bind` description is <= 2048 bytes (got 254)
+  ok - `room_bind` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `eureka_critic` description starts with a capital letter
+  ok - `eureka_critic` description ends with a sentence terminator
+  ok - `eureka_critic` description is <= 2048 bytes (got 163)
+  ok - `eureka_critic` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `contract_version` description starts with a capital letter
+  ok - `contract_version` description ends with a sentence terminator
+  ok - `contract_version` description is <= 2048 bytes (got 141)
+  ok - `contract_version` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_artifact` description starts with a capital letter
+  ok - `room_artifact` description ends with a sentence terminator
+  ok - `room_artifact` description is <= 2048 bytes (got 190)
+  ok - `room_artifact` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `chain_resolve` description starts with a capital letter
+  ok - `chain_resolve` description ends with a sentence terminator
+  ok - `chain_resolve` description is <= 2048 bytes (got 206)
+  ok - `chain_resolve` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `chain_run` description starts with a capital letter
+  ok - `chain_run` description ends with a sentence terminator
+  ok - `chain_run` description is <= 2048 bytes (got 1113)
+  ok - `chain_run` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `claim_verify` description starts with a capital letter
+  ok - `claim_verify` description ends with a sentence terminator
+  ok - `claim_verify` description is <= 2048 bytes (got 267)
+  ok - `claim_verify` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `claim_read` description starts with a capital letter
+  ok - `claim_read` description ends with a sentence terminator
+  ok - `claim_read` description is <= 2048 bytes (got 309)
+  ok - `claim_read` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `claim_write` description starts with a capital letter
+  ok - `claim_write` description ends with a sentence terminator
+  ok - `claim_write` description is <= 2048 bytes (got 668)
+  ok - `claim_write` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `context_assemble` description starts with a capital letter
+  ok - `context_assemble` description ends with a sentence terminator
+  ok - `context_assemble` description is <= 2048 bytes (got 674)
+  ok - `context_assemble` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `detect_dual_path` description starts with a capital letter
+  ok - `detect_dual_path` description ends with a sentence terminator
+  ok - `detect_dual_path` description is <= 2048 bytes (got 284)
+  ok - `detect_dual_path` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `extract_shallow` description starts with a capital letter
+  ok - `extract_shallow` description ends with a sentence terminator
+  ok - `extract_shallow` description is <= 2048 bytes (got 439)
+  ok - `extract_shallow` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_changes` description starts with a capital letter
+  ok - `room_changes` description ends with a sentence terminator
+  ok - `room_changes` description is <= 2048 bytes (got 368)
+  ok - `room_changes` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `gate_list` description starts with a capital letter
+  ok - `gate_list` description ends with a sentence terminator
+  ok - `gate_list` description is <= 2048 bytes (got 885)
+  ok - `gate_list` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `gate_render` description starts with a capital letter
+  ok - `gate_render` description ends with a sentence terminator
+  ok - `gate_render` description is <= 2048 bytes (got 1681)
+  ok - `gate_render` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `gate_answer` description starts with a capital letter
+  ok - `gate_answer` description ends with a sentence terminator
+  ok - `gate_answer` description is <= 2048 bytes (got 2028)
+  ok - `gate_answer` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `graph_reason` description starts with a capital letter
+  ok - `graph_reason` description ends with a sentence terminator
+  ok - `graph_reason` description is <= 2048 bytes (got 533)
+  ok - `graph_reason` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `graph_query` description starts with a capital letter
+  ok - `graph_query` description ends with a sentence terminator
+  ok - `graph_query` description is <= 2048 bytes (got 171)
+  ok - `graph_query` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `graph_write` description starts with a capital letter
+  ok - `graph_write` description ends with a sentence terminator
+  ok - `graph_write` description is <= 2048 bytes (got 157)
+  ok - `graph_write` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `memory_event` description starts with a capital letter
+  ok - `memory_event` description ends with a sentence terminator
+  ok - `memory_event` description is <= 2048 bytes (got 168)
+  ok - `memory_event` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `identity_write` description starts with a capital letter
+  ok - `identity_write` description ends with a sentence terminator
+  ok - `identity_write` description is <= 2048 bytes (got 394)
+  ok - `identity_write` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `question_read` description starts with a capital letter
+  ok - `question_read` description ends with a sentence terminator
+  ok - `question_read` description is <= 2048 bytes (got 449)
+  ok - `question_read` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `question_set` description starts with a capital letter
+  ok - `question_set` description ends with a sentence terminator
+  ok - `question_set` description is <= 2048 bytes (got 646)
+  ok - `question_set` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `research_run` description starts with a capital letter
+  ok - `research_run` description ends with a sentence terminator
+  ok - `research_run` description is <= 2048 bytes (got 1308)
+  ok - `research_run` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_list` description starts with a capital letter
+  ok - `room_list` description ends with a sentence terminator
+  ok - `room_list` description is <= 2048 bytes (got 666)
+  ok - `room_list` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_state_bound` description starts with a capital letter
+  ok - `room_state_bound` description ends with a sentence terminator
+  ok - `room_state_bound` description is <= 2048 bytes (got 138)
+  ok - `room_state_bound` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room_search` description starts with a capital letter
+  ok - `room_search` description ends with a sentence terminator
+  ok - `room_search` description is <= 2048 bytes (got 801)
+  ok - `room_search` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `suggest_next` description starts with a capital letter
+  ok - `suggest_next` description ends with a sentence terminator
+  ok - `suggest_next` description is <= 2048 bytes (got 436)
+  ok - `suggest_next` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `reach_candidates` description starts with a capital letter
+  ok - `reach_candidates` description ends with a sentence terminator
+  ok - `reach_candidates` description is <= 2048 bytes (got 248)
+  ok - `reach_candidates` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `contradiction_check` description starts with a capital letter
+  ok - `contradiction_check` description ends with a sentence terminator
+  ok - `contradiction_check` description is <= 2048 bytes (got 253)
+  ok - `contradiction_check` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `whitespace_scan` description starts with a capital letter
+  ok - `whitespace_scan` description ends with a sentence terminator
+  ok - `whitespace_scan` description is <= 2048 bytes (got 421)
+  ok - `whitespace_scan` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `framework_run` description starts with a capital letter
+  ok - `framework_run` description ends with a sentence terminator
+  ok - `framework_run` description is <= 2048 bytes (got 424)
+  ok - `framework_run` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `status_read` description starts with a capital letter
+  ok - `status_read` description ends with a sentence terminator
+  ok - `status_read` description is <= 2048 bytes (got 483)
+  ok - `status_read` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `stop_gate_check` description starts with a capital letter
+  ok - `stop_gate_check` description ends with a sentence terminator
+  ok - `stop_gate_check` description is <= 2048 bytes (got 460)
+  ok - `stop_gate_check` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `view_compile` description starts with a capital letter
+  ok - `view_compile` description ends with a sentence terminator
+  ok - `view_compile` description is <= 2048 bytes (got 288)
+  ok - `view_compile` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `artifact_file` description starts with a capital letter
+  ok - `artifact_file` description ends with a sentence terminator
+  ok - `artifact_file` description is <= 2048 bytes (got 737)
+  ok - `artifact_file` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room-dashboard` description starts with a capital letter
+  ok - `room-dashboard` description ends with a sentence terminator
+  ok - `room-dashboard` description is <= 2048 bytes (got 143)
+  ok - `room-dashboard` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room-wiki` description starts with a capital letter
+  ok - `room-wiki` description ends with a sentence terminator
+  ok - `room-wiki` description is <= 2048 bytes (got 134)
+  ok - `room-wiki` description carries no em-dash (CLAUDE.md hard rule)
+  ok - `room-graph` description starts with a capital letter
+  ok - `room-graph` description ends with a sentence terminator
+  ok - `room-graph` description is <= 2048 bytes (got 139)
+  ok - `room-graph` description carries no em-dash (CLAUDE.md hard rule)
+  ok - every registered tool received the full prose-shape check set (coverage: 48/48)
+
+  204 passed, 0 failed (prose-shape coverage: 48/48 registered tools)
+>>> 234 tool description floor: PASSED
+
+--- 205 surface fence ---
+  ok - every registry entry carries surface = navigator|internal
+  ok - the 11 D-Q6 internal commands are all present and surface:internal
+  ok - exactly 11 entries are surface:internal (no over-tagging)
+  ok - the generator fails closed on a renamed/removed internal command
+  ok - filterToNavigator over ALL registry commands drops every internal entry
+  ok - filterToNavigator excludes every known internal command by name
+  ok - methodologyExitsOnly returns only kind:methodology entries
+  ok - isInternalSurface(dogfood-flush) === true
+  ok - isInternalSurface(/mos:dogfood-flush) === true
+  ok - isNavigatorSurface(funding) === true
+  ok - isNavigatorSurface(dogfood-flush) === false
+  ok - isMethodology(beautiful-question) === true
+  ok - isMethodology(admin) === false
+  ok - unknown command soft-fails to navigator (not internal)
+  ok - surface-fence.cjs performs no fs write and no network call
+  ok - tool-router.cjs requires lib/core/surface-fence.cjs
+  ok - tool-router.cjs calls filterToNavigator on its suggest path
+  ok - no gear-shift / FUSION exit is CLI-only (MCP-invisible)
+  ok - every gear-shift exit resolves to kind:methodology
+  ok - ALL_TOOL_COMMANDS mints no new tool (unique membership pinned at 66)
+
+20 checks passed
+(node:715555) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 205 surface fence: PASSED
+
+--- 353 tripwires (no Jev under lib/ or hooks/) ---
+--- leg 1: no api.typesafe.ai literal under lib/ (non-comment lines) ---
+files scanned: 10444
+PASS: no non-comment lib/ line contains api.typesafe.ai
+PASS: negative control: a scratch lib/ file carrying the literal on a non-comment line is caught by the same scan
+  negative control recorded: scratch file written under lib/core/, scanned, caught=true, removed in this same task
+
+--- leg 2: no hooks/ reference to any HOOKS_BANNED_LEDGER_SCRIPTS entry (14 names) ---
+files scanned: 2
+PASS: no non-comment hooks/ line references any HOOKS_BANNED_LEDGER_SCRIPTS entry (14 names)
+
+--- leg 3: eval-icm-writers.cjs never reaches a real room ---
+files scanned: 1
+PASS: no MindrianRooms literal, no os.homedir() room resolution in eval-icm-writers.cjs (non-comment lines)
+PASS: a --room outside tests/fixtures/icm-rooms is refused with a non-zero exit
+
+PASS=5 FAIL=0
+>>> 353 tripwires (no Jev under lib/ or hooks/): PASSED
+
+--- connector registry --check ---
+connector-registry: OK
+(node:715598) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> connector registry --check: PASSED
+
+--- orchestration projection --check ---
+orchestration-projection: OK
+>>> orchestration projection --check: PASSED
+
+--- shape declaration --check ---
+WARN: shape-declaration advisory (Phase 210): 51 violation(s) detected; not blocking (run with --strict to restore hard-fail)
+WARN:   - surface commands/admin.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/correct-reference-now.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/doctor.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/dogfood-flush.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/export.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/feynman-timeline-refresh.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/heal.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/help.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/hmi-status.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/models.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/mos.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/onboard.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/organize.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/publish.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/radar.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/rooms.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/scheduled-tasks.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/setup.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/snapshot.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/splash.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/stance.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/update.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/vault.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface commands/visualize.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface agents/larry-extended.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/admin/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/conversation-mode/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/correct-reference-now/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/doctor/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/dogfood-flush/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/export/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/feynman-timeline-refresh/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/heal/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/help/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/hmi-status/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/intelligence-orchestrator/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/models/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/mos/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/onboard/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/organize/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/publish/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/radar/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/rooms/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/scheduled-tasks/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/setup/SKILL.md: declares hitl_shape F.8 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/snapshot/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/splash/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/stance/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/update/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/vault/SKILL.md: declares hitl_shape F.0 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+WARN:   - surface skills/visualize/SKILL.md: declares hitl_shape F.1 (a genuine Decision-Gate fork) AND connector.excluded:true (the no-fork exemption) simultaneously -- Canon Part 11 (this repo's own CLAUDE.md): "a render-only or pure-capability skill is exempt via its existing connector.excluded:true + reason, never via a fork it does not have"
+Recovery: run node scripts/backfill-hitl-shape.cjs, or hand-author the missing declaration per docs/HITL-SHAPE-DECLARATION-CONTRACT.md, or add connector.excluded:true + reason if this skill reaches no fork.
+(node:715612) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> shape declaration --check: PASSED
+
+--- 366 fixture helper (planted perspective room) ---
+PASS: planted has a pair per perspective plus known
+PASS: room.db exists at dbPath
+PASS: CONTEXT.md with ## Inputs in problem-definition
+PASS: CONTEXT.md with ## Inputs in market-analysis
+PASS: CONTEXT.md with ## Inputs in solution-design
+PASS: CONTEXT.md with ## Inputs in competitive-analysis
+PASS: references/ exists
+PASS: edge_rows_missing_endpoint is 0 on the built room.db
+PASS: every planted id is a node
+PASS: WhitespaceZone and framework: nodes minted
+PASS: planted edge types present
+PASS: recall ok over four sections
+PASS: planted eureka pair among candidates
+PASS: eureka pair carries shared_entity and lexical lanes
+PASS: planted known pair NOT among candidates
+PASS: opportunity evidence pair NOT among candidates
+PASS: counts.excluded_known is at least 1
+PASS: canon handles resolve on the connections pair
+PASS: withoutDb skips room.db
+PASS: zero network attempts
+--- test-366-fixture-helper ---
+PASS: 20 FAIL: 0
+>>> 366 fixture helper (planted perspective room): PASSED
+
+--- 366 spike substrate prepare ---
+PASS: --out /etc refuses with exit 2
+PASS: --out with .. refuses with exit 2
+PASS: free text on argv refuses with exit 2
+PASS: missing subcommand refuses with exit 2
+PASS: --out under the fixture tree refuses with exit 2
+PASS: guardSpikePath refuses a sibling-prefix path
+PASS: guardSpikePath accepts a path inside the root
+(node:715626) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: prepare ok
+PASS: work dir is a fresh spike-366- dir under --out
+PASS: manifest schema
+PASS: three rooms in the manifest
+PASS: room-control: room.db built in the copy
+PASS: room-control: fixture_sha256 of the source
+PASS: room-control: node count and edge counts by type
+PASS: room-control: DESCRIBES edge count recorded
+PASS: room-control: entity tiers recorded
+PASS: room-control: no model escalation (offline)
+PASS: room-control: offline child made zero network attempts
+PASS: room-extend: room.db built in the copy
+PASS: room-extend: fixture_sha256 of the source
+PASS: room-extend: node count and edge counts by type
+PASS: room-extend: DESCRIBES edge count recorded
+PASS: room-extend: entity tiers recorded
+PASS: room-extend: no model escalation (offline)
+PASS: room-extend: offline child made zero network attempts
+PASS: room-ill-defined: room.db built in the copy
+PASS: room-ill-defined: fixture_sha256 of the source
+PASS: room-ill-defined: node count and edge counts by type
+PASS: room-ill-defined: DESCRIBES edge count recorded
+PASS: room-ill-defined: entity tiers recorded
+PASS: room-ill-defined: no model escalation (offline)
+PASS: room-ill-defined: offline child made zero network attempts
+PASS: CLI prepare exits 0 and prints the manifest path
+PASS: source tree byte-identical before and after
+PASS: nothing written under tests/fixtures/355-rooms
+PASS: zero network attempts
+--- test-366-spike-prepare ---
+PASS: 36 FAIL: 0
+>>> 366 spike substrate prepare: PASSED
+
+--- 366 eureka filing ---
+PASS: F1a OPPORTUNITY_KINDS appends cross_domain_transfer last, six kinds unchanged
+PASS: F1b recall leaves carry the closed pair, never the old candidate field
+PASS: F1c normalizeLeaf copies the closed pair and drops extra keys and bad fields
+PASS: F1d the pair rides the plan hash (pair.a change changes the hash)
+PASS: F2a a supported eureka pair leaf with no known hit yields one cross_domain_transfer item
+PASS: F2b an unsupported eureka leaf yields nothing
+PASS: F2c a pair-less run-level known hit (eu-known supported) suppresses the item
+PASS: F2d a known leaf on the same pair in reverse order suppresses; a known leaf on another pair does not
+PASS: F2e a stub template rule {kind mechanism_transfer, dimension x:pair} drives the same branch
+PASS: F3a a pair-carrying ws:gap_claim leaf yields exactly one literature_gap item carrying the pair
+PASS: F3b a pair-carrying constraint_attack leaf yields exactly one item with no perspective at all
+PASS: F3c the same leaves without pair yield exactly the pre-edit goldens
+PASS: F4 filing-stamped exports fileStampedOpportunity, readPwsStage and sourcedFromTarget
+PASS: F5 stampForPair with an unresolved endpoint stamps unverified / not_called / handle_unresolved, zero calls
+PASS: F6 stampForPair returns a recorded theo-lane.json stamp unchanged; bad or outside files degrade
+PASS: F7 approving the cross_domain_transfer item files one proposed candidate opportunity carrying the stamp
+PASS: F8 the filed node has DERIVED_FROM edges to pair.a, pair.b and the run home; Theo asked zero times; the pair leaves recall
+PASS: F9 filing the same approved basket twice writes one opportunity node (single-use approval)
+PASS: zero network attempts
+PASS: zero Theo calls across the whole test
+--- test-366-eureka-filing ---
+PASS: 20 FAIL: 0
+>>> 366 eureka filing: PASSED
+
+--- 366 eureka alias ---
+PASS: the intelligence handler is registered
+(node:715854) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: A1 [http] eureka-run context=undefined answers the research_run pointer
+PASS: A1 [http] eureka-run context=undefined starts nothing
+PASS: A1 [http] eureka-run context="" answers the research_run pointer
+PASS: A1 [http] eureka-run context="" starts nothing
+PASS: A1 [http] eureka-run context="{bad json" answers the research_run pointer
+PASS: A1 [http] eureka-run context="{bad json" starts nothing
+PASS: A1 [http] eureka-run context="{\"legacy\":\"true\"}" answers the research_run pointer
+PASS: A1 [http] eureka-run context="{\"legacy\":\"true\"}" starts nothing
+PASS: A1 [http] eureka-run context="{\"legacy\":1}" answers the research_run pointer
+PASS: A1 [http] eureka-run context="{\"legacy\":1}" starts nothing
+PASS: A1 [http] eureka-run context="[true]" answers the research_run pointer
+PASS: A1 [http] eureka-run context="[true]" starts nothing
+PASS: A1 [http] eureka-run context="null" answers the research_run pointer
+PASS: A1 [http] eureka-run context="null" starts nothing
+PASS: A1 [http] eureka-run context="{\"offline\":true}" answers the research_run pointer
+PASS: A1 [http] eureka-run context="{\"offline\":true}" starts nothing
+PASS: A1 [stdio] eureka-run context=undefined answers the research_run pointer
+PASS: A1 [stdio] eureka-run context=undefined starts nothing
+PASS: A1 [stdio] eureka-run context="" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="" starts nothing
+PASS: A1 [stdio] eureka-run context="{bad json" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="{bad json" starts nothing
+PASS: A1 [stdio] eureka-run context="{\"legacy\":\"true\"}" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="{\"legacy\":\"true\"}" starts nothing
+PASS: A1 [stdio] eureka-run context="{\"legacy\":1}" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="{\"legacy\":1}" starts nothing
+PASS: A1 [stdio] eureka-run context="[true]" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="[true]" starts nothing
+PASS: A1 [stdio] eureka-run context="null" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="null" starts nothing
+PASS: A1 [stdio] eureka-run context="{\"offline\":true}" answers the research_run pointer
+PASS: A1 [stdio] eureka-run context="{\"offline\":true}" starts nothing
+PASS: A2 [http] eureka-run context={"legacy":true} ignores the flag and answers the pointer
+PASS: A2 [http] eureka-run context={"legacy":true} carries no deprecation line
+PASS: A2 [http] eureka-run context={"legacy":true,"offline":true} ignores the flag and answers the pointer
+PASS: A2 [http] eureka-run context={"legacy":true,"offline":true} carries no deprecation line
+PASS: A2 [stdio] eureka-run context={"legacy":true} ignores the flag and answers the pointer
+PASS: A2 [stdio] eureka-run context={"legacy":true} carries no deprecation line
+PASS: A2 [stdio] eureka-run context={"legacy":true,"offline":true} ignores the flag and answers the pointer
+PASS: A2 [stdio] eureka-run context={"legacy":true,"offline":true} carries no deprecation line
+PASS: A1/A2 zero spawns across every eureka-run call
+PASS: A1/A2 no .mindrian/eureka state was written
+PASS: A3 eureka-status context="" answers the research_run pointer
+PASS: A3 eureka-status context="{\"legacy\":true}" answers the research_run pointer
+PASS: A3 eureka-report context="" answers the research_run pointer
+PASS: A3 eureka-report context="{\"legacy\":true}" answers the research_run pointer
+PASS: A3 status and report wrote no .mindrian/eureka state
+PASS: A4 commands/eureka.md has no ZERO writes / ZERO network wording
+PASS: A4 skills/eureka/SKILL.md has no ZERO writes / ZERO network wording
+PASS: A4 commands/eureka.md no longer names --legacy
+PASS: A4 skills/eureka/SKILL.md no longer names --legacy
+PASS: A4 the door has no legacy runner section
+PASS: A4 the door never names the deleted runner
+PASS: A4 the door carries no deprecation line
+PASS: A4 the default run calls research-planner.cjs eureka-recall
+PASS: A4 the enable subcommand runs the eureka-enable installer
+PASS: A4 the door declares the Form B stages F.6, F.0 and F.8
+PASS: A4 the door carries no em-dash or en-dash
+PASS: A5 ALL_TOOL_COMMANDS stays 66
+PASS: A5 no eureka compute name leaked into ALL_TOOL_COMMANDS
+PASS: A5 the three eureka compute names stay on the intelligence enum
+PASS: A5 the router reads no flags.legacy
+PASS: A5 the router names no runner file
+PASS: A5 zero network attempts
+--- test-366-eureka-alias ---
+PASS: 65 FAIL: 0
+>>> 366 eureka alias: PASSED
+
+--- 366 canon handles ---
+PASS: C1 readTranslations is a Map
+PASS: C1 ratified row present
+PASS: C1 proposed row (ratified_at null) excluded
+PASS: C1 listRows returns both rows
+PASS: C1 listRows keeps ratified_at null
+PASS: C1 TRANSLATIONS_RELPATH
+PASS: C1 missing table reads as an empty Map
+PASS: C2 resolverCtxFor builds names, registry, translations
+PASS: C2 framework term resolves via translation
+PASS: C2 title term resolves via translation
+PASS: C2 exact match only (no case folding)
+PASS: C2 no translations in ctx is a miss
+PASS: C3 canon framework resolves via framework, not translation
+PASS: C4 stale row is ignored
+PASS: C5 non-canon canon_name refused
+PASS: C5 term over 80 chars refused
+PASS: C5 refusals wrote nothing
+PASS: C5 first propose ok
+PASS: C5 second propose ok (idempotent)
+PASS: C5 one row after two proposals
+PASS: C5 proposed row has ratified_at null
+PASS: C5 proposed row is not used by the resolver
+PASS: C5 proposeRow never throws
+PASS: C6 ratify existing row ok
+PASS: C6 ratified_at is the ISO date
+PASS: C6 ratified row now resolves
+PASS: C6 missing row returns row_missing
+PASS: C6 resolver sees the ratified row
+PASS: C7 escaping symlink reads as an empty Map
+PASS: C7 escaping symlink lists no rows
+PASS: C7 propose through escaping symlink refused
+PASS: C7 outside file untouched
+PASS: C8 navigation re-exports linkThingToFramework
+PASS: C8 navigation re-exports mintFrameworkNode
+PASS: C8 link ok
+PASS: C8 framework node has type framework
+PASS: C8 framework node carries the canon name
+PASS: C8 one USES_FRAMEWORK edge
+PASS: C8 edge properties relation/framework/origin
+PASS: C9 second link ok
+PASS: C9 still one framework node row
+PASS: C9 still one edge row
+PASS: C9 re-mint ok and still one node
+PASS: C10 edge_rows_missing_endpoint is 0
+PASS: C10 two things, one shared framework node
+PASS: C11 non-canon refused
+PASS: C11 empty thing id refused
+PASS: C11 missing thing refused (no dangling source)
+PASS: C11 refusals wrote nothing
+PASS: C12 closed db does not throw
+PASS: C12 closed db returns write_failed
+PASS: C12 mint on closed db does not throw
+PASS: no network attempted
+--- test-366-canon-handles ---
+PASS: 53 FAIL: 0
+>>> 366 canon handles: PASSED
+
+--- 366 canon snapshot gate ---
+test-366-snapshot-gate:
+  ok - S1: a snapshot stamped against the current version passes
+  ok - S2: a snapshot stamped against an older version is LAGGING, naming both versions
+  ok - S3: an unstamped snapshot is LAGGING, says it was never stamped and names the refresh command
+  ok - S4: under dry-run a lagging snapshot reports and returns 0
+  ok - S5: --no-canon-snapshot-check prints one audited line and returns 0
+  ok - S6: a missing, malformed or badly stamped snapshot is a READ FAILURE, fail closed except under dry-run
+  ok - S7: --check passes unstamped; validateSnapshot checks the stamp shape; --live stamps {mapped_by, plugin_version, refreshed_at}
+
+7 checks passed.
+>>> 366 canon snapshot gate: PASSED
+
+--- 366 suite gate ---
+test-366-suite-gate:
+  ok - G1: every suite green returns 0 with one PASS line per suite
+  ok - G2: a red or missing suite returns non-zero and names it
+  ok - G3: under dry-run a failing suite reports and returns 0
+  ok - G4: --no-suite-check prints one audited line, runs nothing, returns 0
+  ok - static: default list is tests/run-all-366.sh, no exit in the lib, hyphens only
+  ok - static: release.sh sources both libs with a missing-file refusal
+  ok - static: release.sh calls both gates after the theo stamp gate, before Step 1
+  ok - static: both flags appear in the usage block, the defaults and the case statement
+  ok - static: under --dry-run release.sh previews the suite gate without executing the aggregator
+  ok - static: release.sh --help lists both flags
+
+10 checks passed.
+>>> 366 suite gate: PASSED
+
+--- 366 templates ---
+PASS: T1 eleven templates, new ids after eureka, whitespace unchanged
+PASS: T2 every new dimension has a lens on its family and a falsifier where researchable
+PASS: T3 frameworks are exact canon names and match the door frontmatter
+PASS: T4 doors route to the new templates; hsi is explicit only
+PASS: T5 analogies declares the SAPPhIRE statement slots, never query slots
+PASS: T6 rs leaves use cause and effect through causal-link; rule kinds exist
+--- test-366-templates ---
+PASS: 6 FAIL: 0
+>>> 366 templates: PASSED
+
+--- 366 ambient offer ---
+(node:716060) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: O1 _eurekaAdapter returns offer_only eureka findings, no stamp, <= AMBIENT_TOP_N, in recall order
+PASS: O2 selectCardFinding skips offer_only; the real eureka adapter files nothing and writes no last-eureka.json
+PASS: O3 producers.eureka is {outcome offered, offer of ids and slugs}; offered is the last guard outcome; the ledger validates
+PASS: O4 a strong hsi finding is filed through research-planner/filing-stamped.cjs fileStampedOpportunity
+PASS: O5 ambient-run.cjs no longer requires room-native-substrate, rs-differential-scorer or eureka-portfolio-report
+PASS: O6 zero network attempts and the injected callTool is never called for eureka
+PASS: O7 an eureka offer with no whitespace card records plan_card_eureka_offer and a pending plan-only card
+PASS: O8 a standing grant, and even a forced covering cover, still yield the plan-only offer and zero fetches
+PASS: O9 a whitespace card produced in the same pass wins; no eureka card is recorded
+PASS: O10 an unsurfaced plan-only card already pending dedupes the offer and leaves no run dir behind
+PASS: O11 the offered plan validates and its leaves carry the closed pair shape
+PASS: O12 leaf questions name both titles, the offer stays ids and slugs, an unresolved row is dropped and counted
+PASS: zero network attempts (whole test)
+--- test-366-ambient-offer ---
+PASS: 13 FAIL: 0
+>>> 366 ambient offer: PASSED
+
+--- 366 perspective interface ---
+(node:716070) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: P1 registry lists exactly the six ids, frozen
+PASS: P2 getPerspective(eureka) exports every interface name; unknown id is null
+PASS: P3 a module file not present yet gives null and available false
+PASS: P4 every name eureka-recall exported before is still exported with its old shape
+PASS: P5 candidates.jsonl equals the golden byte for byte
+PASS: P5b the eureka run folder keeps its layout and STATUS title
+PASS: P6 runJudge with no module gives verdicts equal to the golden
+PASS: P7 runJudge with opts.module reads and writes through that module
+PASS: P8 stage A credits only the module STAGE_A_LANES
+PASS: P9 canon_handle: USES_FRAMEWORK edge first, then the one resolver, else null
+PASS: P10 buildSubstrate(db) with no opts never throws; with { roomDir } resolves the frontmatter framework
+PASS: P11 substrate contract: exactly eight keys
+PASS: P11 edges carries the planted rows as {source, target, type}
+PASS: P11 framework_nodes and whitespace_zones are keyed by node id
+PASS: P12 makeCandidateStore: skips, exclusion counter, row shape, union semantics, order
+PASS: P12b shared writeRunFiles and readCandidates take the run root, title and lanes
+PASS: zero network attempts
+--- test-366-perspective-interface ---
+PASS: 17 FAIL: 0
+>>> 366 perspective interface: PASSED
+
+--- 366 canon at filing ---
+PASS: K1 filing ok
+PASS: K1 canon_handle is the canon name
+PASS: K1 one framework node and one USES_FRAMEWORK edge
+PASS: K1 edge runs from the filed node to the framework node
+PASS: K1 canon_edge reports ok
+PASS: K1b a second artifact reuses the framework node, adds one edge
+PASS: K2 methodology resolves through the registry
+PASS: K3 non-canon: filing ok, canon_handle null, canon_via null
+PASS: K3 non-canon writes no framework node or edge
+PASS: K3 no frontmatter: canon_handle null, no write
+PASS: K4 a throwing writer does not throw out of the filing
+PASS: K4 filing still ok, canon_edge reports the failure
+PASS: K4 the filed file and reasoning node still exist
+PASS: K4b a not-ok writer is reported, filing ok
+PASS: K5 edge_rows_missing_endpoint stays 0
+(node:716102) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: K6 rebuild succeeds
+PASS: K6 one framework node and one USES_FRAMEWORK edge for the canon artifact
+PASS: K6 edge source is the Artifact node, target the framework node
+PASS: K7 second rebuild leaves the same counts (idempotent)
+PASS: K7 node type counts identical across rebuilds
+PASS: K7 no dangling edge endpoints
+PASS: K8 Artifact and Section counts are the fixture counts
+PASS: K8 BELONGS_TO count unchanged (one per artifact)
+PASS: K9 no resolvable artifacts: zero framework nodes and edges
+PASS: zero network attempts
+--- test-366-canon-at-filing ---
+PASS: 25 FAIL: 0
+>>> 366 canon at filing: PASSED
+
+--- 366 canon coverage count ---
+PASS: V1 things_with_canon_handle is 1
+PASS: V1 things_without_canon_handle is 2
+PASS: V2 an edge to a missing framework node is not a handle
+PASS: V2 the missing endpoint still counts in the existing statement
+PASS: V3 unreadable variant: schema_variant is unreadable
+PASS: V3 unreadable variant: both coverage keys are null, never 0
+PASS: V3 legacy variant still answers the statement
+PASS: V4 detail names the coverage counts
+PASS: V4 totals carry the two coverage fields
+PASS: V4 no banned adjective in the detail line
+PASS: V4 status is never warn
+PASS: V5 SENS-19 watched_by names the canon coverage count
+PASS: V5 SENS-19 optimizes is unchanged
+PASS: V5 huge coverage gap alone never fires the sensor
+PASS: V5 the firing sum still reads only the two defect counts
+PASS: V5 sensor source never reads the coverage keys
+PASS: no network attempted
+--- test-366-canon-coverage-count ---
+PASS: 17 FAIL: 0
+>>> 366 canon coverage count: PASSED
+
+--- 366 canon backfill ---
+PASS: B7 runner exports check and fix
+PASS: B1 check walks every registered room regardless of the active flag
+PASS: B1 alpha: 4 resolvable things without an edge
+PASS: B1 alpha: 1 unmapped edge target
+PASS: B1 beta: 1 resolvable thing without an edge
+PASS: B1 check status is warn when the fix has work, never error
+PASS: B1 check wrote nothing (row counts and file bytes unchanged)
+PASS: B1 detail is counts only, no banned adjective
+PASS: B5 dryRun alpha projects 5 nodes (4 thing frameworks + the edge target) and 4 edges
+PASS: B5 dryRun beta projects 1 node and 1 edge
+PASS: B5 dryRun wrote nothing
+PASS: B2 alpha minted 5 nodes and wrote 4 edges
+PASS: B2 beta minted 1 node and wrote 1 edge
+PASS: B2 alpha framework nodes and USES_FRAMEWORK edges landed
+PASS: B2 only the unmappable edge target still lacks a node (edges never precede nodes)
+PASS: B4 an edge target mapping to exactly one canon name got its node
+PASS: B4 an unmappable target is left alone
+PASS: B3 second check has no fix work (status ok)
+PASS: B3 second fix: zero new nodes, zero new edges
+PASS: B3 graph counts identical after the second fix
+PASS: B6 an unreadable room soft-fails alone and is named
+PASS: B6 the sweep did not abort (alpha and beta still reported)
+PASS: B6 a malformed registry entry is skipped without a throw
+PASS: B6 fix survives the unreadable room
+PASS: no network attempted
+--- test-366-canon-backfill ---
+PASS: 25 FAIL: 0
+>>> 366 canon backfill: PASSED
+
+--- 366 mcp perspective ops ---
+(node:716323) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: M1 perspective_recall (eureka) returns the recall body
+PASS: M1b every registered perspective answers perspective_recall with its own id
+PASS: M2 the three eureka_* aliases answer with the legacy op, deprecated and use_instead
+  note - perspective_unavailable for a registered id is skipped: all six modules are present (6 of 6)
+PASS: M3 refusals name a reason and a hint for the next op
+PASS: M4 perspective_candidates paginates and refuses candidates_missing with a hint
+PASS: M5 perspective_judge runs Stage A with the module and the verdicts show up in the next page
+PASS: M6 statement_template rides the recall response exactly when the module exports one
+PASS: M7 the schema enum is the registry list; the description names the ops, the aliases and every perspective
+PASS: zero network attempts
+--- test-366-mcp-perspective-ops ---
+PASS: 9 FAIL: 0
+>>> 366 mcp perspective ops: PASSED
+
+--- 366 cli perspective ---
+PASS: L1 perspective-recall eureka prints ok JSON with the same candidates as eureka-recall
+PASS: L1b every registered perspective is reachable through perspective-recall
+PASS: L2 a missing --perspective refuses perspective_required (not room_required), exit 2
+PASS: L3 --perspective bogus refuses with exit 2 and never echoes the value
+PASS: L4 free text on argv refuses free_text_argv_refused with exit 2 and the token is not echoed
+PASS: L5 eureka-recall and eureka-judge produce the same output as the perspective subcommands
+PASS: L6 perspective-judge --judge none writes verdicts
+--- test-366-cli-perspective ---
+PASS: 7 FAIL: 0
+>>> 366 cli perspective: PASSED
+
+--- 366 recall reverse salient ---
+(node:716480) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: RS1 full perspective interface, frozen budgets and lanes, registry available
+PASS: RS2 planted lagging boundary: thin solution-design thing x developed problem-definition thing
+PASS: RS3 known pairs excluded and counted
+PASS: RS4 hard caps and truncation report
+PASS: RS5 same tag, byte-identical candidates.jsonl
+PASS: RS6 row shape, ordering and the question set leaves
+PASS: RS7 declared feeds carry direction; Inputs as the last heading still parses; no embedding code
+PASS: zero network attempts
+--- test-366-recall-rs ---
+PASS: 8 FAIL: 0
+>>> 366 recall reverse salient: PASSED
+
+--- 366 recall hsi ---
+(node:716487) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: H1 classifyGraph: relational above lexical is structural_transfer, below is semantic_implementation
+PASS: H2 tie is semantic_implementation; null, undefined or non-finite is none
+PASS: H3 own table hash; legacy and framing hashes untouched
+PASS: H4 planted hsi pair: relational lane, divergence above zero, structural_transfer
+PASS: H5 known pair excluded, cap honored, deterministic, row keys
+PASS: H6 every label comes from classifyGraph; the module holds no label literal
+PASS: H7 questionSetFor leaves
+PASS: zero network attempts
+--- test-366-recall-hsi ---
+PASS: 8 FAIL: 0
+>>> 366 recall hsi: PASSED
+
+--- 366 recall whitespace ---
+(node:716494) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: W1 the zone-bordering pair is a zone_border candidate carrying zone_id
+PASS: W2 declared coupling with zero cross edges yields declared_unlinked; a linked coupling does not
+PASS: W3 known pair excluded, cap honored, deterministic
+PASS: W4 shared row shape, zone_id only on zone_border rows, run files written
+PASS: W5 question set: ws:* dimensions, closed pair, long zone name is a web slot (369.2-04)
+PASS: W6 constants, shipped whitespace template unchanged, zero network attempts
+PASS: W7 pair-carrying ws:gap_claim leaves, rolled supported, give one literature_gap item per leaf
+--- test-366-recall-whitespace ---
+PASS: 7 FAIL: 0
+>>> 366 recall whitespace: PASSED
+
+--- 366 recall analogies ---
+(node:716501) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: N1 the planted analogies pair is a candidate; the lexical eureka pair is filtered out
+PASS: N2 every candidate: relational signal, lexical at or below the ceiling, lane structural
+PASS: N3 STATEMENT_TEMPLATE is frozen with slots, a fill rule and a host_hint
+PASS: N4 leaves carry no SAPPhIRE content; slots are short terms; closed pair; set validates
+PASS: N5 known pair excluded, cap honored, deterministic
+PASS: N6 constants, registry interface, no network code, zero network attempts
+--- test-366-recall-analogies ---
+PASS: 6 FAIL: 0
+>>> 366 recall analogies: PASSED
+
+--- 366 recall connections ---
+PASS: X1 planted pair is a canon_pair candidate with canon_a and canon_b
+PASS: X2 two things on one framework node form a framework_walk candidate
+PASS: X3 a thing without a canon handle never appears in a canon_pair candidate
+PASS: X3b the same canon name on both ends is not a canon_pair
+PASS: X4a known pair excluded through the shared store
+PASS: X4b cap honored and output deterministic with shared row keys
+PASS: X4c per-thing cap bounds the pairs one thing joins
+PASS: X5 questionSetFor: theo lateral leaves, closed pair, one room known leaf
+PASS: X5b no room text rides a theo leaf slot: slots hold canon names only
+PASS: X5c interface constants and registry
+PASS: X5d run files carry the connections title and lanes
+PASS: X6 the module has no tool-call or brain-client code
+PASS: zero network attempts
+--- test-366-recall-connections ---
+PASS: 13 FAIL: 0
+>>> 366 recall connections: PASSED
+
+--- 366 theo lateral lane ---
+(node:716515) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: Y1a validateQuestionSet accepts corpus theo, still refuses an unknown corpus
+PASS: Y1b plan validator, add_leaf and toggle_source keep theo; unknown corpus refused
+PASS: Y2 a connections plan is ready, quick, with theo lateral leaves
+PASS: Y3a buildRunGrant adds provider theo and the pair hashes; openalex-only output matches the golden
+PASS: Y3a2 standing scope stays openalex-only
+PASS: Y3a3 writeGrant accepts the theo run grant with an empty families list; refuses other empty-family grants
+PASS: Y3b the theo card names Theo, canon names only, the pair count; openalex cards equal the golden
+PASS: Y3b2 a mixed plan card names both providers
+PASS: Y4a no grant yet: coverFor asks, the lane makes zero calls
+PASS: Y4b the reask card for a theo plan is the run-grant card that names Theo
+PASS: Y4c a run grant lets runQuick call find_connections once per theo leaf, canon names only, no OpenAlex fetch
+PASS: Y5 each call wrote one 23-key audit row with provider theo
+PASS: Y6a an expired run grant: zero calls, grant_expired
+PASS: Y6b a standing grant only never covers Theo: provider_not_in_policy, zero calls
+PASS: Y6c validateTheoCall order and cap
+PASS: Y7 a slot outside the canon snapshot is skipped and counted, never sent
+PASS: Y8 a verified lateral path settles its leaf, yields one candidate, and the filer reads the lane stamp
+PASS: Y8b the theo-only run answers about the lateral checks and offers no deep run
+PASS: Y9 a mixed plan runs openalex first, then the lane
+PASS: Y10 attachQueries still composes nothing for theo leaves and openalex leaves still compose
+PASS: Y10b theo-lane exports and the lane module is on disk
+PASS: Y10c the lane has no second wire door: find_connections only through stampFinding
+PASS: zero network attempts
+--- test-366-theo-lateral-lane ---
+PASS: 23 FAIL: 0
+>>> 366 theo lateral lane: PASSED
+
+--- 366 router redirects ---
+(node:716523) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: D1 analysis find-bottlenecks points at perspective_recall with perspective "rs"
+PASS: D1 the pointer names perspective_candidates and perspective_judge
+PASS: D1 find-bottlenecks is not an error response
+PASS: D2 intelligence whitespace points at perspective_recall with perspective "whitespace"
+PASS: D2 whitespace is not an error response
+PASS: D3 orchestration scout-hsi points at perspective_recall with perspective "hsi"
+PASS: D3 scout-hsi no longer says "reference only, no compute"
+PASS: D3 scout-hsi keeps the NOT EXECUTED banner (the scout family is still unimplemented here)
+PASS: D3 scout-hsi still names the full CLI pipeline /mos:scout hsi
+PASS: D4 eureka-run points at perspective_recall with perspective "eureka"
+PASS: D4 eureka-run no longer names the deprecated eureka_recall op
+PASS: D4 eureka-run no longer names a legacy escape (366-22)
+PASS: D4 eureka-status points at perspective_recall with perspective "eureka"
+PASS: D4 eureka-status no longer names the deprecated eureka_recall op
+PASS: D4 eureka-status no longer names a legacy escape (366-22)
+PASS: D4 eureka-report points at perspective_recall with perspective "eureka"
+PASS: D4 eureka-report no longer names the deprecated eureka_recall op
+PASS: D4 eureka-report no longer names a legacy escape (366-22)
+PASS: D1-D4 wrote nothing under the room but the analysis pipeline-state step record
+PASS: D5 ALL_TOOL_COMMANDS stays 66
+PASS: D5 find-bottlenecks and find-analogies stay MCP-reachable
+PASS: D5 find-bottlenecks, whitespace and scout-hsi stay in their router enums
+PASS: D5 orchestration description names scout-hsi and perspective_recall
+PASS: D5 no description calls scout-hsi reference only
+PASS: D5 analysis description does not call find-bottlenecks reference-only
+PASS: D5 intelligence description does not call whitespace reference-only
+PASS: D5 the router source has no "reference only, no compute" left
+PASS: D5 the router source names perspective_recall at least 4 times
+PASS: D5 zero network attempts
+--- test-366-router-redirects ---
+PASS: 29 FAIL: 0
+>>> 366 router redirects: PASSED
+
+--- 366 offline recall ---
+(node:716530) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: Z1 every perspective answers perspective_recall ok with a candidate on the fixture room (6 ids)
+PASS: Z2 statement_template rides the analogies response only
+PASS: Z3 Stage A runs offline for every perspective too
+PASS: Z3 zero network attempts after six recalls and six Stage A runs
+PASS: Z4 eureka: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 rs: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 hsi: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 whitespace: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 analogies: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 connections: plan validates and one supported pair leaf yields exactly one declared-kind candidate
+PASS: Z4 zero network attempts across all six end-to-end runs
+PASS: zero network attempts
+--- test-366-offline-recall ---
+PASS: 12 FAIL: 0
+>>> 366 offline recall: PASSED
+
+--- 366 counter metrics ---
+PASS: Q1 COUNTER_METRICS is exported and frozen
+PASS: Q1 one entry per stage with stage, optimizes and watched_by
+PASS: Q2 the banned list was read from graph-integrity-counts.cjs
+PASS: Q2 no entry uses a banned health word
+PASS: Q2 no entry carries an em or en dash
+PASS: Q3 only perspectives/index.cjs declares COUNTER_METRICS
+PASS: Q3 every entry is frozen
+PASS: Q3 an absent watched_by key fails the shape check (null would pass)
+PASS: Q3 an explicit null watched_by passes the shape check
+--- test-366-counter-metrics ---
+PASS: 9 FAIL: 0
+>>> 366 counter metrics: PASSED
+
+--- 366 egress policy ---
+(node:716545) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: E0 the reader module loads
+PASS: E1 loadEgressPolicy returns the six non-web lines with the planning defaults (369.2-05)
+PASS: E1b a line with no entry (or a null line) is never allowed
+PASS: E2 a room override can turn theo off; judge_jev true cannot widen and is reported (369.2-05: research is not a line)
+PASS: E2b a bare boolean override works the same; an unknown line (research included, 369.2-05) is ignored and named
+PASS: E3 offline returns every line off
+PASS: E4 lineForProvider maps the non-web vendors, is null for a web provider and for an unknown one; WEB_PROVIDERS lists the web ones (369.2-05)
+PASS: E4b every provider string the planner can write maps to a non-null line or is a web provider (369.2-05)
+PASS: E5 appendAudit refuses an off non-web line (theo) with egress_line_off and writes nothing; a web record is never policy-gated (369.2-05)
+PASS: E5b an allowed line writes; an injected policy is honored; an unknown provider is refused
+PASS: E5c the closed key set is unchanged and a bad record still reports its own reason first
+PASS: E6 a malformed override is ignored, named, and never throws
+PASS: E6b an override that is a symlink out of the room is ignored
+PASS: E6c a room that does not exist or a non-string room still returns the plugin default
+PASS: E7 a room override naming research is ignored and named: the web line is not policy-gated, the run reaches the fetcher (369.2-05)
+PASS: E7b opts.offline gives the same answer with no override file
+PASS: E8 CLI: recall --offline, judge --offline, run-quick --offline completes, exit 0, nothing sent
+PASS: E8b CLI: a connections plan under --offline makes zero Theo calls and still exits 0
+PASS: E8c the --offline flag is valueless and only on the three commands; elsewhere it is refused
+PASS: E9 theo line off: runTheoLane makes zero calls and each leaf reports the off line
+PASS: E9b theo-only plan with the theo line off: runQuick answers plan only and makes zero calls
+PASS: E9c research on, theo off, mixed plan: openalex still runs, the lane reports the off line
+PASS: E10 default policy: research stays on per grant, the run fetches and audits openalex rows
+PASS: zero network attempts
+--- test-366-egress-policy ---
+PASS: 24 FAIL: 0
+>>> 366 egress policy: PASSED
+
+--- 366 spike harness ---
+PASS: harness requires measure-355-hit-rate and never re-derives Wilson (no 1.959963985)
+PASS: harness carries no Jev client, no vendor key literal and no key read
+(node:716603) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: S1 recall runs every non-vector arm over the same rooms at the per-room cap
+PASS: S1 recall.json carries counts and the cost block (wall, cpu, rss, vendor numbers null)
+PASS: S1 every candidate converts to an item (none unmapped)
+PASS: S1 each item has exactly the 355 keys
+PASS: S1 pair_id is the 355 pairId over room and the two paths; paths are room-relative .md
+PASS: S1 the planted eureka pair is present with a buildExcerpt-shaped excerpt (title first, capped)
+PASS: S1 an eureka row with no measured direction gets the honest phrase from directionPhraseFor(null)
+PASS: S1 rs and hsi items carry their arm as producer and a non-empty phrase
+PASS: S2 label-355-gold status reads every item of the arm file (0/N labeled)
+PASS: S2 the pairings-unstamped set requires a phrase and every item has one
+PASS: S3 stage-a judges every candidate through judgeCandidates and passes a subset
+PASS: S3 stage-a wrote verdicts.jsonl through writeVerdicts with the module
+PASS: S3 claude imports the verdicts file inside the spike root; only useful passes
+PASS: S3 claude refuses a verdicts file outside the spike root (exit 2)
+PASS: S3 claude rejects a verdicts file that misses pairs (exit 3)
+PASS: S3 claude rejects a verdict outside the vocabulary (exit 3)
+PASS: S3 claude rejects a pair that is not in the items (exit 3)
+PASS: S3 claude-then-jev feeds Jev only the pairs Claude called useful (replay, no network)
+PASS: S3 jev (replay) judges per pair: one recorded useful passes, one not_useful does not, unrecorded pairs stay unjudged
+PASS: S3 jev with no key and no replay is an ENV GAP (exit 77), not a fetch
+PASS: S4 jev refuses a room inside the 355 fixture tree (exit 2)
+PASS: S4 a room outside the spike root is refused for every subcommand (exit 2)
+PASS: S4 a manifest outside os.tmpdir() is refused (exit 2)
+PASS: S4 a --root outside tmp and the fixtures tree is refused (exit 2)
+PASS: S4 free text, an unknown subcommand and a .. segment on argv are refused (exit 2)
+PASS: S4 an unknown arm or a repeat out of range is refused (exit 2)
+PASS: S5 record freezes the arm files and lists arms still awaiting gold (no rate invented)
+PASS: S5 record has an entry per labeled arm and nothing awaiting
+PASS: S5 per arm: shown, useful, rate, wilson95 (the repo wilson95) and clears_bar
+PASS: S5 three repeats recorded, identical for a deterministic recall arm; n below the baseline n is flagged
+PASS: S5 rs-graph and hsi-graph carry a slice comparison; the eureka arm has none
+PASS: S5 baseline slices are recomputed from the 355 files (HSI 27 of 47, RS 16 of 49, pool 43 of 96)
+PASS: S5 rs-graph slice figures are the RS slice (16 of 49) and the HSI slice figures for hsi-graph
+PASS: S5 the baseline note is carried verbatim and the statement names 47 HSI and 49 RS pairs
+PASS: S5 the record never phrases a result as Eureka improving and never adopts an arm
+PASS: S5 judge arms: stage-a and claude have 3 repeats (clears_bar_all_repeats evaluated), jev and claude-then-jev have 1 and so cannot clear
+PASS: S5 a judge arm useful rate is the gold-useful share among the pairs it passed
+PASS: S5 the cost block is recorded as counts per arm
+PASS: S5 (366-20) every labeled arm carries a direction block: phrase_shown + phrase_absent = shown, direction_ok counted only where a phrase was shown
+PASS: S5 (366-20) label_consistency counts pairs labeled in more than one sitting and how many useful labels agree
+PASS: S5 (366-20) direction and consistency helpers: NONE_MEANING items are never counted; a disagreement is listed by pair id
+PASS: S5 a gold file labeled against a different items file is refused (fixture_sha256)
+PASS: S6 --check exits 0 when the recomputed record equals record.json byte for byte
+PASS: S6 --check fails on a changed record
+PASS: S6 --check fails when a frozen judge input changes
+PASS: S6 --check fails when the gold changes
+PASS: S6 --check is 0 again once the inputs are restored, and fails with no record.json
+PASS: S7 no extraLanes (or an empty list) leaves the output identical
+PASS: S7 an injected proposal lands as a row with its lane and score; junk proposals are ignored
+PASS: S7 the injected lane goes through the exclusion upsert (the known pair is dropped and counted)
+PASS: S7 the cap applies to injected rows exactly as to the built-in lanes
+PASS: S7 the vector lane proposes at most top_k cross-section pairs per thing, each with a score in lane "vector"
+PASS: S7 the vector arm runs end to end on injected vectors and counts its lane per room
+PASS: S7 the CLI vector arm with no cached model is an ENV GAP (exit 77), never a download
+PASS: the source 355 fixture tree is byte-identical before and after
+PASS: zero network attempts
+--- test-366-spike-harness ---
+PASS: 58 FAIL: 0
+>>> 366 spike harness: PASSED
+
+--- 366 guard navigator release ---
+PASS: G1 no receipt: not navigator_released
+PASS: G1b malformed gate id: not navigator_released
+PASS: G1c a non-object receipt: not navigator_released
+PASS: G2 receipt matching raw: allow navigator_released
+PASS: G2b the reason carries no term bytes
+PASS: G3 receipt term differs from raw: not allow
+PASS: G3b a trailing space is a different term
+PASS: G4 full envelope with a matching receipt: allow
+PASS: G4b envelope with only intent: allow
+PASS: G5 prose intent: not allow
+PASS: G5b over-cap intent: not allow
+PASS: G5c a one-word intent outside the closed vocabulary: not allow
+PASS: G5d perspective off the enum: not allow
+PASS: G5e section that is not a slug: not allow
+PASS: G6 a fifth key: not allow
+PASS: G6b an unknown key beside raw: not allow
+PASS: G6c no raw: not allow
+PASS: G7 content hit in raw blocks even with a receipt
+PASS: G7b content hit in any other value blocks
+PASS: G8 tool "find_connections": the receipt changes nothing
+PASS: G8 tool "framework_step": the receipt changes nothing
+PASS: G8 tool "brain_ask": the receipt changes nothing
+PASS: G8 tool "brain_search": the receipt changes nothing
+PASS: G8 tool "recommend_chain": the receipt changes nothing
+PASS: G8 tool "case_story": the receipt changes nothing
+PASS: G8 tool "": the receipt changes nothing
+PASS: G8b find_connections keeps its own verdict class
+PASS: G10 the arm is called inside classify
+PASS: G10b the arm call is after the content scan
+PASS: G10c navigator_released appears at least twice in the guard
+PASS: G10d the helper is exported
+PASS: G10e the helper carries a docblock that names the ordering and the single widened path
+PASS: G11 a free-form tool name never reaches the arm
+PASS: G11b the arm proves by shape and receipt alone (no free-form scan)
+PASS: G11c a namespaced tool name that contains normalize_framework_name allows with a receipt
+PASS: G9 tests/test-220-part8-egress.cjs exits 0
+PASS: G9 tests/test-223-part8-egress.cjs exits 0
+PASS: G9 tests/test-345-part8.cjs exits 0
+PASS: G9 tests/test-346-part8-enum-only.cjs exits 0
+PASS: G9 tests/test-355-part8-egress.cjs exits 0
+PASS: G9 tests/test-3551-part8-egress.cjs exits 0
+PASS: G9 tests/test-363-part8-sweep.cjs exits 0
+PASS: G9 tests/test-213-part8-boundary.cjs exits 0
+PASS: G9 tests/test-part8-poison-transcript.cjs exits 0
+PASS: G9 tests/test-361-theo-parity.cjs exits 0
+PASS: G9 tests/part8-egress-guard-hook.test.cjs exits 0
+PASS: G9 tests/test-254-normalize-roundtrip-probe.cjs exits 0
+PASS: zero network attempts
+--- test-366-guard-navigator-release ---
+PASS: 48 FAIL: 0
+>>> 366 guard navigator release: PASSED
+
+--- 366 gated term release ---
+(node:717264) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: R0 canon-release loads and the plans were built
+PASS: R1 the basket lists one canon_term item for the carried framework term, with a gate id; never a title
+PASS: R1b a distinct term is offered once even when two pairs carry it
+PASS: R1c with the theo line off the item shows with no gate and the off note, and mints nothing
+PASS: R2 no gate answer: the injected callTool is called zero times
+PASS: R9 the release card says term only and NOT sent, names intent, section, perspective as recorded locally, never implies intent reaches Theo
+PASS: R3 a yes calls normalize_framework_name once with {raw: term} and the guard allowed navigator_released
+PASS: R4 one audit row with exactly the 23 keys and the release fields
+PASS: R5 a hit in the snapshot writes a proposed row with ratified_at null; the resolver ignores it
+PASS: R5b a miss writes nothing and counts release_miss
+PASS: R5c a canonical name outside the snapshot is a counted miss, never a row
+PASS: R5d a failed call (null) writes nothing, audits outcome failed, never throws
+PASS: R6 single-use: a second answer calls nothing
+PASS: R6b session-scoped: another session is refused and does NOT spend the gate; the owning session still consumes it
+PASS: R6c releaseTerm refuses a gate id it did not mint, and a mismatched term, with zero calls
+PASS: R6d a not-now answer calls nothing and writes nothing
+PASS: R6e the theo line off at answer time: the call is not made and no row is written
+PASS: R7 the next basket lists a canon_translation item; confirming sets ratified_at and the resolver then resolves via translation
+PASS: R8a free text on --item is refused with exit 2 and never echoed
+PASS: R8b canon-release without --approved-via, without --item, and with a translation item are refused
+PASS: R8c without MOS_366_LIVE or a replay file the CLI refuses live_not_enabled and sends nothing
+PASS: R8d canon-release with a replay transport answers the release: a proposed row, one audit row with the minted gate id
+PASS: R8e canon-confirm needs --approved-via, the right item kind and a proposed row; then it ratifies
+PASS: R10 fileRun ignores the canon item kinds; a canon-only selection files nothing
+PASS: R13 the recorded live answer (366-theo-replay) replays offline as a counted miss with the same audit shape
+PASS: R11 the module reaches Theo by normalize_framework_name only and never offers a title
+PASS: R12 the gate ledger gained only gates this test minted (no leak of the term into the ledger entries)
+PASS: zero network attempts
+--- test-366-gated-term-release ---
+PASS: 28 FAIL: 0
+>>> 366 gated term release: PASSED
+
+--- 366 mcp release route ---
+(node:717341) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: C1 replay on, theo line on: one release offer with a minted gate id and an F.8 card; canon ids stay off the filing gate
+PASS: C1b mint and consume agree through the one shared resolver, session-less caller included
+PASS: C2 nothing answered yet: zero theo audit rows
+PASS: C3 gate_answer release + approve sends exactly {raw: term} once; navigator_released
+PASS: C4 one 23-key audit row for the release
+PASS: C5 one PROPOSED row; the next basket lists it under confirm_items, not as an offer
+PASS: C6 a second answer on the same gate is a replay and writes nothing more
+PASS: C7 not_now / reject sends nothing
+PASS: C8 an answer from another session sends nothing
+PASS: C9 no replay and no MOS_366_LIVE: no gate, live_not_enabled with the hint, nothing sent
+PASS: C10 theo line off: no gate, egress_line_off with the off note
+PASS: C11 transportFromEnv unit legs
+PASS: C12 zero network attempts; no em-dash or en-dash in the touched files
+--- test-366-mcp-release-route ---
+PASS: 13 FAIL: 0
+>>> 366 mcp release route: PASSED
+
+--- 366 mcp plan only ---
+(node:717348) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: P1 an override naming research is ignored (369.2-05): run_quick answers reask with a gate, never plan_only, never run_refused
+PASS: P2 the plan_only answer sends nothing and writes no run state or audit row
+PASS: P3 offline true with no override: plan_only, offline true, the next step says offline was on
+PASS: P4 no override, offline absent, no grant: the existing reask answer
+PASS: P5 offline is a boolean in the schema; the description names offline and the canon-name lookup
+PASS: P6 the wire snapshot entry for research_run equals the live registration
+--- test-366-mcp-plan-only ---
+PASS: 6 FAIL: 0
+>>> 366 mcp plan only: PASSED
+
+--- 366 runner retired ---
+PASS: RR1 none of RUNNER_FILES exists (scripts/eureka-command.cjs, scripts/eureka-portfolio-report.cjs)
+PASS: RR2 no file under lib, scripts, hooks, bin, tests requires or spawns a RUNNER_FILES path
+PASS: RR3 commands/eureka.md and skills/eureka/SKILL.md carry no --legacy
+PASS: RR4 lib/mcp/tool-router.cjs has no flags.legacy branch
+PASS: RR5 no run-all-*.sh names a retired runner-inventory test on a non-comment line
+--- test-366-runner-retired ---
+PASS: 5 FAIL: 0
+>>> 366 runner retired: PASSED
+
+--- 366 semantic index integrity ---
+PASS: I1 a tree where every static reference resolves exits 0
+PASS: I1 --json reports checked references and zero failures
+PASS: I1 the dynamic require counts as unchecked, not as a failure
+PASS: I2 one broken require makes the gate exit 1
+PASS: I2 the report names the file and the missing target
+PASS: I2 the report prints no file contents
+PASS: I2 the good file is not reported
+PASS: I3 the gate exits 0 on the current repo
+PASS: I4 lib/core/semantic-index/ holds modules
+PASS: I4 no module name exists in both folders
+PASS: I4 every moved module loads
+PASS: I4 nothing requires a moved module through lib/core/eureka/
+--- test-366-semantic-index-integrity ---
+PASS: 12 FAIL: 0
+(node:717362) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 366 semantic index integrity: PASSED
+
+--- seed104 grant family loop ---
+(node:717994) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: S0 whitespace run proposal, card, run grant and queries are byte-identical to the golden
+PASS: S1 web destination composes room phrases; theo destination refuses prose with term_not_composed, no echo; over-cap stays bad_slot
+PASS: S2 writeGrant and extendTerms accept a web phrase; an over-cap or control-character term is refused before any write
+PASS: S3 planFamilies keeps researchable openalex round-1 families in FAMILY_IDS order; proposal families option
+PASS: S4 extendTerms widens families with one version bump; the identical call is a no-op
+PASS: S5 scopeGain names only what approving would add
+PASS: S6 question-templates FAMILY_IDS equals the families module keys
+PASS: G9b SEED-104 supersedes the Phase 363 D-04 single-family standing scope; bound is FAMILY_IDS
+PASS: S7 a standing grant never produces grant_scope_cannot_cover_plan for a web plan; the card offers the run grant; an approved plan runs
+PASS: S8 a stored plan carrying a room phrase asks for the grant with the exact string, no fetch; proposeGrant refuses only over-cap
+PASS: S9 the standing door widens families once; the identical call is a no-op; it never authorizes the web run
+PASS: E1 eureka_recall, grant_request, one approval, run_quick done; no reask, no prose term
+PASS: E3 a claim pair is a local-only leaf; every query and slot term is composable; no prose in any URL
+PASS: E2 a whitespace-only standing grant is not widened; one run approval covers the concept-evidence run; run_quick done
+PASS: E4 a standing grant never gives the stuck refusal on the web: run_quick and grant_request offer the run approval; no fetch
+PASS: E5 a stored plan with a room phrase is not refused term_not_composed at run_quick; zero fetches before approval
+PASS: E6 abstractTerm: field title first, then a side-unique entity handle, then a canon handle; never first-sentence prose
+PASS: E7 questionSetFor: a pair with no clean term is a local-only leaf; a side-unique entity gives it a term
+PASS: Z net guard counted zero fetch attempts
+--- SEED-104 grant family loop ---
+PASS: 19 FAIL: 0
+>>> seed104 grant family loop: PASSED
+
+--- seed104 room check tokens ---
+(node:718001) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: K1 a seven-word term finds the artifact that holds four of its content tokens
+PASS: K2 an artifact holding only three of the seven tokens stays out
+PASS: K3 an exact phrase still counts; a phrase nothing matches counts 0
+PASS: K4 a single-token term keeps substring semantics
+PASS: K5 function words never count toward coverage
+PASS: K6 dot-directories are never opened and symlinks are skipped
+PASS: K7 zero network attempts; the return shape is unchanged; no dash in the touched files
+--- test-seed104-room-check-tokens ---
+PASS: 7 FAIL: 0
+>>> seed104 room check tokens: PASSED
+
+--- pin 363 grants ---
+PASS: G1 writeGrant then readGrants round-trips; a fresh child reads the same grant
+PASS: G2 each re-ask reason fires alone, and the fixed order holds when two apply
+PASS: G3 a standing grant covering every term still refuses a web query with hash_not_approved; extendTerms still records terms
+PASS: G4 run grant rejects an unapproved round-one hash and accepts round-two in-family within cap
+PASS: G5 standing round 2 is multi_step; a run grant at cap is cap_exceeded
+PASS: G6 throttle: two ambient runs in an hour exceed; passes after the hour
+PASS: G7 expiry edge: 30 days minus a minute passes; plus a minute fails
+PASS: G8 revokeGrant makes later queries grant_revoked; a foreign policy is grant_reversioned
+PASS: G9 writeGrant refuses out-of-scope standing, filing keys; room_mismatch across rooms
+PASS: G10 a corrupt grants file is quarantined and readGrants never throws
+PASS: G11 grantCard is an F.0 card with three options and a complete plain body
+PASS: G12 static: grants.cjs does no network I/O and isRawQueryEdit is reused, not copied
+PASS: G13 no fetch attempted by any leg
+--- 363-09 grants ---
+PASS: 13 FAIL: 0
+>>> pin 363 grants: PASSED
+
+--- pin 363 run quick ---
+PASS: modules load (verdict.cjs, quick.cjs)
+(node:718022) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: Q1 gap confirmed: three audit records, literature_gap candidate, no escalation
+PASS: Q2 covered elsewhere: deterministic synonym row supports ws:covered_elsewhere, settled
+PASS: Q3 contested with no named limiter: exactly one offer, and it asks what blocks the gap
+PASS: Q3b contested with a named limiter: exactly one deep offer, run deep on this?
+PASS: Q4 budget 429: unresolved, never gap-confirmed, audit failed with failure_class
+PASS: Q5 500, timeout and network failures each give unresolved
+PASS: Q6 a body with no meta.count gives unresolved
+PASS: Q7 no grant: reask no_grant, F.0 card, zero calls, no audit record
+PASS: Q8 other strings approved: reask hash_not_approved, zero calls, card lists the exact strings
+PASS: Q9 cache: second run makes zero calls, cache_hit audit records with the cached count
+PASS: Q10 caps: four queries refused before fetching; at most five records per query kept
+PASS: Q11 local room check: fs only, flags extraction_failure, never reads .mindrian
+PASS: Q12 escalateToDeep: deep seed, same perspective and pyramid, valid, no side effects
+PASS: Q13 evidenceCard: shape, options, row ids, attributed counts, no praise, no dash
+PASS: Q14 time budget: a slow fetch stops the run with stop_reason time and verdict unresolved
+PASS: Q15 Part 8: marker in no audit record, URL or card; the key never reaches a file
+PASS: net guard: zero network attempts
+PASS: global fetch restored to the net guard
+--- 363-12 quick research run ---
+PASS: 19 FAIL: 0
+>>> pin 363 run quick: PASSED
+
+--- 198 SPEC-5 adapter budget (import audit + line-count) ---
+(node:718029) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+ok 1 - migratedSurfaces() enumerates statusline + SessionStart + on-stop (D-05, all three waves), never check-card-fire.cjs
+  ---
+  duration_ms: 1.293611
+  type: 'test'
+  ...
+# Subtest: checkAdapterBudget() passes against the real committed tree today
+ok 2 - checkAdapterBudget() passes against the real committed tree today
+  ---
+  duration_ms: 1.786285
+  type: 'test'
+  ...
+# Subtest: import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+ok 3 - import audit uses a comment-stripped match -- a header comment naming lib/core does not self-invalidate the gate
+  ---
+  duration_ms: 0.980495
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+ok 4 - import audit FAILS on a real (non-comment) lib/core require -- guard is live (hermetic fixture, never mutates the real tracked file)
+  ---
+  duration_ms: 0.406838
+  type: 'test'
+  ...
+# Subtest: import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+ok 5 - import audit FAILS on lib/workflow and lib/memory requires too (not just lib/core)
+  ---
+  duration_ms: 0.444347
+  type: 'test'
+  ...
+# Subtest: import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+ok 6 - import audit does NOT flag lib/mcp/* adapter plumbing (only lib/core, lib/workflow, lib/memory are forbidden)
+  ---
+  duration_ms: 0.39511
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS a script that exceeds its recorded ceiling
+ok 7 - line-count budget FAILS a script that exceeds its recorded ceiling
+  ---
+  duration_ms: 0.684062
+  type: 'test'
+  ...
+# Subtest: line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+ok 8 - line-count budget FAILS closed on a surface with no recorded budget (never silently unbudgeted)
+  ---
+  duration_ms: 0.109292
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+ok 9 - scripts/on-stop flag-ON branch is real (BEGIN/END sentinel markers present)
+  ---
+  duration_ms: 0.333841
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+ok 10 - scripts/on-stop flag-ON branch contains ZERO business invocations (comment-stripped) -- lib/core, lib/workflow, lib/memory, memory-lifecycle.cjs, minto-debouncer.cjs, folder-memory
+  ---
+  duration_ms: 0.44283
+  type: 'test'
+  ...
+# Subtest: scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+ok 11 - scripts/on-stop flag-ON branch DOES reach the daemon (queryDaemon/wakeDaemon/adapter-client present)
+  ---
+  duration_ms: 0.251949
+  type: 'test'
+  ...
+# Subtest: sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+ok 12 - sanity control: the SAME forbidden-token audit FAILS on a fixture that legitimately mentions those tokens (guard is live, not vacuous)
+  ---
+  duration_ms: 0.127592
+  type: 'test'
+  ...
+# Subtest: data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+ok 13 - data/hooks-markers.json _mcpFirst198Migrated carries the Stop migration marker; hooks.json Stop matcher still dispatches run-hook.cmd on-stop unchanged
+  ---
+  duration_ms: 0.185422
+  type: 'test'
+  ...
+# Subtest: 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+ok 14 - 2026-07-03 replay: a Stop event with nothing material pending returns { fire: false } through handleStopEvent
+  ---
+  duration_ms: 309.308953
+  type: 'test'
+  ...
+# Subtest: gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+ok 15 - gate-dedup fire-once: the SAME material gate does not fire twice in the same session through handleStopEvent
+  ---
+  duration_ms: 431.352423
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 777.52538
+PASS: test-198-adapter-budget (15 of 15 tests passed)
+>>> 198 SPEC-5 adapter budget (import audit + line-count): PASSED
+
+--- 3692 Part 8 guard survey gate (synthetic rooms, quick 261012-sc0) ---
+PASS: L0 static checks
+PASS: C0 comparator self-check (9 regressions fail, 3 improvements pass)
+DELTA catalog baseline={"B":415,"C":96,"D":11,"total":522} measured={"B":420,"C":96,"D":11,"total":527} NOTE
+DELTA pos26.blocked_no_room baseline=0 measured=0 OK
+DELTA pos26.induced baseline=["gate-segment:N6:room_term"] measured=["gate-segment:N6:room_term"] OK
+DELTA ext.induced_total baseline=0 measured=0 OK
+DELTA ext.blocked_no_room baseline=37 measured=37 OK
+DELTA negatives.leaks baseline=[] measured=[] OK
+DELTA retention.claim baseline={"entries":7,"refused":7} measured={"entries":7,"refused":7} OK
+DELTA retention.person baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA retention.room_file baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA retention.room_name baseline={"entries":6,"refused":6} measured={"entries":6,"refused":6} OK
+DELTA retention.room_term baseline={"entries":41,"refused":41} measured={"entries":41,"refused":41} OK
+DELTA retention.venture_name baseline={"entries":1,"refused":1} measured={"entries":1,"refused":1} OK
+DELTA must_refuse.failed baseline=[] measured=[] OK
+DELTA known_leaks.GAP1 baseline=status=open measured=allowed_in=7 OK
+DELTA known_leaks.GAP2 baseline=status=open measured=allowed_in=7 OK
+DELTA fetch_calls baseline=0 measured=0 OK
+GATE: PASS
+PASS: M measurement against the baseline
+PASS: H CLI hook agrees with classify
+PASS: N net and time (fetch calls 0, 1089 ms of 60000 ms)
+PASS: 5 FAIL: 0
+MEASURED_SHA256: c39a03c9f92e107d39ba7241b8e23a2ad2a84382b2cf46bbbac90808c703f0dc
+ELAPSED_MS: 1089
+(node:718146) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 3692 Part 8 guard survey gate (synthetic rooms, quick 261012-sc0): PASSED
+
+--- pin 363 pyramid ---
+PASS: Y1 TEMPLATES has exactly the eleven ids with full dimension records
+PASS: Y1b whitespace framework equals the command frontmatter value verbatim
+PASS: Y2 templateForCommand and templateForFramework resolve; /mos:research only explicitly
+PASS: Y3 validateQuestionSet accepts every fixture; origin other fails
+PASS: Y4 buildPyramid returns the pyramid; checkPyramid passes six fixtures
+PASS: Y5 D-00 gate: restated-only fails, one researchable framework leaf passes it
+PASS: Y6 coverage: uncovered dimension blocks; a reasoned note moves it to not researchable
+PASS: Y7 falsifiability via issue-tree validateFalsifiability, reported with the leaf id
+PASS: Y8 MECE overlap and restatement warnings are returned, never dropped
+PASS: Y9 D-19: the diffusion lens adds the df dimensions to coverage
+PASS: Y10a applyLogicTreeSteps sets tree type and records the applied steps
+PASS: Y10b depth cap 3, ordering by unlock chain then weakest support, pruning with reasons
+PASS: Y10c unknown step is recorded not fatal; non scientific structure is a no-op that says so
+PASS: Y11 rollUp statuses, governing thought and unresolved branches
+PASS: Y12 weakestBranch picks the contradicted or unresolved branch with the fewest supports
+PASS: Y13a whitespace gap-confirmed gives literature_gap
+PASS: Y13b assumed limiter with unlock length >= 1 gives constraint_attack; self steps do not count
+PASS: Y13c funding_signal only from a labeled row carrying funder and program
+PASS: Y13d trend_break needs a ceiling reading on the incumbent and headroom on the challenger
+PASS: Y14 no em-dash or en-dash in the modules, the fixtures or this test
+PASS: Y15 no network attempted
+--- 363-06 pyramid ---
+PASS: 21 FAIL: 0
+>>> pin 363 pyramid: PASSED
+
+--- pin 363 structure ---
+PASS: B1 deterministic build and --check drift detection
+PASS: B2 IP caps: no description key, strings within 140, techniques as names
+PASS: B3 ledger content: problem types, frameworks, steps, shapes, sets, templates
+PASS: D1 detectScientific: S1, S2, S5, no free text
+PASS: D2 structureFor: ledger source, Logic Trees, Scientific Roadmapping, local fallback
+PASS: D3 plannersForRoom: rung relevance, FEEDS_INTO order, no rung label
+PASS: D4 nextFramework: FEEDS_INTO filtered by rung, command from the one door
+PASS: D5 lensSelection: named sources, reason required, no network
+PASS: D7 structure.cjs does not require the Brain client at load
+PASS: E1 real structure output drives 363-06 pyramid and 363-07 perspective
+PASS: E2 no em-dash or en-dash in this plan files
+(node:718181) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: D6 refreshLive: handles only, named fallbacks
+PASS: B4 --live prints a diff and writes nothing without --write
+PASS: D0 net guard silent for the whole run
+--- 363-10 structure ---
+PASS: 14 FAIL: 0
+>>> pin 363 structure: PASSED
+
+--- pin 355 direction agreement ---
+PASS: G python off: lib/core/intelligence-cascade.cjs (turns green in 355-11)
+PASS: H scanned file count > 0 (2213 files)
+FAIL: H one rule: comparison-to-label code found only in lib/core/direction-convention.cjs (turns green in 355-09 and 355-10) (unresolved hits: lib/core/rs-chain-feeder.cjs, lib/memory/test-rs-discovery-engine.cjs)
+PASS: H negative control: planted scratch rule file caught
+PASS: installNetGuard: zero fetch attempts
+scrubVendorKey found a pre-set TYPESAFE_API_KEY: true
+--- test-355-direction-agreement ---
+PASS: 187 FAIL: 1
+>>> pin 355 direction agreement: KNOWN (pre-existing red, signature matched)
+
+--- pin 355 direction convention ---
+PASS: lib/core/direction-convention.cjs loads without throwing
+PASS: classify(0.2, 0.6) === 'structural_transfer'
+PASS: classify(0.6, 0.2) === 'semantic_implementation'
+PASS: classify(0.4, 0.4) === 'semantic_implementation' (exact tie, D-02)
+PASS: classify(0, 0) === 'semantic_implementation'
+PASS: classify(null, 0.5) === 'none'
+PASS: classify(0.5, undefined) === 'none'
+PASS: classify(NaN, 0.1) === 'none'
+PASS: classify('abc', 0.1) === 'none'
+PASS: classify(0.1, Infinity) === 'none'
+PASS: classify('0.2', '0.6') === 'structural_transfer' (numeric strings coerce)
+PASS: classifyDiff(0.01) === 'structural_transfer'
+PASS: classifyDiff(0) === 'semantic_implementation'
+PASS: classifyDiff(-0.3) === 'semantic_implementation'
+PASS: classifyDiff(null) === 'none'
+PASS: DIRECTIONS deep-equals ['structural_transfer','semantic_implementation']
+PASS: Object.isFrozen(DIRECTIONS) === true
+PASS: DIRECTION_MEANING.structural_transfer === 'same meaning in different words'
+PASS: DIRECTION_MEANING.semantic_implementation === 'same words with different meaning'
+PASS: NONE === 'none'
+PASS: NONE_MEANING === 'no wording signal measured'
+PASS: phraseHash() returns a 64-char hex sha256
+PASS: phraseHash() matches sha256(JSON.stringify({DIRECTIONS, DIRECTION_MEANING, NONE_MEANING}))
+PASS: phraseHash() changes when a phrase changes
+PASS: PHRASES_CONFIRMED is present and frozen
+PASS: PHRASES_CONFIRMED.by === 'pws-author' (role only, never a name)
+PASS: PHRASES_CONFIRMED.phrase_hash === phraseHash()
+PASS: module source cites 355-ORIGIN-CONCEPT.md
+PASS: module's only require( call is require('node:crypto')
+PASS: module source does not require zod
+PASS: installNetGuard: zero fetch attempts
+scrubVendorKey found a pre-set TYPESAFE_API_KEY: true
+--- test-355-direction-convention ---
+PASS: 31 FAIL: 0
+>>> pin 355 direction convention: PASSED
+
+--- pin 355 direction readers ---
+PASS: T1 static: no unresolved two-literal direction-id arrays under lib/ (allowed: direction-convention.cjs only, post-355-19)
+PASS: T1 lib/core/eureka-critic.cjs requires direction-convention.cjs
+PASS: T1 lib/core/eureka/eureka-offer.cjs requires direction-convention.cjs
+PASS: T1 lib/core/grill-engine.cjs requires direction-convention.cjs
+PASS: T1 lib/mcp/tool-router.cjs requires direction-convention.cjs
+PASS: T1 eureka-critic criticRule accepts DIRECTIONS member structural_transfer
+PASS: T1 eureka-critic criticRule accepts DIRECTIONS member semantic_implementation
+PASS: T1 eureka-critic criticRule rejects a non-DIRECTIONS surprise_type ("none")
+PASS: T1 eureka-offer DIRECTION_ENUM === direction-convention DIRECTIONS
+PASS: T1 grill-engine.cjs loads cleanly after importing direction-convention.cjs
+PASS: T1 tool-router eureka_critic schema captured
+PASS: T1 tool-router eureka_critic surprise_type accepts structural_transfer
+PASS: T1 tool-router eureka_critic surprise_type accepts semantic_implementation
+PASS: T1 tool-router eureka_critic surprise_type rejects "none"
+PASS: T1 tool-router eureka_critic surprise_type rejects "meaning_bridge"
+PASS: T1 tool-router eureka_critic schema_version field still present (unchanged shape)
+(node:718221) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: T2 hsi-to-graph writes 3 HSI_CONNECTION edges
+PASS: T2 hsi-to-graph re-derives surprise_type for artifact-a->artifact-b (ignores stored "semantic_implementation")
+PASS: T2 hsi-to-graph re-derives surprise_type for artifact-c->artifact-d (ignores stored "structural_transfer")
+PASS: T2 hsi-to-graph re-derives surprise_type for artifact-e->artifact-f (ignores stored "structural_transfer")
+PASS: T2 nl-graph-queries hsi_connections query executes
+PASS: T2 nl-graph-queries hsi_connections returns exactly one row
+PASS: T2 nl-graph-queries hsi_connections re-derives surprise_type (ignores stored "semantic_implementation")
+PASS: T2 nl-graph-queries reverse_salients query executes
+PASS: T2 nl-graph-queries reverse_salients keeps innovation_type for an rs-engine-sourced edge
+PASS: T2 nl-graph-queries reverse_salients suppresses innovation_type for a non-rs-engine edge (null)
+PASS: T2 leg H of test-355-direction-agreement.cjs: no hit in any file this task touched
+PASS: installNetGuard: zero fetch attempts
+scrubVendorKey found a pre-set TYPESAFE_API_KEY: true
+--- test-355-direction-readers ---
+PASS: 28 FAIL: 0
+>>> pin 355 direction readers: PASSED
+
+--- pin 355 floor sweep ---
+--- leg 1: ledger shape + EXPECTED_IDS ---
+PASS: data/floor-ledger.json parses
+PASS: ledger.rows is a non-empty array
+PASS: ledger.floor_basis states disclosed-not-calibrated
+PASS: ledger carries row rs-engine.DEFAULT_THRESHOLD
+PASS: ledger carries row rs-differential-scorer.DIFF_FLOOR
+PASS: ledger carries row rs-differential-scorer.LSA_FLOOR
+PASS: ledger carries row rs-differential-scorer.BERT_FLOOR
+PASS: ledger carries row rs-differential-scorer.SEMANTIC_FLOOR
+PASS: ledger carries row rs-differential-scorer.EUREKA_DIFF_FLOOR
+PASS: ledger carries row rs-differential-scorer.bandFor
+PASS: ledger carries row rs-differential-scorer.highLeg
+PASS: ledger carries row rs-innovation-classifier.LSA_HIGH
+PASS: ledger carries row rs-innovation-classifier.BERT_HIGH
+PASS: ledger carries row rs-breakthrough-scorer.rubrics
+PASS: ledger carries row hsi-engine.threshold
+PASS: ledger carries row hsi-engine.weights
+PASS: ledger carries row hsi-to-graph.threshold
+PASS: ledger carries row compute-whitespace-gaps.percentile
+PASS: ledger carries row whitespace-command.novelty-bands
+PASS: ledger carries row interpret-whitespace.thresholds
+PASS: ledger carries row eureka-critic.stage-a-gates
+PASS: ledger carries row eureka-critic.confidence-bands
+PASS: ledger carries row tail-quadrant.constants
+PASS: ledger carries row analogy-fitness.thresholds
+PASS: ledger carries row analogy-fitness.bands
+PASS: every row this phase is disclosed (D-19)
+PASS: no row anchors on a bare line number
+--- leg 2: validateLedger ---
+PASS: validateLedger reports valid on the shipped ledger
+PASS: validateLedger rejects calibrated status with null provenance
+PASS: validateLedger rejects calibrated status missing provenance.n
+--- leg 3: resolveHits (the sweep) ---
+scanned 84 files
+PASS: scanned more than zero files
+PASS: zero unresolved hits
+--- leg 4: negative control (FAKE_FLOOR) ---
+PASS: negative control: planted FAKE_FLOOR = 0.42 is caught as unresolved
+PASS: negative control: scratch file removed afterwards
+--- leg 5: dependent outputs (lib/core/floor-disclosure.cjs) ---
+PASS: PRODUCER_IDS deep-equals the five producers
+PASS: PRODUCER_IDS is frozen
+PASS: disclosureFor(eureka) returns observation:null
+PASS: disclosureFor(eureka) returns suggests:null
+PASS: disclosureFor(eureka) returns an unverified array
+PASS: disclosureFor(eureka) returns an evidence_used array
+PASS: disclosureFor(eureka).evidence_used includes rs-differential-scorer.EUREKA_DIFF_FLOOR
+PASS: disclosureFor(eureka).evidence_used includes rs-breakthrough-scorer.rubrics
+PASS: disclosureFor(eureka).evidence_used includes eureka-critic.stage-a-gates
+PASS: disclosureFor(eureka).evidence_used includes eureka-critic.confidence-bands
+PASS: disclosureFor(eureka).evidence_used includes tail-quadrant.constants
+PASS: disclosureFor(eureka).evidence_used includes analogy-fitness.thresholds
+PASS: disclosureFor(eureka).evidence_used includes analogy-fitness.bands
+PASS: disclosureFor(eureka).unverified has one sentence per dependent row
+PASS: disclosureLine(eureka) contains 'unverified'
+PASS: disclosureLine(eureka) names data/floor-ledger.json
+PASS: disclosureLine(eureka) carries no bare decimal
+PASS: disclosureLine(eureka) carries no percent literal
+PASS: disclosureFor(find-connections) returns observation:null
+PASS: disclosureFor(find-connections) returns suggests:null
+PASS: disclosureFor(find-connections) returns an unverified array
+PASS: disclosureFor(find-connections) returns an evidence_used array
+PASS: disclosureFor(find-connections).evidence_used includes rs-engine.DEFAULT_THRESHOLD
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.DIFF_FLOOR
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.LSA_FLOOR
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.BERT_FLOOR
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.SEMANTIC_FLOOR
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.bandFor
+PASS: disclosureFor(find-connections).evidence_used includes rs-differential-scorer.highLeg
+PASS: disclosureFor(find-connections).evidence_used includes rs-innovation-classifier.LSA_HIGH
+PASS: disclosureFor(find-connections).evidence_used includes rs-innovation-classifier.BERT_HIGH
+PASS: disclosureFor(find-connections).unverified has one sentence per dependent row
+PASS: disclosureLine(find-connections) contains 'unverified'
+PASS: disclosureLine(find-connections) names data/floor-ledger.json
+PASS: disclosureLine(find-connections) carries no bare decimal
+PASS: disclosureLine(find-connections) carries no percent literal
+PASS: disclosureFor(find-bottlenecks) returns observation:null
+PASS: disclosureFor(find-bottlenecks) returns suggests:null
+PASS: disclosureFor(find-bottlenecks) returns an unverified array
+PASS: disclosureFor(find-bottlenecks) returns an evidence_used array
+PASS: disclosureFor(find-bottlenecks).unverified has one sentence per dependent row
+PASS: disclosureLine(find-bottlenecks) contains 'unverified'
+PASS: disclosureLine(find-bottlenecks) names data/floor-ledger.json
+PASS: disclosureLine(find-bottlenecks) carries no bare decimal
+PASS: disclosureLine(find-bottlenecks) carries no percent literal
+PASS: disclosureFor(hsi) returns observation:null
+PASS: disclosureFor(hsi) returns suggests:null
+PASS: disclosureFor(hsi) returns an unverified array
+PASS: disclosureFor(hsi) returns an evidence_used array
+PASS: disclosureFor(hsi).evidence_used includes hsi-engine.threshold
+PASS: disclosureFor(hsi).evidence_used includes hsi-engine.weights
+PASS: disclosureFor(hsi).evidence_used includes hsi-to-graph.threshold
+PASS: disclosureFor(hsi).unverified has one sentence per dependent row
+PASS: disclosureLine(hsi) contains 'unverified'
+PASS: disclosureLine(hsi) names data/floor-ledger.json
+PASS: disclosureLine(hsi) carries no bare decimal
+PASS: disclosureLine(hsi) carries no percent literal
+PASS: disclosureFor(whitespace) returns observation:null
+PASS: disclosureFor(whitespace) returns suggests:null
+PASS: disclosureFor(whitespace) returns an unverified array
+PASS: disclosureFor(whitespace) returns an evidence_used array
+PASS: disclosureFor(whitespace).evidence_used includes compute-whitespace-gaps.percentile
+PASS: disclosureFor(whitespace).evidence_used includes whitespace-command.novelty-bands
+PASS: disclosureFor(whitespace).evidence_used includes interpret-whitespace.thresholds
+PASS: disclosureFor(whitespace).unverified has one sentence per dependent row
+PASS: disclosureLine(whitespace) contains 'unverified'
+PASS: disclosureLine(whitespace) names data/floor-ledger.json
+PASS: disclosureLine(whitespace) carries no bare decimal
+PASS: disclosureLine(whitespace) carries no percent literal
+PASS: disclosureFor throws on an unknown producer id
+PASS: lib/core/floor-disclosure.cjs requires only node:fs and node:path
+--- leg 4b (Phase 355-23): dependent-output render leg ---
+(node:718249) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS: leg 4b: at least one disclosed row carries dependent_outputs
+PASS: leg 4b: every 355 producer except the retired eureka render is rendered (find-connections, find-bottlenecks, hsi, whitespace)
+PASS: leg 4b: every dependent producer render carries disclosureLine(producer)
+PASS: leg 4b: none of a disclosed row's own numeric values appear as a bare decimal token in its dependent producers' renders
+PASS: no network attempted (hygiene-355 net guard)
+--- test-355-floor-sweep ---
+PASS: 110 FAIL: 0
+>>> pin 355 floor sweep: PASSED
+
+--- pin 3551 ambient run ---
+test-3551-ambient-run:
+  ok - the module loads and exports the full public surface
+  ok - PRODUCER_COMMANDS and PRODUCER_ADAPTERS carry all five producer ids
+  ok - selectCardFinding: unverified-only findings -> null
+  ok - selectCardFinding: indirect(hsi) + strong(whitespace) -> the strong whitespace one
+  ok - selectCardFinding: two strong (eureka, hsi) -> the eureka one (producer order)
+  ok - selectCardFinding: equal tier and producer -> the lower rank
+  ok - selectCardFinding: a finding with a huge score and tier indirect loses to a strong one (no score field is ever read)
+(node:718256) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok - memoizeCallTool: the same (tool, args) twice across two producer adapters reaches the underlying counting callTool once; different args twice
+  ok - runAmbientComposition (i): only unverified findings -> card null, surfaced_via none, tier_counts.unverified correct, no side channel
+  ok - runAmbientComposition (ii): one indirect hsi + one strong whitespace, guard clearing -> exactly one new opportunity node proposed, last-eureka.json v2 with matching opportunity_handle, result.card.opportunity_handle matches, surfaced_via sens13
+  ok - runAmbientComposition (iii): measureAndGuard returning not cleared -> nothing filed, no side channel, the producer outcome of the selected finding is guard_not_cleared
+  ok - runAmbientComposition (iv): an adapter that throws -> that producer's outcome 'error', the others still run
+  ok - runAmbientComposition (v): budgetMs exhausted after the first adapter -> every later producer skipped
+  ok - runAmbientComposition: posture for all five ids equals postureForCommand(PRODUCER_COMMANDS[id]).posture
+  ok - Part 8: with a counting callTool, every captured Theo call carries exactly { from, to } and no fixture marker
+  ok - static: ambient-run.cjs has no brain-client require, no zod require, no fetch(, no INSERT INTO, no url-ingest; its only side-channel writer call is writeStampedSideChannel; no em-dash
+  ok - extraction regressions: measureAndGuardPair and fileStampedOpportunity are both exported (test-355-filing.cjs, test-355-side-channel-v2.cjs, test-213-sensor-eureka.cjs and test-213-part8-boundary.cjs are run directly by the executor, unchanged)
+  ok - integration: the REAL adapters over a copied room-extend fixture with a replay callTool never throw, and every producer ends with an outcome in AMBIENT_PRODUCER_OUTCOMES
+
+PASS test-3551-ambient-run.cjs (18 checks)
+FAIL: 0
+>>> pin 3551 ambient run: PASSED
+
+--- pin doctor module contract parity ---
+  ok - negative self-test: the D-03 gate bites on declaration gaps (missing fix_supported, bad id/semver/cadence/flag, dup id)
+  ok - all 29 registry module(s) pass the 9-rule D-03 contract
+
+ALL PASS (2 assertions)
+(node:718536) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> pin doctor module contract parity: PASSED
+
+--- pin 349 docs lockstep ---
+test-349-docs-lockstep
+  ok   RULE 5 has exactly nine numbered places
+  ok   place 9 names canon snapshot freshness, its gate, its flag and the refresh command
+  ok   place 8 names both halves: step numbers, files, bridge, flags
+  ok   place 8 records Step 5.6 as retired, not as a live leading half
+  ok   the lagging half's existing facts survive inside item 8 (extended, not replaced)
+  ok   the include's Telling Theo section names Step 0.55 and the listener, and Step 5.6 only as retired
+  ok   the include points at RULE 5 as the single home
+  ok   the include carries no second lockstep count of its own
+  ok   the include's own five-point Version Consistency list is undisturbed
+  reconciliation satisfied by: docs/RELEASE-CEREMONY-RULING-SYSTEM.md
+  ok   the VERSION-BUMP-CHECKLIST.md / WD-14 reconciliation is cited in a tracked file
+  ok   docs/VERSION-BUMP-CHECKLIST.md is NOT created (WD-14 stands)
+  ok   zero em-dashes in docs/RELEASE-CEREMONY-RULING-SYSTEM.md
+  ok   zero em-dashes in .claude/includes/release-process.md
+  ok   zero em-dashes in this test file itself
+14 checks passed.
+>>> pin 349 docs lockstep: PASSED
+
+--- pin 343 theo stamp gate ---
+test-343-theo-stamp-gate:
+  (repo version under test: 2.0.0-beta.66)
+  ok - arm 1: a matching stamp exits 0 and prints a pass line naming both values
+  ok - arm 2: a mismatching stamp exits non-zero and names found, expected and a recovery command
+  ok - arm 3: a failing reader is a named READ FAILURE, never a mismatch
+  ok - arm 4: under DRY_RUN=1 a mismatch prints the verdict and exits 0 (WD-20)
+  ok - arm 5 (bonus): --no-theo-check is audited -- visible, names the flag, and never touches the reader
+  ok - arm 6 (WR-01): a plugin_dir with a single quote and a space does not break the default reader
+  ok - arm 7 (WR-02): a missing timeout binary fails closed as a READ FAILURE instead of running unbounded
+
+7 checks passed.
+>>> pin 343 theo stamp gate: PASSED
+
+--- research shape ledger --check ---
+build-research-shape-ledger --check: OK
+>>> research shape ledger --check: PASSED
+
+--- skill mirrors --check ---
+build-skill-mirrors --check: OK (112 mirrors match expected content; skip-list verified: trending-to-absurd)
+>>> skill mirrors --check: PASSED
+
+--- floor ledger check ---
+PASS: floor-ledger --check (62 rows, 84 files scanned, 58 hits, 0 unresolved)
+>>> floor ledger check: PASSED
+
+--- registry drift check ---
+check-registry-drift: baseline source = git-tag (v2.0.0-beta.65)
+check-registry-drift: deprecations source = data/command-deprecations.json (1 valid entries)
+INFO: REMOVED with a deprecation entry: /mos:query -> /mos:graph (retired_in 2.0.0-beta.67)
+check-registry-drift: OK (0 findings, 1 accepted removal(s), baseline=git-tag)
+>>> registry drift check: PASSED
+
+--- 366 spike record --check ---
+{"ok":true,"check":"record.json matches the recomputed record byte for byte","bytes":22523}
+(node:718977) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+>>> 366 spike record --check: PASSED
+
+--- no em-dash or en-dash in phase 366 files ---
+>>> no em-dash or en-dash in phase 366 files: PASSED
+
+PASSED=72 FAILED=0 SKIPPED=0 KNOWN=1

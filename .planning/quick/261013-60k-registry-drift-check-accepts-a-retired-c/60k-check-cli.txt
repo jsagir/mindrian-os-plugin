@@ -1,0 +1,4 @@
+check-registry-drift: baseline source = git-tag (v2.0.0-beta.65)
+check-registry-drift: deprecations source = data/command-deprecations.json (1 valid entries)
+INFO: REMOVED with a deprecation entry: /mos:query -> /mos:graph (retired_in 2.0.0-beta.67)
+check-registry-drift: OK (0 findings, 1 accepted removal(s), baseline=git-tag)

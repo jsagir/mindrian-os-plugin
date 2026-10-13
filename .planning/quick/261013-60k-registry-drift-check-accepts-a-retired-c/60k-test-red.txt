@@ -1,0 +1,29 @@
+test-341-registry-drift.cjs
+  PASS: arm 1: diffRegistries reports the one missing command
+  PASS: arm 2: visibility change appears in visibilityChanged, not removed
+check-registry-drift: baseline source = env (/home/jsagi/dev/MindrianOS-Plugin/tests/fixtures/341-registry-drift-baseline.json)
+  PASS: arm 3: check() against the real repo (fixture baseline) is ok today
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-EOVsgb/baseline.json)
+  PASS: arm 4: an invented baseline command is reported as removed
+  PASS: arm 5: run-harness.cjs --check exits 0 and names registry-drift
+  PASS: arm 6: run-harness.cjs --tier pre-tag still exits 0 with a logged policy pointed at a violating baseline
+  INFO: evidence_log /home/jsagi/.mindrian/registry-drift.jsonl exists=false empty=true
+  PASS: arm 7: evidence_log does not exist yet, or is empty (starting state honestly recorded)
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-CgXPSk/baseline.json)
+  PASS: arm 8: a removal with no deprecation entry still fails with the unchanged message
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-CgXPSk/baseline.json)
+  FAIL: arm 9: a removal with a valid deprecation entry passes and is named -- {"ok":false,"findings":["commands present in the baseline but MISSING from the current registry: /mos:gone-341. If this is intentional, add an explicit deprecation entry recording why."]}
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-CgXPSk/baseline.json)
+  FAIL: arm 10: an entry whose command is still in the registry fails as STALE -- ["commands present in the baseline but MISSING from the current registry: /mos:gone-341. If this is intentional, add an explicit deprecation entry recording why."]
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-CgXPSk/baseline.json)
+  FAIL: arm 11: a malformed entry fails, accepts nothing, and the removal still fails -- {"ok":false,"findings":["commands present in the baseline but MISSING from the current registry: /mos:gone-341. If this is intentional, add an explicit deprecation entry recording why."]}
+  FAIL: arm 12: validateDeprecations rejects four bad inputs -- validateDeprecations is not exported
+check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-JrcMRK/baseline.json)
+  FAIL: arm 13: the real registry and data file accept /mos:query -- {"ok":false,"findings":["commands present in the baseline but MISSING from the current registry: /mos:query. If this is intentional, add an explicit deprecation entry recording why.","context: 1 command(s) added since baseline: /mos:scientific-roadmap"]}
+  FAIL: arm 14: the v2.0.0-beta.65 baseline exits 0 and prints the accepted line -- exit=1 stdout=check-registry-drift: baseline source = env (/tmp/mos-341-registry-drift-WOj6vZ/tag-registry.json)
+FAIL: commands present in the baseline but MISSING from the current registry: /mos:query. If this is intentional, add an explicit deprecation entry recording why.
+
+  FAIL: arm 15: the run-all-366 leg command exits 0 and states its baseline source -- exit=1 stdout=check-registry-drift: baseline source = git-tag (v2.0.0-beta.65)
+FAIL: commands present in the baseline but MISSING from the current registry: /mos:query. If this is intentional, add an explicit deprecation entry recording why.
+
+RESULT: PASS=8 FAIL=7
