@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: qa-sweep
 trigger: "search-surface-qa-sweep-20261012"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [7, 8]
 created: 2026-10-12T12:00:00Z
-updated: 2026-10-12T15:10:00Z
+updated: 2026-10-13T00:40:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -24,7 +24,7 @@ updated: 2026-10-12T15:10:00Z
 hypothesis: The seven search-surface findings from spike 010 and quick 261012-kfn split into two real defects (the 500-file walk cap drops files silently; the SPEC-5 adapter-budget test fails for a cause nobody has named), two measured costs (the double walk; the one-room floor), two design questions (the one-level wiki scan; three search doors) and one description drift. Item 8 (Desktop marketplace add) is blocked on host evidence only the navigator can supply.
 test: Four parallel read-only investigators, one per cluster, each writing evidence under .planning/debug/search-surface-qa-sweep-20261012/<cluster>/ and returning a classification per item.
 expecting: Every item classified WORKING / known tracked bug / ENV GAP / NEW FAILURE / DESIGN DECISION, with measured numbers, before any fix is opened.
-next_action: Items 1, 2 (with 3), 6 fixed and verified. Item 5 executing (quick 261012-ri7). Then the egress blocker (quick 261012-sbz, separate session part8-egress-guard-room-lexicon-false-positive-blocks-theo) takes the executor, then the harness gate (261012-sc0), then 7a (wiki repoint to room_search, retire flexsearch) and 7b (retire /mos:query). Item 8 waits on a Desktop Code-tab reproduction. Push after the egress fix lands.
+next_action: RESOLVED 2026-10-13. Items 1, 2 (with 3), 5, 6, 7a, 7b fixed and verified; item 4 recorded as a measured limit (do not move 0.55 without a third room); item 8 stays open in desktop-marketplace-add-fails-20261011 (blocked on a Desktop Code-tab reproduction). The egress blocker found mid-sweep is resolved in its own session. Follow-ups are listed under Non-Code Follow-ups. Push and the beta.66 cut are the navigator's.
 
 ## Meta
 
@@ -49,7 +49,7 @@ Spike 010 and quick 261012-kfn exposed that the room search surface has an untes
 | 4 | word-tier floor (min(2, words) distinct words, idf_share >= 0.55) fitted on 1 room, 13 queries | A | WORKING (measured limit): on motj-ecosystem, 16 new NL questions + 16 keyword + 3 negatives: NL top-5 13 of 16, keyword 15 of 16, 3 of 3 negatives rejected; negatives idf_share max 0.360, positives min 0.399 (no overlap, gap 0.039); but 3 of 16 positive targets sit below the 0.55 floor (0.399, 0.473, 0.480) and one correct rank-1 target (B7) was rejected by the floor; the distinct-words test does not separate (best negative 4 words, weakest positive 4); repeat run 0 of 35 differ | no action now; do not move 0.55 without a third room |
 | 5 | lib/wiki/page-renderer.cjs scanRoom is one level deep; flexsearch indexed 61 of 424 files | C | known tracked bug, owner orphaned: SEED-006 pack finding F3 (room research/2026-07-07-fable-max-pack/seed-visible-room-wiki, section 3.2) and the deferral in quick 260923-lu5 PLAN line 176 ("the recursive walker is Wave 1"); Wave 1 has no phase, plan or test; no record ever chose the shallow scan; the wiki shows and searches 61 of 424 files (14.4 percent); all 90 decision-16 nested artifacts have no page | FIXED 97285972f + cb1c5bf47 (quick 261012-ri7): scanRoom walks nested folders through discoverSections (no second walker; test-270 unchanged), pages 61 -> 418 on rethinking-mindrianos, all 61 flat ids preserved, nested ids are room-relative paths, 3 bad-frontmatter files keep their body with a warning; test-232 5/5, visible-room 2/2, new test 14/14 |
 | 6 | tests/run-all-198.sh SPEC-5 adapter-budget leg fails; treated as pre-existing | B | NEW FAILURE (unowned 76 days): scripts/on-stop is 658 lines (test count; 657 by wc -l) against LINE_BUDGETS 570 in lib/mcp/hook-adapter-audit.cjs:62; first breached by 8462f41ad (phase 241-01, 2026-07-28), grew to 658 in 26629ecff (369.25-19, 2026-10-06); named in quick 260911-juq deferred-items but never opened; invisible to doctor and the release gate | FIXED 2c0eae9f5 + 3aead34aa + 8a73d929c (quick 261012-rey, option b1): budget 570 -> 680 (measured 658, rule smallest multiple of 10 at least M+20), hard leg in tests/run-all-366.sh (2c) so the release suite runs it, test prints its verdict from the exit code, SEED-125 holds the thin-hook refactor; run-all-198 17/0, run-all-366 71/0, doctor --acceptance 24/24 before and after |
-| 7 | three search doors (room_search, wiki flexsearch, room_graph graph-query); Canon Part 7 overlap | C | DESIGN DECISION pending navigator: seven doors confirmed at HEAD (room_search, wiki flexsearch, graph_query, room_graph graph-query, context_assemble, /mos:graph, /mos:query deprecated alias); two are lexical (room_search, wiki flexsearch) with different coverage; the graph doors are a different job; no door breaks a recorded rule (Part 7 gates commands, skills, agents, hooks, not lib code); /mos:query's removal date (v1.14.0) has passed | 7a FIXED 70b2d3331 + d3b84e108 + 8b10decb2 (quick 261012-u58): the engine moved byte-faithfully to lib/core/room-search.cjs (requires only node:fs, node:path, room-path-containment), room.cjs re-exports it (same function object), the wiki /api/search answers from it with a page filter inside the walk, the body carries tier/scanned/walkable/truncated and the reason, wiki-search.cjs deleted, 0 flexsearch requires left in code (package.json removal at the release cut via npm uninstall); nested marker found with its nested id first, 3 negatives below_relevance_floor, walkable 418 = pages 418, about 100-140 ms per query against the 414-551 ms index rebuild it replaces; new test 25/25, nested-scan 14/14, leak 14/14, 232 5/5, room_search tests 50/50/7/22, test-270 green; screenshots inspected by the orchestrator. 7b (retire /mos:query) planned as quick 261012-v17, not executed |
+| 7 | three search doors (room_search, wiki flexsearch, room_graph graph-query); Canon Part 7 overlap | C | DESIGN DECISION pending navigator: seven doors confirmed at HEAD (room_search, wiki flexsearch, graph_query, room_graph graph-query, context_assemble, /mos:graph, /mos:query deprecated alias); two are lexical (room_search, wiki flexsearch) with different coverage; the graph doors are a different job; no door breaks a recorded rule (Part 7 gates commands, skills, agents, hooks, not lib code); /mos:query's removal date (v1.14.0) has passed | 7a FIXED 70b2d3331 + d3b84e108 + 8b10decb2 (quick 261012-u58): the engine moved byte-faithfully to lib/core/room-search.cjs (requires only node:fs, node:path, room-path-containment), room.cjs re-exports it (same function object), the wiki /api/search answers from it with a page filter inside the walk, the body carries tier/scanned/walkable/truncated and the reason, wiki-search.cjs deleted, 0 flexsearch requires left in code (package.json removal at the release cut via npm uninstall); nested marker found with its nested id first, 3 negatives below_relevance_floor, walkable 418 = pages 418, about 100-140 ms per query against the 414-551 ms index rebuild it replaces; new test 25/25, nested-scan 14/14, leak 14/14, 232 5/5, room_search tests 50/50/7/22, test-270 green; screenshots inspected by the orchestrator. 7b FIXED 29f8b57b1 (quick 261012-v17): commands/query.md and skills/query deleted, 7 registries regenerated, 14 hand edits, gates OK, shape surfaces 53 -> 51 with 0 new, commands 113, acceptance 24/24 identical point set, help shows no query line; prerequisite quick 261012-vtx (62ea8f584, a9b838170, 0d5117d7e) reconciled the harness contract and made the blocking policy run |
 | 8 | Desktop "Add marketplace" fails after metadata resolves (desktop-marketplace-add-fails-20261011) | navigator | blocked on host evidence; surface confirmed Desktop Code tab, no current error available (navigator 2026-10-12) | carried |
 
 ## Symptoms
@@ -214,7 +214,19 @@ Alternative: keep two lexical doors on purpose and record why. Either way the de
 - STRUCK 2026-10-12 (cluster D): no Desktop or Cowork system-prompt text carries room_search; lib/mcp/runtime-instructions.cjs has none. The tools/list description is the only carrier on all three surfaces.
 - Item 6: the 369 close-gate documents quote "618 against 570" and say nothing touched on-stop since July; both are stale (26629ecff added 40 lines on 2026-10-06). Correct them when the item is resolved.
 - knowledge-base.md: one block per resolved item on resolve.
-- Item 8 needs two facts from the navigator: the exact Desktop surface, and the current import error or log.
+- Item 8 needs two facts from the navigator: the exact Desktop surface (answered 2026-10-12: Claude Desktop, Code tab), and the current import error or log (not yet available).
+- Follow-ups carried out of this sweep (2026-10-13), none opened yet:
+  1. Release cut: `npm uninstall flexsearch` on the operator machine (0 requires left in code; the CDN FlexSearch in the static Library page and generate-snapshot is a separate decision), drop the cve-db.json VETTED row, let release.sh Step 6.7 regenerate the shrinkwrap; Theo re-emit and `refresh-framework-names --live` after the /mos:query retirement; marketplace catalog and mos-desktop copy.
+  2. tests/test-harness-167-verdict.cjs exits 1 at HEAD (a Part 9 check, last touched 298-14); unowned red, same shape as item 6; open a session.
+  3. lib/memory/doctor-deprecation-surface.test.cjs T4 reads `doctor --all --json` through a pipe that truncates at about 143 KB of 215 KB; pre-existing; make the test read a file.
+  4. Fixture hygiene: 25 occurrences of two real-sounding venture names in Phase 369.2 fixtures (see the egress session's follow-up).
+  5. The 4 runtime surfaces the harness manifest digests (chain-executor, navigation-engine, cockpit-renderer, directive-envelope) are outside the pre-commit trigger; acceptance catches their drift only at release time.
+  6. check-registry-drift --check exits 1 against the v2.0.0-beta.65 tag until the next tag (true positive: /mos:query removed); irreversibility warnings 14 -> 16 until the next live Jev build.
+  7. mindrian-website lifecycle emails (templates.ts:125, provision-trial-key/index.ts:212) still tell users to run /mos:query; a GSD quick in that repo.
+  8. docs/BACKEND-MAP.md line 286 still lists wiki-search.cjs; NEW_198_MODULES does not list lib/core/room-search.cjs (the new test carries the Part 8 floor).
+  9. Item 4: re-check the 0.55 floor on a third room before any change; the Segment residual stays pinned in the guard gate baseline.
+  10. The wiki /api/save route still calls gray-matter with its cache (the same hazard ri7 fixed in parsePage); the research section page lists 358 cards flat (UX).
+  11. GAP1 and GAP2 (part8-egress-guard-under-blocks-key-shape-and-spelled-money) are open; the gate flips them to fixed only through `--stamp --reason` after that fix.
 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
@@ -229,4 +241,4 @@ files_changed:
   - lib/mcp/hook-adapter-audit.cjs (budget 680 with the measurement note), tests/test-198-adapter-budget.test.cjs (verdict line from the exit code), tests/run-all-366.sh (hard leg 2c)
   - .planning/seeds/SEED-125-thin-on-stop-move-inline-close-out-into-scripts.md (new)
   - CHANGELOG.md (three Fixed bullets)
-commits: e54d85ec2, 656d986bd (item 1); 2c0eae9f5, 3aead34aa, 8a73d929c, ba27c0e9a (item 6); ca9b5722d, 287c76a76, e1ec2e788 (item 2); none pushed
+commits: e54d85ec2, 656d986bd (item 1); 2c0eae9f5, 3aead34aa, 8a73d929c, ba27c0e9a (item 6); ca9b5722d, 287c76a76, e1ec2e788 (item 2); 97285972f, cb1c5bf47, 0defa8336 (item 5); 70b2d3331, d3b84e108, 8b10decb2, 92b1b525a (7a); 62ea8f584, a9b838170, 0d5117d7e, f1a732be7 (vtx prerequisite); 29f8b57b1, efcdbbd21 (7b); spike 04c6f8f7d and the word tier 19db43789, 32fcb604b, 63b25583d before the sweep; none pushed at the time of closing
