@@ -332,6 +332,194 @@ if (require.main === module) {
     ]);
   });
 
+  // --- T23: budget, order, pointers, doctrine (quick 261013-k1u Task 2) ----
+  const DOCTRINE_REL = path.join('references', 'personality', 'session-start-doctrine.md');
+  const ENCODER_RUNS = ['minimal', 'balanced', 'rich', 'cursor', 'cold'];
+
+  ok('T23 unit: DEFAULT_BUDGET_CHARS is pinned at 9000 and is below CLAUDE_CODE_INLINE_LIMIT (10000)', () => {
+    const env = require(ENVELOPE_MODULE);
+    assert.equal(env.DEFAULT_BUDGET_CHARS, 9000);
+    assert.equal(env.CLAUDE_CODE_INLINE_LIMIT, 10000);
+    assert.ok(env.DEFAULT_BUDGET_CHARS < env.CLAUDE_CODE_INLINE_LIMIT);
+  });
+
+  for (const name of ['minimal', 'balanced', 'rich', 'cursor', 'cold', 'fallback']) {
+    ok('T23 ' + name + ' run: additionalContext is at most 9,000 characters', () => {
+      const r = run(name);
+      assertParsed(r);
+      assert.ok(r.ctx.length <= 9000, name + ': context is ' + r.ctx.length + ' characters (budget 9000)');
+    });
+  }
+
+  ok('T23 rich order: Larry identity, room identity, stage, nudges, doctrine, NAV contract, Pointers', () => {
+    const r = run('rich');
+    assertParsed(r);
+    const c = r.ctx;
+    const iLarry = c.indexOf('You are Larry');
+    const iScoped = c.indexOf('You are scoped to the room: venture');
+    const iArc = c.indexOf('## ACTIVE ROOM CONTEXT');
+    const iStage = c.indexOf('venture_stage:');
+    const iNudges = c.indexOf('## Your Nudges for This Session');
+    const iDoc = c.indexOf('## SESSION DOCTRINE');
+    const iNav = c.indexOf('## NAVIGATION CARD-FIRE CONTRACT');
+    const iPtr = c.indexOf('## Pointers');
+    const iMem = c.indexOf('ACTIVE ROOM MEMORY');
+    const pos = JSON.stringify({ iLarry, iScoped, iArc, iStage, iNudges, iDoc, iNav, iPtr, iMem });
+    assert.ok(iLarry >= 0 && iLarry < 100, '"You are Larry" not in the first 100 characters: ' + pos);
+    assert.ok(iScoped >= 0 && iScoped < 2000, 'room identity not in the first 2,000 characters: ' + pos);
+    assert.ok(iLarry < iArc && iArc < iStage && iStage < iDoc && iDoc < iNav && iNav < iPtr, 'order broken: ' + pos);
+    assert.ok(iNudges > iStage && iNudges < iDoc, 'nudges heading not inline between the stage and the doctrine: ' + pos);
+    if (iMem >= 0) assert.ok(iMem < iNudges, 'room memory is inline but not before the nudges: ' + pos);
+  });
+
+  ok('T23 rich pointer: EDGE lines and Room Map boxes are not inline; the full file holds them and the Pointers block names it', () => {
+    const r = run('rich');
+    assertParsed(r);
+    assert.ok(!/^\s*EDGE:/m.test(r.ctx), 'an EDGE: line is inline');
+    assert.ok(!r.ctx.includes('┌─'), 'a Room Map box line is inline');
+    assert.ok(typeof r.fullText === 'string', 'no full session context file at ' + r.fullFile);
+    for (const needle of ['## Proactive Room Intelligence', 'EDGE:', '┌─', 'NAVIGATION CARD-FIRE CONTRACT']) {
+      assert.ok(r.fullText.includes(needle), 'the full file lacks ' + JSON.stringify(needle));
+    }
+    const m = /- Full session context: (.+?)\. Shortened or left out here: ([^\n]+?)\. Read that file/.exec(r.ctx);
+    assert.ok(m, 'no "Full session context:" pointer line inline');
+    assert.equal(m[1], r.fullFile, 'the pointer names another path');
+    assert.ok(m[2].includes('proactive room intelligence'), 'the pointer labels lack the proactive block: ' + m[2]);
+    assert.ok(m[2].includes('room state (Room Map'), 'the pointer labels lack the Room Map: ' + m[2]);
+  });
+
+  for (const name of ENCODER_RUNS) {
+    ok('T23 ' + name + ' run: NAV card-fire contract and the compact doctrine are inline; the doctrine pointer resolves', () => {
+      const r = run(name);
+      assertParsed(r);
+      const c = r.ctx;
+      assert.ok(c.includes('## NAVIGATION CARD-FIRE CONTRACT'), 'NAV contract heading not inline');
+      assert.ok(c.includes('[FIRE-IF-FORK]'), '[FIRE-IF-FORK] not inline');
+      for (const needle of ['skills/ui-system/SKILL.md', 'scripts/generate-standalone', 'initialPrompt']) {
+        assert.ok(c.includes(needle), 'the compact doctrine lacks ' + needle);
+      }
+      const m = /- Full doctrine text: ([^\n]+)/.exec(c);
+      assert.ok(m, 'no "Full doctrine text:" line');
+      assert.ok(m[1].endsWith(DOCTRINE_REL), 'the doctrine pointer names ' + m[1]);
+      assert.ok(fs.existsSync(m[1]), 'the doctrine file does not exist at ' + m[1]);
+    });
+  }
+
+  ok('T23 cold first-install: onboarding inline and nothing was cut (no "Full session context:" line)', () => {
+    const r = run('cold');
+    assertParsed(r);
+    assert.ok(r.ctx.includes('[MindrianOS Onboarding] First install detected.'));
+    assert.ok(!r.ctx.includes('Full session context:'), 'the cold context names a full file, so something was cut');
+  });
+
+  ok('T23 fallback: the markers are removed (the context starts with the Larry identity)', () => {
+    const r = run('fallback');
+    assertParsed(r);
+    assert.ok(r.ctx.startsWith('[MindrianOS v'), 'fallback context starts with ' + JSON.stringify(r.ctx.slice(0, 40)));
+  });
+
+  const hasPython = spawnSync('python3', ['--version'], { stdio: 'ignore' }).status === 0;
+  ok('T23 rich: the SEALED ROOMS block is inline (required block)' + (hasPython ? '' : ' [skipped: no python3]'), () => {
+    if (!hasPython) return;
+    const r = run('rich');
+    assertParsed(r);
+    assert.ok(r.ctx.includes('## SEALED ROOMS'), 'SEALED ROOMS not inline');
+  });
+
+  ok('T23 doctrine file: the moved stable-prefix sentences exist line for line', () => {
+    const ref = fs.readFileSync(path.join(REPO_ROOT, DOCTRINE_REL), 'utf8');
+    for (const s of [
+      'All /mos: command output MUST follow the 4-zone anatomy from skills/ui-system/SKILL.md:',
+      'Symbol vocabulary: use ONLY these glyphs:',
+      'NEVER generate HTML by hand',
+      'Improvised HTML will always be inferior to the real template',
+      "Larry's response to initialPrompt IS the greeting",
+      'On Desktop and Cowork, no SessionStart hook fires',
+    ]) {
+      assert.ok(ref.includes(s), 'the doctrine file lacks: ' + s);
+    }
+  });
+
+  // --- Unit: assembleContext on synthetic blocks ----------------------------
+  function lines(prefix, count, width) {
+    const out = [];
+    for (let i = 0; i < count; i++) out.push(repeatTo(prefix + ' line ' + i + ' ', width));
+    return out.join('\n') + '\n';
+  }
+  const UNIT_OPTS = { budget: 9000, fullFilePath: '/rooms/venture/.mindrian/session-context.txt', doctrinePath: '/plugin/' + DOCTRINE_REL.split(path.sep).join('/') };
+
+  ok('unit assembleContext: required pieces present; optional pieces follow rank, not input order', () => {
+    const env = require(ENVELOPE_MODULE);
+    const r = env.assembleContext([
+      { id: 'nudges', text: '\n\nNUDGES-BLOCK' },
+      { id: 'doctrine', text: '\n\nDOCTRINE-BLOCK' },
+      { id: 'room-memory', text: '\n\nMEMORY-BLOCK' },
+      { id: 'identity', text: 'IDENTITY-BLOCK' },
+      { id: 'room-identity', text: '\n\nROOM-IDENTITY-BLOCK' },
+    ], UNIT_OPTS);
+    const c = r.inline;
+    const order = ['IDENTITY-BLOCK', 'ROOM-IDENTITY-BLOCK', 'MEMORY-BLOCK', 'NUDGES-BLOCK', 'DOCTRINE-BLOCK', '## Pointers'].map((s) => c.indexOf(s));
+    assert.ok(order.every((v) => v >= 0), 'a piece is missing: ' + JSON.stringify(order));
+    for (let i = 1; i < order.length; i++) assert.ok(order[i - 1] < order[i], 'rank order broken: ' + JSON.stringify(order));
+    assert.ok(c.includes('- Full doctrine text: ' + UNIT_OPTS.doctrinePath), 'the doctrine pointer is missing');
+    assert.ok(!c.includes('Full session context:'), 'nothing was cut, but the full-file pointer is present');
+    assert.equal(r.cut.length, 0);
+  });
+
+  ok('unit assembleContext: a cap cuts at a line end and adds the cut note; the full text keeps the whole block', () => {
+    const env = require(ENVELOPE_MODULE);
+    const cap = env.BLOCK_POLICY['room-memory'].cap;
+    const mem = '\n\nACTIVE ROOM MEMORY\n' + lines('mem', 120, 60);
+    const r = env.assembleContext([
+      { id: 'identity', text: 'IDENTITY' },
+      { id: 'room-memory', text: mem },
+    ], UNIT_OPTS);
+    const start = r.inline.indexOf('\n\nACTIVE ROOM MEMORY');
+    const noteAt = r.inline.indexOf(env.CUT_NOTE);
+    assert.ok(start >= 0 && noteAt > start, 'the cut note is missing');
+    const kept = r.inline.slice(start, noteAt);
+    assert.ok(kept.length + env.CUT_NOTE.length <= cap, 'the cut piece is above its cap: ' + (kept.length + env.CUT_NOTE.length));
+    assert.ok(mem.startsWith(kept) && mem[kept.length] === '\n', 'the cut is not at a line end');
+    assert.ok(r.cut.some((x) => x.id === 'room-memory'), 'the cut list lacks room-memory');
+    assert.ok(r.inline.includes('- Full session context: ' + UNIT_OPTS.fullFilePath + '.'), 'the full-file pointer is missing');
+    assert.ok(r.full.includes(mem), 'the full text lacks the whole memory block');
+  });
+
+  ok('unit assembleContext: a piece with fewer than 200 characters of room is left out and listed', () => {
+    const env = require(ENVELOPE_MODULE);
+    const r = env.assembleContext([
+      { id: 'identity', text: repeatTo('I', 2300) }, // 3000 - 2300 - 600 = 100 characters of room
+      { id: 'proactive', text: '\n\n## Proactive Room Intelligence\n' + lines('p', 10, 40) },
+    ], Object.assign({}, UNIT_OPTS, { budget: 3000 }));
+    assert.ok(!r.inline.includes('## Proactive Room Intelligence'), 'the proactive piece is inline');
+    assert.ok(r.cut.some((x) => x.id === 'proactive'), 'the cut list lacks proactive');
+    assert.ok(/Shortened or left out here: [^\n]*proactive room intelligence/.test(r.inline), 'the pointer does not list proactive');
+    assert.ok(r.inline.length <= 3000, 'above the budget: ' + r.inline.length);
+  });
+
+  ok('unit assembleContext: required pieces above the budget are hard-cut; the result is at most the budget', () => {
+    const env = require(ENVELOPE_MODULE);
+    const r = env.assembleContext([
+      { id: 'identity', text: lines('id', 120, 60) },
+      { id: 'doctrine', text: lines('doc', 120, 60) },
+    ], UNIT_OPTS);
+    assert.ok(r.inline.length <= 9000, 'above the budget: ' + r.inline.length);
+    assert.ok(r.inline.includes('## Pointers'), 'the Pointers block is missing');
+    assert.ok(r.inline.includes('- Full doctrine text: '), 'the doctrine pointer is missing');
+  });
+
+  ok('unit assembleContext: room-state head is required, the body drops box lines and is optional', () => {
+    const env = require(ENVELOPE_MODULE);
+    const rs = '\\n\\n--- DYNAMIC SESSION CONTEXT ---\\n\\n[Room State]\\n---\ncomputed: x\nventure_stage: Discovery\n---\n# Data Room State\n\n## Room Map\n\n'
+      + '┌─a───┐\n│ x │\n└────┘\n\n## Sections\n| a | 1 |\n';
+    const r = env.assembleContext([{ id: 'identity', text: 'ID' }, { id: 'room-state', text: rs }], UNIT_OPTS);
+    assert.ok(r.inline.includes('venture_stage: Discovery'), 'the head is not inline');
+    assert.ok(r.inline.includes('## Sections'), 'the body is not inline');
+    assert.ok(!r.inline.includes('┌─'), 'a box line is inline');
+    assert.ok(r.full.includes('┌─'), 'the full text lacks the box line');
+    assert.ok(r.cut.some((x) => x.id === 'room-state-body'), 'the shortened body is not listed');
+  });
+
   const total = pass + fail;
   if (fail === 0) {
     console.log('PASS: test-k1u-session-start-envelope (' + pass + ' of ' + total + ' checks)');
