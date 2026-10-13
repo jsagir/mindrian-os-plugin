@@ -445,6 +445,11 @@ if [ -d "$ROOM_DIR" ]; then
   if [ "$USER_ARCHETYPE" = "student" ] && [ "$CTX_PCT_INT" -ge 30 ]; then
     CONTEXT_TIER="minimal"
   fi
+  # Test and diagnostics seam (quick 261013-k1u): MINDRIAN_CONTEXT_TIER forces the tier.
+  # Only minimal, balanced and rich are honored. T10 owns the real tier selector.
+  case "${MINDRIAN_CONTEXT_TIER:-}" in
+    minimal|balanced|rich) CONTEXT_TIER="${MINDRIAN_CONTEXT_TIER}" ;;
+  esac
 
   # Room exists -- compute state and build context
   state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
@@ -1866,18 +1871,8 @@ fi
 NAV_CARD_FIRE_DOCTRINE="\n\n## NAVIGATION CARD-FIRE CONTRACT (session doctrine)\n\nEvery per-turn NAVIGATION DECISION block ends with the frozen line [AskUserQuestion contract: shape=F.X verbs=N]. That marker is the per-turn gate flag; only the imperative below moved here.\n\n[FIRE-IF-FORK]: if the fork shown in the option rows above the marker is genuinely unanswered and relevant to the current conversation, call the AskUserQuestion tool in THAT response with the options shown. If the navigator already answered in plain text or the gate is unrelated, do NOT fire it -- acknowledge and proceed instead. Never reproduce the block as text (SEED-021).\n\nThe [AskUserQuestion payload: ...] line carries shape, mode, verb_count, recommended; the option labels are the rows above it.\n\nA line reading [NAV DECISION unchanged - prior block stands] means the previous turn's decision still applies."
 context="${context}${NAV_CARD_FIRE_DOCTRINE}"
 
-# Escape string for JSON embedding
-escape_for_json() {
-  local s="$1"
-  s="${s//\\/\\\\}"
-  s="${s//\"/\\\"}"
-  s="${s//$'\n'/\\n}"
-  s="${s//$'\r'/\\r}"
-  s="${s//$'\t'/\\t}"
-  printf '%s' "$s"
-}
-
-escaped_context=$(escape_for_json "$context")
+# The JSON envelope is encoded at the end of this script (quick 261013-k1u):
+# lib/core/session-context-envelope.cjs first, escape_for_json as the fallback.
 
 # 88.1-03: systemMessage retrofit.
 # Compute a tight one-line status string the user sees alongside the
@@ -1935,7 +1930,6 @@ if [ -n "${ROOM_DIR:-}" ] && [ -d "${ROOM_DIR}" ]; then
 else
   SYSTEM_MESSAGE="session-start: no active room"
 fi
-escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
 
 # --- Brain status: removed (quick 261005-l8g, SEED-119, ruling 2026-10-05) ---
 # Theo needs no key, so session-start has nothing to look up and prints no
@@ -1986,12 +1980,58 @@ fi
 # Only emit the field consumed by the current platform to avoid double injection
 # 88.1-03: systemMessage is a sibling field on the JSON envelope per the
 # Claude Code 2.1.x hook spec; rendered as a one-line status to the user.
+#
+# Quick 261013-k1u (SEED-128 T14; debug entries I-1 and X-1): Claude Code
+# 2.1.296 drops the whole session-start context when this stdout is not
+# valid JSON. The old printf envelope passed ESC bytes (the compute-state
+# Room Map, the analyze-room EDGE lines) into the JSON string. The envelope
+# is now encoded by lib/core/session-context-envelope.cjs (JSON.stringify,
+# ANSI and control bytes removed). If node fails, the bash fallback below
+# strips ANSI codes and C0 bytes before it escapes, so it also prints valid
+# JSON. MINDRIAN_SESSION_CONTEXT_FALLBACK=1 forces the fallback (test seam).
+ENVELOPE_SHAPE="flat"
 if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
+  ENVELOPE_SHAPE="flat"
 elif [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  },\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
-else
+  ENVELOPE_SHAPE="hook"
+fi
+
+ENVELOPE=""
+if [ "${MINDRIAN_SESSION_CONTEXT_FALLBACK:-}" != "1" ]; then
+  ENVELOPE=$(printf '%s' "$context" | node "${PLUGIN_ROOT}/lib/core/session-context-envelope.cjs" emit --shape "$ENVELOPE_SHAPE" --system-message "$SYSTEM_MESSAGE" 2>/dev/null) || ENVELOPE=""
+fi
+if [ -n "$ENVELOPE" ]; then
+  printf '%s\n' "$ENVELOPE"
+  exit 0
+fi
+
+# Fallback: escape string for JSON embedding. ANSI CSI colour codes are
+# removed first, then every C0 byte except TAB and LF (ESC, GS and CR
+# included), then backslash, quote, LF, CR and TAB are escaped.
+escape_for_json() {
+  local s="$1"
+  local had_extglob=0
+  shopt -q extglob && had_extglob=1
+  shopt -s extglob
+  s="${s//$'\e['*([0-9;])m/}"
+  [ "$had_extglob" = "1" ] || shopt -u extglob
+  s=$(printf '%s' "$s" | tr -d '\000-\010\013-\037'; printf 'x')
+  s="${s%x}"
+  s="${s//\\/\\\\}"
+  s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"
+  s="${s//$'\r'/\\r}"
+  s="${s//$'\t'/\\t}"
+  printf '%s' "$s"
+}
+
+escaped_context=$(escape_for_json "$context")
+escaped_sysmsg=$(escape_for_json "$SYSTEM_MESSAGE")
+
+if [ "$ENVELOPE_SHAPE" = "flat" ]; then
   printf '{\n  "additional_context": "%s",\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
+else
+  printf '{\n  "hookSpecificOutput": {\n    "hookEventName": "SessionStart",\n    "additionalContext": "%s"\n  },\n  "systemMessage": "%s"\n}\n' "$escaped_context" "$escaped_sysmsg"
 fi
 
 exit 0
