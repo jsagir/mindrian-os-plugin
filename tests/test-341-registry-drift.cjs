@@ -24,6 +24,18 @@
  *      evidence_log path does not exist yet on this machine, or is empty if
  *      it does. Reported, never failed -- the point is to record the
  *      starting state honestly.
+ *   8. A removal with no deprecation entry still fails, with the unchanged
+ *      message (pin, green before and after the deprecation door).
+ *   9. A removal with a valid deprecation entry passes and is printed by name.
+ *  10. An entry whose command is still in the current registry fails as STALE.
+ *  11. A malformed entry fails, accepts nothing, and the removal still fails.
+ *  12. validateDeprecations rejects a v prefix, a bad date, a duplicate
+ *      command and a top-level array.
+ *  13. The real registry and the real data file accept /mos:query against a
+ *      baseline that holds it.
+ *  14. The cut's baseline (git show of the v2.0.0-beta.65 registry) passes
+ *      through the runner CLI and prints the accepted line.
+ *  15. The exact command of the run-all-366 leg (no env seam) exits 0.
  *
  * House rule: hyphens only, no em-dashes.
  */
@@ -58,6 +70,29 @@ function writeTempBaseline(commands) {
   const file = path.join(dir, 'baseline.json');
   fs.writeFileSync(file, JSON.stringify({ commands: commands }, null, 2));
   return file;
+}
+
+function writeTempJson(fileName, obj) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-341-registry-drift-'));
+  const file = path.join(dir, fileName);
+  fs.writeFileSync(file, JSON.stringify(obj, null, 2));
+  return file;
+}
+
+function validEntry(command, replacedBy) {
+  return {
+    command: command,
+    retired_in: '9.9.9-beta.1',
+    replaced_by: replacedBy,
+    reason: 'Test entry.',
+    decided_by: 'test',
+    date: '2026-10-13',
+    record: 'test-341',
+  };
+}
+
+function listOf(x) {
+  return Array.isArray(x) ? x : [];
 }
 
 function main() {
@@ -148,6 +183,137 @@ function main() {
     'arm 7: evidence_log does not exist yet, or is empty (starting state honestly recorded)',
     !exists || isEmpty,
     'evidence_log already has content; not a failure, just recorded for the record'
+  );
+
+  // Arms 8 to 12 share one temp baseline and one temp current registry.
+  const gone = '/mos:gone-341';
+  const armBaseline = writeTempBaseline([{ command: '/mos:a' }, { command: gone }]);
+  const armCurrent = writeTempJson('current.json', { commands: [{ command: '/mos:a' }] });
+  const armCheck = function (deprecationsDoc) {
+    const depPath = writeTempJson('deprecations.json', deprecationsDoc);
+    return withEnv({ CHECK_REGISTRY_DRIFT_BASELINE: armBaseline }, function () {
+      return runner.check({ registryPath: armCurrent, deprecationsPath: depPath });
+    });
+  };
+
+  // Arm 8 (pin): a removal with no entry still fails, message unchanged.
+  const r8 = armCheck({ deprecations: [] });
+  check(
+    'arm 8: a removal with no deprecation entry still fails with the unchanged message',
+    r8.ok === false &&
+      listOf(r8.findings).some(function (f) {
+        return f.indexOf('MISSING from the current registry: ' + gone) !== -1 &&
+          f.indexOf('add an explicit deprecation entry recording why') !== -1;
+      }),
+    JSON.stringify(r8.findings)
+  );
+
+  // Arm 9: a removal with a valid entry passes and is printed by name.
+  const r9 = armCheck({ deprecations: [validEntry(gone, '/mos:a')] });
+  check(
+    'arm 9: a removal with a valid deprecation entry passes and is named',
+    r9.ok === true &&
+      JSON.stringify(listOf(r9.accepted)) ===
+        JSON.stringify(['REMOVED with a deprecation entry: ' + gone + ' -> /mos:a (retired_in 9.9.9-beta.1)']) &&
+      !listOf(r9.findings).some(function (f) { return f.indexOf('MISSING') !== -1; }),
+    JSON.stringify({ ok: r9.ok, accepted: r9.accepted, findings: r9.findings })
+  );
+
+  // Arm 10: an entry whose command is still in the registry is stale.
+  const r10 = armCheck({ deprecations: [validEntry('/mos:a', '/mos:gone-341')] });
+  check(
+    'arm 10: an entry whose command is still in the registry fails as STALE',
+    r10.ok === false &&
+      listOf(r10.findings).some(function (f) { return f.indexOf('STALE deprecation entry: /mos:a') !== -1; }),
+    JSON.stringify(r10.findings)
+  );
+
+  // Arm 11: a malformed entry fails and accepts nothing.
+  const bad11 = validEntry(gone, '/mos:a');
+  delete bad11.record;
+  const r11 = armCheck({ deprecations: [bad11] });
+  check(
+    'arm 11: a malformed entry fails, accepts nothing, and the removal still fails',
+    r11.ok === false &&
+      listOf(r11.findings).some(function (f) { return f.indexOf('MALFORMED') !== -1 && f.indexOf('"record"') !== -1; }) &&
+      listOf(r11.findings).some(function (f) { return f.indexOf('MISSING from the current registry: ' + gone) !== -1; }) &&
+      listOf(r11.accepted).length === 0,
+    JSON.stringify({ ok: r11.ok, accepted: r11.accepted, findings: r11.findings })
+  );
+
+  // Arm 12: validateDeprecations rejects four bad inputs.
+  if (typeof runner.validateDeprecations !== 'function') {
+    check('arm 12: validateDeprecations rejects four bad inputs', false, 'validateDeprecations is not exported');
+  } else {
+    const vPrefix = validEntry(gone, '/mos:a');
+    vPrefix.retired_in = 'v9.9.9';
+    const badDate = validEntry(gone, '/mos:a');
+    badDate.date = '13-10-2026';
+    const inputs = {
+      'v prefix': { deprecations: [vPrefix] },
+      'bad date': { deprecations: [badDate] },
+      'duplicate command': { deprecations: [validEntry(gone, '/mos:a'), validEntry(gone, null)] },
+      'top-level array': [validEntry(gone, '/mos:a')],
+    };
+    const weak = Object.keys(inputs).filter(function (k) {
+      const v = runner.validateDeprecations(inputs[k]);
+      return !v || !Array.isArray(v.errors) || v.errors.length < 1;
+    });
+    check('arm 12: validateDeprecations rejects four bad inputs', weak.length === 0, 'not rejected: ' + weak.join(', '));
+  }
+
+  // Arm 13: the real registry and the real data file accept /mos:query.
+  const fixtureDoc = JSON.parse(fs.readFileSync(FIXTURE_PATH, 'utf8'));
+  const queryBaseline = writeTempBaseline(listOf(fixtureDoc.commands).concat([{ command: '/mos:query' }]));
+  const queryLine = 'REMOVED with a deprecation entry: /mos:query -> /mos:graph (retired_in 2.0.0-beta.67)';
+  const r13 = withEnv({ CHECK_REGISTRY_DRIFT_BASELINE: queryBaseline }, function () {
+    return runner.check();
+  });
+  check(
+    'arm 13: the real registry and data file accept /mos:query',
+    r13.ok === true && listOf(r13.accepted).indexOf(queryLine) !== -1,
+    JSON.stringify({ ok: r13.ok, accepted: r13.accepted, findings: r13.findings })
+  );
+
+  // Arm 14: the cut's baseline, through the runner CLI.
+  const tagShow = spawnSync('git', ['show', 'v2.0.0-beta.65:data/command-registry.json'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    timeout: 60000,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  if (tagShow.error || tagShow.status !== 0) {
+    console.log('  SKIP: arm 14 -- tag v2.0.0-beta.65 not readable here');
+  } else {
+    const tagDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-341-registry-drift-'));
+    const tagFile = path.join(tagDir, 'tag-registry.json');
+    fs.writeFileSync(tagFile, tagShow.stdout);
+    const cli14 = spawnSync('node', [RUNNER_PATH, '--check'], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      timeout: 60000,
+      env: Object.assign({}, process.env, { LC_ALL: 'C', CHECK_REGISTRY_DRIFT_BASELINE: tagFile }),
+    });
+    check(
+      'arm 14: the v2.0.0-beta.65 baseline exits 0 and prints the accepted line',
+      cli14.status === 0 && (cli14.stdout || '').indexOf(queryLine) !== -1,
+      'exit=' + cli14.status + ' stdout=' + (cli14.stdout || '').slice(0, 600)
+    );
+  }
+
+  // Arm 15: the exact command of the run-all-366 leg (no env seam).
+  const env15 = Object.assign({}, process.env, { LC_ALL: 'C' });
+  delete env15.CHECK_REGISTRY_DRIFT_BASELINE;
+  const cli15 = spawnSync('node', [RUNNER_PATH, '--check'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    timeout: 60000,
+    env: env15,
+  });
+  check(
+    'arm 15: the run-all-366 leg command exits 0 and states its baseline source',
+    cli15.status === 0 && (cli15.stdout || '').indexOf('baseline source = ') !== -1,
+    'exit=' + cli15.status + ' stdout=' + (cli15.stdout || '').slice(0, 600)
   );
 
   console.log('RESULT: PASS=' + PASS + ' FAIL=' + FAIL);
