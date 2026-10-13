@@ -440,9 +440,11 @@ fi
 # data/harness-fixtures/. The manifest digests the policy directory and the
 # fixture, so an edit to either without a regeneration leaves a stale digest -
 # the same drift class this phase exists to close.
+# Quick 261012-vtx - the trigger also fires on the three Larry surfaces, because quick 261011-omz-01
+# edited all three and staged no registry, so the manifest and contract-parity-larry drifted with no gate firing.
 # Recovery on drift: node scripts/build-harness-manifest.cjs
 # ---------------------------------------------------------------------------
-if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json|data/harness-policies/.*\.json|data/harness-fixtures/.*)$'; then
+if git diff --cached --name-only | grep -qE '^(scripts/build-harness-manifest\.cjs|data/harness-manifest\.json|data/command-registry\.json|data/connector-registry\.json|data/brain-orchestration-projection\.json|data/harness-policies/.*\.json|data/harness-fixtures/.*|agents/larry-extended\.md|skills/larry-personality/SKILL\.md|lib/mcp/runtime-instructions\.cjs)$'; then
   if command -v node >/dev/null 2>&1 && [ -f "$REPO_ROOT/scripts/build-harness-manifest.cjs" ]; then
     node "$REPO_ROOT/scripts/build-harness-manifest.cjs" --check || { echo "harness-manifest drift -- run: node scripts/build-harness-manifest.cjs" >&2; exit 2; }
   fi

@@ -60,6 +60,12 @@
  *     extracting the trigger line and testing it with grep -qE against a
  *     sample staged-path list, not merely asserting the substring is present.
  *
+ *   CHECK 9 (quick 261012-vtx) -- LARRY SURFACES: the drift trigger also fires
+ *     on agents/larry-extended.md, skills/larry-personality/SKILL.md and
+ *     lib/mcp/runtime-instructions.cjs, the three surfaces the manifest digests
+ *     and contract-parity-larry pins. A commit that edits one of them without
+ *     regenerating the manifest is refused.
+ *
  * House rule: hyphens only, no em-dashes.
  */
 
@@ -227,6 +233,36 @@ check('CHECK 8 - drift trigger fires on data/harness-policies/ and data/harness-
   ];
   for (const n of negatives) {
     assert.ok(!regex.test(n), 'widened trigger over-matches negative path: ' + n);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// CHECK 9 (quick 261012-vtx) -- the drift trigger fires on the three Larry
+// surfaces. Same idiom as CHECK 8: extract the regex, test sample paths.
+// ---------------------------------------------------------------------------
+check('CHECK 9 - drift trigger fires on the three Larry surfaces the manifest digests and contract-parity-larry pins (quick 261012-vtx)', () => {
+  const lines = template.split('\n');
+  const triggerLine = lines.find((l) => /grep -qE '.*build-harness-manifest/.test(l));
+  assert.ok(triggerLine, 'could not find the manifest drift trigger line in the hook');
+  const match = triggerLine.match(/grep -qE '([^']+)'/);
+  assert.ok(match, 'could not extract the trigger regex from the drift trigger line');
+  const regex = new RegExp(match[1]);
+
+  const positives = [
+    'agents/larry-extended.md',
+    'skills/larry-personality/SKILL.md',
+    'lib/mcp/runtime-instructions.cjs',
+  ];
+  for (const p of positives) {
+    assert.ok(regex.test(p), 'trigger does not match the Larry surface: ' + p);
+  }
+  const negatives = [
+    'agents/larry-extended.md.bak',
+    'skills/larry-personality/references/notes.md',
+    'lib/mcp/runtime-instructions.test.cjs',
+  ];
+  for (const n of negatives) {
+    assert.ok(!regex.test(n), 'trigger over-matches negative path: ' + n);
   }
 });
 
