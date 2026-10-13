@@ -1,0 +1,14 @@
+{
+  "_note": "Hand-maintained, not generated. scripts/check-registry-drift.cjs reads this file. Add one entry when a /mos command leaves data/command-registry.json on purpose. A command that is in the previous release tag and is missing now passes the drift check only with a valid entry here. Keep each entry after the cut as history. An entry whose command is back in the registry fails the check as stale. retired_in is the version of the first release that ships without the command, written without a v prefix: a --prerelease cut stamps the in-progress version plus one beta step (2.0.0-beta.66 in progress ships as 2.0.0-beta.67). replaced_by is the command that does the job now, or null. Command names only, never user or room content (Canon Part 8).",
+  "deprecations": [
+    {
+      "command": "/mos:query",
+      "retired_in": "2.0.0-beta.67",
+      "replaced_by": "/mos:graph",
+      "reason": "It only forwarded to /mos:graph since v1.13 and was scheduled for removal at v1.14.0.",
+      "decided_by": "navigator",
+      "date": "2026-10-12",
+      "record": "quick 261012-v17, commit 29f8b57b1"
+    }
+  ]
+}

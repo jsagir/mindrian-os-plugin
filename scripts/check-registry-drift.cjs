@@ -7,7 +7,9 @@
  *
  * WHAT: answers exactly one question -- did a command present in the
  * PREVIOUS release's data/command-registry.json vanish from the current one
- * without anyone saying so. Compares on the `command` key.
+ * without anyone saying so. Compares on the `command` key. A removal passes
+ * only with a valid entry in data/command-deprecations.json, and the runner
+ * prints each accepted removal by name.
  *
  * WHY: 2026-07-03, a navigator believed the entire rs-family of commands had
  * been silently lost in a version update. It turned out to be a false
@@ -28,10 +30,21 @@
  * The runner always states which source it used; a gate that cannot say
  * what it compared against is not a gate.
  *
+ * DEPRECATIONS: data/command-deprecations.json is a hand-maintained object
+ * { _note, deprecations: [...] }. Each entry has the required fields command,
+ * retired_in, replaced_by (a command or null), reason, decided_by, date and
+ * record. retired_in is the version of the first release that ships without
+ * the command, written without a v prefix (2.0.0-beta.67). An entry whose
+ * command is still in the current registry fails as STALE. A malformed entry
+ * fails and accepts nothing. An absent file accepts nothing. An unreadable or
+ * unparseable file fails closed. First use: quick 261012-v17 retired
+ * /mos:query, and quick 261013-60k recorded it.
+ *
  * Canon Part 8 (Graph Boundary): local filesystem plus one local `git show`
  * / `git describe` spawn, zero network, zero Brain reach.
  *
- * Test seam: CHECK_REGISTRY_DRIFT_BASELINE, per above.
+ * Test seam: CHECK_REGISTRY_DRIFT_BASELINE, per above; opts.registryPath and
+ * opts.deprecationsPath override the two data files in check().
  *
  * House rule: hyphens only, no em-dashes, no emoji. CJS, process.argv
  * routing.
@@ -43,6 +56,8 @@ const { spawnSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const REGISTRY_PATH = path.join(REPO_ROOT, 'data', 'command-registry.json');
+const DEPRECATIONS_PATH = path.join(REPO_ROOT, 'data', 'command-deprecations.json');
+const REQUIRED_FIELDS = ['command', 'retired_in', 'replaced_by', 'reason', 'decided_by', 'date', 'record'];
 const FALLBACK_BASELINE_PATH = path.join(REPO_ROOT, 'tests', 'fixtures', '341-registry-drift-baseline.json');
 
 function usage() {
@@ -88,6 +103,98 @@ function diffRegistries(baseline, current) {
   return { removed, added, visibilityChanged };
 }
 
+function isPlainObject(x) {
+  return x !== null && typeof x === 'object' && !Array.isArray(x);
+}
+
+function isFilledString(x) {
+  return typeof x === 'string' && x.trim().length > 0;
+}
+
+/**
+ * validateDeprecations(doc) -> { entries, errors }. Pure, no I/O. `entries`
+ * holds only the entries with zero errors; `errors` has one string per
+ * problem. A malformed entry is never put in `entries`, so it accepts nothing.
+ */
+function validateDeprecations(doc) {
+  if (!isPlainObject(doc) || !Array.isArray(doc.deprecations)) {
+    return { entries: [], errors: ['the file must be an object with a "deprecations" array'] };
+  }
+  const entries = [];
+  const errors = [];
+  const seen = new Set();
+  doc.deprecations.forEach(function (e, i) {
+    const own = [];
+    const name = isPlainObject(e) && isFilledString(e.command) ? e.command : null;
+    const tag = 'entry ' + i + (name ? ' (' + name + ')' : '') + ': ';
+    if (!isPlainObject(e)) {
+      own.push(tag + 'the element is not an object');
+    } else {
+      for (const f of REQUIRED_FIELDS) {
+        if (!Object.prototype.hasOwnProperty.call(e, f)) own.push(tag + 'missing required field "' + f + '"');
+      }
+      for (const f of ['command', 'retired_in', 'reason', 'decided_by', 'date', 'record']) {
+        if (Object.prototype.hasOwnProperty.call(e, f) && !isFilledString(e[f])) {
+          own.push(tag + 'field "' + f + '" must be a non-empty string');
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(e, 'replaced_by') && e.replaced_by !== null && !isFilledString(e.replaced_by)) {
+        own.push(tag + 'field "replaced_by" must be null or a non-empty string');
+      }
+      if (isFilledString(e.retired_in) && !/^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$/.test(e.retired_in)) {
+        own.push(tag + 'field "retired_in" must be a version without a v prefix, for example 2.0.0-beta.67');
+      }
+      if (isFilledString(e.date) && !/^\d{4}-\d{2}-\d{2}$/.test(e.date)) {
+        own.push(tag + 'field "date" must be YYYY-MM-DD');
+      }
+      if (name) {
+        if (seen.has(name)) own.push(tag + 'duplicate entry for ' + name);
+        seen.add(name);
+      }
+    }
+    if (own.length === 0) entries.push(e);
+    for (const m of own) errors.push(m);
+  });
+  return { entries, errors };
+}
+
+/**
+ * classifyRemovals(removed, current, entries) -> { accepted, unrecorded, stale }.
+ * Pure. `entries` are the valid entries only.
+ */
+function classifyRemovals(removed, current, entries) {
+  const currCommands = Array.isArray(current && current.commands) ? current.commands : [];
+  const currentNames = new Set();
+  for (const c of currCommands) {
+    if (c && typeof c.command === 'string') currentNames.add(c.command);
+  }
+  const byCommand = new Map();
+  for (const e of entries) byCommand.set(e.command, e);
+
+  const accepted = [];
+  const unrecorded = [];
+  for (const name of removed) {
+    const e = byCommand.get(name);
+    if (e) accepted.push({ command: e.command, replaced_by: e.replaced_by, retired_in: e.retired_in });
+    else unrecorded.push(name);
+  }
+  const stale = [];
+  for (const e of entries) {
+    if (currentNames.has(e.command)) stale.push(e.command);
+  }
+  return { accepted, unrecorded, stale };
+}
+
+function acceptedLine(a) {
+  return 'REMOVED with a deprecation entry: ' + a.command + ' -> ' +
+    (a.replaced_by === null ? 'no replacement' : a.replaced_by) + ' (retired_in ' + a.retired_in + ')';
+}
+
+function labelFor(file) {
+  const rel = path.relative(REPO_ROOT, file);
+  return rel.startsWith('..') ? file : rel;
+}
+
 function resolveBaseline() {
   const envPath = process.env.CHECK_REGISTRY_DRIFT_BASELINE;
   if (envPath) {
@@ -129,16 +236,19 @@ function resolveBaseline() {
 }
 
 /**
- * check(opts) -> { ok, findings, baselineSource }. `removed` is the finding
- * class that matters (a command disappeared); `added` and
+ * check(opts) -> { ok, findings, accepted, baselineSource }. `removed` is the
+ * finding class that matters (a command disappeared). A removal with a valid
+ * deprecation entry is listed in `accepted` and does not fail. A removal
+ * without one, a stale entry and a malformed entry fail. `added` and
  * `visibilityChanged` are reported for context but never fail. Because the
  * rung is `logged` for one release, `check` returns findings and the
- * harness records them; the runner still exits non-zero on a removal so a
+ * harness records them; the runner still exits non-zero on a failure so a
  * future promotion to `blocking` needs only the one-line rung edit.
  */
 function check(opts) {
   opts = opts || {};
   const registryPath = opts.registryPath || REGISTRY_PATH;
+  const deprecationsPath = opts.deprecationsPath || DEPRECATIONS_PATH;
   const findings = [];
 
   let current;
@@ -146,25 +256,57 @@ function check(opts) {
     current = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
   } catch (e) {
     findings.push('could not read/parse the current registry at ' + registryPath + ': ' + e.message);
-    return { ok: false, findings, baselineSource: null };
+    return { ok: false, findings, accepted: [], baselineSource: null };
   }
 
   const baseline = resolveBaseline();
   if (!baseline.ok) {
     findings.push('could not resolve a baseline: ' + baseline.reason);
-    return { ok: false, findings, baselineSource: baseline.source };
+    return { ok: false, findings, accepted: [], baselineSource: baseline.source };
   }
 
   console.log('check-registry-drift: baseline source = ' + baseline.source + (baseline.path ? ' (' + baseline.path + ')' : ''));
 
-  const diff = diffRegistries(baseline.registry, current);
+  const label = labelFor(deprecationsPath);
+  let doc = null;
+  let absent = false;
+  let readable = true;
+  try {
+    doc = JSON.parse(fs.readFileSync(deprecationsPath, 'utf8'));
+  } catch (e) {
+    if (e && e.code === 'ENOENT') {
+      absent = true;
+    } else {
+      readable = false;
+      findings.push('could not read/parse the deprecations file at ' + label + ': ' + e.message);
+    }
+  }
 
-  if (diff.removed.length) {
+  let validation = { entries: [], errors: [] };
+  if (readable && !absent) validation = validateDeprecations(doc);
+  console.log(
+    'check-registry-drift: deprecations source = ' + label +
+      (absent ? ' (absent, 0 entries)' : readable ? ' (' + validation.entries.length + ' valid entries)' : ' (unreadable, 0 entries)')
+  );
+
+  const diff = diffRegistries(baseline.registry, current);
+  const cls = classifyRemovals(diff.removed, current, validation.entries);
+
+  if (cls.unrecorded.length) {
     findings.push(
       'commands present in the baseline but MISSING from the current registry: ' +
-        diff.removed.join(', ') +
+        cls.unrecorded.join(', ') +
         '. If this is intentional, add an explicit deprecation entry recording why.'
     );
+  }
+  if (cls.stale.length) {
+    findings.push(
+      'STALE deprecation entry: ' + cls.stale.join(', ') +
+        ' is still in the current registry. Remove the command or remove its entry from ' + label + '.'
+    );
+  }
+  for (const err of validation.errors) {
+    findings.push('MALFORMED deprecation entry in ' + label + ': ' + err);
   }
   if (diff.added.length) {
     findings.push('context: ' + diff.added.length + ' command(s) added since baseline: ' + diff.added.join(', '));
@@ -176,7 +318,8 @@ function check(opts) {
     );
   }
 
-  return { ok: diff.removed.length === 0, findings, baselineSource: baseline.source };
+  const ok = readable && cls.unrecorded.length === 0 && cls.stale.length === 0 && validation.errors.length === 0;
+  return { ok, findings, accepted: cls.accepted.map(acceptedLine), baselineSource: baseline.source };
 }
 
 function main() {
@@ -184,8 +327,14 @@ function main() {
 
   if (argv.length === 1 && argv[0] === '--check') {
     const result = check();
+    for (const line of result.accepted) {
+      console.log('INFO: ' + line);
+    }
     if (result.findings.length === 0) {
-      console.log('check-registry-drift: OK (0 findings, baseline=' + result.baselineSource + ')');
+      console.log(
+        'check-registry-drift: OK (0 findings, ' + result.accepted.length + ' accepted removal(s), baseline=' +
+          result.baselineSource + ')'
+      );
     } else {
       for (const f of result.findings) {
         console.log((result.ok ? 'INFO: ' : 'FAIL: ') + f);
@@ -203,4 +352,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { diffRegistries, check };
+module.exports = { diffRegistries, check, validateDeprecations, classifyRemovals, DEPRECATIONS_PATH };
