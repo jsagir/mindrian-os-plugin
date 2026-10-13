@@ -1,0 +1,8 @@
+scripts/build-command-irreversibility-ledger.cjs --check
+scripts/build-section-command-ledger.cjs --check
+scripts/run-harness.cjs --check
+scripts/check-registry-drift.cjs --check
+ui/mindrian-workspace-mod/scripts/sync-assets.cjs --check
+scripts/backfill-layer.cjs --check
+scripts/backfill-hitl-shape.cjs --check
+scripts/build-dist-bundles.cjs --check-stale

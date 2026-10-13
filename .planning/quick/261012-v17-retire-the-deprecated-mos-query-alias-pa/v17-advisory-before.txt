@@ -1,0 +1,83 @@
+== scripts/build-command-irreversibility-ledger.cjs --check exit=0
+WARN: LABEL_SET_MISMATCH missing: /mos:scientific-roadmap; extra: none
+WARN: STALE /mos:auto-explore
+WARN: STALE /mos:diffusion
+WARN: STALE /mos:dominant-designs
+WARN: STALE /mos:eureka
+WARN: STALE /mos:map-unknowns
+WARN: STALE /mos:mos-reason
+WARN: STALE /mos:research
+WARN: STALE /mos:room
+WARN: STALE /mos:root-cause
+WARN: UNSCORED /mos:scientific-roadmap
+WARN: STALE /mos:setup
+WARN: STALE /mos:think-hats
+WARN: STALE /mos:whitespace
+command-irreversibility-ledger --check: WARN 14
+== scripts/build-section-command-ledger.cjs --check exit=1
+section-command-ledger: FAILED (plugin_version drift: ledger=2.0.0-beta.64 repo=2.0.0-beta.66)
+== scripts/run-harness.cjs --check exit=0
+run-harness: tier=all policies=15
+contract-parity-larry  blocking  pass  exit 0
+gate-arbitration-decision  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+gate-card-fire  logged  pass  exit 0
+gate-graph-derive-health  logged  pass  exit 0
+gate-layer-declaration  logged  pass  exit 0
+gate-shape-declaration  logged  pass  exit 0
+gate-tool-honesty  logged  pass  exit 0
+gate-worktree-hygiene  blocking  pass  exit 0
+memory-write-policy  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+registry-drift  logged  pass  exit 0
+release-payload-ceiling  blocking  pass  exit 0
+voice-backend-noun-free  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+voice-fork-as-card  logged  pass  exit 0
+voice-glyph-present  declared  declared  declared rung: report only, not spawned
+voice-hyphens-only  declared  declared  declared rung: report only, not spawned
+
+Totals: 10 pass, 0 fail, 3 ghost, 2 declared, 15 total.
+== scripts/check-registry-drift.cjs --check exit=0
+check-registry-drift: baseline source = git-tag (v2.0.0-beta.65)
+check-registry-drift: OK (0 findings, baseline=git-tag)
+== ui/mindrian-workspace-mod/scripts/sync-assets.cjs --check exit=1
+ok   assets/palette.json: equal to references/visual/palette.json
+FAIL assets/framework-names.json: differs from data/framework-names.json
+ok   assets/command-registry.json: equal to data/command-registry.json
+ok   assets/section-job-canon.json: equal to data/section-job-canon.json
+== scripts/backfill-layer.cjs --check exit=1
+backfill-layer --check: 4 surface(s) would change:
+  agents/larry-extended.md
+  commands/file-meeting.md
+  commands/setup.md
+  skills/file-meeting/SKILL.md
+Recovery: run node scripts/backfill-layer.cjs
+== scripts/backfill-hitl-shape.cjs --check exit=1
+backfill-hitl-shape --check: 122 surface(s) would change:
+  commands/lean-canvas.md
+  commands/mullins.md
+  commands/validate.md
+  commands/score-innovation.md
+  commands/analyze-needs.md
+  commands/user-needs.md
+  commands/value-proposition.md
+  commands/explore-domains.md
+  commands/find-analogies.md
+  commands/map-unknowns.md
+  commands/challenge-assumptions.md
+  commands/analyze-systems.md
+  commands/find-bottlenecks.md
+  commands/systems-thinking.md
+  commands/macro-trends.md
+  commands/deep-grade.md
+  commands/grade.md
+  commands/find-connections.md
+  commands/whitespace.md
+  commands/research.md
+  commands/scout.md
+  commands/radar.md
+  commands/memory.md
+  commands/file-meeting.md
+== scripts/build-dist-bundles.cjs --check-stale exit=1
+dist bundle STALE: bundle was generated from 2.0.0-beta.52, the live plugin is 2.0.0-beta.66
+Recovery: node scripts/build-dist-bundles.cjs
+== help mos:query lines: 0
+== connector unclassified: 40

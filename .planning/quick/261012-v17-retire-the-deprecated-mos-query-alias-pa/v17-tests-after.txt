@@ -1,0 +1,54 @@
+== tests/test-help-coverage-gate.cjs exit=1
+FAIL: Test 7 (pre-commit wiring)
+== tests/test-help-selector-lanes.cjs exit=0
+== tests/test-help-cards-render.cjs exit=0
+== lib/memory/help-renderer.test.cjs exit=0
+== tests/test-command-jtbd-coverage.cjs exit=0
+== tests/test-command-jtbd-declarations.cjs exit=1
+FAIL: 5 violation(s) across N command files
+== tests/test-267.3-surface-declarations.cjs exit=0
+== tests/test-267-mcpv2-cirs-gates.cjs exit=0
+== tests/test-343-help-layer-label.cjs exit=0
+== tests/test-344-registry-layer-lift.cjs exit=0
+== tests/test-344-layer-backfill.cjs exit=1
+FAIL: `node scripts/backfill-layer.cjs --check` exits 0 (a re-run changes nothing); got status 1 stderr: backfill-layer --check: 4 surface(s) would change:
+== tests/test-364-registry-gates.cjs exit=0
+== tests/test-skill-mirrors-tripwire.cjs exit=1
+  FAIL  install-pre-commit.sh grep-presence guard references build-skill-mirrors.cjs --check
+  FAIL  install-pre-commit.sh invokes build-skill-mirrors.cjs --check in BOTH install-block families (>=2 invocations, found 0)
+  FAIL  install-pre-commit.sh skill-mirror invocations are HARD-FAIL (exit 1), the installer-family convention -- in BOTH families
+== tests/test-cirs-render-coverage-floor.cjs exit=0
+== tests/test-265-declaration-truth.cjs exit=0
+== tests/test-345-lockstep.cjs exit=0
+== tests/test-3551-lockstep.cjs exit=0
+== tests/test-hmi-status-command.cjs exit=0
+== tests/test-289-menu-fence.cjs exit=0
+== lib/memory/body-shape-coverage.test.cjs exit=1
+  FAIL  Test 5a: audit exits 0 against live commands/ (100% coverage)
+  FAIL  Test 6: --json mode reports histogram per category
+  FAIL  Test 7: every body_shape value in commands/*.md is in locked vocab
+== tests/test-369.26-registry-sync.cjs exit=1
+    FAIL assets/framework-names.json: differs from data/framework-names.json
+  FAIL sync-assets.cjs --check exits 0 and names both registry assets
+== tests/test-36925-capability.cjs exit=0
+== tests/test-36925-feyminto-contract.cjs exit=0
+== tests/test-353-ruling-doc.cjs exit=0
+== tests/test-341-registry-drift.cjs exit=0
+== lib/memory/soft-alias.test.cjs exit=0
+== lib/memory/doctor-deprecation-surface.test.cjs exit=1
+FAIL  T4: --all includes deprecated-usage in cascade -- null
+FAILURES:
+== tests/test-209-declared-implies-wired.cjs exit=1
+-   'commands/brain-derive.md',
+-   'skills/brain-derive/SKILL.md',
+== tests/test-connector-exhaustive-coverage.cjs exit=1
+  FAIL CHECK 1 - every live surface is wired OR allow-listed (zero silently-unclassified)
+  FAIL CHECK 2 - no surface is BOTH wired and allow-listed (wired XOR excluded)
+  FAIL CHECK 5 - wired + allowlisted === live (the exhaustive count identity)
+== tests/test-234-dist-bundle.cjs exit=1
+  FAIL bundled SKILL.md bodies are byte-identical to source (no hand-edit drift)
+  FAIL generic bundle carries every source skill, by NAME not just count
+  FAIL the shipped measurement matches the SOURCE-tree measurement exactly
+  FAIL zed bundle carries every source skill, by NAME not just count
++   'query',
+-   'scientific-roadmap',

@@ -1,0 +1,10 @@
+scripts/build-command-registry.cjs --check
+scripts/build-connector-registry.cjs --check
+scripts/build-orchestration-projection.cjs --check
+scripts/check-render-coverage.cjs
+scripts/build-render-coverage.cjs --check
+scripts/check-help-coverage.cjs
+scripts/build-skill-mirrors.cjs --check
+scripts/check-framework-vocabulary-drift.cjs --check
+scripts/build-harness-manifest.cjs --check
+lib/core/command-registration-check.cjs

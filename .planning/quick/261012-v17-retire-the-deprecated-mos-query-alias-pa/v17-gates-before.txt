@@ -1,0 +1,23 @@
+== scripts/build-command-registry.cjs --check exit=0
+command-registry: OK
+== scripts/build-connector-registry.cjs --check exit=0
+connector-registry: OK
+== scripts/build-orchestration-projection.cjs --check exit=0
+orchestration-projection: OK
+== scripts/check-render-coverage.cjs exit=0
+render-coverage report: 17 covered, 0 excluded, 0 gap (17 entries)
+render-coverage md-keyspace: 198 wired, 2 excluded, 0 unwired (200 declaring commands)
+== scripts/build-render-coverage.cjs --check exit=0
+render-coverage-registry: OK
+== scripts/check-help-coverage.cjs exit=0
+valid: true
+== scripts/build-skill-mirrors.cjs --check exit=0
+build-skill-mirrors --check: OK (113 mirrors match expected content; skip-list verified: trending-to-absurd)
+== scripts/check-framework-vocabulary-drift.cjs --check exit=0
+framework-vocabulary: OK
+== scripts/build-harness-manifest.cjs --check exit=0
+harness-manifest: OK
+== lib/core/command-registration-check.cjs exit=0
+WARN  [long_description] update.md -- description is 79 chars (max 60)
+WARN  [long_description] visualize.md -- description is 77 chars (max 60)
+command-registration sweep: PASS (114 scanned, 41 warning(s))

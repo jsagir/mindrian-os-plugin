@@ -1,0 +1,76 @@
+### 1. Gates
+$ diff <(grep ^== gates-before) <(grep ^== gates-after)
+(no output: 10 lines identical, all exit=0)
+== scripts/build-command-registry.cjs --check exit=0
+== scripts/build-connector-registry.cjs --check exit=0
+== scripts/build-orchestration-projection.cjs --check exit=0
+== scripts/check-render-coverage.cjs exit=0
+== scripts/build-render-coverage.cjs --check exit=0
+== scripts/check-help-coverage.cjs exit=0
+== scripts/build-skill-mirrors.cjs --check exit=0
+== scripts/check-framework-vocabulary-drift.cjs --check exit=0
+== scripts/build-harness-manifest.cjs --check exit=0
+== lib/core/command-registration-check.cjs exit=0
+
+### 2. Shape
+before: 53  after: 51
+$ comm -13 (new)
+$ comm -23 (left)
+surface commands/query.md
+surface skills/query/SKILL.md
+
+### 3. Tests
+$ comm -13 before after | grep -v exit=0$
++   'query',
+== lib/memory/doctor-deprecation-surface.test.cjs exit=1
+FAIL  T4: --all includes deprecated-usage in cascade -- null
+FAILURES:
+$ diff of exit lines
+27c27
+< == lib/memory/doctor-deprecation-surface.test.cjs exit=0
+---
+> == lib/memory/doctor-deprecation-surface.test.cjs exit=1
+$ diff full before/after
+38c38,40
+< == lib/memory/doctor-deprecation-surface.test.cjs exit=0
+---
+> == lib/memory/doctor-deprecation-surface.test.cjs exit=1
+> FAIL  T4: --all includes deprecated-usage in cascade -- null
+> FAILURES:
+50a53
+> +   'query',
+
+### 4. Doctor
+Acceptance full: 24/24 points passed.
+Acceptance full: 24/24 points passed.
+
+### 5. Advisory
+16c16,18
+< command-irreversibility-ledger --check: WARN 14
+---
+> WARN: REMOVED /mos:query
+> WARN: ANSWER_KEY_DRIFT ledger answer_key_hash does not match the current answer-key bytes
+> command-irreversibility-ledger --check: WARN 16
+30c32,33
+< registry-drift  logged  pass  exit 0
+---
+> registry-drift  logged  fail  check-registry-drift: baseline source = git-tag (v2.0.0-beta.65)
+> FAIL: commands present in the baseline but MISSING from the current registry: /mos:query. If this is intentional, add an explicit deprecation entry recording why.
+37,38c40,41
+< Totals: 10 pass, 0 fail, 3 ghost, 2 declared, 15 total.
+< == scripts/check-registry-drift.cjs --check exit=0
+---
+> Totals: 9 pass, 1 fail, 3 ghost, 2 declared, 15 total.
+> == scripts/check-registry-drift.cjs --check exit=1
+40c43
+< check-registry-drift: OK (0 findings, baseline=git-tag)
+---
+> FAIL: commands present in the baseline but MISSING from the current registry: /mos:query. If this is intentional, add an explicit deprecation entry recording why.
+54c57
+< backfill-hitl-shape --check: 122 surface(s) would change:
+---
+> backfill-hitl-shape --check: 121 surface(s) would change:
+83c86
+< == connector unclassified: 40
+---
+> == connector unclassified: 39
