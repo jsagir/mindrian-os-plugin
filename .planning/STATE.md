@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: executing
-stopped_at: Phase 369.2 COMPLETE (34 of 34 plans); v2.0.0-beta.65 CUT 2026-10-06 (tag at origin, npm latest and next, acceptance 24/24 after eval re-run); next: 369.3b, 369.4, 369.5, 369.6, one cut each
+stopped_at: v2.0.0-beta.67 CUT 2026-10-13 (tag at origin, npm latest and next, acceptance 24/24 post-release); search-surface sweep and egress-guard chain resolved; next: 369.3b, 369.4, 369.5, 369.6, one cut each; open: Desktop marketplace add (Code tab), GAP1/GAP2 under-blocking, SEED-126 BONO personas
 last_updated: "2026-10-11T15:14:22.718Z"
-last_activity: 2026-10-13 - Completed quick task 261013-60k: drift gate accepts the recorded /mos:query retirement; beta.67 cut re-run after Theo sync (done) and this gate; receipt re-stamped for HEAD
+last_activity: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 progress:
   total_phases: 121
   completed_phases: 48
@@ -9329,7 +9329,7 @@ Progress: [█████████░] 92%
 
 ## Session Continuity
 
-Last activity: 2026-10-13 - Completed quick task 261013-60k: drift gate accepts the recorded /mos:query retirement; beta.67 cut re-run after Theo sync (done) and this gate; receipt re-stamped for HEAD
+Last activity: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-10-01T17:15:49.669Z
 Stopped at: Completed 366-04-PLAN.md
 
