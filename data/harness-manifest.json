@@ -47,24 +47,24 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "1e682fc6a9bdecc9d52c77606d6125e925938d448831177463ff92561d7af77b",
+    "digest": "79922684efdf5011b1b4a4eb7300abe64dc342f082599f2fb300ec37928dd9f5",
     "count": 15
   },
   "larry_surfaces": [
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "d81940ea78038a47a10963dc14f99800823aa18d7b8bc51e53faef99bdc84333"
+      "digest": "1d56c7340dc86a2f8e12cc4a897c8c56242df62dde63ac49f7f848328012e68e"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "34d15a913bcef781415127c321d226012d318cf8530b0e5a7aab447c33ee77b8"
+      "digest": "2d15cdcd1b055ec4d5dc6d5fa988483099071906b4df399e1a36ae534b61f888"
     },
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "4d0087c7245c3c3de5b05238106b49969338fda2f4eca93e1bb0ce9a05217b27"
+      "digest": "d24f1bddf6954e29dc5f1d9983677b0415562e2ca71be270d5fa6673a8aa9403"
     }
   ],
   "fixture_ref": {

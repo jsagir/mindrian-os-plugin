@@ -1,8 +1,8 @@
 {
   "id": "contract-parity-larry",
   "kind": "contract",
-  "runner": null,
-  "args": [],
+  "runner": "scripts/build-harness-manifest.cjs",
+  "args": ["--check"],
   "rung": "blocking",
   "evidence_log": null,
   "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.05, "min_true_positives": 10 },
@@ -43,7 +43,7 @@
       "path": "lib/mcp/runtime-instructions.cjs",
       "phrases": [
         "BOUNDARIES (Canon Part 8, absolute): room content NEVER enters mindrian-brain brain_* calls - only generic methodology handles (framework names, problem types). Classify the user's problem type (Undefined / Ill-Defined / Well-Defined / Wicked) SILENTLY; recommend WHICH framework in WHAT SEQUENCE, never a flat list; if the graph lacks an answer, say so. Deliverables filed to rooms are clean artifacts with placeholders, never conversation banter. Heavy pipeline work belongs in Claude Code - say so when asked for it here.",
-        "THEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call (server: mindrian-brain). Asked by name, say so briefly and honestly; never volunteer it."
+        "THEO: Theo is MindrianOS's teaching-graph backend for all brain_* calls on mindrian-brain. Asked by name, say so briefly and honestly; never volunteer it."
       ]
     },
     {
@@ -59,5 +59,5 @@
     "constant": "RUNTIME_INSTRUCTIONS",
     "limit": 2000
   },
-  "notes": "runner is null because the generator (scripts/build-harness-manifest.cjs --check) runs this policy inline as a pure file read, exactly as design section 7 states; there is nothing to spawn. Already blocking because a dropped phrase or a busted byte budget is a real regression to Larry's shipped contract, not an advisory finding, and --check already fails today when a nine-frozen-phrase test would fail. Phrases are populated ONLY with strings a test already pins (per the phrase-source table in 298-RESEARCH.md), plus the two genuine unpinned beta.27 gaps: the Theo-by-name heading in agents/larry-extended.md and the THEO clause in RUNTIME_INSTRUCTIONS. This file deliberately excludes the fourth, orphaned Larry-prompt file under lib/mcp/ that is loaded by nothing at runtime; declaring it here would legitimize a dead surface. Structural frontmatter checks (persona_variants, initialPrompt) and negative MUST-NOT-contain rules stay covered by their own existing tests and are deliberately not restated here as presence phrases, so this policy never manufactures a second source of truth for a check it cannot faithfully represent as a substring match."
+  "notes": "The runner is the generator with --check since quick 261012-vtx. Before that the runner was null, run-harness counts a null runner as a ghost, and a ghost never blocks, so the THEO drift from quick 261011-omz-01 (3b918036f) failed --check while doctor --acceptance read 24/24. The generator still runs this policy inline as a pure file read (design section 7); the runner entry only makes the run-harness tiers and the doctor harness-policies point spawn that same check. The spawned check is the whole manifest --check, so a STALE digest also fails this policy on purpose, and the finding text names CONTRACT or STALE. The THEO clause follows the code because the code change was the navigator's deliberate quick; the old sentence makes RUNTIME_INSTRUCTIONS 2013 bytes against the 2000 limit. Already blocking because a dropped phrase or a busted byte budget is a real regression to Larry's shipped contract, not an advisory finding, and --check already fails today when a nine-frozen-phrase test would fail. Phrases are populated ONLY with strings a test already pins (per the phrase-source table in 298-RESEARCH.md), plus the two genuine unpinned beta.27 gaps: the Theo-by-name heading in agents/larry-extended.md and the THEO clause in RUNTIME_INSTRUCTIONS. This file deliberately excludes the fourth, orphaned Larry-prompt file under lib/mcp/ that is loaded by nothing at runtime; declaring it here would legitimize a dead surface. Structural frontmatter checks (persona_variants, initialPrompt) and negative MUST-NOT-contain rules stay covered by their own existing tests and are deliberately not restated here as presence phrases, so this policy never manufactures a second source of truth for a check it cannot faithfully represent as a substring match."
 }

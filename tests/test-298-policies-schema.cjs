@@ -134,7 +134,9 @@ function main() {
   // eleven schema fields, plus only the explicitly-permitted extras.
   // -------------------------------------------------------------------------
   record('assertion 1: every policy file has exactly the eleven schema fields plus only permitted extras', () => {
-    assertEqual(policyFiles.length, 11, 'expected 11 policy files beside _schema.json and CONTEXT.md');
+    // The count is read at run time from the manifest (the generator counts with the same filter); _schema.json gate_count_principle forbids a frozen count.
+    const manifestPolicies = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'data', 'harness-manifest.json'), 'utf8')).policies;
+    assertEqual(policyFiles.length, manifestPolicies.count, 'expected the policy file count to equal policies.count in data/harness-manifest.json');
     for (const file of policyFiles) {
       const policy = loadPolicy(file);
       const id = file.replace(/\.json$/, '');
@@ -264,7 +266,8 @@ function main() {
   // null runner, and each carries a notes string explaining why.
   // -------------------------------------------------------------------------
   record('assertion 5: exactly three named policies have a null runner, each with a notes explanation', () => {
-    const expectedGhosts = new Set(['voice-backend-noun-free', 'memory-write-policy', 'contract-parity-larry']);
+    // contract-parity-larry left the ghost set in quick 261012-vtx (it now spawns the generator); gate-arbitration-decision joined in 346-03.
+    const expectedGhosts = new Set(['voice-backend-noun-free', 'memory-write-policy', 'gate-arbitration-decision']);
     const actualGhosts = new Set();
     for (const file of policyFiles) {
       const policy = loadPolicy(file);
