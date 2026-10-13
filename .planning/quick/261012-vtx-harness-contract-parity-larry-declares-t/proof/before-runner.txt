@@ -1,0 +1,19 @@
+run-harness: tier=all policies=15
+contract-parity-larry  blocking  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+gate-arbitration-decision  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+gate-card-fire  logged  pass  exit 0
+gate-graph-derive-health  logged  pass  exit 0
+gate-layer-declaration  logged  pass  exit 0
+gate-shape-declaration  logged  pass  exit 0
+gate-tool-honesty  logged  pass  exit 0
+gate-worktree-hygiene  blocking  pass  exit 0
+memory-write-policy  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+registry-drift  logged  pass  exit 0
+release-payload-ceiling  blocking  pass  exit 0
+voice-backend-noun-free  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+voice-fork-as-card  logged  pass  exit 0
+voice-glyph-present  declared  declared  declared rung: report only, not spawned
+voice-hyphens-only  declared  declared  declared rung: report only, not spawned
+
+Totals: 9 pass, 0 fail, 4 ghost, 2 declared, 15 total.
+exit 0

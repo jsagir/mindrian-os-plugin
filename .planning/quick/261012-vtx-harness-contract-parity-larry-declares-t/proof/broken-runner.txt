@@ -1,0 +1,21 @@
+run-harness: tier=all policies=15
+contract-parity-larry  blocking  fail  STALE: data/harness-manifest.json diverges from the regenerated manifest (a source map changed without regenerating, or the committed file was hand-edited). Run: node scripts/build-harness-manifest.cjs
+STALE: the policies directory (data/harness-policies) digest in the manifest drifts from the on-disk directory - a policy file changed without regenerating. Run: node scripts/build-harness-manifest.cjs
+CONTRACT: contract-parity-larry.json declares the phrase "THEO: Theo is MindrianOS's own teachin...
+gate-arbitration-decision  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+gate-card-fire  logged  pass  exit 0
+gate-graph-derive-health  logged  pass  exit 0
+gate-layer-declaration  logged  pass  exit 0
+gate-shape-declaration  logged  pass  exit 0
+gate-tool-honesty  logged  pass  exit 0
+gate-worktree-hygiene  blocking  pass  exit 0
+memory-write-policy  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+registry-drift  logged  pass  exit 0
+release-payload-ceiling  blocking  pass  exit 0
+voice-backend-noun-free  declared  ghost  runner is null (declared ghost, honest by design -- nothing to spawn)
+voice-fork-as-card  logged  pass  exit 0
+voice-glyph-present  declared  declared  declared rung: report only, not spawned
+voice-hyphens-only  declared  declared  declared rung: report only, not spawned
+
+Totals: 9 pass, 1 fail, 3 ghost, 2 declared, 15 total.
+runner exit 1

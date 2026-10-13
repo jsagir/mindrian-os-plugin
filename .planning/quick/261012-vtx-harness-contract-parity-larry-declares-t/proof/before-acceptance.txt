@@ -1,0 +1,82 @@
+STALE: data/harness-manifest.json diverges from the regenerated manifest (a source map changed without regenerating, or the committed file was hand-edited). Run: node scripts/build-harness-manifest.cjs
+STALE: the cli_agent larry surface (agents/larry-extended.md) digest in the manifest drifts from the on-disk file - the DECLARED harness and the RUNNING harness have diverged. Run: node scripts/build-harness-manifest.cjs
+STALE: the personality_skill larry surface (skills/larry-personality/SKILL.md) digest in the manifest drifts from the on-disk file - the DECLARED harness and the RUNNING harness have diverged. Run: node scripts/build-harness-manifest.cjs
+STALE: the desktop_cowork_wire larry surface (lib/mcp/runtime-instructions.cjs) digest in the manifest drifts from the on-disk file - the DECLARED harness and the RUNNING harness have diverged. Run: node scripts/build-harness-manifest.cjs
+CONTRACT: contract-parity-larry.json declares the phrase "THEO: Theo is MindrianOS's own teaching-graph backend behind every brain_* call (server: mindrian-brain). Asked by name, say so briefly and honestly; never volunteer it." on surface "wire" (lib/mcp/runtime-instructions.cjs), but it is not present on disk. Recovery: restore the declared phrase, or the declared byte budget, or update data/harness-policies/<id>.json if the contract itself changed, then re-run node scripts/build-harness-manifest.cjs --check.
+Recovery: regenerate the manifest, then re-stage it: node scripts/build-harness-manifest.cjs
+check exit 1
+[acceptance] install-state start
+[acceptance] install-state done ok 3ms
+[acceptance] deployment-surfaces start
+[acceptance] deployment-surfaces done ok 2ms
+[acceptance] version-of-record-repo start
+[acceptance] version-of-record-repo done ok 6ms
+[acceptance] version-of-record-published start
+[acceptance] version-of-record-published done ok 1386ms
+[acceptance] npx-roundtrip start
+[acceptance] npx-roundtrip done ok 37119ms
+[acceptance] doctor-all start
+[acceptance] doctor-all done ok 45227ms
+[acceptance] coverage-gate start
+[acceptance] coverage-gate done ok 2957ms
+[acceptance] session-start-active-version start
+[acceptance] session-start-active-version done ok 1ms
+[acceptance] verify-release-clean-tree start
+[acceptance] verify-release-clean-tree done ok 141ms
+[acceptance] frontmatter-yaml-validity start
+[acceptance] frontmatter-yaml-validity done ok 1ms
+[acceptance] release-dry-run-output start
+[acceptance] release-dry-run-output done ok 2886ms
+[acceptance] working-tree-housekeeping start
+[acceptance] working-tree-housekeeping done ok 23ms
+[acceptance] worktree-hygiene start
+[acceptance] worktree-hygiene done ok 97ms
+[acceptance] harness-policies start
+[acceptance] harness-policies done ok 15910ms
+[acceptance] activation-reached-the-wire start
+[acceptance] activation-reached-the-wire done ok 10023ms
+[acceptance] agentshield-all-surfaces-clean start
+[acceptance] agentshield-all-surfaces-clean done ok 187ms
+[acceptance] eureka-smoke-stack-ready start
+[acceptance] eureka-smoke-stack-ready done ok 1006ms
+[acceptance] eureka-fts-index-visible start
+[acceptance] eureka-fts-index-visible done ok 49ms
+[acceptance] capability-ledger-fresh start
+[acceptance] capability-ledger-fresh done ok 23ms
+[acceptance] mcp-surface-tool-count start
+[acceptance] mcp-surface-tool-count done ok 15582ms
+[acceptance] icm-ruling-eval-fresh start
+[acceptance] icm-ruling-eval-fresh done ok 3ms
+[acceptance] cross-connection-honesty start
+[acceptance] cross-connection-honesty done ok 687ms
+[acceptance] python-floor start
+[acceptance] python-floor done ok 93ms
+[acceptance] real-room-run start
+[acceptance] real-room-run done ok 7ms
+PASS  install-state: install-state record present + snapshot matches a live spot-check
+PASS  deployment-surfaces: every owned deployment surface reconciled
+PASS  version-of-record-repo: plugin.json / package.json / CHANGELOG top entry consistent (repo-file half of 5-way)
+PASS  version-of-record-published: git tag exists + marketplace source.version pinned + npm view returns the version
+PASS  npx-roundtrip: npx @mindrian_os/cli round-trip resolves cleanly
+PASS  doctor-all: doctor --all exits 0
+PASS  coverage-gate: connector + orchestration-projection + framework-vocabulary + render-coverage + skill-mirrors gates pass (no dark surface); shape-declaration and tool-honesty are advisory (WARNs inline, never blocks)
+PASS  session-start-active-version: session-start derives active_version correctly from installed_plugins.json
+PASS  verify-release-clean-tree: verify-release Step 12 reports clean git tree (tracked files only)
+PASS  frontmatter-yaml-validity: commands/operator.md + commands/doctor.md frontmatter YAML parses cleanly
+PASS  release-dry-run-output: release.sh --dry-run produces all expected step names
+PASS  working-tree-housekeeping: no orphan .tmp/.bak/.swp files in tracked directories
+PASS  worktree-hygiene: no unregistered checkout directories under .claude/worktrees/
+PASS  harness-policies: every declared harness policy runs and no blocking policy failed
+PASS  activation-reached-the-wire: L4 MCP server version matches package.json version-of-record
+PASS  agentshield-all-surfaces-clean: Class O: AgentShield reports zero flagged findings across all 5 plugin surfaces  -- WARN: 3 ambiguous finding(s) across surfaces (no flagged; blocker not tripped)
+PASS  eureka-smoke-stack-ready: Class S: local eureka capability reachable (blocker) + embedding model installed (advisory)
+PASS  eureka-fts-index-visible: local lexical trigger index (eureka_fts) is present and not stale, per registered room
+PASS  capability-ledger-fresh: capability ledger freshness: data/capability-ledger.json tracks the installed claude --version
+PASS  mcp-surface-tool-count: MCP surface: live per-server tool count for both servers, fails on zero tools
+PASS  icm-ruling-eval-fresh: ICM ruling eval freshness: evals/icm/last-run.json tracks the shipped plugin version and the 0.8 exact-agreement floor
+PASS  cross-connection-honesty: Cross-connection honesty: stamps degrade honestly and the 355 measurement records replay offline
+PASS  python-floor: room scripts hold the Python 3.9 floor: python3 version resolved, 0 Python 3.11-only APIs under scripts/
+PASS  real-room-run: a person read a real-room run for this HEAD: latest receipt sha equals HEAD (WARN when behind or absent)  -- WARN: the latest real-room receipt is for a1be347328ca, behind HEAD 92b1b525a692; run node scripts/real-room-run.cjs --read-by "<your name>"
+
+Acceptance full: 24/24 points passed.
+acceptance exit 0

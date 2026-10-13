@@ -1,0 +1,13 @@
+[setup-hooks] Installed pre-commit hook: /tmp/claude-1000/-home-jsagi/3e20bba4-0c06-41e6-9f41-6b286d463640/scratchpad/vtx/after/.git/hooks/pre-commit
+[setup-hooks] Installed Windows companion: /tmp/claude-1000/-home-jsagi/3e20bba4-0c06-41e6-9f41-6b286d463640/scratchpad/vtx/after/.git/hooks/pre-commit.cmd
+clone hook installed
+connector-registry: OK
+(node:593225) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+orchestration-projection: OK
+STALE: data/harness-manifest.json diverges from the regenerated manifest (a source map changed without regenerating, or the committed file was hand-edited). Run: node scripts/build-harness-manifest.cjs
+STALE: the cli_agent larry surface (agents/larry-extended.md) digest in the manifest drifts from the on-disk file - the DECLARED harness and the RUNNING harness have diverged. Run: node scripts/build-harness-manifest.cjs
+Recovery: regenerate the manifest, then re-stage it: node scripts/build-harness-manifest.cjs
+harness-manifest drift -- run: node scripts/build-harness-manifest.cjs
+commit exit 1
+a9b838170
