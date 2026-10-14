@@ -1,8 +1,8 @@
 {
   "snapshot_note": "Every live :Framework name read from Theo via lib/core/brain-client.cjs askOp ('list_frameworks'), not only the FEEDS_INTO-linked subset. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-10-13",
+  "snapshot_date": "2026-10-14",
   "source": "theo list_frameworks via lib/core/brain-client.cjs askOp",
-  "source_sha256": "b92a2f389b2d8bb9a765886698ede514226fce46089d2aee087e6294232bd15f",
+  "source_sha256": "50384c9eeaaa17b820de0a84146484e53a552477f31d032674652afdda1097b3",
   "framework_names": [
     "10-10-10 Decision Method",
     "12 Leverage Points",
@@ -214,6 +214,7 @@
     "Jobs to Be Done / JTBD",
     "Jobs-to-be-Done for Business Models",
     "Jobs-to-be-Done Statements",
+    "Johari Window",
     "Judgmental Bias Control System",
     "Klein's Five C's",
     "Klein's Triple Path Model",
@@ -406,6 +407,7 @@
     "User Experience Mapping",
     "User Journey Mapping",
     "Usher's Model of Cumulative Synthesis",
+    "Validation Ladder",
     "Value Migration",
     "Value Proposition Canvas",
     "Value Proposition Design",
@@ -430,8 +432,8 @@
   ],
   "stale_review": [],
   "theo_stamp": {
-    "mapped_by": "command-registry@2.0.0-beta.66",
-    "plugin_version": "2.0.0-beta.66",
-    "refreshed_at": "2026-10-13T01:15:03.288Z"
+    "mapped_by": "command-registry@2.0.0-beta.68",
+    "plugin_version": "2.0.0-beta.68",
+    "refreshed_at": "2026-10-14T03:33:58.593Z"
   }
 }
