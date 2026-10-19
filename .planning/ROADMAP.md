@@ -3602,7 +3602,9 @@ and MCP bridge authorities remain unchanged.
 3. Both journeys meet the v5 room-space, human-gate, copy, type and color contract in narrow/wide hosts with keyboard, zoom, reduced-motion and failure coverage.
 4. Missing history, unavailable memory and wrong-room results are distinct; viewing a room never confirms a claim or starts Theo/commands automatically.
 5. Local protocol/browser evidence is recorded separately from real ChatGPT host verification, which makes no guarantee about host panel persistence.
-**Plans:** 0 plans; ready for planning, visual implementation pending.
+**Plans:** 3 plans; full focused lifecycle in progress.
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 371 to break down)
+- [ ] 371-01-PLAN.md - v5 startup composition and local assets
+- [ ] 371-02-PLAN.md - guarded startup recovery and workday handover
+- [ ] 371-03-PLAN.md - consolidated phase suite, audits and host checkpoint
