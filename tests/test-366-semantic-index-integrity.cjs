@@ -50,8 +50,10 @@ function w(root, rel, body) {
   fs.writeFileSync(p, body);
 }
 
+// Quick 261019-ksf (2026-10-19, 371 review IN-02): leg I3 runs check-require-integrity over the full tree and
+// takes 90 to 117 s on this machine, so the former 120000 ms cap timed out under load. 300000 ms gives it room.
 function runGate(args) {
-  return cp.spawnSync(process.execPath, [GATE].concat(args), { encoding: 'utf8', timeout: 120000 });
+  return cp.spawnSync(process.execPath, [GATE].concat(args), { encoding: 'utf8', timeout: 300000 });
 }
 
 const SENTINEL = 'PLANTED_CONTENT_SENTINEL_366_23';
