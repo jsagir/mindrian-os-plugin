@@ -3615,11 +3615,12 @@ Plans:
 
 ### Phase 372: context_assemble reports what it omitted: _meta.omitted[] (SEED-134 Plan 01, bounded focus deferred)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** `context_assemble` returns `_meta.omitted[]`, an additive list naming each omission with its reason and count (or null), and reports a thrown leg as `leg_failed` instead of an empty result (SEED-134 Plan 01).
+**Requirements**: OMIT372-01 to OMIT372-07 (372-SPEC.md requirements 1 to 7)
 **Depends on:** Phase 371
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 372 to break down)
+- [ ] 372-01-PLAN.md - golden snapshot before any code, try/catch audit, omitted[] collector in room-context.cjs
+- [ ] 372-02-PLAN.md - tool description sentence and wire snapshots, test-372-omitted.cjs, run-all-372.sh, SUMMARY

@@ -3,6 +3,7 @@
 **Created:** 2026-10-19
 **Ambiguity score:** 0.18 (gate: <= 0.20)
 **Requirements:** 7 locked
+**Amended 2026-10-19:** `depth_cap` removed from the closed reason set (6 reasons); `top_k_cap` is conditional on a tie-stability check. Source: 372-CONTEXT.md D1 and D4.
 **Source:** SEED-134 Plan 01 (scope cut ruled 2026-10-19, quick 261019-ui8). Mode: `--auto`, decisions drawn from the SEED-134 consults, the 2026-10-19 red team and the navigator's approval; no live interview.
 
 ## Goal
@@ -26,7 +27,7 @@ Why only this slice: a read-only count on 2026-10-19 found section membership on
 
 1. **Additive omitted list**: every `context_assemble` result carries `_meta.omitted`, an array (empty when nothing was omitted).
    - Current: `_meta` has `seedNodeId`, `fragmentWindow`, `topK`, `maxDepth`, timings, and leg costs; no omission data.
-   - Target: `_meta.omitted` exists on every non-error result, each entry `{ leg, reason, count, detail }`; `reason` is from the closed set `leg_failed`, `type_excluded`, `top_k_cap`, `depth_cap`, `char_cap`, `window_cap`, `estimate_only`.
+   - Target: `_meta.omitted` exists on every non-error result, each entry `{ leg, reason, count, detail }`; `reason` is from the closed set `leg_failed`, `type_excluded`, `top_k_cap`, `char_cap`, `window_cap`, `estimate_only`.
    - Acceptance: a normal call returns `_meta.omitted` as an array; every `reason` value is in the closed set (schema or test enforced).
 
 2. **Existing fields byte-stable**: no existing field changes.
@@ -46,7 +47,7 @@ Why only this slice: a read-only count on 2026-10-19 found section membership on
 
 5. **Cap reasons are reported honestly**: cap hits are named, with `count` a number only when it is free.
    - Current: `top_k`, `max_depth`, `fragment_window`, `fragment_char_cap` truncate silently.
-   - Target: a cap that actually truncated emits its reason; `count` is a number when the dropped amount is already known from the existing computation, otherwise `null`. Unknown is never written as `0`.
+   - Target: a cap that actually truncated emits its reason (`top_k_cap`, `window_cap`, `char_cap`; `max_depth` is not reported in v1); `count` is a number when the dropped amount is already known from the existing computation, otherwise `null`. Unknown is never written as `0`.
    - Acceptance: tests with caps set below the available amount emit the matching reason; a case where the dropped amount is not computed asserts `count === null`, never `0`; a case with no truncation emits no cap entry.
 
 6. **Estimate mode is reported**: `estimate_only` appears as an omission.
@@ -64,7 +65,7 @@ Why only this slice: a read-only count on 2026-10-19 found section membership on
 **In scope:**
 - `_meta.omitted[]` on the `getRoomContext` result and through the `context_assemble` MCP tool output.
 - The `leg_failed` fix for Leg C, and the same reporting for any other leg that swallows an exception.
-- Disclosure of the existing `chain_state` type exclusion and the four caps.
+- Disclosure of the existing `chain_state` type exclusion and three of the four caps (`top_k`, `fragment_window`, `fragment_char_cap`). The `max_depth` cap is NOT reported in v1: knowing that depth cut nodes off needs an extra traversal, and a guess would be false comfort (372-CONTEXT D4).
 - Tests for requirements 1 to 7.
 
 **Out of scope:**
@@ -90,7 +91,7 @@ Why only this slice: a read-only count on 2026-10-19 found section membership on
 - [ ] All pre-existing result fields are byte-identical to the pre-change snapshot on the fixture room.
 - [ ] Forcing a leg to throw produces `leg_failed` and an empty body for that leg; no throw produces none.
 - [ ] A room with `chain_state` neighbors reports `type_excluded` with the exact count and detail `chain_state`.
-- [ ] Each cap that truncates emits its reason; unknown counts are `null`, never `0`.
+- [ ] Each reported cap (`top_k`, `fragment_window`, `fragment_char_cap`) that truncates emits its reason; unknown counts are `null`, never `0`.
 - [ ] `estimate_only: true` emits per-body `estimate_only` entries; normal calls emit none.
 - [ ] `detail` never contains fixture node text (asserted).
 - [ ] `test-room-context-part8-invariant.cjs` and `test-room-context-latency.cjs` pass.
