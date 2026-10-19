@@ -2,9 +2,9 @@
   "schema_version": 1,
   "frozen_at_commit": "e484f4b3",
   "frozen_sweep": {
-    "tools": 45,
-    "branches": 140,
-    "high_risk": 0,
+    "tools": 47,
+    "branches": 142,
+    "high_risk": 2,
     "medium": 13,
     "low": 0,
     "unknown": 0,
@@ -286,7 +286,7 @@
     }
   ],
   "refrozen_at": {
-    "commit": "cd27faa94",
-    "reason": "Re-frozen by plan 369-41 (Phase 369 gap closure) after plans 369-33, 369-36 and 369-38 (lib/mcp/tools/gate.cjs at cd27faa94). Before: 44 tools / 139 branches (OK 127, MEDIUM 12; plan 369-26, b2f03de02). After: 45 tools / 140 branches (OK 127, MEDIUM 13, LOW 0, UNKNOWN 0, HIGH_RISK 0). Two rows moved: gate_list (new read-only tool, plan 369-33) is one (default) branch and scans OK (no persistence claim found), so no disposition was added for it; gate_render.(default) moved OK to MEDIUM because plan 369-33 made its description honest about recording the card in the room (it no longer carries a global no-write disclaimer), so finding F-9 was re-dispositioned from description-correction/OK to documented-no-action/MEDIUM with the file:line reasoning in its row. gate_answer is unchanged (still OK, a write primitive is reachable). HIGH_RISK stays 0. Every other disposition is untouched and was re-checked by tests/test-276-tool-honesty-findings-closed.cjs and scripts/check-tool-honesty.cjs --check at this commit. Earlier freeze (plan 369-26, b2f03de02): 44 tools / 139 branches."
+    "commit": "c2042b4e1",
+    "reason": "Re-frozen by quick 261019-ksf (2026-10-19, the 371 release-review fixes) after Phase 371 commit ec3d56380 registered room_create and room_startup (lib/mcp/tools/startup.cjs). Before: 45 tools / 140 branches (OK 127, MEDIUM 13, LOW 0, UNKNOWN 0, HIGH_RISK 0; plan 369-41, cd27faa94). After: 47 tools / 142 branches (OK 127, MEDIUM 13, LOW 0, UNKNOWN 0, HIGH_RISK 2). The two new rows are room_create.(default) and room_startup.(default); both scan as written in --report (room_create: no persistence claim found; room_startup: a write primitive is reachable), so no disposition was added for them. room_list.(default) and room_search.(default) stay HIGH_RISK with no disposition: room_search is pre-existing (371 review IN-06, red before f6bf6cb92); room_list carries the true sentence \"Read-only: listing does not bind or create a room and reads no room contents.\" from ecde228dc and is reported for a navigator decision (371 review WR-01), not dispositioned here. No row in dispositions was added or changed. Earlier freeze (plan 369-41, cd27faa94): 45 tools / 140 branches."
   }
 }

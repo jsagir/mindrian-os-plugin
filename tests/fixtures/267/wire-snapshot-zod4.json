@@ -1564,6 +1564,34 @@
         }
       },
       {
+        "name": "room_create",
+        "description": "Prepare the first-room name, purpose and local-folder preview. Returns an F.0 approval gate; no room folder is created until the navigator answers that gate with gate_answer. Approved creation uses the existing room birth operation. Reject/defer creates nothing. Use only for a user requesting a new room; open existing rooms through room_list and room_bind. The returned receipt distinguishes creation from effective binding.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "purpose": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "slug": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+            }
+          },
+          "required": [
+            "name",
+            "purpose"
+          ]
+        }
+      },
+      {
         "name": "room_graph",
         "description": "Operate on the room's own knowledge graph: build and repair it (graph-index, graph-rebuild), interrogate it (graph-query, graph-stats), work the Minto reasoning layer over it (reasoning-get, reasoning-generate, reasoning-verify, reasoning-run, reasoning-list, reasoning-frontmatter), and render it (visualize-room, visualize-graph, visualize-chain). Prefer this over the standalone graph_query tool for anything beyond a single read: graph_query only answers a query, while this router also builds, verifies, explains, and draws the graph.",
         "inputSchema": {
@@ -1606,7 +1634,7 @@
       },
       {
         "name": "room_list",
-        "description": "List every room directory under MINDRIAN_ROOMS_HOME. Read-only, no side effects. Call this first whenever you do not already know which rooms exist or how one is named, then use room_bind to attach this session to the room you want and room_state to read that room health, stage, and suggested next move. This tool answers only WHICH rooms exist; it deliberately says nothing about what is inside any of them, so do not use it to look for content. If the person asks to open the MindrianOS workspace in a browser, say exactly: This runs on your machine from Claude Code. Open Claude Code on this computer and run /mos:dashboard shell to see your room in the browser.",
+        "description": "Open MindrianOS by listing the existing local rooms and showing the built-in room picker in compatible MCP Apps hosts. Read-only: listing does not bind or create a room and reads no room contents. Let the user select a room, then use room_bind without an invented sessionId; verify effective and carries_to_later_calls, call context_assemble and room_startup for its saved understanding and workday briefing, then room-dashboard without room_path to open the bound room. If the user already named a room, still validate it against this list. For a first room use room_create and its approval gate. The standalone browser shell is a separate local feature; do not route an embedded room-opening request to Claude Code. If the person asks to open the MindrianOS workspace in a browser, say exactly: This runs on your machine from Claude Code. Open Claude Code on this computer and run /mos:dashboard shell to see your room in the browser.",
         "inputSchema": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
@@ -1635,6 +1663,15 @@
           "required": [
             "query"
           ]
+        }
+      },
+      {
+        "name": "room_startup",
+        "description": "After room_bind and context_assemble, build a returning navigator workday briefing from saved local room records: where work stopped, recorded changes, open questions and pending decisions. Records one local visit checkpoint per room binding: each room_bind starts a new visit, and a retry in the same binding keeps the original baseline. Missing prior history is explicit. Show the briefing before its returned F.1 next-move card; use gate_answer for the choice. No Theo call is made.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {}
         }
       },
       {
@@ -1678,7 +1715,7 @@
       {
         "name": "room-dashboard",
         "title": "Data Room Dashboard",
-        "description": "De Stijl Mondrian grid dashboard showing room sections, entry counts, stage, and health overview. Read-only. Rendered inline in Desktop/Cowork.",
+        "description": "Open the MindrianOS workspace UI to inspect the Data Room and request grounded command proposals or generic Theo methodology guidance. Read-only; UI requests continue in the host conversation. Compatible MCP Apps hosts render it inline.",
         "inputSchema": {
           "type": "object",
           "properties": {}
@@ -1964,6 +2001,10 @@
         "name": "room-state"
       },
       {
+        "uri": "ui://mindrian-os/decision/v1.html",
+        "name": "mindrian-decision"
+      },
+      {
         "uri": "ui://mindrian-os/room-dashboard",
         "name": "ui://mindrian-os/room-dashboard"
       },
@@ -1974,6 +2015,10 @@
       {
         "uri": "ui://mindrian-os/room-wiki",
         "name": "ui://mindrian-os/room-wiki"
+      },
+      {
+        "uri": "ui://mindrian-os/rooms/v4.html",
+        "name": "mindrian-rooms"
       }
     ],
     "templates": [
@@ -2107,5 +2152,5 @@
     "resources": [],
     "templates": []
   },
-  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed; 369-41 2026-10-04: added gate_list (Phase 369 plan 33, 47 -> 48), refreshed the gate_render (mirror_of, approving; plans 36 and 38) and gate_answer (answered_elsewhere, replay_lookup_failed and the plan 38 states) descriptions and schemas from the live wire; room_list description unchanged (the D-03 sentences of 369-22 are already here); no other tool changed"
+  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed; 369-41 2026-10-04: added gate_list (Phase 369 plan 33, 47 -> 48), refreshed the gate_render (mirror_of, approving; plans 36 and 38) and gate_answer (answered_elsewhere, replay_lookup_failed and the plan 38 states) descriptions and schemas from the live wire; room_list description unchanged (the D-03 sentences of 369-22 are already here); no other tool changed; quick 261019-ksf 2026-10-19: added room_create and room_startup (commit ec3d56380, 48 -> 50), refreshed the room_list description (ecde228dc, ec3d56380, plus the ruled Desktop sentences restored by this quick) and the room-dashboard description (ecde228dc, cec325d5b) from the live wire; added the resources ui://mindrian-os/rooms/v4.html (room-app.cjs, 371 commits ecde228dc, ec3d56380, cec325d5b) and ui://mindrian-os/decision/v1.html (gate-app.cjs, c53beea37 quick 261019-ey0) by orchestrator ruling 2026-10-19; no other tool changed"
 }
