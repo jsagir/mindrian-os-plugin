@@ -1,8 +1,8 @@
 {
   "snapshot_note": "Every live :Framework name read from Theo via lib/core/brain-client.cjs askOp ('list_frameworks'), not only the FEEDS_INTO-linked subset. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-10-14",
+  "snapshot_date": "2026-10-19",
   "source": "theo list_frameworks via lib/core/brain-client.cjs askOp",
-  "source_sha256": "50384c9eeaaa17b820de0a84146484e53a552477f31d032674652afdda1097b3",
+  "source_sha256": "297318689ee9dbf255e0a095eb7b649aa1ba1adb56b96792bd8e331000be4373",
   "framework_names": [
     "10-10-10 Decision Method",
     "12 Leverage Points",
@@ -36,12 +36,14 @@
     "Babson Model (Magical Thinking)",
     "Base-Rate-Check",
     "Beachhead Strategy",
+    "Beautiful Question",
     "Beautiful Question Framework",
     "Beautiful Questions Bias Detection",
     "Beautiful-Questions technique",
     "Behavioral Economics",
     "BERT-based Semantic Similarity",
     "Bias Pattern Matching",
+    "Biodesign",
     "Black Hat Analysis",
     "Black Hat Thinking",
     "Blind-Review",
@@ -315,6 +317,7 @@
     "Rubric for Grading Each Phase",
     "S-Curve Analysis",
     "Safe Fail Culture",
+    "SAPPhIRE Model",
     "Scenario Analysis Framework",
     "Scenario Logic",
     "Scenario Planning",
@@ -412,6 +415,8 @@
     "Value Proposition Canvas",
     "Value Proposition Design",
     "Venture Methodology",
+    "Verification Hierarchy",
+    "Vijay Jolly's Staged Commercialization Model",
     "Visionary Innovation Companion",
     "Wallas Four-Stage Model of the Creative Process",
     "Week 7 Combining Tools for Deep Opportunity Exploration",
@@ -432,8 +437,8 @@
   ],
   "stale_review": [],
   "theo_stamp": {
-    "mapped_by": "command-registry@2.0.0-beta.68",
-    "plugin_version": "2.0.0-beta.68",
-    "refreshed_at": "2026-10-14T03:33:58.593Z"
+    "mapped_by": "command-registry@2.0.0-beta.70",
+    "plugin_version": "2.0.0-beta.70",
+    "refreshed_at": "2026-10-19T07:49:15.983Z"
   }
 }
