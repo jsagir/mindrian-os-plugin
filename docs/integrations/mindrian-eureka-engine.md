@@ -47,6 +47,8 @@ Engines may propose useful structure or relationships, but a proposal never beco
 
 ## MCP operations
 
+The planned `thesis.read_prior` catalog entry has an exact MindrianOS host path: `rs_thesis_read` reads one prior Reverse Salient thesis from the bound or operator-pinned local room using the read-only database boundary. The existing `/mos:rs-thesis <discovery_id>` remains the CLI route. This does not add an Eureka route or change the catalog readiness; the discovery remains local user data and never goes to Brain.
+
 - `eureka_graph_project` reads explicit node IDs from the bound room through MindrianOS navigation. It returns the snapshot, stable graph references, scope/snapshot IDs, and omission metadata. It does not call an engine.
 - `eureka_graph_analyze` performs the composed local path for `graph.explore_local_relationships`: project the explicit node-ID set, invoke Eureka's stdio MCP workflow, and return proposals bound to the same room scope and snapshot. Results are proposed and unevidenced, and must go through MindrianOS evidence resolution and review before filing.
 - `eureka_graph_propose_relationships` exposes Eureka's stable `graph.propose_relationships` alias over the same authorized snapshot path, preserving that capability identity in its result.

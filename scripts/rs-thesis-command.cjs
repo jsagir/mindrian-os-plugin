@@ -14,15 +14,14 @@
  * (LOCAL -> BRAIN: NO).
  *
  * Fix: the Tier 1 path (remote Brain) is REMOVED. This command now ALWAYS
- * uses the Tier 0 SQLite path (local room.db). The --tier flag still works
- * but only tier0 is honoured; a forced --tier tier1 argument is silently
- * treated as tier0 with a note in the output.
+ * uses the Tier 0 SQLite path (local room.db). The --tier flag is retained
+ * for compatibility, but only tier0 is accepted; every other tier is refused.
  *
  * NOTE: a clean local transport for a user-owned Aura instance does not yet
  * exist in the plugin. When it does, the Tier 1 path can be re-added against
  * a LOCAL-ONLY Aura session (not brain-client.cjs which is the remote Brain).
  *
- * Tier-aware thesis lookup by discovery_id.
+ * Local-only thesis lookup by discovery_id.
  * Tier 0 path: SQLite SELECT against room.db via lazygraph-ops.cjs queryGraph.
  *
  * Usage:
@@ -78,11 +77,11 @@ function printHelp() {
     'Usage: node scripts/rs-thesis-command.cjs <discovery_id> [options]',
     '',
     'Read the thesis text for a prior RSDiscovery by discovery_id.',
-    'Tier dispatch: Aura first (Tier 1) on AuraUnreachableError fallback to SQLite (Tier 0).',
+    'Local-only lookup: reads the room SQLite mirror. Remote Brain/Aura is never queried.',
     '',
     'Options:',
     '  --json          structured JSON output for Desktop MCP',
-    '  --tier <tier>   force tier0 or tier1 explicitly (skips detection)',
+    '  --tier tier0    explicitly select the only supported local tier',
     '',
   ].join('\n'));
 }
@@ -147,6 +146,10 @@ async function main() {
     printError('No discovery_id provided', 'rs-thesis requires a discovery_id argument', '/mos:rs-thesis <discovery_id>');
     process.exit(1);
   }
+  if (args.tier && args.tier !== 'tier0') {
+    printError('Unsupported tier', 'rs-thesis reads local room.db only; remote tiers are not available', 'use --tier tier0 or omit --tier');
+    process.exit(1);
+  }
 
   try {
     _lazyLoad();
@@ -180,7 +183,7 @@ async function main() {
   result = await readThesisTier0(args.discoveryId, opts.room_dir);
 
   if (!result) {
-    printError('Discovery not found', 'no row matched discovery_id ' + args.discoveryId + ' in either backend', '/mos:rs-fetch <topic>');
+    printError('Discovery not found', 'no local row matched discovery_id ' + args.discoveryId, '/mos:rs-fetch <topic>');
     process.exit(1);
   }
 
