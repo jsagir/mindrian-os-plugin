@@ -213,8 +213,6 @@ EMDASH_TARGETS=(
   "docs/install/BRAIN-SETUP.md"
   "docs/THE-BRAIN.md"
   "commands/setup.md"
-  "commands/pws-brain.md"
-  "skills/pws-brain/SKILL.md"
   "docs/339-NOTE-theo-desktop-connector-key.md"
   "tests/run-all-339.sh"
   # Quick 260911-ddd (DDD-03): new production targets, registered here so a

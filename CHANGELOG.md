@@ -1,5 +1,8 @@
 ## [Unreleased] -- v2.0.0-beta.70 (in progress)
 
+### Removed
+- **`/mos:pws-brain` is retired.** It was a test harness that compared two Brain backends, and both were replaced on 2026-07-22, so it measured nothing current. Theo is the Brain. Typing `/mos:pws-brain` now gets the same reply as any command that does not exist (quick 261019-btm).
+
 ### Added
 - 
 

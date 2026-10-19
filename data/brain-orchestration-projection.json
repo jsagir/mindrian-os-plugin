@@ -1873,12 +1873,6 @@
       "name": "/mos:publish"
     },
     {
-      "id": "command:/mos:pws-brain",
-      "kind": "command",
-      "methodology_tier": "mindrian-operation",
-      "name": "/mos:pws-brain"
-    },
-    {
       "id": "command:/mos:qualify-opportunity",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3257,12 +3251,6 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "publish"
-    },
-    {
-      "id": "skill:pws-brain",
-      "kind": "skill",
-      "methodology_tier": "mindrian-operation",
-      "name": "pws-brain"
     },
     {
       "id": "skill:pws-methodology",

@@ -349,11 +349,6 @@
     "layer_why": "Deploys the presentation to Vercel hosting infrastructure with a one-click link; wiring a real external tool, not merely rendering a view.",
     "rubric_stopped_at": 3
   },
-  "commands/pws-brain.md": {
-    "layer": "none",
-    "layer_why": "Runs the same methodology question against the experimental Aura Agent next to the production Brain and shows both; a diagnostic comparison view.",
-    "rubric_stopped_at": 3
-  },
   "commands/qualify-opportunity.md": {
     "layer": "loop",
     "layer_why": "Presents a single human-ratified decision gate over one harvested candidate and files the qualify/reject verdict, the same single-hitl-fork cycle shape as a methodology command.",

@@ -7,8 +7,8 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "449ca3ae48ce54b175966a7ce283b332b808b7c8b27008b36edf64e385fecc86",
-      "source_count": 113
+      "digest": "cd01e5ce507dd85f2af3af6c0295db919ed83c6e2c62ef360110bfb81ab45690",
+      "source_count": 112
     },
     {
       "role": "wiring",
@@ -19,8 +19,8 @@
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "472ffc4b82e5e75cec145a4c3ee6581dd92776dc6a55e077d5ef938dee1b7863",
-      "source_count": 390
+      "digest": "4349c105725f313b2406b419406d6d02cf8907222fe90ee795a8a4a5ed9f3d28",
+      "source_count": 388
     }
   ],
   "runtime_surfaces": [

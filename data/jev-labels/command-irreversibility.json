@@ -457,12 +457,6 @@
       "label_source": "two-model-blind-agreement"
     },
     {
-      "command": "/mos:pws-brain",
-      "irreversible": false,
-      "reason": "Read-only side by side query comparison",
-      "label_source": "two-model-blind-agreement"
-    },
-    {
       "command": "/mos:qualify-opportunity",
       "irreversible": false,
       "reason": "Reads, analyzes or writes working material inside the room",

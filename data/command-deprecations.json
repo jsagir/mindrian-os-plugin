@@ -9,6 +9,15 @@
       "decided_by": "navigator",
       "date": "2026-10-12",
       "record": "quick 261012-v17, commit 29f8b57b1"
+    },
+    {
+      "command": "/mos:pws-brain",
+      "retired_in": "2.0.0-beta.71",
+      "replaced_by": null,
+      "reason": "A retired test harness that compared two Brain backends, both superseded on 2026-07-22. Theo is the Brain since Phase 339 (2026-09-03).",
+      "decided_by": "navigator",
+      "date": "2026-10-19",
+      "record": "quick 261019-btm"
     }
   ]
 }

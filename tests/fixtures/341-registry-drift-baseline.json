@@ -1,5 +1,5 @@
 {
-  "_note": "Phase 341 fallback baseline for scripts/check-registry-drift.cjs, taken 2026-09-10. Used only when CHECK_REGISTRY_DRIFT_BASELINE is unset and no v* git tag baseline can be read (a fresh clone with no tags). Deliberately stripped to only what the diff needs so this fixture does not rot on every unrelated registry regeneration. The query command left this baseline on 2026-10-12 (quick 261012-v17): retired after its v1.14.0 removal date; CHANGELOG Removed.",
+  "_note": "Phase 341 fallback baseline for scripts/check-registry-drift.cjs, taken 2026-09-10. Used only when CHECK_REGISTRY_DRIFT_BASELINE is unset and no v* git tag baseline can be read (a fresh clone with no tags). Deliberately stripped to only what the diff needs so this fixture does not rot on every unrelated registry regeneration. The query command left this baseline on 2026-10-12 (quick 261012-v17): retired after its v1.14.0 removal date; CHANGELOG Removed. The pws-brain command left this baseline on 2026-10-19 (quick 261019-btm): a retired test harness; CHANGELOG Removed.",
   "commands": [
     {
       "command": "/mos:act",
@@ -447,12 +447,6 @@
     },
     {
       "command": "/mos:publish",
-      "kind": "utility",
-      "surface": "navigator",
-      "visibility": null
-    },
-    {
-      "command": "/mos:pws-brain",
       "kind": "utility",
       "surface": "navigator",
       "visibility": null

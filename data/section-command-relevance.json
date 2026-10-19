@@ -1,5 +1,5 @@
 {
-  "provenance": "navigator-supplied 2026-10-06; a model relevance judgment from the eleven section contracts and data/section-job-canon.json; 'existing' is section contract text, 'supporting' and 'additional_fit' are judgment; filed verbatim from .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/369.25-SECTION-COMMAND-RELEVANCE.md; LOCAL prior, never sent to Theo (Canon Part 8); 2026-10-12: quick 261012-v17 removed the retired command query from areas.room-access-and-overview",
+  "provenance": "navigator-supplied 2026-10-06; a model relevance judgment from the eleven section contracts and data/section-job-canon.json; 'existing' is section contract text, 'supporting' and 'additional_fit' are judgment; filed verbatim from .planning/phases/369.25-feyminto-and-room-identity-spoken-369-3a-the-one-authority-p/369.25-SECTION-COMMAND-RELEVANCE.md; LOCAL prior, never sent to Theo (Canon Part 8); 2026-10-12: quick 261012-v17 removed the retired command query from areas.room-access-and-overview; 2026-10-19: quick 261019-btm removed the retired command pws-brain from areas.quality-and-platform-maintenance",
   "sections": {
     "problem-definition": {
       "existing": ["beautiful-question", "diagnose", "explore-domains"],
@@ -103,7 +103,7 @@
       "why": "Create, enter, navigate and inspect the room and its contents."
     },
     "quality-and-platform-maintenance": {
-      "commands": ["diagnostics", "doctor", "heal", "hmi-status", "mva-report", "agentshield", "admin", "setup", "update", "dogfood-flush", "new-surface", "ingest-methodology", "pws-brain"],
+      "commands": ["diagnostics", "doctor", "heal", "hmi-status", "mva-report", "agentshield", "admin", "setup", "update", "dogfood-flush", "new-surface", "ingest-methodology"],
       "why": "Keep the workspace and its capabilities usable, inspect behavior and maintain the system supporting every section."
     }
   },

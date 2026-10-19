@@ -213,8 +213,7 @@
         "new-surface",
         "skill",
         "ingest-methodology",
-        "auto-explore",
-        "pws-brain"
+        "auto-explore"
       ],
       "lane": "view",
       "jtbd": ["audit-room", "explore", "build"]
