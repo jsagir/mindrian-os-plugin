@@ -158,15 +158,15 @@ See `docs/WORKFLOWS.md` for the full Brain <-> registry <-> Larry join and the C
 
 ## Enrichment-Queue Auto-Append (Phase 249, ENRICH-01, Larry-direct leg)
 
-On Desktop/Cowork, Larry reaches the Brain via the `pws-brain-mcp` MCP tools directly (`orchestration_readiness`, `discover_structure`) -- bypassing `brain-client.cjs` entirely, so the plugin's own capture seams never fire for this path. This is the ONE place that gap is closed:
+On Desktop and Cowork, Larry reaches Theo, the Brain, through the `mindrian-brain` MCP server. The plugin bundles that server as a local stdio shim, `scripts/mindrian-brain-mcp-client.cjs`. Its `brain_*` tools forward each call through `lib/core/brain-client.cjs` to its `BRAIN_URL` (default `https://theo-mcp.onrender.com`). The shim has no readiness tool and passes no room directory to `brain-client.cjs`, so the wrapper chokepoint's capture never fires on this path. A host can also register `mindrian-brain` as a direct connector to Theo's `/mcp` endpoint (`docs/339-NOTE-theo-desktop-connector-key.md`). Then Theo's own `orchestration_readiness` and `discover_structure` tools answer Larry with no plugin code in the path. This section is the ONE place that gap is closed:
 
-**When a methodology consult returns `orchestration_readiness` 0-2/4, or `discover_structure` with `grounded: false`,** run the one-line append CLI so the miss lands in the same enrichment queue the plugin's wrapper chokepoint writes to:
+**When a methodology consult returns `orchestration_readiness` with a `score` of 0-2 out of 4 (Theo's field name; the old backend called it `readiness_score`), or `discover_structure` with `grounded: false`,** run the one-line append CLI so the miss lands in the same enrichment queue the plugin's wrapper chokepoint writes to:
 
 ```bash
 node <plugin-root>/scripts/enrichment-queue-append.cjs \
   --room <current room directory> \
   --framework "<canonical framework name>" \
-  --score <the readiness_score integer, or omit for a discover_structure miss> \
+  --score <the readiness score integer, or omit for a discover_structure miss> \
   --missing <comma-separated dims from pattern_type,structure,techniques,flow> \
   --source live_reach
 ```
