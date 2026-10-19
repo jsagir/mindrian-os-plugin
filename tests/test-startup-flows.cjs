@@ -10,6 +10,76 @@ const { URI } = require('../lib/mcp/room-app.cjs');
 const fixtures = {};
 const unpack = result => { if (result.structuredContent) return result.structuredContent; const text = result.content.find(item => item.type === 'text').text; try { return JSON.parse(text); } catch (_) { return { ok: false, reason: 'invalid_tool_input', detail: text }; } };
 
+// Quick 261019-ksf (2026-10-19, 371 release review): shared helpers for the one-connection legs below.
+// One stdio server process, one client; the same shape as realFlows connect/call.
+async function openSession(fixture) {
+  const transport = new StdioClientTransport({ command: process.execPath, args: [LOCAL_SERVER], env: fixture.env, stderr: 'pipe' });
+  const client = new Client({ name: 'ChatGPT', version: 'startup-test' }, { capabilities: { extensions: { 'io.modelcontextprotocol/ui': {} } } });
+  await client.connect(transport);
+  return {
+    async call(name, args = {}) {
+      const result = await client.callTool({ name, arguments: args });
+      assert(!result.isError, JSON.stringify(result));
+      return unpack(result);
+    },
+    async close() { await client.close(); await transport.close(); },
+  };
+}
+async function createRoom(session, fixture, name, purpose, slug) {
+  const preview = await session.call('room_create', { name, purpose, slug });
+  const created = await session.call('gate_answer', { gate_id: preview.gate.gate_id, chosen: ['approve'], verdict: 'approve' });
+  assert.equal(created.room_creation.created, true, JSON.stringify(created));
+  return path.join(fixture.dirs.roomsHome, slug);
+}
+// Every table of a room.db, every row, as JSON text: the rows that carry any marker.
+function roomLeaks(dir, markers) {
+  const db = require('../lib/core/room-db.cjs').openRoomDb(dir);
+  try {
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map(row => row.name);
+    const leaks = [];
+    for (const table of tables) {
+      for (const row of db.prepare('SELECT * FROM "' + table.replace(/"/g, '""') + '"').all()) {
+        const text = JSON.stringify(row);
+        if (markers.some(marker => text.includes(marker))) leaks.push({ table, row: text.slice(0, 300) });
+      }
+    }
+    return leaks;
+  } finally { db.close(); }
+}
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+function logWork(fixture, dir, sourcePath) {
+  const nav = require('../lib/core/navigation.cjs');
+  let db = nav.openRoomDbForCaller(dir);
+  if (!db) { process.env.MINDRIAN_ROOMS_HOME = fixture.env.MINDRIAN_ROOMS_HOME; db = nav.openRoomDbForCaller(dir); }
+  assert(db, 'room db opens for the test writer');
+  try { assert(nav.logMemoryEvent(db, 'framework_invoked', { framework: 'Lean Canvas', source_path: sourcePath }).ok); }
+  finally { nav.closeRoomDbForCaller(db); }
+}
+
+// CR-01 (Canon Part 9 locality): a navigator bound to room A who creates room B leaves no trace of B in A.
+async function secondRoomStaysLocal() {
+  const fixture = hermeticEnv();
+  let session;
+  try {
+    session = await openSession(fixture);
+    const dirA = await createRoom(session, fixture, 'Room A', 'Alpha purpose', 'room-a');
+    assert.equal((await session.call('room_bind', { room: 'room-a' })).bound, true);
+    const previewB = await session.call('room_create', { name: 'Secret Beta', purpose: 'BETA-CONFIDENTIAL purpose text', slug: 'room-b' });
+    const gateB = previewB.gate.gate_id;
+    const markers = [gateB, 'Secret Beta', 'BETA-CONFIDENTIAL'];
+    const briefing = (await session.call('room_startup')).briefing;
+    assert(!briefing.pending_decisions.some(gate => gate.gate_id === gateB || String(gate.header).includes('Secret Beta')),
+      'A briefing for room A does not list the creation card of room B: ' + JSON.stringify(briefing.pending_decisions));
+    let leaks = roomLeaks(dirA, markers);
+    assert.deepEqual(leaks, [], 'room A carries no row about room B while the gate is open: ' + JSON.stringify(leaks));
+    const made = await session.call('gate_answer', { gate_id: gateB, chosen: ['approve'], verdict: 'approve' });
+    assert.equal(made.room_creation.created, true);
+    leaks = roomLeaks(dirA, markers);
+    assert.deepEqual(leaks, [], 'room A carries no row about room B after the approval: ' + JSON.stringify(leaks));
+    console.log('PASS CR-01 Canon Part 9: a second room created while bound to room A leaves no row in room A');
+  } finally { if (session) await session.close(); fixture.cleanup(); }
+}
+
 async function realFlows() {
   const fixture = hermeticEnv();
   assert(path.dirname(fixture.dirs.roomDir) === fixture.dirs.roomsHome);
@@ -197,5 +267,9 @@ async function browserFlows() {
     console.log('PASS returning-browser briefing, recorded changes, pending decisions and single-use next-move choice');
   } finally { await browser.close(); }
 }
-module.exports = { realFlows, fixtures };
-if (require.main === module) (async () => { await realFlows(); if (process.argv.includes('--browser')) await browserFlows(); })().catch(error => { console.error(error); process.exitCode = 1; });
+module.exports = { realFlows, fixtures, secondRoomStaysLocal };
+if (require.main === module) (async () => {
+  await realFlows();
+  await secondRoomStaysLocal();
+  if (process.argv.includes('--browser')) await browserFlows();
+})().catch(error => { console.error(error); process.exitCode = 1; });
