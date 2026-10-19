@@ -80,6 +80,36 @@ async function secondRoomStaysLocal() {
   } finally { if (session) await session.close(); fixture.cleanup(); }
 }
 
+// CR-02: on one stdio connection (one session key), a second room_bind opens a new visit with truthful changes
+// and a live next-move card; a retry inside one binding keeps the visit.
+async function rebindOpensNewVisit() {
+  const fixture = hermeticEnv();
+  let session;
+  try {
+    session = await openSession(fixture);
+    const dir = await createRoom(session, fixture, 'Visit room', 'Visit purpose', 'visit-room');
+    assert.equal((await session.call('room_bind', { room: 'visit-room' })).bound, true);
+    const first = (await session.call('room_startup')).briefing;
+    assert.equal(typeof first.next_move.gate_id, 'string');
+    await session.call('gate_answer', { gate_id: first.next_move.gate_id, chosen: ['continue'], verdict: 'approve' });
+    await sleep(20);
+    logWork(fixture, dir, 'test:work-after-first-visit');
+    await sleep(20);
+    assert.equal((await session.call('room_bind', { room: 'visit-room' })).bound, true);
+    const second = (await session.call('room_startup')).briefing;
+    assert.notEqual(second.visit_id, first.visit_id, 'a re-bind opens a new visit');
+    assert(Date.parse(second.opened_at) > Date.parse(first.opened_at), 'the new visit opens later: ' + first.opened_at + ' -> ' + second.opened_at);
+    assert(second.changes.items.some(item => item.kind === 'framework_invoked'), 'the work logged since the first visit shows: ' + JSON.stringify(second.changes));
+    assert.equal(typeof second.next_move.gate_id, 'string', 'the new visit carries a live next-move card: ' + JSON.stringify(second.next_move));
+    assert.notEqual(second.next_move.gate_id, first.next_move.gate_id);
+    assert.notEqual(second.next_move.status, 'answered');
+    const retry = (await session.call('room_startup')).briefing;
+    assert.equal(retry.visit_id, second.visit_id); assert.equal(retry.opened_at, second.opened_at);
+    assert.equal(retry.next_move.gate_id, second.next_move.gate_id);
+    console.log('PASS CR-02: a second room_bind on one stdio connection opens a new visit with the logged work and a live card; a retry keeps it');
+  } finally { if (session) await session.close(); fixture.cleanup(); }
+}
+
 async function realFlows() {
   const fixture = hermeticEnv();
   assert(path.dirname(fixture.dirs.roomDir) === fixture.dirs.roomsHome);
@@ -267,9 +297,10 @@ async function browserFlows() {
     console.log('PASS returning-browser briefing, recorded changes, pending decisions and single-use next-move choice');
   } finally { await browser.close(); }
 }
-module.exports = { realFlows, fixtures, secondRoomStaysLocal };
+module.exports = { realFlows, fixtures, secondRoomStaysLocal, rebindOpensNewVisit };
 if (require.main === module) (async () => {
   await realFlows();
   await secondRoomStaysLocal();
+  await rebindOpensNewVisit();
   if (process.argv.includes('--browser')) await browserFlows();
 })().catch(error => { console.error(error); process.exitCode = 1; });
