@@ -145,6 +145,11 @@ run "k1u session-start envelope (valid JSON, inline budget)" node tests/test-k1u
 # The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "btm no retired Brain route in Larry-facing files (quick 261019-btm)" node tests/test-btm-theo-is-the-brain.cjs
 
+# --- (2g) quick 261019-gct: the framework_step step_id arm follows Theo's widened PROCESS_STEP_ID_PATTERN ---
+# Theo Phase 42/45 added phase42:: and export13- ids and a 160-char cap; the plugin copy drifted until 2026-10-19.
+# The leg is a hard run (not run_if), so a missing or red test fails the cut.
+run "gct framework_step step_id parity (quick 261019-gct)" node tests/test-gct-process-step-id-parity.cjs
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
