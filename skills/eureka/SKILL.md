@@ -195,10 +195,12 @@ Use this only when the user or Theo's method selection calls for a specific Eure
 Use a single catalogued engine directly when the user or Theo's method selection calls for it. This is independent of the default `/mos:eureka` perspective workflow; do not chain engines unless the investigation benefits from it.
 
 1. Confirm `MINDRIAN_EUREKA_ROOT` points to the local `mindrian-eureka` checkout and `uv` is available. The CLI only runs local code over the request file supplied to it.
-2. Discover the catalogued jobs and select by the catalog's plain-language `name`, `jtbd`, readiness, prerequisites, and limitations. `eureka capabilities` returns the full catalog as JSON; inspect one selected contract and both schemas before preparing input:
+2. Discover jobs in a compact list and select by plain-language `name`, `jtbd`, readiness, and route. Narrow it by status or a case-insensitive search term, then inspect prerequisites and limitations on a selected contract before preparing input:
 
    ```bash
-   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities --summary
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities --summary --search wicked
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities --summary --status experimental
    uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capability <capability_id>
    uv run --project "$MINDRIAN_EUREKA_ROOT" eureka schema <capability_id> --direction input
    uv run --project "$MINDRIAN_EUREKA_ROOT" eureka schema <capability_id> --direction output
