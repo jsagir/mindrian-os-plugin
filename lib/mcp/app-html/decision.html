@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MindrianOS decision</title>
+<style>
+:root{color-scheme:light dark;--paper:#F7F3ED;--ink:#1A1A1A;--line:#D4CFC7;--blue:#1B3B6F;--muted:#5C5A56}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,sans-serif}
+main{padding:24px;max-width:820px;margin:auto}h1{font:600 clamp(24px,5vw,34px)/1.15 Georgia,serif;margin:8px 0 16px}
+.eyebrow{font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+#notice{border-left:3px solid #C8A43C;padding-left:12px;line-height:1.5}
+fieldset{border:0;margin:16px 0;padding:0}legend{font-size:14px;margin-bottom:12px}
+.option{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--line);padding:16px;margin:8px 0;cursor:pointer;min-height:48px}
+.option:has(input:checked){border-color:var(--blue);background:color-mix(in srgb,var(--blue) 7%,var(--paper))}
+.option input{margin-top:5px;accent-color:var(--blue)}.copy{display:grid;gap:6px;min-width:0}.label{font-weight:600;overflow-wrap:anywhere}
+.description,.preview{font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.preview{color:var(--muted)}
+.tag{font:11px ui-monospace,monospace;color:var(--blue)}button,select{font:inherit;min-height:44px;padding:10px 16px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+button{cursor:pointer}button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button:disabled{cursor:default;opacity:.55}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}#feedback{line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+#feedback[data-error=true]{border-left:3px solid #A63D2F;padding-left:12px}details{margin:16px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
+:focus-visible{outline:3px solid #C8A43C;outline-offset:3px}[hidden]{display:none!important}
+@media(prefers-color-scheme:dark){:root{--paper:#1A1A1A;--ink:#F7F3ED;--line:#5C5A56;--blue:#6D9BFF;--muted:#D4CFC7}button.primary{color:#1A1A1A}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow" id="kind">Your decision</p>
+<h1 id="title" tabindex="-1">Opening decision...</h1>
+<p id="notice" hidden></p>
+<form id="decision" hidden>
+<fieldset id="options"><legend>Choose an option, then confirm.</legend></fieldset>
+<div class="actions">
+<label id="verdict-label" hidden>Decision <select id="verdict"><option value="approve">Approve selection</option><option value="reject">Reject selection</option><option value="defer">Defer selection</option></select></label>
+<button class="primary" id="confirm" type="button">Confirm choice</button>
+<button id="discuss" type="button">Discuss this choice</button>
+</div>
+</form>
+<p id="feedback" role="status" aria-live="polite">Connecting to MindrianOS...</p>
+<details id="receipt" hidden><summary>Execution details</summary><pre id="receipt-body"></pre></details>
+</main>
+<script>
+(function () {
+  'use strict';
+  const byId = id => document.getElementById(id);
+  let active = null, saving = false, closed = false;
+  const selected = new Set();
+  const terminalReasons = new Set(['gate_expired', 'unknown_gate', 'stale_subject', 'room_switched', 'session_mismatch']);
+  function feedback(message, error) {
+    byId('feedback').textContent = message;
+    byId('feedback').dataset.error = error ? 'true' : 'false';
+  }
+  function readResult(result) {
+    if (result?.structuredContent) return result.structuredContent;
+    const text = result?.content?.find(item => item.type === 'text')?.text;
+    return text ? JSON.parse(text) : null;
+  }
+  function nextGate(data) {
+    if (data?.chain_result?.gate?.card) return data.chain_result.gate;
+    if (data?.gate?.card) return data.gate;
+    if (data?.card && data?.gate_id) return data;
+    return null;
+  }
+  function lock(value) {
+    for (const control of byId('decision').querySelectorAll('input,button,select')) control.disabled = value;
+  }
+  function receive(data, result) {
+    if (!data || typeof data !== 'object') { feedback('No decision data arrived. Reopen the decision.', true); return; }
+    if (result?.isError || data.ok === false) {
+      feedback(data.message || data.reason || 'The operation was refused.', true);
+      if (terminalReasons.has(data.reason)) { closed = true; lock(true); }
+      return;
+    }
+    if (data.answer) {
+      active = null; closed = true; byId('decision').hidden = true;
+      byId('title').textContent = 'Choice received';
+      feedback('Your choice was received through the host dialog.');
+      byId('receipt').hidden = false; byId('receipt-body').textContent = JSON.stringify(data, null, 2);
+      return;
+    }
+    const gate = nextGate(data);
+    if (!gate) {
+      byId('decision').hidden = true;
+      byId('title').textContent = data.verdict && data.gate_id ? 'Decision recorded' : 'Operation returned';
+      feedback(data.completed ? 'The workflow completed.' : data.suppressed ? 'No decision is needed here.' : 'Review the operation result in the conversation.');
+      byId('receipt').hidden = false;
+      byId('receipt-body').textContent = JSON.stringify(data, null, 2);
+      return;
+    }
+    const card = gate.card;
+    if (!Array.isArray(card.options) || !card.options.length || typeof gate.gate_id !== 'string' || card.gate_id !== gate.gate_id ||
+        card.options.some(option => !option || typeof option.id !== 'string' || typeof option.label !== 'string') ||
+        new Set(card.options.map(option => option.id)).size !== card.options.length) {
+      active = null; byId('decision').hidden = true;
+      feedback('The decision data is incomplete. Ask for a fresh card.', true); return;
+    }
+    active = gate; closed = false; selected.clear();
+    byId('receipt').hidden = true;
+    byId('title').textContent = card.header || 'Choose the next move';
+    byId('kind').textContent = card.selectMode === 'multi' ? 'Action set / choose several' : 'Your decision / choose one';
+    byId('notice').hidden = !card.notice;
+    byId('notice').textContent = card.notice || '';
+    const fieldset = byId('options');
+    fieldset.replaceChildren();
+    const legend = document.createElement('legend');
+    legend.textContent = card.selectMode === 'multi' ? 'Select independent actions. Nothing runs until you confirm.' : 'Choose an option, then confirm.';
+    fieldset.append(legend);
+    for (const option of card.options) {
+      const row = document.createElement('label'); row.className = 'option';
+      const input = document.createElement('input'); input.name = 'choice'; input.value = option.id;
+      input.type = card.selectMode === 'multi' ? 'checkbox' : 'radio';
+      input.checked = card.selectMode === 'multi' ? option.recommended === true : false;
+      if (input.checked) selected.add(option.id);
+      input.addEventListener('change', () => {
+        if (card.selectMode !== 'multi') selected.clear();
+        if (input.checked) selected.add(option.id); else selected.delete(option.id);
+      });
+      const copy = document.createElement('span'); copy.className = 'copy';
+      for (const [className, text] of [['label', option.label], ['description', option.description], ['preview', option.preview]]) {
+        if (typeof text !== 'string' || !text) continue;
+        const line = document.createElement('span'); line.className = className; line.textContent = text; copy.append(line);
+      }
+      if (Number.isFinite(option.rank)) {
+        const rank = document.createElement('span'); rank.className = 'tag'; rank.textContent = 'Rank ' + option.rank; copy.append(rank);
+      }
+      if (card.selectMode !== 'multi' && card.recommended === option.id) {
+        const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'Recommended'; copy.append(tag);
+      }
+      row.append(input, copy); fieldset.append(row);
+    }
+    const verdictOptions = card.options.every(option => ['approve','reject','defer'].includes(option.id));
+    byId('verdict-label').hidden = verdictOptions;
+    byId('verdict').value = 'approve';
+    byId('decision').hidden = false; lock(false);
+    feedback('Your choice will be checked and saved by MindrianOS.');
+  }
+  const view = MindrianView.connect('gate_render', receive, { raw: true });
+  byId('decision').addEventListener('keydown', event => {
+    if (event.key === 'Enter' && event.target.tagName === 'INPUT') { event.preventDefault(); byId('confirm').click(); }
+  });
+  byId('confirm').addEventListener('click', async event => {
+    event.preventDefault();
+    if (saving || closed || !active) return;
+    const chosen = active.card.options.filter(option => selected.has(option.id)).map(option => option.id);
+    if (!chosen.length) { feedback('Choose at least one option.', true); return; }
+    let verdict = byId('verdict').value;
+    if (chosen.length === 1 && ['approve','reject','defer'].includes(chosen[0])) verdict = chosen[0];
+    if (Array.isArray(active.approving)) {
+      const hasYes = chosen.some(id => active.approving.includes(id));
+      if ((verdict === 'approve') !== hasYes) { feedback('Choose a decision consistent with the selected option.', true); return; }
+    }
+    saving = true; lock(true); feedback('Saving your decision...');
+    try {
+      const result = await view.callTool('gate_answer', { gate_id: active.gate_id, chosen, verdict });
+      const data = readResult(result);
+      if (!data) throw new Error('No decision receipt returned.');
+      if (result.isError || data.ok === false) {
+        feedback(data.message || data.reason || 'The decision was refused.', true);
+        byId('receipt').hidden = false; byId('receipt-body').textContent = JSON.stringify(data, null, 2);
+        if (terminalReasons.has(data.reason) || data.resumed === true) closed = true;
+      } else if (nextGate(data)) {
+        receive(data, result);
+      } else {
+        closed = true;
+        feedback(data.replayed ? 'This decision was already recorded. Nothing was run again.' :
+          data.chain_result?.completed ? 'Decision saved. The workflow completed.' : 'Decision saved.');
+        byId('receipt').hidden = false; byId('receipt-body').textContent = JSON.stringify(data, null, 2);
+      }
+      // Context is a receipt, not an instruction to execute the approved step again.
+      view.updateModelContext({ content: [{type:'text',text:JSON.stringify({source:'MindrianOS gate receipt',result:data})}] });
+    } catch (_) { feedback('No receipt was received. The decision may have been saved. Retry this same card to check; do not start the workflow again.', true); }
+    finally { saving = false; if (!closed) lock(false); }
+  });
+  byId('discuss').addEventListener('click', async () => {
+    if (!active || saving || closed) return;
+    try { await view.sendMessage('Discuss the open MindrianOS decision ' + active.gate_id + '. Do not answer it or execute its proposed actions.');
+      feedback('Discussion requested in the conversation. Your decision is still open.');
+    } catch (_) { feedback('The host could not open the discussion. Continue in the conversation.', true); }
+  });
+})();
+</script>
+</body>
+</html>

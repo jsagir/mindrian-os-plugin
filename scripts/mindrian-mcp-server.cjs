@@ -232,7 +232,7 @@ function createServer() {
   const s = new McpServer(
     {
       name: 'mindrian-os',
-      title: 'Larry | MindrianOS (powered by Claude)',
+      title: 'Larry | MindrianOS',
       version,
       icons: [{ src: 'data:image/svg+xml;base64,' + Buffer.from(renderFace()).toString('base64'),
         mimeType: 'image/svg+xml', sizes: ['any'] }],
