@@ -133,3 +133,30 @@ or background research is triggered by opening a room.
 Run tests/test-startup-flows.cjs for real MCP creation, cancellation, collision,
 durable replay and fresh-session workday restoration. Add --browser for both
 startup journeys through the actual Apps SDK in a sandboxed iframe.
+
+
+## Phase 371 startup lifecycle
+
+Phase 371 consolidates the prior GPT decision/proposal, room-first and startup
+commits as baseline provenance. Its new implementation applies the focused v5
+UI contract and explicit recovery to those existing authorities. It adds no
+second gate loop, automatic Theo call or root UI dependency.
+
+The startup room view uses packaged Figtree and DM Sans fonts with OFL notices,
+embedded in the resource. Its CSP adds data: assets; no font service is called.
+Other App views retain their current styles. The startup resource is rooms/v4.
+The actual host must still accept the resource/CSP; fallback text remains usable.
+
+Unknown creation or startup-choice replies expose a receipt-check control that
+retries the exact gate payload. A successful decision followed by a failed chat
+handover retains the chosen intent; Continue in chat retries the message without
+answering the gate again. Memory and briefing are published together, and room
+switches invalidate the prior view/context before new identity checks.
+
+Run `bash tests/run-all-371.sh` with supported Node and Playwright available
+(NODE_PATH may point to an existing Playwright installation). Optional
+MINDRIAN_371_OUTPUT names a directory for synthetic narrow/wide screenshots.
+The runner covers real MCP lifecycle, sandboxed Apps SDK UI, recovery, keyboard,
+text scaling, forced colors, reduced motion, CSP/fonts and room-birth regressions.
+Local acceptance is separate from the live ChatGPT check in 371-UAT.md. This
+development work does not install, refresh, publish or release the plugin.

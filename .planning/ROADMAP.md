@@ -3595,16 +3595,17 @@ no dependency on the unrelated Phase 370 grading contract. Shared gate/session
 and MCP bridge authorities remain unchanged.
 **Canon:** Parts 3, 7, 8, 9, 11, 12; external Design Canon v5 for this surface.
 **UI contract:** `371-UI-SPEC.md` approved 2026-10-19, all 6 design dimensions pass;
-`371-CONTEXT.md` records scope and `371-UI-REVIEW.md` records the inline review.
+`371-CONTEXT.md` records scope and `371-UI-SPEC-REVIEW.md` records the inline contract review.
 **Success Criteria** (what must be TRUE):
 1. A clean home shows first-room name/purpose preparation and the exact local destination before explicit F.0 approval; reject/defer and uncertain retries preserve existing creation and durable-receipt semantics.
 2. An ongoing room opens only after effective binding and loads saved memory, workday baseline, changes, open questions and pending decisions before F.1.
 3. Both journeys meet the v5 room-space, human-gate, copy, type and color contract in narrow/wide hosts with keyboard, zoom, reduced-motion and failure coverage.
 4. Missing history, unavailable memory and wrong-room results are distinct; viewing a room never confirms a claim or starts Theo/commands automatically.
 5. Local protocol/browser evidence is recorded separately from real ChatGPT host verification, which makes no guarantee about host panel persistence.
-**Plans:** 3 plans; full focused lifecycle in progress.
+**Plans:** 2 complete; Plan 03 local tasks pass and its human-host checkpoint is pending.
+**Verification:** human_needed; 7/8 requirements locally verified, STARTUI371-08 open.
 
 Plans:
-- [ ] 371-01-PLAN.md - v5 startup composition and local assets
-- [ ] 371-02-PLAN.md - guarded startup recovery and workday handover
-- [ ] 371-03-PLAN.md - consolidated phase suite, audits and host checkpoint
+- [x] 371-01-PLAN.md - v5 startup composition and local assets
+- [x] 371-02-PLAN.md - guarded startup recovery and workday handover
+- [ ] 371-03-PLAN.md - local acceptance/audits pass; blocking real-host checkpoint pending

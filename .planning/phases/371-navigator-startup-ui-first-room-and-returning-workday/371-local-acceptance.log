@@ -1,0 +1,135 @@
+PASS first-room preview, reject/defer, path safety, approved core birth, literal name, collision and durable replay
+PASS fresh-session workday memory, saved next action, changes since session end, pending decisions and stable retry checkpoint
+PASS packaged asset CSP and usable system-font fallback when font bytes are unavailable
+PASS v5 typography, local font delivery under CSP, 320/390/600/960px layouts, focus, timestamp provenance and combined room context
+PASS uncertain creation/move replies retry identical gate payloads; free-text survives failed handover without answering again
+PASS collision recovery, memory/briefing retry, wrong-room isolation and distinct missing/unchanged history
+PASS refresh serializes user actions and preserves an unsent same-view draft
+PASS direct App entries, keyboard-only controls, forced-color focus, reduced motion and 200% text scaling
+PASS first-room preview, reject/defer, path safety, approved core birth, literal name, collision and durable replay
+PASS fresh-session workday memory, saved next action, changes since session end, pending decisions and stable retry checkpoint
+PASS first-user browser flow: empty list, preview without writes, reject, approve, bind, memory and startup
+PASS direct room_create tool opens its room preview and approval controls
+PASS returning-browser briefing, recorded changes, pending decisions and single-use next-move choice
+PASS real room picker metadata; effective binding; selected-room memory and all three views; fresh-session memory recovery
+PASS browser explicit selection -> effective bind -> saved context -> correct room -> host continuation
+PASS refused/ineffective binding prevents memory reads and room opening
+PASS missing memory is honest; empty-room and narrow-host states
+PASS actual MCP registration, normalized card, resource, identity and room view
+PASS GPT App, elicitation and text fallbacks; existing governed write policy
+PASS real GPT-client room binding, invalid choice refusal, durable approval and replay
+PASS browser single selection, explicit submit, retry, ordered next gate, reject and replay
+PASS completed native dialog is read-only in the component
+PASS browser multi-select, explicit confirmation and stale refusal
+PASS browser command/Theo proposal messages, room-content separation and narrow layout
+Phase 234-01 (D-03, evolved 2026-08-19): MCP initialize `instructions` identity pin
+  ok - server answered the initialize request (harness reached ground truth)
+  ok - initialize returned a result object
+  ok - initialize result HAS an own `instructions` property (hookless-surface parity)
+  ok - initialize `instructions` is byte-identical to RUNTIME_INSTRUCTIONS
+  ok - served instructions carry no moat vocabulary (FEEDS_INTO, ADDRESSES_PROBLEM_TYPE, pagerank)
+  ok - served instructions name Larry | MindrianOS on active conversational replies
+  ok - served instructions introduce Larry once without inventing the host model
+  ok - served instructions keep artifacts and machine output unbranded
+  ok - loaded MCP personality carries the same product label and host-neutral introduction
+  ok - glyph plus product label preserves the existing blue voice mark
+  ok - glyph plus product label preserves the existing red voice mark
+  ok - glyph plus product label preserves the existing yellow voice mark
+  ok - glyph plus product label preserves the existing black voice mark
+  ok - glyph plus product label preserves the existing white voice mark
+  ok - served instructions at or under SERVED_BUDGET_BYTES (measured 1995 vs budget 2000)
+  ok - served instructions at or under HOST_INSTRUCTIONS_CAP_BYTES (measured 1995 vs cap 2048)
+  ok - served instructions carry PART8_BOUNDARIES_FROZEN byte-identically
+  ok - served instructions END with PART8_BOUNDARIES_FROZEN (nothing appended after it)
+
+  18 passed, 0 failed
+
+[test-room-birth] Phase 155-02 birth transaction integration
+  tmpHome: /tmp/mindrian-birth-test-KmMJr3
+
+Section A: birthRoom basics
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+  PASS: birthRoom returns {ok:true}
+  PASS: roomDir directory exists
+  PASS: ROOM.md exists in at least one ICM section dir
+  PASS: STATE.md exists at room root
+  PASS: MINTO.md exists at room root
+  PASS: USER.md exists at room root
+  PASS: FEYNMAN.md exists in at least one ICM section
+  PASS: room.db exists at roomDir/.mindrian/room.db
+  PASS: room.db contains a room_created memory_event
+  PASS: room.db contains at least one claim node (venture node)
+
+Section A2: newborn room is bound into the birthing session
+  PASS: session 's-test-001' bound SET now contains the newborn room
+  PASS: newborn room is the session primary write target
+  PASS: write-guard predicate ALLOWS a write to the newborn room (bug fix: was blocked)
+
+Section B: scaffold-before-registry order
+  PASS: registry.json exists
+  PASS: room.db mtime <= registry.json mtime (room.db written first)
+  PASS: registry entry exists for slug
+  PASS: registry entry status='active'
+  PASS: registry active pointer matches slug
+
+Section C: drain edges
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+  PASS: birthRoom (drain) returns {ok:true}
+  PASS: birth_gate_answered events count matches gateAnswers.length (3)
+  PASS: FILED_AS_DECISION edge written for Approve answer
+  PASS: DEFERRED edge written for Defer answer
+  PASS: REJECTED_BECAUSE edge written for Reject answer
+  PASS: NO CHOSE edge written (constitutional; RESEARCH Pitfall 7)
+
+Section D: check-substrate (allow-list)
+  PASS: check-substrate --baseline does not report room-birth.cjs as a violation
+  PASS: room-birth.cjs path is in the check-substrate allow-list
+
+Section E: idempotence
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+  PASS: second birthRoom call on same roomDir is safe (no crash)
+
+Section F: no-registry-plus-legacy-room silent-fail regression
+  PASS: precondition: no .rooms/registry.json exists yet
+  PASS: precondition: legacy room/ directory exists
+  PASS: birthRoom with no approvedBy returns {ok:false, reason:"no_approval"} (never fabricates ok:true)
+  PASS: the requested new room directory (cv-project) was NOT created
+  PASS: no registry.json was fabricated by the failed birth attempt
+  PASS: the legacy room/ directory is untouched (no conflation with the new slug)
+  PASS: resolve-room --strict on the same precondition exits non-zero (never 0)
+  PASS: resolve-room --strict marks the fallback with the FALLBACK: prefix, not a bare path
+
+[test-room-birth] 35/35 PASS
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RB1 top-level birth: ok:true with room_id, identity reads ready with the seven values
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RB2 born-wired child: parent is the parent slug, depth is the parent depth plus 1
+PASS: RB3 _faultInject identity: the whole transaction rolls back (0 keys, no room node, no venture claim)
+[room-birth] identity readback FAILED for rb4-room (directory_removed): not_ready:fault_inject_identity_readback
+PASS: RB4 _faultInject identity_readback: identity_readback_failed, the directory birth created is removed
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RB5 projections: .room-root, the registry entry and the root ROOM.md icm_self carry the room.db room_id
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RB6 the room_id is a uuid and two births mint two different ids
+PASS: RB7 dash guard: no em or en dash in this file
+
+test-36925-rid-birth: 7 passed, 0 failed
+PASS: RF2 registry failure: a new directory is removed, no identity claim is left behind
+PASS: RF2 registry failure over a pre-existing directory: user file untouched, partial state is registry_missing_room
+PASS: RF8 retry into the same pre-existing directory reuses the room_id: one Room node, seven keys, files untouched
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RF8b a directory whose room.db names a different slug is refused with identity_conflict and nothing changes
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+PASS: RF8c a directory whose room.db names a different canonical path is refused with identity_conflict and nothing changes
+PASS: RF9 dash guard: no em or en dash in this file
+
+test-36925-rft-birth: 6 passed, 0 failed
+connector-registry: OK
+orchestration-projection: OK
+harness-manifest: OK
+render-coverage report: 17 covered, 0 excluded, 0 gap (17 entries)
+render-coverage md-keyspace: 196 wired, 2 excluded, 0 unwired (198 declaring commands)
+
+Phase 371 local acceptance: PASS. Real ChatGPT host verification is separate.

@@ -1,0 +1,114 @@
+[
+  {
+    "plan": "01",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "task_count": 2,
+    "tasks": [
+      {
+        "name": "Implement scoped startup composition",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Package and embed local licensed fonts",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      }
+    ],
+    "frontmatter_fields": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "requirements",
+      "canon_parts",
+      "must_haves"
+    ]
+  },
+  {
+    "plan": "02",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "task_count": 2,
+    "tasks": [
+      {
+        "name": "Preserve exact pending answers and handover intent",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Validate room identity and expose truthful partial recovery",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      }
+    ],
+    "frontmatter_fields": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "requirements",
+      "canon_parts",
+      "must_haves"
+    ]
+  },
+  {
+    "plan": "03",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "task_count": 3,
+    "tasks": [
+      {
+        "name": "Run consolidated local acceptance and close review findings",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Record provenance, reviews and requirement evidence",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Verify both startup journeys in the actual ChatGPT connection",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      }
+    ],
+    "frontmatter_fields": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "requirements",
+      "canon_parts",
+      "must_haves"
+    ]
+  }
+]

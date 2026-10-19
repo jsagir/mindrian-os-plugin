@@ -1,37 +1,43 @@
 ---
 phase: 371
-status: approved
-reviewed_at: 2026-10-19
-review_method: inline gsd-ui-checker rubric
-canon_parts: [3, 7, 8, 9, 11, 12]
+status: reviewed
+score: 23/24
+review_method: inline code plus rendered synthetic screenshots
 ---
+# Phase 371 implemented UI audit
 
-# Phase 371 - UI-SPEC verification
+Baseline: approved 371-UI-SPEC.md. The earlier six-dimension contract check is
+preserved as 371-UI-SPEC-REVIEW.md. This audit concerns implemented screens and
+uses the six gsd-ui-auditor pillars. It is not an independent subagent review.
 
-The primary agent performed the UI research and then a separate review pass
-using the six gsd-ui-checker dimensions. No independent subagent review was run.
-Inputs: 371-UI-SPEC.md, 371-CONTEXT.md, current startup tools and rendering code,
-and the current external Design Canon v5. No phase RESEARCH.md exists yet;
-the existing HTML/CSS/MCP stack is identified from the source itself.
-
-| Dimension | Verdict | Evidence |
+| Pillar | Score | Specific finding / evidence |
 |---|---|---|
-| 1 Copywriting | PASS | Specific CTAs; separate empty, missing-history, failure and uncertain-outcome copy; solution paths; no destructive action in scope |
-| 2 Visuals | PASS | Explicit focal order, structural room picture and legend, open human gate, semantic planes, no icon-only control; narrow and wide compositions defined |
-| 3 Color | PASS | Explicit 60/30/10 target; ink action budget; role colors restricted to evidence/assumption/contradiction; selection and errors never borrow those roles |
-| 4 Typography | PASS | Exactly four sizes (14/16/24/32), two weights (400/700), body and heading line heights, v5 families and local delivery/fallback |
-| 5 Spacing | PASS | Only 4/8/16/24/32/48/64 for layout; stroke widths distinguished from spacing; no unexplained exceptions |
-| 6 Registry Safety | PASS | Manual native HTML/CSS system declared; no shadcn or third-party component registry; no new script origin |
+| Copywriting | 4/4 | Specific creation/receipt/next-move CTAs; raw refusal/activity codes replaced; missing session/checkpoint/context and no changes are distinct |
+| Visuals | 3/4 | Title, shallow room space, retained layer and black decision threshold are visible in narrow/wide screenshots; comprehension of the no-copy picture has not been tested with a navigator |
+| Color | 4/4 | Paper/white context planes with scarce ink action; no decorative evidence/assumption/contradiction color; selection uses ink weight and labels; forced-color focus tested |
+| Typography | 4/4 | Four sizes and two weights; real Figtree/DM Sans bytes loaded under representative CSP, no external font request; readable missing-font fallback tested |
+| Spacing | 4/4 | Declared layout scale; separate stroke widths; 320/390/600/960px and 200 percent text scaling retain readable controls without horizontal overflow |
+| Experience Design | 4/4 | Loading, empty/partial/error states, approval, identical-payload receipt retry, blocked overlap, stale-room refusal and retained handover intent are exercised |
 
-**Status: APPROVED - 6/6 dimensions pass.** No blocking findings or outstanding
-non-blocking flags in the contract. Its defaults are marked separately from
-user decisions and the external brand rulings.
+## Priority findings
 
-This approves a design contract, not implementation or live host acceptance.
-The current room UI still requires the visual and recovery changes listed under
-Implementation Delta. Planning must retain the real gate/session tests, add
-accessibility and narrow-panel checks, verify font/CSP delivery, and leave the
-live ChatGPT host check explicit until actually performed.
+1. Addressed during audit: the empty home showed redundant disabled selection
+   controls and an existing-room introduction. It now leads into creation while
+   retaining room refresh. Fresh screenshots reflect that change.
+2. Human follow-up: test whether the static room-space picture communicates a
+   retained room and a human threshold without copy. Local author inspection
+   cannot establish a navigator comprehension result.
+3. Host follow-up: observe actual placement, CSP/fonts, keyboard use and both
+   journeys after the real connection serves rooms/v4. Local SDK iframe evidence
+   cannot establish host panel persistence or account installation.
 
-The phase remains unplanned. No new execution surface, room schema, autonomous
-Theo workflow or guarantee of a persistent host side panel is introduced.
+## Evidence and scope
+
+Synthetic screenshots: 371-first-390.png, 371-first-960.png,
+371-returning-390.png, 371-returning-960.png. Both journeys inspected after
+rendering. The picture is explicitly a startup/room metaphor, not invented graph
+content. Geometry remains fixed and no gate closes on scroll or before a receipt.
+
+No third-party component registry, root UI framework or new script origin was
+added. Font OFL notices are packaged. No blocker found in local UI behavior;
+the human-host acceptance item remains open rather than being scored as passed.

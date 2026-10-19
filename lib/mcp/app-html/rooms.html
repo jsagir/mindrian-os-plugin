@@ -66,7 +66,7 @@
 (function () {
   'use strict';
   const byId = id => document.getElementById(id);
-  let selected = null, busy = false, opened = null, roomDir = null, memoryLoaded = false;
+  let selected = null, busy = false, refreshing = false, opened = null, roomDir = null, memoryLoaded = false;
   let creation = null, briefing = null, memorySnapshot = null, nextChosen = false, pendingCreation = null, pendingMove = null, handover = null;
   const friendly = reason => ({
     room_exists: 'A room already uses that folder. Refresh rooms to open it, or prepare a different name.',
@@ -160,7 +160,7 @@
     status('Review the name, purpose and folder. No room has been created yet.'); byId('creation-heading').focus();
   }
   function receive(data, result) {
-    if (busy || pendingCreation || pendingMove) return;
+    if ((busy && !refreshing) || pendingCreation || pendingMove) return;
     if (result?.isError || !data || typeof data !== 'object') { status('The room list could not be read. Check the connection, then refresh rooms.', true); return; }
     if (data.preview && data.gate) {
       clearRoom(); byId('new-room').hidden = false;
@@ -347,7 +347,11 @@
   };
   byId('open').onclick = async () => { if (busy || !selected || pendingCreation || pendingMove) return; lock(true); try { await openRoom(selected); } catch (error) { status(error.message, true, true); } finally { lock(false); } };
   byId('continue').onclick = async () => { if (busy || !opened) return; lock(true); try { await continueInChat(); status('Continuing in the conversation.'); } catch (_) { status('Continue in the conversation to load the selected room context.', true, true); } finally { lock(false); } };
-  async function refresh() { if (busy || pendingCreation || pendingMove) return; clearRoom(); await view.refresh(); }
+  async function refresh() {
+    if (busy || pendingCreation || pendingMove) return;
+    refreshing = true; lock(true); clearRoom();
+    try { await view.refresh(); } finally { refreshing = false; lock(false); }
+  }
   byId('reload').onclick = refresh; byId('switch').onclick = refresh;
   byId('retry-creation').onclick = () => answerCreation(); byId('retry-move').onclick = answerMove;
   byId('retry-memory').onclick = async () => { if (busy || !opened) return; lock(true); try { await loadMemory(); status(memoryLoaded ? 'Saved context loaded.' : 'Saved context is unavailable.', !memoryLoaded, !memoryLoaded); } catch (error) { clearRoom(); status(error.message, true, true); } finally { lock(false); } };

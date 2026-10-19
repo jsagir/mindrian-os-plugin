@@ -5071,25 +5071,26 @@ part of an earlier milestone's scope.
 ## Phase 371 - Navigator startup UI (added 2026-10-19)
 
 Focused scope authorized by the navigator in this chat. All eight IDs map to
-Phase 371 and remain open until its implementation and acceptance evidence is
-recorded. Existing startup mechanics are baseline evidence, not phase closure.
+Phase 371. IDs 01-07 are locally verified on 2026-10-19; ID 08 remains open for
+real-host acceptance. Evidence: 371-VERIFICATION.md and 371-VALIDATION.md. Existing
+startup mechanics are baseline evidence, not a substitute for host acceptance.
 
-- [ ] **STARTUI371-01**: First-time users see a labeled name/purpose form and
+- [x] **STARTUI371-01**: First-time users see a labeled name/purpose form and
   server-selected destination preview; an empty list differs from a read failure.
-- [ ] **STARTUI371-02**: First-room creation uses the existing F.0/gate_answer
+- [x] **STARTUI371-02**: First-room creation uses the existing F.0/gate_answer
   authority; reject/defer creates nothing, collisions are refused and uncertain
   responses can check the same durable receipt without duplicate room creation.
-- [ ] **STARTUI371-03**: Opening a selected room verifies effective binding and
+- [x] **STARTUI371-03**: Opening a selected room verifies effective binding and
   identity across context, startup briefing and dashboard; no silent selection.
-- [ ] **STARTUI371-04**: Returning navigators receive recorded understanding,
+- [x] **STARTUI371-04**: Returning navigators receive recorded understanding,
   saved next action, changes since a stable checkpoint, questions and pending
   decisions; missing/unavailable records are explicit and sourced honestly.
-- [ ] **STARTUI371-05**: The returned F.1 next-move choice follows the briefing,
+- [x] **STARTUI371-05**: The returned F.1 next-move choice follows the briefing,
   submits once and hands intent to chat without automatically executing commands,
   answering older gates or contacting Theo.
-- [ ] **STARTUI371-06**: Both journeys implement the scoped Design Canon v5
+- [x] **STARTUI371-06**: Both journeys implement the scoped Design Canon v5
   composition, room-space picture, human threshold, semantic color, type and copy.
-- [ ] **STARTUI371-07**: Both journeys support narrow/wide host containers,
+- [x] **STARTUI371-07**: Both journeys support narrow/wide host containers,
   keyboard, 200% text zoom, forced colors, reduced motion and explicit recovery.
 - [ ] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
   verifies new visual/accessibility/font delivery behavior, and distinguishes

@@ -15,3 +15,9 @@ Verification: protocol, browser, CSP/fonts, regression, review and host checks a
 distinct. The live host checkpoint cannot be converted into an automatic pass.
 Status: PASSED. No blocker. Per the Codex skill adapter, work executes inline;
 no subagents or cross-AI reviews are claimed.
+
+Mechanical validation follow-up: GSD's plan parser exposed missing must_haves
+frontmatter and XML task elements in the initial narrative plans. Added those
+structures without changing scope or execution order. Plan 03 declares its
+blocking human-host checkpoint and is autonomous:false. Local execution can
+finish independently; human acceptance remains a real checkpoint.

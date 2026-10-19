@@ -32,7 +32,8 @@ async function realFlows() {
   try {
     await connect();
     const list = await call('room_list'); assert.deepEqual(list.data.rooms, []); fixtures.list = list.result;
-    fixtures.html = (await client.readResource({ uri: URI })).contents[0].text;
+    fixtures.resource = (await client.readResource({ uri: URI })).contents[0];
+    fixtures.html = fixtures.resource.text;
     const input = { name, purpose: 'Investigate the pilot evidence', slug: 'first-room' };
     let preview = await call('room_create', input);
     assert.equal(preview.data.preview.folder, target); assert(!fs.existsSync(target));
