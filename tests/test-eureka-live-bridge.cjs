@@ -159,6 +159,9 @@ async function main() {
     assert.equal(scoutResult.analysis.scope.scope_id, scoutResult.scope_id);
     assert.equal(scoutResult.analysis.scope.snapshot_id, scoutResult.snapshot_id);
     assert.equal(scoutResult.persistence, 'none');
+    assert.equal(scoutResult.accepted_knowledge_persistence, 'none');
+    assert.equal(scoutResult.engine_state_persistence, 'durable_local_job_store');
+    assert.equal(scoutResult.derived_cache_persistence, 'local_embedding_cache_may_be_written');
     assert.equal(scoutResult.review_required, true);
   }
   assert.equal(graphDbHash(), graphDbHashBefore, 'RS+HSI scout leaves the MindrianOS room graph unchanged');

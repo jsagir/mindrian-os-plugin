@@ -29,6 +29,8 @@ const sessionRoom = require('../lib/mcp/session-room.cjs');
 const originalResolve = sessionRoom.resolveMcpSessionRoom;
 const savedRoomsHome = process.env.MINDRIAN_ROOMS_HOME;
 const savedActiveRoom = process.env.CLAUDE_ACTIVE_ROOM;
+const savedHome = process.env.HOME;
+const savedUserProfile = process.env.USERPROFILE;
 sessionRoom.resolveMcpSessionRoom = () => resolution;
 const tool = require('../lib/mcp/tools/eureka-graph-projection.cjs');
 
@@ -76,7 +78,12 @@ async function main() {
   process.env.MINDRIAN_ROOMS_HOME = resolverHome;
   delete process.env.CLAUDE_ACTIVE_ROOM;
   sessionRoom.resolveMcpSessionRoom = originalResolve;
-  const realUnbound = (await registered.handler({ node_ids: ['claim:a'] }, { sessionId: 'eureka-real-unbound-session' })).structuredContent;
+  delete require.cache[require.resolve('../lib/mcp/tools/eureka-graph-projection.cjs')];
+  const realTool = require('../lib/mcp/tools/eureka-graph-projection.cjs');
+  const realCaptured = new Map();
+  realTool.register({ registerTool(name, config, handler) { realCaptured.set(name, { config, handler }); } }, {});
+  const realRegistered = realCaptured.get('eureka_graph_project');
+  const realUnbound = (await realRegistered.handler({ node_ids: ['claim:a'] }, { sessionId: 'eureka-real-unbound-session' })).structuredContent;
   assert.equal(realUnbound.ok, false);
   assert.equal(realUnbound.reason, 'no_bound_room');
 
@@ -85,10 +92,51 @@ async function main() {
   fs.writeFileSync(path.join(resolverHome, '.rooms', 'registry.json'), JSON.stringify({
     active: 'projection-room', rooms: { 'projection-room': { abs_path: roomDir, status: 'active' } },
   }));
-  const registryFallback = (await registered.handler({ node_ids: ['claim:a'] }, { sessionId: 'eureka-registry-fallback-session' })).structuredContent;
+  const registryFallback = (await realRegistered.handler({ node_ids: ['claim:a'] }, { sessionId: 'eureka-registry-fallback-session' })).structuredContent;
   assert.equal(registryFallback.ok, false);
   assert.equal(registryFallback.reason, 'no_bound_room');
   fs.rmSync(resolverHome, { recursive: true, force: true });
+
+  // Exercise a real bound-room resolution through the same resolver and
+  // identity reader used by the host. This proves the adapter projects only
+  // from a room explicitly bound to the caller's session.
+  const isolated = require('./helpers/isolated-home-36925.cjs').mkIsolatedHome('eureka-bound-projection');
+  try {
+    const born = require('./helpers/isolated-home-36925.cjs').birthFixtureRoom({
+      iso: isolated, slug: 'eureka-bound-projection', sessionId: 'fixture-birth',
+    });
+    const nav = require('../lib/core/navigation.cjs');
+    const boundSession = 'eureka-projection-bound-session';
+    const writeDb = nav.openRoomDbForCaller(born.roomDir);
+    let boundNodeId;
+    try {
+      const claim = nav.writeClaimNode(writeDb, {
+        knowledge_type: 'fact', text: 'A claim visible only in the bound-room fixture.',
+        sessionId: boundSession, sourceSegment: 'eureka-projection-fixture',
+      });
+      assert.equal(claim.ok, true, JSON.stringify(claim));
+      boundNodeId = claim.node_id;
+    } finally { nav.closeRoomDbForCaller(writeDb); }
+    require('../lib/core/session-binding.cjs').writeSessionBinding(boundSession, {
+      bound: [born.slug], primary: born.slug, sticky: true,
+    }, { home: isolated.roomsHome });
+    process.env.MINDRIAN_ROOMS_HOME = isolated.roomsHome;
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+    const boundDbPath = path.join(born.roomDir, '.mindrian', 'room.db');
+    const boundDbHash = crypto.createHash('sha256').update(fs.readFileSync(boundDbPath)).digest('hex');
+    const realBound = (await realRegistered.handler({ node_ids: [boundNodeId] }, { sessionId: boundSession })).structuredContent;
+    assert.equal(realBound.ok, true, JSON.stringify(realBound));
+    assert.equal(realBound.room_binding.source, 'session.primary');
+    assert.equal(realBound.scope_id, born.room_id);
+    assert.equal(realBound.snapshot.nodes[0].id, boundNodeId);
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(boundDbPath)).digest('hex'), boundDbHash,
+      'real bound-session projection leaves room.db unchanged');
+  } finally {
+    isolated.cleanup();
+    if (savedRoomsHome === undefined) delete process.env.MINDRIAN_ROOMS_HOME; else process.env.MINDRIAN_ROOMS_HOME = savedRoomsHome;
+    if (savedHome === undefined) delete process.env.HOME; else process.env.HOME = savedHome;
+    if (savedUserProfile === undefined) delete process.env.USERPROFILE; else process.env.USERPROFILE = savedUserProfile;
+  }
 
   process.stdout.write('eureka graph projection: PASS (bound read-only snapshot, strict path rejection, unbound refusal)\n');
 }
@@ -98,5 +146,7 @@ main().catch((error) => { process.stderr.write((error.stack || String(error)) + 
     sessionRoom.resolveMcpSessionRoom = originalResolve;
     if (savedRoomsHome === undefined) delete process.env.MINDRIAN_ROOMS_HOME; else process.env.MINDRIAN_ROOMS_HOME = savedRoomsHome;
     if (savedActiveRoom === undefined) delete process.env.CLAUDE_ACTIVE_ROOM; else process.env.CLAUDE_ACTIVE_ROOM = savedActiveRoom;
+    if (savedHome === undefined) delete process.env.HOME; else process.env.HOME = savedHome;
+    if (savedUserProfile === undefined) delete process.env.USERPROFILE; else process.env.USERPROFILE = savedUserProfile;
     fs.rmSync(roomDir, { recursive: true, force: true });
   });

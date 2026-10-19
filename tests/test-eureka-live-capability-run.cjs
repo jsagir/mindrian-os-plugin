@@ -107,6 +107,9 @@ async function main() {
   assert.equal(result.engine_result.scope_id, 'room:generic-bridge-test');
   assert.ok(result.contract.input && result.contract.output);
   assert.equal(result.persistence, 'none');
+  assert.equal(result.accepted_knowledge_persistence, 'none');
+  assert.equal(result.engine_state_persistence, 'none');
+  assert.equal(result.derived_cache_persistence, 'none');
 
   // Exercise the two direct MCP routes as independent capabilities. These do
   // not require the MindrianOS graph projection and are not a Theo workflow.

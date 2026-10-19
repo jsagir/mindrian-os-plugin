@@ -3187,7 +3187,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Runs a bounded local capability on caller-supplied data; no graph write, external retrieval, or acceptance occurs.",
+      "hitl_why": "Runs a bounded local capability on caller-supplied data; no accepted-knowledge write, external retrieval, or acceptance occurs. Async RS jobs may persist local operational state.",
       "layer": "harness",
       "layer_why": "Routes capability calls to the Eureka MCP server while exposing its readiness and schemas and leaving graph authorization and persistence in MindrianOS."
     },
@@ -3320,7 +3320,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Runs read-only RS+HSI analysis over a bounded room projection; returned leads remain unvalidated and unfiled.",
+      "hitl_why": "Runs RS+HSI analysis over a bounded room projection and persists local operational job state; returned leads remain unvalidated and unfiled, with no accepted MindrianOS knowledge write.",
       "layer": "harness",
       "layer_why": "Composes MindrianOS graph authorization and source-linked projection with Eureka opportunity engines while preserving host review and persistence authority."
     },
