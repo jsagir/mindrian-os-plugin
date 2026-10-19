@@ -4,33 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Open a MindrianOS room</title>
-<style>
-:root{color-scheme:light dark;--paper:#F7F3ED;--ink:#1A1A1A;--line:#D4CFC7;--blue:#1B3B6F;--muted:#5C5A56}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,sans-serif}
-main{max-width:820px;padding:24px;margin:auto}h1{font:600 clamp(26px,5vw,36px)/1.15 Georgia,serif;margin:8px 0 16px}h2{font:600 22px/1.3 Georgia,serif}
-.eyebrow{font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-p{line-height:1.5}fieldset{border:0;margin:16px 0;padding:0}legend{margin-bottom:12px;font-size:14px}
-.room-option{display:flex;gap:12px;padding:16px;border:1px solid var(--line);margin:8px 0;min-height:48px;cursor:pointer;overflow-wrap:anywhere}
-.room-option:has(input:checked){border-color:var(--blue)}input{accent-color:var(--blue)}
-button{font:inherit;min-height:44px;padding:10px 16px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
-button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button:disabled{opacity:.55;cursor:default}.actions{display:flex;gap:12px;flex-wrap:wrap}
-#status{white-space:pre-wrap;overflow-wrap:anywhere}#status[data-error=true]{border-left:3px solid #A63D2F;padding-left:12px}
-#home{overflow-wrap:anywhere;font-size:12px;color:var(--muted)}#brief{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
-.section{border:1px solid var(--line);padding:16px;margin:8px 0}.section strong{display:block;margin-bottom:6px}
-#new-room{display:grid;gap:12px;margin:24px 0;border-top:1px solid var(--line);padding-top:16px}
-#new-room input,#new-room textarea,#today-intent{display:block;width:100%;font:inherit;min-height:44px;padding:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
-#creation-purpose,#creation-folder,#left-off{white-space:pre-wrap;overflow-wrap:anywhere}#creation-preview{border-left:3px solid #C8A43C;padding:0 16px}#workday{margin:24px 0}#workday h3{font-size:16px;margin-top:24px}#workday li{line-height:1.6;overflow-wrap:anywhere}#next-moves{margin-top:12px}
-:focus-visible{outline:3px solid #C8A43C;outline-offset:3px}[hidden]{display:none!important}
-@media(prefers-color-scheme:dark){:root{--paper:#1A1A1A;--ink:#F7F3ED;--line:#5C5A56;--blue:#6D9BFF;--muted:#D4CFC7}button.primary{color:#1A1A1A}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
-</style>
+
 </head>
-<body>
+<body data-room-state="choose">
 <main>
-<p class="eyebrow">Your local Data Rooms</p>
-<h1 id="title" tabindex="-1">Choose a room</h1>
+<div class="orientation"><div>
+<h1 id="title" tabindex="-1">Which room are we working in?</h1>
 <p id="intro">Open an existing room to continue from its saved understanding.</p>
-<p id="home"></p>
+<p id="home" class="location"></p>
+</div><figure class="space" aria-hidden="true">
+<svg viewBox="0 0 300 190" focusable="false"><path d="M24 132 156 170 276 108 144 70Z" fill="#FFFFFF" stroke="#111111" stroke-width="2"/>
+<path class="retained" d="M24 112 156 150 276 88 144 50Z" fill="#E9EBF7" stroke="#111111" stroke-width="2"/>
+<path d="M24 92 156 130 276 68 144 30Z" fill="#F7F5EE" stroke="#111111" stroke-width="2"/>
+<path d="M156 130v40M24 92v40M276 68v40" stroke="#111111" stroke-width="2"/>
+<path d="m66 116 55 16 43-22" fill="none" stroke="#111111" stroke-dasharray="4 4"/>
+<path d="m168 124 0-55 48-25 0 55" fill="none" stroke="#111111" stroke-width="8"/></svg>
+<figcaption id="space-state">Choose a room. The open gate awaits your decision.</figcaption></figure></div>
 <fieldset id="rooms"><legend>Available rooms</legend></fieldset>
 <div class="actions" id="picker-actions">
 <button id="open" class="primary" type="button" disabled>Open selected room</button>
@@ -38,35 +27,41 @@ button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button
 <button id="new" type="button">New room</button>
 </div>
 <section id="new-room" hidden>
-<h2>Prepare your room</h2>
+<h2>Prepare your room</h2><p>Give this work a name and a purpose. Review its local folder before creating it.</p>
 <label for="new-name">Room name</label><input id="new-name" type="text" maxlength="100" autocomplete="off">
 <label for="new-purpose">What problem or opportunity will this room work on?</label>
 <textarea id="new-purpose" maxlength="2000" rows="3"></textarea>
 <button id="prepare" type="button">Prepare room</button>
-<section id="creation-preview" hidden>
-<h2>Review the room before creation</h2>
+<section id="creation-preview" class="human-gate" hidden>
+<h2 id="creation-heading" tabindex="-1">Create this room?</h2>
 <strong id="creation-name"></strong><p id="creation-purpose"></p>
-<p>Local folder: <span id="creation-folder"></span></p>
+<p>Local folder: <span id="creation-folder" class="machine"></span></p><p class="help">This folder is on the connected MindrianOS server.</p>
 <div class="actions" id="creation-actions"></div>
 </section>
 </section>
-<p id="status" role="status" aria-live="polite">Loading local rooms...</p>
+<p id="status" class="notice" tabindex="-1" role="status" aria-live="polite">Loading local rooms...</p>
+<div id="recovery" class="actions recovery-actions" hidden>
+<button id="retry-creation" type="button" hidden>Check creation result</button>
+<button id="retry-move" type="button" hidden>Check startup choice</button>
+<button id="retry-memory" type="button" hidden>Retry loading context</button>
+<button id="retry-briefing" type="button" hidden>Retry briefing</button>
+</div>
 <section id="opened" hidden>
-<h2>Saved understanding</h2><div id="brief"></div>
+<h2>Saved understanding</h2><div id="brief" class="understanding"></div>
 <section id="workday" hidden>
 <h2>Your workday briefing</h2>
 <h3>Where we left off</h3><p id="left-off"></p>
 <h3>What changed</h3><p id="changes-since"></p><div id="changes"></div>
 <h3>Still open</h3><div id="unfinished"></div>
 <h3>Pending decisions</h3><div id="pending-decisions"></div>
-<h3>What would you like to work on?</h3>
+<div class="human-gate"><h2>What would you like to work on?</h2>
 <label for="today-intent">Or tell Larry what you need today</label><input id="today-intent" maxlength="800" type="text">
-<div id="next-moves" class="actions"></div>
+<div id="next-moves" class="actions"></div></div>
 </section>
-<h2>Room sections</h2><div id="sections"></div>
+<section class="room-outline"><h2>Room sections</h2><ul id="sections"></ul></section>
 <div class="actions"><button id="continue" class="primary" type="button">Continue in chat</button><button id="switch" type="button">Choose another room</button></div>
 </section>
-</main>
+</main><noscript><p class="notice">The room view needs a connection to MindrianOS. Continue in chat to choose or create a room. No room has been created by this page.</p><style>#picker-actions,#new-room,#rooms{display:none!important}</style></noscript>
 <script>
 (function () {
   'use strict';
@@ -227,7 +222,7 @@ button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button
     else { byId('workday').hidden = false; byId('left-off').textContent = 'Workday briefing unavailable: ' + startupError; byId('changes-since').textContent = ''; for (const id of ['changes', 'unfinished', 'pending-decisions', 'next-moves']) byId(id).replaceChildren(); }
     const sections = byId('sections'); sections.replaceChildren();
     for (const section of Array.isArray(data.sections) ? data.sections : []) {
-      const entry = document.createElement('div'); entry.className = 'section';
+      const entry = document.createElement('li'); entry.className = 'section';
       const title = document.createElement('strong'); title.textContent = section.label || section.id || 'Section';
       const count = document.createElement('span'); count.textContent = String(Number.isFinite(section.entryCount) ? section.entryCount : 0) + ' entries';
       entry.append(title, count); sections.append(entry);
