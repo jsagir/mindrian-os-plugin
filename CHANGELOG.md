@@ -1,4 +1,7 @@
-## [Unreleased] -- v2.0.0-beta.70 (in progress)
+## [Unreleased] -- v2.0.0-beta.72 (in progress)
+
+### Changed
+- The placeholder moved from beta.70 to beta.72 without a cut, so beta.71 was never released: Theo's command-layer seam for beta.70 was spent (applied against the bytes at 79f5a64c8, then the connector registry moved with `room_create` and `room_startup` at ec3d56380) and a same-version re-sync needs a Theo phase; the navigator ruled the bump (2026-10-19). The entries below ship in beta.73.
 
 ### Removed
 - **`/mos:pws-brain` is retired.** It was a test harness that compared two Brain backends, and both were replaced on 2026-07-22, so it measured nothing current. Theo is the Brain. Typing `/mos:pws-brain` now gets the same reply as any command that does not exist (quick 261019-btm).
