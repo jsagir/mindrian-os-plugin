@@ -173,7 +173,7 @@ async function browserFlows() {
     await frame.locator('input[value="first-room"]').check(); await frame.locator('#open').click();
     await frame.locator('#workday').waitFor({ state: 'visible' });
     assert.match(await frame.locator('#left-off').innerText(), /Review the pilot evidence/);
-    assert.match(await frame.locator('#changes').innerText(), /framework_invoked/);
+    assert.match(await frame.locator('#changes').innerText(), /Method used/);
     assert.match(await frame.locator('#unfinished').innerText(), /Which pilot evidence is missing/);
     assert.match(await frame.locator('#pending-decisions').innerText(), /Review the retained pilot proposal/);
     if (process.env.MINDRIAN_RETURNING_STARTUP_SCREENSHOT) {
@@ -196,4 +196,5 @@ async function browserFlows() {
     console.log('PASS returning-browser briefing, recorded changes, pending decisions and single-use next-move choice');
   } finally { await browser.close(); }
 }
-(async () => { await realFlows(); if (process.argv.includes('--browser')) await browserFlows(); })().catch(error => { console.error(error); process.exitCode = 1; });
+module.exports = { realFlows, fixtures };
+if (require.main === module) (async () => { await realFlows(); if (process.argv.includes('--browser')) await browserFlows(); })().catch(error => { console.error(error); process.exitCode = 1; });

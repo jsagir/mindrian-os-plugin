@@ -128,14 +128,14 @@ async function browser(){
     assert.deepEqual(await page.evaluate(()=>window.calls[0].params.arguments),{room:'room-b'});
     assert.equal(await frame.locator('#title').innerText(),'Selected Room B');
     await page.waitForFunction(()=>window.messages.some(message=>message.method==='ui/message'));
-    const context=await page.evaluate(()=>window.messages.find(message=>message.method==='ui/update-model-context'));
+    const context=await page.evaluate(()=>window.messages.find(message=>message.method==='ui/update-model-context'&&message.params.content[0].text.includes('MindrianOS room opening')));
     assert(context.params.content[0].text.includes('MindrianOS room opening'));
     assert((await frame.locator('#status').innerText()).includes('Saved context loaded'));
     console.log('PASS browser explicit selection -> effective bind -> saved context -> correct room -> host continuation');
 
     frame=await open(fixtures.list,'bind-fails');
     await frame.locator('input[value="room-b"]').check();await frame.locator('#open').click();
-    await frame.locator('#status').filter({hasText:'binding_not_effective'}).waitFor();
+    await frame.locator('#status').filter({hasText:'could not be bound'}).waitFor();
     assert.deepEqual(await page.evaluate(()=>window.calls.map(call=>call.params.name)),['room_bind']);
     assert.equal(await page.evaluate(()=>window.messages.filter(message=>message.method==='ui/message').length),0);
     assert(await frame.locator('#opened').isHidden());
@@ -144,7 +144,7 @@ async function browser(){
     frame=await open(fixtures.list,'memory-fails');
     await frame.locator('input[value="room-b"]').check();await frame.locator('#open').click();
     await frame.locator('#opened').waitFor({state:'visible'});
-    assert.match(await frame.locator('#brief').innerText(),/no_room_db/);
+    assert.match(await frame.locator('#brief').innerText(),/Saved context could not be loaded/);
     assert.match(await frame.locator('#status').innerText(),/unavailable/);
     const empty={structuredContent:{home:'/synthetic/rooms',rooms:[]}};
     frame=await open(empty);

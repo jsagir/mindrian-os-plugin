@@ -66,214 +66,292 @@
 (function () {
   'use strict';
   const byId = id => document.getElementById(id);
-  let selected = null, busy = false, opened = null, memoryLoaded = false;
-  let creation = null, briefing = null, nextChosen = false;
-  function status(text, error = false) { byId('status').textContent = text; byId('status').dataset.error = String(error); }
+  let selected = null, busy = false, opened = null, roomDir = null, memoryLoaded = false;
+  let creation = null, briefing = null, memorySnapshot = null, nextChosen = false, pendingCreation = null, pendingMove = null, handover = null;
+  const friendly = reason => ({
+    room_exists: 'A room already uses that folder. Refresh rooms to open it, or prepare a different name.',
+    room_switched: 'The selected room changed. Reopen your room before continuing.',
+    gate_expired: 'This decision is no longer active. Refresh the room before choosing again.',
+    unknown_gate: 'This decision is no longer active. Refresh the room before choosing again.',
+    rooms_home_changed: 'The local room location changed. Refresh rooms and prepare the preview again.',
+    room_path_outside_home: 'That folder cannot be used for a room. Prepare a different name.',
+    room_startup_failed: 'The workday briefing could not be loaded. Retry the briefing or continue in chat.',
+    no_room_db: 'Saved context could not be loaded. Retry loading context, or continue with that limitation.',
+  }[reason] || 'The room operation was refused. Refresh the room and try again.');
+  function status(text, error = false, focus = false) {
+    byId('status').textContent = text; byId('status').dataset.error = String(error);
+    if (focus) byId('status').focus();
+  }
   function unpack(result) {
     if (result?.structuredContent) return result.structuredContent;
     const text = result?.content?.find(item => item.type === 'text')?.text;
-    if (!text) throw Error('The room operation returned no data.');
+    if (!text) throw Error('Unreadable room response');
     return JSON.parse(text);
   }
-  async function call(name, args) {
-    const result = await view.callTool(name, args);
-    const data = unpack(result);
-    if (result.isError || data.ok === false) throw Error(data.message || data.reason || 'The room operation was refused.');
+  async function call(name, args = {}) {
+    const result = await view.callTool(name, args), data = unpack(result);
+    if (result.isError || data.ok === false) {
+      const error = Error(friendly(data.reason)); error.definitive = true; throw error;
+    }
     return data;
   }
+  function recovery(id, visible) { byId(id).hidden = !visible; byId('recovery').hidden = ![...byId('recovery').children].some(node => !node.hidden); }
   function lock(value) {
     busy = value;
     for (const element of document.querySelectorAll('button,input,textarea')) element.disabled = value;
     if (!value) {
-      byId('open').disabled = !selected;
-      if (nextChosen) for (const button of byId('next-moves').querySelectorAll('button')) button.disabled = true;
+      byId('open').disabled = !selected || !!pendingCreation || !!pendingMove;
+      for (const id of ['prepare', 'new', 'reload', 'switch', 'new-name', 'new-purpose']) byId(id).disabled = !!pendingCreation || !!pendingMove;
+      for (const button of byId('creation-actions').querySelectorAll('button')) button.disabled = !!pendingCreation;
+      for (const button of byId('next-moves').querySelectorAll('button')) button.disabled = nextChosen || !!pendingMove;
+      byId('today-intent').disabled = nextChosen || !!pendingMove;
+      byId('continue').disabled = !!pendingMove || !!pendingCreation;
     }
   }
   function list(target, items, empty) {
-    const element = byId(target); element.replaceChildren();
+    const element = byId(target); element.replaceChildren(); element.classList.toggle('unknown', !items.length);
     if (!items.length) { element.textContent = empty; return; }
     const ul = document.createElement('ul');
-    for (const text of items) { const li = document.createElement('li'); li.textContent = text; ul.append(li); }
+    for (const item of items) { const li = document.createElement('li'); li.append(item instanceof Node ? item : document.createTextNode(item)); ul.append(li); }
     element.append(ul);
   }
-  function date(value) { const time = Date.parse(value || ''); return Number.isFinite(time) ? new Date(time).toLocaleString() : 'Unknown time'; }
+  function stamp(value) {
+    const node = document.createElement('time'), at = Date.parse(value || '');
+    if (Number.isFinite(at)) {
+      node.dateTime = new Date(at).toISOString();
+      node.textContent = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(at);
+      node.title = node.dateTime;
+    } else node.textContent = 'Unknown time';
+    return node;
+  }
+  function space(state, label) { document.body.dataset.roomState = state; byId('space-state').textContent = label; }
+  function publishContext(extra = {}) {
+    view.updateModelContext({ content: [{ type: 'text', text: JSON.stringify({ source: 'MindrianOS room opening', room: opened,
+      memory: memorySnapshot || { ok: false, reason: 'saved_context_unavailable' }, briefing, ...extra }) }] });
+  }
+  function clearRoom() {
+    opened = null; roomDir = null; memoryLoaded = false; memorySnapshot = null; briefing = null; nextChosen = false; handover = null;
+    byId('opened').hidden = true; byId('brief').replaceChildren();
+    for (const id of ['left-off', 'changes-since', 'changes', 'unfinished', 'pending-decisions', 'next-moves', 'sections']) byId(id).replaceChildren();
+    byId('today-intent').value = '';
+    recovery('retry-memory', false); recovery('retry-briefing', false);
+    view.updateModelContext({ content: [{ type: 'text', text: 'MindrianOS room selection is changing. No room context from this view is current until binding and identity checks succeed.' }] });
+  }
+  function showNewRoom() {
+    if (pendingCreation || pendingMove) return;
+    creation = null; byId('new-room').hidden = false; byId('creation-preview').hidden = true;
+    if (!byId('rooms').querySelector('input')) byId('title').textContent = 'Start your first room';
+    space('proposed', 'Proposed room - not created. The open gate awaits your decision.');
+    byId('new-name').focus();
+  }
   function renderCreation(data) {
-    creation = data;
-      const gate = creation.gate;
-      if (!creation.preview?.slug || !gate?.gate_id || !Array.isArray(gate.card?.options) || gate.card.gate_id !== gate.gate_id) throw Error('The room preview is incomplete. Prepare it again.');
-      byId('creation-preview').hidden = false;
-      byId('creation-name').textContent = creation.preview.name;
-      byId('creation-purpose').textContent = creation.preview.purpose;
-      byId('creation-folder').textContent = creation.preview.folder;
-      const actions = byId('creation-actions'); actions.replaceChildren();
-      for (const option of gate.card.options) {
-        if (!['approve', 'reject', 'defer'].includes(option.id)) continue;
-        const button = document.createElement('button'); button.type = 'button'; button.id = 'birth-' + option.id;
-        button.textContent = option.label; if (option.id === 'approve') button.className = 'primary';
-        button.onclick = () => answerCreation(option.id); actions.append(button);
-      }
-      status('Review the name, purpose and folder. No room has been created yet.');
+    const gate = data.gate;
+    if (!data.preview?.slug || !gate?.gate_id || !Array.isArray(gate.card?.options) || gate.card.gate_id !== gate.gate_id) throw Error('Incomplete room preview');
+    creation = data; byId('creation-preview').hidden = false;
+    for (const key of ['name', 'purpose', 'folder']) byId('creation-' + key).textContent = data.preview[key];
+    const actions = byId('creation-actions'); actions.replaceChildren();
+    for (const option of gate.card.options) {
+      if (!['approve', 'reject', 'defer'].includes(option.id)) continue;
+      const button = document.createElement('button'); button.type = 'button'; button.id = 'birth-' + option.id;
+      button.textContent = option.label; if (option.id === 'approve') button.className = 'primary';
+      button.onclick = () => answerCreation(option.id); actions.append(button);
+    }
+    space('proposed', 'Proposed room - not created. The open gate awaits your decision.');
+    status('Review the name, purpose and folder. No room has been created yet.'); byId('creation-heading').focus();
   }
   function receive(data, result) {
-    if (busy) return;
-    if (data?.preview && data?.gate) {
-      byId('opened').hidden = true; byId('new-room').hidden = false;
-      byId('new-name').value = data.preview.name || '';
-      byId('new-purpose').value = data.preview.purpose || '';
-      try { renderCreation(data); } catch (error) { creation = null; status(error.message, true); }
+    if (busy || pendingCreation || pendingMove) return;
+    if (result?.isError || !data || typeof data !== 'object') { status('The room list could not be read. Check the connection, then refresh rooms.', true); return; }
+    if (data.preview && data.gate) {
+      clearRoom(); byId('new-room').hidden = false;
+      byId('new-name').value = data.preview.name || ''; byId('new-purpose').value = data.preview.purpose || '';
+      try { renderCreation(data); } catch (_) { status('The room preview could not be read. Refresh rooms before preparing it again.', true); }
       return;
     }
-    // room_startup can also render this resource when invoked directly by the host.
-    if (data?.briefing && data?.room) {
-      opened = data.room; briefing = data.briefing; nextChosen = false;
-      byId('rooms').hidden = true; byId('picker-actions').hidden = true; byId('intro').hidden = true;
-      byId('new-room').hidden = true; byId('opened').hidden = false;
-      byId('title').textContent = data.room; byId('brief').textContent = 'Saved room briefing';
-      renderBriefing(briefing); status('Room briefing ready.'); return;
+    if (data.briefing && data.room && data.room_dir) {
+      clearRoom(); opened = data.room; roomDir = data.room_dir; briefing = data.briefing;
+      for (const id of ['rooms', 'picker-actions', 'intro', 'new-room']) byId(id).hidden = true;
+      byId('opened').hidden = false; byId('title').textContent = data.room;
+      byId('home').textContent = 'Connected server folder: ' + data.room_dir;
+      byId('brief').textContent = 'Saved context has not been loaded in this view. Load it, or continue with that limitation.';
+      recovery('retry-memory', true); renderBriefing(briefing); publishContext();
+      space('saved', 'Saved room. Solid planes retain recorded work; the open gate awaits today’s choice.');
+      status('Room briefing ready. Saved context has not been loaded in this view.'); byId('title').focus(); return;
     }
-    if (result?.isError || !data || !Array.isArray(data.rooms)) {
-      selected = null; byId('rooms').replaceChildren(); byId('open').disabled = true;
-      status('The local room list could not be read. Reconnect MindrianOS or refresh.', true); return;
-    }
-    selected = null; opened = null; memoryLoaded = false; creation = null; briefing = null; nextChosen = false;
-    byId('opened').hidden = true; byId('rooms').hidden = false; byId('picker-actions').hidden = false;
-    byId('intro').hidden = false; byId('new-room').hidden = true;
-    byId('title').textContent = 'Choose a room';
-    byId('home').textContent = typeof data.home === 'string' ? 'Local folder: ' + data.home : '';
+    if (!Array.isArray(data.rooms)) { status('The room list could not be read. Check the connection, then refresh rooms.', true); return; }
+    clearRoom(); selected = null; creation = null;
+    byId('rooms').hidden = false; byId('open').hidden = false; byId('new').hidden = false; byId('picker-actions').hidden = false; byId('intro').hidden = false; byId('new-room').hidden = true;
+    byId('intro').textContent = 'Open an existing room to continue from its saved understanding.';
+    byId('title').textContent = 'Which room are we working in?';
+    byId('home').textContent = typeof data.home === 'string' ? 'Connected server folder: ' + data.home : '';
     const fieldset = byId('rooms'); fieldset.replaceChildren();
     const legend = document.createElement('legend'); legend.textContent = 'Available rooms'; fieldset.append(legend);
     const names = [...new Set(data.rooms.filter(room => typeof room === 'string' && room.length))];
     for (const name of names) {
       const label = document.createElement('label'); label.className = 'room-option';
       const input = document.createElement('input'); input.type = 'radio'; input.name = 'room'; input.value = name;
-      input.addEventListener('change', () => { selected = name; byId('open').disabled = false; });
-      const text = document.createElement('span'); text.textContent = name; label.append(input, text); fieldset.append(label);
+      input.onchange = () => { selected = name; byId('open').disabled = false; };
+      const text = document.createElement('span'); text.textContent = name;
+      const mark = document.createElement('span'); mark.className = 'selected-label'; mark.textContent = 'Selected';
+      label.append(input, text, mark); fieldset.append(label);
     }
-    byId('open').disabled = true;
+    byId('open').disabled = true; space('choose', 'Choose a room. The open gate awaits your decision.');
     status(names.length ? 'Choose a room to continue, or prepare a new one.' : 'No rooms were found. Prepare your first local room to begin.');
-    if (!names.length) showNewRoom();
+    if (!names.length) { byId('rooms').hidden = true; byId('open').hidden = true; byId('new').hidden = true; byId('intro').textContent = 'Create a room to keep this work and return to it.'; showNewRoom(); }
   }
   const view = MindrianView.connect('room_list', receive, { raw: true });
-  async function continueInChat(intent) {
+  async function continueInChat() {
     if (!opened) return;
-    await view.sendMessage('Continue with MindrianOS in room ' + JSON.stringify(opened) + '. Verify the bound room. Use context_assemble and room_startup for the saved memory and workday briefing. ' +
-      (memoryLoaded ? 'Summarize only recorded understanding and work; do not invent history. ' : 'Saved context was unavailable; report that honestly. ') +
-      (intent ? 'The navigator chose: ' + JSON.stringify(intent) + '. That startup gate has already been answered; do not answer or execute it twice.' : 'Show the briefing before asking for the next move.'));
+    const intent = handover?.room === opened ? handover.intent : null;
+    await view.sendMessage('Continue with MindrianOS in room ' + JSON.stringify(opened) + '. Verify the bound room. Use context_assemble and room_startup for saved room context and the workday briefing. ' +
+      (memoryLoaded ? 'Summarize recorded understanding only. ' : 'Saved context was unavailable in this view; report that honestly. ') +
+      (intent ? 'The navigator chose: ' + JSON.stringify(intent) + '. The startup gate has already been answered; do not answer or execute it twice.' : 'Show the briefing before asking for the next move.'));
+    if (intent) { handover = null; byId('today-intent').value = ''; }
+  }
+  async function answerMove() {
+    if (busy || !pendingMove || pendingMove.room !== opened) return;
+    const pending = pendingMove; lock(true);
+    try {
+      const receipt = await call('gate_answer', pending.payload);
+      pendingMove = null; nextChosen = true; recovery('retry-move', false);
+      handover = { room: opened, intent: pending.intent };
+      publishContext({ receipt, intent: pending.intent });
+      if (pending.payload.chosen[0] === 'review_changes') byId('changes').scrollIntoView({ block: 'nearest' });
+      try { await continueInChat(); status('Your startup choice is recorded. Continuing in chat.'); }
+      catch (_) { status('Your startup choice is recorded. Continue in the conversation.', true, true); }
+    } catch (error) {
+      if (error.definitive) { pendingMove = null; recovery('retry-move', false); status(error.message, true, true); }
+      else { recovery('retry-move', true); status('Your startup choice has not been confirmed. Check the same decision before choosing again.', true, true); }
+    } finally { lock(false); }
   }
   function renderBriefing(data) {
-    byId('workday').hidden = false;
-    const last = data.last_session;
-    byId('left-off').textContent = last ?
-      'Last recorded session: ' + date(last.ended_at) +
-      (last.active_methodology && last.active_methodology !== 'none' ? '\nMethod: ' + last.active_methodology : '') +
-      (last.next_action ? '\nSaved next action: ' + last.next_action : '') : 'No previous session summary was recorded.';
-    byId('changes-since').textContent = data.previous_at ? 'Since ' + date(data.previous_at) + ' (' + (data.baseline_basis === 'last_session_end' ? 'last recorded session' : 'previous room startup') + ')' : 'There is no previous checkpoint to compare with.';
+    byId('workday').hidden = false; const last = data.last_session;
+    const left = byId('left-off'); left.replaceChildren();
+    if (last) {
+      left.append('Last recorded session: ', stamp(last.ended_at));
+      if (last.active_methodology && last.active_methodology !== 'none') left.append(document.createElement('br'), 'Method: ' + last.active_methodology);
+      if (last.next_action) left.append(document.createElement('br'), 'Saved next action: ' + last.next_action);
+    } else left.textContent = 'No previous session summary was recorded. Choose what to work on today.';
+    const since = byId('changes-since'); since.replaceChildren();
+    if (data.previous_at) since.append('Since ', stamp(data.previous_at), data.baseline_basis === 'last_session_end' ? ' (last recorded session)' : ' (previous room startup)');
+    else since.textContent = 'There is no previous checkpoint to compare with.';
     const changes = data.changes || {};
-    list('changes', (changes.items || []).map(item => item.label + ' / ' + date(item.at)),
-      changes.status === 'no_previous_checkpoint' ? 'No previous checkpoint is recorded.' : 'No recorded changes.');
-    if (changes.truncated) byId('changes').append(document.createTextNode(' Showing a bounded selection of recorded activity.'));
-    list('unfinished', [...(last?.next_action ? ['Saved next action: ' + last.next_action] : []), ...(data.open_questions || [])], 'No unfinished work was found in these saved records.');
+    list('changes', (changes.items || []).map(item => {
+      const span = document.createElement('span');
+      const label = item.label && item.label !== item.kind ? item.label : ({ framework_invoked: 'Method used', mcp_client_event_logged: 'Room decision recorded' }[item.kind] || 'Recorded room activity');
+      span.append(label + ' / ', stamp(item.at)); return span;
+    }), changes.status === 'no_previous_checkpoint' ? 'No previous checkpoint is recorded. Changes cannot be compared yet.' : 'No changes were recorded since the displayed baseline.');
+    if (changes.truncated) byId('changes').append(document.createTextNode('Showing a bounded selection of recorded activity.'));
+    list('unfinished', [...(last?.next_action ? ['Saved next action: ' + last.next_action] : []), ...(data.open_questions || [])], 'No open questions were found in these saved records.');
     list('pending-decisions', (data.pending_decisions || []).map(gate => gate.header), 'No open decision gates were recorded.');
-    const moves = byId('next-moves'); moves.replaceChildren();
-    const gate = data.next_move;
-    if (gate?.status === 'answered') { moves.textContent = 'The startup choice was already recorded. Continue in chat.'; nextChosen = true; return; }
+    const moves = byId('next-moves'); moves.replaceChildren(); const gate = data.next_move;
+    nextChosen = gate?.status === 'answered';
+    if (nextChosen) { moves.textContent = 'The startup choice was already recorded. Continue in chat.'; return; }
     if (!gate?.gate_id || !Array.isArray(gate.card?.options)) { moves.textContent = 'Continue in chat to choose the next move.'; return; }
     for (const option of gate.card.options) {
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = option.label;
-      button.dataset.choice = option.id;
-      button.onclick = async () => {
-        if (busy || nextChosen) return;
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = option.label; button.dataset.choice = option.id;
+      button.onclick = () => {
+        if (busy || nextChosen || pendingMove) return;
         const text = byId('today-intent').value.trim();
-        if (option.id === 'free_text' && !text) { byId('today-intent').focus(); status('Tell Larry what you need today first.', true); return; }
-        lock(true);
-        try {
-          const receipt = await call('gate_answer', { gate_id: gate.gate_id, chosen: [option.id], verdict: 'approve' });
-          nextChosen = true;
-          view.updateModelContext({ content: [{ type: 'text', text: JSON.stringify({ source: 'MindrianOS startup decision', receipt }) }] });
-          if (option.id === 'review_changes') byId('changes').scrollIntoView({ block: 'nearest' });
-          try { await continueInChat(option.id === 'free_text' ? text : option.label); status('Your startup choice is recorded. Continuing in chat.'); }
-          catch (_) { status('Your startup choice is recorded. Continue in the conversation.'); }
-        } catch (error) { status(error.message, true); }
-        finally { lock(false); }
-      };
-      moves.append(button);
+        if (option.id === 'free_text' && !text) { byId('today-intent').setAttribute('aria-invalid', 'true'); status('Tell Larry what you need today first.', true); byId('today-intent').focus(); return; }
+        byId('today-intent').removeAttribute('aria-invalid');
+        pendingMove = { room: opened, payload: { gate_id: gate.gate_id, chosen: [option.id], verdict: 'approve' }, intent: option.id === 'free_text' ? text : option.label };
+        answerMove();
+      }; moves.append(button);
     }
+  }
+  async function loadMemory() {
+    const choice = opened, dir = roomDir;
+    try {
+      const memory = await call('context_assemble', { fragment_window: 6, fragment_char_cap: 400, top_k: 10, max_depth: 2 });
+      if (memory.room_dir !== dir || opened !== choice) throw Object.assign(Error('The returned context belongs to another room. Reopen your selected room before continuing.'), { mismatch: true });
+      memoryLoaded = true; byId('brief').classList.remove('unknown');
+      byId('brief').textContent = typeof memory.feyminto_brief === 'string' && memory.feyminto_brief.trim() ? memory.feyminto_brief : 'Saved room context is ready for this conversation.';
+      recovery('retry-memory', false);
+      memorySnapshot = memory; publishContext();
+    } catch (error) {
+      memoryLoaded = false; memorySnapshot = null; publishContext(); byId('brief').classList.add('unknown');
+      if (error.mismatch) throw error;
+      byId('brief').textContent = 'Saved context could not be loaded. Retry loading context, or continue with that limitation.'; recovery('retry-memory', true);
+    }
+  }
+  async function loadBriefing() {
+    const data = await call('room_startup');
+    if (data.room !== opened || data.room_dir !== roomDir) throw Object.assign(Error('The returned context belongs to another room. Reopen your selected room before continuing.'), { mismatch: true });
+    briefing = data.briefing; renderBriefing(briefing); recovery('retry-briefing', false);
+    publishContext();
   }
   async function openRoom(choice) {
-    opened = null; status('Opening ' + choice + '...');
-    const binding = await call('room_bind', { room: choice });
-    if (binding.bound !== true || binding.effective !== true || binding.carries_to_later_calls !== true || binding.primary !== choice) throw Error(binding.reason || 'The selected room did not bind to this connection.');
-    status('Loading saved room context...');
-    let memory = null, memoryError = null, startup = null, startupError = null;
-    try { memory = await call('context_assemble', { fragment_window: 6, fragment_char_cap: 400, top_k: 10, max_depth: 2 }); }
-    catch (error) { memoryError = error.message; }
-    try { startup = await call('room_startup', {}); }
-    catch (error) { startupError = error.message; }
-    const data = await call('room-dashboard', {});
-    if (data.room_binding?.bound !== true || data.room_binding.slug !== choice) throw Error('The room view does not match your selected room. Reopen it before continuing.');
-    if (memory && memory.room_dir !== binding.resolved_dir) throw Error('The saved context does not match your selected room.');
-    if (startup && (startup.room !== choice || startup.room_dir !== binding.resolved_dir)) throw Error('The workday briefing does not match your selected room.');
-    opened = choice; memoryLoaded = !!memory; briefing = startup?.briefing || null; nextChosen = false;
-    byId('rooms').hidden = true; byId('picker-actions').hidden = true; byId('intro').hidden = true; byId('new-room').hidden = true;
-    byId('title').textContent = data.name || choice; byId('opened').hidden = false;
-    byId('brief').textContent = memoryError ? 'Saved context could not be loaded: ' + memoryError :
-      (typeof memory.feyminto_brief === 'string' && memory.feyminto_brief.trim() ? memory.feyminto_brief : 'Saved room context is ready for this conversation.');
-    if (briefing) renderBriefing(briefing);
-    else { byId('workday').hidden = false; byId('left-off').textContent = 'Workday briefing unavailable: ' + startupError; byId('changes-since').textContent = ''; for (const id of ['changes', 'unfinished', 'pending-decisions', 'next-moves']) byId(id).replaceChildren(); }
-    const sections = byId('sections'); sections.replaceChildren();
-    for (const section of Array.isArray(data.sections) ? data.sections : []) {
-      const entry = document.createElement('li'); entry.className = 'section';
-      const title = document.createElement('strong'); title.textContent = section.label || section.id || 'Section';
-      const count = document.createElement('span'); count.textContent = String(Number.isFinite(section.entryCount) ? section.entryCount : 0) + ' entries';
-      entry.append(title, count); sections.append(entry);
+    clearRoom(); space('choose', 'Opening the selected room. No saved context is current yet.'); status('Opening ' + choice + '...');
+    try {
+      const binding = await call('room_bind', { room: choice });
+      if (binding.bound !== true || binding.effective !== true || binding.carries_to_later_calls !== true || binding.primary !== choice) throw Error('This room could not be bound to the connection. Choose it again before continuing.');
+      opened = choice; roomDir = binding.resolved_dir; status('Loading saved room context...');
+      await loadMemory();
+      try { await loadBriefing(); }
+      catch (error) {
+        if (error.mismatch) throw error;
+        byId('workday').hidden = false; byId('left-off').textContent = 'The workday briefing could not be loaded. Retry the briefing or continue in chat.'; recovery('retry-briefing', true);
+      }
+      const data = await call('room-dashboard');
+      if (data.room_binding?.bound !== true || data.room_binding.slug !== choice) throw Error('The returned context belongs to another room. Reopen your selected room before continuing.');
+      for (const id of ['rooms', 'picker-actions', 'intro', 'new-room']) byId(id).hidden = true;
+      byId('title').textContent = data.name || choice; byId('home').textContent = 'Connected server folder: ' + roomDir;
+      byId('opened').hidden = false; space('saved', 'Saved room. Solid planes retain recorded work; the open gate awaits today’s choice.');
+      const sections = byId('sections'); sections.replaceChildren();
+      for (const section of data.sections || []) {
+        const entry = document.createElement('li'), title = document.createElement('strong'), count = document.createElement('span');
+        title.textContent = section.label || section.id || 'Section'; count.textContent = Number.isFinite(section.entryCount) ? section.entryCount + ' entries' : 'Count unavailable';
+        entry.append(title, count); sections.append(entry);
+      }
+      if (!sections.children.length) { const entry = document.createElement('li'); entry.textContent = 'No sections are available yet.'; sections.append(entry); }
+      status(memoryLoaded ? 'Room open. Saved context loaded.' : 'Room open. Saved context is unavailable.', !memoryLoaded); byId('title').focus();
+      try { await continueInChat(); } catch (_) { status('Room open. Continue in chat to load its context into the conversation.', true); }
+    } catch (error) {
+      clearRoom(); byId('rooms').hidden = false; byId('picker-actions').hidden = false;
+      space('choose', 'The selected room did not open. Choose it again before continuing.'); throw error;
     }
-    if (!sections.children.length) sections.textContent = 'No sections are available yet.';
-    view.updateModelContext({ content: [{ type: 'text', text: JSON.stringify({ source: 'MindrianOS room opening', room: choice, binding, memory: memory || { ok: false, reason: memoryError }, briefing }) }] });
-    status(memoryLoaded ? 'Room open. Saved context loaded.' : 'Room open. Saved context is unavailable.', !memoryLoaded);
-    try { await continueInChat(); }
-    catch (_) { status('Room open. Continue in chat to load its context into the conversation.', !memoryLoaded); }
   }
-  function showNewRoom() {
-    creation = null; byId('new-room').hidden = false; byId('creation-preview').hidden = true;
-    byId('new-name').focus();
+  async function answerCreation(verdict) {
+    if (busy || (!creation && !pendingCreation)) return;
+    if (!pendingCreation) pendingCreation = { prepared: creation, payload: { gate_id: creation.gate.gate_id, chosen: [verdict], verdict } };
+    const pending = pendingCreation; lock(true);
+    try {
+      status(pending.payload.verdict === 'approve' ? 'Checking room creation...' : 'Recording your choice...');
+      const result = await call('gate_answer', pending.payload);
+      pendingCreation = null; creation = null; recovery('retry-creation', false); byId('creation-preview').hidden = true;
+      if (result.verdict === 'approve' && result.ratified === true) {
+        if (result.room_creation && result.room_creation.created !== true) throw Error('Room creation was not confirmed. Refresh rooms before continuing.');
+        selected = pending.prepared.preview.slug; await openRoom(selected);
+      } else { space('proposed', 'Room not created. The human decision remains distinct from the proposal.'); status('Room not created. You can revise the details or choose an existing room.'); }
+    } catch (error) {
+      if (error.definitive) { pendingCreation = null; creation = null; byId('creation-preview').hidden = true; recovery('retry-creation', false); status(error.message, true, true); }
+      else if (pendingCreation) { recovery('retry-creation', true); status('Creation has not been confirmed. Check this decision’s receipt before preparing another room.', true, true); }
+      else status('The creation decision is recorded, but the room could not be opened. Refresh rooms and open it again.', true, true);
+    } finally { lock(false); }
   }
   byId('new').onclick = () => { if (!busy) showNewRoom(); };
-  for (const id of ['new-name', 'new-purpose']) byId(id).addEventListener('input', () => { creation = null; byId('creation-preview').hidden = true; });
-  byId('prepare').onclick = async () => {
-    if (busy) return;
-    const name = byId('new-name').value.trim(), purpose = byId('new-purpose').value.trim();
-    if (!name || !purpose) { status('Give the room a name and describe its purpose first.', true); return; }
-    lock(true);
-    try {
-      creation = await call('room_create', { name, purpose });
-      renderCreation(creation);
-    } catch (error) { creation = null; status(error.message, true); }
-    finally { lock(false); }
-  };
-  async function answerCreation(verdict) {
-    if (busy || !creation) return;
-    const prepared = creation; lock(true);
-    try {
-      status(verdict === 'approve' ? 'Creating your local room...' : 'Recording your choice...');
-      const result = await call('gate_answer', { gate_id: prepared.gate.gate_id, chosen: [verdict], verdict });
-      creation = null; byId('creation-preview').hidden = true;
-      if (result.verdict === 'approve' && result.ratified === true) {
-        if (result.room_creation && result.room_creation.created !== true) throw Error('The room was not created. Refresh rooms before retrying.');
-        selected = prepared.preview.slug; await openRoom(selected);
-      } else status('Room not created. You can revise the details or choose an existing room.');
-    } catch (error) { status(error.message + ' Check the room list before preparing another creation.', true); }
-    finally { lock(false); }
+  for (const id of ['new-name', 'new-purpose']) {
+    byId(id).setAttribute('aria-describedby', 'status');
+    byId(id).oninput = () => { if (pendingCreation) return; creation = null; byId('creation-preview').hidden = true; byId(id).removeAttribute('aria-invalid'); };
   }
-  byId('open').onclick = async () => {
-    if (busy || !selected) return; lock(true);
-    try { await openRoom(selected); } catch (error) { status(error.message || 'The room could not be opened.', true); } finally { lock(false); }
+  byId('today-intent').setAttribute('aria-describedby', 'status');
+  byId('prepare').onclick = async () => {
+    if (busy || pendingCreation || pendingMove) return;
+    const name = byId('new-name').value.trim(), purpose = byId('new-purpose').value.trim();
+    if (!name || !purpose) { const field = byId(!name ? 'new-name' : 'new-purpose'); field.setAttribute('aria-invalid', 'true'); status('Give the room a name and describe its purpose first.', true); field.focus(); return; }
+    lock(true);
+    try { renderCreation(await call('room_create', { name, purpose })); }
+    catch (error) { creation = null; status(error.definitive ? error.message : 'The room preview could not be loaded. Reconnect MindrianOS and prepare the room again.', true, true); }
+    finally { lock(false); }
   };
-  byId('continue').onclick = async () => {
-    if (busy || !opened) return; lock(true);
-    try { await continueInChat(); status('Continuing in the conversation.'); } catch (_) { status('Continue in the conversation to load the selected room context.', true); } finally { lock(false); }
-  };
-  byId('reload').onclick = () => { if (!busy) view.refresh(); };
-  byId('switch').onclick = () => { if (!busy) view.refresh(); };
+  byId('open').onclick = async () => { if (busy || !selected || pendingCreation || pendingMove) return; lock(true); try { await openRoom(selected); } catch (error) { status(error.message, true, true); } finally { lock(false); } };
+  byId('continue').onclick = async () => { if (busy || !opened) return; lock(true); try { await continueInChat(); status('Continuing in the conversation.'); } catch (_) { status('Continue in the conversation to load the selected room context.', true, true); } finally { lock(false); } };
+  async function refresh() { if (busy || pendingCreation || pendingMove) return; clearRoom(); await view.refresh(); }
+  byId('reload').onclick = refresh; byId('switch').onclick = refresh;
+  byId('retry-creation').onclick = () => answerCreation(); byId('retry-move').onclick = answerMove;
+  byId('retry-memory').onclick = async () => { if (busy || !opened) return; lock(true); try { await loadMemory(); status(memoryLoaded ? 'Saved context loaded.' : 'Saved context is unavailable.', !memoryLoaded, !memoryLoaded); } catch (error) { clearRoom(); status(error.message, true, true); } finally { lock(false); } };
+  byId('retry-briefing').onclick = async () => { if (busy || !opened) return; lock(true); try { await loadBriefing(); status('Workday briefing loaded.'); } catch (error) { if (error.mismatch) clearRoom(); status(error.definitive || error.mismatch ? error.message : 'The workday briefing could not be loaded. Retry the briefing or continue in chat.', true, true); } finally { lock(false); } };
 })();
 
 </script>
