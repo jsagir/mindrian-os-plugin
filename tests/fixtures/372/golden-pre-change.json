@@ -1,0 +1,3841 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-19T20:00:09.040Z",
+  "node_version": "v22.23.1",
+  "sqlite_version": "3.51.3",
+  "source_blobs": {
+    "lib/core/navigation/room-context.cjs": "438e7febd47b9562cf7fb0838c949ca34b07e906",
+    "lib/core/navigation/neighborhood.cjs": "3af597e22c01d8d26403e913d8310f3c018bd0d2",
+    "lib/mcp/tools/context.cjs": "8f1b79594f10d84f88b82b0759d72d1a7668aab5"
+  },
+  "pre_existing_top_keys": [
+    "summary",
+    "recentMessages",
+    "relevantNodes",
+    "cortexNodes",
+    "_meta"
+  ],
+  "pre_existing_meta_keys": [
+    "seedNodeId",
+    "fragmentWindow",
+    "topK",
+    "maxDepth",
+    "legTimingsMs",
+    "legCostChars",
+    "legCostTokensApprox",
+    "estimateOnly"
+  ],
+  "calls": {
+    "default": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "assistant",
+            "content": "OMIT372-LONG xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
+            "timestamp": "2024-05-29T08:00:13Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 4",
+            "timestamp": "2024-05-29T08:00:14Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 5",
+            "timestamp": "2024-05-29T08:00:15Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6460000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999011000,
+            "confidence": 0.63,
+            "lastSeenAt": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6440000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999010000,
+            "confidence": 0.62,
+            "lastSeenAt": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6420000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999009000,
+            "confidence": 0.61,
+            "lastSeenAt": 1716999009000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1",
+              "claim:deep-2"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6320000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999016000,
+            "confidence": 0.56,
+            "lastSeenAt": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1",
+              "claim:deep-1"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6300000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999015000,
+            "confidence": 0.55,
+            "lastSeenAt": 1716999015000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999001000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999001000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999002000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999002000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1038,
+            "legC": 1996,
+            "legD": 3026,
+            "legE": 0,
+            "total": 6367
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 260,
+            "legC": 499,
+            "legD": 757,
+            "legE": 0,
+            "total": 1592
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "caps_small": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6460000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999011000,
+            "confidence": 0.63,
+            "lastSeenAt": 1716999011000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 3,
+          "topK": 4,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 324,
+            "legC": 286,
+            "legD": 3026,
+            "legE": 0,
+            "total": 3943
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 81,
+            "legC": 72,
+            "legD": 757,
+            "legE": 0,
+            "total": 986
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "wide": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 0",
+            "timestamp": "2024-05-29T08:00:10Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 1",
+            "timestamp": "2024-05-29T08:00:11Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 2",
+            "timestamp": "2024-05-29T08:00:12Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-LONG xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "timestamp": "2024-05-29T08:00:13Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 4",
+            "timestamp": "2024-05-29T08:00:14Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 5",
+            "timestamp": "2024-05-29T08:00:15Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6460000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999011000,
+            "confidence": 0.63,
+            "lastSeenAt": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6440000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999010000,
+            "confidence": 0.62,
+            "lastSeenAt": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6420000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999009000,
+            "confidence": 0.61,
+            "lastSeenAt": 1716999009000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1",
+              "claim:deep-2"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6320000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999016000,
+            "confidence": 0.56,
+            "lastSeenAt": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1",
+              "claim:deep-1"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6300000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999015000,
+            "confidence": 0.55,
+            "lastSeenAt": 1716999015000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999001000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999001000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999002000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999002000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999003000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999003000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-4"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999004000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999004000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-5"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999005000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999005000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-6"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999006000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999006000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-7"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999007000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999007000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-8"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999008000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999008000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 50,
+          "topK": 100,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1474,
+            "legC": 3610,
+            "legD": 3026,
+            "legE": 0,
+            "total": 8417
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 369,
+            "legC": 903,
+            "legD": 757,
+            "legE": 0,
+            "total": 2104
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "depth1": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "assistant",
+            "content": "OMIT372-LONG xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
+            "timestamp": "2024-05-29T08:00:13Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 4",
+            "timestamp": "2024-05-29T08:00:14Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 5",
+            "timestamp": "2024-05-29T08:00:15Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6460000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999011000,
+            "confidence": 0.63,
+            "lastSeenAt": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6440000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999010000,
+            "confidence": 0.62,
+            "lastSeenAt": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6420000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999009000,
+            "confidence": 0.61,
+            "lastSeenAt": 1716999009000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999001000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999001000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999002000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999002000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999003000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999003000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-4"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999004000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999004000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 1,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1038,
+            "legC": 1932,
+            "legD": 3026,
+            "legE": 0,
+            "total": 6303
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 260,
+            "legC": 483,
+            "legD": 757,
+            "legE": 0,
+            "total": 1576
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "estimate": {
+      "projected": {
+        "summary": null,
+        "recentMessages": null,
+        "relevantNodes": null,
+        "cortexNodes": null,
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1038,
+            "legC": 1996,
+            "legD": 3026,
+            "legE": 0,
+            "total": 6367
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 260,
+            "legC": 499,
+            "legD": 757,
+            "legE": 0,
+            "total": 1592
+          },
+          "estimateOnly": true
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "seed_lane": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "text-field fragment four",
+            "timestamp": null,
+            "sectionContext": null
+          },
+          {
+            "role": "user",
+            "content": "plain string five",
+            "timestamp": null,
+            "sectionContext": null
+          },
+          {
+            "role": "assistant",
+            "content": "object fragment six yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy...",
+            "timestamp": null,
+            "sectionContext": null
+          },
+          {
+            "role": "user",
+            "content": "seed seven",
+            "timestamp": null,
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "seed eight",
+            "timestamp": null,
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-3"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6460000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999011000,
+            "confidence": 0.63,
+            "lastSeenAt": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6440000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999010000,
+            "confidence": 0.62,
+            "lastSeenAt": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6420000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999009000,
+            "confidence": 0.61,
+            "lastSeenAt": 1716999009000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:sup-1",
+              "claim:deep-2"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6320000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999016000,
+            "confidence": 0.56,
+            "lastSeenAt": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1",
+              "claim:deep-1"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6300000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999015000,
+            "confidence": 0.55,
+            "lastSeenAt": 1716999015000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999001000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999001000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "edgePath": [
+              "section:omit-372",
+              "claim:tie-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.54,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999002000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999002000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:omit-372",
+          "fragmentWindow": 5,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 479,
+            "legC": 1996,
+            "legD": 3026,
+            "legE": 0,
+            "total": 5808
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 120,
+            "legC": 499,
+            "legD": 757,
+            "legE": 0,
+            "total": 1452
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 14,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "no_seed": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "no section here",
+            "timestamp": null,
+            "sectionContext": null
+          }
+        ],
+        "relevantNodes": [],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": null,
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 84,
+            "legC": 2,
+            "legD": 3026,
+            "legE": 0,
+            "total": 3419
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 21,
+            "legC": 1,
+            "legD": 757,
+            "legE": 0,
+            "total": 855
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 10,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "chain_focus": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "assistant",
+            "content": "OMIT372-LONG xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
+            "timestamp": "2024-05-29T08:00:13Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 4",
+            "timestamp": "2024-05-29T08:00:14Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 5",
+            "timestamp": "2024-05-29T08:00:15Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "edgePath": [
+              "chain:omit-372:focus",
+              "claim:sup-1",
+              "claim:deep-2"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6320000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999016000,
+            "confidence": 0.56,
+            "lastSeenAt": 1716999016000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "edgePath": [
+              "chain:omit-372:focus",
+              "claim:sup-1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SOURCED_FROM",
+            "score": 0.442,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999009000,
+            "confidence": 0.61,
+            "lastSeenAt": 1716999009000
+          },
+          {
+            "id": "chain:omit-372:1",
+            "type": "chain_state",
+            "edgePath": [
+              "chain:omit-372:focus",
+              "chain:omit-372:1"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "FEEDS_INTO",
+            "score": 0.42000000000000004,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999012000,
+            "confidence": 0.5,
+            "lastSeenAt": 1716999012000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "chain:omit-372:focus",
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1038,
+            "legC": 893,
+            "legD": 3026,
+            "legE": 0,
+            "total": 5264
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 260,
+            "legC": 223,
+            "legD": 757,
+            "legE": 0,
+            "total": 1316
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 15,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "explicit_focus": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "assistant",
+            "content": "OMIT372-LONG xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
+            "timestamp": "2024-05-29T08:00:13Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 4",
+            "timestamp": "2024-05-29T08:00:14Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 5",
+            "timestamp": "2024-05-29T08:00:15Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 6",
+            "timestamp": "2024-05-29T08:00:16Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "assistant",
+            "content": "OMIT372-FRAG 7",
+            "timestamp": "2024-05-29T08:00:17Z",
+            "sectionContext": "omit-372"
+          },
+          {
+            "role": "user",
+            "content": "OMIT372-FRAG 8",
+            "timestamp": "2024-05-29T08:00:18Z",
+            "sectionContext": "omit-372"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "edgePath": [
+              "claim:sup-1",
+              "claim:deep-2"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "SUPPORTS",
+            "score": 0.6320000000000001,
+            "sourcePath": "omit-372",
+            "reviewStatus": "proposed",
+            "createdBy": "system",
+            "createdAt": 1716999016000,
+            "confidence": 0.56,
+            "lastSeenAt": 1716999016000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "decision:omit-372",
+            "type": "decision",
+            "properties": {
+              "text": "OMIT372-decision"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999020000,
+            "last_seen_at": 1716999020000
+          },
+          {
+            "id": "thought:omit-372",
+            "type": "governing_thought",
+            "properties": {
+              "text": "OMIT372-governing thought"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999019000,
+            "last_seen_at": 1716999019000
+          },
+          {
+            "id": "memory:omit-372",
+            "type": "memory_artifact",
+            "properties": {
+              "text": "OMIT372-memory artifact"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999018000,
+            "last_seen_at": 1716999018000
+          },
+          {
+            "id": "claim:deep-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999016000,
+            "last_seen_at": 1716999016000
+          },
+          {
+            "id": "claim:deep-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-deep 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999015000,
+            "last_seen_at": 1716999015000
+          },
+          {
+            "id": "claim:sup-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999011000,
+            "last_seen_at": 1716999011000
+          },
+          {
+            "id": "claim:sup-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999010000,
+            "last_seen_at": 1716999010000
+          },
+          {
+            "id": "claim:sup-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-support 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999009000,
+            "last_seen_at": 1716999009000
+          },
+          {
+            "id": "claim:tie-8",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 8"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999008000,
+            "last_seen_at": 1716999008000
+          },
+          {
+            "id": "claim:tie-7",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 7"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999007000,
+            "last_seen_at": 1716999007000
+          },
+          {
+            "id": "claim:tie-6",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 6"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999006000,
+            "last_seen_at": 1716999006000
+          },
+          {
+            "id": "claim:tie-5",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 5"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999005000,
+            "last_seen_at": 1716999005000
+          },
+          {
+            "id": "claim:tie-4",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 4"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999004000,
+            "last_seen_at": 1716999004000
+          },
+          {
+            "id": "claim:tie-3",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 3"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999003000,
+            "last_seen_at": 1716999003000
+          },
+          {
+            "id": "claim:tie-2",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 2"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999002000,
+            "last_seen_at": 1716999002000
+          },
+          {
+            "id": "claim:tie-1",
+            "type": "claim",
+            "properties": {
+              "text": "OMIT372-tie 1"
+            },
+            "review_status": "proposed",
+            "sourceSection": "omit-372",
+            "created_at": 1716999001000,
+            "last_seen_at": 1716999001000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "claim:sup-1",
+          "fragmentWindow": 6,
+          "topK": 5,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 1038,
+            "legC": 283,
+            "legD": 3026,
+            "legE": 0,
+            "total": 4654
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 260,
+            "legC": 71,
+            "legD": 757,
+            "legE": 0,
+            "total": 1164
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 15,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    },
+    "room141_default": {
+      "projected": {
+        "summary": {
+          "currentThesis": "",
+          "confirmedFacts": [],
+          "riskyAssumptions": [],
+          "held_claims": [],
+          "evidence": {
+            "academic": [],
+            "operational": [],
+            "practitioner": [],
+            "none": []
+          },
+          "contradictions": [],
+          "openQuestions": [],
+          "recentChanges": [],
+          "bankedOpportunities": [],
+          "nextMove": "See open questions and contradictions to decide next focus."
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Let us look at the market for this venture.",
+            "timestamp": "2026-06-05T08:00:01Z",
+            "sectionContext": "market-analysis"
+          },
+          {
+            "role": "assistant",
+            "content": "The total addressable market looks large at first pass.",
+            "timestamp": "2026-06-05T08:00:05Z",
+            "sectionContext": "market-analysis"
+          },
+          {
+            "role": "user",
+            "content": "But how much of that can we actually serve?",
+            "timestamp": "2026-06-05T08:00:10Z",
+            "sectionContext": "market-analysis"
+          },
+          {
+            "role": "assistant",
+            "content": "The serviceable slice is much smaller, under fifty million.",
+            "timestamp": "2026-06-05T08:00:15Z",
+            "sectionContext": "market-analysis"
+          },
+          {
+            "role": "user",
+            "content": "Do you remember what we decided about the TAM earlier?",
+            "timestamp": "2026-06-05T08:00:20Z",
+            "sectionContext": "market-analysis"
+          },
+          {
+            "role": "assistant",
+            "content": "We flagged a contradiction between the TAM and the serviceable market.",
+            "timestamp": "2026-06-05T08:00:25Z",
+            "sectionContext": "market-analysis"
+          }
+        ],
+        "relevantNodes": [
+          {
+            "id": "claim:tam-small",
+            "type": "claim",
+            "edgePath": [
+              "section:market-analysis",
+              "claim:tam-large",
+              "claim:tam-small"
+            ],
+            "depth": 2,
+            "edgeTypeIn": "CONTRADICTS",
+            "score": 0.74,
+            "sourcePath": "market-analysis",
+            "reviewStatus": "proposed",
+            "createdBy": "larry",
+            "createdAt": 1716999920000,
+            "confidence": 0.7,
+            "lastSeenAt": 1716999997000
+          },
+          {
+            "id": "claim:tam-small",
+            "type": "claim",
+            "edgePath": [
+              "section:market-analysis",
+              "claim:tam-small"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.5800000000000001,
+            "sourcePath": "market-analysis",
+            "reviewStatus": "proposed",
+            "createdBy": "larry",
+            "createdAt": 1716999920000,
+            "confidence": 0.7,
+            "lastSeenAt": 1716999997000
+          },
+          {
+            "id": "claim:tam-large",
+            "type": "claim",
+            "edgePath": [
+              "section:market-analysis",
+              "claim:tam-large"
+            ],
+            "depth": 1,
+            "edgeTypeIn": "INFORMS",
+            "score": 0.56,
+            "sourcePath": "market-analysis",
+            "reviewStatus": "proposed",
+            "createdBy": "larry",
+            "createdAt": 1716999910000,
+            "confidence": 0.6,
+            "lastSeenAt": 1716999998000
+          }
+        ],
+        "cortexNodes": [
+          {
+            "id": "claim:tam-small",
+            "type": "claim",
+            "properties": {
+              "claim": "The serviceable market is under fifty million dollars.",
+              "summary": "Serviceable market is small."
+            },
+            "review_status": "proposed",
+            "sourceSection": "market-analysis",
+            "created_at": 1716999920000,
+            "last_seen_at": 1716999997000
+          },
+          {
+            "id": "claim:tam-large",
+            "type": "claim",
+            "properties": {
+              "claim": "The total addressable market exceeds two billion dollars.",
+              "summary": "TAM is very large."
+            },
+            "review_status": "proposed",
+            "sourceSection": "market-analysis",
+            "created_at": 1716999910000,
+            "last_seen_at": 1716999998000
+          }
+        ],
+        "_meta": {
+          "seedNodeId": "section:market-analysis",
+          "fragmentWindow": 6,
+          "topK": 10,
+          "maxDepth": 2,
+          "legCostChars": {
+            "legA": 307,
+            "legB": 934,
+            "legC": 907,
+            "legD": 550,
+            "legE": 0,
+            "total": 2698
+          },
+          "legCostTokensApprox": {
+            "legA": 77,
+            "legB": 234,
+            "legC": 227,
+            "legD": 138,
+            "legE": 0,
+            "total": 675
+          },
+          "estimateOnly": false
+        }
+      },
+      "prepare_count": 16,
+      "top_keys": [
+        "summary",
+        "recentMessages",
+        "relevantNodes",
+        "cortexNodes",
+        "_meta"
+      ],
+      "meta_keys": [
+        "seedNodeId",
+        "fragmentWindow",
+        "topK",
+        "maxDepth",
+        "legTimingsMs",
+        "legCostChars",
+        "legCostTokensApprox",
+        "estimateOnly"
+      ]
+    }
+  },
+  "sweep": {
+    "topK_1": {
+      "topK": 1,
+      "relevantNodes": []
+    },
+    "topK_2": {
+      "topK": 2,
+      "relevantNodes": []
+    },
+    "topK_3": {
+      "topK": 3,
+      "relevantNodes": []
+    },
+    "topK_4": {
+      "topK": 4,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        }
+      ]
+    },
+    "topK_5": {
+      "topK": 5,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        }
+      ]
+    },
+    "topK_6": {
+      "topK": 6,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        }
+      ]
+    },
+    "topK_7": {
+      "topK": 7,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        }
+      ]
+    },
+    "topK_8": {
+      "topK": 8,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        }
+      ]
+    },
+    "topK_9": {
+      "topK": 9,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_10": {
+      "topK": 10,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_11": {
+      "topK": 11,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_12": {
+      "topK": 12,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_13": {
+      "topK": 13,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_14": {
+      "topK": 14,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-6",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_15": {
+      "topK": 15,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-6",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-7",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_16": {
+      "topK": 16,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-6",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-7",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-8",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_17": {
+      "topK": 17,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-6",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-7",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-8",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    },
+    "topK_18": {
+      "topK": 18,
+      "relevantNodes": [
+        {
+          "id": "claim:sup-3",
+          "type": "claim",
+          "score": 0.6460000000000001
+        },
+        {
+          "id": "claim:sup-2",
+          "type": "claim",
+          "score": 0.6440000000000001
+        },
+        {
+          "id": "claim:sup-1",
+          "type": "claim",
+          "score": 0.6420000000000001
+        },
+        {
+          "id": "claim:deep-2",
+          "type": "claim",
+          "score": 0.6320000000000001
+        },
+        {
+          "id": "claim:deep-1",
+          "type": "claim",
+          "score": 0.6300000000000001
+        },
+        {
+          "id": "claim:tie-1",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-2",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-3",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-4",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-5",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-6",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-7",
+          "type": "claim",
+          "score": 0.54
+        },
+        {
+          "id": "claim:tie-8",
+          "type": "claim",
+          "score": 0.54
+        }
+      ]
+    }
+  },
+  "tie_probe": {
+    "maxDepth2": {
+      "stable": true,
+      "tied_boundaries": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "unstable_ks": [],
+      "raw_count": 16,
+      "node_version": "v22.23.1",
+      "sqlite_version": "3.51.3"
+    },
+    "maxDepth1": {
+      "stable": true,
+      "tied_boundaries": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "unstable_ks": [],
+      "raw_count": 14,
+      "node_version": "v22.23.1",
+      "sqlite_version": "3.51.3"
+    },
+    "stable": true
+  }
+}
