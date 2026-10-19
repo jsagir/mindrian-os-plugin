@@ -57,6 +57,9 @@ sessionRoom.resolveMcpSessionRoom = () => ({
     assert.equal(result.analysis.scope.snapshot_id, result.snapshot_id);
     assert.equal(result.review_required, true);
     assert.equal(result.persistence, 'none');
+    assert.equal(result.accepted_knowledge_persistence, 'none');
+    assert.equal(result.engine_state_persistence, 'durable_local_job_store');
+    assert.equal(result.derived_cache_persistence, 'local_embedding_cache_may_be_written');
     console.log(`eureka live opportunity scout: PASS (${result.status}; ${result.analysis.candidate_count} candidate pairs)`);
   }
   assert.equal(graphHash(), beforeHash, 'scout never mutates the MindrianOS graph');

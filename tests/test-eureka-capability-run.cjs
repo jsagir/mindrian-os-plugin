@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const {
   invokeCapabilityWithClient,
+  waitForJob,
   resolveCapability,
   clientOptions,
   eurekaChildEnvironment,
@@ -105,21 +106,53 @@ async function main() {
   });
   assert.equal(wrapped.review_required, true);
   assert.equal(wrapped.persistence, 'none');
+  assert.equal(wrapped.accepted_knowledge_persistence, 'none');
+  assert.equal(wrapped.engine_state_persistence, 'none');
   assert.equal(wrapped.engine_result.status, 'completed');
+  const wrappedJob = await run({ capability_id: 'opportunity.synthesize_discovery_signals', request }, {
+    callEurekaCapability: async () => ({ ok: true, route: 'scout_start_opportunity_signal_scout', readiness: 'experimental',
+      contract: { input: {}, output: {} }, job_id: 'eureka-job-1',
+      result: { capability_id: 'opportunity.synthesize_discovery_signals', status: 'completed' } }),
+  });
+  assert.equal(wrappedJob.persistence, 'none', 'legacy persistence field continues to represent accepted MindrianOS knowledge');
+  assert.equal(wrappedJob.accepted_knowledge_persistence, 'none');
+  assert.equal(wrappedJob.engine_state_persistence, 'durable_local_job_store');
+  assert.equal(wrappedJob.derived_cache_persistence, 'local_embedding_cache_may_be_written');
+  const alreadyAborted = new AbortController();
+  alreadyAborted.abort();
+  const abortCalls = [];
+  const abortedJob = await waitForJob({ callTool: async (input) => {
+    abortCalls.push(input.name);
+    return { structuredContent: { status: 'cancellation_requested' } };
+  } }, { job_id: 'job-aborted' }, {}, 'opportunity.synthesize_discovery_signals', alreadyAborted.signal);
+  assert.equal(abortedJob.reason, 'cancelled');
+  assert.equal(abortedJob.persistence, 'eureka_job_store_only');
+  assert.deepEqual(abortCalls, ['scout_cancel']);
 
   let handler;
   register({ registerTool: (_name, config, callback) => { handler = { config, callback }; } });
   assert.equal(typeof handler.callback, 'function');
   assert.match(handler.config.description, /Planned and blocked capabilities are refused/);
   assert.deepEqual(handler.config.annotations, {
-    readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false,
+    readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false,
   });
   assert.equal(handler.config.outputSchema.safeParse({ ok: true, scope_id: 'room:alpha', snapshot_id: 'snapshot-1',
-    partial: false, review_required: true, persistence: 'none', result: {} }).success, true);
+    partial: false, review_required: true, persistence: 'none', accepted_knowledge_persistence: 'none',
+    engine_state_persistence: 'durable_local_job_store', derived_cache_persistence: 'local_embedding_cache_may_be_written', result: {} }).success, true);
   const structured = require('../lib/mcp/tools/eureka-capability-run.cjs').textResponse({
     ok: true, scope_id: 'room:alpha', snapshot_id: 'snapshot-1', partial: false, review_required: true,
   }, false);
   assert.equal(structured.structuredContent.scope_id, 'room:alpha');
+  assert.equal(structured.structuredContent.accepted_knowledge_persistence, 'none');
+  assert.equal(structured.structuredContent.engine_state_persistence, 'none');
+  assert.equal(structured.structuredContent.derived_cache_persistence, 'none');
+  const storedJobResponse = require('../lib/mcp/eureka-tool-contract.cjs').response({ ok: true,
+    capability_id: 'opportunity.find_cross_domain_pairs', job_id: 'eureka-job-test',
+    persistence: 'eureka_job_store_only' });
+  assert.equal(storedJobResponse.structuredContent.accepted_knowledge_persistence, 'none');
+  assert.equal(storedJobResponse.structuredContent.engine_state_persistence, 'durable_local_job_store');
+  assert.equal(storedJobResponse.structuredContent.derived_cache_persistence, 'local_embedding_cache_may_be_written');
+  assert.match(storedJobResponse.content[0].text, /derived_cache_persistence/);
   assert.ok(structured.content[0].text.length < 1000, 'text content summarizes rather than duplicates structured output');
   const large = require('../lib/mcp/eureka-tool-contract.cjs').response({ ok: true, result: { outputs: [{}, {}], body: 'x'.repeat(300_000) } });
   assert.equal(large.structuredContent.response_size_warning.includes('Large structured result'), true);
@@ -195,6 +228,9 @@ async function main() {
   const unknownJob = await capabilityJobs.jobStatus({ job_id: 'job-from-prior-process' });
   assert.equal(unknownJob.reason, 'job_session_not_found');
   assert.match(unknownJob.message, /start a new job/i);
+  const unknownJobResponse = require('../lib/mcp/eureka-tool-contract.cjs').response(unknownJob);
+  assert.equal(unknownJobResponse.structuredContent.engine_state_persistence, 'unknown');
+  assert.equal(unknownJobResponse.structuredContent.derived_cache_persistence, 'unknown');
   assert.equal(capabilityJobs.MAX_ACTIVE_SESSIONS, 8);
   assert.equal(capabilityJobs.SESSION_TTL_MS, 30 * 60 * 1000);
   for (let index = 0; index < capabilityJobs.MAX_ACTIVE_SESSIONS; index += 1) {
@@ -211,8 +247,15 @@ async function main() {
   for (const name of ['eureka_capability_start', 'eureka_capability_job_status', 'eureka_capability_job_result', 'eureka_capability_job_cancel']) {
     assert.ok(lifecycleTools.has(name), `${name} is registered`);
     assert.ok(lifecycleTools.get(name).config.outputSchema, `${name} publishes an output schema`);
-    assert.equal(lifecycleTools.get(name).config.annotations.readOnlyHint, true);
   }
+  assert.equal(lifecycleTools.get('eureka_capability_start').config.annotations.readOnlyHint, false,
+    'starting a job changes ephemeral engine state');
+  assert.equal(lifecycleTools.get('eureka_capability_job_status').config.annotations.readOnlyHint, true,
+    'status only reads job state');
+  assert.equal(lifecycleTools.get('eureka_capability_job_result').config.annotations.readOnlyHint, false,
+    'terminal result retrieval closes the retained session');
+  assert.equal(lifecycleTools.get('eureka_capability_job_cancel').config.annotations.readOnlyHint, false,
+    'cancellation changes ephemeral engine state');
   const registered = [];
   const report = registerCoreTools({
     tool: (name) => { registered.push(name); },

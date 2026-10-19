@@ -30,6 +30,9 @@ async function main() {
   assert.equal(result.review_required, true);
   assert.equal(result.acceptance_requires_review, true);
   assert.equal(result.persistence, 'none');
+  assert.equal(result.accepted_knowledge_persistence, 'none');
+  assert.equal(result.engine_state_persistence, 'durable_local_job_store');
+  assert.equal(result.derived_cache_persistence, 'local_embedding_cache_may_be_written');
   assert.equal(Object.hasOwn(capturedRequest, 'mode'), false, 'the Eureka MCP adapter fixes the scout to local mode');
   assert.equal(capturedRequest.scope_id, 'room:alpha');
   assert.equal(capturedRequest.snapshot_id, 'sha256:snapshot');
@@ -60,9 +63,12 @@ async function main() {
 
   let handler;
   let registeredTitle;
-  register({ registerTool: (_name, config, callback) => { handler = callback; registeredTitle = config.title; } }, {});
+  let registeredConfig;
+  register({ registerTool: (_name, config, callback) => { handler = callback; registeredConfig = config; registeredTitle = config.title; } }, {});
   assert.equal(typeof handler, 'function');
   assert.equal(registeredTitle, 'Screen Local Graph for Candidate Pair Leads');
+  assert.equal(registeredConfig.annotations.readOnlyHint, false,
+    'the local RS+HSI job has persistent engine-side state');
 
   const { callEurekaOpportunityScout } = require('../lib/mcp/tools/eureka-graph-analyze.cjs');
   const controller = new AbortController();
