@@ -47,7 +47,7 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "79922684efdf5011b1b4a4eb7300abe64dc342f082599f2fb300ec37928dd9f5",
+    "digest": "a1261ad06072bc66e4be288a646782f4af78fa8e2f3feba25eae2f713edfd105",
     "count": 15
   },
   "larry_surfaces": [
@@ -64,7 +64,7 @@
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "d24f1bddf6954e29dc5f1d9983677b0415562e2ca71be270d5fa6673a8aa9403"
+      "digest": "2daeb5f58ddb5a284ca1fc8bb9f7101fdb7c1134123ff0cdeb4bb704acd176be"
     }
   ],
   "fixture_ref": {
