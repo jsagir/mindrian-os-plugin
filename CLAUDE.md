@@ -236,3 +236,7 @@ Full per-source routing detail, triggers, and precedent (why each source earned 
 
 - **Spike findings for MindrianOS-Plugin** (implementation patterns, constraints, gotchas) -> `Skill("spike-findings-MindrianOS-Plugin")`
 <!-- GSD:skills-end -->
+
+<!-- mos-brand:start -->
+Follow the [Mindrian brand workflow](.mindrian/WORKFLOW.md) before branded work. Use `mos-brand context` to resolve the current job.
+<!-- mos-brand:end -->
