@@ -193,6 +193,31 @@ Render ONE Shape E block per outcome: already installed, installed now, or the 3
 
 Use this only when the user or Theo's method selection calls for a specific Eureka capability beyond the normal `/mos:eureka` perspective workflow. First call `scout_capabilities`, then `scout_capability_contract` for the chosen stable ID. Invoke `eureka_capability_run` with that ID and an exact-schema request for synchronous routes. It can block until completion; for asynchronous routes, prefer `eureka_capability_start`, then poll with `eureka_capability_job_status`, retrieve with `eureka_capability_job_result`, or request cancellation with `eureka_capability_job_cancel`. Retained jobs exist only in the MindrianOS MCP process that started them, cannot resume after a host restart, expire after 30 minutes, and are capped at eight per process. Check readiness, output contract, and scope/snapshot lineage. Planned/blocked jobs are refused; the generic bridge does not project room data, so use a dedicated `eureka_graph_*` projection adapter or prepare authorized schema-shaped input first. Treat every output as analysis only, resolve references and counterevidence, and use MindrianOS review before filing.
 
+## Direct catalogued engine CLI (advanced)
+
+Use a single catalogued engine directly when the user or Theo's method selection calls for it. This is independent of the default `/mos:eureka` perspective workflow; do not chain engines unless the investigation benefits from it.
+
+1. Confirm `MINDRIAN_EUREKA_ROOT` points to the local `mindrian-eureka` checkout and `uv` is available. The CLI only runs local code over the request file supplied to it.
+2. Inspect the catalog entry and both schemas before preparing input:
+
+   ```bash
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capability <capability_id>
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka schema <capability_id> --direction input
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka schema <capability_id> --direction output
+   ```
+
+3. Continue only when the catalog status is `experimental` or `host_brokered`. Build a JSON request file that satisfies the published input schema. Keep room text out of command arguments, and preserve `scope_id` and `snapshot_id` whenever the capability uses them.
+4. Run the executable and argument shape published in that capability's `routes.cli`. For the 53 shared-workflow capabilities, the form is:
+
+   ```bash
+   uv run --project "$MINDRIAN_EUREKA_ROOT" eureka-workflow <capability_id> request.json --output result.json
+   ```
+
+   Use the catalog's dedicated executable and arguments for other routes. Do not run blocked or planned entries.
+5. Read the result contract and limitations. CLI invocation does not authorize a room or read `room.db`: graph-backed requests must come from a MindrianOS-authorized projection, such as `eureka_graph_project` or `eureka_graph_prepare_artifacts`. Keep candidate results as analysis; resolve sources and counterevidence and use MindrianOS review before filing.
+
+The MCP route is preferable when the capability needs a live bound-room projection, structured tool output, or an asynchronous job lifecycle. Neither surface requires a combined Theo-to-Eureka workflow.
+
 ## Decision Gate Close (F.8)
 
 The F.8 basket in Step 7 is the close. Skip the card when the navigator already said which candidate they want.
