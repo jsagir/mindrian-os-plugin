@@ -53,6 +53,7 @@ async function realSessions(){
     assert.equal(memory.data.room_dir,roomB);
     assert(memory.data.summary.confirmedFacts.some(fact=>fact.id===decisionId),'room context includes saved decision');
     fixtures.memory=memory.result;
+    fixtures.startup=(await call('room_startup')).result;
     for(const name of ['room-dashboard','room-wiki','room-graph']){
       const view=await call(name);
       assert.equal(view.data.room_binding.bound,true);
@@ -90,7 +91,7 @@ async function browser(){
     });
     async function open(initial,mode='ok'){
       await page.goto('http://mos-room-host.test/');
-      await page.evaluate(({initial,mode,html,binding,memory,dashboard})=>{
+      await page.evaluate(({initial,mode,html,binding,memory,dashboard,startup})=>{
         window.calls=[];window.messages=[];
         const iframe=document.createElement('iframe');iframe.style='width:100%;height:850px;border:0';iframe.sandbox='allow-scripts';
         const send=value=>iframe.contentWindow.postMessage({jsonrpc:'2.0',...value},'*');
@@ -105,13 +106,14 @@ async function browser(){
             const name=message.params.name;let result;
             if(name==='room_bind')result=mode==='bind-fails'?{structuredContent:{ok:true,bound:true,effective:false,carries_to_later_calls:true,primary:'room-b',reason:'binding_not_effective'}}:binding;
             else if(name==='context_assemble')result=mode==='memory-fails'?{structuredContent:{ok:false,reason:'no_room_db'}}:memory;
+            else if(name==='room_startup')result=startup;
             else if(name==='room-dashboard')result=dashboard;
             else if(name==='room_list')result=initial;
             else throw Error('Unexpected tool '+name);
             send({id:message.id,result});
           }else if(message.id!==undefined&&message.method){window.messages.push(message);send({id:message.id,result:{}});}
         });iframe.srcdoc=html;document.body.append(iframe);
-      },{initial,mode,html:fixtures.html,binding:fixtures.binding,memory:fixtures.memory,dashboard:fixtures.dashboard});
+      },{initial,mode,html:fixtures.html,binding:fixtures.binding,memory:fixtures.memory,dashboard:fixtures.dashboard,startup:fixtures.startup});
       const frame=page.frames().find(frame=>frame!==page.mainFrame());assert(frame);
       await frame.locator('#mindrian-status').filter({hasText:/connected/}).waitFor();return frame;
     }
@@ -122,7 +124,7 @@ async function browser(){
     if(process.env.MINDRIAN_ROOMS_SCREENSHOT)await frame.locator('body').screenshot({path:process.env.MINDRIAN_ROOMS_SCREENSHOT});
     await frame.locator('input[value="room-b"]').check();await frame.locator('#open').click();
     await frame.locator('#opened').waitFor({state:'visible'});
-    assert.deepEqual(await page.evaluate(()=>window.calls.map(call=>call.params.name)),['room_bind','context_assemble','room-dashboard']);
+    assert.deepEqual(await page.evaluate(()=>window.calls.map(call=>call.params.name)),['room_bind','context_assemble','room_startup','room-dashboard']);
     assert.deepEqual(await page.evaluate(()=>window.calls[0].params.arguments),{room:'room-b'});
     assert.equal(await frame.locator('#title').innerText(),'Selected Room B');
     await page.waitForFunction(()=>window.messages.some(message=>message.method==='ui/message'));

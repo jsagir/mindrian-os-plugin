@@ -13,8 +13,8 @@
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "de99ae2e94b8e67db7e6a1f9d31dc68250cab6eacc2bd1464dae739e18cf0591",
-      "source_count": 219
+      "digest": "5a4a28b2a70ac839ef2c2f6662afd9abef006055039d72c745c51fab242f8f94",
+      "source_count": 221
     },
     {
       "role": "ranked_next_reach",
@@ -64,7 +64,7 @@
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "f51228819191298f6098a37489c9a55a989814582ad1c74e2d036c339bc6a1a9"
+      "digest": "e625182db40dc5d94754501180b47d152330c70436440e1d54872b1c9663d62e"
     }
   ],
   "fixture_ref": {

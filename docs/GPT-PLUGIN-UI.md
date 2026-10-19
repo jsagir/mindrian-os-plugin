@@ -105,3 +105,31 @@ session recovers that decision after binding the same room. With --browser it
 checks call order, ineffective binding, missing memory, empty lists and narrow
 layout through the actual MCP Apps SDK. This remains local integration evidence,
 not a claim that the live ChatGPT account connection has been updated.
+
+## First room and returning workday
+
+The room picker now offers Create a room, including when no rooms exist. The
+navigator supplies a name and purpose. room_create returns a preview of the
+local folder and an F.0 card. Only gate_answer with approval calls the existing
+room birth operation; rejection or deferral creates nothing. Creation is limited
+to a new child of the configured rooms home. Approval rechecks the destination,
+refuses collisions, and saves its receipt with the new room identity. The UI
+then binds the created room and follows the same startup path as existing rooms.
+
+For an existing room the order is room_bind, context_assemble, room_startup,
+room-dashboard. room_startup reads saved understanding, the previous session's
+next action, recorded changes, open questions and pending decisions. A local SQL
+visit checkpoint is recorded once per session and navigator. Retrying startup
+keeps the original baseline; a saved session-end timestamp takes precedence
+over an older visit. Missing history is shown explicitly. The F.1 next-move
+choice follows the briefing and uses the existing shared gate ledger.
+
+Memory belongs to the room's saved local records. A new chat must select and
+bind the same accessible room to retrieve it. This does not create ChatGPT
+account memory or grant a web host access to a user's filesystem; local room
+creation runs where the configured MCP server runs. No automatic Theo request
+or background research is triggered by opening a room.
+
+Run tests/test-startup-flows.cjs for real MCP creation, cancellation, collision,
+durable replay and fresh-session workday restoration. Add --browser for both
+startup journeys through the actual Apps SDK in a sandboxed iframe.

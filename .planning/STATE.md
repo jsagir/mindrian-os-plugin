@@ -9448,3 +9448,12 @@ context_assemble -> session-correct room view. Real fresh-session tests recover
 a saved decision; browser tests verify selection and failures. No release or live
 ChatGPT account update. Current milestone/phase position is unchanged.
 See `.planning/quick/261019-fhe-room-first-gpt-plugin-entry-choose-bind-/SUMMARY.md`.
+
+
+## Completed quick task 261019-fs6 (2026-10-19)
+
+Implemented first-room preview/approval/creation and returning memory/workday
+briefing in the existing plugin UI and shared gate authority. Clean-home real
+MCP and SDK browser flows pass, along with room birth and prior UI regressions.
+No release or live ChatGPT account update. Current phase position is unchanged.
+See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY.md`.

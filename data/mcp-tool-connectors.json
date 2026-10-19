@@ -515,6 +515,25 @@
       "layer_why": "Local room read through the read-only door of the navigation chokepoint."
     },
     {
+      "surface": "mcp:room_create",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.0",
+      "hitl_why": "The navigator approves, rejects or defers the local room preview before the existing birth operation writes anything.",
+      "layer": "harness",
+      "layer_why": "Adapts the shared gate ledger and room birth operation to the host startup flow."
+    },
+    {
       "surface": "mcp:room_list",
       "source": "mcp_tool",
       "connects_to_spine": true,
@@ -551,6 +570,25 @@
       "hitl_why": "Pure read: bounded substring search over the session-bound room, no fork.",
       "layer": "context",
       "layer_why": "Bounded substring search over the session-bound room's own content; a room-context reader."
+    },
+    {
+      "surface": "mcp:room_startup",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.1",
+      "hitl_why": "The navigator chooses the next move after reviewing saved room understanding and unfinished work.",
+      "layer": "harness",
+      "layer_why": "Composes existing memory readers, a durable visit checkpoint and a shared-ledger next-move card."
     },
     {
       "surface": "mcp:room_state_bound",
