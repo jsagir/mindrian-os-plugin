@@ -298,7 +298,67 @@ async function main() {
   assert.equal(packaged.persistence, 'none');
   assert.equal(packaged.review_required, true);
   assert.equal(graphDbHash(), graphDbHashBefore, 'relationship packaging leaves MindrianOS graph unchanged');
-  process.stdout.write('eureka live bridge: PASS (MindrianOS room projection -> Eureka stdio MCP -> lineage-bound proposals)\n');
+
+  // Close the live authorization gap: exercise the real session resolver and
+  // room-binding store while Eureka analyzes only the room bound to this MCP
+  // session. The synthetic stubbed-room checks above remain useful for
+  // deterministic fixture data; this verifies the actual host authorization
+  // path joined to a live Eureka worker.
+  sessionRoom.resolveMcpSessionRoom = originalResolve;
+  delete require.cache[require.resolve('../lib/mcp/tools/eureka-graph-projection.cjs')];
+  delete require.cache[require.resolve('../lib/mcp/tools/eureka-graph-analyze.cjs')];
+  const realBridge = require('../lib/mcp/tools/eureka-graph-analyze.cjs');
+  const isolatedHome = require('./helpers/isolated-home-36925.cjs');
+  const isolated = isolatedHome.mkIsolatedHome('eureka-live-bound-bridge');
+  try {
+    const sessionId = 'eureka-live-bound-bridge-session';
+    const born = isolatedHome.birthFixtureRoom({
+      iso: isolated, slug: 'eureka-live-bound-bridge', sessionId: 'fixture-room-birth',
+      ventureText: 'A bounded synthetic room for a live Eureka authorization test.',
+    });
+    const navigation = require('../lib/core/navigation.cjs');
+    const roomDb = navigation.openRoomDbForCaller(born.roomDir);
+    const boundNodeIds = [];
+    try {
+      for (const [index, text] of [
+        'Biological sensors detect cellular stress through molecular signals and fluorescence measurements.',
+        'Adaptive control systems adjust robotic motion using feedback from distributed sensor arrays.',
+        'Medical imaging pipelines identify tissue anomalies from spectral and magnetic measurements.',
+        'Environmental monitoring networks track water contamination with field-deployed biosensors.',
+      ].entries()) {
+        const claim = navigation.writeClaimNode(roomDb, {
+          knowledge_type: 'fact', text, sessionId,
+          sourceSegment: `eureka-live-bound-claim-${index + 1}`,
+        });
+        assert.equal(claim.ok, true, JSON.stringify(claim));
+        boundNodeIds.push(claim.node_id);
+      }
+    } finally { navigation.closeRoomDbForCaller(roomDb); }
+    require('../lib/core/session-binding.cjs').writeSessionBinding(sessionId, {
+      bound: [born.slug], primary: born.slug, sticky: true,
+    }, { home: isolated.roomsHome });
+    process.env.HOME = isolated.home;
+    process.env.USERPROFILE = isolated.home;
+    process.env.MINDRIAN_ROOMS_HOME = isolated.roomsHome;
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+    const boundDbPath = path.join(born.roomDir, '.mindrian', 'room.db');
+    const boundDbHash = crypto.createHash('sha256').update(fs.readFileSync(boundDbPath)).digest('hex');
+    const liveBoundResult = await realBridge.analyze({
+      node_ids: boundNodeIds, top: 10, seed: 7, null_rounds: 1,
+    }, {}, { sessionId });
+    assert.equal(liveBoundResult.ok, true, JSON.stringify(liveBoundResult));
+    assert.equal(liveBoundResult.scope_id, born.room_id);
+    assert.equal(liveBoundResult.room_binding.source, 'session.primary');
+    assert.equal(liveBoundResult.analysis.scope_id, born.room_id);
+    assert.equal(liveBoundResult.analysis.snapshot_id, liveBoundResult.snapshot_id);
+    assert.equal(fs.existsSync(boundDbPath), true);
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(boundDbPath)).digest('hex'), boundDbHash,
+      'live Eureka analysis of a real session-bound room leaves room.db bytes unchanged');
+  } finally {
+    isolated.cleanup();
+    sessionRoom.resolveMcpSessionRoom = originalResolve;
+  }
+  process.stdout.write('eureka live bridge: PASS (real bound-session authorization -> read-only MindrianOS projection -> live Eureka MCP -> lineage-bound results)\n');
 }
 
 main().catch((error) => { process.stderr.write((error.stack || String(error)) + '\n'); process.exitCode = 1; })
