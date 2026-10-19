@@ -218,6 +218,23 @@ Use a single catalogued engine directly when the user or Theo's method selection
 
 The MCP route is preferable when the capability needs a live bound-room projection, structured tool output, or an asynchronous job lifecycle. Neither surface requires a combined Theo-to-Eureka workflow.
 
+## Catalog capabilities without Eureka routes
+
+Eight catalog entries are intentionally unavailable through `eureka_capability_run`: some belong to MindrianOS, while others have unmet source, privacy, or implementation prerequisites. Read the current readiness record with `eureka capability <capability_id>` before choosing a path. A related host workflow is not automatically the same capability.
+
+| Catalog capability | Current MindrianOS path | Boundary |
+| --- | --- | --- |
+| `bottleneck.diagnose` | MCP: `research_run` with `op: "perspective_recall"`, `perspective: "rs"`. CLI: `/mos:find-bottlenecks`. | Native host Reverse Salient analysis; it does not run through Eureka. |
+| `thesis.read_prior` | CLI: `/mos:rs-thesis <discovery_id>`. | Reads a prior local thesis. No equivalent Eureka MCP route is published. |
+| `research.orchestrate_multidomain` | MCP: use `research_run` planning operations with a reviewed, scoped question set. CLI: `/mos:scientific-roadmap` when the goal and constraints are known, then `/mos:research`. | Host research planning and execution can cover parts of this job; the catalog capability remains planned. |
+| `deliberation.structure` | CLI: `/mos:bono`. | BONO is a governed MindrianOS debate workflow with its own gates; it does not make Eureka's blocked capability runnable. |
+| `evidence.fetch_for_question` | MCP: `research_run` plan, grant, run and filing operations. CLI: `/mos:research`. | Fetch only within the host's approved research plan and grant; no direct Eureka fetcher exists. |
+| `opportunity.discover_breakthroughs` | For local graph leads, use `eureka_graph_opportunity_scout`; for the host's research workflow, use `/mos:eureka`. | These are separate partial paths. Neither asserts the blocked full critic-and-evidence workflow. |
+| `claims.compare` | MCP: `claim_read` can reopen claims and `claim_verify` can record a check on one claim at a time. | These tools do not compare competing claims or produce a comparative verdict. No exact comparison workflow is published. |
+| `experts.find_for_topic` | None currently. | No authorized expert directory and privacy-approved lookup route are configured. |
+
+For a capability with no exact route, keep it marked planned or blocked. Do not substitute a nearby tool and report the requested capability as completed.
+
 ## Decision Gate Close (F.8)
 
 The F.8 basket in Step 7 is the close. Skip the card when the navigator already said which candidate they want.
