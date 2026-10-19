@@ -424,16 +424,41 @@ const AFTER_270_12 = {
  *     because toolCount changed 47 -> 48, which this file's first check
  *     requires to be exact.
  */
+/*
+ * Quick 261019-k22 (2026-10-19) -- re-baseline for commit ec3d56380 (Codex,
+ * startup), which registered two MCP tools in lib/mcp/tools/startup.cjs without
+ * the authorised AFTER re-baseline: room_create and room_startup (+2). The two
+ * tools were reviewed: room_create is F.0-gated and creates rooms only through
+ * navigation.birthRoom. Same protocol as the 369-41 block above: measure live
+ * with this file's own listToolsOverStdio + measure() pair, record the numbers,
+ * name the percentage, no new arithmetic.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   before k22 (the 369-41 record): 48 tools, 24369 desc bytes,
+ *     32687 schema bytes, 57056 total bytes, ~14264 approx tokens
+ *     (router 9 / atomic 39).
+ *   after k22:  50 tools, 25866 desc bytes, 33154 schema bytes,
+ *     59020 total bytes, ~14755 approx tokens (router 9 / atomic 41).
+ *   the toolCount delta is exactly room_create and room_startup: the lib/mcp
+ *     registerTool set at ef7814d8b (the 369-41 commit) and at HEAD differ by
+ *     those two names and no other.
+ *   signed pctChange(57056, 59020) = 3.44 percent against the 369-41 record,
+ *     inside DRIFT_TOLERANCE_PCT (which stays 10, not relaxed). The rest of the
+ *     byte change is description and schema edits to existing tools since
+ *     369-41 (peer work, no other tool added), kept here in plain sight rather
+ *     than absorbed. AFTER moves because toolCount changed 48 -> 50, which this
+ *     file's first check requires to be exact.
+ */
 const AFTER = {
-  measuredAt: '2026-10-04',
-  plan: '369-41',
-  toolCount: 48,
-  totalDescBytes: 24369,
-  totalSchemaBytes: 32687,
-  totalBytes: 57056,
-  approxTokens: 14264,
+  measuredAt: '2026-10-19',
+  plan: 'quick-261019-k22',
+  toolCount: 50,
+  totalDescBytes: 25866,
+  totalSchemaBytes: 33154,
+  totalBytes: 59020,
+  approxTokens: 14755,
   routerCount: 9,
-  atomicCount: 39,
+  atomicCount: 41,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget
