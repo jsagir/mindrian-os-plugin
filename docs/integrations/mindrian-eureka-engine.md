@@ -83,10 +83,11 @@ For Windows PowerShell, set `$env:MINDRIAN_EUREKA_ROOT` before starting the MCP 
 
 ## CLI handoff
 
-The catalog CLI is the direct surface for caller-supplied requests. Inspect readiness and schemas first, then write the exact JSON request returned by the contract:
+The catalog CLI is the direct surface for caller-supplied requests. Use the compact catalog to browse job names, JTBDs, readiness, and route names; `--search` and `--status` narrow the list. Inspect the selected contract and schemas before writing a request. Bare `eureka capabilities` retains the full JSON catalog for machine consumers:
 
 ```sh
-uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities
+uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities --summary
+uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capabilities --summary --search wicked
 uv run --project "$MINDRIAN_EUREKA_ROOT" eureka capability research.analyze_rs_domain_projection
 uv run --project "$MINDRIAN_EUREKA_ROOT" eureka schema research.analyze_rs_domain_projection --direction input
 uv run --project "$MINDRIAN_EUREKA_ROOT" eureka-workflow research.analyze_rs_domain_projection request.json --output result.json
