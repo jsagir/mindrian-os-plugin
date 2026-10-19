@@ -74,6 +74,23 @@ async function main() {
   try {
     const toolList = await contractClient.listTools();
     const publishedToolNames = new Set(toolList.tools.map((tool) => tool.name));
+    assert.ok(publishedToolNames.has('scout_capabilities'), 'live MCP publishes the capability catalog tool');
+    const catalogResponse = await contractClient.callTool({ name: 'scout_capabilities', arguments: {} });
+    assert.notEqual(catalogResponse.isError, true, 'live MCP capability catalog is readable');
+    const exposedCatalog = catalogResponse.structuredContent || JSON.parse(catalogResponse.content.find((item) => item.type === 'text').text);
+    assert.equal(exposedCatalog.capabilities.length, catalog.capabilities.length);
+    const exposedById = new Map(exposedCatalog.capabilities.map((item) => [item.id, item]));
+    for (const item of catalog.capabilities) {
+      const exposed = exposedById.get(item.id);
+      assert.ok(exposed, `${item.id} is discoverable through the live MCP catalog`);
+      assert.equal(exposed.name, item.name, `${item.id} preserves its user-facing name`);
+      assert.equal(exposed.jtbd, item.jtbd, `${item.id} preserves its JTBD`);
+      assert.equal(exposed.status, item.status, `${item.id} preserves its readiness`);
+      if (['planned', 'blocked'].includes(item.status)) {
+        assert.equal(exposed.routes && exposed.routes.cli, undefined, `${item.id} remains without an executable CLI route`);
+        assert.equal(exposed.routes && exposed.routes.mcp, undefined, `${item.id} remains without an invocation MCP route`);
+      }
+    }
     for (const capability of runnable) {
       assert.ok(publishedToolNames.has(capability.routes.mcp.tool),
         `${capability.id} catalog MCP route ${capability.routes.mcp.tool} is advertised by the live server`);
