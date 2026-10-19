@@ -76,6 +76,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 
 | Status  | Phase / Component | Reference |
 |---------|-------------------|-----------|
+| planned | Phase 371 - navigator startup UI | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 | shipped | UI vocabulary contract (De Stijl) | Phase 80 commit history |
 | planned | Shape F Selector Block rollout (F.1-F.5) | Phase 88.2 uiux-selector-block |
 | shipped | Hook primitives (rendering substrate) + statusline / /mos:status / SessionStart banner LOCAL-context surfaces | Phase 88.1 uiux-polish (Plans 03, 04, 05, 06); v1.10.15 |
@@ -129,6 +130,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 
 | Status  | Phase / Component | Reference |
 |---------|-------------------|-----------|
+| planned | Phase 371 - navigator startup UI | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 | shipped | /gsd:plan-phase gating | .claude/get-shit-done/ workflows |
 | shipped | Description discipline sweep across 72 commands + 8 agents (under-promise, verb-first, argument-hint, disable-model-invocation on destructive) | Phase 88.1 uiux-polish (Plans 01, 10, 12); v1.10.15 |
 | shipped | Phase 95.2 extends scripts/doctor.cjs (Phase 95.1 install-cache recovery substrate) without forking; reuses fs.cpSync from vault-export-orchestrator.cjs:233; SessionStart preflight reuses Phase 106-05 hook template pattern from check-onboard-statusline.cjs | Phase 95.2 install-cache-atomic-recovery-sessionstart-preflight (v1.13.0-beta.6) |
@@ -142,6 +144,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 
 | Status  | Phase / Component | Reference |
 |---------|-------------------|-----------|
+| planned | Phase 371 - navigator startup UI | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 | shipped | Brain MCP architecture (no user data egress) | mcp-server-brain/, .mcp.json |
 | shipped | Security cascade refactor | Phase 87 security-hardening-cascade-refactor |
 | shipped | Permissions block hardening (README Permissions H2 + docs/settings-template.json with 19 granular matchers; git push excluded; 3 WebFetch public SIGNAL domains only; no bare Write wildcard) | Phase 88.1 uiux-polish (Plan 02); v1.10.15 |
@@ -159,6 +162,7 @@ Phase 88.6 (v1.10.14) closed the orphan-value gap between the Python algorithm l
 
 | Status   | Phase / Component | Reference |
 |----------|-------------------|-----------|
+| planned | Phase 371 - navigator startup UI | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 | shipped  | Phase 108 graph-memory-schema-reconciliation (proposal + frozen taxonomy) | .planning/phases/108-graph-memory-schema-reconciliation/PART-9-PROPOSAL.md |
 | shipped  | Phase 109 sql-context-memory-navigation-spine (implementation + canon ratification at release gate) | .planning/phases/109-sql-context-memory-navigation-spine/109-CONTEXT.md |
 | shipped  | Phase 110 brain-context-packet-contract (Brain wire enforcement makes Part 9 structurally hard, not just procedurally audited) | Shipped in parallel with Phase 123, rode along in v1.13.0-beta.13 (reconciled 2026-06-05; the file's own version-history row for beta.13 already recorded this -- the Part 9 row was stale) |
@@ -403,6 +407,7 @@ cirs_relationship block or the gate FAILS it.
 
 | Status  | Phase / Component | CIRS relationship | Reference |
 |---------|-------------------|-------------------|-----------|
+| planned | Phase 371 - navigator startup UI | CONSUMES existing room_list/room_bind/context_assemble/room_create/room_startup and F.0/F.1 gate_answer authority; ADDS no invocable surface or execution loop | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 | registered | Phase 172 contextual-invocation-coverage | IMPLEMENTS CIRS R1-R14 (the born-wired gate, exclude ledger, dark-surface wiring, mindrian-operation counterparts, curated chains, /mos:act reconciliation, fractal rollup, R12 forward-declaration) | .planning/phases/172-contextual-invocation-coverage/ (CONTEXT + SPEC INV-01..23 + RECALIBRATION) |
 | shipped (re-tag) | Phase 143.3 connector-spine-and-intelligence-orchestrator | the connector contract + generator + --check + first dispatchSensors consumer (CIRS R1/R2/R9 ancestor) | docs/CONNECTOR-CONTRACT.md |
 | shipped (re-tag) | Phase 143.2 larry-operates-and-pushes | Operating-the-Dial + routing_source (R4) | run-all-1432.sh |
@@ -420,6 +425,12 @@ cirs_relationship block or the gate FAILS it.
 | shipped | Phase 363 deep-research-planner-quick-and-deep-runs | MODIFIES /mos:research (Form B hitl_stages, plan-run mode) and five commands (/mos:map-unknowns, /mos:root-cause, /mos:think-hats, /mos:diffusion, /mos:whitespace) into question-set contributors; ADDS agents/research-lane-analyst (Read only, excluded with reason) and the research_run MCP tool (hitl_shape F.6); consumes the governed runner, no second path; every registry regenerated born wired | .planning/phases/363-deep-research-planner-quick-and-deep-runs/ (module lib/core/research-planner/, door scripts/research-planner.cjs, runner /mos:research) |
 | shipped | Phase 365 verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt | MODIFIES /mos:research (Form B hitl_stages: two new F.1 stages, constraint halt and never-do offer) and /mos:status (--checks flag); ADDS no command, agent, pipeline, skill or tool; consumes the governed runner and the gate ledger, no second path; command, connector, projection and render-coverage registries did not move, only the research and status skill mirrors regenerated | .planning/phases/365-verification-rung-earned-not-asserted-b2-gate-floor-b3-unatt/ (door scripts/research-planner.cjs never-do, flag scripts/mos-status.cjs --checks) |
 | shipped | Phase 364 scientific-roadmapping-command-mos-scientific-roadmap-seed-0 | ADDS one command, /mos:scientific-roadmap, born wired through /mos:new-surface with declared hitl_stages, MCP methodology reach (enum 65 to 66), curated chains into /mos:research and /mos:find-analogies, and cirs blocks on the surface plans; command, connector, projection and render-coverage registries regenerated by their builders (command count 113 to 114) | .planning/phases/364-scientific-roadmapping-command-mos-scientific-roadmap-seed-0/ |
+
+### Part 12 - Pedagogy
+
+| Status | Phase / Component | Reference |
+|---|---|---|
+| planned | Phase 371 - navigator startup UI | `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md` |
 
 ### v1.15.0 "Cure Under-Invocation" milestone (added 2026-06-27)
 

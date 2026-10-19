@@ -7638,6 +7638,8 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 371 added (2026-10-19): Navigator startup UI - first room and returning workday. Focused scope authorized; UI-SPEC approved with 6/6 inline design checks. Ready for planning; v5 visual implementation and host acceptance remain pending. Current phase position unchanged.
+
 - Phase 267 complete (2026-10-02, 18/18, be97781d0): MCP SDK v1 -> v2 migration. Local server and both in-repo clients on @modelcontextprotocol/server|client 2.x, v1 sdk removed from manifest/lockfiles, ext-apps 2.0.3, RCA 1/2/4/5/6 resolved (RCA 7 open, SEED-108). MCPV2: 16/19 [x]; MCPV2-03 + MCPV2-08 wait on the post-366 CIRS/zod4 baseline refresh; MCPV2-13 open (human Desktop + Cowork smoke deferred by navigator, surrogate wire evidence 5b1770072). Seeds SEED-108..111 planted.
 
 - Phase 276 complete (2026-10-02): 276-16 closed (a26ef5a26) with the navigator Desktop check: claim_write honesty verified against room.db, routing defect handed to `.planning/debug/desktop-session-binding-fallback.md`; verification gaps_found 12/14 (fd1092ee5). Registry leak root-caused and fixed (0b469e2ba, `.planning/debug/resolved/test-birth-registry-leak.md`).
@@ -9457,3 +9459,11 @@ briefing in the existing plugin UI and shared gate authority. Clean-home real
 MCP and SDK browser flows pass, along with room birth and prior UI regressions.
 No release or live ChatGPT account update. Current phase position is unchanged.
 See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY.md`.
+
+
+## Session record - Phase 371 UI contract (2026-10-19)
+
+Stopped at: Phase 371 UI-SPEC approved; phase added and ready for planning.
+Resume file: `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md`.
+The existing Phase 369 Current Position is preserved. This record does not claim
+the new startup visual contract has been implemented or verified in ChatGPT.
