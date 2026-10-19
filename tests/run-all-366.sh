@@ -140,6 +140,11 @@ run "3692 Part 8 guard survey gate (synthetic rooms, quick 261012-sc0)" node tes
 # The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "k1u session-start envelope (valid JSON, inline budget)" node tests/test-k1u-session-start-envelope.cjs
 
+# --- (2f) quick 261019-btm: no Larry-facing file names a retired Brain route ---
+# Theo is the Brain since Phase 339. The brain-connector skill sent Larry to the retired pws-brain-mcp tools until 2026-10-19.
+# The leg is a hard run (not run_if), so a missing or red test fails the cut.
+run "btm no retired Brain route in Larry-facing files (quick 261019-btm)" node tests/test-btm-theo-is-the-brain.cjs
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs

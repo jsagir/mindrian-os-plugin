@@ -6,6 +6,9 @@
 ### Added
 - 
 
+### Fixed
+- **Larry on Claude Desktop and Cowork now follows the real route to the Brain.** The Brain connector skill told Larry to call the tools of `pws-brain-mcp`, a Brain server that is retired. It now says that Larry reaches Theo through the plugin's `mindrian-brain` server, which forwards each call to `https://theo-mcp.onrender.com`, and it keeps the rule for adding a framework that the graph does not hold yet to the enrichment queue. A new release test fails the cut when a file that Larry reads names `pws-brain-mcp`, Memgraph or `mindrian-brain.onrender.com` as the Brain (quick 261019-btm).
+
 ## [2.0.0-beta.69] - 2026-10-14
 
 ### Added
