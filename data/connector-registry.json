@@ -3876,6 +3876,25 @@
       "layer_why": "Reads the session-bound room's STATE.md; a room-context reader, the rubric's own step 4 signal verbatim."
     },
     {
+      "surface": "mcp:rs_experts_find",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "none",
+      "hitl_why": "Read-only search within the bound room; it makes no external request and does not write local knowledge.",
+      "layer": "harness",
+      "layer_why": "Uses the bound-session room resolver and navigation read-only database door."
+    },
+    {
       "surface": "mcp:rs_thesis_read",
       "source": "mcp_tool",
       "connects_to_spine": true,
