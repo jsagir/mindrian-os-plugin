@@ -110,6 +110,26 @@ async function rebindOpensNewVisit() {
   } finally { if (session) await session.close(); fixture.cleanup(); }
 }
 
+// WR-02: a retried briefing does not list its own next-move card as a pending decision; other open gates still show.
+async function retryHidesOwnCard() {
+  const fixture = hermeticEnv();
+  let session;
+  try {
+    session = await openSession(fixture);
+    await createRoom(session, fixture, 'Retry room', 'Retry purpose', 'retry-room');
+    assert.equal((await session.call('room_bind', { room: 'retry-room' })).bound, true);
+    const first = (await session.call('room_startup')).briefing;
+    assert.equal(typeof first.next_move.gate_id, 'string');
+    await session.call('gate_render', { header: 'Keep the pilot budget?', options: [{ id: 'approve', label: 'Approve' }, { id: 'defer', label: 'Defer' }] });
+    const second = (await session.call('room_startup')).briefing;
+    assert.equal(second.next_move.gate_id, first.next_move.gate_id, 'a retry keeps the next-move card');
+    assert(!second.pending_decisions.some(gate => gate.gate_id === first.next_move.gate_id),
+      'the briefing does not list its own card as pending: ' + JSON.stringify(second.pending_decisions));
+    assert(second.pending_decisions.some(gate => gate.header === 'Keep the pilot budget?'), 'another open gate still shows as pending');
+    console.log('PASS WR-02: a retried briefing hides its own next-move card under pending decisions and keeps other open gates');
+  } finally { if (session) await session.close(); fixture.cleanup(); }
+}
+
 async function realFlows() {
   const fixture = hermeticEnv();
   assert(path.dirname(fixture.dirs.roomDir) === fixture.dirs.roomsHome);
@@ -297,10 +317,11 @@ async function browserFlows() {
     console.log('PASS returning-browser briefing, recorded changes, pending decisions and single-use next-move choice');
   } finally { await browser.close(); }
 }
-module.exports = { realFlows, fixtures, secondRoomStaysLocal, rebindOpensNewVisit };
+module.exports = { realFlows, fixtures, secondRoomStaysLocal, rebindOpensNewVisit, retryHidesOwnCard };
 if (require.main === module) (async () => {
   await realFlows();
   await secondRoomStaysLocal();
   await rebindOpensNewVisit();
+  await retryHidesOwnCard();
   if (process.argv.includes('--browser')) await browserFlows();
 })().catch(error => { console.error(error); process.exitCode = 1; });
