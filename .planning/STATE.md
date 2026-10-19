@@ -9439,3 +9439,12 @@ See `.planning/quick/261019-ey0-gpt-plugin-with-built-in-f-shape-ui-usin/SUMMARY
 Local MCP/client/browser checks pass; one existing test-237 mutation matcher is
 stale against HEAD. No release or live ChatGPT connection update was performed.
 Current milestone/phase position is unchanged.
+
+
+## Completed quick task 261019-fhe (2026-10-19)
+
+Room-first GPT plugin entry: room_list picker -> effective room_bind -> saved
+context_assemble -> session-correct room view. Real fresh-session tests recover
+a saved decision; browser tests verify selection and failures. No release or live
+ChatGPT account update. Current milestone/phase position is unchanged.
+See `.planning/quick/261019-fhe-room-first-gpt-plugin-entry-choose-bind-/SUMMARY.md`.

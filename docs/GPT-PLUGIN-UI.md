@@ -12,9 +12,21 @@ mindrian-brain MCP shim. Both are defined in the plugin's existing .mcp.json.
 Use the supported Node version declared by package.json. Do not point a client
 directly at raw Theo with private room material.
 
-Ask the host to list rooms, bind the chosen room, then call room-dashboard.
-Its controls request grounded command proposals or generic Theo guidance in
-the conversation. A request is not a receipt that work has executed.
+On first activation ask the host to call room_list. In a compatible MCP Apps
+host it opens the built-in room picker. Choose an existing local room and select
+Open selected room. The component calls room_bind without an invented sessionId,
+checks effective/carries_to_later_calls, calls context_assemble for the saved room
+briefing, and opens the selected room through room-dashboard. It contributes the
+bounded memory snapshot to model context and asks the host to continue in that room.
+Nothing binds merely because the list was displayed. No room is silently selected.
+
+The dashboard, wiki and graph use the current session binding when room_path is
+omitted. Explicit contained-path views are still allowed and labelled as views,
+not as changing the binding. Missing memory is reported as unavailable; the UI
+does not invent a successful recall or create/heal a room on its own.
+
+Dashboard controls request grounded command proposals or generic Theo guidance
+in the conversation. A request is not a receipt that work has executed.
 
 For commands, the host uses suggest_next and chain_resolve, then chain_run.
 The existing chain executor runs its permitted prefix and pauses at material
@@ -83,3 +95,13 @@ Official integration contracts checked for this change:
 - https://developers.openai.com/plugins/build/mcp-server
 - https://developers.openai.com/plugins/build/chatgpt-ui
 - https://developers.openai.com/api/docs/guides/custom-mcp-server
+
+## Room-first entry verification
+
+tests/test-room-first-entry.cjs drives a real GPT-identified client against two
+synthetic local rooms. It verifies the selected non-boot room is shown by all
+three views, context_assemble includes a saved decision, and a new server/client
+session recovers that decision after binding the same room. With --browser it
+checks call order, ineffective binding, missing memory, empty lists and narrow
+layout through the actual MCP Apps SDK. This remains local integration evidence,
+not a claim that the live ChatGPT account connection has been updated.

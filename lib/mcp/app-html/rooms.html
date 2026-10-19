@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open a MindrianOS room</title>
+<style>
+:root{color-scheme:light dark;--paper:#F7F3ED;--ink:#1A1A1A;--line:#D4CFC7;--blue:#1B3B6F;--muted:#5C5A56}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,sans-serif}
+main{max-width:820px;padding:24px;margin:auto}h1{font:600 clamp(26px,5vw,36px)/1.15 Georgia,serif;margin:8px 0 16px}h2{font:600 22px/1.3 Georgia,serif}
+.eyebrow{font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+p{line-height:1.5}fieldset{border:0;margin:16px 0;padding:0}legend{margin-bottom:12px;font-size:14px}
+.room-option{display:flex;gap:12px;padding:16px;border:1px solid var(--line);margin:8px 0;min-height:48px;cursor:pointer;overflow-wrap:anywhere}
+.room-option:has(input:checked){border-color:var(--blue)}input{accent-color:var(--blue)}
+button{font:inherit;min-height:44px;padding:10px 16px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button:disabled{opacity:.55;cursor:default}.actions{display:flex;gap:12px;flex-wrap:wrap}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}#status[data-error=true]{border-left:3px solid #A63D2F;padding-left:12px}
+#home{overflow-wrap:anywhere;font-size:12px;color:var(--muted)}#brief{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
+.section{border:1px solid var(--line);padding:16px;margin:8px 0}.section strong{display:block;margin-bottom:6px}
+:focus-visible{outline:3px solid #C8A43C;outline-offset:3px}[hidden]{display:none!important}
+@media(prefers-color-scheme:dark){:root{--paper:#1A1A1A;--ink:#F7F3ED;--line:#5C5A56;--blue:#6D9BFF;--muted:#D4CFC7}button.primary{color:#1A1A1A}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow">Your local Data Rooms</p>
+<h1 id="title" tabindex="-1">Choose a room</h1>
+<p id="intro">Open an existing room to continue from its saved understanding.</p>
+<p id="home"></p>
+<fieldset id="rooms"><legend>Available rooms</legend></fieldset>
+<div class="actions" id="picker-actions">
+<button id="open" class="primary" type="button" disabled>Open selected room</button>
+<button id="reload" type="button">Refresh rooms</button>
+</div>
+<p id="status" role="status" aria-live="polite">Loading local rooms...</p>
+<section id="opened" hidden>
+<h2>Saved understanding</h2><div id="brief"></div>
+<h2>Room sections</h2><div id="sections"></div>
+<div class="actions"><button id="continue" class="primary" type="button">Continue in chat</button><button id="switch" type="button">Choose another room</button></div>
+</section>
+</main>
+<script>
+(function () {
+  'use strict';
+  const byId=id=>document.getElementById(id);
+  let selected=null,busy=false,opened=null,memoryLoaded=false;
+  function status(text,error=false){byId('status').textContent=text;byId('status').dataset.error=String(error);}
+  function unpack(result){
+    if(result?.structuredContent)return result.structuredContent;
+    const text=result?.content?.find(item=>item.type==='text')?.text;
+    if(!text)throw Error('The room operation returned no data.');
+    return JSON.parse(text);
+  }
+  async function call(name,args){
+    const result=await view.callTool(name,args);
+    const data=unpack(result);
+    if(result.isError||data.ok===false)throw Error(data.message||data.reason||'The room operation was refused.');
+    return data;
+  }
+  function lock(value){
+    busy=value;
+    for(const element of document.querySelectorAll('button,input'))element.disabled=value;
+    if(!value)byId('open').disabled=!selected;
+  }
+  function receive(data,result){
+    if(busy)return;
+    if(result?.isError||!data||!Array.isArray(data.rooms)){
+      selected=null;byId('rooms').replaceChildren();byId('open').disabled=true;
+      status('The local room list could not be read. Reconnect MindrianOS or refresh.',true);return;
+    }
+    selected=null;opened=null;memoryLoaded=false;
+    byId('opened').hidden=true;byId('rooms').hidden=false;byId('picker-actions').hidden=false;byId('intro').hidden=false;
+    byId('title').textContent='Choose a room';byId('home').textContent=typeof data.home==='string'?'Local folder: '+data.home:'';
+    const list=byId('rooms');list.replaceChildren();
+    const legend=document.createElement('legend');legend.textContent='Available rooms';list.append(legend);
+    const names=[...new Set(data.rooms.filter(room=>typeof room==='string'&&room.length))];
+    for(const name of names){
+      const label=document.createElement('label');label.className='room-option';
+      const input=document.createElement('input');input.type='radio';input.name='room';input.value=name;
+      input.addEventListener('change',()=>{selected=name;byId('open').disabled=false;});
+      const text=document.createElement('span');text.textContent=name;label.append(input,text);list.append(label);
+    }
+    byId('open').disabled=true;
+    status(names.length?'Choose the room this conversation should work in.':'No rooms were found in the configured local folder. Room creation is not available in this view.');
+  }
+  const view=MindrianView.connect('room_list',receive,{raw:true});
+  async function continueInChat(){
+    if(!opened)return;
+    const text='Continue with MindrianOS in room '+JSON.stringify(opened)+'. The room-opening UI verified the session binding. Call context_assemble to load the saved room briefing for this conversation, then room-dashboard without room_path to show the bound room. '+
+      (memoryLoaded?'Summarize the current understanding and unfinished work before proposing a next move.':'The UI could not load saved memory; report its availability honestly and offer the supported recovery.');
+    await view.sendMessage(text);
+  }
+  byId('open').addEventListener('click',async()=>{
+    if(busy||!selected)return;
+    const choice=selected;lock(true);opened=null;
+    try{
+      status('Opening '+choice+'...');
+      const binding=await call('room_bind',{room:choice});
+      if(binding.bound!==true||binding.effective!==true||binding.carries_to_later_calls!==true||binding.primary!==choice)throw Error(binding.reason||'The selected room did not bind to this connection.');
+      status('Loading saved room context...');
+      let memory=null,memoryError=null;
+      try{memory=await call('context_assemble',{fragment_window:6,fragment_char_cap:400,top_k:10,max_depth:2});}
+      catch(error){memoryError=error.message;}
+      const data=await call('room-dashboard',{});
+      if(data.room_binding?.bound!==true||data.room_binding.slug!==choice)throw Error('The room view does not match your selected room. Reopen it before continuing.');
+      if(memory&&memory.room_dir!==binding.resolved_dir)throw Error('The saved context does not match your selected room. Reopen it before continuing.');
+      opened=choice;memoryLoaded=!!memory;
+      byId('rooms').hidden=true;byId('picker-actions').hidden=true;byId('intro').hidden=true;
+      byId('title').textContent=data.name||choice;byId('opened').hidden=false;
+      byId('brief').textContent=memoryError?'Saved context could not be loaded: '+memoryError:
+        (typeof memory.feyminto_brief==='string'&&memory.feyminto_brief.trim()?memory.feyminto_brief:'The saved room context is ready for this conversation.');
+      const sections=byId('sections');sections.replaceChildren();
+      for(const section of Array.isArray(data.sections)?data.sections:[]){
+        const entry=document.createElement('div');entry.className='section';const title=document.createElement('strong');title.textContent=section.label||section.id||'Section';
+        const count=document.createElement('span');count.textContent=String(Number.isFinite(section.entryCount)?section.entryCount:0)+' entries';entry.append(title,count);sections.append(entry);
+      }
+      if(!sections.children.length)sections.textContent='No sections are available yet.';
+      view.updateModelContext({content:[{type:'text',text:JSON.stringify({source:'MindrianOS room opening',room:choice,binding,memory:memory||{ok:false,reason:memoryError}})}]});
+      status(memoryLoaded?'Room open. Saved context loaded.':'Room open. Saved context is unavailable.',!memoryLoaded);
+      try{await continueInChat();}
+      catch(_){status('Room open. Continue in chat to load its context into the conversation.',!memoryLoaded);}
+    }catch(error){status(error.message||'The room could not be opened.',true);}
+    finally{lock(false);}
+  });
+  byId('continue').onclick=async()=>{if(busy||!opened)return;lock(true);try{await continueInChat();status('Continuing in the conversation.');}catch(_){status('The host could not continue the conversation. Ask it to load context_assemble for the selected room.',true);}finally{lock(false);}};
+  byId('reload').onclick=()=>{if(!busy)view.refresh();};
+  byId('switch').onclick=()=>{if(!busy)view.refresh();};
+})();
+</script>
+</body>
+</html>
