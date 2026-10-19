@@ -3597,15 +3597,29 @@ and MCP bridge authorities remain unchanged.
 **UI contract:** `371-UI-SPEC.md` approved 2026-10-19, all 6 design dimensions pass;
 `371-CONTEXT.md` records scope and `371-UI-SPEC-REVIEW.md` records the inline contract review.
 **Success Criteria** (what must be TRUE):
+
 1. A clean home shows first-room name/purpose preparation and the exact local destination before explicit F.0 approval; reject/defer and uncertain retries preserve existing creation and durable-receipt semantics.
 2. An ongoing room opens only after effective binding and loads saved memory, workday baseline, changes, open questions and pending decisions before F.1.
 3. Both journeys meet the v5 room-space, human-gate, copy, type and color contract in narrow/wide hosts with keyboard, zoom, reduced-motion and failure coverage.
 4. Missing history, unavailable memory and wrong-room results are distinct; viewing a room never confirms a claim or starts Theo/commands automatically.
 5. Local protocol/browser evidence is recorded separately from real ChatGPT host verification, which makes no guarantee about host panel persistence.
+
 **Plans:** 2 complete; Plan 03 local tasks pass and its human-host checkpoint is pending.
 **Verification:** human_needed; 7/8 requirements locally verified, STARTUI371-08 open.
 
 Plans:
+
 - [x] 371-01-PLAN.md - v5 startup composition and local assets
 - [x] 371-02-PLAN.md - guarded startup recovery and workday handover
 - [ ] 371-03-PLAN.md - local acceptance/audits pass; blocking real-host checkpoint pending
+
+### Phase 372: context_assemble reports what it omitted: _meta.omitted[] (SEED-134 Plan 01, bounded focus deferred)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 371
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 372 to break down)

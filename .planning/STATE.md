@@ -7638,6 +7638,8 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 372 added (2026-10-19): context_assemble reports what it omitted, `_meta.omitted[]` (SEED-134 Plan 01). Phase narrowed from the six-phase Holonic proposal after a red team against the status quo; bounded focus (Plan 02), outer ring and cross-boundary discovery are DEFERRED behind a JHTV derive re-measure and a baseline A/B with criteria written first. Navigator-approved scope, quick 261019-ui8.
+
 - Phase 371 added (2026-10-19): Navigator startup UI - first room and returning workday. Focused scope authorized; UI-SPEC approved with 6/6 inline design checks. Ready for planning; v5 visual implementation and host acceptance remain pending. Current phase position unchanged.
 
 - Phase 267 complete (2026-10-02, 18/18, be97781d0): MCP SDK v1 -> v2 migration. Local server and both in-repo clients on @modelcontextprotocol/server|client 2.x, v1 sdk removed from manifest/lockfiles, ext-apps 2.0.3, RCA 1/2/4/5/6 resolved (RCA 7 open, SEED-108). MCPV2: 16/19 [x]; MCPV2-03 + MCPV2-08 wait on the post-366 CIRS/zod4 baseline refresh; MCPV2-13 open (human Desktop + Cowork smoke deferred by navigator, surrogate wire evidence 5b1770072). Seeds SEED-108..111 planted.
@@ -9333,6 +9335,7 @@ Progress: [█████████░] 92%
 | 261019-k22 | Re-baseline the tool-schema budget for room_create and room_startup (48 -> 50 tools, measured live) | 2026-10-19 | dbb9a3efd | complete | [261019-k22-re-baseline-the-tool-schema-budget-for-r](./quick/261019-k22-re-baseline-the-tool-schema-budget-for-r/) |
 | 261019-kl4 | Project skill mindrian-mcp-app so /mcp-apps:create-mcp-app follows the house MCP App pattern; CLAUDE.md row | 2026-10-19 | 1322656e1 | complete | [261019-kl4-project-skill-so-the-mcp-app-builder-fol](./quick/261019-kl4-project-skill-so-the-mcp-app-builder-fol/) |
 | 261019-ksf | Fix the 371 release-review blockers: CR-01 room-creation gate leaks into the bound room (Part 9), CR-02 frozen stdio workday briefing, WR-02 own card listed as pending, room_list ruled sentence restored, 366 integrity timeout 300 s; 267/276 pin re-baseline | 2026-10-19 | 17c64f51b | complete | [261019-ksf-fix-the-371-release-review-blockers-befo](./quick/261019-ksf-fix-the-371-release-review-blockers-befo/) |
+| 261019-ui8 | SEED-134: record the scope cut to the omitted[] slice (Plan 02 and proposal Phases 2-6 gated on derive re-measure and baseline A/B) | 2026-10-19 | 1a4a6496a | complete | [261019-ui8-seed-134-record-the-scope-cut-to-the-omi](./quick/261019-ui8-seed-134-record-the-scope-cut-to-the-omi/) |
 
 ## Session Continuity
 
