@@ -34,6 +34,8 @@ The central claim is a hypothesis to test, not a result: bounded focus plus cont
 
 2026-10-19: "lets seed this as the critical next gsd for mindrian" and "consult the neo4j and icm skills relevant to it." Priority critical; the phase comes right after the beta.71 cut. Start with the architecture audit and gap analysis (Phase 0 of the proposal), then the smallest slice that tests the hypothesis. Not a rewrite.
 
+2026-10-19, strike ruled (navigator, on the critic's objection): the proposal's closing objective, "make cumulative knowledge more capable of producing validated discoveries", is STRUCK as the definition of done, because counting validated discoveries rewards inflation and only a person and an experiment validate. The ruling objective for every phase this seed promotes to: **make cumulative knowledge more capable of producing traceable, falsifiable candidates that a person can accept or reject quickly.** The verbatim paste below keeps the original line for the record, with this ruling standing over it.
+
 ## Consult: ICM (icm-architect, icm-workspace-architect, repo doctrine), 2026-10-19
 
 Read-only consult over the ICM skills, Canon Parts 8 and 9, Appendix B, MWP-SPECIFICATION, LAYER-CONTRACT, `lib/core/navigation/*` and the research planner. Labels: Verified (seen in code, tests or doctrine), Unknown (not proven).
