@@ -232,6 +232,7 @@ Full per-source routing detail, triggers, and precedent (why each source earned 
 |-------|-------------|------|
 | claude-md-optimizer | Optimizes oversized CLAUDE.md/AGENTS.md/copilot-instructions.md files via progressive disclosure (6-phase guided workflow: detect, analyze, plan, review, execute, validate) - MIT licensed, https://github.com/wrsmith108/claude-md-optimizer | .claude/skills/claude-md-optimizer/SKILL.md |
 | spike-findings-MindrianOS-Plugin | Implementation blueprint from the 2026-09-17 Jev (TypeSafe) spikes: typed-decision API contract and measured latency/cost, the section framework ledger recipe over Theo (with the Theo read-contract traps and the IP egress ruling), and stated-policy execution parity | .claude/skills/spike-findings-MindrianOS-Plugin/SKILL.md |
+| mindrian-mcp-app | House rules for every MCP App (ext-apps UI) on the one MindrianOS server: template + resource registration pattern, CSP, bundled fonts, Larry identity, the HITL shape and tool-budget gates, tests to extend, live inventory. Read BEFORE `/mcp-apps:create-mcp-app`, which otherwise scaffolds a new Vite + TypeScript server this repo never uses | .claude/skills/mindrian-mcp-app/SKILL.md |
 
 - **Spike findings for MindrianOS-Plugin** (implementation patterns, constraints, gotchas) -> `Skill("spike-findings-MindrianOS-Plugin")`
 <!-- GSD:skills-end -->
