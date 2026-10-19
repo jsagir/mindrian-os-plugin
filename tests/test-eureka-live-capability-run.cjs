@@ -210,7 +210,10 @@ async function main() {
   assert.equal(planned.reason, 'capability_not_runnable');
   assert.equal(planned.capability_id, 'claims.compare');
   assert.equal(planned.readiness, 'planned');
-  assert.equal(planned.host_handoff.type, 'no_exact_route');
+  assert.equal(planned.host_handoff.type, 'related_partial');
+  assert.deepEqual(planned.host_handoff.capabilities, [
+    'analysis.compare_text_differences', 'analysis.audit_claim_traceability',
+  ]);
   assert.match(planned.message, /does not complete this Eureka capability/);
   console.log('eureka live capability bridge: PASS (contract discovery, generic and direct dispatch, planned refusal)');
 }

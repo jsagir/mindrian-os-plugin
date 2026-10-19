@@ -71,11 +71,12 @@ async function main() {
   assert.equal(unsupported.reason, 'unsupported_mcp_route');
 
   const plannedRefusal = resolveCapability({ capabilities: [{ id: 'claims.compare', status: 'planned',
-    host_handoff: { type: 'no_exact_route', mcp: 'claim_read and claim_verify' } }] }, 'claims.compare');
+    host_handoff: { type: 'related_partial', capabilities: ['analysis.compare_text_differences', 'analysis.audit_claim_traceability'] } }] }, 'claims.compare');
   assert.equal(plannedRefusal.reason, 'capability_not_runnable');
   assert.equal(plannedRefusal.capability_id, 'claims.compare');
   assert.equal(plannedRefusal.readiness, 'planned');
-  assert.deepEqual(plannedRefusal.host_handoff, { type: 'no_exact_route', mcp: 'claim_read and claim_verify' });
+  assert.deepEqual(plannedRefusal.host_handoff, { type: 'related_partial',
+    capabilities: ['analysis.compare_text_differences', 'analysis.audit_claim_traceability'] });
   assert.equal(resolveCapability({ capabilities: [{ id: 'research.x', status: 'experimental', routes: { mcp: { tool: 'unexpected_tool' } } }] }, 'research.x').reason,
     'unsupported_mcp_route');
 
