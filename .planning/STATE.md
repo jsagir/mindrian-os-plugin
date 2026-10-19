@@ -9486,3 +9486,13 @@ local tasks pass, real-host checkpoint pending. Verification: human_needed,
 Resume: `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UAT.md`.
 The peer Phase 369 Current Position is preserved; no milestone close/archive,
 release, account/plugin install, tunnel or live ChatGPT update was performed.
+
+
+## Phase 371 host validation attempted (2026-10-19)
+
+Navigator said to perform the final validation. Live old connector is reachable
+but lacks room_create/room_startup and picker UI metadata. Available local install
+is beta.66; the actual ChatGPT browser is signed out and left at login. Awaiting
+user sign-in, then connection inspection/refresh to the current source. No new
+room, account/plugin update, tunnel, release or credential entry was performed.
+Phase remains human_needed. Evidence: 371-HOST-VALIDATION-ATTEMPT.md/json.

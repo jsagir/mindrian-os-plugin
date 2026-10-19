@@ -63,3 +63,13 @@ ec3d56380 startup birth/workday backend; b0e4a43de scoped UI contract.
 Phase cycle: e4eb3cebb research/plans; cec325d5b v5 assets/composition;
 c338b89e7 recovery/context, followed by this phase's acceptance/review commit.
 These links preserve chronology; baseline work is not fabricated execution.
+
+
+## Actual host attempt (2026-10-19)
+
+The navigator authorized running validation. The live connector answered
+room_list, but its registry lacks room_create and room_startup and its result
+has no new picker metadata. The available Windows plugin cache is beta.66.
+The actual ChatGPT Plugins page is signed out; navigation reached account login.
+See 371-HOST-VALIDATION-ATTEMPT.md/json. Status remains human_needed because the
+updated host connection and authenticated browser are not yet available.

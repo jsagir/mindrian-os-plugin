@@ -1,0 +1,36 @@
+{
+  "phase": 371,
+  "checked_at": "2026-10-19T09:31:10.126454+00:00",
+  "status": "blocked_by_host_preconditions",
+  "requested_validation": [
+    "actual ChatGPT room resource and usable controls",
+    "first-room approval creates exactly one room",
+    "clean-chat saved room context and workday briefing"
+  ],
+  "observed": {
+    "live_room_list": "succeeded through the current mos-core connector; returned room list without the new picker resource metadata",
+    "current_tool_registry": {
+      "room_list": true,
+      "context_assemble": true,
+      "room_create": false,
+      "room_startup": false
+    },
+    "local_codex_install": "mindrian-marketplace/mos/2.0.0-beta.66; read-only inspection, no cache modification",
+    "browser_inventory": "available in-app browser; no signed-in Chrome/Edge session or MCP App tab available",
+    "chatgpt_plugins_page": "signed out; Log in visible",
+    "chatgpt_login_page": "Log in or sign up, Google/Apple/phone/email options; waiting for user sign-in",
+    "owned_personal_plugin_lookup": "no MindrianOS-owned personal account plugin identified; other plugin identities were left untouched"
+  },
+  "not_performed": [
+    "credential entry",
+    "plugin/account update",
+    "new tunnel or public endpoint",
+    "shared marketplace release",
+    "test room creation through an old connection"
+  ],
+  "next_step": "User signs in to the opened ChatGPT browser; inspect/reuse the intended private connection and refresh or set it up to serve current source and rooms/v4, then run both journeys.",
+  "documentation": [
+    "https://developers.openai.com/plugins/deploy/connect-chatgpt",
+    "https://developers.openai.com/api/docs/guides/secure-mcp-tunnels"
+  ]
+}
