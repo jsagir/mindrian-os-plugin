@@ -16,12 +16,22 @@
  * Whys) fails the exemption. The lowercase twin of the same question passes
  * because the rule only inspects TitleCase words.
  *
- * Fix (navigator option B, approved 2026-10-18): three head nouns join
- * METHODOLOGY_HEAD_NOUNS: interview, check, whys. Nothing else changes.
+ * Fix of 2026-10-18 (navigator option B): three head nouns joined
+ * METHODOLOGY_HEAD_NOUNS: interview, check, whys. That widening was case-blind
+ * and position-blind, so a person name within two tokens of a plain English
+ * "check" or "interview" passed (SEED-130).
+ *
+ * Narrowing of quick 261019-91i (rule R, SEED-130 directions 1 and 2): the 14
+ * original head nouns are back in METHODOLOGY_HEAD_NOUNS and behave as before
+ * 2026-10-18. The three new nouns live in TITLECASE_TOOL_HEAD_NOUNS. A new noun
+ * counts only when it is TitleCase and ends a run of directly adjacent
+ * TitleCase words. It then exempts only the TitleCase words directly before it,
+ * plus itself. It never counts in lowercase, before a name, across a function
+ * word such as "of", or in the two-token window.
  *
  * Groups:
  *   GROUP A (policy, fixed): the five reported questions that name tools Theo
- *     does not know. They allow after the head-noun widening.
+ *     does not know. They allow under rule R.
  *   GROUP B (plain bug, OUT OF SCOPE): a Theo framework whose snapshot name
  *     carries an alias in parentheses or after a slash ("Jobs to Be Done
  *     (JTBD)") is exempt only in that exact spelling, so the bare name blocks.
@@ -32,10 +42,23 @@
  *   GROUP C (Canon Part 8 direction): an unrecorded two-word human name must
  *     still block, alone and beside an allowed tool name. GREEN before and
  *     after the fix.
- *   GROUP K (known leak, documented): the widening exempts a person name that
- *     sits within two tokens of a new head noun. The leg prints
- *     KNOWN-UNDER-BLOCK. It never counts as a pass and never fails the run.
- *     Filed as SEED-130. The related lowercase blind spot is SEED-129.
+ *   GROUP N1 (narrowed): a person name beside a lowercase new noun, or across
+ *     "of", blocks as room_content / name. RED before rule R.
+ *   GROUP N2 (position): the new nouns exempt nothing when the noun comes
+ *     before the name, when a name follows a tool name, when the noun is
+ *     lowercase after the name, when it is a lowercase verb before the name, or
+ *     when a function word bridges. RED before rule R.
+ *   GROUP N3 (invariance): the 14 original head nouns give the same verdicts
+ *     as the source at commit 99bbbaa66. This leg asserts invariance. It does
+ *     not approve the old leaks (SEED-130, old half stays open).
+ *   GROUP K (known leak, documented, residual after quick 261019-91i): a
+ *     person name directly before a TitleCase new noun has the shape of a tool
+ *     name ("Marrowby Pell Interview" looks like "Problem Interview"), and rule
+ *     R reads shape only. In the first probe "Marrowby" is also exempt by the
+ *     old noun "framework" within two tokens. The leg prints KNOWN-UNDER-BLOCK.
+ *     It never counts as a pass and never fails the run. SEED-130 direction 3
+ *     (an exact reviewed list of tool names) closes it. The related lowercase
+ *     blind spot is SEED-129.
  *
  * Tags: PASS, FAIL, XFAIL (expected failure, skipped), XPASS (an XFAIL leg that
  * now passes; counted as skipped, the marker should be removed),
@@ -119,14 +142,49 @@ const HUMAN_NAMES = [
   { id: 'H5', q: 'Which tool follows the Five Whys that Kestrel Voss presented?' },
 ];
 
-// GROUP K: a pseudonym human name beside a head noun that the widening added
-// (interview, check, whys). Each string passes the guard today. Each one
-// blocked as room_content / name before the widening. Invented names only.
+// GROUP N1: a person name beside a new noun that is not a TitleCase noun
+// directly after a capitalized run. Each blocked as room_content / name before
+// 2026-10-18 and must block again.
+const NARROWED_BLOCKS = [
+  { id: 'N1-check-verb', q: 'Did Marrowby Pell check the plan?', reason: 'lowercase check after the name' },
+  { id: 'N1-interview-noun', q: 'Summarize the interview Marrowby Pell gave', reason: 'lowercase interview before the name' },
+  { id: 'N1-whys-of', q: 'Which tool follows the Five Whys of Marrowby Pell?', reason: 'name after "of", no TitleCase noun after the name' },
+];
+
+// GROUP N2: position probes. The new noun must be TitleCase, run-final, and
+// directly after the capitalized words it exempts.
+const POSITION_PROBES = [
+  { id: 'N2-noun-before-name', q: 'Which tool does Interview Marrowby Pell teach?', reason: 'noun before the name' },
+  { id: 'N2-name-after-tool', q: 'Which tool does Problem Interview Marrowby Pell teach?', reason: 'name directly after a tool name' },
+  { id: 'N2-name-after-tool-2', q: 'Did the Problem Interview Odalys Brennick ran work?', reason: 'name after a tool name' },
+  { id: 'N2-lowercase-after', q: 'Which tool does Marrowby Pell interview teach?', reason: 'lowercase noun after the name' },
+  { id: 'N2-lowercase-verb-before', q: 'Please check Marrowby Pell first.', reason: 'lowercase verb before the name' },
+  { id: 'N2-function-bridge', q: 'Which tool did Marrowby Pell of Five Whys teach?', reason: 'function-word bridge' },
+];
+
+// GROUP N3: the 14 original head nouns keep the verdicts of the source at
+// commit 99bbbaa66 (checked by loading that source). Pseudonyms only.
+const PRE_EXISTING_NOUNS = [
+  { q: 'Which Marrowby Pell Framework fits an ill-defined problem?', expect: 'allow' },
+  { q: 'Which Odalys Brennick framework fits a wicked problem?', expect: 'allow' },
+  { q: 'Did Marrowby Pell model the plan?', expect: 'allow' },
+  { q: 'Is Kano Model a framework or a method?', expect: 'allow' },
+  { q: 'What does the Lean Canvas show first?', expect: 'allow' },
+  { q: 'When is Minto Pyramid the right structure?', expect: 'allow' },
+  { q: 'Which Marrowby Pell Canvas came first?', expect: 'allow' },
+  { q: 'Which model did Marrowby Pell build?', expect: 'block' },
+  { q: 'Which matrix did Kestrel Voss draw for the board?', expect: 'block' },
+  { q: 'Did Kestrel Voss present the analysis twice?', expect: 'block' },
+];
+
+// GROUP K: residual. A pseudonym human name directly before a TitleCase new
+// noun has the shape of a tool name and passes the guard. Each string blocked
+// as room_content / name before 2026-10-18. Invented names only.
 const LEAK_PROBES = [
-  { id: 'K-interview', noun: 'interview', q: 'Which framework did Marrowby Pell Interview use?' },
-  { id: 'K-check', noun: 'check', q: 'Which question set does Fennick Harlow Check use?' },
-  { id: 'K-whys', noun: 'whys', q: 'Which tool follows the Five Whys of Marrowby Pell?' },
-  { id: 'K-check-lowercase', noun: 'check (lowercase verb)', q: 'Did Marrowby Pell check the plan?' },
+  { id: 'K-interview', noun: 'Interview (TitleCase; "Marrowby" is also exempt by the old noun "framework" within 2 tokens)', q: 'Which framework did Marrowby Pell Interview use?' },
+  { id: 'K-check', noun: 'Check (TitleCase)', q: 'Which question set does Fennick Harlow Check use?' },
+  { id: 'K-whys-bare', noun: 'Whys (TitleCase)', q: 'Which tool follows Marrowby Pell Whys?' },
+  { id: 'K-five-whys', noun: 'Five Whys (TitleCase)', q: 'Which tool did Marrowby Pell Five Whys teach?' },
 ];
 
 // GROUP B: bare forms of snapshot names that carry an alias.
@@ -323,13 +381,51 @@ function main() {
     ok(!/Marrowby|Pell/.test(h.stderr), 'stderr echoes the name');
   });
 
-  // ---- GROUP K (known leak created by the widening, documented) ----
-  // SEED-130: a person name within two tokens of a head noun is exempt, and
-  // the nouns interview, check and whys widen that. "check" and "interview"
-  // are also plain English words, and the head-noun match is case-blind, so a
-  // lowercase verb exempts the name beside it. SEED-129 holds the older blind
+  // ---- GROUP N1, N2, N3 (rule R of quick 261019-91i) ----
+  function blocksAsName(v) {
+    return isBlock(v) && v.class === 'room_content' && v.token_class === 'name';
+  }
+  rooms.forEach(function (r) {
+    leg('N1 [' + r.label + ']: a name beside a lowercase or non-final new noun blocks as room_content/name', function () {
+      const bad = [];
+      NARROWED_BLOCKS.forEach(function (p) {
+        const v = verdict(p.q, r.dir);
+        if (!blocksAsName(v)) bad.push(p.id + ' (' + p.reason + ') ' + describe(v));
+      });
+      ok(bad.length === 0, bad.length + ' of ' + NARROWED_BLOCKS.length + ' not blocked as name: ' + bad.join('; '));
+    });
+  });
+  rooms.forEach(function (r) {
+    leg('N2 [' + r.label + ']: the new nouns exempt nothing before the name, after a tool name, in lowercase after the name, or across a function word', function () {
+      const bad = [];
+      POSITION_PROBES.forEach(function (p) {
+        const v = verdict(p.q, r.dir);
+        if (!blocksAsName(v)) bad.push(p.id + ' (' + p.reason + ') ' + describe(v));
+      });
+      ok(bad.length === 0, bad.length + ' of ' + POSITION_PROBES.length + ' not blocked as name: ' + bad.join('; '));
+    });
+  });
+  rooms.forEach(function (r) {
+    leg('N3 [' + r.label + ']: the 14 original head nouns keep the verdicts of commit 99bbbaa66', function () {
+      const bad = [];
+      PRE_EXISTING_NOUNS.forEach(function (p) {
+        const v = verdict(p.q, r.dir);
+        const good = p.expect === 'allow' ? !isBlock(v) : blocksAsName(v);
+        if (!good) bad.push('expected ' + p.expect + ' :: ' + p.q + ' :: ' + describe(v));
+      });
+      ok(bad.length === 0, bad.length + ' of ' + PRE_EXISTING_NOUNS.length + ' changed: ' + bad.join('; '));
+    });
+  });
+
+  // ---- GROUP K (known leak, residual after quick 261019-91i) ----
+  // SEED-130: a person name directly before a TitleCase new noun (interview,
+  // check, whys) has the shape of a tool name ("Problem Interview"). Rule R
+  // reads shape only, so it cannot tell the two apart. In the first probe
+  // "Marrowby" is also exempt by the old noun "framework" within 2 tokens. The
+  // old nouns are out of scope here. Only an exact reviewed list of tool names
+  // (SEED-130 direction 3) closes this shape. SEED-129 holds the older blind
   // spot of the same rule: a lowercased person name is never inspected.
-  knownLeakLeg('K1: a pseudonym human name beside a new head noun passes the guard', 'SEED-130', LEAK_PROBES.length * rooms.length, function () {
+  knownLeakLeg('K1: a pseudonym human name in the TitleCase shape of a tool name passes the guard (residual after quick 261019-91i)', 'SEED-130', LEAK_PROBES.length * rooms.length, function () {
     const leaking = [];
     LEAK_PROBES.forEach(function (p) {
       rooms.forEach(function (r) {
