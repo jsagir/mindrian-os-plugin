@@ -5993,7 +5993,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-05 - Completed quick task 261005-lzg: Add a one-line pointer to SEED-121 (the LarrAI review spine) in agents/larry-extended.md
+Last activity: 2026-10-19 - Completed quick task 261019-91i: Narrow the Part 8 head-noun exemption (SEED-130)
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -9326,6 +9326,7 @@ Progress: [█████████░] 92%
 | 261001-rdv | Regenerate dist bundles for the 2.0.0-beta.52 placeholder (stamp was beta.36, the one red in run-all-339). release.sh never regenerates dist/, so the placeholder rebuild is dev-time, as in 48675a655. 239 generated files, no source edits. | 2026-10-01 | e1cc1fc8d | Verified (check-stale fresh; run-all-339 16/0; skill mirrors --check 0; run-all-234 9/2, both reds reproduce on clean HEAD) | [261001-rdv-rebuild-out-of-date-dist-bundles](./quick/261001-rdv-rebuild-out-of-date-dist-bundles/) |
 | 261005-lzg | Add a one-line pointer to SEED-121 (the LarrAI review spine) in agents/larry-extended.md | 2026-10-05 | e5489101b | Docs only (one YAML frontmatter comment; shape, connector and projection checks unchanged; tests 114 and 115 green; harness-manifest fingerprint hand-off noted in SUMMARY) | [261005-lzg-add-a-one-line-pointer-to-seed-121-the-l](./quick/261005-lzg-add-a-one-line-pointer-to-seed-121-the-l/) |
 | 261011-omz | Explicit Larry/MindrianOS identity, first-reply Claude disclosure, canonical Theo faces and working MCP view lifecycle; validated Desktop dev preview | 2026-10-11 | 2c34f25ff | Verified (initialize 18, containment 22, real SDK/browser 11; actual Claude host untested) | [261011-omz-make-larry-and-mindrianos-activation-and](./quick/261011-omz-make-larry-and-mindrianos-activation-and/) |
+| 261019-91i | Narrow the Part 8 head-noun exemption (SEED-130): interview, check, whys count only as a TitleCase noun directly after a capitalized run; residual shape leak recorded in K1 | 2026-10-19 | 19453c8a2 | complete | [261019-91i-narrow-part8-head-noun-exemption-seed-13](./quick/261019-91i-narrow-part8-head-noun-exemption-seed-13/) |
 
 ## Session Continuity
 
