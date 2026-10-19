@@ -294,6 +294,21 @@ for (const r of serverOn._registered) {
   if (omitted.length > 0) {
     console.log(`    note - ${r.name}: optional field(s) the generator cannot satisfy, left absent: ${omitted.join(', ')}`);
   }
+  // This adapter's coordinate contract contains a fixed 2D tuple; the generic
+  // recursive sampler cannot synthesize tuples, so use one minimal valid case.
+  if (r.name === 'eureka_hsi_interpret_whitespace') {
+    sampleObj.node_ids = ['framework:sample', 'artifact:sample'];
+    sampleObj.gaps = [{ id: 'gap:sample', brain_framework_id: 'framework:sample', brain_framework: 'Sample Framework', nearest_room_artifacts: ['artifact:sample'] }];
+    sampleObj.umap_2d = { room: [[0, 0], [1, 1]] };
+  }
+  if (r.name === 'eureka_graph_rank_paths') {
+    sampleObj.node_ids = ['claim:sample-a', 'claim:sample-b'];
+    sampleObj.paths = [{ node_ids: ['claim:sample-a', 'claim:sample-b'], edge_types: ['SUPPORTS'] }];
+  }
+  if (r.name === 'eureka_graph_opportunity_scout') {
+    sampleObj.node_ids = ['artifact:sample-a', 'artifact:sample-b'];
+    sampleObj.objective = 'Find opportunity signals in the selected room graph';
+  }
   const result = r.inputSchema.safeParse(sampleObj);
   check(`${r.name} schema PARSES a synthesized sample input`, result.success === true);
 }
