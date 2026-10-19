@@ -22,6 +22,7 @@ Columns: row, line (source before Task 3), function, what the catch swallows, va
 | 7 | 275 | resolveReferenceMs | a clock failure | falls back to Date.now() | SILENT | legD | none |
 | 8 | 382 | getRoomContext, Leg E (inner) | a throw in the focus node properties lookup or parse | falls back to the room-root focus block | REPORT | legE | leg_failed |
 | 9 | 393 | getRoomContext, Leg E (outer) | any throw in the room-map read or render | legEText = empty string (legCostChars.legE reads 0) | REPORT | legE | leg_failed |
+| 9a | none (no catch) | getRoomContext, Leg E, after readRoomMap | readRoomMap folds a corrupt or unreadable room-map.json into { ok:false, reason:'no_map' } inside room-map.cjs (its own catch, outside this census). Added by quick 261020-0ys (audit finding F1) | legEText = empty string | REPORT, only when roomMapFileExists is true; a missing file stays silent | legE | leg_failed, detail RoomMapUnreadable |
 | 10 | 410 | legBytes (cost helper) | a JSON.stringify failure in the measurement | 0 | SILENT | none | none |
 
 ## Reasons for each disposition
@@ -52,7 +53,7 @@ Each entry has exactly the keys leg, reason, count, detail, in this order. leg i
 
 | reason | leg | count | detail |
 |--------|-----|-------|--------|
-| leg_failed | any | null | the error class name from err.name. Accept it only if it matches `^[A-Za-z][A-Za-z0-9_]{0,40}$`, otherwise the text `Error`. Never the message, the stack or an error code. |
+| leg_failed | any | null | the error class name from err.name. Quick 261020-0ys (audit finding F3) replaced the pattern with an allow-list: Error, TypeError, RangeError, SyntaxError, ReferenceError, EvalError, URIError. Any other name becomes the text `Error`. Never the message, the stack or an error code. One more fixed label exists: `RoomMapUnreadable` (row 9a). |
 | type_excluded | legC | rows before the filter minus rows after the filter | the members of RANKED_EXCLUDED_NODE_TYPES that matched a dropped row, joined by a comma (today `chain_state`). The text comes from the frozen set, never from a row. |
 | top_k_cap | legC | null | `top_k`. Branch A only. |
 | window_cap | legB (stored-session lane and seedFragments lane) | fragments dropped by the window | `fragment_window` |

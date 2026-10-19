@@ -10,7 +10,7 @@
  * Requirement to leg map:
  *   SPEC 1 (additive omitted list)        R1a R1b R1c R1d
  *   SPEC 2 (existing fields byte-stable)  R2a R2b R2c R2d
- *   SPEC 3 (thrown leg reported)          R3a to R3i, R7e
+ *   SPEC 3 (thrown leg reported)          R3a to R3k, R7e
  *   SPEC 4 (type exclusion reported)      R4a R4b R4c R4d
  *   SPEC 5 (cap reasons honest)           R5a R5b R5c R5d R5e
  *   SPEC 6 (estimate mode reported)       R6a R6b R6c
@@ -78,7 +78,7 @@ const TOP_K_CAP_ENABLED = golden.tie_probe.stable === true;
 
 const LEGS = ['legA', 'legB', 'legC', 'legD', 'legE'];
 const ENTRY_KEYS = ['leg', 'reason', 'count', 'detail'];
-const FIXED_DETAILS = ['chain_state', 'top_k', 'fragment_window', 'fragment_char_cap', 'body'];
+const FIXED_DETAILS = ['chain_state', 'top_k', 'fragment_window', 'fragment_char_cap', 'body', 'RoomMapUnreadable'];
 const ERROR_CLASS_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,40}$/;
 const WIDE_OPTS = { topK: 100, fragmentWindow: 50, fragmentCharCap: 4000, maxDepth: 2, now: NOW_PIN };
 const SECRET_TEXTS = ['omit372-secret', 'boom', 'not-json'];
@@ -419,6 +419,68 @@ leg('R3i', 'no forced throw leaks message text into the result', async () => {
     for (const e of forced._meta.omitted) {
       if (e.reason === 'leg_failed') assert.match(e.detail, ERROR_CLASS_PATTERN, 'class name only');
     }
+  }
+});
+
+leg('R3j', 'a truncated room-map.json yields one legE leg_failed RoomMapUnreadable; a missing file adds no entry', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-372-roommap-'));
+  try {
+    const roomDir = path.join(tmpDir, 'room');
+    fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+    const opts = Object.assign({}, WIDE_OPTS, { roomDir });
+    // Control: the file is missing. This is a normal state and stays silent.
+    const control = await ctxCall('R3j:control', buildOmissionFixtureDb(), opts);
+    assert.equal(control._meta.omitted.filter((e) => e.reason === 'leg_failed').length, 0, 'a missing map adds no entry');
+    assert.equal(control._meta.omitted.filter((e) => e.leg === 'legE').length, 0, 'a missing map adds no legE entry');
+    // Forced: the file is on disk but truncated, so the JSON parse fails.
+    fs.writeFileSync(
+      path.join(roomDir, '.mindrian', 'room-map.json'),
+      '{"nodes":[{"path":".","room":"OMIT372-SECRET"',
+      'utf8'
+    );
+    assert.equal(roomMapMod.readRoomMap(roomDir).ok, false, 'the truncated map does not read');
+    const forced = await ctxCall('R3j:forced', buildOmissionFixtureDb(), opts);
+    assert.deepStrictEqual(
+      forced._meta.omitted.filter((e) => e.reason === 'leg_failed'),
+      [{ leg: 'legE', reason: 'leg_failed', count: null, detail: 'RoomMapUnreadable' }]
+    );
+    assert.deepStrictEqual(
+      forced._meta.omitted.filter((e) => e.leg !== 'legE'),
+      control._meta.omitted.filter((e) => e.leg !== 'legE'),
+      'entries of the other legs unchanged'
+    );
+    for (const field of ['summary', 'recentMessages', 'relevantNodes', 'cortexNodes']) {
+      assert.deepStrictEqual(forced[field], control[field], 'field ' + field + ' unchanged');
+    }
+    const text = JSON.stringify(forced).toLowerCase();
+    for (const secret of SECRET_TEXTS) assert.equal(text.indexOf(secret), -1, 'no ' + secret);
+    assert.equal(text.indexOf(tmpDir.toLowerCase()), -1, 'no path in the result');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+leg('R3k', 'only built-in error class names enter detail; a custom name becomes Error', async () => {
+  const opts = Object.assign({}, WIDE_OPTS, { roomDir: os.tmpdir() });
+  const forceName = async (label, errObj) => {
+    const forced = await withRoomMapPatch(
+      { readRoomMap() { throw errObj; } },
+      () => ctxCall(label, buildOmissionFixtureDb(), opts)
+    );
+    const failed = forced._meta.omitted.filter((e) => e.reason === 'leg_failed');
+    assert.equal(failed.length, 1, label + ': one entry');
+    return failed[0].detail;
+  };
+  const leaky = new Error('boom OMIT372-SECRET');
+  leaky.name = 'LeakyRoomName123';
+  assert.equal(await forceName('R3k:leaky', leaky), 'Error', 'a custom name becomes Error');
+  const odd = new TypeError('boom');
+  odd.name = 'Room141Name';
+  assert.equal(await forceName('R3k:odd', odd), 'Error', 'a name set from room text becomes Error');
+  for (const cls of ['Error', 'TypeError', 'RangeError', 'SyntaxError', 'ReferenceError', 'EvalError', 'URIError']) {
+    const e = new Error('boom');
+    e.name = cls;
+    assert.equal(await forceName('R3k:' + cls, e), cls, cls + ' passes as it is');
   }
 });
 
