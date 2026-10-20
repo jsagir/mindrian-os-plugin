@@ -124,6 +124,29 @@ async function main() {
   assert.ok(mappedProposals.every((proposal) => proposal.status === 'proposed' && proposal.evidence.length === 0));
   assert.equal(graphDbHash(), graphDbHashBefore, 'SME mapping leaves host graph bytes unchanged');
 
+  const graphDiscovery = require('../lib/mcp/tools/eureka-graph-discovery-signals.cjs');
+  const discoveryTools = new Map();
+  graphDiscovery.register({ registerTool(name, config, handler) { discoveryTools.set(name, { config, handler }); } }, {});
+  for (const spec of graphDiscovery.TOOLS) {
+    const registeredDiscovery = discoveryTools.get(spec.tool);
+    assert.ok(registeredDiscovery, `${spec.tool} is registered as a room-aware MCP tool`);
+    assert.equal(registeredDiscovery.config.inputSchema.safeParse({ node_ids: names.map((_name, index) => `claim:${index}`) }).success, true);
+    assert.equal(registeredDiscovery.config.inputSchema.safeParse({ node_ids: ['claim:0'], room_path: roomDir }).success, false);
+    const discovery = await graphDiscovery.runDiscoverySignal(spec, {
+      node_ids: names.map((_name, index) => `claim:${index}`),
+    }, {}, { sessionId: 'integration-session' });
+    assert.equal(discovery.ok, true, `${spec.capability_id}: ${JSON.stringify(discovery)}`);
+    assert.equal(discovery.capability_id, spec.capability_id);
+    assert.equal(discovery.scope_id, result.scope_id);
+    assert.equal(discovery.snapshot_id, result.snapshot_id);
+    assert.equal(discovery.analysis.scope_id, result.scope_id);
+    assert.equal(discovery.analysis.snapshot_id, result.snapshot_id);
+    assert.equal(discovery.partial, false);
+    assert.equal(discovery.review_required, true);
+    assert.equal(discovery.persistence, 'none');
+  }
+  assert.equal(graphDbHash(), graphDbHashBefore, 'all five graph-discovery services leave the MindrianOS room graph unchanged');
+
   const artifactProjection = require('../lib/mcp/tools/eureka-graph-prepare-artifacts.cjs');
   const prepared = await artifactProjection.prepare({
     node_ids: names.map((_name, index) => `claim:${index}`),
@@ -352,8 +375,17 @@ async function main() {
     assert.equal(liveBoundResult.analysis.scope_id, born.room_id);
     assert.equal(liveBoundResult.analysis.snapshot_id, liveBoundResult.snapshot_id);
     assert.equal(fs.existsSync(boundDbPath), true);
+    delete require.cache[require.resolve('../lib/mcp/tools/eureka-graph-discovery-signals.cjs')];
+    const realGraphDiscovery = require('../lib/mcp/tools/eureka-graph-discovery-signals.cjs');
+    const liveStructuralGaps = await realGraphDiscovery.runDiscoverySignal(realGraphDiscovery.TOOLS[0], {
+      node_ids: boundNodeIds,
+    }, {}, { sessionId });
+    assert.equal(liveStructuralGaps.ok, true, JSON.stringify(liveStructuralGaps));
+    assert.equal(liveStructuralGaps.room_binding.source, 'session.primary');
+    assert.equal(liveStructuralGaps.scope_id, born.room_id);
+    assert.equal(liveStructuralGaps.analysis.snapshot_id, liveStructuralGaps.snapshot_id);
     assert.equal(crypto.createHash('sha256').update(fs.readFileSync(boundDbPath)).digest('hex'), boundDbHash,
-      'live Eureka analysis of a real session-bound room leaves room.db bytes unchanged');
+      'live Eureka graph analysis leaves the real session-bound room.db unchanged');
   } finally {
     isolated.cleanup();
     sessionRoom.resolveMcpSessionRoom = originalResolve;

@@ -3624,3 +3624,14 @@ Plans:
 
 - [x] 372-01-PLAN.md - golden snapshot before any code, try/catch audit, omitted[] collector in room-context.cjs
 - [x] 372-02-PLAN.md - tool description sentence and wire snapshots, test-372-omitted.cjs, run-all-372.sh, SUMMARY
+
+### Phase 373: Integrate Eureka graph algorithm services with authorized MindrianOS local graph projection
+
+**Goal:** Bring the reviewed adapter wave into the canonical plugin checkout, align it with Eureka's current 66-capability catalog, and make five standalone graph algorithms callable over explicit authorized MindrianOS graph projections.
+**Requirements**: EUREKA-HOST-01 through EUREKA-HOST-05.
+**Depends on:** Phase 372
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph

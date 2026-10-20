@@ -5095,3 +5095,22 @@ startup mechanics are baseline evidence, not a substitute for host acceptance.
 - [ ] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
   verifies new visual/accessibility/font delivery behavior, and distinguishes
   local evidence from a real ChatGPT host smoke test and host placement limits.
+
+
+## Phase 373 - Eureka graph algorithm services (added 2026-10-19)
+
+- [ ] **EUREKA-HOST-01**: Port the reviewed Eureka adapter into the canonical
+  plugin checkout, keep unrelated and Phase 372 work out, and make capability
+  tests/docs reflect the live catalog (currently 66 total, 58 runnable, 8
+  planned or blocked).
+- [ ] **EUREKA-HOST-02**: Expose each of the five standalone graph relation
+  services as an independently discoverable MindrianOS MCP capability using
+  its catalog identity and purpose.
+- [ ] **EUREKA-HOST-03**: Build each room-backed request from explicit node IDs
+  projected through the existing bound-room, read-only authorization path; do
+  not accept room paths, arbitrary SQL, or caller-supplied room database access.
+- [ ] **EUREKA-HOST-04**: Fail closed on absent or mismatched capability, scope,
+  or snapshot lineage, and visibly report projection omissions and partial data.
+- [ ] **EUREKA-HOST-05**: Keep all adapter results read-only, proposed, and
+  unpersisted; preserve independent Theo and Eureka service use without making
+  either one a required workflow dependency.
