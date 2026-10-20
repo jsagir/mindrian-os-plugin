@@ -7638,6 +7638,8 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phases 374 to 379 added (2026-10-20): the SEED-134 critical path after Phase 372/373. 374 adapter surface completion, 375 JHTV derive re-measure and baseline A/B (evidence gate), 376 bounded focus, 377 outer ring and crosses_boundary, 378 review surface (MCP App); 379 split-out RS features is off the path. Phases 376 to 378 are conditional on the 375 decision. External gates: beta.73 cut, plugin node_modules, Eureka job-store lock, rights on the five graph services. Planning only, no code.
+
 - Phase 372 added (2026-10-19): context_assemble reports what it omitted, `_meta.omitted[]` (SEED-134 Plan 01). Phase narrowed from the six-phase Holonic proposal after a red team against the status quo; bounded focus (Plan 02), outer ring and cross-boundary discovery are DEFERRED behind a JHTV derive re-measure and a baseline A/B with criteria written first. Navigator-approved scope, quick 261019-ui8.
 
 - Phase 371 added (2026-10-19): Navigator startup UI - first room and returning workday. Focused scope authorized; UI-SPEC approved with 6/6 inline design checks. Ready for planning; v5 visual implementation and host acceptance remain pending. Current phase position unchanged.
