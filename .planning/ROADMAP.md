@@ -3635,3 +3635,82 @@ Plans:
 Plans:
 
 - [ ] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph
+
+### Critical path after Phase 372 (SEED-134, ruled 2026-10-20)
+
+372 (done) -> 373 (five graph services MVP) -> 374 (adapter surface completion) -> 375 (evidence gate) -> 376 (bounded focus) -> 377 (outer ring and crosses_boundary) -> 378 (review surface).
+Off the path: 379 (split-out RS features). Phases 376 to 378 are conditional on the Phase 375 decision; if it says kill, they are retired.
+External gates: the beta.73 cut; the plugin node_modules restored; Eureka job-store lock and a distinct budget status; the authorship and reuse rights of the five graph services.
+
+
+### Phase 374: Adapter surface completion: remaining Eureka graph tools, capability and job tools, tool-budget decision, job recovery (SEED-134 critical path)
+
+**Goal:** Complete the Eureka adapter surface beyond the Phase 373 services: the remaining dedicated graph tools, the generic capability run and job tools, and the host handoffs, with the tool-budget decision made and job state surviving a host restart. Eureka-side prerequisite: job-store owner lock and terminal-state guard, a distinct budget_exceeded status.
+**Requirements**: ADAPT374-01 tool-budget decision (router or re-baseline) with the token figure; ADAPT374-02 job sessions bound to MCP session and room, request size cap, recovery of a lost job by asking Eureka for its status; ADAPT374-03 projection handle or paging above 256 KiB; ADAPT374-04 generic path refuses results without scope and snapshot ids; ADAPT374-05 catalog cached per process; ADAPT374-06 live tests (bridge, job cancel, capability run) pass on an idle host
+**Depends on:** Phase 373
+Gates: beta.73 cut; plugin node_modules restored; Eureka job-store lock and budget status landed (external, Eureka repo); owner call on the 25-tool surface.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 374 to break down)
+
+### Phase 375: JHTV derive re-measure and baseline A/B with no holonic code: the evidence gate for bounded focus (SEED-134 gate)
+
+**Goal:** Decide with evidence whether bounding helps at all: re-run the graph derive on the JHTV room and re-measure section coverage, write the success criteria first, then run the Eureka scout over the whole room against one section at a time with no holonic code. Output is a signed decision, not a feature.
+**Requirements**: GATE375-01 coverage figure before and after derive; GATE375-02 success criteria written and dated before the run (reviewer accept or reject rate, time to a decision; the owner sets any targets); GATE375-03 whole-room versus per-section runs recorded with the lineage ids; GATE375-04 proceed or kill decision recorded against the SEED-134 kill criteria
+**Depends on:** Phase 374
+Gates: JHTV room bound and derived; the scout tool available (Phase 374) or the Eureka CLI on a prepared bundle; reviewer time. Kill criteria in SEED-134 apply.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 375 to break down)
+
+### Phase 376: Bounded focus by holon in context_assemble: membership source, bounded input, unassigned disclosure (SEED-134 Plan 02, gated)
+
+**Goal:** Only if Phase 375 says proceed: add an opt-in bounded mode to context_assemble that keeps results inside one holon (section or sub-room) plus declared portal neighbors and reports everything else, including nodes with no recorded holon, as omitted.
+**Requirements**: BOUND376-01 membership source chosen from the Phase 375 findings (provenance grouping, a reviewed source_section backfill, or neighborhood distance); BOUND376-02 bounded input valid only with focus_node_id; BOUND376-03 unassigned and outside_focus counts in _meta.omitted; BOUND376-04 default behavior byte-identical (golden); BOUND376-05 containment cycle check on the edge write path if NESTED_WITHIN is relied on
+**Depends on:** Phase 375
+Gate: Phase 375 decision is proceed. If it says kill, this phase and 377 and 378 are retired.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 376 to break down)
+
+### Phase 377: Outer ring and crosses_boundary discovery candidates with evidence class and review (SEED-134, gated)
+
+**Goal:** Only if Phase 376 holds: let discovery propose links that cross a holon boundary through typed bridge nodes with a capped outer ring, each candidate flagged crosses_boundary, carrying an evidence class from the existing verification ladder and staying proposed until a person confirms it.
+**Requirements**: RING377-01 outer ring is a visible, approved node list before projection, never a silent widening; RING377-02 crosses_boundary computed at read time from the two endpoints; RING377-03 evidence class uses claim_verify rungs 1 to 5; RING377-04 candidates remain proposed and unevidenced until a gate approval; RING377-05 temporal replay backtest with a negative control before any maturity claim
+**Depends on:** Phase 376
+Gates: Phase 376 verified; the rights question on the five services cleared if their output feeds user-facing candidates.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 377 to break down)
+
+### Phase 378: Review surface for discovery proposals as an MCP App, approvals through the existing gate (SEED-134, gated)
+
+**Goal:** Give reviewers a visible surface for discovery proposals: a ranked table with source references, snapshot id, partial badge and evidence class, built as an MCP App on the existing MindrianOS server. Approve and reject go through the existing gate, never directly from the page.
+**Requirements**: UI378-01 follows the mindrian-mcp-app house rules and the De Stijl design canon, plain-English copy; UI378-02 no write from the page, approvals only through gate_render and gate_answer; UI378-03 text fallback for hosts without UI; UI378-04 its own safety review of the human-review contract before any approval action exists
+**Depends on:** Phase 377
+Gates: Phase 377 candidates exist; design and safety review; tool-budget impact stated.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 378 to break down)
+
+### Phase 379: Split-out RS features: rs_experts_find, rs_thesis_read and the rs-experts command rewrite (off the critical path)
+
+**Goal:** Move the RS features out of the adapter branch into their own change: rs_experts_find, rs_thesis_read and the /mos:rs-experts command rewrite that deletes 180 lines of the old local-mirror behavior. Off the critical path; can run in parallel after Phase 373.
+**Requirements**: RS379-01 behavior change to /mos:rs-experts decided and documented; RS379-02 prior thesis reader and author search keep a bound-room, read-only contract with their own tests; RS379-03 contract-version comment history includes them
+**Depends on:** Phase 373 (off the critical path)
+Gate: owner decision on replacing the local-mirror behavior of /mos:rs-experts. Not on the critical path.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 379 to break down)
