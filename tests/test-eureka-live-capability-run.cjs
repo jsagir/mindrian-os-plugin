@@ -20,7 +20,7 @@ async function main() {
   const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
   const runnable = catalog.capabilities.filter((capability) => ['experimental', 'host_brokered'].includes(capability.status));
   const unavailable = catalog.capabilities.filter((capability) => ['planned', 'blocked'].includes(capability.status));
-  assert.equal(runnable.length, 58);
+  assert.equal(runnable.length, 59);
   assert.equal(unavailable.length, 8);
   const cliCounts = new Map();
   for (const capability of runnable) {
@@ -32,7 +32,7 @@ async function main() {
   }
   assert.deepEqual(Object.fromEntries([...cliCounts.entries()].sort()), {
     'eureka-decision-sequences': 2, 'eureka-pair-scout': 1, 'eureka-signal-scout': 1,
-    'eureka-structure-mapping': 1, 'eureka-workflow': 53,
+    'eureka-structure-mapping': 1, 'eureka-workflow': 54,
   });
   const workflowHelp = spawnSync(process.env.MINDRIAN_EUREKA_UV || 'uv', [
     'run', '--project', process.env.MINDRIAN_EUREKA_ROOT, 'eureka-workflow', '--help',
@@ -60,6 +60,17 @@ async function main() {
     assert.equal(route.ok, false, capability.id);
     assert.equal(route.reason, 'capability_not_runnable', capability.id);
     assert.equal(capability.routes && capability.routes.cli, undefined, `${capability.id} must not claim a CLI route before implementation`);
+
+    const readiness = spawnSync(process.env.MINDRIAN_EUREKA_UV || 'uv', [
+      'run', '--project', process.env.MINDRIAN_EUREKA_ROOT, 'eureka', 'capability', capability.id,
+    ], { encoding: 'utf8', timeout: 30000 });
+    assert.equal(readiness.status, 0, `${capability.id} readiness is inspectable from the Eureka CLI: ${readiness.stderr}`);
+    const cliRecord = JSON.parse(readiness.stdout);
+    assert.equal(cliRecord.id, capability.id, `${capability.id} CLI record preserves its stable ID`);
+    assert.equal(cliRecord.status, capability.status, `${capability.id} CLI record preserves readiness`);
+    assert.deepEqual(cliRecord.host_handoff || null, capability.host_handoff || null,
+      `${capability.id} CLI record preserves the exact host handoff without promoting it to an Eureka route`);
+    assert.equal(cliRecord.implementation, null, `${capability.id} CLI record discloses that no Eureka implementation exists`);
   }
 
   // Verify the live Eureka server publishes a valid input/output contract for
@@ -127,6 +138,21 @@ async function main() {
   assert.equal(result.accepted_knowledge_persistence, 'none');
   assert.equal(result.engine_state_persistence, 'none');
   assert.equal(result.derived_cache_persistence, 'none');
+
+  const ipFinanceDomains = await run({
+    capability_id: 'research.classify_ip_finance_domain_signals',
+    request: {
+      scope_id: 'room:ip-finance-test', snapshot_id: 'snapshot:ip-finance-test',
+      segments: [{ id: 'paper:ip-lending', source_ref: 'room://paper/ip-lending',
+        text: 'Patent-backed lending depends on IP collateral valuation, credit risk analysis, and royalty securitization.' }],
+    },
+  });
+  assert.equal(ipFinanceDomains.ok, true, JSON.stringify(ipFinanceDomains));
+  assert.equal(ipFinanceDomains.capability_id, 'research.classify_ip_finance_domain_signals');
+  assert.equal(ipFinanceDomains.engine_result.segment_results[0].id, 'paper:ip-lending');
+  assert.equal(ipFinanceDomains.engine_result.segment_results[0].source_ref, 'room://paper/ip-lending');
+  assert.equal(ipFinanceDomains.engine_result.segment_results[0].classification.domain, 'IP-Backed-Finance');
+  assert.equal(ipFinanceDomains.persistence, 'none');
 
   // Exercise the two direct MCP routes as independent capabilities. These do
   // not require the MindrianOS graph projection and are not a Theo workflow.
@@ -205,17 +231,17 @@ async function main() {
   assert.equal(fit.engine_result.observation_count, 32);
   assert.equal(fit.persistence, 'none');
 
-  const planned = await run({ capability_id: 'claims.compare', request: {} });
-  assert.equal(planned.ok, false);
-  assert.equal(planned.reason, 'capability_not_runnable');
-  assert.equal(planned.capability_id, 'claims.compare');
-  assert.equal(planned.readiness, 'planned');
-  assert.equal(planned.host_handoff.type, 'related_partial');
-  assert.deepEqual(planned.host_handoff.capabilities, [
-    'analysis.compare_text_differences', 'analysis.audit_claim_traceability',
-  ]);
-  assert.match(planned.message, /does not complete this Eureka capability/);
-  console.log('eureka live capability bridge: PASS (contract discovery, generic and direct dispatch, planned refusal)');
+  for (const capability of unavailable) {
+    const refused = await run({ capability_id: capability.id, request: {} });
+    assert.equal(refused.ok, false, `${capability.id} must be refused by the generic MindrianOS MCP bridge`);
+    assert.equal(refused.reason, 'capability_not_runnable', capability.id);
+    assert.equal(refused.capability_id, capability.id, `${capability.id} refusal names the requested capability`);
+    assert.equal(refused.readiness, capability.status, `${capability.id} refusal preserves readiness`);
+    assert.deepEqual(refused.host_handoff, capability.host_handoff || null,
+      `${capability.id} refusal exposes only its documented handoff`);
+    assert.match(refused.message, /does not complete this Eureka capability/);
+  }
+  console.log('eureka live capability bridge: PASS (contract discovery, generic and direct dispatch, all planned/blocked CLI and MCP boundaries)');
 }
 
 main().catch((error) => { console.error(error); process.exitCode = 1; });
