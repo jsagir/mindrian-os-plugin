@@ -1,9 +1,0 @@
-{
-  "workspace": "pws/research-tools",
-  "run_id": "2026-10-18_06-00-20",
-  "created": "2026-10-18T06:00:21Z",
-  "stages": ["01-intake", "02-ground", "03-place", "04-compose"],
-  "cwd": "/home/jsagi/dev/MindrianOS-Plugin",
-  "skill_ref": "4653c2cbe",
-  "skill_dirty": "yes"
-}
