@@ -54,12 +54,50 @@
  */
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const guard = require('./scout-cadence-guard.cjs');
+const jobLock = require('../lib/core/job-lock.cjs');
 
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
+
+// Phase 379.1 Plan 05 (CPU379-06): every child step has a parent-side hard
+// limit. A step that runs past it is killed with SIGKILL and reported as
+// degraded with exit null; the cadence goes on with the next step.
+const DEFAULT_STEP_TIMEOUT_MS = 300000;
+
+function resolveStepTimeoutMs() {
+  const raw = process.env.MINDRIAN_SCOUT_STEP_TIMEOUT_MS;
+  if (typeof raw === 'string' && /^[0-9]+$/.test(raw.trim())) {
+    const n = Number(raw.trim());
+    if (Number.isSafeInteger(n) && n > 0) return n;
+  }
+  return DEFAULT_STEP_TIMEOUT_MS;
+}
+
+// The single-flight lock: one cadence run per room at a time (PID-checked,
+// lib/core/job-lock.cjs). The doctor reads this same path.
+const LOCK_RELATIVE = path.join('.mindrian', 'scout-cadence.lock');
+
+function lockPathFor(roomDir) {
+  return path.join(roomDir, LOCK_RELATIVE);
+}
+
+// The runner is a background job: it yields the CPU to the user's work and
+// never raises its priority back. Same mapping as the drain worker.
+function lowerPriority() {
+  try {
+    const prio = process.platform === 'win32'
+      ? os.constants.priority.PRIORITY_BELOW_NORMAL
+      : os.constants.priority.PRIORITY_LOW;
+    os.setPriority(0, prio);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // argv parsing (process.argv switch; no commander/yargs per CLAUDE.md)
@@ -89,10 +127,27 @@ function parseArgs(argv) {
  * @returns {{ name: string, status: string, exit: number, stdout: string, stderr: string }}
  */
 function runStep(name, cmd, cmdArgs) {
+  const timeoutMs = resolveStepTimeoutMs();
   try {
-    const stdout = execFileSync(cmd, cmdArgs, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const stdout = execFileSync(cmd, cmdArgs, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: timeoutMs,
+      killSignal: 'SIGKILL',
+    });
     return { name, status: 'ok', exit: 0, stdout: stdout || '', stderr: '' };
   } catch (e) {
+    // A timeout is not a throw: execFileSync kills the child (SIGKILL) and
+    // raises ETIMEDOUT. Map it to degraded with exit null.
+    if (e && e.code === 'ETIMEDOUT') {
+      return {
+        name,
+        status: 'degraded',
+        exit: null,
+        stdout: e.stdout ? String(e.stdout) : '',
+        stderr: `timeout after ${timeoutMs} ms`,
+      };
+    }
     // execFileSync throws on non-zero exit; surface, do not swallow.
     const exit = typeof e.status === 'number' ? e.status : 1;
     const stderr = e.stderr ? String(e.stderr) : (e.message || '');
@@ -321,6 +376,7 @@ function emit(summary, json) {
 
 async function main(argv) {
   const args = parseArgs(argv);
+  lowerPriority();
 
   // (1) Resolve roomDir. Soft-fail when absent / not a dir -- this runs from a
   // hook; it must NEVER crash the host.
@@ -348,7 +404,39 @@ async function main(argv) {
     return 0;
   }
 
-  // (3) Fire the suite in canonical scout.md order. Capture every exit.
+  // (3) Single flight. A live cadence run for this room holds the lock; a second
+  //     run reports in flight and does nothing. A lock error (read-only room)
+  //     never blocks the cadence: the throttle stamp below still bounds it.
+  const acquired = jobLock.acquire(lockPathFor(roomDir), { job: 'scout-cadence' });
+  if (!acquired.ok && (acquired.reason === 'held' || acquired.reason === 'recovering')) {
+    const summary = buildSummary({
+      in_flight: true,
+      lock_reason: acquired.reason,
+      lock_pid: acquired.pid === undefined ? null : acquired.pid,
+      lock_stale_heartbeat: acquired.stale_heartbeat === true,
+      interval_hours: gate.intervalHours,
+      notice: 'in flight; another cadence run holds the lock',
+    });
+    emit(summary, args.json);
+    return 0;
+  }
+
+  // (4) Arm the throttle at run start, not at the end: a run that is killed
+  //     or hangs still counts as this interval's run (CPU379-06).
+  guard.recordRun(roomDir);
+
+  try {
+    return await fireSuite(args, roomDir, gate, bin);
+  } finally {
+    if (acquired.ok) jobLock.release(acquired.handle);
+  }
+}
+
+/*
+ * fireSuite: the canonical scout.md step order, run while main holds the lock.
+ */
+async function fireSuite(args, roomDir, gate, bin) {
+  // Fire the suite in canonical scout.md order. Capture every exit.
   const steps = [];
   const findingsToGraph = [];
 
@@ -489,14 +577,11 @@ async function main(argv) {
     steps.push({ name: 'temporal-blindness-sentinel', status: 'degraded', exit: 1, stdout: '', stderr: e.message || String(e) });
   }
 
-  // (4) Phase-140 safe-auto-fire guard. Pass the captured health-check exit so
+  // Phase-140 safe-auto-fire guard. Pass the captured health-check exit so
   //     HARD-01 is asserted from the real exit, not swallowed.
   const safe = guard.safeAutoFireCheck(roomDir, { healthCheckExit: health.exit });
 
-  // (5) Arm the throttle for the next interval.
-  guard.recordRun(roomDir);
-
-  // (6) Structured summary.
+  // Structured summary.
   const summary = buildSummary({
     fired: true,
     throttled: false,
@@ -520,4 +605,11 @@ if (require.main === module) {
   );
 }
 
-module.exports = { main, parseArgs, runStep, hsiDepsAvailable, urlIngestCrawlStep };
+module.exports = {
+  main,
+  parseArgs,
+  runStep,
+  hsiDepsAvailable,
+  urlIngestCrawlStep,
+  _test: { resolveStepTimeoutMs, lockPathFor, lowerPriority, DEFAULT_STEP_TIMEOUT_MS },
+};
