@@ -14,6 +14,7 @@ Plain-English version: this is the room's search engine. Anything that has to as
 |------|--------------|
 | `embedding-spine.cjs` | The one local encoder. It embeds text on this machine and degrades to `encoder_unavailable` when the model is not installed |
 | `vector-store.cjs` | Owns the vector tables in room.db: sqlite-vec first, with a pure-CJS cosine fallback |
+| `vector-cache.cjs` | The shared JSON vector cache in the rs-engine format, keyed by (content hash, model, dim); the drain and the scout embed each artifact once through it. It never reads or writes the `eureka_vec*` tables (Phase 379.1) |
 | `tri-modal-index.cjs` | Builds the lexical (FTS5/BM25) and semantic legs next to the room's structural graph |
 | `fts-index-lifecycle.cjs` | Builds and refreshes `eureka_fts` and reports when it is stale |
 | `hybrid-retrieve.cjs` | Fuses the lexical and semantic rankings (RRF) and reranks the result |
