@@ -14,8 +14,18 @@ can require "every leg PASSED".
 | `tests/run-all-272.sh` | `272-cache-probe.test.cjs` FAILED | PROVEN (log line 732); cause not read |
 | `tests/test-354-write-lock-ownership.cjs` | FAILED | PROVEN (log line 911); cause not read |
 
+Logged by plan 02 (Wave 1) on 2026-10-21. Plan 02 adds three lib/core modules, the thread cap in
+embedding-spine.cjs, a stub package under tests/fixtures and four completed tests; it does not touch
+package.json or any 341 gate file, so neither item below is caused by this plan.
+
+| Gate | Finding (as printed) | Mark |
+|------|----------------------|------|
+| `tests/test-341-no-heavy-dep.cjs` | arm 3 FAIL: "devDependencies is present and non-empty ({"mindrian-design-system":"github:jsagir/mos-brand"})"; package.json was last changed by commit bb5f30ad8 (chore(brand): install and adopt mos-brand workflow), before this phase | PROVEN (run after Task 3; arms 1, 2 and 4 pass, so the stub package under tests/fixtures is not the cause) |
+| `node scripts/check-require-integrity.cjs` | did not finish inside 180 s (timeout 124) | UNVERIFIED (not in the plan's verify list; no result read) |
+
 Notes:
 - The eight `tests/test-379.1-*.cjs` scaffolds are RED by design (Wave 0); they are not deferred items.
+- After plan 02 four of them are GREEN (vector-cache, artifact-scope, queue-lock, worker-caps).
 - The runner's own legs (large-fixture, Part 8 sweep, em-dash sweep) PASSED.
 - The full runner takes about 50 minutes because `run-all-224.sh` runs `doctor --acceptance`; a
   later wave may want a `--phase-only` switch, which is a change to the runner, not a defect.
