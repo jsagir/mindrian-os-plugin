@@ -1,0 +1,38 @@
+{
+  "probe": "allow-spinning",
+  "probed_at": "2026-10-21T16:18:54.242Z",
+  "node_version": "v22.23.1",
+  "host_cores": 12,
+  "platform": "linux",
+  "status": "ok",
+  "params": {
+    "idle_ms": 2000,
+    "intra_op_threads": 2,
+    "inter_op_threads": 1,
+    "cases": [
+      "nospin",
+      "nonstring",
+      "default"
+    ]
+  },
+  "ort_version": "1.30.0",
+  "transformers_version": "4.3.0",
+  "model": "MongoDB/mdbr-leaf-ir",
+  "dtype": "q8",
+  "thrown_on_non_string": true,
+  "non_string_thrown_at_all": true,
+  "non_string_message": "Invalid argument: sessionOptions.extra value must be a string in Node.js binding.",
+  "non_string_error_name": "TypeError",
+  "idle_cpu_ms_default": 814.607,
+  "idle_cpu_ms_nospin": 673.139,
+  "load_ms_default": 2541,
+  "load_ms_nospin": 1662,
+  "embed_ms_default": 202,
+  "embed_ms_nospin": 128,
+  "threads_after_load": 12,
+  "threads_after_load_nospin": 12,
+  "nospin_load_ok": true,
+  "default_load_ok": true,
+  "idle_halved": false,
+  "extra_honoured": true
+}

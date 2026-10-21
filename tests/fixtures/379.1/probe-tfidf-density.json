@@ -1,0 +1,26 @@
+{
+  "probe": "tfidf-density",
+  "probed_at": "2026-10-21T16:17:39.589Z",
+  "node_version": "v22.23.1",
+  "host_cores": 12,
+  "platform": "linux",
+  "status": "ok",
+  "params": {
+    "max_features": 2000,
+    "max_df": 0.5
+  },
+  "docs": 2105,
+  "terms": 2000,
+  "cells": 4210000,
+  "nnz": 50417,
+  "density": 0.011975534441805226,
+  "fit_ms": 1384,
+  "real_room": {
+    "docs": 2168,
+    "terms": 2000,
+    "cells": 4336000,
+    "nnz": 192207,
+    "density": 0.044328182656826566,
+    "fit_ms": 6788
+  }
+}
