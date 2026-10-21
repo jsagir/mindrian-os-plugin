@@ -25,6 +25,7 @@
  *        [--rooms-home <dir>] [--seed <dir>]... [--receipt-dir <dir>]
  *   node scripts/real-room-run.cjs --desktop-verified mac|win [--receipt-dir <dir>]
  *   node scripts/real-room-run.cjs --negative-only [--json]
+ *   node scripts/real-room-run.cjs --large-room-only [--smoke] [--json]
  *
  *   --read-by         the person who read the report. Writes the receipt for the HEAD sha.
  *                     Without it the web lines are NOT approved (dry) and no receipt is written.
@@ -37,6 +38,12 @@
  *   --negative-only   runs only the negative leg (369.25-23): quick, deep, Eureka and analogies must each REFUSE the
  *                     never-ready fixture with room.db missing and with room.db corrupted (room_not_ready, naming the
  *                     failed requirement). Exit 0 only when all eight refused. Writes no receipt.
+ *   --large-room-only runs only the large room leg (Phase 379.1, D-379.1-02): builds a room of more than 2,000
+ *                     artifacts under a scratch directory, runs the drain worker and the scout against it and checks
+ *                     clock, CPU and peak RSS of each against limits. Writes no receipt. Exit 0 unless the leg breached
+ *                     or errored.
+ *   --smoke           with the large room leg: 50 pairs and a 20 s drain budget. The receipt records smoke true and
+ *                     release.sh Step 2.6 refuses it (verdict LARGE_SMOKE). A smoke run is for a quick check only.
  *   --json            prints the full result object (run ids included) instead of the report.
  *   --rooms-home      where the throwaway room is born (default <receipt-dir>/rooms).
  *   --seed            a seed room directory (ROOM.md, sections/, seed.json, optional question sets). Repeat the
@@ -53,6 +60,9 @@
  *     rooms: [{ seed, slug, perspectives }],   (one entry per seed, the first one repeats the top-level blocks)
  *     feyminto: { nests: [{ nest, asked, not_asked_reason, frameworks_named: <count>, commands_runnable_here: <count> }] },
  *     negative_leg: { fixture, rooms: [{ injection, jobs: { <job>: { refused, not_ready_reason } } }], all_refused },
+ *     large_room_leg: { ok, status, smoke, artifact_count, limits: { clock_ms, cpu_ms, rss_mb },
+ *       drain: { clock_ms, cpu_ms, max_rss_mb, outcome }, scout: { clock_ms, cpu_ms, max_rss_mb, degraded },
+ *       scope: { ok, excluded_artifacts }, first_not_ok },   (numbers, booleans and enum strings only)
  *     providers: { tavily, openalex }, desktop_verified: { mac, win } }
  *
  * Canon Part 8: the room is the fixture's invented text; what can leave it is the planner's
@@ -79,6 +89,7 @@ const DEFAULT_SEED = path.join(ROOT, 'tests', 'fixtures', 'release-room');
 const SCHEMA = 'mos.real-room-receipt/1';
 const MAX_DEEP_STEPS = 80;
 const negativeLeg = require(path.join(ROOT, 'scripts', 'release-lib', 'real-room-negative-leg.cjs'));
+const largeRoomLeg = require(path.join(ROOT, 'scripts', 'release-lib', 'large-room-leg.cjs'));
 const roomRead = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'room-read.cjs'));
 const jobLines = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'job-lines.cjs'));
 
@@ -107,7 +118,7 @@ function refuse(reason, detail) {
 
 // -- argv ----------------------------------------------------------------------
 const VALUE_FLAGS = ['--rooms-home', '--seed', '--receipt-dir', '--read-by', '--desktop-verified'];
-const BOOL_FLAGS = ['--offline', '--json', '--help', '--negative-only'];
+const BOOL_FLAGS = ['--offline', '--json', '--help', '--negative-only', '--large-room-only', '--smoke'];
 
 function parseArgs(argv) {
   const opts = { offline: false, json: false, help: false, seeds: [] };
@@ -117,6 +128,8 @@ function parseArgs(argv) {
       if (tok === '--offline') opts.offline = true;
       else if (tok === '--json') opts.json = true;
       else if (tok === '--negative-only') opts.negativeOnly = true;
+      else if (tok === '--large-room-only') opts.largeRoomOnly = true;
+      else if (tok === '--smoke') opts.smoke = true;
       else opts.help = true;
       continue;
     }
@@ -775,6 +788,8 @@ function reportText(res) {
   L.push('');
   L.push(negativeLeg.formatNegativeBlock(res.negative_leg));
   L.push('');
+  L.push(largeRoomLeg.formatLargeRoomBlock(res.large_room_leg));
+  L.push('');
   if (res.receipt && res.receipt.written) {
     L.push('RECEIPT: written for ' + res.sha.slice(0, 12) + ' read by ' + res.read_by + ' at ' + res.receipt.read_at + (res.offline ? ' (recorded as OFFLINE; release.sh refuses an offline receipt)' : '') + '.');
     L.push('  next: if this cut ships a Desktop copy, run it on a Mac and a PC, then: node scripts/real-room-run.cjs --desktop-verified mac|win');
@@ -797,6 +812,27 @@ function negativeSummary(leg) {
       return { injection: r.injection, jobs: jobs };
     }),
     all_refused: leg.all_refused === true,
+  };
+}
+
+// Phase 379.1 (D-379.1-02): the receipt keeps the large room leg as numbers, booleans and enum strings (no path, no text).
+// smoke is written into the receipt so the gate can refuse a smoke leg.
+function largeRoomSummary(leg) {
+  const g = isObj(leg) ? leg : {};
+  const d = isObj(g.drain) ? g.drain : {};
+  const s = isObj(g.scout) ? g.scout : {};
+  const sc = isObj(g.scope) ? g.scope : {};
+  const lim = isObj(g.limits) ? g.limits : {};
+  return {
+    ok: g.ok === true,
+    status: typeof g.status === 'string' ? g.status : 'error',
+    smoke: g.smoke === true,
+    artifact_count: num(g.artifact_count),
+    limits: { clock_ms: num(lim.clock_ms), cpu_ms: num(lim.cpu_ms), rss_mb: num(lim.rss_mb) },
+    drain: { clock_ms: num(d.clock_ms), cpu_ms: num(d.cpu_ms), max_rss_mb: num(d.max_rss_mb), outcome: typeof d.outcome === 'string' ? d.outcome : 'error' },
+    scout: { clock_ms: num(s.clock_ms), cpu_ms: num(s.cpu_ms), max_rss_mb: num(s.max_rss_mb), degraded: typeof s.degraded === 'string' ? s.degraded : null },
+    scope: { ok: sc.ok === true, excluded_artifacts: num(sc.excluded_artifacts) },
+    first_not_ok: typeof g.first_not_ok === 'string' ? g.first_not_ok : null,
   };
 }
 
@@ -840,6 +876,7 @@ function buildReceipt(res) {
     providers: { tavily: res.providers.tavily, openalex: res.providers.openalex },
     feyminto: { nests: res.jobs.feyminto.map(function (n) { return { nest: n.nest, asked: n.asked, not_asked_reason: n.not_asked_reason, frameworks_named: n.frameworks_named.length, commands_runnable_here: n.commands_runnable_here.length }; }) },
     negative_leg: negativeSummary(res.negative_leg),
+    large_room_leg: largeRoomSummary(res.large_room_leg),
     desktop_verified: { mac: null, win: null },
   };
 }
@@ -901,6 +938,8 @@ async function runCeremony(opts, receiptDir) {
     // the negative leg plans quick and deep from a question set: the first seed that has one
     const negSeed = seedDirs.filter(function (d) { return fs.existsSync(path.join(d, 'question-set-quick.json')) && fs.existsSync(path.join(d, 'question-set-deep.json')); })[0] || DEFAULT_SEED;
     const negative = negativeLeg.runNegativeLeg({ roomsHome: roomsHome, sha: sha, plannerCli: PLANNER_CLI, seedDir: negSeed, scratch: SCRATCH });
+    progress('large room leg');
+    const large = largeRoomLeg.runLargeRoomLeg({ sha: sha, scratch: SCRATCH, smoke: opts.smoke === true });
     const res = {
       ok: true,
       sha: sha, version: version, offline: opts.offline, read_by: opts.readBy || null,
@@ -909,6 +948,7 @@ async function runCeremony(opts, receiptDir) {
       jobs: Object.assign({}, first.jobs, { feyminto: feyminto }),
       rooms: rooms.map(function (r) { return { seed: r.seed, slug: r.slug, dir: r.dir, venture: r.venture, indexed: r.indexed, seeded: r.seeded, registered: r.registered, jobs: r.jobs, readiness: r.readiness }; }),
       negative_leg: negative,
+      large_room_leg: large,
       receipt: { written: false, file: null, read_at: null },
     };
     if (opts.readBy) {
@@ -937,9 +977,21 @@ function runNegativeOnly(opts) {
   }
 }
 
+// Phase 379.1 (D-379.1-02): only the large room leg. Builds under its own scratch directory (removed in finally)
+// and writes no receipt; never run with --read-by (a receipt needs a human reading the report, RULE 10).
+function runLargeRoomOnly(opts) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-real-room-large-'));
+  try {
+    return largeRoomLeg.runLargeRoomLeg({ sha: headSha(), scratch: scratch, smoke: opts.smoke === true });
+  } finally {
+    try { fs.rmSync(scratch, { recursive: true, force: true }); } catch (_e) { /* tmp */ }
+  }
+}
+
 const HELP = 'Usage: node scripts/real-room-run.cjs [--read-by "<name>"] [--offline] [--json] [--rooms-home <dir>] [--seed <dir>]... [--receipt-dir <dir>]\n'
   + '       (--seed may repeat: every seed is born as its own room and all of them go into ONE receipt)\n'
   + '       node scripts/real-room-run.cjs --negative-only [--json]   (only the negative leg; writes no receipt)\n'
+  + '       node scripts/real-room-run.cjs --large-room-only [--smoke] [--json]   (only the large room leg; writes no receipt)\n'
   + '       node scripts/real-room-run.cjs --desktop-verified mac|win [--receipt-dir <dir>]\n';
 
 async function main(argv) {
@@ -960,6 +1012,12 @@ async function main(argv) {
       const leg = runNegativeOnly(opts);
       process.stdout.write(opts.json ? JSON.stringify({ ok: leg.all_refused, negative_leg: leg }) + '\n' : negativeLeg.formatNegativeBlock(leg) + '\n');
       return leg.all_refused ? 0 : 1;
+    }
+    if (opts.largeRoomOnly) {
+      const leg = runLargeRoomOnly(opts);
+      const sum = largeRoomSummary(leg);
+      process.stdout.write(opts.json ? JSON.stringify({ ok: leg.status === 'ok' || leg.status === 'inconclusive', large_room_leg: sum }) + '\n' : largeRoomLeg.formatLargeRoomBlock(leg) + '\n');
+      return leg.status === 'ok' || leg.status === 'inconclusive' ? 0 : 1;
     }
     const res = await runCeremony(opts, receiptDir);
     process.stdout.write(opts.json ? JSON.stringify(res) + '\n' : reportText(res));
