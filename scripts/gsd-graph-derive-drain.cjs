@@ -79,6 +79,15 @@
  *   node scripts/gsd-graph-derive-drain.cjs --room <d> -- drain a specific room's queue
  *                                                         (used by the round-trip test).
  *   node scripts/gsd-graph-derive-drain.cjs --dry-run  -- report the drain plan, do not run.
+ *   node scripts/gsd-graph-derive-drain.cjs --worker --room <d> --report-usage
+ *                                                      -- the worker; writes ONE JSON usage
+ *                                                         line (schema drain-usage-v1) to stderr.
+ *   MINDRIAN_DERIVE_SKIP=1                             -- the operator switch: exit 0, no work.
+ *
+ * What bounds what (Phase 379.1): the worker runs at low priority (os.setPriority), with
+ * a backstop timer that ends an idle or async stall, and every synchronous loop it runs
+ * is deadline-checked from the inside (see armBackstop below). The hook entry stays the
+ * 5 s self-detach and never touches the worker caps.
  *
  * Quick 260917-o1e (R5a), two facts that cost a session to rediscover:
  *   - this script NEVER reads stdin. Piping a room path or a JSON payload into
@@ -878,11 +887,74 @@ function drainDerive(roomDir, opts) {
 }
 
 // ---------------------------------------------------------------------------
+// Worker caps (Phase 379.1, CPU379-03, D-379.1-13)
+// ---------------------------------------------------------------------------
+
+// Lower the worker's scheduling priority so a drain yields to the user's hooks and
+// editor. Never raises it back; a failure (EACCES, an unsupported platform) is
+// ignored, because the thread cap and the budget are the real controls.
+function lowerWorkerPriority() {
+  try {
+    const os = require('node:os');
+    const prio = process.platform === 'win32'
+      ? os.constants.priority.PRIORITY_BELOW_NORMAL
+      : os.constants.priority.PRIORITY_LOW;
+    os.setPriority(0, prio);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+// The backstop ends an idle or async stall (an await that never resolves, a hung
+// encoder promise). It CANNOT interrupt a synchronous loop on the same thread.
+// Every synchronous loop the worker runs is therefore deadline-checked from the
+// inside: the cosine pass in buildCandidatePairs checks the deadline per row, the
+// scoring loop checks it between pairs and yields on every await, the embed loop
+// checks it between batches, and runDerivation is bounded by the slice (at most
+// resolveMaxPairsPerDrain() pairs). A parent-side kill timeout on the per-write
+// spawn is not added: that spawn is detached, stdio ignored and unref'd
+// (intelligence-cascade.cjs), so the parent exits without waiting and holds no timer;
+// the release leg (Plan 06) has a parent-side spawnSync timeout as the hard limit.
+function armBackstop(ms) {
+  const t = setTimeout(() => { process.exit(0); }, ms);
+  if (t && typeof t.unref === 'function') t.unref();
+  return t;
+}
+
+// ONE JSON line of numbers (schema drain-usage-v1). No path, no id, no text.
+function usageLine() {
+  const cpu = process.cpuUsage();
+  let maxRss = 0;
+  try { maxRss = process.resourceUsage().maxRSS; } catch (_e) { maxRss = 0; }
+  if (!Number.isFinite(maxRss) || maxRss <= 0) maxRss = Math.round(process.memoryUsage().rss / 1024);
+  return JSON.stringify({
+    schema: 'drain-usage-v1',
+    cpu_user_us: cpu.user,
+    cpu_system_us: cpu.system,
+    max_rss_kb: maxRss,
+    rss_kb: Math.round(process.memoryUsage().rss / 1024),
+    clock_ms: Math.round(process.uptime() * 1000),
+    pid: process.pid,
+  });
+}
+
+function registerUsageReporter() {
+  process.on('exit', () => {
+    try { process.stderr.write(usageLine() + '\n'); } catch (_e) { /* advisory */ }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Entry point (SessionStart hook): drain and exit 0 always.
 // ---------------------------------------------------------------------------
 
 async function main() {
   try {
+    // The operator switch (debug file E6): MINDRIAN_DERIVE_SKIP=1 ends the hook entry
+    // and the worker before any work, before the self-detach, with no output.
+    if (process.env.MINDRIAN_DERIVE_SKIP === '1') { process.exit(0); }
+
     const args = parseArgs(process.argv.slice(2));
 
     // The SessionStart hook budget (hooks.json: timeout 5000, async false) cannot
@@ -909,6 +981,14 @@ async function main() {
         // remain the universal net.
       }
       process.exit(0);
+    }
+
+    // The worker (CPU379-03): low priority, a backstop timer past the time budget, and
+    // an optional usage report. The hook entry above never reaches this code.
+    if (args.worker) {
+      lowerWorkerPriority();
+      armBackstop(resolveBudgetMs() + 60000);
+      if (args.reportUsage) registerUsageReporter();
     }
 
     const roomDir = sweep.resolveRoomDir(args.roomDir);
@@ -941,6 +1021,9 @@ module.exports = {
     MAX_DERIVE_ATTEMPTS,
     PROBE_SIMILAR,
     PROBE_UNRELATED,
+    lowerWorkerPriority,
+    armBackstop,
+    usageLine,
   },
 };
 
