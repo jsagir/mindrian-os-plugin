@@ -29,3 +29,10 @@ Notes:
 - The runner's own legs (large-fixture, Part 8 sweep, em-dash sweep) PASSED.
 - The full runner takes about 50 minutes because `run-all-224.sh` runs `doctor --acceptance`; a
   later wave may want a `--phase-only` switch, which is a change to the runner, not a defect.
+
+Logged by plan 06 (Wave 3) on 2026-10-21.
+
+| Item | Finding (as printed) | Mark |
+|------|----------------------|------|
+| Live large room leg, drain child RSS | `node scripts/real-room-run.cjs --large-room-only --json` (full leg, real encoder, 2,105 artifacts) gave status `breach`, `first_not_ok` `drain.max_rss_mb`: drain clock 36,807 ms, CPU 61,876 ms, peak RSS 1,837 MB against the 1,024 MB limit, outcome `bounded_progress`. Scout: 125 ms, 164 ms CPU, 74 MB, `artifact_cap_exceeded`. Scope: 5 and 5 artifacts, 2,100 excluded. Clock and CPU are far inside their limits; only the drain peak RSS breaches. | PROVEN (one live run); cause not measured. Hypothesis, UNVERIFIED: the ONNX session and its memory arena at batch size 32 (`MINDRIAN_EMBED_BATCH`), not the 2,105 x 384 vector array (about 3 MB). Next: measure peak RSS at `MINDRIAN_EMBED_BATCH` 8 and 16, then either lower the default batch or raise `MINDRIAN_LARGE_ROOM_RSS_MB` with a written reason. The gate refuses a receipt cut on this HEAD until the leg passes. |
+| tests/test-379.1-pair-cursor.cjs scenario 8 | failed in 1 of 4 runs before plan 06: the 1 ms budget was not spent when 12 texts embedded in under 1 ms. Fixed in plan 06 (embedFn holds 5 ms); 5 of 5 runs green after. | PROVEN |
