@@ -3642,7 +3642,6 @@ Plans:
 Off the path: 379 (split-out RS features). Phases 376 to 378 are conditional on the Phase 375 decision; if it says kill, they are retired.
 External gates: the beta.73 cut; the plugin node_modules restored; Eureka job-store lock and a distinct budget status; the authorship and reuse rights of the five graph services.
 
-
 ### Phase 374: Adapter surface completion: remaining Eureka graph tools, capability and job tools, tool-budget decision, job recovery (SEED-134 critical path)
 
 **Goal:** Complete the Eureka adapter surface beyond the Phase 373 services: the remaining dedicated graph tools, the generic capability run and job tools, and the host handoffs, with the tool-budget decision made and job state surviving a host restart. Eureka-side prerequisite: job-store owner lock and terminal-state guard, a distinct budget_exceeded status.
@@ -3714,3 +3713,25 @@ Gate: owner decision on replacing the local-mirror behavior of /mos:rs-experts. 
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 379 to break down)
+
+### Phase 379.1: Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker) (INSERTED)
+
+**Goal:** Stop the graph derive drain and the session-start scout from taking the whole CPU on a large room. Today a room-scope queue entry scores every pair of files (about 2.4 million pairs on a 2,194-file room, per the 2026-10-21 incident report), re-embeds both files on every pair, runs with no time limit, no priority and no thread limit, and restarts at every session start because a killed worker never counts as an attempt. Embed each file once and cache the vector by content hash, bound the work per drain with a cursor, cap the worker (time, priority, ONNX threads in embedding-spine.cjs so every encoder user gets it), count a killed worker as an attempt, and make the lock prove its PID is dead before a reclaim. Apply the same caps to the scout cadence runner. Ship in beta.73.
+**Requirements**: CPU379-01 one embedding per artifact per content hash, supplied to scoreMeasured as opts.vectors (D2); CPU379-02 no all-pairs scoring in the background, a bound per drain and a cursor (D1); CPU379-03 the worker has a time limit, low priority and a thread limit set in embedding-spine.cjs (D3); CPU379-04 failures and last_attempt_at are written before the work, the entry clears only on success (D4); CPU379-05 the lock heartbeats and a reclaim checks the PID (D5); CPU379-06 the scout is bounded before buildLsaMatrix: an artifact-count cap that returns the existing degraded envelope, a timeout and killSignal on the runStep execFileSync, and a single-flight lock with a PID liveness check or a throttle stamp written at run start (D6; root cause per the debug session: the cyclic Jacobi SVD in lib/core/numeric/svd.cjs on a 2000 x 2000 Gram matrix, not the encoder); CPU379-10 a declared way to keep generated engine-input directories (for example solution-design/full-catalog-run-2026-10-18, 2119 files written by the Eureka JHTV workflow on 2026-10-18) out of the derive and scout artifact scope, so a workflow output cannot turn a 44-artifact room into a 2163-artifact room silently; CPU379-07 a doctor check for queue entries older than 7 days and locks with a dead PID; CPU379-08 real-room-run.cjs gets a fixture with more than 2,000 artifacts and a CPU-time, clock-time and peak-RSS limit (the worker self-reports process.cpuUsage() and process.memoryUsage().rss, portable to Windows); CPU379-09 all repair is on the plugin side, no change to the mindrian-eureka repo; Canon Part 8 holds, no room content leaves the machine
+**Depends on:** nothing (urgent). Inputs: .planning/debug/drain-and-scout-runaway-cpu-wsl-windows.md and 379.1-CONTEXT.md in the phase directory.
+**Plans:** 0 plans
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 379.1 to break down)
+
+### Phase 380: Ship the M:OS face panel mod inside the plugin (target beta.73)
+
+**Goal:** Give every MindrianOS user the /m:os face panel that the owner built as a Claude Code mod: a side panel, a one-line status, prompt-box buttons and the /mos-* commands, so the room state is visible beside the chat without a command. Today the mod lives only in a session-scoped folder and dies with the session; this phase installs it with the plugin and releases it.
+**Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 29 engine tests run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10)
+**Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
+Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 380 to break down)

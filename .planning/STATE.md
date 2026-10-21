@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1.0
-milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
-status: executing
-stopped_at: v2.0.0-beta.67 CUT 2026-10-13 (tag at origin, npm latest and next, acceptance 24/24 post-release); search-surface sweep and egress-guard chain resolved; next: 369.3b, 369.4, 369.5, 369.6, one cut each; open: Desktop marketplace add (Code tab), GAP1/GAP2 under-blocking, SEED-126 BONO personas
-last_updated: "2026-10-11T15:14:22.718Z"
-last_activity: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
+milestone_name: milestone
+status: planning
+stopped_at: Completed 366-04-PLAN.md
+last_updated: "2026-10-21T14:25:39.298Z"
+last_activity: "2026-10-19 - Completed quick task 261019-91i: Narrow the Part 8 head-noun exemption (SEED-130)"
 progress:
-  total_phases: 121
-  completed_phases: 48
-  total_plans: 544
-  completed_plans: 522
-  percent: 96
+  total_phases: 143
+  completed_phases: 57
+  total_plans: 686
+  completed_plans: 674
+  percent: 40
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -7638,6 +7638,10 @@ Progress: [█████████░] 92%
 
 ### Roadmap Evolution
 
+- Phase 379.1 inserted after 379 (2026-10-21, URGENT): graph derive drain and scout runaway CPU fix, defects D1 to D6 of the 2026-10-21 incident report (all plugin side; the mindrian-eureka Python repo is not in the path). beta.73 blocker. Phase 380 depends on it. Next: /gsd-plan-phase 379.1 after the debug session drain-and-scout-runaway-cpu-wsl-windows reports.
+
+- Phase 380 added (2026-10-21): ship the M:OS face panel mod inside the plugin, target beta.73. Sequenced after the runaway drain and scout CPU fix (debug session drain-and-scout-runaway-cpu-wsl-windows). Not planned yet; next is /gsd-discuss-phase 380.
+
 - Phases 374 to 379 added (2026-10-20): the SEED-134 critical path after Phase 372/373. 374 adapter surface completion, 375 JHTV derive re-measure and baseline A/B (evidence gate), 376 bounded focus, 377 outer ring and crosses_boundary, 378 review surface (MCP App); 379 split-out RS features is off the path. Phases 376 to 378 are conditional on the 375 decision. External gates: beta.73 cut, plugin node_modules, Eureka job-store lock, rights on the five graph services. Planning only, no code.
 
 - Phase 372 added (2026-10-19): context_assemble reports what it omitted, `_meta.omitted[]` (SEED-134 Plan 01). Phase narrowed from the six-phase Holonic proposal after a red team against the status quo; bounded focus (Plan 02), outer ring and cross-boundary discovery are DEFERRED behind a JHTV derive re-measure and a baseline A/B with criteria written first. Navigator-approved scope, quick 261019-ui8.
@@ -9441,7 +9445,6 @@ Resume path: Phase 172 Plan 13 is COMPLETE (commits 7858e79f flip+propagate, 341
 
 **Phase 172 Plan 13 (this session):** the navigator-approved "full flip" (2026-06-23 "go on!"). Task 1 (7858e79f): flipped the gap WARN to hard-FAIL in BOTH generators + the projection-exclude reconciliation (classifyCommandNode reads the connector-coverage-ledger excluded set; the 10 bare-command gaps -- brain-derive/correct-reference-now/feynman-timeline-refresh/heal/onboard/organize/query/radar/vault/visualize -- were ALL connector-excluded, propagated to projection-excluded, gap 10 -> 0). Task 2 (34160b84): wired both --check gates into all four enforcement surfaces (pre-commit connector-guard broadened to agents/*.md + coverage-ledger; install-pre-commit splice + fresh-hook body; release.sh Step 2.4; doctor --acceptance coverage-gate point). Task 3 (75451e52): tests/test-coverage-gate-hardfail.cjs (14) proves a dark fixture trips the gate RED -- copied into commands/ under a temp probe, spawned, removed in finally (zero tracked-file mutation). Task 4 (74b0b8c1): four-class governance-ISA atomic lockstep wave -- Part 11 R1 verbatim four-class sentence + two-wires capability-vs-permission + R9 doctor --drift scheduled surface + Appendix D entry 26 + version 1.14->1.15 + CANON-PHASE-MAP row + coverageReport() class enum (counts unchanged 88/36/0) + tests/test-cirs-four-class-floor.cjs (23). No new edge/node/reach/Brain-wire; no em-dashes. 4 atomic commits + this docs commit. See 172-13-SUMMARY.md.
 
-
 ## Completed quick task 261019-ey0 (2026-10-19)
 
 Built the GPT-oriented MCP Apps decision UI and dashboard command/Theo proposal
@@ -9451,7 +9454,6 @@ Local MCP/client/browser checks pass; one existing test-237 mutation matcher is
 stale against HEAD. No release or live ChatGPT connection update was performed.
 Current milestone/phase position is unchanged.
 
-
 ## Completed quick task 261019-fhe (2026-10-19)
 
 Room-first GPT plugin entry: room_list picker -> effective room_bind -> saved
@@ -9459,7 +9461,6 @@ context_assemble -> session-correct room view. Real fresh-session tests recover
 a saved decision; browser tests verify selection and failures. No release or live
 ChatGPT account update. Current milestone/phase position is unchanged.
 See `.planning/quick/261019-fhe-room-first-gpt-plugin-entry-choose-bind-/SUMMARY.md`.
-
 
 ## Completed quick task 261019-fs6 (2026-10-19)
 
@@ -9469,7 +9470,6 @@ MCP and SDK browser flows pass, along with room birth and prior UI regressions.
 No release or live ChatGPT account update. Current phase position is unchanged.
 See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY.md`.
 
-
 ## Session record - Phase 371 UI contract (2026-10-19)
 
 Stopped at: Phase 371 UI-SPEC approved; phase added and ready for planning.
@@ -9477,14 +9477,12 @@ Resume file: `.planning/phases/371-navigator-startup-ui-first-room-and-returning
 The existing Phase 369 Current Position is preserved. This record does not claim
 the new startup visual contract has been implemented or verified in ChatGPT.
 
-
 ## Phase 371 lifecycle started (2026-10-19)
 
 The navigator requested the complete focused GSD cycle. Context/UI-SPEC reused;
 research and three inline plans checked. Execution proceeds through local
 verification, then the explicit real-host acceptance gate. Prior startup commits
 remain baseline provenance. Peer Phase 369 Current Position is preserved.
-
 
 ## Phase 371 local cycle verification (2026-10-19)
 
@@ -9495,7 +9493,6 @@ local tasks pass, real-host checkpoint pending. Verification: human_needed,
 Resume: `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UAT.md`.
 The peer Phase 369 Current Position is preserved; no milestone close/archive,
 release, account/plugin install, tunnel or live ChatGPT update was performed.
-
 
 ## Phase 371 host validation attempted (2026-10-19)
 
