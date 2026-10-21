@@ -1,0 +1,39 @@
+{
+  "probe": "svd-parity",
+  "probed_at": "2026-10-21T16:17:58.944Z",
+  "node_version": "v22.23.1",
+  "host_cores": 12,
+  "platform": "linux",
+  "status": "ok",
+  "params": {
+    "max_features": 2000,
+    "max_df": 0.5,
+    "n_components": 80,
+    "n_large": 400,
+    "jacobi_budget_ms": 60000
+  },
+  "gate": {
+    "LSA_SPEARMAN_MIN": 0.85,
+    "LSA_AVG_DELTA_MAX": 0.02,
+    "LSA_MAX_DELTA_MAX": 0.05,
+    "CONFIDENT_SIGN_FLIP_MAX": 0
+  },
+  "fixture_artifact_count": 96,
+  "hermetic_cache_present": true,
+  "fixture_discovered": 96,
+  "fixture_docs": 96,
+  "fixture_terms": 208,
+  "fixture_gram_dim": 96,
+  "fixture_fit_ms": 145,
+  "jacobi_ms_fixture": 1239,
+  "fixture_svd_ok": true,
+  "n400_docs": 400,
+  "n400_terms": 910,
+  "n400_gram_dim": 400,
+  "n400_fit_ms": 230,
+  "jacobi_ms_n400": 50663,
+  "jacobi_sweeps_n400": null,
+  "n400_svd_ok": true,
+  "rs_max_artifacts_default": 400,
+  "candidate_regeneration": "tests/fixtures/272/generate-candidate.cjs with TOPK 2000 THRESHOLD 0"
+}

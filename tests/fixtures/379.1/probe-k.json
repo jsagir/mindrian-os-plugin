@@ -1,0 +1,100 @@
+{
+  "probe": "k",
+  "probed_at": "2026-10-21T16:52:00.969Z",
+  "node_version": "v22.23.1",
+  "host_cores": 12,
+  "platform": "linux",
+  "status": "ok",
+  "params": {
+    "k_list": [
+      5,
+      10,
+      20,
+      40
+    ],
+    "k_choices": [
+      5,
+      10,
+      20
+    ],
+    "recall_min": 0.95,
+    "floor_slack": 0.0001,
+    "sample_max": 300,
+    "sample_stride": 7
+  },
+  "artifact_count": 39,
+  "enumerated_total": 2158,
+  "full_pairs": 741,
+  "score_errors": 75,
+  "edges_full": {
+    "converges": 50,
+    "informs": 133
+  },
+  "per_k": {
+    "5": {
+      "candidates": 115,
+      "recall_converges": 1,
+      "recall_informs": 0.43609022556390975
+    },
+    "10": {
+      "candidates": 173,
+      "recall_converges": 1,
+      "recall_informs": 0.8721804511278195
+    },
+    "20": {
+      "candidates": 190,
+      "recall_converges": 1,
+      "recall_informs": 1
+    },
+    "40": {
+      "candidates": 190,
+      "recall_converges": 1,
+      "recall_informs": 1
+    }
+  },
+  "embed_ms": 362387,
+  "full_pass_ms": 24627,
+  "cosine_pass_ms": 267,
+  "informs_floor": 0.45,
+  "converges_floor": 0.55,
+  "model": "MongoDB/mdbr-leaf-ir",
+  "dim": 384,
+  "chosen_k": 20,
+  "recall_shortfall": false,
+  "large_sample": {
+    "artifact_count": 300,
+    "stride": 7,
+    "full_pairs": 44850,
+    "score_errors": 3809,
+    "edges_full": {
+      "converges": 115,
+      "informs": 797
+    },
+    "per_k": {
+      "5": {
+        "candidates": 637,
+        "recall_converges": 0.9565217391304348,
+        "recall_informs": 0.5997490589711418
+      },
+      "10": {
+        "candidates": 860,
+        "recall_converges": 1,
+        "recall_informs": 0.8544542032622334
+      },
+      "20": {
+        "candidates": 977,
+        "recall_converges": 1,
+        "recall_informs": 0.9924717691342535
+      },
+      "40": {
+        "candidates": 984,
+        "recall_converges": 1,
+        "recall_informs": 1
+      }
+    },
+    "embed_ms": 1439570,
+    "cosine_pass_ms": 121,
+    "full_pass_ms": 102720
+  },
+  "room_source": "jhtv"
+}
