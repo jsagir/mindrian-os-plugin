@@ -5,7 +5,7 @@
  *
  * Phase 379.1 Wave 0 probe: which k keeps the CONVERGES and INFORMS edges (D-379.1-12, P-379.1-01).
  *
- * Baseline leg: the real room (MINDRIAN_PROBE_ROOM, else ~/MindrianRooms/jhtv-oliver-kuntz) with the
+ * Baseline leg: the real room named by MINDRIAN_PROBE_ROOM (no room is built in; unset means absent) with the
  * generated catalog directories skipped by a hard-coded path predicate (the Wave 0 stand-in for the
  * artifact-scope module of Plan 02), about 44 artifacts. When the room is absent the 44-artifact
  * fixture of tests/helpers/fixture-room-224.cjs stands in (status room_absent_used_fixture).
@@ -75,7 +75,8 @@ function note(line) {
 function resolveRoom() {
   const env = process.env.MINDRIAN_PROBE_ROOM;
   if (typeof env === 'string' && env.trim() !== '') return { dir: path.resolve(env.trim()), source: 'env' };
-  return { dir: path.join(os.homedir(), 'MindrianRooms', 'jhtv-oliver-kuntz'), source: 'jhtv' };
+  // No built-in room: a room slug is user data and never lives in the repository (Canon Part 8, no real names).
+  return { dir: '', source: 'none' };
 }
 
 function isBaselineSkipped(absPath) {
