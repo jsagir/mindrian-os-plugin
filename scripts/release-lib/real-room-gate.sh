@@ -31,6 +31,12 @@
 # with no negative leg is NONEGATIVE, one in which any job ran, is missing, or refused with no typed reason is NEGATIVE_RAN.
 # The check lives here and not in release.sh so the step blocks the 341 tripwire hashes stay as they are.
 #
+# THE LARGE ROOM LEG (Phase 379.1, D-379.1-02): the receipt must also carry `large_room_leg`, written by the same run: a
+# room of more than 2,000 artifacts built at run time, the drain worker and the scout run against it, clock, CPU and peak RSS
+# of each measured against limits. A receipt with no large room leg is NOLARGE; one whose leg ran in smoke mode (50 pairs, 20 s
+# budget) is LARGE_SMOKE, because a smoke leg is a quick check and not a release leg; one whose leg is not ok (a breach, an
+# error, or an inconclusive run with no encoder) is LARGE_UNBOUNDED, naming the status and the first failing field.
+#
 # LOCAL ONLY: this gate reads one local JSON file and one git sha. No network. It
 # prints names, shas, counts and paths, never an environment value.
 #
@@ -45,7 +51,7 @@
 # Quick 261005-muy. Hyphens only.
 
 # _real_room_check(receipt_dir, head_sha) -- prints lines, each starting with a tag:
-#   KIND <OK|NORECEIPT|UNREADABLE|MISMATCH|INVALID|NONEGATIVE|NEGATIVE_RAN|OFFLINE>
+#   KIND <OK|NORECEIPT|UNREADABLE|MISMATCH|INVALID|NONEGATIVE|NEGATIVE_RAN|NOLARGE|LARGE_SMOKE|LARGE_UNBOUNDED|OFFLINE>
 #   MSG  <text>        the reason (every non-OK kind)
 #   LAST <sha> <reader> <read_at>   NORECEIPT only: the newest receipt in the dir, if any
 #   LINE <text>        a summary line (OK only; one is 'negative leg: refused <n> of <n> (<reasons>)')
@@ -115,10 +121,28 @@ _real_room_check() {
     }
     if (nl.all_refused !== true) { p("KIND", "NEGATIVE_RAN"); p("MSG", "the negative leg records all_refused " + String(nl.all_refused) + ": it did not refuse every job"); done(); }
     if (r.offline === true) { p("KIND", "OFFLINE"); p("MSG", "the receipt was recorded with --offline: the web lines were planned and shown, never sent"); done(); }
+    var ll = r.large_room_leg;
+    if (!ll || typeof ll !== "object" || Array.isArray(ll)) {
+      p("KIND", "NOLARGE");
+      p("MSG", "the receipt has no large room leg: nothing proves the drain and the scout stay bounded on a room of more than 2,000 artifacts");
+      done();
+    }
+    if (ll.smoke === true) {
+      p("KIND", "LARGE_SMOKE");
+      p("MSG", "the large room leg ran in smoke mode (50 pairs, 20 s budget): a release receipt needs the full leg; re-run node scripts/real-room-run.cjs without --smoke");
+      done();
+    }
+    if (ll.ok !== true) {
+      p("KIND", "LARGE_UNBOUNDED");
+      p("MSG", "the large room leg is not ok: status " + (typeof ll.status === "string" ? ll.status.slice(0, 40) : "unknown") + ", first failing field " + (typeof ll.first_not_ok === "string" ? ll.first_not_ok.slice(0, 60) : "none"));
+      done();
+    }
     p("KIND", "OK");
     p("LINE", "read by " + r.reader.trim() + " at " + String(r.read_at || "unknown") + " (version " + String(r.version || "unknown") + ")");
     lines.forEach(function (l) { p("LINE", l); });
     p("LINE", "negative leg: refused " + nlJobs + " of " + nlJobs + " (" + nlReasons.join(", ") + ")");
+    var llDrain = ll.drain && typeof ll.drain === "object" ? ll.drain : {}, llScout = ll.scout && typeof ll.scout === "object" ? ll.scout : {}, llScope = ll.scope && typeof ll.scope === "object" ? ll.scope : {};
+    p("LINE", "large room leg: ok (artifacts=" + Number(ll.artifact_count || 0) + ", excluded=" + Number(llScope.excluded_artifacts || 0) + ", drain=" + String(llDrain.outcome).slice(0, 30) + " " + Number(llDrain.clock_ms || 0) + " ms " + Number(llDrain.max_rss_mb || 0) + " MB, scout=" + String(llScout.degraded).slice(0, 30) + " " + Number(llScout.max_rss_mb || 0) + " MB)");
     var dv = r.desktop_verified && typeof r.desktop_verified === "object" ? r.desktop_verified : {};
     if (dv.mac || dv.win) {
       p("LINE", "desktop verified: mac " + (dv.mac || "not run") + ", win " + (dv.win || "not run"));
@@ -197,6 +221,9 @@ mos_real_room_gate() {
     INVALID)    detail="INVALID RECEIPT -- ${msg}." ;;
     NONEGATIVE) detail="NO NEGATIVE LEG -- ${msg}." ;;
     NEGATIVE_RAN) detail="NEGATIVE LEG RAN -- ${msg}. A cut needs every research door to refuse a room with no usable room.db." ;;
+    NOLARGE)    detail="NO LARGE ROOM LEG -- ${msg}." ;;
+    LARGE_SMOKE) detail="LARGE ROOM LEG IN SMOKE MODE -- ${msg}." ;;
+    LARGE_UNBOUNDED) detail="LARGE ROOM LEG NOT OK -- ${msg}. A cut needs the drain and the scout inside their clock, CPU and RSS limits on a large room." ;;
     OFFLINE)    detail="OFFLINE RECEIPT -- ${msg}. A real cut needs a run without --offline." ;;
     *)          detail="READ FAILURE -- the receipt reader gave no verdict." ;;
   esac

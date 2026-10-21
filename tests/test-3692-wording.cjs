@@ -328,6 +328,14 @@ async function main() {
       assert.ok(c.complete === 0 || c.complete === 1, k + ' complete is ' + c.complete);
       assert.strictEqual(c.operations_planned, c.executed_with_results + c.executed_empty + c.refused_before_fetch + c.not_executed, k + ' operations_planned is not the sum of the four states');
     });
+    // Phase 379.1 plan 06: this hermetic run has an empty HOME, so the large room leg is inconclusive by design (no local
+    // embedding model, the drain child is never started) and the gate refuses it as LARGE_UNBOUNDED. This arm tests the
+    // completion wording, not the leg: record a passing leg on the receipt copy. The gate's own large-leg verdicts are
+    // pinned by tests/test-muy-real-room-rule.cjs arm G15.
+    rec.large_room_leg = { ok: true, status: 'ok', smoke: false, artifact_count: 2105, limits: { clock_ms: 300000, cpu_ms: 600000, rss_mb: 1024 },
+      drain: { clock_ms: 1, cpu_ms: 1, max_rss_mb: 1, outcome: 'bounded_progress' }, scout: { clock_ms: 1, cpu_ms: 1, max_rss_mb: 1, degraded: 'artifact_cap_exceeded' },
+      scope: { ok: true, excluded_artifacts: 2100 }, first_not_ok: null };
+    fs.writeFileSync(path.join(receipts, sha + '.json'), JSON.stringify(rec, null, 2));
     const g = cp.spawnSync('bash', ['-c', '. "$LIB" && mos_real_room_gate "$ROOT" 0 0'], {
       env: Object.assign({}, env, { LIB: path.join(ROOT, 'scripts', 'release-lib', 'real-room-gate.sh'), ROOT: ROOT, NODE_OPTIONS: '' }),
       encoding: 'utf8', timeout: 60000,

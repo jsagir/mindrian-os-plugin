@@ -9,7 +9,7 @@
  * .mindrian/artifact-scope.json globs, the overbroad guard at 0.5 of directories; D-379.1-18).
  * Plan 02 (this file's predicate part): lib/core/artifact-scope.cjs matchGlob, validatePattern,
  * loadScope with the guards G1 to G6b, isExcludedDir. Plan 05 adds the rs-engine walker
- * assertions under the marker WALKER_ASSERTIONS_BELOW; Plan 06 adds the both-walkers assertion.
+ * assertions; Plan 06 adds the both-walkers assertion on the large fixture.
  * Hermetic: scrubVendorKey + installNetGuard first; attempts() === 0 last. No em-dashes.
  */
 const { scrubVendorKey, installNetGuard } = require('./helpers/hygiene-355.cjs');
@@ -398,8 +398,25 @@ function main() {
       assert.equal(r.scope.overbroad, true);
     });
 
-    // WALKER_ASSERTIONS_BELOW (Plan 05 adds the rs-engine and classifier walker assertions here;
-    // Plan 06 adds the both-walkers assertion on the large fixture)
+    // --- Plan 06: both walkers, one declaration, one count, on the large fixture (CPU379-10) ---
+    const classifier = require('../lib/core/graph-derive-classifier.cjs');
+    const largeBuilder = require('./fixtures/large-room/build-fixture.cjs');
+
+    t('large fixture with the manifest: both walkers read 5 artifacts and report 2100 excluded', () => {
+      const built = largeBuilder.buildLargeRoom(path.join(SCRATCH, 'large-scoped'), { slug: 'large-scoped', withManifest: true });
+      const c = classifier.enumerateArtifactsWithScope(built.roomDir);
+      const r = rsEngine.discoverArtifactsWithScope(built.roomDir);
+      assert.equal(c.artifacts.length, 5);
+      assert.equal(r.artifacts.length, 5);
+      assert.equal(c.scope.stats.excluded_md, 2100);
+      assert.equal(r.scope.stats.excluded_md, 2100);
+    });
+
+    t('large fixture without the manifest: both walkers read 2105', () => {
+      const built = largeBuilder.buildLargeRoom(path.join(SCRATCH, 'large-plain'), { slug: 'large-plain' });
+      assert.equal(classifier.enumerateArtifactsWithScope(built.roomDir).artifacts.length, 2105);
+      assert.equal(rsEngine.discoverArtifactsWithScope(built.roomDir).artifacts.length, 2105);
+    });
   } finally {
     try { fs.rmSync(SCRATCH, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
   }
