@@ -302,6 +302,77 @@ async function main() {
       assert.deepEqual(jobLock.release(again.handle), { released: true });
     });
 
+    // ---- Plan 04 Task 2: the drain takes the job lock (CPU379-05) ----
+    const sweep = require('../scripts/gsd-graph-derive-sweep.cjs');
+    const drain = require('../scripts/gsd-graph-derive-drain.cjs');
+    const stubEncode = (texts) => texts.map((x) => [x.length % 7 + 1, 1, 0.5]);
+    function drainRoom() {
+      seq += 1;
+      const room = path.join(SCRATCH, 'drain-room-' + seq);
+      fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+      fs.writeFileSync(path.join(room, '.room-root'), '{}\n', 'utf8');
+      sweep.enqueueDerive(room, {});
+      return room;
+    }
+    const drainOpts = (extra) => Object.assign({
+      deriveFn: async () => [],
+      probeOpts: { encodeFn: stubEncode },
+    }, extra || {});
+
+    await ta('drain: a live holder blocks the drain (locked true, lock_reason held), then the drain runs', async () => {
+      const room = drainRoom();
+      const lockPath = path.join(room, '.mindrian', 'graph-derive-drain.lock');
+      assert.equal(drain._test.drainLockPath(path.resolve(room)), lockPath);
+      const child = fork(HOLDER, [lockPath, 'hold', '2500']);
+      try {
+        const msg = await onceMessage(child);
+        assert.equal(msg.acquired, true);
+        const blocked = await drain.drainDerive(room, drainOpts());
+        assert.equal(blocked.locked, true);
+        assert.equal(blocked.lock_reason, 'held');
+        assert.equal(blocked.lock_stale_heartbeat, false);
+        assert.equal(blocked.remaining, 1);
+        assert.equal(sweep.readQueue(room).entries.length, 1, 'the queue is untouched');
+        assert.equal(JSON.parse(fs.readFileSync(lockPath, 'utf8')).pid, msg.pid, 'the holder keeps the lock');
+      } finally {
+        await onceExit(child);
+      }
+      const ran = await drain.drainDerive(room, drainOpts());
+      assert.notEqual(ran.locked, true);
+      assert.equal(ran.drained.length, 1);
+      assert.equal(sweep.readQueue(room).entries.length, 0);
+      assert.equal(fs.existsSync(lockPath), false, 'the lock file is gone after the drain');
+    });
+
+    await ta('drain: a legacy bare-pid lock with a dead pid is reclaimed and replaced by a JSON job lock', async () => {
+      const room = drainRoom();
+      const lockPath = path.join(room, '.mindrian', 'graph-derive-drain.lock');
+      fs.writeFileSync(lockPath, String(deadPid()), 'utf8');
+      let seen = null;
+      const opts = drainOpts({
+        probeOpts: {
+          encodeFn: (texts) => {
+            if (!seen) { try { seen = JSON.parse(fs.readFileSync(lockPath, 'utf8')); } catch (_e) { seen = { unreadable: true }; } }
+            return stubEncode(texts);
+          },
+        },
+      });
+      const res = await drain.drainDerive(room, opts);
+      assert.notEqual(res.locked, true);
+      assert.ok(seen && !seen.unreadable, 'the lock was JSON while the drain ran');
+      assert.equal(seen.job, 'graph-derive-drain');
+      assert.equal(seen.pid, process.pid);
+      assert.ok(Object.prototype.hasOwnProperty.call(seen, 'pid_start'), 'payload carries pid_start');
+      if (IS_LINUX) assert.equal(typeof seen.pid_start, 'number');
+      assert.equal(fs.existsSync(lockPath), false);
+    });
+
+    t('drain source: the mtime lock is gone', () => {
+      const src = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'gsd-graph-derive-drain.cjs'), 'utf8');
+      assert.equal((src.match(/LOCK_STALE_MS|acquireDrainLock|releaseDrainLock/g) || []).length, 0);
+      assert.ok(src.indexOf("require('../lib/core/job-lock.cjs')") !== -1);
+    });
+
     // DRAIN_LOCK_BELOW (Plan 04 adds the drain lock swap assertions here)
   } finally {
     try { fs.rmSync(SCRATCH, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
