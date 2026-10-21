@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 379.1-03-PLAN.md - GATE PASSED, randomized SVD shipped (b032e491f)
-last_updated: "2026-10-21T19:08:45.142Z"
-last_activity: 2026-10-21 -- Phase 379.1 execution continuing (379.1-03 complete)
+stopped_at: Completed 379.1-04-PLAN.md - drain embeds once, prunes by top-k cosine, walks a cursor, capped worker (cbe2fa845)
+last_updated: "2026-10-21T19:24:28.369Z"
+last_activity: 2026-10-21 -- Phase 379.1 execution continuing (379.1-04 complete)
 progress:
   total_phases: 143
   completed_phases: 57
   total_plans: 692
-  completed_plans: 677
+  completed_plans: 678
   percent: 98
 ---
 
@@ -5424,8 +5424,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
-Plan: 4 of 6 (01, 02 and 03 complete; 04 and 05 are Wave 2, unblocked)
-Status: 379.1-03 landed (GATE PASSED: seeded randomized truncated SVD in lib/core/numeric/svd.cjs behind the auto rule, commit b032e491f; 272 gate spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210; 2105x2000 at k=80 in 968 ms; scout cap stays Jacobi-derived this phase). Earlier: 379.1-02 landed (Wave 1 foundations, commits 47ec1a195, 51c1d8a75, 7df64661e, d9b943767) and 379.1-01 (Wave 0). Pre-existing red, not caused by this phase: five regression legs in the runner (222, 224, 233, 272 cache-probe, 354) and test-341-no-heavy-dep arm 3, see the phase deferred-items.md.
+Plan: 5 of 6 (01 to 04 complete; 05 is next, then 06)
+Status: 379.1-04 landed (drain embeds once per content hash, top-k pruner k 20 with recall 1.0 CONVERGES and 0.9925 INFORMS on the 300-artifact sample, cursor of 5,000 pairs per drain, 50,000-pair ceiling with a disclosed skip, attempt record before the first pair, job-lock, worker priority, backstop, --report-usage, MINDRIAN_DERIVE_SKIP; commits e2c6541a2, c3060173f, cbe2fa845; branch feat/eureka-adapter-rebased). Earlier: 379.1-03 landed (GATE PASSED: seeded randomized truncated SVD in lib/core/numeric/svd.cjs behind the auto rule, commit b032e491f; 272 gate spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210; 2105x2000 at k=80 in 968 ms; scout cap stays Jacobi-derived this phase). Earlier: 379.1-02 landed (Wave 1 foundations, commits 47ec1a195, 51c1d8a75, 7df64661e, d9b943767) and 379.1-01 (Wave 0). Pre-existing red, not caused by this phase: five regression legs in the runner (222, 224, 233, 272 cache-probe, 354) and test-341-no-heavy-dep arm 3, see the phase deferred-items.md.
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
