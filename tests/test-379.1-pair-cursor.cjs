@@ -310,8 +310,16 @@ async function main() {
       const fx = await buildFixtureRoom224(path.join(tmp, 'b'), { artifactCount: 12 });
       const c = makeCounters();
       sweep.enqueueDerive(fx.roomDir, {});
+      // Phase 379.1 plan 06: the 1 ms budget must be spent inside the embed step, not by luck. A fast machine
+      // embeds 12 short texts in under 1 ms and the first drain then finishes the entry (a flake seen under load
+      // and idle alike). The first drain's embedFn therefore holds for 5 ms, so the deadline has always passed.
+      const slowEmbed = async (texts) => {
+        const t0 = Date.now();
+        while (Date.now() - t0 < 5) { /* hold the clock past the 1 ms budget */ }
+        return c.embedFn(texts);
+      };
       await withEnv({ MINDRIAN_DERIVE_BUDGET_MS: '1' }, async () => {
-        await drain.drainDerive(fx.roomDir, { embedFn: c.embedFn, probeOpts: c.probeOpts });
+        await drain.drainDerive(fx.roomDir, { embedFn: slowEmbed, probeOpts: c.probeOpts });
       });
       const e = entries(fx.roomDir);
       assert.equal(e.length, 1, 'the entry stays');
