@@ -355,6 +355,38 @@ async function main() {
       }
     });
 
+    // ---- Plan 04 Task 2: the drain embeds once per content hash ----
+    await ta('drain: 8 texts embedded once, a second drain embeds 0, one edited file embeds 1', async () => {
+      const sweep = require('../scripts/gsd-graph-derive-sweep.cjs');
+      const drain = require('../scripts/gsd-graph-derive-drain.cjs');
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-379-1-drainvc-'));
+      try {
+        const fx = await buildFixtureRoom224(dir, { artifactCount: 8 });
+        const counter = { texts: 0, batches: 0 };
+        const embedFn = countingEmbed(counter);
+        const probeOpts = { encodeFn: (texts) => texts.map((x) => [x.length % 5 + 1, 1, 0.5]) };
+        sweep.enqueueDerive(fx.roomDir, {});
+        await drain.drainDerive(fx.roomDir, { embedFn, probeOpts });
+        assert.equal(counter.texts, 8, 'the counting embedFn saw exactly 8 texts');
+        assert.equal(sweep.readQueue(fx.roomDir).entries.length, 0);
+        sweep.enqueueDerive(fx.roomDir, {});
+        await drain.drainDerive(fx.roomDir, { embedFn, probeOpts });
+        assert.equal(counter.texts, 8, 'the second drain embedded nothing');
+        fs.appendFileSync(fx.allFiles[2], 'an edit so the content hash changes\n');
+        sweep.enqueueDerive(fx.roomDir, {});
+        await drain.drainDerive(fx.roomDir, { embedFn, probeOpts });
+        assert.equal(counter.texts, 9, 'the third drain embedded exactly the edited file');
+        const raw = JSON.parse(fs.readFileSync(path.join(fx.roomDir, '.mindrian', 'graph-derive-vectors.json'), 'utf8'));
+        const ids = Object.keys(raw.embeddings);
+        assert.equal(ids.length, 8);
+        for (const id of ids) assert.match(raw.embeddings[id].hash, /^[0-9a-f]{16}$/);
+        assert.equal(typeof raw.model, 'string');
+        assert.ok(raw.model.length > 0);
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+
     // DRAIN_INTEGRATION_BELOW (Plan 04 Task 2 adds the drain wiring assertions here)
   } finally {
     try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
