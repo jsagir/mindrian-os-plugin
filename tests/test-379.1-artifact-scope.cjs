@@ -350,6 +350,54 @@ function main() {
       assert.equal(isExcludedDir(path.join(room, 'sa'), room, scope), false);
     });
 
+    // --- Plan 05: the rs-engine walker honours the scope and discloses it ---
+    const rsEngine = require('../lib/core/rs-engine.cjs');
+    const genFiles = [];
+    for (let i = 0; i < 50; i += 1) genFiles.push('gen-' + i + '.md');
+    const walkerLayout = () => ({
+      notes: ['a.md', 'b.md', 'c.md', 'd.md', 'e.md'],
+      'solution-design/gen': [],
+      'solution-design/gen/engine-input-room': genFiles,
+    });
+
+    t('walker: a manifest marker prunes the generated dir; 5 artifacts, disclosure 1 dir and 50 md', () => {
+      const room = makeRoom(walkerLayout(), { markers: ['solution-design/gen'] });
+      assert.equal(rsEngine.discoverArtifacts(room).length, 5);
+      const r = rsEngine.discoverArtifactsWithScope(room);
+      assert.equal(r.artifacts.length, 5);
+      assert.equal(r.scope.stats.excluded_dirs, 1);
+      assert.equal(r.scope.stats.excluded_md, 50);
+    });
+
+    t('walker: without the manifest the same room reads 55', () => {
+      const room = makeRoom(walkerLayout());
+      assert.equal(rsEngine.discoverArtifacts(room).length, 55);
+    });
+
+    t('walker: a valid declaration with no manifest reads 5', () => {
+      const room = makeRoom(walkerLayout(), { declaration: { version: 1, exclude: ['solution-design/gen'] } });
+      assert.equal(rsEngine.discoverArtifacts(room).length, 5);
+    });
+
+    t('walker: a malformed declaration excludes nothing (55)', () => {
+      const room = makeRoom(walkerLayout(), { declaration: '{ not json' });
+      assert.equal(rsEngine.discoverArtifacts(room).length, 55);
+    });
+
+    t('walker: a wildcard-only declaration is ignored (55) and counted as 1 overbroad pattern', () => {
+      const room = makeRoom(walkerLayout(), { declaration: { version: 1, exclude: ['**'] } });
+      const r = rsEngine.discoverArtifactsWithScope(room);
+      assert.equal(r.artifacts.length, 55);
+      assert.equal(r.scope.overbroad_patterns, 1);
+    });
+
+    t('walker: a declaration naming every top-level directory is ignored (55), overbroad true', () => {
+      const room = makeRoom(walkerLayout(), { declaration: { version: 1, exclude: ['notes', 'solution-design'] } });
+      const r = rsEngine.discoverArtifactsWithScope(room);
+      assert.equal(r.artifacts.length, 55);
+      assert.equal(r.scope.overbroad, true);
+    });
+
     // WALKER_ASSERTIONS_BELOW (Plan 05 adds the rs-engine and classifier walker assertions here;
     // Plan 06 adds the both-walkers assertion on the large fixture)
   } finally {
