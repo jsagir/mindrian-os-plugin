@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 366-04-PLAN.md
-last_updated: "2026-10-21T14:25:39.298Z"
-last_activity: "2026-10-19 - Completed quick task 261019-91i: Narrow the Part 8 head-noun exemption (SEED-130)"
+status: executing
+stopped_at: Completed 379.1-01-PLAN.md - Wave 0 fixture, runner, scaffolds and probes; chosen_k 20, extra_honoured true, rs_max_artifacts_default 400
+last_updated: "2026-10-21T17:07:57.791Z"
+last_activity: 2026-10-21 -- Phase 379.1 execution continuing (379.1-01 complete)
 progress:
   total_phases: 143
   completed_phases: 57
-  total_plans: 686
-  completed_plans: 674
-  percent: 40
+  total_plans: 692
+  completed_plans: 675
+  percent: 98
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 366 — eureka-perspective-in-research-planner-mcp-canvas-tooling
+**Current focus:** Phase 379.1 - Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,9 +5423,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be)
-Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next
-Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
+Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
+Plan: 2 of 6 (01 complete; 02 and 03 are Wave 1, both unblocked)
+Status: 379.1-01 landed (Wave 0: large-room builder, tests/run-all-379.1.sh, 8 RED scaffolds, 4 probes; commits 8606521e4, 281760e50, b7451dee7, ff54aba60). Probe numbers: chosen_k 20 (recall_shortfall false), extra_honoured true, rs_max_artifacts_default 400, jacobi_ms_n400 50663, density 0.0120 fixture / 0.0443 real room. Five pre-existing regression legs red in the runner (222, 224, 233, 272, 354), see the phase deferred-items.md.
+Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
 Session jsagi-70 (2026-10-03, hand-edited frontmatter and this block only, no state.* writer): 369-22 (rulings Q1 extend-dashboard, Q2 desktop-sentences-tool-description -> /mos:dashboard shell, D-03 sentences in room_list; 369-LAUNCH-RULING.md), 369-20 (fonts approved: four Fontsource 5.3.0 OFL-1.1 packages, JetBrains Mono kept; Canon v3 skin + frame, 30/30), 369-21 (render nonce, D-15 10/10), 369-23 (pull-only copy 12/12 e2e, 369-COUNTER-METRICS.md, fixed plan-08/32 head-read-after-compaction bugs), 369-24 (signed indicator 11/11), 369-25 (five views 23/23 + 12/12 e2e, projection v2). Root node_modules restored with npm ci --ignore-scripts (interrupted plan-19 install had left 57 packages missing). Deferred: test-348-mcp-flag red (unrelated), wire-snapshot-zod3 stale room_list text, replica.cjs arm 11 flake 1 in 5, 404-page copy wording, duplicate Reconnect-now placement (plan 24 note).
@@ -5993,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-19 - Completed quick task 261019-91i: Narrow the Part 8 head-noun exemption (SEED-130)
+Last activity: 2026-10-21 -- Phase 379.1 execution continuing (379.1-01 complete)
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -7414,6 +7415,7 @@ Progress: [█████████░] 92%
 | Phase 366 P05 | 30min | 2 tasks | 6 files |
 | Phase 366 P06 | 45min | 2 tasks | 9 files |
 | Phase 366 P04 | 45min | 2 tasks | 7 files |
+| Phase 379.1 P01 | 1h 43m | 3 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -9145,6 +9147,9 @@ Progress: [█████████░] 92%
 - [Phase ?]: 366-06: RULE 5 place 9 canon snapshot freshness (offline LAGGING gate on data/framework-names.json theo_stamp.mapped_by) plus release.sh suite gate over tests/run-all-366.sh; suite gate previewed under --dry-run (doctor 30s budget); next release refuses until refresh-framework-names.cjs --live runs after Theo re-emit
 - [Phase ?]: 366-04: hsi shares the HSI canon framework with whitespace; templateForFramework still returns whitespace and hsi is explicit_only on /mos:scout hsi
 - [Phase ?]: 366-04: analogies statement_slots (function, behavior, structure) are not composer slots; composeForLeaf refuses them as bad_slot
+- [Phase 379.1]: 379.1-01: chosen_k = 20 with recall_shortfall false (k = 20 keeps 0.95 recall of CONVERGES and INFORMS on the 39-artifact baseline and the 300-artifact real-room sample; k = 10 loses INFORMS at 0.87 and 0.85) - Measured by tests/fixtures/379.1/probe-k.cjs; Plan 04 reads chosen_k from probe-k.json, no RECALL_SHORTFALL comment needed
+- [Phase 379.1]: 379.1-01: extra_honoured = true on onnxruntime-node 1.30.0 (a non-string allow_spinning throws TypeError must be a string); the idle-CPU halving did not occur (673 ms vs 815 ms over 2,000 ms), so Plan 02 ships the extra map but must not expect it to remove idle CPU by itself - Measured by tests/fixtures/379.1/probe-allow-spinning.cjs, each case in its own child process
+- [Phase 379.1]: 379.1-01: rs_max_artifacts_default = 400 (jacobi_ms_n400 50,663 ms, 84 percent of the 60,000 ms budget on a 12-core host); TF-IDF density 0.0120 fixture, 0.0443 real room - Measured by tests/fixtures/379.1/probe-svd-parity.cjs and probe-tfidf-density.cjs; the 400 default is marginal on a slower host, Plan 05 decides
 
 ### Pending Todos
 
@@ -9346,8 +9351,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-01T17:15:49.669Z
-Stopped at: Completed 366-04-PLAN.md
+Last session: 2026-10-21T17:04:57.941Z
+Stopped at: Completed 379.1-01-PLAN.md - Wave 0 fixture, runner, scaffolds and probes; chosen_k 20, extra_honoured true, rs_max_artifacts_default 400
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
