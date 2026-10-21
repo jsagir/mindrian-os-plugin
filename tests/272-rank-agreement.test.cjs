@@ -92,7 +92,8 @@ const FIXTURES_DIR = path.join(REPO_ROOT, 'tests', 'fixtures', '272');
 const ROOM_DIR = path.join(FIXTURES_DIR, 'room');
 
 const BASELINE_PATH = path.join(FIXTURES_DIR, 'baseline-python.fixture.json');
-const CANDIDATE_PATH = path.join(FIXTURES_DIR, 'candidate-cjs.fixture.json');
+// Phase 379.1 (D-379.1-14): the svd-parity gate points this at a forced-solver candidate in scratch.
+const CANDIDATE_PATH = (typeof process.env.MINDRIAN_272_CANDIDATE_PATH === 'string' && process.env.MINDRIAN_272_CANDIDATE_PATH !== '') ? path.resolve(process.env.MINDRIAN_272_CANDIDATE_PATH) : path.join(FIXTURES_DIR, 'candidate-cjs.fixture.json');
 const NOISE_FLOOR_JSON_PATH = path.join(FIXTURES_DIR, 'noise-floor.json');
 const NOISE_FLOOR_MD_PATH = path.join(FIXTURES_DIR, 'NOISE-FLOOR.md');
 
