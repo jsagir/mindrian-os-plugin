@@ -9,7 +9,7 @@
  * Builds the large-room fixture under tmp, runs fitTfidf over its 2,105 texts on the scout's own
  * path (discoverArtifacts, title + body, maxFeatures 2000, maxDf 0.5) and records docs, terms,
  * cells = docs x terms, nnz (non-zero weights), density = nnz / cells and fit_ms. When
- * ~/MindrianRooms/jhtv-oliver-kuntz exists the same numbers are recorded read-only under real_room
+ * MINDRIAN_PROBE_ROOM names an existing room the same numbers are recorded read-only under real_room
  * over its full discoverArtifacts set (no exclusion, the real large-room case).
  *
  * Canon Part 8: the real room is read read-only; the result file holds numbers, booleans and enum
@@ -88,8 +88,9 @@ function main() {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 
-  const realRoom = path.join(os.homedir(), 'MindrianRooms', 'jhtv-oliver-kuntz');
-  if (fs.existsSync(realRoom) && fs.statSync(realRoom).isDirectory()) {
+  // The real room comes only from the environment; no room slug is built into the repository.
+  const realRoom = (process.env.MINDRIAN_PROBE_ROOM || '').trim();
+  if (realRoom !== '' && fs.existsSync(realRoom) && fs.statSync(realRoom).isDirectory()) {
     const texts = rsEngine.discoverArtifacts(realRoom).map((a) => a.title + '\n' + a.text);
     note('fitting TF-IDF over ' + texts.length + ' real-room texts (read-only)');
     out.real_room = densityOf(fitTfidf, texts);

@@ -96,5 +96,5 @@
     "cosine_pass_ms": 121,
     "full_pass_ms": 102720
   },
-  "room_source": "jhtv"
+  "room_source": "external_room"
 }
