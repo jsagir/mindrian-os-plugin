@@ -108,6 +108,17 @@ function negLeg(over) {
     all_refused: true,
   }, over || {});
 }
+// The large room leg a full, passing run records (Phase 379.1 plan 06, D-379.1-02): numbers, booleans and enum strings.
+function largeLeg(over) {
+  return Object.assign({
+    ok: true, status: 'ok', smoke: false, artifact_count: 2105,
+    limits: { clock_ms: 300000, cpu_ms: 600000, rss_mb: 1024 },
+    drain: { clock_ms: 41000, cpu_ms: 52000, max_rss_mb: 410.5, outcome: 'bounded_progress' },
+    scout: { clock_ms: 900, cpu_ms: 1100, max_rss_mb: 120.2, degraded: 'artifact_cap_exceeded' },
+    scope: { ok: true, excluded_artifacts: 2100 },
+    first_not_ok: null,
+  }, over || {});
+}
 function receiptFor(sha, over) {
   return Object.assign({
     schema: 'mos.real-room-receipt/1',
@@ -125,6 +136,7 @@ function receiptFor(sha, over) {
     },
     providers: { tavily: 'absent', openalex: 'reachable' },
     negative_leg: negLeg(),
+    large_room_leg: largeLeg(),
     desktop_verified: { mac: null, win: null },
   }, over || {});
 }
@@ -313,7 +325,40 @@ arm('G13 a receipt with both legs passes and prints the negative-leg line with t
   const r = runGate(dir, false, false);
   check(r.code === 0, 'gate refused a receipt with both legs: ' + r.out);
   check(r.out.indexOf('negative leg: refused 12 of 12 (room_db_missing, room_db_unreadable, room_graph_lost)') !== -1, 'the negative-leg line is not as pinned: ' + r.out);
+  check(r.out.indexOf('large room leg: ok (artifacts=2105, excluded=2100, drain=bounded_progress 41000 ms 410.5 MB, scout=artifact_cap_exceeded 120.2 MB)') !== -1, 'the large room leg line is not as pinned: ' + r.out);
   check(/PASS/.test(r.out), 'no PASS line: ' + r.out);
+});
+
+// G15 (Phase 379.1 plan 06, D-379.1-02): the large room leg. Absent -> NOLARGE, smoke -> LARGE_SMOKE,
+// not ok (breach, error or inconclusive) -> LARGE_UNBOUNDED naming the status and the first failing field.
+arm('G15 the gate refuses a receipt with no large room leg, a smoke leg or a leg that is not ok', () => {
+  const dir = mk('g15a');
+  putReceipt(dir, HEAD, { large_room_leg: undefined });
+  const raw = JSON.parse(fs.readFileSync(path.join(dir, HEAD + '.json'), 'utf8'));
+  check(!('large_room_leg' in raw), 'fixture bug: the receipt still has a large_room_leg key');
+  const a = runGate(dir, false, false);
+  check(a.code === 1 && /NO LARGE ROOM LEG/.test(a.out), 'a receipt without the leg was not refused NOLARGE: ' + a.out);
+  const dirA2 = mk('g15a2');
+  putReceipt(dirA2, HEAD, { large_room_leg: 'ok' });
+  const a2 = runGate(dirA2, false, false);
+  check(a2.code === 1 && /NO LARGE ROOM LEG/.test(a2.out), 'a string large_room_leg was not refused NOLARGE: ' + a2.out);
+  const dirB = mk('g15b');
+  putReceipt(dirB, HEAD, { large_room_leg: largeLeg({ smoke: true }) });
+  const b = runGate(dirB, false, false);
+  check(b.code === 1 && /LARGE ROOM LEG IN SMOKE MODE/.test(b.out) && /without --smoke/.test(b.out), 'a smoke leg was not refused LARGE_SMOKE: ' + b.out);
+  const dirC = mk('g15c');
+  putReceipt(dirC, HEAD, { large_room_leg: largeLeg({ ok: false, status: 'breach', first_not_ok: 'scout.max_rss_mb' }) });
+  const c = runGate(dirC, false, false);
+  check(c.code === 1 && /LARGE ROOM LEG NOT OK/.test(c.out) && /status breach/.test(c.out) && /scout\.max_rss_mb/.test(c.out), 'a breach was not refused LARGE_UNBOUNDED with the field: ' + c.out);
+  const dirD = mk('g15d');
+  putReceipt(dirD, HEAD, { large_room_leg: largeLeg({ ok: false, status: 'inconclusive', first_not_ok: null }) });
+  const d = runGate(dirD, false, false);
+  check(d.code === 1 && /LARGE ROOM LEG NOT OK/.test(d.out) && /status inconclusive/.test(d.out), 'an inconclusive leg was not refused LARGE_UNBOUNDED: ' + d.out);
+  // dry run carries the [DRY RUN] prefix for NOLARGE and LARGE_SMOKE and returns 0
+  const dr = runGate(dir, true, false);
+  check(dr.code === 0 && /\[DRY RUN\]/.test(dr.out) && /NO LARGE ROOM LEG/.test(dr.out), 'the dry run did not print NOLARGE with the prefix: ' + dr.out);
+  const dr2 = runGate(dirB, true, false);
+  check(dr2.code === 0 && /\[DRY RUN\]/.test(dr2.out) && /SMOKE MODE/.test(dr2.out), 'the dry run did not print LARGE_SMOKE with the prefix: ' + dr2.out);
 });
 
 // ---------------------------------------------------------------------------
@@ -408,10 +453,10 @@ arm('G14 gate kinds on the real offline receipt: OFFLINE, OK, NONEGATIVE, NEGATI
   const off = runGate(RUN_RECEIPTS, false, false);
   check(off.code === 1 && /OFFLINE RECEIPT/.test(off.out), 'the offline receipt as written was not refused OFFLINE: ' + off.out);
   kinds.push('OFFLINE');
-  const ok = put('ok', (c) => { c.offline = false; });
+  const ok = put('ok', (c) => { c.offline = false; c.large_room_leg = largeLeg(); });
   check(ok.code === 0 && /PASS/.test(ok.out) && /negative leg: refused 12 of 12 \(room_db_missing, room_db_unreadable, room_graph_lost\)/.test(ok.out), 'the real receipt with offline flipped did not pass with the 12-of-12 line: ' + ok.out);
   kinds.push('OK');
-  const none = put('none', (c) => { c.offline = false; delete c.negative_leg; });
+  const none = put('none', (c) => { c.offline = false; c.large_room_leg = largeLeg(); delete c.negative_leg; });
   check(none.code === 1 && /NO NEGATIVE LEG/.test(none.out), 'no negative leg was not refused NONEGATIVE: ' + none.out);
   kinds.push('NONEGATIVE');
   const noRem = put('norem', (c) => { c.offline = false; c.negative_leg.rooms = c.negative_leg.rooms.filter((r) => r.injection !== 'room_db_reminted'); });

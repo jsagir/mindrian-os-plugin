@@ -237,13 +237,18 @@ leg('X0', 'two --seed flags run both rooms into ONE receipt (top-level blocks ke
   check(Array.isArray(res.rooms) && res.rooms.length === 2, 'the result rooms array is not 2 long');
   res.rooms.forEach(function (r) { check(fs.existsSync(path.join(r.dir, '.mindrian', 'room.db')), 'room.db missing for ' + r.slug); });
   // the gate reads the receipt for the checked-out HEAD; when a peer committed since the run, point the copy at it
-  let gateDir = w.receipts;
+  // Phase 379.1 plan 06: this hermetic run has an empty HOME, so the large room leg is inconclusive by design (no local
+  // embedding model, the drain child is never started) and the gate would refuse it as LARGE_UNBOUNDED. This test pins the
+  // two-seed receipt, not the leg: the gate reads a copy with a passing leg. The gate's own large-leg verdicts are pinned
+  // by tests/test-muy-real-room-rule.cjs arm G15.
   const head = headSha();
-  if (head !== sha) {
-    gateDir = mk('gate');
-    rec.sha = head;
-    fs.writeFileSync(path.join(gateDir, head + '.json'), JSON.stringify(rec, null, 2));
-  }
+  const gateDir = mk('gate');
+  const gateRec = JSON.parse(JSON.stringify(rec));
+  gateRec.sha = head;
+  gateRec.large_room_leg = { ok: true, status: 'ok', smoke: false, artifact_count: 2105, limits: { clock_ms: 300000, cpu_ms: 600000, rss_mb: 1024 },
+    drain: { clock_ms: 1, cpu_ms: 1, max_rss_mb: 1, outcome: 'bounded_progress' }, scout: { clock_ms: 1, cpu_ms: 1, max_rss_mb: 1, degraded: 'artifact_cap_exceeded' },
+    scope: { ok: true, excluded_artifacts: 2100 }, first_not_ok: null };
+  fs.writeFileSync(path.join(gateDir, head + '.json'), JSON.stringify(gateRec, null, 2));
   const g = runGate(gateDir);
   check(g.code === 0 && /PASS/.test(g.out), 'mos_real_room_gate did not accept the two-seed receipt (code ' + g.code + '): ' + tail(g.out, 400));
   // the report: every room carries the four new sections

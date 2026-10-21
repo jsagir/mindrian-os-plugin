@@ -437,6 +437,156 @@ in-process run is:
 MOS_NO_DETACHED_DERIVE=1 node scripts/gsd-graph-derive-drain.cjs --room <dir> [--dry-run]
 ```
 
+## Background Workers Bound (Phase 379.1, room-local, zero egress)
+
+On 2026-10-21 one room of 2,163 artifacts held 2,338,203 artifact pairs. The graph-derive drain tried to embed and score all of them, and the scout cadence runner ran a full singular value decomposition (Jacobi) on its matrix for 2 to 4 hours per run. Phase 379.1 puts a bound on every part of that path: one embed per content hash, a top-k pruner, a pair cursor, a time budget, a low priority, a PID-checked lock, an artifact cap on the scout, a step timeout, and a declared scope that keeps generated engine-input folders out of both walkers. Every tunable below is read at CALL time, falls back to its default on a junk value (not a positive integer, zero, a negative number), and is room-local with zero egress (Canon Part 8): nothing here reaches the Brain.
+
+### MINDRIAN_EMBED_THREADS
+
+**What:** The ONNX intra-op thread count of the local encoder, passed to the one `pipeline()` call in `lib/core/semantic-index/embedding-spine.cjs`.
+**Default:** `2`. The value is capped at the host's logical cores minus 1 (never below 1).
+**Read:** at call time, each time the encoder session options are built.
+**Why:** Before the cap, one embed used 22 threads and 10 cores. After it: 12 threads and 2 cores (measured, Plan 02). Raise it only on a machine you do not work on while the drain runs.
+
+```bash
+export MINDRIAN_EMBED_THREADS=2
+```
+
+### MINDRIAN_EMBED_ALLOW_SPINNING
+
+**What:** The ONNX `session.intra_op.allow_spinning` config value, passed through `session_options.extra`. This extra block shipped: the Wave 0 probe showed that the Node binding honours it on onnxruntime-node 1.30.0.
+**Default:** `0` (spinning off). Only the string `1` turns it on; any other value reads as `0`.
+**Read:** at call time.
+**Why:** A spinning worker thread burns CPU while it waits. The probe measured no idle-CPU drop from the flag, so the thread cap above is the real control; the flag stays off as a second guard.
+
+```bash
+export MINDRIAN_EMBED_ALLOW_SPINNING=0
+```
+
+### MINDRIAN_DERIVE_PRUNE_K
+
+**What:** How many nearest neighbours per artifact the drain keeps as candidate pairs. The drain scores about N x k pairs, not N x (N - 1) / 2.
+**Default:** `20`. The value is the `chosen_k` of the measured probe (`tests/fixtures/379.1/probe-k.json`): at k = 20 the pruner kept every CONVERGES edge and 99.25 percent of INFORMS edges on a 300-artifact sample of the incident room; at k = 10 it lost 14.6 percent of INFORMS edges.
+**Read:** at call time, by `lib/core/graph-derive-classifier.cjs`.
+**Why:** A lower k is faster and loses more edges. A higher k is slower and loses fewer. The `pairs_pruned` number in the `derivation_completed` event counts the pairs not scored; it does not count edges lost.
+
+```bash
+export MINDRIAN_DERIVE_PRUNE_K=20
+```
+
+### MINDRIAN_DERIVE_MAX_PAIRS_PER_DRAIN
+
+**What:** The most pairs one drain run may score before it saves its cursor and exits.
+**Default:** `5000`.
+**Read:** at call time, by `scripts/gsd-graph-derive-drain.cjs`.
+**Why:** A room-scope entry is a cursor over a bounded candidate list. Each drain scores one slice, so a large room finishes over several drains and never in one runaway pass. The release leg in smoke mode sets it to 50.
+
+```bash
+export MINDRIAN_DERIVE_MAX_PAIRS_PER_DRAIN=5000
+```
+
+### MINDRIAN_DERIVE_MAX_PAIRS_PER_ENTRY
+
+**What:** The most candidate pairs one queue entry may hold in total. An entry above the ceiling is skipped with a disclosed `derivation_skipped` event (reason `pair_cap_exceeded`), never silently.
+**Default:** `50000`. The incident room needs at most 43,260 pairs (2,163 x 20), so it runs through the cursor; a room above about 2,500 artifacts hits the ceiling.
+**Read:** at call time, by `lib/core/graph-derive-classifier.cjs` and the drain.
+**Why:** The ceiling is the last stop behind the pruner. A future SimHash or LSH pruner is the planned way to go above it (seed on file).
+
+```bash
+export MINDRIAN_DERIVE_MAX_PAIRS_PER_ENTRY=50000
+```
+
+### MINDRIAN_DERIVE_BUDGET_MS
+
+**What:** The wall-clock budget of one drain run in milliseconds. Every loop that can run long checks the deadline from the inside. A backstop timer ends a stalled worker at the budget plus 60 seconds.
+**Default:** `240000` (4 minutes).
+**Read:** at call time.
+**Why:** A drain always makes at least one embed batch and scores at least one pair, so a tiny budget still makes progress. The release leg derives the drain budget from its clock limit.
+
+```bash
+export MINDRIAN_DERIVE_BUDGET_MS=240000
+```
+
+### MINDRIAN_DERIVE_SKIP
+
+**What:** An operator switch. `1` ends the drain (the hook entry and the worker) before any work, with no output. It is the sibling of `SCOUT_CADENCE_SKIP`.
+**Default:** unset (the drain runs).
+**Read:** at call time, first thing in `main`.
+**Why:** A person who needs the machine quiet can stop the background drain without editing hooks.
+
+```bash
+export MINDRIAN_DERIVE_SKIP=1
+```
+
+### MINDRIAN_RS_MAX_ARTIFACTS
+
+**What:** The artifact cap of the scout. Above the cap, `runModeInternal` returns a degraded result (`artifact_cap_exceeded`) before it builds the LSA matrix; the HSI tier-1 engine returns the same error. Both say how many artifacts the scope removed.
+**Default:** `400`. The value is `rs_max_artifacts_default` of `tests/fixtures/379.1/probe-svd-parity.json`, where a Jacobi solve at 400 artifacts took 50,663 ms. The default did not rise when the randomized solver shipped; raising it is a filed seed.
+**Read:** at call time, by `lib/core/rs-engine.cjs`.
+**Why:** The LSA matrix grows with the artifact count, and the Jacobi solver grows faster. The cap keeps the scout inside its step timeout whatever the room size.
+
+```bash
+export MINDRIAN_RS_MAX_ARTIFACTS=400
+```
+
+### MINDRIAN_SCOUT_STEP_TIMEOUT_MS
+
+**What:** The hard time limit for each step the scout cadence runner starts. The runner kills a step that runs past it (SIGKILL) and records the step as degraded.
+**Default:** `300000` (5 minutes).
+**Read:** at call time, by `scripts/scout-cadence-runner.cjs`.
+**Why:** A parent-side kill is the only limit that works on a synchronous loop that no timer inside the child can interrupt. The runner also arms its throttle stamp at the start of a run, so a killed run still counts as the interval's run.
+
+```bash
+export MINDRIAN_SCOUT_STEP_TIMEOUT_MS=300000
+```
+
+### MINDRIAN_SVD_SOLVER and MINDRIAN_SVD_RANDOMIZED_MIN_SIDE
+
+**What:** `MINDRIAN_SVD_SOLVER` forces the solver of `lib/core/numeric/svd.cjs`: `jacobi` or `randomized` (any other value means auto). `MINDRIAN_SVD_RANDOMIZED_MIN_SIDE` is the auto-rule threshold.
+**Default:** auto. The randomized solver runs when the smaller side of the matrix is above `MINDRIAN_SVD_RANDOMIZED_MIN_SIDE` (default `300`) and k + 10 fits inside that side; otherwise the Jacobi path runs exactly as before. The randomized solver has a code-constant seed, so the same input gives the same output. It shipped because the Plan 03 gate passed: Spearman 0.9965 against Jacobi, and a 2,105 x 2,000 solve took 304 ms.
+**Read:** at call time.
+**Why:** Force `jacobi` to compare results or to rule the new solver out when you debug. The envelope names the path that ran as `solver`.
+
+```bash
+export MINDRIAN_SVD_SOLVER=jacobi
+export MINDRIAN_SVD_RANDOMIZED_MIN_SIDE=300
+```
+
+### MINDRIAN_SCOPE_OVERBROAD_DIR_SHARE
+
+**What:** The directory share above which a declared artifact scope is ignored as overbroad. It is a decimal in the range above 0 and up to 1.
+**Default:** `0.5`. When the patterns of the declaration prune more than half of the directories, or prune every artifact, `lib/core/artifact-scope.cjs` empties the patterns (the marker files still apply) and reports `overbroad`.
+**Read:** at call time, when the scope loads.
+**Why:** A directory share, not an artifact share, on purpose: the legitimate declaration of the incident prunes one directory that holds 98 percent of the files. A declaration of `*` or `**` is rejected before the walk and would trip the guard at 100 percent.
+
+```bash
+export MINDRIAN_SCOPE_OVERBROAD_DIR_SHARE=0.5
+```
+
+### The artifact scope file and the two marker files
+
+A room keeps generated engine-input folders out of the derive and scout walks in two ways. Both walkers (the drain classifier and the scout engine) read the same scope module.
+
+- **Marker files (authoritative).** A directory that holds `.mos-generated` or `engine-input-manifest.json` is excluded. The overbroad guards never apply to markers. On the incident room the markers exclude 2,119 of 2,163 artifacts, and that is correct.
+- **Declared patterns.** `<room>/.mindrian/artifact-scope.json`, version 1, with an `exclude` array of relative POSIX glob patterns (`*` inside one segment, `**` for zero or more whole segments). A file that does not parse excludes nothing and is reported. A bad pattern is dropped and counted. A wildcard-only pattern is rejected. The two overbroad guards above empty a declaration that would hide too much.
+
+`node scripts/doctor.cjs` names an invalid or overbroad declaration, and every `derivation_completed` and `derivation_skipped` event carries `scope_excluded_dirs`, `scope_excluded_artifacts` and `scope_overbroad`, so a reader sees what the scope removed.
+
+### MINDRIAN_LARGE_ROOM_CLOCK_MS, MINDRIAN_LARGE_ROOM_CPU_MS and MINDRIAN_LARGE_ROOM_RSS_MB
+
+**What:** The limits of the large room leg of the real-room release run (`scripts/release-lib/large-room-leg.cjs`). Each child (the drain worker and the scout) must stay under all three: wall-clock milliseconds, CPU milliseconds and peak resident memory in megabytes.
+**Default:** `300000` ms, `600000` ms and `1024` MB.
+**Read:** at call time, when the leg runs. A value that is not a positive integer falls back to the default.
+**Why:** RULE 10 (`docs/RELEASE-CEREMONY-RULING-SYSTEM.md`) refuses a cut whose receipt has no large room leg, a smoke leg, or a leg that breached a limit. Raise a limit only with a written reason; a limit raised to pass is a hidden regression.
+
+```bash
+export MINDRIAN_LARGE_ROOM_CLOCK_MS=300000
+export MINDRIAN_LARGE_ROOM_CPU_MS=600000
+export MINDRIAN_LARGE_ROOM_RSS_MB=1024
+```
+
+`MOS_NO_DETACHED_DERIVE=1`, documented above, is also what the leg sets on its drain child so the drain runs in-process and the leg owns the timing.
+
 ## Zero-Score No-Match Gate Floor (Phase 225, room-local, zero egress)
 
 When a user message fingerprint-matches NO known room (every room scores zero)
