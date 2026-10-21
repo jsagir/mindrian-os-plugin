@@ -3719,7 +3719,7 @@ Plans:
 **Goal:** Stop the graph derive drain and the session-start scout from taking the whole CPU on a large room. Today a room-scope queue entry scores every pair of files (about 2.4 million pairs on a 2,194-file room, per the 2026-10-21 incident report), re-embeds both files on every pair, runs with no time limit, no priority and no thread limit, and restarts at every session start because a killed worker never counts as an attempt. Embed each file once and cache the vector by content hash, bound the work per drain with a cursor, cap the worker (time, priority, ONNX threads in embedding-spine.cjs so every encoder user gets it), count a killed worker as an attempt, and make the lock prove its PID is dead before a reclaim. Apply the same caps to the scout cadence runner. Ship in beta.73.
 **Requirements**: CPU379-01 one embedding per artifact per content hash, supplied to scoreMeasured as opts.vectors (D2); CPU379-02 no all-pairs scoring in the background, a bound per drain and a cursor (D1); CPU379-03 the worker has a time limit, low priority and a thread limit set in embedding-spine.cjs (D3); CPU379-04 failures and last_attempt_at are written before the work, the entry clears only on success (D4); CPU379-05 the lock heartbeats and a reclaim checks the PID (D5); CPU379-06 the scout is bounded before buildLsaMatrix: an artifact-count cap that returns the existing degraded envelope, a timeout and killSignal on the runStep execFileSync, and a single-flight lock with a PID liveness check or a throttle stamp written at run start (D6; root cause per the debug session: the cyclic Jacobi SVD in lib/core/numeric/svd.cjs on a 2000 x 2000 Gram matrix, not the encoder); CPU379-10 a declared way to keep generated engine-input directories (for example solution-design/full-catalog-run-2026-10-18, 2119 files written by the Eureka JHTV workflow on 2026-10-18) out of the derive and scout artifact scope, so a workflow output cannot turn a 44-artifact room into a 2163-artifact room silently; CPU379-07 a doctor check for queue entries older than 7 days and locks with a dead PID; CPU379-08 real-room-run.cjs gets a fixture with more than 2,000 artifacts and a CPU-time, clock-time and peak-RSS limit (the worker self-reports process.cpuUsage() and process.memoryUsage().rss, portable to Windows); CPU379-09 all repair is on the plugin side, no change to the mindrian-eureka repo; Canon Part 8 holds, no room content leaves the machine
 **Depends on:** nothing (urgent). Inputs: .planning/debug/drain-and-scout-runaway-cpu-wsl-windows.md and 379.1-CONTEXT.md in the phase directory.
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 Plans:
 
 **Wave 0**
@@ -3728,7 +3728,7 @@ Plans:
 
 **Wave 1** *(blocked on Wave 0)*
 
-- [ ] 379.1-02: vector-cache.cjs, artifact-scope.cjs (wildcard-only rejection, overbroad guard), job-lock.cjs (heartbeat, pid_start, 6 h ceiling), embedding-spine thread cap
+- [x] 379.1-02: vector-cache.cjs, artifact-scope.cjs (wildcard-only rejection, overbroad guard), job-lock.cjs (heartbeat, pid_start, 6 h ceiling), embedding-spine thread cap
 - [ ] 379.1-03: Gated seeded randomized truncated SVD in svd.cjs (272 parity gate; file-copy restore on fail)
 
 **Wave 2** *(blocked on Wave 1)*
