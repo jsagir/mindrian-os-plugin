@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 379.1-05-PLAN.md - scout cap, runner timeout and lock, doctor findings (b708474c4)
-last_updated: "2026-10-21T20:38:01.738Z"
-last_activity: 2026-10-21 -- Phase 379.1 execution continuing (379.1-05 complete)
+stopped_at: Completed 379.1-06-PLAN.md - large room leg, gate verdicts, docs, six seeds; live leg breached on drain RSS (5b6c55489)
+last_updated: "2026-10-21T20:58:01.343Z"
+last_activity: 2026-10-21 -- Phase 379.1 execution complete, awaiting verification (379.1-06 complete)
 progress:
   total_phases: 143
   completed_phases: 57
   total_plans: 692
-  completed_plans: 679
+  completed_plans: 680
   percent: 98
 ---
 
@@ -5424,8 +5424,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
-Plan: 6 of 6 (01 to 05 complete; 06 is next)
-Status: 379.1-05 landed (scout artifact cap 400 before the LSA matrix with the degraded envelope and scope disclosure fields, rs-engine walker takes the artifact scope, rs-engine cache on vector-cache.cjs with the 272 fixture dropped 0 and 96 rows, runStep timeout with SIGKILL, scout lock and throttle stamp at run start, doctor reports abandoned entries and dead or recycled locks and bad scope declarations and fixes only dead state; svd-parity gate re-run PASSED after the delegation; commits c08ae53dd, b365c6521, b708474c4; branch feat/eureka-adapter-rebased). Earlier: 379.1-04 landed (drain embeds once per content hash, top-k pruner k 20 with recall 1.0 CONVERGES and 0.9925 INFORMS on the 300-artifact sample, cursor of 5,000 pairs per drain, 50,000-pair ceiling with a disclosed skip, attempt record before the first pair, job-lock, worker priority, backstop, --report-usage, MINDRIAN_DERIVE_SKIP; commits e2c6541a2, c3060173f, cbe2fa845; branch feat/eureka-adapter-rebased). Earlier: 379.1-03 landed (GATE PASSED: seeded randomized truncated SVD in lib/core/numeric/svd.cjs behind the auto rule, commit b032e491f; 272 gate spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210; 2105x2000 at k=80 in 968 ms; scout cap stays Jacobi-derived this phase). Earlier: 379.1-02 landed (Wave 1 foundations, commits 47ec1a195, 51c1d8a75, 7df64661e, d9b943767) and 379.1-01 (Wave 0). Pre-existing red, not caused by this phase: five regression legs in the runner (222, 224, 233, 272 cache-probe, 354) and test-341-no-heavy-dep arm 3, see the phase deferred-items.md.
+Plan: 6 of 6 (all six plans complete; verification and the human-read real-room receipt are next)
+Status: 379.1-06 landed (large room leg in the real-room release run: run-time 2,105-artifact room, drain worker and scout bounded on clock, CPU and peak RSS, smoke mode recorded in the receipt; gate verdicts NOLARGE, LARGE_SMOKE, LARGE_UNBOUNDED; ENV-TUNING section, RULE 10 bullet, SEED-136 to SEED-141; commits 3bda66559, a77ac4e13, d8ebc1b66, 84d6a89c7; the first live full leg BREACHED on drain peak RSS 1,837 MB against 1,024 MB, clock 36.8 s and CPU 61.9 s are inside their limits, see deferred-items.md; no receipt cut). Earlier: 379.1-05 landed (scout artifact cap 400 before the LSA matrix with the degraded envelope and scope disclosure fields, rs-engine walker takes the artifact scope, rs-engine cache on vector-cache.cjs with the 272 fixture dropped 0 and 96 rows, runStep timeout with SIGKILL, scout lock and throttle stamp at run start, doctor reports abandoned entries and dead or recycled locks and bad scope declarations and fixes only dead state; svd-parity gate re-run PASSED after the delegation; commits c08ae53dd, b365c6521, b708474c4; branch feat/eureka-adapter-rebased). Earlier: 379.1-04 landed (drain embeds once per content hash, top-k pruner k 20 with recall 1.0 CONVERGES and 0.9925 INFORMS on the 300-artifact sample, cursor of 5,000 pairs per drain, 50,000-pair ceiling with a disclosed skip, attempt record before the first pair, job-lock, worker priority, backstop, --report-usage, MINDRIAN_DERIVE_SKIP; commits e2c6541a2, c3060173f, cbe2fa845; branch feat/eureka-adapter-rebased). Earlier: 379.1-03 landed (GATE PASSED: seeded randomized truncated SVD in lib/core/numeric/svd.cjs behind the auto rule, commit b032e491f; 272 gate spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210; 2105x2000 at k=80 in 968 ms; scout cap stays Jacobi-derived this phase). Earlier: 379.1-02 landed (Wave 1 foundations, commits 47ec1a195, 51c1d8a75, 7df64661e, d9b943767) and 379.1-01 (Wave 0). Pre-existing red, not caused by this phase: five regression legs in the runner (222, 224, 233, 272 cache-probe, 354) and test-341-no-heavy-dep arm 3, see the phase deferred-items.md.
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
@@ -7419,6 +7419,7 @@ Progress: [█████████░] 92%
 | Phase 379.1 P02 | 29min | 3 tasks | 12 files |
 | Phase 379.1 P03 | 35min | 2 tasks | 3 files |
 | Phase 379.1 P05 | 70min | 3 tasks | 8 files |
+| Phase 379.1 P06 | 95min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -9159,6 +9160,7 @@ Progress: [█████████░] 92%
 - [Phase 379.1]: 379.1-02: job-lock reclaims by liveness, identity (/proc starttime) and the boot guard, never by age; a live pid with a heartbeat inside 6 h is held; above 6 h a mismatched or unavailable identity is reclaimed, a matching one stays held with stale_heartbeat true - The E5 reproduction (an 11-minute-old lock of a live holder reclaimed) is closed; a recycled PID on a long-lived boot cannot hold the lock forever
 - [Phase 379.1]: GATE PASSED: the seeded randomized truncated SVD ships behind the auto rule (min side above 300); jacobi path unchanged for small matrices; the scout cap stays Jacobi-derived this phase — 272 gate: spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210, 0 sign flips; 2105x2000 at k=80 in 968 ms; deterministic
 - [Phase 379.1-05]: Scout artifact cap stays 400 (Jacobi-derived probe value) although the randomized solver shipped; the cap rise is a Plan 06 seed - jacobi_ms_n400 = 50663 ms; D-379.1-14
+- [Phase 379.1-06]: The large room leg never starts the drain child without a local model (inconclusive, never a download); the gate refuses inconclusive; the limits stay at 300000 ms, 600000 ms, 1024 MB - the first live full leg breached on drain peak RSS (1837 MB); recorded in deferred-items.md and not hidden by a raised limit
 
 ### Pending Todos
 
@@ -9360,8 +9362,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-21T20:38:01.667Z
-Stopped at: Completed 379.1-05-PLAN.md - scout cap, runner timeout and lock, doctor findings (b708474c4)
+Last session: 2026-10-21T20:57:55.734Z
+Stopped at: Completed 379.1-06-PLAN.md - large room leg, gate verdicts, docs, six seeds; live leg breached on drain RSS (5b6c55489)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
