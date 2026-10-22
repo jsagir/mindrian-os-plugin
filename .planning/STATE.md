@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 379.1-07-PLAN.md - drain RSS probe; D8 795.3, D16 1047.8, D32 1813.7 MB peak (limit 1024); plan 08 (human decision) next
-last_updated: "2026-10-22T05:18:52.502Z"
+stopped_at: Completed 379.1-09-PLAN.md - a-batch applied (DEFAULT_BATCH 8); two ok live large-room legs, drain peak 776.9 and 780.2 MB vs 1024; verification re-run next
+last_updated: "2026-10-22T05:30:32.368Z"
 last_activity: 2026-10-22
 progress:
   total_phases: 143
-  completed_phases: 58
+  completed_phases: 59
   total_plans: 694
-  completed_plans: 681
+  completed_plans: 683
   percent: 98
 ---
 
@@ -5424,8 +5424,8 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
-Plan: 7 of 9 (gap closure: 07 done, 08 human decision and 09 remain)
-Status: 379.1-07 landed (drain RSS probe, commits 80cebe56e, 1a555b714; peak RSS MB, 2 runs each: D8 795.3, D16 1047.8, D32 1813.7, E0 160.3, E32 763.2, E32_ARENA_OFF 473.7; limit 1024; no limit or default changed, no fix chosen). Earlier: 379.1-06 landed (see below)
+Plan: 9 of 9 (all nine plans complete; phase verification re-run and the human-read real-room receipt are next)
+Status: 379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
@@ -7421,6 +7421,8 @@ Progress: [██████████] 98%
 | Phase 379.1 P05 | 70min | 3 tasks | 8 files |
 | Phase 379.1 P06 | 95min | 2 tasks | 13 files |
 | Phase 379.1 P07 | 40min | 2 tasks | 5 files |
+| Phase 379.1 P08 | 15min | 2 tasks | 3 files |
+| Phase 379.1 P09 | 45min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -9363,8 +9365,8 @@ Progress: [██████████] 98%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-22T05:18:48.750Z
-Stopped at: Completed 379.1-07-PLAN.md - drain RSS probe numbers on disk; plan 08 (human decision) next
+Last session: 2026-10-22T05:30:32.283Z
+Stopped at: Completed 379.1-09-PLAN.md - a-batch applied; two ok live legs; verification re-run next
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
