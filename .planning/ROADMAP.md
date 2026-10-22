@@ -3742,14 +3742,37 @@ Plans:
 
 ### Phase 379.1.1: Post-beta.73 close-out (CRITICAL): ICM eval refresh via Jev, integrity gate ignores generated files, ledger rebuild in release script, Eureka branch reconcile, STATE and ROADMAP counts, website bump, key-holder notice, Windows bug seed, Layered Context baseline, Windows host checks (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
+**Goal:** Close the loose ends of the beta.73 cut before Phase 380, so the next cut ships clean. A fresh ICM eval record graded through Jev, with a doctor freshness rule that survives the next-bump. A 366 integrity gate that ignores generated, gitignored require targets. The Jev-scored ledger rebuild as a named release.sh step with a dry-run line. The reconcile of feat/eureka-adapter-rebased with main. Correct STATE counts and the ROADMAP 379.1 plan list. The mindrian-os.com bump to beta.73. The key-holder announcement decision. Two seeds: the Windows room switch bug and the Layered Context Access baseline. The Windows host checks. A real-room receipt signed for the final HEAD. Work items 6, 7, 4, 10 and 11 need a human or a peer and stop at a checkpoint.
+**Requirements**: CLOSE379-01 ICM eval re-run through Jev (never plurai) and the freshness rule fixed so it holds through the next cut; CLOSE379-02 the 366 integrity gate skips generated gitignored targets with a test that fails before and passes after; CLOSE379-03 the ledger rebuild is a named release.sh step with a dry-run line and the staleness gate kept; CLOSE379-04 the Eureka adapter branch is reconciled with main by one merge commit that a human and the Codex peer approve; CLOSE379-05 STATE.md counts and the ROADMAP 379.1 plan list lines 07 to 09 are corrected with a diff check; CLOSE379-06 the website FALLBACK_VERSION is bumped to beta.73 without touching the peer's work; CLOSE379-07 the key-holder announcement for beta.73 is decided by a person; CLOSE379-08 the Windows bug report is a seed that follows SEED-117; CLOSE379-09 the Layered Context Access baseline is measured and a seed links SEED-094; CLOSE379-10 the Windows host checks are run by a person or deferred with a date; CLOSE379-11 the real-room receipt is signed by a person for the final HEAD. The R.4 recovery (npm deprecate) is out of scope. Canon Part 8 holds, no user data leaves the machine.
 **Depends on:** Phase 379.1
-**Plans:** 0 plans
+**Plans:** 10 plans (code plans 01, 02 and 05 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the eval stamps the tree version and the cut comes from main)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 379.1.1 to break down)
+**Wave 1**
+
+- [ ] 379.1.1-01-PLAN.md - integrity gate skips generated gitignored targets (RED test, fix, fresh-clone proof, phase aggregator)
+- [ ] 379.1.1-03-PLAN.md - STATE.md counts and ROADMAP 379.1 plan list lines 07 to 09, with a diff check
+- [ ] 379.1.1-04-PLAN.md - SEED-142 Windows room switch bug (follows SEED-117) and SEED-143 Layered Context Access baseline linked to SEED-094
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 379.1.1-02-PLAN.md - named Step 2.3 ledger rebuild in release.sh, --ledger-only mode, dry-run line, staleness gate kept
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 379.1.1-05-PLAN.md - freshness rule fix (a release is two betas) and the ICM eval re-run through Jev
+
+**Wave 4** *(blocked on Wave 3; every plan here stops at a human or peer checkpoint)*
+
+- [ ] 379.1.1-06-PLAN.md - reconcile feat/eureka-adapter-rebased with main by one merge (human and Codex peer gate)
+- [ ] 379.1.1-07-PLAN.md - website bump to beta.73 in a temporary worktree (peer gate)
+- [ ] 379.1.1-08-PLAN.md - key-holder announcement decision, send or skip (human gate)
+- [ ] 379.1.1-09-PLAN.md - Windows host checks sheet and result (human gate)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 379.1.1-10-PLAN.md - ledger current, real-room report for the final HEAD, receipt signed by a person (human gate)
 
 ### Phase 380: Ship the M:OS face panel mod inside the plugin (target beta.73)
 
