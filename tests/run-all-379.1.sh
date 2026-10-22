@@ -171,6 +171,7 @@ EMDASH_TARGETS=(
   tests/test-379.1-rss-decision.cjs
   tests/fixtures/379.1/rss-decision.json
   tests/test-379.1-rss-bound.cjs
+  tests/fixtures/379.1/live-leg-after-rss-fix.json
   lib/core/semantic-index/vector-cache.cjs
   lib/core/artifact-scope.cjs
   lib/core/job-lock.cjs

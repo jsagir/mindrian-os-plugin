@@ -1,0 +1,50 @@
+{
+  "evidence": "large-room-leg-after-rss-fix",
+  "generated_at": "2026-10-22T05:29:57.946Z",
+  "code_head_sha": "6c00d9cc4",
+  "decision": "a-batch",
+  "limit_rss_mb": 1024,
+  "runs": [
+    {
+      "status": "ok",
+      "ok": true,
+      "smoke": false,
+      "artifact_count": 2105,
+      "drain": {
+        "clock_ms": 44896,
+        "cpu_ms": 57023,
+        "max_rss_mb": 776.9,
+        "outcome": "bounded_progress"
+      },
+      "scout": {
+        "clock_ms": 140,
+        "cpu_ms": 166,
+        "max_rss_mb": 72,
+        "degraded": "artifact_cap_exceeded"
+      },
+      "scope_ok": true,
+      "first_not_ok": null
+    },
+    {
+      "status": "ok",
+      "ok": true,
+      "smoke": false,
+      "artifact_count": 2105,
+      "drain": {
+        "clock_ms": 43911,
+        "cpu_ms": 53780,
+        "max_rss_mb": 780.2,
+        "outcome": "bounded_progress"
+      },
+      "scout": {
+        "clock_ms": 135,
+        "cpu_ms": 159,
+        "max_rss_mb": 71.9,
+        "degraded": "artifact_cap_exceeded"
+      },
+      "scope_ok": true,
+      "first_not_ok": null
+    }
+  ],
+  "result": "ok"
+}
