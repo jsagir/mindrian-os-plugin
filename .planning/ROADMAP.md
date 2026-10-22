@@ -3740,6 +3740,17 @@ Plans:
 
 - [x] 379.1-06: Large-room release leg (clock, CPU, RSS bounds; smoke refused), gate verdicts, ENV-TUNING, RULE 10 docs, 6 seeds
 
+### Phase 379.1.1: Post-beta.73 close-out (CRITICAL): ICM eval refresh via Jev, integrity gate ignores generated files, ledger rebuild in release script, Eureka branch reconcile, STATE and ROADMAP counts, website bump, key-holder notice, Windows bug seed, Layered Context baseline, Windows host checks (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 379.1
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 379.1.1 to break down)
+
 ### Phase 380: Ship the M:OS face panel mod inside the plugin (target beta.73)
 
 **Goal:** Give every MindrianOS user the /m:os face panel that the owner built as a Claude Code mod: a side panel, a one-line status, prompt-box buttons and the /mos-* commands, so the room state is visible beside the chat without a command. Today the mod lives only in a session-scoped folder and dies with the session; this phase installs it with the plugin and releases it.
