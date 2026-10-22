@@ -1,0 +1,9 @@
+{
+  "decision": "a-batch",
+  "decided_by": "navigator",
+  "decided_at": "2026-10-22",
+  "reason": "Chosen by the human from the card. The card showed the probe table. Batch 8 measured 795.3 MB peak in the real drain against the 1,024 MB limit, and 58.7 s median clock. The human gave no other reason text. This is the card text, not the human's own words.",
+  "source": "tests/fixtures/379.1/probe-drain-rss.json",
+  "source_probed_at": "2026-10-22T05:18:06.276Z",
+  "batch": 8
+}
