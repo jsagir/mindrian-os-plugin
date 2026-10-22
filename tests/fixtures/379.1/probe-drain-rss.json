@@ -1,0 +1,282 @@
+{
+  "probe": "drain-rss",
+  "probed_at": "2026-10-22T05:18:06.276Z",
+  "node_version": "v22.23.1",
+  "host_cores": 12,
+  "host_mem_total_mb": 17947,
+  "platform": "linux",
+  "status": "ok",
+  "ort_version": "1.30.0",
+  "transformers_version": "4.3.0",
+  "model": "MongoDB/mdbr-leaf-ir",
+  "dtype": "q8",
+  "params": {
+    "reps": 2,
+    "batches": [
+      8,
+      16,
+      32
+    ],
+    "artifact_count": 2105,
+    "limit_mb": 1024
+  },
+  "arms": {
+    "D8": {
+      "kind": "drain",
+      "batch": 8,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 775.1,
+      "rss_mb_median": 785.2,
+      "rss_mb_max": 795.3,
+      "clock_ms_median": 58747.5,
+      "cpu_ms_median": 60133.5,
+      "under_limit": true
+    },
+    "D16": {
+      "kind": "drain",
+      "batch": 16,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 1047.7,
+      "rss_mb_median": 1047.8,
+      "rss_mb_max": 1047.8,
+      "clock_ms_median": 50009,
+      "cpu_ms_median": 59151.5,
+      "under_limit": false
+    },
+    "D32": {
+      "kind": "drain",
+      "batch": 32,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 1796.5,
+      "rss_mb_median": 1805.1,
+      "rss_mb_max": 1813.7,
+      "clock_ms_median": 48787,
+      "cpu_ms_median": 61685,
+      "under_limit": false
+    },
+    "E0": {
+      "kind": "embed_floor",
+      "batch": 1,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 159.1,
+      "rss_mb_median": 159.7,
+      "rss_mb_max": 160.3,
+      "clock_ms_median": 293,
+      "cpu_ms_median": 455,
+      "under_limit": true
+    },
+    "E32": {
+      "kind": "embed",
+      "batch": 32,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 743.3,
+      "rss_mb_median": 753.3,
+      "rss_mb_max": 763.2,
+      "clock_ms_median": 28259.5,
+      "cpu_ms_median": 51472.5,
+      "under_limit": true
+    },
+    "E32_ARENA_OFF": {
+      "kind": "embed_arena_off",
+      "batch": 32,
+      "reps_run": 2,
+      "reps_ok": 2,
+      "rss_mb_min": 467.4,
+      "rss_mb_median": 470.6,
+      "rss_mb_max": 473.7,
+      "clock_ms_median": 33215.5,
+      "cpu_ms_median": 59186,
+      "under_limit": true
+    }
+  },
+  "derived": {
+    "limit_mb": 1024,
+    "control_arm": "D32",
+    "control_rss_mb_max": 1813.7,
+    "control_reproduced_breach": true,
+    "batch_curve": [
+      {
+        "batch": 8,
+        "rss_mb_max": 795.3,
+        "under_limit": true
+      },
+      {
+        "batch": 16,
+        "rss_mb_max": 1047.8,
+        "under_limit": false
+      },
+      {
+        "batch": 32,
+        "rss_mb_max": 1813.7,
+        "under_limit": false
+      }
+    ],
+    "largest_batch_under_limit": 8,
+    "encoder_floor_mb": 160.3,
+    "embed_only_rss_mb_max": 763.2,
+    "encoder_share_of_control": 0.42,
+    "arena_off_rss_mb_max": 473.7,
+    "arena_off_change_pct_vs_embed_only": -38
+  },
+  "children": [
+    {
+      "arm": "D8",
+      "rep": 1,
+      "ok": true,
+      "status": "ok",
+      "outcome": "bounded_progress",
+      "clock_ms": 66334,
+      "cpu_ms": 60934,
+      "max_rss_mb": 775.1,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "D8",
+      "rep": 2,
+      "ok": true,
+      "status": "ok",
+      "outcome": "bounded_progress",
+      "clock_ms": 51161,
+      "cpu_ms": 59333,
+      "max_rss_mb": 795.3,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "D16",
+      "rep": 1,
+      "ok": true,
+      "status": "breach",
+      "outcome": "bounded_progress",
+      "first_not_ok": "drain.max_rss_mb",
+      "clock_ms": 50204,
+      "cpu_ms": 60240,
+      "max_rss_mb": 1047.7,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "D16",
+      "rep": 2,
+      "ok": true,
+      "status": "breach",
+      "outcome": "bounded_progress",
+      "first_not_ok": "drain.max_rss_mb",
+      "clock_ms": 49814,
+      "cpu_ms": 58063,
+      "max_rss_mb": 1047.8,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "D32",
+      "rep": 1,
+      "ok": true,
+      "status": "breach",
+      "outcome": "bounded_progress",
+      "first_not_ok": "drain.max_rss_mb",
+      "clock_ms": 47723,
+      "cpu_ms": 58807,
+      "max_rss_mb": 1813.7,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "D32",
+      "rep": 2,
+      "ok": true,
+      "status": "breach",
+      "outcome": "bounded_progress",
+      "first_not_ok": "drain.max_rss_mb",
+      "clock_ms": 49851,
+      "cpu_ms": 64563,
+      "max_rss_mb": 1796.5,
+      "limit_rss_mb": 1024
+    },
+    {
+      "arm": "E0",
+      "rep": 1,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 290,
+      "cpu_ms": 452,
+      "max_rss_mb": 160.3,
+      "rss_end_mb": 160.3,
+      "heap_total_mb": 60.9,
+      "external_mb": 6.5,
+      "array_buffers_mb": 3.1,
+      "embedded": 1
+    },
+    {
+      "arm": "E0",
+      "rep": 2,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 296,
+      "cpu_ms": 458,
+      "max_rss_mb": 159.1,
+      "rss_end_mb": 158.9,
+      "heap_total_mb": 61.2,
+      "external_mb": 6.4,
+      "array_buffers_mb": 3,
+      "embedded": 1
+    },
+    {
+      "arm": "E32",
+      "rep": 1,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 28631,
+      "cpu_ms": 51767,
+      "max_rss_mb": 743.3,
+      "rss_end_mb": 719.9,
+      "heap_total_mb": 100.1,
+      "external_mb": 17.6,
+      "array_buffers_mb": 14.2,
+      "embedded": 2105
+    },
+    {
+      "arm": "E32",
+      "rep": 2,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 27888,
+      "cpu_ms": 51178,
+      "max_rss_mb": 763.2,
+      "rss_end_mb": 739.8,
+      "heap_total_mb": 99.9,
+      "external_mb": 26.1,
+      "array_buffers_mb": 22.7,
+      "embedded": 2105
+    },
+    {
+      "arm": "E32_ARENA_OFF",
+      "rep": 1,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 33581,
+      "cpu_ms": 59673,
+      "max_rss_mb": 467.4,
+      "rss_end_mb": 221.9,
+      "heap_total_mb": 56.9,
+      "external_mb": 21.6,
+      "array_buffers_mb": 18.2,
+      "embedded": 2105
+    },
+    {
+      "arm": "E32_ARENA_OFF",
+      "rep": 2,
+      "ok": true,
+      "load_ok": true,
+      "clock_ms": 32850,
+      "cpu_ms": 58699,
+      "max_rss_mb": 473.7,
+      "rss_end_mb": 227.5,
+      "heap_total_mb": 56.4,
+      "external_mb": 21.6,
+      "array_buffers_mb": 18.2,
+      "embedded": 2105
+    }
+  ]
+}
