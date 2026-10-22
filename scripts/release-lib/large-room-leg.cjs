@@ -371,4 +371,4 @@ function formatLargeRoomBlock(leg) {
   return noDash(L.join('\n'));
 }
 
-module.exports = { runLargeRoomLeg, formatLargeRoomBlock, evaluateLeg, DEFAULT_LIMITS };
+module.exports = { runLargeRoomLeg, formatLargeRoomBlock, evaluateLeg, DEFAULT_LIMITS, modelCachedLocally };

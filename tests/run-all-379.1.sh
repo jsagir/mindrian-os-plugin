@@ -67,6 +67,8 @@ run_if "379.1 doctor-check (CPU379-07 abandoned entries and dead locks)" "tests/
   node tests/test-379.1-doctor-check.cjs
 run_if "379.1 svd-parity (CPU379-06 and D-379.1-14 solver gate)" "tests/test-379.1-svd-parity.cjs" \
   node tests/test-379.1-svd-parity.cjs
+run_if "379.1 rss-probe (CPU379-03 drain RSS probe, gap closure plan 07)" "tests/test-379.1-rss-probe.cjs" \
+  node tests/test-379.1-rss-probe.cjs
 
 # ---------------------------------------------------------------------------
 # (2) Regression legs
@@ -111,6 +113,7 @@ PART8_TARGETS=(
   tests/fixtures/379.1/probe-allow-spinning.cjs
   tests/fixtures/379.1/probe-svd-parity.cjs
   tests/fixtures/379.1/probe-tfidf-density.cjs
+  tests/fixtures/379.1/probe-drain-rss.cjs
 )
 echo "--- Part 8 sweep (CPU379-09): no egress in the phase modules and probes ---"
 PART8_OK=1
@@ -158,6 +161,9 @@ EMDASH_TARGETS=(
   tests/fixtures/379.1/probe-allow-spinning.json
   tests/fixtures/379.1/probe-svd-parity.json
   tests/fixtures/379.1/probe-tfidf-density.json
+  tests/fixtures/379.1/probe-drain-rss.cjs
+  tests/fixtures/379.1/probe-drain-rss.json
+  tests/test-379.1-rss-probe.cjs
   lib/core/semantic-index/vector-cache.cjs
   lib/core/artifact-scope.cjs
   lib/core/job-lock.cjs
