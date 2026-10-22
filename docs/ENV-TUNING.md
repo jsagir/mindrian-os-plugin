@@ -463,6 +463,17 @@ export MINDRIAN_EMBED_THREADS=2
 export MINDRIAN_EMBED_ALLOW_SPINNING=0
 ```
 
+### MINDRIAN_EMBED_BATCH
+
+**What:** How many texts the local encoder takes in one forward pass. It is the large-N out-of-memory guard in `lib/core/semantic-index/embedding-spine.cjs`, and the drain embed phase takes its batch from the same function.
+**Default:** `8`. A value that is not a positive integer (zero, a negative number, text, empty) reads as the default.
+**Read:** at call time.
+**Why:** Phase 379.1 gap closure (plan 09, decision recorded 2026-10-22 in `tests/fixtures/379.1/rss-decision.json`): on the 2,105-artifact large-room fixture the drain worker peaked at 1813.7 MB at batch 32 and at 795.3 MB at batch 8 (`tests/fixtures/379.1/probe-drain-rss.json`, measured on this machine; the release leg limit is 1,024 MB). The default was 32 before. The median drain clock was 58.7 s at batch 8 and 48.8 s at batch 32. The change reaches every encoder user on CLI, Desktop and Cowork. Windows reports peak working set where Linux reports peak RSS; the numbers were not measured on Windows.
+
+```bash
+export MINDRIAN_EMBED_BATCH=8
+```
+
 ### MINDRIAN_DERIVE_PRUNE_K
 
 **What:** How many nearest neighbours per artifact the drain keeps as candidate pairs. The drain scores about N x k pairs, not N x (N - 1) / 2.
