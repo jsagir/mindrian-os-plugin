@@ -11,8 +11,9 @@
  *
  *   Test 1: batchSlices splits into order-preserving consecutive slices; empty
  *           input returns []; a short list returns one slice.
- *   Test 2: resolveBatchSize defaults to 32 (=== DEFAULT_BATCH) unset, honors a
- *           valid positive int, and falls back to 32 on '0'/'-5'/'abc'/''.
+ *   Test 2: resolveBatchSize defaults to 8 (=== DEFAULT_BATCH; lowered from 32 by
+ *           Phase 379.1 plan 09) unset, honors a valid positive int, and falls
+ *           back to 8 on '0'/'-5'/'abc'/''.
  *   Test 3: the encodeFn injection seam stays UNBATCHED -- even with
  *           MINDRIAN_EMBED_BATCH=4 set, 70 texts reach the stub in ONE call.
  */
@@ -51,29 +52,29 @@ async function run() {
     const savedBatch = process.env.MINDRIAN_EMBED_BATCH;
     try {
       delete process.env.MINDRIAN_EMBED_BATCH;
-      assert.strictEqual(spine._test.resolveBatchSize(), 32, 'Test 2: default is 32');
+      assert.strictEqual(spine._test.resolveBatchSize(), 8, 'Test 2: default is 8');
       assert.strictEqual(
         spine._test.resolveBatchSize(),
         spine._test.DEFAULT_BATCH,
         'Test 2: default === DEFAULT_BATCH'
       );
 
-      process.env.MINDRIAN_EMBED_BATCH = '8';
-      assert.strictEqual(spine._test.resolveBatchSize(), 8, 'Test 2: valid int resolves to 8');
+      process.env.MINDRIAN_EMBED_BATCH = '16';
+      assert.strictEqual(spine._test.resolveBatchSize(), 16, 'Test 2: valid int resolves to 16');
 
       ['0', '-5', 'abc', ''].forEach(function each(bad) {
         process.env.MINDRIAN_EMBED_BATCH = bad;
         assert.strictEqual(
           spine._test.resolveBatchSize(),
-          32,
-          'Test 2: invalid value ' + JSON.stringify(bad) + ' falls back to 32'
+          8,
+          'Test 2: invalid value ' + JSON.stringify(bad) + ' falls back to 8'
         );
       });
     } finally {
       if (savedBatch === undefined) delete process.env.MINDRIAN_EMBED_BATCH;
       else process.env.MINDRIAN_EMBED_BATCH = savedBatch;
     }
-    ok('Test 2: resolveBatchSize defaults to 32, honors valid int, rejects invalid');
+    ok('Test 2: resolveBatchSize defaults to 8, honors valid int, rejects invalid');
   }
 
   // ---------- Test 3: encodeFn seam is UNBATCHED ----------

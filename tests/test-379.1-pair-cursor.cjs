@@ -318,7 +318,9 @@ async function main() {
         while (Date.now() - t0 < 5) { /* hold the clock past the 1 ms budget */ }
         return c.embedFn(texts);
       };
-      await withEnv({ MINDRIAN_DERIVE_BUDGET_MS: '1' }, async () => {
+      // Plan 09: the default embed batch is 8 now. This scenario needs the 12 texts in one batch (the budget is
+      // checked between batches), so it pins the batch at 32; the scenario tests the budget, not the batch default.
+      await withEnv({ MINDRIAN_DERIVE_BUDGET_MS: '1', MINDRIAN_EMBED_BATCH: '32' }, async () => {
         await drain.drainDerive(fx.roomDir, { embedFn: slowEmbed, probeOpts: c.probeOpts });
       });
       const e = entries(fx.roomDir);
