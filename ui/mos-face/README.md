@@ -17,11 +17,49 @@ This folder is a walled package (CLAUDE.md D-17, Phase 369.26 precedent, D-05 of
 Run these commands in this folder.
 
 - Load it in a session: `claude --plugin-dir ui/mos-face` (from the repo root).
-- Test it: `claude plugin test .` (34 original tests).
+- Test it: `claude plugin test .` (34 original tests and the egress tests).
 - Check the plugin shape: `claude plugin validate .`
 - Type-check it: `npm run typecheck` (the script lands in a later plan).
 - Build it: `npm run build` (the script lands in a later plan).
 - Install the lockfile: `npm ci --ignore-scripts`.
+
+## Egress
+
+What leaves the machine (Canon Part 8, decision D-03 of Phase 380, plan 380-04). Three calls and no more.
+
+1. The ask to Theo through the guarded shim tool. It carries a framework name, a problem type and, by default, a short excerpt of the person's own recent words (at most 240 characters). The panel shows the excerpt in full ("Theo was sent: ...").
+2. The same ask to the raw theo server, only when the shim failed or was denied. With proposal P1 on, it carries a framework name and a problem type only.
+3. A search on the raw theo server. Its query is one framework name or one problem type from a closed list (HANDLE_QUERIES in hooks/advice.ts). It never holds a word of the person.
+
+Never sent: assistant text, room files, claims, artifacts.
+
+### What the excerpt removes
+
+Before anything is sent, `sanitize` removes code, links, email addresses, file paths and key-like strings. Then `stripNames` removes names with three rules. A run of removed words becomes one "(a name)".
+
+- S1, known names: the room slug, each part of it (3 letters or more), the workspace folder name and the session folder name. Whole words, any case. A plain function word inside a slug (the, and) is left out of the list.
+- S2, proper names: each capitalized word that does not start a sentence, and each all-caps word of 2 letters or more. The words of the framework names and problem types, Theo, PWS, MindrianOS, the pronoun I, weekday and month names and the acronyms PWS JTBD SWOT PEST API AI UX MVP ROI KPI are kept.
+- S3, sentence starts: the first word of each sentence (start of text, after a full stop, a question mark, an exclamation mark or a line break) goes, unless it is a common word (COMMON_STARTS in advice.ts), a cue word of a framework rule (so Customers, Symptom or Blocked survive) or a framework word. "Acme is losing money" loses Acme. "We lost three deals" keeps We. A plain noun at the start of a sentence (Money) is removed too: that costs a little fit and never leaks.
+
+### Residual risk
+
+A name typed in lowercase in the middle of a sentence is not caught, unless it equals a known name (S1). A name in a script without capital letters is caught only by S1. The panel shows the excerpt in full and /mos-words turns it off. The plugin egress guard is a second line on the shim path; its effect on a call that a plugin module makes is UNVERIFIED (tests/test-380-egress.cjs prints what the guard says about the six question shapes).
+
+### Default and opt-out
+
+The excerpt is on by default (owner ruling 2026-10-21). Two ways to turn it off.
+
+- /mos-words in the session, or the Words button in the panel. This lasts until the session ends. PROVEN across two separate `claude -p` processes at plan time: a new session starts with the excerpt on again. Plan 10 proves it again on the shipped build.
+- MOS_FACE_WORDS=off (also 0 or false) in the settings environment. The excerpt is then off from the start of every session. /mos-words turns it on for that session. This works only while proposal P2 is on.
+
+### Two proposals, one flag each
+
+Both go beyond D-03 as written. Both are planner proposals, on by default, in hooks/proposals.ts. The navigator can veto either in plan 11, section B.
+
+- P1 shimOnlyExcerpt: the excerpt travels only through the guarded shim. Reason: the raw theo server never passes lib/core/part8-egress-guard.cjs (CLAUDE.md, THEO-04).
+- P2 envSwitch: MOS_FACE_WORDS=off at session start makes the opt-out last. Reason: the opt-out does not survive a new session.
+
+A veto is one flag set to false, the dist rebuilt (node scripts/build-mos-face.cjs, added by plan 380-05) and the tests re-run. tests/egress.test.ts reads the flags and holds for both values of each, so no test edit and no re-plan is needed.
 
 ## Surfaces
 
