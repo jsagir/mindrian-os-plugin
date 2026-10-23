@@ -1,0 +1,6 @@
+{
+  "name": "mos-face",
+  "version": "0.1.0",
+  "description": "Shows the Theo face state and a colored Larry | MindrianOS badge above the prompt, driven by real turn and tool events.",
+  "types": "./types/index.d.ts"
+}
