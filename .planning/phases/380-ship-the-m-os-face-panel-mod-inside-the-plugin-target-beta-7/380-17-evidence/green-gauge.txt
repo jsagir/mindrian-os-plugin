@@ -1,0 +1,38 @@
+# GREEN: after hooks/gauge.ts is implemented and the Context row is drawn from gaugeText (2026-10-24)
+
+## claude plugin test . in ui/mos-face
+(pass) G-1 idle wide: exactly one row says "Context gauge: waiting for the first reply", the canvas is drawn, and no row says "Context: waiting" [827.00ms]
+(pass) G-2 idle narrow: at 35 columns exactly one row says "Context: waiting for the first reply", with no canvas rows and no text bar [1511.69ms]
+(pass) G-3 idle plain: with NO_COLOR exactly one row says "Context: waiting for the first reply" and no canvas rows are drawn [394.33ms]
+(pass) G-4 idle short: under 24 rows the boxes fold to words, so the row is "Context: waiting for the first reply" [400.35ms]
+(pass) G-5 a reading at 9 percent keeps today's row "Context 9% - ok" and the word gauge is nowhere on the pane [467.34ms]
+(pass) G-5 a reading at 62 percent says "Context 62% - watch" [1173.18ms]
+(pass) G-5 a reading at 80 percent says the cliff words and no row says gauge [240.13ms]
+(pass) G-6 edge: 0 percent is a reading, "Context 0% - ok", and never the waiting words [348.87ms]
+(pass) G-6 edge: 100 percent says "Context 100%" with the cliff words [296.94ms]
+(pass) G-7 transition: idle first, then the host reports 9 percent; after the next render the idle sentence is gone and "Context 9% - ok" is there once [316.31ms]
+(pass) G-8 pure: gaugeText gives the exact words for idle with and without boxes, for each band, and the same idle words for NaN as for undefined [1.41ms]
+(pass) G-9 the canvas did not change: idle wide draws the same 4 rows of 32 cells that contextCanvas(undefined, 32, 8) makes [363.88ms]
+(pass) R3: the context canvas, wide and compact, draws the same pixels as in plan 380-02 [36.85ms]
+(pass) P6 unknowns: with every status file missing each always-shown field says in words that it was not read, never a made-up value [354.87ms]
+(pass) P6 unknowns: the context says waiting only when the host gives no usage yet [419.98ms]
+(pass) P6 unknowns: with a usage the context shows the percent and never says waiting [383.42ms]
+(pass) P9 context band: 49 is ok, 50 to 79 is watch, 80 and over is the cliff with the words to file the insight first [0.78ms]
+(pass) P9 context band: the pane reads the cliff in words at 85 percent, and a text bar beside it when narrow [147.34ms]
+ 221 pass
+ 0 fail
+Ran 221 tests across 15 files. [13.22s]
+
+## panel.test.tsx declarations: 34
+
+## node scripts/typecheck.cjs exit 0
+lay-types: installed engine: 2.1.309 (Claude Code)
+typecheck: TypeScript 7.0.2 from /home/jsagi/dev/MindrianOS-Plugin-release/ui/mos-face
+
+## node tests/test-380-copy.cjs exit 0
+
+test-380-copy: 37 passed, 0 failed
+
+## node tests/test-380-budget.cjs exit 0
+
+11 passed, 0 failed
