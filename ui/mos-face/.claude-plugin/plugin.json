@@ -1,6 +1,6 @@
 {
   "name": "mos-face",
   "version": "0.1.0",
-  "description": "Shows the Theo face state and a colored Larry | MindrianOS badge above the prompt, driven by real turn and tool events.",
+  "description": "Shows the Theo face, the state of your data room and the next move beside the chat, driven by what really happens in the session.",
   "types": "./types/index.d.ts"
 }

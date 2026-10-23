@@ -1,6 +1,6 @@
 import type { FaceState } from '../types'
 
-// What the face thinks, in the teaching voice (Larry's manner, spoken as Theo).
+// What the face thinks, in the teaching voice, spoken as Theo.
 // Rules: plain English, short, hedged, a question or a reframe, hyphens only.
 // Each thought is tied to a real event; none claims a result the session has not shown.
 // Pools are long on purpose: a line should not come back for many visits.

@@ -168,7 +168,7 @@ test('the box draws when the panel is not placed, and Hide leaves a way back', a
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
 
   const ui = await $.ui.mount({ ...BAND, surface: 'terminal' } as never)
-  expect((await ui.find({ type: 'Text', text: /Larry/ }))?.text).toContain('Larry')
+  expect((await ui.find({ type: 'Text', text: /Theo \| MindrianOS/ }))?.text).toContain('Theo | MindrianOS')
   await ui.press({ key: 'hide' } as never)
 
   const hidden = await $.ui.mount({ ...BAND, surface: 'terminal' } as never)
@@ -183,7 +183,7 @@ test('the side panel draws the avatar, the meter and the room', async ($, on) =>
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
 
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' } as never)
-  expect((await ui.find({ type: 'Text', text: /Larry/ }))?.text).toContain('Larry')
+  expect((await ui.find({ type: 'Text', text: /Theo \| MindrianOS/ }))?.text).toContain('Theo | MindrianOS')
   expect((await ui.find({ type: 'Text', text: /Context 62%/ }))?.text).toContain('62%')
   expect((await ui.find({ type: 'Text', text: /WRITES TO/ }))?.text).toContain('demo-room')
   await ui.unmount()
@@ -357,7 +357,7 @@ test('an old, unrelated line is never the subject of a suggestion', async () => 
   expect(frameFor('/mos:root-cause', ['cause'], ['THE WHITE BACKGROUND IS NOT GOOD.']).startsWith('/mos:root-cause')).toBe(true)
 })
 
-test('a click asks Larry to think it through for this room, not just to run a command', async () => {
+test('a click asks Theo to think it through for this room, not just to run a command', async () => {
   const text = thinkPrompt({
     command: '/mos:root-cause',
     framework: 'Root Cause Analysis',

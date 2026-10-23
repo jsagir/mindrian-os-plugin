@@ -38,6 +38,8 @@ function check(cond, msg) {
 const EM = String.fromCharCode(0x2014);
 const EN = String.fromCharCode(0x2013);
 const COMMAND_NAME = /\/mos:[a-z0-9-]+/g;
+// A host name the panel reached is data read from the machine, not copy.
+const HOST_NAME = /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|io|dev|app|test)\b/gi;
 const WORD_RULES = [
   ['ICM', /\bICM\b/i],
   ['Brain', /\bBrain\b/i],
@@ -56,7 +58,7 @@ function banned(text) {
   const found = [];
   if (text.includes(EM)) found.push('em-dash');
   if (text.includes(EN)) found.push('en-dash');
-  const words = text.replace(COMMAND_NAME, ' ');
+  const words = text.replace(COMMAND_NAME, ' ').replace(HOST_NAME, ' ');
   for (const [name, rule] of WORD_RULES) if (rule.test(words)) found.push(name);
   return found;
 }
@@ -196,6 +198,7 @@ check(banned('the Brain').includes('Brain') && banned('an MCP tool').includes('M
 check(banned('a ' + EM + ' b').includes('em-dash') && banned('a ' + EN + ' b').includes('en-dash'), 'rule: the em-dash and the en-dash are caught');
 check(banned('read The Book now').includes('the book'), 'rule: the phrase "the book" is caught in any case');
 check(banned('run /mos:brain-derive now').length === 0, 'rule: a command name is not prose');
+check(banned('health theo-mcp.onrender.com ok').length === 0 && banned('the MCP server').includes('MCP'), 'rule: a host name is data, the bare word is not');
 check(banned('Johns Hopkins').length === 1 && banned('JHU').length === 1 && banned('Prof. Aronhime').length === 1, 'rule: the names are caught');
 
 // ---- Self-test of the reader ------------------------------------------------------------

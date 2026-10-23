@@ -112,7 +112,9 @@ const THEO_TOOL = /^mcp__(theo|theo-context|claude_ai_Theo-Claude|plugin_mos_min
 const MOS_TOOL = /^mcp__plugin_mos_mindrian-os__/
 const EMPTY_RESULT = /^\s*(\[\s*\]|\{\s*\}|no (matches|results|files)( found)?\.?)\s*$/i
 const MENTIONS_THEO = /\bTheo\b/
-const LEAD = /^\s*(🟦|🟥|🟨|⬛|⬜)️?\s*\**Larry \| MindrianOS\**/
+// The lead of a reply: one move glyph (group 1) and the marker text the reply wrote (group 2). The chip
+// quotes group 2 as it stands (D-07), so this pattern is the only place the persona's own words are named.
+const LEAD = /^\s*(🟦|🟥|🟨|⬛|⬜)️?\s*\**(Larry \| MindrianOS)\**/
 const SPIN = ['-', '\\', '|', '/']
 const STYLES: FaceStyle[] = ['tile', 'crew', 'mini', 'line']
 
@@ -601,7 +603,7 @@ export const register: Register = on => {
       ['mos-state', 'Open the /m:os dashboard in the side panel'],
       ['mos-face', 'Show or hide the Theo face box (shown when the panel is not)'],
       ['mos-style', 'Change the Theo face style: tile, crew, mini or line'],
-      ['mos-chip', 'Turn the colored Larry | MindrianOS badge in replies on or off'],
+      ['mos-chip', 'Turn the colored badge on replies on or off'],
       ['mos-suggest', 'Turn the grey command suggestion in the prompt box on or off'],
       ['mos-advice', 'Ask Theo now what to do next'],
       ['mos-ask', 'Start a question about the whole room in the prompt box'],
@@ -1121,7 +1123,7 @@ export const register: Register = on => {
           )}
           <Box flexDirection="column" width={textWidth}>
             <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
-              {' Larry | MindrianOS '}
+              {' Theo | MindrianOS '}
             </Text>
             <Text {...ink} bold wrap="truncate-end">
               {fit(`${n === 0 || st === 'line' ? `${LINE_FACE[state]} ` : ''}${state === 'none' ? 'Limit' : LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
@@ -1171,7 +1173,7 @@ export const register: Register = on => {
         {next.status === 'ok' && !isStale && next.framework !== '' && (
           <Box flexDirection="column">
             {knob('framework', `Framework: ${next.framework}`, () => askAbout($, thinkNow(next.commands[0] ?? '')))}
-            <Text {...soft}>click: Larry thinks it through for your situation. Run puts the bare command in the box.</Text>
+            <Text {...soft}>click: a question about your case goes in the prompt box, and Enter sends it. Run puts the bare command in the box.</Text>
           </Box>
         )}
         {next.status === 'ok' && !isStale && next.commands.length > 0 && (
@@ -1186,7 +1188,7 @@ export const register: Register = on => {
               </Box>
             ))}
             <Text {...soft}>{next.note ? next.note.replace(/^because of:/, 'Chosen because you mentioned:') : 'Chosen from what you said.'}</Text>
-            <Text {...soft}>click a number: Larry thinks it through, then Enter. Run: the bare command</Text>
+            <Text {...soft}>click a number: a question about your case goes in the box, then Enter sends it. Run: the bare command</Text>
           </Box>
         )}
         {(next.status === 'idle' || next.status === 'failed') && (
@@ -1305,7 +1307,7 @@ export const register: Register = on => {
           </Box>
           <Box flexDirection="column" width={textWidth}>
             <Box gap={1}>
-              <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>{' Larry | MindrianOS '}</Text>
+              <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>{' Theo | MindrianOS '}</Text>
               <Box backgroundColor={RAISED}>
                 <Button key="hide" label="Hide" onPress={() => update($, isHidden, () => true)} />
               </Box>
@@ -1378,13 +1380,15 @@ export const register: Register = on => {
     if (!lead) return next(e)
 
     const mv = moveOf(lead[1] ?? '')
+    // The reply's own marker text, unchanged (D-07): nothing is added, removed or rewritten.
+    const quoted = lead[2] ?? ''
     const rest = e.props.text.slice(lead[0].length).replace(/^\s+/, '')
     const { Box, Text } = $.ui.resolve(e)
 
     return (
       <Box flexDirection="column">
         <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
-          {' Larry | MindrianOS '}
+          {` ${quoted} `}
         </Text>
         {rest !== '' && (await next({ ...e, props: { ...e.props, text: rest } }))}
       </Box>

@@ -100,6 +100,30 @@ The panel no longer needs python3. The old fallback ran a python3 graph query. I
 
 The real idle CPU cost of the panel on a machine is measured by plan 380-10 and is UNVERIFIED until then. This page states limits, not a CPU number.
 
+## Copy
+
+The panel speaks as Theo, in plain English (D-04). Every word it writes follows these rules. The rules come from the mos-brand book e947a5d (read only, at /home/jsagi/mos-brand).
+
+What the words must be:
+
+- Clear, curious, demanding, grounded, warm and practical: short paragraphs, concrete nouns, no hype word, and generated text is never called validated evidence (mos-brand book e947a5d, segment writing/voice).
+- No em-dash and no en-dash. A dash is a release blocker (mos-brand book e947a5d, references/brand-rules.md, rule 1).
+- Theo supports the inquiry and the person keeps the judgment (references/brand-rules.md, rules 3 and 4).
+- The panel names the thinking partner Theo. The panel never introduces a second character (segment identity/naming).
+- Say Theo, never Brain. Say data room, never ICM. A button never runs anything: it puts a command or a question in the prompt box. Nothing looks pressable unless a real mechanism presses it (segment experience/terminal, status PROPOSED, so each of these carries that status).
+- No MCP word, no Aura word, no person's name and no institution's name.
+
+What the tests scan:
+
+- tests/copy.test.tsx draws the band and the pane in 7 states, 4 face styles, 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 13 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
+- tests/test-380-copy.cjs reads every string of the hook sources (also JSX text) and scans the manifest description. It runs the commands check below.
+- scripts/face-commands.cjs --check keeps hooks/commands.ts honest against data/command-registry.json: no unknown command, no stack word, no PLUGIN_VERSION constant. A changed registry sentence only warns. Run --write, then the build.
+- A command name such as /mos:brain-derive is a name the plugin owns. The scan removes command names before it looks for words.
+
+The reply chip (D-07, Quote the reply as is): the colored chip in a reply quotes the reply's own lead as it stands. It adds, removes and rewrites nothing, and it is built from the reply, never from panel copy. So the word Larry appears in the chip only when the reply put it there. The move glyph of the reply is shown as the color of the chip, as before.
+
+The glossary is vendored text from the owner's PWS repository. It is scanned for names, never edited here. Whether it ships in the public tarball is the owner's decision (plan 11).
+
 ## Surfaces
 
 The panel draws only in the Claude Code terminal. Desktop and Cowork get no panel in this phase. This is a deliberate skip (D-05, N7). Their plain MCP reads stay as they are.

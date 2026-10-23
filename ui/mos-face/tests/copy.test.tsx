@@ -26,6 +26,9 @@ const EN = String.fromCharCode(0x2013)
 const START = { cwd: '/', surface: 'terminal', isInteractive: true } as never
 const WIDTHS = [100, 48, 40, 30]
 const COMMAND_NAME = /\/mos:[a-z0-9-]+/g
+// A host name the panel reached (for example the server address in the Theo block) is data read
+// from the machine, not copy.
+const HOST_NAME = /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|io|dev|app|test)\b/gi
 const WORD_RULES: [string, RegExp][] = [
   ['ICM', /\bICM\b/i],
   ['Brain', /\bBrain\b/i],
@@ -44,7 +47,7 @@ export function banned(text: string, allowLarry = false): string[] {
   const found: string[] = []
   if (text.includes(EM)) found.push('em-dash')
   if (text.includes(EN)) found.push('en-dash')
-  const words = text.replace(COMMAND_NAME, ' ')
+  const words = text.replace(COMMAND_NAME, ' ').replace(HOST_NAME, ' ')
   for (const [name, rule] of WORD_RULES) {
     if (name === 'Larry' && allowLarry) continue
     if (rule.test(words)) found.push(name)
@@ -231,20 +234,25 @@ test('C1 next move: the suggestion, its why lines, the hints and every opened bl
 })
 
 test('C1 every block: each block of the pane, opened one by one, is clean', async ($, on) => {
-  const { clock } = recordCalls(on)
+  // The warm-up record names the server the panel reached: a host name, which is data.
+  const { clock } = recordCalls(on, { files: { '/.mindrian/brain-prewarm.json': JSON.stringify({ ok: true, at: '2026-10-20T00:00:00Z', origin_host: 'theo-mcp.example.test' }) } })
   turnHooks(on)
   await $.session.start(START)
   await clock.settle()
 
   const hits: string[] = []
+  let sawHost = false
   const pane = await $.ui.mount(at(48, 80))
   const keys = (await pane.findAll({ type: 'Button' })).map(one => one.key ?? '').filter(key => key.startsWith('block-'))
   expect(keys.length).toBeGreaterThan(0)
   for (const key of keys) {
     await pane.press({ key } as never)
-    hits.push(...scan(`block ${key}`, await textsOf(pane)))
+    const drawn = await textsOf(pane)
+    hits.push(...scan(`block ${key}`, drawn))
+    if (key === 'block-theo') sawHost = drawn.some(text => text.includes('theo-mcp.example.test'))
   }
   await pane.unmount()
+  expect(sawHost).toBe(true)
   expect(hits).toEqual([])
 })
 
@@ -338,6 +346,8 @@ test('C4 tables: the words, thoughts, labels and why lines are clean', async () 
 test('C5 Theo, not Larry: the badge says Theo | MindrianOS and the chip quotes the reply as it stands', async ($, on) => {
   const { clock } = recordCalls(on)
   turnHooks(on)
+  // The engine's own drawing of a reply block: its text, as the transcript would draw it.
+  on('ui.render', { component: 'AssistantMessage' }, (_, e) => ({ type: 'Text', children: [e.props.text] }) as never)
   await $.session.start(START)
   await clock.settle()
 
