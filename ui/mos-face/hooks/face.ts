@@ -38,38 +38,49 @@ export const MOVE_NAME: Record<Move, string> = {
   white: 'hand-over',
 }
 
-// ---- Theo face poses, copied from robot-faces.json v2.6.0 (t_* states) ------
+// ---- Theo face poses --------------------------------------------------------
+// Each pose is the canon pose, number for number, on the 400 unit master: mos-brand book e947a5d,
+// segments/identity/theo/entries/2026-10-19/asset-fa8504998f.json, drawn by the renderer
+// asset-d96217b320.js. e1 and e2 are eyes (x, y, width, height), s is the bar (x, y, angle,
+// length, thickness), r is where the divider and the ground line cross, plane is the colored
+// plane. Never redrawn by eye: tests/test-380-decisions.cjs checks tests/canon.ts against the book,
+// and ui/mos-face/tests/colors.test.tsx checks this table against tests/canon.ts. The canon
+// poses that this panel does not draw (Challenge, Contradiction, Reframe, Your decision) have no
+// entry here on purpose (README, section Decisions, N9). The motion fields of the asset (sway,
+// bob, still) are not used: the panel animates only the running mark on the ground line.
 
 export type Pose = {
   e1: [number, number, number, number]
   e2: [number, number, number, number]
   s: [number, number, number, number, number]
+  r: [number, number]
   plane: string
   c1: string
   c2: string
   hollow: boolean
-  edge: number
   run: boolean
 }
 
 export const POSES: Record<FaceState, Pose> = {
-  rest: { e1: [312, 120, 46, 46], e2: [312, 300, 46, 46], s: [110, 205, 0, 250, 34], plane: WHITE, c1: INK, c2: INK, hollow: false, edge: 1, run: false },
-  listen: { e1: [312, 128, 50, 50], e2: [312, 292, 50, 50], s: [110, 205, 10, 250, 34], plane: WHITE, c1: INK, c2: INK, hollow: false, edge: 1, run: false },
-  search: { e1: [312, 120, 46, 46], e2: [312, 300, 46, 46], s: [110, 205, 8, 250, 34], plane: BLUE, c1: PAPER, c2: INK, hollow: false, edge: 1, run: true },
-  found: { e1: [312, 120, 56, 56], e2: [312, 300, 56, 56], s: [110, 205, 22, 250, 34], plane: BLUE, c1: PAPER, c2: INK, hollow: false, edge: 2, run: false },
-  none: { e1: [300, 120, 40, 40], e2: [324, 300, 40, 40], s: [110, 205, 90, 250, 28], plane: WHITE, c1: MUTED, c2: MUTED, hollow: false, edge: 0, run: false },
-  refused: { e1: [312, 120, 46, 46], e2: [312, 300, 46, 46], s: [110, 205, -26, 250, 34], plane: INK, c1: PAPER, c2: INK, hollow: false, edge: 3, run: false },
-  handover: { e1: [312, 120, 50, 50], e2: [312, 300, 50, 50], s: [96, 205, 12, 250, 34], plane: WHITE, c1: WHITE, c2: WHITE, hollow: true, edge: 1, run: false },
+  rest: { e1: [312, 120, 52, 52], e2: [312, 300, 52, 52], s: [110, 205, 18, 250, 36], r: [236, 225], plane: WHITE, c1: INK, c2: INK, hollow: false, run: false },
+  listen: { e1: [300, 120, 68, 68], e2: [300, 300, 68, 68], s: [110, 205, 10, 250, 36], r: [236, 225], plane: WHITE, c1: INK, c2: INK, hollow: false, run: false },
+  search: { e1: [262, 100, 44, 44], e2: [340, 320, 44, 44], s: [300, 205, 30, 250, 36], r: [214, 225], plane: BLUE, c1: PAPER, c2: INK, hollow: false, run: true },
+  found: { e1: [312, 120, 52, 52], e2: [312, 300, 52, 52], s: [110, 205, 0, 250, 36], r: [236, 225], plane: BLUE, c1: PAPER, c2: INK, hollow: false, run: false },
+  none: { e1: [278, 120, 44, 44], e2: [350, 300, 44, 44], s: [110, 205, 90, 250, 30], r: [236, 225], plane: WHITE, c1: MUTED, c2: MUTED, hollow: false, run: false },
+  refused: { e1: [312, 120, 52, 12], e2: [312, 300, 52, 12], s: [110, 205, 0, 250, 36], r: [236, 190], plane: RED, c1: INK, c2: INK, hollow: false, run: false },
+  handover: { e1: [312, 120, 52, 52], e2: [312, 300, 52, 52], s: [96, 205, 18, 250, 36], r: [236, 225], plane: WHITE, c1: WHITE, c2: WHITE, hollow: true, run: false },
 }
 
+// The label of each drawn state is the book's exact state name (mos-brand book e947a5d, segment
+// identity/theo/states: "use exact state names"). What happened stays in the detail line, in words.
 export const LABEL: Record<FaceState, string> = {
   rest: 'Rest',
   listen: 'Listening',
-  search: 'Searching',
+  search: 'Search',
   found: 'Found',
-  none: 'Nothing found',
+  none: 'Limit',
   refused: 'Boundary',
-  handover: 'Hand over',
+  handover: 'Handover',
 }
 
 // Plain-text faces for the one-line style (they also work with color stripped).
@@ -105,20 +116,20 @@ export const CREW: Crew[] = [
 ]
 
 // ---- Rasterizers ------------------------------------------------------------
-// The state faces follow drawState() in workshop-robots.js on a 400 x 400 tile:
-// a paper tile, a colored plane at the upper right, a black divider, a ground
-// line (with a gap for a boundary), a rotated slash, two eyes, and a small
-// square that runs on the line. The crew faces follow buildFace() on 200 x 200.
-// Both are reduced to n x n pixels, drawn two pixels per terminal row.
+// The state faces follow the renderer of the canon (asset-d96217b320.js) on a 400 x 400 tile:
+// a paper tile, a colored plane at the upper right, a black divider, a ground line, a rotated
+// bar and two eyes, and a small square that runs on the line. The crew faces follow buildFace()
+// on 200 x 200. Both are reduced to n x n pixels, drawn two pixels per terminal row.
+// The canon draws a 14 unit frame round the tile. It is under one cell at these sizes and is
+// not drawn. A hollow pose uses the HOLLOW tone for the bar and the eyes (the canon draws a white
+// fill with an 8 unit ink outline, which a pixel cannot show).
 
 export function rasterState(p: Pose, tick: number, n: number): string[][] {
   const px = 400 / n
   const g: string[][] = Array.from({ length: n }, () => Array<string>(n).fill(PAPER))
-  const rx = 236
-  const ry = 225
-  const mid = (rx + 386) / 2
-  const th = [0, 14, 26, 14][p.edge] ?? 14
-  const halfLine = p.edge === 2 ? px : px * 0.35
+  const [rx, ry] = p.r
+  // The ground line is 14 units thick: it is the one row that holds y = ry (a band when a cell is thinner than the line).
+  const lineRow = Math.min(n - 1, Math.floor(ry / px))
   const [sx, sy, a, len, thick] = p.s
   const rad = (a * Math.PI) / 180
   const halfThick = Math.max(thick, px) / 2
@@ -133,10 +144,7 @@ export function rasterState(p: Pose, tick: number, n: number): string[][] {
 
       if (x >= rx + 7 && x <= 386 && y >= 14 && y <= ry - 7) row[c] = p.plane
       if (Math.abs(x - rx) <= px / 2) row[c] = INK
-      if (th > 0 && x >= rx && x <= 386 && Math.abs(y - ry) <= halfLine) {
-        const isGap = p.edge === 3 && Math.abs(x - mid) < px * 0.55
-        if (!isGap) row[c] = INK
-      }
+      if (x >= rx && x <= 386 && (px >= 14 ? r === lineRow : Math.abs(y - ry) <= 7)) row[c] = INK
 
       const dx = x - sx
       const dy = y - sy
@@ -158,8 +166,7 @@ export function rasterState(p: Pose, tick: number, n: number): string[][] {
     const progress = (tick % 8) / 7
     const x = rx + 6 + progress * (386 - rx - 38)
     const c = Math.min(n - 1, Math.max(0, Math.floor(x / px)))
-    const r = Math.min(n - 1, Math.floor(ry / px))
-    const runRow = g[r]
+    const runRow = g[lineRow]
     if (runRow) runRow[c] = WHITE
   }
 

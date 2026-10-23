@@ -308,7 +308,7 @@ test('K9 raster: the plane, the divider and the ground line sit where the canon 
     expect(`${key} plane ${planeCell}`).toBe(`${key} plane ${canon.pose.plane}`)
     // The divider: the column that holds x = rx is ink in a row below the plane.
     expect(`${key} divider ${grid[cell(ry) + 2]?.[cell(rx)]}`).toBe(`${key} divider ${INK}`)
-    // The ground line: the row that holds y = ry is ink, right of the divider, away from the eyes.
-    expect(`${key} line ${grid[cell(ry)]?.[15]}`).toBe(`${key} line ${INK}`)
+    // The ground line: the row that holds y = ry is ink, right of the divider (column 14 is at x = 362.5, inside 386).
+    expect(`${key} line ${grid[cell(ry)]?.[14]}`).toBe(`${key} line ${INK}`)
   }
 })
