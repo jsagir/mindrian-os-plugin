@@ -3740,6 +3740,12 @@ Plans:
 
 - [x] 379.1-06: Large-room release leg (clock, CPU, RSS bounds; smoke refused), gate verdicts, ENV-TUNING, RULE 10 docs, 6 seeds
 
+**Gap closure** *(plans 07 to 09, added after the first verification; waves 1 to 3 of the gap plans)*
+
+- [x] 379.1-07: Drain RSS probe on the 2,105-artifact fixture: peak RSS 775.1 to 795.3 MB at batch 8, 1,047.7 MB at batch 16, 1,796.5 to 1,813.7 MB at batch 32 (limit 1,024 MB), encoder split out, no fix chosen
+- [x] 379.1-08: Drain RSS decision record: the human chose option a-batch with batch 8 after reading the probe table; the choice is validated against the measured numbers and committed
+- [x] 379.1-09: Apply the a-batch fix (default embed batch 8, was 32) and prove it live: two full large-room legs returned status ok with a drain peak of 776.9 and 780.2 MB against the 1,024 MB limit
+
 ### Phase 379.1.1: Post-beta.73 close-out (CRITICAL): ICM eval refresh via Jev, integrity gate ignores generated files, ledger rebuild in release script, Eureka branch reconcile, STATE and ROADMAP counts, website bump, key-holder notice, Windows bug seed, Layered Context baseline, Windows host checks (INSERTED)
 
 **Goal:** Close the loose ends of the beta.73 cut before Phase 380, so the next cut ships clean. A fresh ICM eval record graded through Jev, with a doctor freshness rule that survives the next-bump. A 366 integrity gate that ignores generated, gitignored require targets. The Jev-scored ledger rebuild as a named release.sh step with a dry-run line. The reconcile of feat/eureka-adapter-rebased with main. Correct STATE counts and the ROADMAP 379.1 plan list. The mindrian-os.com bump to beta.73. The key-holder announcement decision. Two seeds: the Windows room switch bug and the Layered Context Access baseline. The Windows host checks. A real-room receipt signed for the final HEAD. Work items 6, 7, 4, 10 and 11 need a human or a peer and stop at a checkpoint.
