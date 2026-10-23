@@ -539,7 +539,7 @@ test('the panel reads quietly: its own tool calls do not light the face', async 
   world(on)
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
   const ui = await $.ui.mount(at(56, 40))
-  expect(await ui.find({ type: 'Text', text: /Searching/ })).toBeUndefined()
+  expect(await ui.find({ type: 'Text', text: /^Search/ })).toBeUndefined()
   await ui.unmount()
 })
 

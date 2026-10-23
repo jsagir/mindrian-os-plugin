@@ -1126,7 +1126,7 @@ export const register: Register = on => {
               {' Theo | MindrianOS '}
             </Text>
             <Text {...ink} bold wrap="truncate-end">
-              {fit(`${n === 0 || st === 'line' ? `${LINE_FACE[state]} ` : ''}${state === 'none' ? 'Limit' : LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
+              {fit(`${n === 0 || st === 'line' ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
             </Text>
             <Text {...ink} italic wrap="truncate-end">{fit(`"${thought}"`, textWidth)}</Text>
           </Box>
@@ -1313,7 +1313,7 @@ export const register: Register = on => {
               </Box>
             </Box>
             <Text {...ink} bold wrap="truncate-end">
-              {fit(`${state === 'none' ? 'Limit' : LABEL[state]}${note ? `  ${note}` : ''} | Theo ${turnTotals.total} this turn, ${totals.total} in all`, textWidth)}
+              {fit(`${LABEL[state]}${note ? `  ${note}` : ''} | Theo ${turnTotals.total} this turn, ${totals.total} in all`, textWidth)}
             </Text>
             <Text {...ink} wrap="truncate-end">
               {fit(why ? `Theo: ${plain(why)}` : `"${thought}"`, textWidth)}
