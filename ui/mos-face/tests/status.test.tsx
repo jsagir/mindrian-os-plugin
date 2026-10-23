@@ -225,7 +225,7 @@ test('P6 unknowns: the context says waiting only when the host gives no usage ye
   await $.session.start(START)
   await clock.advance(200)
   const waiting = await $.ui.mount(at(WIDE))
-  expect((await textsOf(waiting)).some(text => /^Context: waiting$/.test(text))).toBe(true)
+  expect((await textsOf(waiting)).some(text => /^Context gauge: waiting for the first reply$/.test(text))).toBe(true)
   await waiting.unmount()
 })
 

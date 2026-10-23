@@ -12,6 +12,7 @@ import type {
 import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsForNoted, wordsStartOn, wordsTexts } from './advice'
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
+import { gaugeText } from './gauge'
 import { FIX_COMMAND, compactJob, guessJob, jobLine, jobRows, jobShown, readJob } from './job'
 import { JOBS } from './jobs'
 import { workspaceOf } from './paths'
@@ -1258,7 +1259,7 @@ export const register: Register = on => {
         {useBar && percent !== undefined && <Text {...ink}>{band.bar(barWidth)}</Text>}
         <Box flexDirection="column">
           <Text {...ink} bold>
-            {percent === undefined ? 'Context: waiting' : `${narrowLabels ? factLabel('context', true) : factLabel('context', false)} ${Math.round(percent)}% - ${band.words}`}
+            {gaugeText(percent, canvas !== null, factLabel('context', narrowLabels)).text}
           </Text>
           {percent !== undefined && percent >= 60 && knob('compact', 'Free space /compact', () => askAbout($, '/compact'))}
         </Box>
