@@ -107,6 +107,8 @@ run_if        "380 build"                                          tests/test-38
 run_strict_if "380 installed layout (install and load)"            tests/test-380-installed-layout.cjs           node tests/test-380-installed-layout.cjs
 run_if        "380 gate wiring"                                    tests/test-380-gate-wiring.cjs                node tests/test-380-gate-wiring.cjs
 run_if        "380 shots harness"                                  tests/test-380-shots-harness.cjs              node tests/test-380-shots-harness.cjs
+run_if        "380 canon Theo faces (asset hash, structure, no hand-copied numbers)" tests/test-380-theo-faces.cjs node tests/test-380-theo-faces.cjs
+run_if        "380 canon Theo faces fixture check"                 ui/mos-face/scripts/theo-faces.cjs            node ui/mos-face/scripts/theo-faces.cjs --check
 
 # --- (2) Dash fence on this phase's files (hyphens only) ----------------------
 # Only EXISTING paths are scanned (ls -d), so a missing path never masks a hit.
