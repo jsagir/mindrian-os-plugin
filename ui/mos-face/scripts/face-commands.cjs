@@ -48,6 +48,16 @@ const WORD_RULES = [
   ['Lawrence', /Lawrence/i],
   ['Johns Hopkins', /Johns Hopkins/i],
   ['JHU', /\bJHU\b/],
+  // The voice segment of the book (mos-brand book e947a5d, segments/writing/voice) avoids these words.
+  ['revolutionary', /\brevolutionary\b/i],
+  ['game-changing', /\bgame-chang(ing|er)\b/i],
+  ['supercharge', /\bsupercharg/i],
+  ['unlimited potential', /\bunlimited potential\b/i],
+  ['instant insight', /\binstant insight\b/i],
+  ['AI workforce', /\bAI workforce\b/i],
+  ['autonomous strategist', /\bautonomous strategist\b/i],
+  // A claim the product has not checked (voice: "not a reason to claim a capability that has not been checked").
+  ['unchecked superlative', /\b(ever published|most rigorous)\b/i],
 ];
 
 // The banned things found in one text. A command name is a name, not prose, so it is removed
@@ -56,6 +66,8 @@ function banned(text) {
   const found = [];
   if (text.includes(EM)) found.push('em-dash');
   if (text.includes(EN)) found.push('en-dash');
+  // The book: never use a double hyphen to imitate an em dash (segment writing/voice, hard language rules).
+  if (/ -- /.test(text)) found.push('double-hyphen');
   const words = text.replace(COMMAND_NAME, ' ');
   for (const [name, rule] of WORD_RULES) if (rule.test(words)) found.push(name);
   return found;
@@ -76,6 +88,22 @@ const OVERRIDES = {
     'When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support',
   '/mos:research':
     "When you need fresh evidence from the web cross-referenced with Theo's methodology graph, /mos:research runs the dual-source pull",
+  // Plan 380-07 (book review of the shipped copy). The registry sentence of each command below holds
+  // a double hyphen used as a dash (the book: never use a double hyphen to imitate an em dash,
+  // segment writing/voice) or a superlative that the product has not checked. The meaning is kept;
+  // the dash becomes brackets, a colon or a full stop.
+  '/mos:deck':
+    'When your room is full but the story is not yet a deck, /mos:deck asks one thing: which shape fits (Feynman to make it clear, HEART to make it land, or mesh to do both), then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default',
+  '/mos:mullins':
+    "When you need to screen an opportunity against seven domains, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test",
+  '/mos:mva-report':
+    'When you have finished a conversation with Theo and want to see whether it fired the right things at the right time (did it reach a conclusion or circle, did it elevate across frames, did the gates fire), run /mos:mva-report',
+  '/mos:show':
+    "When the room is full but you don't know which view answers your question, /mos:show asks your job in plain language (know where I stand, find what's broken, make it land, get it into the world) and runs the right view underneath",
+  '/mos:stance':
+    'When you want Theo to shift how he talks to you this session (pull evidence, deliver decisively, stay Socratic, or challenge you), /mos:stance flips the dial in one confirm',
+  '/mos:trending-to-absurd':
+    "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons. The disruptive opportunity shows up at the edge first",
 };
 
 function firstSentence(text) {

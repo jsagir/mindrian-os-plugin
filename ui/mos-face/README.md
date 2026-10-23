@@ -189,7 +189,9 @@ The book (mos-brand book e947a5d) names 11 states (`segments/identity/theo/state
 | Boundary | refused | Boundary | A call was blocked by the permission mode. The panel says what it could not read. |
 | Handover | handover | Handover | A turn finished with an answer. It does not mean the project is complete. |
 
-Two things stay as the asset has them: the asset file calls two states "Searching" and "Nothing found" in its visible-label field. The states entry says to use exact state names and to localize visible labels, so the panel writes Search and Limit. The detail line keeps the plain words of what happened.
+The proposed terminal guide lists seven states in older words: rest, listening, searching, found, nothing found, boundary and hand over (`segments/experience/terminal`, PROPOSED, written against face version 2.6.0). It also says to tie each state to a real event, which is the N9 rule. The two texts differ in the names of three states, so the book holds two spellings. The panel follows the ruled states segment, `segments/identity/theo/states`, and the book needs one spelling (an item for plan 380-11).
+
+The asset file `asset-fa8504998f.json` calls two states "Searching" and "Nothing found" in its visible-label field. The states entry says to use exact state names and to localize visible labels, so the panel writes Search and Limit. The detail line keeps the plain words of what happened.
 
 ### HOLLOW
 

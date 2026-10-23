@@ -51,6 +51,16 @@ const WORD_RULES = [
   ['Lawrence', /Lawrence/i],
   ['Johns Hopkins', /Johns Hopkins/i],
   ['JHU', /\bJHU\b/],
+  // The voice segment of the book (mos-brand book e947a5d, segments/writing/voice) avoids these words.
+  ['revolutionary', /\brevolutionary\b/i],
+  ['game-changing', /\bgame-chang(ing|er)\b/i],
+  ['supercharge', /\bsupercharg/i],
+  ['unlimited potential', /\bunlimited potential\b/i],
+  ['instant insight', /\binstant insight\b/i],
+  ['AI workforce', /\bAI workforce\b/i],
+  ['autonomous strategist', /\bautonomous strategist\b/i],
+  // A claim the product has not checked (voice: "not a reason to claim a capability that has not been checked").
+  ['unchecked superlative', /\b(ever published|most rigorous)\b/i],
 ];
 
 // The banned things found in one text. Empty list = clean.
@@ -58,6 +68,8 @@ function banned(text) {
   const found = [];
   if (text.includes(EM)) found.push('em-dash');
   if (text.includes(EN)) found.push('en-dash');
+  // The book: never use a double hyphen to imitate an em dash (segment writing/voice, hard language rules).
+  if (/ -- /.test(text)) found.push('double-hyphen');
   const words = text.replace(COMMAND_NAME, ' ').replace(HOST_NAME, ' ');
   for (const [name, rule] of WORD_RULES) if (rule.test(words)) found.push(name);
   return found;

@@ -40,6 +40,16 @@ const WORD_RULES: [string, RegExp][] = [
   ['Lawrence', /Lawrence/i],
   ['Johns Hopkins', /Johns Hopkins/i],
   ['JHU', /\bJHU\b/],
+  // The voice segment of the book (mos-brand book e947a5d, segments/writing/voice) avoids these words.
+  ['revolutionary', /\brevolutionary\b/i],
+  ['game-changing', /\bgame-chang(ing|er)\b/i],
+  ['supercharge', /\bsupercharg/i],
+  ['unlimited potential', /\bunlimited potential\b/i],
+  ['instant insight', /\binstant insight\b/i],
+  ['AI workforce', /\bAI workforce\b/i],
+  ['autonomous strategist', /\bautonomous strategist\b/i],
+  // A claim the product has not checked (voice: "not a reason to claim a capability that has not been checked").
+  ['unchecked superlative', /\b(ever published|most rigorous)\b/i],
 ]
 
 // The banned things found in one text. Empty list = clean.
@@ -47,6 +57,8 @@ export function banned(text: string, allowLarry = false): string[] {
   const found: string[] = []
   if (text.includes(EM)) found.push('em-dash')
   if (text.includes(EN)) found.push('en-dash')
+  // The book: never use a double hyphen to imitate an em dash (segment writing/voice, hard language rules).
+  if (/ -- /.test(text)) found.push('double-hyphen')
   const words = text.replace(COMMAND_NAME, ' ').replace(HOST_NAME, ' ')
   for (const [name, rule] of WORD_RULES) {
     if (name === 'Larry' && allowLarry) continue
@@ -400,11 +412,18 @@ test('C6 names: no table and no drawn text holds the name of a person or an inst
   expect(found).toEqual([])
 })
 
-test('C7 copy dump: prints the collected copy for the book review when MOS_COPY_DUMP is set', async () => {
-  const env = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env
+// The dump for the book review (plan 380-07). The engine runs a test in a sandbox with no process
+// and no env, so an environment switch can never reach this test (PROVEN at plan 07: the plan 06
+// switch MOS_COPY_DUMP never fired). The switch is a global instead. scripts/book-review.cjs runs
+// a scratch copy of this folder, sets the global at the marker below and reads the lines between
+// COPYDUMP_BEGIN and COPYDUMP_END. In the shipped folder the global is not set and nothing prints.
+const dumpOn = (): boolean => (globalThis as unknown as { MOS_COPY_DUMP?: boolean }).MOS_COPY_DUMP === true
+// MOS_COPY_DUMP_HOOK
+
+test('C7 copy dump: prints the collected copy for the book review when the scratch copy sets MOS_COPY_DUMP', async () => {
   const log = (globalThis as unknown as { console: { log: (text: string) => void } }).console.log
   expect(COPY.size).toBeGreaterThanOrEqual(0)
-  if (env?.MOS_COPY_DUMP) {
+  if (dumpOn()) {
     log('COPYDUMP_BEGIN')
     for (const line of [...COPY].sort()) log(line)
     log('COPYDUMP_END')
