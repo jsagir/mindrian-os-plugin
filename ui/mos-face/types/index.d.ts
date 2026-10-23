@@ -1,13 +1,24 @@
-export type FaceState =
+// The 11 canon states, by the ids of the canon asset (mos-brand book e947a5d, segment identity/theo,
+// asset-fa8504998f.json). The panel draws the face of each one from that asset. Phase 380 plan 13, D-10.
+export type FaceId =
   | 'rest'
   | 'listen'
   | 'search'
   | 'found'
-  | 'none'
-  | 'refused'
+  | 'challenge'
+  | 'contradiction'
+  | 'reframe'
+  | 'limit'
+  | 'decision'
+  | 'boundary'
   | 'handover'
 
-export type FaceStyle = 'tile' | 'crew' | 'mini' | 'line'
+// The seven older state names that the vendored glossary file (hooks/glossary.ts) is keyed by. That
+// file is the owner's, and nothing in this package edits it, so its key set stays as it is. The
+// panel's own state is FaceId; hooks/voice.ts glossaryWords turns a FaceId into these keys.
+export type FaceState = 'rest' | 'listen' | 'search' | 'found' | 'none' | 'refused' | 'handover'
+
+export type FaceStyle = 'tile' | 'mini' | 'line'
 
 export type Move = 'none' | 'blue' | 'red' | 'yellow' | 'black' | 'white'
 
@@ -127,7 +138,7 @@ export type Snapshot = {
 declare module 'claude-code' {
   interface PluginState {
     'mos-face': {
-      face: FaceState
+      face: FaceId
       detail: string
       mos: number
       move: Move
@@ -135,7 +146,6 @@ declare module 'claude-code' {
       isHidden: boolean
       isChipOff: boolean
       style: FaceStyle
-      crew: number
       spoken: number
       theo: TheoCall[]
       theoTurn: TheoTotals
@@ -159,6 +169,10 @@ declare module 'claude-code' {
       litWhy: Record<string, string>
       snap: Snapshot | null
       isRefreshing: boolean
+      // The canon face asset as checked text, or an empty string when it could not be read; and the plain
+      // sentence that says so (Phase 380 plan 13, D-10).
+      faceAsset: string
+      faceAssetNote: string
     }
   }
 }

@@ -208,7 +208,7 @@ function main() {
     for (const k of Object.keys(want)) if (!(k in ordered)) ordered[k] = want[k];
     const why = JSON.stringify(ordered, null, 2);
     let next = source;
-    const importAt = next.indexOf("import type { FaceState }");
+    const importAt = next.indexOf("import type { FaceId }");
     if (importAt < 0) throw new Error('could not find the import line of commands.ts');
     next = HEADER + next.slice(importAt);
     next = next.replace(/export const PLUGIN_VERSION = .*\n\n?/, '');

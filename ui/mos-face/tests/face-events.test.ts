@@ -514,7 +514,7 @@ test('W8 words: a state has glossary lines from WORDS or none, and a state witho
 test('W9 palette: face.ts exports no old pose, no crew, no raster of them and no HOLLOW, and every color it exports is a canon token', () => {
   const names = Object.keys(faceModule)
   for (const gone of ['POSES', 'CREW', 'rasterState', 'rasterCrew', 'HOLLOW']) expect(`${gone} ${names.includes(gone)}`).toBe(`${gone} false`)
-  const colors = Object.values(faceModule).filter((value): value is string => typeof value === 'string' && /^#[0-9A-Fa-f]{6}$/.test(value))
+  const colors = (Object.values(faceModule) as unknown[]).filter((value): value is string => typeof value === 'string' && /^#[0-9A-Fa-f]{6}$/.test(value))
   expect(colors.length).toBeGreaterThanOrEqual(7)
   for (const color of colors) expect(`${color} ${TOKENS.includes(color.slice(1).toUpperCase())}`).toBe(`${color} true`)
   for (const color of Object.values(faceModule.MOVE_BG)) expect(TOKENS.includes(color.slice(1).toUpperCase())).toBe(true)

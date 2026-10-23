@@ -1,5 +1,5 @@
-import type { Advice, Snapshot, TheoCall, TheoTotals } from '../types'
-import { WHY } from './commands'
+import type { Advice, FaceId, Snapshot, TheoCall, TheoTotals } from '../types'
+import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
 
 // The state pane as plain data, so the layout can be read and tested without
 // drawing anything. The panel is calm by default: one "now" line, and blocks
@@ -344,4 +344,29 @@ export function stateText(i: TextInput): string {
   if (snap && snap.notes.length > 0) for (const n of snap.notes.slice(0, 4)) lines.push(`NOTE: ${n}`)
 
   return plain(lines.join('\n'))
+}
+
+// ---- The command waiting dim in the prompt box ------------------------------------------------
+
+// 1 to 3 commands: the doctor first when Theo is in trouble, then the shown term's framework, then the
+// state's own. STATE_COMMANDS holds at least one real command for each of the 11 canon states, so the
+// prompt box never gets an empty or invented suggestion (tests/face-events.test.ts, W10).
+export function recommend(state: FaceId, term: string, hasTheoTrouble: boolean): string[] {
+  const list: string[] = []
+  if (hasTheoTrouble && DOCTOR) list.push(DOCTOR)
+  const t = TERM_COMMANDS[term]
+  if (t) list.push(...t.commands)
+  list.push(...(STATE_COMMANDS[state] ?? []))
+
+  return [...new Set(list)].slice(0, 3)
+}
+
+// The text waiting dim in the prompt box: the command, then the situation it is for. Tab puts it in
+// the box for editing; Enter runs it.
+export function suggestionText(command: string): string {
+  const why = WHY[command] ?? ''
+  const clause = why.replace(/^When\s+/i, '').split(/,\s*\/mos:/)[0] ?? ''
+  const text = clause ? `${command} ${clause}` : command
+
+  return text.length > 110 ? `${text.slice(0, 109)}~` : text
 }

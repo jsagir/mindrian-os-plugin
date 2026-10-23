@@ -3,7 +3,7 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type {
   Advice,
-  FaceState,
+  FaceId,
   FaceStyle,
   TheoCall,
   TheoStatus,
@@ -16,7 +16,6 @@ import { workspaceOf } from './paths'
 import { PROPOSALS } from './proposals'
 import {
   BLUE,
-  CREW,
   INK,
   LABEL,
   LINE_FACE,
@@ -25,17 +24,17 @@ import {
   MOVE_NAME,
   MUTED,
   PAPER,
-  POSES,
   gridRuns,
   moveOf,
-  rasterCrew,
-  rasterState,
 } from './face'
-import { WORDS } from './glossary'
-import { clock, fit, nowLine, panelLights, plain, stateBlocks, stateText, statusText } from './lines'
+import type { Run } from './face'
+import { stateFor, stateForLead } from './face-events'
+import { clock, fit, nowLine, panelLights, plain, recommend, stateBlocks, stateText, statusText, suggestionText } from './lines'
 import { contextCanvas, contextWord } from './meter'
 import { isPanelReading, readRoom, resetReach } from './source'
-import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS } from './voice'
+import { loadFaceAsset, rasterFace, readFaceAsset } from './theo-face'
+import type { FaceAsset } from './theo-face'
+import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS, glossaryWords } from './voice'
 
 // /m:os face - the Theo face, a side-panel dashboard, a context meter and a
 // Theo call monitor, ruled by the mos-brand book (Canon v5).
@@ -78,7 +77,6 @@ const frame = atom({ plugin: 'mos-face', key: 'frame' } as const, 0)
 const isHidden = atom({ plugin: 'mos-face', key: 'isHidden' } as const, false)
 const isChipOff = atom({ plugin: 'mos-face', key: 'isChipOff' } as const, false)
 const style = atom({ plugin: 'mos-face', key: 'style' } as const, 'tile')
-const crew = atom({ plugin: 'mos-face', key: 'crew' } as const, 0)
 const spoken = atom({ plugin: 'mos-face', key: 'spoken' } as const, 0)
 const theo = atom({ plugin: 'mos-face', key: 'theo' } as const, [])
 const theoTurn = atom({ plugin: 'mos-face', key: 'theoTurn' } as const, emptyTotals)
@@ -105,6 +103,10 @@ const sectionFiles = atom({ plugin: 'mos-face', key: 'sectionFiles' } as const, 
 const freshNames = atom({ plugin: 'mos-face', key: 'freshNames' } as const, [])
 const lit = atom({ plugin: 'mos-face', key: 'lit' } as const, {})
 const litWhy = atom({ plugin: 'mos-face', key: 'litWhy' } as const, {})
+// The canon face asset as checked text (an empty string when it could not be read), and the plain
+// sentence that says so. Read once at session start through the engine (Phase 380 plan 13, D-10).
+const faceAsset = atom({ plugin: 'mos-face', key: 'faceAsset' } as const, '')
+const faceAssetNote = atom({ plugin: 'mos-face', key: 'faceAssetNote' } as const, '')
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -116,7 +118,7 @@ const MENTIONS_THEO = /\bTheo\b/
 // quotes group 2 as it stands (D-07), so this pattern is the only place the persona's own words are named.
 const LEAD = /^\s*(🟦|🟥|🟨|⬛|⬜)️?\s*\**(Larry \| MindrianOS)\**/
 const SPIN = ['-', '\\', '|', '/']
-const STYLES: FaceStyle[] = ['tile', 'crew', 'mini', 'line']
+const STYLES: FaceStyle[] = ['tile', 'mini', 'line']
 
 function theoVia(name: string): string {
   if (name.startsWith('mcp__theo-context__')) return 'Theo (context)'
@@ -161,28 +163,32 @@ function pickVaried<T>(list: T[], n: number, salt: number): T {
   return list[(((salt + n * stride) % len) + len) % len] as T
 }
 
-function pick<T>(list: T[], n: number): T {
-  return list[((n % list.length) + list.length) % list.length] as T
+// The canon asset, parsed once for each text it comes from (the atom holds the text).
+let parsedText = ''
+let parsedAsset: FaceAsset | null = null
+
+function assetOf(text: string): FaceAsset | null {
+  if (text === '') return null
+  if (text !== parsedText) {
+    parsedAsset = loadFaceAsset(text)
+    parsedText = text
+  }
+
+  return parsedAsset
 }
 
-// 1 to 3 commands: the shown term's framework first, then the state's own.
-function recommend(state: FaceState, term: string, hasTheoTrouble: boolean): string[] {
-  const list: string[] = []
-  if (hasTheoTrouble && DOCTOR) list.push(DOCTOR)
-  const t = TERM_COMMANDS[term]
-  if (t) list.push(...t.commands)
-  list.push(...(STATE_COMMANDS[state] ?? []))
-  return [...new Set(list)].slice(0, 3)
+// The runs of one face, n by n cells, drawn from the canon asset. Empty when n is 0 or the asset is
+// missing: the panel then shows the words-only line face. It never draws numbers typed by hand.
+function faceRuns(text: string, id: FaceId, n: number): Run[][] {
+  const asset = assetOf(text)
+  if (asset === null || n === 0) return []
+  const grid = rasterFace(asset, id, n)
+
+  return grid === null ? [] : gridRuns(grid)
 }
 
-// The text waiting dim in the prompt box: the command, then the situation it
-// is for. Tab puts it in the box for editing; Enter runs it.
-function suggestionText(command: string): string {
-  const why = WHY[command] ?? ''
-  const clause = why.replace(/^When\s+/i, '').split(/,\s*\/mos:/)[0] ?? ''
-  const text = clause ? `${command} ${clause}` : command
-  return text.length > 110 ? `${text.slice(0, 109)}~` : text
-}
+// The size of the tile in the box above the prompt, by style: tile 12, mini 6, line none.
+const bandSize = (style: FaceStyle): number => (style === 'line' ? 0 : style === 'mini' ? 6 : 12)
 
 // ---- The module -------------------------------------------------------------
 
@@ -602,7 +608,7 @@ export const register: Register = on => {
     for (const [name, description] of [
       ['mos-state', 'Open the /m:os dashboard in the side panel'],
       ['mos-face', 'Show or hide the Theo face box (shown when the panel is not)'],
-      ['mos-style', 'Change the Theo face style: tile, crew, mini or line'],
+      ['mos-style', 'Change the Theo face style: tile, mini or line'],
       ['mos-chip', 'Turn the colored badge on replies on or off'],
       ['mos-suggest', 'Turn the grey command suggestion in the prompt box on or off'],
       ['mos-advice', 'Ask Theo now what to do next'],
@@ -616,6 +622,12 @@ export const register: Register = on => {
     ] as const) {
       await $.command.register({ name, description })
     }
+
+    // The canon face asset is read once, through the engine. When it cannot be read the panel shows the
+    // words-only line face and one plain sentence (D-10); it never draws numbers typed by hand.
+    const got = await readFaceAsset($)
+    await update($, faceAsset, () => (got.asset === null ? '' : JSON.stringify(got.asset)))
+    await update($, faceAssetNote, () => (got.asset === null ? got.reason : ''))
 
     $.ui.toast('/m:os face loaded. /mos-state opens the dashboard; /mos-face shows or hides the box.')
     resetReach()
@@ -652,8 +664,7 @@ export const register: Register = on => {
     const next = STYLES[(STYLES.indexOf(current) + 1) % STYLES.length] ?? 'tile'
     await update($, style, () => next)
     const names: Record<FaceStyle, string> = {
-      tile: 'tile - the Theo states',
-      crew: 'crew - the six workshop faces, each with its question',
+      tile: 'tile - the Theo face for each state',
       mini: 'mini - a small tile',
       line: 'line - one plain-text line',
     }
@@ -765,10 +776,9 @@ export const register: Register = on => {
       await update($, mos, () => 0)
       await update($, theoTurn, () => emptyTotals)
       await update($, flag, () => '')
-      await update($, face, () => 'listen')
+      await update($, face, () => stateFor('turn.start'))
       await update($, detail, () => '')
       await update($, spoken, n => n + 1)
-      await update($, crew, n => n + 1)
       if (!spin) {
         spin = $.clock.every(220, () => {
           void update($, frame, n => n + 1)
@@ -807,28 +817,27 @@ export const register: Register = on => {
     if (shows) {
       stopBack()
       if (MOS_TOOL.test(name)) await update($, mos, n => n + 1)
-      await update($, face, () => 'search')
+      await update($, face, () => stateFor('tool.call'))
       await update($, detail, () => (isTheo ? `${theoVia(name)}: ${toolName(name)}` : shortTool(name)))
       await update($, spoken, n => n + 1)
-      await update($, crew, n => n + 1)
     }
 
     const ran = await next(e)
 
     const text = typeof ran.text === 'string' ? ran.text : ''
-    let state: FaceState = 'found'
+    let state: FaceId = stateFor('tool.ok')
     let note = isTheo ? `${theoVia(name)}: ${toolName(name)}` : shortTool(name)
     let status: TheoStatus = 'ok'
     if (ran.deny !== undefined) {
-      state = 'refused'
+      state = stateFor('tool.denied')
       status = 'blocked'
       note = `blocked - ${note}`
     } else if (ran.isError) {
-      state = 'refused'
+      state = stateFor('tool.failed')
       status = 'error'
       note = `error - ${note}`
     } else if (text.trim() === '' || EMPTY_RESULT.test(text)) {
-      state = 'none'
+      state = stateFor('tool.empty')
       status = 'empty'
       note = `empty - ${note}`
     }
@@ -860,7 +869,7 @@ export const register: Register = on => {
       await update($, detail, () => note)
       await update($, spoken, n => n + 1)
       back = $.clock.after(1400, () => {
-        void update($, face, () => 'listen')
+        void update($, face, () => stateFor('turn.start'))
         void update($, detail, () => '')
         void update($, spoken, n => n + 1)
       })
@@ -894,16 +903,17 @@ export const register: Register = on => {
       }
 
       const secs = Math.round(e.durationMs / 1000)
-      let state: FaceState = 'handover'
+      // A finished answer is a handover, unless its lead square names another state (red, yellow, black).
+      let state: FaceId = lead ? stateForLead(lead[1] ?? '') : stateFor('turn.complete')
       let note = `${secs}s`
       if (e.reason === 'refusal') {
-        state = 'refused'
+        state = stateFor('turn.refusal')
         note = 'the model refused'
       } else if (e.reason === 'aborted') {
-        state = 'rest'
+        state = stateFor('turn.aborted')
         note = 'interrupted'
       } else if (e.reason === 'error') {
-        state = 'none'
+        state = stateFor('turn.error')
         note = 'the turn ended on an error'
       }
 
@@ -911,7 +921,7 @@ export const register: Register = on => {
       await update($, detail, () => note)
       await update($, spoken, n => n + 1)
       back = $.clock.after(9000, () => {
-        void update($, face, () => 'rest')
+        void update($, face, () => stateFor('turn.aborted'))
         void update($, detail, () => '')
         void update($, spoken, n => n + 1)
       })
@@ -921,7 +931,8 @@ export const register: Register = on => {
         const said = await read($, spoken)
         const warned = await read($, flag)
         const trouble = turnCalls.error > 0 || turnCalls.blocked > 0 || warned !== ''
-        const recs = recommend(state, pickVaried(WORDS[state], said, 5).term, trouble)
+        const words = glossaryWords(state)
+        const recs = recommend(state, words.length > 0 ? pickVaried(words, said, 5).term : '', trouble)
         const first = recs[0]
         if (first) {
           const text = suggestionText(first)
@@ -963,7 +974,8 @@ export const register: Register = on => {
     const mv = await read($, move)
     const tick = await read($, frame)
     const st = await read($, style)
-    const crewIdx = await read($, crew)
+    const assetText = await read($, faceAsset)
+    const assetNote = await read($, faceAssetNote)
     const said = await read($, spoken)
     const calls = await read($, theo)
     const totals = await read($, theoTotals)
@@ -994,26 +1006,30 @@ export const register: Register = on => {
     }
     const cols = rawCols - 2
     const short = e.props.scroll.bodyRows < 24
-    // The ladder: narrow folds the pictures to words, standard shrinks them, wide has room.
+    // The ladder: narrow folds the pictures to words, standard shrinks them, wide has room. The face
+    // is 12 cells wide on a wide panel, 8 on a standard one (a tall panel is not needed), 6 in the
+    // mini style, and words only below 40 columns, in plain mode and in the line style.
     const tier = plainMode || rawCols < 40 ? 'narrow' : rawCols < 50 ? 'standard' : 'wide'
-    const n = tier === 'narrow' ? 0 : tier === 'standard' || short ? 8 : 10
+    const n = tier === 'narrow' || st === 'line' ? 0 : st === 'mini' ? 6 : tier === 'standard' || short ? 8 : 12
     const useBar = plainMode || tier === 'narrow' || short
-    const role = pick(CREW, crewIdx)
-    const useCrew = st === 'crew' && ['listen', 'search', 'found', 'none'].includes(state)
-    const grid = n === 0 ? [] : useCrew ? rasterCrew(role, n) : rasterState(POSES[state], tick, n)
-    const faceRows = n === 0 ? [] : gridRuns(grid)
+    const faceRows = faceRuns(assetText, state, n)
+    // Words only: the style says so, or the panel is narrow, or the asset could not be read.
+    const wordsOnly = faceRows.length === 0
+    const tileCols = wordsOnly ? 0 : n
 
     let thought = pickVaried(THOUGHTS[state], said, 3)
     const running = calls.filter(one => one.status === 'running')
     const lastCall = calls[calls.length - 1]
     if (running.length > 0) thought = pickVaried(THEO_CALL_THOUGHTS, said, 1)
-    else if (state === 'none' && lastCall && lastCall.status === 'empty') thought = pickVaried(THEO_EMPTY, said, 0)
-    else if (state === 'refused' && lastCall && (lastCall.status === 'error' || lastCall.status === 'blocked')) {
+    else if (state === 'limit' && lastCall && lastCall.status === 'empty') thought = pickVaried(THEO_EMPTY, said, 0)
+    else if (
+      (state === 'limit' && lastCall && lastCall.status === 'error') ||
+      (state === 'boundary' && lastCall && lastCall.status === 'blocked')
+    ) {
       thought = pickVaried(THEO_FAILED, said, 0)
     }
-    if (useCrew && state === 'search') thought = role.question
 
-    const textWidth = Math.max(16, cols - n - 2)
+    const textWidth = Math.max(16, cols - tileCols - 2)
     const percent = usage?.context.percent
     const canvas = useBar ? null : contextCanvas(percent, Math.min(cols, 32), 8)
     const canvasRows = canvas ? gridRuns(canvas.pixels) : []
@@ -1108,7 +1124,7 @@ export const register: Register = on => {
     return (
       <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={e.props.bodyColumns}>
         <Box gap={1}>
-          {n > 0 && (
+          {!wordsOnly && (
             <Box flexDirection="column">
               {faceRows.map((runs, k) => (
                 <Text key={`f${k}`} {...ink}>
@@ -1126,11 +1142,12 @@ export const register: Register = on => {
               {' Theo | MindrianOS '}
             </Text>
             <Text {...ink} bold wrap="truncate-end">
-              {fit(`${n === 0 || st === 'line' ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
+              {fit(`${wordsOnly ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
             </Text>
             <Text {...ink} italic wrap="truncate-end">{fit(`"${thought}"`, textWidth)}</Text>
           </Box>
         </Box>
+        {assetText === '' && assetNote !== '' && <Text {...soft}>{assetNote}</Text>}
         <Text {...ink}> </Text>
 
         {canvasRows.map((runs, k) => (
@@ -1279,13 +1296,15 @@ export const register: Register = on => {
     const state = await read($, face)
     const note = await read($, detail)
     const mv = await read($, move)
-    const tick = await read($, frame)
+    const bandStyle = await read($, style)
+    const assetText = await read($, faceAsset)
+    const assetNote = await read($, faceAssetNote)
     const said = await read($, spoken)
     const totals = await read($, theoTotals)
     const turnTotals = await read($, theoTurn)
     const next2 = await read($, advice)
-    const grid = rasterState(POSES[state], tick, 6)
-    const faceRows = gridRuns(grid)
+    const faceRows = faceRuns(assetText, state, bandSize(bandStyle))
+    const wordsOnly = faceRows.length === 0
     const thought = pickVaried(THOUGHTS[state], said, 3)
     const textWidth = Math.max(20, Math.min(54, cols - 14))
     const first = next2.status === 'ok' ? next2.commands[0] : undefined
@@ -1294,17 +1313,19 @@ export const register: Register = on => {
     return (
       <Box width={cols} justifyContent="flex-end">
         <Box backgroundColor={INK} paddingX={1} gap={1}>
-          <Box flexDirection="column">
-            {faceRows.map((runs, k) => (
-              <Text key={`b${k}`} color={INK}>
-                {runs.map((run, i) => (
-                  <Text key={`b${k}c${i}`} color={run.top} backgroundColor={run.bottom}>
-                    {'▀'.repeat(run.w)}
-                  </Text>
-                ))}
-              </Text>
-            ))}
-          </Box>
+          {!wordsOnly && (
+            <Box flexDirection="column">
+              {faceRows.map((runs, k) => (
+                <Text key={`b${k}`} color={INK}>
+                  {runs.map((run, i) => (
+                    <Text key={`b${k}c${i}`} color={run.top} backgroundColor={run.bottom}>
+                      {'▀'.repeat(run.w)}
+                    </Text>
+                  ))}
+                </Text>
+              ))}
+            </Box>
+          )}
           <Box flexDirection="column" width={textWidth}>
             <Box gap={1}>
               <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>{' Theo | MindrianOS '}</Text>
@@ -1313,11 +1334,12 @@ export const register: Register = on => {
               </Box>
             </Box>
             <Text {...ink} bold wrap="truncate-end">
-              {fit(`${LABEL[state]}${note ? `  ${note}` : ''} | Theo ${turnTotals.total} this turn, ${totals.total} in all`, textWidth)}
+              {fit(`${wordsOnly ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''} | Theo ${turnTotals.total} this turn, ${totals.total} in all`, textWidth)}
             </Text>
             <Text {...ink} wrap="truncate-end">
               {fit(why ? `Theo: ${plain(why)}` : `"${thought}"`, textWidth)}
             </Text>
+            {assetText === '' && assetNote !== '' && <Text {...soft}>{assetNote}</Text>}
           </Box>
         </Box>
       </Box>
@@ -1351,6 +1373,7 @@ export const register: Register = on => {
     const { Box, Text } = $.ui.resolve(e)
     const calls = await read($, theo)
     const totals = await read($, theoTotals)
+    const spinner = SPIN[(await read($, frame)) % SPIN.length] ?? '-'
     const room = Math.max(1, (e.viewport?.rows ?? 24) - 6)
 
     return (
@@ -1364,7 +1387,7 @@ export const register: Register = on => {
           .reverse()
           .map(call => (
             <Text key={call.id} {...ink} wrap="truncate-end">
-              {`${call.status.padEnd(8)} ${seconds(call.ms).padStart(6)}  ${call.via}: ${call.tool}${call.isAgent ? '  (agent)' : ''}${call.isAuto ? '  (panel)' : ''}`}
+              {`${(call.status === 'running' ? `${call.status}${spinner}` : call.status).padEnd(8)} ${seconds(call.ms).padStart(6)}  ${call.via}: ${call.tool}${call.isAgent ? '  (agent)' : ''}${call.isAuto ? '  (panel)' : ''}`}
             </Text>
           ))}
       </Box>

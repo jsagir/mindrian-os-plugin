@@ -5,7 +5,7 @@
 // are kept as they are; the --check mode fails when one names a command the registry no longer holds.
 // WHY: the first sentence of each command teaching line in data/command-registry.json, in plain
 // words (the override map of scripts/face-commands.cjs replaces a sentence that holds a stack word).
-import type { FaceState } from '../types'
+import type { FaceId } from '../types'
 
 export const TERM_COMMANDS: Record<string, { framework: string; commands: string[] }> = {
   "Problem First": {
@@ -379,7 +379,7 @@ export const TERM_COMMANDS: Record<string, { framework: string; commands: string
   }
 }
 
-export const STATE_COMMANDS: Record<FaceState, string[]> = {
+export const STATE_COMMANDS: Record<FaceId, string[]> = {
   "rest": [
     "/mos:status",
     "/mos:suggest-next"
@@ -387,14 +387,28 @@ export const STATE_COMMANDS: Record<FaceState, string[]> = {
   "listen": [
     "/mos:diagnose"
   ],
-  "search": [],
+  "search": [
+    "/mos:research"
+  ],
   "found": [
     "/mos:find-connections"
   ],
-  "none": [
+  "challenge": [
+    "/mos:challenge-assumptions"
+  ],
+  "contradiction": [
+    "/mos:memory-cortex-reach"
+  ],
+  "reframe": [
+    "/mos:beautiful-question"
+  ],
+  "limit": [
     "/mos:map-unknowns"
   ],
-  "refused": [
+  "decision": [
+    "/mos:status"
+  ],
+  "boundary": [
     "/mos:doctor"
   ],
   "handover": [

@@ -1,11 +1,13 @@
-import type { FaceState } from '../types'
+import type { FaceId, FaceState } from '../types'
+import { WORDS } from './glossary'
+import type { Word } from './glossary'
 
 // What the face thinks, in the teaching voice, spoken as Theo.
 // Rules: plain English, short, hedged, a question or a reframe, hyphens only.
 // Each thought is tied to a real event; none claims a result the session has not shown.
 // Pools are long on purpose: a line should not come back for many visits.
 
-export const THOUGHTS: Record<FaceState, string[]> = {
+export const THOUGHTS: Record<FaceId, string[]> = {
   rest: [
     'Ready when the question is.',
     'Start anywhere. What matters to you right now?',
@@ -58,7 +60,39 @@ export const THOUGHTS: Record<FaceState, string[]> = {
     'Who else would see this differently?',
     'Keep it, but label it - fact, guess or connection?',
   ],
-  none: [
+  challenge: [
+    'What would have to be true for this claim to hold?',
+    'Which part of this rests on an assumption nobody has tested?',
+    'What evidence would make you change your mind here?',
+    'Could this claim stand if one of its supports were taken away?',
+    'What is the strongest case against this idea?',
+    'Which claim here carries the most weight, and what holds it up?',
+    'Maybe the claim is sound. What test would show it?',
+    'What would a careful skeptic ask about this?',
+    'Is there a simpler reading of the same facts?',
+  ],
+  contradiction: [
+    'These two statements pull apart. What would let both be said?',
+    'Could both sides be describing different cases?',
+    'What does each side know that the other might not?',
+    'Maybe the difference is in the definitions. Do both use the same words the same way?',
+    'Which evidence sits behind each side?',
+    'What would you need to see to settle this, one way or the other?',
+    'Perhaps this tension is the finding. What does it tell you?',
+    'Could a third reading hold both?',
+    'Where exactly do the two claims meet and part?',
+  ],
+  reframe: [
+    'What if the question were asked the other way round?',
+    'Might this look different from where the customer stands?',
+    'What if the problem is a smaller one than it seems?',
+    'Could this be a different kind of problem than the one you named?',
+    'Here is one other way to see it. Does it fit what you know?',
+    'Perhaps the frame, not the facts, is what limits us here. What if we tried another?',
+    'What would this look like if the obstacle were the starting point?',
+    'If you took one word out of the question, what would change?',
+  ],
+  limit: [
     'Nothing came back. That is information too.',
     'Empty hands. What needs more understanding?',
     'No answer yet - might we be asking the wrong question?',
@@ -70,7 +104,17 @@ export const THOUGHTS: Record<FaceState, string[]> = {
     'Widen the net, or narrow the question?',
     'A gap is a place to look, not a failure.',
   ],
-  refused: [
+  decision: [
+    'This one is yours to call. What do you want to do?',
+    'What would you need to know before you decide?',
+    'Which option could you live with if it turned out wrong?',
+    'Is this a choice you can undo, or one you cannot?',
+    'What does each choice cost you?',
+    'Maybe take a moment. Does anything here need settling today?',
+    'What would make you say yes, and what would make you say no?',
+    'Whatever you choose, what will you watch for afterwards?',
+  ],
+  boundary: [
     'A boundary. Is something here an assumption worth examining?',
     'Blocked. Let us look at why before we push.',
     'You decide what holds. What do you want to do?',
@@ -117,3 +161,23 @@ export const THEO_FAILED: string[] = [
   'Theo did not answer. Better to wait than to invent.',
   'That call failed. Retry, or carry on without the method for now?',
 ]
+
+// The glossary lines of a state. The vendored glossary file (hooks/glossary.ts, not edited here) is
+// keyed by seven older state names: Nothing found reads the lines kept under none, and Boundary the
+// lines kept under refused. A state the file does not know (Challenge, Contradiction, Reframe, Your
+// decision) has none, and an id the file does not know at all gives an empty list, never an error.
+const GLOSSARY_KEY: Record<string, FaceState> = {
+  rest: 'rest',
+  listen: 'listen',
+  search: 'search',
+  found: 'found',
+  limit: 'none',
+  boundary: 'refused',
+  handover: 'handover',
+}
+
+export function glossaryWords(id: FaceId): Word[] {
+  const key = GLOSSARY_KEY[id]
+
+  return key === undefined ? [] : (WORDS[key] ?? [])
+}
