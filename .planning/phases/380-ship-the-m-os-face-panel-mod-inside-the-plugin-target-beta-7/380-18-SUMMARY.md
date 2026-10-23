@@ -119,3 +119,7 @@ None.
 ## Threat Flags
 
 None new. T-380-73 (a huge folder): capped at 300, a window of rows only, one list read for each open (T11). T-380-74 (names reach Theo): no tool, http or process call from the tree (T15); the command output goes to the local session only. T-380-75 (the filter text): the atom is read only by the tree code and T23 finds the filter word in no call. T-380-76 (hidden names): every window has a counter, a capped folder says first 300 of N, a no-match filter says so. T-380-77 (a control that does nothing): not drawn; no hotkey and no Input.
+
+## Self-Check: PASSED
+
+All 11 release-tree commits and the 4 earlier branch-tree commits were found with git log. The created files exist: hooks/tree.ts, tests/tree.test.ts, tests/tree-pane.test.tsx, lib/mos-face/dist/tree.js, 380-18-HOST-FACTS.md, 380-18-REVIEW.md and the evidence folder. The release tree has no uncommitted change; nothing was pushed.
