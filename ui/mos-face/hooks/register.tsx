@@ -12,6 +12,8 @@ import type {
 import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsFor, wordsStartOn, wordsTexts } from './advice'
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
+import { FIX_COMMAND, compactJob, guessJob, jobLine, jobRows, jobShown, readJob } from './job'
+import { JOBS } from './jobs'
 import { workspaceOf } from './paths'
 import { PROPOSALS } from './proposals'
 import {
@@ -107,6 +109,12 @@ const litWhy = atom({ plugin: 'mos-face', key: 'litWhy' } as const, {})
 // sentence that says so. Read once at session start through the engine (Phase 380 plan 13, D-10).
 const faceAsset = atom({ plugin: 'mos-face', key: 'faceAsset' } as const, '')
 const faceAssetNote = atom({ plugin: 'mos-face', key: 'faceAssetNote' } as const, '')
+// The Job line (plan 14, D-09): the compact text of the room's recorded job, read once for each refresh
+// tick (an empty string when there is none); whether the person hid the line; and the job it was hidden
+// for. An empty jobHiddenFor means hidden whatever the job is (the /mos-job toggle).
+const jobRecord = atom({ plugin: 'mos-face', key: 'jobRecord' } as const, '')
+const jobHidden = atom({ plugin: 'mos-face', key: 'jobHidden' } as const, false)
+const jobHiddenFor = atom({ plugin: 'mos-face', key: 'jobHiddenFor' } as const, '')
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -281,6 +289,19 @@ const noteChange = async ($: EngineInterface, input: { tool: string; section?: u
   }
 }
 
+// What the Job line shows now, from memory only: the recorded job, else a cue match over the person's
+// recent prompts, and whether the person hid it. No read, no call.
+const jobNow = async ($: EngineInterface) => {
+  const now = await $.clock.now()
+  const record = readJob(await read($, jobRecord), now)
+  const guess = record ? null : guessJob(recentUser, JOBS)
+  const id = jobShown(record, guess)
+  const hiddenFor = await read($, jobHiddenFor)
+  const isHidden2 = (await read($, jobHidden)) && (hiddenFor === '' || hiddenFor === id)
+
+  return { record, guess, id, isHidden: isHidden2 }
+}
+
 // One pinned line under the prompt, in words. A fallback that does not depend
 // on the panel or the band being drawn.
 const pin = async ($: EngineInterface) => {
@@ -362,6 +383,11 @@ const refresh = async ($: EngineInterface, force = true, askReach = force) => {
         throw error
       })
       await update($, snap, () => snapshot)
+      // The room's recorded job: one small local file, read inside the same tick, with a cut-off of its
+      // own. Nothing is read at prompt time, and only the fields of the current job are kept.
+      const jobPath = snapshot.room?.path ?? ''
+      const jobText = jobPath === '' ? '' : await withTimeout($, $.fs.read(`${jobPath}/.mindrian/jtbd-state.json`).then(String), 4000).catch(() => '')
+      await update($, jobRecord, () => compactJob(jobText))
       if (before?.room && snapshot.room && before.room.slug === snapshot.room.slug) {
         for (const sec of snapshot.room.sections) {
           const prev = before.room.sections.find(one => one.name === sec.name)
@@ -619,6 +645,7 @@ export const register: Register = on => {
       ['mos-words', 'Turn on or off sending your own recent words to Theo with each ask'],
       ['mos-auto', 'Turn the panel asking Theo every second turn on or off'],
       ['theo-calls', 'Open a pane with every call made to Theo this session'],
+      ['mos-job', 'Show or hide the job line, the guess of what you are doing'],
     ] as const) {
       await $.command.register({ name, description })
     }
@@ -717,8 +744,13 @@ export const register: Register = on => {
     const usage = await $.session.usage().catch(() => null)
     const percent = usage?.context.percent
     const tokens = usage?.context.tokens !== undefined && usage.context.window ? `, ${usage.context.tokens} of ${usage.context.window} tokens` : ''
+    const snapshot = await read($, snap)
+    const job = await jobNow($)
+    const jobWords = jobLine(
+      jobRows({ record: job.record, guess: job.guess, stage: snapshot?.room?.stage ?? '', section: await read($, openSection), hidden: job.isHidden, width: 200, plain: true }),
+    )
     const input = {
-      snap: await read($, snap),
+      snap: snapshot,
       bound: await read($, bound),
       boundHow: await read($, boundHow),
       workspace: await read($, workspace),
@@ -729,6 +761,7 @@ export const register: Register = on => {
       width: 200,
       context: percent === undefined ? '' : `${Math.round(percent)}% used${tokens}`,
       sections: true,
+      job: jobWords,
     }
 
     return { text: stateText(input) }
@@ -753,6 +786,21 @@ export const register: Register = on => {
     await update($, isAutoOff, () => !off)
 
     return { text: off ? 'The panel asks Theo every second turn.' : 'The panel no longer asks Theo by itself.' }
+  })
+
+  on('command.run', { command: 'mos-job' }, async $ => {
+    const job = await jobNow($)
+    if (job.isHidden) {
+      await update($, jobHidden, () => false)
+      $.ui.invalidate('ui.render')
+
+      return { text: 'Job line shown. It is a guess from the room and your recent words, and nothing is sent anywhere.' }
+    }
+    await update($, jobHidden, () => true)
+    await update($, jobHiddenFor, () => '')
+    $.ui.invalidate('ui.render')
+
+    return { text: 'Job line hidden. Run /mos-job to show it again.' }
   })
 
   on('command.run', { command: 'theo-calls' }, async $ => {
@@ -1052,6 +1100,21 @@ export const register: Register = on => {
       .filter(([, at]) => now - at < LIT_KEEP_MS)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
+    const job = await jobNow($)
+    const jrows = jobRows({
+      record: job.record,
+      guess: job.guess,
+      stage: snapshot?.room?.stage ?? '',
+      section: open,
+      hidden: job.isHidden,
+      width: rawCols,
+      plain: plainMode,
+    })
+    const dismissJob = async () => {
+      await update($, jobHidden, () => true)
+      await update($, jobHiddenFor, () => job.id)
+      $.ui.invalidate('ui.render')
+    }
     const wordsShared = await read($, wordsOn)
     const age = turnsDone - next.turn
     const isStale = next.status === 'ok' && age > 3
@@ -1224,6 +1287,28 @@ export const register: Register = on => {
                 : 'Theo is sent a short excerpt of your own words, links, paths and names removed'
             : 'Theo is sent only a framework name and a problem type'}
         </Text>
+        <Text {...ink}> </Text>
+
+        {jrows
+          .filter(row => row.kind !== 'button')
+          .map((row, k) =>
+            row.kind === 'heading' ? (
+              <Box key={`job${k}`}>{heading(row.title, row.text)}</Box>
+            ) : (
+              <Text key={`job${k}`} {...(row.kind === 'dim' ? soft : ink)}>
+                {g(row.text)}
+              </Text>
+            ),
+          )}
+        {jrows.some(row => row.kind === 'button') && (
+          <Box gap={1} flexWrap="wrap">
+            {jrows.map(row =>
+              row.kind === 'button'
+                ? knob(row.action === 'dismiss' ? 'job-dismiss' : 'job-fix', row.text, () => (row.action === 'dismiss' ? dismissJob() : askAbout($, FIX_COMMAND)))
+                : null,
+            )}
+          </Box>
+        )}
         <Text {...ink}> </Text>
 
         {heading('ASK', 'about the room')}

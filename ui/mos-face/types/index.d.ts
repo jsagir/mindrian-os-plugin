@@ -63,6 +63,15 @@ export type TheoTotals = {
   blocked: number
 }
 
+// The room's recorded job, reduced to what the Job line needs (Phase 380 plan 14, D-09). enteredAt and
+// the id come from the plugin's own job state file; nothing else of that file is kept.
+export type JobRecord = {
+  id: string
+  manual: boolean
+  confidence: number
+  enteredAt: number
+}
+
 export type Section = { name: string; files: number; status?: string }
 
 export type Stale = { section: string; reason: string }
@@ -173,6 +182,12 @@ declare module 'claude-code' {
       // sentence that says so (Phase 380 plan 13, D-10).
       faceAsset: string
       faceAssetNote: string
+      // The Job line (plan 14, D-09): the compact text of the room's recorded job (an empty string when
+      // there is none), whether the person hid the line, and the job it was hidden for (an empty string
+      // means hidden whatever the job is).
+      jobRecord: string
+      jobHidden: boolean
+      jobHiddenFor: string
     }
   }
 }

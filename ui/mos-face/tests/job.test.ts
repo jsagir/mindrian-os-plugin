@@ -26,6 +26,9 @@ const STATE_FILE = '/.mindrian/jtbd-state.json'
 const GOAL_CANARY = 'GOAL-CANARY-PARENT-QUESTION-5521'
 const PROMPT_CANARY = 'PROMPTCANARY8841'
 
+const EM = String.fromCharCode(0x2014)
+const EN = String.fromCharCode(0x2013)
+
 const iso = (ms: number): string => new Date(ms).toISOString()
 
 type Current = {
@@ -123,7 +126,7 @@ test('J2 readJob: a fresh recorded job, a live person-set job, and every case th
   expect(fresh).not.toBeNull()
   expect(fresh?.id).toBe('find-bottleneck')
   expect(fresh?.manual).toBe(false)
-  expect(fresh?.confidence).toBeCloseTo(0.8)
+  expect(fresh?.confidence).toBe(0.8)
 
   const manual = readJob(MANUAL_LIVE, NOW)
   expect(manual?.id).toBe('prepare-pitch')
@@ -254,7 +257,7 @@ test('J4 label: every guessed line holds the word guess, never claims it is your
       expect(`${job.id} ${width} ${/guess/i.test(all)}`).toBe(`${job.id} ${width} true`)
       expect(NAMES_YOUR_JOB.test(all)).toBe(false)
       expect(OVERCLAIM.test(all)).toBe(false)
-      expect(all.includes('—') || all.includes('–')).toBe(false)
+      expect(all.includes(EM) || all.includes(EN)).toBe(false)
     }
   }
   // The guess word is in the heading or the first words of the line.
@@ -302,7 +305,10 @@ test('J5 local only: building, dismissing and fixing the line make no tool, http
   const reads: string[] = []
   const { calls, clock } = recordCalls(on, { files, reads })
   const fills: string[] = []
-  turnHooks(on)
+  on('prompt.submit', (_, e) => ({ text: e.text }))
+  on('prompt.suggest', () => ({ isShown: true }))
+  on('turn.start', (_, e) => ({ turnId: e.turnId }))
+  on('turn.complete', (_, e) => ({ text: e.answer }))
   on('prompt.fill', (_, e) => {
     fills.push(String(e.text))
 
@@ -533,7 +539,7 @@ test('J8 the registered commands are 14 and the 14th is mos-job, with a clean de
 
   const texts = [description, await run($, 'mos-job'), await run($, 'mos-job')]
   for (const text of texts) {
-    expect(text.includes('—') || text.includes('–') || / -- /.test(text)).toBe(false)
+    expect(text.includes(EM) || text.includes(EN) || / -- /.test(text)).toBe(false)
     expect(/\b(ICM|Brain|MCP|Aura|Larry)\b/.test(text)).toBe(false)
     expect(OVERCLAIM.test(text)).toBe(false)
   }
@@ -575,7 +581,7 @@ test('J10 /mos-text carries the Job line words, and says when the line is hidden
   await $.session.start(START)
   await clock.settle()
   const state = await run($, 'mos-text')
-  expect(state).toMatch(/JOB:/)
+  expect(state).toMatch(/JOB \(/)
   expect(state).toContain(`I want to ${want('find-bottleneck')}`)
   expect(state).toMatch(/guess/i)
   await run($, 'mos-job')

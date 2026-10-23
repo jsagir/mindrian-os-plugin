@@ -109,6 +109,8 @@ run_if        "380 gate wiring"                                    tests/test-38
 run_if        "380 shots harness"                                  tests/test-380-shots-harness.cjs              node tests/test-380-shots-harness.cjs
 run_if        "380 canon Theo faces (asset hash, structure, no hand-copied numbers)" tests/test-380-theo-faces.cjs node tests/test-380-theo-faces.cjs
 run_if        "380 canon Theo faces fixture check"                 ui/mos-face/scripts/theo-faces.cjs            node ui/mos-face/scripts/theo-faces.cjs --check
+run_if        "380 job line (taxonomy parity, outcomes, no outbound word)" tests/test-380-jobs.cjs             node tests/test-380-jobs.cjs
+run_if        "380 job table check (generated from the taxonomy)"  ui/mos-face/scripts/face-jobs.cjs             node ui/mos-face/scripts/face-jobs.cjs --check
 
 # --- (2) Dash fence on this phase's files (hyphens only) ----------------------
 # Only EXISTING paths are scanned (ls -d), so a missing path never masks a hit.

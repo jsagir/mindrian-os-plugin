@@ -302,7 +302,7 @@ export function panelLights(i: PaneInput): Light[] {
 // The whole state as plain linear text: the same facts as the panel, for a screen
 // reader, a log, or a terminal that draws no pictures. Words only; no color, no glyph
 // carries meaning.
-export type TextInput = PaneInput & { context: string; sections: boolean }
+export type TextInput = PaneInput & { context: string; sections: boolean; job?: string }
 
 export function stateText(i: TextInput): string {
   const { snap, bound, advice, totals } = i
@@ -341,6 +341,8 @@ export function stateText(i: TextInput): string {
   } else {
     lines.push('NEXT: Theo suggests once the talk gives something to go on')
   }
+  // The Job line follows NEXT, as in the panel (plan 380-14, D-09).
+  if (i.job !== undefined && i.job !== '') lines.push(i.job)
   if (snap && snap.notes.length > 0) for (const n of snap.notes.slice(0, 4)) lines.push(`NOTE: ${n}`)
 
   return plain(lines.join('\n'))
