@@ -1,0 +1,4 @@
+# throwaway mounted pane, 29x24, no usage yet (percent null), room bound, fixture files; scratch copy outside the repo
+Box||d0|bg=#111111 border= dir=column
+Text||d1|"/m:os needs 30 columns"
+Text||d1|"Widen the panel. The status line and /mos-state still work."

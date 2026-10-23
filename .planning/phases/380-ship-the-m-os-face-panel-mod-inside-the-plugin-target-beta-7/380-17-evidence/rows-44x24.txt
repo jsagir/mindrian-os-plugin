@@ -1,0 +1,71 @@
+# throwaway mounted pane, 44x24, no usage yet (percent null), room bound, fixture files; scratch copy outside the repo
+Box||d0|bg=#111111 border= dir=column
+Box||d1|bg= border= dir=
+Box||d2|bg= border= dir=column
+Text||d3|BRIGHT(8 cells)
+Text||d3|BRIGHT(8 cells)
+Text||d3|BRIGHT(8 cells)
+Text||d3|BRIGHT(8 cells)
+Box||d2|bg= border= dir=column
+Text||d3|" Theo | MindrianOS "
+Text||d3|"Rest"
+Text||d3|"\"What is the thing you keep com~"
+Text||d1|" "
+Text||d1|BRIGHT(32 cells)
+Text||d1|BRIGHT(32 cells)
+Text||d1|BRIGHT(32 cells)
+Text||d1|BRIGHT(32 cells)
+Box||d1|bg= border= dir=column
+Text||d2|"Context: waiting"
+Text||d1|" "
+Text||d1|"▌ WRITES TO  demo-room"
+Box||d1|bg= border= dir=
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"Switch room"
+Text||d1|"ROOM  demo-room, Design stage"
+Text||d1|"FILED  14 entries in 2 sections"
+Text||d1|"STALE  financial-model, solution-design"
+Text||d1|"HEALTH  sound"
+Text||d1|" "
+Text||d1|"▌ NOW  2 sections have reasoning older than their files"
+Box||d1|bg=#4B4943 border= dir=
+Button||d2|"Fix: /mos:reason"
+Text||d1|" "
+Text||d1|"▌ NEXT  from Theo"
+Text||d1|"NEXT MOVE  none yet"
+Text||d1|"Theo will suggest once the talk gives something to go on."
+Box||d1|bg= border= dir=
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"Ask Theo now"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"Words: shared"
+Text||d1|"Theo is sent a short excerpt of your own words, links, paths and names removed"
+Text||d1|" "
+Text||d1|"Job: no guess yet. Say what you want to decide, test or find, in two different phrases, and one may come."
+Text||d1|"THEO  on"
+Text||d1|"VERSION  2.0.0-beta.74"
+Text||d1|" "
+Text||d1|"▌ ASK  about the room"
+Box||d1|bg= border= dir=
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"Whole room"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Sections"
+Text||d1|" "
+Box||d1|bg= border= dir=
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Session"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Room stale"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Graph ok"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Theo ok"
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"▸ Site ok"
+Text||d1|" "
+Box||d1|bg= border= dir=
+Box||d2|bg=#4B4943 border= dir=
+Button||d3|"Refresh"
+Text||d2|"read 10:00:00 (0s ago)"
+Text||d1|"click, or type /mos-state /mos-advice /mos-ask /mos-refresh"
