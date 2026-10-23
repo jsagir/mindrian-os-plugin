@@ -54,7 +54,7 @@ The fix for cause 1 is a self-contained `tsconfig.json` with the same options (s
 16 errors, as the plan predicted.
 
 - `hooks/face.ts`: 9 x TS2532 at lines 132, 133, 136, 144, 149, 160, 179, 187, 191.
-- `hooks/meter.ts`: 5 x TS2532 at lines 55, 56, 77, 83 (two on line 83: columns 64 and 87 across 55/56 pair; five in total).
+- `hooks/meter.ts`: 5 x TS2532: lines 55, 56 and 77 once each, line 83 twice (columns 63 and 87).
 - `panel.test.tsx`: TS2344 at line 95 (`Parameters<Parameters<typeof test>[1]>[1]`; `test` takes a rest tuple, so index 1 can be the options object) and TS2322 at line 150 (the `process.run` mock lacked `isStdoutTruncated` and `isStderrTruncated`, which `ProcessRunResult` requires).
 
 ## After the fix (PROVEN)
@@ -84,13 +84,13 @@ The fix for cause 1 is a self-contained `tsconfig.json` with the same options (s
 - R2: `rasterCrew` for each of the 6 crew faces x 3 sizes = 18.
 - R3: `contextCanvas` wide (32 x 12) and compact (32 x 8) at 0, 1, 17, 50, 62, 80, 99, 100 and `undefined` = 18.
 
-Total 120 pins. Method: the test ran with an empty pin table on the UNFIXED source (3 fail), the 120 hashes were read from the failure output, put in the file, and the test then passed (37 pass) before any source edit. After Task 2 the same file passes unchanged. 59 distinct hashes exist among the 120; the duplicates are expected (ticks only change the `search` pose, which has `run: true`; wide and compact canvases share some inputs at full paint).
+Total 120 pins. Method: the test ran with an empty pin table on the UNFIXED source (3 fail), the 120 hashes were read from the failure output, put in the file, and the test then passed (37 pass) before any source edit. After Task 2 the same file passes unchanged. 59 distinct hashes exist among the 120; the duplicates are expected for the poses with `run: false`, where the tick changes nothing (PROVEN by equal hashes across ticks 0 to 3). Other duplicates, among the meter pins, are ASSUMED to come from equal output at some inputs (UNVERIFIED).
 
 First pins, as an anchor: `state:found:0:8` = `29d7a28a81a2144f20f0917d26bd05a25391d09384d4028cbc89ef2820e39d74`; `state:rest:0:8` = `dc04e40997e924b89633bb9ef5dff26a150823d6563be8572f2e91c781848dd2`. All 120 are in the test file.
 
 ## Declaration file provenance (T-380-05)
 
-`lay-types.cjs` laid the folder from `~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face/.claude-plugin/types`. Its first line: `// Written by Claude Code 2.1.304.` The installed engine is `2.1.309 (Claude Code)`. The declaration file is 5 minor patch levels behind the engine. The check passes against it. The laid folder is gitignored and is not committed. Each run prints both lines.
+`lay-types.cjs` laid the folder from `~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face/.claude-plugin/types`. Its first line: `// Written by Claude Code 2.1.304.` The installed engine is `2.1.309 (Claude Code)`. The declaration file is 5 patch levels behind the engine. The check passes against it. The laid folder is gitignored and is not committed. Each run prints both lines.
 
 Compiler: TypeScript 7.0.2 from `ui/mos-face/node_modules` (lockfile pin from plan 01). The `tools/ts-check` copy is the fallback.
 
