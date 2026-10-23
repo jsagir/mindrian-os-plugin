@@ -10,14 +10,21 @@
  *
  * DIVERGENCE FROM THE ELEVEN OTHER `build-*.cjs --check` SIBLINGS: this
  * builder's `--check` does NOT rebuild. A rebuild needs a live Theo
- * connection and a Jev vendor key; the release path must stay key-free and
+ * connection and a Jev vendor key; the offline gate must stay key-free and
  * Canon Part 8 clean (R-353-G). `--check` therefore asserts only what is
  * verifiable OFFLINE against the shipped file: it parses, its
  * plugin_version matches this repo, its age is reported, and every row key
- * names a known job. The real rebuild is a navigator-invoked pre-release
- * act (`node scripts/build-section-command-ledger.cjs`, the dev-time key
- * exported in the operator's own shell from ~/.secrets/typesafe.env), never
- * a release.sh step and never a hook.
+ * names a known job. The real rebuild
+ * (`node scripts/build-section-command-ledger.cjs`, the dev-time key read
+ * from ~/.secrets/typesafe.env) is run by release.sh Step 2.3 through
+ * scripts/release-lib/ledger-rebuild.sh, only when the offline check says
+ * the ledger is stale, and by hand with the same command. The `--check`
+ * mode still does not rebuild, and the rebuild is still never a hook.
+ *
+ * Modes besides --check:
+ *   --key-status        prints "key: present" (exit 0) or "key: absent"
+ *                        (exit 3). It never prints the key. release.sh
+ *                        Step 2.3 asks it before the live build.
  *
  * Three build modes:
  *   --offline-seed      builds from LOCAL sources only (the canon, the
