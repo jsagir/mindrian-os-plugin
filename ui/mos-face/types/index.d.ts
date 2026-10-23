@@ -24,7 +24,10 @@ export type TheoCall = {
 }
 
 // What Theo last advised. The question carried a framework name and a problem
-// type only - never any conversation or room text.
+// type, and - unless /mos-words turned it off - a cleaned excerpt of the person's own
+// recent words (names, links, paths, code and keys removed), only through the guarded
+// shim. `sent` holds that excerpt when it went out, and is empty when it did not. Never
+// assistant text, room files or claims.
 export type Advice = {
   status: 'idle' | 'asking' | 'ok' | 'failed'
   at: number

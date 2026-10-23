@@ -9,9 +9,10 @@ import type {
   TheoStatus,
   TheoTotals,
 } from '../types'
-import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsFor } from './advice'
+import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsFor, wordsStartOn, wordsTexts } from './advice'
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
+import { PROPOSALS } from './proposals'
 import {
   BLUE,
   CREW,
@@ -92,7 +93,9 @@ const bound = atom({ plugin: 'mos-face', key: 'bound' } as const, null)
 const boundHow = atom({ plugin: 'mos-face', key: 'boundHow' } as const, '')
 const workspace = atom({ plugin: 'mos-face', key: 'workspace' } as const, '')
 const isPlain = atom({ plugin: 'mos-face', key: 'isPlain' } as const, false)
-// The owner allows the panel to send the person's own recent words to Theo (opt out any time).
+// The owner allows the panel to send a cleaned excerpt of the person's own recent words to
+// Theo (opt out any time). Held in memory for this session only: a new session starts with
+// the excerpt on, unless MOS_FACE_WORDS=off is set (proposal envSwitch, hooks/proposals.ts).
 const wordsOn = atom({ plugin: 'mos-face', key: 'wordsOn' } as const, true)
 const refreshNote = atom({ plugin: 'mos-face', key: 'refreshNote' } as const, '')
 const openSection = atom({ plugin: 'mos-face', key: 'openSection' } as const, '')
@@ -367,8 +370,26 @@ const openPane = async ($: EngineInterface) => {
   }
 }
 
-// Ask Theo what to do next. The question carries a framework name and a
-// problem type; the talk is read here only to choose them.
+// The names this machine already knows, removed from the excerpt before it is sent: the
+// bound room, the workspace folder and the folder of this session.
+const knownNames = async ($: EngineInterface): Promise<string[]> => {
+  const names: string[] = []
+  const slug = await read($, bound)
+  if (slug) names.push(slug)
+  const room = (await read($, snap))?.room?.slug
+  if (room) names.push(room)
+  const folder = await read($, workspace)
+  if (folder) names.push(folder)
+  const cwd = await $.session.cwd().catch(() => '')
+  const last = cwd.split(/[\\/]/).filter(part => part !== '').at(-1)
+  if (last) names.push(last)
+
+  return names
+}
+
+// Ask Theo what to do next. The question carries a framework name and a problem
+// type, and the person's cleaned excerpt unless /mos-words turned it off; the talk is
+// read here to choose the handles and the excerpt.
 const runAdvice = async ($: EngineInterface, force: boolean) => {
   try {
     if (autoInFlight) return
@@ -409,7 +430,7 @@ const runAdvice = async ($: EngineInterface, force: boolean) => {
     autoInFlight = true
     await update($, advice, a => ({ ...a, status: 'asking' as const }))
     try {
-      const words = (await read($, wordsOn)) ? wordsFor(handle.matched, recentUser) : ''
+      const words = (await read($, wordsOn)) ? wordsFor(handle.matched, recentUser, await knownNames($)) : ''
       const result = await askTheo($, handle, turnsDone, seenFrameworks.slice(-6), words, seenCommands.slice(-6))
       if (result.status === 'ok' && result.framework !== '') seenFrameworks = [...seenFrameworks, result.framework].slice(-8)
       if (result.status === 'ok') seenCommands = [...seenCommands, ...result.commands.slice(0, 1)].slice(-8)
@@ -546,6 +567,8 @@ export const register: Register = on => {
     await update($, isHidden, () => false)
     const noColor = await $.env.get('NO_COLOR')
     await update($, isPlain, () => noColor !== undefined && noColor !== '')
+    // Proposal envSwitch: MOS_FACE_WORDS=off at session start makes the opt-out last.
+    if (!wordsStartOn(await $.env.get('MOS_FACE_WORDS'), PROPOSALS)) await update($, wordsOn, () => false)
     for (const [name, description] of [
       ['mos-state', 'Open the /m:os dashboard in the side panel'],
       ['mos-face', 'Show or hide the Theo face box (shown when the panel is not)'],
@@ -642,11 +665,8 @@ export const register: Register = on => {
     await update($, wordsOn, () => !on2)
     $.ui.invalidate('ui.render')
 
-    return {
-      text: on2
-        ? 'Theo now gets only a framework name and a problem type.'
-        : 'Theo now also gets a short excerpt of your own recent words, with links, emails, paths, code and key-like strings removed. Never the assistant, never the room. Run /mos-words to stop.',
-    }
+    // on2 is the setting before the toggle: the setting now is its opposite.
+    return { text: wordsTexts(!on2, PROPOSALS).words }
   })
 
   on('command.run', { command: 'mos-text' }, async $ => {
@@ -681,7 +701,7 @@ export const register: Register = on => {
   on('command.run', { command: 'mos-advice' }, async $ => {
     void runAdvice($, true)
 
-    return { text: 'Asking Theo. Only a framework name and a problem type are sent, never your words.' }
+    return { text: wordsTexts(await read($, wordsOn), PROPOSALS).advice }
   })
 
   on('command.run', { command: 'mos-auto' }, async $ => {
@@ -1149,7 +1169,9 @@ export const register: Register = on => {
           {wordsShared
             ? next.sent !== ''
               ? `Theo was sent: "${next.sent}"`
-              : 'Theo is sent a short excerpt of your own words, links and paths removed'
+              : next.status === 'ok' || next.status === 'failed'
+                ? 'Theo was sent only a framework name and a problem type this time'
+                : 'Theo is sent a short excerpt of your own words, links, paths and names removed'
             : 'Theo is sent only a framework name and a problem type'}
         </Text>
         <Text {...ink}> </Text>

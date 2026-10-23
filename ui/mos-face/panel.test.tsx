@@ -1,7 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 import type { TestBody } from 'claude-code/testing'
 
-import { chaptersToPicks, searchTerms, classify, frameFor, sanitize, subjectOf, thinkPrompt, wordsFor } from './hooks/advice'
+import { HANDLE_QUERIES, chaptersToPicks, classify, frameFor, sanitize, subjectOf, thinkPrompt, wordsFor } from './hooks/advice'
 import { firstJson, parseClaims, parseGraph, parseSections } from './hooks/source'
 import { contextCanvas } from './hooks/meter'
 import { INK } from './hooks/face'
@@ -652,6 +652,12 @@ test('the words that travel are cleaned: links, emails, paths, code and keys nev
   for (const bad of ['secret.example.com', 'me@corp.com', '/home/jsagi', 'sk-abcdef', 'rm -rf', 'https://']) expect(clean).not.toContain(bad)
   expect(clean).toContain('symptom returns')
   expect(sanitize('x'.repeat(500)).length).toBeLessThanOrEqual(240)
+  // D-03: a name typed in prose is stripped too: a capitalized name, a sentence-initial name
+  // and a known name (room slug) in lowercase; framework names stay.
+  const named = sanitize('Acme keeps failing and the bug returns for Zorbotron Labs while pelican-robotics waits, per Red Teaming', 240, ['pelican-robotics'])
+  for (const bad of ['Acme', 'Zorbotron', 'Labs', 'pelican', 'robotics']) expect(named).not.toContain(bad)
+  expect(named).toContain('Red Teaming')
+  expect(named).toContain('the bug returns')
   // Only the person's own newest words: an old unrelated line does not travel when a newer one exists.
   expect(wordsFor([], ['THE WHITE BACKGROUND IS NOT GOOD.', 'We keep hitting the same bug after every release.'])).toBe('We keep hitting the same bug after every release.')
   expect(wordsFor([], ['ok'])).toBe('')
@@ -688,9 +694,12 @@ test('Words: shared can be switched off, and then Theo gets only handles; the pa
   await ui.unmount()
 })
 
-test('words become search terms, and chapters become commands not yet shown', () => {
-  expect(searchTerms('WHAT IS THE BEST MOON ON THE KNOWN UNIVERSE ?')).toBe('moon universe')
-  expect(searchTerms('ask theo keeps returning the same frameworks')).toContain('frameworks')
+test('handles become chapter picks, and chapters become commands not yet shown', () => {
+  // D-03: the search sends handles only. Its query is a framework name or a problem type of
+  // the closed set, never a word taken from the person's text.
+  expect(HANDLE_QUERIES).toContain('Root Cause Analysis')
+  expect(HANDLE_QUERIES).toContain('Wicked')
+  expect(HANDLE_QUERIES.includes('the moon')).toBe(false)
   const rows = [{ chapterId: 'redteam' }, { chapterId: 'nested' }, { chapterId: 'growth' }, { chapterId: 'redteam' }]
   expect(chaptersToPicks(rows, []).map(p => p.command)).toEqual(['/mos:challenge-assumptions', '/mos:structure-argument'])
   expect(chaptersToPicks(rows, ['/mos:challenge-assumptions']).map(p => p.command)).toEqual(['/mos:structure-argument'])

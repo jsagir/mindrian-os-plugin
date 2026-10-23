@@ -2,17 +2,25 @@ import type { EngineInterface } from 'claude-code'
 
 import type { Advice } from '../types'
 import { WHY } from './commands'
+import { PROPOSALS } from './proposals'
+import type { Proposals } from './proposals'
 
 // The panel asks Theo what to do next, every couple of turns.
 //
-// What Theo receives. Canon Part 8 kept Theo to framework names and problem types.
-// On 2026-10-21 the owner ruled that this panel may also send the person's OWN
-// recent words, so the suggestions fit the actual situation. The ruling is narrow:
-//   - only the person's own prompts, never assistant text, room files, claims or artifacts;
-//   - links, emails, file paths, code and key-like strings are stripped first;
-//   - a short excerpt, never the whole talk;
-//   - always visible in the panel (what was sent), and one click turns it off.
-// Larry's own brain_* calls are not touched by this: they stay generic.
+// What leaves the machine (Canon Part 8, plan 380-04, decision D-03). Three calls, and
+// only three:
+//   1. The question to the guarded shim tool. It carries a framework name, a problem type
+//      and, on by default, a cleaned excerpt of the person's OWN recent words (owner ruling
+//      2026-10-21, kept as written). The excerpt is at most 240 characters. Links, emails,
+//      file paths, code, key-like strings and names are removed first (sanitize, stripNames).
+//      It is shown in full in the panel, and /mos-words turns it off.
+//   2. The same question to the raw theo server, only when the shim failed or was denied.
+//      With the proposal shimOnlyExcerpt on (hooks/proposals.ts) it carries handles only,
+//      because the raw server never passes lib/core/part8-egress-guard.cjs.
+//   3. A search on the raw theo server. Its query is always one string of HANDLE_QUERIES:
+//      a framework name or a problem type, never a word taken from the person's text.
+// Never assistant text, room files, claims or artifacts. Larry's own brain_* calls are not
+// touched by this: they stay generic.
 
 type Engine = EngineInterface
 
@@ -38,6 +46,10 @@ const RULES: { framework: string; words: RegExp }[] = [
 ]
 
 const FALLBACK = 'Problem Definition Transformation Framework'
+
+// The closed set of strings the search call may send as its query: the framework names of
+// the rules, the fallback framework and the four problem types. Nothing else, ever.
+export const HANDLE_QUERIES: string[] = [...RULES.map(rule => rule.framework), FALLBACK, 'Un-Defined', 'Ill-Defined', 'Well-Defined', 'Wicked']
 
 // Singular and plural are one cue: "ecosystem" and "ecosystems" count once.
 const stem = (word: string): string => word.toLowerCase().replace(/(ing|ed|es|s)$/, '')
@@ -90,8 +102,89 @@ export function questionFor(h: Handle, words = ''): string {
 
 const SECRET = /\b(sk|pk|ghp|gho|ghs|xox[abp]|AKIA|eyJ)[A-Za-z0-9_\-.]{8,}\b/g
 
-// Strip what should never travel, then keep a short excerpt.
-export function sanitize(text: string, max = 240): string {
+const NAME = '(a name)'
+
+// S3: the words that may start a sentence without being a name. A closed list of function
+// words: articles, pronouns, conjunctions, auxiliary verbs, question words, prepositions and
+// common adverbs. A word that is also a given name (will, may) is left out on purpose.
+export const COMMON_STARTS: ReadonlySet<string> = new Set(
+  (
+    'the a an we our ours us i my me mine it its this that these those there here they their them you your yours he she his her him ' +
+    'what why how when where who whom which whose if but and or nor so yet because since while although though as unless until whether ' +
+    'can could should would do does did don doesn didn is are was were am be been being have has had haven hasn hadn isn aren wasn weren ' +
+    'won wouldn couldn shouldn cannot not no yes now then also maybe just some each all any every one only still even again once often ' +
+    'sometimes always never please let first next finally instead however today yesterday tomorrow soon later already almost really ' +
+    'about after before for from in on of with without to at by up out over under between during into through against among near ' +
+    'both either neither many much more most less few other another such same own very too'
+  ).split(' '),
+)
+
+// The words of the framework names and problem types, the product names, the pronoun I, the
+// weekday and month names and a few plain acronyms are not names of a venture or a person.
+const ALLOW: ReadonlySet<string> = new Set([
+  ...HANDLE_QUERIES.flatMap(query => query.toLowerCase().split(/[^a-z]+/)).filter(word => word !== ''),
+  ...'theo pws mindrianos jtbd swot pest api ai ux mvp roi kpi'.split(' '),
+  ...'monday tuesday wednesday thursday friday saturday sunday january february march april june july august september october november december'.split(' '),
+])
+
+// The cue words of every rule, each as a whole-token test, so a cue word at the start of a
+// sentence (Customers, Symptom, Blocked) survives: the classifier needs it.
+const CUES = RULES.map(rule => new RegExp(`^(?:${rule.words.source})$`, 'i'))
+
+const isCue = (word: string): boolean => CUES.some(cue => cue.test(word))
+
+// A word starts a sentence when only spaces, quotes, brackets or list marks lie between it
+// and the start of the text, a full stop, a question mark, an exclamation mark or a line break.
+function startsSentence(whole: string, offset: number): boolean {
+  let i = offset - 1
+  while (i >= 0 && /[ \t"'\u201C\u201D\u2018\u2019(\[{*_#>-]/.test(whole.charAt(i))) i--
+  if (i < 0) return true
+
+  return /[.?!\u2026\n\r]/.test(whole.charAt(i))
+}
+
+// Remove the names from prose, with the rule S1 plus S2 plus S3 of plan 380-04:
+//   S1 known names: the room slug, each part of it (3 letters or more), the workspace folder
+//      name and the session folder name, whole words, any case. A part that is a plain
+//      function word (the, and) is not a name and is left out of the list.
+//   S2 proper names: a capitalized word that does not start a sentence, and any all-caps word
+//      of 2 letters or more, unless it is on the allow-list.
+//   S3 sentence starts: the first word of each sentence, unless it is a common word, a cue
+//      word of a rule or an allow-listed word.
+// A run of replaced words collapses to one placeholder. Residual risk: a name typed in
+// lowercase in the middle of a sentence, or in a script without capital letters, is caught
+// only when it equals a known name.
+export function stripNames(text: string, known: string[] = []): string {
+  const names = new Set<string>()
+  for (const raw of known) {
+    const whole = raw.trim().toLowerCase()
+    if (whole.length >= 3) names.add(whole)
+    for (const part of whole.split(/[-_.\s]+/)) {
+      if (part.replace(/[^\p{L}]/gu, '').length >= 3 && !COMMON_STARTS.has(part)) names.add(part)
+    }
+  }
+
+  const replaced = text.replace(/\p{L}[\p{L}\p{N}'\u2019]*/gu, (token: string, offset: number, whole: string) => {
+    const base = token.replace(/['\u2019]+$/, '').replace(/['\u2019]s$/i, '')
+    const lower = base.toLowerCase()
+    const head = lower.split(/['\u2019]/)[0] ?? lower
+    if (names.has(lower)) return NAME
+    if (head === 'i' || ALLOW.has(lower)) return token
+    const letters = base.replace(/[^\p{L}]/gu, '')
+    if (letters.length >= 2 && base === base.toUpperCase() && base !== base.toLowerCase()) return NAME
+    if (startsSentence(whole, offset)) {
+      return COMMON_STARTS.has(lower) || COMMON_STARTS.has(head) || isCue(lower) || ALLOW.has(head) ? token : NAME
+    }
+
+    return /^\p{Lu}/u.test(base) ? NAME : token
+  })
+
+  return replaced.replace(/\(a name\)(?:[\s-]*\(a name\))+/g, NAME)
+}
+
+// Strip what should never travel, then keep a short excerpt. known: the names this machine
+// already knows (room slug, workspace and session folder), removed from the prose.
+export function sanitize(text: string, max = 240, known: string[] = []): string {
   const cleaned = text
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/`[^`]*`/g, ' ')
@@ -100,20 +193,23 @@ export function sanitize(text: string, max = 240): string {
     .replace(/(?:~|\/home|\/Users|\/tmp|[A-Za-z]:\\)[\w./\\~-]*/g, ' ')
     .replace(SECRET, ' ')
     .replace(/\b[A-Za-z0-9_-]{28,}\b/g, ' ')
-    .replace(/["]/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim()
 
-  return clip(cleaned, max)
+  return clip(
+    stripNames(cleaned, known)
+      .replace(/["]/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim(),
+    max,
+  )
 }
 
 // The words worth sending: the newest sentence of the person's own that carries a
 // cue, else the newest substantial message. Never the assistant, never the room.
-export function wordsFor(matched: string[], messages: string[]): string {
+export function wordsFor(matched: string[], messages: string[], known: string[] = []): string {
   const cue = subjectOf(matched, messages)
-  if (cue !== '') return sanitize(cue)
+  if (cue !== '') return sanitize(cue, 240, known)
   for (let i = messages.length - 1; i >= 0; i--) {
-    const text = sanitize(messages[i] ?? '')
+    const text = sanitize(messages[i] ?? '', 240, known)
     if (text.length >= 20) return text
   }
 
@@ -139,11 +235,10 @@ function parse(text: string): { options: Option[]; guided: string } {
 }
 
 
-// ---- Words pick chapters --------------------------------------------------------
-// Theo's brain_ask chooses its options from the problem type alone, so the words
-// never change them (tested 2026-10-21: two unrelated sentences, identical options).
-// Theo's keyword search does follow the words. So the words search the book, and
-// each chapter that comes back points at the command that teaches it.
+// ---- The framework picks chapters ------------------------------------------------
+// Theo's keyword search answers with chapters. The query is the framework name of the
+// handle and nothing else: never a word of the person (plan 380-04, decision D-03). Each
+// chapter that comes back points at the command that teaches it.
 
 const CHAPTER_COMMAND: Record<string, { framework: string; command: string }> = {
   redteam: { framework: 'Red Teaming', command: '/mos:challenge-assumptions' },
@@ -162,20 +257,6 @@ const CHAPTER_COMMAND: Record<string, { framework: string; command: string }> = 
   sciroad: { framework: 'Scientific Roadmap', command: '/mos:scientific-roadmap' },
 }
 
-const STOP = new Set(
-  'about after again also because been being best both could does doing done from have here into just like make many more most much only other over same should some such than that their them then there these they this those through very what when where which while will with would your known'.split(' '),
-)
-
-export function searchTerms(words: string): string {
-  const seen = new Set<string>()
-  for (const raw of words.toLowerCase().match(/[a-z]{4,}/g) ?? []) {
-    if (!STOP.has(raw)) seen.add(raw)
-    if (seen.size >= 8) break
-  }
-
-  return [...seen].join(' ')
-}
-
 type Row = { chapterId?: string }
 
 export function chaptersToPicks(rows: Row[], skip: string[]): { framework: string; command: string }[] {
@@ -188,9 +269,10 @@ export function chaptersToPicks(rows: Row[], skip: string[]): { framework: strin
   return out
 }
 
-async function searchChapters($: Engine, words: string, skip: string[]): Promise<{ framework: string; command: string }[]> {
-  const query = searchTerms(words)
-  if (query === '') return []
+async function searchChapters($: Engine, h: Handle, skip: string[]): Promise<{ framework: string; command: string }[]> {
+  // Handles only: the query is one string of the closed set, or there is no call at all.
+  const query = h.framework
+  if (!HANDLE_QUERIES.includes(query)) return []
   try {
     const ran = await $.tool.call({ tool: 'mcp__theo__search', query, topK: 12 } as never)
     const out = ran as { deny?: string; isError?: boolean; text?: string }
@@ -205,10 +287,50 @@ async function searchChapters($: Engine, words: string, skip: string[]): Promise
   }
 }
 
-const TOOLS = ['mcp__plugin_mos_mindrian-brain__brain_ask', 'mcp__theo__brain_ask']
+const SHIM = 'mcp__plugin_mos_mindrian-brain__brain_ask'
+const RAW = 'mcp__theo__brain_ask'
+// The guarded shim first, the raw theo server only after it failed or was denied.
+const TOOLS = [SHIM, RAW]
 
-export async function askTheo($: Engine, h: Handle, turn: number, avoid: string[] = [], words = '', skipCommands: string[] = []): Promise<Advice> {
-  const question = questionFor(h, words)
+// Does the first value of the environment switch turn the excerpt off at session start?
+// With the envSwitch proposal off, the variable is ignored. Returns whether words start on.
+export function wordsStartOn(envValue: string | undefined, proposals: Proposals = PROPOSALS): boolean {
+  if (!proposals.envSwitch) return true
+  const value = (envValue ?? '').trim().toLowerCase()
+
+  return !(value === 'off' || value === '0' || value === 'false')
+}
+
+// The plain texts of /mos-advice and /mos-words. advice: what an ask sends while the excerpt
+// is on or off. words: what /mos-words says after it set the excerpt on or off. Both tell
+// the truth about now, and the second says how long the setting lasts.
+export function wordsTexts(isOn: boolean, proposals: Proposals = PROPOSALS): { advice: string; words: string } {
+  const lasting = proposals.envSwitch
+    ? ' A new session starts with the excerpt on, unless MOS_FACE_WORDS=off is set in the settings environment.'
+    : ' A new session starts with the excerpt on again.'
+
+  return isOn
+    ? {
+        advice: 'Asking Theo. A framework name, a problem type and a short excerpt of your own words are sent. Run /mos-words to stop the excerpt.',
+        words:
+          'Theo now also gets a short excerpt of your own recent words, with links, emails, paths, code, key-like strings and names removed. Never the assistant, never the room. Run /mos-words to stop. This lasts until this session ends.' +
+          lasting,
+      }
+    : {
+        advice: 'Asking Theo. Only a framework name and a problem type are sent.',
+        words: 'Theo now gets only a framework name and a problem type. This lasts until this session ends.' + lasting,
+      }
+}
+
+export async function askTheo(
+  $: Engine,
+  h: Handle,
+  turn: number,
+  avoid: string[] = [],
+  words = '',
+  skipCommands: string[] = [],
+  proposals: Proposals = PROPOSALS,
+): Promise<Advice> {
   const base: Advice = {
     status: 'failed',
     at: await $.clock.now(),
@@ -219,20 +341,29 @@ export async function askTheo($: Engine, h: Handle, turn: number, avoid: string[
     whys: [],
     framings: [],
     matched: [],
-    sent: words,
-    question,
+    sent: '',
+    question: questionFor(h),
     guided: '',
     note: '',
   }
 
+  // The excerpt counts as sent once a call that carried it was made and not denied. A call
+  // that failed after it left may still have delivered it, so a failure does not erase it.
+  let wentOut = ''
   for (const tool of TOOLS) {
+    // The excerpt rides the guarded shim. The raw server gets it only when the proposal
+    // shimOnlyExcerpt is off (the owner ruling as written).
+    const carries = words !== '' && (tool === SHIM || !proposals.shimOnlyExcerpt)
+    base.question = questionFor(h, carries ? words : '')
     try {
-      const ran = await $.tool.call({ tool, question } as never)
+      const ran = await $.tool.call({ tool, question: base.question } as never)
       const out = ran as { deny?: string; isError?: boolean; text?: string }
       if (out.deny !== undefined) {
+        // A denied call sent nothing.
         base.note = 'Theo was not asked: the call was not allowed'
         continue
       }
+      if (carries) wentOut = words
       if (out.isError) {
         base.note = 'Theo did not answer'
         continue
@@ -255,15 +386,17 @@ export async function askTheo($: Engine, h: Handle, turn: number, avoid: string[
         base.framework = options[0]?.framework ?? ''
         base.guided = guided
         base.status = 'ok'
+        base.sent = wentOut
         return base
       }
-      // The person's words lead: commands from chapters their words found come
-      // first, then the problem-type chain, never repeating a command just shown.
-      const fromWords = words === '' ? [] : await searchChapters($, words, skipCommands)
-      const merged = [...fromWords.map(p => p.command), ...commands.filter(c => !skipCommands.includes(c))]
+      // The framework leads: commands from chapters its name found come first, then the
+      // problem-type chain, never repeating a command just shown. The search sends the
+      // framework name only.
+      const fromHandle = await searchChapters($, h, skipCommands)
+      const merged = [...fromHandle.map(p => p.command), ...commands.filter(c => !skipCommands.includes(c))]
       const ordered = [...new Set(merged)]
       const top = (ordered.length > 0 ? ordered : commands).slice(0, 3)
-      const led = fromWords[0]
+      const led = fromHandle[0]
       return {
         ...base,
         status: 'ok',
@@ -272,14 +405,16 @@ export async function askTheo($: Engine, h: Handle, turn: number, avoid: string[
         whys: top.map(command => WHY[command] ?? ''),
         framings: [],
         matched: [],
-        sent: words,
+        sent: wentOut,
         guided,
-        note: led ? 'chosen from your words' : sameAgain ? 'Theo suggested the same frameworks again, so the talk gives it nothing new to go on' : '',
+        note: led ? 'chosen from the framework' : sameAgain ? 'Theo suggested the same frameworks again, so the talk gives it nothing new to go on' : '',
       }
     } catch {
+      if (carries) wentOut = words
       base.note = 'Theo could not be reached from here'
     }
   }
+  base.sent = wentOut
 
   return base
 }

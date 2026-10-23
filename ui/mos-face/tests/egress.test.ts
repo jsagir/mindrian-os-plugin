@@ -330,13 +330,15 @@ test('E10 shimOnlyExcerpt holds for both values: with true the raw fallback send
   const handle = { framework: 'Root Cause Analysis', problemType: 'Ill-Defined', matched: ['bug', 'symptom'] } as const
   const words = 'the bug keeps happening and the symptom returns'
 
-  const only = await advice.askTheo($ as never, handle as never, 1, [], words, [], { shimOnlyExcerpt: true, envSwitch: true })
+  // askTheo needs only the clock and the tool call of the plugin's engine.
+  const engine = { clock: { now: async () => 1_800_000_000_000 }, tool: { call: (e: unknown) => $.tool.call(e as never) } }
+  const only = await advice.askTheo(engine as never, handle as never, 1, [], words, [], { shimOnlyExcerpt: true, envSwitch: true })
   const onlyRaw = rawCalls(setup.calls).at(-1)
   expect(onlyRaw).toBeDefined()
   expect(questionOf(onlyRaw as Call).includes('The person says')).toBe(false)
   expect(only.sent).toBe('')
 
-  const open = await advice.askTheo($ as never, handle as never, 2, [], words, [], { shimOnlyExcerpt: false, envSwitch: true })
+  const open = await advice.askTheo(engine as never, handle as never, 2, [], words, [], { shimOnlyExcerpt: false, envSwitch: true })
   const openRaw = rawCalls(setup.calls).at(-1)
   expect(questionOf(openRaw as Call).startsWith('The person says: "the bug keeps')).toBe(true)
   expect(open.sent).toBe(words)
