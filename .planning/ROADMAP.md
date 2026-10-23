@@ -3789,8 +3789,47 @@ Plans:
 **Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10)
 **Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
 Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
-**Plans:** 0 plans
+**Plans:** 11 plans (code plans 01 to 09 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; no plan pushes or cuts a release)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 380 to break down)
+**Wave 1**
+
+- [ ] 380-01-PLAN.md - adopt the mod byte for byte as the walled package ui/mos-face with its own lockfile, wall test, 34 tests re-verified, phase aggregator
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 380-02-PLAN.md - repair the type-check inside the walled package (16 errors, raster pins)
+- [ ] 380-03-PLAN.md - real-terminal capture harness (tmux, ANSI page, Playwright PNG), self-tested
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped, excerpt only through the guarded shim, honest texts
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 380-05-PLAN.md - hook budgets: no subprocess, slow network clock, read back-off, plugin-matching home and rooms paths
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 380-06-PLAN.md - D-04 copy: Theo not Larry, no stack words, commands table generated and checked
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 380-07-PLAN.md - D-02 canon colors, exact book state names, written decisions N2 N4 N5 N6 N7 N9, the book's review in a scratch consumer
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [ ] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship) with a freshness gate
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [ ] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [ ] 380-10-PLAN.md - real-terminal screenshots inspected by the executor, idle CPU window, opt-out persistence
+
+**Wave 10** *(blocked on Wave 9; stops at human checkpoints)*
+
+- [ ] 380-11-PLAN.md - book follow-ups and defaults, Windows and Desktop checks, real-room receipt at the cut (human gates)
