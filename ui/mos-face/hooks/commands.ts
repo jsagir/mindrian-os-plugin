@@ -1,10 +1,11 @@
-// Generated: framework -> /mos: commands, resolved by the plugin's own resolver
-// (lib/workflow/command-resolver.cjs commandsForFramework), never typed from memory.
-// Plugin: mos 2.0.0-beta.69. Regenerate after a plugin update.
-
+// Generated file. Do not edit by hand.
+// Regenerate with: node ui/mos-face/scripts/face-commands.cjs --write
+// TERM_COMMANDS and STATE_COMMANDS: framework -> /mos: commands, resolved with the plugin's own
+// resolver (lib/workflow/command-resolver.cjs commandsForFramework), never typed from memory. They
+// are kept as they are; the --check mode fails when one names a command the registry no longer holds.
+// WHY: the first sentence of each command teaching line in data/command-registry.json, in plain
+// words (the override map of scripts/face-commands.cjs replaces a sentence that holds a stack word).
 import type { FaceState } from '../types'
-
-export const PLUGIN_VERSION = "2.0.0-beta.69"
 
 export const TERM_COMMANDS: Record<string, { framework: string; commands: string[] }> = {
   "Problem First": {
@@ -404,19 +405,18 @@ export const STATE_COMMANDS: Record<FaceState, string[]> = {
 
 export const DOCTOR = "/mos:doctor"
 
-// First sentence of each command teaching line in the plugin registry; the word Larry is read as Theo.
 export const WHY: Record<string, string> = {
   "/mos:diagnose": "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix",
   "/mos:explore-domains": "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition",
   "/mos:compare-ventures": "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter",
-  "/mos:deep-grade": "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it",
+  "/mos:deep-grade": "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects",
   "/mos:analyze-systems": "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points",
   "/mos:systems-thinking": "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows",
   "/mos:beautiful-question": "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How",
   "/mos:analyze-needs": "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction",
   "/mos:discover": "When you have a client or a product and need to understand it before you design or build, /mos:discover runs a guided one-question-at-a-time conversation across six movements and lands a Discovery Brief plus a scaffolded Data Room",
   "/mos:macro-trends": "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions",
-  "/mos:causal": "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in your Data Room",
+  "/mos:causal": "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph",
   "/mos:root-cause": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree",
   "/mos:challenge-assumptions": "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims",
   "/mos:find-bottlenecks": "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component",
@@ -425,7 +425,7 @@ export const WHY: Record<string, string> = {
   "/mos:scenario-plan": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant",
   "/mos:futures": "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities",
   "/mos:structure-argument": "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE",
-  "/mos:find-connections": "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links",
+  "/mos:find-connections": "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph",
   "/mos:find-analogies": "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches",
   "/mos:dominant-designs": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it",
   "/mos:map-unknowns": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix",
@@ -435,14 +435,14 @@ export const WHY: Record<string, string> = {
   "/mos:build-thesis": "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate",
   "/mos:validate-proposition": "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math",
   "/mos:status": "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs",
-  "/mos:suggest-next": "When you finish a step and want Theo to recommend the next move, /mos:suggest-next reads your Data Room and proposes 3-5 options with reasons",
+  "/mos:suggest-next": "When you finish a step and want Theo to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons",
   "/mos:doctor": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance",
   "/mos:act": "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it",
-  "/mos:admin": "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel",
-  "/mos:agentshield": "When you want to know whether the plugin's own MCP tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five surfaces and reports what is clean and what is flagged",
+  "/mos:admin": "When you need to inspect or rotate your Theo access keys, /mos:admin opens the admin panel",
+  "/mos:agentshield": "When you want to know whether the plugin's own tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five and reports what is clean and what is flagged",
   "/mos:auto-explore": "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface",
   "/mos:bono": "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis",
-  "/mos:brain-derive": "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now",
+  "/mos:brain-derive": "When a room section drifts from its Theo context file, /mos:brain-derive rebuilds that file now",
   "/mos:build-knowledge": "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room",
   "/mos:correct-reference-now": "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Theo speaks (you raised this 3 days ago) stays honest",
   "/mos:dashboard": "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout",
@@ -473,7 +473,7 @@ export const WHY: Record<string, string> = {
   "/mos:memory-cortex-reach": "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate",
   "/mos:memory": "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room",
   "/mos:models": "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile",
-  "/mos:mos-reason": "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md",
+  "/mos:mos-reason": "When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support",
   "/mos:mos": "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one",
   "/mos:mullins": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test",
   "/mos:mva-brief": "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck",
@@ -489,11 +489,10 @@ export const WHY: Record<string, string> = {
   "/mos:pipeline": "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue",
   "/mos:present": "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it",
   "/mos:publish": "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link",
-  "/mos:pws-brain": "When you want to see how the experimental Aura Agent answers next to the production Brain, /mos:pws-brain runs the same methodology question through both and shows the answers side by side",
   "/mos:qualify-opportunity": "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you",
   "/mos:radar": "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to",
   "/mos:reanalyze": "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection",
-  "/mos:research": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull",
+  "/mos:research": "When you need fresh evidence from the web cross-referenced with Theo's methodology graph, /mos:research runs the dual-source pull",
   "/mos:room": "When you need to view the active Data Room, /mos:room opens it. /mos:room question shows the room's governing question with its origin and history, and asks what the old question got wrong before a changed question is recorded",
   "/mos:rooms": "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry",
   "/mos:rs-explain": "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Theo-voiced explanation grounded in the graph",
