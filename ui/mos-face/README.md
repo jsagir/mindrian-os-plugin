@@ -59,7 +59,46 @@ Both go beyond D-03 as written. Both are planner proposals, on by default, in ho
 - P1 shimOnlyExcerpt: the excerpt travels only through the guarded shim. Reason: the raw theo server never passes lib/core/part8-egress-guard.cjs (CLAUDE.md, THEO-04).
 - P2 envSwitch: MOS_FACE_WORDS=off at session start makes the opt-out last. Reason: the opt-out does not survive a new session.
 
-A veto is one flag set to false, the dist rebuilt (node scripts/build-mos-face.cjs, added by plan 380-05) and the tests re-run. tests/egress.test.ts reads the flags and holds for both values of each, so no test edit and no re-plan is needed.
+A veto is one flag set to false, the dist rebuilt (node scripts/build-mos-face.cjs, added by plan 380-08) and the tests re-run. tests/egress.test.ts reads the flags and holds for both values of each, so no test edit and no re-plan is needed.
+
+## Budgets
+
+The mod adds no hook and no read that can starve a prompt (MOD380-05). The tests in tests/budget.test.ts and the gate tests/test-380-budget.cjs pin everything on this page.
+
+### The hook list
+
+The module registers events only: session.start, 13 command.run commands (mos-state, mos-face, mos-style, mos-chip, mos-suggest, mos-ask, mos-refresh, mos-words, mos-text, mos-plain, mos-advice, mos-auto, theo-calls), prompt.submit, turn.start, tool.call, turn.complete and 5 ui.render entries. There is no shell hook. The module's hooks/hooks.json holds only the module list, and the hooks.json of the plugin names no shell command for this mod. `claude plugin validate --json` prints the list, and the gate fails on any addition.
+
+prompt.submit and turn.start do no file, tool, network or process work and never wait on the clock.
+
+### The limits the tests assert
+
+| Limit | Value | Test |
+|-------|-------|------|
+| Tick of the panel | every 120 seconds | B3 |
+| Tool reads on a tick | at most 4 | B3 |
+| Subprocesses | 0 | B1, G1 |
+| Network fetches on an ordinary tick | 0 | B3 |
+| Reach checks (Theo health, the website) | every 600 seconds, started together, each cut off after 4 seconds with no status | B3, B4 |
+| A read of the room | cut off after 30 seconds | B5b |
+| Slow read | over 8 seconds | B5 |
+| Back-off after a slow or failed read | the next ticks wait 2x, 4x, then 8x of 120 seconds, never more than 600 seconds | B5, B5b |
+| A quick read | resets the wait | B5 |
+| The person's own refresh (/mos-refresh, the Refresh button) | always reads, and asks Theo and the website again | B5 |
+| Reads in flight | one (a second refresh during a read is ignored, for 45 seconds at most) | B6 |
+| Timers | the 220 ms spinner stops when the turn ends; the 400 ms flash stops when the flash ends | B8 |
+
+### Where the home and rooms folders are
+
+The panel finds them the way the plugin does: the home folder is HOME, then USERPROFILE (a native Windows process may not set HOME). The rooms folder is MINDRIAN_ROOMS_HOME when it is set, else the home folder plus /MindrianRooms (lib/core/cross-room-aggregator.cjs holds the same rule). Paths use forward slashes. A registry that holds the default root with a tilde follows the same rule. This also lets a test or a hermetic screenshot point the panel at a scratch rooms folder.
+
+### No python
+
+The panel no longer needs python3. The old fallback ran a python3 graph query. It is removed (SEED-142 named the Windows gap: python3 is not on a default Windows PATH). The graph numbers come from the room tools. When those are out of reach, the panel reads the room from files and says the graph numbers were not read, instead of guessing.
+
+### Not measured yet
+
+The real idle CPU cost of the panel on a machine is measured by plan 380-10 and is UNVERIFIED until then. This page states limits, not a CPU number.
 
 ## Surfaces
 
