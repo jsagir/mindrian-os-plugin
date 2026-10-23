@@ -117,7 +117,12 @@ export type WorldOptions = {
   toasts?: string[]
   // Plan 15: the context percent the host reports (default 62); undefined is not an option, use null for none yet.
   percent?: number | null
+  // Plan 17: a holder the test changes between renders; when given it wins over percent.
+  percentNow?: { value: number | null }
 }
+
+// The context percent the host reports now: the holder of the test, else the option; null is none yet.
+const percentFor = (options: WorldOptions): number | null | undefined => (options.percentNow ? options.percentNow.value : options.percent)
 
 // Everything beneath the plugin is answered from memory, so no file, network or
 // command is touched. With options.calls, every tool, http and process call is recorded.
@@ -160,7 +165,7 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   on('session.usage', () => ({
     value: {
       startedAt: 0,
-      context: (options.percent === null ? {} : { tokens: 124000, window: 200000, percent: options.percent ?? 62 }) as { tokens: number; window: number; percent: number },
+      context: (percentFor(options) === null ? {} : { tokens: 124000, window: 200000, percent: percentFor(options) ?? 62 }) as { tokens: number; window: number; percent: number },
       rateLimits: [],
     },
   }))
