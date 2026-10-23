@@ -18,6 +18,8 @@
  *   G6  a directory-only rule (out/) does not cover a sibling name (outer/)
  *   G7  unit table on the exported isIgnored
  *   G8  the all-resolving tree reports an empty ignored_generated
+ *   G9  a node_modules require (not installed in a clone) is skipped and printed;
+ *       the same require into a path no .gitignore line covers still fails
  *
  * Hermetic: temp HOME, USERPROFILE and MINDRIAN_ROOMS_HOME; the planted trees
  * live under os.tmpdir() and are removed at exit. No network. Hyphens only.
@@ -201,6 +203,36 @@ const t8 = plantGoodTree();
 const g8 = runJson(t8);
 check('G8 the all-resolving tree exits 0', g8.status === 0, 'status=' + g8.status);
 check('G8 ignored_generated is an empty array', !!g8.json && Array.isArray(g8.json.ignored_generated) && g8.json.ignored_generated.length === 0, short(g8.json && g8.json.ignored_generated));
+
+// G9: a clone has no node_modules. A require into a gitignored node_modules/
+// is skipped and printed; the same shape into a path that is not gitignored fails.
+const NM_REQ = [
+  "'use strict';",
+  "const path = require('node:path');",
+  "const ROOT = path.resolve(__dirname, '..');",
+  "const pkg = require(path.join(ROOT, 'node_modules', 'zod', 'package.json'));",
+  'module.exports = { pkg };',
+  '',
+].join('\n');
+const t9 = newTree();
+w(t9, '.gitignore', 'node_modules/\n');
+w(t9, 'tests/nm.cjs', NM_REQ);
+const g9 = runJson(t9);
+const g9i = g9.json ? g9.json.ignored_generated : null;
+check('G9 a gitignored node_modules require exits 0', g9.status === 0, 'status=' + g9.status);
+check('G9 it is listed with file, target and pattern', Array.isArray(g9i) && g9i.length === 1 && g9i[0].file === 'tests/nm.cjs' && g9i[0].target === 'node_modules/zod/package.json' && g9i[0].pattern === 'node_modules/', short(g9i));
+const g9p = runGate(['--root', t9]);
+check('G9 the plain output prints the node_modules skip line', /^ {2}skipped: tests\/nm\.cjs -> node_modules\/zod\/package\.json \(node_modules\/\)$/m.test(String(g9p.stdout)), String(g9p.stdout).slice(0, 300));
+const t9b = newTree();
+w(t9b, '.gitignore', 'node_modules/\n');
+w(t9b, 'tests/nm.cjs', NM_REQ.replace("'node_modules'", "'vendor-pkgs'"));
+const g9b = runJson(t9b);
+check('G9 a require into a path that is not gitignored still fails (exit 1)', g9b.status === 1, 'status=' + g9b.status);
+check('G9 the failure names the file and the target', !!g9b.json && g9b.json.failures.length === 1 && g9b.json.failures[0].file === 'tests/nm.cjs' && g9b.json.failures[0].target === 'vendor-pkgs/zod/package.json', short(g9b.json && g9b.json.failures));
+const t9c = newTree();
+w(t9c, 'tests/nm.cjs', NM_REQ);
+const g9c = runGate(['--root', t9c]);
+check('G9 without a node_modules rule the same require fails (exit 1)', g9c.status === 1, 'status=' + g9c.status);
 
 for (const d of tmpRoots) {
   try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
