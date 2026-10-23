@@ -290,7 +290,7 @@ test('W3 suggestions: a finished turn leaves the command of its state waiting in
 
   const cases: [string, string, string][] = [
     ['red', `${RED_SQUARE} ${LEAD}\n\nWhat holds this up?`, '/mos:challenge-assumptions'],
-    ['yellow', `${YELLOW_SQUARE} ${LEAD}\n\nThese pull apart.`, '/mos:memory-cortex-reach'],
+    ['yellow', `${YELLOW_SQUARE} ${LEAD}\n\nThese pull apart.`, '/mos:challenge-assumptions'],
     ['black', `${BLACK_SQUARE} ${LEAD}\n\nThis one is yours.`, '/mos:status'],
     ['blue', `${BLUE_SQUARE} ${LEAD}\n\nHere is what we have.`, '/mos:suggest-next'],
   ]
@@ -568,7 +568,7 @@ test('W10 suggestions: every state gets at least one real /mos: command, so the 
     }
   }
   expect(recommend('challenge' as never, '', false)[0]).toBe('/mos:challenge-assumptions')
-  expect(recommend('contradiction' as never, '', false)[0]).toBe('/mos:memory-cortex-reach')
+  expect(recommend('contradiction' as never, '', false)[0]).toBe('/mos:challenge-assumptions')
   expect(recommend('reframe' as never, '', false)[0]).toBe('/mos:beautiful-question')
   expect(recommend('decision' as never, '', false)[0]).toBe('/mos:status')
   // Trouble with Theo puts the doctor first.

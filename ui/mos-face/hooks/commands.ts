@@ -397,7 +397,7 @@ export const STATE_COMMANDS: Record<FaceId, string[]> = {
     "/mos:challenge-assumptions"
   ],
   "contradiction": [
-    "/mos:memory-cortex-reach"
+    "/mos:challenge-assumptions"
   ],
   "reframe": [
     "/mos:beautiful-question"

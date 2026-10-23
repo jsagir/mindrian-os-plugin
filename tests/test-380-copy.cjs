@@ -21,6 +21,9 @@
 //       one of the seven canon tokens: no invented hex, and secondary text stays dimmed paper.
 //   S7  (plan 380-13, D-10) no hook source names POSES, CREW, rasterState, rasterCrew or HOLLOW outside
 //       a comment, and face.ts exports none of them: the old poses, the crew faces and their tone are gone.
+//   S8  (plan 380-14, main-session ruling on plan 380-13 risk a) every state of STATE_COMMANDS has at least
+//       one command, and each command exists in data/command-registry.json and is not an internal surface
+//       (surface internal): the panel never suggests a command the person cannot use.
 // CJS, Node built-ins only. Hermetic: no network, no write. Hyphens only.
 'use strict';
 
@@ -342,6 +345,34 @@ check(banned('Johns Hopkins').length === 1 && banned('JHU').length === 1 && bann
   check(exported.includes('LABEL') && exported.includes('LINE_FACE') && exported.includes('gridRuns'), 'S7 face.ts still exports LABEL, LINE_FACE and gridRuns (' + exported.length + ' exports)');
   const register = code(fs.readFileSync(path.join(HOOKS, 'register.tsx'), 'utf8'));
   check(!/\bcrew\b/i.test(register) && !/'crew'/.test(register), 'S7 register.tsx has no crew atom and no crew style');
+}
+
+// ---- S8 -----------------------------------------------------------------------------------
+{
+  const source = fs.readFileSync(path.join(HOOKS, 'commands.ts'), 'utf8');
+  const registry = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'command-registry.json'), 'utf8'));
+  const surface = new Map(registry.commands.map(c => [c.command, c.surface]));
+  const m = source.match(/export const STATE_COMMANDS[^=\n]*= (\{[\s\S]*?\n\})\n/);
+  check(Boolean(m), 'S8 commands.ts holds STATE_COMMANDS');
+  const table = m ? JSON.parse(m[1]) : {};
+  const states = Object.keys(table);
+  check(states.length === 11, 'S8 STATE_COMMANDS holds the 11 canon states (' + states.length + ')');
+  const missing = [];
+  const unknown = [];
+  const internal = [];
+  for (const state of states) {
+    const list = table[state];
+    if (!Array.isArray(list) || list.length === 0) missing.push(state);
+    for (const command of list || []) {
+      if (!surface.has(command)) unknown.push(state + ' ' + command);
+      else if (surface.get(command) === 'internal') internal.push(state + ' ' + command);
+    }
+  }
+  check(missing.length === 0, 'S8 every state has at least one suggested command' + (missing.length ? ' (' + missing.join(', ') + ')' : ''));
+  check(unknown.length === 0, 'S8 every suggested command is in the registry' + (unknown.length ? ' (' + unknown.join(', ') + ')' : ''));
+  check(internal.length === 0, 'S8 no suggested command is an internal surface' + (internal.length ? ' (' + internal.join(', ') + ')' : ''));
+  check(Boolean(surface.get('/mos:challenge-assumptions') === 'navigator'), 'S8 self-test: /mos:challenge-assumptions is a navigator surface');
+  check(surface.get('/mos:memory-cortex-reach') === 'internal', 'S8 self-test: the registry still marks /mos:memory-cortex-reach internal (so the rule has teeth)');
 }
 
 say('');

@@ -178,8 +178,12 @@ function main() {
   // The commands that TERM_COMMANDS and STATE_COMMANDS name must exist.
   const doctor = (source.match(/export const DOCTOR = "([^"]+)"/) || [])[1];
   const named = [...commandsOf(term.value), ...commandsOf(state.value), ...(doctor ? [doctor] : [])];
+  // A command whose registry surface is internal is not for the person (main-session ruling on plan
+  // 380-13, risk a): the panel never suggests one.
+  const surfaceOf = new Map(registry.commands.map(c => [c.command, c.surface]));
   for (const command of new Set(named)) {
     if (!known.has(command)) problems.push('unknown command named by TERM_COMMANDS, STATE_COMMANDS or DOCTOR: ' + command);
+    else if (surfaceOf.get(command) === 'internal') problems.push('internal command named by TERM_COMMANDS, STATE_COMMANDS or DOCTOR: ' + command);
   }
 
   // The override map must itself be clean and must point at a command that exists.
