@@ -106,6 +106,12 @@ export type WorldOptions = {
   tool?: (e: { tool: string }) => unknown
   slug?: string
   calls?: Call[]
+  // Plan 05: every file path read or listed (kept apart from calls, so no leak scan sees a path).
+  reads?: string[]
+  // Plan 05: file contents by path ending, answered before the defaults.
+  files?: Record<string, string>
+  // Plan 05: a subprocess is a bug; with this on the process handler throws.
+  processThrows?: boolean
 }
 
 // Everything beneath the plugin is answered from memory, so no file, network or
@@ -115,10 +121,10 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   const calls = options.calls
   const clock = mock.clock(on, { now: 1_800_000_000_000 })
   mock.env(on, { HOME: '/home/t', ...(options.env ?? {}) })
-  on('tool.call', (_, e) => {
+  on('tool.call', async (_, e) => {
     const tool = String(e.tool)
     calls?.push({ noun: 'tool', tool, input: JSON.stringify(e) })
-    const custom = options.tool?.(e as never)
+    const custom = await options.tool?.(e as never)
     if (custom) return custom as never
     if (tool.includes('mindrian-os__')) {
       if (options.mcp === false) return { deny: 'not allowed in this test' }
@@ -144,11 +150,14 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
     value: { startedAt: 0, context: { tokens: 124000, window: 200000, percent: 62 }, rateLimits: [] },
   }))
   on('fs.read', (_, e) => {
+    options.reads?.push(`read ${e.path}`)
+    for (const [ending, text] of Object.entries(options.files ?? {})) if (e.path.endsWith(ending)) return { value: text }
     if (e.path.endsWith('registry.json')) return { value: registryFor(slug, options.isBound !== false) }
     if (e.path.endsWith('STATE.md')) return { value: '---\ncomputed: 2026-10-20\nventure_stage: Design\ntotal_entries: 14\n---\n' }
     return { deny: 'not in this test' }
   })
   on('fs.list', (_, e) => {
+    options.reads?.push(`list ${e.path}`)
     if (e.path.endsWith(slug)) {
       return {
         value: [
@@ -169,6 +178,7 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   })
   on('process.run', (_, e) => {
     calls?.push({ noun: 'process', tool: '', input: JSON.stringify(e) })
+    if (options.processThrows) throw new Error('a subprocess ran, and the panel must never start one')
 
     return {
       value: {
