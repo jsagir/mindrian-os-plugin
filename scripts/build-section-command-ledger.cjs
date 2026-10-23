@@ -678,6 +678,18 @@ function main() {
     return;
   }
 
+  if (argv.includes('--key-status')) {
+    // Prints one word and never the key. release.sh Step 2.3 asks this before it runs the live build.
+    if (loadKey()) {
+      console.log('key: present');
+      process.exit(0);
+    } else {
+      console.log('key: absent');
+      process.exit(3);
+    }
+    return;
+  }
+
   if (argv.includes('--offline-seed')) {
     writeLedger(buildOfflineSeedLedger());
     console.log('section-command-ledger: wrote offline-seed ledger');
