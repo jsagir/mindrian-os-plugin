@@ -94,6 +94,56 @@ test('B3 tick budget: 30 minutes of ticks make at most 4 tool reads per tick, 0 
   expect(fetches(calls)).toBeGreaterThan(0)
 })
 
+// Plan 380-15 (D-08, T-380-60). The count at plan 14, measured: one refresh tick reads 2 small local files
+// (the stale list and the job file) and makes 4 tool reads, 0 fetches and 0 processes.
+const TICK_FILE_READS_BEFORE = 2
+const STATUS_FILES = [
+  '/.mindrian/bridge/brain-health.json',
+  '/.mindrian/conversation-operator.json',
+  '/.mindrian/next-move.json',
+  '/.mindrian/post-update-restart-pending',
+  '/.mindrian/room-health.json',
+  '/.mindrian/stance-state.json',
+  '/.mindrian/update-check.json',
+  '/.mindrian/voice-mark.json',
+]
+
+test('B9 status reads: one tick adds at most 8 local file reads (the status line files, each once), no tool, fetch or process, and the prompt path reads nothing', async ($, on) => {
+  const reads: string[] = []
+  const { calls, clock } = recordCalls(on, { files: PREWARM, reads })
+  turnHooks(on)
+  await $.session.start(START)
+  await clock.settle()
+  const fileReads = (): string[] => reads.filter(r => r.startsWith('read '))
+
+  const perTick: number[] = []
+  const lists: string[][] = []
+  for (let tick = 1; tick <= 3; tick++) {
+    reads.length = 0
+    calls.length = 0
+    await clock.advance(TICK)
+    perTick.push(fileReads().length)
+    lists.push(fileReads())
+    // The ticks stay inside the plan 05 and 14 counts: 4 tool reads, no fetch, no process.
+    expect(roomReads(calls)).toBe(4)
+    expect(fetches(calls)).toBe(0)
+    expect(processes(calls)).toBe(0)
+  }
+  for (const n of perTick) expect(n).toBeLessThanOrEqual(TICK_FILE_READS_BEFORE + 8)
+  // Each status line file is read once for a tick, and only those.
+  const first = lists[0] ?? []
+  for (const ending of STATUS_FILES) expect(`${ending} ${first.filter(r => r.endsWith(ending)).length}`).toBe(`${ending} 1`)
+  expect(first.length - STATUS_FILES.length).toBeLessThanOrEqual(TICK_FILE_READS_BEFORE)
+
+  // The prompt path reads nothing, with the status files in place.
+  reads.length = 0
+  calls.length = 0
+  await $.prompt.submit({ text: 'What should I do about the bug?' } as never)
+  await $.turn.start({ turnId: 'b9', prompt: 'x' } as never)
+  expect(reads).toEqual([])
+  expect(calls).toEqual([])
+})
+
 test('B4 reach cut-off: a fetch that never answers is cut at 4000 ms, with status null, and the refresh completes', async ($, on) => {
   const hang = { on: true }
   const { clock } = recordCalls(on, { hang, files: PREWARM })
