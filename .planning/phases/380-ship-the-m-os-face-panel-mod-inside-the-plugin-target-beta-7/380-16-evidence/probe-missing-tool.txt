@@ -1,0 +1,4 @@
+Command: claude -p "/probe" --plugin-dir <scratch>/probe, scratch HOME and CLAUDE_CONFIG_DIR (buildScratchConfig, login by symlink), claude 2.1.309, 2026-10-24.
+The probe command calls $.tool.call({ tool: 'mcp__plugin_nonexistent__brain_ask', question: 'x' }) and prints the result.
+Output:
+mos-probe: THREW HooksError: mos-probe: $.tool.call: no tool named "mcp__plugin_nonexistent__brain_ask" in this session
