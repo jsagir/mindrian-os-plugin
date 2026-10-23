@@ -9,7 +9,7 @@ import type { TestBody } from 'claude-code/testing'
 // a parameter, so a test can bind a room with a canary name.
 
 export const BAND = {
-  plugin: 'mos',
+  plugin: 'mos-face',
   component: 'AbovePrompt',
   props: {
     hasSurvey: false,
@@ -24,7 +24,7 @@ export const BAND = {
 } as const
 
 export const PANE = {
-  plugin: 'mos',
+  plugin: 'mos-face',
   component: 'Pane',
   requestId: 'mos-state',
   props: {

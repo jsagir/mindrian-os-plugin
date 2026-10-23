@@ -73,58 +73,59 @@ const noAdvice: Advice = {
   note: '',
 }
 
-// The state owner is the plugin that ships this module. The shipped plugin is named mos (the root
-// .claude-plugin/plugin.json), and the engine lets only the owner write a value (plan 380-09: the
-// engine refused state.set under the name mos-face). So the literals say mos, and so do the type
-// declaration (types/index.d.ts) and the manifest name of this package. The engine needs the plugin
-// and key as literals in source, so the name cannot sit in a constant.
-const face = atom({ plugin: 'mos', key: 'face' } as const, 'rest')
-const detail = atom({ plugin: 'mos', key: 'detail' } as const, '')
-const mos = atom({ plugin: 'mos', key: 'mos' } as const, 0)
-const move = atom({ plugin: 'mos', key: 'move' } as const, 'none')
-const frame = atom({ plugin: 'mos', key: 'frame' } as const, 0)
-const isHidden = atom({ plugin: 'mos', key: 'isHidden' } as const, false)
-const isChipOff = atom({ plugin: 'mos', key: 'isChipOff' } as const, false)
-const style = atom({ plugin: 'mos', key: 'style' } as const, 'tile')
-const spoken = atom({ plugin: 'mos', key: 'spoken' } as const, 0)
-const theo = atom({ plugin: 'mos', key: 'theo' } as const, [])
-const theoTurn = atom({ plugin: 'mos', key: 'theoTurn' } as const, emptyTotals)
-const theoTotals = atom({ plugin: 'mos', key: 'theoTotals' } as const, emptyTotals)
-const flag = atom({ plugin: 'mos', key: 'flag' } as const, '')
-const isSuggestOff = atom({ plugin: 'mos', key: 'isSuggestOff' } as const, false)
-const snap = atom({ plugin: 'mos', key: 'snap' } as const, null)
-const isRefreshing = atom({ plugin: 'mos', key: 'isRefreshing' } as const, false)
-const advice = atom({ plugin: 'mos', key: 'advice' } as const, noAdvice)
-const isAutoOff = atom({ plugin: 'mos', key: 'isAutoOff' } as const, false)
-const paneAsked = atom({ plugin: 'mos', key: 'paneAsked' } as const, false)
-const bound = atom({ plugin: 'mos', key: 'bound' } as const, null)
-const boundHow = atom({ plugin: 'mos', key: 'boundHow' } as const, '')
-const workspace = atom({ plugin: 'mos', key: 'workspace' } as const, '')
-const isPlain = atom({ plugin: 'mos', key: 'isPlain' } as const, false)
+// The state owner is the plugin that ships this module. In source it is mos-face, so a dev run
+// (claude --plugin-dir ui/mos-face) does not replace the installed mos plugin. The shipped plugin is
+// named mos, and the engine lets only the owner write a value, so scripts/build-mos-face.cjs rewrites
+// the owner from mos-face to mos in lib/mos-face/dist (register module and types) and fails the build
+// on a leftover. The engine needs the plugin and key as literals in source, so the name cannot sit in
+// a constant.
+const face = atom({ plugin: 'mos-face', key: 'face' } as const, 'rest')
+const detail = atom({ plugin: 'mos-face', key: 'detail' } as const, '')
+const mos = atom({ plugin: 'mos-face', key: 'mos' } as const, 0)
+const move = atom({ plugin: 'mos-face', key: 'move' } as const, 'none')
+const frame = atom({ plugin: 'mos-face', key: 'frame' } as const, 0)
+const isHidden = atom({ plugin: 'mos-face', key: 'isHidden' } as const, false)
+const isChipOff = atom({ plugin: 'mos-face', key: 'isChipOff' } as const, false)
+const style = atom({ plugin: 'mos-face', key: 'style' } as const, 'tile')
+const spoken = atom({ plugin: 'mos-face', key: 'spoken' } as const, 0)
+const theo = atom({ plugin: 'mos-face', key: 'theo' } as const, [])
+const theoTurn = atom({ plugin: 'mos-face', key: 'theoTurn' } as const, emptyTotals)
+const theoTotals = atom({ plugin: 'mos-face', key: 'theoTotals' } as const, emptyTotals)
+const flag = atom({ plugin: 'mos-face', key: 'flag' } as const, '')
+const isSuggestOff = atom({ plugin: 'mos-face', key: 'isSuggestOff' } as const, false)
+const snap = atom({ plugin: 'mos-face', key: 'snap' } as const, null)
+const isRefreshing = atom({ plugin: 'mos-face', key: 'isRefreshing' } as const, false)
+const advice = atom({ plugin: 'mos-face', key: 'advice' } as const, noAdvice)
+const isAutoOff = atom({ plugin: 'mos-face', key: 'isAutoOff' } as const, false)
+const paneAsked = atom({ plugin: 'mos-face', key: 'paneAsked' } as const, false)
+const bound = atom({ plugin: 'mos-face', key: 'bound' } as const, null)
+const boundHow = atom({ plugin: 'mos-face', key: 'boundHow' } as const, '')
+const workspace = atom({ plugin: 'mos-face', key: 'workspace' } as const, '')
+const isPlain = atom({ plugin: 'mos-face', key: 'isPlain' } as const, false)
 // The owner allows the panel to send a cleaned excerpt of the person's own recent words to
 // Theo (opt out any time). Held in memory for this session only: a new session starts with
 // the excerpt on, unless MOS_FACE_WORDS=off is set (proposal envSwitch, hooks/proposals.ts).
-const wordsOn = atom({ plugin: 'mos', key: 'wordsOn' } as const, true)
-const refreshNote = atom({ plugin: 'mos', key: 'refreshNote' } as const, '')
-const openSection = atom({ plugin: 'mos', key: 'openSection' } as const, '')
-const openBlock = atom({ plugin: 'mos', key: 'openBlock' } as const, '')
-const sectionFiles = atom({ plugin: 'mos', key: 'sectionFiles' } as const, [])
-const freshNames = atom({ plugin: 'mos', key: 'freshNames' } as const, [])
-const lit = atom({ plugin: 'mos', key: 'lit' } as const, {})
-const litWhy = atom({ plugin: 'mos', key: 'litWhy' } as const, {})
+const wordsOn = atom({ plugin: 'mos-face', key: 'wordsOn' } as const, true)
+const refreshNote = atom({ plugin: 'mos-face', key: 'refreshNote' } as const, '')
+const openSection = atom({ plugin: 'mos-face', key: 'openSection' } as const, '')
+const openBlock = atom({ plugin: 'mos-face', key: 'openBlock' } as const, '')
+const sectionFiles = atom({ plugin: 'mos-face', key: 'sectionFiles' } as const, [])
+const freshNames = atom({ plugin: 'mos-face', key: 'freshNames' } as const, [])
+const lit = atom({ plugin: 'mos-face', key: 'lit' } as const, {})
+const litWhy = atom({ plugin: 'mos-face', key: 'litWhy' } as const, {})
 // The canon face asset as checked text (an empty string when it could not be read), and the plain
 // sentence that says so. Read once at session start through the engine (Phase 380 plan 13, D-10).
-const faceAsset = atom({ plugin: 'mos', key: 'faceAsset' } as const, '')
-const faceAssetNote = atom({ plugin: 'mos', key: 'faceAssetNote' } as const, '')
+const faceAsset = atom({ plugin: 'mos-face', key: 'faceAsset' } as const, '')
+const faceAssetNote = atom({ plugin: 'mos-face', key: 'faceAssetNote' } as const, '')
 // The Job line (plan 14, D-09): the compact text of the room's recorded job, read once for each refresh
 // tick (an empty string when there is none); whether the person hid the line; and the job it was hidden
 // for. An empty jobHiddenFor means hidden whatever the job is (the /mos-job toggle).
-const jobRecord = atom({ plugin: 'mos', key: 'jobRecord' } as const, '')
-const jobHidden = atom({ plugin: 'mos', key: 'jobHidden' } as const, false)
-const jobHiddenFor = atom({ plugin: 'mos', key: 'jobHiddenFor' } as const, '')
+const jobRecord = atom({ plugin: 'mos-face', key: 'jobRecord' } as const, '')
+const jobHidden = atom({ plugin: 'mos-face', key: 'jobHidden' } as const, false)
+const jobHiddenFor = atom({ plugin: 'mos-face', key: 'jobHiddenFor' } as const, '')
 // The status line's own local files, read once for each refresh tick (plan 15, D-08). Null before the first
 // read. Nothing reads them in a prompt or turn hook.
-const statusLocal = atom({ plugin: 'mos', key: 'statusLocal' } as const, null)
+const statusLocal = atom({ plugin: 'mos-face', key: 'statusLocal' } as const, null)
 
 // ---- Helpers ----------------------------------------------------------------
 

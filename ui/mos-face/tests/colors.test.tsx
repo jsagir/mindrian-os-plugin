@@ -146,7 +146,7 @@ test('K3 yellow: no move chip draws yellow as text color', () => {
 
 const at = (columns: number, rows = 40) =>
   ({
-    plugin: 'mos',
+    plugin: 'mos-face',
     component: 'Pane',
     requestId: 'mos-state',
     props: { title: '/m:os', isFocused: false, bodyColumns: columns, placement: 'dock', scroll: { offset: 0, bodyRows: rows }, view: {} },

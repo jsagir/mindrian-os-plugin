@@ -345,6 +345,7 @@ function verifyOutput(distDir, repoRoot) {
       continue;
     }
     const text = fs.readFileSync(f.abs).toString('utf8');
+    if (hasOwnerLiteral(text)) problems.push(f.rel + ': holds a leftover ' + OWNER_FROM + ' state owner');
     if (text.includes(EM_DASH)) problems.push(f.rel + ': holds an em-dash');
     if (text.includes(EN_DASH)) problems.push(f.rel + ': holds an en-dash');
     const paths = new Set();
@@ -461,6 +462,47 @@ function rewriteImports(dir) {
   }
 }
 
+/**
+ * The state owner. In source it is mos-face (a dev run must not replace the installed mos plugin). The shipped plugin is
+ * named mos and the engine lets only the owner write a value, so the dist says mos. The pattern is exact: an atom owner
+ * literal (plugin: 'mos-face') and the PluginState key line ('mos-face': {). The folder name, file names and prose stay.
+ */
+const OWNER_FROM = 'mos-face';
+const OWNER_TO = 'mos';
+const OWNER_ATOM_RE = /(\bplugin:\s*)'mos-face'/g;
+const OWNER_KEY_RE = /^( {4})'mos-face'(: \{)$/gm;
+
+function rewriteOwnerText(text) {
+  return text.replace(OWNER_ATOM_RE, "$1'" + OWNER_TO + "'").replace(OWNER_KEY_RE, "$1'" + OWNER_TO + "'$2");
+}
+
+/** Rewrite the owner in the compiled register module and the types file of a staged dist. */
+function rewriteOwner(dir) {
+  for (const f of walkFiles(dir)) {
+    if (!(/\.js$/.test(f.rel) && !f.rel.startsWith('assets/')) && !/\.d\.ts$/.test(f.rel)) continue;
+    const text = fs.readFileSync(f.abs, 'utf8');
+    const out = rewriteOwnerText(text);
+    if (out !== text) fs.writeFileSync(f.abs, out);
+  }
+}
+
+function hasOwnerLiteral(text) {
+  OWNER_ATOM_RE.lastIndex = 0;
+  OWNER_KEY_RE.lastIndex = 0;
+  return OWNER_ATOM_RE.test(text) || OWNER_KEY_RE.test(text);
+}
+
+/** Files of the dist that still hold an owner literal (a leftover). */
+function ownerLeftovers(dir) {
+  const left = [];
+  for (const f of walkFiles(dir)) {
+    if (!f.regular || !/\.(?:js|ts)$/.test(f.rel) || f.rel.startsWith('assets/')) continue;
+    const text = fs.readFileSync(f.abs, 'utf8');
+    if (hasOwnerLiteral(text)) left.push(f.rel);
+  }
+  return left;
+}
+
 function build() {
   if (process.env[SEAM_ENV]) {
     throw new Error(SEAM_ENV + ' is a test seam for --check only and is set in this environment; unset it to build (the build writes lib/mos-face/dist and nothing else)');
@@ -494,6 +536,11 @@ function build() {
     if (IMPORT_REWRITE) rewriteImports(stage);
     fs.mkdirSync(path.join(stage, 'types'), { recursive: true });
     fs.copyFileSync(path.join(MOD_DIR, 'types', 'index.d.ts'), path.join(stage, 'types', 'index.d.ts'));
+    rewriteOwner(stage);
+    const leftover = ownerLeftovers(stage);
+    if (leftover.length) {
+      throw new Error('the build output was refused: a leftover ' + OWNER_FROM + ' state owner in ' + leftover.join(', '));
+    }
     fs.mkdirSync(path.join(stage, 'assets'), { recursive: true });
     for (const name of fs.readdirSync(path.join(MOD_DIR, 'assets')).sort()) {
       fs.copyFileSync(path.join(MOD_DIR, 'assets', name), path.join(stage, 'assets', name));
@@ -637,5 +684,6 @@ module.exports = {
   REQUIRED_MANIFEST_KEYS,
   STALE_MESSAGE,
   IMPORT_REWRITE,
+  rewriteOwnerText,
   DIST_DIR,
 };

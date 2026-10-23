@@ -95,7 +95,7 @@ function scan(label: string, texts: string[], allowLarry = false): string[] {
 
 const at = (columns: number, rows = 40) =>
   ({
-    plugin: 'mos',
+    plugin: 'mos-face',
     component: 'Pane',
     requestId: 'mos-state',
     props: { title: '/m:os', isFocused: false, bodyColumns: columns, placement: 'dock', scroll: { offset: 0, bodyRows: rows }, view: {} },
@@ -104,7 +104,7 @@ const at = (columns: number, rows = 40) =>
 
 const band = (columns: number) =>
   ({
-    plugin: 'mos',
+    plugin: 'mos-face',
     component: 'AbovePrompt',
     props: { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: columns, bodyRows: 20, columns, scroll: { offset: 0, bodyRows: 20 }, view: {} },
     surface: 'terminal',
@@ -112,7 +112,7 @@ const band = (columns: number) =>
 
 const reply = (text: string) =>
   ({
-    plugin: 'mos',
+    plugin: 'mos-face',
     component: 'AssistantMessage',
     props: { text, isFirstOfReply: true },
     surface: 'terminal',

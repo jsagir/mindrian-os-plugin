@@ -536,7 +536,7 @@ function b12() {
   const expected = ['advice', 'bind', 'commands', 'face', 'glossary', 'lines', 'meter', 'paths', 'probe', 'source', 'voice', 'register'];
   check(expected.every((n) => keys.includes(n + '.js')), 'plain .js modules exist for register, advice, bind, commands, face, glossary, lines, meter, paths, probe, source and voice');
   check(keys.includes('types/index.d.ts'), 'the type declarations are copied to types/index.d.ts');
-  check(fs.readFileSync(path.join(DIST, 'types', 'index.d.ts')).equals(fs.readFileSync(path.join(MOD, 'types', 'index.d.ts'))), 'types/index.d.ts is a byte copy of the package declarations');
+  check(fs.readFileSync(path.join(DIST, 'types', 'index.d.ts'), 'utf8') === build.rewriteOwnerText(fs.readFileSync(path.join(MOD, 'types', 'index.d.ts'), 'utf8')), 'types/index.d.ts is the package declarations with only the state owner rewritten (mos-face to mos)');
   check(!keys.some((k) => /\.(tsx?|map)$/.test(k) && !/\.d\.ts$/.test(k)), 'no .ts, .tsx or .map entry in the manifest');
 }
 
