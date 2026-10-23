@@ -19,6 +19,7 @@ Run these commands in this folder.
 - Load it in a session: `claude --plugin-dir ui/mos-face` (from the repo root).
 - Test it: `claude plugin test .` (34 original tests and the egress tests).
 - Check the plugin shape: `claude plugin validate .`
+- Review the shipped copy with the book (read only, in a scratch folder): `node scripts/book-review.cjs --out <file>`. It exits 1 if the book changes during the run and 77 if the book or the claude CLI is missing.
 - Type-check it: `npm run typecheck` (the script lands in a later plan).
 - Build it: `npm run build` (the script lands in a later plan).
 - Install the lockfile: `npm ci --ignore-scripts`.
