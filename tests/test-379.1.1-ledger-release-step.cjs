@@ -138,8 +138,11 @@ function makeScenario(opts) {
   return { dir, home, state };
 }
 
-function run(sc, dryRun, noCheck) {
-  const script = '. "$1"; mos_ledger_rebuild_step "$2" "$3" "$4"; echo "RC=$?"';
+function run(sc, dryRun, noCheck, errexit) {
+  // errexit mimics scripts/release.sh, which runs under set -euo pipefail and calls the step bare.
+  const script = errexit
+    ? 'set -euo pipefail; . "$1"; mos_ledger_rebuild_step "$2" "$3" "$4"; echo "RC=0"'
+    : '. "$1"; mos_ledger_rebuild_step "$2" "$3" "$4"; echo "RC=$?"';
   const r = cp.spawnSync('bash', ['-c', script, 'x', LIB, sc.dir, String(dryRun || 0), String(noCheck || 0)], {
     encoding: 'utf8',
     env: Object.assign({}, process.env, GIT_ENV, { HOME: sc.home, USERPROFILE: sc.home, STUB_STATE: sc.state }),
@@ -250,6 +253,16 @@ if (fs.existsSync(LIB)) {
     check(head(sc) === h0, 'HEAD moved');
   });
 
+  arm('S9 under a set -euo pipefail caller: a stale dry run and a full rebuild both return 0 and reach the next line', () => {
+    const a = makeScenario();
+    const ra = run(a, 1, 0, true);
+    check(ra.rc === 0 && /\[DRY RUN\]/.test(ra.out), 'stale dry run under set -e: rc ' + ra.rc + '\n' + ra.out);
+    const b = makeScenario();
+    const n0 = commitCount(b);
+    const rb = run(b, 0, 0, true);
+    check(rb.rc === 0 && commitCount(b) === n0 + 1, 'full rebuild under set -e: rc ' + rb.rc + '\n' + rb.out);
+  });
+
   arm('S8 ledger file dirty: returns 1, names the file, no build call, change kept', () => {
     const sc = makeScenario({ dirty: true });
     const h0 = head(sc);
@@ -305,7 +318,96 @@ arm('ST4 no em-dash and no en-dash in the library or this test', () => {
   }
 });
 
-// <gsd:wiring-legs>
+// ---------------------------------------------------------------------------
+// Wiring legs: scripts/release.sh carries Step 2.3, --ledger-only and the dry-run line.
+// ---------------------------------------------------------------------------
+const rsrc = fs.existsSync(RELEASE_SH) ? fs.readFileSync(RELEASE_SH, 'utf8') : '';
+const CALL = 'mos_ledger_rebuild_step "$PLUGIN_DIR"';
+
+arm('W1 the preamble sources ledger-rebuild.sh behind a missing-library guard, before Step 0', () => {
+  const guard = rsrc.indexOf('scripts/release-lib/ledger-rebuild.sh missing');
+  const source = rsrc.indexOf('. "$RELEASE_LIB_DIR/ledger-rebuild.sh"');
+  const step0 = rsrc.indexOf('# --- Step 0: Parse bump type');
+  check(guard !== -1 && source !== -1, 'guard or source line missing');
+  check(guard < source, 'the guard must come before the source line');
+  check(source < step0, 'the source line must come before Step 0');
+  const after = rsrc.slice(guard, source);
+  check(/exit 1/.test(after), 'the guard does not exit 1');
+});
+
+arm('W2 USAGE_BLOCK and the case list carry --ledger-only', () => {
+  const usage = (rsrc.match(/USAGE_BLOCK="[^"]*"/) || [''])[0];
+  check(usage.includes('--ledger-only'), 'USAGE_BLOCK lacks --ledger-only');
+  check(/--ledger-only\)\s*LEDGER_ONLY=1/.test(rsrc), 'case arm lacks --ledger-only');
+  check(/\nLEDGER_ONLY=0/.test(rsrc), 'LEDGER_ONLY default missing');
+});
+
+arm('W3 the Step 2.3 call sits after the Step 2 verify block and before the Step 2.4 header', () => {
+  const verified = rsrc.indexOf('All verification checks passed');
+  const header = rsrc.indexOf('# --- Step 2.3:');
+  const step24 = rsrc.indexOf('# --- Step 2.4: coverage gates');
+  const call = rsrc.lastIndexOf(CALL + ' "$DRY_RUN" "$NO_LEDGER_CHECK"');
+  check(verified !== -1 && header !== -1 && step24 !== -1 && call !== -1, 'a marker is missing');
+  check(verified < header && header < call && call < step24, 'order wrong: ' + [verified, header, call, step24].join(' '));
+  const block = rsrc.slice(call, step24);
+  check(/ABORT/.test(block) && /exit 1/.test(block), 'the call is not followed by an ABORT and exit 1');
+});
+
+arm('W4 the dry-run listing holds the Step 2.3 line and calls the step with DRY_RUN 1', () => {
+  const line = rsrc.indexOf('  Step 2.3  : section-command ledger rebuild');
+  const call = rsrc.indexOf(CALL + ' 1 "$NO_LEDGER_CHECK"');
+  const exitIdx = rsrc.indexOf('=== DRY-RUN COMPLETE');
+  const step2 = rsrc.indexOf('  Step 2    : run scripts/verify-release');
+  const firstStep24 = rsrc.indexOf('  Step 2.4  :');
+  check(line !== -1 && call !== -1, 'dry-run line or call missing');
+  check(step2 < line && line < call && call < firstStep24 && call < exitIdx, 'dry-run order wrong');
+  const lineText = rsrc.slice(line, rsrc.indexOf('\n', line));
+  for (const w of ['offline check first', 'dev key', 'data/section-command-ledger.json', 'Step 2.6', '--ledger-only']) {
+    check(lineText.includes(w), 'dry-run line lacks "' + w + '"');
+  }
+});
+
+arm('W5 the ledger-only mode sits after Step 0.5 and before Step 0.55, and exits with the step code', () => {
+  const s05 = rsrc.indexOf('# --- Step 0.5: semver preflight');
+  const s055 = rsrc.indexOf('# --- Step 0.55:');
+  const mode = rsrc.indexOf('if [ "$LEDGER_ONLY" = "1" ]; then', s05);
+  check(s05 !== -1 && mode > s05 && mode < s055, 'standalone mode is not between Step 0.5 and Step 0.55');
+  const block = rsrc.slice(mode, s055);
+  check(block.includes(CALL) && /exit "?\$/.test(block), 'standalone mode does not call the step and exit with its code');
+});
+
+arm('W6 a bump flag together with --ledger-only prints the usage and exits 1', () => {
+  const r = cp.spawnSync('bash', [RELEASE_SH, '--prerelease', '--ledger-only', '--dry-run'], { encoding: 'utf8', cwd: ROOT, timeout: 60000 });
+  check(r.status === 1, 'exit ' + r.status + '\n' + r.stdout + r.stderr);
+  check(/Usage:/.test(r.stdout + r.stderr), 'no usage text');
+  check(!/unknown arg/.test(r.stdout + r.stderr), 'the flag was rejected as unknown, not as a bad combination');
+  check(/--ledger-only/.test(r.stdout + r.stderr) && /cannot be combined|alone/.test(r.stdout + r.stderr), 'no message that --ledger-only stands alone');
+});
+
+function porcelain() {
+  return git(ROOT, ['status', '--porcelain']).stdout;
+}
+
+arm('W7 --ledger-only --dry-run exits 0, prints only the ledger step, changes nothing', () => {
+  const before = porcelain();
+  const r = cp.spawnSync('bash', [RELEASE_SH, '--ledger-only', '--dry-run'], { encoding: 'utf8', cwd: ROOT, timeout: 120000 });
+  const out = (r.stdout || '') + (r.stderr || '');
+  check(r.status === 0, 'exit ' + r.status + '\n' + out);
+  check(/\[DRY RUN\] ledger-rebuild:/.test(out), 'no [DRY RUN] ledger verdict:\n' + out);
+  check(!/Step 0\.55|Step 0\.6|Planned release sequence/.test(out), 'other steps ran:\n' + out);
+  check(porcelain() === before, 'git status changed');
+});
+
+arm('W8 the full cut --dry-run exits 0, prints the Step 2.3 line and a [DRY RUN] ledger verdict, changes nothing', () => {
+  const before = porcelain();
+  const flags = ['--prerelease', '--dry-run', '--no-cut-listener', '--no-theo-check', '--no-canon-snapshot-check', '--no-suite-check'];
+  const r = cp.spawnSync('bash', [RELEASE_SH].concat(flags), { encoding: 'utf8', cwd: ROOT, timeout: 240000 });
+  const out = (r.stdout || '') + (r.stderr || '');
+  check(r.status === 0, 'exit ' + r.status + '\n' + out.slice(-1500));
+  check(/Step 2\.3\s+: section-command ledger rebuild/.test(out), 'no Step 2.3 line');
+  check(/\[DRY RUN\] ledger-rebuild:/.test(out), 'no [DRY RUN] ledger verdict');
+  check(porcelain() === before, 'git status changed');
+});
 
 console.log('');
 console.log('PASS=' + passed + ' FAIL=' + failed);

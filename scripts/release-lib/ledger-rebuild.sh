@@ -27,6 +27,8 @@
 #
 # RULES for this file (real-room-gate.sh shape, copied on purpose): no `set -e`, no top-level side
 # effects, safe under `set -u`, the function only returns codes and never terminates the caller shell.
+# The caller runs under `set -euo pipefail`, so every command whose failure is expected takes its status
+# with || or sits in an if.
 #
 # Phase 379.1.1 plan 02. Hyphens only.
 
@@ -57,11 +59,14 @@ mos_ledger_rebuild_step() {
   fi
 
   # 2. The offline check. Keep its text.
-  local check_text check_rc
-  check_text="$(node "$plugin_dir/scripts/build-section-command-ledger.cjs" --check 2>&1)"
-  check_rc=$?
+  # The caller (scripts/release.sh) runs under set -e. A failing command substitution must not end
+  # the caller shell here, so the status is taken with || and never with a bare $?.
+  local check_text check_rc=0
+  check_text="$(node "$plugin_dir/scripts/build-section-command-ledger.cjs" --check 2>&1)" || check_rc=$?
   if [ "$check_rc" = "0" ]; then
-    echo -e "${GREEN:-}  ledger-rebuild: the section-command ledger is current for the repo version. Rebuild skipped.${NC:-}"
+    local cur_prefix=""
+    [ "$dry_run" = "1" ] && cur_prefix="[DRY RUN] "
+    echo -e "${GREEN:-}  ${cur_prefix}ledger-rebuild: the section-command ledger is current for the repo version. Rebuild skipped.${NC:-}"
     return 0
   fi
   local first_line
@@ -109,7 +114,7 @@ mos_ledger_rebuild_step() {
 
   # 8. Commit the one file. The subject names the version, the model, the frameworks and the rows.
   local version facts model frameworks rows subject
-  version="$(node "$plugin_dir/lib/core/repo-version.cjs" 2>/dev/null | tr -d '[:space:]')"
+  version="$(node "$plugin_dir/lib/core/repo-version.cjs" 2>/dev/null | tr -d '[:space:]' || true)"
   [ -z "$version" ] && version="unknown"
   facts="$(node -e '
     var l = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
