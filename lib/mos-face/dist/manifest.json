@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "builder": "scripts/build-mos-face.cjs",
+  "sourceHash": "f18c5c20b670068a778f3058522fee41faa16c3fa73a4e8492bb4ca290c382d7",
+  "typescript": "7.0.2",
+  "importRewrite": false,
+  "files": {
+    "advice.js": "37b81ecb5d75ae1e53b64a35192dfc9217e68eb20e49994362280fef511a328a",
+    "assets/asset-d96217b320.js": "9ba50a842158058aabc91356eea3f12c7de0ade619c13c7b3ad1cc6b50ce0d75",
+    "assets/asset-fa8504998f.json": "e54e7c6a3c11a039059fb47833b09e865cd3981e2910b4f13571e87c06682da2",
+    "bind.js": "ef9ef1ce66d828ed1dae448d68687478cac7a17f27360e9464db3d859e1b3b17",
+    "commands.js": "2858c64649279f36db2237c44328c847da5490777c84e483030cb2eab03acb63",
+    "face-events.js": "72d6c439025f2f45072b2467b358957d4e4b9f335f105a661c90834c35d8f3a4",
+    "face.js": "977094d2695555f616e8b93019e3229fe7477999d417d7f81081d8d955d5e4e1",
+    "glossary.js": "b01a70f822fb789f3ac00ae7c98a8cba831a37c3078fdd20d7022435bada851e",
+    "job.js": "2b1594261ee50d47d043e2e83850129a367ed3e9afb51139e5fb8e5a1c9b43e2",
+    "jobs.js": "91b974a8e81331d20c197d6dac7868d69061f0ea7ba0299a83acee9ceee4e10f",
+    "lines.js": "5ca663128ff754ed161c40e539888c970fe16ffaa5fc9d834cb8588f3038e39b",
+    "meter.js": "29e08bfe1daa5a186e50e15906ad60f8db7b96e2a4078d1bf94ca6f3415a8a7d",
+    "paths.js": "a91e6a298d8e13c67ba930dd7792f7af88cc67478333b03e241cd9e396342da8",
+    "probe.js": "1d7fc722890d2307a39cd6277380f79e9bab5f4dcc85c9d9062ebcfe045f34c9",
+    "proposals.js": "72f7c24a7c7a31de997ededdb477f8b7483bcec62590133ac5b13f8dc0372222",
+    "register.js": "b8edeea39b496a877d0ab48d637c7d974224556079dc7abfcfdf587a5042fe91",
+    "source.js": "88014b29403578970ad917de9938266de8eaefe469e3369c021047b10f9802fa",
+    "status.js": "ea4f128f0db1dc8250c12f430c8a7f91d54b9493b420aa494474ccda0c5bac90",
+    "theo-face.js": "a77c8bab54e6f9700d362afe36b369f119bf20f771c97cfa824a0dfcaad33721",
+    "types/index.d.ts": "ae8bcf159a7c7e1d180bd29008e20b6c8ba4764704f9aa80919366c2df898610",
+    "voice.js": "d7f23edf49628e47cb4d923562f0e962fca0674837a015700989197c324e5232"
+  }
+}

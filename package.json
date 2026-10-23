@@ -28,6 +28,7 @@
     "scripts",
     "!scripts/release.sh",
     "!scripts/build-ui-shell.cjs",
+    "!scripts/build-mos-face.cjs",
     "!scripts/release-lib",
     "bin",
     "data",

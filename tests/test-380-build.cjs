@@ -231,6 +231,7 @@ say('B5 output rules');
   mutate('a foreign host', 'zz.js', 'export const u = "https://evil.example.org/x"\n', /host other than www\.mindrian-os\.com \(evil\.example\.org\)/);
   mutate('an em-dash', 'zz.js', 'export const t = "a ' + EM + ' b"\n', /em-dash/);
   mutate('an en-dash', 'zz.js', 'export const t = "a ' + EN + ' b"\n', /en-dash/);
+  mutate('a foreign host in a comment (comments are scanned for hosts too)', 'zz.js', '// see https://evil.example.org/x\nexport const a = 1\n', /host other than www\.mindrian-os\.com \(evil\.example\.org\)/);
   mutate('a banned word (Brain)', 'zz.js', 'export const t = "ask the Brain"\n', /banned copy word.*Brain/);
   mutate('a banned word (Larry)', 'zz.js', 'export const t = `hello ${1} Larry`\n', /banned copy word.*Larry/);
   mutate('a banned phrase (supercharge)', 'zz.js', "export const t = 'supercharge it'\n", /banned copy word.*supercharge/);
@@ -240,7 +241,7 @@ say('B5 output rules');
   const ok = scratch('b5-controls');
   copyTree(DIST, ok);
   fs.writeFileSync(path.join(ok, 'zz.js'), [
-    '// the Brain and Larry and require("x") and https://evil.example.org are only a comment here',
+    '// the Brain and Larry and require("x") are only a comment here',
     '/* import("y") em block comment with Brain */',
     'const re = /Brain|require\\(/g',
     'export const f = "/brain-prewarm.json"',
@@ -549,8 +550,10 @@ function b13() {
   check(namesCopy.length >= 15 && namesCopy.join('\n') === namesBuild.join('\n'), 'the banned-word list of the build equals the list of tests/test-380-copy.cjs (' + namesBuild.length + ' rules)');
   const allowedCopy = Array.from(copyTest.matchAll(/\{ file: '[a-z.]+', text: '([^']+)' \}/g)).map((m) => m[1]);
   check(allowedCopy.length > 0 && allowedCopy.every((a) => build.ALLOWED_STRINGS.includes(a)) && build.ALLOWED_STRINGS.length === allowedCopy.length, 'the allowed file-name strings equal the list of tests/test-380-copy.cjs');
-  const ig = spawnSync('git', ['-C', REPO, 'check-ignore', '-q', 'lib/mos-face/dist/register.js', 'lib/mos-face/dist/manifest.json'], { encoding: 'utf8' });
-  check(ig.status === 1, 'the dist is not git-ignored');
+  // git check-ignore -q takes one path at a time: exit 1 = not ignored.
+  const notIgnored = ['lib/mos-face/dist/register.js', 'lib/mos-face/dist/manifest.json', 'lib/mos-face/dist/assets/' + JSON_NAME, 'lib/mos-face/dist/types/index.d.ts']
+    .map((p) => spawnSync('git', ['-C', REPO, 'check-ignore', '-q', p], { encoding: 'utf8' }).status);
+  check(notIgnored.every((c) => c === 1), 'no dist file is git-ignored (' + notIgnored.join(',') + ')');
   for (const f of [BUILD, __filename]) {
     const t = fs.readFileSync(f, 'utf8');
     check(!t.includes(EM) && !t.includes(EN), path.basename(f) + ' holds no em-dash or en-dash');
