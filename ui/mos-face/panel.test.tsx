@@ -1,4 +1,5 @@
 import { expect, mock, test } from 'claude-code/testing'
+import type { TestBody } from 'claude-code/testing'
 
 import { chaptersToPicks, searchTerms, classify, frameFor, sanitize, subjectOf, thinkPrompt, wordsFor } from './hooks/advice'
 import { firstJson, parseClaims, parseGraph, parseSections } from './hooks/source'
@@ -92,7 +93,7 @@ const mcpAnswer = (tool: string, isBound: boolean): string | null => {
 
 // Everything beneath the plugin is answered from memory, so no file, network or
 // command is touched.
-function world(on: Parameters<Parameters<typeof test>[1]>[1], options: { isBound?: boolean; statuses?: (string | undefined)[]; cwd?: string; env?: Record<string, string>; hang?: { on: boolean }; mcp?: boolean; tool?: (e: { tool: string }) => unknown } = {}) {
+function world(on: Parameters<TestBody>[1], options: { isBound?: boolean; statuses?: (string | undefined)[]; cwd?: string; env?: Record<string, string>; hang?: { on: boolean }; mcp?: boolean; tool?: (e: { tool: string }) => unknown } = {}) {
   const clock = mock.clock(on, { now: 1_800_000_000_000 })
   mock.env(on, { HOME: '/home/t', ...(options.env ?? {}) })
   on('tool.call', (_, e) => {
@@ -151,6 +152,8 @@ function world(on: Parameters<Parameters<typeof test>[1]>[1], options: { isBound
       exitCode: 0,
       stdout: JSON.stringify({ nodes: 10, edges: 4, status: [['confirmed', 6], ['proposed', 4]], types: [['claim', 8]], contradictions: 0, last: '2026-10-05' }),
       stderr: '',
+      isStdoutTruncated: false,
+      isStderrTruncated: false,
     },
   }))
   on('http.fetch', async () => {

@@ -125,15 +125,17 @@ export function rasterState(p: Pose, tick: number, n: number): string[][] {
   const minEye = px * 0.3
 
   for (let r = 0; r < n; r++) {
+    const row = g[r]
+    if (!row) continue
     for (let c = 0; c < n; c++) {
       const x = (c + 0.5) * px
       const y = (r + 0.5) * px
 
-      if (x >= rx + 7 && x <= 386 && y >= 14 && y <= ry - 7) g[r][c] = p.plane
-      if (Math.abs(x - rx) <= px / 2) g[r][c] = INK
+      if (x >= rx + 7 && x <= 386 && y >= 14 && y <= ry - 7) row[c] = p.plane
+      if (Math.abs(x - rx) <= px / 2) row[c] = INK
       if (th > 0 && x >= rx && x <= 386 && Math.abs(y - ry) <= halfLine) {
         const isGap = p.edge === 3 && Math.abs(x - mid) < px * 0.55
-        if (!isGap) g[r][c] = INK
+        if (!isGap) row[c] = INK
       }
 
       const dx = x - sx
@@ -141,12 +143,12 @@ export function rasterState(p: Pose, tick: number, n: number): string[][] {
       const u = dx * Math.cos(rad) + dy * Math.sin(rad)
       const v = -dx * Math.sin(rad) + dy * Math.cos(rad)
       if (Math.abs(u) <= halfThick && Math.abs(v) <= len / 2) {
-        g[r][c] = p.hollow ? HOLLOW : INK
+        row[c] = p.hollow ? HOLLOW : INK
       }
 
       ;[p.e1, p.e2].forEach(([ex, ey, ew, eh], i) => {
         if (Math.abs(x - ex) <= Math.max(ew / 2, minEye) && Math.abs(y - ey) <= Math.max(eh / 2, minEye)) {
-          g[r][c] = p.hollow ? HOLLOW : i ? p.c2 : p.c1
+          row[c] = p.hollow ? HOLLOW : i ? p.c2 : p.c1
         }
       })
     }
@@ -157,7 +159,8 @@ export function rasterState(p: Pose, tick: number, n: number): string[][] {
     const x = rx + 6 + progress * (386 - rx - 38)
     const c = Math.min(n - 1, Math.max(0, Math.floor(x / px)))
     const r = Math.min(n - 1, Math.floor(ry / px))
-    g[r][c] = WHITE
+    const runRow = g[r]
+    if (runRow) runRow[c] = WHITE
   }
 
   return g
@@ -170,13 +173,15 @@ export function rasterCrew(role: Crew, n: number): string[][] {
   const rad = (role.sl[2] * Math.PI) / 180
 
   for (let r = 0; r < n; r++) {
+    const row = g[r]
+    if (!row) continue
     for (let c = 0; c < n; c++) {
       const x = (c + 0.5) * px
       const y = (r + 0.5) * px
 
       role.parts.forEach(([ex, ey, ew, eh, f]) => {
         if (x >= ex - px * 0.2 && x <= ex + ew + px * 0.2 && y >= ey - px * 0.2 && y <= ey + eh + px * 0.2) {
-          g[r][c] = fills[f] ?? WHITE
+          row[c] = fills[f] ?? WHITE
         }
       })
 
@@ -184,11 +189,11 @@ export function rasterCrew(role: Crew, n: number): string[][] {
       const dy = y - role.sl[1]
       const u = dx * Math.cos(rad) + dy * Math.sin(rad)
       const v = -dx * Math.sin(rad) + dy * Math.cos(rad)
-      if (Math.abs(u) <= Math.max(6, px * 0.5) && Math.abs(v) <= 42) g[r][c] = INK
+      if (Math.abs(u) <= Math.max(6, px * 0.5) && Math.abs(v) <= 42) row[c] = INK
 
       ;[role.e1, role.e2].forEach(([ex, ey, es]) => {
         if (Math.abs(x - ex) <= Math.max(es / 2, px * 0.5) && Math.abs(y - ey) <= Math.max(es / 2, px * 0.5)) {
-          g[r][c] = INK
+          row[c] = INK
         }
       })
     }

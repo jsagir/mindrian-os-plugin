@@ -52,8 +52,16 @@ export function contextCanvas(percent: number | undefined, width: number, height
 
   // Only the inner lines are ink. The outer ring stays paper, so on an ink ground
   // the canvas reads as a bright framed tile with black lines across it.
-  for (const x of xs.slice(1, -1)) for (let r = 0; r < h; r++) pixels[r][x] = INK
-  for (const y of ys.slice(1, -1)) for (let c = 0; c < w; c++) pixels[y][c] = INK
+  for (const x of xs.slice(1, -1)) {
+    for (let r = 0; r < h; r++) {
+      const row = pixels[r]
+      if (row) row[x] = INK
+    }
+  }
+  for (const y of ys.slice(1, -1)) {
+    const line = pixels[y]
+    if (line) for (let c = 0; c < w; c++) line[c] = INK
+  }
 
   // Every interior pixel of the painted cells, bottom row first.
   const cells = order.map(cell => {
@@ -74,13 +82,17 @@ export function contextCanvas(percent: number | undefined, width: number, height
   for (const cell of cells) {
     for (const [r, c] of cell.list) {
       if (left <= 0) break
-      pixels[r][c] = cell.color
+      const row = pixels[r]
+      if (row) row[c] = cell.color
       left -= 1
     }
   }
 
   // The white cells are drawn explicitly so a blank canvas reads as paper, not as a gap.
-  for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) if (pixels[r][c] === PAPER) pixels[r][c] = WHITE
+  for (let r = 0; r < h; r++) {
+    const row = pixels[r]
+    if (row) for (let c = 0; c < w; c++) if (row[c] === PAPER) row[c] = WHITE
+  }
 
   return { pixels, painted, total }
 }
