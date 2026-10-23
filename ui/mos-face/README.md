@@ -351,3 +351,19 @@ Pins: the raster pins of plan 02 are retired and the pins of plan 380-12 stand i
 Deferred, for the navigator: the crew style is dropped because the canon asset named by D-10 (identity/theo) has no crew faces. The canon source for faces of that kind is the robots segment of the book (`segments/identity/robots`, mos-brand book e947a5d, with the consumer file `consumers/workshop-robot-faces.json`). Bringing a crew style back is a new plan.
 
 Secondary text (D-11): secondary text on the ink ground stays dimmed paper. No hex is invented (section N6; test S6).
+
+## Surfaces
+
+Written in plan 380-09 (D-05, MOD380-01, tri-polar rule). Each line says how sure we are.
+
+PROVEN (seen in a real run):
+- The shipped dist loads in the real engine on the Claude Code terminal. `tests/test-380-installed-layout.cjs` packs the repo, lays it out like an installed plugin, runs `npm ci --ignore-scripts` there, and `claude --plugin-dir LAYOUT -p "/mos-text"` prints the panel's own text (the line starting `mos: /m:os state`).
+- The plugin adds no shell hook. The module is the only new line of wiring: `hooks/mos-face.json` (key `modules`), named in the plugin manifest field `hooks` next to `hooks/hooks.json`. The manifest field `types` names `lib/mos-face/dist/types/index.d.ts`, because the engine must know the panel's state before it lets the module write it.
+- The state owner is the plugin name. The shipped plugin is named `mos`, so the panel keeps its state under `mos` (the 37 atoms in `hooks/register.tsx` and the `PluginState` key in `types/index.d.ts`). Under the old name `mos-face` the engine denied every `state.set` ("mos-face owns that value and only its owner writes it").
+
+DELIBERATE SKIP (stated, not forgotten; N7):
+- No panel is claimed on Claude Desktop or Cowork. Those surfaces get the plain MCP reads the plugin already serves.
+
+ASSUMED and UNVERIFIED:
+- The engine's type header lists desktop, vscode and mobile among the surfaces a mod can mount on. The tests mount only the terminal surface, so we have not seen what any other surface draws.
+- The Desktop copy is the npm pack payload and carries the same `hooks/mos-face.json`. The payload gate (`node scripts/release-lib/build-desktop-artifact.cjs --check`) passes with the dist in it, but nobody has opened that copy and watched. A person records the Desktop observation at the cut (RULE 10, the face panel bullet).

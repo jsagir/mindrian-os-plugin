@@ -150,6 +150,11 @@ run "btm no retired Brain route in Larry-facing files (quick 261019-btm)" node t
 # The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "gct framework_step step_id parity (quick 261019-gct)" node tests/test-gct-process-step-id-parity.cjs
 
+# --- (2h) Phase 380: the face panel mod ships inside the plugin ---
+# Phase 380: the panel's 34 original tests, its added tests and the install-and-load proof ride the release gate.
+# The leg is a hard run (not run_if), so a missing or red test fails the cut; the aggregator never skips on a missing claude, npm or registry.
+run "380 face panel (34 engine tests plus egress, budget, copy, build, layout)" bash tests/run-all-380.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
