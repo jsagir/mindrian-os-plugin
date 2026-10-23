@@ -25,6 +25,17 @@ Run these commands in this folder.
 - Build it: `npm run build` (the script lands in a later plan).
 - Install the lockfile: `npm ci --ignore-scripts`.
 
+## How to try the panel from a checkout
+
+Written in plan 380-17 from a diagnosis with fixture plugins in a scratch home (380-17-G6-FACTS.md in the phase folder; claude 2.1.309). Plain words:
+
+- The whole plugin, built dist: `claude --plugin-dir /path/to/MindrianOS-Plugin-release`. The plugin folder is named mos, so for this session it replaces the installed plugin named mos, and it brings its own commands and the panel together. This is the way to try the panel with the /mos:* commands. Tested with a stand-in folder named mos, not with the real plugin root (the real root runs real session code, so it was not run in the diagnosis).
+- The mod alone: `claude --plugin-dir ui/mos-face`. Since the source is named mos-face (plan 380-09 follow-up), the session keeps the installed plugin and adds the mod next to it: the /mos:* commands stay and the panel loads (run R1 of the facts file).
+- The old trap. When the source folder was named mos (commit bfc7cd798 to the follow-up), the same line replaced the installed plugin without any message. The session then held only the mod: "Unknown command: /mos:rooms", and the tool for Theo asks was gone (run R1b). Any folder given to `--plugin-dir` whose manifest name is mos does this.
+- How to see it. Start with `claude --debug` (or `--debug-file FILE`). The log then holds the line `Plugin "mos" from --plugin-dir overrides installed version`. `claude plugin list` does not show it: the installed row still reads enabled.
+- How to keep a session-only copy from shadowing the installed one. Put `"enabledPlugins": {"mos@inline": false}` in a settings file. A turned-off session-only plugin does not shadow, so the installed copy loads (run R4). The entry is for a manifest named mos; for a folder named mos-face the id is `mos-face@inline`.
+- The capture harness of plans 03 and 10 loads a throwaway plugin that holds only the dist. The /mos:* commands are absent there by design.
+
 ## Egress
 
 What leaves the machine (Canon Part 8, decision D-03 of Phase 380, plan 380-04). Three calls and no more.
