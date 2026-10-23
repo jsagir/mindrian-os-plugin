@@ -1,0 +1,5 @@
+Adding marketplace…✔ Successfully added marketplace: fixture-mkt (declared in user settings)
+
+[stderr]
+
+exit 0

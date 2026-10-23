@@ -1,0 +1,12 @@
+Installed plugins:
+
+  ❯ mos@fixture-mkt
+    Version: 0.0.1
+    Read from: SCRATCH/mkt/mos-installed
+    Scope: user
+    Status: ✔ enabled
+
+
+[stderr]
+
+exit 0

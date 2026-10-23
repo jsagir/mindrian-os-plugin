@@ -1,0 +1,46 @@
+{
+  "name": "R1b-old-state-folder-named-mos",
+  "args": [
+    "-p",
+    "/mos-text",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--plugin-dir",
+    "SCRATCH/old-bfc7cd798/ui/mos-face",
+    "--debug-file",
+    "SCRATCH/debug-R1b-old-state-folder-named-mos.log"
+  ],
+  "exit": 0,
+  "hasInit": true,
+  "claudeVersion": "2.1.309",
+  "plugins": [
+    "mos (mos@inline)",
+    "cc-plugin-agents-md (cc-plugin-agents-md@builtin)",
+    "cc-plugin-telemetry (cc-plugin-telemetry@builtin)",
+    "cc-plugin-plugin-authoring (cc-plugin-plugin-authoring@builtin)"
+  ],
+  "pluginsRaw": "[{\"name\": \"mos\", \"path\": \"SCRATCH/old-bfc7cd798/ui/mos-face\", \"source\": \"mos@inline\", \"version\": \"0.1.0\"}, {\"name\": \"cc-plugin-agents-md\", \"path\": \"builtin\", \"source\": \"cc-plugin-agents-md@builtin\"}, {\"name\": \"cc-plugin-telemetry\", \"path\": \"builtin\", \"source\": \"cc-plugin-telemetry@builtin\"}, {\"name\": \"cc-plugin-plugin-authoring\", \"path\": \"builtin\", \"source\": \"cc-plugin-plugin-authoring@builtin\"}]",
+  "mosCommands": [
+    "mos-advice",
+    "mos-ask",
+    "mos-auto",
+    "mos-chip",
+    "mos-face",
+    "mos-job",
+    "mos-plain",
+    "mos-refresh",
+    "mos-state",
+    "mos-style",
+    "mos-suggest",
+    "mos-text",
+    "mos-words"
+  ],
+  "mcpServers": [],
+  "brainAskTools": [],
+  "resultHead": "mos: /m:os state, read 01:46:37 through files | WRITES TO: nothing, this session is not bound",
+  "debugLines": [
+    "2026-10-23T22:46:35.685Z [DEBUG] Plugin \"mos\" from --plugin-dir overrides installed version"
+  ],
+  "note": "Plugins synced from the login account, their servers and the account connectors are removed from this saved file; they are not part of the test."
+}
