@@ -4,6 +4,7 @@ import type { TestBody } from 'claude-code/testing'
 import { STATE_COMMANDS, TERM_COMMANDS, WHY } from '../hooks/commands'
 import { LABEL, LINE_FACE } from '../hooks/face'
 import { WORDS } from '../hooks/glossary'
+import { JOBS } from '../hooks/jobs'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS } from '../hooks/voice'
 import { ASSET_TEXT } from './face-fixture'
 import { ENVELOPE, recordCalls, turnHooks } from './support'
@@ -442,6 +443,58 @@ test('C6 names: no table and no drawn text holds the name of a person or an inst
   ]
   const found = tables.filter(text => names.test(text))
   expect(found).toEqual([])
+})
+
+// Plan 14 (D-09): the Job line copy. The sweeps above draw the pane with no recorded job, so they only
+// see the "no guess yet" row. This test serves each of the 12 shown jobs as the room's recorded job and,
+// for the person-set case, a set job, and scans every Text and Button at two widths, color and plain.
+// The lines are kept for the book review (C7 dump).
+test('C8 job line: the sentence of each shown job, at 48 and 35 columns, in color and in plain mode, is clean and never overclaims', async ($, on) => {
+  const files: Record<string, string> = {}
+  const { clock } = recordCalls(on, { files })
+  turnHooks(on)
+  await $.session.start(START)
+  await clock.settle()
+
+  const state = (id: string, isSet: boolean): string =>
+    JSON.stringify({
+      version: 1,
+      current: {
+        jtbd: id,
+        confidence: 0.8,
+        entered_at: new Date(1_800_000_000_000 - 3600000).toISOString(),
+        evidence: [],
+        expires_at: isSet ? new Date(1_800_000_000_000 + 5 * 3600000).toISOString() : null,
+        turn_count: 1,
+        manual_set: isSet,
+      },
+      history: [],
+      goal: null,
+      goal_history: [],
+    })
+  const ids = JOBS.filter(job => job.shown).map(job => job.id)
+  expect(ids.length).toBe(12)
+  const hits: string[] = []
+  const overclaim = /\b(validated|confirmed|proven)\b/i
+  for (const [n, id] of ids.entries()) {
+    files['/.mindrian/jtbd-state.json'] = state(id, n % 4 === 3)
+    await run($, 'mos-refresh')
+    await clock.advance(1000)
+    for (const isPlain of [false, true]) {
+      if (isPlain) await run($, 'mos-plain')
+      for (const width of [48, 35]) {
+        const pane = await $.ui.mount(at(width))
+        const texts = await textsOf(pane)
+        await pane.unmount()
+        hits.push(...scan(`job ${id} ${isPlain ? 'plain' : 'color'} w${width}`, texts))
+        const job = texts.filter(one => one.includes('I want to'))
+        expect(`${id} ${width} ${job.length}`).toBe(`${id} ${width} 1`)
+        for (const one of texts) if (overclaim.test(one)) hits.push(`overclaim in "${one}"`)
+      }
+      if (isPlain) await run($, 'mos-plain')
+    }
+  }
+  expect(hits).toEqual([])
 })
 
 // The dump for the book review (plan 380-07). The engine runs a test in a sandbox with no process

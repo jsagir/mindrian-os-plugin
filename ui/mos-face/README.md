@@ -69,7 +69,7 @@ The mod adds no hook and no read that can starve a prompt (MOD380-05). The tests
 
 ### The hook list
 
-The module registers events only: session.start, 13 command.run commands (mos-state, mos-face, mos-style, mos-chip, mos-suggest, mos-ask, mos-refresh, mos-words, mos-text, mos-plain, mos-advice, mos-auto, theo-calls), prompt.submit, turn.start, tool.call, turn.complete and 5 ui.render entries. There is no shell hook. The module's hooks/hooks.json holds only the module list, and the hooks.json of the plugin names no shell command for this mod. `claude plugin validate --json` prints the list, and the gate fails on any addition.
+The module registers events only: session.start, 14 command.run commands (mos-state, mos-face, mos-style, mos-chip, mos-suggest, mos-ask, mos-refresh, mos-words, mos-text, mos-plain, mos-advice, mos-auto, theo-calls, mos-job), prompt.submit, turn.start, tool.call, turn.complete and 5 ui.render entries. There is no shell hook. The module's hooks/hooks.json holds only the module list, and the hooks.json of the plugin names no shell command for this mod. `claude plugin validate --json` prints the list, and the gate fails on any addition.
 
 prompt.submit and turn.start do no file, tool, network or process work and never wait on the clock.
 
@@ -79,6 +79,7 @@ prompt.submit and turn.start do no file, tool, network or process work and never
 |-------|-------|------|
 | Tick of the panel | every 120 seconds | B3 |
 | Tool reads on a tick | at most 4 | B3 |
+| File reads of the Job line on a tick | exactly 1 (the room's job state file, cut off after 4 seconds); none at prompt time | J9 |
 | Subprocesses | 0 | B1, G1 |
 | Network fetches on an ordinary tick | 0 | B3 |
 | Reach checks (Theo health, the website) | every 600 seconds, started together, each cut off after 4 seconds with no status | B3, B4 |
@@ -117,7 +118,7 @@ What the words must be:
 
 What the tests scan:
 
-- tests/copy.test.tsx draws the band and the pane in 10 states (the 11 canon states except Reframe, which no real event reaches; its thoughts are scanned in C4), 3 face styles (tile, mini and line), 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 13 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
+- tests/copy.test.tsx draws the band and the pane in 10 states (the 11 canon states except Reframe, which no real event reaches; its thoughts are scanned in C4), 3 face styles (tile, mini and line), 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 14 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
 - tests/test-380-copy.cjs reads every string of the hook sources (also JSX text) and scans the manifest description. It runs the commands check below.
 - scripts/face-commands.cjs --check keeps hooks/commands.ts honest against data/command-registry.json: no unknown command, no stack word, no PLUGIN_VERSION constant. A changed registry sentence only warns. Run --write, then the build.
 - A command name such as /mos:brain-derive is a name the plugin owns. The scan removes command names before it looks for words.
@@ -129,6 +130,56 @@ The glossary is vendored text from the owner's PWS repository. It is scanned for
 ## Surfaces
 
 The panel draws only in the Claude Code terminal. Desktop and Cowork get no panel in this phase. This is a deliberate skip (D-05, N7). Their plain MCP reads stay as they are.
+
+## Job line
+
+Added in plan 380-14 (D-09, MOD380-08). The panel shows one Job line: what the person is probably trying to do, as one sentence in the jobs-to-be-done form the plugin already uses, "When I am in this situation, I want to do this, so that I get this." It sits in the side panel between NEXT and ASK. It is a guess, it is labelled a guess, and it sends nothing anywhere.
+
+What it shows. A heading (JOB, then "a guess, is this it?", or "set by you"), the sentence, and two buttons. For example: "When I am in the Design stage, I want to decide if a venture / opportunity / approach is worth pursuing, so that I can say go or no-go and write down my reason." Under 40 columns the line is one short row with the want clause only and the word guess kept. With no usable record and no cue match, one dim row says there is no guess yet; the line invents nothing.
+
+Where each part comes from, in order:
+
+1. The room's recorded job: `<room>/.mindrian/jtbd-state.json`, written by the plugin's own classifier (`lib/hmi/jtbd-classifier.cjs`, `lib/hmi/jtbd-state.cjs`, the same file the status line reads). The panel reads it once for each refresh tick, with a cut-off of 4 seconds, and keeps only the fields of the current job (`compactJob`). An automatic job is used for 24 hours and is a guess. A job the person set with /mos:jtbd set, not yet expired, is shown as set by you and is not a guess. An expired set job, a job older than 24 hours, an unknown id and the steady state (explore) are ignored.
+2. When there is no usable record: a cue match over the person's last prompts in this session (up to 6, held in memory), against the cues of the plugin's own taxonomy. The method is the classifier's: distinct cue phrases found in the person's words. The panel adds one rule: a cue is found only as a whole phrase, not inside a longer word. At least 2 distinct cues of one job and a strict lead over every other job give a guess; a tie or fewer gives none. The match is computed from memory when the pane draws. No file is read for it.
+3. The room state: the stage from the room reading and the open section of the panel, for the "in this situation" part of the sentence. Without an open section the "and looking at" part is absent.
+
+The form comes from the plugin's JTBD method, not from a new one (Canon Part 7): the 13 job ids, their one-line wants and their cues are copied from `lib/hmi/jtbd-taxonomy.json` into `hooks/jobs.ts` by `scripts/face-jobs.cjs --write`, and `--check` fails on drift, a missing outcome, a banned word or a stale header. The "so that" clauses are the one thing the plugin did not have; they are written in `scripts/face-jobs.cjs` (OUTCOMES), drawn from each job's completion shape, and listed below for review. The form when, want, so is the one the book's own intake uses (mos-brand book e947a5d, the consumer intake schema fields jtbd.when, jtbd.want and jtbd.so; references/brand-rules.md rule 7, start from the job).
+
+Why it is a guess. The book's voice segment (`segments/writing/voice`) says: do not describe generated content as validated evidence. The terminal guide (`segments/experience/terminal`, proposed) says thoughts are questions or hedged reflections. So every predicted line holds the word guess, its heading asks "is this it?", and it never says this is your job, or validated, confirmed or proven. The label is in words; no color carries it.
+
+What it never does. It makes no Theo call, no Brain call, no tool call, no http call and no process call (Canon Part 8). It never prints any text of the person's prompts: the sentence is built from the taxonomy text, the stage and the section name only. It never reads the goal field of the state file, which holds a navigator-ratified local sentence; the panel does not even keep that field in memory (`compactJob` copies the current job only). Tests J5 (canary tests on prompt words and goal text, and a check that the same session sends the same calls with the line shown and hidden) and N2 (no tool name, fetch, process call or import of advice.ts in the job sources) prove it.
+
+Dismiss and correct, one action each:
+
+| Action | What it does |
+|--------|--------------|
+| Not this | Hides a guess for this session until the recorded job changes (or, for a guess from the talk, until the guess changes). It changes only a panel atom and makes no call. A job the person set has no Not this button. |
+| Fix: /mos:jtbd set | Puts the text /mos:jtbd set in the prompt box. It never runs it and never submits it. |
+| /mos-job (the 14th command) | Shows or hides the line from the keyboard. A line hidden this way stays hidden until the command runs again. |
+
+Placement. The terminal side-panel template of the book puts decisions first (where this session writes, what is wrong now, what to do next) and then asks about the work. The Job line sits after NEXT and before ASK. The canon has no segment for an intent line in a side panel: the book is silent on it. A segment text is proposed in plan 380-11 (item A5).
+
+Budget. One added file read for each refresh tick (test J9: 1, 2, 3 reads over 3 ticks), nothing at prompt time, no timer, no new hook except the command. The budget tests B1 to B8 pass with the 14th command in the pinned lists.
+
+Surfaces. Terminal only. Desktop and Cowork have no panel (D-05, N7), a deliberate skip; the same job is already reachable there through /mos:jtbd.
+
+The 13 outcome clauses, for the navigator to read. The want text is the plugin taxonomy's own one-line (first letter lowered, final stop mark removed: a full stop, or the question mark of connect-domains, which the book review showed as "field?." in the sentence), so it carries the taxonomy's words, for example the citation in find-bottleneck.
+
+| Job id | Want (from the plugin taxonomy) | Outcome clause (so that, reviewed here) | Shown |
+|--------|------|---------|-------|
+| decide-pursue | decide if a venture / opportunity / approach is worth pursuing | I can say go or no-go and write down my reason | yes |
+| find-problem | find the problem worth solving (not the symptom, the root) | I know the real problem in a sentence I can test | yes |
+| understand-market | understand the market for this idea - size, structure, dynamics | I can say how big the market is and who else is in it | yes |
+| find-bottleneck | find the lagging component (Hughes 1983 reverse salient) blocking progress | I know which part to fix first | yes |
+| prepare-pitch | prepare for an investor / partner / customer meeting | I walk in with the story ready and the hard questions covered | yes |
+| validate-idea | test if an idea / hypothesis / claim holds up under scrutiny | I know what holds up, what does not and what I still need to find out | yes |
+| compare-options | compare alternatives across criteria - choose between A/B/C | I can choose between the options and say why | yes |
+| connect-domains | find cross-domain analogues - what does this look like in another field | I see what this looks like in another field and what that could teach me | yes |
+| surface-contradiction | notice and resolve internal contradictions in the room | I know which claims pull apart and which one I keep | yes |
+| plan-execution | plan the next 90 days - milestones, owners, dates | I know the next 90 days, with owners and dates | yes |
+| file-meeting | capture and route meeting intelligence into the room | I can see what the meeting changes in my data room | yes |
+| audit-room | audit Data Room health - gaps, drift, evidence tier, decision quality | I know where my data room is thin or out of step | yes |
+| explore | no specific job - general thinking, talking, ranging | I notice what is worth following | never shown |
 
 ## Decisions
 
