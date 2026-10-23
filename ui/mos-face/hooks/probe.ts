@@ -1,10 +1,12 @@
 import type { EngineInterface } from 'claude-code'
 
-import type { GraphInfo, Reach, RoomInfo, Snapshot } from '../types'
+import type { Reach, RoomInfo, Snapshot } from '../types'
+import { mindrianDir, registryRoot, roomsHome } from './paths'
 
-// Everything here is read-only: files are read, two public pages are fetched,
-// and one read-only query runs against the bound room's graph database.
-// Nothing is written, and nothing is guessed: what cannot be read becomes a note.
+// Everything here is read-only: files are read and two public pages are fetched.
+// Nothing is written, no subprocess is started, and nothing is guessed: what cannot be read
+// becomes a note. The graph numbers come from the room tools (source.ts); when those are out of
+// reach they are not read, and the panel says so.
 
 type Engine = EngineInterface
 
@@ -12,20 +14,8 @@ const SLUG = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
 const HOST = /^[a-z0-9][a-z0-9.-]*$/i
 const WEBSITE = 'https://www.mindrian-os.com/'
 
-// A fixed script; the database path is passed as an argument, opened read-only.
-const GRAPH_QUERY = [
-  'import sqlite3, sys, json',
-  "c = sqlite3.connect('file:' + sys.argv[1] + '?mode=ro', uri=True)",
-  'q = lambda s: c.execute(s).fetchall()',
-  'print(json.dumps({',
-  "  'nodes': q('select count(*) from nodes')[0][0],",
-  "  'edges': q('select count(*) from edges')[0][0],",
-  "  'status': [[str(a), b] for a, b in q('select review_status, count(*) from nodes group by 1')],",
-  "  'types': [[str(a), b] for a, b in q('select type, count(*) from nodes group by 1 order by 2 desc limit 8')],",
-  "  'contradictions': q('select count(*) from held_contradictions')[0][0],",
-  "  'last': str(q('select max(changed_at) from room_change_log')[0][0])",
-  '}))',
-].join('\n')
+// A check that does not answer is cut off after this long, with no status.
+export const REACH_CUTOFF_MS = 4000
 
 function frontmatter(text: string): Record<string, string> {
   const out: Record<string, string> = {}
@@ -56,11 +46,18 @@ async function readJson(
 async function reach($: Engine, url: string): Promise<Reach> {
   const host = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
   const start = await $.clock.now()
+  let cut: { cancel: () => void } | undefined
   try {
-    const res = await $.http.fetch(url)
+    const cutOff = new Promise<never>((_, reject) => {
+      cut = $.clock.after(REACH_CUTOFF_MS, () => reject(new Error('the check took too long')))
+    })
+    const res = await Promise.race([$.http.fetch(url), cutOff])
+
     return { host, status: res.status, ms: (await $.clock.now()) - start }
   } catch {
     return { host, status: null, ms: null }
+  } finally {
+    cut?.cancel()
   }
 }
 
@@ -68,16 +65,21 @@ export type FarReading = Pick<Snapshot, 'theo' | 'prewarmOk' | 'prewarmAt' | 'we
 
 // Theo, the website and the plugin version: not room or graph reads, so they stay
 // the same whichever way the room itself was read.
+//
+// Both checks start together and each is cut off after REACH_CUTOFF_MS, so this whole reading
+// ends within that time even when nothing answers. source.ts calls it on its own slow clock.
 export async function probeReach($: Engine, notes: string[]): Promise<FarReading> {
-  const home = (await $.env.get('HOME')) ?? ''
-  const prewarm = await readJson($, `${home}/.mindrian/brain-prewarm.json`, notes, 'The Theo warm-up record')
+  const dir = await mindrianDir($)
+  const prewarm = await readJson($, `${dir}/brain-prewarm.json`, notes, 'The Theo warm-up record')
   const theoHost = typeof prewarm?.origin_host === 'string' && HOST.test(prewarm.origin_host) ? prewarm.origin_host : ''
-  const theo: Reach = theoHost ? await reach($, `https://${theoHost}/health`) : { host: 'unknown', status: null, ms: null }
   if (!theoHost) notes.push('No Theo host is recorded, so Theo was not checked')
-  const website = await reach($, WEBSITE)
+  const [theo, website]: [Reach, Reach] = await Promise.all([
+    theoHost ? reach($, `https://${theoHost}/health`) : Promise.resolve<Reach>({ host: 'unknown', status: null, ms: null }),
+    reach($, WEBSITE),
+  ])
 
   // --- Plugin version.
-  const install = await readJson($, `${home}/.mindrian/install-state.json`, notes, 'The install record')
+  const install = await readJson($, `${dir}/install-state.json`, notes, 'The install record')
 
   return {
     theo,
@@ -89,21 +91,24 @@ export async function probeReach($: Engine, notes: string[]): Promise<FarReading
   }
 }
 
-export async function probe($: Engine): Promise<Snapshot> {
+// The room read from files, for when the room tools are out of reach. The far reading (Theo, the
+// website, the plugin version) comes from the caller, so it follows the slow clock of source.ts.
+export async function probe($: Engine, far: FarReading): Promise<Snapshot> {
   const notes: string[] = []
-  const home = (await $.env.get('HOME')) ?? ''
+  const dir = await mindrianDir($)
 
   // --- Bound room: the registry names the active room.
   let room: RoomInfo | null = null
-  const registry = await readJson($, `${home}/MindrianRooms/.rooms/registry.json`, notes, 'The rooms registry')
+  const registry = await readJson($, `${await roomsHome($)}/.rooms/registry.json`, notes, 'The rooms registry')
   const slug = typeof registry?.active === 'string' ? registry.active : ''
   const rooms = registry && typeof registry.rooms === 'object' && registry.rooms ? Object.keys(registry.rooms).length : 0
-  const rootRaw = typeof registry?.root === 'string' ? registry.root : '~/MindrianRooms'
-  const root = rootRaw.replace(/^~/, home)
+  const root = await registryRoot($, registry?.root)
 
   if (!SLUG.test(slug)) {
     notes.push('No active room is named in the registry')
   } else {
+    // The graph numbers need the room tools. They were out of reach, and nothing else is run.
+    notes.push('The graph numbers were not read: they need the room tools, which were out of reach')
     const path = `${root}/${slug}`
     const state = await $.fs.read(`${path}/STATE.md`).then(String, () => '')
     if (state === '') notes.push('The room STATE.md could not be read')
@@ -130,7 +135,7 @@ export async function probe($: Engine): Promise<Snapshot> {
         }))
       : []
 
-    const health = await readJson($, `${home}/.mindrian/room-health.json`, notes, 'The room health file')
+    const health = await readJson($, `${dir}/room-health.json`, notes, 'The room health file')
     room = {
       slug,
       path,
@@ -145,45 +150,10 @@ export async function probe($: Engine): Promise<Snapshot> {
     }
   }
 
-  // --- Graph state: one read-only query.
-  let graph: GraphInfo | null = null
-  if (room) {
-    try {
-      const run = await $.process.run(['python3', '-c', GRAPH_QUERY, `${room.path}/.mindrian/room.db`], { timeoutMs: 8000 })
-      if (run.exitCode === 0) {
-        const raw = JSON.parse(run.stdout) as {
-          nodes: number
-          edges: number
-          status: [string, number][]
-          types: [string, number][]
-          contradictions: number
-          last: string
-        }
-        const byStatus = new Map(raw.status)
-        graph = {
-          nodes: raw.nodes,
-          edges: raw.edges,
-          confirmed: byStatus.get('confirmed') ?? 0,
-          proposed: byStatus.get('proposed') ?? 0,
-          contradictions: raw.contradictions,
-          types: raw.types,
-          lastChange: raw.last,
-          kind: 'memory',
-        }
-      } else {
-        notes.push('The graph could not be read (the query did not finish cleanly)')
-      }
-    } catch {
-      notes.push('The graph was not read: this surface cannot run the read-only query')
-    }
-  }
-
-  const far = await probeReach($, notes)
-
   return {
     at: await $.clock.now(),
     room,
-    graph,
+    graph: null,
     ...far,
     notes,
     source: 'files',

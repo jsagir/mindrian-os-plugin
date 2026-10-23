@@ -12,6 +12,7 @@ import type {
 import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsFor, wordsStartOn, wordsTexts } from './advice'
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
+import { workspaceOf } from './paths'
 import { PROPOSALS } from './proposals'
 import {
   BLUE,
@@ -33,7 +34,7 @@ import {
 import { WORDS } from './glossary'
 import { clock, fit, nowLine, panelLights, plain, stateBlocks, stateText, statusText } from './lines'
 import { contextCanvas, contextWord } from './meter'
-import { isPanelReading, readRoom } from './source'
+import { isPanelReading, readRoom, resetReach } from './source'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS } from './voice'
 
 // /m:os face - the Theo face, a side-panel dashboard, a context meter and a
@@ -310,22 +311,48 @@ const withTimeout = <T,>($: EngineInterface, work: Promise<T>, ms: number): Prom
     )
   })
 
-const refresh = async ($: EngineInterface, force = true) => {
+// A read that is slow, or that fails, backs the next gentle reads off: 2x, then 4x, then 8x of the
+// tick, never more than ten minutes. A quick read resets the wait. The person's own refresh always
+// reads, and its result counts the same way. A starved machine is not hammered.
+const TICK_MS = 120000
+const SLOW_READ_MS = 8000
+const BACKOFF_CAP_MS = 600000
+let slowStreak = 0
+let slowUntil = 0
+
+const backOff = (ended: number, wasSlow: boolean) => {
+  if (!wasSlow) {
+    slowStreak = 0
+    slowUntil = 0
+
+    return
+  }
+  slowStreak = Math.min(slowStreak + 1, 3)
+  slowUntil = ended + Math.min(TICK_MS * 2 ** slowStreak, BACKOFF_CAP_MS)
+}
+
+// force: the person asked, so read now. askReach: ask Theo and the website again whatever their age.
+const refresh = async ($: EngineInterface, force = true, askReach = force) => {
   try {
     const started = await $.clock.now()
     // Polls and turn ends ask gently; the person's Refresh always reads.
     if (!force) {
+      if (started < slowUntil) return
       const last = await read($, snap)
-      if (last && started - last.at < 120000) return
+      if (last && started - last.at < TICK_MS) return
     }
     if (await read($, isRefreshing)) {
       if (started - refreshStartedAt < 45000) return
     }
     refreshStartedAt = started
     await update($, isRefreshing, () => true)
+    let failed = false
     try {
       const before = await read($, snap)
-      const snapshot = await withTimeout($, readRoom($), 30000)
+      const snapshot = await withTimeout($, readRoom($, askReach), 30000).catch(error => {
+        failed = true
+        throw error
+      })
       await update($, snap, () => snapshot)
       if (before?.room && snapshot.room && before.room.slug === snapshot.room.slug) {
         for (const sec of snapshot.room.sections) {
@@ -344,14 +371,15 @@ const refresh = async ($: EngineInterface, force = true) => {
         await update($, boundHow, () => binding.how)
       }
       const cwd = await $.session.cwd().catch(() => '')
-      const home = (await $.env.get('HOME')) ?? ''
-      const rooms = `${home}/MindrianRooms/`
-      await update($, workspace, () => (home !== '' && cwd.startsWith(rooms) ? (cwd.slice(rooms.length).split('/')[0] ?? '') : ''))
+      const folder = await workspaceOf($, cwd)
+      await update($, workspace, () => folder)
       await update($, refreshNote, () => '')
     } catch (error) {
       const text = error instanceof Error ? error.message : String(error)
       await update($, refreshNote, () => text.slice(0, 80))
     } finally {
+      const ended = await $.clock.now()
+      backOff(ended, failed || ended - started > SLOW_READ_MS)
       await update($, isRefreshing, () => false)
     }
     await pin($)
@@ -588,9 +616,12 @@ export const register: Register = on => {
     }
 
     $.ui.toast('/m:os face loaded. /mos-state opens the dashboard; /mos-face shows or hides the box.')
+    resetReach()
+    slowStreak = 0
+    slowUntil = 0
     void refresh($)
     poll?.cancel()
-    poll = $.clock.every(120000, () => {
+    poll = $.clock.every(TICK_MS, () => {
       void refresh($, false)
     })
     void openPane($)
@@ -601,7 +632,7 @@ export const register: Register = on => {
 
   on('command.run', { command: 'mos-state' }, async $ => {
     await openPane($)
-    void refresh($)
+    void refresh($, true, false)
 
     return { text: 'The /m:os dashboard is open in the side panel. It seats at any width when you ask for it.' }
   })

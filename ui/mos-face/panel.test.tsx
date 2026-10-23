@@ -481,7 +481,9 @@ test('plain mode (NO_COLOR) keeps every meaning in ASCII words and shapes', asyn
 
 test('a read that hangs is cut off, shows as stale with its reason, and names the keyboard routes', async ($, on) => {
   const hang = { on: false }
-  const clock = world(on, { hang })
+  // Phase 380 plan 05: a fetch that hangs is now cut at 4000 ms (the reach cut-off), so it can no
+  // longer stall the read. The hang of this test also holds the room tools, which still can.
+  const clock = world(on, { hang, tool: e => (hang.on && String(e.tool).includes('mindrian-os__') ? new Promise<never>(() => {}) : undefined) })
   await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
   await clock.advance(200)
   hang.on = true

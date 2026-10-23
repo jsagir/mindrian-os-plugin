@@ -41,7 +41,8 @@ test('B1 no subprocess: with the room tools out of reach the panel runs nothing 
   const state = await text($, 'mos-text')
   expect(state).toMatch(/through files/)
   expect(state).not.toMatch(/GRAPH \(/)
-  expect(state).toMatch(/NOTE: [^\n]*graph numbers[^\n]*not read/)
+  // The plain-English layer of lines.ts says "data room" where the note says "graph".
+  expect(state).toMatch(/NOTE: [^\n]*(graph|data room) numbers were not read/)
 })
 
 test('B2 the prompt path is I/O free: prompt.submit and turn.start record no call and never wait on the clock', async ($, on) => {
@@ -173,7 +174,8 @@ test('B5b back-off after a time-out: a read that never answers is cut at 30 s an
   for (let tick = 1; tick <= 4; tick++) await clock.advance(TICK)
 
   // Time-out at 30000: the wait is 2x of 120 s from there, so the ticks at 120000 and 240000 stay quiet.
-  expect(readStarts.map(t => t - start)).toEqual([0, 360000])
+  // The read at 360000 is quick, so the wait resets and the very next tick reads again.
+  expect(readStarts.map(t => t - start)).toEqual([0, 360000, 480000])
 })
 
 test('B6 one read in flight: a forced refresh during a running read does not start a second one', async ($, on) => {
@@ -205,9 +207,14 @@ test('B7 paths: HOME then USERPROFILE for the home folder, MINDRIAN_ROOMS_HOME f
   const win = recordCalls(on, { mcp: false, reads: winReads, env: { HOME: '', USERPROFILE: 'C:\\Users\\t' }, files: {} })
   await $.session.start(START)
   await win.clock.advance(TICK)
-  expect(winReads).toContain('read C:/Users/t/MindrianRooms/.rooms/registry.json')
-  expect(winReads).toContain('read C:/Users/t/MindrianRooms/demo-room/STATE.md')
-  expect(winReads).toContain('read C:/Users/t/.mindrian/room-health.json')
+  // A drive path is relative on a non-Windows engine, so the engine may put its own folder in front.
+  // The part that matters is the end: forward slashes, under USERPROFILE.
+  const has = (suffix: string) => winReads.some(r => r.endsWith(` ${suffix}`) || r.endsWith(`/${suffix}`))
+  expect(has('C:/Users/t/MindrianRooms/.rooms/registry.json')).toBe(true)
+  expect(has('C:/Users/t/MindrianRooms/demo-room/STATE.md')).toBe(true)
+  expect(has('C:/Users/t/.mindrian/room-health.json')).toBe(true)
+  expect(has('C:/Users/t/.mindrian/brain-prewarm.json')).toBe(true)
+  expect(winReads.some(r => r.includes('\\'))).toBe(false)
   expect(winReads.filter(r => r.startsWith('read /MindrianRooms') || r.startsWith('read /.mindrian'))).toEqual([])
 })
 

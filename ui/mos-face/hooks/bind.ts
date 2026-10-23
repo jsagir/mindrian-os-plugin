@@ -1,5 +1,7 @@
 import type { EngineInterface } from 'claude-code'
 
+import { roomsHome } from './paths'
+
 // Which room is this session bound to? The binding itself lives in the running
 // tool server's memory, so the most that can be read from disk is the registry's
 // record. Say exactly what was found, and no more.
@@ -8,9 +10,8 @@ export type Binding = { room: string | null; how: string }
 
 export async function boundRoom($: EngineInterface): Promise<Binding> {
   try {
-    const home = (await $.env.get('HOME')) ?? ''
     const id = await $.session.id()
-    const text = await $.fs.read(`${home}/MindrianRooms/.rooms/registry.json`)
+    const text = await $.fs.read(`${await roomsHome($)}/.rooms/registry.json`)
     const registry = JSON.parse(String(text)) as {
       active?: string
       active_session?: string

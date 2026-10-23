@@ -2,6 +2,7 @@ import type { EngineInterface } from 'claude-code'
 
 import type { Binding, ClaimsInfo, GraphInfo, RoomInfo, Section, Snapshot } from '../types'
 import { probe, probeReach } from './probe'
+import type { FarReading } from './probe'
 
 // One small interface for reading the room: readRoom().
 //
@@ -13,7 +14,8 @@ import { probe, probeReach } from './probe'
 // directly, and it says so.
 //
 // Theo, the website and the plugin version are not room reads; they come from
-// probeReach() either way.
+// probeReach() either way, and on their own slower clock: a reading is reused for
+// REACH_EVERY_MS, so an ordinary tick of the panel makes no network call.
 
 type Engine = EngineInterface
 
@@ -226,20 +228,49 @@ export async function readViaTools($: Engine, notes: string[]): Promise<ToolRead
   }
 }
 
+// ---- The slow clock of the two reach checks ------------------------------------------
+
+// Theo's health and the website are asked once in this long, not on every tick.
+export const REACH_EVERY_MS = 600000
+
+let farCache: { at: number; far: FarReading; notes: string[] } | undefined
+
+// A new session asks again at once.
+export const resetReach = (): void => {
+  farCache = undefined
+}
+
+async function farReading($: Engine, notes: string[], force: boolean): Promise<FarReading> {
+  const now = await $.clock.now()
+  if (!force && farCache && now - farCache.at < REACH_EVERY_MS) {
+    notes.push(...farCache.notes)
+
+    return farCache.far
+  }
+  const own: string[] = []
+  const far = await probeReach($, own)
+  farCache = { at: now, far, notes: own }
+  notes.push(...own)
+
+  return far
+}
+
 // ---- The one interface ------------------------------------------------------------
 
-export async function readRoom($: Engine): Promise<Snapshot> {
+// With force, the reach checks are asked again whatever their age (the person's own refresh).
+export async function readRoom($: Engine, force = false): Promise<Snapshot> {
   const notes: string[] = []
   const viaTools = await readViaTools($, notes)
+  const reachNotes: string[] = []
+  const far = await farReading($, reachNotes, force)
 
   if (!viaTools) {
-    const files = await probe($)
+    const files = await probe($, far)
     files.notes.unshift('The MindrianOS tools were out of reach, so the room was read from files', ...notes)
+    files.notes.push(...reachNotes)
 
     return files
   }
 
-  const far = await probeReach($, notes)
-
-  return { at: await $.clock.now(), ...viaTools, ...far, notes, source: 'mindrian-os' }
+  return { at: await $.clock.now(), ...viaTools, ...far, notes: [...notes, ...reachNotes], source: 'mindrian-os' }
 }
