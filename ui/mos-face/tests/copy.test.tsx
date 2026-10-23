@@ -5,6 +5,7 @@ import { STATE_COMMANDS, TERM_COMMANDS, WHY } from '../hooks/commands'
 import { LABEL, LINE_FACE } from '../hooks/face'
 import { WORDS } from '../hooks/glossary'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS } from '../hooks/voice'
+import { ASSET_TEXT } from './face-fixture'
 import { ENVELOPE, recordCalls, turnHooks } from './support'
 import type { Call } from './support'
 
@@ -20,6 +21,11 @@ import type { Call } from './support'
 //
 // Only canary data. Every tool, http and process call is answered from memory by world().
 // The escapes below keep the dash fence honest: this file holds no dash byte.
+//
+// Plan 380-13 (D-10) edited this file where the states and the styles changed: the states are the 11
+// canon ids (the new ones are reached through the lead squares of a reply; Reframe has no real event, so
+// no sweep reaches it and C4 scans its thoughts), the face asset is given to every sweep so the faces
+// are drawn, and the style cycle has three styles. Each edit is marked "plan 13" and listed in the SUMMARY.
 
 const EM = String.fromCharCode(0x2014)
 const EN = String.fromCharCode(0x2013)
@@ -125,7 +131,8 @@ const run = async ($: Parameters<TestBody>[0], command: string, args = ''): Prom
 // Draw the band and the pane at every width, in every style, with plain mode off and on.
 async function sweep($: Parameters<TestBody>[0], label: string): Promise<string[]> {
   const hits: string[] = []
-  for (let styleNo = 0; styleNo < 4; styleNo++) {
+  // Plan 13: three styles (tile, mini, line); the crew style is gone.
+  for (let styleNo = 0; styleNo < 3; styleNo++) {
     for (const isPlain of [false, true]) {
       if (isPlain) await run($, 'mos-plain')
       for (const width of WIDTHS) {
@@ -147,7 +154,9 @@ async function sweep($: Parameters<TestBody>[0], label: string): Promise<string[
 
 // The same events the real session sends. The tool names below are not room tools, so the
 // panel reads them as Theo calls and draws the matching state.
-type StateName = 'rest' | 'listen' | 'search' | 'found' | 'none' | 'refused' | 'handover'
+// Plan 13: the 11 canon ids except reframe, which no real event reaches.
+type StateName = 'rest' | 'listen' | 'search' | 'found' | 'challenge' | 'contradiction' | 'decision' | 'limit' | 'boundary' | 'handover'
+const LEAD = 'Larry | MindrianOS'
 async function inState(state: StateName, $: Parameters<TestBody>[0], on: Parameters<TestBody>[1]): Promise<string[]> {
   let release: () => void = () => {}
   const gate = new Promise<void>(resolve => {
@@ -155,6 +164,8 @@ async function inState(state: StateName, $: Parameters<TestBody>[0], on: Paramet
   })
   const { clock } = recordCalls(on, {
     toasts: [],
+    // Plan 13: the asset is given, so every sweep draws the faces and not only the words-only face.
+    files: { 'asset-fa8504998f.json': ASSET_TEXT },
     tool: e => {
       if (e.tool === 'mcp__theo__hold') return gate.then(() => ({ result: {}, text: 'ok' }))
       if (e.tool === 'mcp__theo__empty') return { result: {}, text: '[]' }
@@ -174,10 +185,15 @@ async function inState(state: StateName, $: Parameters<TestBody>[0], on: Paramet
     await clock.settle()
   }
   if (state === 'found') await $.tool.call({ tool: 'mcp__theo__ok' } as never)
-  if (state === 'none') await $.tool.call({ tool: 'mcp__theo__empty' } as never)
-  if (state === 'refused') await $.tool.call({ tool: 'mcp__theo__blocked' } as never)
+  if (state === 'limit') await $.tool.call({ tool: 'mcp__theo__empty' } as never)
+  if (state === 'boundary') await $.tool.call({ tool: 'mcp__theo__blocked' } as never)
   if (state === 'handover') {
     await $.turn.complete({ turnId: 'c1', answer: 'A short reply.', durationMs: 2000, isAborted: false, reason: 'answer' } as never)
+  }
+  // Plan 13: the new states are reached through the lead square of a reply.
+  const leads: Record<string, string> = { challenge: '\u{1F7E5}', contradiction: '\u{1F7E8}', decision: '\u2B1B' }
+  if (leads[state] !== undefined) {
+    await $.turn.complete({ turnId: 'c1', answer: `${leads[state]} ${LEAD}\n\nA short reply.`, durationMs: 2000, isAborted: false, reason: 'answer' } as never)
   }
 
   const hits = await sweep($, state)
@@ -203,12 +219,24 @@ test('C1 found: every Text and Button of the band and the pane is clean, in ever
   expect(await inState('found', $, on)).toEqual([])
 })
 
-test('C1 none: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
-  expect(await inState('none', $, on)).toEqual([])
+test('C1 limit: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
+  expect(await inState('limit', $, on)).toEqual([])
 })
 
-test('C1 refused: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
-  expect(await inState('refused', $, on)).toEqual([])
+test('C1 boundary: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
+  expect(await inState('boundary', $, on)).toEqual([])
+})
+
+test('C1 challenge: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
+  expect(await inState('challenge', $, on)).toEqual([])
+})
+
+test('C1 contradiction: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
+  expect(await inState('contradiction', $, on)).toEqual([])
+})
+
+test('C1 decision: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
+  expect(await inState('decision', $, on)).toEqual([])
 })
 
 test('C1 handover: every Text and Button of the band and the pane is clean, in every style, width and plain mode', async ($, on) => {
@@ -284,8 +312,8 @@ test('C2 commands: 13 commands, every description and every result is clean', as
 
   const hits = scan('description', registered.map(one => one.description))
   for (const one of registered) {
-    // Twice: a toggle has two answers. The style command has four.
-    const times = one.name === 'mos-style' ? 4 : 2
+    // Twice: a toggle has two answers. The style command has three (plan 13).
+    const times = one.name === 'mos-style' ? 3 : 2
     for (let n = 0; n < times; n++) hits.push(...scan(`result ${one.name} #${n + 1}`, [await run($, one.name)]))
   }
   expect(hits).toEqual([])
@@ -343,7 +371,11 @@ test('C4 tables: the words, thoughts, labels and why lines are clean', async () 
     hits.push(...scan(`WORDS ${state} term`, list.map(one => one.term)))
     hits.push(...scan(`WORDS ${state} text`, list.map(one => one.text)))
   }
+  // Plan 13: THOUGHTS has 11 keys, one for each canon state.
+  expect(Object.keys(THOUGHTS).length).toBe(11)
   for (const [state, list] of Object.entries(THOUGHTS)) hits.push(...scan(`THOUGHTS ${state}`, list))
+  expect(Object.keys(LABEL).length).toBe(11)
+  expect(Object.keys(LINE_FACE).length).toBe(11)
   hits.push(...scan('LABEL', Object.values(LABEL)))
   hits.push(...scan('LINE_FACE', Object.values(LINE_FACE)))
   hits.push(...scan('THEO_CALL_THOUGHTS', THEO_CALL_THOUGHTS))

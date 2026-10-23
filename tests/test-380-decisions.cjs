@@ -8,21 +8,24 @@
 // no file, so the static scans live here.
 //
 // Legs:
-//   K1s  the hex literals of face.ts are the seven canon tokens plus HOLLOW, nothing else.
+//   K1s  the hex literals of face.ts are the seven canon tokens, nothing else (plan 380-13: HOLLOW is gone).
 //   K3s  no JSX or style in the hook sources draws YELLOW as a text color.
 //   K6s  no hex literal in the hook sources is green (green channel over red and blue by 40).
 //   T1   tests/canon.ts equals the canon asset at e947a5d (when the book checkout is present).
 //   D1   the README section Decisions has an entry for N2, N4, N5, N6, N7 and N9; each cites
 //        "mos-brand book e947a5d" and at least one segment path; every cited path exists in the
 //        book at e947a5d (when the checkout is present).
-//   D2   the README state table equals the LABEL map of face.ts and lists the four unmapped
-//        states with a reason.
+//   D2   the README state table equals the LABEL map of face.ts (11 states, the asset labels) and
+//        lists each state as mapped to an event or unmapped with a reason (plan 380-13: only Reframe).
 //   D3   the README says Desktop and Cowork get no panel and calls it a deliberate skip.
 //   D4   ui/mindrian-workspace-mod stays dev-only (its README says so and the root package does
 //        not ship it); if it ever ships, two panes can draw and a person must decide.
 //   D5   the README states that the terminal segment is proposed.
-//   D6   the README records HOLLOW as a tone that is not a canon token.
+//   D6   the README records that HOLLOW was removed by D-10 (plan 380-13).
 //   D7   the README records the geometry rule (canon asset, number for number) and the asset hash.
+//   D8   (plan 380-13) the README section Visual change records the deliberate visual change: the
+//        retired and the added pins, the old and new models, the book spelling conflict and the
+//        deferred crew style; and D-11, secondary text stays dimmed paper.
 // CJS, Node built-ins only. Hermetic: no network, no write. Read-only use of git on the book.
 // Hyphens only.
 'use strict';
@@ -57,8 +60,8 @@ const hookFiles = fs.readdirSync(HOOKS).filter((f) => /\.(ts|tsx)$/.test(f));
 say('K1s color literals of face.ts');
 {
   const found = new Set((face.match(/#[0-9A-Fa-f]{6}\b/g) || []).map((s) => s.toUpperCase()));
-  const expected = new Set(['#F7F5EE', '#111111', '#FFFFFF', '#1F3FBF', '#D6281F', '#F2C200', '#4B4943', '#8F8B80']);
-  check([...found].sort().join(',') === [...expected].sort().join(','), 'face.ts holds exactly the seven canon tokens and HOLLOW (#8F8B80): ' + [...found].sort().join(' '));
+  const expected = new Set(['#F7F5EE', '#111111', '#FFFFFF', '#1F3FBF', '#D6281F', '#F2C200', '#4B4943']);
+  check([...found].sort().join(',') === [...expected].sort().join(','), 'face.ts holds exactly the seven canon tokens (no HOLLOW): ' + [...found].sort().join(' '));
 }
 
 // ---- K3s -------------------------------------------------------------------------------------
@@ -162,24 +165,29 @@ say('D2 the state table');
   const labelMap = {};
   const lm = face.match(/export const LABEL[^{]*\{([\s\S]*?)\n\}/);
   if (lm) for (const m of lm[1].matchAll(/(\w+):\s*'([^']+)'/g)) labelMap[m[1]] = m[2];
-  check(Object.keys(labelMap).length === 7, 'face.ts LABEL holds 7 states');
+  check(Object.keys(labelMap).length === 11, 'face.ts LABEL holds 11 states');
+  // Plan 380-13: the columns are Drawn label | State id | Mapping | Event or reason | Book spelling.
   const rows = body.split('\n').filter((l) => /^\|/.test(l)).map((l) => l.split('|').slice(1, -1).map((c) => c.trim()));
-  const byBook = {};
-  for (const r of rows) byBook[r[0]] = r;
-  const names = ['Rest', 'Listening', 'Search', 'Found', 'Challenge', 'Contradiction', 'Reframe', 'Limit', 'Your decision', 'Boundary', 'Handover'];
-  check(names.every((n) => byBook[n]), 'the table has a row for each of the 11 book states');
-  let mapped = 0;
+  const byLabel = {};
+  for (const r of rows) byLabel[r[0]] = r;
   let wrong = [];
   for (const [state, label] of Object.entries(labelMap)) {
-    const row = byBook[label];
-    if (!row || row[1] !== state || row[2] !== label) wrong.push(state + ' ' + label);
-    else mapped += 1;
+    const row = byLabel[label];
+    if (!row || row[1] !== state) wrong.push(state + ' ' + label);
   }
-  check(mapped === 7 && wrong.length === 0, 'the 7 drawn states appear with their mod state and their label' + (wrong.length ? ' (wrong: ' + wrong.join(', ') + ')' : ''));
-  for (const n of ['Challenge', 'Contradiction', 'Reframe', 'Your decision']) {
-    const row = byBook[n];
-    check(!!row && row[1] === 'unmapped' && (row[3] || '').length > 20, n + ' is unmapped and has a reason');
-  }
+  check(Object.keys(labelMap).length === 11 && wrong.length === 0, 'the 11 drawn states appear with their state id and their label' + (wrong.length ? ' (wrong: ' + wrong.join(', ') + ')' : ''));
+  const kinds = Object.values(labelMap).map((label) => (byLabel[label] || [])[2]);
+  check(kinds.every((k) => k === 'mapped' || k === 'unmapped'), 'each state says mapped or unmapped');
+  const unmapped = Object.values(labelMap).filter((label) => (byLabel[label] || [])[2] === 'unmapped');
+  check(unmapped.join(',') === 'Reframe', 'only Reframe is unmapped' + (unmapped.length ? ' (' + unmapped.join(', ') + ')' : ''));
+  for (const n of unmapped) check((byLabel[n][3] || '').length > 20, n + ' is unmapped and has a reason');
+  for (const [label, row] of Object.entries(byLabel)) if (row[2] === 'mapped') check((row[3] || '').length > 20, label + ' is mapped and names its event');
+  // The two spellings the book states table uses in older words are recorded.
+  check(byLabel['Searching'] && byLabel['Searching'][4] === 'Search' && byLabel['Nothing found'] && byLabel['Nothing found'][4] === 'Limit', 'the table records the book spelling Search and Limit beside Searching and Nothing found');
+  // The mapping in face-events.ts and the table agree on which state is unmapped.
+  const events = read(path.join(HOOKS, 'face-events.ts'));
+  const un = (events.match(/export const UNMAPPED_STATES[^=]*=\s*\[([^\]]*)\]/) || [])[1] || '';
+  check(un.replace(/[\s']/g, '') === 'reframe', 'face-events.ts lists reframe, and only reframe, as unmapped');
 }
 
 say('D3 surfaces');
@@ -212,7 +220,8 @@ say('D5 the terminal segment is proposed');
 say('D6 HOLLOW');
 {
   const body = entryOf('HOLLOW');
-  check(/#8F8B80/.test(body) && /not a canon token/i.test(body), 'a HOLLOW entry records #8F8B80 as not a canon token');
+  check(/#8F8B80/.test(body) && /removed/i.test(body) && /D-10/.test(body), 'a HOLLOW entry records that #8F8B80 was removed by D-10');
+  check(!/HOLLOW/.test(face.replace(/^\s*\/\/.*$/gm, '')), 'face.ts has no HOLLOW outside a comment');
 }
 
 say('D7 geometry');
@@ -221,6 +230,22 @@ say('D7 geometry');
   check(/asset-fa8504998f\.json/.test(body) && /asset-d96217b320\.js/.test(body), 'a GEOMETRY entry cites the canon asset and its renderer');
   check(/e54e7c6a3c11a039059fb47833b09e865cd3981e2910b4f13571e87c06682da2/.test(body), 'the GEOMETRY entry records the sha256 of the asset');
   check(/number for number/.test(body), 'the GEOMETRY entry states the rule: number for number, never a redraw');
+  check(/words-only line face/.test(body) && /never falls back to typed numbers/.test(body), 'the GEOMETRY entry states the fallback: the words-only line face, never typed numbers');
+}
+
+say('D8 the visual change');
+{
+  const at8 = readme.indexOf('\n## Visual change');
+  const sec = at8 >= 0 ? readme.slice(at8).split(/\n## /)[1] || '' : '';
+  check(at8 >= 0 && (readme.match(/^## Visual change/gm) || []).length === 1, 'the README has one section Visual change');
+  check(/deliberate visual change, not a refactor/.test(sec), 'it says deliberate visual change, not a refactor');
+  check(/2026-10-23/.test(sec) && /\b120\b/.test(sec) && /\b102\b/.test(sec) && /\b44\b/.test(sec), 'it gives the date and the counts 120, 102 and 44');
+  check(/\b84\b/.test(sec) && /\b18\b/.test(sec) && /meter-pin/.test(sec), 'it says what the 120 were (84 state, 18 crew, 18 canvas) and where the canvas pins went');
+  check(/[0-9a-f]{64}/.test(sec), 'it records the sha256 of the old pin table');
+  check(/Old state to new state/.test(sec) && /Nothing found/.test(sec) && /Search/.test(sec), 'it holds the old to new state table');
+  check(/crew/i.test(sec) && /Deferred/.test(sec) && /identity\/robots/.test(sec), 'it lists the dropped crew style as deferred, with its canon source');
+  check(/dimmed paper/.test(sec) && /No hex is invented/.test(sec), 'it states D-11: dimmed paper, no invented hex');
+  check(!fs.existsSync(path.join(MOD, 'tests', 'raster-pin.test.ts')) && fs.existsSync(path.join(MOD, 'tests', 'meter-pin.test.ts')) && fs.existsSync(path.join(MOD, 'tests', 'theo-face-pin.test.ts')), 'raster-pin.test.ts is gone, meter-pin.test.ts and theo-face-pin.test.ts stand');
 }
 
 say('');

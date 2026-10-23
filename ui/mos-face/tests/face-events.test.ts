@@ -274,6 +274,36 @@ test('W3 behavior: a turn moves the face through the mapped states, and each lab
   expect(seen.faces).not.toContain('refused')
 })
 
+test('W3 suggestions: a finished turn leaves the command of its state waiting in the prompt box, also for the states that have no glossary lines', async ($, on) => {
+  const suggested: string[] = []
+  const clock = world(on, { files: { [NAME]: ASSET_TEXT } })
+  on('prompt.submit', (_, e) => ({ text: e.text }))
+  on('turn.start', (_, e) => ({ turnId: e.turnId }))
+  on('turn.complete', (_, e) => ({ text: e.answer }))
+  on('prompt.suggest', (_, e) => {
+    suggested.push(String(e.text))
+
+    return { isShown: true }
+  })
+  await $.session.start(START)
+  await clock.settle()
+
+  const cases: [string, string, string][] = [
+    ['red', `${RED_SQUARE} ${LEAD}\n\nWhat holds this up?`, '/mos:challenge-assumptions'],
+    ['yellow', `${YELLOW_SQUARE} ${LEAD}\n\nThese pull apart.`, '/mos:memory-cortex-reach'],
+    ['black', `${BLACK_SQUARE} ${LEAD}\n\nThis one is yours.`, '/mos:status'],
+    ['blue', `${BLUE_SQUARE} ${LEAD}\n\nHere is what we have.`, '/mos:suggest-next'],
+  ]
+  for (const [name, answer, command] of cases) {
+    const before = suggested.length
+    await $.turn.start({ turnId: `w3s-${name}`, prompt: 'x' } as never)
+    await $.turn.complete({ turnId: `w3s-${name}`, answer, durationMs: 2000, isAborted: false, reason: 'answer' } as never)
+    await clock.advance(3000)
+    const fresh = suggested.slice(before).filter(text => text.startsWith('/mos:'))
+    expect(`${name} ${fresh[0]?.startsWith(command) === true}`).toBe(`${name} true`)
+  }
+})
+
 // ---- W4 no loop -------------------------------------------------------------------------------
 
 test('W4 no loop: while a turn runs the frame counter ticks, and the face grid is identical across the ticks', async ($, on) => {
@@ -300,21 +330,26 @@ test('W4 no loop: while a turn runs the frame counter ticks, and the face grid i
   await clock.settle()
   const before = await faceRowsOfBand($)
   expect(before.length).toBeGreaterThan(0)
-  const start = seen.frames
-  await clock.advance(2200)
-  // The 220 ms counter ran (9 or more ticks), so the test is not vacuous.
-  expect(seen.frames - start).toBeGreaterThanOrEqual(9)
-  const after = await faceRowsOfBand($)
-  expect(after).toEqual(before)
-  // The pane is the same across the ticks too.
-  const side = await $.ui.mount(pane(56))
-  const paneBefore = (await side.findAll({ type: 'Text', text: /▀/ })).map(one => JSON.stringify([one.text, one.props.color, one.props.backgroundColor]))
-  await side.unmount()
-  await clock.advance(1100)
-  const again = await $.ui.mount(pane(56))
-  const paneAfter = (await again.findAll({ type: 'Text', text: /▀/ })).map(one => JSON.stringify([one.text, one.props.color, one.props.backgroundColor]))
-  await again.unmount()
-  expect(paneAfter).toEqual(paneBefore)
+  const paneRows = async (): Promise<string[]> => {
+    const side = await $.ui.mount(pane(56))
+    const rows = (await side.findAll({ type: 'Text', text: /\u2580/ })).map(one => JSON.stringify([one.text, one.props.color, one.props.backgroundColor]))
+    await side.unmount()
+
+    return rows
+  }
+  const paneBefore = await paneRows()
+  expect(paneBefore.length).toBeGreaterThan(0)
+
+  // Eleven ticks of 220 ms, one after the other: the frame counter moves at each tick (odd and even
+  // values both occur), and the face is the same grid at every one of them.
+  let last = seen.frames
+  for (let tick = 0; tick < 11; tick++) {
+    await clock.advance(220)
+    expect(seen.frames).toBeGreaterThan(last)
+    last = seen.frames
+    expect(await faceRowsOfBand($)).toEqual(before)
+    expect(await paneRows()).toEqual(paneBefore)
+  }
 
   release()
   await pending

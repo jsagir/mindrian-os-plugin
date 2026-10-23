@@ -1,8 +1,10 @@
 import { expect, test } from 'claude-code/testing'
 import type { TestBody } from 'claude-code/testing'
 
-import { BLUE, HOLLOW, INK, LABEL, MOVE_BG, MOVE_FG, MOVE_NAME, MUTED, PAPER, POSES, RED, WHITE, YELLOW, rasterState } from '../hooks/face'
+import { BLUE, INK, LABEL, MOVE_BG, MOVE_FG, MOVE_NAME, MUTED, PAPER, RED, WHITE, YELLOW } from '../hooks/face'
+import { loadFaceAsset, rasterFace } from '../hooks/theo-face'
 import { CANON_STATES } from './canon'
+import { ASSET_TEXT } from './face-fixture'
 import { recordCalls, turnHooks } from './support'
 
 // Phase 380 plan 07 (D-01, D-02, N2, N9, T-380-27, T-380-28): colors, state names and geometry.
@@ -17,6 +19,11 @@ import { recordCalls, turnHooks } from './support'
 //                                the geometry of each pose on a 400 unit master
 // The terminal segment (experience/terminal) is PROPOSED in the book; nothing here claims
 // compliance with it as a ruling.
+//
+// Plan 380-13 (D-10, D-11) edited this file where the old poses went away: the poses and the rasterizer
+// are now the canon asset drawn by hooks/theo-face.ts (read here from the generated fixture text), the
+// tone HOLLOW is gone, the labels follow the asset, and the style cycle has three styles. Each edit is
+// marked "plan 13" below and listed in the SUMMARY of plan 380-13.
 //
 // The engine tests read no file, so the static scans (color literals in the sources, the yellow
 // scan of the JSX, the table of this folder against the book) live in tests/test-380-decisions.cjs.
@@ -62,18 +69,18 @@ const BOOK: [string, string, string, number][] = [
   ['ink on white', INK, WHITE, 18.88],
 ]
 
-// The mod state that shows each canon state (N9). A canon state with no entry has no pose here.
-const CANON_ID: Record<keyof typeof POSES, string> = {
-  rest: 'rest',
-  listen: 'listen',
-  search: 'search',
-  found: 'found',
-  none: 'limit',
-  refused: 'boundary',
-  handover: 'handover',
-}
+// Plan 13: the poses are the asset's. The asset text comes from the generated fixture, and the 11 canon
+// ids are the ids of the asset.
+const asset = () => {
+  const loaded = loadFaceAsset(ASSET_TEXT)
+  if (loaded === null) throw new Error('the canon asset text did not load')
 
-test('K1 tokens: the seven canon tokens, the one extra tone, and nothing else', () => {
+  return loaded
+}
+const POSES = Object.fromEntries(asset().states.map(one => [one.id, one.pose])) as Record<string, ReturnType<typeof asset>['states'][number]['pose']>
+const IDS = Object.keys(POSES)
+
+test('K1 tokens: the seven canon tokens and nothing else (plan 13: the extra tone HOLLOW is gone)', () => {
   expect(PAPER).toBe('#F7F5EE')
   expect(INK).toBe('#111111')
   expect(MUTED).toBe('#4B4943')
@@ -81,8 +88,8 @@ test('K1 tokens: the seven canon tokens, the one extra tone, and nothing else', 
   expect(RED).toBe('#D6281F')
   expect(YELLOW).toBe('#F2C200')
   expect(WHITE).toBe('#FFFFFF')
-  // The one tone that is not a canon token (recorded in the README for plan 11).
-  expect(HOLLOW).toBe('#8F8B80')
+  // Plan 13: the one extra tone of plan 7 (HOLLOW, #8F8B80) was removed with the old poses (README,
+  // section HOLLOW). The face module exports no color but the seven canon tokens.
   const tokens = new Set([PAPER, INK, MUTED, BLUE, RED, YELLOW, WHITE])
   for (const [name, pose] of Object.entries(POSES)) {
     for (const color of [pose.plane, pose.c1, pose.c2]) {
@@ -180,7 +187,7 @@ async function drawnIn(state: 'search' | 'found', $: Parameters<TestBody>[0], on
 
   const seen: string[] = []
   for (const width of [100, 48, 40, 30]) {
-    for (let styleNo = 0; styleNo < 4; styleNo++) {
+    for (let styleNo = 0; styleNo < 3; styleNo++) {
       const pane = await $.ui.mount(at(width))
       seen.push(...(await textsOf(pane)))
       await pane.unmount()
@@ -212,24 +219,28 @@ test('K4 blue is not proof: the move names carry no proof word either', () => {
 
 // ---- state names (N9, K5) --------------------------------------------------------------------
 
-test('K5 exact names: the label of each drawn state is the book name (segment identity/theo/states)', () => {
+test('K5 exact names: the label of each drawn state is the visible label of the canon asset (plan 13, navigator ruling 2026-10-23)', () => {
+  const labels: Record<string, string> = {}
+  for (const one of asset().states) labels[one.id] = one.label
+  expect(LABEL as Record<string, string>).toEqual(labels)
   expect(LABEL).toEqual({
     rest: 'Rest',
     listen: 'Listening',
-    search: 'Search',
+    search: 'Searching',
     found: 'Found',
-    none: 'Limit',
-    refused: 'Boundary',
+    challenge: 'Challenge',
+    contradiction: 'Contradiction',
+    reframe: 'Reframe',
+    limit: 'Nothing found',
+    decision: 'Your decision',
+    boundary: 'Boundary',
     handover: 'Handover',
   })
-  // The same names come from the book table, not from this file.
-  for (const key of Object.keys(POSES) as (keyof typeof POSES)[]) {
-    const canon = CANON_STATES.find(one => one.id === CANON_ID[key])
-    expect(`${key} ${canon?.name}`).toBe(`${key} ${LABEL[key]}`)
-  }
+  // The asset label in tests/canon.ts is the same text.
+  for (const canon of CANON_STATES) expect(`${canon.id} ${canon.assetLabel}`).toBe(`${canon.id} ${(LABEL as Record<string, string>)[canon.id]}`)
 })
 
-test('K5 exact names: the book has 11 states, 7 are drawn and 4 are unmapped on purpose', () => {
+test('K5 exact names: the book has 11 states, all 11 are drawn, and the two the book spells in older words are recorded', () => {
   expect(CANON_STATES.map(one => one.name)).toEqual([
     'Rest',
     'Listening',
@@ -243,72 +254,80 @@ test('K5 exact names: the book has 11 states, 7 are drawn and 4 are unmapped on 
     'Boundary',
     'Handover',
   ])
-  const drawn = new Set(Object.values(CANON_ID))
-  const unmapped = CANON_STATES.filter(one => !drawn.has(one.id)).map(one => one.name)
-  expect(unmapped).toEqual(['Challenge', 'Contradiction', 'Reframe', 'Your decision'])
+  // Plan 13: every canon state is drawn (the panel has a face for each).
+  expect(IDS).toEqual(CANON_STATES.map(one => one.id))
+  // Where the book states table and the asset differ in spelling: Search against Searching, Limit
+  // against Nothing found. The panel follows the asset (navigator ruling); the conflict is a book follow-up.
+  const differs = CANON_STATES.filter(one => one.name !== (LABEL as Record<string, string>)[one.id]).map(one => `${one.name} / ${(LABEL as Record<string, string>)[one.id]}`)
+  expect(differs).toEqual(['Search / Searching', 'Limit / Nothing found'])
 })
 
 // ---- no green (K6) ---------------------------------------------------------------------------
 
 test('K6 no green: no drawn color is green and no state is a breakthrough state', () => {
-  const colors = [PAPER, INK, MUTED, BLUE, RED, YELLOW, WHITE, HOLLOW]
+  const colors = [PAPER, INK, MUTED, BLUE, RED, YELLOW, WHITE]
   for (const pose of Object.values(POSES)) colors.push(pose.plane, pose.c1, pose.c2)
   for (const color of colors) {
     const [r, g, b] = rgb(color)
     expect(`${color} ${g > r + 40 && g > b + 40}`).toBe(`${color} false`)
   }
-  for (const key of Object.keys(POSES)) expect(/breakthrough|success|achiev/i.test(key)).toBe(false)
+  for (const key of IDS) expect(/breakthrough|success|achiev/i.test(key)).toBe(false)
   for (const value of Object.values(LABEL)) expect(/breakthrough|achieved/i.test(value)).toBe(false)
 })
 
 // ---- geometry (K7, K9) -----------------------------------------------------------------------
 
-test('K7 geometry: the pose of each drawn state equals the canon asset, number for number', () => {
+test('K7 geometry: the pose of each state, as the asset text holds it, equals the canon table, number for number (plan 13: poses come from the asset)', () => {
   const different: string[] = []
-  for (const key of Object.keys(POSES) as (keyof typeof POSES)[]) {
-    const canon = CANON_STATES.find(one => one.id === CANON_ID[key])
-    if (!canon) throw new Error(`no canon state for ${key}`)
-    const pose = POSES[key]
+  for (const canon of CANON_STATES) {
+    const pose = POSES[canon.id]
+    if (!pose) throw new Error(`no pose for ${canon.id}`)
     const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b)
-    if (!same(pose.e1, canon.pose.e1)) different.push(`${key}.e1`)
-    if (!same(pose.e2, canon.pose.e2)) different.push(`${key}.e2`)
-    if (!same(pose.s, canon.pose.s)) different.push(`${key}.s`)
-    if (!same(pose.r, canon.pose.r)) different.push(`${key}.r`)
-    if (pose.plane.toLowerCase() !== canon.pose.plane.toLowerCase()) different.push(`${key}.plane`)
-    if (pose.c1.toLowerCase() !== canon.pose.c1.toLowerCase()) different.push(`${key}.c1`)
-    if (pose.c2.toLowerCase() !== canon.pose.c2.toLowerCase()) different.push(`${key}.c2`)
-    if (pose.hollow !== canon.pose.hollow) different.push(`${key}.hollow`)
+    if (!same(pose.e1, canon.pose.e1)) different.push(`${canon.id}.e1`)
+    if (!same(pose.e2, canon.pose.e2)) different.push(`${canon.id}.e2`)
+    if (!same(pose.s, canon.pose.s)) different.push(`${canon.id}.s`)
+    if (!same(pose.r, canon.pose.r)) different.push(`${canon.id}.r`)
+    if (pose.plane.toLowerCase() !== canon.pose.plane.toLowerCase()) different.push(`${canon.id}.plane`)
+    if (pose.c1.toLowerCase() !== canon.pose.c1.toLowerCase()) different.push(`${canon.id}.c1`)
+    if (pose.c2.toLowerCase() !== canon.pose.c2.toLowerCase()) different.push(`${canon.id}.c2`)
+    if (pose.hollow !== canon.pose.hollow) different.push(`${canon.id}.hollow`)
   }
   expect(different).toEqual([])
 })
 
-test('K7 colors by state: planes follow the canon (blue search and found, red boundary, white rest, listening, limit and handover)', () => {
-  expect(POSES.rest.plane).toBe(WHITE)
-  expect(POSES.listen.plane).toBe(WHITE)
-  expect(POSES.search.plane).toBe(BLUE)
-  expect(POSES.found.plane).toBe(BLUE)
-  expect(POSES.none.plane).toBe(WHITE)
-  expect(POSES.refused.plane).toBe(RED)
-  expect(POSES.handover.plane).toBe(WHITE)
-  // Ink as a plane means "your decision" in the book. No drawn state uses it.
-  for (const pose of Object.values(POSES)) expect(pose.plane).not.toBe(INK)
+test('K7 colors by state: planes follow the canon (blue search and found, red challenge and boundary, yellow contradiction and reframe, ink only for your decision, white the rest)', () => {
+  const plane = (id: string): string => POSES[id]?.plane ?? ''
+  expect(plane('rest')).toBe(WHITE)
+  expect(plane('listen')).toBe(WHITE)
+  expect(plane('search')).toBe(BLUE)
+  expect(plane('found')).toBe(BLUE)
+  expect(plane('challenge')).toBe(RED)
+  expect(plane('contradiction')).toBe(YELLOW)
+  expect(plane('reframe')).toBe(YELLOW)
+  expect(plane('limit')).toBe(WHITE)
+  expect(plane('decision')).toBe(INK)
+  expect(plane('boundary')).toBe(RED)
+  expect(plane('handover')).toBe(WHITE)
+  // Ink as a plane means "your decision" in the book, and only that state draws it.
+  expect(IDS.filter(id => plane(id) === INK)).toEqual(['decision'])
 })
 
-test('K9 raster: the plane, the divider and the ground line sit where the canon pose puts them', () => {
+test('K9 raster: the plane, the divider and the ground line sit where the canon pose puts them (plan 13: drawn by rasterFace)', () => {
   const n = 16
   const px = 400 / n
   const cell = (u: number): number => Math.min(n - 1, Math.floor(u / px))
-  for (const key of Object.keys(POSES) as (keyof typeof POSES)[]) {
-    const canon = CANON_STATES.find(one => one.id === CANON_ID[key])
-    if (!canon) throw new Error(`no canon state for ${key}`)
+  // Plan 13: rasterFace samples the center of a cell with a half open interval (plan 380-12), so a line
+  // centered exactly on the edge between two cells (y = 225 at 16 cells) belongs to the cell above it.
+  const lineRow = (u: number): number => Math.min(n - 1, Math.ceil(u / px) - 1)
+  for (const canon of CANON_STATES) {
     const [rx, ry] = canon.pose.r
-    const grid = rasterState(POSES[key], 0, n)
+    const grid = rasterFace(asset(), canon.id, n)
+    if (grid === null) throw new Error(`no face for ${canon.id}`)
     // A point inside the plane, away from the eyes and the bar: row 1, column 14.
-    const planeCell = grid[1]?.[14]
-    expect(`${key} plane ${planeCell}`).toBe(`${key} plane ${canon.pose.plane}`)
+    expect(`${canon.id} plane ${grid[1]?.[14]}`).toBe(`${canon.id} plane ${canon.pose.plane}`)
     // The divider: the column that holds x = rx is ink in a row below the plane.
-    expect(`${key} divider ${grid[cell(ry) + 2]?.[cell(rx)]}`).toBe(`${key} divider ${INK}`)
+    expect(`${canon.id} divider ${grid[cell(ry) + 2]?.[cell(rx)]}`).toBe(`${canon.id} divider ${INK}`)
     // The ground line: the row that holds y = ry is ink, right of the divider (column 14 is at x = 362.5, inside 386).
-    expect(`${key} line ${grid[cell(ry)]?.[14]}`).toBe(`${key} line ${INK}`)
+    expect(`${canon.id} line ${grid[lineRow(ry)]?.[14]}`).toBe(`${canon.id} line ${INK}`)
   }
 })

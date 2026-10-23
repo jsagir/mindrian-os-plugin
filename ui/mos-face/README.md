@@ -20,6 +20,7 @@ Run these commands in this folder.
 - Test it: `claude plugin test .` (34 original tests and the egress tests).
 - Check the plugin shape: `claude plugin validate .`
 - Review the shipped copy with the book (read only, in a scratch folder): `node scripts/book-review.cjs --out <file>`. It exits 1 if the book changes during the run and 77 if the book or the claude CLI is missing.
+- Draw the contact sheet of the 11 canon faces (the canon renderer's SVG above the panel's block faces, as a PNG): `node scripts/face-sheet.cjs --out <file.png>`. It exits 77 if the claude CLI or the Playwright CLI is missing.
 - Type-check it: `npm run typecheck` (the script lands in a later plan).
 - Build it: `npm run build` (the script lands in a later plan).
 - Install the lockfile: `npm ci --ignore-scripts`.
@@ -87,7 +88,7 @@ prompt.submit and turn.start do no file, tool, network or process work and never
 | A quick read | resets the wait | B5 |
 | The person's own refresh (/mos-refresh, the Refresh button) | always reads, and asks Theo and the website again | B5 |
 | Reads in flight | one (a second refresh during a read is ignored, for 45 seconds at most) | B6 |
-| Timers | the 220 ms spinner stops when the turn ends; the 400 ms flash stops when the flash ends | B8 |
+| Timers | the 220 ms spinner (the running mark in the Theo calls pane) stops when the turn ends; the 400 ms flash of a lit section stops when the flash ends. The face has no timer (plan 380-13) | B8, W4 |
 
 ### Where the home and rooms folders are
 
@@ -116,7 +117,7 @@ What the words must be:
 
 What the tests scan:
 
-- tests/copy.test.tsx draws the band and the pane in 7 states, 4 face styles, 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 13 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
+- tests/copy.test.tsx draws the band and the pane in 10 states (the 11 canon states except Reframe, which no real event reaches; its thoughts are scanned in C4), 3 face styles (tile, mini and line), 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 13 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
 - tests/test-380-copy.cjs reads every string of the hook sources (also JSX text) and scans the manifest description. It runs the commands check below.
 - scripts/face-commands.cjs --check keeps hooks/commands.ts honest against data/command-registry.json: no unknown command, no stack word, no PLUGIN_VERSION constant. A changed registry sentence only warns. Run --write, then the build.
 - A command name such as /mos:brain-derive is a name the plugin owns. The scan removes command names before it looks for words.
@@ -168,38 +169,81 @@ The names stay /mos-* with a hyphen (a decision the book does not rule, so there
 
 The panel uses dimmed paper for secondary text. The book (mos-brand book e947a5d) says it has no token for secondary text on ink and that the panel uses dimmed paper (`segments/experience/terminal`, PROPOSED). Measured: paper at 50 percent over ink is #848380, and its contrast over ink is 4.98 to 1, above the 4.5 floor of `segments/experience/accessibility`. This is a stand-in for the host's own dim rule, which is UNVERIFIED on a real screen until plan 380-10. Soft ink is never used as text on ink (2.10 to 1). Plan 380-11 proposes a token to the book. The proposal is not in the book.
 
+D-11 (navigator ruling of 2026-10-23) keeps this as it is after the canon faces: secondary text on the ink ground stays dimmed paper, and no hex is invented. Test S6 of tests/test-380-copy.cjs fails on any color literal in the hook sources that is not one of the seven canon tokens (F7F5EE, 111111, FFFFFF, 1F3FBF, D6281F, F2C200, 4B4943), and on a change of the secondary text style. A proposed segment text for the book goes into the follow-up file of the phase folder; nothing is written into the book repo.
+
 ### N7 Surfaces
 
 The panel draws only in the Claude Code terminal (mos-brand book e947a5d covers the terminal only). Desktop and Cowork get no panel in this beta. They keep the same plain tool reads. This is a deliberate skip of the tri-polar rule (CLAUDE.md), not an oversight, because the engine hooks that draw a pane exist only in the terminal. The book has no text for Desktop or Cowork: its terminal segment covers the terminal only (`segments/experience/terminal`, PROPOSED). Plan 380-11 proposes a fallback segment. The proposal is not in the book.
 
 ### N9 State map
 
-The book (mos-brand book e947a5d) names 11 states (`segments/identity/theo/states`: "use exact state names"). The panel draws 7 and writes each label as the book's exact name. Four have no pose here on purpose: a pose would be a new panel feature, and no real event sets it. A state is mapped only where a real event exists.
+The book (mos-brand book e947a5d) names 11 states (`segments/identity/theo/states`: "use exact state names"). Since plan 380-13 (D-10) the panel draws all 11, each from the canon asset, and writes each label as the asset spells it. A state is mapped only where a real event exists; a state that no event reaches is listed as unmapped. The table is the mapping in `hooks/face-events.ts` (EVENT_STATES and UNMAPPED_STATES). Test W2 fails when an event maps to an id that is not in the asset, when a canon state is neither mapped nor listed as unmapped, and when a listed state is also mapped.
 
-| Book state | Mod state | Drawn label | What happens in the panel |
-|------------|-----------|-------------|---------------------------|
-| Rest | rest | Rest | No current intervention. |
-| Listening | listen | Listening | A turn began and Theo is attending. |
-| Search | search | Search | A real call to Theo is running. The state ends when the call ends. |
-| Found | found | Found | A call to Theo returned material. It does not mean the material is right. |
-| Challenge | unmapped | none | No event sets this pose. The red chip shows when a reply leads with the challenging marker. |
-| Contradiction | unmapped | none | No event sets this pose. The yellow chip shows when a reply leads with the contradiction marker. |
-| Reframe | unmapped | none | The plugin has no reframe marker, so there is no real event. Reframes reach the person in words. |
-| Limit | none | Limit | A call to Theo returned nothing. The words say that nothing was found. |
-| Your decision | unmapped | none | The panel never asks for a decision. The black chip shows when a reply leads with the gate marker. |
-| Boundary | refused | Boundary | A call was blocked by the permission mode. The panel says what it could not read. |
-| Handover | handover | Handover | A turn finished with an answer. It does not mean the project is complete. |
+| Drawn label | State id | Mapping | Event or reason | Book spelling |
+|-------------|----------|---------|-----------------|---------------|
+| Rest | rest | mapped | The session is quiet: the face returns here 9 seconds after a finished turn, and when the person interrupts a turn (turn.aborted). | Rest |
+| Listening | listen | mapped | A turn began (turn.start) and Theo is attending. | Listening |
+| Searching | search | mapped | A call is running (tool.call). The state ends when the call ends. | Search |
+| Found | found | mapped | A call returned material (tool.ok). It does not mean the material is right. | Found |
+| Challenge | challenge | mapped | A reply leads with the red square (lead.red). The pressure is on the claim, never on the person. | Challenge |
+| Contradiction | contradiction | mapped | A reply leads with the yellow square (lead.yellow). The face does not pick a winner. | Contradiction |
+| Reframe | reframe | unmapped | No real event reaches it. In the canon colors yellow stands for contradiction or reframe, and the reply marker does not say which; the persona marker names the yellow square contradiction, so the yellow square maps to Contradiction. The plugin has no reframe marker. Reframes reach the person in words. | Reframe |
+| Nothing found | limit | mapped | A call returned nothing or failed (tool.empty, tool.failed), or a turn ended on an error (turn.error). It does not mean there is no knowledge anywhere. | Limit |
+| Your decision | decision | mapped | A reply leads with the black square (lead.black), the gate marker. It is never set by scrolling, and the panel never approves for the person. | Your decision |
+| Boundary | boundary | mapped | The permission mode refused a call (tool.denied), or the model refused (turn.refusal). The panel says what it could not do. | Boundary |
+| Handover | handover | mapped | A turn finished with an answer (turn.complete) whose lead square is blue, white or none. It does not mean the project is complete. | Handover |
 
-The proposed terminal guide lists seven states in older words: rest, listening, searching, found, nothing found, boundary and hand over (`segments/experience/terminal`, PROPOSED, written against face version 2.6.0). It also says to tie each state to a real event, which is the N9 rule. The two texts differ in the names of three states, so the book holds two spellings. The panel follows the ruled states segment, `segments/identity/theo/states`, and the book needs one spelling (an item for plan 380-11).
+What each state must not imply, from `segments/identity/theo/states` (mos-brand book e947a5d), and where the panel keeps to it (threat T-380-51; the label always sits beside the face):
 
-The asset file `asset-fa8504998f.json` calls two states "Searching" and "Nothing found" in its visible-label field. The states entry says to use exact state names and to localize visible labels, so the panel writes Search and Limit. The detail line keeps the plain words of what happened.
+- Challenge must not condemn the person. The Challenge thoughts hold none of wrong, fail, bad, blame, stupid (test W7).
+- Contradiction must not pick a winner. Its thoughts hold none of winner, right, correct, true (W7).
+- Reframe must not present the new framing as established truth. Its thoughts hold none of the real, truth, actually (W7).
+- Your decision must not look like approval triggered by scrolling. Its thoughts hold none of approve, confirm, sign off (W7), and no event of the panel sets it but the black square of a reply.
+- Found must not imply correctness (test K4: no proof word in the search and found states).
+- Nothing found must not imply sadness or absence of knowledge everywhere. Its thoughts hold none of sad, sorry, nothing exists (W7).
+- Boundary is a constrained pose with an explicit explanation: the detail line says what was refused.
+- Handover is not completion of the whole project.
+
+Two spellings differ between the book and the asset, and the panel follows the asset (navigator ruling of 2026-10-23): the book states table says Search and Limit, and the asset's visible labels say Searching and Nothing found. D-10 also says the label Limit becomes Nothing found. The conflict is recorded here for the book follow-ups, and test K5 pins the exact pair. The proposed terminal guide (`segments/experience/terminal`, PROPOSED) lists seven states in yet older words (rest, listening, searching, found, nothing found, boundary and hand over); the book holds more than one spelling of these names, and it needs one.
 
 ### HOLLOW
 
-HOLLOW (#8F8B80) is the one tone in face.ts that is not a canon token. The canon draws a hollow pose (Handover) as a white fill with an 8 unit ink outline. A pixel grid cannot show an outline that thin, so the panel fills the bar and the eyes of the hollow pose with this grey. It is not a canon token and it is not used anywhere else. Plan 380-11 asks the book for a ruling.
+HOLLOW (#8F8B80) was the one tone in face.ts that was not a canon token. D-10 (plan 380-13) removed it, with the old poses. The canon draws a hollow pose (Handover) as a white fill with an 8 unit ink outline. The rasterizer of `hooks/theo-face.ts` now draws that pose from the asset with palette colors only: the bar and the eyes take the white fill with a one cell ink ring when the stroke is thinner than a cell. No tone outside the seven canon tokens remains in the hook sources (D-11, test S6).
 
 ### GEOMETRY
 
-The face poses are the canon poses, number for number, never a redraw: mos-brand book e947a5d, `segments/identity/theo/entries/2026-10-19/asset-fa8504998f.json`, drawn by the renderer `segments/identity/theo/entries/2026-10-19/asset-d96217b320.js` on a 400 unit master. The sha256 of the asset file is e54e7c6a3c11a039059fb47833b09e865cd3981e2910b4f13571e87c06682da2. Test K7 compares every pose and plane with the table in tests/canon.ts, and tests/test-380-decisions.cjs compares that table with the book. Before plan 380-07 the poses were an older copy of the geometry and none of the 7 equalled the canon; Boundary also drew a black plane where the canon draws red.
+The face poses are the canon poses, number for number, never a redraw: mos-brand book e947a5d, `segments/identity/theo/entries/2026-10-19/asset-fa8504998f.json`, drawn by the renderer `segments/identity/theo/entries/2026-10-19/asset-d96217b320.js` on a 400 unit master. The sha256 of the asset file is e54e7c6a3c11a039059fb47833b09e865cd3981e2910b4f13571e87c06682da2. Since plan 380-13 the panel holds no pose number at all: it reads the asset file at session start (`hooks/theo-face.ts`, readFaceAsset: the dev path `assets/asset-fa8504998f.json` first, the shipped path `lib/mos-face/dist/assets/asset-fa8504998f.json` second) and draws each face from it. The copy in `assets/` is byte for byte the canon file (tests/test-380-theo-faces.cjs checks the hash), tests/face-fixture.ts holds the asset text and the attributes that the canon renderer itself sets (taken by running the renderer in a vm with a fake DOM), and test G2 compares the composition with them. Test K7 compares every pose and plane with the table in tests/canon.ts, and tests/test-380-decisions.cjs compares that table with the book. Test F5 fails when a pose tuple of the asset is typed in any hook file.
 
-What the panel does not draw from the canon: the 14 unit frame round the tile (it is smaller than one cell at 6 to 16 cells), the outline of a hollow pose (see HOLLOW), and the motion fields of the asset (sway, bob and still; the panel only moves the running mark on the ground line while a call runs). The canon's easing is an open question in the book itself, and a terminal has no easing.
+If the asset cannot be read from either path, the panel draws the words-only line face (`LINE_FACE`) and says in one plain sentence that the face file could not be read. It never falls back to typed numbers (test W5).
+
+What the panel does not draw from the canon: the motion fields of the asset (sway, bob and still), and the easing between states. A terminal cannot ease, and the face changes state at once and never loops. The frame ring is drawn only at 16 cells and up (plan 380-12 deviation 1: at 6, 8 and 12 cells it would be most of the face). The face is 12 cells wide on a wide panel, 8 on a standard panel, 6 in the mini style and in none in the line style; 6 is coarse, and Handover reads from the moved bar and the white plane more than from the outline below 16.
+
+## Visual change (D-10)
+
+Date: 2026-10-23, plan 380-13. This is a deliberate visual change, not a refactor. The faces on the screen are different faces.
+
+Old model (plans 02 to 11): 7 states (rest, listen, search, found, none, refused, handover) drawn from older poses in `hooks/face.ts` (POSES); a crew style with six workshop faces (CREW) that appeared in four of the states; a tick that animated a small white square along the ground line of the Search state (a 220 ms loop); the tone HOLLOW (#8F8B80) for the hollow pose; the labels Search, Limit and Hand over in some places.
+
+New model: 11 canon states drawn from the canon asset through `hooks/theo-face.ts`; no loop (the face changes state at once and never moves for decoration); no crew faces; the asset's own labels (Rest, Listening, Searching, Found, Challenge, Contradiction, Reframe, Nothing found, Your decision, Boundary, Handover); styles tile, mini and line. Events map to states only where a real event exists (section N9; Reframe stays unmapped and listed).
+
+Old state to new state:
+
+| Old state id | Old label | New state id | New label |
+|--------------|-----------|--------------|-----------|
+| rest | Rest | rest | Rest |
+| listen | Listening | listen | Listening |
+| search | Search | search | Searching |
+| found | Found | found | Found |
+| none | Limit | limit | Nothing found |
+| refused | Boundary | boundary | Boundary |
+| handover | Handover | handover | Handover |
+| (none) | (none) | challenge, contradiction, decision | Challenge, Contradiction, Your decision (reached through the lead square of a reply) |
+| (none) | (none) | reframe | Reframe (drawn, no real event reaches it) |
+
+A failed call to Theo, or a turn that ended on an error, used to show Boundary (refused). It now shows Nothing found, as D-10 says an empty or failed result does; a call the permission mode refused, and a refusal by the model, still show Boundary.
+
+Pins: the raster pins of plan 02 are retired and the pins of plan 380-12 stand in their place. The plan counted 120 pins. They were 84 state pins (7 states, 4 ticks, 3 sizes), 18 crew pins (6 faces, 3 sizes) and 18 pins of the context canvas. The 102 face pins described faces that no longer exist and are retired. The 18 canvas pins describe `hooks/meter.ts`, which D-10 did not touch, so they are not retired: they moved unchanged to `tests/meter-pin.test.ts`. The sha256 of the old pin table text (the object PIN of `tests/raster-pin.test.ts` as it stood at commit 4e0888481, 120 entries) is c48c6cba043e5ee9e506ef2ea44abffabd826cbdd803d1b64e9e1baf23c9a5c4. Added: the 44 pins of `tests/theo-face-pin.test.ts` (11 states, sizes 6, 8, 12 and 16), taken from the asset in plan 380-12.
+
+Deferred, for the navigator: the crew style is dropped because the canon asset named by D-10 (identity/theo) has no crew faces. The canon source for faces of that kind is the robots segment of the book (`segments/identity/robots`, mos-brand book e947a5d, with the consumer file `consumers/workshop-robot-faces.json`). Bringing a crew style back is a new plan.
+
+Secondary text (D-11): secondary text on the ink ground stays dimmed paper. No hex is invented (section N6; test S6).

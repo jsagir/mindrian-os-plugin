@@ -40,9 +40,7 @@ const PINS = {
 };
 const IDS = ['rest', 'listen', 'search', 'found', 'challenge', 'contradiction', 'reframe', 'limit', 'decision', 'boundary', 'handover'];
 const LABELS = ['Rest', 'Listening', 'Searching', 'Found', 'Challenge', 'Contradiction', 'Reframe', 'Nothing found', 'Your decision', 'Boundary', 'Handover'];
-// hooks/face.ts holds the older drawn poses (made equal to the canon in plan 380-07). Plan 380-13
-// removes them. Until then the file is exempt from F5 and no other hook file is.
-const LEGACY_EXEMPT = new Set(['face.ts']);
+// Plan 380-13 removed the older drawn poses from hooks/face.ts, so no hook file is exempt from F5 any more.
 
 let passed = 0;
 let failed = 0;
@@ -136,7 +134,6 @@ const hookFiles = fs.readdirSync(HOOKS).filter((f) => /\.(ts|tsx|cjs|js)$/.test(
 check(hookFiles.includes('theo-face.ts') || !fs.existsSync(path.join(HOOKS, 'theo-face.ts')), 'the hooks folder lists its files');
 let scanned = 0;
 for (const f of hookFiles) {
-  if (LEGACY_EXEMPT.has(f)) { say('  note exempt until plan 380-13: hooks/' + f); continue; }
   const text = fs.readFileSync(path.join(HOOKS, f), 'utf8');
   scanned += 1;
   const hits = [];

@@ -17,6 +17,10 @@
 //   S3  node ui/mos-face/scripts/face-commands.cjs --check exits 0.
 //   S4  no test title of panel.test.tsx holds the word Larry.
 //   S5  register.tsx holds exactly 13 command.run handlers.
+//   S6  (plan 380-13, D-10 and D-11) every color literal (a hash and 6 hex digits) in the hook sources is
+//       one of the seven canon tokens: no invented hex, and secondary text stays dimmed paper.
+//   S7  (plan 380-13, D-10) no hook source names POSES, CREW, rasterState, rasterCrew or HOLLOW outside
+//       a comment, and face.ts exports none of them: the old poses, the crew faces and their tone are gone.
 // CJS, Node built-ins only. Hermetic: no network, no write. Hyphens only.
 'use strict';
 
@@ -298,6 +302,46 @@ check(banned('Johns Hopkins').length === 1 && banned('JHU').length === 1 && bann
   const text = fs.readFileSync(path.join(HOOKS, 'register.tsx'), 'utf8');
   const count = (text.match(/on\('command\.run'/g) || []).length;
   check(count === 13, 'S5 register.tsx holds 13 command.run handlers (' + count + ')');
+}
+
+// ---- S6 (plan 380-13, D-10, D-11) -----------------------------------------------------------
+{
+  const TOKENS = new Set(['#F7F5EE', '#111111', '#FFFFFF', '#1F3FBF', '#D6281F', '#F2C200', '#4B4943']);
+  const colorsIn = (text) => (text.match(/#[0-9A-Fa-f]{6}\b/g) || []).map(c => c.toUpperCase());
+  const offTokens = (text) => colorsIn(text).filter(c => !TOKENS.has(c));
+  check(offTokens('const a = "#8F8B80"').length === 1 && offTokens('const a = "#f7f5ee"').length === 0, 'S6 self-test: an invented hex is caught and a canon token in any case is not');
+  const files = fs.readdirSync(HOOKS).filter(f => /\.(ts|tsx)$/.test(f)).sort();
+  const bad = [];
+  let seen = 0;
+  for (const base of files) {
+    const text = fs.readFileSync(path.join(HOOKS, base), 'utf8');
+    seen += colorsIn(text).length;
+    for (const c of offTokens(text)) bad.push(base + ' ' + c);
+  }
+  check(seen >= 14, 'S6 looked at ' + seen + ' color literals in the hook sources');
+  check(bad.length === 0, 'S6 every color literal of the hook sources is a canon token' + (bad.length ? ' (' + bad.join(', ') + ')' : ''));
+  const register = fs.readFileSync(path.join(HOOKS, 'register.tsx'), 'utf8');
+  check(/const soft = \{ color: PAPER, dimColor: true \} as const/.test(register), 'S6 secondary text is dimmed paper (D-11)');
+}
+
+// ---- S7 (plan 380-13, D-10) -------------------------------------------------------------------
+{
+  const GONE = /\b(POSES|CREW|rasterState|rasterCrew|HOLLOW)\b/;
+  const code = (text) => text.split('\n').filter(line => !/^\s*(\/\/|\*|\/\*)/.test(line)).join('\n');
+  check(GONE.test(code('export const POSES = {}')) && !GONE.test(code('// POSES were removed')), 'S7 self-test: a name in code is caught and the same name in a comment is not');
+  const files = fs.readdirSync(HOOKS).filter(f => /\.(ts|tsx)$/.test(f)).sort();
+  const hits = [];
+  for (const base of files) {
+    const text = code(fs.readFileSync(path.join(HOOKS, base), 'utf8'));
+    const m = text.match(GONE);
+    if (m) hits.push(base + ' ' + m[1]);
+  }
+  check(hits.length === 0, 'S7 no hook source names POSES, CREW, rasterState, rasterCrew or HOLLOW outside a comment' + (hits.length ? ' (' + hits.join(', ') + ')' : ''));
+  const face = code(fs.readFileSync(path.join(HOOKS, 'face.ts'), 'utf8'));
+  const exported = [...face.matchAll(/export (?:const|function|type) (\w+)/g)].map(m => m[1]);
+  check(exported.includes('LABEL') && exported.includes('LINE_FACE') && exported.includes('gridRuns'), 'S7 face.ts still exports LABEL, LINE_FACE and gridRuns (' + exported.length + ' exports)');
+  const register = code(fs.readFileSync(path.join(HOOKS, 'register.tsx'), 'utf8'));
+  check(!/\bcrew\b/i.test(register) && !/'crew'/.test(register), 'S7 register.tsx has no crew atom and no crew style');
 }
 
 say('');

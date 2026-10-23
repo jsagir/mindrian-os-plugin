@@ -17,7 +17,7 @@ import type { EngineInterface } from 'claude-code'
 // Nothing here loops or ticks: the canon renderer eases between states over 760 ms, a terminal
 // cannot ease, so the face changes state at once and never moves for decoration (mos-brand book
 // e947a5d, segment experience/terminal: the face may change between states and never loops).
-// The old drawings stay in face.ts until plan 380-13 swaps the panel over.
+// The panel draws its faces through this file since plan 380-13; the older drawings are gone from face.ts.
 
 // ---- palette (mos-brand book e947a5d, foundations/color) --------------------------------------
 
