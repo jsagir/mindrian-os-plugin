@@ -36,7 +36,7 @@ Code tree: `/home/jsagi/dev/MindrianOS-Plugin-release`, branch `main`. Nothing p
 ## RED and GREEN runs (PROVEN)
 
 - RED (before theo-face.ts existed): `claude plugin test .` printed 91 pass, 2 fail. The 2 fails were the two new files: "the file did not load: cannot import ../hooks/theo-face". The 34 originals all passed. The plan's own Task 1 verify command exited 0.
-- GREEN: 107 pass, 0 fail (34 original plus 73 added; 12 new tests in theo-face.test.ts and 1 in the pin file are included). `node tests/test-380-engine-tests.cjs`: 107 pass, 0 fail. `node tests/test-380-theo-faces.cjs`: 76 passed, 0 failed. `node ui/mos-face/scripts/theo-faces.cjs --check`: exit 0. `node ui/mos-face/scripts/typecheck.cjs`: exit 0. `bash tests/run-all-380.sh`: PASSED=12 FAILED=0 SKIPPED=3 KNOWN=0 (the 3 skips are the legs of plans 08 and 09). Dash scan with `LC_ALL=C /usr/bin/grep -rlP '\xE2\x80[\x93\x94]'` over hooks, tests, scripts, assets and the node test: no hit.
+- GREEN: 107 pass, 0 fail (91 before plus 16 new: 15 in theo-face.test.ts and 1 in theo-face-pin.test.ts; 34 original plus 73 added). `node tests/test-380-engine-tests.cjs`: 107 pass, 0 fail. `node tests/test-380-theo-faces.cjs`: 76 passed, 0 failed. `node ui/mos-face/scripts/theo-faces.cjs --check`: exit 0. `node ui/mos-face/scripts/typecheck.cjs`: exit 0. `bash tests/run-all-380.sh`: PASSED=12 FAILED=0 SKIPPED=3 KNOWN=0 (the 3 skips are the legs of plans 08 and 09). Dash scan with `LC_ALL=C /usr/bin/grep -rlP '\xE2\x80[\x93\x94]'` over hooks, tests, scripts, assets and the node test: no hit.
 
 ## Renderer cross-check (PROVEN)
 
