@@ -644,11 +644,12 @@ const treeUp = async ($: EngineInterface): Promise<boolean> => {
     }
     const up = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : ''
     const root = (await read($, snap))?.room?.path
+    const folder = up !== '' && root ? await readFolder($, root, up) : { names: [], more: 0, fresh: [] }
     await update($, openSection, () => up)
-    await update($, sectionFiles, () => [])
-    await update($, sectionMore, () => 0)
+    await update($, sectionFiles, () => folder.names)
+    await update($, sectionMore, () => folder.more)
+    await update($, freshNames, () => folder.fresh)
     await resetTree($)
-    if (up !== '' && root) await listSection($, root, up)
     $.ui.invalidate('ui.render')
   } catch {
     // leave the panel as it was
@@ -662,17 +663,44 @@ const treeGoto = async ($: EngineInterface, page: number) => {
   $.ui.invalidate('ui.render')
 }
 
-// Open one section or folder of the room: read it once, and start at its first page. No question is
+// One directory read when a section or folder opens. At most MAX_ENTRIES names are kept (folders first,
+// then names in order); the number left out is kept so the panel can say so. A folder that cannot be read
+// gives no names. Nothing is stored here: the caller stores the folder and its path together, so the pane
+// never draws one folder's names under another folder's crumb.
+const readFolder = async ($: EngineInterface, root: string, path: string): Promise<{ names: string[]; more: number; fresh: string[] }> => {
+  try {
+    const entries = await $.fs.list(`${root}/${path}`)
+    const names = entries
+      .filter(one => !one.name.startsWith('.'))
+      .filter(one => one.kind === 'dir' || /\.(md|html|json|txt)$/i.test(one.name))
+      .map(one => (one.kind === 'dir' ? `${one.name}/` : one.name))
+      .sort((a, b) => Number(b.endsWith('/')) - Number(a.endsWith('/')) || a.localeCompare(b))
+    const capped = capEntries(names)
+    const now = await $.clock.now()
+    const fresh = entries
+      .filter(one => one.kind === 'file' && one.mtimeMs > 0 && now - one.mtimeMs < LIT_KEEP_MS)
+      .map(one => one.name)
+
+    return { names: capped.kept, more: capped.more, fresh }
+  } catch {
+    return { names: [], more: 0, fresh: [] }
+  }
+}
+
+// Open one section or folder of the room: read it once, then show it at its first page. No question is
 // put in the prompt box; a click adds that (pickSection), the slash command does not.
 const enterSection = async ($: EngineInterface, root: string, path: string) => {
+  const folder = await readFolder($, root, path)
   await update($, openSection, () => path)
+  await update($, sectionFiles, () => folder.names)
+  await update($, sectionMore, () => folder.more)
+  await update($, freshNames, () => folder.fresh)
   const top = path.split('/')[0] ?? path
   await update($, lit, m => {
     const { [top]: _gone, ...rest } = m
     return rest
   })
   await resetTree($)
-  await listSection($, root, path)
 }
 
 // A section of the room: open it to see what is inside, and put a question
@@ -691,31 +719,6 @@ const pickSection = async ($: EngineInterface, path: string) => {
     await askAbout($, `About the "${path.replaceAll('/', ' / ')}" section of the room: `)
   } catch {
     // leave the list as it was
-  }
-}
-
-// One directory read when a section or folder opens. At most MAX_ENTRIES names are kept (folders first,
-// then names in order); the number left out is kept so the panel can say so.
-const listSection = async ($: EngineInterface, root: string, path: string) => {
-  try {
-    const entries = await $.fs.list(`${root}/${path}`)
-    const names = entries
-      .filter(one => !one.name.startsWith('.'))
-      .filter(one => one.kind === 'dir' || /\.(md|html|json|txt)$/i.test(one.name))
-      .map(one => (one.kind === 'dir' ? `${one.name}/` : one.name))
-      .sort((a, b) => Number(b.endsWith('/')) - Number(a.endsWith('/')) || a.localeCompare(b))
-    const capped = capEntries(names)
-    await update($, sectionFiles, () => capped.kept)
-    await update($, sectionMore, () => capped.more)
-    const now = await $.clock.now()
-    const recent = entries
-      .filter(one => one.kind === 'file' && one.mtimeMs > 0 && now - one.mtimeMs < LIT_KEEP_MS)
-      .map(one => one.name)
-    await update($, freshNames, () => recent)
-  } catch {
-    await update($, sectionFiles, () => [])
-    await update($, sectionMore, () => 0)
-    await update($, freshNames, () => [])
   }
 }
 
