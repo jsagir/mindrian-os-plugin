@@ -3786,12 +3786,12 @@ Plans:
 ### Phase 380: Ship the M:OS face panel mod inside the plugin (ships in the next cut)
 
 **Goal:** Give every MindrianOS user the /m:os face panel that the owner built as a Claude Code mod: a side panel, a one-line status, prompt-box buttons and the /mos-* commands, so the room state is visible beside the chat without a command. Today the mod lives only in a session-scoped folder and dies with the session; this phase installs it with the plugin and releases it.
-**Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10)
+**Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10); MOD380-07 the panel keeps everything the plugin status line shows, plus the room and filing facts, from the same local sources, with a test that fails on a missing field (D-08); MOD380-08 the panel shows one Job line, a labelled local guess in jobs-to-be-done form that sends nothing anywhere (D-09); MOD380-09 the panel draws the 11 canon Theo faces from the byte-exact canon asset with the canon labels, and maps events to states only where a real event exists (D-10)
 **Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
 Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
-**Plans:** 11 plans (code plans 01 to 09 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; no plan pushes or cuts a release)
+**Plans:** 15 plans (code plans 01 to 09 and 12 to 15 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; plan numbers 12 to 15 were added after the first plan check and run before the dist build; no plan pushes or cuts a release)
 
-MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap slot: a repair plan 380-12 is reserved after plan 10; if plan 10 returns PARTIAL, insert it with /gsd-plan-phase 380 --gaps and it runs before plan 11.
+MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap slot: a repair plan 380-16 is reserved after plan 10; if plan 10 returns PARTIAL, insert it with /gsd-plan-phase 380 --gaps and it runs before plan 11.
 
 Plans:
 
@@ -3822,16 +3822,32 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship) with a freshness gate
+- [ ] 380-12-PLAN.md - D-10 part one: the canon Theo face asset copied byte for byte, the generator and fixture, the loader, composition and rasterizer, 44 new pins
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
+- [ ] 380-13-PLAN.md - D-10 part two: the panel draws the 11 canon faces with canon labels, real events only, no loop, no crew, no invented hex (D-11), the visual change recorded
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 380-10-PLAN.md - six real-terminal screenshots (reply chip included) inspected by the executor, idle CPU window, opt-out persistence
+- [ ] 380-14-PLAN.md - D-09: the Job line, a local labelled guess in jobs-to-be-done form, one-action dismiss and fix, /mos-job
 
-**Wave 10** *(blocked on Wave 9; stops at human checkpoints)*
+**Wave 10** *(blocked on Wave 9)*
 
-- [ ] 380-11-PLAN.md - book follow-ups and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)
+- [ ] 380-15-PLAN.md - D-08: every status line field mapped to a panel field, the room and filing facts, same local sources, the capture harness session home
+
+**Wave 11** *(blocked on Wave 10)*
+
+- [ ] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship, the face assets included) with a freshness gate
+
+**Wave 12** *(blocked on Wave 11)*
+
+- [ ] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
+
+**Wave 13** *(blocked on Wave 12)*
+
+- [ ] 380-10-PLAN.md - real-terminal screenshots (reply chip, status fields, Job line, the 11 faces sheet) inspected by the executor, idle CPU window, opt-out persistence
+
+**Wave 14** *(blocked on Wave 13; stops at human checkpoints)*
+
+- [ ] 380-11-PLAN.md - book follow-ups A1 to A7 and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)
