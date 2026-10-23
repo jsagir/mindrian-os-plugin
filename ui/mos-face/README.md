@@ -333,7 +333,7 @@ What the host cannot do (380-18-HOST-FACTS.md in the phase folder has the line r
 - Input in a pane, Tab walking and the focus chord are UNVERIFIED on a real screen. No hotkey and no Input is drawn until a real screen proves them. A Client region with its own key handler is an option for a later plan, with a second module and a build change as its cost.
 - The room an inline pane gets at 80 by 24 is not stated by the types (UNVERIFIED); the tests assume 76 by 10.
 
-Tests: tests/tree.test.ts (the pure model) and tests/tree-pane.test.tsx (the pane and the command, 22 groups). Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Side panel template, Width ladder, States, Keyboard routes), segments/writing/voice. The book is silent on long lists in a side panel; the proposals P18-1 to P18-3 are in the phase folder (380-16-BOOK-PROPOSALS.md).
+Tests: tests/tree.test.ts (the pure model) and tests/tree-pane.test.tsx (the pane and the command, 24 groups). Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Side panel template, Width ladder, States, Keyboard routes), segments/writing/voice. The book is silent on long lists in a side panel; the proposals P18-1 to P18-3 are in the phase folder (380-16-BOOK-PROPOSALS.md).
 
 ## Decisions
 
