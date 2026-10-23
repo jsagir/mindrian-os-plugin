@@ -8,7 +8,7 @@
 // Legs:
 //   G1  claude plugin validate --json on ui/mos-face lists no $.process.run call, and the hook
 //       sources hold no process.run outside a comment.
-//   G2  the hook list equals the pinned list: session.start, the 14 command.run names (plan 380-14 added mos-job),
+//   G2  the hook list equals the pinned list: session.start, the 15 command.run names (plan 380-14 added mos-job, plan 380-18 added mos-tree),
 //       prompt.submit, turn.start, tool.call, turn.complete and the 5 ui.render entries.
 //   G3  the environment reads equal HOME, MINDRIAN_ROOMS_HOME, MOS_FACE_WORDS, NO_COLOR and
 //       USERPROFILE.
@@ -49,6 +49,7 @@ const PINNED_HOOKS = [
   'command.run{command=mos-auto}',
   'command.run{command=theo-calls}',
   'command.run{command=mos-job}',
+  'command.run{command=mos-tree}',
   'prompt.submit',
   'turn.start',
   'tool.call',

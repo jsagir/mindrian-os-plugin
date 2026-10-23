@@ -16,7 +16,7 @@
 //   S2  the plugin.json description passes the scan and does not name Larry.
 //   S3  node ui/mos-face/scripts/face-commands.cjs --check exits 0.
 //   S4  no test title of panel.test.tsx holds the word Larry.
-//   S5  register.tsx holds exactly 14 command.run handlers (plan 380-14 added mos-job).
+//   S5  register.tsx holds exactly 15 command.run handlers (plan 380-14 added mos-job, plan 380-18 added mos-tree).
 //   S6  (plan 380-13, D-10 and D-11) every color literal (a hash and 6 hex digits) in the hook sources is
 //       one of the seven canon tokens: no invented hex, and secondary text stays dimmed paper.
 //   S7  (plan 380-13, D-10) no hook source names POSES, CREW, rasterState, rasterCrew or HOLLOW outside
@@ -307,7 +307,7 @@ check(banned('Johns Hopkins').length === 1 && banned('JHU').length === 1 && bann
 {
   const text = fs.readFileSync(path.join(HOOKS, 'register.tsx'), 'utf8');
   const count = (text.match(/on\('command\.run'/g) || []).length;
-  check(count === 14, 'S5 register.tsx holds 14 command.run handlers (' + count + ')');
+  check(count === 15, 'S5 register.tsx holds 15 command.run handlers (' + count + ')');
 }
 
 // ---- S6 (plan 380-13, D-10, D-11) -----------------------------------------------------------

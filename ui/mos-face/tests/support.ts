@@ -119,7 +119,13 @@ export type WorldOptions = {
   percent?: number | null
   // Plan 17: a holder the test changes between renders; when given it wins over percent.
   percentNow?: { value: number | null }
+  // Plan 18: the entries of one folder, by its full path. Return undefined to use the default
+  // listing, 'deny' for a folder that cannot be read, or the entries.
+  list?: (path: string) => ListEntry[] | 'deny' | undefined
 }
+
+// One entry of a folder, as the engine lists it.
+export type ListEntry = { name: string; kind: 'file' | 'dir'; size: number; mtimeMs: number; isLink: boolean }
 
 // The context percent the host reports now: the holder of the test, else the option; null is none yet.
 const percentFor = (options: WorldOptions): number | null | undefined => (options.percentNow ? options.percentNow.value : options.percent)
@@ -178,6 +184,9 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   })
   on('fs.list', (_, e) => {
     options.reads?.push(`list ${e.path}`)
+    const custom = options.list?.(e.path)
+    if (custom === 'deny') return { deny: 'this folder cannot be read in this test' }
+    if (custom !== undefined) return { value: custom }
     if (e.path.endsWith(slug)) {
       return {
         value: [

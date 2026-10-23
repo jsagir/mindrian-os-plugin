@@ -527,13 +527,13 @@ test('J7 plain: with NO_COLOR every meaning survives in words and the Job rows a
 
 // ---- J8 command count -------------------------------------------------------------------------
 
-test('J8 the registered commands are 14 and the 14th is mos-job, with a clean description and clean results', async ($, on) => {
+test('J8 the registered commands are 15 and the 14th is mos-job, with a clean description and clean results', async ($, on) => {
   const registered: { name: string; description: string }[] = []
   const { clock } = recordCalls(on, { registered })
   await $.session.start(START)
   await clock.settle()
 
-  expect(registered.length).toBe(14)
+  expect(registered.length).toBe(15)
   expect(registered[13]?.name).toBe('mos-job')
   expect(registered.map(one => one.name)).toContain('mos-job')
   const description = registered[13]?.description ?? ''

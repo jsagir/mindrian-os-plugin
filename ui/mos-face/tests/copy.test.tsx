@@ -297,7 +297,7 @@ test('C1 every block: each block of the pane, opened one by one, is clean', asyn
   expect(hits).toEqual([])
 })
 
-test('C2 commands: 14 commands, every description and every result is clean', async ($, on) => {
+test('C2 commands: 15 commands, every description and every result is clean', async ($, on) => {
   const registered: { name: string; description: string }[] = []
   const { clock } = recordCalls(on, { registered })
   turnHooks(on)
@@ -305,7 +305,7 @@ test('C2 commands: 14 commands, every description and every result is clean', as
   await clock.settle()
 
   expect(registered.map(one => one.name).sort()).toEqual(
-    ['mos-state', 'mos-face', 'mos-style', 'mos-chip', 'mos-suggest', 'mos-advice', 'mos-ask', 'mos-refresh', 'mos-plain', 'mos-text', 'mos-words', 'mos-auto', 'theo-calls', 'mos-job'].sort(),
+    ['mos-state', 'mos-face', 'mos-style', 'mos-chip', 'mos-suggest', 'mos-advice', 'mos-ask', 'mos-refresh', 'mos-plain', 'mos-text', 'mos-words', 'mos-auto', 'theo-calls', 'mos-job', 'mos-tree'].sort(),
   )
   for (const one of registered) {
     if (one.name !== 'theo-calls') expect(one.name.startsWith('mos-')).toBe(true)
