@@ -104,6 +104,7 @@ run_if        "380 copy (plain-English words)"                     tests/test-38
 run_if        "380 command copy check"                             ui/mos-face/scripts/face-commands.cjs         node ui/mos-face/scripts/face-commands.cjs --check
 run_if        "380 decisions"                                      tests/test-380-decisions.cjs                  node tests/test-380-decisions.cjs
 run_if        "380 build"                                          tests/test-380-build.cjs                      node tests/test-380-build.cjs
+run_if        "380 rename (source owner mos-face, dist owner mos)"  tests/test-380-rename.cjs                     node tests/test-380-rename.cjs
 run_strict_if "380 installed layout (install and load)"            tests/test-380-installed-layout.cjs           node tests/test-380-installed-layout.cjs
 run_if        "380 gate wiring"                                    tests/test-380-gate-wiring.cjs                node tests/test-380-gate-wiring.cjs
 run_if        "380 shots harness"                                  tests/test-380-shots-harness.cjs              node tests/test-380-shots-harness.cjs
