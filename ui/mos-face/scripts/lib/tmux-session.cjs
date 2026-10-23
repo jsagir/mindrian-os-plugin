@@ -257,7 +257,12 @@ function startSession(opts) {
     keysLit: sendLiteral,
     keyName: sendKey,
     option: (n) => (tmux(['show-options', '-gv', n]).stdout || '').trim(),
-    kill: () => { tmux(['kill-session', '-t', name]); tmux(['kill-server']); },
+    kill: () => {
+      tmux(['kill-session', '-t', name]);
+      tmux(['kill-server']);
+      // the server leaves its socket file behind; remove only our own private socket
+      try { fs.unlinkSync(path.join(os.tmpdir(), 'tmux-' + process.getuid(), sock)); } catch (e) { /* already gone */ }
+    },
   };
 }
 
