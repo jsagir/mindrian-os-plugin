@@ -32,7 +32,9 @@ const FONT_PX = 14;
 const LINE_HEIGHT = 1.2;
 const CHAR_PX = 8.43; // DejaVu Sans Mono advance at 14 px (0.602 em)
 const PAD_PX = 12;
-const INK = '#111111';
+// The canon ink is #111111, so a screen of that color would hide a canon black fill. The harness screen
+// is a neutral dark grey stand-in for a terminal theme; a black fill then shows as darker than the screen.
+const SCREEN_BG = '#2b2b2b';
 const DEFAULT_FG = '#e5e5e5';
 
 function emptyCell() {
@@ -277,7 +279,7 @@ function styleOf(cell) {
   const bgRgb = colorToRgb(bg);
   if (cell.inverse) {
     // reverse video of the default colours: the default text colour becomes the fill
-    parts.push('color:' + (fgRgb ? rgbToHex(fgRgb) : INK));
+    parts.push('color:' + (fgRgb ? rgbToHex(fgRgb) : SCREEN_BG));
     parts.push('background:' + (bgRgb ? rgbToHex(bgRgb) : DEFAULT_FG));
   } else {
     if (fgRgb) parts.push('color:' + rgbToHex(fgRgb));
@@ -321,8 +323,8 @@ function toHtml(grid, opts) {
     lines.push(html);
   }
   const css =
-    'html,body{margin:0;background:' + INK + ';}' +
-    '#screen{margin:0;padding:' + PAD_PX + 'px;background:' + INK + ';color:' + DEFAULT_FG + ';' +
+    'html,body{margin:0;background:' + SCREEN_BG + ';}' +
+    '#screen{margin:0;padding:' + PAD_PX + 'px;background:' + SCREEN_BG + ';color:' + DEFAULT_FG + ';' +
     'font-family:"DejaVu Sans Mono","Liberation Mono",monospace;font-size:' + FONT_PX + 'px;line-height:' + LINE_HEIGHT + ';' +
     'white-space:pre;}.d{color:' + DEFAULT_FG + ';}';
   return (
@@ -345,5 +347,5 @@ module.exports = {
   styleOf,
   FONT_PX,
   LINE_HEIGHT,
-  INK,
+  SCREEN_BG,
 };

@@ -181,6 +181,15 @@ scenario('P6 the child environment drops the five names unless a scenario sets o
   assert.ok(!prefix.includes('-u NO_COLOR'));
 });
 
+scenario('P6b inherited session markers are removed too, secrets and our own names stay', () => {
+  needTs();
+  const base = { PATH: '/bin', CLAUDE_CODE_CHILD_SESSION: '1', CLAUDE_PLUGIN_DATA: '/x', CLAUDE_EFFORT: 'high', MINDRIAN_BRAIN_KEY: 'k', TMUX: '/t,1,0', TMUX_PANE: '%1', CLAUDE_CODE_OAUTH_TOKEN: 'tokentokentoken', ANTHROPIC_API_KEY: 'keykeykeykey' };
+  const e = ts.buildChildEnv({ base, scenarioEnv: [], configDir: '/c', roomsHome: '/r' });
+  for (const n of ['CLAUDE_CODE_CHILD_SESSION', 'CLAUDE_PLUGIN_DATA', 'CLAUDE_EFFORT', 'MINDRIAN_BRAIN_KEY', 'TMUX', 'TMUX_PANE']) assert.ok(e.unset.includes(n), 'unset ' + n);
+  for (const n of ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY', 'CLAUDE_CONFIG_DIR', 'MINDRIAN_ROOMS_HOME']) assert.ok(!e.unset.includes(n), 'kept ' + n);
+  assert.strictEqual(new Set(e.unset).size, e.unset.length, 'no name twice');
+});
+
 scenario('P7 no em-dash and no en-dash in the new files', () => {
   const files = [PAGE_PATH, TMUX_PATH, CLI_PATH, __filename];
   const hits = [];
@@ -282,12 +291,15 @@ function selfTest() {
   const out = mktemp('s1');
   // the fixed program: five canon colors as truecolor blocks, bold, dim, a half-block row
   const programFile = path.join(mktemp('prog'), 'sample.sh');
-  const lines = [];
-  for (const k of Object.keys(SAMPLE_BG)) lines.push("printf '\\033[48;2;" + SAMPLE_BG[k].join(';') + "m     \\033[0m " + k + " block\\n'");
-  lines.push("printf '\\033[1mbold sample line\\033[0m\\n'");
-  lines.push("printf '\\033[2mdim sample line\\033[0m\\n'");
-  lines.push("printf '\\033[38;2;250;200;0m\\033[48;2;200;30;30m\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\033[0m half sample row\\n'");
-  lines.push('sleep 20');
+  // the program honors NO_COLOR like a well-behaved terminal program: no escape sequences at all
+  const lines = ['if [ -n "$NO_COLOR" ]; then'];
+  for (const k of Object.keys(SAMPLE_BG)) lines.push("  printf '     %s block\\n' " + k);
+  lines.push("  printf 'bold sample line\\n'", "  printf 'dim sample line\\n'", "  printf '######  half sample row\\n'", 'else');
+  for (const k of Object.keys(SAMPLE_BG)) lines.push("  printf '\\033[48;2;" + SAMPLE_BG[k].join(';') + "m     \\033[0m " + k + " block\\n'");
+  lines.push("  printf '\\033[1mbold sample line\\033[0m\\n'");
+  lines.push("  printf '\\033[2mdim sample line\\033[0m\\n'");
+  lines.push("  printf '\\033[38;2;250;200;0m\\033[48;2;200;30;30m\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\342\\226\\204\\033[0m half sample row\\n'");
+  lines.push('fi', 'sleep 20');
   fs.writeFileSync(programFile, lines.join('\n') + '\n');
   const r = spawnSync('node', [CLI_PATH, '--plugin', path.join(REPO, 'ui', 'mos-face'), '--out', out, '--scenarios', 'std,nocolor', '--program', 'sh ' + programFile, '--wait-text', 'half sample row', '--settle-ms', '800'], { encoding: 'utf8', timeout: 180000 });
   if (r.status === 77) {

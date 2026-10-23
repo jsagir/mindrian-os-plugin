@@ -50,7 +50,10 @@ const ALLOWED_KEYS = ['Enter', 'Down', 'Up', 'C-u'];
 // ---- environment -----------------------------------------------------------------------------
 
 // Names removed from the child so a nested or colored parent cannot change what the capture shows.
-const UNSET_NAMES = ['NO_COLOR', 'CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID', 'CLAUDE_ACTIVE_ROOM'];
+// TMUX and TMUX_PANE: measured 2026-10-23 (claude 2.1.309), claude rounds every color to the 256 palette
+// when TMUX is set, even with COLORTERM=truecolor, and draws 24-bit color when TMUX is unset. The person's
+// own terminal is not tmux, so the capture hides tmux from the child.
+const UNSET_NAMES = ['NO_COLOR', 'CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SESSION_ID', 'CLAUDE_ACTIVE_ROOM', 'TMUX', 'TMUX_PANE'];
 // Not secret, so they ride on the env prefix of the child command: where claude keeps its login.
 const PASS_PLAIN = ['HOME', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME', 'XDG_STATE_HOME', 'XDG_CACHE_HOME', 'XDG_RUNTIME_DIR'];
 // Secrets travel only through the tmux server's own environment (never a command line) and are scrubbed
@@ -59,7 +62,7 @@ const SECRET_NAMES = ['CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY', 'ANTHROPIC
 const EXIT_RE = /CLAUDE_EXIT=(\d+)/;
 const LINGER_SEC = 6;
 
-// buildChildEnv({ base, scenarioEnv, configDir, roomsHome }): { set, unset, names }.
+// buildChildEnv({ base, scenarioEnv, configDir, roomsHome, homeDir }): { set, unset, names }.
 //   set     name to value, passed on the env prefix of the child command
 //   unset   names removed from the child (the five names, unless a scenario sets one)
 function buildChildEnv(opts) {
@@ -71,11 +74,20 @@ function buildChildEnv(opts) {
   }
   const set = {};
   for (const n of PASS_PLAIN) if (typeof base[n] === 'string' && base[n] !== '') set[n] = base[n];
+  // A scratch capture also gets a scratch HOME, so the mod can never read the person's real rooms home
+  // (the mod reads HOME/MindrianRooms). The login rides on the symlink in the scratch config folder.
+  if (opts.homeDir) set.HOME = opts.homeDir;
   if (opts.configDir) set.CLAUDE_CONFIG_DIR = opts.configDir;
   if (opts.roomsHome) set.MINDRIAN_ROOMS_HOME = opts.roomsHome;
   set.COLORTERM = 'truecolor';
   for (const k of Object.keys(scenario)) set[k] = scenario[k];
-  const unset = UNSET_NAMES.filter((n) => scenario[n] === undefined);
+  // Root cause (measured 2026-10-23): a harness started from inside a Claude Code session inherits
+  // CLAUDE_CODE_CHILD_SESSION and other session markers; the child then prints "Transcript saving is
+  // off" in every screenshot. So every inherited CLAUDE_*, CLAUDECODE and MINDRIAN_* name is removed
+  // too, except the secrets and the names this builder sets itself.
+  const keep = new Set(SECRET_NAMES.concat(Object.keys(set)));
+  const inherited = Object.keys(base).filter((n) => /^(CLAUDE_|CLAUDECODE|MINDRIAN_)/.test(n) && !keep.has(n));
+  const unset = Array.from(new Set(UNSET_NAMES.concat(inherited))).filter((n) => scenario[n] === undefined && !keep.has(n));
   return { set, unset, names: Object.keys(set).sort() };
 }
 
@@ -332,7 +344,10 @@ function readSlashState(ansi, cols, rows) {
   }
   const out = { promptRow, promptText, rows: [], highlightedIndex: null, signal: 'no_prompt_line' };
   if (promptRow === null) return out;
-  for (let r = promptRow + 1; r < texts.length; r += 1) {
+  // Measured 2026-10-23 (claude 2.1.309): the suggestion list is drawn ABOVE the prompt rule, with the
+  // panel block between the list and the rule. Older hosts drew it below. Both sides are read.
+  for (let r = 0; r < texts.length; r += 1) {
+    if (r === promptRow) continue;
     const m = SUGGESTION_RE.exec(texts[r]);
     if (!m) continue;
     const token = m[2];
