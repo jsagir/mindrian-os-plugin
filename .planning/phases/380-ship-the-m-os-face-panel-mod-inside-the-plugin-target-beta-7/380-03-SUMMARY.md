@@ -42,8 +42,9 @@ Code tree: `/home/jsagi/dev/MindrianOS-Plugin-release`, branch `main`. Nothing w
 |------|--------|---------|
 | 1 | 053cd80d8 | feat(380-03): ANSI page builder and tmux session helper for the real-terminal capture |
 | 2 | 6e92d1864 | feat(380-03): real-terminal capture CLI (tmux, ANSI page, Playwright PNG) with a fixed-program self-test |
+| fix | 050eb73e5 | fix(380-03): remove the private tmux socket file after the session ends |
 
-`git rev-list --count origin/main..main` is 10 after this plan (the plan 01 commits, the plan 02 commits and these 2). Review all before any push.
+`git rev-list --count origin/main..main` is 11 after this plan (the plan 01 commits, the plan 02 commits and the 3 of this plan). Review all before any push.
 
 ## Tool versions (PROVEN, from index.json and the shell)
 
@@ -129,5 +130,5 @@ None beyond the plan's register. T-380-07 (trust dialog): pointer-first code and
 ## Self-Check: PASSED
 
 - Files exist in the release tree: `ui/mos-face/scripts/capture-shots.cjs`, `ui/mos-face/scripts/lib/ansi-page.cjs`, `ui/mos-face/scripts/lib/tmux-session.cjs`, `tests/test-380-shots-harness.cjs` (checked by running them).
-- Commits 053cd80d8 and 6e92d1864 are on `main` in the release tree (`git log` shows both).
+- Commits 053cd80d8, 6e92d1864 and 050eb73e5 are on `main` in the release tree (`git log` shows both).
 - `git status` in the release tree shows no stray file after the run.
