@@ -112,6 +112,9 @@ export type WorldOptions = {
   files?: Record<string, string>
   // Plan 05: a subprocess is a bug; with this on the process handler throws.
   processThrows?: boolean
+  // Plan 06: every command the panel registers (name and description) and every toast text.
+  registered?: { name: string; description: string }[]
+  toasts?: string[]
 }
 
 // Everything beneath the plugin is answered from memory, so no file, network or
@@ -134,9 +137,15 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
 
     return { result: {}, text: 'ok' }
   })
-  on('command.register', () => ({ value: { command: 'x' } }))
+  on('command.register', (_, e) => {
+    options.registered?.push({ name: String(e.name), description: String(e.description ?? '') })
+    return { value: { command: 'x' } }
+  })
   on('ui.open', () => ({ value: { isPlaced: true } }))
-  on('ui.toast', () => ({ value: undefined }))
+  on('ui.toast', (_, e) => {
+    options.toasts?.push(String(e.text))
+    return { value: undefined }
+  })
   on('ui.status', (_, e) => {
     options.statuses?.push(e.text)
     return { value: undefined }
