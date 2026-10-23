@@ -99,7 +99,7 @@ The mod adds no hook and no read that can starve a prompt (MOD380-05). The tests
 
 ### The hook list
 
-The module registers events only: session.start, 14 command.run commands (mos-state, mos-face, mos-style, mos-chip, mos-suggest, mos-ask, mos-refresh, mos-words, mos-text, mos-plain, mos-advice, mos-auto, theo-calls, mos-job), prompt.submit, turn.start, tool.call, turn.complete and 5 ui.render entries. There is no shell hook. The module's hooks/hooks.json holds only the module list, and the hooks.json of the plugin names no shell command for this mod. `claude plugin validate --json` prints the list, and the gate fails on any addition.
+The module registers events only: session.start, 15 command.run commands (mos-state, mos-face, mos-style, mos-chip, mos-suggest, mos-ask, mos-refresh, mos-words, mos-text, mos-plain, mos-advice, mos-auto, theo-calls, mos-job, mos-tree), prompt.submit, turn.start, tool.call, turn.complete and 5 ui.render entries. There is no shell hook. The module's hooks/hooks.json holds only the module list, and the hooks.json of the plugin names no shell command for this mod. `claude plugin validate --json` prints the list, and the gate fails on any addition.
 
 prompt.submit and turn.start do no file, tool, network or process work and never wait on the clock.
 
@@ -149,7 +149,7 @@ What the words must be:
 
 What the tests scan:
 
-- tests/copy.test.tsx draws the band and the pane in 10 states (the 11 canon states except Reframe, which no real event reaches; its thoughts are scanned in C4), 3 face styles (tile, mini and line), 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 14 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
+- tests/copy.test.tsx draws the band and the pane in 10 states (the 11 canon states except Reframe, which no real event reaches; its thoughts are scanned in C4), 3 face styles (tile, mini and line), 4 widths (100, 48, 40 and 30) and plain mode, opens every block, and scans every Text and every Button. It also scans the 15 command descriptions and results, every toast, and every table (glossary, thoughts, labels, why lines).
 - tests/test-380-copy.cjs reads every string of the hook sources (also JSX text) and scans the manifest description. It runs the commands check below.
 - scripts/face-commands.cjs --check keeps hooks/commands.ts honest against data/command-registry.json: no unknown command, no stack word, no PLUGIN_VERSION constant. A changed registry sentence only warns. Run --write, then the build.
 - A command name such as /mos:brain-derive is a name the plugin owns. The scan removes command names before it looks for words.
@@ -281,6 +281,59 @@ Why it is labelled and not dimmed. A dimmed fill needs a color for secondary tex
 Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Rules that hold everywhere, Side panel template States, One signal, Ground and color), segments/writing/voice. The book's own review of the three strings found nothing (exit 2, REVIEW-REQUIRED, findings empty, which is its normal clean result). Where the book is silent, the proposals P17-1 and P17-2 are in the phase folder.
 
 One wrap to know: at 35 columns the short words are 36 characters, so the row may wrap to two rows (UNVERIFIED, props only).
+
+## Room tree
+
+Added in plan 380-18 (D-04, D-08; gaps G7 and G2 of the first real terminal run). Press Sections and the panel shows a browse view of the room instead of the overview. The view is a list-to-detail drill-down: the list of sections, then the files of one section, then a folder inside it. Nothing else of the overview is drawn while it is open (one open part at a time, as the book says in Folded parts).
+
+What the view shows, top to bottom:
+
+| Part | What it is |
+|------|-----------|
+| Header | The Theo face tile (3 rows) beside the label, when the pane has 24 rows or more and 40 columns or more and plain mode is off. Otherwise one row of words. It never scrolls away, because the body fits the room. |
+| Crumb | One row: the room name and the open path (cut at the start, so the last part survives), and the counter: all 14, 1-10 of 14, 11-14 of 14, 2 matches for "legal", no match for "zzz", none. A folder of more than 300 names says first 300 of N. |
+| Window | The rows of this page. A paged window is padded, so the controls do not move. Every section and every file is one Button, with the same key as before (sec-NAME, entry-PATH-NAME). |
+| Controls | Only the ones that can act: Up (inside a folder), Previous (after page 1), Next (before the last page), Find, Close. One row from 52 columns, else two explicit rows. |
+| Hint | Where each route works, and no key promised. |
+| Refresh | One row from 24 rows. |
+
+The layout rows (`treeLayout` in hooks/tree.ts; the pure test pins them):
+
+| Body rows | Columns | Plain | Header | Hint rows | Control rows | Fixed rows | Window rows |
+|-----------|---------|-------|--------|-----------|--------------|------------|-------------|
+| 40 | 56 | no | tile | 2 | 1 | 8 | 32 |
+| 24 | 44 | no | tile | 3 | 2 | 10 | 14 |
+| 24 | 35 | no | words | 3 | 2 | 8 | 16 |
+| 23 | 56 | no | words | 1 | 1 | 4 | 19 |
+| 11 | 44 | no | words | 1 | 2 | 5 | 6 |
+| 9 | 35 | no | words | 1 | 2 | 5 | 4 |
+| 8 | 56 | no | too small, needs 9 rows | | | | |
+| 40 | 56 | yes | words | 2 | 1 | 6 | 34 |
+
+Fixed rows are the header, the crumb row (1), the controls, the hint and the refresh row. The window is the body rows less the fixed rows. Under 9 rows, or when the window would be under 4 rows, the view says in words that /m:os needs N rows to browse the room and that /mos-tree still lists every name, and it draws only Close.
+
+Commands. `/mos-tree` is the keyboard route: it works from the prompt box everywhere. With no argument it prints the current page as plain text (the crumb line, the counter line, one line for each name with its count, and the hint lines). Every verb also opens the browse view if it is closed (except `up` on a closed view).
+
+| Command | What it does | Example |
+|---------|--------------|---------|
+| /mos-tree | Prints the current page | /mos-tree |
+| /mos-tree next, /mos-tree prev | Moves one page | /mos-tree next |
+| /mos-tree up | Goes back one level: folder, section, list, closed | /mos-tree up |
+| /mos-tree find WORD | Keeps the names that hold the word. A word in lowercase ignores case; a capital letter matches the case exactly. | /mos-tree find legal |
+| /mos-tree open WORD | Opens the one section or folder that the word picks, or puts a question about the one file in the prompt box. With none or many it says how many names hold the word. | /mos-tree open market-analysis |
+| /mos-tree clear | Removes the filter | /mos-tree clear |
+
+Why the body stays inside scroll.bodyRows. The host gives the pane a number of rows (`scroll.bodyRows`, the room, never the rows showing). A body that is taller is scrolled by the host, and the host has no pinned header, so the face and the header left the screen (shots real-7, real-8 and real-10). The browse view keeps its whole body inside that number and pages the list itself, so the host has nothing to scroll.
+
+What the host cannot do (380-18-HOST-FACTS.md in the phase folder has the line references of the laid types file):
+
+- No pinned header above a scrolling body: a search of the laid types for sticky, pinned header and fixed region finds nothing.
+- Escape is the person's own key. It returns the focus (types lines 1449 and 10871). The panel binds no Escape.
+- A hotkey fires only while the pane holds the keys, and never from the prompt box (types lines 9872 to 9877). The hint names the slash command, which does work from the prompt box.
+- Input in a pane, Tab walking and the focus chord are UNVERIFIED on a real screen. No hotkey and no Input is drawn until a real screen proves them. A Client region with its own key handler is an option for a later plan, with a second module and a build change as its cost.
+- The room an inline pane gets at 80 by 24 is not stated by the types (UNVERIFIED); the tests assume 76 by 10.
+
+Tests: tests/tree.test.ts (the pure model) and tests/tree-pane.test.tsx (the pane and the command, 22 groups). Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Side panel template, Width ladder, States, Keyboard routes), segments/writing/voice. The book is silent on long lists in a side panel; the proposals P18-1 to P18-3 are in the phase folder (380-16-BOOK-PROPOSALS.md).
 
 ## Decisions
 
