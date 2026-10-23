@@ -403,7 +403,7 @@ function b8() {
   const plugin = path.join(base, 'plugin');
   fs.mkdirSync(path.join(plugin, '.claude-plugin'), { recursive: true });
   fs.mkdirSync(path.join(plugin, 'hooks'), { recursive: true });
-  fs.writeFileSync(path.join(plugin, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos-face', version: '0.1.0', description: 'The face panel, loaded from the built files only.' }, null, 2) + '\n');
+  fs.writeFileSync(path.join(plugin, '.claude-plugin', 'plugin.json'), JSON.stringify({ name: 'mos', version: '0.1.0', description: 'The face panel, loaded from the built files only.' }, null, 2) + '\n');
   fs.writeFileSync(path.join(plugin, 'hooks', 'hooks.json'), JSON.stringify({ modules: ['../lib/mos-face/dist/register.js'] }) + '\n');
   copyTree(DIST, path.join(plugin, 'lib', 'mos-face', 'dist'));
   const top = fs.readdirSync(plugin).sort().join(',');

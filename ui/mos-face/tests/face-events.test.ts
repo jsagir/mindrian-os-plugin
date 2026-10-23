@@ -46,7 +46,7 @@ const asset = () => {
 
 const pane = (columns: number, rows = 40) =>
   ({
-    plugin: 'mos-face',
+    plugin: 'mos',
     component: 'Pane',
     requestId: 'mos-state',
     props: { title: '/m:os', isFocused: false, bodyColumns: columns, placement: 'dock', scroll: { offset: 0, bodyRows: rows }, view: {} },
@@ -55,7 +55,7 @@ const pane = (columns: number, rows = 40) =>
 
 const band = (columns: number) =>
   ({
-    plugin: 'mos-face',
+    plugin: 'mos',
     component: 'AbovePrompt',
     props: { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: columns, bodyRows: 20, columns, scroll: { offset: 0, bodyRows: 20 }, view: {} },
     surface: 'terminal',

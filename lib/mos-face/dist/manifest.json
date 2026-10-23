@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "builder": "scripts/build-mos-face.cjs",
-  "sourceHash": "f18c5c20b670068a778f3058522fee41faa16c3fa73a4e8492bb4ca290c382d7",
+  "sourceHash": "67f05ed2fbdd23d6e09dcb7dbefb26a3ac4586cf81f40f836bf1bda5bfd1d240",
   "typescript": "7.0.2",
   "importRewrite": false,
   "files": {
@@ -20,11 +20,11 @@
     "paths.js": "a91e6a298d8e13c67ba930dd7792f7af88cc67478333b03e241cd9e396342da8",
     "probe.js": "1d7fc722890d2307a39cd6277380f79e9bab5f4dcc85c9d9062ebcfe045f34c9",
     "proposals.js": "72f7c24a7c7a31de997ededdb477f8b7483bcec62590133ac5b13f8dc0372222",
-    "register.js": "b8edeea39b496a877d0ab48d637c7d974224556079dc7abfcfdf587a5042fe91",
+    "register.js": "3a86304b3b132f66203864f6af9316ad328885223168b0222093e6f670d2dfab",
     "source.js": "88014b29403578970ad917de9938266de8eaefe469e3369c021047b10f9802fa",
     "status.js": "ea4f128f0db1dc8250c12f430c8a7f91d54b9493b420aa494474ccda0c5bac90",
     "theo-face.js": "a77c8bab54e6f9700d362afe36b369f119bf20f771c97cfa824a0dfcaad33721",
-    "types/index.d.ts": "ae8bcf159a7c7e1d180bd29008e20b6c8ba4764704f9aa80919366c2df898610",
+    "types/index.d.ts": "4dfffe5d0eb23e6ba00233c0f459fcbc61ae1d5a117d9f2bf5e35cf58e934080",
     "voice.js": "d7f23edf49628e47cb4d923562f0e962fca0674837a015700989197c324e5232"
   }
 }

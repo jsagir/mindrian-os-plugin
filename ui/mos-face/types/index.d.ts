@@ -169,7 +169,7 @@ export type Snapshot = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'mos-face': {
+    'mos': {
       face: FaceId
       detail: string
       mos: number

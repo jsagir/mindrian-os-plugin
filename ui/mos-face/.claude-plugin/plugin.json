@@ -1,5 +1,5 @@
 {
-  "name": "mos-face",
+  "name": "mos",
   "version": "0.1.0",
   "description": "Shows the Theo face, the state of your data room and the next move beside the chat, driven by what really happens in the session.",
   "types": "./types/index.d.ts"

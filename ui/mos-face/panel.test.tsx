@@ -7,7 +7,7 @@ import { contextCanvas } from './hooks/meter'
 import { INK } from './hooks/face'
 
 const BAND = {
-  plugin: 'mos-face',
+  plugin: 'mos',
   component: 'AbovePrompt',
   props: {
     hasSurvey: false,
@@ -22,7 +22,7 @@ const BAND = {
 } as const
 
 const PANE = {
-  plugin: 'mos-face',
+  plugin: 'mos',
   component: 'Pane',
   requestId: 'mos-state',
   props: {
