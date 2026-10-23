@@ -12,6 +12,7 @@ import {
   isFolder,
   pageOf,
   parseTreeArgs,
+  rowsIn,
   sortSections,
   treeLayout,
   viewOf,
@@ -442,4 +443,12 @@ test('T-P11 the view is the section list with no open path and a folder with one
 test('T-P11 a name that ends with a slash is a folder', () => {
   expect(isFolder('sizing/')).toBe(true)
   expect(isFolder('notes.md')).toBe(false)
+})
+
+// ---- T-P12 the rows of a page -----------------------------------------------------------------
+
+test('T-P12 the rows of a page are its rows, and an empty page has none', () => {
+  expect(rowsIn(pageOf(names(3), 10, 0, '', same))).toEqual(names(3))
+  expect(rowsIn(pageOf(names(14), 10, 1, '', same))).toEqual(names(14).slice(10))
+  expect(rowsIn(pageOf([], 10, 0, '', same))).toEqual([])
 })

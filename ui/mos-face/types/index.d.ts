@@ -228,6 +228,11 @@ declare module 'claude-code' {
       jobHiddenFor: string
       // The status line's own local files, read once for each refresh tick (plan 15, D-08); null before the first read.
       statusLocal: StatusLocal | null
+      // The room tree (plan 380-18): the page and the filter of the browse view, and how many names of an
+      // opened folder were left out by the cap.
+      treePage: number
+      treeFilter: string
+      sectionMore: number
     }
   }
 }

@@ -263,6 +263,9 @@ test('C1 next move: the suggestion, its why lines, the hints and every opened bl
     hits.push(...scan(`next w${width}`, await textsOf(pane)))
     await pane.press({ key: 'ask-sections' } as never)
     hits.push(...scan(`next w${width} sections`, await textsOf(pane)))
+    // The browse view of the room tree (plan 380-18) draws nothing else of the overview, so the lights come
+    // back when it is closed: the same key closes it.
+    await pane.press({ key: 'ask-sections' } as never)
     const lights = (await pane.findAll({ type: 'Button' })).map(one => one.key ?? '').filter(key => key.startsWith('block-'))
     expect(lights.length).toBeGreaterThan(0)
     for (const key of lights) {

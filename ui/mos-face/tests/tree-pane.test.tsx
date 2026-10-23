@@ -645,6 +645,9 @@ for (const [columns, rows] of SIZES) {
       expect(page.firstText).toContain(columns >= 40 && rows >= 24 ? '▀' : 'Theo | MindrianOS')
     }
 
+    // The walk ended on the last page: close the tree and open it again to get back to page one.
+    await press(ui, 'ask-sections')
+    await browse(ui)
     await press(ui, 'sec-big')
     const files = await walk(ui, columns, 'entry-big-')
     expect(files.flatMap(page => namesFromKeys(page.keys, 'entry-big-')).sort()).toEqual([...BIG_FILES].sort())

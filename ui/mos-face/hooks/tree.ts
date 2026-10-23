@@ -87,6 +87,19 @@ export function pageOf<T>(items: readonly T[], size: number, page: number, filte
   }
 }
 
+// The rows a page shows, whatever its kind.
+export function rowsIn<T>(page: Page<T>): T[] {
+  switch (page.kind) {
+    case 'empty':
+      return []
+    case 'whole':
+    case 'paged':
+      return page.rows
+    default:
+      return assertNever(page)
+  }
+}
+
 // The words that say which rows show.
 export function counterText(page: Page<unknown>): string {
   switch (page.kind) {

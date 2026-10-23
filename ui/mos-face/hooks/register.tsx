@@ -40,6 +40,8 @@ import { contextBand, factLabel, nextMove, pluginFacts, readStatusLocal, roomFac
 import type { Fact } from './status'
 import { loadFaceAsset, rasterFace, readFaceAsset } from './theo-face'
 import type { FaceAsset } from './theo-face'
+import { assertNever, capEntries, controlsOf, counterText, crumbText, hintLines, isFolder, pageOf, parseTreeArgs, rowsIn, sortSections, treeLayout, viewOf } from './tree'
+import type { ControlId, Page } from './tree'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS, glossaryWords } from './voice'
 
 // /m:os face - the Theo face, a side-panel dashboard, a context meter and a
@@ -129,6 +131,11 @@ const jobHiddenFor = atom({ plugin: 'mos-face', key: 'jobHiddenFor' } as const, 
 // The status line's own local files, read once for each refresh tick (plan 15, D-08). Null before the first
 // read. Nothing reads them in a prompt or turn hook.
 const statusLocal = atom({ plugin: 'mos-face', key: 'statusLocal' } as const, null)
+// The room tree (plan 380-18, G7 and G2): the page and the filter of the browse view, and how many names of
+// the opened folder were left out by the cap of MAX_ENTRIES. The filter is read only by the tree.
+const treePage = atom({ plugin: 'mos-face', key: 'treePage' } as const, 0)
+const treeFilter = atom({ plugin: 'mos-face', key: 'treeFilter' } as const, '')
+const sectionMore = atom({ plugin: 'mos-face', key: 'sectionMore' } as const, 0)
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -578,6 +585,96 @@ const askAbout = async ($: EngineInterface, text: string) => {
   }
 }
 
+// ---- The room tree (plan 380-18, G7 and G2) ----------------------------------------------------
+//
+// The browse view pages the list inside the rows the host gives the pane, so the host never scrolls the
+// header away. The page and the filter live in atoms; nothing here reads a file except the one directory
+// read when a section or folder is opened.
+
+// The rows of the last drawn tree window. The command pages with the same size, so a page means the same
+// rows on the pane and in the text. It is 10 until a pane has drawn.
+let treeSize = 10
+
+const resetTree = async ($: EngineInterface) => {
+  await update($, treePage, () => 0)
+  await update($, treeFilter, () => '')
+}
+
+const clearFolder = async ($: EngineInterface) => {
+  await update($, openSection, () => '')
+  await update($, sectionFiles, () => [])
+  await update($, sectionMore, () => 0)
+}
+
+// Open the browse view at the top: the list of sections, page one, no filter.
+const openTree = async ($: EngineInterface) => {
+  if ((await read($, openBlock)) === 'ask') return
+  await update($, openBlock, () => 'ask')
+  await clearFolder($)
+  await resetTree($)
+}
+
+const closeTree = async ($: EngineInterface) => {
+  await update($, openBlock, () => '')
+  await clearFolder($)
+  await resetTree($)
+}
+
+// The Sections button, and the Close button of the browse view (the same key).
+const toggleTree = async ($: EngineInterface) => {
+  try {
+    if ((await read($, openBlock)) === 'ask') await closeTree($)
+    else await openTree($)
+    $.ui.invalidate('ui.render')
+  } catch {
+    // leave the panel as it was
+  }
+}
+
+// Go back one level: a folder to its parent, a section to the list of sections, the list to closed.
+// Returns true when the view closed.
+const treeUp = async ($: EngineInterface): Promise<boolean> => {
+  try {
+    const path = await read($, openSection)
+    if (path === '') {
+      await closeTree($)
+      $.ui.invalidate('ui.render')
+
+      return true
+    }
+    const up = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : ''
+    const root = (await read($, snap))?.room?.path
+    await update($, openSection, () => up)
+    await update($, sectionFiles, () => [])
+    await update($, sectionMore, () => 0)
+    await resetTree($)
+    if (up !== '' && root) await listSection($, root, up)
+    $.ui.invalidate('ui.render')
+  } catch {
+    // leave the panel as it was
+  }
+
+  return false
+}
+
+const treeGoto = async ($: EngineInterface, page: number) => {
+  await update($, treePage, () => Math.max(0, page))
+  $.ui.invalidate('ui.render')
+}
+
+// Open one section or folder of the room: read it once, and start at its first page. No question is
+// put in the prompt box; a click adds that (pickSection), the slash command does not.
+const enterSection = async ($: EngineInterface, root: string, path: string) => {
+  await update($, openSection, () => path)
+  const top = path.split('/')[0] ?? path
+  await update($, lit, m => {
+    const { [top]: _gone, ...rest } = m
+    return rest
+  })
+  await resetTree($)
+  await listSection($, root, path)
+}
+
 // A section of the room: open it to see what is inside, and put a question
 // stem about it in the prompt box. A folder inside it drills one level deeper.
 const pickSection = async ($: EngineInterface, path: string) => {
@@ -587,25 +684,18 @@ const pickSection = async ($: EngineInterface, path: string) => {
     if (!root) return
     const current = await read($, openSection)
     if (current === path) {
-      const up = path.includes('/') ? path.slice(0, path.lastIndexOf('/')) : ''
-      await update($, openSection, () => up)
-      await update($, sectionFiles, () => [])
-      if (up !== '') await listSection($, root, up)
+      await treeUp($)
       return
     }
-    await update($, openSection, () => path)
-    const top = path.split('/')[0] ?? path
-    await update($, lit, m => {
-      const { [top]: _gone, ...rest } = m
-      return rest
-    })
-    await listSection($, root, path)
+    await enterSection($, root, path)
     await askAbout($, `About the "${path.replaceAll('/', ' / ')}" section of the room: `)
   } catch {
     // leave the list as it was
   }
 }
 
+// One directory read when a section or folder opens. At most MAX_ENTRIES names are kept (folders first,
+// then names in order); the number left out is kept so the panel can say so.
 const listSection = async ($: EngineInterface, root: string, path: string) => {
   try {
     const entries = await $.fs.list(`${root}/${path}`)
@@ -614,8 +704,9 @@ const listSection = async ($: EngineInterface, root: string, path: string) => {
       .filter(one => one.kind === 'dir' || /\.(md|html|json|txt)$/i.test(one.name))
       .map(one => (one.kind === 'dir' ? `${one.name}/` : one.name))
       .sort((a, b) => Number(b.endsWith('/')) - Number(a.endsWith('/')) || a.localeCompare(b))
-      .slice(0, 14)
-    await update($, sectionFiles, () => names)
+    const capped = capEntries(names)
+    await update($, sectionFiles, () => capped.kept)
+    await update($, sectionMore, () => capped.more)
     const now = await $.clock.now()
     const recent = entries
       .filter(one => one.kind === 'file' && one.mtimeMs > 0 && now - one.mtimeMs < LIT_KEEP_MS)
@@ -623,19 +714,126 @@ const listSection = async ($: EngineInterface, root: string, path: string) => {
     await update($, freshNames, () => recent)
   } catch {
     await update($, sectionFiles, () => [])
+    await update($, sectionMore, () => 0)
     await update($, freshNames, () => [])
   }
 }
 
 const pickEntry = async ($: EngineInterface, name: string) => {
   const path = await read($, openSection)
-  if (name.endsWith('/')) {
+  if (isFolder(name)) {
     await pickSection($, `${path}/${name.slice(0, -1)}`)
     return
   }
   await askAbout($, `About "${path.replaceAll('/', ' / ')} / ${name}" in the room: `)
 }
 
+// One name of the list at the level now open: a section with its file count, or an entry of a folder.
+type TreeItem = { name: string; files: number | null }
+
+// The level now open as pages: the room, the open path, every name, the names left out by the cap, and
+// the page the size of the last drawn window gives. Read from memory only.
+const levelOf = async ($: EngineInterface) => {
+  const snapshot = await read($, snap)
+  const path = await read($, openSection)
+  const filter = await read($, treeFilter)
+  const wanted = await read($, treePage)
+  const items: TreeItem[] =
+    path === ''
+      ? sortSections(snapshot?.room?.sections ?? []).map(sec => ({ name: sec.name, files: sec.files }))
+      : (await read($, sectionFiles)).map(name => ({ name, files: null }))
+  const page = pageOf(items, treeSize, wanted, filter, item => item.name)
+
+  return {
+    room: snapshot?.room?.slug ?? '',
+    path,
+    items,
+    more: path === '' ? 0 : await read($, sectionMore),
+    page,
+    filter,
+    shownPage: page.kind === 'paged' ? page.page : 0,
+  }
+}
+
+// The plain linear page: the crumb line, the counter line, one line for each name with its count (a slash
+// ends a folder), and the hint lines.
+const treeText = async ($: EngineInterface): Promise<string> => {
+  const level = await levelOf($)
+  const counter = `${counterText(level.page)}${level.more > 0 ? `  first ${level.items.length} of ${level.items.length + level.more}` : ''}`
+  const rows = rowsIn(level.page).map(item => (item.files === null ? `  ${item.name}` : `  ${item.name}  ${item.files}`))
+
+  return [crumbText(level.room, level.path, 200), counter, ...rows, ...hintLines(80, 40)].join('\n')
+}
+
+const TREE_USAGE = 'Try /mos-tree next, prev, up, find, open, clear. For example /mos-tree find legal.'
+
+// The names of the open level that a typed word picks: one exact name, else every name that holds the word
+// (smart case, as the filter).
+const pickNames = (items: TreeItem[], word: string): string[] => {
+  const bare = (name: string) => (isFolder(name) ? name.slice(0, -1) : name).toLowerCase()
+  const exact = items.filter(item => bare(item.name) === word.toLowerCase())
+  if (exact.length === 1) return exact.map(item => item.name)
+
+  return rowsIn(pageOf(items, Math.max(1, items.length), 0, word, item => item.name)).map(item => item.name)
+}
+
+const runTree = async ($: EngineInterface, args: string): Promise<string> => {
+  const command = parseTreeArgs(args)
+  switch (command.kind) {
+    case 'unknown':
+      return TREE_USAGE
+    case 'up': {
+      if ((await read($, openBlock)) !== 'ask') return 'The room tree is closed.'
+      if (await treeUp($)) return 'The room tree is closed.'
+
+      return treeText($)
+    }
+    case 'list':
+      await openTree($)
+      break
+    case 'next':
+    case 'prev': {
+      await openTree($)
+      const level = await levelOf($)
+      await update($, treePage, () => Math.max(0, level.shownPage + (command.kind === 'next' ? 1 : -1)))
+      break
+    }
+    case 'clear':
+      await openTree($)
+      await resetTree($)
+      break
+    case 'find':
+      await openTree($)
+      await update($, treeFilter, () => command.text)
+      await update($, treePage, () => 0)
+      break
+    case 'open': {
+      await openTree($)
+      const level = await levelOf($)
+      const names = pickNames(level.items, command.text)
+      const name = names[0]
+      if (names.length === 0 || name === undefined) return `No name holds "${command.text}". Try /mos-tree find ${command.text} to see what is close.`
+      if (names.length > 1) return `${names.length} names hold "${command.text}". Type more of the name.`
+      const root = (await read($, snap))?.room?.path
+      if (level.path === '') {
+        if (root) await enterSection($, root, name)
+      } else if (isFolder(name)) {
+        if (root) await enterSection($, root, `${level.path}/${name.slice(0, -1)}`)
+      } else {
+        await askAbout($, `About "${level.path.replaceAll('/', ' / ')} / ${name}" in the room: `)
+        $.ui.invalidate('ui.render')
+
+        return `A question about "${level.path.replaceAll('/', ' / ')} / ${name}" is in the prompt box. Finish it and send it.`
+      }
+      break
+    }
+    default:
+      return assertNever(command)
+  }
+  $.ui.invalidate('ui.render')
+
+  return treeText($)
+}
 
 // The terminal ground is ink with paper text; the face tile and the context
 // canvas are the only bright planes. Buttons sit on soft ink so they read as
@@ -647,6 +845,7 @@ const RAISED = MUTED
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await update($, isHidden, () => false)
+    treeSize = 10
     const noColor = await $.env.get('NO_COLOR')
     await update($, isPlain, () => noColor !== undefined && noColor !== '')
     // Proposal envSwitch: MOS_FACE_WORDS=off at session start makes the opt-out last.
@@ -666,6 +865,7 @@ export const register: Register = on => {
       ['mos-auto', 'Turn the panel asking Theo every second turn on or off'],
       ['theo-calls', 'Open a pane with every call made to Theo this session'],
       ['mos-job', 'Show or hide the job line, the guess of what you are doing'],
+      ['mos-tree', 'Browse every section and file of the room: next, prev, up, find, open, clear'],
     ] as const) {
       await $.command.register({ name, description })
     }
@@ -824,6 +1024,9 @@ export const register: Register = on => {
 
     return { text: 'Job line hidden. Run /mos-job to show it again.' }
   })
+
+  // The room tree by keyboard (plan 380-18): every name of the room is reachable from the prompt box.
+  on('command.run', { command: 'mos-tree' }, async ($, e) => ({ text: await runTree($, e.args) }))
 
   on('command.run', { command: 'theo-calls' }, async $ => {
     await $.ui.open({ id: 'theo-calls', title: 'Theo calls' })
@@ -1061,6 +1264,9 @@ export const register: Register = on => {
     const litMap = await read($, lit)
     const why = await read($, litWhy)
     const openB = await read($, openBlock)
+    const more = await read($, sectionMore)
+    const pageWanted = await read($, treePage)
+    const filterNow = await read($, treeFilter)
     const usage = await $.session.usage().catch(() => null)
     const now = await $.clock.now()
 
@@ -1075,7 +1281,12 @@ export const register: Register = on => {
       )
     }
     const cols = rawCols - 2
-    const short = e.props.scroll.bodyRows < 24
+    const bodyRows = e.props.scroll.bodyRows
+    const short = bodyRows < 24
+    // The browse view keeps its whole body inside the rows the host gives (scroll.bodyRows), so the host has
+    // nothing to scroll and the header stays in view. The window of the list is as tall as the rows left.
+    const layout = treeLayout({ bodyRows, columns: rawCols, plain: plainMode })
+    if (layout.kind === 'ok') treeSize = layout.treeRows
     // The ladder: narrow folds the pictures to words, standard shrinks them, wide has room. The face
     // is 12 cells wide on a wide panel, 8 on a standard one (a tall panel is not needed), 6 in the
     // mini style, and words only below 40 columns, in plain mode and in the line style.
@@ -1179,44 +1390,187 @@ export const register: Register = on => {
       </Text>
     )
 
-    const sectionList = () => {
-      const all = snapshot?.room?.sections ?? []
-      const shown = [...all].sort((a, b) => b.files - a.files).slice(0, 10)
-      return (
-        <Box flexDirection="column" paddingLeft={1}>
-          {all.length === 0 && <Text {...soft}>no sections were read</Text>}
-          {shown.map(sec => {
-            const isOpen = open === sec.name || open.startsWith(`${sec.name}/`)
-            const at = litMap[sec.name]
-            const isLit = at !== undefined && now - at < LIT_KEEP_MS
-            const flashing = isLit && at !== undefined && now - at < LIT_FLASH_MS
-            const ground = isLit && !(flashing && tick % 2 === 0) ? BLUE : RAISED
-            const mark = isLit ? '◆ ' : ''
-            const tail = isLit && at !== undefined ? `  changed ${agoText(at, now)}` : ''
-            return (
-              <Box key={`sec${sec.name}`} flexDirection="column">
-                {knob(`sec-${sec.name}`, `${isOpen ? '▾' : '▸'} ${mark}${sec.name}  ${sec.files}${tail}`, () => pickSection($, sec.name), ground)}
-                {isOpen && (
-                  <Box flexDirection="column" paddingLeft={2}>
-                    {open.includes('/') && <Text {...soft}>{open.replaceAll('/', ' / ')}</Text>}
-                    {entries.length === 0 && <Text {...soft}>nothing readable inside</Text>}
-                    {entries.map(name =>
-                      knob(
-                        `entry-${open}-${name}`,
-                        `${fresh.includes(name) ? '◆ new  ' : ''}${name.endsWith('/') ? `> ${name}` : name}`,
-                        () => pickEntry($, name),
-                        fresh.includes(name) ? BLUE : RAISED,
-                      ),
-                    )}
-                  </Box>
-                )}
+    // The browse view of the room tree (plan 380-18): a pinned header, a crumb row with the counter, a window
+    // of the list, the controls that can act, the hint, and the refresh row. Nothing else of the overview.
+    const browseView = () => {
+      const inner = cols
+      const closeButton = knob('ask-sections', 'Close', () => toggleTree($))
+      if (layout.kind === 'too-small') {
+        const message = `/m:os needs ${layout.needs} rows to browse the room`
+        const second = '/mos-tree still lists every name in the prompt box.'
+
+        return (
+          <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={rawCols}>
+            {bodyRows >= 3 ? (
+              <Box flexDirection="column">
+                <Text {...ink} bold wrap="truncate-end">{fit(message, inner)}</Text>
+                <Text {...soft} wrap="truncate-end">{fit(second, inner)}</Text>
               </Box>
-            )
-          })}
-          {all.length > shown.length && <Text {...soft}>{`+${all.length - shown.length} more sections`}</Text>}
+            ) : (
+              <Text {...ink} bold wrap="truncate-end">{fit(`${message}. /mos-tree still lists it.`, inner)}</Text>
+            )}
+            {bodyRows >= 2 && closeButton}
+          </Box>
+        )
+      }
+
+      const isFolderView = open !== ''
+      const view = viewOf('ask', open, pageWanted, filterNow)
+      const items: TreeItem[] = isFolderView
+        ? entries.map(name => ({ name, files: null }))
+        : sortSections(snapshot?.room?.sections ?? []).map(sec => ({ name: sec.name, files: sec.files }))
+      const shown: Page<TreeItem> = pageOf(items, layout.treeRows, pageWanted, filterNow, item => item.name)
+      const pageNow = shown.kind === 'paged' ? shown.page : 0
+      const rows = rowsIn(shown)
+      const labelRoom = Math.max(8, inner - 4)
+
+      // The header: the Theo face tile beside the label when there is room, else one words row.
+      const tileRows = layout.header === 'tile' && st !== 'line' ? faceRuns(assetText, state, 6) : []
+      const header =
+        layout.header === 'tile' ? (
+          <Box gap={1}>
+            {tileRows.length > 0 && (
+              <Box flexDirection="column">
+                {tileRows.map((runs, k) => (
+                  <Text key={`t${k}`} {...ink}>
+                    {runs.map((run, i) => (
+                      <Text key={`t${k}c${i}`} color={run.top} backgroundColor={run.bottom}>
+                        {'▀'.repeat(run.w)}
+                      </Text>
+                    ))}
+                  </Text>
+                ))}
+              </Box>
+            )}
+            <Box flexDirection="column" width={Math.max(12, inner - (tileRows.length > 0 ? 7 : 0))}>
+              <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
+                {' Theo | MindrianOS '}
+              </Text>
+              <Text {...ink} bold wrap="truncate-end">
+                {fit(`${tileRows.length === 0 ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, Math.max(12, inner - (tileRows.length > 0 ? 7 : 0)))}
+              </Text>
+              <Text {...ink} italic wrap="truncate-end">{fit(`"${thought}"`, Math.max(12, inner - (tileRows.length > 0 ? 7 : 0)))}</Text>
+            </Box>
+          </Box>
+        ) : (
+          <Box gap={1}>
+            <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
+              {' Theo | MindrianOS '}
+            </Text>
+            <Text {...ink} bold wrap="truncate-end">
+              {fit(`${LINE_FACE[state]} ${LABEL[state]}`, Math.max(4, inner - 20))}
+            </Text>
+          </Box>
+        )
+
+      // The crumb row: where in the room, and which rows show. A capped folder says so in words.
+      const counter = fit(`${counterText(shown)}${isFolderView && more > 0 ? `  first ${items.length} of ${items.length + more}` : ''}`, Math.max(8, inner - 8))
+      const crumb = crumbText(roomName ?? room ?? '', open, Math.max(6, inner - counter.length - 2))
+
+      // The window: exactly the rows of this page. A paged window is padded so the controls do not move.
+      const windowRows =
+        shown.kind === 'empty' ? (
+          <Text {...soft} wrap="truncate-end">
+            {fit(
+              shown.why === 'none'
+                ? isFolderView
+                  ? 'nothing readable inside'
+                  : 'no sections were read'
+                : `No name holds "${shown.filter}". /mos-tree clear shows all.`,
+              inner,
+            )}
+          </Text>
+        ) : (
+          <Box flexDirection="column">
+            {rows.map(item => {
+              if (!isFolderView) {
+                const sec = item.name
+                const at = litMap[sec]
+                const isLit = at !== undefined && now - at < LIT_KEEP_MS
+                const flashing = isLit && at !== undefined && now - at < LIT_FLASH_MS
+                const ground = isLit && !(flashing && tick % 2 === 0) ? BLUE : RAISED
+                const mark = isLit ? '◆ ' : ''
+                const tail = isLit && at !== undefined ? `  changed ${agoText(at, now)}` : ''
+
+                return knob(`sec-${sec}`, fit(`▸ ${mark}${sec}  ${item.files ?? 0}${tail}`, labelRoom), () => pickSection($, sec), ground)
+              }
+              const name = item.name
+
+              return knob(
+                `entry-${open}-${name}`,
+                fit(`${fresh.includes(name) ? '◆ new  ' : ''}${isFolder(name) ? `> ${name}` : name}`, labelRoom),
+                () => pickEntry($, name),
+                fresh.includes(name) ? BLUE : RAISED,
+              )
+            })}
+            {shown.kind === 'paged' &&
+              Array.from({ length: Math.max(0, layout.treeRows - rows.length) }, (_, k) => <Text key={`pad${k}`} {...ink}>{' '}</Text>)}
+          </Box>
+        )
+
+      // The controls that can act now. One row from 52 columns, else two explicit rows (never a wrapping box).
+      const control = (id: ControlId) => {
+        switch (id) {
+          case 'up':
+            return knob('tree-up', 'Up', () => treeUp($))
+          case 'prev':
+            return knob('tree-prev', 'Previous', () => treeGoto($, pageNow - 1))
+          case 'next':
+            return knob('tree-next', 'Next', () => treeGoto($, pageNow + 1))
+          case 'find':
+            return knob('tree-find', 'Find', () => askAbout($, '/mos-tree find '))
+          case 'close':
+            return closeButton
+          default:
+            return assertNever(id)
+        }
+      }
+      const ids = controlsOf(view, shown)
+      const half = Math.ceil(ids.length / 2)
+      const controls =
+        layout.controlsRows === 1 ? (
+          <Box gap={1}>{ids.map(control)}</Box>
+        ) : (
+          <Box flexDirection="column">
+            <Box gap={1}>{ids.slice(0, half).map(control)}</Box>
+            <Box gap={1}>{ids.slice(half).map(control)}</Box>
+          </Box>
+        )
+
+      return (
+        <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={rawCols}>
+          {header}
+          <Box gap={2}>
+            <Text {...ink} bold wrap="truncate-end">{crumb}</Text>
+            <Text {...soft} wrap="truncate-end">{counter}</Text>
+          </Box>
+          {windowRows}
+          {controls}
+          <Box flexDirection="column">
+            {hintLines(rawCols, bodyRows).map((line, k) => (
+              <Text key={`hint${k}`} {...soft} wrap="truncate-end">{line}</Text>
+            ))}
+          </Box>
+          {layout.refreshRows === 1 && (
+            <Box gap={1}>
+              {knob('refresh', 'Refresh', () => refresh($))}
+              <Text {...(isOld || note2 !== '' ? ink : soft)} bold={isOld || note2 !== ''} wrap="truncate-end">
+                {fit(
+                  note2 !== ''
+                    ? `refresh failed: ${note2}`
+                    : snapshot
+                      ? `${isOld ? 'stale: ' : ''}read ${agoText(snapshot.at, now)}`
+                      : 'not read yet',
+                  Math.max(4, inner - 12),
+                )}
+              </Text>
+            </Box>
+          )}
         </Box>
       )
     }
+
+    if (openB === 'ask') return browseView()
 
     return (
       <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={e.props.bodyColumns}>
@@ -1341,9 +1695,8 @@ export const register: Register = on => {
         {heading('ASK', 'about the room')}
         <Box gap={1}>
           {knob('ask-room', 'Whole room', () => askAbout($, `About the room ${roomName ?? ''}: `.replace('  ', ' ')))}
-          {knob('ask-sections', `${openB === 'ask' ? '▾' : '▸'} Sections`, () => toggleBlock($, 'ask'))}
+          {knob('ask-sections', `${openB === 'ask' ? '▾' : '▸'} Sections`, () => toggleTree($))}
         </Box>
-        {openB === 'ask' && sectionList()}
         <Text {...ink}> </Text>
 
         <Box gap={1} flexWrap="wrap">
@@ -1373,11 +1726,7 @@ export const register: Register = on => {
           </Text>
         </Box>
         {note2 !== '' && <Text {...ink} bold>{`refresh failed: ${note2}`}</Text>}
-        <Text {...soft}>
-          {openB === 'ask'
-            ? 'click a section or file: it goes in the prompt box, Enter sends'
-            : 'click, or type /mos-state /mos-advice /mos-ask /mos-refresh'}
-        </Text>
+        <Text {...soft}>click, or type /mos-state /mos-advice /mos-ask /mos-refresh</Text>
       </Box>
     )
   })
