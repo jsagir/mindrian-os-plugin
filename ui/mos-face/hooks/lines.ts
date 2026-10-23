@@ -1,5 +1,6 @@
-import type { Advice, FaceId, Snapshot, TheoCall, TheoTotals } from '../types'
+import type { Advice, FaceId, Snapshot, StatusLocal, TheoCall, TheoTotals } from '../types'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
+import { factLabel, nextMove, pluginFacts, roomFacts } from './status'
 
 // The state pane as plain data, so the layout can be read and tested without
 // drawing anything. The panel is calm by default: one "now" line, and blocks
@@ -33,6 +34,10 @@ export type PaneInput = {
   calls: TheoCall[]
   now: number
   width: number
+  // The status line's own local files (plan 15, D-08); absent before the first read.
+  local?: StatusLocal | null
+  // The id of the room's recorded job, the last leg of the Next move (plan 15).
+  jobId?: string
 }
 
 // Words a person should see, not the machinery's.
@@ -79,6 +84,15 @@ export type Now = { text: string; short: string; command: string; label: string 
 export function nowLine(i: PaneInput): Now {
   const { snap, bound, advice, totals } = i
   if (!snap) return { text: 'Reading this machine...', short: '', command: '', label: '' }
+  // A restart pending after an update outranks the rest: it is the status line's own corrective.
+  if (i.local?.postUpdate === true) {
+    return {
+      text: 'A restart is pending after the update. Run /mos:doctor --fix',
+      short: 'restart pending after the update',
+      command: '/mos:doctor --fix',
+      label: 'Fix',
+    }
+  }
   const reading = snap.room?.slug
   if (!bound) {
     return {
@@ -107,8 +121,12 @@ export function nowLine(i: PaneInput): Now {
       label: 'Fix',
     }
   }
-  if (snap.theo.status === null || snap.theo.status >= 500) {
+  if (snap.theo.status === null || snap.theo.status >= 500 || i.local?.brain === 'error') {
     return { text: 'Theo is not answering its health check', short: 'Theo is not answering', command: '/mos:doctor', label: 'Fix' }
+  }
+  // The room check found a problem: the status line carries the same corrective (every state that shows a problem shows its fix).
+  if (i.local?.health === 'drift' || i.local?.health === 'broken') {
+    return { text: 'The room check found a problem', short: 'room check found a problem', command: '/mos:doctor --fix', label: 'Fix' }
   }
   if (snap.room && snap.room.stale.length > 0) {
     const n = snap.room.stale.length
@@ -320,6 +338,13 @@ export function stateText(i: TextInput): string {
     if (r.stale.length > 0) lines.push(`STALE REASONING: ${r.stale.map(s => s.section).join(', ')}`)
     if (i.sections) for (const s of r.sections) lines.push(`  section ${s.name}: ${s.files} entries${s.status ? `, ${s.status}` : ''}`)
   }
+  // The status line facts and the room and filing facts, as plain lines (plan 15, D-08). They come from the
+  // same rows as the panel, so the two cannot disagree.
+  const local = i.local ?? null
+  for (const fact of [...roomFacts(snap, local, bound), ...pluginFacts(snap, local)]) {
+    lines.push(`${fact.id === 'theo' ? 'THEO STATE' : factLabel(fact.id, false)}: ${fact.value}`)
+  }
+  lines.push(`NEXT MOVE: ${nextMove(advice.status === 'ok' ? (advice.commands[0] ?? null) : null, local?.nextMove ?? null, i.jobId ?? '').words}`)
   if (snap?.claims) {
     const c = snap.claims
     lines.push(`CLAIMS: ${c.total} in all, ${c.checked} checked, ${c.disputed} disputed, ${c.unchecked} unchecked. A count is not a verdict.`)

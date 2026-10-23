@@ -56,7 +56,7 @@ const FILES: Record<string, string> = {
   '/.mindrian/bridge/brain-health.json': json({ status: 'ok' }),
   '/.mindrian/room-health.json': json({ status: 'drift', at: iso(NOW) }),
   '/.mindrian/stance-state.json': json({ stance: 'redteam', updated_at: iso(NOW) }),
-  '/.mindrian/voice-mark.json': json({ color: 'blue', current_who: 'larry' }),
+  '/.mindrian/voice-mark.json': json({ color: 'blue', current_who: 'theo' }),
   '/.mindrian/update-check.json': json({ available: true, available_version: '9.9.9' }),
   '/.mindrian/conversation-operator.json': json({ schema_version: '1.0.0', current: 'BUILD_ROOM', previous: null, entered_at: iso(NOW), context: {}, history: [] }),
   '/.mindrian/jtbd-state.json': JOB_FILE,
@@ -96,7 +96,7 @@ async function open(
 // The row of one field: a Text that starts with the label (after the heading marker) and holds all the
 // value patterns.
 const rowOf = (texts: string[], label: string, ...values: RegExp[]): string | undefined => {
-  const start = new RegExp(`^[▌|]?\\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  const start = new RegExp(`^[▌|]?\\s*${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
 
   return texts.find(text => start.test(text) && values.every(value => value.test(text)))
 }
@@ -218,6 +218,15 @@ test('P6 unknowns: with every status file missing each always-shown field says i
 })
 
 test('P6 unknowns: the context says waiting only when the host gives no usage yet', async ($, on) => {
+  const { clock } = recordCalls(on, { files: FILES, percent: null })
+  await $.session.start(START)
+  await clock.advance(200)
+  const waiting = await $.ui.mount(at(WIDE))
+  expect((await textsOf(waiting)).some(text => /^Context: waiting$/.test(text))).toBe(true)
+  await waiting.unmount()
+})
+
+test('P6 unknowns: with a usage the context shows the percent and never says waiting', async ($, on) => {
   const { ui } = await open($, on, WIDE)
   expect(rowOf(await textsOf(ui), 'Context', /62%/)).toBeDefined()
   expect((await textsOf(ui)).some(text => /waiting/.test(text))).toBe(false)
@@ -306,9 +315,7 @@ test('P9 context band: 49 is ok, 50 to 79 is watch, 80 and over is the cliff wit
 })
 
 test('P9 context band: the pane reads the cliff in words at 85 percent, and a text bar beside it when narrow', async ($, on) => {
-  const reads: string[] = []
-  const { clock } = recordCalls(on, { files: FILES, reads })
-  on('session.usage', () => ({ value: { startedAt: 0, context: { tokens: 170000, window: 200000, percent: 85 }, rateLimits: [] } }) as never)
+  const { clock } = recordCalls(on, { files: FILES, percent: 85 })
   await $.session.start(START)
   await clock.advance(200)
   const ui = await $.ui.mount(at(NARROW))
@@ -376,17 +383,20 @@ test('P12 /mos-text prints the same facts as plain lines', async ($, on) => {
 
 // ---- P13 the panel names Theo, never Larry -------------------------------------------------------------------
 
-test('P13 no string the panel writes for these fields names Larry, whoever the voice file says speaks', async ($, on) => {
-  for (const who of ['larry', 'claude']) {
+for (const who of ['larry', 'claude']) {
+  test(`P13 no string the panel writes for these fields names Larry, when the voice file says ${who} speaks`, async ($, on) => {
     const files = { ...FILES, '/.mindrian/voice-mark.json': json({ color: 'red', current_who: who, prior_who: who === 'larry' ? 'claude' : 'larry', switched_now: true }) }
     const { ui } = await open($, on, WIDE, files)
     const all = [...(await textsOf(ui)), ...(await buttonsOf(ui))].join('\n')
     expect(all).not.toMatch(/Larry/i)
     expect(all).toMatch(/SPEAKS/)
     await ui.unmount()
-  }
-  expect(voiceWord({ color: 'blue', move: '', who: 'larry', switched: false, direction: '' })).not.toMatch(/Larry/i)
-  expect(voiceWord({ color: 'blue', move: '', who: 'claude', switched: true, direction: 'larry-to-claude' })).not.toMatch(/Larry/i)
+  })
+}
+
+test('P13 the voice words never name Larry', () => {
+  expect(voiceWord({ color: 'blue', move: '', who: 'theo', switched: false, direction: '' })).not.toMatch(/Larry/i)
+  expect(voiceWord({ color: 'blue', move: '', who: 'claude', switched: true, direction: 'to-claude' })).not.toMatch(/Larry/i)
 })
 
 // ---- P14 nothing leaves ------------------------------------------------------------------------------------------
@@ -419,7 +429,8 @@ test('P15 damaged files: text that is not the expected shape gives not read, not
   const { ui } = await open($, on, WIDE, files)
   const texts = await textsOf(ui)
   expect(rowOf(texts, 'HEALTH', /not read/)).toBeDefined()
-  expect(rowOf(texts, 'NEXT MOVE', /none yet/)).toBeDefined()
+  // The routed move is unreadable, so the next leg answers: the recorded job (its file is not damaged).
+  expect(rowOf(texts, 'NEXT MOVE', /find-bottleneck \(your recorded job\)/)).toBeDefined()
   expect(rowOf(texts, 'THEO')).toBeDefined()
   expect(texts.join('\n')).not.toMatch(/red team|build room|9\.9\.9|map unknowns/)
   expect(texts.some(text => /refresh failed/.test(text))).toBe(false)
@@ -454,9 +465,9 @@ test('formatters: health, next move, Theo, voice and version say the same thing 
 
   expect(voiceWord(null)).toBe('')
   expect(voiceWord({ color: 'white', move: '', who: '', switched: false, direction: '' })).toBe('Theo, handover')
-  expect(voiceWord({ color: '', move: 'gate', who: 'larry', switched: false, direction: '' })).toBe('Theo, your decision')
+  expect(voiceWord({ color: '', move: 'gate', who: 'theo', switched: false, direction: '' })).toBe('Theo, your decision')
   expect(voiceWord({ color: 'red', move: '', who: 'claude', switched: false, direction: '' })).toMatch(/Claude/)
-  expect(voiceWord({ color: 'red', move: '', who: 'claude', switched: true, direction: 'larry-to-claude' })).toMatch(/just switched/)
+  expect(voiceWord({ color: 'red', move: '', who: 'claude', switched: true, direction: 'to-claude' })).toMatch(/just switched/)
 
   expect(versionWord('2.0.0-beta.74', null)).toBe('2.0.0-beta.74')
   expect(versionWord('2.0.0-beta.74', '9.9.9')).toBe('2.0.0-beta.74, update 9.9.9 is available')

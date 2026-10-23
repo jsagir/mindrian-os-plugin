@@ -32,8 +32,10 @@ import {
 import type { Run } from './face'
 import { stateFor, stateForLead } from './face-events'
 import { clock, fit, nowLine, panelLights, plain, recommend, stateBlocks, stateText, statusText, suggestionText } from './lines'
-import { contextCanvas, contextWord } from './meter'
+import { contextCanvas } from './meter'
 import { isPanelReading, readRoom, resetReach } from './source'
+import { contextBand, factLabel, nextMove, pluginFacts, readStatusLocal, roomFacts } from './status'
+import type { Fact } from './status'
 import { loadFaceAsset, rasterFace, readFaceAsset } from './theo-face'
 import type { FaceAsset } from './theo-face'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS, glossaryWords } from './voice'
@@ -115,6 +117,9 @@ const faceAssetNote = atom({ plugin: 'mos-face', key: 'faceAssetNote' } as const
 const jobRecord = atom({ plugin: 'mos-face', key: 'jobRecord' } as const, '')
 const jobHidden = atom({ plugin: 'mos-face', key: 'jobHidden' } as const, false)
 const jobHiddenFor = atom({ plugin: 'mos-face', key: 'jobHiddenFor' } as const, '')
+// The status line's own local files, read once for each refresh tick (plan 15, D-08). Null before the first
+// read. Nothing reads them in a prompt or turn hook.
+const statusLocal = atom({ plugin: 'mos-face', key: 'statusLocal' } as const, null)
 
 // ---- Helpers ----------------------------------------------------------------
 
@@ -317,6 +322,7 @@ const pin = async ($: EngineInterface) => {
       calls: await read($, theo),
       now: await $.clock.now(),
       width: 60,
+      local: await read($, statusLocal),
     }
     $.ui.status(statusText(input))
   } catch {
@@ -388,6 +394,10 @@ const refresh = async ($: EngineInterface, force = true, askReach = force) => {
       const jobPath = snapshot.room?.path ?? ''
       const jobText = jobPath === '' ? '' : await withTimeout($, $.fs.read(`${jobPath}/.mindrian/jtbd-state.json`).then(String), 4000).catch(() => '')
       await update($, jobRecord, () => compactJob(jobText))
+      // The status line's own local files: eight small reads, started together, with a cut-off of their own.
+      // When the cut-off hits, the last good reading stays.
+      const local = await withTimeout($, readStatusLocal($, jobPath), 4000).catch(() => null)
+      if (local !== null) await update($, statusLocal, () => local)
       if (before?.room && snapshot.room && before.room.slug === snapshot.room.slug) {
         for (const sec of snapshot.room.sections) {
           const prev = before.room.sections.find(one => one.name === sec.name)
@@ -762,6 +772,8 @@ export const register: Register = on => {
       context: percent === undefined ? '' : `${Math.round(percent)}% used${tokens}`,
       sections: true,
       job: jobWords,
+      local: await read($, statusLocal),
+      jobId: job.record?.id ?? '',
     }
 
     return { text: stateText(input) }
@@ -1082,15 +1094,16 @@ export const register: Register = on => {
     const canvas = useBar ? null : contextCanvas(percent, Math.min(cols, 32), 8)
     const canvasRows = canvas ? gridRuns(canvas.pixels) : []
     const barWidth = Math.max(8, Math.min(20, cols - 8))
-    const barText = (p: number) => {
-      const full = Math.round((Math.min(100, Math.max(0, p)) / 100) * barWidth)
-      return `[${'#'.repeat(full)}${'-'.repeat(barWidth - full)}]`
-    }
+    // The context band of the status line, in words (ok, watch, cliff), and its text bar.
+    const band = contextBand(percent)
+    const narrowLabels = tier === 'narrow'
     const isOld = snapshot !== null && now - snapshot.at > 300000
     const g = (text: string) =>
       plainMode ? text.replaceAll('▸', '>').replaceAll('▾', 'v').replaceAll('◆', '*').replaceAll('⚠', '!').replaceAll('▌', '|') : text
     const markerColor = e.props.isFocused ? BLUE : MUTED
-    const input = { snap: snapshot, bound: room, boundHow: how, workspace: folder, advice: next, totals, calls, now, width: cols - 2 }
+    const local = await read($, statusLocal)
+    const job = await jobNow($)
+    const input = { snap: snapshot, bound: room, boundHow: how, workspace: folder, advice: next, totals, calls, now, width: cols - 2, local, jobId: job.record?.id ?? '' }
     const roomName = snapshot?.room?.slug ?? null
     // WRITES TO already says when nothing is bound, so NOW looks past it.
     const nowL = nowLine(room ? input : { ...input, bound: roomName ?? 'unbound' })
@@ -1100,7 +1113,6 @@ export const register: Register = on => {
       .filter(([, at]) => now - at < LIT_KEEP_MS)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
-    const job = await jobNow($)
     const jrows = jobRows({
       record: job.record,
       guess: job.guess,
@@ -1128,6 +1140,7 @@ export const register: Register = on => {
         stale: (snapshot?.room?.stale ?? []).map(one => one.section),
         subject: subjectOf(next.matched, recentUser),
       })
+    const moveNow = nextMove(next.status === 'ok' && !isStale ? (next.commands[0] ?? null) : null, local?.nextMove ?? null, job.record?.id ?? '')
     const frameNow = (command: string, idx: number) => frameFor(command, next.matched, recentUser) || next.framings[idx] || command
 
     // A button: always on a raised ground, so its label reads on any terminal.
@@ -1135,6 +1148,13 @@ export const register: Register = on => {
       <Box key={key} backgroundColor={ground} alignSelf="flex-start">
         <Button key={key} label={g(label)} onPress={onPress} />
       </Box>
+    )
+
+    // One fact of the status line or of the room: its label, then its value, in one row of text.
+    const fact = (one: Fact) => (
+      <Text key={`fact-${one.id}`} {...ink} bold={one.strong}>
+        {g(`${factLabel(one.id, narrowLabels)}  ${one.value}`)}
+      </Text>
     )
 
     // A heading: a cobalt marker, the part in capitals, then its plain words.
@@ -1222,10 +1242,10 @@ export const register: Register = on => {
             ))}
           </Text>
         ))}
-        {useBar && percent !== undefined && <Text {...ink}>{barText(percent)}</Text>}
-        <Box gap={1}>
+        {useBar && percent !== undefined && <Text {...ink}>{band.bar(barWidth)}</Text>}
+        <Box flexDirection="column">
           <Text {...ink} bold>
-            {percent === undefined ? 'Context: waiting' : `Context ${Math.round(percent)}% - ${contextWord(percent)}`}
+            {percent === undefined ? 'Context: waiting' : `${narrowLabels ? factLabel('context', true) : factLabel('context', false)} ${Math.round(percent)}% - ${band.words}`}
           </Text>
           {percent !== undefined && percent >= 60 && knob('compact', 'Free space /compact', () => askAbout($, '/compact'))}
         </Box>
@@ -1234,8 +1254,8 @@ export const register: Register = on => {
         {heading('WRITES TO', room ?? 'nothing - this session is not bound')}
         <Box gap={1}>
           {knob('rooms', room ? 'Switch room' : 'Bind a room', () => askAbout($, '/mos:rooms'))}
-          {roomName && room !== roomName && <Text {...soft}>{`reading ${roomName}`}</Text>}
         </Box>
+        {roomFacts(snapshot, local, room).map(fact)}
         <Text {...ink}> </Text>
 
         {heading('NOW', nowL.text)}
@@ -1248,6 +1268,7 @@ export const register: Register = on => {
         <Text {...ink}> </Text>
 
         {heading('NEXT', 'from Theo')}
+        <Text {...ink}>{g(`${factLabel('next', narrowLabels)}  ${moveNow.words}`)}</Text>
         {next.status === 'asking' && <Text {...soft}>asking Theo...</Text>}
         {isStale && <Text {...soft}>{`Theo's last suggestion is ${age} turns old, so it is hidden. Ask Theo now for a fresh one.`}</Text>}
         {next.status === 'ok' && !isStale && next.framework !== '' && (
@@ -1309,6 +1330,7 @@ export const register: Register = on => {
             )}
           </Box>
         )}
+        {pluginFacts(snapshot, local).map(fact)}
         <Text {...ink}> </Text>
 
         {heading('ASK', 'about the room')}

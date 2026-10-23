@@ -72,6 +72,29 @@ export type JobRecord = {
   enteredAt: number
 }
 
+// The status line's own local files, reduced to what the panel shows (Phase 380 plan 15, D-08). A field is
+// null (or empty) when its file was not read; nothing is guessed. who is 'claude' (the host voice), 'theo'
+// (the persona, which the panel calls Theo) or empty; direction is 'to-claude', 'to-theo' or empty.
+export type VoiceLocal = {
+  color: string
+  move: string
+  who: string
+  switched: boolean
+  direction: string
+}
+
+export type StatusLocal = {
+  at: number
+  nextMove: string | null
+  brain: 'ok' | 'error' | null
+  postUpdate: boolean
+  voice: VoiceLocal | null
+  stance: string | null
+  update: string | null
+  operator: string | null
+  health: 'sound' | 'drift' | 'broken' | null
+}
+
 export type Section = { name: string; files: number; status?: string }
 
 export type Stale = { section: string; reason: string }
@@ -188,6 +211,8 @@ declare module 'claude-code' {
       jobRecord: string
       jobHidden: boolean
       jobHiddenFor: string
+      // The status line's own local files, read once for each refresh tick (plan 15, D-08); null before the first read.
+      statusLocal: StatusLocal | null
     }
   }
 }

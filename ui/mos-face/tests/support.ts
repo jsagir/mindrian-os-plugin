@@ -115,6 +115,8 @@ export type WorldOptions = {
   // Plan 06: every command the panel registers (name and description) and every toast text.
   registered?: { name: string; description: string }[]
   toasts?: string[]
+  // Plan 15: the context percent the host reports (default 62); undefined is not an option, use null for none yet.
+  percent?: number | null
 }
 
 // Everything beneath the plugin is answered from memory, so no file, network or
@@ -156,7 +158,11 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   on('session.cwd', () => ({ value: options.cwd ?? '/' }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('session.usage', () => ({
-    value: { startedAt: 0, context: { tokens: 124000, window: 200000, percent: 62 }, rateLimits: [] },
+    value: {
+      startedAt: 0,
+      context: (options.percent === null ? {} : { tokens: 124000, window: 200000, percent: options.percent ?? 62 }) as { tokens: number; window: number; percent: number },
+      rateLimits: [],
+    },
   }))
   on('fs.read', (_, e) => {
     options.reads?.push(`read ${e.path}`)

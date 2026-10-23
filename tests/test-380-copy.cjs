@@ -85,6 +85,9 @@ function banned(text) {
 // Strings that are file names, not words the person reads. Each entry is file + exact text part.
 const ALLOWED = [
   { file: 'probe.ts', text: '/brain-prewarm.json' },
+  // Plan 380-15: the file the status line reads for whether Theo is on (a path in the map and in a read).
+  { file: 'status.ts', text: '~/.mindrian/bridge/brain-health.json' },
+  { file: 'status.ts', text: '/bridge/brain-health.json' },
 ];
 
 // A small reader for TypeScript and TSX source. It returns the text parts a person could see:
