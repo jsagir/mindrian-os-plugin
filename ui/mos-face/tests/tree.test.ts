@@ -46,30 +46,37 @@ const TABLE: Row[] = [
   { bodyRows: 40, columns: 56, plain: true, header: 'words', headerRows: 1, hintRows: 2, controlsRows: 1, fixedRows: 6, treeRows: 34 },
 ]
 
-for (const row of TABLE) {
-  test(`T-P1 the layout at ${row.columns} columns by ${row.bodyRows} rows${row.plain ? ' in plain mode' : ''} is a ${row.header} header, ${row.hintRows} hint rows, ${row.controlsRows} control rows and ${row.treeRows} tree rows`, () => {
-    const layout = treeLayout({ bodyRows: row.bodyRows, columns: row.columns, plain: row.plain })
-    expect(layout.kind).toBe('ok')
-    if (layout.kind !== 'ok') return
-    expect({
-      header: layout.header,
-      headerRows: layout.headerRows,
-      hintRows: layout.hintRows,
-      controlsRows: layout.controlsRows,
-      fixedRows: layout.fixedRows,
-      treeRows: layout.treeRows,
-      crumbRows: layout.crumbRows,
-    }).toEqual({
-      header: row.header,
-      headerRows: row.headerRows,
-      hintRows: row.hintRows,
-      controlsRows: row.controlsRows,
-      fixedRows: row.fixedRows,
-      treeRows: row.treeRows,
-      crumbRows: 1,
-    })
+// One line at the start of the line for every test( declaration: tests/test-380-engine-tests.cjs counts them.
+const checkRow = (row: Row): void => {
+  const layout = treeLayout({ bodyRows: row.bodyRows, columns: row.columns, plain: row.plain })
+  expect(layout.kind).toBe('ok')
+  if (layout.kind !== 'ok') return
+  expect({
+    header: layout.header,
+    headerRows: layout.headerRows,
+    hintRows: layout.hintRows,
+    controlsRows: layout.controlsRows,
+    fixedRows: layout.fixedRows,
+    treeRows: layout.treeRows,
+    crumbRows: layout.crumbRows,
+  }).toEqual({
+    header: row.header,
+    headerRows: row.headerRows,
+    hintRows: row.hintRows,
+    controlsRows: row.controlsRows,
+    fixedRows: row.fixedRows,
+    treeRows: row.treeRows,
+    crumbRows: 1,
   })
 }
+
+test('T-P1 the layout at 56 columns by 40 rows is a tile header, 2 hint rows, 1 control row and 32 tree rows', () => checkRow(TABLE[0] as Row))
+test('T-P1 the layout at 44 columns by 24 rows is a tile header, 3 hint rows, 2 control rows and 14 tree rows', () => checkRow(TABLE[1] as Row))
+test('T-P1 the layout at 35 columns by 24 rows is a words header, 3 hint rows, 2 control rows and 16 tree rows', () => checkRow(TABLE[2] as Row))
+test('T-P1 the layout at 56 columns by 23 rows is a words header, 1 hint row, 1 control row and 19 tree rows', () => checkRow(TABLE[3] as Row))
+test('T-P1 the layout at 44 columns by 11 rows is a words header, 1 hint row, 2 control rows and 6 tree rows', () => checkRow(TABLE[4] as Row))
+test('T-P1 the layout at 35 columns by 9 rows is a words header, 1 hint row, 2 control rows and 4 tree rows', () => checkRow(TABLE[5] as Row))
+test('T-P1 the layout at 56 columns by 40 rows in plain mode is a words header, 2 hint rows, 1 control row and 34 tree rows', () => checkRow(TABLE[6] as Row))
 
 test('T-P1 the refresh row shows from 24 rows and not below', () => {
   const tall = treeLayout({ bodyRows: 24, columns: 56, plain: false })

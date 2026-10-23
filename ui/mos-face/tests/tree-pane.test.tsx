@@ -548,20 +548,21 @@ test('T13 at 8 rows the pane says it needs 9 rows to browse and draws only Close
 
 // ---- T14 the hint -----------------------------------------------------------------------------
 
-const HINT_SIZES: [number, number][] = [[56, 40], [44, 24], [35, 24], [76, 10]]
+async function checkHint($: Parameters<TestBody>[0], on: Parameters<TestBody>[1], columns: number, rows: number): Promise<void> {
+  const { ui } = await open($, on, columns, rows)
+  await browse(ui)
+  const texts = await textsOf(ui)
 
-for (const [columns, rows] of HINT_SIZES) {
-  test(`T14 at ${columns} by ${rows} the hint names where each route works and promises no key`, async ($, on) => {
-    const { ui } = await open($, on, columns, rows)
-    await browse(ui)
-    const texts = await textsOf(ui)
-
-    expect(texts.some(text => text.includes('/mos-tree'))).toBe(true)
-    if (rows >= 24) expect(texts.some(text => text.includes('prompt box'))).toBe(true)
-    for (const text of texts) expect(/\b(press|ctrl|hotkey)\b/i.test(text)).toBe(false)
-    await ui.unmount()
-  })
+  expect(texts.some(text => text.includes('/mos-tree'))).toBe(true)
+  if (rows >= 24) expect(texts.some(text => text.includes('prompt box'))).toBe(true)
+  for (const text of texts) expect(/\b(press|ctrl|hotkey)\b/i.test(text)).toBe(false)
+  await ui.unmount()
 }
+
+test('T14 at 56 by 40 the hint names where each route works and promises no key', async ($, on) => checkHint($, on, 56, 40))
+test('T14 at 44 by 24 the hint names where each route works and promises no key', async ($, on) => checkHint($, on, 44, 24))
+test('T14 at 35 by 24 the hint names where each route works and promises no key', async ($, on) => checkHint($, on, 35, 24))
+test('T14 at 76 by 10 the hint names where each route works and promises no key', async ($, on) => checkHint($, on, 76, 10))
 
 // ---- T15 nothing read, nothing sent -----------------------------------------------------------
 
@@ -632,35 +633,37 @@ test('T16 below 24 rows the header is one words row and no tile', async ($, on) 
 
 // 76 by 10 is an assumed room for an inline pane in an 80 by 24 terminal (UNVERIFIED: the types give the
 // band a cap of half the terminal rows including the prompt and say nothing exact for an inline pane).
-const SIZES: [number, number][] = [[76, 10], [56, 22], [44, 24], [35, 24]]
 
-for (const [columns, rows] of SIZES) {
-  test(`T17 at ${columns} by ${rows} every section and every file is reachable, the counter shows, and the rows and the width stay within the pane`, async ($, on) => {
-    const { ui } = await open($, on, columns, rows)
-    await browse(ui)
-    const pages = await walk(ui, columns, 'sec-')
-    expect(pages.flatMap(page => namesFromKeys(page.keys, 'sec-')).sort()).toEqual(ALL_NAMES)
-    for (const page of pages) {
-      expect(page.rows).toBeLessThanOrEqual(rows)
-      expect(page.width).toBeLessThanOrEqual(columns - 2)
-      expect(page.counter).not.toBe('')
-      expect(page.firstText).toContain(columns >= 40 && rows >= 24 ? '▀' : 'Theo | MindrianOS')
-    }
+async function checkSize($: Parameters<TestBody>[0], on: Parameters<TestBody>[1], columns: number, rows: number): Promise<void> {
+  const { ui } = await open($, on, columns, rows)
+  await browse(ui)
+  const pages = await walk(ui, columns, 'sec-')
+  expect(pages.flatMap(page => namesFromKeys(page.keys, 'sec-')).sort()).toEqual(ALL_NAMES)
+  for (const page of pages) {
+    expect(page.rows).toBeLessThanOrEqual(rows)
+    expect(page.width).toBeLessThanOrEqual(columns - 2)
+    expect(page.counter).not.toBe('')
+    expect(page.firstText).toContain(columns >= 40 && rows >= 24 ? '▀' : 'Theo | MindrianOS')
+  }
 
-    // The walk ended on the last page: close the tree and open it again to get back to page one.
-    await press(ui, 'ask-sections')
-    await browse(ui)
-    await press(ui, 'sec-big')
-    const files = await walk(ui, columns, 'entry-big-')
-    expect(files.flatMap(page => namesFromKeys(page.keys, 'entry-big-')).sort()).toEqual([...BIG_FILES].sort())
-    for (const page of files) {
-      expect(page.rows).toBeLessThanOrEqual(rows)
-      expect(page.width).toBeLessThanOrEqual(columns - 2)
-      expect(page.counter).not.toBe('')
-    }
-    await ui.unmount()
-  })
+  // The walk ended on the last page: close the tree and open it again to get back to page one.
+  await press(ui, 'ask-sections')
+  await browse(ui)
+  await press(ui, 'sec-big')
+  const files = await walk(ui, columns, 'entry-big-')
+  expect(files.flatMap(page => namesFromKeys(page.keys, 'entry-big-')).sort()).toEqual([...BIG_FILES].sort())
+  for (const page of files) {
+    expect(page.rows).toBeLessThanOrEqual(rows)
+    expect(page.width).toBeLessThanOrEqual(columns - 2)
+    expect(page.counter).not.toBe('')
+  }
+  await ui.unmount()
 }
+
+test('T17 at 76 by 10 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane', async ($, on) => checkSize($, on, 76, 10))
+test('T17 at 56 by 22 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane', async ($, on) => checkSize($, on, 56, 22))
+test('T17 at 44 by 24 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane', async ($, on) => checkSize($, on, 44, 24))
+test('T17 at 35 by 24 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane', async ($, on) => checkSize($, on, 35, 24))
 
 // ---- T18 the originals ------------------------------------------------------------------------
 

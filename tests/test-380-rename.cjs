@@ -6,7 +6,7 @@
 //
 // Legs:
 //   R1  ui/mos-face/.claude-plugin/plugin.json name is mos-face.
-//   R2  ui/mos-face/hooks/register.tsx: every atom owner literal is mos-face (37 atoms), none is mos.
+//   R2  ui/mos-face/hooks/register.tsx: every atom owner literal is mos-face (40 atoms: 37 and the 3 room tree atoms of plan 380-18), none is mos.
 //   R3  ui/mos-face/types/index.d.ts: the PluginState key is mos-face, not mos.
 //   R4  lib/mos-face/dist/register.js: every atom owner literal is mos (same count as the source), none is mos-face.
 //   R5  lib/mos-face/dist/types/index.d.ts: the PluginState key is mos, not mos-face.
@@ -60,7 +60,7 @@ const distKeys = typeKeys(read(path.join(DIST, 'types', 'index.d.ts')));
 
 const pj = JSON.parse(read(path.join(SRC, '.claude-plugin', 'plugin.json')));
 check('R1 source package name is mos-face', pj.name === 'mos-face', 'name=' + pj.name);
-check('R2 source atoms are owned by mos-face', srcOwners.length === 37 && srcOwners.every((o) => o === 'mos-face'), tally(srcOwners));
+check('R2 source atoms are owned by mos-face', srcOwners.length === 40 && srcOwners.every((o) => o === 'mos-face'), tally(srcOwners));
 check('R3 source PluginState key is mos-face', srcKeys.length === 1 && srcKeys[0] === 'mos-face', JSON.stringify(srcKeys));
 check('R4 dist atoms are owned by mos', distOwners.length === srcOwners.length && distOwners.every((o) => o === 'mos'), tally(distOwners));
 check('R5 dist PluginState key is mos', distKeys.length === 1 && distKeys[0] === 'mos', JSON.stringify(distKeys));
