@@ -209,7 +209,7 @@ NO_KEYHOLDER_NOTICE=0 # quick 261007-c6j (owner ruling 2026-10-02): Step 9.9 ask
 RESEND_KEYHOLDER_NOTICE=0 # quick 261007-c6j: a second Yes is refused (already_sent) unless --resend-keyholder-notice is given; it then mails only people with no marker or a failed marker
 INCLUDE_UNKNOWN_KEYHOLDER=0 # quick 261007-c6j: has an effect only together with --resend-keyholder-notice; it also mails people whose earlier mail has an unknown outcome
 REPAIR_KEYHOLDER_LEDGER=0 # quick 261007-c6j: keeps a quarantine copy of a corrupt ledger and drops its bad lines; each dropped line can be a person mailed again
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-keyholder-notice] [--resend-keyholder-notice] [--include-unknown] [--repair-keyholder-ledger] [--no-real-room-check] [--no-cut-listener] [--ledger-only] [--dry-run]"
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-keyholder-notice] [--resend-keyholder-notice] [--include-unknown] [--repair-keyholder-ledger] [--no-real-room-check] [--no-cut-listener] [--dry-run] | bash scripts/release.sh --ledger-only (alone, no bump flag; add --dry-run to preview)"
 
 for arg in "$@"; do
   case "$arg" in
