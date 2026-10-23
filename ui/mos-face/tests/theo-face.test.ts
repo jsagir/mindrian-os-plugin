@@ -29,6 +29,27 @@ const asset = (): FaceAsset => {
   return loaded
 }
 
+const ROOT = '/plugin-root'
+
+// The engine hands a test no fs and no plugin (measured in plan 380-12: the test driver has tool,
+// command, config, telemetry, prompt, skill, attribution, agent, session, turn, ui and classic).
+// Only a hook runs with them. So readFaceAsset is driven with a stand-in that has the two members
+// it uses: fs.read and plugin.root. The real engine call is the same two members.
+function reader(answer: (path: string) => string | null, reads: string[]): Parameters<typeof readFaceAsset>[0] {
+  return {
+    plugin: { root: ROOT },
+    fs: {
+      read: async (path: string): Promise<string> => {
+        reads.push(path)
+        const text = answer(path)
+        if (text === null) throw new Error('not here')
+
+        return text
+      },
+    },
+  } as never
+}
+
 // ---- G1 asset ---------------------------------------------------------------------------------
 
 test('G1 asset: loadFaceAsset returns the 11 canon states in order, with the visible labels', () => {
@@ -91,18 +112,13 @@ test('G1 asset: loadFaceAsset returns null for text that is not the asset', () =
   for (const [name, text] of bad) expect(`${name} ${loadFaceAsset(text) === null}`).toBe(`${name} true`)
 })
 
-test('G1 asset: readFaceAsset reads through fs.read and returns the 11 states and the path it used', async ($, on) => {
+test('G1 asset: readFaceAsset reads through fs.read and returns the 11 states and the path it used', async () => {
   const reads: string[] = []
-  on('fs.read', (_, e) => {
-    reads.push(e.path)
-
-    return { value: ASSET_TEXT }
-  })
-  const got = await readFaceAsset($)
+  const got = await readFaceAsset(reader(() => ASSET_TEXT, reads))
   expect(got.asset).not.toBeNull()
   expect(got.asset?.states.length).toBe(11)
   expect(reads.length).toBe(1)
-  expect(reads[0]?.endsWith(`/${FACE_ASSET_PATHS[0]}`)).toBe(true)
+  expect(reads[0]).toBe(`${ROOT}/${FACE_ASSET_PATHS[0]}`)
 })
 
 // ---- G2 composition ---------------------------------------------------------------------------
@@ -236,7 +252,7 @@ test('G3 raster: the 11 faces are pairwise different at size 12, and at every ot
   }
 })
 
-test('G3 raster: each eye shows its own color at the pixel that holds its center (a hollow face shows ink outline instead)', () => {
+test('G3 raster: each eye shows its own color in the cells around its center (a hollow face shows ink outline instead)', () => {
   const loaded = asset()
   for (const one of loaded.states) {
     for (const n of [8, 12, 16]) {
@@ -246,12 +262,15 @@ test('G3 raster: each eye shows its own color at the pixel that holds its center
         [one.pose.e1, one.pose.c1],
         [one.pose.e2, one.pose.c2],
       ] as const) {
-        const cell = grid[Math.floor(eye[1] / px)]?.[Math.floor(eye[0] / px)]
+        // An eye whose center sits on a cell edge is drawn in the cell on either side: look at both.
+        const row = Math.floor(eye[1] / px)
+        const col = Math.floor(eye[0] / px)
+        const around = [row - 1, row].flatMap(r => [col - 1, col].map(c => grid[r]?.[c]))
         if (one.pose.hollow) {
-          // The outline of a hollow shape is ink or white inside; at these sizes the outline can fill the shape.
-          expect(`${one.id} ${n} hollow ${cell === '#111111' || cell === '#FFFFFF'}`).toBe(`${one.id} ${n} hollow true`)
+          // The outline of a hollow shape is ink, and at these sizes it can fill the shape.
+          expect(`${one.id} ${n} hollow ${around.includes('#111111')}`).toBe(`${one.id} ${n} hollow true`)
         } else {
-          expect(`${one.id} ${n} ${cell}`).toBe(`${one.id} ${n} ${color}`)
+          expect(`${one.id} ${n} ${color} ${around.includes(color)}`).toBe(`${one.id} ${n} ${color} true`)
         }
       }
     }
@@ -277,15 +296,9 @@ test('G5 load paths: the dev folder path is tried first, the shipped dist path s
   expect(FACE_ASSET_PATHS).toEqual([`assets/${NAME}`, `lib/mos-face/dist/assets/${NAME}`])
 })
 
-test('G5 load paths: when the first path fails the second is read; the path used is returned', async ($, on) => {
+test('G5 load paths: when the first path fails the second is read; the path used is returned', async () => {
   const reads: string[] = []
-  on('fs.read', (_, e) => {
-    reads.push(e.path)
-    if (e.path.includes('lib/mos-face/dist/assets/')) return { value: ASSET_TEXT }
-
-    return { deny: 'not here' }
-  })
-  const got = await readFaceAsset($)
+  const got = await readFaceAsset(reader(path => (path.includes('lib/mos-face/dist/assets/') ? ASSET_TEXT : null), reads))
   expect(reads.length).toBe(2)
   expect(reads[0]?.includes('lib/mos-face/dist')).toBe(false)
   expect(reads[1]?.includes('lib/mos-face/dist/assets/')).toBe(true)
@@ -293,14 +306,9 @@ test('G5 load paths: when the first path fails the second is read; the path used
   expect(got.path).toBe(FACE_ASSET_PATHS[1])
 })
 
-test('G5 load paths: when both fail the answer is null with a plain reason, and no pose is invented', async ($, on) => {
+test('G5 load paths: when both fail the answer is null with a plain reason, and no pose is invented', async () => {
   const reads: string[] = []
-  on('fs.read', (_, e) => {
-    reads.push(e.path)
-
-    return { deny: 'not here' }
-  })
-  const got = await readFaceAsset($)
+  const got = await readFaceAsset(reader(() => null, reads))
   expect(reads.length).toBe(2)
   expect(got.asset).toBeNull()
   expect(got.path).toBeNull()
@@ -309,15 +317,9 @@ test('G5 load paths: when both fail the answer is null with a plain reason, and 
   expect(/(\/|\\|json|asset|fs\.|ENOENT|undefined|null|Error)/.test(got.reason)).toBe(false)
 })
 
-test('G5 load paths: a first file that is damaged falls through to the second', async ($, on) => {
+test('G5 load paths: a first file that is damaged falls through to the second', async () => {
   const reads: string[] = []
-  on('fs.read', (_, e) => {
-    reads.push(e.path)
-    if (e.path.includes('lib/mos-face/dist/assets/')) return { value: ASSET_TEXT }
-
-    return { value: '{"states":[]}' }
-  })
-  const got = await readFaceAsset($)
+  const got = await readFaceAsset(reader(path => (path.includes('lib/mos-face/dist/assets/') ? ASSET_TEXT : '{"states":[]}'), reads))
   expect(reads.length).toBe(2)
   expect(got.path).toBe(FACE_ASSET_PATHS[1])
 })
