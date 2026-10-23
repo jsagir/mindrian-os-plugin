@@ -3,6 +3,7 @@ import type { EngineInterface } from 'claude-code'
 import type { Advice } from '../types'
 import { WHY } from './commands'
 import { PROPOSALS } from './proposals'
+import type { RemovedKind } from './sent'
 import type { Proposals } from './proposals'
 
 // The panel asks Theo what to do next, every couple of turns.
@@ -203,6 +204,15 @@ export function sanitize(text: string, max = 240, known: string[] = []): string 
   )
 }
 
+// Plan 16 contract stub: sanitize with a note of what each step removed, and the words with that note.
+export function sanitizeNoted(_text: string, _max = 240, _known: string[] = []): { text: string; left: RemovedKind[] } {
+  throw new Error('not implemented')
+}
+
+export function wordsForNoted(_matched: string[], _messages: string[], _known: string[] = []): { text: string; left: RemovedKind[] } {
+  throw new Error('not implemented')
+}
+
 // The words worth sending: the newest sentence of the person's own that carries a
 // cue, else the newest substantial message. Never the assistant, never the room.
 export function wordsFor(matched: string[], messages: string[], known: string[] = []): string {
@@ -342,6 +352,7 @@ export async function askTheo(
     framings: [],
     matched: [],
     sent: '',
+    delivery: { kind: 'none' },
     question: questionFor(h),
     guided: '',
     note: '',

@@ -68,6 +68,7 @@ const noAdvice: Advice = {
   framings: [],
   matched: [],
   sent: '',
+  delivery: { kind: 'none' },
   question: '',
   guided: '',
   note: '',

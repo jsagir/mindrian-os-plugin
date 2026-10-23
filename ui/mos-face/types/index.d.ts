@@ -34,6 +34,20 @@ export type TheoCall = {
   isAuto: boolean
 }
 
+// The kinds of thing the panel removes from the person's words before they are sent. The sent line names
+// the kind and never the removed text (Phase 380 plan 16, D-03).
+export type RemovedKind = 'link' | 'email' | 'path' | 'code' | 'key' | 'long-name' | 'name' | 'cut'
+
+// What happened to the person's words in one ask. none: no words were due or no call settled (the sent
+// line is the handles-only text). not-asked: every call was refused or the tool is missing. sent: a call
+// that carried the words was answered. unsure: a call that carried them failed on the way, so they may
+// have been received.
+export type Delivery =
+  | { kind: 'none' }
+  | { kind: 'not-asked'; why: 'denied' | 'unavailable' }
+  | { kind: 'sent'; excerpt: string; left: readonly RemovedKind[] }
+  | { kind: 'unsure'; excerpt: string; left: readonly RemovedKind[] }
+
 // What Theo last advised. The question carried a framework name and a problem
 // type, and - unless /mos-words turned it off - a cleaned excerpt of the person's own
 // recent words (names, links, paths, code and keys removed), only through the guarded
@@ -50,6 +64,7 @@ export type Advice = {
   framings: string[]
   matched: string[]
   sent: string
+  delivery: Delivery
   question: string
   guided: string
   note: string
