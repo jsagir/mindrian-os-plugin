@@ -253,6 +253,24 @@ Capture harness. `node ui/mos-face/scripts/capture-shots.cjs --session-home` fil
 
 Surfaces. Terminal only. Desktop and Cowork have no panel (D-05, N7), a deliberate skip; the same facts are available there through the plugin's own tools.
 
+## Context gauge
+
+Added in plan 380-17 (D-04, D-08, D-11; gap G5 of the first real terminal run). Before the first reply has used any of the window, the eight boxes under the face look like empty boxes. The words next to them now say what they are. The boxes are not redrawn and not dimmed.
+
+| State | The row says |
+|-------|--------------|
+| Waiting, boxes drawn (wide and standard panel) | Context gauge: waiting for the first reply |
+| Waiting, no boxes (narrow, plain mode, short terminal) | Context: waiting for the first reply |
+| A reading, including 0 percent and 100 percent | Context 62% - watch (the label, the rounded percent, a space, a hyphen, the words of the band) |
+
+The words are chosen by `gaugeText` in `hooks/gauge.ts`: a union of an idle line and a reading line, one switch on the band with a check that fails to compile when a band is not handled. A figure the host did not give (or a figure that is not a number) is waiting; zero is a reading. The word gauge never appears on a reading, so a state is said once (test G-5).
+
+Why it is labelled and not dimmed. A dimmed fill needs a color for secondary text on the ink ground, and the book has none: the terminal segment says "the book has no token for secondary text on ink. The panel uses dimmed paper", and D-11 forbids an invented hex. The 18 pixel pins of `tests/meter-pin.test.ts` also fix the idle canvas, and they are not edited. Cutting the idle canvas (4 of 40 rows) is a separate choice that needs a ruling (380-17-CLUTTER-AUDIT.md).
+
+Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Rules that hold everywhere, Side panel template States, One signal, Ground and color), segments/writing/voice. The book's own review of the three strings found nothing (exit 2, REVIEW-REQUIRED, findings empty, which is its normal clean result). Where the book is silent, the proposals P17-1 and P17-2 are in the phase folder.
+
+One wrap to know: at 35 columns the short words are 36 characters, so the row may wrap to two rows (UNVERIFIED, props only).
+
 ## Decisions
 
 Written in plan 380-07. The canon is the mos-brand book e947a5d (read only, /home/jsagi/mos-brand). The terminal segment `segments/experience/terminal` is PROPOSED in the book: the owner has not ruled on it, so each rule taken from it carries that status. A rule taken from `segments/foundations/color`, `segments/identity/theo/states` or `segments/identity/theo` is ruled. The tests behind this section are tests/colors.test.tsx and tests/test-380-decisions.cjs.

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "builder": "scripts/build-mos-face.cjs",
-  "sourceHash": "6a2a5a624ab319c0f6c3912b093fcdf0739fa00852831f0fd1904fa728678edd",
+  "sourceHash": "ce278dc654423efcb0bcdde5206815a48c0c0b5aa4a3aba5928a237b3f1d69b7",
   "typescript": "7.0.2",
   "importRewrite": false,
   "files": {
@@ -12,6 +12,7 @@
     "commands.js": "2858c64649279f36db2237c44328c847da5490777c84e483030cb2eab03acb63",
     "face-events.js": "72d6c439025f2f45072b2467b358957d4e4b9f335f105a661c90834c35d8f3a4",
     "face.js": "977094d2695555f616e8b93019e3229fe7477999d417d7f81081d8d955d5e4e1",
+    "gauge.js": "6776c11204da079aa904640c1601cfb16d2e34dbb2af680df94479550218913c",
     "glossary.js": "b01a70f822fb789f3ac00ae7c98a8cba831a37c3078fdd20d7022435bada851e",
     "job.js": "0db0f6aaa6fda3ad42bcc1d95d7dd6cc5e486710bc8269c68474ee9a870c0150",
     "jobs.js": "91b974a8e81331d20c197d6dac7868d69061f0ea7ba0299a83acee9ceee4e10f",
@@ -20,7 +21,7 @@
     "paths.js": "a91e6a298d8e13c67ba930dd7792f7af88cc67478333b03e241cd9e396342da8",
     "probe.js": "1d7fc722890d2307a39cd6277380f79e9bab5f4dcc85c9d9062ebcfe045f34c9",
     "proposals.js": "72f7c24a7c7a31de997ededdb477f8b7483bcec62590133ac5b13f8dc0372222",
-    "register.js": "fba8f19325a34b211c979d700fe35e66b549abd2b954055c96dfaf6682e7ddec",
+    "register.js": "6693ce3016156c8457a789e4adf466b7c2b206d52b948e3920ca58fd355a38de",
     "sent.js": "cd01f3033aad60742d5d8c6da26b8aef687ef98321e6b8bdd1c98102bec79dff",
     "source.js": "88014b29403578970ad917de9938266de8eaefe469e3369c021047b10f9802fa",
     "status.js": "ea4f128f0db1dc8250c12f430c8a7f91d54b9493b420aa494474ccda0c5bac90",
