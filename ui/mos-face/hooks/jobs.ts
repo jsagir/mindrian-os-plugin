@@ -115,7 +115,7 @@ export const JOBS: readonly Job[] = [
   },
   {
     "id": "connect-domains",
-    "want": "find cross-domain analogues - what does this look like in another field?",
+    "want": "find cross-domain analogues - what does this look like in another field",
     "cues": [
       "analogous",
       "similar to",

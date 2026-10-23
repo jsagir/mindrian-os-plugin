@@ -9,7 +9,7 @@
 // Legs:
 //   T1  the taxonomy holds 13 jobs and hooks/jobs.ts holds the same 13, in order, with the same
 //       id, want and cues (the want is the one-line with its first letter lowered and its final
-//       full stop removed), and explore is flagged never shown.
+//       stop mark removed), and explore is flagged never shown.
 //   T2  every job has an outcome clause: plain words, no stop mark, no stack word, no dash.
 //   T3  every sentence the line can build ("When I am ..., I want to ..., so that ...") passes the
 //       copy scan, including the words validated, confirmed and proven.
@@ -82,7 +82,7 @@ if (jobs) {
   const same = taxonomy.every((entry, i) => {
     const row = jobs[i];
     return row && row.id === entry.id
-      && row.want === lowerFirst(String(entry.one_line).trim().replace(/\.$/, ''))
+      && row.want === lowerFirst(String(entry.one_line).trim().replace(/[.?!]$/, ''))
       && JSON.stringify(row.cues) === JSON.stringify(entry.cues);
   });
   check(same, 'T1 id, want and cues equal the taxonomy, in order');
@@ -117,6 +117,7 @@ if (jobs) {
         if (found.length > 0) hits.push(row.id + ': ' + found.join(', '));
         if (!/^When I am .+, I want to .+, so that .+\.$/.test(sentence)) hits.push(row.id + ': form');
         if (sentence.indexOf('.') !== sentence.length - 1) hits.push(row.id + ': more than one sentence');
+        if (/[?!]/.test(sentence)) hits.push(row.id + ': a question or exclamation mark inside the sentence');
       }
     }
   }

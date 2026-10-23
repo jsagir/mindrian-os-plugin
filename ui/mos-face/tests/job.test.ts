@@ -100,6 +100,8 @@ test('J1 form: all 13 jobs give one whole sentence "When I am ..., I want to ...
     expect(withSection.endsWith('.')).toBe(true)
     // One sentence: the only full stop is the last character.
     expect(withSection.indexOf('.')).toBe(withSection.length - 1)
+    // No question or exclamation mark inside the sentence (the book review found "field?." at plan 14).
+    expect(/[?!]/.test(withSection)).toBe(false)
 
     const noSection = jobStatement({ id: job.id, stage: 'Design', section: '' })
     expect(`${job.id} ${FORM.test(noSection)}`).toBe(`${job.id} true`)
@@ -115,6 +117,7 @@ test('J1 the want clause is the taxonomy one-line with its first letter lowered 
   expect(want('decide-pursue')).toBe('decide if a venture / opportunity / approach is worth pursuing')
   for (const job of JOBS) {
     expect(job.want.endsWith('.')).toBe(false)
+    expect(/[?!]$/.test(job.want)).toBe(false)
     expect(job.want.charAt(0)).toBe(job.want.charAt(0).toLowerCase())
   }
 })

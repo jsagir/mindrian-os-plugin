@@ -7,7 +7,9 @@
 // clause for each job (the "so that" part), because the plugin has no such text.
 //
 // Source of the table: lib/hmi/jtbd-taxonomy.json (entries[].id, one_line, cues).
-//   want  = one_line with its first letter lowered and its final full stop removed.
+//   want  = one_line with its first letter lowered and its final stop mark (full stop, question mark
+//           or exclamation mark) removed. The book review of plan 380-14 found "...another field?." in the
+//           sentence when only the full stop was removed.
 //   cues  = the cues as they stand (the classifier lowercases them when it matches).
 //   outcome = the reviewed map OUTCOMES below. Each clause finishes the sentence "so that ...".
 //   shown = false for explore only: the plugin's steady state is not a job to show.
@@ -98,7 +100,7 @@ function lowerFirst(text) {
 }
 
 function wantOf(oneLine) {
-  return lowerFirst(String(oneLine).trim().replace(/\.$/, ''));
+  return lowerFirst(String(oneLine).trim().replace(/[.?!]$/, ''));
 }
 
 function readTaxonomy(file) {
