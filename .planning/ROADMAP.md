@@ -3763,14 +3763,17 @@ Plans:
 
 - [ ] 379.1.1-05-PLAN.md - freshness rule fix (a release is two betas) and the ICM eval re-run through Jev
 
-**Wave 4** *(blocked on Wave 3; every plan here stops at a human or peer checkpoint)*
+**Wave 4** *(blocked on Wave 3; each plan stops at a human or peer checkpoint)*
 
-- [ ] 379.1.1-06-PLAN.md - reconcile feat/eureka-adapter-rebased with main by one merge (human and Codex peer gate)
 - [ ] 379.1.1-07-PLAN.md - website bump to beta.73 in a temporary worktree (peer gate)
 - [ ] 379.1.1-08-PLAN.md - key-holder announcement decision, send or skip (human gate)
 - [ ] 379.1.1-09-PLAN.md - Windows host checks sheet and result (human gate)
 
-**Wave 5** *(blocked on Wave 4)*
+**Wave 5** *(blocked on Wave 4; runs alone so the merge sees a clean tree)*
+
+- [ ] 379.1.1-06-PLAN.md - reconcile feat/eureka-adapter-rebased with main by one merge (human and Codex peer gate)
+
+**Wave 6** *(blocked on Wave 5)*
 
 - [ ] 379.1.1-10-PLAN.md - ledger current, real-room report for the final HEAD, receipt signed by a person (human gate)
 
