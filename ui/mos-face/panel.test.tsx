@@ -370,7 +370,7 @@ test('a click asks Larry to think it through for this room, not just to run a co
   expect(text).toContain('Why does it keep breaking?')
   expect(text).toContain('why does this fit my situation right now')
   expect(text).toContain('I will run /mos:root-cause')
-  expect(text).not.toContain('—')
+  expect(text).not.toContain('\u2014')
 })
 
 test('the status line is the NOW line in one breath, and says nothing when all is quiet', async ($, on) => {
@@ -569,7 +569,7 @@ test('/mos-text prints the whole state as plain linear text: words only, same fa
   expect(text).toContain('A count is not a verdict')
   expect(text).toContain('GRAPH (structure): 60 nodes')
   expect(text).not.toMatch(/[▌▸▾◆⚠▀]/)
-  expect(text).not.toContain('—')
+  expect(text).not.toContain('\u2014')
 })
 
 test('a tool the permission mode refused is not asked again, and the panel says what it could not read', async ($, on) => {
