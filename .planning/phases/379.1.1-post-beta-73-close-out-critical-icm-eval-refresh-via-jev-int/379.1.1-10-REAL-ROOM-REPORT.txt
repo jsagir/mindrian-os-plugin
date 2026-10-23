@@ -1,0 +1,133 @@
+Report for HEAD 9de82a0f87bce50b38300446ae64b1a5f0216dc3
+[real-room-run] providers
+[real-room-run] birthing the fixture room
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+[real-room-run] quick
+[real-room-run] deep
+[real-room-run] eureka
+[real-room-run] analogies
+[real-room-run] bottlenecks
+[real-room-run] hsi
+[real-room-run] connections
+[real-room-run] whitespace
+[real-room-run] feyminto
+[real-room-run] negative leg
+[real-room-run] large room leg
+[room-birth] FeyMinto faces written for 11 sections; Theo not asked (the room was just created)
+REAL-ROOM RELEASE RUN
+  commit:   9de82a0f87bce50b38300446ae64b1a5f0216dc3  (version 2.0.0-beta.74)
+  rooms:    1 (tests/fixtures/release-room)
+  mode:     dry: web lines NOT approved, nothing sent
+  tavily:   absent  (no TAVILY_API_KEY in the environment or ~/.mindrian.env; the research planner's own search lines go to OpenAlex, so this run does not depend on it)
+  openalex: reachable
+
+ROOM 1 of 1: Lisbon Cold Locker (release fixture) (tests/fixtures/release-room)
+  room:     release-fixture-9de82a0f (born through the room chokepoint; registered: yes)
+  seeded:   5 artifacts indexed, 5 entities, 5 typed claims, 12 entity links
+  Confirmed claims: 1 of 6 typed claims; other confirmed nodes: 44 (Section: 11, governing_thought: 1, memory_artifact: 27, memory_event: 4, navigator_persona: 1).
+
+== Quick research ==
+  It tried:  one grant-gated run of the room's question, with these searches, sent exactly as written:
+               "solar-powered cold storage for market produce"
+               "solar-powered cold storage for market produce" AND (review OR survey OR "systematic review")
+               "solar-powered cold storage for market produce" OR "off-grid cold room for produce" OR "evaporative cooling for fresh produce"
+  It got:    not approved (dry) - no --read-by, so the grant was not approved and nothing was sent. 0 evidence rows; 0 of 3 searches executed.
+  lane openalex: provider absent (grant not approved, dry run)
+  It could not: reach the web without the grant and the reader; check what the papers actually say (that is the reader's job).
+
+== Deep research ==
+  It tried:  a plan review, then fetch rounds up to the planner's own cap, a counterevidence round and a synthesis, over 6 planned searches:
+               "solar-powered cold storage for produce"
+               "small solar-powered cold cabinet performance"
+               "produce spoilage at farmers markets" AND (alternative OR substitute)
+               "cold chain requirements for market stalls" AND (alternative OR substitute)
+               "postharvest loss causes small growers"
+               "postharvest loss causes small growers" AND (success OR adoption OR "case study")
+  It got:    not approved (dry) - no --read-by, so the plan review was not approved and nothing was sent. Lanes planned 3, ran 0, empty 0, unavailable 0; 0 evidence rows; counterevidence 0 of 0 searches executed; synthesis not run.
+  lane mu-verify: provider absent (plan review not approved, dry run)
+  lane mu-blind_spot: provider absent (plan review not approved, dry run)
+  lane mu-reveal: provider absent (plan review not approved, dry run)
+  It could not: judge the evidence. The rows here were written by this harness from the titles of what came back, a mechanical stand-in for the analyst lane, so this run checks the machinery, not the research.
+
+== Eureka ==
+  It tried:  to find cross-section pairs the room does not already connect, from the room's own graph (local, no model, no network).
+  It got:    ran. 8 candidate pairs from 10 things; 4 already-known pairs excluded; 8 passed the entity gate; 0 judged by a model.
+  lane shared_entity: ran (5 pairs)
+  lane lexical: ran (1 pairs)
+  lane icm_declared: ran (8 pairs)
+  pair: "Solar cold locker" with "Termite mound ventilation, encoded for transfer" (solution-design and strategy; shared: thermal buffer, passive airflow, steady inner temperature)
+  pair: "Ice and van incumbents" with "Solar cold locker" (competitive-analysis and solution-design; shared: produce cooling)
+  pair: "Ice and van incumbents" with "Stall holder segments" (competitive-analysis and market-analysis; shared: Lisbon farmers markets)
+  It could not: No model judged these pairs: the judge line is off by this room's policy. Read the pairs that passed and judge them yourself.
+
+== Analogies ==
+  It tried:  to find pairs that share structure without sharing words (a shared entity and low word overlap), from the same graph.
+  It got:    ran. 5 pairs, of which 5 carry a structural signal.
+  lane structural: ran (5 pairs)
+  lane icm_declared: empty
+  pair: "Solar cold locker" with "Termite mound ventilation, encoded for transfer" (solution-design and strategy; shared: thermal buffer, passive airflow, steady inner temperature)
+  pair: "Ice and van incumbents" with "Spoilage before the stall" (competitive-analysis and problem-definition; shared: produce cooling, Lisbon farmers markets)
+  pair: "Ice and van incumbents" with "Stall holder segments" (competitive-analysis and market-analysis; shared: Lisbon farmers markets)
+  It could not: fill the SAPPhIRE statement - the SAPPhIRE statement slots are filled by the host model at the statement stage, never by recall.
+
+== Bottlenecks ==
+  It tried:  to find the sections that lag the sections feeding them, and pair the things across that boundary, from the room's own graph and its declared feeds (local, no model, no network).
+  It got:    ran. 25 candidate pairs from 10 things; 0 already-known pairs excluded; 3 web search leaves in its plan.
+  lane flow_boundary: empty
+  lane icm_declared: ran (25 pairs)
+  lane support_gap: ran (13 pairs)
+  pair: "Produce loses most of its shelf life in the hours between picking and the first sale." with "Termite mound ventilation, encoded for transfer" (problem-definition and strategy)
+  pair: "A hot market Saturday raises the share of the table that wilts before the afternoon." with "Termite mound ventilation, encoded for transfer" (problem-definition and strategy)
+  It could not: judge which lagging section matters most, or search the web for them: it only plans the searches a person would approve.
+
+== HSI ==
+  It tried:  to find pairs of things whose structure matches while their words do not, and pairs that share words (the control), from the room's own graph (local, no model, no network).
+  It got:    ran. 28 candidate pairs from 10 things; 0 already-known pairs excluded; 3 web search leaves in its plan.
+  lane relational: ran (28 pairs)
+  lane lexical: ran (1 pairs)
+  pair: "Ice and van incumbents" with "Spoilage before the stall" (competitive-analysis and problem-definition; shared: Lisbon farmers markets, produce cooling)
+  pair: "Grower-sellers will rent cold storage by the day if the price stays under the cost of ice." with "A roof panel and a small battery can carry one locker through a cloudy winter day." (market-analysis and solution-design)
+  It could not: say whether a pair is a real match: a person reads the pairs and judges them.
+
+== Connections ==
+  It tried:  to find things in different sections that carry different canon frameworks, or the same framework, and so may connect, from the room's own graph (local, no model, no network).
+  It got:    empty. 0 candidate pairs from 10 things; 0 already-known pairs excluded; 0 web search leaves in its plan.
+  lane canon_pair: empty
+  lane framework_walk: empty
+  It could not: check a lateral path between two frameworks: that check runs later, as a search under an approved line to the Brain.
+
+== Whitespace ==
+  It tried:  to find empty ground: sections the room declares as related that nothing links, and things that border a marked zone, from the room's own graph (local, no model, no network).
+  It got:    ran. 7 candidate pairs from 10 things; 0 already-known pairs excluded; 0 web search leaves in its plan.
+  lane zone_border: empty
+  lane declared_unlinked: ran (7 pairs)
+  pair: "Ice and van incumbents" with "Stall holder segments" (competitive-analysis and market-analysis)
+  pair: "Ice and van incumbents" with "Solar cold locker" (competitive-analysis and solution-design)
+  It could not: prove the ground is empty: a zero from a search is not proof, so it only plans the checks.
+
+== FeyMinto ==
+  It tried:  to read, per nest, which frameworks, operations and /mos: commands Theo would suggest; no question was sent from this run.
+  problem-definition: not asked: no problem type or framework handle to send
+  market-analysis: not asked: no problem type or framework handle to send
+  solution-design: not asked: no problem type or framework handle to send
+  business-model: not asked: no problem type or framework handle to send
+  competitive-analysis: not asked: no problem type or framework handle to send
+  team-execution: not asked: no problem type or framework handle to send
+  legal-ip: not asked: no problem type or framework handle to send
+  financial-model: not asked: no problem type or framework handle to send
+  opportunity-bank: not asked: no problem type or framework handle to send
+  funding: not asked: no problem type or framework handle to send
+  strategy: not asked: no problem type or framework handle to send
+  It could not: tell whether a suggestion is right for this venture; nothing suggested here has run.
+
+== Negative leg: rooms that are not ready ==
+  It tried:  quick, deep, Eureka and analogies on the never-ready fixture with room.db missing, with room.db corrupted, and on a born room whose room.db was deleted and silently recreated empty.
+  It got:    refused 12 of 12 with a typed reason: room.db is missing (the room record was never created, or it was removed); room.db cannot be opened (it is damaged or is not a database); the room's graph was lost and recreated empty (the room record names an id that room.db no longer holds).
+  It could not: show anything about a room that has no usable record, which is the point.
+
+== Large room leg ==
+  It tried:  a generated room of 2105 artifacts: the drain worker, the scout, and a second copy with a scope declaration. Limits: clock 300000 ms, CPU 600000 ms, peak RSS 1024 MB.
+  It got:    drain timeout in 358345 ms, CPU 0 ms, peak RSS 0 MB; scout artifact_cap_exceeded in 1092 ms, CPU 276 ms, peak RSS 71.2 MB; scope: both walkers saw 5 and 5 artifacts and 2100 were excluded. Status: breach.
+  It could not: pass on drain.timeout.
+
+NO RECEIPT written (no --read-by). Read the report, then run: node scripts/real-room-run.cjs --read-by "<your name>"
