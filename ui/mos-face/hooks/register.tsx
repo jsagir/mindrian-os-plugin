@@ -9,13 +9,14 @@ import type {
   TheoStatus,
   TheoTotals,
 } from '../types'
-import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsFor, wordsStartOn, wordsTexts } from './advice'
+import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, wordsForNoted, wordsStartOn, wordsTexts } from './advice'
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
 import { FIX_COMMAND, compactJob, guessJob, jobLine, jobRows, jobShown, readJob } from './job'
 import { JOBS } from './jobs'
 import { workspaceOf } from './paths'
 import { PROPOSALS } from './proposals'
+import { noteOf, sentRow, sentText } from './sent'
 import {
   BLUE,
   INK,
@@ -507,10 +508,11 @@ const runAdvice = async ($: EngineInterface, force: boolean) => {
 
     lastAskAt = now
     autoInFlight = true
-    await update($, advice, a => ({ ...a, status: 'asking' as const }))
+    // The old sent line goes the moment a new ask starts (plan 380-16): it described an earlier ask.
+    await update($, advice, a => ({ ...a, status: 'asking' as const, sent: '', delivery: { kind: 'none' as const } }))
     try {
-      const words = (await read($, wordsOn)) ? wordsFor(handle.matched, recentUser, await knownNames($)) : ''
-      const result = await askTheo($, handle, turnsDone, seenFrameworks.slice(-6), words, seenCommands.slice(-6))
+      const noted = (await read($, wordsOn)) ? wordsForNoted(handle.matched, recentUser, await knownNames($)) : { text: '', left: [] }
+      const result = await askTheo($, handle, turnsDone, seenFrameworks.slice(-6), noted.text, seenCommands.slice(-6), PROPOSALS, noted.left)
       if (result.status === 'ok' && result.framework !== '') seenFrameworks = [...seenFrameworks, result.framework].slice(-8)
       if (result.status === 'ok') seenCommands = [...seenCommands, ...result.commands.slice(0, 1)].slice(-8)
       const because = repeats
@@ -1135,6 +1137,9 @@ export const register: Register = on => {
       $.ui.invalidate('ui.render')
     }
     const wordsShared = await read($, wordsOn)
+    // One honest sentence about what happened to the person's words, and at most one note (plan 380-16).
+    const sentLine = sentText(sentRow(next, wordsShared))
+    const failNote = noteOf(next, wordsShared, 'Theo could not be asked')
     const age = turnsDone - next.turn
     const isStale = next.status === 'ok' && age > 3
     const thinkNow = (command: string) =>
@@ -1300,22 +1305,13 @@ export const register: Register = on => {
             <Text {...soft}>click a number: a question about your case goes in the box, then Enter sends it. Run: the bare command</Text>
           </Box>
         )}
-        {(next.status === 'idle' || next.status === 'failed') && (
-          <Text {...soft}>{next.status === 'failed' ? next.note || 'Theo could not be asked' : 'Theo will suggest once the talk gives something to go on.'}</Text>
-        )}
+        {next.status === 'idle' && <Text {...soft}>Theo will suggest once the talk gives something to go on.</Text>}
+        {next.status === 'failed' && failNote !== '' && <Text {...soft}>{failNote}</Text>}
         <Box gap={1}>
           {knob('ask-now', 'Ask Theo now', () => runAdvice($, true))}
           {knob('words', wordsShared ? 'Words: shared' : 'Words: not shared', () => update($, wordsOn, v => !v))}
         </Box>
-        <Text {...soft}>
-          {wordsShared
-            ? next.sent !== ''
-              ? `Theo was sent: "${next.sent}"`
-              : next.status === 'ok' || next.status === 'failed'
-                ? 'Theo was sent only a framework name and a problem type this time'
-                : 'Theo is sent a short excerpt of your own words, links, paths and names removed'
-            : 'Theo is sent only a framework name and a problem type'}
-        </Text>
+        {sentLine !== '' && <Text {...soft}>{sentLine}</Text>}
         <Text {...ink}> </Text>
 
         {jrows

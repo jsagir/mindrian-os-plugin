@@ -205,7 +205,7 @@ export function jobRows(input: JobInput): JobRow[] {
 
   const id = jobShown(input.record, input.guess)
   const job = JOBS.find(one => one.id === id)
-  if (!job) return [{ kind: 'dim', text: fit('Job: no guess yet. Say a little more about what you are doing and one may come.') }]
+  if (!job) return [{ kind: 'dim', text: fit('Job: no guess yet. Say what you want to decide, test or find, in two different phrases, and one may come.') }]
 
   const manual = input.record !== null && input.record.id === id && input.record.manual
   const rows: JobRow[] = []

@@ -43,6 +43,25 @@ Before anything is sent, `sanitize` removes code, links, email addresses, file p
 - S2, proper names: each capitalized word that does not start a sentence, and each all-caps word of 2 letters or more. The words of the framework names and problem types, Theo, PWS, MindrianOS, the pronoun I, weekday and month names and the acronyms PWS JTBD SWOT PEST API AI UX MVP ROI KPI are kept.
 - S3, sentence starts: the first word of each sentence (start of text, after a full stop, a question mark, an exclamation mark or a line break) goes, unless it is a common word (COMMON_STARTS in advice.ts), a cue word of a framework rule (so Customers, Symptom or Blocked survive) or a framework word. "Acme is losing money" loses Acme. "We lost three deals" keeps We. A plain noun at the start of a sentence (Money) is removed too: that costs a little fit and never leaks.
 
+### Sent line
+
+Added in plan 380-16 (D-03, D-04; gaps G1 and G3 of the first real terminal run). One ask has one honest sentence about what happened to the person's words. The row under "Ask Theo now" is in one of these states:
+
+- sent: `Theo was sent: "..."`. A call that carried the words was answered.
+- may have been received: `A call to Theo failed on the way, so Theo may have received: "..."`. A call that carried the words failed. The note under the ask says `Theo did not answer`.
+- not asked: `Theo was not asked: the call was not allowed`, or `Theo was not asked: this session has no Theo tool to call`. Every call was refused or the tool is missing. No excerpt is shown, because none left.
+- handles only: `Theo was sent only a framework name and a problem type this time`. No words were due, or Words is off (`Theo is sent only a framework name and a problem type`).
+
+The sent line and the not-asked line never show together. A new ask clears the old row while it is in flight.
+
+When the words had a part removed, the row says what kind of thing, never the text: `(left out: a link, an email address, a file path, code, a key-like string, a long name, a name, the rest of a long message)`. The kinds come in that fixed order and each shows once. A removed part is named by its kind only.
+
+The text that goes on the wire did not change. `sanitize` is now the text of `sanitizeNoted`, which runs the same steps in the same order and also notes which step removed something. tests/sent.test.tsx S9 pins six texts to the output of the code before this plan.
+
+A tool that does not exist in the session makes the engine throw `no tool named "..." in this session` (measured, plan 380-16). The panel treats that call as never sent.
+
+Canon: mos-brand book e947a5d, segments/experience/terminal (status: proposed), "Rules that hold everywhere", "Side panel template" (One signal: a state is said once) and "Priority order" (honesty sits above usability and brand).
+
 ### Residual risk
 
 A name typed in lowercase in the middle of a sentence is not caught, unless it equals a known name (S1). A name in a script without capital letters is caught only by S1. The panel shows the excerpt in full and /mos-words turns it off. The plugin egress guard is a second line on the shim path; its effect on a call that a plugin module makes is UNVERIFIED (tests/test-380-egress.cjs prints what the guard says about the six question shapes).
@@ -136,7 +155,7 @@ The panel draws only in the Claude Code terminal. Desktop and Cowork get no pane
 
 Added in plan 380-14 (D-09, MOD380-08). The panel shows one Job line: what the person is probably trying to do, as one sentence in the jobs-to-be-done form the plugin already uses, "When I am in this situation, I want to do this, so that I get this." It sits in the side panel between NEXT and ASK. It is a guess, it is labelled a guess, and it sends nothing anywhere.
 
-What it shows. A heading (JOB, then "a guess, is this it?", or "set by you"), the sentence, and two buttons. For example: "When I am in the Design stage, I want to decide if a venture / opportunity / approach is worth pursuing, so that I can say go or no-go and write down my reason." Under 40 columns the line is one short row with the want clause only and the word guess kept. With no usable record and no cue match, one dim row says there is no guess yet; the line invents nothing.
+What it shows. A heading (JOB, then "a guess, is this it?", or "set by you"), the sentence, and two buttons. For example: "When I am in the Design stage, I want to decide if a venture / opportunity / approach is worth pursuing, so that I can say go or no-go and write down my reason." Under 40 columns the line is one short row with the want clause only and the word guess kept. With no usable record and no cue match, one dim row says there is no guess yet and what makes one: two different phrases of one job in your own words ("Job: no guess yet. Say what you want to decide, test or find, in two different phrases, and one may come."); the line invents nothing.
 
 Where each part comes from, in order:
 

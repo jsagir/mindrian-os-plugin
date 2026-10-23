@@ -3,7 +3,8 @@ import type { EngineInterface } from 'claude-code'
 import type { Advice } from '../types'
 import { WHY } from './commands'
 import { PROPOSALS } from './proposals'
-import type { RemovedKind } from './sent'
+import { REMOVED_KINDS, deliveryOf, excerptOf, failureNote, outcomeOf } from './sent'
+import type { Attempt, RawCall, RemovedKind } from './sent'
 import type { Proposals } from './proposals'
 
 // The panel asks Theo what to do next, every couple of turns.
@@ -183,47 +184,57 @@ export function stripNames(text: string, known: string[] = []): string {
   return replaced.replace(/\(a name\)(?:[\s-]*\(a name\))+/g, NAME)
 }
 
-// Strip what should never travel, then keep a short excerpt. known: the names this machine
+// Strip what should never travel, then keep a short excerpt, and note which kinds of thing were removed
+// (plan 380-16, D-03). The steps and their order are the ones sanitize always had, so the text is byte
+// for byte the same. The note holds only kinds, never the removed text. known: the names this machine
 // already knows (room slug, workspace and session folder), removed from the prose.
+export function sanitizeNoted(text: string, max = 240, known: string[] = []): { text: string; left: RemovedKind[] } {
+  const left = new Set<RemovedKind>()
+  const strip = (input: string, kind: RemovedKind, pattern: RegExp): string => {
+    const out = input.replace(pattern, ' ')
+    if (out !== input) left.add(kind)
+
+    return out
+  }
+  let cleaned = strip(text, 'code', /```[\s\S]*?```/g)
+  cleaned = strip(cleaned, 'code', /`[^`]*`/g)
+  cleaned = strip(cleaned, 'link', /https?:\/\/\S+/g)
+  cleaned = strip(cleaned, 'email', /[\w.+-]+@[\w-]+\.[\w.-]+/g)
+  cleaned = strip(cleaned, 'path', /(?:~|\/home|\/Users|\/tmp|[A-Za-z]:\\)[\w./\\~-]*/g)
+  cleaned = strip(cleaned, 'key', SECRET)
+  cleaned = strip(cleaned, 'long-name', /\b[A-Za-z0-9_-]{28,}\b/g)
+  const named = stripNames(cleaned, known)
+  if (named !== cleaned) left.add('name')
+  const spaced = named.replace(/["]/g, "'").replace(/\s+/g, ' ').trim()
+  if (spaced.length > max) left.add('cut')
+
+  return { text: clip(spaced, max), left: REMOVED_KINDS.filter(kind => left.has(kind)) }
+}
+
 export function sanitize(text: string, max = 240, known: string[] = []): string {
-  const cleaned = text
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/https?:\/\/\S+/g, ' ')
-    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, ' ')
-    .replace(/(?:~|\/home|\/Users|\/tmp|[A-Za-z]:\\)[\w./\\~-]*/g, ' ')
-    .replace(SECRET, ' ')
-    .replace(/\b[A-Za-z0-9_-]{28,}\b/g, ' ')
-
-  return clip(
-    stripNames(cleaned, known)
-      .replace(/["]/g, "'")
-      .replace(/\s+/g, ' ')
-      .trim(),
-    max,
-  )
-}
-
-// Plan 16 contract stub: sanitize with a note of what each step removed, and the words with that note.
-export function sanitizeNoted(_text: string, _max = 240, _known: string[] = []): { text: string; left: RemovedKind[] } {
-  throw new Error('not implemented')
-}
-
-export function wordsForNoted(_matched: string[], _messages: string[], _known: string[] = []): { text: string; left: RemovedKind[] } {
-  throw new Error('not implemented')
+  return sanitizeNoted(text, max, known).text
 }
 
 // The words worth sending: the newest sentence of the person's own that carries a
-// cue, else the newest substantial message. Never the assistant, never the room.
-export function wordsFor(matched: string[], messages: string[], known: string[] = []): string {
-  const cue = subjectOf(matched, messages)
-  if (cue !== '') return sanitize(cue, 240, known)
+// cue, else the newest substantial message. Never the assistant, never the room. The
+// left list names the kinds of thing removed on the way (plan 380-16).
+export function wordsForNoted(matched: string[], messages: string[], known: string[] = []): { text: string; left: RemovedKind[] } {
+  const cue = subjectOfNoted(matched, messages)
+  if (cue.text !== '') {
+    const noted = sanitizeNoted(cue.text, 240, known)
+
+    return { text: noted.text, left: REMOVED_KINDS.filter(kind => cue.left.includes(kind) || noted.left.includes(kind)) }
+  }
   for (let i = messages.length - 1; i >= 0; i--) {
-    const text = sanitize(messages[i] ?? '', 240, known)
-    if (text.length >= 20) return text
+    const noted = sanitizeNoted(messages[i] ?? '', 240, known)
+    if (noted.text.length >= 20) return noted
   }
 
-  return ''
+  return { text: '', left: [] }
+}
+
+export function wordsFor(matched: string[], messages: string[], known: string[] = []): string {
+  return wordsForNoted(matched, messages, known).text
 }
 
 type Option = { framework?: string; commands?: string[]; theo_rank?: number }
@@ -332,6 +343,12 @@ export function wordsTexts(isOn: boolean, proposals: Proposals = PROPOSALS): { a
       }
 }
 
+const textOf = (value: unknown): string => {
+  if (typeof value !== 'object' || value === null || !('text' in value)) return ''
+
+  return String(value.text ?? '')
+}
+
 export async function askTheo(
   $: Engine,
   h: Handle,
@@ -340,6 +357,7 @@ export async function askTheo(
   words = '',
   skipCommands: string[] = [],
   proposals: Proposals = PROPOSALS,
+  left: readonly RemovedKind[] = [],
 ): Promise<Advice> {
   const base: Advice = {
     status: 'failed',
@@ -358,74 +376,75 @@ export async function askTheo(
     note: '',
   }
 
-  // The excerpt counts as sent once a call that carried it was made and not denied. A call
-  // that failed after it left may still have delivered it, so a failure does not erase it.
-  let wentOut = ''
+  // Every call is classified (plan 380-16). What the panel says about the words comes from all of the
+  // calls together, never from one: a call that failed on the way may still have delivered them, a
+  // refused or missing call sent nothing, and an answered call that carried them sent them.
+  const attempts: Attempt[] = []
   for (const tool of TOOLS) {
     // The excerpt rides the guarded shim. The raw server gets it only when the proposal
     // shimOnlyExcerpt is off (the owner ruling as written).
     const carries = words !== '' && (tool === SHIM || !proposals.shimOnlyExcerpt)
     base.question = questionFor(h, carries ? words : '')
+    let raw: RawCall
     try {
-      const ran = await $.tool.call({ tool, question: base.question } as never)
-      const out = ran as { deny?: string; isError?: boolean; text?: string }
-      if (out.deny !== undefined) {
-        // A denied call sent nothing.
-        base.note = 'Theo was not asked: the call was not allowed'
-        continue
+      raw = { kind: 'returned', value: await $.tool.call({ tool, question: base.question } as never) }
+    } catch (error) {
+      raw = { kind: 'threw', message: error instanceof Error ? error.message : String(error) }
+    }
+    const outcome = outcomeOf(raw)
+    attempts.push({ outcome, carried: carries })
+    if (outcome.kind !== 'answered' || raw.kind !== 'returned') continue
+
+    const delivery = deliveryOf(attempts, words, left)
+    base.delivery = delivery
+    base.sent = excerptOf(delivery)
+    const parsed = parse(textOf(raw.value))
+    // Skip frameworks already shown; if Theo offers nothing else, say so plainly.
+    const fresh = parsed.options.filter(option => !avoid.includes(option.framework ?? ''))
+    const sameAgain = parsed.options.length > 0 && fresh.length === 0
+    const options = sameAgain ? parsed.options : fresh
+    const guided = parsed.guided
+    const commands: string[] = []
+    for (const option of options) {
+      for (const slug of option.commands ?? []) {
+        const command = `/mos:${slug}`
+        if (WHY[command] && !commands.includes(command)) commands.push(command)
       }
-      if (carries) wentOut = words
-      if (out.isError) {
-        base.note = 'Theo did not answer'
-        continue
-      }
-      const parsed = parse(String(out.text ?? ''))
-      // Skip frameworks already shown; if Theo offers nothing else, say so plainly.
-      const fresh = parsed.options.filter(option => !avoid.includes(option.framework ?? ''))
-      const sameAgain = parsed.options.length > 0 && fresh.length === 0
-      const options = sameAgain ? parsed.options : fresh
-      const guided = parsed.guided
-      const commands: string[] = []
-      for (const option of options) {
-        for (const slug of option.commands ?? []) {
-          const command = `/mos:${slug}`
-          if (WHY[command] && !commands.includes(command)) commands.push(command)
-        }
-      }
-      if (commands.length === 0) {
-        base.note = 'Theo answered, but named no command to use'
-        base.framework = options[0]?.framework ?? ''
-        base.guided = guided
-        base.status = 'ok'
-        base.sent = wentOut
-        return base
-      }
-      // The framework leads: commands from chapters its name found come first, then the
-      // problem-type chain, never repeating a command just shown. The search sends the
-      // framework name only.
-      const fromHandle = await searchChapters($, h, skipCommands)
-      const merged = [...fromHandle.map(p => p.command), ...commands.filter(c => !skipCommands.includes(c))]
-      const ordered = [...new Set(merged)]
-      const top = (ordered.length > 0 ? ordered : commands).slice(0, 3)
-      const led = fromHandle[0]
-      return {
-        ...base,
-        status: 'ok',
-        framework: led?.framework ?? options[0]?.framework ?? h.framework,
-        commands: top,
-        whys: top.map(command => WHY[command] ?? ''),
-        framings: [],
-        matched: [],
-        sent: wentOut,
-        guided,
-        note: led ? 'chosen from the framework' : sameAgain ? 'Theo suggested the same frameworks again, so the talk gives it nothing new to go on' : '',
-      }
-    } catch {
-      if (carries) wentOut = words
-      base.note = 'Theo could not be reached from here'
+    }
+    if (commands.length === 0) {
+      base.note = 'Theo answered, but named no command to use'
+      base.framework = options[0]?.framework ?? ''
+      base.guided = guided
+      base.status = 'ok'
+
+      return base
+    }
+    // The framework leads: commands from chapters its name found come first, then the
+    // problem-type chain, never repeating a command just shown. The search sends the
+    // framework name only.
+    const fromHandle = await searchChapters($, h, skipCommands)
+    const merged = [...fromHandle.map(p => p.command), ...commands.filter(c => !skipCommands.includes(c))]
+    const ordered = [...new Set(merged)]
+    const top = (ordered.length > 0 ? ordered : commands).slice(0, 3)
+    const led = fromHandle[0]
+
+    return {
+      ...base,
+      status: 'ok',
+      framework: led?.framework ?? options[0]?.framework ?? h.framework,
+      commands: top,
+      whys: top.map(command => WHY[command] ?? ''),
+      framings: [],
+      matched: [],
+      guided,
+      note: led ? 'chosen from the framework' : sameAgain ? 'Theo suggested the same frameworks again, so the talk gives it nothing new to go on' : '',
     }
   }
-  base.sent = wentOut
+
+  const delivery = deliveryOf(attempts, words, left)
+  base.delivery = delivery
+  base.sent = excerptOf(delivery)
+  base.note = failureNote(attempts, delivery)
 
   return base
 }
@@ -436,13 +455,20 @@ export async function askTheo(
 // This stays on this machine: it fills the person's own box and is never sent
 // anywhere until they press Enter.
 
-function clean(text: string): string {
-  return text
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`[^`]*`/g, ' ')
-    .replace(/https?:\/\/\S+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+// The same cleaning, with the kinds it removed.
+function cleanNoted(text: string): { text: string; left: RemovedKind[] } {
+  const left: RemovedKind[] = []
+  const strip = (input: string, kind: RemovedKind, pattern: RegExp): string => {
+    const out = input.replace(pattern, ' ')
+    if (out !== input) left.push(kind)
+
+    return out
+  }
+  let out = strip(text, 'code', /```[\s\S]*?```/g)
+  out = strip(out, 'code', /`[^`]*`/g)
+  out = strip(out, 'link', /https?:\/\/\S+/g)
+
+  return { text: out.replace(/\s+/g, ' ').trim(), left }
 }
 
 function clip(text: string, max: number): string {
@@ -455,18 +481,22 @@ function clip(text: string, max: number): string {
 
 // The newest sentence the person said that carries one of the cue words that
 // chose this advice. Only a sentence with a cue counts: an old, unrelated line
-// is never a subject, and with no cue there is no subject at all.
-export function subjectOf(matched: string[], messages: string[]): string {
-  if (matched.length === 0) return ''
+// is never a subject, and with no cue there is no subject at all. The left list names
+// what the cleaning and the clip took out of the message on the way.
+export function subjectOfNoted(matched: string[], messages: string[]): { text: string; left: RemovedKind[] } {
+  if (matched.length === 0) return { text: '', left: [] }
   for (let i = messages.length - 1; i >= 0; i--) {
-    const sentences = clean(messages[i] ?? '')
-      .split(/(?<=[.!?])\s+/)
-      .filter(one => one.length >= 12)
+    const cleaned = cleanNoted(messages[i] ?? '')
+    const sentences = cleaned.text.split(/(?<=[.!?])\s+/).filter(one => one.length >= 12)
     const hit = sentences.find(one => matched.some(word => one.toLowerCase().includes(word)))
-    if (hit) return clip(hit, 120)
+    if (hit) return { text: clip(hit, 120), left: hit.length > 120 ? [...cleaned.left, 'cut'] : cleaned.left }
   }
 
-  return ''
+  return { text: '', left: [] }
+}
+
+export function subjectOf(matched: string[], messages: string[]): string {
+  return subjectOfNoted(matched, messages).text
 }
 
 export function frameFor(command: string, matched: string[], messages: string[]): string {
