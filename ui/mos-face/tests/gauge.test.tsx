@@ -60,6 +60,16 @@ test('G-1 idle wide: exactly one row says "Context gauge: waiting for the first 
   await ui.unmount()
 })
 
+test('G-1 idle standard: at 44 columns the boxes are drawn and exactly one row says "Context gauge: waiting for the first reply"', async ($, on) => {
+  const ui = await open($, on, null, 44)
+  const texts = await textsOf(ui)
+
+  expect(texts.filter(text => text === IDLE_BOXES)).toHaveLength(1)
+  expect((await canvasRows(ui)).length).toBeGreaterThanOrEqual(4)
+  expect(texts.filter(text => /waiting/.test(text))).toHaveLength(1)
+  await ui.unmount()
+})
+
 test('G-2 idle narrow: at 35 columns exactly one row says "Context: waiting for the first reply", with no canvas rows and no text bar', async ($, on) => {
   const ui = await open($, on, null, NARROW)
   const texts = await textsOf(ui)
