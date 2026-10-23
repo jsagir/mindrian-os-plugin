@@ -266,6 +266,81 @@ scenario('P10 scrub replaces the home path with HOME', () => {
   assert.ok(s.includes('HOME/x'));
 });
 
+// P11 and P12 (plan 380-15, D-08): --session-home, the status line fixture home.
+function readerReport(home, room) {
+  // The plugin's own readers, run with HOME set to the scratch home: the files are in the formats they accept.
+  const code = [
+    "const r = (p) => require(require('node:path').join(process.argv[1], p));",
+    "const out = {",
+    "  next: r('lib/statusline/next-move-cache.cjs').readNextMove(),",
+    "  stance: r('lib/core/stance-state.cjs').readStance(),",
+    "  health: r('lib/statusline/cockpit-signals.cjs').readHealthStatus(),",
+    "  glyph: r('lib/statusline/cockpit-signals.cjs').readVoiceGlyph(),",
+    "  update: r('lib/statusline/version-resolver.cjs').resolveVersion().update_available_version,",
+    "  operator: r('lib/conversation/operator.cjs').getCurrent(process.argv[2]).current,",
+    "  job: (r('lib/hmi/jtbd-state.cjs').getCurrent(process.argv[2]) || {}).jtbd,",
+    "};",
+    "process.stdout.write(JSON.stringify(out));",
+  ].join('\n');
+  const r = spawnSync(process.execPath, ['-e', code, REPO, room], { encoding: 'utf8', env: Object.assign({}, process.env, { HOME: home, USERPROFILE: home }) });
+  return JSON.parse(r.stdout);
+}
+
+scenario('P11 session home: the fixture files are in the formats the plugin readers accept, and every file is inside the scratch home', () => {
+  needTs();
+  const root = mktemp('p11');
+  const fx = ts.buildStatusFixture(root);
+  const got = readerReport(fx.home, fx.room);
+  assert.strictEqual(got.next, 'map unknowns');
+  assert.strictEqual(got.stance, 'redteam');
+  assert.strictEqual(got.health, 'sound');
+  assert.ok(typeof got.glyph === 'string' && got.glyph.length > 0, 'a voice glyph is read');
+  assert.strictEqual(got.update, '9.9.9');
+  assert.strictEqual(got.operator, 'BUILD_ROOM');
+  assert.strictEqual(got.job, 'find-bottleneck');
+  const all = [];
+  (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const a = path.join(d, e.name); if (e.isDirectory()) walk(a); else all.push(a); } })(root);
+  assert.ok(all.length >= 12, 'files written: ' + all.length);
+  for (const f of all) assert.ok(f.startsWith(root + path.sep), f + ' is inside ' + root);
+});
+
+scenario('P11b session home: the home folder of the running process and a room outside the scratch home are refused, with nothing written', () => {
+  needTs();
+  // The "real home" is played by a scratch folder: the child process has HOME set to it, so if the guard
+  // ever failed, the fixture would land in that scratch folder and never in the person's own home.
+  const pretendReal = mktemp('p11b-real');
+  const code = [
+    'const T = require(process.argv[1]);',
+    "let msg = 'no error';",
+    "try { T.writeStatusFiles({ homeDir: process.argv[2], roomDir: process.argv[2] + '/MindrianRooms/demo-room' }); } catch (e) { msg = e.message; }",
+    'process.stdout.write(msg);',
+  ].join('\n');
+  const r = spawnSync(process.execPath, ['-e', code, TMUX_PATH, pretendReal], { encoding: 'utf8', env: Object.assign({}, process.env, { HOME: pretendReal, USERPROFILE: pretendReal }) });
+  assert.ok(/real home/.test(r.stdout), 'the process home is refused: ' + r.stdout);
+  assert.deepStrictEqual(fs.readdirSync(pretendReal), [], 'nothing was written');
+  const scratch = mktemp('p11b');
+  assert.throws(() => ts.writeStatusFiles({ homeDir: scratch, roomDir: path.join(os.tmpdir(), 'elsewhere-room') }), /not inside the scratch home/);
+  assert.deepStrictEqual(fs.readdirSync(scratch), []);
+});
+
+scenario('P11c session home: the option is in the help, and it is refused with the real config', () => {
+  const help = spawnSync(process.execPath, [CLI_PATH, '--help'], { encoding: 'utf8' });
+  assert.ok(help.stdout.includes('--session-home'));
+  const bad = spawnSync(process.execPath, [CLI_PATH, '--session-home', '--config', 'real', '--plugin', 'x', '--out', mktemp('p11c')], { encoding: 'utf8' });
+  assert.strictEqual(bad.status, 2);
+  assert.ok(/never into the real one/.test(bad.stderr));
+});
+
+scenario('P11d session home: a health, post-update and operator variant also reads back (the drift and restart states)', () => {
+  needTs();
+  const fx = ts.buildStatusFixture(mktemp('p11d'), { health: 'drift', postUpdate: true, operator: 'DECISION_GATE', stance: 'ask' });
+  const got = readerReport(fx.home, fx.room);
+  assert.strictEqual(got.health, 'drift');
+  assert.strictEqual(got.operator, 'DECISION_GATE');
+  assert.strictEqual(got.stance, 'ask');
+  assert.ok(fs.existsSync(path.join(fx.home, '.mindrian', 'post-update-restart-pending')));
+});
+
 // ---- S1: the real self-test (tmux, a fixed ANSI program, Playwright) -------------------------
 
 function onPath(bin) {
@@ -343,6 +418,22 @@ function selfTest() {
       assert.ok(Array.isArray(s.envNames));
     }
   });
+  // S2 (plan 380-15): the same fixed program under --session-home. The program lists the scratch HOME,
+  // so the files are proven to sit in the home the session sees, and nothing is read from the real one.
+  {
+    const out2 = mktemp('s2');
+    const prog = path.join(mktemp('prog2'), 'home.sh');
+    fs.writeFileSync(prog, 'echo "HOMEROOT $HOME"\nls "$HOME/.mindrian" | sed "s/^/MIND /"\ncat "$HOME/.mindrian/next-move.json"\nsleep 20\n');
+    const r2 = spawnSync('node', [CLI_PATH, '--plugin', path.join(REPO, 'ui', 'mos-face'), '--out', out2, '--scenarios', 'std', '--program', 'sh ' + prog, '--wait-text', 'map unknowns', '--session-home', '--settle-ms', '800'], { encoding: 'utf8', timeout: 180000 });
+    scenario('S2 --session-home: the session sees the status files in its own scratch HOME', () => {
+      assert.strictEqual(r2.status, 0, 'exit ' + r2.status + '\n' + r2.stdout + r2.stderr);
+      const txt = fs.readFileSync(path.join(out2, 'std.txt'), 'utf8');
+      for (const w of ['MIND next-move.json', 'MIND room-health.json', 'MIND stance-state.json', 'MIND update-check.json', 'MIND install-state.json', 'map unknowns']) assert.ok(txt.includes(w), 'the screen holds ' + w);
+      const idx = JSON.parse(fs.readFileSync(path.join(out2, 'index.json'), 'utf8'));
+      assert.ok(idx.scenarios[0].sessionHome.includes('.mindrian/next-move.json'));
+      assert.ok(idx.scenarios[0].sessionHome.some((f) => /conversation-operator\.json$/.test(f)));
+    });
+  }
   if (process.env.MOS_SHOTS_KEEP) {
     process.stdout.write('  kept S1 output in ' + out + '\n');
     tmpDirs.splice(tmpDirs.indexOf(out), 1);

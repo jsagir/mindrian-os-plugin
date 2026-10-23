@@ -80,6 +80,7 @@ prompt.submit and turn.start do no file, tool, network or process work and never
 | Tick of the panel | every 120 seconds | B3 |
 | Tool reads on a tick | at most 4 | B3 |
 | File reads of the Job line on a tick | exactly 1 (the room's job state file, cut off after 4 seconds); none at prompt time | J9 |
+| File reads of the status line files on a tick | 8 (the 7 status line files and the room health file, started together, one cut-off of 4 seconds; the mode file only when a room is read); none at prompt time; no tool, fetch or process added | B9 |
 | Subprocesses | 0 | B1, G1 |
 | Network fetches on an ordinary tick | 0 | B3 |
 | Reach checks (Theo health, the website) | every 600 seconds, started together, each cut off after 4 seconds with no status | B3, B4 |
@@ -180,6 +181,58 @@ The 13 outcome clauses, for the navigator to read. The want text is the plugin t
 | file-meeting | capture and route meeting intelligence into the room | I can see what the meeting changes in my data room | yes |
 | audit-room | audit Data Room health - gaps, drift, evidence tier, decision quality | I know where my data room is thin or out of step | yes |
 | explore | no specific job - general thinking, talking, ranging | I notice what is worth following | never shown |
+
+## Status parity
+
+Added in plan 380-15 (D-08, MOD380-07). The panel keeps what the plugin status line prints, and adds the room and filing facts, from the same local files. Nothing new is sent anywhere and nothing new is read at prompt time.
+
+Where the list comes from. `tests/test-380-status-parity.cjs` builds the list of status line fields from the status line's own code: the keys of `collectSignals` (lib/statusline/cockpit-signals.cjs), the keys and assignments of `rowState` and the segments written by scripts/context-monitor, and the focus segment of scripts/statusline-mos. Every name must be a key of `STATUS_FIELDS` or an entry of `EXCLUDED` in `hooks/status.ts` (with a reason). A field added to the status line later fails the test until it is mapped. The segments mintoSeg and dialSeg are built into `roomInfo`, which is never written, so they are dormant and are not fields (the test checks that).
+
+| Status line field | Source (local file or host) | Panel field | Wide label | Narrow label | Shown when |
+|-------------------|-----------------------------|-------------|------------|--------------|------------|
+| room, stage | STATE.md of the room read (tools, else files) | ROOM | ROOM | ROOM | always; not read when no room was read |
+| section | the sections table of STATE.md | FILED | FILED | FILED | always (entries in N sections); not read when no room was read |
+| health | ~/.mindrian/room-health.json | HEALTH | HEALTH | HEALTH | always; not read when the file is missing or damaged |
+| post_update | ~/.mindrian/post-update-restart-pending | NOW | NOW | NOW | when the file exists: NOW says a restart is pending and names /mos:doctor --fix, and HEALTH reads drift |
+| ctx_pct | the host's context usage | Context | Context | CTX | when the host gives a usage (waiting before that); words ok, watch or cliff, and a text bar when narrow |
+| next_move | ~/.mindrian/next-move.json, then the recorded job | NEXT MOVE | NEXT MOVE | MOVE | always: Theo's first command when fresh, else the routed move, else the recorded job id, else "none yet" (the status line's two hyphens, said in words) |
+| brain | ~/.mindrian/bridge/brain-health.json, then the reach check | THEO | THEO | THEO | always: on, off, or not read |
+| voice_glyph, who, agent_label, voice_switched, switch_direction | ~/.mindrian/voice-mark.json | SPEAKS | SPEAKS | VOICE | when the file says something: who speaks (Theo, or Claude when the file says the host spoke) and the move of the mark, or that the voice just switched |
+| stance, stance_forced_color | ~/.mindrian/stance-state.json | STANCE | STANCE | STANCE | when a stance is set |
+| jtbd | the room's jtbd-state.json (plan 380-14) | JOB | JOB | JOB | the Job block of plan 14 (a guess, or set by you) |
+| operator | the room's conversation-operator.json | MODE | MODE | MODE | when the mode is not just talk (the status line hides the default too) |
+| version, update_available | ~/.mindrian/install-state.json, ~/.mindrian/update-check.json | VERSION | VERSION | VER | always; names an available update when it differs from the running version |
+
+Panel-only facts (the status line has no such field): STALE, the sections whose reasoning is older than their files (nothing when none, not read when no room was read), and WRITES TO (plan 05, already in the panel).
+
+Two fields are excluded, each with a reason that the executor checked:
+
+- focus: scripts/statusline-mos prints it only when a bash variable session_id is set, and no script in scripts/ sets that variable, so the segment is dormant (test P11). Its source is the room database, which the panel no longer opens (plan 05 removed the subprocess), and the one tool that reads it would add a fifth tool read to each tick.
+- governing_thought: the last leg of the status line's Next move. It needs the active section and its reasoning file, a second read tree, and it would pass the budget of 8 local reads for each tick. The panel's NEXT MOVE goes routed move, recorded job, then "none yet". The plan named only focus; this second exclusion was found when the field list was built from the code.
+
+What the panel adds to the status line: the status line changes shape by state (at drift, broken, a pending restart or the context cliff it replaces Next, the Theo chip and the stance chip with one fix). The panel keeps every field in every state: the fix is a row in NOW with its button, and the rest stay as rows. The status line prints the host agent's name (agent_label) from stdin; a mod cannot read it, so SPEAKS uses the voice file's own who. The status line also trusts any recorded job, where the Job block ignores an automatic job older than 24 hours (plan 14).
+
+Order and one signal. The terminal side-panel template (mos-brand book e947a5d, segments/experience/terminal, proposed) says: order decisions first (where this session writes, what is wrong now, what to do next), then ask about the work, folded details last; a state is said once in the panel. The panel follows it: WRITES TO and the room facts, NOW, NEXT and the NEXT MOVE row, JOB, the plugin facts (THEO, SPEAKS, STANCE, MODE, VERSION), ASK, then the folded blocks. Each state word is in one text row (test P7); NOW says what to do about a problem and names no state word that a field row already says (for example the room check problem says "found a problem", and HEALTH says drift). The context meter keeps its place at the top beside its canvas (the template's width ladder puts the face tile and the context canvas first, and a colored plane always carries its words); this is the one place the order differs from a list that puts context with the plugin facts.
+
+The template's Status line row says "Context, stage and version stay on the plugin line". The navigator's ruling D-08 (2026-10-23) governs this panel instead: the panel carries context, stage and version. The pinned line under the prompt box stays as the template says (the NOW line in one breath). The book is silent on the panel carrying parity fields, so plan 380-11 proposes a book follow-up (A6) for the row.
+
+Width ladder. At 50 columns or more the wide labels; at 40 to 49 the wide labels with a smaller tile; under 40 columns and in plain mode the narrow labels and a text bar for the context, and every field stays; under 30 columns the one message. No field is dropped at any width (test P4 at 56, 44 and 35 columns, and P11 in plain mode).
+
+Budget. Each tick reads 8 small files started together under one cut-off of 4 seconds: next-move.json, brain-health.json, post-update-restart-pending, voice-mark.json, stance-state.json, update-check.json and room-health.json from the .mindrian folder of the home folder, and the room's conversation-operator.json. A missing or damaged file gives null, never a guessed value. Nothing is read in prompt.submit or turn.start, no tool, fetch, process or timer is added, and no value of these files is sent anywhere (tests B9, P14).
+
+Panel height. The panel scrolls; the height below is the number of rows of the drawing, computed from the draw tree with the wrap of each text counted (the computation matched the real capture at 46 columns row for row, and the capture shows JOB on row 33). It is an estimate (about 2 rows either way), not a screen measurement, for 56 and 35 columns, because the real dock is 46 columns wide.
+
+| Panel width | Rows, every optional row set | Rows, no optional row set | Rows added by this plan |
+|-------------|------------------------------|---------------------------|-------------------------|
+| 56 columns (wide, tile 12) | about 52 | about 47 | 5 to 10 |
+| 44 columns (standard, tile 8) | about 54 | about 48 | 5 to 10 |
+| 35 columns (narrow, words and text bar) | about 50 | about 44 | 5 to 10 |
+
+The Job sentence alone is 3 rows at 56 columns, 4 at 44 and 3 at 35 (plan 14 noted 5 to 6 in a worse case). On a 40 row terminal the first screen ends at the JOB heading, so the plugin facts sit below the fold until the person scrolls. Plan 380-10 reviews that.
+
+Capture harness. `node ui/mos-face/scripts/capture-shots.cjs --session-home` fills the scratch HOME with the status line files in the formats the plugin's own readers accept (the builder is in scripts/lib/tmux-session.cjs and the parity test uses the same one), and the demo room with a recorded job, a mode and a stale list. HOME goes to the session only, the login symlink still comes from the real home, and the builder refuses the real home folder and any room outside the scratch home (tests P11 to P11d, S2). It needs the scratch config (it is refused with --config real). The fixture has no Theo host record, so NOW says Theo is not answering; that is the panel's existing rule for an unknown Theo host.
+
+Surfaces. Terminal only. Desktop and Cowork have no panel (D-05, N7), a deliberate skip; the same facts are available there through the plugin's own tools.
 
 ## Decisions
 

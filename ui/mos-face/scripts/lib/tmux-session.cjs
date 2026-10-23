@@ -119,6 +119,82 @@ function parseSize(size) {
   return { cols: Number(m[1]), rows: Number(m[2]) };
 }
 
+// ---- the status line fixture home (plan 380-15, D-08) -------------------------------------------
+
+// The version of the plugin this repository holds (the running status line prints it).
+function repoPluginVersion() {
+  try {
+    const file = path.resolve(__dirname, '..', '..', '..', '..', '.claude-plugin', 'plugin.json');
+    const v = JSON.parse(fs.readFileSync(file, 'utf8')).version;
+    return typeof v === 'string' && v !== '' ? v : 'unknown';
+  } catch (e) {
+    return 'unknown';
+  }
+}
+
+// writeStatusFiles({ homeDir, roomDir, over }): the files the plugin status line reads, in the formats
+// the plugin's own readers accept (lib/statusline/next-move-cache.cjs, cockpit-signals.cjs,
+// version-resolver.cjs, lib/core/stance-state.cjs, lib/conversation/operator.cjs, lib/hmi/jtbd-state.cjs).
+// Under HOME/.mindrian: next-move, bridge/brain-health, room-health, stance-state, voice-mark,
+// update-check, install-state (and post-update-restart-pending when over.postUpdate). Under the room:
+// .mindrian/conversation-operator, jtbd-state, minto-stale. It writes only inside homeDir, and refuses
+// the real home folder, so a scratch session can never touch the person's own files (T-380-63).
+// Returns the list of files written.
+function writeStatusFiles(opts) {
+  const homeDir = path.resolve(opts.homeDir);
+  const roomDir = path.resolve(opts.roomDir);
+  const real = [os.homedir(), process.env.HOME, process.env.USERPROFILE].filter(Boolean).map((p) => path.resolve(p));
+  if (real.indexOf(homeDir) !== -1) throw new Error('refused: ' + homeDir + ' is the real home folder; the fixture goes in a scratch home only');
+  const inside = (p) => p === homeDir || p.startsWith(homeDir + path.sep);
+  if (!inside(roomDir)) throw new Error('refused: the room folder ' + roomDir + ' is not inside the scratch home ' + homeDir);
+  const o = Object.assign({
+    health: 'sound', brain: 'ok', nextMove: 'map unknowns', stance: 'redteam', voice: { color: 'blue', current_who: 'larry' },
+    update: '9.9.9', operator: 'BUILD_ROOM', job: 'find-bottleneck', postUpdate: false, stale: ['market-analysis'],
+    version: repoPluginVersion(),
+  }, opts.over || {});
+  const written = [];
+  const put = (file, text) => {
+    const abs = path.resolve(file);
+    if (!inside(abs)) throw new Error('refused: ' + abs + ' is outside the scratch home');
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, text);
+    written.push(abs);
+  };
+  const mind = path.join(homeDir, '.mindrian');
+  const iso = new Date().toISOString();
+  if (o.nextMove) put(path.join(mind, 'next-move.json'), JSON.stringify({ next_move: o.nextMove, command: '/mos:map-unknowns', jtbd: null, ts: Date.now() }));
+  if (o.brain) put(path.join(mind, 'bridge', 'brain-health.json'), JSON.stringify({ status: o.brain }));
+  if (o.health) put(path.join(mind, 'room-health.json'), JSON.stringify({ status: o.health, at: iso }));
+  if (o.stance) put(path.join(mind, 'stance-state.json'), JSON.stringify({ stance: o.stance, updated_at: iso }));
+  if (o.voice) put(path.join(mind, 'voice-mark.json'), JSON.stringify(o.voice));
+  if (o.update) put(path.join(mind, 'update-check.json'), JSON.stringify({ available: true, available_version: o.update }));
+  if (o.version) put(path.join(mind, 'install-state.json'), JSON.stringify({ active_version: o.version, installed_plugins_version: o.version }));
+  if (o.postUpdate) put(path.join(mind, 'post-update-restart-pending'), '');
+  if (o.operator) put(path.join(roomDir, '.mindrian', 'conversation-operator.json'), JSON.stringify({ schema_version: '1.0.0', current: o.operator, previous: null, entered_at: iso, context: {}, history: [] }));
+  if (o.job) put(path.join(roomDir, '.mindrian', 'jtbd-state.json'), JSON.stringify({ version: 1, current: { jtbd: o.job, confidence: 0.8, entered_at: iso, evidence: [], expires_at: null, turn_count: 3, manual_set: false }, history: [] }));
+  if (o.stale && o.stale.length) put(path.join(roomDir, '.mindrian', 'minto-stale.json'), JSON.stringify({ sections: o.stale.map((section) => ({ section, reason: 'older than its files' })) }));
+  return written;
+}
+
+// buildStatusFixture(root, over): a whole scratch home: HOME/.mindrian with the status files, and the
+// rooms home HOME/MindrianRooms with one room (demo-room, stage Design, 2 sections). Used by the status
+// parity test, which runs the real status line on it. Returns { home, rooms, room }.
+function buildStatusFixture(root, over) {
+  const home = path.join(path.resolve(root), 'home');
+  const rooms = path.join(home, 'MindrianRooms');
+  const room = path.join(rooms, 'demo-room');
+  const put = (file, text) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, text); };
+  put(path.join(rooms, '.rooms', 'registry.json'), JSON.stringify({
+    active: 'demo-room', active_session: 'sess-1', sessions: { 'sess-1': { room: 'demo-room' } },
+    root: '~/MindrianRooms', rooms: { 'demo-room': { path: 'demo-room', name: 'demo-room' } },
+  }));
+  put(path.join(room, 'STATE.md'), '---\ncomputed: 2026-10-20T21:00:00Z\nventure_stage: Design\ntotal_entries: 14\ncurrent_room: demo-room\n---\n# Data Room State\n');
+  put(path.join(room, 'market-analysis', 'competitors.md'), '# Competitors\n');
+  put(path.join(room, 'problem-definition', 'problem.md'), '# Problem\n');
+  writeStatusFiles({ homeDir: home, roomDir: room, over });
+  return { home, rooms, room };
+}
+
 // ---- preflight -------------------------------------------------------------------------------
 
 function run(cmd, args, opts) {
@@ -443,6 +519,9 @@ module.exports = {
   envPrefix,
   secretValues,
   scrubWith,
+  writeStatusFiles,
+  buildStatusFixture,
+  repoPluginVersion,
   parseSize,
   preflight,
   run,

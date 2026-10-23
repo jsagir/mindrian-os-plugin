@@ -43,38 +43,10 @@ function check(cond, msg) {
 }
 
 // ---- The fixture home -----------------------------------------------------------------------------
-// One scratch root holds a HOME with the status line's own files and a rooms folder with one room.
-// Every file is in the format the plugin's own reader accepts (next-move-cache, cockpit-signals,
-// stance-state, version-resolver, conversation operator, jtbd-state).
-function buildStatusFixture(root, over) {
-  const o = Object.assign({
-    health: 'sound', brain: 'ok', nextMove: 'map unknowns', stance: 'redteam', voice: { color: 'blue' },
-    update: '9.9.9', operator: 'BUILD_ROOM', job: 'find-bottleneck', postUpdate: false,
-  }, over || {});
-  const home = path.join(root, 'home');
-  const mind = path.join(home, '.mindrian');
-  const rooms = path.join(home, 'MindrianRooms');
-  const room = path.join(rooms, 'demo-room');
-  const put = (file, text) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, text); };
-  const iso = new Date().toISOString();
-  if (o.nextMove) put(path.join(mind, 'next-move.json'), JSON.stringify({ next_move: o.nextMove, command: '/mos:map-unknowns', jtbd: null, ts: Date.now() }));
-  if (o.brain) put(path.join(mind, 'bridge', 'brain-health.json'), JSON.stringify({ status: o.brain }));
-  if (o.health) put(path.join(mind, 'room-health.json'), JSON.stringify({ status: o.health, at: iso }));
-  if (o.stance) put(path.join(mind, 'stance-state.json'), JSON.stringify({ stance: o.stance, updated_at: iso }));
-  if (o.voice) put(path.join(mind, 'voice-mark.json'), JSON.stringify(o.voice));
-  if (o.update) put(path.join(mind, 'update-check.json'), JSON.stringify({ available: true, available_version: o.update }));
-  if (o.postUpdate) put(path.join(mind, 'post-update-restart-pending'), '');
-  put(path.join(rooms, '.rooms', 'registry.json'), JSON.stringify({
-    active: 'demo-room', active_session: 'sess-1', sessions: { 'sess-1': { room: 'demo-room' } },
-    root: '~/MindrianRooms', rooms: { 'demo-room': { path: 'demo-room', name: 'demo-room' } },
-  }));
-  put(path.join(room, 'STATE.md'), '---\ncomputed: 2026-10-20T21:00:00Z\nventure_stage: Design\ntotal_entries: 14\ncurrent_room: demo-room\n---\n# Data Room State\n');
-  put(path.join(room, 'market-analysis', 'competitors.md'), '# Competitors\n');
-  put(path.join(room, 'problem-definition', 'problem.md'), '# Problem\n');
-  if (o.operator) put(path.join(room, '.mindrian', 'conversation-operator.json'), JSON.stringify({ schema_version: '1.0.0', current: o.operator, previous: null, entered_at: iso, context: {}, history: [] }));
-  if (o.job) put(path.join(room, '.mindrian', 'jtbd-state.json'), JSON.stringify({ version: 1, current: { jtbd: o.job, confidence: 0.8, entered_at: iso, evidence: [], expires_at: null, turn_count: 3, manual_set: false }, history: [] }));
-  return { home, rooms, room };
-}
+// One scratch root holds a HOME with the status line's own files and a rooms folder with one room. The
+// builder lives in the capture harness (ui/mos-face/scripts/lib/tmux-session.cjs), so the screenshot run
+// and this test use the same files, in the formats the plugin's own readers accept.
+const { buildStatusFixture } = require(path.join(MOD, 'scripts', 'lib', 'tmux-session.cjs'));
 
 // Run the real status line on a fixture and return its line, with ANSI removed and the home scrubbed.
 function runStatusLine(fx, pct) {
@@ -84,7 +56,7 @@ function runStatusLine(fx, pct) {
 }
 
 if (require.main !== module) {
-  module.exports = { buildStatusFixture, runStatusLine };
+  module.exports = { runStatusLine };
   return;
 }
 

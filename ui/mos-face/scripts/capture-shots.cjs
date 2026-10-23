@@ -54,6 +54,11 @@ const USAGE = [
   '  --config scratch|real   scratch (default): scratch config folder, HOME and rooms home.',
   '                          real: the session as the person sees it (their plugins and status line).',
   '                          Nothing is written by hand into the real ~/.claude. The files may show real room names.',
+  '  --session-home          fill the scratch HOME with the status line files (next move, Theo health, room health,',
+  '                          stance, voice mark, update check, install record, and in the demo room the mode, the recorded',
+  '                          job and the stale list), in the formats the plugin readers accept, so the panel shows real',
+  '                          values for every status line field (plan 380-15, D-08). Scratch config only; HOME goes to',
+  '                          the session only and nothing is written into the real home',
   '  --reply-text <text>     the assistant line of the chip scenario (default: a fixed test sentence)',
   '  --help                  this text',
   '',
@@ -63,7 +68,7 @@ const USAGE = [
 class UsageError extends Error {}
 
 function parseArgs(argv) {
-  const a = { plugins: [], out: null, scenarios: DEFAULT_SCENARIOS.slice(), program: null, keys: null, settleMs: 2500, waitText: null, config: 'scratch', replyText: null, help: false };
+  const a = { plugins: [], out: null, scenarios: DEFAULT_SCENARIOS.slice(), program: null, keys: null, settleMs: 2500, waitText: null, config: 'scratch', replyText: null, sessionHome: false, help: false };
   const needValue = (i, flag) => {
     if (i + 1 >= argv.length) throw new UsageError(flag + ' needs a value');
     return argv[i + 1];
@@ -81,6 +86,7 @@ function parseArgs(argv) {
       case '--wait-text': a.waitText = needValue(i, f); i += 1; break;
       case '--config': a.config = needValue(i, f); i += 1; break;
       case '--reply-text': a.replyText = needValue(i, f); i += 1; break;
+      case '--session-home': a.sessionHome = true; break;
       default: throw new UsageError('unknown option ' + f);
     }
   }
@@ -90,6 +96,7 @@ function parseArgs(argv) {
   if (!Number.isFinite(a.settleMs) || a.settleMs < 0) throw new UsageError('--settle-ms must be a number');
   if (a.config !== 'scratch' && a.config !== 'real') throw new UsageError('--config must be scratch or real');
   for (const s of a.scenarios) if (!SCENARIOS[s]) throw new UsageError('unknown scenario ' + s + ' (want ' + Object.keys(SCENARIOS).join(', ') + ')');
+  if (a.sessionHome && a.config === 'real') throw new UsageError('--session-home needs the scratch config: it writes fixture files into a scratch home, never into the real one');
   if (a.keys !== null && !T.isAllowedSlash(a.keys)) throw new UsageError('--keys must be one allow-listed command (' + T.ALLOWED_SLASH.join(', ') + ')');
   if (a.scenarios.includes('chip') && (a.config === 'real' || a.program)) throw new UsageError('the chip scenario needs the scratch config and a real claude session (it writes a synthetic transcript into the scratch config folder only)');
   return a;
@@ -150,6 +157,11 @@ async function captureOne(name, args, env) {
       scratchHome = path.join(scratchRoot, 'home');
       roomsHome = buildRoomsHome(scratchHome);
       configDir = T.buildScratchConfig({ root: scratchRoot, workDir }).configDir;
+    }
+    if (args.sessionHome) {
+      // The status line files go into the scratch HOME only; writeStatusFiles refuses the real home.
+      const written = T.writeStatusFiles({ homeDir: scratchHome, roomDir: path.join(roomsHome, 'demo-room') });
+      entry.sessionHome = written.map((f) => path.relative(scratchHome, f).split(path.sep).join('/'));
     }
     const childEnv = T.buildChildEnv({ base: process.env, scenarioEnv: sc.env, configDir, roomsHome, homeDir: scratchHome });
     entry.envNames = childEnv.names.concat(childEnv.unset.map((n) => '-' + n));

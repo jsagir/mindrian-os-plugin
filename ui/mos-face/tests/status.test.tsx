@@ -138,27 +138,30 @@ test('P2 map: every panel field of the fixture has a label pair in STATUS_FIELDS
 
 // ---- P4 every mapped field renders ----------------------------------------------------------------
 
-for (const [label, width] of [['wide', WIDE], ['standard', STD], ['narrow', NARROW]] as const) {
-  test(`P4 render ${label}: every mapped field has a row with its ${label === 'narrow' ? 'narrow' : 'wide'} label and its fixture value at ${width} columns`, async ($, on) => {
-    const { ui } = await open($, on, width)
-    const texts = await textsOf(ui)
-    const missing: string[] = []
-    for (const [name, want] of Object.entries(EXPECT)) {
-      const pair = panelOf(name)
-      const lab = label === 'narrow' ? pair.narrow : pair.wide
-      if (want.split) {
-        // The Job block keeps its own form: a heading JOB, and the sentence in a row of its own (plan 14).
-        const heading = rowOf(texts, 'JOB')
-        const sentence = texts.find(text => want.rx.every(value => value.test(text)))
-        if (!heading || !sentence) missing.push(`${name} (${lab})`)
-        continue
-      }
-      if (!rowOf(texts, lab, ...want.rx)) missing.push(`${name} (${lab})`)
+// One test for each width, declared one by one (the engine wrapper counts the test( declarations on disk).
+const p4 = (label: 'wide' | 'standard' | 'narrow', width: number): TestBody => async ($, on) => {
+  const { ui } = await open($, on, width)
+  const texts = await textsOf(ui)
+  const missing: string[] = []
+  for (const [name, want] of Object.entries(EXPECT)) {
+    const pair = panelOf(name)
+    const lab = label === 'narrow' ? pair.narrow : pair.wide
+    if (want.split) {
+      // The Job block keeps its own form: a heading JOB, and the sentence in a row of its own (plan 14).
+      const heading = rowOf(texts, 'JOB')
+      const sentence = texts.find(text => want.rx.every(value => value.test(text)))
+      if (!heading || !sentence) missing.push(`${name} (${lab})`)
+      continue
     }
-    expect(missing).toEqual([])
-    await ui.unmount()
-  })
+    if (!rowOf(texts, lab, ...want.rx)) missing.push(`${name} (${lab})`)
+  }
+  expect(missing).toEqual([])
+  await ui.unmount()
 }
+
+test('P4 render wide: every mapped field has a row with its wide label and its fixture value at 56 columns', p4('wide', WIDE))
+test('P4 render standard: every mapped field has a row with its wide label and its fixture value at 44 columns', p4('standard', STD))
+test('P4 render narrow: every mapped field has a row with its narrow label and its fixture value at 35 columns', p4('narrow', NARROW))
 
 test('P4 job: the Job block still renders and STATUS_FIELDS points the field jtbd at it', async ($, on) => {
   expect(STATUS_FIELDS.jtbd?.panel).toBe('job')
@@ -383,16 +386,17 @@ test('P12 /mos-text prints the same facts as plain lines', async ($, on) => {
 
 // ---- P13 the panel names Theo, never Larry -------------------------------------------------------------------
 
-for (const who of ['larry', 'claude']) {
-  test(`P13 no string the panel writes for these fields names Larry, when the voice file says ${who} speaks`, async ($, on) => {
-    const files = { ...FILES, '/.mindrian/voice-mark.json': json({ color: 'red', current_who: who, prior_who: who === 'larry' ? 'claude' : 'larry', switched_now: true }) }
-    const { ui } = await open($, on, WIDE, files)
-    const all = [...(await textsOf(ui)), ...(await buttonsOf(ui))].join('\n')
-    expect(all).not.toMatch(/Larry/i)
-    expect(all).toMatch(/SPEAKS/)
-    await ui.unmount()
-  })
+const p13 = (who: 'larry' | 'claude'): TestBody => async ($, on) => {
+  const files = { ...FILES, '/.mindrian/voice-mark.json': json({ color: 'red', current_who: who, prior_who: who === 'larry' ? 'claude' : 'larry', switched_now: true }) }
+  const { ui } = await open($, on, WIDE, files)
+  const all = [...(await textsOf(ui)), ...(await buttonsOf(ui))].join('\n')
+  expect(all).not.toMatch(/Larry/i)
+  expect(all).toMatch(/SPEAKS/)
+  await ui.unmount()
 }
+
+test('P13 no string the panel writes for these fields names Larry, when the voice file says the persona speaks', p13('larry'))
+test('P13 no string the panel writes for these fields names Larry, when the voice file says the host speaks', p13('claude'))
 
 test('P13 the voice words never name Larry', () => {
   expect(voiceWord({ color: 'blue', move: '', who: 'theo', switched: false, direction: '' })).not.toMatch(/Larry/i)
@@ -420,6 +424,41 @@ test('P14 nothing leaves: values of the status files never appear in any outboun
   expect(calls.filter(call => call.noun === 'process')).toEqual([])
   await ui.unmount()
 })
+
+// ---- P16 copy -----------------------------------------------------------------------------------------------
+
+// The scan of plan 06 (copy.test.tsx) draws a world with no status files. This one draws the status rows with
+// values: every word the new rows can hold is in plain English, with no dash, no stack word and no persona name.
+const BANNED: [string, RegExp][] = [
+  ['em-dash', new RegExp(String.fromCharCode(0x2014))],
+  ['en-dash', new RegExp(String.fromCharCode(0x2013))],
+  ['double hyphen', / -- /],
+  ['ICM', /\bICM\b/i],
+  ['Brain', /\bBrain\b/i],
+  ['MCP', /\bMCP\b/i],
+  ['Aura', /\bAura\b/i],
+  ['Larry', /\bLarry\b/i],
+  ['the book', /\bthe book\b/i],
+]
+
+const p16 = (scene: Record<string, string>, width: number): TestBody => async ($, on) => {
+  const { ui } = await open($, on, width, { ...FILES, ...scene })
+  const all = [...(await textsOf(ui)), ...(await buttonsOf(ui))]
+  const hits: string[] = []
+  for (const text of all) for (const [name, rule] of BANNED) if (rule.test(text)) hits.push(`${name}: ${text.slice(0, 60)}`)
+  expect(hits).toEqual([])
+  await ui.unmount()
+}
+
+test('P16 copy: the healthy scene is clean at 56 columns', p16({}, WIDE))
+test('P16 copy: the restart and drift scene is clean at 44 columns', p16({ '/.mindrian/post-update-restart-pending': '' }, STD))
+test('P16 copy: the host voice, off Theo and a broken room scene is clean at 35 columns', p16({
+  '/.mindrian/voice-mark.json': json({ color: 'yellow', current_who: 'claude', prior_who: 'larry', switched_now: true }),
+  '/.mindrian/bridge/brain-health.json': json({ status: 'error' }),
+  '/.mindrian/room-health.json': json({ status: 'broken', at: iso(NOW) }),
+  '/.mindrian/conversation-operator.json': json({ schema_version: '1.0.0', current: 'DECISION_GATE' }),
+  '/.mindrian/stance-state.json': json({ stance: 'tell-act' }),
+}, NARROW))
 
 // ---- P15 damaged files --------------------------------------------------------------------------------------------
 

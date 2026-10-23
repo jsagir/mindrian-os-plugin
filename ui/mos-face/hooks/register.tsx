@@ -1153,7 +1153,8 @@ export const register: Register = on => {
     // One fact of the status line or of the room: its label, then its value, in one row of text.
     const fact = (one: Fact) => (
       <Text key={`fact-${one.id}`} {...ink} bold={one.strong}>
-        {g(`${factLabel(one.id, narrowLabels)}  ${one.value}`)}
+        <Text {...ink} bold>{factLabel(one.id, narrowLabels)}</Text>
+        {g(`  ${one.value}`)}
       </Text>
     )
 
