@@ -2122,24 +2122,13 @@ function buildAcceptanceChecklist(ctx) {
         } catch (_e) { currentVersion = null; }
         const releasedVersion = (typeof lastRun.plugin_version === 'string') ? lastRun.plugin_version : null;
 
-        // "not more than one release behind": when both versions share the
-        // same X.Y.Z and both carry the shipped -beta.N suffix, compare the
-        // beta ordinal directly. Any other shape (a stable cut, or a
-        // mismatched X.Y.Z this point cannot compare like-for-like) is
-        // treated as fresh -- this point measures ICM-eval staleness, not
-        // the release process itself.
-        let freshEnough = true;
-        let versionDetail = 'plugin_version ' + releasedVersion + ' vs running ' + currentVersion;
-        if (releasedVersion && currentVersion) {
-          const betaRe = /^(.*)-beta\.(\d+)$/;
-          const rm = betaRe.exec(releasedVersion);
-          const cm = betaRe.exec(currentVersion);
-          if (rm && cm && rm[1] === cm[1]) {
-            const lag = Number(cm[2]) - Number(rm[2]);
-            freshEnough = lag <= 1;
-            versionDetail = 'beta lag ' + lag + ' (' + releasedVersion + ' -> ' + currentVersion + ')';
-          }
-        }
+        // "not more than one release behind": one release is two betas
+        // (release.sh Step 3 cut bump + Step 7.5 next-bump, both before the
+        // Step 9.8 full doctor). The rule lives in lib/core/icm-eval-freshness.cjs.
+        const evalFreshnessRule = require(path.join(__dirname, '..', 'lib', 'core', 'icm-eval-freshness.cjs'));
+        const freshResult = evalFreshnessRule.evalFreshness(releasedVersion, currentVersion);
+        const freshEnough = freshResult.fresh;
+        const versionDetail = freshResult.detail;
         if (!freshEnough) {
           return {
             ok: false,
