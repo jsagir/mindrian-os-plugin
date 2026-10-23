@@ -21,6 +21,7 @@ Ship the existing /m:os face panel mod (side panel, one status line, prompt-box 
 - **D-04 Name and voice (N8):** the panel is Theo's face. Words are plain English, short, warm and demanding, with no stack words (no ICM, no Brain, no MCP). Larry is not named in the panel.
 - **D-05 Packaging (N10):** a walled package built for the release, following the Phase 369.26 precedent (ui/mindrian-workspace-mod): its own folder and lockfile, never in the root package.json, only built assets ship. Fits CLAUDE.md D-17. The plan must prove install-and-load with a test that runs on an installed layout (tests/test-369-installed-layout.cjs pattern).
 - **D-06 Test count:** the gate runs all 34 tests, not 29. Correct MOD380-02 in ROADMAP.md.
+- **D-07 Reply chip (navigator ruling, 2026-10-23: "Quote the reply as is"):** no panel-authored string names Larry (D-04 holds for everything the panel writes). The colored chip in a reply quotes the reply's own lead as it stands, so the word Larry appears there only when the reply put it there. The chip adds, removes and rewrites nothing in the quoted text. This closes the open question about the chip; it is no longer an item for the navigator.
 
 ### Claude's Discretion (book silent; planner proposes, then the navigator rules in review)
 - N1: the stale "Canon v5" text in the book's proposed terminal segment and the mindrian-tui-designer skill is a book issue. Record it as a book follow-up; do not edit the book from this phase.

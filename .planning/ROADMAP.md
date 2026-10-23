@@ -3783,13 +3783,15 @@ Plans:
 
 - [ ] 379.1.1-10-PLAN.md - ledger current, real-room report for the final HEAD, receipt signed by a person (human gate)
 
-### Phase 380: Ship the M:OS face panel mod inside the plugin (target beta.73)
+### Phase 380: Ship the M:OS face panel mod inside the plugin (ships in the next cut)
 
 **Goal:** Give every MindrianOS user the /m:os face panel that the owner built as a Claude Code mod: a side panel, a one-line status, prompt-box buttons and the /mos-* commands, so the room state is visible beside the chat without a command. Today the mod lives only in a session-scoped folder and dies with the session; this phase installs it with the plugin and releases it.
 **Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10)
 **Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
 Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
 **Plans:** 11 plans (code plans 01 to 09 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; no plan pushes or cuts a release)
+
+MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap slot: a repair plan 380-12 is reserved after plan 10; if plan 10 returns PARTIAL, insert it with /gsd-plan-phase 380 --gaps and it runs before plan 11.
 
 Plans:
 
@@ -3800,11 +3802,11 @@ Plans:
 **Wave 2** *(blocked on Wave 1)*
 
 - [ ] 380-02-PLAN.md - repair the type-check inside the walled package (16 errors, raster pins)
-- [ ] 380-03-PLAN.md - real-terminal capture harness (tmux, ANSI page, Playwright PNG), self-tested
+- [ ] 380-03-PLAN.md - real-terminal capture harness (tmux, scratch config folder, ANSI page, Playwright PNG, reply chip from a synthetic transcript), self-tested
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped, excerpt only through the guarded shim, honest texts
+- [ ] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped (known, proper and sentence-initial), honest texts; two flagged proposals (shim-only excerpt, MOS_FACE_WORDS switch) behind one flag each
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -3812,7 +3814,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 380-06-PLAN.md - D-04 copy: Theo not Larry, no stack words, commands table generated and checked
+- [ ] 380-06-PLAN.md - D-04 and D-07 copy: Theo not Larry in panel-authored text, the reply chip quotes the reply as is, no stack words, commands table generated and checked
 
 **Wave 6** *(blocked on Wave 5)*
 
@@ -3828,8 +3830,8 @@ Plans:
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 380-10-PLAN.md - real-terminal screenshots inspected by the executor, idle CPU window, opt-out persistence
+- [ ] 380-10-PLAN.md - six real-terminal screenshots (reply chip included) inspected by the executor, idle CPU window, opt-out persistence
 
 **Wave 10** *(blocked on Wave 9; stops at human checkpoints)*
 
-- [ ] 380-11-PLAN.md - book follow-ups and defaults, Windows and Desktop checks, real-room receipt at the cut (human gates)
+- [ ] 380-11-PLAN.md - book follow-ups and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)
