@@ -1492,7 +1492,16 @@ export const register: Register = on => {
                 const mark = isLit ? '◆ ' : ''
                 const tail = isLit && at !== undefined ? `  changed ${agoText(at, now)}` : ''
 
-                return knob(`sec-${sec}`, fit(`▸ ${mark}${sec}  ${item.files ?? 0}${tail}`, labelRoom), () => pickSection($, sec), ground)
+                // A long name is cut, the count after it stays.
+                const after = `  ${item.files ?? 0}${tail}`
+                const head = `▸ ${mark}`
+
+                return knob(
+                  `sec-${sec}`,
+                  fit(`${head}${fit(sec, Math.max(4, labelRoom - head.length - after.length))}${after}`, labelRoom),
+                  () => pickSection($, sec),
+                  ground,
+                )
               }
               const name = item.name
 

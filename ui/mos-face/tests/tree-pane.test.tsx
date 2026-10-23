@@ -2,7 +2,7 @@ import { expect, test } from 'claude-code/testing'
 import type { TestBody } from 'claude-code/testing'
 
 import { ASSET_TEXT } from './face-fixture'
-import { PANE, mcpAnswer, recordCalls } from './support'
+import { ENVELOPE, PANE, leaked, mcpAnswer, recordCalls } from './support'
 import type { Call, ListEntry } from './support'
 
 // Phase 380 plan 18 (G7 the room tree, G2 the face stays in view; D-04, D-08).
@@ -188,6 +188,7 @@ async function open(
     files: { 'asset-fa8504998f.json': ASSET_TEXT },
     list: path => setup.list?.(path) ?? defaultList(path),
     tool: e => {
+      if (e.tool.endsWith('brain_ask')) return { result: {}, text: ENVELOPE }
       if (!e.tool.endsWith('room_state_bound')) return undefined
       const base = JSON.parse(mcpAnswer(e.tool, true) ?? '{}') as Record<string, unknown>
 
@@ -202,6 +203,7 @@ async function open(
   on('prompt.submit', (_, e) => ({ text: e.text }))
   on('prompt.suggest', () => ({ isShown: true }))
   on('turn.start', (_, e) => ({ turnId: e.turnId }))
+  on('turn.complete', (_, e) => ({ text: e.answer }))
   await $.session.start(START)
   await clock.advance(200)
   const ui = await $.ui.mount(at(columns, rows))
@@ -774,5 +776,42 @@ test('T22 the row counter reads the overview at 56 by 40 as the 40 rows of the p
   const { ui } = await open($, on, 56, 40)
 
   expect(await rowsNow(ui)).toBe(40)
+  await ui.unmount()
+})
+
+// ---- T23 the filter stays on this machine -----------------------------------------------------
+
+test('T23 the filter word stays on this machine: no call holds it after a filter, two turns and an ask', async ($, on) => {
+  const { ui, calls, clock } = await open($, on, 56, 14)
+  await browse(ui)
+  await run($, 'find zetacanary')
+  await run($, 'find legal')
+  for (let turn = 1; turn <= 2; turn++) {
+    await $.prompt.submit({ text: 'why does the bug keep happening and the symptom returns' } as never)
+    await $.turn.start({ turnId: `q${turn}`, prompt: 'x' } as never)
+    await $.turn.complete({ turnId: `q${turn}`, answer: 'It might be a cause upstream.', durationMs: 2000, isAborted: false, reason: 'answer' } as never)
+    await clock.advance(3000)
+  }
+  await $.command.run({ command: 'mos-advice', args: '' } as never)
+  await clock.advance(3000)
+
+  expect(calls.some(call => call.tool.endsWith('brain_ask'))).toBe(true)
+  expect(leaked(calls, ['zetacanary', '"legal"'])).toEqual([])
+  await ui.unmount()
+})
+
+// ---- T24 a long name keeps its count ----------------------------------------------------------
+
+test('T24 a long section name is cut and the file count after it stays, at 35 columns', async ($, on) => {
+  const long = 'eureka-engine-harvest-2026-10-19'
+  const { ui } = await open($, on, 35, 24, { sections: [[long, 7], ['team', 2]] })
+  await browse(ui)
+  const labels = await buttonsOf(ui)
+  const row = labels.find(text => text.startsWith('▸ eureka'))
+
+  expect(row).toBeDefined()
+  expect(row?.endsWith('  7')).toBe(true)
+  expect((row ?? '').length).toBeLessThanOrEqual(35 - 2 - 4)
+  expect(await widthNow(ui, 35)).toBeLessThanOrEqual(33)
   await ui.unmount()
 })
