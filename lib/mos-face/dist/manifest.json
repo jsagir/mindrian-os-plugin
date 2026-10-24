@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "builder": "scripts/build-mos-face.cjs",
-  "sourceHash": "2caa971ff6cadd3c12598541cb4a681f51769f368de0d2e975a9b2cf824074fc",
+  "sourceHash": "e80290edf88dbb45cdd1389fd33618867c6f78726aac53da8b92e20d330260dd",
   "typescript": "7.0.2",
   "importRewrite": false,
   "files": {
@@ -22,7 +22,7 @@
     "paths.js": "a91e6a298d8e13c67ba930dd7792f7af88cc67478333b03e241cd9e396342da8",
     "probe.js": "3cab67bfcb0709f824ec33de351d58cdd7d34ff18a23f549934dfa66dadbf64e",
     "proposals.js": "72f7c24a7c7a31de997ededdb477f8b7483bcec62590133ac5b13f8dc0372222",
-    "register.js": "8b1081cefff9f50c9d047b154a57ad9ed5b98fabb1ea40497911fbd6c028b5a3",
+    "register.js": "a2643255c37036daea72afeb21dd82aa7eb25763de625b2b0aea7369dc0dd5bb",
     "sent.js": "cd01f3033aad60742d5d8c6da26b8aef687ef98321e6b8bdd1c98102bec79dff",
     "source.js": "88014b29403578970ad917de9938266de8eaefe469e3369c021047b10f9802fa",
     "status.js": "b6d3df6b74a26674ae4002726279ddceeb9735bccf3194ba30c797313bf46bb7",
