@@ -1,4 +1,9 @@
-## [Unreleased] -- v2.0.0-beta.72 (in progress)
+## [Unreleased] -- v2.0.0-beta.74 (in progress)
+
+### Added
+- 
+
+## [2.0.0-beta.73] - 2026-10-22
 
 ### Changed
 - The placeholder moved from beta.70 to beta.72 without a cut, so beta.71 was never released: Theo's command-layer seam for beta.70 was spent (applied against the bytes at 79f5a64c8, then the connector registry moved with `room_create` and `room_startup` at ec3d56380) and a same-version re-sync needs a Theo phase; the navigator ruled the bump (2026-10-19). The entries below ship in beta.73.

@@ -38,10 +38,19 @@
  * generated data/ and dist/ trees (never scanned: they are outside the five
  * scanned folders).
  *
+ * GENERATED TARGETS (Phase 379.1.1, CLOSE379-02): a missing target that the
+ * ROOT .gitignore of the scanned tree covers is a generated file (a test writes
+ * it at run time, so a fresh clone does not have it yet). It is not a failure.
+ * Only the root .gitignore is read: no nested .gitignore, no global exclude
+ * file. Every skipped reference is printed, and listed under ignored_generated
+ * in --json output; none is skipped silently. A missing target that no root
+ * .gitignore line covers still fails.
+ *
  * CLI: node scripts/check-require-integrity.cjs [--root <dir>] [--json]
  *   --root  the tree to scan (default: this repo). The five folders are read
  *           under it.
- *   --json  print { root, files, checked, unchecked, failures:[{file, target}] }.
+ *   --json  print { root, files, checked, unchecked, failures:[{file, target}],
+ *           ignored_generated:[{file, target, pattern}] }.
  *   Exit 0 when every checked reference resolves, 1 otherwise.
  *
  * T-366-96: the report names file paths and the missing target strings only;
@@ -188,6 +197,74 @@ function argSpan(code, open) {
   return code.slice(open + 1);
 }
 
+// loadIgnoreRules(root) -> [{ pattern, negate, dirOnly, anchored, re }]. Reads
+// ONLY <root>/.gitignore (no nested files, no global exclude). A missing file
+// gives []. `pattern` keeps the original line (trailing spaces trimmed).
+function globToRegexSource(glob) {
+  let out = '';
+  for (let i = 0; i < glob.length; i += 1) {
+    const c = glob[i];
+    if (c === '*' && glob[i + 1] === '*') { out += '.*'; i += 1; }
+    else if (c === '*') out += '[^/]*';
+    else if (c === '?') out += '[^/]';
+    else out += c.replace(/[.+^${}()|[\]\\\/-]/g, '\\$&');
+  }
+  return out;
+}
+
+function loadIgnoreRules(root) {
+  let text;
+  try { text = fs.readFileSync(path.join(root, '.gitignore'), 'utf8'); } catch (_e) { return []; }
+  const rules = [];
+  text.split(/\r?\n/).forEach(function (raw) {
+    const line = raw.replace(/\s+$/, '');
+    if (line === '' || line.charAt(0) === '#') return;
+    let body = line;
+    let negate = false;
+    if (body.charAt(0) === '!') { negate = true; body = body.slice(1); }
+    let dirOnly = false;
+    if (body.length > 1 && body.charAt(body.length - 1) === '/') { dirOnly = true; body = body.slice(0, -1); }
+    const anchored = body.indexOf('/') !== -1;
+    if (body.charAt(0) === '/') body = body.slice(1);
+    if (body === '') return;
+    rules.push({ pattern: line, negate: negate, dirOnly: dirOnly, anchored: anchored, re: new RegExp('^' + globToRegexSource(body) + '$') });
+  });
+  return rules;
+}
+
+// ruleMatches(rule, relPosixPath): anchored rules match the whole path or any
+// leading directory prefix; unanchored rules match one path component in full
+// (a directory-only rule never matches the final component).
+function ruleMatches(rule, rel) {
+  const parts = rel.split('/');
+  if (rule.anchored) {
+    for (let n = parts.length; n >= 1; n -= 1) {
+      if (rule.dirOnly && n === parts.length) continue;
+      if (rule.re.test(parts.slice(0, n).join('/'))) return true;
+    }
+    return false;
+  }
+  for (let k = 0; k < parts.length; k += 1) {
+    if (rule.dirOnly && k === parts.length - 1) continue;
+    if (rule.re.test(parts[k])) return true;
+  }
+  return false;
+}
+
+// decidingRule(rules, rel) -> the rule that decides (the last match), or null
+// when no rule matches or the last match is a negation.
+function decidingRule(rules, rel) {
+  let hit = null;
+  for (let i = 0; i < rules.length; i += 1) {
+    if (ruleMatches(rules[i], rel)) hit = rules[i];
+  }
+  return hit && !hit.negate ? hit : null;
+}
+
+function isIgnored(rules, relPosixPath) {
+  return decidingRule(rules, relPosixPath) !== null;
+}
+
 function scanFile(abs, root, acc) {
   const rel = path.relative(root, abs).split(path.sep).join('/');
   let text;
@@ -197,7 +274,14 @@ function scanFile(abs, root, acc) {
   const m0 = mask(text);
   const code = m0.code;
   const strs = m0.strs;
-  function fail(target) { acc.failures.push({ file: rel, target: target }); }
+  // A missing target that the root .gitignore covers is generated: record it
+  // under ignored_generated (printed by main), never as a failure.
+  function fail(target, absPath) {
+    const relTarget = path.relative(root, absPath).split(path.sep).join('/');
+    const rule = decidingRule(acc.ignoreRules, relTarget);
+    if (rule) acc.ignored_generated.push({ file: rel, target: target, pattern: rule.pattern });
+    else acc.failures.push({ file: rel, target: target });
+  }
 
   // Identifiers bound to __dirname-relative folders (const ROOT = path.resolve(__dirname, '..')).
   const bases = { __dirname: dir };
@@ -225,7 +309,8 @@ function scanFile(abs, root, acc) {
     const base = bases[baseName];
     if (!base) { acc.unchecked += 1; return; }
     acc.checked += 1;
-    if (!resolves(path.resolve.apply(path, [base].concat(segs)))) fail(segs.join('/'));
+    const absTarget = path.resolve.apply(path, [base].concat(segs));
+    if (!resolves(absTarget)) fail(segs.join('/'), absTarget);
   }
   function checkPathCallsIn(span, allowJson) {
     let pc;
@@ -257,7 +342,8 @@ function scanFile(abs, root, acc) {
         if (val === null) { acc.unchecked += 1; continue; }
         if (val.indexOf('./') !== 0 && val.indexOf('../') !== 0) continue; // a package or a node: builtin
         acc.checked += 1;
-        if (!resolves(path.resolve(dir, val))) fail(val);
+        const absVal = path.resolve(dir, val);
+        if (!resolves(absVal)) fail(val, absVal);
         continue;
       }
       // R2: require(path.join(BASE, '<seg>', ...)) or require(NAME) of a declared path
@@ -272,7 +358,8 @@ function scanFile(abs, root, acc) {
     strsIn(span, strs).forEach(function (v) {
       if (v === null || !RE_REPO_SCRIPT.test(v)) return;
       acc.checked += 1;
-      if (!resolves(path.resolve(root, v))) fail(v);
+      const absV = path.resolve(root, v);
+      if (!resolves(absV)) fail(v, absV);
     });
     checkPathCallsIn(span, false);
     const idRe = /\b([A-Za-z_$][\w$]*)\b/g;
@@ -288,7 +375,8 @@ function scanFile(abs, root, acc) {
 }
 
 function checkTree(root) {
-  const acc = { root: root, files: 0, checked: 0, unchecked: 0, failures: [] };
+  const acc = { root: root, files: 0, checked: 0, unchecked: 0, failures: [], ignored_generated: [] };
+  Object.defineProperty(acc, 'ignoreRules', { value: loadIgnoreRules(root), enumerable: false });
   SCAN_DIRS.forEach(function (d) {
     walk(path.join(root, d), []).forEach(function (abs) {
       acc.files += 1;
@@ -296,6 +384,7 @@ function checkTree(root) {
     });
   });
   acc.failures.sort(function (a, b) { return a.file < b.file ? -1 : a.file > b.file ? 1 : (a.target < b.target ? -1 : 1); });
+  acc.ignored_generated.sort(function (a, b) { return a.file < b.file ? -1 : a.file > b.file ? 1 : (a.target < b.target ? -1 : a.target > b.target ? 1 : 0); });
   return acc;
 }
 
@@ -319,16 +408,21 @@ function main(argv) {
   const r = checkTree(root);
   if (json) {
     process.stdout.write(JSON.stringify(r, null, 2) + '\n');
-  } else if (r.failures.length === 0) {
-    process.stdout.write('check-require-integrity: OK (' + r.files + ' files, ' + r.checked + ' references resolve, ' + r.unchecked + ' unchecked dynamic)\n');
   } else {
-    process.stdout.write('check-require-integrity: FAIL (' + r.failures.length + ' unresolved of ' + r.checked + ' checked, ' + r.files + ' files)\n');
-    r.failures.forEach(function (f) { process.stdout.write('  ' + f.file + ' -> ' + f.target + '\n'); });
+    const skipped = r.ignored_generated.length;
+    const skipNote = skipped > 0 ? ', ' + skipped + ' skipped as gitignored generated' : '';
+    if (r.failures.length === 0) {
+      process.stdout.write('check-require-integrity: OK (' + r.files + ' files, ' + r.checked + ' references resolve, ' + r.unchecked + ' unchecked dynamic' + skipNote + ')\n');
+    } else {
+      process.stdout.write('check-require-integrity: FAIL (' + r.failures.length + ' unresolved of ' + r.checked + ' checked, ' + r.files + ' files' + skipNote + ')\n');
+      r.failures.forEach(function (f) { process.stdout.write('  ' + f.file + ' -> ' + f.target + '\n'); });
+    }
+    r.ignored_generated.forEach(function (f) { process.stdout.write('  skipped: ' + f.file + ' -> ' + f.target + ' (' + f.pattern + ')\n'); });
   }
   return r.failures.length === 0 ? 0 : 1;
 }
 
-module.exports = { checkTree, resolves, mask, argSpan, SCAN_DIRS };
+module.exports = { checkTree, resolves, mask, argSpan, SCAN_DIRS, loadIgnoreRules, isIgnored };
 
 if (require.main === module) {
   process.exitCode = main(process.argv.slice(2));

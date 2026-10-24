@@ -30,9 +30,12 @@ table, UNION a command's declared `serves_jtbd`), not from a vendor score.
 
 ## The navigator's pre-release rebuild (Jev-scored)
 
-The Jev-scored rebuild is a navigator-invoked pre-release act, never a `release.sh` step
-and never a hook (R-353-G). Run it from the operator's own shell with the dev-time key
-exported (never committed, never printed):
+The Jev-scored rebuild is a named `release.sh` step, Step 2.3, and never a hook (R-353-G).
+Step 2.3 runs the offline check first and rebuilds only when the ledger is stale. It needs
+the dev-time key (never committed, never printed), commits `data/section-command-ledger.json`
+and so moves HEAD. `bash scripts/release.sh --ledger-only` runs Step 2.3 alone, so the
+rebuild can happen before the real-room read. The same rebuild by hand, from the operator's
+own shell with the key exported:
 
 ```bash
 # TYPESAFE_API_KEY read from ~/.secrets/typesafe.env (mode 600) if not already exported
@@ -49,10 +52,12 @@ candidate commands with Jev in batches of 20 at concurrency 4. It writes `build_
 ## The fallback ruling
 
 If Jev is unavailable at rebuild time, or the navigator chooses not to rebuild, the last
-shipped ledger stays in force. `scripts/release.sh` Step 2.4 asserts the shipped ledger's
-staleness offline (`build-section-command-ledger.cjs --check`, no vendor call) and fails
-closed on drift; the audited opt-out is `--no-ledger-check`, named in the release log
-with its consequence (a deliberately stale ledger ships).
+shipped ledger stays in force. Step 2.3 stops the cut when the ledger is stale and the key
+is absent, and leaves the tree as it was. `scripts/release.sh` Step 2.4 stays as the offline
+gate that runs after Step 2.3: it asserts the shipped ledger's staleness offline
+(`build-section-command-ledger.cjs --check`, no vendor call) and fails closed on drift. The
+audited opt-out of both steps is `--no-ledger-check`, named in the release log with its
+consequence (a deliberately stale ledger ships).
 
 ## The egress ceiling
 

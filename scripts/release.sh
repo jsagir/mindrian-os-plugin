@@ -172,6 +172,15 @@ if [ ! -f "$RELEASE_LIB_DIR/real-room-gate.sh" ]; then
 fi
 . "$RELEASE_LIB_DIR/real-room-gate.sh"
 
+# Phase 379.1.1 plan 02 (work item 3): the section-command ledger rebuild is CALLED at Step 2.3 (and in
+# the standalone --ledger-only mode, and reported under --dry-run). Sourced here for the same reason as
+# every library above: a step missing at its call site would fail after the cut had already started.
+if [ ! -f "$RELEASE_LIB_DIR/ledger-rebuild.sh" ]; then
+  echo -e "${RED}scripts/release-lib/ledger-rebuild.sh missing -- refusing to run a release from an incomplete checkout${NC}"
+  exit 1
+fi
+. "$RELEASE_LIB_DIR/ledger-rebuild.sh"
+
 # Quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener
 # is CALLED at Step 0.55 (Theo leg) and Step 9.6c (website leg). Checked
 # here for the same reason as the libraries above: a missing script found
@@ -190,7 +199,8 @@ NO_MINISITE=1   # install-minisite RETIRED 2026-06-09 (navigator: official site 
 NO_WEBSITE=0    # official Mindrian website (mindrian-os.com) stays ON by default; --no-website opts out
 STRICT_SHAPE=0  # Phase 235 (CIRS-03): shape-declaration gate is advisory by default; --strict-shape restores the pre-210 hard-fail
 NO_THEO_CHECK=0 # Phase 343 Plan 07 (WD-13/T-343-06): Theo stamp gate is ON by default; --no-theo-check is the audited opt-out (--no-minisite / --no-website precedent), never silent
-NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-ledger offline staleness check (Step 2.4) is ON by default; --no-ledger-check is the audited opt-out, following the --no-theo-check precedent, never silent
+NO_LEDGER_CHECK=0 # Phase 353 Plan 02 Task 10 (R-353-G): the section-command-ledger offline staleness check (Step 2.4) and the Jev-scored rebuild before it (Step 2.3) are ON by default; --no-ledger-check is the audited opt-out of both, following the --no-theo-check precedent, never silent
+LEDGER_ONLY=0 # Phase 379.1.1 plan 02 (work item 3): --ledger-only runs only Step 2.3 and exits, so the rebuild (a commit that moves HEAD) can happen BEFORE the human reads the real-room report; it takes no bump flag
 NO_CANON_SNAPSHOT_CHECK=0 # Phase 366 Plan 06 (D-17): the canon snapshot freshness gate (RULE 5 place 9, Step 0.6b) is ON by default; --no-canon-snapshot-check is the audited opt-out, never silent
 NO_SUITE_CHECK=0 # Phase 366 Plan 06 (EPV366-01): the phase suite gate (Step 0.6c, tests/run-all-366.sh) is ON by default; --no-suite-check is the audited opt-out, never silent
 NO_CUT_LISTENER=0 # quick 261002-5v9 (navigator ruling 2026-10-02): the release-cut listener (Step 0.55 Theo leg, Step 9.6c website leg) is ON by default; --no-cut-listener is the audited opt-out, following the --no-theo-check precedent, never silent
@@ -199,7 +209,7 @@ NO_KEYHOLDER_NOTICE=0 # quick 261007-c6j (owner ruling 2026-10-02): Step 9.9 ask
 RESEND_KEYHOLDER_NOTICE=0 # quick 261007-c6j: a second Yes is refused (already_sent) unless --resend-keyholder-notice is given; it then mails only people with no marker or a failed marker
 INCLUDE_UNKNOWN_KEYHOLDER=0 # quick 261007-c6j: has an effect only together with --resend-keyholder-notice; it also mails people whose earlier mail has an unknown outcome
 REPAIR_KEYHOLDER_LEDGER=0 # quick 261007-c6j: keeps a quarantine copy of a corrupt ledger and drops its bad lines; each dropped line can be a person mailed again
-USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-keyholder-notice] [--resend-keyholder-notice] [--include-unknown] [--repair-keyholder-ledger] [--no-real-room-check] [--no-cut-listener] [--dry-run]"
+USAGE_BLOCK="Usage: bash scripts/release.sh [--prerelease | --finalize | --start-prerelease | patch | minor | major] [--allow-ahead] [--no-next-bump] [--minisite] [--no-website] [--strict-shape] [--no-theo-check] [--no-ledger-check] [--no-canon-snapshot-check] [--no-suite-check] [--no-keyholder-notice] [--resend-keyholder-notice] [--include-unknown] [--repair-keyholder-ledger] [--no-real-room-check] [--no-cut-listener] [--dry-run] | bash scripts/release.sh --ledger-only (alone, no bump flag; add --dry-run to preview)"
 
 for arg in "$@"; do
   case "$arg" in
@@ -221,6 +231,7 @@ for arg in "$@"; do
     --no-suite-check)    NO_SUITE_CHECK=1 ;;
     --no-cut-listener)   NO_CUT_LISTENER=1 ;;
     --no-real-room-check) NO_REAL_ROOM_CHECK=1 ;;
+    --ledger-only)       LEDGER_ONLY=1 ;;
     --no-keyholder-notice) NO_KEYHOLDER_NOTICE=1 ;;
     --resend-keyholder-notice) RESEND_KEYHOLDER_NOTICE=1 ;;
     --include-unknown)   INCLUDE_UNKNOWN_KEYHOLDER=1 ;;
@@ -235,12 +246,36 @@ for arg in "$@"; do
   esac
 done
 
+# --ledger-only runs one step and exits. It cannot be combined with a bump flag.
+if [ "$LEDGER_ONLY" = "1" ] && [ -n "$BUMP_MODE" ]; then
+  echo -e "${RED}--ledger-only runs the ledger rebuild step alone and cannot be combined with a bump flag.${NC}"
+  echo "$USAGE_BLOCK"
+  exit 1
+fi
+
 # --- Step 0.5: semver preflight ---
 if [ ! -d "$PLUGIN_DIR/node_modules/semver" ]; then
   echo -e "${RED}node_modules/semver missing -- run 'npm install' first.${NC}"
   echo "  release.sh needs the semver package for pre-release bump algebra."
   echo "  (Do NOT run 'npm install' from inside this script -- the operator must do it.)"
   exit 1
+fi
+
+# --- Standalone mode: --ledger-only (Phase 379.1.1 plan 02, work item 3) ---
+# Runs only Step 2.3 and exits. The rebuild is a commit, so it moves HEAD, and Step 2.6 needs a real-room
+# receipt for the exact HEAD (RULE 10). Run this BEFORE the human reads the real-room report, then read
+# the report for the new HEAD. No other gate runs in this mode.
+if [ "$LEDGER_ONLY" = "1" ]; then
+  echo ""
+  echo "=== --ledger-only: Step 2.3 section-command ledger rebuild (no other step runs) ==="
+  LEDGER_ONLY_RC=0
+  mos_ledger_rebuild_step "$PLUGIN_DIR" "$DRY_RUN" "$NO_LEDGER_CHECK" || LEDGER_ONLY_RC=$?
+  if [ "$LEDGER_ONLY_RC" = "0" ]; then
+    echo -e "${GREEN}=== --ledger-only: done ===${NC}"
+  else
+    echo -e "${RED}=== --ledger-only: ABORT ===${NC}"
+  fi
+  exit "$LEDGER_ONLY_RC"
 fi
 
 # --- Step 0.55: release-cut listener, Theo leg (quick 261002-5v9) ---
@@ -424,6 +459,8 @@ if [ "$DRY_RUN" = "1" ]; then
     echo "  Step 0.55 : release-cut listener, Theo leg -- previewed above (prints the release_sync.py call for v$CURRENT at HEAD; runs nothing under --dry-run)"
   fi
   echo "  Step 2    : run scripts/verify-release (read-only check; ALREADY PASSED in pre-flight)"
+  echo "  Step 2.3  : section-command ledger rebuild (offline check first; rebuilds with the Jev-scored builder only when the ledger is stale; needs the dev key; commits data/section-command-ledger.json; moves HEAD, so Step 2.6 needs a new receipt; runs nothing under --dry-run; also available alone as --ledger-only)"
+  mos_ledger_rebuild_step "$PLUGIN_DIR" 1 "$NO_LEDGER_CHECK" || true
   echo "  Step 2.4  : coverage gates + erasable TypeScript gate (npm --prefix tools/ts-check ci --ignore-scripts if absent, then node tools/ts-check/check.cjs; HARD ABORT; runs nothing under --dry-run)"
   echo "  Step 2.4  : UI shell freshness gate (Phase 369 plan 28: node scripts/build-ui-shell.cjs --check proves lib/ui-shell/dist matches ui/shell and ui/shared; HARD ABORT; release.sh never builds the UI; runs nothing under --dry-run)"
   echo "  Step 2.4  : Desktop payload gate (Phase 369.1 plan 14: node scripts/release-lib/build-desktop-artifact.cjs --check; at most 4,500 files, 180 MB, ratio 50:1, no bin/; HARD ABORT; offline; runs nothing under --dry-run)"
@@ -519,6 +556,16 @@ if ! bash "$PLUGIN_DIR/scripts/verify-release" 2>&1; then
 fi
 echo -e "${GREEN}All verification checks passed${NC}"
 
+# --- Step 2.3: section-command ledger rebuild (Jev-scored), work item 3 of phase 379.1.1 ---
+# The rebuild was a surprise manual step in the beta.73 cut. It runs here, before Step 2.5 and Step 2.6,
+# because it is a commit that moves HEAD and Step 2.6 needs a receipt for the exact HEAD (RULE 10).
+echo ""
+echo "=== Step 2.3: section-command ledger rebuild (offline check first, Jev-scored rebuild only when stale) ==="
+if ! mos_ledger_rebuild_step "$PLUGIN_DIR" "$DRY_RUN" "$NO_LEDGER_CHECK"; then
+  echo -e "${RED}ABORT: Step 2.3: section-command ledger rebuild failed. The tree is as it was: no partial ledger, no commit.${NC}"
+  exit 1
+fi
+
 # --- Step 2.4: coverage gates (Canon Part 11 R2/R9/INV-10 step 3, Phase 172-13) ---
 # The born-wired coverage gate as a release gate step. Runs BOTH --check gates
 # directly (a HARD ABORT) so a release carrying an accidental-dark surface (a
@@ -610,16 +657,17 @@ fi
 # Phase 353 Plan 02 Task 10 (R-353-G): the offline section-command-ledger
 # staleness check, the SAME `--no-theo-check` shape as Step 0.6's Theo stamp
 # gate. This asserts the SHIPPED ledger's plugin_version/built_at/row-shape
-# is not stale, offline, with ZERO network call -- the Jev-scored rebuild
-# stays a navigator-invoked pre-release act (never a release.sh step, never
-# a hook), so the release path stays key-free. NO_LEDGER_CHECK is the
-# audited opt-out; engaging it ships a deliberately stale ledger and this
-# log names that consequence.
+# is not stale, offline, with ZERO network call. Since phase 379.1.1 plan 02
+# the Jev-scored rebuild is the named Step 2.3 (never a hook), which runs
+# BEFORE this check. This check stays as the offline gate that runs after it,
+# so a ledger that is still stale after Step 2.3 still stops the cut.
+# NO_LEDGER_CHECK is the audited opt-out of both; engaging it ships a
+# deliberately stale ledger and this log names that consequence.
 if [ "$NO_LEDGER_CHECK" = "1" ]; then
   echo "  note: section-command-ledger staleness check skipped (--no-ledger-check): a deliberately stale ledger ships this release."
 elif ! node "$PLUGIN_DIR/scripts/build-section-command-ledger.cjs" --check; then
   echo -e "${RED}ABORT: section-command-ledger staleness check failed -- the shipped ledger is stale or malformed.${NC}"
-  echo "  Recovery: node scripts/build-section-command-ledger.cjs (the navigator's pre-release Jev-scored rebuild, dev-time key required), or node scripts/build-section-command-ledger.cjs --offline-seed for a key-free rebuild."
+  echo "  Recovery: bash scripts/release.sh --ledger-only (the named Step 2.3 Jev-scored rebuild, dev-time key required), or node scripts/build-section-command-ledger.cjs (the same rebuild by hand), or node scripts/build-section-command-ledger.cjs --offline-seed for a key-free rebuild."
   exit 1
 fi
 # Phase 190-04 (SFD-04/SFD-05, Canon Part 11 R16), softened by Phase 210 (item 210-A,

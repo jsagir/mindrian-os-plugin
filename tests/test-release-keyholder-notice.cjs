@@ -654,10 +654,12 @@ async function wiringArms(stub, mkEnvFn, runFn) {
   for (const pair of [['NO_KEYHOLDER_NOTICE', '--opted-out'], ['RESEND_KEYHOLDER_NOTICE', '--resend'], ['INCLUDE_UNKNOWN_KEYHOLDER', '--include-unknown'], ['REPAIR_KEYHOLDER_LEDGER', '--repair-keyholder-ledger'], ['MOS_TEST_DRY_RUN', '--dry-run']]) {
     assert.ok(code99.indexOf(pair[0]) !== -1 && code99.indexOf(pair[1]) !== -1, 'maps ' + pair[0] + ' to ' + pair[1]);
   }
-  assert.equal(nonComment(src).filter(function (l) { return /exit 1/.test(l); }).length, 70, 'non-comment exit 1 count is the baseline 70');
+  // 70 at quick 261007-c6j; 73 after phase 379.1.1 plan 02 added three aborts (the ledger-rebuild.sh missing-library guard,
+  // the --ledger-only plus bump flag usage error, the Step 2.3 ABORT). Step 9.9 itself still has no exit.
+  assert.equal(nonComment(src).filter(function (l) { return /exit 1/.test(l); }).length, 73, 'non-comment exit 1 count is the baseline 73');
   const pre = crypto.createHash('sha256').update(src.split('\n').slice(0, 79).join('\n') + '\n').digest('hex');
   assert.equal(pre, '9f2cf89430cbc09f9958f5f6856972b437b6d562b257f282c1b547575f80601f', 'lines 1 to 79 are unchanged');
-  ok('static: Step 9.9 between 9.8 and 10, no exit line, flag mapping, exit-1 count 70, preamble unchanged');
+  ok('static: Step 9.9 between 9.8 and 10, no exit line, flag mapping, exit-1 count 73, preamble unchanged');
 
   const doctorSrc = fs.readFileSync(path.join(REPO, 'scripts', 'doctor.cjs'), 'utf8');
   const am = doctorSrc.match(/const expectedSteps = \[([^\]]*)\]/);
