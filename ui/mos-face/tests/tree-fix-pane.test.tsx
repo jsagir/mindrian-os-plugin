@@ -391,3 +391,25 @@ test('TF8 paging, filtering and going up add no call, and one list is read for e
   expect(calls.slice(callCount)).toEqual([])
   await ui.unmount()
 })
+
+// ---- TF9 the typed command pages the same rows as the pane (found in the final gate) ----------
+
+test('TF9 a capped folder opened by the command gives the same first page as the pane draws, note row and all', async ($, on) => {
+  const { ui } = await open($, on, 46, 22)
+  await browse(ui)
+  const text = await run($, 'open huge')
+  const lines = text.split('\n')
+  const pane = await readPage(ui, 46, 'entry-huge-')
+
+  expect(pane.counter).toBe('1-16 of 300')
+  expect(lines[1]).toBe('1-16 of 300  first 300 of 2000')
+  expect(namesOfText(text)).toHaveLength(16)
+  expect(pane.keys).toHaveLength(16)
+  await ui.unmount()
+})
+
+const namesOfText = (text: string): string[] =>
+  text
+    .split('\n')
+    .filter(line => line.startsWith('  '))
+    .map(line => line.trim().split(/\s+/)[0] ?? '')
