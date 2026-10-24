@@ -265,33 +265,31 @@ test('P7 one signal: the buttons do not repeat a state word that a Text row says
 
 // ---- P8 order -------------------------------------------------------------------------------------------
 
-test('P8 order: where this session writes and the room facts, then NOW, then NEXT, then JOB, then the plugin facts, then ASK', async ($, on) => {
+test('P8 order: the room, what is filed and the version, then the context, then JOB, then where this session writes, NOW, NEXT, the other status words, then ASK', async ($, on) => {
   const { ui } = await open($, on, WIDE)
   const texts = await textsOf(ui)
   const index = (label: string, ...values: RegExp[]): number => texts.findIndex(text => rowOf([text], label, ...values) !== undefined)
   const order = [
-    ['WRITES TO', index('WRITES TO')],
     ['ROOM', index('ROOM')],
     ['FILED', index('FILED')],
-    ['STALE', index('STALE')],
-    ['HEALTH', index('HEALTH')],
+    ['VERSION', index('VERSION')],
+    ['Context', index('Context')],
+    ['JOB', index('JOB')],
+    ['WRITES TO', index('WRITES TO')],
     ['NOW', index('NOW')],
     ['NEXT', index('NEXT', /from Theo/)],
     ['NEXT MOVE', index('NEXT MOVE')],
-    ['JOB', index('JOB')],
+    ['STALE', index('STALE')],
+    ['HEALTH', index('HEALTH')],
     ['THEO', index('THEO')],
     ['SPEAKS', index('SPEAKS')],
     ['STANCE', index('STANCE')],
     ['MODE', index('MODE')],
-    ['VERSION', index('VERSION')],
     ['ASK', index('ASK')],
   ] as const
   for (const [name, found] of order) expect(`${name} ${found >= 0}`).toBe(`${name} true`)
   const places = order.map(one => one[1])
   expect([...places].sort((a, b) => a - b)).toEqual(places)
-  // The context meter keeps its place beside its canvas, at the top (the terminal template puts the
-  // canvas under the face; the percent is always printed beside it).
-  expect(index('Context')).toBeLessThan(places[0] ?? 0)
   await ui.unmount()
 })
 

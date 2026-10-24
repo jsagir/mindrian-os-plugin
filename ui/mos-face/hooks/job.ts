@@ -46,7 +46,7 @@ export type JobInput = {
 
 const DAY_MS = 24 * 3600000
 // Below this panel width the line is one short row, the want clause only (the width ladder: words only).
-const NARROW = 40
+export const JOB_NARROW_BELOW = 40
 // The ids the line can show. The steady state (explore) is not a job to show.
 const SHOWN = new Set(JOBS.filter(job => job.shown).map(job => job.id))
 
@@ -209,7 +209,7 @@ export function jobRows(input: JobInput): JobRow[] {
 
   const manual = input.record !== null && input.record.id === id && input.record.manual
   const rows: JobRow[] = []
-  if (input.width < NARROW) {
+  if (input.width < JOB_NARROW_BELOW) {
     rows.push({ kind: 'text', text: fit(`JOB, ${manual ? SET_WORDS : 'a guess'}: I want to ${job.want}.`) })
   } else {
     rows.push({ kind: 'heading', title: 'JOB', text: manual ? SET_WORDS : GUESS_WORDS })
