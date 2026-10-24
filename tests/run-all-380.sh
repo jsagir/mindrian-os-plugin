@@ -113,6 +113,7 @@ run_if        "380 canon Theo faces fixture check"                 ui/mos-face/s
 run_if        "380 job line (taxonomy parity, outcomes, no outbound word)" tests/test-380-jobs.cjs             node tests/test-380-jobs.cjs
 run_if        "380 job table check (generated from the taxonomy)"  ui/mos-face/scripts/face-jobs.cjs             node ui/mos-face/scripts/face-jobs.cjs --check
 run_if        "380 status parity (every status line field mapped, real status line on a fixture home)" tests/test-380-status-parity.cjs node tests/test-380-status-parity.cjs
+run_if        "380 glossary hold (no glossary first sentences ship)" tests/test-380-glossary-hold.cjs        node tests/test-380-glossary-hold.cjs
 
 # --- (2) Dash fence on this phase's files (hyphens only) ----------------------
 # Only EXISTING paths are scanned (ls -d), so a missing path never masks a hit.

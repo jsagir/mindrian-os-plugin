@@ -531,15 +531,11 @@ test('W7 voice: the new thoughts are questions or hedged reflections and keep to
 
 // ---- W8 words ---------------------------------------------------------------------------------
 
-test('W8 words: a state has glossary lines from WORDS or none, and a state without an entry does not fail', () => {
-  for (const id of IDS) {
-    const list = glossaryWords(id as never)
-    expect(Array.isArray(list)).toBe(true)
-  }
-  expect(glossaryWords('rest' as never)).toEqual(WORDS.rest)
-  expect(glossaryWords('limit' as never)).toEqual(WORDS.none)
-  expect(glossaryWords('boundary' as never)).toEqual(WORDS.refused)
-  for (const id of ['challenge', 'contradiction', 'reframe', 'decision']) expect(glossaryWords(id as never)).toEqual([])
+test('W8 words: the glossary lines are held back, so every state gives an empty list and none fails (navigator ruling 2026-10-24)', () => {
+  for (const id of IDS) expect(glossaryWords(id as never)).toEqual([])
+  for (const id of ['rest', 'limit', 'boundary', 'challenge', 'contradiction', 'reframe', 'decision']) expect(glossaryWords(id as never)).toEqual([])
+  // The vendored table keeps its seven keys and holds no line.
+  expect(Object.values(WORDS).every(list => list.length === 0)).toBe(true)
   // An id the file does not know gives an empty list, not an error.
   expect(glossaryWords('zzz' as never)).toEqual([])
 })

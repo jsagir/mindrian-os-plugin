@@ -1,5 +1,4 @@
 import type { FaceId, FaceState } from '../types'
-import { WORDS } from './glossary'
 import type { Word } from './glossary'
 
 // What the face thinks, in the teaching voice, spoken as Theo.
@@ -162,22 +161,9 @@ export const THEO_FAILED: string[] = [
   'That call failed. Retry, or carry on without the method for now?',
 ]
 
-// The glossary lines of a state. The vendored glossary file (hooks/glossary.ts, not edited here) is
-// keyed by seven older state names: Nothing found reads the lines kept under none, and Boundary the
-// lines kept under refused. A state the file does not know (Challenge, Contradiction, Reframe, Your
-// decision) has none, and an id the file does not know at all gives an empty list, never an error.
-const GLOSSARY_KEY: Record<string, FaceState> = {
-  rest: 'rest',
-  listen: 'listen',
-  search: 'search',
-  found: 'found',
-  limit: 'none',
-  boundary: 'refused',
-  handover: 'handover',
-}
-
-export function glossaryWords(id: FaceId): Word[] {
-  const key = GLOSSARY_KEY[id]
-
-  return key === undefined ? [] : (WORDS[key] ?? [])
+// The glossary lines of a state. They are held back (navigator ruling 2026-10-24): the first
+// sentences come from a private PWS glossary and do not ship. Every id gives an empty list, never
+// an error, so the pane draws no glossary row and the next-command pick falls back to the state.
+export function glossaryWords(_id: FaceId): Word[] {
+  return []
 }

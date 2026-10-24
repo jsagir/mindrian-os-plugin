@@ -156,7 +156,7 @@ What the tests scan:
 
 The reply chip (D-07, Quote the reply as is): the colored chip in a reply quotes the reply's own lead as it stands. It adds, removes and rewrites nothing, and it is built from the reply, never from panel copy. So the word Larry appears in the chip only when the reply put it there. The move glyph of the reply is shown as the color of the chip, as before.
 
-The glossary is vendored text from the owner's PWS repository. It is scanned for names, never edited here. Whether it ships in the public tarball is the owner's decision (plan 11).
+The glossary lines are held back (navigator ruling 2026-10-24). The first sentences came from a private PWS glossary and do not ship. hooks/glossary.ts keeps the Word type and an empty WORDS, and the pane draws no glossary row. They return only when the owner clears that glossary.
 
 ## Surfaces
 
