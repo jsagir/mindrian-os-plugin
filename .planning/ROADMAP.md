@@ -3789,7 +3789,7 @@ Plans:
 **Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10); MOD380-07 the panel keeps everything the plugin status line shows, plus the room and filing facts, from the same local sources, with a test that fails on a missing field (D-08); MOD380-08 the panel shows one Job line, a labelled local guess in jobs-to-be-done form that sends nothing anywhere (D-09); MOD380-09 the panel draws the 11 canon Theo faces from the byte-exact canon asset with the canon labels, and maps events to states only where a real event exists (D-10)
 **Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
 Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
-**Plans:** 20 plans (code plans 01 to 09, 12 to 15 and 16 to 20 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; plan numbers 12 to 15 were added after the first plan check and run before the dist build; plans 16 to 18 were added after the navigator's first real-terminal screenshots (2026-10-24) and run after plan 09 and before plan 10; plans 19 and 20 repair the gaps plan 10's real-terminal captures found and run after plan 10 and before plan 11; no plan pushes or cuts a release)
+**Plans:** 19/20 plans executed
 
 MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap plans 380-16 to 380-18 (screenshot findings G1 to G7) are written and run before plan 10; if plan 10 returns PARTIAL, insert a further repair plan with /gsd-plan-phase 380 --gaps and it runs before plan 11.
 
@@ -3797,72 +3797,72 @@ Plans:
 
 **Wave 1**
 
-- [ ] 380-01-PLAN.md - adopt the mod byte for byte as the walled package ui/mos-face with its own lockfile, wall test, 34 tests re-verified, phase aggregator
+- [x] 380-01-PLAN.md - adopt the mod byte for byte as the walled package ui/mos-face with its own lockfile, wall test, 34 tests re-verified, phase aggregator
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 380-02-PLAN.md - repair the type-check inside the walled package (16 errors, raster pins)
-- [ ] 380-03-PLAN.md - real-terminal capture harness (tmux, scratch config folder, ANSI page, Playwright PNG, reply chip from a synthetic transcript), self-tested
+- [x] 380-02-PLAN.md - repair the type-check inside the walled package (16 errors, raster pins)
+- [x] 380-03-PLAN.md - real-terminal capture harness (tmux, scratch config folder, ANSI page, Playwright PNG, reply chip from a synthetic transcript), self-tested
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped (known, proper and sentence-initial), honest texts; two flagged proposals (shim-only excerpt, MOS_FACE_WORDS switch) behind one flag each
+- [x] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped (known, proper and sentence-initial), honest texts; two flagged proposals (shim-only excerpt, MOS_FACE_WORDS switch) behind one flag each
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [ ] 380-05-PLAN.md - hook budgets: no subprocess, slow network clock, read back-off, plugin-matching home and rooms paths
+- [x] 380-05-PLAN.md - hook budgets: no subprocess, slow network clock, read back-off, plugin-matching home and rooms paths
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 380-06-PLAN.md - D-04 and D-07 copy: Theo not Larry in panel-authored text, the reply chip quotes the reply as is, no stack words, commands table generated and checked
+- [x] 380-06-PLAN.md - D-04 and D-07 copy: Theo not Larry in panel-authored text, the reply chip quotes the reply as is, no stack words, commands table generated and checked
 
 **Wave 6** *(blocked on Wave 5)*
 
-- [ ] 380-07-PLAN.md - D-02 canon colors, exact book state names, written decisions N2 N4 N5 N6 N7 N9, the book's review in a scratch consumer
+- [x] 380-07-PLAN.md - D-02 canon colors, exact book state names, written decisions N2 N4 N5 N6 N7 N9, the book's review in a scratch consumer
 
 **Wave 7** *(blocked on Wave 6)*
 
-- [ ] 380-12-PLAN.md - D-10 part one: the canon Theo face asset copied byte for byte, the generator and fixture, the loader, composition and rasterizer, 44 new pins
+- [x] 380-12-PLAN.md - D-10 part one: the canon Theo face asset copied byte for byte, the generator and fixture, the loader, composition and rasterizer, 44 new pins
 
 **Wave 8** *(blocked on Wave 7)*
 
-- [ ] 380-13-PLAN.md - D-10 part two: the panel draws the 11 canon faces with canon labels, real events only, no loop, no crew, no invented hex (D-11), the visual change recorded
+- [x] 380-13-PLAN.md - D-10 part two: the panel draws the 11 canon faces with canon labels, real events only, no loop, no crew, no invented hex (D-11), the visual change recorded
 
 **Wave 9** *(blocked on Wave 8)*
 
-- [ ] 380-14-PLAN.md - D-09: the Job line, a local labelled guess in jobs-to-be-done form, one-action dismiss and fix, /mos-job
+- [x] 380-14-PLAN.md - D-09: the Job line, a local labelled guess in jobs-to-be-done form, one-action dismiss and fix, /mos-job
 
 **Wave 10** *(blocked on Wave 9)*
 
-- [ ] 380-15-PLAN.md - D-08: every status line field mapped to a panel field, the room and filing facts, same local sources, the capture harness session home
+- [x] 380-15-PLAN.md - D-08: every status line field mapped to a panel field, the room and filing facts, same local sources, the capture harness session home
 
 **Wave 11** *(blocked on Wave 10)*
 
-- [ ] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship, the face assets included) with a freshness gate
+- [x] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship, the face assets included) with a freshness gate
 
 **Wave 12** *(blocked on Wave 11)*
 
-- [ ] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
+- [x] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
 
 **Wave 13** *(blocked on Wave 12)*
 
-- [ ] 380-16-PLAN.md - screenshot gaps G1, G3, G4: the sent line clears when a call is denied, the sent line says what was left out, the Job hint says what it needs (rule unchanged)
+- [x] 380-16-PLAN.md - screenshot gaps G1, G3, G4: the sent line clears when a call is denied, the sent line says what was left out, the Job hint says what it needs (rule unchanged)
 
 **Wave 14** *(blocked on Wave 13)*
 
-- [ ] 380-17-PLAN.md - clutter audit with counts, G5 idle gauge label, G6 dev-run note
+- [x] 380-17-PLAN.md - clutter audit with counts, G5 idle gauge label, G6 dev-run note
 
 **Wave 15** *(blocked on Wave 14)*
 
-- [ ] 380-18-PLAN.md - G7 and G2: the room tree is fully reachable, pinned header, fixed window, find, /mos-tree
+- [x] 380-18-PLAN.md - G7 and G2: the room tree is fully reachable, pinned header, fixed window, find, /mos-tree
 
 **Wave 16** *(blocked on Wave 15)*
 
-- [ ] 380-10-PLAN.md - real-terminal screenshots (reply chip, status fields, Job line, the 11 faces sheet) inspected by the executor, idle CPU window, opt-out persistence
+- [x] 380-10-PLAN.md - real-terminal screenshots (reply chip, status fields, Job line, the 11 faces sheet) inspected by the executor, idle CPU window, opt-out persistence
 
 **Wave 18** *(blocked on Wave 17)*
 
-- [ ] 380-19-PLAN.md - gaps 1 to 4, 9, 11 to 13: status fields and Job line above the fold, the book's narrow rule, band under NO_COLOR and at 28 columns, one honest advice line
+- [x] 380-19-PLAN.md - gaps 1 to 4, 9, 11 to 13: status fields and Job line above the fold, the book's narrow rule, band under NO_COLOR and at 28 columns, one honest advice line
 
 **Wave 19** *(blocked on Wave 18)*
 
