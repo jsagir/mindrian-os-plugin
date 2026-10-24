@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.74 (in progress)
+## [2.0.0-beta.75] - 2026-10-24
 
 ### Added
 - **The /m:os face panel now ships inside the plugin, for the Claude Code terminal.** It is a side panel, one status line, prompt-box buttons and the `/mos-*` commands, with Theo's face. It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
