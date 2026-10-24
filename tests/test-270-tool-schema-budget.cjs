@@ -449,16 +449,55 @@ const AFTER_270_12 = {
  *     than absorbed. AFTER moves because toolCount changed 48 -> 50, which this
  *     file's first check requires to be exact.
  */
+/*
+ * Quick 261024-uqs (2026-10-24) -- re-baseline for commit 6bc8cfc55 (feat(eureka):
+ * squash the Eureka adapter and RS commands branch into main for beta.74), which
+ * registered 25 MCP tools without the authorised AFTER re-baseline. Same protocol
+ * as the k22 block above: measure live with this file's own listToolsOverStdio +
+ * measure() pair, record the numbers, name the percentage, no new arithmetic.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   before uqs (the k22 record): 50 tools, 25866 desc bytes,
+ *     33154 schema bytes, 59020 total bytes, ~14755 approx tokens
+ *     (router 9 / atomic 41).
+ *   after uqs:  75 tools, 36010 desc bytes, 47512 schema bytes,
+ *     83522 total bytes, ~20881 approx tokens (router 9 / atomic 66).
+ *   the toolCount delta is exactly 25 new tool names. The tools/list names at
+ *     HEAD, checked against the lib/mcp and bin sources at dbb9a3efd (the k22
+ *     commit), show 25 names with no earlier registration, and 75 - 25 = 50
+ *     matches the k22 count:
+ *     - Eureka capability run and job tools (5, lib/mcp/tools/eureka-capability-
+ *       run.cjs and eureka-capability-jobs.cjs): eureka_capability_run,
+ *       eureka_capability_start, eureka_capability_job_status,
+ *       eureka_capability_job_result, eureka_capability_job_cancel.
+ *     - Eureka graph tools (17, one lib/mcp/tools/eureka-graph-*.cjs file each):
+ *       eureka_graph_analyze, _assess_category_edge_patterns, _backtest,
+ *       _compare_topics, _find_community_bridge_pairs, _find_network_holes,
+ *       _find_shared_neighbor_gaps, _find_similar_unlinked_items, _genesis_plan,
+ *       _map_neighbourhoods, _opportunity_scout, _package_relationships,
+ *       _prepare_artifacts, _project, _propose_relationships, _rank_paths,
+ *       _score_surprise.
+ *     - Eureka HSI (1): eureka_hsi_interpret_whitespace.
+ *     - Reverse Salient reads (2): rs_experts_find, rs_thesis_read.
+ *   signed pctChange(59020, 83522) = 41.51 percent against the k22 record, over
+ *     DRIFT_TOLERANCE_PCT. The tolerance stays 10 and is not relaxed: the budget
+ *     moves deliberately because 25 tools were added, and the per-turn cost of
+ *     that is stated here in plain sight (+6126 approx tokens, 14755 -> 20881).
+ *     The only lib/mcp commit since k22 that adds a tool is 6bc8cfc55; other
+ *     lib/mcp commits since then edit existing descriptions. AFTER moves because
+ *     toolCount changed 50 -> 75, which this file's first check requires to be
+ *     exact.
+ */
 const AFTER = {
-  measuredAt: '2026-10-19',
-  plan: 'quick-261019-k22',
-  toolCount: 50,
-  totalDescBytes: 25866,
-  totalSchemaBytes: 33154,
-  totalBytes: 59020,
-  approxTokens: 14755,
+  measuredAt: '2026-10-24',
+  plan: 'quick-261024-uqs',
+  toolCount: 75,
+  totalDescBytes: 36010,
+  totalSchemaBytes: 47512,
+  totalBytes: 83522,
+  approxTokens: 20881,
   routerCount: 9,
-  atomicCount: 41,
+  atomicCount: 66,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget
