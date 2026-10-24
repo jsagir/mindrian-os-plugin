@@ -28,3 +28,9 @@ source: Larry recommendation accepted ("yes that the decisions")
 
 ## Gate 3: real-room receipt
 - OPEN: a person reads the real-room report and signs the receipt at the cut. MOD380-06 stays incomplete until then.
+
+## Update 2026-10-24 (card answers)
+- STATES: ACCEPTED "10 of 11 states mapped" (Reframe unmapped, plan 380-13). Fix the plan figure to match the build.
+- BADGE: APPROVED "Theo | MindrianOS" as the public naming. The condition is lifted.
+- CUT SCOPE: panel plus Eureka adapter in beta.74.
+- EUREKA MERGE PATH: squash-merge of feat/eureka-adapter-rebased into release-tree main, with the 3 private glossary sentences redacted from 380-BOOK-REVIEW.md. No rewrite of the shared branch. Commit 1b6a677be must not enter main's history.
