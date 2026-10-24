@@ -3789,7 +3789,7 @@ Plans:
 **Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10); MOD380-07 the panel keeps everything the plugin status line shows, plus the room and filing facts, from the same local sources, with a test that fails on a missing field (D-08); MOD380-08 the panel shows one Job line, a labelled local guess in jobs-to-be-done form that sends nothing anywhere (D-09); MOD380-09 the panel draws the 11 canon Theo faces from the byte-exact canon asset with the canon labels, and maps events to states only where a real event exists (D-10)
 **Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
 Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
-**Plans:** 18 plans (code plans 01 to 09, 12 to 15 and 16 to 18 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; plan numbers 12 to 15 were added after the first plan check and run before the dist build; plans 16 to 18 were added after the navigator's first real-terminal screenshots (2026-10-24) and run after plan 09 and before plan 10; no plan pushes or cuts a release)
+**Plans:** 20 plans (code plans 01 to 09, 12 to 15 and 16 to 20 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the beta cut comes from main; plans 10 and 11 write evidence in this tree; plan numbers 12 to 15 were added after the first plan check and run before the dist build; plans 16 to 18 were added after the navigator's first real-terminal screenshots (2026-10-24) and run after plan 09 and before plan 10; plans 19 and 20 repair the gaps plan 10's real-terminal captures found and run after plan 10 and before plan 11; no plan pushes or cuts a release)
 
 MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap plans 380-16 to 380-18 (screenshot findings G1 to G7) are written and run before plan 10; if plan 10 returns PARTIAL, insert a further repair plan with /gsd-plan-phase 380 --gaps and it runs before plan 11.
 
@@ -3860,6 +3860,14 @@ Plans:
 
 - [ ] 380-10-PLAN.md - real-terminal screenshots (reply chip, status fields, Job line, the 11 faces sheet) inspected by the executor, idle CPU window, opt-out persistence
 
-**Wave 17** *(blocked on Wave 16; stops at human checkpoints)*
+**Wave 18** *(blocked on Wave 17)*
+
+- [ ] 380-19-PLAN.md - gaps 1 to 4, 9, 11 to 13: status fields and Job line above the fold, the book's narrow rule, band under NO_COLOR and at 28 columns, one honest advice line
+
+**Wave 19** *(blocked on Wave 18)*
+
+- [ ] 380-20-PLAN.md - gaps 5 to 8: the tree in a short pane, the crumb, balanced pages, /mos-tree list; the final real-terminal gate
+
+**Wave 20** *(blocked on Wave 19; stops at human checkpoints)*
 
 - [ ] 380-11-PLAN.md - book follow-ups A1 to A7 and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)
