@@ -35,7 +35,7 @@ import type { Run } from './face'
 import { stateFor, stateForLead } from './face-events'
 import { clock, fit, nowLine, panelLights, plain, recommend, stateBlocks, stateText, statusText, suggestionText } from './lines'
 import { contextCanvas } from './meter'
-import { overviewLayout, screenColumnsOf } from './overview'
+import { bandLayout, hintLayout, overviewLayout, screenColumnsOf } from './overview'
 import { isPanelReading, readRoom, resetReach } from './source'
 import { contextBand, factLabel, nextMove, pluginFacts, readStatusLocal, roomFacts } from './status'
 import type { Fact } from './status'
@@ -216,9 +216,6 @@ function faceRuns(text: string, id: FaceId, n: number): Run[][] {
 
   return grid === null ? [] : gridRuns(grid)
 }
-
-// The size of the tile in the box above the prompt, by style: tile 12, mini 6, line none.
-const bandSize = (style: FaceStyle): number => (style === 'line' ? 0 : style === 'mini' ? 6 : 12)
 
 // ---- The module -------------------------------------------------------------
 
@@ -1804,12 +1801,37 @@ export const register: Register = on => {
     const totals = await read($, theoTotals)
     const turnTotals = await read($, theoTurn)
     const next2 = await read($, advice)
-    const faceRows = faceRuns(assetText, state, bandSize(bandStyle))
+    const plainMode = await read($, isPlain)
+
+    // What the band draws at this width (hooks/overview.ts, plan 380-19): the SCREEN width is the viewport the
+    // host gives, else the body plus the 5 cells the host keeps. A screen under 60 columns is words only, plain
+    // mode is words only, and a screen under 30 columns gets one message (mos-brand book e947a5d, GUIDE.md
+    // lines 24, 28, 96 and 97, status proposed).
+    const screen = screenColumnsOf(e.viewport, cols, 5) ?? cols + 5
+    const layout = bandLayout({ screenColumns: screen, bodyColumns: cols, plain: plainMode, style: bandStyle })
+    if (layout.kind === 'too-small') {
+      return (
+        <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={cols}>
+          <Text {...ink} bold>{`/m:os needs ${layout.needs} columns`}</Text>
+          <Text {...soft}>Widen the window. /mos-state still works.</Text>
+        </Box>
+      )
+    }
+
+    const faceRows = faceRuns(assetText, state, layout.tile)
     const wordsOnly = faceRows.length === 0
     const thought = pickVaried(THOUGHTS[state], said, 3)
-    const textWidth = Math.max(20, Math.min(54, cols - 14))
+    const textWidth = layout.textWidth
     const first = next2.status === 'ok' ? next2.commands[0] : undefined
     const why = first ? WHY[first] : undefined
+    const badge = (
+      <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>{' Theo | MindrianOS '}</Text>
+    )
+    const hide = (
+      <Box key="hide-box" backgroundColor={RAISED} alignSelf="flex-start">
+        <Button key="hide" label="Hide" onPress={() => update($, isHidden, () => true)} />
+      </Box>
+    )
 
     return (
       <Box width={cols} justifyContent="flex-end">
@@ -1828,12 +1850,17 @@ export const register: Register = on => {
             </Box>
           )}
           <Box flexDirection="column" width={textWidth}>
-            <Box gap={1}>
-              <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>{' Theo | MindrianOS '}</Text>
-              <Box backgroundColor={RAISED}>
-                <Button key="hide" label="Hide" onPress={() => update($, isHidden, () => true)} />
+            {layout.hideOnOwnRow ? (
+              <Box flexDirection="column">
+                <Box>{badge}</Box>
+                {hide}
               </Box>
-            </Box>
+            ) : (
+              <Box gap={1}>
+                {badge}
+                {hide}
+              </Box>
+            )}
             <Text {...ink} bold wrap="truncate-end">
               {fit(`${wordsOnly ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''} | Theo ${turnTotals.total} this turn, ${totals.total} in all`, textWidth)}
             </Text>
@@ -1853,15 +1880,23 @@ export const register: Register = on => {
     if (e.props.isDraft) return next(e)
     const { Box, Text, Button } = $.ui.resolve(e)
     const hidden = await read($, isHidden)
+    // The hint line is as wide as the screen. The long label keeps one line while it fits; then the short label
+    // /m:os; then the host hint is cut with a mark (the layout bug table: a label that wraps needs a shorter one).
+    const layout = hintLayout({ screenColumns: e.viewport?.columns ?? 80, hint: e.props.hint, hidden })
 
     return (
       <Box gap={2}>
-        <Text dimColor>{e.props.hint}</Text>
-        <Box backgroundColor={RAISED}>
-          <Button key="dash" label="/m:os dashboard" onPress={() => openPane($)} />
+        {layout.hintWidth === null && <Text dimColor>{e.props.hint}</Text>}
+        {layout.hintWidth !== null && layout.hintWidth > 0 && (
+          <Box width={layout.hintWidth}>
+            <Text dimColor wrap="truncate-end">{e.props.hint}</Text>
+          </Box>
+        )}
+        <Box backgroundColor={RAISED} flexShrink={0}>
+          <Button key="dash" label={layout.label} onPress={() => openPane($)} />
         </Box>
-        {hidden && (
-          <Box backgroundColor={RAISED}>
+        {layout.showBox && (
+          <Box backgroundColor={RAISED} flexShrink={0}>
             <Button key="unhide" label="Show box" onPress={() => update($, isHidden, () => false)} />
           </Box>
         )}

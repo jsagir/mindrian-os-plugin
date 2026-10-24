@@ -63,6 +63,28 @@ const textsOf = async (ui: Mounted): Promise<string[]> => (await ui.findAll({ ty
 const buttonsOf = async (ui: Mounted): Promise<string[]> => (await ui.findAll({ type: 'Button' })).map(one => one.text)
 const tileRows = (texts: string[]): string[] => texts.filter(text => /^▀+$/.test(text))
 
+
+// The tree helpers: the lowest Box that holds both the badge and the Hide button says whether they share a row.
+type TreeNode = { type: string; props?: Record<string, unknown>; children?: unknown[] }
+const isTreeNode = (value: unknown): value is TreeNode =>
+  typeof value === 'object' && value !== null && typeof (value as { type?: unknown }).type === 'string'
+const flat = (node: unknown): string => {
+  if (typeof node === 'string') return node
+  if (!isTreeNode(node)) return ''
+  const own = node.type === 'Button' ? String(node.props?.label ?? '') : ''
+
+  return own + (node.children ?? []).map(flat).join('')
+}
+function lowestHolding(node: unknown, ...words: string[]): TreeNode | null {
+  if (!isTreeNode(node) || !words.every(word => flat(node).includes(word))) return null
+  for (const kid of node.children ?? []) {
+    const deeper = lowestHolding(kid, ...words)
+    if (deeper !== null) return deeper
+  }
+
+  return node
+}
+
 // ---- BD-P1 the band layout -----------------------------------------------------------------------------
 
 type BandRow = { screen: number; body: number; plain?: boolean; style?: FaceStyle; tile: 0 | 6 | 12; own: boolean }
@@ -142,6 +164,9 @@ test('BD1 the band on a screen of 50 columns draws words and no tile, keeps the 
   expect(texts.some(text => text.includes('Rest') && text.includes('Theo 0 this turn'))).toBe(true)
   expect(texts.some(text => text.startsWith('"'))).toBe(true)
   expect(await buttonsOf(ui)).toContain('Hide')
+  const holder = lowestHolding(await ui.find({ type: 'Box' }), 'Theo | MindrianOS', 'Hide')
+  expect(holder).not.toBeNull()
+  expect(holder?.props?.flexDirection).not.toBe('column')
   await ui.unmount()
 })
 
@@ -208,10 +233,9 @@ test('BD6 the band on a screen of 30 columns is drawn, words only, and Hide stan
   expect(tileRows(texts)).toEqual([])
   expect(texts.some(text => text.includes('Rest'))).toBe(true)
   expect(await buttonsOf(ui)).toContain('Hide')
-  const hide = await ui.find({ type: 'Button' })
-  const badge = (await ui.findAll({ type: 'Text' })).find(one => one.text.includes('Theo | MindrianOS'))
-  expect(hide).toBeDefined()
-  expect(badge).toBeDefined()
+  const holder = lowestHolding(await ui.find({ type: 'Box' }), 'Theo | MindrianOS', 'Hide')
+  expect(holder).not.toBeNull()
+  expect(holder?.props?.flexDirection).toBe('column')
   await ui.unmount()
 })
 

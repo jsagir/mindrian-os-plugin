@@ -379,6 +379,30 @@ Buttons. Every label made by the pane is cut with a mark to the pane columns les
 
 The fold line is estimated by the tests with a row counter that wraps text at word edges (proved on made-up drawings by OV0). It is an estimate of the screen, not a measurement. The real capture is plan 380-20.
 
+## Band and hint line
+
+Added in plan 380-19 (D-04, D-08, D-10; gaps 2, 3 and 4, the band and the hint half). The rules sit in `hooks/overview.ts` (`bandLayout` and `hintLayout`, pure, tested by `tests/band.test.tsx`).
+
+Canon: mos-brand book e947a5d, segments/experience/terminal GUIDE.md (status proposed): line 24 (words carry the meaning), line 28 (NO_COLOR; compact below 60 columns), line 96 (too small names the width it needs), line 97 (plain mode: ASCII shapes, every meaning survives), lines 99 to 107 (under 30 columns one message that names 30 columns). The layout bug table of the tui consult skill: a label that wraps needs a shorter label.
+
+The box above the prompt (the band), by the width of the SCREEN (the viewport the host gives, else the body columns plus the 5 cells the host keeps):
+
+| Screen | What the band draws |
+|--------|---------------------|
+| 60 columns or more | the face tile (12 cells; 6 in the mini style; none in the line style), the state words, the Theo counts, the thought, and Hide beside the badge |
+| 30 to 59 columns | words only: the line face and the state word, the Theo counts, the thought, and Hide |
+| under 36 body columns | the same, with Hide on a row of its own under the badge |
+| under 30 columns | one message: /m:os needs 30 columns, then Widen the window. /mos-state still works. No tile and no Hide |
+| NO_COLOR or /mos-plain, any width | words only, never block bars: the line face and the state word |
+
+A band that was hidden keeps its one row (Theo face hidden and Show), at every width.
+
+The hint line under the prompt (the host hint and the dashboard button): the long label `/m:os dashboard` is used only when the host hint, a gap of 2 and the 19 cells of the long button fit the screen. Otherwise the short label `/m:os` (9 cells) is used. When even that does not fit, the host hint is cut with a mark to the room left (screen less 11 cells), and it is dropped under 4 cells. The label never wraps and never splits a word. Show box (to bring a hidden band back) is drawn only from 60 columns, and the hint gives it 14 cells.
+
+The band and the hint line read nothing new: no atom, tool call, http call or process (tests BD10 and the budget tests).
+
+Tests: tests/band.test.tsx (BD-P1 to BD-P3, BD1 to BD10).
+
 ## Decisions
 
 Written in plan 380-07. The canon is the mos-brand book e947a5d (read only, /home/jsagi/mos-brand). The terminal segment `segments/experience/terminal` is PROPOSED in the book: the owner has not ruled on it, so each rule taken from it carries that status. A rule taken from `segments/foundations/color`, `segments/identity/theo/states` or `segments/identity/theo` is ruled. The tests behind this section are tests/colors.test.tsx and tests/test-380-decisions.cjs.
