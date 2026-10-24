@@ -217,3 +217,45 @@ test('W14 the pinned status line follows NOW: with no host recorded and a health
   expect(last).not.toMatch(/not answering/)
   await ui.unmount()
 })
+
+// The same root cause shows in two more places (found while fixing gap 13, Rule 1): the light row and the
+// plain text of /mos-text. A Theo that was not checked is not a Theo that is down.
+
+const buttonsOf = async (ui: Mounted): Promise<string[]> =>
+  (await ui.findAll({ type: 'Button' })).map(one => one.text).filter(text => text.trim() !== '')
+
+test('W15 with no host recorded the Theo light says it is not known, and with the local health file saying ok it says ok; a failed check still says down', async ($, on) => {
+  const unknown = await open($, on, { files: NO_THEO_RECORD })
+  const lightsUnknown = (await buttonsOf(unknown.ui)).filter(text => /Theo (\?|ok|down)/.test(text))
+  await unknown.ui.unmount()
+
+  expect(lightsUnknown).toHaveLength(1)
+  expect(lightsUnknown[0]).toContain('Theo ?')
+})
+
+test('W15b the Theo light says ok when no host is recorded and the local health file says ok', async ($, on) => {
+  const known = await open($, on, { files: { ...NO_THEO_RECORD, '/.mindrian/bridge/brain-health.json': HEALTH_OK } })
+  const lights = (await buttonsOf(known.ui)).filter(text => /Theo (\?|ok|down)/.test(text))
+  await known.ui.unmount()
+
+  expect(lights).toHaveLength(1)
+  expect(lights[0]).toContain('Theo ok')
+})
+
+test('W15c the Theo light still says down when the host is recorded and the check is refused', async ($, on) => {
+  const down = await open($, on, { files: { ...NO_THEO_RECORD, '/.mindrian/brain-prewarm.json': PREWARM }, httpStatus: 503 })
+  const lights = (await buttonsOf(down.ui)).filter(text => /Theo (\?|ok|down)/.test(text))
+  await down.ui.unmount()
+
+  expect(lights).toHaveLength(1)
+  expect(lights[0]).toContain('Theo down')
+})
+
+test('W16 the plain text of /mos-text says Theo was not checked when no host is recorded, and never "unknown - no answer"', async ($, on) => {
+  recordCalls(on, { files: NO_THEO_RECORD })
+  await $.session.start(START)
+  const text = ((await $.command.run({ command: 'mos-text', args: '' } as never)) as { text: string }).text
+
+  expect(text).toContain('THEO: health not checked')
+  expect(text.includes('unknown - no answer')).toBe(false)
+})
