@@ -71,3 +71,43 @@ Paste-ready text for the States row:
 > A service that was not checked says "not read". It never says "not answering". Only a check that ran and failed says the service failed.
 
 Why: NOW said Theo was not answering when no Theo host was recorded and nothing had been checked, while the THEO row said on (380-19-FACTS.md, gap 13). Status of the cited segment: proposed.
+
+## P19-8 Balanced pages
+
+Cited lines: 94 (Folded parts: one line each, the last good reading visible) and 95 (Keyboard routes: every button has a slash command). The book is silent on long lists. The tui-design skill (Tables and lists: virtualize lists that grow; keep positions stable) is the ground.
+
+Paste-ready text for the Rules that hold everywhere list:
+
+> A long list is split into pages of even size. Every page holds the same number of names or one name fewer. No page is empty, and the last page is never one name. The controls stay right under the last row of the page and do not move between pages.
+
+Why: 18 names in a window of 17 gave pages of 17 and 1, and page 2 drew one name over 16 empty rows (tree-sections-p2-small.png of plan 380-10). Status of the cited segment: proposed.
+
+## P19-9 The crumb
+
+Cited line: 95 (a hint line names the routes) and the tui-design skill (truncate paths with a mark so the last part survives and the root is not lost). The book is silent on paths.
+
+Paste-ready text for the Rules that hold everywhere list:
+
+> A path line keeps the root name. When the path is too long, the middle folders become the mark ~, and the last name is cut at its end with the mark. A path never starts with the mark.
+
+Why: the crumb was cut at its start, so "demo-room / archive-2000" became "~rchive-2000" and the room name was lost (tree-2000-p1-small.png). Status of the cited segment: proposed.
+
+## P19-10 A pane too short for a view says what the person can do
+
+Cited line: 96 (States: too small names what it needs). The line names the width of the band. The book does not say what to do when the rows are too few.
+
+Paste-ready text for the States row:
+
+> Too small names what it needs and what the person can do: make the terminal taller, or dock the panel, and the width that docking needs. A too small pane never prints the content of the view as text.
+
+Why: the inline pane of an 80 by 24 terminal gets about 6 rows, so the tree showed a cut line and Close only (tree-inline-80x24.png). Owner ruling of gap 5, 2026-10-24. Status of the cited segment: proposed.
+
+## P19-11 A cap note has a row of its own when it does not fit
+
+Cited line: 96 (States: partial has words). A list cut by a cap is a partial state and must say so. The book does not say where the words go.
+
+Paste-ready text for the States row:
+
+> A list cut by a cap says how many names show and how many exist (first 300 of 2000). When the path, the counter and these words do not fit one row, the words take a row of their own. The path keeps its whole name.
+
+Why: the counter row held 30 cells and left 12 for the crumb (tree-2000-p1-small.png). Status of the cited segment: proposed.
