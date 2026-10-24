@@ -1,0 +1,12 @@
+# GREEN, pure part (tests/overview.test.ts), taken from the full run saved in green-overview.txt
+tests/overview.test.ts:
+(pass) OV-P1 the layout table: each size gives its class, header, canvas, text bar, job form and gaps [27.16ms]
+(pass) OV-P1b the tier follows the width of the pane: wide from 50 columns, standard 40 to 49, narrow under 40 and in plain mode [0.58ms]
+(pass) OV-P2 isCompact: 59 is compact, 60 is not, 120 is not, no viewport is not, and NaN is not [0.34ms]
+(pass) OV-P2b screenColumnsOf: the viewport wins, else the body columns plus the cells the host keeps, else nothing [1.16ms]
+(pass) OV-P3 the sweep: rows 1 to 80, columns 30 to 120, five screens, plain and not, three styles hold every invariant [106.53ms]
+
+tests/sent.test.tsx:
+(pass) S1 a refused call leaves no sent line, only the one line that says Theo was not asked [1099.16ms]
+(pass) S2 a missing Theo tool followed by a refused call: nothing was sent, and the one note says the call was not allowed [0.98ms]
+(pass) S2p the same case on the pane: a Theo tool that is not there and a refused call show one honest line [476.69ms]

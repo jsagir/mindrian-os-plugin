@@ -1,0 +1,20 @@
+▎ ╭────────────────────────╮
+▎ │ mos                    │
+▎ │ /m:os face loaded.     │
+▎ │ /mos-state opens the   │
+▎ │ dashboard; /mos-face … │
+▎ ╰────────────────────────╯
+▎ and blocks the rest.
+▎ https://code.claude.com/do
+▎ cs/en/permission-modes
+  2 more notices hidden
+  Fast mode is now availa…
+────────────────────────────
+❯ Try "fix typecheck errors"
+────────────────────────────
+  ⚠ mos: /m:os  not bound…
+  ⏵⏵ auto   (shift+  [
+  mode on · tab to   /m:os
+            cycle)   dash
+            · ← for  board
+            agents   ]

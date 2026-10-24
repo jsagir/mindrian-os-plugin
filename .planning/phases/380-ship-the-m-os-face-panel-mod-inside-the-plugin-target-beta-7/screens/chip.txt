@@ -1,0 +1,30 @@
+                                                        ╭──────────────────────────────────────────╮
+ ▐▛███▛█   Claude Code v2.1.310                         │ mos                                      │
+▝▜██████▀  Opus 5.5 · Claude Max                        │ /m:os face loaded. /mos-state opens the  │
+ ▝▝   ▝▝   /tmp/mos-face-shots-FB9HGp/work              │ dashboard; /mos-face shows or hides the  │
+                                                        │ box.                                     │
+  Get to finished work sooner with Opus 5.5. Switch anyt╰──────────────────────────────────────────╯
+  1 more notice hidden
+
+❯ Hello.
+ Larry | MindrianOS
+
+● Market sizing is the first claim to test. What would change your mind?
+
+
+
+
+
+
+                           ▀▀▀▀▀▀▀▀▀▀▀▀  Theo | MindrianOS  [ Hide ]                            [-]
+                           ▀▀▀▀▀▀▀▀▀▀▀▀ Rest | Theo 0 this turn, 0 in all
+                           ▀▀▀▀▀▀▀▀▀▀▀▀ "What is the thing you keep coming back to?"
+                           ▀▀▀▀▀▀▀▀▀▀▀▀
+                           ▀▀▀▀▀▀▀▀▀▀▀▀
+                           ▀▀▀▀▀▀▀▀▀▀▀▀
+                                                     Fast mode is now available · /fast to turn on
+────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing will be filed  /mos:rooms
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

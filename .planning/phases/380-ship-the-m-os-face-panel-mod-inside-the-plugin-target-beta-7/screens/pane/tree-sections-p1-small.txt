@@ -1,0 +1,29 @@
+                                                                         │                                            ✕
+❯ /mos-tree                                                              │  Theo | MindrianOS  [o|o] Rest
+  ⎿  mos: demo-room                                                      │ demo-room  1-17 of 18
+     1-17 of 18                                                          │ [ ▸ archive-2000  2000 ]
+       archive-2000  2000                                                │ [ ▸ evidence-16  16 ]
+       evidence-16  16                                                   │ [ ▸ legal-contracts  4 ]
+       legal-contracts  4                                                │ [ ▸ legal-review  4 ]
+       legal-review  4                                                   │ [ ▸ channel-tests  3 ]
+       channel-tests  3                                                  │ [ ▸ competitor-scan  3 ]
+       competitor-scan  3                                                │ [ ▸ customer-interviews  3 ]
+       customer-interviews  3                                            │ [ ▸ funding-plan  3 ]
+       funding-plan  3                                                   │ [ ▸ market-analysis  3 ]
+       market-analysis  3                                                │ [ ▸ metrics-board  3 ]
+       metrics-board  3                                                  │ [ ▸ open-questions  3 ]
+       open-questions  3                                                 │ [ ▸ partner-list  3 ]
+       partner-list  3                                                   │ [ ▸ pricing-tests  3 ]
+       pricing-tests  3                                                  │ [ ▸ problem-definition  3 ]
+       problem-definition  3                                             │ [ ▸ product-brief  3 ]
+       product-brief  3                                                  │ [ ▸ regulatory-notes  3 ]
+       regulatory-notes  3                                               │ [ ▸ risk-register  3 ]
+       risk-register  3                                                  │ [ Next ] [ Find ]
+     Click a name to ask about it in the prompt box.                     │ [ Close ]
+     In the prompt box: /mos-tree next, prev, up, find                   │ /mos-tree next, prev, up, find
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

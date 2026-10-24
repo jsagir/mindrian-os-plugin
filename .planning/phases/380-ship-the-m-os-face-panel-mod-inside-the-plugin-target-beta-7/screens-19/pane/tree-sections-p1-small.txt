@@ -1,0 +1,29 @@
+                                                                         │                                            ✕
+ Larry | MindrianOS                                                      │  Theo | MindrianOS  [o|o] Rest
+                                                                         │ demo-room  1-9 of 18
+● Market sizing is the first claim to test. What would change your mind? │ [ ▸ archive-2000  2000 ]
+                                                                         │ [ ▸ evidence-16  16 ]
+❯ /mos-state                                                             │ [ ▸ legal-contracts  4 ]
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any │ [ ▸ legal-review  4 ]
+     width when you ask for it.                                          │ [ ▸ channel-tests  3 ]
+                                                                         │ [ ▸ competitor-scan  3 ]
+❯ /mos-tree                                                              │ [ ▸ customer-interviews  3 ]
+  ⎿  mos: demo-room                                                      │ [ ▸ funding-plan  3 ]
+     1-9 of 18                                                           │ [ ▸ market-analysis  3 ]
+       archive-2000  2000                                                │ [ Next ] [ Find ]
+       evidence-16  16                                                   │ [ Close ]
+       legal-contracts  4                                                │ /mos-tree next, prev, up, find
+       legal-review  4                                                   │
+       channel-tests  3                                                  │
+       competitor-scan  3                                                │
+       customer-interviews  3                                            │
+       funding-plan  3                                                   │
+       market-analysis  3                                                │
+     Click a name to ask about it in the prompt box.                     │
+     In the prompt box: /mos-tree next, prev, up, find                   │
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

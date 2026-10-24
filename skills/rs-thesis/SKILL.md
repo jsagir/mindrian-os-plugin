@@ -2,7 +2,7 @@
 name: rs-thesis
 description: Read the thesis for a prior Reverse Salient discovery
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-help_jtbd: "Compose the thesis statement from your reverse salient findings."
+help_jtbd: "Revisit the saved thesis from a prior Reverse Salient discovery."
 body_shape: E (Action Report)
 layer: "loop"
 hitl_shape: "F.9"
@@ -53,7 +53,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:rs-thesis
 
-You are Larry. This command looks up the thesis text for a prior `RSDiscovery` by `discovery_id`. The lookup is tier-aware: it queries Aura first (Tier 1) when an Aura driver or env var is configured, and falls back to the local SQLite mirror (Tier 0) on `AuraUnreachableError`.
+You are Larry. This command reads the thesis for one prior `RSDiscovery` by `discovery_id` from the local room database. Remote Brain and Aura access are disabled for this user data.
 
 **Synopsis:**
 
@@ -64,40 +64,38 @@ You are Larry. This command looks up the thesis text for a prior `RSDiscovery` b
 ## What it does
 
 1. Validates `<discovery_id>` against Canon Part 8 (`auditQueryString` on the bound parameter; throws `ExternalEgressViolation` if forbidden bytes appear).
-2. Detects tier from `opts.tier`, `opts.driver`, `opts.aura_url`, or `process.env.NEO4J_URI`.
-3. Tier 1 path: runs an Aura Cypher MATCH on `(rs:RSDiscovery {id: $discovery_id})` with parameterized `$discovery_id`. Returns the `thesis` field plus `breakthrough_score`, `rs_type`, `created_at` metadata.
-4. Tier 0 path (or fallback on `AuraUnreachableError`): runs a SQLite `SELECT * FROM rs_discoveries WHERE id = ?` against the local `room.db`. Emits a `DEGRADED_NOTE` marker indicating Tier 0 mode.
-5. Emits Phase Gate-style transcript on success (CLI) or JSON (`--json` for Desktop MCP / Cowork).
+2. The CLI reads `rs_discoveries` from the local room database with a parameterized ID. Only `tier0` is supported; other `--tier` values are refused.
+3. The MCP tool `rs_thesis_read` requires a bound or operator-pinned room, opens it through the navigation read-only door, and returns structured thesis and metadata. It has no room-path input and does not use a registry or server fallback.
+4. The CLI emits a Phase Gate-style transcript; Larry renders the MCP result for the navigator.
 
 ## UI Format
 
 - **Body Shape:** E (Action Report) -- one-line lookup status + thesis body + metadata table
 - **Reference:** `skills/ui-system/SKILL.md`
-- **Zone 1:** Header Panel -- discovery_id + tier
+- **Zone 1:** Header Panel -- discovery_id + local tier
 - **Zone 2:** Content Body -- thesis text plus a 4-row metadata table (rs_type, breakthrough_score, room_slug, created_at)
-- **Zone 3:** Intelligence Strip -- DEGRADED_NOTE on Tier 0 fallback only
+- **Zone 3:** Intelligence Strip -- local-only disclosure
 - **Zone 4:** Action Footer -- next-step verbs (Bank Opportunity, Devil's Advocate, Synthesize)
 
 ## Three-surface notes
 
 - **CLI:** Phase Gate-style transcript with thesis body and metadata table.
-- **Desktop MCP:** structured JSON via `--json`; MCP wrapper renders Larry's narration with the thesis as a quote.
-- **Cowork:** honors `MINDRIAN_ROOM` env var; the lookup runs against the active room's local SQLite mirror in shared `00_Context/`.
+- **Desktop MCP:** call `rs_thesis_read` with `discovery_id`; it reads only the bound or operator-pinned room through a read-only handle. The tool returns structured JSON; Larry renders the thesis and metadata.
+- **Cowork:** use `rs_thesis_read`; it resolves the current session's bound room and reads local `room.db` only.
 
 ## Tier-0 LOCAL-only base (Canon Part 8, D-200-2 (b) unchanged half)
 
 The thesis and its `RSDiscovery` / Author / Paper / Institution neighborhood are **LOCAL-only** user artifacts. Tier-0 resolution reads them straight from `room.db` with NO Brain call (Canon Part 8: people/paper data is LOCAL and NEVER egresses). The frontmatter carries no `mcp__mindrian-brain__*` tool, so whether Theo is reachable changes nothing:
 
-- Theo unreachable -> Tier-0 SQLite read is authoritative (the writer is idempotent). No throw.
-- Aura reachable -> Tier 1 Cypher MATCH on the local mirror.
-- Aura unreachable -> Tier-0 SQLite fallback with a `DEGRADED_NOTE` marker.
+- The CLI uses the local SQLite mirror and never contacts remote Brain or Aura.
+- MCP uses the session-bound or operator-pinned room through a read-only SQLite handle. Unbound and registry-fallback sessions are refused.
 
 This is the unchanged half of navigator decision D-200-2 (b): the local-only Tier-0 stays the base; the Brain never holds a discovery's bytes.
 
 ## Canon References
 
-- **Canon Part 7 (Reuse Before Build):** consumes existing `lazygraph-ops.cjs` for SQLite reads and existing `brain-client.cjs` (Aura session) for Tier 1. Zero forks.
-- **Canon Part 8 (Graph Boundary):** the `discovery_id` parameter is parameterized in both backends (NO string concatenation). Audited via `auditQueryString` BEFORE binding. The thesis is a LOCAL artifact; this command never queries Brain.
+- **Canon Part 7 (Reuse Before Build):** the MCP reader reuses `session-room.cjs` and the navigation-owned read-only database door.
+- **Canon Part 8 (Graph Boundary):** the `discovery_id` is audited and parameterized; it is never concatenated into SQL. The thesis is a LOCAL artifact and this command never queries Brain.
 
 ## Examples
 
@@ -114,12 +112,12 @@ This is the unchanged half of navigator decision D-200-2 (b): the local-only Tie
       Fix: /mos:rs-thesis <discovery_id>
 
     x Discovery not found
-      Why: no row matched discovery_id <id> in either Aura (Tier 1) or SQLite (Tier 0)
+      Why: no local row matched discovery_id <id> in the bound room
       Fix: /mos:rs-fetch <topic>
 
-    x Aura unreachable; Tier 0 used
-      Why: AuraUnreachableError caught; falling back to SQLite mirror
-      Fix: not actionable; Tier 0 read succeeded with DEGRADED_NOTE marker
+    x Unsupported tier
+      Why: only the local SQLite tier is supported
+      Fix: use --tier tier0 or omit --tier
 
 ## Voice
 
@@ -127,4 +125,4 @@ Larry direct:
 
 > "Thesis: <body>. Breakthrough score 8 of 10. Filed 3 days ago. Worth Bank Opportunity?"
 
-> "Aura unreachable. Read from local mirror. Tier 0 result is authoritative because the writer is idempotent."
+> "This is the saved local thesis for that discovery."

@@ -1,0 +1,40 @@
+                                                                         │                                            ✕
+                                                                         │ ▀▀▀▀▀▀  Theo | MindrianOS
+❯ I want to check whether my market sizing is right                      │ ▀▀▀▀▀▀ Rest
+ Larry | MindrianOS                                                      │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+                                                                         │ demo-room  all 18
+● Market sizing is the first claim to test. What would change your mind? │ [ ▸ archive-2000  2000 ]
+                                                                         │ [ ▸ evidence-16  16 ]
+❯ /mos-state                                                             │ [ ▸ legal-contracts  4 ]
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any │ [ ▸ legal-review  4 ]
+     width when you ask for it.                                          │ [ ▸ channel-tests  3 ]
+                                                                         │ [ ▸ competitor-scan  3 ]
+❯ /mos-tree                                                              │ [ ▸ customer-interviews  3 ]
+  ⎿  mos: demo-room                                                      │ [ ▸ funding-plan  3 ]
+     all 18                                                              │ [ ▸ market-analysis  3 ]
+       archive-2000  2000                                                │ [ ▸ metrics-board  3 ]
+       evidence-16  16                                                   │ [ ▸ open-questions  3 ]
+       legal-contracts  4                                                │ [ ▸ partner-list  3 ]
+       legal-review  4                                                   │ [ ▸ pricing-tests  3 ]
+       channel-tests  3                                                  │ [ ▸ problem-definition  3 ]
+       competitor-scan  3                                                │ [ ▸ product-brief  3 ]
+       customer-interviews  3                                            │ [ ▸ regulatory-notes  3 ]
+       funding-plan  3                                                   │ [ ▸ risk-register  3 ]
+       market-analysis  3                                                │ [ ▸ team-roster  3 ]
+       metrics-board  3                                                  │ [ Find ]
+       open-questions  3                                                 │ [ Close ]
+       partner-list  3                                                   │ Click a name to ask about it
+       pricing-tests  3                                                  │ In the prompt box, type:
+       problem-definition  3                                             │ /mos-tree next prev up find
+       product-brief  3                                                  │ [ Refresh ] read 5s ago
+       regulatory-notes  3                                               │
+       risk-register  3                                                  │
+       team-roster  3                                                    │
+     Click a name to ask about it in the prompt box.                     │
+     In the prompt box: /mos-tree next, prev, up, find                   │
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

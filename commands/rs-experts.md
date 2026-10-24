@@ -1,14 +1,14 @@
 ---
 name: rs-experts
-description: Resolve the expert network for a topic from the local room mirror
-help_jtbd: "Surface the expert profiles for a reverse salient."
+description: Find authors linked to topic-matching papers in the local room
+help_jtbd: "Find authors connected to a documented knowledge gap in your room's research papers."
 body_shape: D (Comparison Matrix)
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]
 interactive_first_reward: instant_brief
-teaching: "When you need to know who in the world is working on a reverse salient you found, /mos:rs-experts resolves the expert network from your local room mirror, populated by /mos:rs-fetch. Routes you to the people who already know."
+teaching: "When a documented gap may connect to people named in your research papers, /mos:rs-experts searches the selected room's local paper corpus and shows source-linked authors. It does not verify their current expertise or availability."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
 frameworks: ["Reverse Salient Analysis"]
@@ -54,11 +54,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:rs-experts
 
-You are Larry. This command resolves the expert network for a topic from the local Aura instance (Tier 1). Authors and institutions accumulate in Aura via `rs-fetcher-experts` (Phase 89.2-05) and `rs-expert-mapper.mapAuthorsToAura` (Phase 89.3-04) during prior `/mos:rs-fetch` runs. `resolveExpertTier` (Phase 296-02) distinguishes three named outcomes rather than one collapsed message:
-
-- `AURA_TRANSPORT_ABSENT` -- no local Aura transport ships yet (the only branch reachable today). A capability statement, not a fault.
-- `BRAIN_UNREACHABLE` -- a transport is present but the instance cannot be reached. Copy comes verbatim from `lib/core/refusal-messaging.cjs`, never invented at this surface.
-- A topic with genuinely zero experts -- a SUCCESS (`tier: 'tier1'`, `authors: []`, `matched: 0`, no `refusal_code`), not a fault. An empty answer is a correct answer.
+You are Larry. This command finds authors linked to papers already stored in the selected MindrianOS room. It searches local paper titles and abstracts for literal topic terms, then lists linked authors and institutions. It does not query Aura, Brain, or an external expert directory, and a publication match does not establish current expertise or availability.
 
 **Synopsis:**
 
@@ -68,56 +64,40 @@ You are Larry. This command resolves the expert network for a topic from the loc
 
 ## What it does
 
-1. Validates `<topic>` against Canon Part 8 (`auditQueryString` on the bound parameter; throws `ExternalEgressViolation` if forbidden bytes appear).
-2. `scripts/rs-experts-command.cjs`'s own BUG 2 fix note (2026-05-22, still current): the former Tier 1 path called `brainClient.query(cypher)`, which routes to the REMOTE Brain -- but Author/Paper/Institution nodes live in the user's LOCAL Aura mirror, not the Brain. That routing bug is fixed by REMOVAL: `brainClient` is never loaded by this command, and `brainClient.isAvailable()` does NOT gate an Aura-availability check here -- it checks Brain-client availability, a fully separate probe (Phase 252-01, SWEEP-01: this line previously named `brainClient.isAvailable()` as an Aura-availability detector, which was the wrong probe -- Brain-client availability and the Aura connection are unrelated).
-3. No live Tier 1 Aura query path ships in the current command. Every invocation resolves to `refusal_code: AURA_TRANSPORT_ABSENT`, pointing to `/mos:rs-fetch`. When it does ship, its unreachable and query-failure branches read their copy from `lib/core/refusal-messaging.cjs` so no phrasing is invented at this surface. A local-only Aura transport (not `brain-client.cjs`) is a filed follow-up, not yet built.
-4. Emits Phase Gate-style transcript (CLI) or JSON (`--json`) carrying the Tier 0 guidance.
+1. Validates `<topic>` against Canon Part 8 (`auditQueryString`) before using it.
+2. Opens the CLI room (`MINDRIAN_ROOM`, or the current directory) read-only, or resolves the bound/operator-pinned room for MCP.
+3. Matches topic terms against local `Paper.title` and `Paper.abstract` fields when present. It follows local `AUTHORED_BY` and `AFFILIATED_WITH` edges and ranks by matched-paper count.
+4. Returns paper IDs and titles, matched terms, and explicit partial-result metadata when limits omit records.
 
 ## UI Format
 
-- **Body Shape:** D (Comparison Matrix) -- ranked authors with institutions
+- **Body Shape:** D (Comparison Matrix) -- local paper matches and linked authors
 - **Reference:** `skills/ui-system/SKILL.md`
 - **Zone 1:** Header Panel -- topic + author count
-- **Zone 2:** Content Body -- ranked table: Rank / Author / Institution / Papers / Score
-- **Zone 3:** Intelligence Strip -- top institution cluster signals
+- **Zone 2:** Content Body -- matched-paper counts with source paper IDs and titles
+- **Zone 3:** Intelligence Strip -- matched terms and partial-result disclosure
 - **Zone 4:** Action Footer -- next-step verbs (`/mos:persona` may be warranted; `/mos:rs-fetch` for fresh papers)
 
 ## Three-surface notes
 
-- **CLI:** Phase Gate-style transcript with the ranked table.
-- **Desktop MCP:** structured JSON via `--json`; the MCP wrapper renders Larry's narration with top 3 authors as conversational mentions.
-- **Cowork:** honors `MINDRIAN_ROOM`; multi-user rooms see the same shared expert list filed in `00_Context/`.
+- **CLI:** Phase Gate-style transcript with local matched-paper counts.
+- **Desktop MCP / Cowork:** use `rs_experts_find` with a bound session and topic; it returns typed local-only results and accepts no room path.
+- **CLI:** `node scripts/rs-experts-command.cjs "<topic>" [--limit N] [--json]` reads `MINDRIAN_ROOM` or the current directory.
 
-## Tier-0 LOCAL-only base (Canon Part 8, D-200-2 (b) unchanged half)
+## Local corpus boundary
 
-Expert resolution (Author / Paper / Institution) is **LOCAL-only from `room.db`**. It needs NO Brain call. Author names, ORCIDs, and institution affiliations are user artifacts (Canon Part 8: people/paper data is LOCAL and NEVER egresses to the Brain). The frontmatter deliberately carries no `mcp__mindrian-brain__*` tool, so this command cannot reach the remote Brain.
+Expert lookup is **LOCAL-only from the selected room's `room.db`**. Author names and institution affiliations are user artifacts (Canon Part 8: people/paper data is LOCAL and NEVER egresses to Brain). The CLI and MCP reader never contact remote Brain, Aura, or a directory provider.
 
 Degradation is clean by construction:
 
-- Theo unreachable -> no effect; Tier-0 resolves the whole expert network from `room.db`. No throw.
-- No live Tier 1 Aura query path ships today (see "What it does" above) -> Tier 0 guidance message pointing at `/mos:rs-fetch`, every invocation.
-
-The people-graph base is the local mind; the Brain is never the source of an expert's identity. This is the unchanged half of navigator decision D-200-2 (b): local-only Tier-0 stays the base.
-
-Theo (the eventual Brain-contract cutover successor, Phase 9) declares 17 node labels and none of them is `Author`, `Person`, or `Institution`. Keeping expert resolution LOCAL-only is therefore not a temporary compromise -- it is structurally required by the cutover itself.
-
-## Optional Mode-A Brain projection (Canon Part 8, D-200-2 (b) additive half)
-
-On top of the LOCAL-only base, `lib/core/rs-expert-brain-projection.cjs` exposes an ADDITIVE, optional reader: `projectExpertHandles(localExpertNode, opts)`. It reads the Brain expert-network as **GENERIC framework/enum handles ONLY** (framework names, methodology enums, domain slugs) - never a person's name, affiliation, ORCID, or any Author/Institution byte. It is the substrate the Phase 203 synthetic-expert reader consumes.
-
-Its Part-8 contract is load-bearing and enforced in code + proven by `tests/test-200-brain-projection.cjs`:
-
-- **Outbound:** only a tight whitelist of methodology-enum keys (`framework` / `domain` / `methodology` / `problem_type` / `enum` / `tier`) is ever read off the local expert node. Person keys are never read, so a person byte cannot enter the outbound payload by construction. A belt-and-suspenders token-level leak scan then fails the whole projection closed if any person byte still appears.
-- **Guard:** EVERY Brain call routes through the Phase 196 boundary guard (`part8-egress-guard.classify()`). A verdict that is not `allow` - or a guard throw - degrades to Tier-0 (returns `[]`), never an error.
-- **Inbound:** the read keeps only generic framework/enum handles; any returned handle that echoes a specific person's identity is dropped. If that leaves nothing, it returns `[]`.
-- **Degrade:** Brain absent (no key / no MCP) => `[]` (pure Tier-0 degrade), no throw.
-
-The projection reuses the shipped Phase 196 guard and `rs-brain-substrate` read surface (Canon Part 7); it adds no second Brain client.
+- An empty local match is a successful empty result, not a transport failure.
+- If the room has no readable Paper/Author graph, the tool returns an explicit store-unavailable result.
+- If scan/output limits or malformed records omit data, the result is explicitly marked partial.
 
 ## Canon References
 
-- **Canon Part 7 (Reuse Before Build):** the unreachable-transport message is sourced verbatim from the already-shipped `lib/core/refusal-messaging.cjs` rail, not a `brain-client.cjs` Aura session (that coupling has not existed since 2026-05-22, `2f0e4e79`). Zero forks, zero invented phrasing.
-- **Canon Part 8 (Graph Boundary):** topic is parameterized as `$topic` (NO string concatenation). Audited via `auditQueryString` BEFORE binding. The Aura is a LOCAL Brain mirror per Canon Part 8; this command does NOT query the remote Brain methodology graph.
+- **Canon Part 7 (Reuse Before Build):** CLI and MCP use the same local search helper and the navigation-owned read-only database door.
+- **Canon Part 8 (Graph Boundary):** topic terms are matched only against the selected room's stored paper records. They are never sent to Brain, Aura, a directory, or an external provider.
 
 ## Examples
 
@@ -127,19 +107,13 @@ The projection reuses the shipped Phase 196 guard and `rs-brain-substrate` read 
 
 ## Error patterns
 
-`refusal_code: AURA_TRANSPORT_ABSENT` (cause a, the only branch reachable today), 3-line format:
+Local records unavailable, 3-line format:
 
-    x Expert transport not available
-      Why: no local Aura transport is configured for rs-experts yet; this is a
-           capability gap, not an outage
-      Fix: /mos:rs-fetch <topic> first to populate the local SQLite mirror, then retry
+    x Local research records unavailable
+      Why: the selected room has no readable Paper/Author graph
+      Fix: set MINDRIAN_ROOM to a room containing room.db, then retry
 
-`refusal_code: BRAIN_UNREACHABLE` (cause b, once a local transport ships), the rail's own rendered block -- copy sourced from `lib/core/refusal-messaging.cjs`, never invented here:
-
-    I can't reach the methodology graph right now, so I will not fake what it would say.
-    We can retry in a moment, or keep going with your room context.
-
-A topic with genuinely zero experts is NOT an error pattern. It renders through the normal transcript (`No experts found for topic.` plus the `/mos:rs-fetch` next step) because an empty answer is a legitimate answer, not a fault.
+A topic with genuinely zero matches is NOT an error pattern. It renders as an empty local result and may suggest `/mos:rs-fetch` for an approved corpus refresh.
 
     x Canon Part 8 audit failed
       Why: forbidden bytes in topic argument (ExternalEgressViolation)
@@ -149,6 +123,6 @@ A topic with genuinely zero experts is NOT an error pattern. It renders through 
 
 Larry direct:
 
-> "Mapped <N> experts across <M> institutions. Leading: <top institution>. /mos:persona may be warranted to build the engagement strategy."
+> "Found <N> authors linked to topic-matching papers already in this room. This does not confirm current expertise or availability."
 
-> "Expert transport not available yet. Run /mos:rs-fetch first to populate the mirror, then I can resolve the expert network."
+> "No stored papers in this room matched those topic terms. /mos:rs-fetch can gather approved papers for a later local search."

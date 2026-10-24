@@ -3642,7 +3642,6 @@ Plans:
 Off the path: 379 (split-out RS features). Phases 376 to 378 are conditional on the Phase 375 decision; if it says kill, they are retired.
 External gates: the beta.73 cut; the plugin node_modules restored; Eureka job-store lock and a distinct budget status; the authorship and reuse rights of the five graph services.
 
-
 ### Phase 374: Adapter surface completion: remaining Eureka graph tools, capability and job tools, tool-budget decision, job recovery (SEED-134 critical path)
 
 **Goal:** Complete the Eureka adapter surface beyond the Phase 373 services: the remaining dedicated graph tools, the generic capability run and job tools, and the host handoffs, with the tool-budget decision made and job state surviving a host restart. Eureka-side prerequisite: job-store owner lock and terminal-state guard, a distinct budget_exceeded status.
@@ -3714,3 +3713,161 @@ Gate: owner decision on replacing the local-mirror behavior of /mos:rs-experts. 
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 379 to break down)
+
+### Phase 379.1: Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker) (INSERTED)
+
+**Goal:** Stop the graph derive drain and the session-start scout from taking the whole CPU on a large room. Today a room-scope queue entry scores every pair of files (about 2.4 million pairs on a 2,194-file room, per the 2026-10-21 incident report), re-embeds both files on every pair, runs with no time limit, no priority and no thread limit, and restarts at every session start because a killed worker never counts as an attempt. Embed each file once and cache the vector by content hash, bound the work per drain with a cursor, cap the worker (time, priority, ONNX threads in embedding-spine.cjs so every encoder user gets it), count a killed worker as an attempt, and make the lock prove its PID is dead before a reclaim. Apply the same caps to the scout cadence runner. Ship in beta.73.
+**Requirements**: CPU379-01 one embedding per artifact per content hash, supplied to scoreMeasured as opts.vectors (D2); CPU379-02 no all-pairs scoring in the background, a bound per drain and a cursor (D1); CPU379-03 the worker has a time limit, low priority and a thread limit set in embedding-spine.cjs (D3); CPU379-04 failures and last_attempt_at are written before the work, the entry clears only on success (D4); CPU379-05 the lock heartbeats and a reclaim checks the PID (D5); CPU379-06 the scout is bounded before buildLsaMatrix: an artifact-count cap that returns the existing degraded envelope, a timeout and killSignal on the runStep execFileSync, and a single-flight lock with a PID liveness check or a throttle stamp written at run start (D6; root cause per the debug session: the cyclic Jacobi SVD in lib/core/numeric/svd.cjs on a 2000 x 2000 Gram matrix, not the encoder); CPU379-10 a declared way to keep generated engine-input directories (for example solution-design/full-catalog-run-2026-10-18, 2119 files written by the Eureka JHTV workflow on 2026-10-18) out of the derive and scout artifact scope, so a workflow output cannot turn a 44-artifact room into a 2163-artifact room silently; CPU379-07 a doctor check for queue entries older than 7 days and locks with a dead PID; CPU379-08 real-room-run.cjs gets a fixture with more than 2,000 artifacts and a CPU-time, clock-time and peak-RSS limit (the worker self-reports process.cpuUsage() and process.memoryUsage().rss, portable to Windows); CPU379-09 all repair is on the plugin side, no change to the mindrian-eureka repo; Canon Part 8 holds, no room content leaves the machine
+**Depends on:** nothing (urgent). Inputs: .planning/debug/drain-and-scout-runaway-cpu-wsl-windows.md and 379.1-CONTEXT.md in the phase directory.
+**Plans:** 9/9 plans complete
+Plans:
+
+**Wave 0**
+
+- [x] 379.1-01: Large-room fixture builder, tests/run-all-379.1.sh, 8 RED scaffolds, 4 probes (k choice, allow_spinning, 272 parity thresholds, TF-IDF density)
+
+**Wave 1** *(blocked on Wave 0)*
+
+- [x] 379.1-02: vector-cache.cjs, artifact-scope.cjs (wildcard-only rejection, overbroad guard), job-lock.cjs (heartbeat, pid_start, 6 h ceiling), embedding-spine thread cap
+- [x] 379.1-03: Gated seeded randomized truncated SVD in svd.cjs (272 parity gate; file-copy restore on fail)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 379.1-04: Drain: attachVectors, buildCandidatePairs top-k pruner with in-loop deadline, cursor, cap, ceiling with disclosed skip, attempt record, lock swap, priority, budget, --report-usage, backfill async reroute
+- [x] 379.1-05: Scout: artifact cap before LSA, scope in _walkDir, runStep timeout, scout lock, recordRun at start; doctor check (7-day entries, dead-PID and stale-heartbeat locks, scope summary)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 379.1-06: Large-room release leg (clock, CPU, RSS bounds; smoke refused), gate verdicts, ENV-TUNING, RULE 10 docs, 6 seeds
+
+**Gap closure** *(plans 07 to 09, added after the first verification; waves 1 to 3 of the gap plans)*
+
+- [x] 379.1-07: Drain RSS probe on the 2,105-artifact fixture: peak RSS 775.1 to 795.3 MB at batch 8, 1,047.7 MB at batch 16, 1,796.5 to 1,813.7 MB at batch 32 (limit 1,024 MB), encoder split out, no fix chosen
+- [x] 379.1-08: Drain RSS decision record: the human chose option a-batch with batch 8 after reading the probe table; the choice is validated against the measured numbers and committed
+- [x] 379.1-09: Apply the a-batch fix (default embed batch 8, was 32) and prove it live: two full large-room legs returned status ok with a drain peak of 776.9 and 780.2 MB against the 1,024 MB limit
+
+### Phase 379.1.1: Post-beta.73 close-out (CRITICAL): ICM eval refresh via Jev, integrity gate ignores generated files, ledger rebuild in release script, Eureka branch reconcile, STATE and ROADMAP counts, website bump, key-holder notice, Windows bug seed, Layered Context baseline, Windows host checks (INSERTED)
+
+**Goal:** Close the loose ends of the beta.73 cut before Phase 380, so the next cut ships clean. A fresh ICM eval record graded through Jev, with a doctor freshness rule that survives the next-bump. A 366 integrity gate that ignores generated, gitignored require targets. The Jev-scored ledger rebuild as a named release.sh step with a dry-run line. The reconcile of feat/eureka-adapter-rebased with main. Correct STATE counts and the ROADMAP 379.1 plan list. The mindrian-os.com bump to beta.73. The key-holder announcement decision. Two seeds: the Windows room switch bug and the Layered Context Access baseline. The Windows host checks. A real-room receipt signed for the final HEAD. Work items 6, 7, 4, 10 and 11 need a human or a peer and stop at a checkpoint.
+**Requirements**: CLOSE379-01 ICM eval re-run through Jev (never plurai) and the freshness rule fixed so it holds through the next cut; CLOSE379-02 the 366 integrity gate skips generated gitignored targets with a test that fails before and passes after; CLOSE379-03 the ledger rebuild is a named release.sh step with a dry-run line and the staleness gate kept; CLOSE379-04 the Eureka adapter branch is reconciled with main by one merge commit that a human and the Codex peer approve; CLOSE379-05 STATE.md counts and the ROADMAP 379.1 plan list lines 07 to 09 are corrected with a diff check; CLOSE379-06 the website FALLBACK_VERSION is bumped to beta.73 without touching the peer's work; CLOSE379-07 the key-holder announcement for beta.73 is decided by a person; CLOSE379-08 the Windows bug report is a seed that follows SEED-117; CLOSE379-09 the Layered Context Access baseline is measured and a seed links SEED-094; CLOSE379-10 the Windows host checks are run by a person or deferred with a date; CLOSE379-11 the real-room receipt is signed by a person for the final HEAD. The R.4 recovery (npm deprecate) is out of scope. Canon Part 8 holds, no user data leaves the machine.
+**Depends on:** Phase 379.1
+**Plans:** 10 plans (code plans 01, 02 and 05 run in the release tree /home/jsagi/dev/MindrianOS-Plugin-release on main, because the eval stamps the tree version and the cut comes from main)
+
+Plans:
+
+**Wave 1**
+
+- [ ] 379.1.1-01-PLAN.md - integrity gate skips generated gitignored targets (RED test, fix, fresh-clone proof, phase aggregator)
+- [ ] 379.1.1-03-PLAN.md - STATE.md counts and ROADMAP 379.1 plan list lines 07 to 09, with a diff check
+- [ ] 379.1.1-04-PLAN.md - SEED-142 Windows room switch bug (follows SEED-117) and SEED-143 Layered Context Access baseline linked to SEED-094
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 379.1.1-02-PLAN.md - named Step 2.3 ledger rebuild in release.sh, --ledger-only mode, dry-run line, staleness gate kept
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 379.1.1-05-PLAN.md - freshness rule fix (a release is two betas) and the ICM eval re-run through Jev
+
+**Wave 4** *(blocked on Wave 3; each plan stops at a human or peer checkpoint)*
+
+- [ ] 379.1.1-07-PLAN.md - website bump to beta.73 in a temporary worktree (peer gate)
+- [ ] 379.1.1-08-PLAN.md - key-holder announcement decision, send or skip (human gate)
+- [ ] 379.1.1-09-PLAN.md - Windows host checks sheet and result (human gate)
+
+**Wave 5** *(blocked on Wave 4; runs alone so the merge sees a clean tree)*
+
+- [ ] 379.1.1-06-PLAN.md - reconcile feat/eureka-adapter-rebased with main by one merge (human and Codex peer gate)
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [ ] 379.1.1-10-PLAN.md - ledger current, real-room report for the final HEAD, receipt signed by a person (human gate)
+
+### Phase 380: Ship the M:OS face panel mod inside the plugin (ships in the next cut)
+
+**Goal:** Give every MindrianOS user the /m:os face panel that the owner built as a Claude Code mod: a side panel, a one-line status, prompt-box buttons and the /mos-* commands, so the room state is visible beside the chat without a command. Today the mod lives only in a session-scoped folder and dies with the session; this phase installs it with the plugin and releases it.
+**Requirements**: MOD380-01 the mod installs and loads from the plugin with no manual copy; MOD380-02 the 34 engine tests (the earlier figure of 29 was wrong) run in the release gate; MOD380-03 the Theo ask sends handles only and no room content (Canon Part 8); MOD380-04 the packaging answers the TypeScript rules (CLAUDE.md D-17: erasable-only core, TSX only in a walled built package); MOD380-05 the mod adds no hook and no read that can starve a prompt (hook budgets); MOD380-06 the release carries the real-room receipt (RULE 10); MOD380-07 the panel keeps everything the plugin status line shows, plus the room and filing facts, from the same local sources, with a test that fails on a missing field (D-08); MOD380-08 the panel shows one Job line, a labelled local guess in jobs-to-be-done form that sends nothing anywhere (D-09); MOD380-09 the panel draws the 11 canon Theo faces from the byte-exact canon asset with the canon labels, and maps events to states only where a real event exists (D-10)
+**Depends on:** Phase 379.1 (the runaway drain and scout CPU fix). Not on Phase 379.
+Source: ~/.claude/dev-mods/0edce8e1-1cd3-4a4c-8354-d35eb4d22ffd/mos-face (stable backup ~/dev/mos-face-mod). Handoff: 380-HANDOFF.md in the phase directory.
+**Plans:** 20/20 plans complete
+
+MOD380-06 completes only when a person signs the real-room receipt at the cut that carries the panel (RULE 10); until that receipt exists the requirement stays open. Gap plans 380-16 to 380-18 (screenshot findings G1 to G7) are written and run before plan 10; if plan 10 returns PARTIAL, insert a further repair plan with /gsd-plan-phase 380 --gaps and it runs before plan 11.
+
+Plans:
+
+**Wave 1**
+
+- [x] 380-01-PLAN.md - adopt the mod byte for byte as the walled package ui/mos-face with its own lockfile, wall test, 34 tests re-verified, phase aggregator
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 380-02-PLAN.md - repair the type-check inside the walled package (16 errors, raster pins)
+- [x] 380-03-PLAN.md - real-terminal capture harness (tmux, scratch config folder, ANSI page, Playwright PNG, reply chip from a synthetic transcript), self-tested
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 380-04-PLAN.md - D-03 egress: search sends handles only, names stripped (known, proper and sentence-initial), honest texts; two flagged proposals (shim-only excerpt, MOS_FACE_WORDS switch) behind one flag each
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [x] 380-05-PLAN.md - hook budgets: no subprocess, slow network clock, read back-off, plugin-matching home and rooms paths
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [x] 380-06-PLAN.md - D-04 and D-07 copy: Theo not Larry in panel-authored text, the reply chip quotes the reply as is, no stack words, commands table generated and checked
+
+**Wave 6** *(blocked on Wave 5)*
+
+- [x] 380-07-PLAN.md - D-02 canon colors, exact book state names, written decisions N2 N4 N5 N6 N7 N9, the book's review in a scratch consumer
+
+**Wave 7** *(blocked on Wave 6)*
+
+- [x] 380-12-PLAN.md - D-10 part one: the canon Theo face asset copied byte for byte, the generator and fixture, the loader, composition and rasterizer, 44 new pins
+
+**Wave 8** *(blocked on Wave 7)*
+
+- [x] 380-13-PLAN.md - D-10 part two: the panel draws the 11 canon faces with canon labels, real events only, no loop, no crew, no invented hex (D-11), the visual change recorded
+
+**Wave 9** *(blocked on Wave 8)*
+
+- [x] 380-14-PLAN.md - D-09: the Job line, a local labelled guess in jobs-to-be-done form, one-action dismiss and fix, /mos-job
+
+**Wave 10** *(blocked on Wave 9)*
+
+- [x] 380-15-PLAN.md - D-08: every status line field mapped to a panel field, the room and filing facts, same local sources, the capture harness session home
+
+**Wave 11** *(blocked on Wave 10)*
+
+- [x] 380-08-PLAN.md - build lib/mos-face/dist (only built assets ship, the face assets included) with a freshness gate
+
+**Wave 12** *(blocked on Wave 11)*
+
+- [x] 380-09-PLAN.md - activate in the plugin, installed-layout proof in the real engine, release suite gate leg, RULE 10 bullet
+
+**Wave 13** *(blocked on Wave 12)*
+
+- [x] 380-16-PLAN.md - screenshot gaps G1, G3, G4: the sent line clears when a call is denied, the sent line says what was left out, the Job hint says what it needs (rule unchanged)
+
+**Wave 14** *(blocked on Wave 13)*
+
+- [x] 380-17-PLAN.md - clutter audit with counts, G5 idle gauge label, G6 dev-run note
+
+**Wave 15** *(blocked on Wave 14)*
+
+- [x] 380-18-PLAN.md - G7 and G2: the room tree is fully reachable, pinned header, fixed window, find, /mos-tree
+
+**Wave 16** *(blocked on Wave 15)*
+
+- [x] 380-10-PLAN.md - real-terminal screenshots (reply chip, status fields, Job line, the 11 faces sheet) inspected by the executor, idle CPU window, opt-out persistence
+
+**Wave 18** *(blocked on Wave 17)*
+
+- [x] 380-19-PLAN.md - gaps 1 to 4, 9, 11 to 13: status fields and Job line above the fold, the book's narrow rule, band under NO_COLOR and at 28 columns, one honest advice line
+
+**Wave 19** *(blocked on Wave 18)*
+
+- [x] 380-20-PLAN.md - gaps 5 to 8: the tree in a short pane, the crumb, balanced pages, /mos-tree list; the final real-terminal gate
+
+**Wave 20** *(blocked on Wave 19; stops at human checkpoints)*
+
+- [ ] 380-11-PLAN.md - book follow-ups A1 to A7 and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)

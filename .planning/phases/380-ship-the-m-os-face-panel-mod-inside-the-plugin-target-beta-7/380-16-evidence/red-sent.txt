@@ -1,0 +1,371 @@
+FACESHEET_BEGIN
+FACE rest Rest
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀\u001b[38;2;255;255;255m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE listen Listening
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;17;17;17m▀▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;255;255;255m▀▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE search Searching
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀\u001b[38;2;31;63;191m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;31;63;191m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀\u001b[0m
+FACE found Found
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀\u001b[38;2;31;63;191m\u001b[48;2;247;245;238m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;31;63;191m\u001b[48;2;31;63;191m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE challenge Challenge
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀\u001b[38;2;214;40;31m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;17;17;17m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE contradiction Contradiction
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE reframe Reframe
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;17;17;17m▀▀▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;242;194;0m▀▀▀\u001b[38;2;242;194;0m\u001b[48;2;242;194;0m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;242;194;0m\u001b[48;2;17;17;17m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE limit Nothing found
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;75;73;67m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;75;73;67m\u001b[48;2;75;73;67m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE decision Your decision
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE boundary Boundary
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀\u001b[38;2;214;40;31m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;214;40;31m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;214;40;31m\u001b[48;2;17;17;17m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACE handover Handover
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀\u001b[38;2;255;255;255m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;255;255;255m\u001b[48;2;255;255;255m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;17;17;17m▀\u001b[38;2;17;17;17m\u001b[48;2;247;245;238m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀\u001b[0m
+\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀▀▀▀\u001b[38;2;17;17;17m\u001b[48;2;17;17;17m▀\u001b[38;2;247;245;238m\u001b[48;2;247;245;238m▀▀▀▀\u001b[0m
+FACESHEET_END
+
+panel.test.tsx:
+(pass) the box draws when the panel is not placed, and Hide leaves a way back [1820.30ms]
+(pass) the side panel draws the avatar, the meter and the room [396.60ms]
+(pass) clicking a section puts a question about it in the prompt box [489.59ms]
+(pass) a section opens like a dropdown, and a folder inside it drills one level [706.41ms]
+(pass) a filing lights the section it landed in, with words [425.66ms]
+(pass) every second turn the panel asks Theo, with the framework, the problem type and the person's own words [347.01ms]
+(pass) the panel never calls a room both bound and not bound [229.31ms]
+(pass) the panel hands you the switch: Fix, Bind and Free space put the command in the box [351.89ms]
+(pass) an old, unrelated line is never the subject of a suggestion [0.75ms]
+(pass) a click asks Theo to think it through for this room, not just to run a command [0.45ms]
+(pass) the status line is the NOW line in one breath, and says nothing when all is quiet [284.48ms]
+(pass) the panel names the folder, the room read and the room bound separately [215.73ms]
+(pass) the context canvas keeps its frame visible on an ink ground and fills with the percent [1.40ms]
+(pass) singular and plural are one cue, so "ecosystem, ecosystems" never counts as two [0.92ms]
+(pass) one common word is not a cue: it takes two different ones [0.27ms]
+(pass) the panel shows how old its reading is [363.87ms]
+(pass) too small: below 30 columns the panel says what it needs, not a broken layout [163.60ms]
+(pass) narrow folds the pictures to words: a text bar, no tile, and the actions stay [187.02ms]
+(pass) wide draws the pictures and no text bar [149.89ms]
+(pass) plain mode (NO_COLOR) keeps every meaning in ASCII words and shapes [125.65ms]
+(pass) a read that hangs is cut off, shows as stale with its reason, and names the keyboard routes [195.82ms]
+(pass) the compact canvas is a two-row Mondrian that still fills with the percent [0.65ms]
+(pass) the room is read through the MindrianOS tools, and the panel says so [149.96ms]
+(pass) the binding is a fact from the tools, with the missing identity named [144.65ms]
+(pass) when the tools are out of reach the room is read from files, and the panel says so [124.55ms]
+(pass) the panel reads quietly: its own tool calls do not light the face [141.43ms]
+(pass) the tool answers are parsed exactly: first JSON object, sections table, claims, graph [1.64ms]
+(pass) /mos-text prints the whole state as plain linear text: words only, same facts as the panel [106.30ms]
+(pass) a tool the permission mode refused is not asked again, and the panel says what it could not read [147.17ms]
+(pass) Ask Theo does not return the same framework every time: it moves on along the chain [128.82ms]
+(pass) when Theo has nothing new, the panel says so instead of pretending [117.36ms]
+(pass) the words that travel are cleaned: links, emails, paths, code and keys never go [1.53ms]
+(pass) Words: shared can be switched off, and then Theo gets only handles; the panel shows what was sent [115.65ms]
+(pass) handles become chapter picks, and chapters become commands not yet shown [0.66ms]
+
+tests/budget.test.ts:
+(pass) B1 no subprocess: with the room tools out of reach the panel runs nothing and says the graph numbers were not read [1568.51ms]
+(pass) B2 the prompt path is I/O free: prompt.submit and turn.start record no call and never wait on the clock [1420.25ms]
+(pass) B3 tick budget: 30 minutes of ticks make at most 4 tool reads per tick, 0 processes, and fetches only on the reach clock [522.68ms]
+(pass) B9 status reads: one tick adds at most 8 local file reads (the status line files, each once), no tool, fetch or process, and the prompt path reads nothing [244.96ms]
+(pass) B4 reach cut-off: a fetch that never answers is cut at 4000 ms, with status null, and the refresh completes [304.84ms]
+(pass) B5 back-off: a slow read doubles the wait up to 600 s, a quick read resets it, a forced refresh always reads [992.73ms]
+(pass) B5b back-off after a time-out: a read that never answers is cut at 30 s and the next ticks wait [315.62ms]
+(pass) B6 one read in flight: a forced refresh during a running read does not start a second one [264.46ms]
+(pass) B7 paths: HOME then USERPROFILE for the home folder, MINDRIAN_ROOMS_HOME first for the rooms folder [259.76ms]
+(pass) B7b paths: MINDRIAN_ROOMS_HOME is the rooms folder when set, and a terminal inside it is a room folder [245.55ms]
+(pass) B8 timers stop: the 220 ms spinner is cancelled when the turn ends, and no flash timer runs without a lit section [238.30ms]
+
+tests/colors.test.tsx:
+(pass) K1 tokens: the seven canon tokens and nothing else (plan 13: the extra tone HOLLOW is gone) [30.64ms]
+(pass) K2 contrast: every pair the book lists is computed, matches the book to 0.05 and is at least 4.5 [5.76ms]
+(pass) K2 contrast: every move chip pair (MOVE_FG over MOVE_BG) is at least 4.5 [1.15ms]
+(pass) K2 contrast: dimmed paper (N6), the weakest secondary text, is at least 4.5 over ink at 50 percent [0.57ms]
+(pass) K2 contrast: known low pairs in the panel are measured and named (the focus marker), not hidden [0.23ms]
+(pass) K3 yellow: no move chip draws yellow as text color [3.37ms]
+(pass) K4 blue is not proof: the search state draws no proof word, in every width and style [2686.57ms]
+(pass) K4 blue is not proof: the found state draws no proof word, in every width and style [557.79ms]
+(pass) K4 blue is not proof: the move names carry no proof word either [0.57ms]
+(pass) K5 exact names: the label of each drawn state is the visible label of the canon asset (plan 13, navigator ruling 2026-10-23) [0.95ms]
+(pass) K5 exact names: the book has 11 states, all 11 are drawn, and the two the book spells in older words are recorded [0.32ms]
+(pass) K6 no green: no drawn color is green and no state is a breakthrough state [1.33ms]
+(pass) K7 geometry: the pose of each state, as the asset text holds it, equals the canon table, number for number (plan 13: poses come from the asset) [0.28ms]
+(pass) K7 colors by state: planes follow the canon (blue search and found, red challenge and boundary, yellow contradiction and reframe, ink only for your decision, white the rest) [0.35ms]
+(pass) K9 raster: the plane, the divider and the ground line sit where the canon pose puts them (plan 13: drawn by rasterFace) [10.45ms]
+
+tests/copy.test.tsx:
+(pass) C1 rest: every Text and Button of the band and the pane is clean, in every style, width and plain mode [3119.63ms]
+(pass) C1 listen: every Text and Button of the band and the pane is clean, in every style, width and plain mode [1019.31ms]
+(pass) C1 search: every Text and Button of the band and the pane is clean, in every style, width and plain mode [1731.04ms]
+(pass) C1 found: every Text and Button of the band and the pane is clean, in every style, width and plain mode [907.49ms]
+(pass) C1 limit: every Text and Button of the band and the pane is clean, in every style, width and plain mode [592.51ms]
+(pass) C1 boundary: every Text and Button of the band and the pane is clean, in every style, width and plain mode [425.62ms]
+(pass) C1 challenge: every Text and Button of the band and the pane is clean, in every style, width and plain mode [396.28ms]
+(pass) C1 contradiction: every Text and Button of the band and the pane is clean, in every style, width and plain mode [395.52ms]
+(pass) C1 decision: every Text and Button of the band and the pane is clean, in every style, width and plain mode [341.21ms]
+(pass) C1 handover: every Text and Button of the band and the pane is clean, in every style, width and plain mode [308.68ms]
+(pass) C1 next move: the suggestion, its why lines, the hints and every opened block are clean [252.19ms]
+(pass) C1 every block: each block of the pane, opened one by one, is clean [122.79ms]
+(pass) C2 commands: 14 commands, every description and every result is clean [104.09ms]
+(pass) C3 toasts: every text given to the toast, over a full session, is clean [145.57ms]
+(pass) C4 tables: the words, thoughts, labels and why lines are clean [3.19ms]
+(pass) C5 Theo, not Larry: the badge says Theo | MindrianOS and the chip quotes the reply as it stands [102.19ms]
+(pass) C6 names: no table and no drawn text holds the name of a person or an institution [0.92ms]
+(pass) C8 job line: the sentence of each shown job, at 48 and 35 columns, in color and in plain mode, is clean and never overclaims [2449.80ms]
+(pass) C7 copy dump: prints the collected copy for the book review when the scratch copy sets MOS_COPY_DUMP [0.57ms]
+
+tests/egress.test.ts:
+(pass) E1 search sends handles only: its query is one string of the closed set, never a word of the person [1621.19ms]
+(pass) E2 excerpt on: the shim question carries the cleaned excerpt and no canary name, mail, link, path or key [895.94ms]
+(pass) E3 excerpt off: after one /mos-words run no outbound call holds the excerpt line or a word of the prompts [398.64ms]
+(pass) E4 never the assistant, never the room: no canary of either reaches a tool, http or process call [354.58ms]
+(pass) E5 shim denied: the raw fallback follows the flag, and the panel does not show a sent excerpt that was not sent [711.87ms]
+(pass) E6 environment opt-out: MOS_FACE_WORDS=off at session start sends no excerpt without a command [391.11ms]
+(pass) E6b environment opt-out: the value 0 also holds [265.02ms]
+(pass) E6c environment opt-out: the value FALSE holds in any case [268.13ms]
+(pass) E7 honest texts: /mos-advice and /mos-words say what is sent now and how long the setting lasts [237.71ms]
+(pass) E8 sanitize table: known names, capitalized names and sentence-initial names go; framework names and cue words stay [9.69ms]
+(pass) E8b lowercase names reach the shim stripped: the room slug and the session folder feed S1 through the panel [266.06ms]
+(pass) E9 mutation arm: the leak scan says yes for a list with one canary and no for a clean list [0.66ms]
+(pass) E10 shimOnlyExcerpt holds for both values: with true the raw fallback sends handles only, with false it may carry the excerpt [278.69ms]
+(pass) E10b envSwitch holds for both values: true reads MOS_FACE_WORDS, false ignores it and no text names it [2.74ms]
+
+tests/face-events.test.ts:
+(pass) W1 states: FACE_STATES are the 11 ids of the canon asset, in the order of the asset [15.29ms]
+(pass) W1 labels: LABEL is the visible label of each asset state, and no label reads Limit or Hand over [1.86ms]
+(pass) W1 line faces: one short plain-text face per state, 7 characters at most, all different [1.09ms]
+(pass) W1 canon source: every drawn state id is in the asset, and an id that is not there fails [5.80ms]
+(pass) W2 events: each real event maps to its canon state [0.70ms]
+(pass) W2 events: mapped plus unmapped is the 11 states, nothing is both, and reframe has no event [1.23ms]
+(pass) W2 leads: the red square is Challenge, the yellow square Contradiction, the black square Your decision, any other square Handover [0.38ms]
+(pass) W3 behavior: a turn moves the face through the mapped states, and each label is drawn in the pane and the band [2994.60ms]
+(pass) W3 suggestions: a finished turn leaves the command of its state waiting in the prompt box, also for the states that have no glossary lines [800.70ms]
+(pass) W4 no loop: while a turn runs the frame counter ticks, and the face grid is identical across the ticks [959.46ms]
+(pass) W5 asset missing: both candidate paths are tried, then the panel draws the words-only line face and one plain sentence [322.00ms]
+(pass) W5 asset text damaged: a file that is not the asset gives the same words-only face [439.94ms]
+(pass) W5 asset read: through the engine fs.read, from the dev path first; the face is drawn and no sentence is shown [173.39ms]
+(pass) W5 asset read: when the dev path fails the shipped path is read [144.04ms]
+(pass) W6 styles: /mos-style cycles tile, mini and line and then tile again, and the word crew appears nowhere [477.22ms]
+(pass) W7 voice: THOUGHTS holds at least 8 thoughts for each of the 11 states and no other key, all clean [3.92ms]
+(pass) W7 voice: the new thoughts are questions or hedged reflections and keep to the canon "must not imply" lists [1.92ms]
+(pass) W8 words: a state has glossary lines from WORDS or none, and a state without an entry does not fail [0.92ms]
+(pass) W9 palette: face.ts exports no old pose, no crew, no raster of them and no HOLLOW, and every color it exports is a canon token [0.95ms]
+(pass) W10 suggestions: every state gets at least one real /mos: command, so the prompt box never gets an empty or invented line [0.73ms]
+
+tests/face-sheet.test.ts:
+(pass) W11 sheet: each of the 11 states is rasterized at n 12 through the real loader and printed as ANSI between FACESHEET_BEGIN and FACESHEET_END [17.09ms]
+
+tests/job-guess.test.ts:
+(pass) J1 the two real prompts of the shots hold no cue, so there is no guess and one dim row says so [4.18ms]
+(pass) J2 one cue is not enough: a single phrase of one job gives no guess [0.42ms]
+(pass) J3 two different cues of one job give that job [0.33ms]
+(pass) J4 two jobs with the same cue count give no guess [0.56ms]
+(pass) J5 a recorded job wins over a guess [0.24ms]
+(pass) J6 a guessed job is labelled a guess in words [0.41ms]
+(fail) J7 the hint says plainly what a guess needs: two different phrases of one job, in your own words [0.79ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: "Job: no guess yet. Say what you want to decide, test or find, in two different phrases, and one may come."
+  Received: "Job: no guess yet. Say a little more about what you are doing and one may come."
+
+tests/job.test.ts:
+(pass) J1 form: all 13 jobs give one whole sentence "When I am ..., I want to ..., so that ...", with and without an open section [251.34ms]
+(pass) J1 the want clause is the taxonomy one-line with its first letter lowered and its final full stop removed [80.27ms]
+(pass) J2 readJob: a fresh recorded job, a live person-set job, and every case that gives nothing [36.65ms]
+(pass) J2 compactJob keeps only the fields of the current job: the goal never travels [2.91ms]
+(pass) J2 sources in the pane: the recorded job first, then the person-set label, then the cue match, and nothing for a stale record [2553.99ms]
+(pass) J3 guessJob: two distinct cues of one job give that job; fewer, a tie, a repeat or a cue inside a longer word give none [0.90ms]
+(pass) J3 explore is never a guess, and a job flagged never shown is skipped [0.39ms]
+(pass) J3 no guess: the line says so in plain words, invents nothing and offers no button [0.87ms]
+(pass) J4 label: every guessed line holds the word guess, never claims it is your job, and never says validated, confirmed or proven [17.19ms]
+(pass) J4 size: at 46 columns the heading and the sentence are two rows at most; at 35 columns the line is one row with the want clause only [8.44ms]
+(pass) J4 a person-set job is labelled as set by you and has no guess word; a guess has both buttons, a set job has Fix only [4.63ms]
+(pass) J5 local only: building, dismissing and fixing the line make no tool, http or process call; the prompt and goal canaries are never drawn [378.54ms]
+(pass) J5 canary across a full session: with the words off and the auto ask running, no prompt word, job id, want or outcome reaches any call [458.00ms]
+(pass) J5 the line adds nothing to what is sent (part 1): a whole session with the line shown [745.68ms]
+(pass) J5 the line adds nothing to what is sent (part 2): the same session with the line hidden sends the same calls [397.28ms]
+(pass) J6 Not this hides the guess until the recorded job changes; /mos-job toggles the line; both without any call [528.91ms]
+(pass) J6 Not this on a guess from the talk hides it until the guess changes [413.69ms]
+(pass) J6 Fix puts /mos:jtbd set in the prompt box and does not submit it [228.27ms]
+(pass) J7 narrow: at 35 columns the Job line shows, in words, with its buttons [211.48ms]
+(pass) J7 plain: with NO_COLOR every meaning survives in words and the Job rows are ASCII [157.22ms]
+(pass) J8 the registered commands are 14 and the 14th is mos-job, with a clean description and clean results [172.12ms]
+(pass) J9 budget: one tick adds one read of the job file; the prompt path and the command read nothing [223.33ms]
+(pass) J10 /mos-text carries the Job line words, and says when the line is hidden [179.89ms]
+
+tests/meter-pin.test.ts:
+(pass) R3: the context canvas, wide and compact, draws the same pixels as in plan 380-02 [18.14ms]
+
+tests/sent.test.tsx:
+(pass) S1 a refused call leaves no sent line, only the one line that says Theo was not asked [2086.61ms]
+(fail) S2 a missing Theo tool followed by a refused call: nothing was sent, and the one note says the call was not allowed [1.02ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: ""
+  Received: "the bug keeps happening and the symptom returns after each release."
+(fail) S2p the same case on the pane: a Theo tool that is not there and a refused call show one honest line [1225.59ms]
+  AssertionError: expect(received).toEqual()
+  
+  Expected: []
+  Received: [
+    "Theo was sent: \"the bug keeps happening and the symptom returns after each release.\""
+  ]
+(fail) S3 two missing Theo tools: nothing was sent, and the note says this session has no Theo tool [28.22ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: ""
+  Received: "the bug keeps happening and the symptom returns after each release."
+(fail) S3p the same case on the pane: two missing Theo tools show the one line and no excerpt [388.25ms]
+  AssertionError: expect(received).toHaveLength()
+  
+  Expected: length 1
+  Received: length 0
+(fail) S4 a call that failed on the way: Theo may have received the words, and the note says Theo did not answer [0.94ms]
+  AssertionError: expect(received).toEqual()
+  
+  Expected: {
+    kind: "unsure",
+    excerpt: "the bug keeps happening and the symptom returns after each release.",
+    left: []
+  }
+  Received: { kind: "none" }
+(fail) S4p the same case on the pane: a failed call and a refused call say Theo may have received the words [275.29ms]
+  AssertionError: expect(received).toHaveLength()
+  
+  Expected: length 1
+  Received: length 0
+(pass) S5 an answered call says the words were sent, with the excerpt, and never says Theo was not asked [453.72ms]
+(pass) S6 with Words not shared and an answered call, the row says handles only and no excerpt is on screen [543.71ms]
+(pass) S6c with Words not shared and a refused call, the row says handles only and no excerpt is on screen [327.99ms]
+(pass) S6b an empty box sends no words, so the row is the handles-only text and never a sent row [246.12ms]
+(fail) S8 the left-out words name the kind and never the text: a long folder name is left out and its text is nowhere [225.37ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: true
+  Received: false
+(fail) S9 the wire text is byte for byte the text it was before, for every text of the corpus [0.62ms]
+  Error: not implemented
+(fail) S10 each kind of removal has one plain word, and the phrase never holds the removed text [0.23ms]
+  Error: not implemented
+(fail) S10b two kinds together keep the fixed order, each word once, and no removal gives an empty phrase [0.12ms]
+  Error: not implemented
+(fail) S11 outcomeOf: a deny, a missing tool, a plain error, a valid answer and a thrown failure each give one outcome [0.17ms]
+  Error: not implemented
+(fail) S11b deliveryOf over every pair of outcomes: an answered call that carried the words gives sent, never sent when no call answered [0.52ms]
+  Error: not implemented
+(fail) S11c deliveryOf when only the first call carried the words, and when there are no words [0.31ms]
+  Error: not implemented
+(fail) S11d the texts of the sent line are the plain words of the contract [0.15ms]
+  Error: not implemented
+(fail) S7 a new ask clears the old sent line while it is in flight [342.22ms]
+  AssertionError: expect(received).toEqual()
+  
+  Expected: []
+  Received: [
+    "Theo was sent: \"the bug keeps happening and the symptom returns after each release.\""
+  ]
+
+tests/status.test.tsx:
+(pass) P2 map: every panel field of the fixture has a label pair in STATUS_FIELDS, and the exclusions carry a reason [8.25ms]
+(pass) P4 render wide: every mapped field has a row with its wide label and its fixture value at 56 columns [2221.22ms]
+(pass) P4 render standard: every mapped field has a row with its wide label and its fixture value at 44 columns [868.85ms]
+(pass) P4 render narrow: every mapped field has a row with its narrow label and its fixture value at 35 columns [224.59ms]
+(pass) P4 job: the Job block still renders and STATUS_FIELDS points the field jtbd at it [287.81ms]
+(pass) P5 filing facts: room name, stage, entries, sections, WRITES TO and what is stale are visible rows, not only in a folded block [308.72ms]
+(pass) P5 filing facts: with nothing bound, WRITES TO says so, and a room that was not read says not read [304.33ms]
+(pass) P6 unknowns: with every status file missing each always-shown field says in words that it was not read, never a made-up value [652.58ms]
+(pass) P6 unknowns: the context says waiting only when the host gives no usage yet [215.74ms]
+(pass) P6 unknowns: with a usage the context shows the percent and never says waiting [205.51ms]
+(pass) P7 one signal: each state word of the status line appears in exactly one Text row [210.14ms]
+(pass) P7 one signal: the buttons do not repeat a state word that a Text row says [246.84ms]
+(pass) P8 order: where this session writes and the room facts, then NOW, then NEXT, then JOB, then the plugin facts, then ASK [229.97ms]
+(pass) P9 context band: 49 is ok, 50 to 79 is watch, 80 and over is the cliff with the words to file the insight first [1.40ms]
+(pass) P9 context band: the pane reads the cliff in words at 85 percent, and a text bar beside it when narrow [223.31ms]
+(pass) P10 post-update: a restart pending says so in NOW with the fix command, and the health word reads drift [197.76ms]
+(pass) P10 post-update: with no restart pending and a sound room, NOW does not mention a restart [168.33ms]
+(pass) P11 plain mode keeps every field, in ASCII words [147.17ms]
+(pass) P12 /mos-text prints the same facts as plain lines [204.92ms]
+(pass) P13 no string the panel writes for these fields names Larry, when the voice file says the persona speaks [170.14ms]
+(pass) P13 no string the panel writes for these fields names Larry, when the voice file says the host speaks [163.50ms]
+(pass) P13 the voice words never name Larry [0.43ms]
+(pass) P14 nothing leaves: values of the status files never appear in any outbound call [175.26ms]
+(pass) P16 copy: the healthy scene is clean at 56 columns [143.65ms]
+(pass) P16 copy: the restart and drift scene is clean at 44 columns [109.71ms]
+(pass) P16 copy: the host voice, off Theo and a broken room scene is clean at 35 columns [126.42ms]
+(pass) P15 damaged files: text that is not the expected shape gives not read, not a made-up value, and no error [134.05ms]
+(pass) formatters: health, next move, Theo, voice and version say the same thing the status line means [0.96ms]
+
+tests/theo-face-pin.test.ts:
+(pass) G4 pins: every canon state at every size draws the pixels pinned in plan 380-12 [590.04ms]
+
+tests/theo-face.test.ts:
+(pass) G1 asset: loadFaceAsset returns the 11 canon states in order, with the visible labels [5.22ms]
+(pass) G1 asset: loadFaceAsset returns null for text that is not the asset [1.83ms]
+(pass) G1 asset: readFaceAsset reads through fs.read and returns the 11 states and the path it used [1.33ms]
+(pass) G2 composition: composeFace equals the attributes that the canon renderer set, for all 11 states [10.43ms]
+(pass) G2 composition: the hollow face and the tilted face are composed as the canon says [0.77ms]
+(pass) G3 raster: an n by n grid of the seven token colors, at 4 sizes, for all 11 states [568.20ms]
+(pass) G3 raster: no tick and no loop; the same call gives the same grid [2.43ms]
+(pass) G3 raster: the plane color covers at least 8 percent of the grid at size 12 [1.25ms]
+(pass) G3 raster: the 11 faces are pairwise different at size 12, and at every other size too [3.64ms]
+(pass) G3 raster: each eye shows its own color in the cells around its center (a hollow face shows ink outline instead) [7.33ms]
+(pass) G3 raster: the divider and the ground line show as ink at every size (a thin bar is widened to one pixel) [4.95ms]
+(pass) G5 load paths: the dev folder path is tried first, the shipped dist path second [0.28ms]
+(pass) G5 load paths: when the first path fails the second is read; the path used is returned [1.04ms]
+(pass) G5 load paths: when both fail the answer is null with a plain reason, and no pose is invented [0.42ms]
+(pass) G5 load paths: a first file that is damaged falls through to the second [0.27ms]
+
+ 193 pass
+ 16 fail
+Ran 209 tests across 14 files. [14.46s]

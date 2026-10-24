@@ -1,0 +1,2 @@
+{"name":"pane-narrow","plugin":"$S/subject","out":"$S/raw-final","cols":50,"rows":30,"roomKind":"many","env":[],"stub":null,"stubScript":"$S/stub-mcp.cjs",
+ "userText":"I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.","replyText":"🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?","steps":[{"slash":"/mos-state"},{"cap":"pane-narrow"},{"cmd":"/mos-tree"},{"cap":"tree-inline-50x30"}]}

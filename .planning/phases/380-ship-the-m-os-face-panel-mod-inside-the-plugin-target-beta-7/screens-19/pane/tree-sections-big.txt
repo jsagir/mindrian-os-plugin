@@ -1,0 +1,45 @@
+▝▜██████▀  Opus 5.5 · Claude Max                                                             │                                            ✕
+ ▝▝   ▝▝   /tmp/mos-face-shots-VCBSXh/work                                                   │ ▀▀▀▀▀▀  Theo | MindrianOS
+                                                                                             │ ▀▀▀▀▀▀ Rest
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.                     │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+  1 more notice hidden                                                                       │ demo-room  all 18
+                                                                                             │ [ ▸ archive-2000  2000 ]
+❯ I want to test whether my market sizing assumption is right. See                           │ [ ▸ evidence-16  16 ]
+  https://example.com/report and the code calc_total(x) in my notes.                         │ [ ▸ legal-contracts  4 ]
+ Larry | MindrianOS                                                                          │ [ ▸ legal-review  4 ]
+                                                                                             │ [ ▸ channel-tests  3 ]
+● Market sizing is the first claim to test. What would change your mind?                     │ [ ▸ competitor-scan  3 ]
+                                                                                             │ [ ▸ customer-interviews  3 ]
+❯ /mos-state                                                                                 │ [ ▸ funding-plan  3 ]
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width when you ask  │ [ ▸ market-analysis  3 ]
+     for it.                                                                                 │ [ ▸ metrics-board  3 ]
+                                                                                             │ [ ▸ open-questions  3 ]
+❯ /mos-tree                                                                                  │ [ ▸ partner-list  3 ]
+  ⎿  mos: demo-room                                                                          │ [ ▸ pricing-tests  3 ]
+     all 18                                                                                  │ [ ▸ problem-definition  3 ]
+       archive-2000  2000                                                                    │ [ ▸ product-brief  3 ]
+       evidence-16  16                                                                       │ [ ▸ regulatory-notes  3 ]
+       legal-contracts  4                                                                    │ [ ▸ risk-register  3 ]
+       legal-review  4                                                                       │ [ ▸ team-roster  3 ]
+       channel-tests  3                                                                      │ [ Find ]
+       competitor-scan  3                                                                    │ [ Close ]
+       customer-interviews  3                                                                │ Click a name to ask about it
+       funding-plan  3                                                                       │ In the prompt box, type:
+       market-analysis  3                                                                    │ /mos-tree next prev up find
+       metrics-board  3                                                                      │ [ Refresh ] read 4s ago
+       open-questions  3                                                                     │
+       partner-list  3                                                                       │
+       pricing-tests  3                                                                      │
+       problem-definition  3                                                                 │
+       product-brief  3                                                                      │
+       regulatory-notes  3                                                                   │
+       risk-register  3                                                                      │
+       team-roster  3                                                                        │
+     Click a name to ask about it in the prompt box.                                         │
+     In the prompt box: /mos-tree next, prev, up, find                                       │
+                                                                         ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

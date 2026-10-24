@@ -1,0 +1,45 @@
+       entry-0026.md                                                                         │                                            ✕
+       entry-0027.md                                                                         │ ▀▀▀▀▀▀  Theo | MindrianOS
+       entry-0028.md                                                                         │ ▀▀▀▀▀▀ Rest
+     Click a name to ask about it in the prompt box.                                         │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+     In the prompt box: /mos-tree next, prev, up, find                                       │ ~chive-2000  29-56 of 300  first 300 of 2000
+                                                                                             │ [ ◆ new  entry-0029.md ]
+❯ /mos-tree                                                                                  │ [ ◆ new  entry-0030.md ]
+  ⎿  mos: demo-room / archive-2000                                                           │ [ ◆ new  entry-0031.md ]
+     29-56 of 300  first 300 of 2000                                                         │ [ ◆ new  entry-0032.md ]
+       entry-0029.md                                                                         │ [ ◆ new  entry-0033.md ]
+       entry-0030.md                                                                         │ [ ◆ new  entry-0034.md ]
+       entry-0031.md                                                                         │ [ ◆ new  entry-0035.md ]
+       entry-0032.md                                                                         │ [ ◆ new  entry-0036.md ]
+       entry-0033.md                                                                         │ [ ◆ new  entry-0037.md ]
+       entry-0034.md                                                                         │ [ ◆ new  entry-0038.md ]
+       entry-0035.md                                                                         │ [ ◆ new  entry-0039.md ]
+       entry-0036.md                                                                         │ [ ◆ new  entry-0040.md ]
+       entry-0037.md                                                                         │ [ ◆ new  entry-0041.md ]
+       entry-0038.md                                                                         │ [ ◆ new  entry-0042.md ]
+       entry-0039.md                                                                         │ [ ◆ new  entry-0043.md ]
+       entry-0040.md                                                                         │ [ ◆ new  entry-0044.md ]
+       entry-0041.md                                                                         │ [ ◆ new  entry-0045.md ]
+       entry-0042.md                                                                         │ [ ◆ new  entry-0046.md ]
+       entry-0043.md                                                                         │ [ ◆ new  entry-0047.md ]
+       entry-0044.md                                                                         │ [ ◆ new  entry-0048.md ]
+       entry-0045.md                                                                         │ [ ◆ new  entry-0049.md ]
+       entry-0046.md                                                                         │ [ ◆ new  entry-0050.md ]
+       entry-0047.md                                                                         │ [ ◆ new  entry-0051.md ]
+       entry-0048.md                                                                         │ [ ◆ new  entry-0052.md ]
+       entry-0049.md                                                                         │ [ ◆ new  entry-0053.md ]
+       entry-0050.md                                                                         │ [ ◆ new  entry-0054.md ]
+       entry-0051.md                                                                         │ [ ◆ new  entry-0055.md ]
+       entry-0052.md                                                                         │ [ ◆ new  entry-0056.md ]
+       entry-0053.md                                                                         │ [ Up ] [ Previous ] [ Next ]
+       entry-0054.md                                                                         │ [ Find ] [ Close ]
+       entry-0055.md                                                                         │ Click a name to ask about it
+       entry-0056.md                                                                         │ In the prompt box, type:
+     Click a name to ask about it in the prompt box.                                         │ /mos-tree next prev up find
+     In the prompt box: /mos-tree next, prev, up, find                                       │ [ Refresh ] read 13s ago
+                                          Plugins changed. Run /reload-plugins to activate.  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

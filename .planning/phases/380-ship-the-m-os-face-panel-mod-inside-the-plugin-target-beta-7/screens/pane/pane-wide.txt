@@ -1,0 +1,40 @@
+                                                                         │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                          │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                         │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   /tmp/mos-face-shots-JYOICh/work                               │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                         │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model. │
+  1 more notice hidden                                                   │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                         │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ I want to test whether my market sizing assumption is right. See       │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  https://example.com/report and the code calc_total(x) in my notes.     │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ Larry | MindrianOS                                                      │ Context gauge: waiting for the first reply
+                                                                         │
+● Market sizing is the first claim to test. What would change your mind? │ ▌ WRITES TO  demo-room
+                                                                         │ [ Switch room ]
+❯ /mos-state                                                             │ ROOM  demo-room, Discovery stage
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any │ FILED  3 entries in 18 sections
+     width when you ask for it.                                          │ STALE  market-analysis
+                                                                         │ HEALTH  sound
+                                                                         │
+                                                                         │ ▌ NOW  Theo is not answering its health
+                                                                         │ check
+                                                                         │ [ Fix: /mos:doctor ]
+                                                                         │
+                                                                         │ ▌ NEXT  from Theo
+                                                                         │ NEXT MOVE  map unknowns (routed)
+                                                                         │ Theo will suggest once the talk gives
+                                                                         │ something to go on.
+                                                                         │ [ Ask Theo now ] [ Words: shared ]
+                                                                         │ Theo is sent a short excerpt of your own
+                                                                         │ words, links, paths and names removed
+                                                                         │
+                                                                         │ ▌ JOB  a guess, is this it?
+                                                                         │ When I am in the Discovery stage, I want to
+                                                                         │ find the lagging component (Hughes 1983
+                          Fast mode is now available · /fast to turn on  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

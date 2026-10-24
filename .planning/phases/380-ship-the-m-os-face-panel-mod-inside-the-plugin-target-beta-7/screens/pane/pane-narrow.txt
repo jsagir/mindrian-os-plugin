@@ -1,0 +1,30 @@
+
+
+❯ I want to test whether my market sizing
+  assumption is right. See
+  https://example.com/report and the code
+  calc_total(x) in my notes.
+ Larry | MindrianOS
+
+● Market sizing is the first claim to test. What
+  would change your mind?
+
+❯ /mos-state
+  ⎿  mos: The /m:os dashboard is open in the side
+     panel. It seats at any width when you ask for
+     it.
+╭──────────────────────────────────────────────✕─╮
+│  ▀▀▀▀▀▀▀▀  Theo | MindrianOS                   │
+│  ▀▀▀▀▀▀▀▀ Rest                                 │
+│  ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~   │
+│  ▀▀▀▀▀▀▀▀                                      │
+│                                                │
+│  Context: waiting for the first reply          │
+│                                                │
+│  ▌ WRITES TO  demo-room                        │
+╰────────────────────────────────────────────────╯
+   Fast mode is now available · /fast to turn on
+──────────────────────────────────────────────────
+❯ 
+──────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doc…

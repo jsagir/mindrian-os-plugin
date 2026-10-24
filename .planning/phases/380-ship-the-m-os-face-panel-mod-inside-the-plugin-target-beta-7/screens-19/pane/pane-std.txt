@@ -1,0 +1,24 @@
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+  1 more notice hidden
+
+❯ I want to test whether my market sizing assumption is right. See
+  https://example.com/report and the code calc_total(x) in my notes.
+ Larry | MindrianOS
+
+● Market sizing is the first claim to test. What would change your mind?
+
+❯ /mos-state
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width
+     when you ask for it.
+╭────────────────────────────────────────────────────────────────────────────✕─╮
+│   Theo | MindrianOS  [o|o] Rest                                              │
+│  ROOM  demo-room, Discovery stage                                            │
+│  FILED  3 entries in 18 sections                                             │
+│  VERSION  2.0.0-beta.74, update 9.9.9 is available                           │
+│  Context: waiting for the first reply                                        │
+│  JOB, a guess: I want to find the lagging component (Hughes 1983 reverse s…  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+                                 Fast mode is now available · /fast to turn on
+────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────

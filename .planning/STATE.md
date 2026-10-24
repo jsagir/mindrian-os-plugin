@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1.0
-milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
+milestone_name: milestone
 status: executing
-stopped_at: v2.0.0-beta.67 CUT 2026-10-13 (tag at origin, npm latest and next, acceptance 24/24 post-release); search-surface sweep and egress-guard chain resolved; next: 369.3b, 369.4, 369.5, 369.6, one cut each; open: Desktop marketplace add (Code tab), GAP1/GAP2 under-blocking, SEED-126 BONO personas
-last_updated: "2026-10-11T15:14:22.718Z"
-last_activity: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
+stopped_at: Completed 379.1-09-PLAN.md - a-batch applied (DEFAULT_BATCH 8); two ok live large-room legs, drain peak 776.9 and 780.2 MB vs 1024; verification re-run next
+last_updated: "2026-10-22T05:30:32.368Z"
+last_activity: 2026-10-22
 progress:
-  total_phases: 121
-  completed_phases: 48
-  total_plans: 544
-  completed_plans: 522
-  percent: 96
+  total_phases: 144
+  completed_phases: 58
+  total_plans: 705
+  completed_plans: 683
+  percent: 97
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 366 — eureka-perspective-in-research-planner-mcp-canvas-tooling
+**Current focus:** Phase 379.1 - Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,9 +5423,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be)
-Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next
-Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
+Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
+Plan: 9 of 9 (all nine plans complete; phase verification re-run and the human-read real-room receipt are next)
+Status: 379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)
+Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
 Session jsagi-70 (2026-10-03, hand-edited frontmatter and this block only, no state.* writer): 369-22 (rulings Q1 extend-dashboard, Q2 desktop-sentences-tool-description -> /mos:dashboard shell, D-03 sentences in room_list; 369-LAUNCH-RULING.md), 369-20 (fonts approved: four Fontsource 5.3.0 OFL-1.1 packages, JetBrains Mono kept; Canon v3 skin + frame, 30/30), 369-21 (render nonce, D-15 10/10), 369-23 (pull-only copy 12/12 e2e, 369-COUNTER-METRICS.md, fixed plan-08/32 head-read-after-compaction bugs), 369-24 (signed indicator 11/11), 369-25 (five views 23/23 + 12/12 e2e, projection v2). Root node_modules restored with npm ci --ignore-scripts (interrupted plan-19 install had left 57 packages missing). Deferred: test-348-mcp-flag red (unrelated), wire-snapshot-zod3 stale room_list text, replica.cjs arm 11 flake 1 in 5, 404-page copy wording, duplicate Reconnect-now placement (plan 24 note).
@@ -5993,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-19 - Completed quick task 261019-91i: Narrow the Part 8 head-noun exemption (SEED-130)
+Last activity: 2026-10-22
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -7045,7 +7046,7 @@ Awaiting user action (Gate 5):
 
 Last activity: 2026-07-02 -- Completed quick task 20260702-statusline-context-aware: cockpit persona chip dropped, binary brain chip, context-aware Next with honest "--" fallback, native ctx% (4 commits, all regression suites green)
 
-Progress: [█████████░] 92%
+Progress: [██████████] 98%
 
 ## Performance Metrics
 
@@ -7414,6 +7415,14 @@ Progress: [█████████░] 92%
 | Phase 366 P05 | 30min | 2 tasks | 6 files |
 | Phase 366 P06 | 45min | 2 tasks | 9 files |
 | Phase 366 P04 | 45min | 2 tasks | 7 files |
+| Phase 379.1 P01 | 1h 43m | 3 tasks | 19 files |
+| Phase 379.1 P02 | 29min | 3 tasks | 12 files |
+| Phase 379.1 P03 | 35min | 2 tasks | 3 files |
+| Phase 379.1 P05 | 70min | 3 tasks | 8 files |
+| Phase 379.1 P06 | 95min | 2 tasks | 13 files |
+| Phase 379.1 P07 | 40min | 2 tasks | 5 files |
+| Phase 379.1 P08 | 15min | 2 tasks | 3 files |
+| Phase 379.1 P09 | 45min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -7637,6 +7646,10 @@ Progress: [█████████░] 92%
 | Phase 145 P03 | 12min | 2 tasks | 3 files |
 
 ### Roadmap Evolution
+
+- Phase 379.1 inserted after 379 (2026-10-21, URGENT): graph derive drain and scout runaway CPU fix, defects D1 to D6 of the 2026-10-21 incident report (all plugin side; the mindrian-eureka Python repo is not in the path). beta.73 blocker. Phase 380 depends on it. Next: /gsd-plan-phase 379.1 after the debug session drain-and-scout-runaway-cpu-wsl-windows reports.
+
+- Phase 380 added (2026-10-21): ship the M:OS face panel mod inside the plugin, target beta.73. Sequenced after the runaway drain and scout CPU fix (debug session drain-and-scout-runaway-cpu-wsl-windows). Not planned yet; next is /gsd-discuss-phase 380.
 
 - Phases 374 to 379 added (2026-10-20): the SEED-134 critical path after Phase 372/373. 374 adapter surface completion, 375 JHTV derive re-measure and baseline A/B (evidence gate), 376 bounded focus, 377 outer ring and crosses_boundary, 378 review surface (MCP App); 379 split-out RS features is off the path. Phases 376 to 378 are conditional on the 375 decision. External gates: beta.73 cut, plugin node_modules, Eureka job-store lock, rights on the five graph services. Planning only, no code.
 
@@ -9141,6 +9154,16 @@ Progress: [█████████░] 92%
 - [Phase ?]: 366-06: RULE 5 place 9 canon snapshot freshness (offline LAGGING gate on data/framework-names.json theo_stamp.mapped_by) plus release.sh suite gate over tests/run-all-366.sh; suite gate previewed under --dry-run (doctor 30s budget); next release refuses until refresh-framework-names.cjs --live runs after Theo re-emit
 - [Phase ?]: 366-04: hsi shares the HSI canon framework with whitespace; templateForFramework still returns whitespace and hsi is explicit_only on /mos:scout hsi
 - [Phase ?]: 366-04: analogies statement_slots (function, behavior, structure) are not composer slots; composeForLeaf refuses them as bad_slot
+- [Phase 379.1]: 379.1-01: chosen_k = 20 with recall_shortfall false (k = 20 keeps 0.95 recall of CONVERGES and INFORMS on the 39-artifact baseline and the 300-artifact real-room sample; k = 10 loses INFORMS at 0.87 and 0.85) - Measured by tests/fixtures/379.1/probe-k.cjs; Plan 04 reads chosen_k from probe-k.json, no RECALL_SHORTFALL comment needed
+- [Phase 379.1]: 379.1-01: extra_honoured = true on onnxruntime-node 1.30.0 (a non-string allow_spinning throws TypeError must be a string); the idle-CPU halving did not occur (673 ms vs 815 ms over 2,000 ms), so Plan 02 ships the extra map but must not expect it to remove idle CPU by itself - Measured by tests/fixtures/379.1/probe-allow-spinning.cjs, each case in its own child process
+- [Phase 379.1]: 379.1-01: rs_max_artifacts_default = 400 (jacobi_ms_n400 50,663 ms, 84 percent of the 60,000 ms budget on a 12-core host); TF-IDF density 0.0120 fixture, 0.0443 real room - Measured by tests/fixtures/379.1/probe-svd-parity.cjs and probe-tfidf-density.cjs; the 400 default is marginal on a slower host, Plan 05 decides
+- [Phase 379.1]: 379.1-02: allow_spinning shipped behind ALLOW_SPINNING_EXTRA_SHIPPED = true (probe extra_honoured true on ORT 1.30.0); intraOpNumThreads 2 and interOpNumThreads 1 on the one pipeline() call; no idle-CPU claim for the spin flag - The Wave 0 probe proved the extra map reaches the binding; the probe measured no idle-CPU halving, so the thread cap is the control
+- [Phase 379.1]: 379.1-02: the vector cache is the JSON file in the rs-engine format (D-379.1-07 deviation, Part 7 reuse), saved once per SAVE_EVERY_BATCHES 8; it never reads or writes the eureka_vec tables - rs-engine's loader and saver exist and are pinned by the 272 tests; a SQLite table would be a second cache format; a seed to unify the two vector stores after beta.73 is the follow-up
+- [Phase 379.1]: 379.1-02: artifact-scope guards: wildcard-only patterns rejected; guard A (every artifact) and guard B (directory share, OVERBROAD_DIR_SHARE_DEFAULT 0.5, env MINDRIAN_SCOPE_OVERBROAD_DIR_SHARE) empty the patterns; the markers are exempt - The incident declaration prunes 1 directory holding 98 percent of the files; a directory share keeps it and rejects an exclude-everything file
+- [Phase 379.1]: 379.1-02: job-lock reclaims by liveness, identity (/proc starttime) and the boot guard, never by age; a live pid with a heartbeat inside 6 h is held; above 6 h a mismatched or unavailable identity is reclaimed, a matching one stays held with stale_heartbeat true - The E5 reproduction (an 11-minute-old lock of a live holder reclaimed) is closed; a recycled PID on a long-lived boot cannot hold the lock forever
+- [Phase 379.1]: GATE PASSED: the seeded randomized truncated SVD ships behind the auto rule (min side above 300); jacobi path unchanged for small matrices; the scout cap stays Jacobi-derived this phase — 272 gate: spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210, 0 sign flips; 2105x2000 at k=80 in 968 ms; deterministic
+- [Phase 379.1-05]: Scout artifact cap stays 400 (Jacobi-derived probe value) although the randomized solver shipped; the cap rise is a Plan 06 seed - jacobi_ms_n400 = 50663 ms; D-379.1-14
+- [Phase 379.1-06]: The large room leg never starts the drain child without a local model (inconclusive, never a download); the gate refuses inconclusive; the limits stay at 300000 ms, 600000 ms, 1024 MB - the first live full leg breached on drain peak RSS (1837 MB); recorded in deferred-items.md and not hidden by a raised limit
 
 ### Pending Todos
 
@@ -9342,8 +9365,8 @@ Progress: [█████████░] 92%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-01T17:15:49.669Z
-Stopped at: Completed 366-04-PLAN.md
+Last session: 2026-10-22T05:30:32.283Z
+Stopped at: Completed 379.1-09-PLAN.md - a-batch applied; two ok live legs; verification re-run next
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
@@ -9441,7 +9464,6 @@ Resume path: Phase 172 Plan 13 is COMPLETE (commits 7858e79f flip+propagate, 341
 
 **Phase 172 Plan 13 (this session):** the navigator-approved "full flip" (2026-06-23 "go on!"). Task 1 (7858e79f): flipped the gap WARN to hard-FAIL in BOTH generators + the projection-exclude reconciliation (classifyCommandNode reads the connector-coverage-ledger excluded set; the 10 bare-command gaps -- brain-derive/correct-reference-now/feynman-timeline-refresh/heal/onboard/organize/query/radar/vault/visualize -- were ALL connector-excluded, propagated to projection-excluded, gap 10 -> 0). Task 2 (34160b84): wired both --check gates into all four enforcement surfaces (pre-commit connector-guard broadened to agents/*.md + coverage-ledger; install-pre-commit splice + fresh-hook body; release.sh Step 2.4; doctor --acceptance coverage-gate point). Task 3 (75451e52): tests/test-coverage-gate-hardfail.cjs (14) proves a dark fixture trips the gate RED -- copied into commands/ under a temp probe, spawned, removed in finally (zero tracked-file mutation). Task 4 (74b0b8c1): four-class governance-ISA atomic lockstep wave -- Part 11 R1 verbatim four-class sentence + two-wires capability-vs-permission + R9 doctor --drift scheduled surface + Appendix D entry 26 + version 1.14->1.15 + CANON-PHASE-MAP row + coverageReport() class enum (counts unchanged 88/36/0) + tests/test-cirs-four-class-floor.cjs (23). No new edge/node/reach/Brain-wire; no em-dashes. 4 atomic commits + this docs commit. See 172-13-SUMMARY.md.
 
-
 ## Completed quick task 261019-ey0 (2026-10-19)
 
 Built the GPT-oriented MCP Apps decision UI and dashboard command/Theo proposal
@@ -9451,7 +9473,6 @@ Local MCP/client/browser checks pass; one existing test-237 mutation matcher is
 stale against HEAD. No release or live ChatGPT connection update was performed.
 Current milestone/phase position is unchanged.
 
-
 ## Completed quick task 261019-fhe (2026-10-19)
 
 Room-first GPT plugin entry: room_list picker -> effective room_bind -> saved
@@ -9459,7 +9480,6 @@ context_assemble -> session-correct room view. Real fresh-session tests recover
 a saved decision; browser tests verify selection and failures. No release or live
 ChatGPT account update. Current milestone/phase position is unchanged.
 See `.planning/quick/261019-fhe-room-first-gpt-plugin-entry-choose-bind-/SUMMARY.md`.
-
 
 ## Completed quick task 261019-fs6 (2026-10-19)
 
@@ -9469,7 +9489,6 @@ MCP and SDK browser flows pass, along with room birth and prior UI regressions.
 No release or live ChatGPT account update. Current phase position is unchanged.
 See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY.md`.
 
-
 ## Session record - Phase 371 UI contract (2026-10-19)
 
 Stopped at: Phase 371 UI-SPEC approved; phase added and ready for planning.
@@ -9477,14 +9496,12 @@ Resume file: `.planning/phases/371-navigator-startup-ui-first-room-and-returning
 The existing Phase 369 Current Position is preserved. This record does not claim
 the new startup visual contract has been implemented or verified in ChatGPT.
 
-
 ## Phase 371 lifecycle started (2026-10-19)
 
 The navigator requested the complete focused GSD cycle. Context/UI-SPEC reused;
 research and three inline plans checked. Execution proceeds through local
 verification, then the explicit real-host acceptance gate. Prior startup commits
 remain baseline provenance. Peer Phase 369 Current Position is preserved.
-
 
 ## Phase 371 local cycle verification (2026-10-19)
 
@@ -9495,7 +9512,6 @@ local tasks pass, real-host checkpoint pending. Verification: human_needed,
 Resume: `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UAT.md`.
 The peer Phase 369 Current Position is preserved; no milestone close/archive,
 release, account/plugin install, tunnel or live ChatGPT update was performed.
-
 
 ## Phase 371 host validation attempted (2026-10-19)
 

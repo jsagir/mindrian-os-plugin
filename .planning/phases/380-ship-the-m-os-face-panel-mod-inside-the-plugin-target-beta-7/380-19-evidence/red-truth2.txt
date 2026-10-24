@@ -1,0 +1,467 @@
+# RED part 2, Task 2: W15, W15b, W15c and W16 added (the same root cause in the Theo light and in /mos-text)
+# The machine load was 13.76 at the start and 27 at the end (a peer process): 24 older tests hit the 5000 ms limit. No timeout was raised. The GREEN run is repeated alone.
+# load 13.76 7.28 4.73
+
+panel.test.tsx:
+(pass) the box draws when the panel is not placed, and Hide leaves a way back [2600.00ms]
+(pass) the side panel draws the avatar, the meter and the room [1258.24ms]
+(pass) clicking a section puts a question about it in the prompt box [841.55ms]
+(pass) a section opens like a dropdown, and a folder inside it drills one level [925.65ms]
+(pass) a filing lights the section it landed in, with words [1660.70ms]
+(pass) every second turn the panel asks Theo, with the framework, the problem type and the person's own words [767.81ms]
+(pass) the panel never calls a room both bound and not bound [2204.41ms]
+(pass) the panel hands you the switch: Fix, Bind and Free space put the command in the box [5051.82ms]
+(pass) an old, unrelated line is never the subject of a suggestion [1.44ms]
+(pass) a click asks Theo to think it through for this room, not just to run a command [0.55ms]
+(pass) the status line is the NOW line in one breath, and says nothing when all is quiet [3550.64ms]
+(pass) the panel names the folder, the room read and the room bound separately [2585.15ms]
+(pass) the context canvas keeps its frame visible on an ink ground and fills with the percent [1.20ms]
+(pass) singular and plural are one cue, so "ecosystem, ecosystems" never counts as two [0.83ms]
+(pass) one common word is not a cue: it takes two different ones [0.26ms]
+(fail) the panel shows how old its reading is [5188.50ms]
+  Error: timed out after 5000 ms
+(pass) too small: below 30 columns the panel says what it needs, not a broken layout [556.51ms]
+(pass) narrow folds the pictures to words: a text bar, no tile, and the actions stay [3961.20ms]
+(pass) wide draws the pictures and no text bar [437.72ms]
+(pass) plain mode (NO_COLOR) keeps every meaning in ASCII words and shapes [330.37ms]
+(pass) a read that hangs is cut off, shows as stale with its reason, and names the keyboard routes [3076.82ms]
+(pass) the compact canvas is a two-row Mondrian that still fills with the percent [0.70ms]
+(pass) the room is read through the MindrianOS tools, and the panel says so [1404.46ms]
+(pass) the binding is a fact from the tools, with the missing identity named [290.01ms]
+(pass) when the tools are out of reach the room is read from files, and the panel says so [466.16ms]
+(pass) the panel reads quietly: its own tool calls do not light the face [287.76ms]
+(pass) the tool answers are parsed exactly: first JSON object, sections table, claims, graph [1.57ms]
+(pass) /mos-text prints the whole state as plain linear text: words only, same facts as the panel [392.16ms]
+(pass) a tool the permission mode refused is not asked again, and the panel says what it could not read [2198.84ms]
+(pass) Ask Theo does not return the same framework every time: it moves on along the chain [250.80ms]
+(pass) when Theo has nothing new, the panel says so instead of pretending [363.08ms]
+(pass) the words that travel are cleaned: links, emails, paths, code and keys never go [5.40ms]
+(pass) Words: shared can be switched off, and then Theo gets only handles; the panel shows what was sent [1035.86ms]
+(pass) handles become chapter picks, and chapters become commands not yet shown [4.80ms]
+
+tests/budget.test.ts:
+(pass) B1 no subprocess: with the room tools out of reach the panel runs nothing and says the graph numbers were not read [2082.22ms]
+(pass) B2 the prompt path is I/O free: prompt.submit and turn.start record no call and never wait on the clock [2018.02ms]
+(pass) B3 tick budget: 30 minutes of ticks make at most 4 tool reads per tick, 0 processes, and fetches only on the reach clock [1780.07ms]
+(pass) B9 status reads: one tick adds at most 8 local file reads (the status line files, each once), no tool, fetch or process, and the prompt path reads nothing [1836.46ms]
+(pass) B4 reach cut-off: a fetch that never answers is cut at 4000 ms, with status null, and the refresh completes [833.06ms]
+(fail) B5 back-off: a slow read doubles the wait up to 600 s, a quick read resets it, a forced refresh always reads [7555.55ms]
+  Error: timed out after 5000 ms
+(pass) B5b back-off after a time-out: a read that never answers is cut at 30 s and the next ticks wait [3863.48ms]
+(pass) B6 one read in flight: a forced refresh during a running read does not start a second one [1259.06ms]
+(fail) B7 paths: HOME then USERPROFILE for the home folder, MINDRIAN_ROOMS_HOME first for the rooms folder [5663.41ms]
+  Error: timed out after 5000 ms
+(pass) B7b paths: MINDRIAN_ROOMS_HOME is the rooms folder when set, and a terminal inside it is a room folder [580.72ms]
+(pass) B8 timers stop: the 220 ms spinner is cancelled when the turn ends, and no flash timer runs without a lit section [4284.59ms]
+
+tests/colors.test.tsx:
+(pass) K1 tokens: the seven canon tokens and nothing else (plan 13: the extra tone HOLLOW is gone) [5.39ms]
+(pass) K2 contrast: every pair the book lists is computed, matches the book to 0.05 and is at least 4.5 [4.52ms]
+(pass) K2 contrast: every move chip pair (MOVE_FG over MOVE_BG) is at least 4.5 [1.47ms]
+(pass) K2 contrast: dimmed paper (N6), the weakest secondary text, is at least 4.5 over ink at 50 percent [0.42ms]
+(pass) K2 contrast: known low pairs in the panel are measured and named (the focus marker), not hidden [0.26ms]
+(pass) K3 yellow: no move chip draws yellow as text color [4.90ms]
+(pass) K4 blue is not proof: the search state draws no proof word, in every width and style [4376.26ms]
+(pass) K4 blue is not proof: the found state draws no proof word, in every width and style [3122.13ms]
+(pass) K4 blue is not proof: the move names carry no proof word either [0.59ms]
+(pass) K5 exact names: the label of each drawn state is the visible label of the canon asset (plan 13, navigator ruling 2026-10-23) [0.97ms]
+(pass) K5 exact names: the book has 11 states, all 11 are drawn, and the two the book spells in older words are recorded [0.27ms]
+(pass) K6 no green: no drawn color is green and no state is a breakthrough state [1.29ms]
+(pass) K7 geometry: the pose of each state, as the asset text holds it, equals the canon table, number for number (plan 13: poses come from the asset) [0.25ms]
+(pass) K7 colors by state: planes follow the canon (blue search and found, red challenge and boundary, yellow contradiction and reframe, ink only for your decision, white the rest) [0.35ms]
+(pass) K9 raster: the plane, the divider and the ground line sit where the canon pose puts them (plan 13: drawn by rasterFace) [19.59ms]
+
+tests/copy.test.tsx:
+(fail) C1 rest: every Text and Button of the band and the pane is clean, in every style, width and plain mode [5129.13ms]
+  Error: timed out after 5000 ms
+(pass) C1 listen: every Text and Button of the band and the pane is clean, in every style, width and plain mode [5159.11ms]
+(fail) C1 search: every Text and Button of the band and the pane is clean, in every style, width and plain mode [7372.44ms]
+  Error: timed out after 5000 ms
+(fail) C1 found: every Text and Button of the band and the pane is clean, in every style, width and plain mode [6075.36ms]
+  Error: timed out after 5000 ms
+(fail) C1 limit: every Text and Button of the band and the pane is clean, in every style, width and plain mode [5273.86ms]
+  Error: timed out after 5000 ms
+(pass) C1 boundary: every Text and Button of the band and the pane is clean, in every style, width and plain mode [2949.67ms]
+(pass) C1 challenge: every Text and Button of the band and the pane is clean, in every style, width and plain mode [4572.26ms]
+(pass) C1 contradiction: every Text and Button of the band and the pane is clean, in every style, width and plain mode [1191.02ms]
+(pass) C1 decision: every Text and Button of the band and the pane is clean, in every style, width and plain mode [2887.17ms]
+(pass) C1 handover: every Text and Button of the band and the pane is clean, in every style, width and plain mode [1458.51ms]
+(pass) C1 next move: the suggestion, its why lines, the hints and every opened block are clean [465.98ms]
+(pass) C1 every block: each block of the pane, opened one by one, is clean [176.11ms]
+(pass) C2 commands: 15 commands, every description and every result is clean [132.81ms]
+(pass) C3 toasts: every text given to the toast, over a full session, is clean [168.95ms]
+(pass) C4 tables: the words, thoughts, labels and why lines are clean [3.17ms]
+(pass) C5 Theo, not Larry: the badge says Theo | MindrianOS and the chip quotes the reply as it stands [147.99ms]
+(pass) C6 names: no table and no drawn text holds the name of a person or an institution [0.89ms]
+(pass) C8 job line: the sentence of each shown job, at 48 and 35 columns, in color and in plain mode, is clean and never overclaims [505.04ms]
+(pass) C7 copy dump: prints the collected copy for the book review when the scratch copy sets MOS_COPY_DUMP [0.51ms]
+
+tests/egress.test.ts:
+(pass) E1 search sends handles only: its query is one string of the closed set, never a word of the person [1826.15ms]
+(pass) E2 excerpt on: the shim question carries the cleaned excerpt and no canary name, mail, link, path or key [2169.46ms]
+(pass) E3 excerpt off: after one /mos-words run no outbound call holds the excerpt line or a word of the prompts [1084.89ms]
+(pass) E4 never the assistant, never the room: no canary of either reaches a tool, http or process call [446.44ms]
+(pass) E5 shim denied: the raw fallback follows the flag, and the panel does not show a sent excerpt that was not sent [1855.01ms]
+(pass) E6 environment opt-out: MOS_FACE_WORDS=off at session start sends no excerpt without a command [745.76ms]
+(pass) E6b environment opt-out: the value 0 also holds [3893.93ms]
+(fail) E6c environment opt-out: the value FALSE holds in any case [5740.97ms]
+  Error: timed out after 5000 ms
+(pass) E7 honest texts: /mos-advice and /mos-words say what is sent now and how long the setting lasts [2426.94ms]
+(pass) E8 sanitize table: known names, capitalized names and sentence-initial names go; framework names and cue words stay [3.47ms]
+(pass) E8b lowercase names reach the shim stripped: the room slug and the session folder feed S1 through the panel [1991.01ms]
+(pass) E9 mutation arm: the leak scan says yes for a list with one canary and no for a clean list [0.61ms]
+(fail) E10 shimOnlyExcerpt holds for both values: with true the raw fallback sends handles only, with false it may carry the excerpt [5057.58ms]
+  Error: timed out after 5000 ms
+(pass) E10b envSwitch holds for both values: true reads MOS_FACE_WORDS, false ignores it and no text names it [2.15ms]
+
+tests/face-events.test.ts:
+(pass) W1 states: FACE_STATES are the 11 ids of the canon asset, in the order of the asset [4.45ms]
+(pass) W1 labels: LABEL is the visible label of each asset state, and no label reads Limit or Hand over [2.95ms]
+(pass) W1 line faces: one short plain-text face per state, 7 characters at most, all different [4.45ms]
+(pass) W1 canon source: every drawn state id is in the asset, and an id that is not there fails [3.42ms]
+(pass) W2 events: each real event maps to its canon state [3.28ms]
+(pass) W2 events: mapped plus unmapped is the 11 states, nothing is both, and reframe has no event [7.45ms]
+(pass) W2 leads: the red square is Challenge, the yellow square Contradiction, the black square Your decision, any other square Handover [0.59ms]
+(fail) W3 behavior: a turn moves the face through the mapped states, and each label is drawn in the pane and the band [5124.10ms]
+  Error: timed out after 5000 ms
+(pass) W3 suggestions: a finished turn leaves the command of its state waiting in the prompt box, also for the states that have no glossary lines [611.40ms]
+(fail) W4 no loop: while a turn runs the frame counter ticks, and the face grid is identical across the ticks [5612.12ms]
+  Error: timed out after 5000 ms
+(fail) W5 asset missing: both candidate paths are tried, then the panel draws the words-only line face and one plain sentence [5363.41ms]
+  Error: timed out after 5000 ms
+(pass) W5 asset text damaged: a file that is not the asset gives the same words-only face [3372.08ms]
+(pass) W5 asset read: through the engine fs.read, from the dev path first; the face is drawn and no sentence is shown [3964.09ms]
+(pass) W5 asset read: when the dev path fails the shipped path is read [3271.38ms]
+(fail) W6 styles: /mos-style cycles tile, mini and line and then tile again, and the word crew appears nowhere [5383.36ms]
+  Error: timed out after 5000 ms
+(pass) W7 voice: THOUGHTS holds at least 8 thoughts for each of the 11 states and no other key, all clean [3.93ms]
+(pass) W7 voice: the new thoughts are questions or hedged reflections and keep to the canon "must not imply" lists [1.48ms]
+(pass) W8 words: a state has glossary lines from WORDS or none, and a state without an entry does not fail [0.84ms]
+(pass) W9 palette: face.ts exports no old pose, no crew, no raster of them and no HOLLOW, and every color it exports is a canon token [0.70ms]
+(pass) W10 suggestions: every state gets at least one real /mos: command, so the prompt box never gets an empty or invented line [4.07ms]
+(fail) the file ran to its end [0.00ms]
+  a rejection nothing handled: no implementation for tool.call
+
+tests/face-sheet.test.ts:
+(pass) W11 sheet: each of the 11 states is rasterized at n 12 through the real loader and printed as ANSI between FACESHEET_BEGIN and FACESHEET_END [80.04ms]
+
+tests/gauge.test.tsx:
+(pass) G-1 idle wide: exactly one row says "Context gauge: waiting for the first reply", the canvas is drawn, and no row says "Context: waiting" [3591.23ms]
+(pass) G-1 idle standard: at 44 columns the boxes are drawn and exactly one row says "Context gauge: waiting for the first reply" [730.29ms]
+(pass) G-2 idle narrow: at 35 columns exactly one row says "Context: waiting for the first reply", with no canvas rows and no text bar [992.39ms]
+(pass) G-3 idle plain: with NO_COLOR exactly one row says "Context: waiting for the first reply" and no canvas rows are drawn [401.61ms]
+(pass) G-4 idle short: under 24 rows the boxes fold to words, so the row is "Context: waiting for the first reply" [398.40ms]
+(pass) G-5 a reading at 9 percent keeps today's row "Context 9% - ok" and the word gauge is nowhere on the pane [1652.79ms]
+(pass) G-5 a reading at 62 percent says "Context 62% - watch" [1432.73ms]
+(fail) G-5 a reading at 80 percent says the cliff words and no row says gauge [7427.68ms]
+  Error: timed out after 5000 ms
+(pass) G-6 edge: 0 percent is a reading, "Context 0% - ok", and never the waiting words [1537.06ms]
+(pass) G-6 edge: 100 percent says "Context 100%" with the cliff words [1695.02ms]
+(pass) G-7 transition: idle first, then the host reports 9 percent; after the next render the idle sentence is gone and "Context 9% - ok" is there once [764.20ms]
+(pass) G-8 pure: gaugeText gives the exact words for idle with and without boxes, for each band, and the same idle words for NaN as for undefined [10.03ms]
+(pass) G-9 the canvas did not change: idle wide draws the same 4 rows of 32 cells that contextCanvas(undefined, 32, 8) makes [1781.27ms]
+
+tests/job-guess.test.ts:
+(pass) J1 the two real prompts of the shots hold no cue, so there is no guess and one dim row says so [7.06ms]
+(pass) J2 one cue is not enough: a single phrase of one job gives no guess [0.49ms]
+(pass) J3 two different cues of one job give that job [1.00ms]
+(pass) J4 two jobs with the same cue count give no guess [0.98ms]
+(pass) J5 a recorded job wins over a guess [0.49ms]
+(pass) J6 a guessed job is labelled a guess in words [0.54ms]
+(pass) J7 the hint says plainly what a guess needs: two different phrases of one job, in your own words [0.44ms]
+
+tests/job.test.ts:
+(pass) J1 form: all 13 jobs give one whole sentence "When I am ..., I want to ..., so that ...", with and without an open section [32.84ms]
+(pass) J1 the want clause is the taxonomy one-line with its first letter lowered and its final full stop removed [1.39ms]
+(pass) J2 readJob: a fresh recorded job, a live person-set job, and every case that gives nothing [1.78ms]
+(pass) J2 compactJob keeps only the fields of the current job: the goal never travels [5.69ms]
+(pass) J2 sources in the pane: the recorded job first, then the person-set label, then the cue match, and nothing for a stale record [2070.93ms]
+(pass) J3 guessJob: two distinct cues of one job give that job; fewer, a tie, a repeat or a cue inside a longer word give none [1.02ms]
+(pass) J3 explore is never a guess, and a job flagged never shown is skipped [2.03ms]
+(pass) J3 no guess: the line says so in plain words, invents nothing and offers no button [3.68ms]
+(pass) J4 label: every guessed line holds the word guess, never claims it is your job, and never says validated, confirmed or proven [18.70ms]
+(pass) J4 size: at 46 columns the heading and the sentence are two rows at most; at 35 columns the line is one row with the want clause only [9.68ms]
+(pass) J4 a person-set job is labelled as set by you and has no guess word; a guess has both buttons, a set job has Fix only [0.63ms]
+(pass) J5 local only: building, dismissing and fixing the line make no tool, http or process call; the prompt and goal canaries are never drawn [2136.42ms]
+(fail) J5 canary across a full session: with the words off and the auto ask running, no prompt word, job id, want or outcome reaches any call [5807.73ms]
+  Error: timed out after 5000 ms
+(fail) J5 the line adds nothing to what is sent (part 1): a whole session with the line shown [5608.40ms]
+  Error: timed out after 5000 ms
+(fail) J5 the line adds nothing to what is sent (part 2): the same session with the line hidden sends the same calls [1243.55ms]
+  AssertionError: expect(received).toBeGreaterThan()
+  
+  Expected: > 0
+  Received: 0
+(fail) J6 Not this hides the guess until the recorded job changes; /mos-job toggles the line; both without any call [5667.55ms]
+  Error: timed out after 5000 ms
+(pass) J6 Not this on a guess from the talk hides it until the guess changes [2391.13ms]
+(pass) J6 Fix puts /mos:jtbd set in the prompt box and does not submit it [2663.41ms]
+(pass) J7 narrow: at 35 columns the Job line shows, in words, with its buttons [476.39ms]
+(pass) J7 plain: with NO_COLOR every meaning survives in words and the Job rows are ASCII [2794.87ms]
+(pass) J8 the registered commands are 15 and the 14th is mos-job, with a clean description and clean results [366.30ms]
+(pass) J9 budget: one tick adds one read of the job file; the prompt path and the command read nothing [1181.93ms]
+(pass) J10 /mos-text carries the Job line words, and says when the line is hidden [308.00ms]
+
+tests/meter-pin.test.ts:
+(pass) R3: the context canvas, wide and compact, draws the same pixels as in plan 380-02 [540.76ms]
+
+tests/sent.test.tsx:
+(pass) S1 a refused call leaves no sent line, only the one line that says Theo was not asked [1310.70ms]
+(pass) S2 a missing Theo tool followed by a refused call: nothing was sent, and the one note says the call was not allowed [4.54ms]
+(pass) S2p the same case on the pane: a Theo tool that is not there and a refused call show one honest line [394.79ms]
+(pass) S3 two missing Theo tools: nothing was sent, and the note says this session has no Theo tool [0.72ms]
+(pass) S3p the same case on the pane: two missing Theo tools show the one line and no excerpt [1801.92ms]
+(pass) S4 a call that failed on the way: Theo may have received the words, and the note says Theo did not answer [1.15ms]
+(pass) S4p the same case on the pane: a failed call and a refused call say Theo may have received the words [654.87ms]
+(pass) S5 an answered call says the words were sent, with the excerpt, and never says Theo was not asked [1943.34ms]
+(fail) S6 with Words not shared and an answered call, the row says handles only and no excerpt is on screen [5468.28ms]
+  Error: timed out after 5000 ms
+(pass) S6c with Words not shared and a refused call, the row says handles only and no excerpt is on screen [4358.17ms]
+(pass) S6b an empty box sends no words, so the row is the handles-only text and never a sent row [1538.29ms]
+(fail) S8 the left-out words name the kind and never the text: a long folder name is left out and its text is nowhere [5618.32ms]
+  Error: timed out after 5000 ms
+(pass) S9 the wire text is byte for byte the text it was before, for every text of the corpus [49.94ms]
+(pass) S10 each kind of removal has one plain word, and the phrase never holds the removed text [1.55ms]
+(pass) S10b two kinds together keep the fixed order, each word once, and no removal gives an empty phrase [0.46ms]
+(pass) S11 outcomeOf: a deny, a missing tool, a plain error, a valid answer and a thrown failure each give one outcome [5.40ms]
+(pass) S11b deliveryOf over every pair of outcomes: an answered call that carried the words gives sent, never sent when no call answered [8.04ms]
+(pass) S11c deliveryOf when only the first call carried the words, and when there are no words [0.60ms]
+(pass) S11d the texts of the sent line are the plain words of the contract [0.41ms]
+(pass) S7 a new ask clears the old sent line while it is in flight [3649.97ms]
+
+tests/status.test.tsx:
+(pass) P2 map: every panel field of the fixture has a label pair in STATUS_FIELDS, and the exclusions carry a reason [16.76ms]
+(pass) P4 render wide: every mapped field has a row with its wide label and its fixture value at 56 columns [2069.33ms]
+(pass) P4 render standard: every mapped field has a row with its wide label and its fixture value at 44 columns [2271.10ms]
+(pass) P4 render narrow: every mapped field has a row with its narrow label and its fixture value at 35 columns [3587.74ms]
+(pass) P4 job: the Job block still renders and STATUS_FIELDS points the field jtbd at it [5046.80ms]
+(pass) P5 filing facts: room name, stage, entries, sections, WRITES TO and what is stale are visible rows, not only in a folded block [3042.07ms]
+(pass) P5 filing facts: with nothing bound, WRITES TO says so, and a room that was not read says not read [1905.90ms]
+(fail) P6 unknowns: with every status file missing each always-shown field says in words that it was not read, never a made-up value [5215.74ms]
+  Error: timed out after 5000 ms
+(pass) P6 unknowns: the context says waiting only when the host gives no usage yet [3242.82ms]
+(pass) P6 unknowns: with a usage the context shows the percent and never says waiting [1639.17ms]
+(pass) P7 one signal: each state word of the status line appears in exactly one Text row [445.58ms]
+(pass) P7 one signal: the buttons do not repeat a state word that a Text row says [2762.86ms]
+(pass) P8 order: where this session writes and the room facts, then NOW, then NEXT, then JOB, then the plugin facts, then ASK [804.29ms]
+(pass) P9 context band: 49 is ok, 50 to 79 is watch, 80 and over is the cliff with the words to file the insight first [182.60ms]
+(pass) P9 context band: the pane reads the cliff in words at 85 percent, and a text bar beside it when narrow [746.33ms]
+(pass) P10 post-update: a restart pending says so in NOW with the fix command, and the health word reads drift [438.54ms]
+(pass) P10 post-update: with no restart pending and a sound room, NOW does not mention a restart [262.11ms]
+(pass) P11 plain mode keeps every field, in ASCII words [505.03ms]
+(pass) P12 /mos-text prints the same facts as plain lines [2007.97ms]
+(pass) P13 no string the panel writes for these fields names Larry, when the voice file says the persona speaks [400.44ms]
+(pass) P13 no string the panel writes for these fields names Larry, when the voice file says the host speaks [223.64ms]
+(pass) P13 the voice words never name Larry [0.46ms]
+(pass) P14 nothing leaves: values of the status files never appear in any outbound call [814.65ms]
+(pass) P16 copy: the healthy scene is clean at 56 columns [684.38ms]
+(pass) P16 copy: the restart and drift scene is clean at 44 columns [204.88ms]
+(pass) P16 copy: the host voice, off Theo and a broken room scene is clean at 35 columns [181.24ms]
+(pass) P15 damaged files: text that is not the expected shape gives not read, not a made-up value, and no error [128.25ms]
+(pass) formatters: health, next move, Theo, voice and version say the same thing the status line means [1.06ms]
+
+tests/theo-face-pin.test.ts:
+(pass) G4 pins: every canon state at every size draws the pixels pinned in plan 380-12 [63.45ms]
+
+tests/theo-face.test.ts:
+(pass) G1 asset: loadFaceAsset returns the 11 canon states in order, with the visible labels [19.69ms]
+(pass) G1 asset: loadFaceAsset returns null for text that is not the asset [1.30ms]
+(pass) G1 asset: readFaceAsset reads through fs.read and returns the 11 states and the path it used [7.69ms]
+(pass) G2 composition: composeFace equals the attributes that the canon renderer set, for all 11 states [15.71ms]
+(pass) G2 composition: the hollow face and the tilted face are composed as the canon says [0.74ms]
+(pass) G3 raster: an n by n grid of the seven token colors, at 4 sizes, for all 11 states [107.84ms]
+(pass) G3 raster: no tick and no loop; the same call gives the same grid [23.74ms]
+(pass) G3 raster: the plane color covers at least 8 percent of the grid at size 12 [3.36ms]
+(pass) G3 raster: the 11 faces are pairwise different at size 12, and at every other size too [17.37ms]
+(pass) G3 raster: each eye shows its own color in the cells around its center (a hollow face shows ink outline instead) [19.45ms]
+(pass) G3 raster: the divider and the ground line show as ink at every size (a thin bar is widened to one pixel) [9.35ms]
+(pass) G5 load paths: the dev folder path is tried first, the shipped dist path second [0.34ms]
+(pass) G5 load paths: when the first path fails the second is read; the path used is returned [0.55ms]
+(pass) G5 load paths: when both fail the answer is null with a plain reason, and no pose is invented [0.43ms]
+(pass) G5 load paths: a first file that is damaged falls through to the second [0.33ms]
+
+tests/tree-pane.test.tsx:
+(pass) T1 a room with 14 sections lists every section across pages at 56 by 14, each name on exactly one page [2714.32ms]
+(fail) T2 a section with 16 files lists every file across pages, the header stays first and the rows stay within 14 [5802.04ms]
+  Error: timed out after 5000 ms
+(pass) T3 a room with 0 sections says no sections were read and draws no page controls [5469.23ms]
+(pass) T4 a room with 1 section fits one page with no page controls and the counter all 1 [1794.93ms]
+(fail) T5 the counter says 1-10 of 14 on the first page and 11-14 of 14 on the second, and Previous and Next appear only where they can act [5395.91ms]
+  Error: timed out after 5000 ms
+(pass) T6 /mos-tree find legal keeps the names that hold legal, the counter says so, and clear gives back all 14 [1276.67ms]
+(pass) T6 a filter with a capital letter matches the case exactly [3574.51ms]
+(pass) T7 a filter with no match says so in words and Up still works [426.68ms]
+(pass) T8 every section and every file is reachable by slash command alone, with no click [2865.13ms]
+(pass) T8 find reaches a name on the second page without paging [1237.28ms]
+(pass) T9 Up goes back one level at every depth: folder inside a section, section list, closed [669.42ms]
+(pass) T9 /mos-tree up goes back the same way and the last up closes the tree [488.37ms]
+(pass) T10 a folder that cannot be listed says nothing readable inside and Up still works [266.51ms]
+(pass) T11 a folder of 2000 files shows a window: first 300 of 2000, 30 pages of 10 rows, and the rows stay within the room [2597.46ms]
+(pass) T12 plain mode keeps every control and the counter in ASCII words [282.48ms]
+(pass) T12 plain mode at 56 by 40 draws the words header and no tile, in ASCII [494.92ms]
+(pass) T13 at 8 rows the pane says it needs 9 rows to browse and draws only Close, and /mos-tree still answers with the list [978.21ms]
+(pass) T14 at 56 by 40 the hint names where each route works and promises no key [225.72ms]
+(pass) T14 at 44 by 24 the hint names where each route works and promises no key [238.48ms]
+(pass) T14 at 35 by 24 the hint names where each route works and promises no key [139.99ms]
+(pass) T14 at 76 by 10 the hint names where each route works and promises no key [151.18ms]
+(pass) T15 browsing reads nothing at prompt time and sends nothing: paging and filtering add no call, and one list is read for each opened section [201.98ms]
+(pass) T16 at 56 by 40 the face tile is drawn first in the browse view and the label row follows [132.22ms]
+(pass) T16 below 24 rows the header is one words row and no tile [123.56ms]
+(pass) T17 at 76 by 10 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane [183.13ms]
+(pass) T17 at 56 by 22 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane [144.00ms]
+(pass) T17 at 44 by 24 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane [133.13ms]
+(pass) T17 at 35 by 24 every section and every file is reachable, the counter shows, and the rows and the width stay within the pane [154.93ms]
+(pass) T18 the keys and the texts of the originals still work: ask-sections then sec-market-analysis puts a question in the box [124.32ms]
+(pass) T19 Find puts the stem /mos-tree find in the prompt box, and Close folds the tree back to the overview and clears the filter [112.66ms]
+(pass) T19 at 44 columns the controls are two explicit rows and the second page of a folder has Previous, Up, Find and Close [108.66ms]
+(pass) T20 /mos-tree with no argument prints the crumb line, the counter line, one line for each name with its count, and the hint lines [116.37ms]
+(pass) T20 a folder prints a slash after a folder name and no count for a file [88.09ms]
+(pass) T20 open with one match opens a section, with several or none it says how many names match [117.33ms]
+(pass) T20 open with one matching file puts a question about it in the prompt box [95.98ms]
+(pass) T20 an unknown verb says what the command knows and changes nothing [89.00ms]
+(pass) T20 find with no word and open with no word say what to type [107.18ms]
+(pass) T21 with the tree closed the overview still shows the Sections button and the ASK heading [101.79ms]
+(pass) T22 the row counter reads the overview at 56 by 40 as the 40 rows of the plan 17 audit [108.14ms]
+(pass) T23 the filter word stays on this machine: no call holds it after a filter, two turns and an ask [118.87ms]
+(pass) T24 a long section name is cut and the file count after it stays, at 35 columns [124.36ms]
+
+tests/tree.test.ts:
+(pass) T-P1 the layout at 56 columns by 40 rows is a tile header, 2 hint rows, 1 control row and 32 tree rows [21.70ms]
+(pass) T-P1 the layout at 44 columns by 24 rows is a tile header, 3 hint rows, 2 control rows and 14 tree rows [0.80ms]
+(pass) T-P1 the layout at 35 columns by 24 rows is a words header, 3 hint rows, 2 control rows and 16 tree rows [0.53ms]
+(pass) T-P1 the layout at 56 columns by 23 rows is a words header, 1 hint row, 1 control row and 19 tree rows [0.49ms]
+(pass) T-P1 the layout at 44 columns by 11 rows is a words header, 1 hint row, 2 control rows and 6 tree rows [0.50ms]
+(pass) T-P1 the layout at 35 columns by 9 rows is a words header, 1 hint row, 2 control rows and 4 tree rows [0.47ms]
+(pass) T-P1 the layout at 56 columns by 40 rows in plain mode is a words header, 2 hint rows, 1 control row and 34 tree rows [0.43ms]
+(pass) T-P1 the refresh row shows from 24 rows and not below [0.29ms]
+(pass) T-P1 8 rows is too small and names the 9 rows it needs [0.24ms]
+(pass) T-P1 the constants are 4 tree rows, 9 browse rows and 300 entries [0.31ms]
+(pass) T-P1 the fixed rows and the tree rows add up to the body rows at every size from 9 to 60 [0.60ms]
+(pass) T-P2 no items is an empty page with the reason none [0.32ms]
+(pass) T-P2 one item is a whole page [0.25ms]
+(pass) T-P2 exactly the size is a whole page of 10 rows [0.29ms]
+(pass) T-P2 size plus 1 is 2 pages, the first with 10 rows and the second with 1 [0.28ms]
+(pass) T-P2 14 items at size 10: page 1 shows 1 to 10 and page 2 shows 11 to 14 [1.45ms]
+(pass) T-P2 16 items at size 10 lose no name and show none twice [0.39ms]
+(pass) T-P2 a page below 0 clamps to the first page [0.14ms]
+(pass) T-P2 a page past the last clamps to the last page [0.17ms]
+(pass) T-P2 a page that is not a number counts as the first page [0.14ms]
+(pass) T-P2 a size of 0 still shows one row on a page and loses no name [0.17ms]
+(pass) T-P3 a lowercase query matches any case [0.17ms]
+(pass) T-P3 a query with a capital letter matches the case exactly [0.17ms]
+(pass) T-P3 a query with no match is an empty page with the reason no-match [0.17ms]
+(pass) T-P3 an empty query is no filter [0.21ms]
+(pass) T-P3 a query of spaces is no filter [0.88ms]
+(pass) T-P3 the filter runs before the pages, so a filter of a long list pages only the matches [9.36ms]
+(pass) T-P3 the filter reads the text function, not the item [0.39ms]
+(pass) T-P4 a whole page says all and the number [0.20ms]
+(pass) T-P4 a paged page says which rows show [0.17ms]
+(pass) T-P4 an empty page with no items says none [0.13ms]
+(pass) T-P4 an empty page with a filter says no match for the filter [0.10ms]
+(pass) T-P4 a filtered whole page says how many match [0.16ms]
+(pass) T-P4 a filtered paged page names the filter after the rows [0.13ms]
+(pass) T-P4 a hand-made empty page of any reason has words [0.12ms]
+(pass) T-P5 an empty string is the list command [2.29ms]
+(pass) T-P5 next, prev, up and clear are commands [0.33ms]
+(pass) T-P5 find with a word keeps the word as typed, trimmed [0.23ms]
+(pass) T-P5 find with no word is unknown [0.23ms]
+(pass) T-P5 open with a word is open, and open with no word is unknown [2.87ms]
+(pass) T-P5 a verb in capitals is the same verb [6.44ms]
+(pass) T-P5 an unknown verb is unknown and keeps the typed word [0.36ms]
+(pass) T-P6 a crumb that fits shows the whole path [1.15ms]
+(pass) T-P6 a crumb with no path shows the room name [0.33ms]
+(pass) T-P6 a crumb that is too long is cut at the start and keeps the last part [0.26ms]
+(pass) T-P6 a crumb with no room name says room [0.11ms]
+(pass) T-P6 a width of 1 gives one character and never an empty line [0.11ms]
+(pass) T-P7 every hint line is at most columns minus 2 characters at 30, 35, 44, 56 and 76 columns [0.28ms]
+(pass) T-P7 every hint set names /mos-tree [0.16ms]
+(pass) T-P7 every set of 24 rows or more says the commands work in the prompt box [0.14ms]
+(pass) T-P7 no hint line promises a key: press, ctrl, hotkey, Tab and Esc do not appear [0.26ms]
+(pass) T-P7 the number of hint lines equals the hint rows of the layout [0.17ms]
+(pass) T-P8 a list of 2000 keeps the first 300 and reports 1700 more [0.73ms]
+(pass) T-P8 a list of exactly 300 keeps all and reports 0 more [0.23ms]
+(pass) T-P8 a list of 16 keeps all 16 and reports 0 more [0.19ms]
+(pass) T-P9 sections sort by file count, most first, then by name [0.49ms]
+(pass) T-P9 sorting does not change the list it was given [0.16ms]
+(pass) T-P10 the section list on its first page has Next, Find and Close, and no Up and no Prev [0.26ms]
+(pass) T-P10 the section list on its last page has Prev, Find and Close, and no Next [1.18ms]
+(pass) T-P10 a folder has Up, and a middle page has both Prev and Next [0.19ms]
+(pass) T-P10 a whole page has no Prev and no Next [0.11ms]
+(pass) T-P10 an empty page inside a folder still has Up, Find and Close [0.16ms]
+(pass) T-P10 a closed view has no controls [0.14ms]
+(pass) T-P11 the view is closed unless the open block is ask [0.18ms]
+(pass) T-P11 the view is the section list with no open path and a folder with one [0.15ms]
+(pass) T-P11 a name that ends with a slash is a folder [0.15ms]
+(pass) T-P12 the rows of a page are its rows, and an empty page has none [0.19ms]
+
+tests/truth.test.tsx:
+(fail) W1 the advice text with the excerpt on claims no delivery and says what goes only if Theo is reached [46.70ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: false
+  Received: true
+(fail) W2 the advice text with the excerpt off claims no delivery and names only the framework name and the problem type [21.28ms]
+  AssertionError: expect(received).toBe()
+  
+  Expected: false
+  Received: true
+(fail) W3 /mos-advice with the shim tool missing and the raw call refused says nothing was sent, and the panel line still says the call was not allowed [5941.57ms]
+  Error: timed out after 5000 ms
+(fail) W4 the load notice at session start is one line of at most 40 characters and names /mos-state [2533.40ms]
+  AssertionError: expect(received).toBeLessThanOrEqual()
+  
+  Expected: <= 40
+  Received: 84
+(fail) W5 a session that is not bound shows the room read with "not bound" on the ROOM row, and WRITES TO still says nothing is bound [1838.92ms]
+  AssertionError: expect(received).toMatch()
+  
+  Expected: /^ROOM\s+demo-room, Design stage, not bound$/
+  Received: "ROOM  demo-room, Design stage"
+(fail) W6 a bound session keeps the ROOM row as it was, with no qualifier [5361.24ms]
+  Error: timed out after 5000 ms
+(pass) W7 a different room bound than the room read keeps the old words "not the room this session writes to" [3543.06ms]
+(fail) W8 on the files path the ROOM row says not bound without a registry record for this session, and does not with one [1291.20ms]
+  AssertionError: expect(received).toMatch()
+  
+  Expected: /^ROOM\s+demo-room, Design stage, not bound$/
+  Received: "ROOM  demo-room, Design stage"
+(pass) W8b on the files path a registry record for this session leaves the ROOM row without a qualifier [1108.87ms]
+(fail) W9 with no Theo host recorded and a local health file that says ok, NOW does not say Theo is not answering and the THEO row says on [3182.38ms]
+  AssertionError: expect(received).not.toMatch()
+  
+  Expected: not /not answering/
+  Received: "▌ NOW  Theo is not answering its health check"
+(pass) W10 with the Theo host recorded and the health check answering 503, NOW says Theo is not answering [579.62ms]
+(pass) W11 with the local health file saying error and no host recorded, NOW says Theo is not answering and the THEO row says off [435.77ms]
+(pass) W12 with the host recorded, the check cut off and no local health file, NOW says Theo is not answering [300.08ms]
+(fail) W13 with no host recorded and no local health file, the THEO row says not read and NOW does not mention Theo [382.05ms]
+  AssertionError: expect(received).not.toMatch()
+  
+  Expected: not /Theo/
+  Received: "▌ NOW  Theo is not answering its health check"
+(fail) W14 the pinned status line follows NOW: with no host recorded and a health file that says ok it holds no words about Theo not answering [1061.65ms]
+  AssertionError: expect(received).not.toMatch()
+  
+  Expected: not /not answering/
+  Received: "/m:os  Theo is not answering  /mos:doctor"
+(fail) W15 with no host recorded the Theo light says it is not known, and with the local health file saying ok it says ok; a failed check still says down [1433.10ms]
+  AssertionError: expect(received).toContain()
+  
+  Expected: containing "Theo ?"
+  Received: "▸ Theo down"
+(fail) W15b the Theo light says ok when no host is recorded and the local health file says ok [346.42ms]
+  AssertionError: expect(received).toContain()
+  
+  Expected: containing "Theo ok"
+  Received: "▸ Theo down"
+(pass) W15c the Theo light still says down when the host is recorded and the check is refused [709.82ms]
+(fail) W16 the plain text of /mos-text says Theo was not checked when no host is recorded, and never "unknown - no answer" [620.33ms]
+  AssertionError: expect(received).toContain()
+  
+  Expected: containing "THEO: health not checked"
+  Received: "/m:os state, read never\nWRITES TO: nothing, this session is not bound\nREADS: no room\nNOW: Reading this machine...\nCONTEXT: 62% used, 124000 of 200000 tokens\nROOM: not read\nFILED: not read\nSTALE: not read\nHEALTH: not read\nTHEO STATE: not read\nVERSION: not read\nNEXT MOVE: none yet\nNEXT: Theo suggests once the talk gives something to go on\nJOB: no guess yet. Say what you want to decide, test or find, in two different phrases, and one may come."
+
+ 313 pass
+ 37 fail
+Ran 350 tests across 18 files. [46.84s]
+exit=1

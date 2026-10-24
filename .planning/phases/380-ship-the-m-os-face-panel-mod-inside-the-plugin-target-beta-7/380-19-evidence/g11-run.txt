@@ -1,0 +1,3 @@
+# g11-run: gap 11 (WRITES TO says not bound beside a ROOM row that names a room)
+# Same scratch copy and method. Case D: the room tools answer room_binding bound false, source reg.active, registry_fallback true (the unbound answer of tests/support.ts mcpAnswer).
+    Received: "D NOW: ▌ NOW  This room has no identity yet, so its reasoning cannot be trusted to belong to it || THEO: THEO  on || THEO || ROOM: ROOM  demo-room, Design stage || ROOM || WRITES: ▌ WRITES TO  nothing - this session is not bound || STATUS: \"/m:os  not bound to a room, nothing will be filed  /mos:rooms\""

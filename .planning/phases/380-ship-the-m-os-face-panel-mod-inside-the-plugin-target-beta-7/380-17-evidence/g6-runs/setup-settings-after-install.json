@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "fixture-mkt": {
+      "source": {
+        "source": "directory",
+        "path": "SCRATCH/mkt"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "mos@fixture-mkt": true
+  }
+}

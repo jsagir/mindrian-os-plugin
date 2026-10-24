@@ -1,0 +1,13 @@
+       competitor-scan  3                                                │                                            ✕
+       customer-interviews  3                                            │ /m:os needs 9 rows to browse the room
+       funding-plan  3                                                   │ /mos-tree still lists every name in the pro~
+       market-analysis  3                                                │ [ Close ]
+       metrics-board  3                                                  │
+     Click a name to ask about it in the prompt box.                     │
+     In the prompt box: /mos-tree next, prev, up, find                   │
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

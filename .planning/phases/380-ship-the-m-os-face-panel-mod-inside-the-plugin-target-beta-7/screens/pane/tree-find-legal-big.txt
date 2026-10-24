@@ -1,0 +1,45 @@
+       entry-0012.md                                                                         │                                            ✕
+       entry-0013.md                                                                         │ ▀▀▀▀▀▀  Theo | MindrianOS
+       entry-0014.md                                                                         │ ▀▀▀▀▀▀ Rest
+       entry-0015.md                                                                         │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+       entry-0016.md                                                                         │ demo-room  2 matches for "legal"
+     Click a name to ask about it in the prompt box.                                         │ [ ▸ legal-contracts  4 ]
+     In the prompt box: /mos-tree next, prev, up, find                                       │ [ ▸ legal-review  4 ]
+                                                                                             │ [ Find ]
+❯ /mos-tree                                                                                  │ [ Close ]
+  ⎿  mos: demo-room                                                                          │ Click a name to ask about it
+     all 18                                                                                  │ In the prompt box, type:
+       archive-2000  2000                                                                    │ /mos-tree next prev up find
+       evidence-16  16                                                                       │ [ Refresh ] read 31s ago
+       legal-contracts  4                                                                    │
+       legal-review  4                                                                       │
+       channel-tests  3                                                                      │
+       competitor-scan  3                                                                    │
+       customer-interviews  3                                                                │
+       funding-plan  3                                                                       │
+       market-analysis  3                                                                    │
+       metrics-board  3                                                                      │
+       open-questions  3                                                                     │
+       partner-list  3                                                                       │
+       pricing-tests  3                                                                      │
+       problem-definition  3                                                                 │
+       product-brief  3                                                                      │
+       regulatory-notes  3                                                                   │
+       risk-register  3                                                                      │
+       team-roster  3                                                                        │
+     Click a name to ask about it in the prompt box.                                         │
+     In the prompt box: /mos-tree next, prev, up, find                                       │
+                                                                                             │
+❯ /mos-tree                                                                                  │
+  ⎿  mos: demo-room                                                                          │
+     2 matches for "legal"                                                                   │
+       legal-contracts  4                                                                    │
+       legal-review  4                                                                       │
+     Click a name to ask about it in the prompt box.                                         │
+     In the prompt box: /mos-tree next, prev, up, find                                       │
+                                                                                             │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

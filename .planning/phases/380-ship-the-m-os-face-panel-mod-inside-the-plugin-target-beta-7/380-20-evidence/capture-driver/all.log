@@ -1,0 +1,122 @@
+load 4.84 3.87 3.96
+capturing wide (120x40) ...
+  wide: ok
+capturing std (80x24) ...
+  std: ok
+capturing narrow (50x30) ...
+  narrow: ok
+capturing nocolor (80x24) ...
+  nocolor: ok
+capturing small (28x20) ...
+  small: ok
+capturing chip (100x30) ...
+  chip: ok
+=== pane-wide 15:42:51 load 4.12 3.85 3.95
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured pane-wide
+exit 0
+=== pane-std 15:43:01 load 3.64 3.76 3.92
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured pane-std
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-inline-80x24
+exit 0
+=== pane-narrow 15:43:20 load 3.41 3.70 3.90
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured pane-narrow
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-inline-50x30
+exit 0
+=== pane-nocolor 15:43:45 load 4.18 3.86 3.95
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured pane-nocolor
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-inline-nocolor-80x24
+exit 0
+=== pane-small 15:44:04 load 3.69 3.76 3.91
+ready=true
+cmd /mos-state -> Enter pressed (prompt line matched exactly)
+captured pane-small
+exit 0
+=== tree-inline-60 15:44:14 load 3.43 3.71 3.89
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured pane-inline-60x24
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-inline-60x24
+exit 0
+=== tree-small 15:44:36 load 3.53 3.72 3.89
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-sections-p1-small
+cmd /mos-tree next -> Enter pressed (prompt line matched exactly)
+captured tree-sections-p2-small
+cmd /mos-tree open evidence-16 -> Enter pressed (prompt line matched exactly)
+captured tree-folder16-small
+cmd /mos-tree up -> Enter pressed (prompt line matched exactly)
+cmd /mos-tree find legal -> Enter pressed (prompt line matched exactly)
+captured tree-find-legal-small
+cmd /mos-tree clear -> Enter pressed (prompt line matched exactly)
+cmd /mos-tree open archive-2000 -> Enter pressed (prompt line matched exactly)
+captured tree-2000-p1-small
+exit 0
+=== tree-big 15:45:21 load 5.90 4.31 4.09
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-sections-big
+cmd /mos-tree open archive-2000 -> Enter pressed (prompt line matched exactly)
+captured tree-2000-p1-big
+cmd /mos-tree next -> Enter pressed (prompt line matched exactly)
+captured tree-2000-p2-big
+cmd /mos-tree up -> Enter pressed (prompt line matched exactly)
+cmd /mos-tree open evidence-16 -> Enter pressed (prompt line matched exactly)
+captured tree-folder16-big
+cmd /mos-tree up -> Enter pressed (prompt line matched exactly)
+cmd /mos-tree find legal -> Enter pressed (prompt line matched exactly)
+captured tree-find-legal-big
+cmd /mos-tree clear -> Enter pressed (prompt line matched exactly)
+captured tree-cleared-big
+exit 0
+=== tree-toosmall 15:46:10 load 3.66 3.90 3.95
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+cmd /mos-tree -> Enter pressed (prompt line matched exactly)
+captured tree-toosmall-120x13
+exit 0
+=== sent-denied 15:46:27 load 4.17 3.99 3.98
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+cmd /mos-advice -> Enter pressed (prompt line matched exactly)
+captured sent-denied
+exit 0
+=== sent-answered 15:46:49 load 3.54 3.84 3.93
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+cmd /mos-advice -> Enter pressed (prompt line matched exactly)
+captured sent-answered
+exit 0
+=== job-hint 15:47:11 load 2.84 3.66 3.87
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured job-hint
+exit 0
+=== explore-list 15:47:21 load 2.56 3.57 3.84
+ready=true
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured explore-list-before
+cmd /mos-tree list -> Enter pressed (prompt line matched exactly)
+captured explore-mos-tree-list
+exit 0
+=== installed-wide 15:47:40 load 2.58 3.53 3.82
+ready=true
+captured installed-band
+slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter
+captured installed-wide
+exit 0
+ALLDONE

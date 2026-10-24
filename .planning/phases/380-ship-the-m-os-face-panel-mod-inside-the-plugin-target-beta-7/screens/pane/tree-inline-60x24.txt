@@ -1,0 +1,24 @@
+       archive-2000  2000
+       evidence-16  16
+       legal-contracts  4
+       legal-review  4
+       channel-tests  3
+       competitor-scan  3
+       customer-interviews  3
+       funding-plan  3
+       market-analysis  3
+       metrics-board  3
+     Click a name to ask about it in the prompt box.
+     In the prompt box: /mos-tree next, prev, up, find
+╭────────────────────────────────────────────────────────✕─╮
+│  /m:os needs 9 rows to browse the room                   │
+│  /mos-tree still lists every name in the prompt box.     │
+│  [ Close ]                                               │
+╰──────────────────────────────────────────────────────────╯
+                                        ◐ medium · /effort
+────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on ·(shift+tab to        [ /m:os dashboard
+                   cycle)               ]

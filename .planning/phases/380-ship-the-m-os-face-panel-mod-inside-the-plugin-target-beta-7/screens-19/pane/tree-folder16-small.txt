@@ -1,0 +1,29 @@
+                                                                         │                                            ✕
+                                                                         │  Theo | MindrianOS  [o|o] Rest
+❯ /mos-tree                                                              │ demo-room / evidence-16  all 16
+  ⎿  mos: demo-room / evidence-16                                        │ [ ◆ new  entry-0001.md ]
+     all 16                                                              │ [ ◆ new  entry-0002.md ]
+       entry-0001.md                                                     │ [ ◆ new  entry-0003.md ]
+       entry-0002.md                                                     │ [ ◆ new  entry-0004.md ]
+       entry-0003.md                                                     │ [ ◆ new  entry-0005.md ]
+       entry-0004.md                                                     │ [ ◆ new  entry-0006.md ]
+       entry-0005.md                                                     │ [ ◆ new  entry-0007.md ]
+       entry-0006.md                                                     │ [ ◆ new  entry-0008.md ]
+       entry-0007.md                                                     │ [ ◆ new  entry-0009.md ]
+       entry-0008.md                                                     │ [ ◆ new  entry-0010.md ]
+       entry-0009.md                                                     │ [ ◆ new  entry-0011.md ]
+       entry-0010.md                                                     │ [ ◆ new  entry-0012.md ]
+       entry-0011.md                                                     │ [ ◆ new  entry-0013.md ]
+       entry-0012.md                                                     │ [ ◆ new  entry-0014.md ]
+       entry-0013.md                                                     │ [ ◆ new  entry-0015.md ]
+       entry-0014.md                                                     │ [ ◆ new  entry-0016.md ]
+       entry-0015.md                                                     │ [ Up ] [ Find ]
+       entry-0016.md                                                     │ [ Close ]
+     Click a name to ask about it in the prompt box.                     │ /mos-tree next, prev, up, find
+     In the prompt box: /mos-tree next, prev, up, find                   │
+  You've used 76% of your weekly limit · resets Oct 26, 2pm (Asia/Hebr…  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

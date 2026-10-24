@@ -1,0 +1,45 @@
+                                                                                             │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                                              │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                                             │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   /tmp/mos-face-shots-wu7NvY/work                                                   │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                                             │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.                     │
+  1 more notice hidden                                                                       │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ I want to test whether my market sizing assumption is right. See                           │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  https://example.com/report and the numbers in my notes.                                    │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ Larry | MindrianOS                                                                          │ Context gauge: waiting for the first reply
+                                                                                             │
+● Market sizing is the first claim to test. What would change your mind?                     │ ▌ WRITES TO  demo-room
+                                                                                             │ [ Switch room ]
+❯ /mos-state                                                                                 │ ROOM  demo-room, Discovery stage
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width when you ask  │ FILED  3 entries in 18 sections
+     for it.                                                                                 │ STALE  market-analysis
+                                                                                             │ HEALTH  sound
+❯ /mos-advice                                                                                │
+  ⎿  mos: Asking Theo. A framework name, a problem type and a short excerpt of your own words│ ▌ NOW  Theo is not answering its health
+     are sent. Run /mos-words to stop the excerpt.                                           │ check
+                                                                                             │ [ Fix: /mos:doctor ]
+                                                                                             │
+                                                                                             │ ▌ NEXT  from Theo
+                                                                                             │ NEXT MOVE  map unknowns (routed)
+                                                                                             │ [ Ask Theo now ] [ Words: shared ]
+                                                                                             │ Theo was not asked: the call was not allowed
+                                                                                             │
+                                                                                             │ ▌ JOB  a guess, is this it?
+                                                                                             │ When I am in the Discovery stage, I want to
+                                                                                             │ find the lagging component (Hughes 1983
+                                                                                             │ reverse salient) blocking progress, so that
+                                                                                             │ I know which part to fix first.
+                                                                                             │ [ Not this ] [ Fix: /mos:jtbd set ]
+                                                                                             │ THEO  on
+                                                                                             │ SPEAKS  Theo, building
+                                                                                             │ STANCE  red team
+                                                                                             │ MODE  build room
+                                                                                             │ VERSION  2.0.0-beta.74, update 9.9.9 is
+                                                                         ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ don't ask on · (shift+tab to cycle)  [ /m:os dashboard ]

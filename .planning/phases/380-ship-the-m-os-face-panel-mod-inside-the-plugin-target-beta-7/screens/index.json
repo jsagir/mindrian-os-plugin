@@ -1,0 +1,1151 @@
+{
+  "tool": "ui/mos-face/scripts/capture-shots.cjs (band scenarios, top level files) and a scratch driver s10/drive.cjs (sessions below, files under pane/ and installed/)",
+  "tools": {
+    "claude": "2.1.310 (Claude Code)",
+    "tmux": "tmux 3.7",
+    "playwright": "Version 1.58.2"
+  },
+  "colorNote": "a capture without truecolor sequences means colors were rounded to 256 or the screen has no color",
+  "limit": "the capture shows tmux screen drawn with the harness font and ink background; the person terminal font and theme can differ",
+  "bandScenarios": [
+    {
+      "name": "wide",
+      "columns": 120,
+      "rows": 40,
+      "note": "wide terminal",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR",
+        "-NO_COLOR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "wide.png",
+        "ansi": "wide.ansi",
+        "txt": "wide.txt",
+        "html": "wide.html"
+      },
+      "truecolor": true,
+      "capturedAt": "2026-10-23T23:39:15.595Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    },
+    {
+      "name": "std",
+      "columns": 80,
+      "rows": 24,
+      "note": "the 80 by 24 floor",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR",
+        "-NO_COLOR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "std.png",
+        "ansi": "std.ansi",
+        "txt": "std.txt",
+        "html": "std.html"
+      },
+      "truecolor": true,
+      "capturedAt": "2026-10-23T23:39:22.152Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    },
+    {
+      "name": "narrow",
+      "columns": 50,
+      "rows": 30,
+      "note": "under 60 columns",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR",
+        "-NO_COLOR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "narrow.png",
+        "ansi": "narrow.ansi",
+        "txt": "narrow.txt",
+        "html": "narrow.html"
+      },
+      "truecolor": true,
+      "capturedAt": "2026-10-23T23:39:28.867Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    },
+    {
+      "name": "nocolor",
+      "columns": 80,
+      "rows": 24,
+      "note": "NO_COLOR set",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "NO_COLOR",
+        "XDG_RUNTIME_DIR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "nocolor.png",
+        "ansi": "nocolor.ansi",
+        "txt": "nocolor.txt",
+        "html": "nocolor.html"
+      },
+      "truecolor": false,
+      "capturedAt": "2026-10-23T23:39:35.418Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    },
+    {
+      "name": "small",
+      "columns": 28,
+      "rows": 20,
+      "note": "under the 30 column floor (the too-small state)",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR",
+        "-NO_COLOR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "small.png",
+        "ansi": "small.ansi",
+        "txt": "small.txt",
+        "html": "small.html"
+      },
+      "truecolor": true,
+      "capturedAt": "2026-10-23T23:39:41.942Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    },
+    {
+      "name": "chip",
+      "columns": 100,
+      "rows": 30,
+      "note": "reply chip from a resumed synthetic transcript",
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR",
+        "-NO_COLOR",
+        "-CLAUDECODE",
+        "-CLAUDE_CODE_ENTRYPOINT",
+        "-CLAUDE_CODE_SESSION_ID",
+        "-CLAUDE_ACTIVE_ROOM",
+        "-TMUX",
+        "-TMUX_PANE",
+        "-CLAUDE_CODE_CHILD_SESSION",
+        "-CLAUDE_PID",
+        "-CLAUDE_EFFORT",
+        "-CLAUDE_CODE_MESSAGING_SOCKET",
+        "-CLAUDE_CODE_SESSION_ATTENDED",
+        "-MINDRIAN_BRAIN_KEY",
+        "-CLAUDE_CODE_EXECPATH",
+        "-CLAUDE_PLUGIN_DATA",
+        "-CLAUDE_CODE_MESSAGING_TOKEN"
+      ],
+      "answered": [],
+      "files": {
+        "png": "chip.png",
+        "ansi": "chip.ansi",
+        "txt": "chip.txt",
+        "html": "chip.html"
+      },
+      "truecolor": true,
+      "capturedAt": "2026-10-23T23:39:48.486Z",
+      "sessionHome": [
+        ".mindrian/next-move.json",
+        ".mindrian/bridge/brain-health.json",
+        ".mindrian/room-health.json",
+        ".mindrian/stance-state.json",
+        ".mindrian/voice-mark.json",
+        ".mindrian/update-check.json",
+        ".mindrian/install-state.json",
+        "MindrianRooms/demo-room/.mindrian/conversation-operator.json",
+        "MindrianRooms/demo-room/.mindrian/jtbd-state.json",
+        "MindrianRooms/demo-room/.mindrian/minto-stale.json"
+      ],
+      "terminal": {
+        "defaultTerminal": "tmux-256color",
+        "term": "set by tmux, not by the harness"
+      }
+    }
+  ],
+  "driverSessions": [
+    {
+      "name": "job-hint",
+      "spec": {
+        "name": "job-hint",
+        "plugin": "[subject]",
+        "cols": 140,
+        "rows": 45,
+        "roomKind": "many",
+        "over": {
+          "job": null
+        },
+        "userText": "Hello, I am just looking around.",
+        "replyText": "🟦 **Larry | MindrianOS** Welcome. What brings you here?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "job-hint"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "job-hint",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-24T00:13:55.483Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured job-hint"
+      ]
+    },
+    {
+      "name": "pane-narrow",
+      "spec": {
+        "name": "pane-narrow",
+        "plugin": "[subject]",
+        "cols": 50,
+        "rows": 30,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "pane-narrow"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-inline-50x30"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-narrow",
+          "columns": 50,
+          "rows": 30,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:33.486Z"
+        },
+        {
+          "name": "tree-inline-50x30",
+          "columns": 50,
+          "rows": 30,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:38.499Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured pane-narrow",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-inline-50x30"
+      ]
+    },
+    {
+      "name": "pane-nocolor",
+      "spec": {
+        "name": "pane-nocolor",
+        "plugin": "[subject]",
+        "cols": 80,
+        "rows": 24,
+        "roomKind": "many",
+        "env": [
+          "NO_COLOR=1"
+        ],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "pane-nocolor"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-inline-nocolor-80x24"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-nocolor",
+          "columns": 80,
+          "rows": 24,
+          "truecolor": false,
+          "env": [
+            "NO_COLOR=1"
+          ],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:48.928Z"
+        },
+        {
+          "name": "tree-inline-nocolor-80x24",
+          "columns": 80,
+          "rows": 24,
+          "truecolor": false,
+          "env": [
+            "NO_COLOR=1"
+          ],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:53.956Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured pane-nocolor",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-inline-nocolor-80x24"
+      ]
+    },
+    {
+      "name": "pane-small",
+      "spec": {
+        "name": "pane-small",
+        "plugin": "[subject]",
+        "cols": 28,
+        "rows": 20,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "cmd": "/mos-state"
+          },
+          {
+            "cap": "pane-small"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-small",
+          "columns": 28,
+          "rows": 20,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:47:48.003Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "cmd /mos-state -> Enter pressed (prompt line matched exactly)",
+        "captured pane-small"
+      ]
+    },
+    {
+      "name": "pane-std",
+      "spec": {
+        "name": "pane-std",
+        "plugin": "[subject]",
+        "cols": 80,
+        "rows": 24,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "pane-std"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-inline-80x24"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-std",
+          "columns": 80,
+          "rows": 24,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:18.049Z"
+        },
+        {
+          "name": "tree-inline-80x24",
+          "columns": 80,
+          "rows": 24,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:23.053Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured pane-std",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-inline-80x24"
+      ]
+    },
+    {
+      "name": "pane-wide",
+      "spec": {
+        "name": "pane-wide",
+        "plugin": "[subject]",
+        "cols": 120,
+        "rows": 40,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "pane-wide"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-wide",
+          "columns": 120,
+          "rows": 40,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:44:07.711Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured pane-wide"
+      ]
+    },
+    {
+      "name": "sent-answered",
+      "spec": {
+        "name": "sent-answered",
+        "plugin": "[subject]",
+        "cols": 140,
+        "rows": 45,
+        "roomKind": "many",
+        "env": [],
+        "stub": "answered",
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cmd": "/mos-advice",
+            "wait": 6000
+          },
+          {
+            "cap": "sent-answered"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "sent-answered",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": "answered",
+          "capturedAt": "2026-10-23T23:47:33.783Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "cmd /mos-advice -> Enter pressed (prompt line matched exactly)",
+        "captured sent-answered"
+      ]
+    },
+    {
+      "name": "sent-denied",
+      "spec": {
+        "name": "sent-denied",
+        "plugin": "[subject]",
+        "cols": 140,
+        "rows": 45,
+        "roomKind": "many",
+        "env": [],
+        "stub": "denied",
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the numbers in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cmd": "/mos-advice",
+            "wait": 6000
+          },
+          {
+            "cap": "sent-denied"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "sent-denied",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": "denied",
+          "capturedAt": "2026-10-23T23:47:16.128Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "cmd /mos-advice -> Enter pressed (prompt line matched exactly)",
+        "captured sent-denied"
+      ]
+    },
+    {
+      "name": "tree-big",
+      "spec": {
+        "name": "tree-big",
+        "plugin": "[subject]",
+        "cols": 140,
+        "rows": 45,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-sections-big"
+          },
+          {
+            "cmd": "/mos-tree open archive-2000"
+          },
+          {
+            "cap": "tree-2000-p1-big"
+          },
+          {
+            "cmd": "/mos-tree next"
+          },
+          {
+            "cap": "tree-2000-p2-big"
+          },
+          {
+            "cmd": "/mos-tree up"
+          },
+          {
+            "cmd": "/mos-tree open evidence-16"
+          },
+          {
+            "cap": "tree-folder16-big"
+          },
+          {
+            "cmd": "/mos-tree up"
+          },
+          {
+            "cmd": "/mos-tree find legal"
+          },
+          {
+            "cap": "tree-find-legal-big"
+          },
+          {
+            "cmd": "/mos-tree clear"
+          },
+          {
+            "cap": "tree-cleared-big"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "tree-sections-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:31.289Z"
+        },
+        {
+          "name": "tree-2000-p1-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:36.181Z"
+        },
+        {
+          "name": "tree-2000-p2-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:41.152Z"
+        },
+        {
+          "name": "tree-folder16-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:49.766Z"
+        },
+        {
+          "name": "tree-find-legal-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:58.370Z"
+        },
+        {
+          "name": "tree-cleared-big",
+          "columns": 140,
+          "rows": 45,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:03.225Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-sections-big",
+        "cmd /mos-tree open archive-2000 -> Enter pressed (prompt line matched exactly)",
+        "captured tree-2000-p1-big",
+        "cmd /mos-tree next -> Enter pressed (prompt line matched exactly)",
+        "captured tree-2000-p2-big",
+        "cmd /mos-tree up -> Enter pressed (prompt line matched exactly)",
+        "cmd /mos-tree open evidence-16 -> Enter pressed (prompt line matched exactly)",
+        "captured tree-folder16-big",
+        "cmd /mos-tree up -> Enter pressed (prompt line matched exactly)",
+        "cmd /mos-tree find legal -> Enter pressed (prompt line matched exactly)",
+        "captured tree-find-legal-big",
+        "cmd /mos-tree clear -> Enter pressed (prompt line matched exactly)",
+        "captured tree-cleared-big"
+      ]
+    },
+    {
+      "name": "tree-inline-60",
+      "spec": {
+        "name": "tree-inline-60",
+        "plugin": "[subject]",
+        "cols": 60,
+        "rows": 24,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cap": "pane-inline-60x24"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-inline-60x24"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "pane-inline-60x24",
+          "columns": 60,
+          "rows": 24,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:11.892Z"
+        },
+        {
+          "name": "tree-inline-60x24",
+          "columns": 60,
+          "rows": 24,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:45:16.913Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured pane-inline-60x24",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-inline-60x24"
+      ]
+    },
+    {
+      "name": "tree-small",
+      "spec": {
+        "name": "tree-small",
+        "plugin": "[subject]",
+        "cols": 120,
+        "rows": 29,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-sections-p1-small"
+          },
+          {
+            "cmd": "/mos-tree next"
+          },
+          {
+            "cap": "tree-sections-p2-small"
+          },
+          {
+            "cmd": "/mos-tree open evidence-16"
+          },
+          {
+            "cap": "tree-folder16-small"
+          },
+          {
+            "cmd": "/mos-tree up"
+          },
+          {
+            "cmd": "/mos-tree find legal"
+          },
+          {
+            "cap": "tree-find-legal-small"
+          },
+          {
+            "cmd": "/mos-tree clear"
+          },
+          {
+            "cmd": "/mos-tree open archive-2000"
+          },
+          {
+            "cap": "tree-2000-p1-small"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "tree-sections-p1-small",
+          "columns": 120,
+          "rows": 29,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:17.432Z"
+        },
+        {
+          "name": "tree-sections-p2-small",
+          "columns": 120,
+          "rows": 29,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:22.289Z"
+        },
+        {
+          "name": "tree-folder16-small",
+          "columns": 120,
+          "rows": 29,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:27.126Z"
+        },
+        {
+          "name": "tree-find-legal-small",
+          "columns": 120,
+          "rows": 29,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:35.675Z"
+        },
+        {
+          "name": "tree-2000-p1-small",
+          "columns": 120,
+          "rows": 29,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:44.245Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-sections-p1-small",
+        "cmd /mos-tree next -> Enter pressed (prompt line matched exactly)",
+        "captured tree-sections-p2-small",
+        "cmd /mos-tree open evidence-16 -> Enter pressed (prompt line matched exactly)",
+        "captured tree-folder16-small",
+        "cmd /mos-tree up -> Enter pressed (prompt line matched exactly)",
+        "cmd /mos-tree find legal -> Enter pressed (prompt line matched exactly)",
+        "captured tree-find-legal-small",
+        "cmd /mos-tree clear -> Enter pressed (prompt line matched exactly)",
+        "cmd /mos-tree open archive-2000 -> Enter pressed (prompt line matched exactly)",
+        "captured tree-2000-p1-small"
+      ]
+    },
+    {
+      "name": "tree-toosmall",
+      "spec": {
+        "name": "tree-toosmall",
+        "plugin": "[subject]",
+        "cols": 120,
+        "rows": 13,
+        "roomKind": "many",
+        "env": [],
+        "stub": null,
+        "stubScript": "[stub]",
+        "userText": "I want to test whether my market sizing assumption is right. See https://example.com/report and the code `calc_total(x)` in my notes.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "slash": "/mos-state"
+          },
+          {
+            "cmd": "/mos-tree"
+          },
+          {
+            "cap": "tree-toosmall-120x13"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "tree-toosmall-120x13",
+          "columns": 120,
+          "rows": 13,
+          "truecolor": true,
+          "env": [],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:46:58.464Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "cmd /mos-tree -> Enter pressed (prompt line matched exactly)",
+        "captured tree-toosmall-120x13"
+      ]
+    },
+    {
+      "name": "installed-wide",
+      "spec": {
+        "name": "installed-wide",
+        "plugin": "[subject]",
+        "cols": 120,
+        "rows": 40,
+        "roomKind": "many",
+        "env": [
+          "MINDRIAN_BRAIN_URL=http://127.0.0.1:9"
+        ],
+        "stub": null,
+        "statusLine": "node SCRATCH/inst/layout/mos/2.0.0-beta.74/scripts/context-monitor",
+        "settleMs": 6000,
+        "userText": "I want to test whether my market sizing assumption is right.",
+        "replyText": "🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+        "steps": [
+          {
+            "cap": "installed-band"
+          },
+          {
+            "slash": "/mos-state",
+            "wait": 8000
+          },
+          {
+            "cap": "installed-wide"
+          }
+        ]
+      },
+      "claude": "2.1.310",
+      "entries": [
+        {
+          "name": "installed-band",
+          "columns": 120,
+          "rows": 40,
+          "truecolor": true,
+          "env": [
+            "MINDRIAN_BRAIN_URL=http://127.0.0.1:9"
+          ],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:50:44.820Z"
+        },
+        {
+          "name": "installed-wide",
+          "columns": 120,
+          "rows": 40,
+          "truecolor": true,
+          "env": [
+            "MINDRIAN_BRAIN_URL=http://127.0.0.1:9"
+          ],
+          "stub": null,
+          "capturedAt": "2026-10-23T23:50:55.131Z"
+        }
+      ],
+      "log": [
+        "ready=true",
+        "captured installed-band",
+        "slash /mos-state -> sent | typed /mos-state; the highlighted row was /mos-state at once; pressed Enter",
+        "captured installed-wide"
+      ],
+      "installedLayout": true
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{"name":"explore-list","plugin":"$S/subject","out":"$S/raw-pane","cols":120,"rows":40,"roomKind":"many",
+ "userText":"I want to check whether my market sizing is right",
+ "replyText":"🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?",
+ "steps":[{"slash":"/mos-state"},{"cap":"explore-list-before"},{"cmd":"/mos-tree list"},{"cap":"explore-mos-tree-list"}]}

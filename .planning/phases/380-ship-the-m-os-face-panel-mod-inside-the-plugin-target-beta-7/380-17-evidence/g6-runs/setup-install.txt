@@ -1,0 +1,5 @@
+Installing plugin "mos@fixture-mkt"...✔ Successfully installed plugin: mos@fixture-mkt (scope: user)
+
+[stderr]
+
+exit 0

@@ -1,0 +1,2 @@
+{"name":"sent-denied","plugin":"$S/subject","out":"$S/raw-final","cols":140,"rows":45,"roomKind":"many","env":[],"stub":"denied","stubScript":"$S/stub-mcp.cjs",
+ "userText":"I want to test whether my market sizing assumption is right. See https://example.com/report and the numbers in my notes.","replyText":"🟦 **Larry | MindrianOS** Market sizing is the first claim to test. What would change your mind?","steps":[{"slash":"/mos-state"},{"cmd":"/mos-advice","wait":6000},{"cap":"sent-denied"}]}

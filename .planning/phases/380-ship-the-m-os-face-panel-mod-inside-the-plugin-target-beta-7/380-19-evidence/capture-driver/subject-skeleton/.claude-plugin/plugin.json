@@ -1,0 +1,7 @@
+{
+  "name": "mos",
+  "version": "0.1.0",
+  "description": "Subject folder for plan 380-10: a byte copy of lib/mos-face/dist in the shipped layout",
+  "hooks": ["./hooks/mos-face.json"],
+  "types": "./lib/mos-face/dist/types/index.d.ts"
+}

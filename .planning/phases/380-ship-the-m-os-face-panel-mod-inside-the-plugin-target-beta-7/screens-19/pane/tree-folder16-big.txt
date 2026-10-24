@@ -1,0 +1,45 @@
+       legal-review  4                                                                       │                                            ✕
+       channel-tests  3                                                                      │ ▀▀▀▀▀▀  Theo | MindrianOS
+       competitor-scan  3                                                                    │ ▀▀▀▀▀▀ Rest
+       customer-interviews  3                                                                │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+       funding-plan  3                                                                       │ demo-room / evidence-16  all 16
+       market-analysis  3                                                                    │ [ ◆ new  entry-0001.md ]
+       metrics-board  3                                                                      │ [ ◆ new  entry-0002.md ]
+       open-questions  3                                                                     │ [ ◆ new  entry-0003.md ]
+       partner-list  3                                                                       │ [ ◆ new  entry-0004.md ]
+       pricing-tests  3                                                                      │ [ ◆ new  entry-0005.md ]
+       problem-definition  3                                                                 │ [ ◆ new  entry-0006.md ]
+       product-brief  3                                                                      │ [ ◆ new  entry-0007.md ]
+       regulatory-notes  3                                                                   │ [ ◆ new  entry-0008.md ]
+       risk-register  3                                                                      │ [ ◆ new  entry-0009.md ]
+       team-roster  3                                                                        │ [ ◆ new  entry-0010.md ]
+     Click a name to ask about it in the prompt box.                                         │ [ ◆ new  entry-0011.md ]
+     In the prompt box: /mos-tree next, prev, up, find                                       │ [ ◆ new  entry-0012.md ]
+                                                                                             │ [ ◆ new  entry-0013.md ]
+❯ /mos-tree                                                                                  │ [ ◆ new  entry-0014.md ]
+  ⎿  mos: demo-room / evidence-16                                                            │ [ ◆ new  entry-0015.md ]
+     all 16                                                                                  │ [ ◆ new  entry-0016.md ]
+       entry-0001.md                                                                         │ [ Up ] [ Find ]
+       entry-0002.md                                                                         │ [ Close ]
+       entry-0003.md                                                                         │ Click a name to ask about it
+       entry-0004.md                                                                         │ In the prompt box, type:
+       entry-0005.md                                                                         │ /mos-tree next prev up find
+       entry-0006.md                                                                         │ [ Refresh ] read 26s ago
+       entry-0007.md                                                                         │
+       entry-0008.md                                                                         │
+       entry-0009.md                                                                         │
+       entry-0010.md                                                                         │
+       entry-0011.md                                                                         │
+       entry-0012.md                                                                         │
+       entry-0013.md                                                                         │
+       entry-0014.md                                                                         │
+       entry-0015.md                                                                         │
+       entry-0016.md                                                                         │
+     Click a name to ask about it in the prompt box.                                         │
+     In the prompt box: /mos-tree next, prev, up, find                                       │
+                                          Plugins changed. Run /reload-plugins to activate.  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

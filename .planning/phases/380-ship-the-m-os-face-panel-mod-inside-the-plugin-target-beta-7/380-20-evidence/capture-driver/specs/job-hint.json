@@ -1,0 +1,3 @@
+{"name":"job-hint","plugin":"$S/subject","out":"$S/raw-final","cols":140,"rows":45,"roomKind":"many","over":{"job":null},
+ "userText":"Hello, I am just looking around.","replyText":"🟦 **Larry | MindrianOS** Welcome. What brings you here?",
+ "steps":[{"slash":"/mos-state"},{"cap":"job-hint"}]}

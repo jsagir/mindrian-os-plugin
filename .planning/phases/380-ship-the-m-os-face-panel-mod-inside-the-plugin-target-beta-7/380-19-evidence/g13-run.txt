@@ -1,0 +1,13 @@
+# g13-run: gap 13 (NOW says Theo is not answering while the THEO row says on)
+# Scratch copy of ui/mos-face without node_modules (deleted after the run), one throwaway test file, claude plugin test run alone, scratch HOME and CLAUDE_CONFIG_DIR, login file by symlink only.
+# The only change in the copy: tests/support.ts got the option httpStatus (the health answer; hang = no answer). Cases: A no brain-prewarm.json, bridge/brain-health.json ok; B prewarm present, health answers 503; C prewarm present, health answers 200; E prewarm present, no answer (clock advanced 20 s).
+# Each failing assertion below is the probe printing its values (the expected text is empty on purpose).
+  (fail) probe A: no prewarm, brain-health ok [212.83ms]
+    Received: "A NOW: ▌ NOW  Theo is not answering its health check || THEO: THEO  on || THEO || ROOM: ROOM  demo-room, Design stage || ROOM || WRITES: ▌ WRITES TO  demo-room || STATUS: \"/m:os  Theo is not answering  /mos:doctor\""
+  (fail) probe B: prewarm, http 503 [140.19ms]
+    Received: "B NOW: ▌ NOW  Theo is not answering its health check || THEO: THEO  on || THEO || ROOM: ROOM  demo-room, Design stage || ROOM || WRITES: ▌ WRITES TO  demo-room || STATUS: \"/m:os  Theo is not answering  /mos:doctor\""
+  (fail) probe C: prewarm, http 200 [128.68ms]
+    Received: "C NOW: ▌ NOW  All quiet. Ready when the question is || THEO: THEO  on || THEO || ROOM: ROOM  demo-room, Design stage || ROOM || WRITES: ▌ WRITES TO  demo-room || STATUS: undefined"
+  (fail) probe E: prewarm, no answer [124.78ms]
+    Received: "E NOW: ▌ NOW  Theo is not answering its health check || THEO: THEO  on || THEO || ROOM: ROOM  demo-room, Design stage || ROOM || WRITES: ▌ WRITES TO  demo-room || STATUS: \"/m:os  Theo is not answering  /mos:doctor\""
+  (fail) probe D: unbound tools answer (gap 11) [447.15ms]

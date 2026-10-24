@@ -1,0 +1,129 @@
+{
+  "client": {
+    "is_available": true
+  },
+  "fixture_rooms": {
+    "alpha-room": {
+      "counts": {
+        "sections": 4,
+        "sections_with_brain": 0,
+        "tier_0_share_brain_available_false": 1,
+        "tier_0_share_brain_available_true": 1
+      },
+      "sections": [
+        {
+          "brain_null": true,
+          "name": "business-model",
+          "tier_brain_available_false": "tier_0",
+          "tier_brain_available_true": "tier_0"
+        },
+        {
+          "brain_null": true,
+          "name": "market-analysis",
+          "tier_brain_available_false": "tier_0",
+          "tier_brain_available_true": "tier_0"
+        },
+        {
+          "brain_null": true,
+          "name": "meetings",
+          "tier_brain_available_false": "tier_0",
+          "tier_brain_available_true": "tier_0"
+        },
+        {
+          "brain_null": true,
+          "name": "problem-definition",
+          "tier_brain_available_false": "tier_0",
+          "tier_brain_available_true": "tier_0"
+        }
+      ]
+    },
+    "gamma-room": {
+      "counts": {
+        "sections": 1,
+        "sections_with_brain": 0,
+        "tier_0_share_brain_available_false": 1,
+        "tier_0_share_brain_available_true": 1
+      },
+      "sections": [
+        {
+          "brain_null": true,
+          "name": "solution-design",
+          "tier_brain_available_false": "tier_0",
+          "tier_brain_available_true": "tier_0"
+        }
+      ]
+    }
+  },
+  "truth_table": [
+    {
+      "brain_available": true,
+      "shape": "quadruple_null",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": false,
+      "shape": "quadruple_null",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_null",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_null",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_parse_failed",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_parse_failed",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_staleness_unavailable",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_staleness_unavailable",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_staleness_fresh",
+      "tier": "mode_a"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_staleness_fresh",
+      "tier": "tier_0"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_stale_brain_offline",
+      "tier": "mode_a"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_stale_brain_offline",
+      "tier": "mode_b"
+    },
+    {
+      "brain_available": true,
+      "shape": "brain_stale_age_exceeded",
+      "tier": "mode_a"
+    },
+    {
+      "brain_available": false,
+      "shape": "brain_stale_age_exceeded",
+      "tier": "tier_0"
+    }
+  ]
+}
