@@ -122,6 +122,8 @@ export type WorldOptions = {
   // Plan 18: the entries of one folder, by its full path. Return undefined to use the default
   // listing, 'deny' for a folder that cannot be read, or the entries.
   list?: (path: string) => ListEntry[] | 'deny' | undefined
+  // Plan 380-19: the status of the answer to a health check (default 200); 'hang' never answers.
+  httpStatus?: number | 'hang'
 }
 
 // One entry of a folder, as the engine lists it.
@@ -221,8 +223,10 @@ export function world(on: Parameters<TestBody>[1], options: WorldOptions = {}) {
   })
   on('http.fetch', async (_, e) => {
     calls?.push({ noun: 'http', tool: '', input: JSON.stringify(e) })
-    if (options.hang?.on) await new Promise<never>(() => {})
-    return { value: { status: 200, ok: true, headers: {}, text: 'ok' } }
+    if (options.hang?.on || options.httpStatus === 'hang') await new Promise<never>(() => {})
+    const status = typeof options.httpStatus === 'number' ? options.httpStatus : 200
+
+    return { value: { status, ok: status < 400, headers: {}, text: 'ok' } }
   })
   return clock
 }
