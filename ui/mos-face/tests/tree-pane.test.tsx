@@ -28,8 +28,8 @@ import type { Call, ListEntry } from './support'
 const START = { cwd: '/', surface: 'terminal', isInteractive: true } as never
 const ROOT = '/home/t/MindrianRooms/demo-room'
 
-// The 14 sections of the room: name and file count. Sorted by count and name, the first page holds
-// the first 10 of this order and the second page holds the last 4.
+// The 14 sections of the room: name and file count. Sorted by count and name. In a window of 10 rows
+// the 14 names are two balanced pages of 7 (plan 380-20, G7).
 const SECTIONS: [string, number][] = [
   ['market-analysis', 9],
   ['legal-ip', 5],
@@ -47,8 +47,8 @@ const SECTIONS: [string, number][] = [
   ['roadmap', 0],
 ]
 const ALL_NAMES = SECTIONS.map(([name]) => name).sort()
-const PAGE_ONE = ['big', 'market-analysis', 'legal-ip', 'problem-definition', 'solution-design', 'financial-model', 'team', 'competitive-landscape', 'customer-discovery', 'go-to-market']
-const PAGE_TWO = ['legal-risk', 'partnerships', 'pricing', 'roadmap']
+const PAGE_ONE = ['big', 'market-analysis', 'legal-ip', 'problem-definition', 'solution-design', 'financial-model', 'team']
+const PAGE_TWO = ['competitive-landscape', 'customer-discovery', 'go-to-market', 'legal-risk', 'partnerships', 'pricing', 'roadmap']
 
 const stateMd = (sections: [string, number][]): string =>
   [
@@ -313,20 +313,20 @@ test('T4 a room with 1 section fits one page with no page controls and the count
 
 // ---- T5 the counter ---------------------------------------------------------------------------
 
-test('T5 the counter says 1-10 of 14 on the first page and 11-14 of 14 on the second, and Previous and Next appear only where they can act', async ($, on) => {
+test('T5 the counter says 1-7 of 14 on the first page and 8-14 of 14 on the second, and Previous and Next appear only where they can act', async ($, on) => {
   const { ui } = await open($, on, 56, 14)
   await browse(ui)
-  expect((await readPage(ui, 56, 'sec-')).counter).toBe('1-10 of 14')
+  expect((await readPage(ui, 56, 'sec-')).counter).toBe('1-7 of 14')
   expect(await keysOf(ui)).not.toContain('tree-prev')
   expect(await keysOf(ui)).toContain('tree-next')
 
   await press(ui, 'tree-next')
-  expect((await readPage(ui, 56, 'sec-')).counter).toBe('11-14 of 14')
+  expect((await readPage(ui, 56, 'sec-')).counter).toBe('8-14 of 14')
   expect(await keysOf(ui)).toContain('tree-prev')
   expect(await keysOf(ui)).not.toContain('tree-next')
 
   await press(ui, 'tree-prev')
-  expect((await readPage(ui, 56, 'sec-')).counter).toBe('1-10 of 14')
+  expect((await readPage(ui, 56, 'sec-')).counter).toBe('1-7 of 14')
   await ui.unmount()
 })
 
@@ -378,8 +378,8 @@ test('T7 a filter with no match says so in words and Up still works', async ($, 
 
   await press(ui, 'tree-up')
   const back = await readPage(ui, 56, 'sec-')
-  expect(back.keys.length).toBe(10)
-  expect(back.counter).toBe('1-10 of 14')
+  expect(back.keys.length).toBe(7)
+  expect(back.counter).toBe('1-7 of 14')
   await ui.unmount()
 })
 
@@ -443,7 +443,7 @@ test('T9 Up goes back one level at every depth: folder inside a section, section
 
   await press(ui, 'tree-up')
   expect((await textsOf(ui)).some(text => text === 'demo-room')).toBe(true)
-  expect((await keysOf(ui)).filter(key => key.startsWith('sec-'))).toHaveLength(10)
+  expect((await keysOf(ui)).filter(key => key.startsWith('sec-'))).toHaveLength(7)
   expect(await keysOf(ui)).not.toContain('tree-up')
 
   await press(ui, 'ask-sections')
@@ -509,12 +509,12 @@ test('T12 plain mode keeps every control and the counter in ASCII words', async 
   const texts = await textsOf(ui)
   const buttons = await buttonsOf(ui)
 
-  expect(texts).toContain('11-14 of 14')
+  expect(texts).toContain('8-14 of 14')
   expect(buttons).toContain('Previous')
   expect(buttons).toContain('Find')
   expect(buttons).toContain('Close')
   for (const text of [...texts, ...buttons]) expect(/^[\x20-\x7e]*$/.test(text)).toBe(true)
-  expect((await keysOf(ui)).filter(key => key.startsWith('sec-'))).toHaveLength(4)
+  expect((await keysOf(ui)).filter(key => key.startsWith('sec-'))).toHaveLength(7)
   expect(await rowsNow(ui)).toBeLessThanOrEqual(14)
   await ui.unmount()
 })
@@ -698,7 +698,7 @@ test('T19 Find puts the stem /mos-tree find in the prompt box, and Close folds t
   expect(await keysOf(ui)).not.toContain('tree-find')
   await browse(ui)
   const page = await readPage(ui, 56, 'sec-')
-  expect(page.counter).toBe('1-10 of 14')
+  expect(page.counter).toBe('1-7 of 14')
   await ui.unmount()
 })
 
@@ -720,10 +720,10 @@ test('T20 /mos-tree with no argument prints the crumb line, the counter line, on
   const lines = (await run($, '')).split('\n')
 
   expect(lines[0]).toBe('demo-room')
-  expect(lines[1]).toBe('1-10 of 14')
+  expect(lines[1]).toBe('1-7 of 14')
   expect(lines[2]).toBe('  big  16')
   expect(lines[3]).toBe('  market-analysis  9')
-  expect(lines.slice(2, 12).every(line => line.startsWith('  '))).toBe(true)
+  expect(lines.slice(2, 9).every(line => line.startsWith('  '))).toBe(true)
   expect(lines.some(line => line.includes('/mos-tree'))).toBe(true)
 })
 

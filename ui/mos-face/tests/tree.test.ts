@@ -129,18 +129,18 @@ test('T-P2 exactly the size is a whole page of 10 rows', () => {
   expect(page.kind === 'whole' ? page.rows : []).toEqual(names(10))
 })
 
-test('T-P2 size plus 1 is 2 pages, the first with 10 rows and the second with 1', () => {
+test('T-P2 size plus 1 is 2 balanced pages, the first with 6 rows and the second with 5', () => {
   const first = pageOf(names(11), 10, 0, '', same)
   const second = pageOf(names(11), 10, 1, '', same)
-  expect(first.kind === 'paged' ? [first.pages, first.from, first.to, first.rows.length] : []).toEqual([2, 1, 10, 10])
-  expect(second.kind === 'paged' ? [second.pages, second.from, second.to, second.rows.length] : []).toEqual([2, 11, 11, 1])
+  expect(first.kind === 'paged' ? [first.pages, first.from, first.to, first.rows.length] : []).toEqual([2, 1, 6, 6])
+  expect(second.kind === 'paged' ? [second.pages, second.from, second.to, second.rows.length] : []).toEqual([2, 7, 11, 5])
 })
 
-test('T-P2 14 items at size 10: page 1 shows 1 to 10 and page 2 shows 11 to 14', () => {
+test('T-P2 14 items at size 10: page 1 shows 1 to 7 and page 2 shows 8 to 14', () => {
   const first = pageOf(names(14), 10, 0, '', same)
   const second = pageOf(names(14), 10, 1, '', same)
-  expect(first.kind === 'paged' ? [first.page, first.pages, first.from, first.to, first.total] : []).toEqual([0, 2, 1, 10, 14])
-  expect(second.kind === 'paged' ? [second.page, second.pages, second.from, second.to, second.total] : []).toEqual([1, 2, 11, 14, 14])
+  expect(first.kind === 'paged' ? [first.page, first.pages, first.from, first.to, first.total] : []).toEqual([0, 2, 1, 7, 14])
+  expect(second.kind === 'paged' ? [second.page, second.pages, second.from, second.to, second.total] : []).toEqual([1, 2, 8, 14, 14])
 })
 
 test('T-P2 16 items at size 10 lose no name and show none twice', () => {
@@ -159,7 +159,7 @@ test('T-P2 a page below 0 clamps to the first page', () => {
 
 test('T-P2 a page past the last clamps to the last page', () => {
   const page = pageOf(names(14), 10, 99, '', same)
-  expect(page.kind === 'paged' ? [page.page, page.from, page.to] : []).toEqual([1, 11, 14])
+  expect(page.kind === 'paged' ? [page.page, page.from, page.to] : []).toEqual([1, 8, 14])
 })
 
 test('T-P2 a page that is not a number counts as the first page', () => {
@@ -222,8 +222,8 @@ test('T-P4 a whole page says all and the number', () => {
 })
 
 test('T-P4 a paged page says which rows show', () => {
-  expect(counterText(pageOf(names(14), 10, 0, '', same))).toBe('1-10 of 14')
-  expect(counterText(pageOf(names(14), 10, 1, '', same))).toBe('11-14 of 14')
+  expect(counterText(pageOf(names(14), 10, 0, '', same))).toBe('1-7 of 14')
+  expect(counterText(pageOf(names(14), 10, 1, '', same))).toBe('8-14 of 14')
 })
 
 test('T-P4 an empty page with no items says none', () => {
@@ -297,11 +297,12 @@ test('T-P6 a crumb with no path shows the room name', () => {
   expect(crumbText('demo-room', '', 30)).toBe('demo-room')
 })
 
-test('T-P6 a crumb that is too long is cut at the start and keeps the last part', () => {
+test('T-P6 a crumb that is too long keeps the start of the room name and ends with the mark', () => {
   const text = crumbText('a-very-long-room-name', 'market-analysis/sizing', 20)
   expect(text.length).toBeLessThanOrEqual(20)
-  expect(text.startsWith('~')).toBe(true)
-  expect(text.endsWith('sizing')).toBe(true)
+  expect(text.startsWith('a-very')).toBe(true)
+  expect(text.startsWith('~')).toBe(false)
+  expect(text.endsWith('~')).toBe(true)
 })
 
 test('T-P6 a crumb with no room name says room', () => {
@@ -456,6 +457,6 @@ test('T-P11 a name that ends with a slash is a folder', () => {
 
 test('T-P12 the rows of a page are its rows, and an empty page has none', () => {
   expect(rowsIn(pageOf(names(3), 10, 0, '', same))).toEqual(names(3))
-  expect(rowsIn(pageOf(names(14), 10, 1, '', same))).toEqual(names(14).slice(10))
+  expect(rowsIn(pageOf(names(14), 10, 1, '', same))).toEqual(names(14).slice(7))
   expect(rowsIn(pageOf([], 10, 0, '', same))).toEqual([])
 })

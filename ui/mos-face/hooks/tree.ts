@@ -182,6 +182,44 @@ export function crumbText(room: string, path: string, width: number): string {
   return `~${full.slice(full.length - (width - 1))}`
 }
 
+// ---- Crumb row plan, cap note, too-small lines (plan 380-20, G5 and G6) -----------------------
+
+export type CrumbPlan = { crumb: string; counter: string; note: string | null }
+
+// 0 or 1: whether the cap note (first N of M) takes a row of its own.
+export function noteRowsOf(
+  _room: string,
+  _path: string,
+  _total: number,
+  _left: number,
+  _filter: string,
+  _inner: number,
+  _treeRows: number,
+): 0 | 1 {
+  throw new Error('not implemented')
+}
+
+// The crumb, the counter and the cap note row for one page.
+export function crumbRowPlan(
+  _room: string,
+  _path: string,
+  _counter: string,
+  _total: number,
+  _left: number,
+  _filter: string,
+  _inner: number,
+  _treeRows: number,
+): CrumbPlan {
+  throw new Error('not implemented')
+}
+
+export type TooSmall = { lines: string[]; close: boolean }
+
+// The lines a pane too short for the tree draws, and whether it draws Close.
+export function tooSmallLines(_needs: number, _bodyRows: number): TooSmall {
+  throw new Error('not implemented')
+}
+
 // The hint lines at the foot: where each route works, and no key is promised.
 export function hintLines(columns: number, bodyRows: number): string[] {
   const limit = Math.max(1, columns - 2)
