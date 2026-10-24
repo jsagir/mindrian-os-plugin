@@ -104,3 +104,25 @@ export function overviewLayout(input: OverviewInput): OverviewLayout {
     gaps: size === 'full',
   }
 }
+
+// ---- The band and the hint line (plan 380-19, task 4) ----------------------------------------------------
+
+export type BandCells = 0 | 6 | 12
+export type BandLayout =
+  | { kind: 'too-small'; needs: typeof MIN_SCREEN }
+  | { kind: 'ok'; tile: BandCells; hideOnOwnRow: boolean; textWidth: number }
+
+// What the box above the prompt draws at a screen width. The screen is the viewport columns the host gives,
+// or the body columns plus the 5 cells the host keeps beside them.
+export function bandLayout(_input: { screenColumns: number; bodyColumns: number; plain: boolean; style: FaceStyle }): BandLayout {
+  throw new Error('not implemented')
+}
+
+export type DashLabel = '/m:os dashboard' | '/m:os'
+export type HintLayout = { label: DashLabel; hintWidth: number | null; showBox: boolean }
+
+// What the hint line under the prompt draws at a screen width: the label of the dashboard button, the room
+// the host hint may take (null when it is drawn whole, 0 when it is dropped) and whether Show box fits.
+export function hintLayout(_input: { screenColumns: number; hint: string; hidden: boolean }): HintLayout {
+  throw new Error('not implemented')
+}
