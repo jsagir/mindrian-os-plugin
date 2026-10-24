@@ -1,12 +1,12 @@
 {
   "name": "@mindrian_os/cli",
-  "version": "2.0.0-beta.72",
+  "version": "2.0.0-beta.69",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@mindrian_os/cli",
-      "version": "2.0.0-beta.72",
+      "version": "2.0.0-beta.69",
       "license": "BSL-1.1",
       "dependencies": {
         "@ig3/markdown-it-wikilinks": "^1.0.2",
@@ -33,9 +33,6 @@
       "bin": {
         "cli": "bin/cli.js",
         "mindrian-os": "bin/cli.js"
-      },
-      "devDependencies": {
-        "mindrian-design-system": "github:jsagir/mos-brand"
       },
       "engines": {
         "node": ">=22.18.0"
@@ -1120,17 +1117,6 @@
       "funding": {
         "type": "opencollective",
         "url": "https://opencollective.com/express"
-      }
-    },
-    "node_modules/mindrian-design-system": {
-      "version": "2.25.0",
-      "resolved": "git+ssh://git@github.com/jsagir/mos-brand.git#96cdc25509f19a1d012263a6407415aa5972e606",
-      "dev": true,
-      "bin": {
-        "mos-brand": "bin/mos-brand.cjs"
-      },
-      "engines": {
-        "node": ">=18"
       }
     },
     "node_modules/ms": {

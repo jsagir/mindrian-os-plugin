@@ -63,8 +63,5 @@
   "engines": {
     "node": ">=22.18.0"
   },
-  "license": "BSL-1.1",
-  "devDependencies": {
-    "mindrian-design-system": "github:jsagir/mos-brand"
-  }
+  "license": "BSL-1.1"
 }
