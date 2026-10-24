@@ -1,0 +1,20 @@
+▎ au╭──────────────────────╮
+▎ ch│ mos                  │
+▎ ri│ /m:os loaded.        │
+▎ in│ /mos-state opens it. │
+▎ ex╰──────────────────────╯
+▎ it assesses as lower-risk,
+▎ and blocks the rest.
+▎ https://code.claude.com/do
+▎ cs/en/permission-modes
+  2 more notices hidden
+ /m:os needs 30         [-]
+ columns
+↓ 3 more
+        ◐ medium · /effort
+────────────────────────────
+❯ Try "how does <filepath> …
+────────────────────────────
+  ⚠ mos: /m:os  not bound…
+  ⏵⏵ auto   (s…  [ /m:os ]
+  mode on ·

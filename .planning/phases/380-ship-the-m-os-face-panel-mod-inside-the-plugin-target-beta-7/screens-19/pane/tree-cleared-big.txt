@@ -1,0 +1,45 @@
+       problem-definition  3                                                                 │                                            ✕
+       product-brief  3                                                                      │ ▀▀▀▀▀▀  Theo | MindrianOS
+       regulatory-notes  3                                                                   │ ▀▀▀▀▀▀ Rest
+       risk-register  3                                                                      │ ▀▀▀▀▀▀ "What is the thing you keep coming b~
+       team-roster  3                                                                        │ demo-room  all 18
+     Click a name to ask about it in the prompt box.                                         │ [ ▸ archive-2000  2000 ]
+     In the prompt box: /mos-tree next, prev, up, find                                       │ [ ▸ evidence-16  16 ]
+                                                                                             │ [ ▸ legal-contracts  4 ]
+❯ /mos-tree                                                                                  │ [ ▸ legal-review  4 ]
+  ⎿  mos: demo-room                                                                          │ [ ▸ channel-tests  3 ]
+     2 matches for "legal"                                                                   │ [ ▸ competitor-scan  3 ]
+       legal-contracts  4                                                                    │ [ ▸ customer-interviews  3 ]
+       legal-review  4                                                                       │ [ ▸ funding-plan  3 ]
+     Click a name to ask about it in the prompt box.                                         │ [ ▸ market-analysis  3 ]
+     In the prompt box: /mos-tree next, prev, up, find                                       │ [ ▸ metrics-board  3 ]
+                                                                                             │ [ ▸ open-questions  3 ]
+❯ /mos-tree                                                                                  │ [ ▸ partner-list  3 ]
+  ⎿  mos: demo-room                                                                          │ [ ▸ pricing-tests  3 ]
+     all 18                                                                                  │ [ ▸ problem-definition  3 ]
+       archive-2000  2000                                                                    │ [ ▸ product-brief  3 ]
+       evidence-16  16                                                                       │ [ ▸ regulatory-notes  3 ]
+       legal-contracts  4                                                                    │ [ ▸ risk-register  3 ]
+       legal-review  4                                                                       │ [ ▸ team-roster  3 ]
+       channel-tests  3                                                                      │ [ Find ]
+       competitor-scan  3                                                                    │ [ Close ]
+       customer-interviews  3                                                                │ Click a name to ask about it
+       funding-plan  3                                                                       │ In the prompt box, type:
+       market-analysis  3                                                                    │ /mos-tree next prev up find
+       metrics-board  3                                                                      │ [ Refresh ] read 39s ago
+       open-questions  3                                                                     │
+       partner-list  3                                                                       │
+       pricing-tests  3                                                                      │
+       problem-definition  3                                                                 │
+       product-brief  3                                                                      │
+       regulatory-notes  3                                                                   │
+       risk-register  3                                                                      │
+       team-roster  3                                                                        │
+     Click a name to ask about it in the prompt box.                                         │
+     In the prompt box: /mos-tree next, prev, up, find                                       │
+                                                                                             │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

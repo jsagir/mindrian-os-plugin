@@ -1,0 +1,40 @@
+                                                                         │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                          │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                         │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   @mos:larry-extended · /tmp/mos-face-shots-x2RmBY/work         │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                         │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model. │
+  1 more notice hidden                                                   │ ROOM  demo-room, Discovery stage, not bound
+                                                                         │ FILED  3 entries in 18 sections
+❯ I want to test whether my market sizing assumption is right.           │ VERSION  2.0.0-beta.74, update 9.9.9 is
+ Larry | MindrianOS                                                      │ available
+                                                                         │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+● Market sizing is the first claim to test. What would change your mind? │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                         │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ /mos-state                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any │ Context gauge: waiting for the first reply
+     width when you ask for it.                                          │
+                                                                         │ ▌ JOB  a guess, is this it?
+                                                                         │ When I am in the Discovery stage, I want to
+                                                                         │ find the lagging component (Hughes 1983
+                                                                         │ reverse salient) blocking progress, so that
+                                                                         │ I know which part to fix first.
+                                                                         │ [ Not this ] [ Fix: /mos:jtbd set ]
+                                                                         │
+                                                                         │ ▌ WRITES TO  nothing - this session is not
+                                                                         │ bound
+                                                                         │ [ Bind a room ]
+                                                                         │
+                                                                         │ ▌ NOW  This room has no identity yet, so its
+                                                                         │ reasoning cannot be trusted to belong to it
+                                                                         │ [ Fix: /mos:doctor --heal-room ]
+                                                                         │
+                                                                         │ ▌ NEXT  from Theo
+                                                                         │ NEXT MOVE  map unknowns (routed)
+  You've used 77% of your weekly limit · resets Oct 26, 2pm (Asia/Hebr…  │
+─────────────────────────────────────────────────────────────────────────────────────────────────── mos:larry-extended ─
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing will be filed  /mos:rooms
+  ⬡ 🟦 · [redteam] · 📂 MindrianOS ✅ · Next: map unknowns · v2.0.0-beta.74
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

@@ -1,0 +1,45 @@
+                                                                                             │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                                              │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                                             │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   /tmp/mos-face-shots-n07ZM0/work                                                   │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                                             │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.                     │
+  1 more notice hidden                                                                       │ ROOM  demo-room, Discovery stage
+                                                                                             │ FILED  3 entries in 18 sections
+❯ Hello, I am just looking around.                                                           │ VERSION  2.0.0-beta.74, update 9.9.9 is
+ Larry | MindrianOS                                                                          │ available
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+● Welcome. What brings you here?                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ /mos-state                                                                                 │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width when you ask  │ Context gauge: waiting for the first reply
+     for it.                                                                                 │
+                                                                                             │ Job: no guess yet. Say what you want to
+                                                                                             │ decide, test or find, in two different
+                                                                                             │ phrases, and one may come.
+                                                                                             │
+                                                                                             │ ▌ WRITES TO  demo-room
+                                                                                             │ [ Switch room ]
+                                                                                             │
+                                                                                             │ ▌ NOW  1 section have reasoning older than
+                                                                                             │ their files
+                                                                                             │ [ Fix: /mos:reason ]
+                                                                                             │
+                                                                                             │ ▌ NEXT  from Theo
+                                                                                             │ NEXT MOVE  map unknowns (routed)
+                                                                                             │ Theo will suggest once the talk gives
+                                                                                             │ something to go on.
+                                                                                             │ [ Ask Theo now ] [ Words: shared ]
+                                                                                             │ Theo is sent a short excerpt of your own
+                                                                                             │ words, links, paths and names removed
+                                                                                             │
+                                                                                             │ STALE  market-analysis
+                                                                                             │ HEALTH  sound
+                                                                                             │ THEO  on
+                                                                                             │ SPEAKS  Theo, building
+                                              Fast mode is now available · /fast to turn on  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

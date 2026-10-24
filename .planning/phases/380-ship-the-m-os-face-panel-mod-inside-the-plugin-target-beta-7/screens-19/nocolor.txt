@@ -1,0 +1,24 @@
+                                          ╭────────────────────────────────────╮
+ ▐▛███▛█   Claude Code v2.1.310           │ mos                                │
+▝▜██████▀  Opus 5.5 · Claude Max          │ /m:os loaded. /mos-state opens it. │
+ ▝▝   ▝▝   /tmp/mos-face-shots-fEYt42/work╰────────────────────────────────────╯
+
+▎ Auto mode is now Claude Code's default permission mode.
+▎ Auto mode lets Claude handle permission prompts automatically. Claude checks
+▎ each tool call for risky actions and prompt injection before executing, runs
+▎ the ones it assesses as lower-risk, and blocks the rest.
+▎ https://code.claude.com/docs/en/permission-modes
+  2 more notices hidden
+
+
+
+
+                     Theo | MindrianOS  [ Hide ]                            [-]
+                    [o|o] Rest | Theo 0 this turn, 0 in all
+                    "What is the thing you keep coming back to?"
+                                                            ◐ medium · /effort
+────────────────────────────────────────────────────────────────────────────────
+❯ Try "how do I log an error?"
+────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing will be filed  /mos:rooms
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

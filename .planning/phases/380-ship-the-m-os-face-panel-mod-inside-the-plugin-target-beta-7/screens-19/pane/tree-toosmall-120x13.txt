@@ -1,0 +1,13 @@
+       channel-tests  3                                                  │                                            ✕
+       competitor-scan  3                                                │ /m:os needs 9 rows to browse the room
+       customer-interviews  3                                            │ Make the terminal taller, or dock the panel.
+       funding-plan  3                                                   │ Docking needs a terminal 110 columns wide.
+       market-analysis  3                                                │ Or type /mos-tree in the prompt box.
+     Click a name to ask about it in the prompt box.                     │ [ Close ]
+     In the prompt box: /mos-tree next, prev, up, find                   │
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

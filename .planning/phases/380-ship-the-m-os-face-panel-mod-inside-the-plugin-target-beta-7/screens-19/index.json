@@ -1,0 +1,429 @@
+{
+  "plan": "380-20",
+  "statement": "Each capture draws the tmux screen in the harness font (DejaVu Sans Mono) on the harness ground (#2b2b2b). The person terminal font and theme can differ.",
+  "tools": {
+    "claude": "2.1.310 (Claude Code)",
+    "tmux": "tmux 3.7",
+    "playwright": "Version 1.58.2",
+    "node": "v22.23.1"
+  },
+  "subject": {
+    "distSourceHash": "e80290edf88dbb45cdd1389fd33618867c6f78726aac53da8b92e20d330260dd",
+    "manifestFiles": 25,
+    "sha256Mismatches": 0,
+    "releaseTreeHead": "7c710db04"
+  },
+  "bandLoadAtStart": "load 4.84 3.87 3.96",
+  "bandScenarios": [
+    {
+      "name": "wide",
+      "columns": 120,
+      "rows": 40,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR"
+      ]
+    },
+    {
+      "name": "std",
+      "columns": 80,
+      "rows": 24,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR"
+      ]
+    },
+    {
+      "name": "narrow",
+      "columns": 50,
+      "rows": 30,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR"
+      ]
+    },
+    {
+      "name": "nocolor",
+      "columns": 80,
+      "rows": 24,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "NO_COLOR",
+        "XDG_RUNTIME_DIR"
+      ]
+    },
+    {
+      "name": "small",
+      "columns": 28,
+      "rows": 20,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR"
+      ]
+    },
+    {
+      "name": "chip",
+      "columns": 100,
+      "rows": 30,
+      "status": "ok",
+      "envNames": [
+        "CLAUDE_CONFIG_DIR",
+        "COLORTERM",
+        "HOME",
+        "MINDRIAN_ROOMS_HOME",
+        "XDG_RUNTIME_DIR"
+      ]
+    }
+  ],
+  "driverRuns": [
+    {
+      "name": "explore-list",
+      "columns": 120,
+      "rows": 40,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "explore-list-before",
+        "explore-mos-tree-list"
+      ],
+      "time": "15:47:21",
+      "load": "2.56 3.57 3.84"
+    },
+    {
+      "name": "installed-wide",
+      "columns": 120,
+      "rows": 40,
+      "envNames": [
+        "MINDRIAN_BRAIN_URL"
+      ],
+      "stub": null,
+      "captures": [
+        "installed-band",
+        "installed-wide"
+      ],
+      "time": "15:47:40",
+      "load": "2.58 3.53 3.82"
+    },
+    {
+      "name": "job-hint",
+      "columns": 140,
+      "rows": 45,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "job-hint"
+      ],
+      "time": "15:47:11",
+      "load": "2.84 3.66 3.87"
+    },
+    {
+      "name": "pane-narrow",
+      "columns": 50,
+      "rows": 30,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "pane-narrow",
+        "tree-inline-50x30"
+      ],
+      "time": "15:43:20",
+      "load": "3.41 3.70 3.90"
+    },
+    {
+      "name": "pane-nocolor",
+      "columns": 80,
+      "rows": 24,
+      "envNames": [
+        "NO_COLOR"
+      ],
+      "stub": null,
+      "captures": [
+        "pane-nocolor",
+        "tree-inline-nocolor-80x24"
+      ],
+      "time": "15:43:45",
+      "load": "4.18 3.86 3.95"
+    },
+    {
+      "name": "pane-small",
+      "columns": 28,
+      "rows": 20,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "pane-small"
+      ],
+      "time": "15:44:04",
+      "load": "3.69 3.76 3.91"
+    },
+    {
+      "name": "pane-std",
+      "columns": 80,
+      "rows": 24,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "pane-std",
+        "tree-inline-80x24"
+      ],
+      "time": "15:43:01",
+      "load": "3.64 3.76 3.92"
+    },
+    {
+      "name": "pane-wide",
+      "columns": 120,
+      "rows": 40,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "pane-wide"
+      ],
+      "time": "15:42:51",
+      "load": "4.12 3.85 3.95"
+    },
+    {
+      "name": "sent-answered",
+      "columns": 140,
+      "rows": 45,
+      "envNames": [],
+      "stub": "answered",
+      "captures": [
+        "sent-answered"
+      ],
+      "time": "15:46:49",
+      "load": "3.54 3.84 3.93"
+    },
+    {
+      "name": "sent-denied",
+      "columns": 140,
+      "rows": 45,
+      "envNames": [],
+      "stub": "denied",
+      "captures": [
+        "sent-denied"
+      ],
+      "time": "15:46:27",
+      "load": "4.17 3.99 3.98"
+    },
+    {
+      "name": "tree-big",
+      "columns": 140,
+      "rows": 45,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "tree-sections-big",
+        "tree-2000-p1-big",
+        "tree-2000-p2-big",
+        "tree-folder16-big",
+        "tree-find-legal-big",
+        "tree-cleared-big"
+      ],
+      "time": "15:45:21",
+      "load": "5.90 4.31 4.09"
+    },
+    {
+      "name": "tree-inline-60",
+      "columns": 60,
+      "rows": 24,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "pane-inline-60x24",
+        "tree-inline-60x24"
+      ],
+      "time": "15:44:14",
+      "load": "3.43 3.71 3.89"
+    },
+    {
+      "name": "tree-small",
+      "columns": 120,
+      "rows": 29,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "tree-sections-p1-small",
+        "tree-sections-p2-small",
+        "tree-folder16-small",
+        "tree-find-legal-small",
+        "tree-2000-p1-small"
+      ],
+      "time": "15:44:36",
+      "load": "3.53 3.72 3.89"
+    },
+    {
+      "name": "tree-toosmall",
+      "columns": 120,
+      "rows": 13,
+      "envNames": [],
+      "stub": null,
+      "captures": [
+        "tree-toosmall-120x13"
+      ],
+      "time": "15:46:10",
+      "load": "3.66 3.90 3.95"
+    }
+  ],
+  "images": [
+    {
+      "file": "chip.png",
+      "bytes": 56772
+    },
+    {
+      "file": "installed/band.png",
+      "bytes": 68614
+    },
+    {
+      "file": "installed/wide.png",
+      "bytes": 139705
+    },
+    {
+      "file": "narrow.png",
+      "bytes": 56282
+    },
+    {
+      "file": "nocolor.png",
+      "bytes": 57511
+    },
+    {
+      "file": "pane/explore-list-before.png",
+      "bytes": 123518
+    },
+    {
+      "file": "pane/explore-mos-tree-list.png",
+      "bytes": 141183
+    },
+    {
+      "file": "pane/job-hint.png",
+      "bytes": 127748
+    },
+    {
+      "file": "pane/pane-inline-60x24.png",
+      "bytes": 54850
+    },
+    {
+      "file": "pane/pane-narrow.png",
+      "bytes": 62619
+    },
+    {
+      "file": "pane/pane-nocolor.png",
+      "bytes": 58367
+    },
+    {
+      "file": "pane/pane-small.png",
+      "bytes": 26281
+    },
+    {
+      "file": "pane/pane-std.png",
+      "bytes": 67265
+    },
+    {
+      "file": "pane/pane-wide.png",
+      "bytes": 131464
+    },
+    {
+      "file": "pane/sent-answered.png",
+      "bytes": 157852
+    },
+    {
+      "file": "pane/sent-denied.png",
+      "bytes": 154340
+    },
+    {
+      "file": "pane/tree-2000-p1-big.png",
+      "bytes": 181235
+    },
+    {
+      "file": "pane/tree-2000-p1-small.png",
+      "bytes": 109198
+    },
+    {
+      "file": "pane/tree-2000-p2-big.png",
+      "bytes": 191538
+    },
+    {
+      "file": "pane/tree-cleared-big.png",
+      "bytes": 151236
+    },
+    {
+      "file": "pane/tree-find-legal-big.png",
+      "bytes": 115154
+    },
+    {
+      "file": "pane/tree-find-legal-small.png",
+      "bytes": 78395
+    },
+    {
+      "file": "pane/tree-folder16-big.png",
+      "bytes": 155910
+    },
+    {
+      "file": "pane/tree-folder16-small.png",
+      "bytes": 110062
+    },
+    {
+      "file": "pane/tree-inline-50x30.png",
+      "bytes": 53532
+    },
+    {
+      "file": "pane/tree-inline-60x24.png",
+      "bytes": 42985
+    },
+    {
+      "file": "pane/tree-inline-80x24.png",
+      "bytes": 48518
+    },
+    {
+      "file": "pane/tree-inline-nocolor-80x24.png",
+      "bytes": 43925
+    },
+    {
+      "file": "pane/tree-sections-big.png",
+      "bytes": 162578
+    },
+    {
+      "file": "pane/tree-sections-p1-small.png",
+      "bytes": 92210
+    },
+    {
+      "file": "pane/tree-sections-p2-small.png",
+      "bytes": 91767
+    },
+    {
+      "file": "pane/tree-toosmall-120x13.png",
+      "bytes": 45476
+    },
+    {
+      "file": "small.png",
+      "bytes": 26865
+    },
+    {
+      "file": "std.png",
+      "bytes": 68091
+    },
+    {
+      "file": "wide.png",
+      "bytes": 68534
+    }
+  ]
+}

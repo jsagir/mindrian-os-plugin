@@ -1,0 +1,45 @@
+                                                                                             │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                                              │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                                             │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   /tmp/mos-face-shots-LJpATR/work                                                   │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                                             │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.                     │
+  1 more notice hidden                                                                       │ ROOM  demo-room, Discovery stage
+                                                                                             │ FILED  3 entries in 18 sections
+❯ I want to test whether my market sizing assumption is right. See                           │ VERSION  2.0.0-beta.74, update 9.9.9 is
+  https://example.com/report and the code calc_total(x) in my notes.                         │ available
+ Larry | MindrianOS                                                                          │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+● Market sizing is the first claim to test. What would change your mind?                     │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ /mos-state                                                                                 │ Context gauge: waiting for the first reply
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width when you ask  │
+     for it.                                                                                 │ ▌ JOB  a guess, is this it?
+                                                                                             │ When I am in the Discovery stage, I want to
+❯ /mos-advice                                                                                │ find the lagging component (Hughes 1983
+  ⎿  mos: Asking Theo. If Theo is reached, it gets a framework name, a problem type and a    │ reverse salient) blocking progress, so that
+     short excerpt of your own words. The panel says what went, or that nothing did. Run     │ I know which part to fix first.
+     /mos-words to stop the excerpt.                                                         │ [ Not this ] [ Fix: /mos:jtbd set ]
+                                                                                             │
+                                                                                             │ ▌ WRITES TO  demo-room
+                                                                                             │ [ Switch room ]
+                                                                                             │
+                                                                                             │ ▌ NOW  1 section have reasoning older than
+                                                                                             │ their files
+                                                                                             │ [ Fix: /mos:reason ]
+                                                                                             │
+                                                                                             │ ▌ NEXT  from Theo
+                                                                                             │ NEXT MOVE  map unknowns (routed)
+                                                                                             │ [ Ask Theo now ] [ Words: shared ]
+                                                                                             │ Theo was sent: "I want to test whether my
+                                                                                             │ market sizing assumption is right." (left
+                                                                                             │ out: a link, code)
+                                                                                             │
+                                                                                             │ STALE  market-analysis
+                                                                                             │ HEALTH  sound
+                                                                         ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  1 stale summary  /mos:reason
+  ⏵⏵ don't ask on · (shift+tab to cycle)  [ /m:os dashboard ]
