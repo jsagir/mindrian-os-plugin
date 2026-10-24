@@ -59,8 +59,11 @@ export type Page<T> =
   | { kind: 'whole'; rows: T[]; total: number; filter: string }
   | { kind: 'paged'; rows: T[]; page: number; pages: number; from: number; to: number; total: number; filter: string }
 
-// Smart-case substring filter, then clamp the page, then slice. The page is 0-based and clamped; from
-// and to are 1-based. The pager never shows a page that does not exist and never loses a name.
+// Smart-case substring filter, then an even split into pages, then the clamp. The page is 0-based and
+// clamped; from and to are 1-based. With n names and a window of size rows there are ceil(n / size) pages;
+// each holds floor(n / pages) names and the first (n mod pages) pages hold one more, so no page is empty,
+// the pages differ by at most one name, and the last page is never one lonely name (plan 380-20, G7). The
+// pager never shows a page that does not exist and never loses or repeats a name.
 export function pageOf<T>(items: readonly T[], size: number, page: number, filter: string, text: (item: T) => string): Page<T> {
   const query = filter.trim()
   // Smart case: an all-lowercase query ignores case, a query with a capital letter matches the case exactly.
@@ -71,17 +74,20 @@ export function pageOf<T>(items: readonly T[], size: number, page: number, filte
   const rowsPerPage = Number.isFinite(size) ? Math.max(1, Math.floor(size)) : 1
   if (matches.length <= rowsPerPage) return { kind: 'whole', rows: matches, total: matches.length, filter: query }
   const pages = Math.ceil(matches.length / rowsPerPage)
+  const base = Math.floor(matches.length / pages)
+  const extra = matches.length % pages
   const wanted = Number.isFinite(page) ? Math.floor(page) : 0
   const shown = Math.min(Math.max(wanted, 0), pages - 1)
-  const start = shown * rowsPerPage
+  const start = shown * base + Math.min(shown, extra)
+  const count = base + (shown < extra ? 1 : 0)
 
   return {
     kind: 'paged',
-    rows: matches.slice(start, start + rowsPerPage),
+    rows: matches.slice(start, start + count),
     page: shown,
     pages,
     from: start + 1,
-    to: Math.min(matches.length, start + rowsPerPage),
+    to: start + count,
     total: matches.length,
     filter: query,
   }
@@ -154,6 +160,8 @@ export function parseTreeArgs(args: string): TreeCommand {
   const word = split?.[1] ?? typed
   const rest = (split?.[2] ?? '').trim()
   switch (word.toLowerCase()) {
+    case 'list':
+      return rest === '' ? { kind: 'list' } : { kind: 'unknown', text: typed }
     case 'next':
       return { kind: 'next' }
     case 'prev':
@@ -171,53 +179,96 @@ export function parseTreeArgs(args: string): TreeCommand {
   }
 }
 
-// The room name and the open path in one line of at most width characters. A line that is too long
-// is cut at the start with a tilde, so the last part survives.
+// The room name and the open path in one line of at most width characters. The room name stays; what is
+// shortened is marked with ~ (plan 380-20, G6). In order: the whole path when it fits; with two folders or
+// more, the room, ~ for the middle folders and the last folder; the last folder cut at its end with ~ when
+// at least 4 characters of it fit; the room and the mark; the room alone; the room cut at its end with ~.
+// The line never starts with ~ unless the width is 1, and never exceeds the width.
 export function crumbText(room: string, path: string, width: number): string {
-  const parts = [room === '' ? 'room' : room, ...path.split('/').filter(part => part !== '')]
-  const full = parts.join(' / ')
+  const name = room === '' ? 'room' : room
+  const folders = path.split('/').filter(part => part !== '')
+  const full = [name, ...folders].join(' / ')
   if (full.length <= width) return full
   if (width <= 1) return '~'.slice(0, Math.max(0, width))
+  const last = folders[folders.length - 1]
+  if (last !== undefined) {
+    const lead = folders.length >= 2 ? `${name} / ~ / ` : `${name} / `
+    if (folders.length >= 2 && lead.length + last.length <= width) return `${lead}${last}`
+    const avail = width - lead.length
+    if (avail >= 5) return `${lead}${last.slice(0, avail - 1)}~`
+    if (`${name} ~`.length <= width) return `${name} ~`
+  }
+  if (name.length <= width) return name
 
-  return `~${full.slice(full.length - (width - 1))}`
+  return `${name.slice(0, width - 1)}~`
 }
 
 // ---- Crumb row plan, cap note, too-small lines (plan 380-20, G5 and G6) -----------------------
 
 export type CrumbPlan = { crumb: string; counter: string; note: string | null }
 
-// 0 or 1: whether the cap note (first N of M) takes a row of its own.
-export function noteRowsOf(
-  _room: string,
-  _path: string,
-  _total: number,
-  _left: number,
-  _filter: string,
-  _inner: number,
-  _treeRows: number,
-): 0 | 1 {
-  throw new Error('not implemented')
+const cutEnd = (text: string, width: number): string => (text.length <= width ? text : `${text.slice(0, Math.max(1, width - 1))}~`)
+
+const capWords = (total: number, left: number): string => `first ${total} of ${total + left}`
+
+// The longest counter this folder can show on any page: the figures at their widest, the filter words and
+// the cap words. It reads the totals only, never the page, so the window does not depend on the page.
+function longestCounter(total: number, left: number, filter: string): string {
+  const query = filter.trim()
+
+  return `${total}-${total} of ${total}${query === '' ? '' : ` for "${query}"`}${left > 0 ? `  ${capWords(total, left)}` : ''}`
 }
 
-// The crumb, the counter and the cap note row for one page.
+// 0 or 1: whether the cap note (first N of M) takes a row of its own. It is 1 only when names were left out
+// by the cap, the whole crumb, 2 cells and the longest counter do not fit one row, and at least
+// MIN_TREE_ROWS window rows remain after the note row.
+export function noteRowsOf(room: string, path: string, total: number, left: number, filter: string, inner: number, treeRows: number): 0 | 1 {
+  if (left <= 0) return 0
+  if (treeRows - 1 < MIN_TREE_ROWS) return 0
+  const whole = [room === '' ? 'room' : room, ...path.split('/').filter(part => part !== '')].join(' / ')
+
+  return whole.length + 2 + longestCounter(total, left, filter).length > inner ? 1 : 0
+}
+
+// The crumb, the counter and the cap note row for one page. With a note row the counter is the short
+// counter and the cap words go on the row below; without one the counter carries the cap words.
 export function crumbRowPlan(
-  _room: string,
-  _path: string,
-  _counter: string,
-  _total: number,
-  _left: number,
-  _filter: string,
-  _inner: number,
-  _treeRows: number,
+  room: string,
+  path: string,
+  counter: string,
+  total: number,
+  left: number,
+  filter: string,
+  inner: number,
+  treeRows: number,
 ): CrumbPlan {
-  throw new Error('not implemented')
+  const note = noteRowsOf(room, path, total, left, filter, inner, treeRows) === 1
+  const wanted = note || left <= 0 ? counter : `${counter}  ${capWords(total, left)}`
+  const shown = cutEnd(wanted, Math.max(8, inner - 8))
+
+  return {
+    crumb: crumbText(room, path, Math.max(1, inner - shown.length - 2)),
+    counter: shown,
+    note: note ? capWords(total, left) : null,
+  }
 }
 
 export type TooSmall = { lines: string[]; close: boolean }
 
-// The lines a pane too short for the tree draws, and whether it draws Close.
-export function tooSmallLines(_needs: number, _bodyRows: number): TooSmall {
-  throw new Error('not implemented')
+// The lines a pane too short for the tree draws, and whether it draws Close. The rows used (the lines and
+// Close) never exceed the rows given. The lines say what the person can do and what docking needs; the
+// tree is never printed as text here (the typed /mos-tree is the text route).
+export function tooSmallLines(needs: number, bodyRows: number): TooSmall {
+  const all = [
+    `/m:os needs ${needs} rows to browse the room`,
+    'Make the terminal taller, or dock the panel.',
+    'Docking needs a terminal 110 columns wide.',
+    'Or type /mos-tree in the prompt box.',
+  ]
+  const close = bodyRows >= 2
+  const count = Math.max(0, Math.min(all.length, bodyRows - (close ? 1 : 0)))
+
+  return { lines: all.slice(0, count), close }
 }
 
 // The hint lines at the foot: where each route works, and no key is promised.

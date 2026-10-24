@@ -41,7 +41,7 @@ import { contextBand, factLabel, nextMove, pluginFacts, readStatusLocal, roomFac
 import type { Fact } from './status'
 import { loadFaceAsset, rasterFace, readFaceAsset } from './theo-face'
 import type { FaceAsset } from './theo-face'
-import { assertNever, capEntries, controlsOf, counterText, crumbText, hintLines, isFolder, pageOf, parseTreeArgs, rowsIn, sortSections, treeLayout, viewOf } from './tree'
+import { assertNever, capEntries, controlsOf, counterText, crumbRowPlan, crumbText, hintLines, isFolder, noteRowsOf, pageOf, parseTreeArgs, rowsIn, sortSections, tooSmallLines, treeLayout, viewOf } from './tree'
 import type { ControlId, Page } from './tree'
 import { THEO_CALL_THOUGHTS, THEO_EMPTY, THEO_FAILED, THOUGHTS, glossaryWords } from './voice'
 
@@ -1286,7 +1286,11 @@ export const register: Register = on => {
     // The browse view keeps its whole body inside the rows the host gives (scroll.bodyRows), so the host has
     // nothing to scroll and the header stays in view. The window of the list is as tall as the rows left.
     const layout = treeLayout({ bodyRows, columns: rawCols, plain: plainMode })
-    if (layout.kind === 'ok') treeSize = layout.treeRows
+    // The cap note (first N of M) may take one row of the window; the command pages with the same window.
+    const crumbRoom = snapshot?.room?.slug ?? room ?? ''
+    const listTotal = open === '' ? (snapshot?.room?.sections ?? []).length : entries.length
+    const noteRows = layout.kind === 'ok' ? noteRowsOf(crumbRoom, open, listTotal, open === '' ? 0 : more, filterNow, rawCols - 2, layout.treeRows) : 0
+    if (layout.kind === 'ok') treeSize = layout.treeRows - noteRows
     // What the overview draws at this size (hooks/overview.ts, plan 380-19): the class from the rows the host
     // gives, the ladder from the width of the pane, and compact from the width of the SCREEN (the viewport;
     // mos-brand book e947a5d GUIDE.md line 28). The tile is 12 cells on a wide panel, 8 on a standard one, 6 in
@@ -1411,20 +1415,17 @@ export const register: Register = on => {
       const inner = cols
       const closeButton = knob('ask-sections', 'Close', () => toggleTree($))
       if (layout.kind === 'too-small') {
-        const message = `/m:os needs ${layout.needs} rows to browse the room`
-        const second = '/mos-tree still lists every name in the prompt box.'
+        // A pane too short says what the person can do and draws no name of the room (plan 380-20, G5).
+        const small = tooSmallLines(layout.needs, bodyRows)
 
         return (
           <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={rawCols}>
-            {bodyRows >= 3 ? (
-              <Box flexDirection="column">
-                <Text {...ink} bold wrap="truncate-end">{fit(message, inner)}</Text>
-                <Text {...soft} wrap="truncate-end">{fit(second, inner)}</Text>
-              </Box>
-            ) : (
-              <Text {...ink} bold wrap="truncate-end">{fit(`${message}. /mos-tree still lists it.`, inner)}</Text>
-            )}
-            {bodyRows >= 2 && closeButton}
+            {small.lines.map((line, k) => (
+              <Text key={`small${k}`} {...(k === 0 ? ink : soft)} bold={k === 0} wrap="truncate-end">
+                {fit(line, inner)}
+              </Text>
+            ))}
+            {small.close && closeButton}
           </Box>
         )
       }
@@ -1434,7 +1435,8 @@ export const register: Register = on => {
       const items: TreeItem[] = isFolderView
         ? entries.map(name => ({ name, files: null }))
         : sortSections(snapshot?.room?.sections ?? []).map(sec => ({ name: sec.name, files: sec.files }))
-      const shown: Page<TreeItem> = pageOf(items, layout.treeRows, pageWanted, filterNow, item => item.name)
+      const windowSize = layout.treeRows - noteRows
+      const shown: Page<TreeItem> = pageOf(items, windowSize, pageWanted, filterNow, item => item.name)
       const pageNow = shown.kind === 'paged' ? shown.page : 0
       const rows = rowsIn(shown)
       const labelRoom = Math.max(8, inner - 4)
@@ -1472,10 +1474,13 @@ export const register: Register = on => {
         )
 
       // The crumb row: where in the room, and which rows show. A capped folder says so in words.
-      const counter = fit(`${counterText(shown)}${isFolderView && more > 0 ? `  first ${items.length} of ${items.length + more}` : ''}`, Math.max(8, inner - 8))
-      const crumb = crumbText(roomName ?? room ?? '', open, Math.max(6, inner - counter.length - 2))
+      const plan = crumbRowPlan(crumbRoom, open, counterText(shown), items.length, isFolderView ? more : 0, filterNow, inner, layout.treeRows)
+      const { crumb, counter } = plan
+      // A paged window is padded only up to the tallest page (the pages differ by one name at most), so the
+      // controls sit right under the page and do not move between pages.
+      const tallest = shown.kind === 'paged' ? Math.ceil(shown.total / shown.pages) : 0
 
-      // The window: exactly the rows of this page. A paged window is padded so the controls do not move.
+      // The window: exactly the rows of this page.
       const windowRows =
         shown.kind === 'empty' ? (
           <Text {...soft} wrap="truncate-end">
@@ -1521,7 +1526,7 @@ export const register: Register = on => {
               )
             })}
             {shown.kind === 'paged' &&
-              Array.from({ length: Math.max(0, layout.treeRows - rows.length) }, (_, k) => <Text key={`pad${k}`} {...ink}>{' '}</Text>)}
+              Array.from({ length: Math.max(0, tallest - rows.length) }, (_, k) => <Text key={`pad${k}`} {...ink}>{' '}</Text>)}
           </Box>
         )
 
@@ -1561,6 +1566,7 @@ export const register: Register = on => {
             <Text {...ink} bold wrap="truncate-end">{crumb}</Text>
             <Text {...soft} wrap="truncate-end">{counter}</Text>
           </Box>
+          {plan.note !== null && <Text {...soft} wrap="truncate-end">{fit(plan.note, inner)}</Text>}
           {windowRows}
           {controls}
           <Box flexDirection="column">

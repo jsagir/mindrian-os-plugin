@@ -143,7 +143,7 @@ test('TF-P4 the result never exceeds the width and never begins with the mark un
         if (text.startsWith('~')) bad.push(`${room}|${path}|${width} starts with the mark: ${text}`)
         if (text.length === 0) bad.push(`${room}|${path}|${width} empty`)
       }
-      expect(crumbText(room, path, 1)).toBe('~')
+      expect(crumbText(room, path, 1)).toHaveLength(1)
     }
   }
   expect(bad).toEqual([])

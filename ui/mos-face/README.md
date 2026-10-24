@@ -291,8 +291,8 @@ What the view shows, top to bottom:
 | Part | What it is |
 |------|-----------|
 | Header | The Theo face tile (3 rows) beside the label, when the pane has 24 rows or more and 40 columns or more and plain mode is off. Otherwise one row of words. It never scrolls away, because the body fits the room. |
-| Crumb | One row: the room name and the open path (cut at the start, so the last part survives), and the counter: all 14, 1-10 of 14, 11-14 of 14, 2 matches for "legal", no match for "zzz", none. A folder of more than 300 names says first 300 of N. |
-| Window | The rows of this page. A paged window is padded, so the controls do not move. Every section and every file is one Button, with the same key as before (sec-NAME, entry-PATH-NAME). |
+| Crumb | One row: the room name and the open path, and the counter: all 14, 1-7 of 14, 8-14 of 14, 2 matches for "legal", no match for "zzz", none. The room name always stays; what is shortened is marked with ~ (see Crumb rule below). A folder of more than 300 names says first 300 of N: after the counter when it fits, else on a row of its own under the crumb (see Cap note row below). |
+| Window | The rows of this page. Pages are balanced (see Balanced pages below). A paged window is padded only up to the tallest page (at most one row), so the controls sit right under the names and do not move. Every section and every file is one Button, with the same key as before (sec-NAME, entry-PATH-NAME). |
 | Controls | Only the ones that can act: Up (inside a folder), Previous (after page 1), Next (before the last page), Find, Close. One row from 52 columns, else two explicit rows. |
 | Hint | Where each route works, and no key promised. |
 | Refresh | One row from 24 rows. |
@@ -310,18 +310,26 @@ The layout rows (`treeLayout` in hooks/tree.ts; the pure test pins them):
 | 8 | 56 | no | too small, needs 9 rows | | | | |
 | 40 | 56 | yes | words | 2 | 1 | 6 | 34 |
 
-Fixed rows are the header, the crumb row (1), the controls, the hint and the refresh row. The window is the body rows less the fixed rows. Under 9 rows, or when the window would be under 4 rows, the view says in words that /m:os needs N rows to browse the room and that /mos-tree still lists every name, and it draws only Close.
+Fixed rows are the header, the crumb row (1), the controls, the hint and the refresh row. The window is the body rows less the fixed rows. Under 9 rows, or when the window would be under 4 rows, the 9 row minimum stays (see A pane too short below).
 
 Commands. `/mos-tree` is the keyboard route: it works from the prompt box everywhere. With no argument it prints the current page as plain text (the crumb line, the counter line, one line for each name with its count, and the hint lines). Every verb also opens the browse view if it is closed (except `up` on a closed view).
 
 | Command | What it does | Example |
 |---------|--------------|---------|
-| /mos-tree | Prints the current page | /mos-tree |
+| /mos-tree, /mos-tree list | Opens the view and prints the current page. Any case; list with other words after it is not a command. | /mos-tree list |
 | /mos-tree next, /mos-tree prev | Moves one page | /mos-tree next |
 | /mos-tree up | Goes back one level: folder, section, list, closed | /mos-tree up |
 | /mos-tree find WORD | Keeps the names that hold the word. A word in lowercase ignores case; a capital letter matches the case exactly. | /mos-tree find legal |
 | /mos-tree open WORD | Opens the one section or folder that the word picks, or puts a question about the one file in the prompt box. With none or many it says how many names hold the word. | /mos-tree open market-analysis |
 | /mos-tree clear | Removes the filter | /mos-tree clear |
+
+Balanced pages (plan 380-20, gap 7). A list is split into ceil(n / window) pages of even size: every page holds floor(n / pages) names and the first (n mod pages) pages hold one more. 18 names in a window of 17 are two pages of 9 (1-9 of 18 and 10-18 of 18), 21 in a window of 5 are 5, 4, 4, 4, 4, 300 in a window of 10 are 30 pages of 10. No page is empty, no name is lost or shown twice, and the last page is never one lonely name. The pure test sweeps 1 to 400 names and windows of 4 to 40 rows.
+
+Crumb rule (plan 380-20, gap 6). The room name stays and is never cut at the start. In order: the whole path when it fits (demo-room / archive-2000); with two folders or more, the room, ~ for the middle folders and the last folder (demo-room / ~ / sizing); the last folder cut at its end with ~ when at least 4 characters of it fit (demo-room / archive~); the room and the mark (demo-room ~); the room alone; the room cut at its end with ~. The line never starts with ~ unless the width is 1.
+
+Cap note row (plan 380-20, gap 6). A folder of more than 300 names shows the first 300. The words first 300 of 2000 follow the counter on the crumb row when the whole crumb, 2 cells and the longest counter of the folder fit one row. When they do not fit, and 4 window rows remain, the words take a row of their own under the crumb and the window is one row shorter, so the folder name stays whole. The decision reads the totals and never the page, so the window does not change between pages.
+
+A pane too short (plan 380-20, gap 5). The 9 row minimum stays. A pane with fewer rows says, in plain words and one row each: /m:os needs 9 rows to browse the room; Make the terminal taller, or dock the panel.; Docking needs a terminal 110 columns wide.; Or type /mos-tree in the prompt box. With 5 rows or more all four lines and Close show; with 4 rows the first three; with 3 rows the first two; with 2 rows the first one and Close; with 1 row the first one. It draws no section name or file name and never prints the tree as text. The typed /mos-tree command still answers with its plain page: a person who typed it asked for text. In an 80 by 24 terminal the inline pane gets about 6 rows (380-19-FACTS.md), so this is the state a person meets there.
 
 Why the body stays inside scroll.bodyRows. The host gives the pane a number of rows (`scroll.bodyRows`, the room, never the rows showing). A body that is taller is scrolled by the host, and the host has no pinned header, so the face and the header left the screen (shots real-7, real-8 and real-10). The browse view keeps its whole body inside that number and pages the list itself, so the host has nothing to scroll.
 
