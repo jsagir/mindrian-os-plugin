@@ -1,0 +1,40 @@
+                                                                         │                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                                          │ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                                         │ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   @mos:larry-extended · /tmp/mos-face-shots-YOezvf/work         │ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                                         │ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model. │
+  1 more notice hidden                                                   │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                         │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ I want to test whether my market sizing assumption is right.           │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ Larry | MindrianOS                                                      │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                         │ Context gauge: waiting for the first reply
+● Market sizing is the first claim to test. What would change your mind? │
+                                                                         │ ▌ WRITES TO  nothing - this session is not
+❯ /mos-state                                                             │ bound
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any │ [ Bind a room ]
+     width when you ask for it.                                          │ ROOM  demo-room, Discovery stage
+                                                                         │ FILED  3 entries in 18 sections
+                                                                         │ STALE  market-analysis
+                                                                         │ HEALTH  sound
+                                                                         │
+                                                                         │ ▌ NOW  This room has no identity yet, so its
+                                                                         │ reasoning cannot be trusted to belong to it
+                                                                         │ [ Fix: /mos:doctor --heal-room ]
+                                                                         │
+                                                                         │ ▌ NEXT  from Theo
+                                                                         │ NEXT MOVE  map unknowns (routed)
+                                                                         │ Theo will suggest once the talk gives
+                                                                         │ something to go on.
+                                                                         │ [ Ask Theo now ] [ Words: shared ]
+                                                                         │ Theo is sent a short excerpt of your own
+                                                                         │ words, links, paths and names removed
+                                                                         │
+                                                                         │ ▌ JOB  a guess, is this it?
+                                                     ◐ medium · /effort  │
+─────────────────────────────────────────────────────────────────────────────────────────────────── mos:larry-extended ─
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing will be filed  /mos:rooms
+  ⬡ 🟦 · [redteam] · 📂 MindrianOS ✅ · Next: map unknowns · v2.0.0-beta.74
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]

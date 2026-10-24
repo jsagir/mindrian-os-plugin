@@ -1,0 +1,40 @@
+                                                                            ╭──────────────────────────────────────────╮
+ ▐▛███▛█   Claude Code v2.1.310                                             │ mos                                      │
+▝▜██████▀  Opus 5.5 · Claude Max                                            │ /m:os face loaded. /mos-state opens the  │
+ ▝▝   ▝▝   /tmp/mos-face-shots-ss9qo8/work                                  │ dashboard; /mos-face shows or hides the  │
+                                                                            │ box.                                     │
+▎ Auto mode is now Claude Code's default permission mode.                   ╰──────────────────────────────────────────╯
+▎ Auto mode lets Claude handle permission prompts automatically. Claude checks each tool call for risky actions and
+▎ prompt injection before executing, runs the ones it assesses as lower-risk, and blocks the rest.
+▎ https://code.claude.com/docs/en/permission-modes
+  2 more notices hidden
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀  Theo | MindrianOS  [ Hide ]                            [-]
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀ Rest | Theo 0 this turn, 0 in all
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀ "What is the thing you keep coming back to?"
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀
+                                               ▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                         Fast mode is now available · /fast to turn on
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ Try "refactor <filepath>"
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing will be filed  /mos:rooms
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

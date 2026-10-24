@@ -1,0 +1,45 @@
+                                                 ╭──────────────────────────────────────────╮│                                            ✕
+ ▐▛███▛█   Claude Code v2.1.310                  │ mos                                      ││ ▀▀▀▀▀▀▀▀  Theo | MindrianOS
+▝▜██████▀  Opus 5.5 · Claude Max                 │ /m:os face loaded. /mos-state opens the  ││ ▀▀▀▀▀▀▀▀ Rest
+ ▝▝   ▝▝   /tmp/mos-face-shots-jk6Wam/work       │ dashboard; /mos-face shows or hides the  ││ ▀▀▀▀▀▀▀▀ "What is the thing you keep comin~
+                                                 │ box.                                     ││ ▀▀▀▀▀▀▀▀
+  Get to finished work sooner with Opus 5.5. Swit╰──────────────────────────────────────────╯│
+  1 more notice hidden                                                                       │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+❯ Hello, I am just looking around.                                                           │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ Larry | MindrianOS                                                                          │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+                                                                                             │ Context gauge: waiting for the first reply
+● Welcome. What brings you here?                                                             │
+                                                                                             │ ▌ WRITES TO  demo-room
+❯ /mos-state                                                                                 │ [ Switch room ]
+  ⎿  mos: The /m:os dashboard is open in the side panel. It seats at any width when you ask  │ ROOM  demo-room, Discovery stage
+     for it.                                                                                 │ FILED  3 entries in 18 sections
+                                                                                             │ STALE  market-analysis
+                                                                                             │ HEALTH  sound
+                                                                                             │
+                                                                                             │ ▌ NOW  Theo is not answering its health
+                                                                                             │ check
+                                                                                             │ [ Fix: /mos:doctor ]
+                                                                                             │
+                                                                                             │ ▌ NEXT  from Theo
+                                                                                             │ NEXT MOVE  map unknowns (routed)
+                                                                                             │ Theo will suggest once the talk gives
+                                                                                             │ something to go on.
+                                                                                             │ [ Ask Theo now ] [ Words: shared ]
+                                                                                             │ Theo is sent a short excerpt of your own
+                                                                                             │ words, links, paths and names removed
+                                                                                             │
+                                                                                             │ Job: no guess yet. Say what you want to
+                                                                                             │ decide, test or find, in two different
+                                                                                             │ phrases, and one may come.
+                                                                                             │ THEO  on
+                                                                                             │ SPEAKS  Theo, building
+                                                                                             │ STANCE  red team
+                                                                                             │ MODE  build room
+                                                                                             │ VERSION  2.0.0-beta.74, update 9.9.9 is
+                                                                         ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle) · ← for agents  [ /m:os dashboard ]

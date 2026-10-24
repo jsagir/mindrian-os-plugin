@@ -1,0 +1,20 @@
+● Market sizing is the first
+  claim to test. What would
+  change your mind?
+
+❯ /mos-state
+  ⎿ mos: The /m:os dashboard
+    is open in the side
+    panel. It seats at any
+    width when you ask for
+    it.
+╭────────────────────────✕─╮
+│  /m:os needs 30 columns  │
+│  Widen the panel. The    │
+│  status line and         │
+│  /mos-state still work.  │
+╰──────────────────────────╯
+  Fast mode is now availa…
+────────────────────────────
+❯ 
+────────────────────────────

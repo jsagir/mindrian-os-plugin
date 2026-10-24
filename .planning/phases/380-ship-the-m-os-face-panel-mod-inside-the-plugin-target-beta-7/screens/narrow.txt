@@ -1,0 +1,30 @@
+      ╭──────────────────────────────────────────╮
+ ▐▛███│ mos                                      │
+▝▜████│ /m:os face loaded. /mos-state opens the  │
+ ▝▝   │ dashboard; /mos-face shows or hides the  │
+      │ box.                                     │
+▎ Auto╰──────────────────────────────────────────╯
+▎ permission mode.
+▎ Auto mode lets Claude handle permission prompts
+▎ automatically. Claude checks each tool call for
+▎ risky actions and prompt injection before
+▎ executing, runs the ones it assesses as
+▎ lower-risk, and blocks the rest.
+▎ https://code.claude.com/docs/en/permission-modes
+  2 more notices hidden
+
+
+ ▀▀▀▀▀▀▀▀▀▀▀▀  Theo | MindrianOS  [ Hide ]    [-]
+ ▀▀▀▀▀▀▀▀▀▀▀▀ Rest | Theo 0 this turn, 0 in…
+ ▀▀▀▀▀▀▀▀▀▀▀▀ "What is the thing you keep c…
+ ▀▀▀▀▀▀▀▀▀▀▀▀
+ ▀▀▀▀▀▀▀▀▀▀▀▀
+ ▀▀▀▀▀▀▀▀▀▀▀▀
+   Fast mode is now available · /fast to turn on
+──────────────────────────────────────────────────
+❯ Try "write a test for <filepath>"
+──────────────────────────────────────────────────
+  ⚠ mos: /m:os  not bound to a room, nothing wi…
+  ⏵⏵ auto mode (shift+tab to        [ /m:os
+  on ·         cycle) · ← for       dashboard ]
+               agents

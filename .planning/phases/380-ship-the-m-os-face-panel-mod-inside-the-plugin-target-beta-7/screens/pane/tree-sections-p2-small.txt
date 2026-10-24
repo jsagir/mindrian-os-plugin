@@ -1,0 +1,29 @@
+       legal-review  4                                                   │                                            ✕
+       channel-tests  3                                                  │  Theo | MindrianOS  [o|o] Rest
+       competitor-scan  3                                                │ demo-room  18-18 of 18
+       customer-interviews  3                                            │ [ ▸ team-roster  3 ]
+       funding-plan  3                                                   │
+       market-analysis  3                                                │
+       metrics-board  3                                                  │
+       open-questions  3                                                 │
+       partner-list  3                                                   │
+       pricing-tests  3                                                  │
+       problem-definition  3                                             │
+       product-brief  3                                                  │
+       regulatory-notes  3                                               │
+       risk-register  3                                                  │
+     Click a name to ask about it in the prompt box.                     │
+     In the prompt box: /mos-tree next, prev, up, find                   │
+                                                                         │
+❯ /mos-tree                                                              │
+  ⎿  mos: demo-room                                                      │
+     18-18 of 18                                                         │
+       team-roster  3                                                    │ [ Previous ] [ Find ]
+     Click a name to ask about it in the prompt box.                     │ [ Close ]
+     In the prompt box: /mos-tree next, prev, up, find                   │ /mos-tree next, prev, up, find
+                                                     ◐ medium · /effort  │
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+❯ 
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ⚠ mos: /m:os  Theo is not answering  /mos:doctor
+  ⏵⏵ auto mode on · (shift+tab to cycle)  [ /m:os dashboard ]
