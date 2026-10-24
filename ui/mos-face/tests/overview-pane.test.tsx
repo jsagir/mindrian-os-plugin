@@ -212,7 +212,9 @@ const rootOf = async (ui: Mounted): Promise<unknown> => ui.find({ type: 'Box' })
 const leavesNow = async (ui: Mounted): Promise<Leaf[]> => leavesOf(await rootOf(ui))
 // A label, wide or narrow: the narrow pane and plain mode use the short forms (VER, CTX, MOVE, VOICE).
 const label = (name: string) => (leaf: Leaf): boolean => leaf.kind === 'text' && new RegExp(`^[▌|]?\\s*(?:${name})\\b`).test(leaf.text)
-const keyed = (key: string) => (leaf: Leaf): boolean => leaf.kind === 'button' && leaf.key === key
+// The tree has no key on its elements; a button is told by its label.
+const labelled = (text: string) => (leaf: Leaf): boolean => leaf.kind === 'button' && leaf.text === text
+const JOB_FIX = 'Fix: /mos:jtbd set'
 const indexOf = (leaves: Leaf[], match: (leaf: Leaf) => boolean): number => leaves.findIndex(match)
 const isPicture = (leaf: Leaf): boolean => leaf.kind === 'text' && /^▀+$/.test(leaf.text)
 const isBar = (leaf: Leaf): boolean => leaf.kind === 'text' && /^\[[#-]+\]$/.test(leaf.text)
@@ -255,7 +257,7 @@ const ORDER: [string, (leaf: Leaf) => boolean][] = [
   ['Context', label('Context|CTX')],
   ['JOB', label('JOB')],
   ['statement', leaf => leaf.kind === 'text' && /^When I am/.test(leaf.text)],
-  ['Job buttons', keyed('job-fix')],
+  ['Job buttons', labelled(JOB_FIX)],
   ['WRITES TO', label('WRITES TO')],
   ['NOW', label('NOW')],
   ['NEXT', leaf => label('NEXT')(leaf) && /from Theo/.test(leaf.text)],
@@ -296,7 +298,7 @@ async function foldOf(ui: Mounted, columns: number): Promise<Fold> {
   return {
     version: endRowOf(root, columns, label('VERSION|VER')),
     context: endRowOf(root, columns, label('Context|CTX')),
-    jobButtons: endRowOf(root, columns, keyed('job-fix')),
+    jobButtons: endRowOf(root, columns, labelled(JOB_FIX)),
     writes: startRowOf(root, columns, label('WRITES TO')),
     now: startRowOf(root, columns, label('NOW')),
   }
@@ -361,7 +363,7 @@ async function inlineCase($: Parameters<TestBody>[0], on: Parameters<TestBody>[1
   expect(leaves.slice(0, jobAt + 1).filter(leaf => leaf.kind === 'text' && leaf.text.trim() === '')).toEqual([])
   expect(leaves.slice(0, jobAt + 1).filter(isBar)).toEqual([])
   expect(endRowOf(root, columns, label('JOB'))).toBe(6)
-  expect(startRowOf(root, columns, keyed('job-fix'))).toBe(buttonsRow)
+  expect(startRowOf(root, columns, labelled(JOB_FIX))).toBe(buttonsRow)
   if (writesRow !== null) expect(startRowOf(root, columns, label('WRITES TO'))).toBe(writesRow)
   await ui.unmount()
 }
@@ -394,7 +396,7 @@ test('OV7 short at 46 by 15: one words header row, the four status rows with a t
   // The Job in its full form: heading, a sentence, buttons.
   expect(indexOf(leaves, label('JOB'))).toBeGreaterThan(indexOf(leaves, label('Context|CTX')))
   expect(leaves.some(leaf => leaf.kind === 'text' && /^When I am/.test(leaf.text))).toBe(true)
-  expect(endRowOf(root, 46, keyed('job-fix'))).toBeLessThanOrEqual(15)
+  expect(endRowOf(root, 46, labelled(JOB_FIX))).toBeLessThanOrEqual(15)
   await ui.unmount()
 })
 
@@ -403,7 +405,7 @@ test('OV7 short at 46 by 15: one words header row, the four status rows with a t
 test('OV8 a compact screen (50 columns) at 46 by 40: no tile and no canvas rows, a three row words header, a text bar, every action drawn, and no button label over 40 characters', async ($, on) => {
   const { ui } = await open($, on, 46, 40, { columns: 50, rows: 30 })
   const leaves = await leavesNow(ui)
-  const keys = leaves.filter(leaf => leaf.kind === 'button').map(leaf => leaf.key)
+  const keys = (await ui.findAll({ type: 'Button' })).map(one => one.key ?? '')
 
   expect(leaves.filter(isPicture)).toEqual([])
   expect(leaves.filter(isBar)).toHaveLength(1)

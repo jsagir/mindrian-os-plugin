@@ -778,10 +778,12 @@ test('T21 with the tree closed the overview still shows the Sections button and 
 
 // ---- T22 the row counter ----------------------------------------------------------------------
 
-test('T22 the row counter reads the overview at 56 by 40 as the 40 rows of the plan 17 audit', async ($, on) => {
+test('T22 the row counter reads the overview at 56 by 40 as 41 rows (40 in the plan 17 audit, one blank more since plan 380-19)', async ($, on) => {
   const { ui } = await open($, on, 56, 40)
 
-  expect(await rowsNow(ui)).toBe(40)
+  // Plan 380-19 moved the Job and three status words above the decisions, which adds one blank separator
+  // (the full class keeps a blank between the header, the status words and the Job): 40 rows became 41.
+  expect(await rowsNow(ui)).toBe(41)
   await ui.unmount()
 })
 

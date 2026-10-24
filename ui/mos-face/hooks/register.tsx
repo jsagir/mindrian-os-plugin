@@ -13,7 +13,7 @@ import { askTheo, classify, frameFor, situationOf, subjectOf, thinkPrompt, words
 import { boundRoom } from './bind'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
 import { gaugeText } from './gauge'
-import { FIX_COMMAND, compactJob, guessJob, jobLine, jobRows, jobShown, readJob } from './job'
+import { FIX_COMMAND, JOB_NARROW_BELOW, compactJob, guessJob, jobLine, jobRows, jobShown, readJob } from './job'
 import { JOBS } from './jobs'
 import { workspaceOf } from './paths'
 import { PROPOSALS } from './proposals'
@@ -35,6 +35,7 @@ import type { Run } from './face'
 import { stateFor, stateForLead } from './face-events'
 import { clock, fit, nowLine, panelLights, plain, recommend, stateBlocks, stateText, statusText, suggestionText } from './lines'
 import { contextCanvas } from './meter'
+import { overviewLayout, screenColumnsOf } from './overview'
 import { isPanelReading, readRoom, resetReach } from './source'
 import { contextBand, factLabel, nextMove, pluginFacts, readStatusLocal, roomFacts } from './status'
 import type { Fact } from './status'
@@ -1285,19 +1286,20 @@ export const register: Register = on => {
     }
     const cols = rawCols - 2
     const bodyRows = e.props.scroll.bodyRows
-    const short = bodyRows < 24
     // The browse view keeps its whole body inside the rows the host gives (scroll.bodyRows), so the host has
     // nothing to scroll and the header stays in view. The window of the list is as tall as the rows left.
     const layout = treeLayout({ bodyRows, columns: rawCols, plain: plainMode })
     if (layout.kind === 'ok') treeSize = layout.treeRows
-    // The ladder: narrow folds the pictures to words, standard shrinks them, wide has room. The face
-    // is 12 cells wide on a wide panel, 8 on a standard one (a tall panel is not needed), 6 in the
-    // mini style, and words only below 40 columns, in plain mode and in the line style.
-    const tier = plainMode || rawCols < 40 ? 'narrow' : rawCols < 50 ? 'standard' : 'wide'
-    const n = tier === 'narrow' || st === 'line' ? 0 : st === 'mini' ? 6 : tier === 'standard' || short ? 8 : 12
-    const useBar = plainMode || tier === 'narrow' || short
+    // What the overview draws at this size (hooks/overview.ts, plan 380-19): the class from the rows the host
+    // gives, the ladder from the width of the pane, and compact from the width of the SCREEN (the viewport;
+    // mos-brand book e947a5d GUIDE.md line 28). The tile is 12 cells on a wide panel, 8 on a standard one, 6 in
+    // the mini style; words only below 40 columns, in plain mode, in the line style, under 24 rows and on a
+    // compact screen.
+    const shape = overviewLayout({ bodyRows, columns: rawCols, screenColumns: screenColumnsOf(e.viewport, undefined, undefined), plain: plainMode, style: st })
+    const n = shape.header.kind === 'tile' ? shape.header.cells : 0
+    const useBar = shape.bar
     const faceRows = faceRuns(assetText, state, n)
-    // Words only: the style says so, or the panel is narrow, or the asset could not be read.
+    // Words only: the layout says so, or the asset could not be read.
     const wordsOnly = faceRows.length === 0
     const tileCols = wordsOnly ? 0 : n
 
@@ -1320,7 +1322,7 @@ export const register: Register = on => {
     const barWidth = Math.max(8, Math.min(20, cols - 8))
     // The context band of the status line, in words (ok, watch, cliff), and its text bar.
     const band = contextBand(percent)
-    const narrowLabels = tier === 'narrow'
+    const narrowLabels = shape.tier === 'narrow'
     const isOld = snapshot !== null && now - snapshot.at > 300000
     const g = (text: string) =>
       plainMode ? text.replaceAll('▸', '>').replaceAll('▾', 'v').replaceAll('◆', '*').replaceAll('⚠', '!').replaceAll('▌', '|') : text
@@ -1343,7 +1345,7 @@ export const register: Register = on => {
       stage: snapshot?.room?.stage ?? '',
       section: open,
       hidden: job.isHidden,
-      width: rawCols,
+      width: shape.jobForm === 'one-row' ? JOB_NARROW_BELOW - 1 : rawCols,
       plain: plainMode,
     })
     const dismissJob = async () => {
@@ -1373,13 +1375,13 @@ export const register: Register = on => {
     // A button: always on a raised ground, so its label reads on any terminal.
     const knob = (key: string, label: string, onPress: () => unknown, ground: string = RAISED) => (
       <Box key={key} backgroundColor={ground} alignSelf="flex-start">
-        <Button key={key} label={g(label)} onPress={onPress} />
+        <Button key={key} label={fit(g(label), Math.max(8, rawCols - 6))} onPress={onPress} />
       </Box>
     )
 
     // One fact of the status line or of the room: its label, then its value, in one row of text.
     const fact = (one: Fact) => (
-      <Text key={`fact-${one.id}`} {...ink} bold={one.strong}>
+      <Text key={`fact-${one.id}`} {...ink} bold={one.strong} wrap={shape.size === 'tiny' ? 'truncate-end' : 'wrap'}>
         <Text {...ink} bold>{factLabel(one.id, narrowLabels)}</Text>
         {g(`  ${one.value}`)}
       </Text>
@@ -1391,6 +1393,19 @@ export const register: Register = on => {
         <Text color={markerColor}>{g('▌')}</Text>
         {` ${title}  ${words}`}
       </Text>
+    )
+
+    // The words header of one row: the badge, then the line face and the state word. The browse view and the
+    // folded overview (under 24 rows) draw this one piece.
+    const wordsHeader = (inner: number) => (
+      <Box gap={1}>
+        <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
+          {' Theo | MindrianOS '}
+        </Text>
+        <Text {...ink} bold wrap="truncate-end">
+          {fit(`${LINE_FACE[state]} ${LABEL[state]}`, Math.max(4, inner - 20))}
+        </Text>
+      </Box>
     )
 
     // The browse view of the room tree (plan 380-18): a pinned header, a crumb row with the counter, a window
@@ -1456,14 +1471,7 @@ export const register: Register = on => {
             </Box>
           </Box>
         ) : (
-          <Box gap={1}>
-            <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
-              {' Theo | MindrianOS '}
-            </Text>
-            <Text {...ink} bold wrap="truncate-end">
-              {fit(`${LINE_FACE[state]} ${LABEL[state]}`, Math.max(4, inner - 20))}
-            </Text>
-          </Box>
+          wordsHeader(inner)
         )
 
       // The crumb row: where in the room, and which rows show. A capped folder says so in words.
@@ -1584,35 +1592,53 @@ export const register: Register = on => {
 
     if (openB === 'ask') return browseView()
 
+    // The facts of the status line, by id. The first three go at the top, with the Context row, so the status
+    // words come before the decisions and before any picture that can fold (owner ruling of gap 1, D-08); the
+    // others follow the decisions. Every fact is drawn once.
+    const roomRows = roomFacts(snapshot, local, room)
+    const pluginRows = pluginFacts(snapshot, local)
+    const topRows = [...roomRows.filter(one => one.id === 'room' || one.id === 'filed'), ...pluginRows.filter(one => one.id === 'version')]
+    const restRows = [...roomRows.filter(one => one.id !== 'room' && one.id !== 'filed'), ...pluginRows.filter(one => one.id !== 'version')]
+    const tiny = shape.size === 'tiny'
+    const oneRowHeader = shape.header.kind === 'words' && shape.header.rows === 1
+    // A blank row between the three top groups, only when there is room for it (the full class).
+    const gap = (id: string) => (shape.gaps ? <Text key={`gap-${id}`} {...ink}> </Text> : null)
+    const freeSpace = percent !== undefined && percent >= 60 ? knob('compact', 'Free space /compact', () => askAbout($, '/compact')) : null
+
     return (
       <Box flexDirection="column" backgroundColor={INK} paddingX={1} width={e.props.bodyColumns}>
-        <Box gap={1}>
-          {!wordsOnly && (
-            <Box flexDirection="column">
-              {faceRows.map((runs, k) => (
-                <Text key={`f${k}`} {...ink}>
-                  {runs.map((run, i) => (
-                    <Text key={`f${k}c${i}`} color={run.top} backgroundColor={run.bottom}>
-                      {'▀'.repeat(run.w)}
-                    </Text>
-                  ))}
-                </Text>
-              ))}
+        {oneRowHeader ? (
+          wordsHeader(cols)
+        ) : (
+          <Box gap={1}>
+            {!wordsOnly && (
+              <Box flexDirection="column">
+                {faceRows.map((runs, k) => (
+                  <Text key={`f${k}`} {...ink}>
+                    {runs.map((run, i) => (
+                      <Text key={`f${k}c${i}`} color={run.top} backgroundColor={run.bottom}>
+                        {'▀'.repeat(run.w)}
+                      </Text>
+                    ))}
+                  </Text>
+                ))}
+              </Box>
+            )}
+            <Box flexDirection="column" width={textWidth}>
+              <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
+                {' Theo | MindrianOS '}
+              </Text>
+              <Text {...ink} bold wrap="truncate-end">
+                {fit(`${wordsOnly ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
+              </Text>
+              <Text {...ink} italic wrap="truncate-end">{fit(`"${thought}"`, textWidth)}</Text>
             </Box>
-          )}
-          <Box flexDirection="column" width={textWidth}>
-            <Text color={MOVE_FG[mv]} backgroundColor={MOVE_BG[mv]} bold>
-              {' Theo | MindrianOS '}
-            </Text>
-            <Text {...ink} bold wrap="truncate-end">
-              {fit(`${wordsOnly ? `${LINE_FACE[state]} ` : ''}${LABEL[state]}${note ? `  ${note}` : ''}`, textWidth)}
-            </Text>
-            <Text {...ink} italic wrap="truncate-end">{fit(`"${thought}"`, textWidth)}</Text>
           </Box>
-        </Box>
-        {assetText === '' && assetNote !== '' && <Text {...soft}>{assetNote}</Text>}
-        <Text {...ink}> </Text>
+        )}
+        {assetText === '' && assetNote !== '' && !tiny && <Text {...soft}>{assetNote}</Text>}
+        {gap('top')}
 
+        {topRows.map(fact)}
         {canvasRows.map((runs, k) => (
           <Text key={`m${k}`} {...ink}>
             {runs.map((run, i) => (
@@ -1622,20 +1648,42 @@ export const register: Register = on => {
             ))}
           </Text>
         ))}
-        {useBar && percent !== undefined && <Text {...ink}>{band.bar(barWidth)}</Text>}
+        {useBar && !tiny && percent !== undefined && <Text {...ink}>{band.bar(barWidth)}</Text>}
         <Box flexDirection="column">
-          <Text {...ink} bold>
+          <Text {...ink} bold wrap={tiny ? 'truncate-end' : 'wrap'}>
             {gaugeText(percent, canvas !== null, factLabel('context', narrowLabels)).text}
           </Text>
-          {percent !== undefined && percent >= 60 && knob('compact', 'Free space /compact', () => askAbout($, '/compact'))}
+          {!tiny && freeSpace}
         </Box>
-        <Text {...ink}> </Text>
+        {gap('context')}
+
+        {jrows
+          .filter(row => row.kind !== 'button')
+          .map((row, k) =>
+            row.kind === 'heading' ? (
+              <Box key={`job${k}`}>{heading(row.title, row.text)}</Box>
+            ) : (
+              <Text key={`job${k}`} {...(row.kind === 'dim' ? soft : ink)} wrap={tiny ? 'truncate-end' : 'wrap'}>
+                {g(row.text)}
+              </Text>
+            ),
+          )}
+        {jrows.some(row => row.kind === 'button') && (
+          <Box gap={1} flexWrap="wrap">
+            {jrows.map(row =>
+              row.kind === 'button'
+                ? knob(row.action === 'dismiss' ? 'job-dismiss' : 'job-fix', row.text, () => (row.action === 'dismiss' ? dismissJob() : askAbout($, FIX_COMMAND)))
+                : null,
+            )}
+          </Box>
+        )}
+        {gap('job')}
 
         {heading('WRITES TO', room ?? 'nothing - this session is not bound')}
         <Box gap={1}>
           {knob('rooms', room ? 'Switch room' : 'Bind a room', () => askAbout($, '/mos:rooms'))}
         </Box>
-        {roomFacts(snapshot, local, room).map(fact)}
+        {tiny && freeSpace}
         <Text {...ink}> </Text>
 
         {heading('NOW', nowL.text)}
@@ -1681,27 +1729,7 @@ export const register: Register = on => {
         {sentLine !== '' && <Text {...soft}>{sentLine}</Text>}
         <Text {...ink}> </Text>
 
-        {jrows
-          .filter(row => row.kind !== 'button')
-          .map((row, k) =>
-            row.kind === 'heading' ? (
-              <Box key={`job${k}`}>{heading(row.title, row.text)}</Box>
-            ) : (
-              <Text key={`job${k}`} {...(row.kind === 'dim' ? soft : ink)}>
-                {g(row.text)}
-              </Text>
-            ),
-          )}
-        {jrows.some(row => row.kind === 'button') && (
-          <Box gap={1} flexWrap="wrap">
-            {jrows.map(row =>
-              row.kind === 'button'
-                ? knob(row.action === 'dismiss' ? 'job-dismiss' : 'job-fix', row.text, () => (row.action === 'dismiss' ? dismissJob() : askAbout($, FIX_COMMAND)))
-                : null,
-            )}
-          </Box>
-        )}
-        {pluginFacts(snapshot, local).map(fact)}
+        {restRows.map(fact)}
         <Text {...ink}> </Text>
 
         {heading('ASK', 'about the room')}

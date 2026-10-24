@@ -49,20 +49,58 @@ export type OverviewInput = {
 
 // True only for a screen that was measured and is under the compact width. No viewport (a test mount) is
 // not compact.
-export function isCompact(_screenColumns: number | undefined): boolean {
-  throw new Error('not implemented')
+export function isCompact(screenColumns: number | undefined): boolean {
+  return typeof screenColumns === 'number' && screenColumns < COMPACT_BELOW
 }
 
 // The screen width: the viewport the host gave, else the body columns plus the cells the host keeps beside
 // them when both are known, else undefined.
 export function screenColumnsOf(
-  _viewport: { columns: number } | undefined,
-  _bodyColumns: number | undefined,
-  _extra: number | undefined,
+  viewport: { columns: number } | undefined,
+  bodyColumns: number | undefined,
+  extra: number | undefined,
 ): number | undefined {
-  throw new Error('not implemented')
+  if (viewport !== undefined) return viewport.columns
+  if (bodyColumns !== undefined && extra !== undefined) return bodyColumns + extra
+
+  return undefined
 }
 
-export function overviewLayout(_input: OverviewInput): OverviewLayout {
-  throw new Error('not implemented')
+// The ladder of the panel: wide from 50 columns, standard from 40, narrow under 40 and in plain mode.
+const tierOf = (columns: number, plain: boolean): Tier => (plain || columns < 40 ? 'narrow' : columns < 50 ? 'standard' : 'wide')
+
+// The cells of the face tile for a style. Narrow never gets here; a line style has no tile.
+function cellsFor(style: FaceStyle, tier: Tier): TileCells {
+  switch (style) {
+    case 'mini':
+      return 6
+    case 'tile':
+    case 'line':
+      return tier === 'wide' ? 12 : 8
+    default:
+      return assertNever(style)
+  }
+}
+
+// What the pane draws at a size. The class comes from the rows the host gives (full from 24 rows, tiny under
+// 12), the tier from the width of the pane, and compact from the width of the screen.
+export function overviewLayout(input: OverviewInput): OverviewLayout {
+  const { bodyRows, columns, screenColumns, plain, style } = input
+  const size: Size = bodyRows < TINY_ROWS ? 'tiny' : bodyRows < FULL_ROWS ? 'short' : 'full'
+  const compact = isCompact(screenColumns)
+  const tier = tierOf(columns, plain)
+  const pictures = size === 'full' && !compact && !plain && tier !== 'narrow'
+  const hasTile = pictures && style !== 'line'
+  const header: HeaderLayout = hasTile ? { kind: 'tile', cells: cellsFor(style, tier) } : { kind: 'words', rows: size === 'full' ? 3 : 1 }
+
+  return {
+    size,
+    compact,
+    tier,
+    header,
+    canvas: pictures,
+    bar: !pictures,
+    jobForm: size === 'tiny' ? 'one-row' : 'full',
+    gaps: size === 'full',
+  }
 }

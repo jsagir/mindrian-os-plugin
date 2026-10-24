@@ -242,7 +242,7 @@ Two fields are excluded, each with a reason that the executor checked:
 
 What the panel adds to the status line: the status line changes shape by state (at drift, broken, a pending restart or the context cliff it replaces Next, the Theo chip and the stance chip with one fix). The panel keeps every field in every state: the fix is a row in NOW with its button, and the rest stay as rows. The status line prints the host agent's name (agent_label) from stdin; a mod cannot read it, so SPEAKS uses the voice file's own who. The status line also trusts any recorded job, where the Job block ignores an automatic job older than 24 hours (plan 14).
 
-Order and one signal. The terminal side-panel template (mos-brand book e947a5d, segments/experience/terminal, proposed) says: order decisions first (where this session writes, what is wrong now, what to do next), then ask about the work, folded details last; a state is said once in the panel. The panel follows it: WRITES TO and the room facts, NOW, NEXT and the NEXT MOVE row, JOB, the plugin facts (THEO, SPEAKS, STANCE, MODE, VERSION), ASK, then the folded blocks. Each state word is in one text row (test P7); NOW says what to do about a problem and names no state word that a field row already says (for example the room check problem says "found a problem", and HEALTH says drift). The context meter keeps its place at the top beside its canvas (the template's width ladder puts the face tile and the context canvas first, and a colored plane always carries its words); this is the one place the order differs from a list that puts context with the plugin facts.
+Order and one signal. The terminal side-panel template (mos-brand book e947a5d, segments/experience/terminal, proposed) says: order decisions first (where this session writes, what is wrong now, what to do next), then ask about the work, folded details last; a state is said once in the panel. Since plan 380-19 the owner's ruling for this panel (gap 1) puts the status words first: ROOM, FILED and VERSION, the Context row, JOB, then WRITES TO, NOW, NEXT with the NEXT MOVE row, then STALE, HEALTH, THEO, SPEAKS, STANCE and MODE, ASK, then the folded blocks (see Overview by size). Before it the panel followed the template: WRITES TO and the room facts, NOW, NEXT, JOB, the plugin facts, ASK. Each state word is in one text row (test P7); NOW says what to do about a problem and names no state word that a field row already says (for example the room check problem says "found a problem", and HEALTH says drift). The context meter keeps its place beside its canvas, after VERSION (the template's width ladder puts the face tile and the context canvas first, and a colored plane always carries its words).
 
 The template's Status line row says "Context, stage and version stay on the plugin line". The navigator's ruling D-08 (2026-10-23) governs this panel instead: the panel carries context, stage and version. The pinned line under the prompt box stays as the template says (the NOW line in one breath). The book is silent on the panel carrying parity fields, so plan 380-11 proposes a book follow-up (A6) for the row.
 
@@ -345,6 +345,39 @@ Added in plan 380-19 (D-03, D-04, D-08; gaps 9, 11, 12 and 13 of the first real 
 - The load notice. At session start the host shows one short line, "/m:os loaded. /mos-state opens it.", in place of a long notice that wrapped to a box of four rows over the host notice. Whether any overlap with the host notice is gone is for the real screen check of plan 380-20; the rest is host behavior.
 
 Tests: tests/truth.test.tsx (W1 to W16).
+
+## Overview by size
+
+Added in plan 380-19 (D-04, D-08, D-09; gaps 1 and 2, the pane half). The overview draws the status words and the Job first, and folds by size. The rules sit in `hooks/overview.ts` (pure, tested by `tests/overview.test.ts`) and the pane draws what `overviewLayout` says (tested by `tests/overview-pane.test.tsx`).
+
+Canon: mos-brand book e947a5d, segments/experience/terminal GUIDE.md (status proposed): line 28 (compact below 60 columns), line 107 (under 24 rows pictures fold to words), lines 99 to 107 (the width ladder), line 91 (decisions first), line 92 (one signal). Three readings are interpretations, recorded as proposals P19-1 to P19-3 in 380-19-BOOK-PROPOSALS.md.
+
+- Compact is the width of the SCREEN. The pane reads the viewport the host gives with the render (`e.viewport.columns`) and never the width of the pane. A screen under 60 columns is compact: words and a text bar, no tile, no canvas, every action kept. The docked pane is 46 columns wide on a screen of 110 columns or more, so it keeps its face tile (owner ruling of 2026-10-24). No viewport (a test mount) is not compact.
+- The width ladder is about the PANEL: the tile is 12 cells from 50 columns, 8 cells from 40 to 49, and words with a text bar under 40 columns and in plain mode. The mini style gives 6 cells and the line style gives no tile.
+- Three classes of rows, from the rows the host gives (`scroll.bodyRows`): full from 24 rows, short from 12 to 23, tiny under 12. The book says "under 24 rows pictures fold to words" and is silent on tiny (P19-3). Short and tiny draw one words row for the header, no canvas and no blank row between the top groups. Tiny draws the Job on one row.
+- Order: the header, then ROOM, FILED and VERSION, the canvas (full class, wide enough), the Context row, the Job block, then WRITES TO, NOW, NEXT with NEXT MOVE, then STALE, HEALTH, THEO, SPEAKS, STANCE and MODE, then ASK, the lights and Refresh. Every fact is drawn once. The owner ruled the status words first for this panel; the book says decisions first (P19-1).
+
+What shows at each size (the design the tests pin):
+
+| Terminal | Pane (columns by body rows) | Class | What shows, top to bottom |
+|----------|-----------------------------|-------|---------------------------|
+| 120 by 40 docked | 46 by 35 | full | tile header (4 rows), blank, ROOM, FILED, VERSION, the canvas (4 rows), Context, blank, the Job block, blank, WRITES TO and its button, blank, NOW and its fix button, blank, NEXT; below the fold: the sent line, STALE, HEALTH, THEO, SPEAKS, STANCE, MODE, ASK, the lights, Refresh |
+| 140 by 45 docked | 46 by 40 | full | the same, with all of NEXT and the first of the more status rows |
+| 120 by 29 docked | 46 by 24 | full | tile header, the status words, the canvas, Context, the Job block, then WRITES TO |
+| 120 by 20 docked | 46 by 15 | short | one words header row, ROOM, FILED, VERSION, a text bar, Context, the Job block in full form, then WRITES TO |
+| 120 by 13 docked | 46 by 8 | tiny | one words header row, ROOM, FILED, VERSION, Context, the Job on one row, the Job buttons, the WRITES TO heading |
+| 80 by 24 inline | about 76 by 6 | tiny | one words header row, ROOM, FILED, VERSION, Context, the Job on one row; the Job buttons and the decisions are below the fold |
+| 60 by 24 inline | about 56 by 6 | tiny | the same |
+| 50 by 30 inline (compact) | about 46 by 8 | tiny | the same, then the Job buttons row and the WRITES TO heading |
+| under 30 columns | any | too small | one message that names the 30 columns |
+
+The inline row counts (6, 6, 8) are counted from the plan 10 captures (380-19-FACTS.md, "Rows the host gave"). The height of an inline pane at other terminal heights is UNVERIFIED. At 6 rows the decisions are below the fold. The pinned status line under the prompt box says the one state that needs action in one breath, so the decision stays on screen. In the tiny class the text bar is left out and the words of the Context row carry the figure and its band; the Free space button follows the Job. Every row of the tiny class is cut with a mark at the edge, so a fact never takes a second row.
+
+Cut list of the clutter audit (380-17-CLUTTER-AUDIT.md section 6). Applied here: the words ", not bound" in the ROOM row (Truth of the words), and no blank row between the three top groups under 24 rows. Every other cut needs a ruling and is not applied: the idle canvas rows until the first reading, the STALE row when NOW says it, why NEXT MOVE says none yet beside the host line, the other blank rows of the short path, the three hint rows, the two duplicate click hints, the cobalt bar before headings and one signal for a new file. Gap 10 (the Handover face at 12 cells) is in no plan and needs a ruling.
+
+Buttons. Every label made by the pane is cut with a mark to the pane columns less 6, so no label is wider than its row.
+
+The fold line is estimated by the tests with a row counter that wraps text at word edges (proved on made-up drawings by OV0). It is an estimate of the screen, not a measurement. The real capture is plan 380-20.
 
 ## Decisions
 
