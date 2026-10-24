@@ -252,8 +252,9 @@ test('W15c the Theo light still says down when the host is recorded and the chec
 })
 
 test('W16 the plain text of /mos-text says Theo was not checked when no host is recorded, and never "unknown - no answer"', async ($, on) => {
-  recordCalls(on, { files: NO_THEO_RECORD })
+  const { clock } = recordCalls(on, { files: NO_THEO_RECORD })
   await $.session.start(START)
+  await clock.advance(200)
   const text = ((await $.command.run({ command: 'mos-text', args: '' } as never)) as { text: string }).text
 
   expect(text).toContain('THEO: health not checked')

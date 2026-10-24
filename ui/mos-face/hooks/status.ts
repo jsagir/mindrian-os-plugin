@@ -1,6 +1,6 @@
 import type { EngineInterface } from 'claude-code'
 
-import type { Snapshot, StatusLocal, VoiceLocal } from '../types'
+import type { Reach, Snapshot, StatusLocal, VoiceLocal } from '../types'
 import { mindrianDir } from './paths'
 
 // Status parity (Phase 380 plan 15, D-08, MOD380-07): the panel keeps what the plugin status line
@@ -19,6 +19,14 @@ import { mindrianDir } from './paths'
 // The formatters are pure functions over what the panel already holds in memory.
 
 type Engine = EngineInterface
+
+// The host text of a Reach that was never made: no Theo host is recorded (brain-prewarm.json), so Theo was
+// not checked. probe.ts makes it, and every reader that turns a missing answer into a failure tests for
+// it first (Phase 380 plan 19, gap 13): a Theo that was not checked is not a Theo that failed.
+export const NO_HOST = 'unknown' as const
+
+// True only for a check that ran and failed: the host is recorded and it gave no answer or a 5xx.
+export const reachFailed = (r: Reach): boolean => r.host !== NO_HOST && (r.status === null || r.status >= 500)
 
 export type StatusField = { source: string; panel: string; wide: string; narrow: string }
 
@@ -267,8 +275,14 @@ export function roomFacts(snap: Snapshot | null, local: StatusLocal | null, boun
   const stale = r === null ? 'not read' : r.stale.length === 0 ? 'nothing' : `${r.stale.map(one => one.section).slice(0, 4).join(', ')}${r.stale.length > 4 ? ` and ${r.stale.length - 4} more` : ''}`
   const entries = r === null ? '' : r.entries === null || Number.isNaN(r.entries) ? 'entries not counted' : plural(r.entries, 'entry', 'entries')
 
+  // The room read is not the bound one: the tools say bound false (the registry's active room is shown), or on
+  // the files path no record binds this session. A different room that is bound keeps its own words.
+  const unbound = r !== null && (snap?.binding ? !snap.binding.bound : bound === null)
+  const other = bound !== null && r !== null && bound !== r.slug
+  const qualifier = other ? ', not the room this session writes to' : unbound ? ', not bound' : ''
+
   return [
-    { id: 'room', value: r === null ? 'not read' : `${r.stage === '' || r.stage === 'unknown' ? `${r.slug}, stage unknown` : `${r.slug}, ${r.stage} stage`}${bound !== null && bound !== r.slug ? ', not the room this session writes to' : ''}`, strong: false },
+    { id: 'room', value: r === null ? 'not read' : `${r.stage === '' || r.stage === 'unknown' ? `${r.slug}, stage unknown` : `${r.slug}, ${r.stage} stage`}${qualifier}`, strong: false },
     { id: 'filed', value: r === null ? 'not read' : `${entries} in ${plural(r.sections.length, 'section', 'sections')}`, strong: false },
     { id: 'stale', value: stale, strong: r !== null && r.stale.length > 0 },
     { id: 'health', value: healthWord(local?.health ?? null, local?.postUpdate === true), strong: false },

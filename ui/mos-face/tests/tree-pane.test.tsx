@@ -185,7 +185,10 @@ async function open(
     toasts,
     percent: null,
     env: setup.env ?? {},
-    files: { 'asset-fa8504998f.json': ASSET_TEXT },
+    // A recorded Theo host whose health check is refused: the NOW row keeps its fix button, as before plan 380-19
+    // (a Theo that was never checked is no longer reported as failed), so the drawing and the T22 figure stay.
+    files: { 'asset-fa8504998f.json': ASSET_TEXT, '/.mindrian/brain-prewarm.json': JSON.stringify({ ok: true, at: '2026-10-20T00:00:00Z', origin_host: 'theo.example.test' }) },
+    httpStatus: 503,
     list: path => setup.list?.(path) ?? defaultList(path),
     tool: e => {
       if (e.tool.endsWith('brain_ask')) return { result: {}, text: ENVELOPE }

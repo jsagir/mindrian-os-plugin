@@ -879,7 +879,7 @@ export const register: Register = on => {
     await update($, faceAsset, () => (got.asset === null ? '' : JSON.stringify(got.asset)))
     await update($, faceAssetNote, () => (got.asset === null ? got.reason : ''))
 
-    $.ui.toast('/m:os face loaded. /mos-state opens the dashboard; /mos-face shows or hides the box.')
+    $.ui.toast('/m:os loaded. /mos-state opens it.')
     resetReach()
     slowStreak = 0
     slowUntil = 0

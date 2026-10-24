@@ -332,13 +332,14 @@ export function wordsTexts(isOn: boolean, proposals: Proposals = PROPOSALS): { a
 
   return isOn
     ? {
-        advice: 'Asking Theo. A framework name, a problem type and a short excerpt of your own words are sent. Run /mos-words to stop the excerpt.',
+        advice:
+          'Asking Theo. If Theo is reached, it gets a framework name, a problem type and a short excerpt of your own words. The panel says what went, or that nothing did. Run /mos-words to stop the excerpt.',
         words:
           'Theo now also gets a short excerpt of your own recent words, with links, emails, paths, code, key-like strings and names removed. Never the assistant, never the room. Run /mos-words to stop. This lasts until this session ends.' +
           lasting,
       }
     : {
-        advice: 'Asking Theo. Only a framework name and a problem type are sent.',
+        advice: 'Asking Theo. If Theo is reached, it gets only a framework name and a problem type. The panel says what went, or that nothing did.',
         words: 'Theo now gets only a framework name and a problem type. This lasts until this session ends.' + lasting,
       }
 }

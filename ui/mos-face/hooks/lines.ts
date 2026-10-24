@@ -1,6 +1,6 @@
 import type { Advice, FaceId, Snapshot, StatusLocal, TheoCall, TheoTotals } from '../types'
 import { DOCTOR, STATE_COMMANDS, TERM_COMMANDS, WHY } from './commands'
-import { factLabel, nextMove, pluginFacts, roomFacts } from './status'
+import { NO_HOST, factLabel, nextMove, pluginFacts, reachFailed, roomFacts } from './status'
 
 // The state pane as plain data, so the layout can be read and tested without
 // drawing anything. The panel is calm by default: one "now" line, and blocks
@@ -71,6 +71,7 @@ function ago(ms: number, now: number): string {
 }
 
 function reach(r: { host: string; status: number | null; ms: number | null }): string {
+  if (r.host === NO_HOST) return 'not checked, no Theo host is recorded'
   if (r.status === null) return `${r.host} - no answer`
   const t = r.ms === null ? '' : ` ${r.ms < 1000 ? `${Math.round(r.ms)}ms` : `${(r.ms / 1000).toFixed(1)}s`}`
   return `${r.host} - ${r.status}${t}`
@@ -121,7 +122,7 @@ export function nowLine(i: PaneInput): Now {
       label: 'Fix',
     }
   }
-  if (snap.theo.status === null || snap.theo.status >= 500 || i.local?.brain === 'error') {
+  if (reachFailed(snap.theo) || i.local?.brain === 'error') {
     return { text: 'Theo is not answering its health check', short: 'Theo is not answering', command: '/mos:doctor', label: 'Fix' }
   }
   // The room check found a problem: the status line carries the same corrective (every state that shows a problem shows its fix).
@@ -251,7 +252,7 @@ export function stateBlocks(i: PaneInput): Block[] {
     }
   })
 
-  const reachWord = !snap ? 'not read' : snap.theo.status === null ? 'no answer' : `answers ${snap.theo.status}`
+  const reachWord = !snap ? 'not read' : snap.theo.host === NO_HOST ? 'not checked' : snap.theo.status === null ? 'no answer' : `answers ${snap.theo.status}`
   const theo = make(
     'theo',
     'Theo',
@@ -303,7 +304,13 @@ export function panelLights(i: PaneInput): Light[] {
   const { snap, bound, totals } = i
   const room = !snap?.room ? 'Room none' : snap.room.stale.length > 0 ? 'Room stale' : 'Room ok'
   const graph = !snap?.graph ? 'Graph ?' : snap.graph.contradictions > 0 ? `Graph ⚠${snap.graph.contradictions}` : 'Graph ok'
-  const theo = !snap ? 'Theo ?' : totals.error > 0 || snap.theo.status === null || snap.theo.status >= 500 ? 'Theo down' : 'Theo ok'
+  const theoNow = !snap
+    ? 'Theo ?'
+    : totals.error > 0 || reachFailed(snap.theo) || i.local?.brain === 'error'
+      ? 'Theo down'
+      : snap.theo.host === NO_HOST && i.local?.brain !== 'ok'
+        ? 'Theo ?'
+        : 'Theo ok'
   const site = !snap ? 'Site ?' : snap.website.status === null || snap.website.status >= 500 ? 'Site down' : 'Site ok'
   const session = 'Session'
 
@@ -311,7 +318,7 @@ export function panelLights(i: PaneInput): Light[] {
     { key: 'session', label: session },
     { key: 'room', label: room },
     { key: 'graph', label: graph },
-    { key: 'theo', label: theo },
+    { key: 'theo', label: theoNow },
     { key: 'site', label: site },
   ]
 }

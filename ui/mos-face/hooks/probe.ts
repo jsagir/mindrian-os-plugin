@@ -2,6 +2,7 @@ import type { EngineInterface } from 'claude-code'
 
 import type { Reach, RoomInfo, Snapshot } from '../types'
 import { mindrianDir, registryRoot, roomsHome } from './paths'
+import { NO_HOST } from './status'
 
 // Everything here is read-only: files are read and two public pages are fetched.
 // Nothing is written, no subprocess is started, and nothing is guessed: what cannot be read
@@ -74,7 +75,7 @@ export async function probeReach($: Engine, notes: string[]): Promise<FarReading
   const theoHost = typeof prewarm?.origin_host === 'string' && HOST.test(prewarm.origin_host) ? prewarm.origin_host : ''
   if (!theoHost) notes.push('No Theo host is recorded, so Theo was not checked')
   const [theo, website]: [Reach, Reach] = await Promise.all([
-    theoHost ? reach($, `https://${theoHost}/health`) : Promise.resolve<Reach>({ host: 'unknown', status: null, ms: null }),
+    theoHost ? reach($, `https://${theoHost}/health`) : Promise.resolve<Reach>({ host: NO_HOST, status: null, ms: null }),
     reach($, WEBSITE),
   ])
 

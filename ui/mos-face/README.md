@@ -260,7 +260,7 @@ Panel height. The panel scrolls; the height below is the number of rows of the d
 
 The Job sentence alone is 3 rows at 56 columns, 4 at 44 and 3 at 35 (plan 14 noted 5 to 6 in a worse case). On a 40 row terminal the first screen ends at the JOB heading, so the plugin facts sit below the fold until the person scrolls. Plan 380-10 reviews that.
 
-Capture harness. `node ui/mos-face/scripts/capture-shots.cjs --session-home` fills the scratch HOME with the status line files in the formats the plugin's own readers accept (the builder is in scripts/lib/tmux-session.cjs and the parity test uses the same one), and the demo room with a recorded job, a mode and a stale list. HOME goes to the session only, the login symlink still comes from the real home, and the builder refuses the real home folder and any room outside the scratch home (tests P11 to P11d, S2). It needs the scratch config (it is refused with --config real). The fixture has no Theo host record, so NOW says Theo is not answering; that is the panel's existing rule for an unknown Theo host.
+Capture harness. `node ui/mos-face/scripts/capture-shots.cjs --session-home` fills the scratch HOME with the status line files in the formats the plugin's own readers accept (the builder is in scripts/lib/tmux-session.cjs and the parity test uses the same one), and the demo room with a recorded job, a mode and a stale list. HOME goes to the session only, the login symlink still comes from the real home, and the builder refuses the real home folder and any room outside the scratch home (tests P11 to P11d, S2). It needs the scratch config (it is refused with --config real). The fixture has no Theo host record, so Theo is not checked: the THEO row follows the local health file and NOW says nothing about Theo (since plan 380-19, see Truth of the words).
 
 Surfaces. Terminal only. Desktop and Cowork have no panel (D-05, N7), a deliberate skip; the same facts are available there through the plugin's own tools.
 
@@ -334,6 +334,17 @@ What the host cannot do (380-18-HOST-FACTS.md in the phase folder has the line r
 - The room an inline pane gets at 80 by 24 is not stated by the types (UNVERIFIED); the tests assume 76 by 10.
 
 Tests: tests/tree.test.ts (the pure model) and tests/tree-pane.test.tsx (the pane and the command, 24 groups). Canon: mos-brand book e947a5d, segments/experience/terminal (status proposed: Side panel template, Width ladder, States, Keyboard routes), segments/writing/voice. The book is silent on long lists in a side panel; the proposals P18-1 to P18-3 are in the phase folder (380-16-BOOK-PROPOSALS.md).
+
+## Truth of the words
+
+Added in plan 380-19 (D-03, D-04, D-08; gaps 9, 11, 12 and 13 of the first real terminal run). The panel says only what is true. Canon: mos-brand book e947a5d, segments/experience/terminal GUIDE.md lines 92 (one signal) and 96 (states), status proposed. The diagnosis with its evidence is 380-19-FACTS.md in the phase folder.
+
+- The advice text. The chat text after /mos-advice is returned before the call has an outcome, so it makes no claim of delivery. It says "Asking Theo.", what goes if Theo is reached (a framework name, a problem type, and the short excerpt when it is on), and that the panel says what went or that nothing did. It never says are sent, is sent or were sent. The sent line of plan 16 still says what happened after the call. What Theo receives is unchanged (D-03, tests E1 to E10 and tests/test-380-egress.cjs).
+- The ROOM row. When the room tools answer that the session is not bound, they still return the registry's active room. The row names that room and now ends with ", not bound", so it never disagrees with WRITES TO. On the files path the same words show when no record binds this session. A different room that is bound keeps its own words, "not the room this session writes to".
+- The NOW line and the Theo light. A Theo that was not checked is not a Theo that failed. When no Theo host is recorded (brain-prewarm.json), probe.ts makes a Reach whose host is NO_HOST (status.ts) and asks nothing. NOW says Theo is not answering only for a check that ran and failed (a recorded host with no answer or a 5xx) or for a local health file that says error. The THEO row, the pinned status line, the Theo light and the plain text of /mos-text follow the same rule: an unchecked Theo is "not read", "Theo ?" or "not checked", and the local health file still decides on and off.
+- The load notice. At session start the host shows one short line, "/m:os loaded. /mos-state opens it.", in place of a long notice that wrapped to a box of four rows over the host notice. Whether any overlap with the host notice is gone is for the real screen check of plan 380-20; the rest is host behavior.
+
+Tests: tests/truth.test.tsx (W1 to W16).
 
 ## Decisions
 
