@@ -532,6 +532,130 @@ async function settleSix(runs) {
 const refusalRunsA8 = startSixHandlers({ surface: 'cli' }, undefined, {});
 
 // ---------------------------------------------------------------------------
+// PART A9 -- quick 261026-s8c item 5 (D-01): readClientIdentity reads the
+// client identity from getClientVersion() first and from the request envelope
+// second, so a 2026-era connection (getClientVersion() null) is still judged
+// by the name it sends.
+// ---------------------------------------------------------------------------
+process.stdout.write('\n-- A9: client identity from the request envelope (2026 era) --\n');
+const ENVELOPE_KEY = 'io.modelcontextprotocol/clientInfo';
+const envelopeExtra = (info) => ({ mcpReq: { envelope: { [ENVELOPE_KEY]: info } } });
+const CLAUDE_CODE_EXTRA = envelopeExtra({ name: 'Claude Code', version: '2.1.310' });
+{
+  const sd = require(path.join(REPO_ROOT, 'lib', 'mcp', 'surface-detect.cjs'));
+  const readClientIdentity = sd.readClientIdentity;
+  check('readClientIdentity and CLIENT_INFO_META_KEY are exported',
+    typeof readClientIdentity === 'function' && sd.CLIENT_INFO_META_KEY === ENVELOPE_KEY);
+  if (typeof readClientIdentity === 'function') {
+    const inner = (cv) => ({ getClientVersion: () => cv });
+    const wrap = (cv) => ({ server: inner(cv) });
+    let r = readClientIdentity(inner({ name: 'Cursor', version: '1' }), undefined);
+    check('inner Server with getClientVersion -> source client_version', r.source === 'client_version' && r.clientVersion.name === 'Cursor');
+    r = readClientIdentity(wrap({ name: 'Cursor', version: '1' }), undefined);
+    check('McpServer (has .server) is unwrapped -> source client_version', r.source === 'client_version' && r.clientVersion.name === 'Cursor');
+    r = readClientIdentity(wrap(null), CLAUDE_CODE_EXTRA);
+    check('getClientVersion null + envelope -> source envelope with name and version',
+      r.source === 'envelope' && r.clientVersion.name === 'Claude Code' && r.clientVersion.version === '2.1.310');
+    r = readClientIdentity(wrap({ name: 'Cursor', version: '1' }), CLAUDE_CODE_EXTRA);
+    check('getClientVersion populated and envelope different -> getClientVersion wins',
+      r.source === 'client_version' && r.clientVersion.name === 'Cursor');
+    r = readClientIdentity({ getClientVersion: () => { throw new Error('boom'); } }, CLAUDE_CODE_EXTRA);
+    check('a throwing getClientVersion falls through to the envelope', r.source === 'envelope' && r.clientVersion.name === 'Claude Code');
+    r = readClientIdentity(wrap(null), {});
+    check('both missing -> { undefined, none }', r.source === 'none' && r.clientVersion === undefined);
+    [[], 'str', 42, { name: 42 }, { name: '' }, null].forEach((bad, i) => {
+      const rr = readClientIdentity(wrap(null), envelopeExtra(bad));
+      check('malformed envelope #' + i + ' -> none', rr.source === 'none' && rr.clientVersion === undefined);
+    });
+    [undefined, null, 'x', 5, {}].forEach((badServer, i) => {
+      let rr; let threw = false;
+      try { rr = readClientIdentity(badServer, CLAUDE_CODE_EXTRA); } catch (_e) { threw = true; }
+      check('readClientIdentity(junk server #' + i + ') never throws', !threw && !!rr && typeof rr.source === 'string');
+    });
+    r = readClientIdentity(wrap(null), envelopeExtra({ name: 'Claude Code', version: 'v'.repeat(500), title: 'LEAK', icons: [1], x: { y: 1 } }));
+    check('only name and version are copied; each cut to 256 characters',
+      r.source === 'envelope' && Object.keys(r.clientVersion).sort().join(',') === 'name,version' && r.clientVersion.version.length === 256);
+    r = readClientIdentity(wrap(null), envelopeExtra({ name: 'Claude Code', version: 7 }));
+    check('a non-string version is dropped', r.source === 'envelope' && r.clientVersion.name === 'Claude Code' && r.clientVersion.version === undefined);
+
+    // Modeled 2026 era end to end through the gate.
+    const modeled = readClientIdentity(wrap(null), CLAUDE_CODE_EXTRA).clientVersion;
+    check('modeled 2026 era: Claude Code envelope -> host claude-code', detectHostTier(modeled).host === 'claude-code');
+    check('modeled 2026 era: flag unset -> write path ON',
+      withFlag(null, () => isWritePathEnabled({ surface: 'cli', clientVersion: modeled })) === true);
+    const none = readClientIdentity(wrap(null), {}).clientVersion;
+    check('both sources missing -> write path OFF', withFlag(null, () => isWritePathEnabled({ surface: 'cli', clientVersion: none })) === false);
+    const novelEnv = readClientIdentity(wrap(null), envelopeExtra({ name: 'SomeNewClientNeverSeenBefore' })).clientVersion;
+    check('unrecognized envelope name -> host unknown and write path OFF',
+      detectHostTier(novelEnv).host === 'unknown' && withFlag(null, () => isWritePathEnabled({ surface: 'cli', clientVersion: novelEnv })) === false);
+    const { writePathOffHint: offHint } = require(path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs'));
+    check('both missing -> the hint says host=unknown', offHint({ surface: 'cli', clientVersion: none }).indexOf('host=unknown') !== -1);
+  }
+
+  // The refusal functions take the handler's second argument.
+  const graphMod = require(path.join(TOOLS_DIR, 'graph.cjs'));
+  const claimMod = require(path.join(TOOLS_DIR, 'claim.cjs'));
+  const fakeNullServer = { server: { getClientVersion: () => null } };
+  [['graph.cjs', graphMod], ['claim.cjs', claimMod]].forEach(([label, m]) => {
+    const refuse = m._internal && m._internal.writePathRefusal;
+    check(label + ' exports writePathRefusal', typeof refuse === 'function');
+    if (typeof refuse === 'function') {
+      withFlag(null, () => {
+        check(label + ' writePathRefusal(server, ctx, extra) with the Claude Code envelope -> null (allowed)',
+          refuse(fakeNullServer, { surface: 'cli' }, CLAUDE_CODE_EXTRA) === null);
+        check(label + ' writePathRefusal(server, ctx, {}) with no envelope -> a refusal',
+          refuse(fakeNullServer, { surface: 'cli' }, {}) !== null);
+      });
+    }
+  });
+  const { hostBlock } = require(path.join(TOOLS_DIR, 'claim-verify.cjs'));
+  withFlag(null, () => {
+    const hb = hostBlock(fakeNullServer, { surface: 'cli' }, CLAUDE_CODE_EXTRA);
+    check('hostBlock(server, ctx, extra) with the Claude Code envelope -> host claude-code, write_path_enabled true',
+      hb.host === 'claude-code' && hb.write_path_enabled === true && hb.client_name === 'Claude Code');
+    const hb0 = hostBlock(fakeNullServer, { surface: 'cli' }, {});
+    check('hostBlock with no envelope -> host unknown, write_path_enabled false, client_name null',
+      hb0.host === 'unknown' && hb0.write_path_enabled === false && hb0.client_name === null);
+  });
+
+  // Static: the six modules no longer call getClientVersion directly, and every
+  // identity read passes the handler's second argument.
+  ['views.cjs', 'graph.cjs', 'claim.cjs', 'claim-verify.cjs', 'question.cjs', 'status.cjs'].forEach((f) => {
+    const src = require('node:fs').readFileSync(path.join(TOOLS_DIR, f), 'utf8');
+    const code = src.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join('\n');
+    check(f + ' does not call getClientVersion directly', code.indexOf('getClientVersion') === -1);
+  });
+  ['claim-verify.cjs', 'question.cjs'].forEach((f) => {
+    const src = require('node:fs').readFileSync(path.join(TOOLS_DIR, f), 'utf8');
+    const calls = src.match(/hostBlock\(server, ctx[^)]*\)/g) || [];
+    check(f + ': every hostBlock call site passes extra (' + calls.join(' | ') + ')',
+      calls.length > 0 && calls.filter((c) => c.indexOf('hostBlock(server, ctx, extra)') !== 0).length === 0);
+  });
+}
+
+// The six write handlers, called through register() with the identity only in
+// the envelope. The env is hermetic (temp HOME and room) so a handler that
+// passes the gate cannot touch a real room.
+async function runSixHermetic(cv, extra) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-s8c-six-'));
+  const keys = ['HOME', 'MINDRIAN_ROOM', 'CLAUDE_ACTIVE_ROOM', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_MCP_FIRST'];
+  const saved = {};
+  keys.forEach((k) => { saved[k] = process.env[k]; });
+  try {
+    process.env.HOME = tmp;
+    process.env.MINDRIAN_ROOMS_HOME = path.join(tmp, 'rooms');
+    process.env.MINDRIAN_ROOM = path.join(tmp, 'room');
+    process.env.CLAUDE_ACTIVE_ROOM = path.join(tmp, 'room');
+    delete process.env.MINDRIAN_MCP_FIRST;
+    fs.mkdirSync(process.env.MINDRIAN_ROOM, { recursive: true });
+    return await settleSix(startSixHandlers({ surface: 'cli', fallbackRoomDir: process.env.MINDRIAN_ROOM }, cv, extra));
+  } finally {
+    keys.forEach((k) => { if (typeof saved[k] === 'string') process.env[k] = saved[k]; else delete process.env[k]; });
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // PART B -- the live proof. Everything above is a unit call against a pure
 // function. This part spawns the REAL server and speaks real JSON-RPC to it,
 // because the claim being made is about what a FOREIGN HOST receives on the
@@ -784,7 +908,7 @@ function listCatalog(envOverrides) {
  * Same hermetic HOME and room as driveServer. Returns the status payload and
  * the full stderr text.
  */
-async function driveModern(clientName, envOverrides) {
+async function driveModern(clientName, envOverrides, opts) {
   const { Client } = require('@modelcontextprotocol/client');
   const { StdioClientTransport } = require('@modelcontextprotocol/client/stdio');
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-s8c-modern-'));
@@ -806,6 +930,7 @@ async function driveModern(clientName, envOverrides) {
     if (envOverrides[k] === null) delete env[k]; else env[k] = envOverrides[k];
   });
   let stderrText = '';
+  let writePayload = null;
   let client = null;
   let transport = null;
   try {
@@ -816,11 +941,24 @@ async function driveModern(clientName, envOverrides) {
       (async () => {
         await client.connect(transport);
         const r = await client.callTool({ name: 'status_read', arguments: {} });
-        return JSON.parse(r.content[0].text);
+        const statusPayload = JSON.parse(r.content[0].text);
+        if (opts && opts.write) {
+          const w = await client.callTool({
+            name: 'graph_write',
+            arguments: {
+              source_id: 'node:host-tier-a',
+              target_id: 'node:host-tier-b',
+              edge_type: 'INFORMS',
+              properties: { note: 'quick 261026-s8c 2026-era drive' },
+            },
+          });
+          writePayload = JSON.parse(w.content[0].text);
+        }
+        return statusPayload;
       })(),
       new Promise((_resolve, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)),
     ]);
-    return { ok: true, status: result, stderr: stderrText };
+    return { ok: true, status: result, write: writePayload, stderr: stderrText };
   } catch (e) {
     return { ok: false, reason: e && e.message, stderr: stderrText };
   } finally {
@@ -852,6 +990,19 @@ function identityLines(text) {
     const pl = a8[tool] && a8[tool].payload;
     check(tool + ' payload keeps the host block keys',
       !!pl && !!pl.host && ['client_name', 'host', 'host_tier', 'write_path_enabled'].every((k) => Object.prototype.hasOwnProperty.call(pl.host, k)));
+  });
+
+  // A9 (handlers): the identity only in the envelope.
+  process.stdout.write('\n-- A9 (handlers): six write handlers, getClientVersion null, identity in the envelope --\n');
+  const withEnv = await runSixHermetic(null, CLAUDE_CODE_EXTRA);
+  const withoutEnv = await runSixHermetic(null, {});
+  SIX_WRITE_TOOLS.forEach(([tool]) => {
+    const a = withEnv[tool];
+    const b = withoutEnv[tool];
+    check(tool + ' with the Claude Code envelope: no write_path_disabled and no throw' + (a && a.error ? ' [' + a.error.message + ']' : ''),
+      !!a && !a.error && !(a.payload && a.payload.reason === 'write_path_disabled'));
+    check(tool + ' with no envelope: write_path_disabled',
+      !!b && !b.error && !!b.payload && b.payload.reason === 'write_path_disabled');
   });
 
   process.stdout.write('\n-- B: live JSON-RPC drive against the real server (no MINDRIAN_MCP_FIRST) --\n');
@@ -1008,6 +1159,27 @@ function identityLines(text) {
   check('2026-era drive: via=status_read, source=envelope, with the client name',
     modernLines.length === 1 && modernLines[0] ===
       '[mindrian-os] client identity: name="Claude Code" version="2.1.310" via=status_read source=envelope');
+
+  // B8. quick 261026-s8c item 5 (D-01): the 2026-era connection, where
+  // getClientVersion() is null and the identity is only in the envelope.
+  process.stdout.write('\n-- B8: 2026-era drive, identity from the request envelope --\n');
+  const m1 = await driveModern('Claude Code', undefined, { write: true });
+  const m2 = await driveModern('SomeNewClientNeverSeenBefore', undefined, { write: true });
+  check('B8 Claude Code drive completed' + (m1.ok ? '' : ' [' + m1.reason + ']'), m1.ok === true);
+  check('B8 unrecognized-client drive completed' + (m2.ok ? '' : ' [' + m2.reason + ']'), m2.ok === true);
+  if (m1.ok && m2.ok) {
+    const f1 = m1.status.segments.capability_floor;
+    const f2 = m2.status.segments.capability_floor;
+    check('B8 Claude Code: capability_floor host claude-code, tier1', f1.host_tier.host === 'claude-code' && f1.host_tier.hostTier === 'tier1');
+    check('B8 Claude Code: write_path_enabled true with MINDRIAN_MCP_FIRST unset', f1.write_path_enabled === true);
+    check('B8 Claude Code: graph_write ok true against the real write path' +
+      (m1.write && !m1.write.ok ? ' [got reason: ' + m1.write.reason + ']' : ''), !!m1.write && m1.write.ok === true);
+    check('B8 unrecognized client: host unknown and write_path_enabled false', f2.host_tier.host === 'unknown' && f2.write_path_enabled === false);
+    check('B8 unrecognized client: graph_write refused with write_path_disabled',
+      !!m2.write && m2.write.ok === false && m2.write.reason === 'write_path_disabled');
+    check('B8 unrecognized client: the hint contains host=unknown',
+      !!m2.write && typeof m2.write.hint === 'string' && m2.write.hint.indexOf('host=unknown') !== -1);
+  }
 
   // B6. quick 261026-s8c item 1: the real server, no MINDRIAN_TRANSPORT and no
   // CLAUDE_SURFACE, ENTRYPOINT=cli. Uses an unrecognized client so only the
