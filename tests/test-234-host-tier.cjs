@@ -224,6 +224,80 @@ check("detectHostTier(novel client) -> hostTier 'tier0'", novel.hostTier === 'ti
 });
 
 // ---------------------------------------------------------------------------
+// PART A1b -- quick 261026-s8c item 1: CLAUDE_CODE_ENTRYPOINT=cli is surface
+// cli. The rule sits after the Cowork rule and before the stdin rules, so an
+// explicit MINDRIAN_TRANSPORT or CLAUDE_SURFACE, and the Cowork indicators,
+// still win. The match is exact equality.
+// ---------------------------------------------------------------------------
+process.stdout.write('\n-- A1b: CLAUDE_CODE_ENTRYPOINT=cli gives surface cli --\n');
+
+// Own every variable the detector reads, stub the /sessions probe and the
+// stdin TTY flag, and restore everything in finally. A null value deletes.
+function withSurfaceEnv(vars, fn) {
+  const fsMod = require('node:fs');
+  const keys = ['MINDRIAN_TRANSPORT', 'CLAUDE_SURFACE', 'CLAUDE_CODE_ENTRYPOINT', 'COWORK_SESSION_ID'];
+  const savedEnv = {};
+  keys.forEach((k) => { savedEnv[k] = process.env[k]; delete process.env[k]; });
+  Object.keys(vars).forEach((k) => {
+    if (vars[k] !== null && vars[k] !== undefined) process.env[k] = vars[k];
+  });
+  const realExists = fsMod.existsSync;
+  fsMod.existsSync = function (p) {
+    if (p === '/sessions') return false;
+    return realExists.apply(fsMod, arguments);
+  };
+  const ownTty = Object.prototype.hasOwnProperty.call(process.stdin, 'isTTY');
+  const savedTty = process.stdin.isTTY;
+  process.stdin.isTTY = false;
+  try {
+    return fn();
+  } finally {
+    fsMod.existsSync = realExists;
+    if (ownTty) process.stdin.isTTY = savedTty; else delete process.stdin.isTTY;
+    keys.forEach((k) => {
+      if (typeof savedEnv[k] === 'string') process.env[k] = savedEnv[k]; else delete process.env[k];
+    });
+  }
+}
+
+function surfaceOf(vars) {
+  return withSurfaceEnv(vars, () => {
+    const d = detectSurface();
+    return d.surface + '/' + d.transport;
+  });
+}
+
+check('ENTRYPOINT=cli alone -> cli/stdio', surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli' }) === 'cli/stdio');
+check('ENTRYPOINT=cli alone -> capabilities are CAPABILITY_MAP.cli',
+  withSurfaceEnv({ CLAUDE_CODE_ENTRYPOINT: 'cli' }, () => detectSurface().capabilities) === CAPABILITY_MAP.cli);
+check('ENTRYPOINT=cli + CLAUDE_SURFACE=desktop -> desktop/stdio (explicit surface wins)',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_SURFACE: 'desktop' }) === 'desktop/stdio');
+check('ENTRYPOINT=cli + CLAUDE_SURFACE=cowork -> cowork/http (explicit surface wins)',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_SURFACE: 'cowork' }) === 'cowork/http');
+check('ENTRYPOINT=cli + CLAUDE_SURFACE=cli -> cli/stdio',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', CLAUDE_SURFACE: 'cli' }) === 'cli/stdio');
+check('ENTRYPOINT=cli + MINDRIAN_TRANSPORT=http -> cowork/http (explicit transport wins)',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', MINDRIAN_TRANSPORT: 'http' }) === 'cowork/http');
+check('ENTRYPOINT=cli + MINDRIAN_TRANSPORT=stdio -> desktop/stdio (explicit transport wins)',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', MINDRIAN_TRANSPORT: 'stdio' }) === 'desktop/stdio');
+check('ENTRYPOINT=cli + COWORK_SESSION_ID -> cowork/http (the Cowork rule runs first)',
+  surfaceOf({ CLAUDE_CODE_ENTRYPOINT: 'cli', COWORK_SESSION_ID: 'abc' }) === 'cowork/http');
+['claude-desktop', 'sdk-ts', 'CLI', ''].forEach((v) => {
+  check("ENTRYPOINT='" + v + "' (non-TTY stdin) -> desktop/stdio (exact match only)",
+    surfaceOf({ CLAUDE_CODE_ENTRYPOINT: v }) === 'desktop/stdio');
+});
+check('no ENTRYPOINT (non-TTY stdin) -> desktop/stdio (rule 4 unchanged)', surfaceOf({}) === 'desktop/stdio');
+
+const NOVEL_CLIENT = { name: 'SomeNewClientNeverSeenBefore' };
+const cliSurface = withSurfaceEnv({ CLAUDE_CODE_ENTRYPOINT: 'cli' }, () => detectSurface().surface);
+check('ENTRYPOINT=cli + MINDRIAN_MCP_FIRST=cli + unrecognized client -> write path ON',
+  withFlag('cli', () => isWritePathEnabled({ surface: cliSurface, clientVersion: NOVEL_CLIENT })) === true);
+check('ENTRYPOINT=cli + flag unset + unrecognized client -> write path OFF',
+  withFlag(null, () => isWritePathEnabled({ surface: cliSurface, clientVersion: NOVEL_CLIENT })) === false);
+check('ENTRYPOINT=cli + MINDRIAN_MCP_FIRST=desktop only + unrecognized client -> write path OFF',
+  withFlag('desktop', () => isWritePathEnabled({ surface: cliSurface, clientVersion: NOVEL_CLIENT })) === false);
+
+// ---------------------------------------------------------------------------
 // PART A5 -- isWritePathEnabled: Gap D closed, without a regression.
 // ---------------------------------------------------------------------------
 process.stdout.write('\n-- A5: write-path gate --\n');
@@ -340,9 +414,10 @@ const TIMEOUT_MS = 20000;
  * @param {string} clientName - the clientInfo.name to present as
  * @param {string|undefined} mcpFirst - when set, MINDRIAN_MCP_FIRST is exported
  *   into the child instead of deleted (the existing-user regression case)
+ * @param {object} [envOverrides] - extra child env; a null value deletes the key
  * @returns {Promise<{ok: boolean, reason?: string, responses?: object}>}
  */
-function driveServer(clientName, mcpFirst) {
+function driveServer(clientName, mcpFirst, envOverrides) {
   return new Promise((resolve) => {
     const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-234-hosttier-'));
     const room = path.join(tmpHome, 'room');
@@ -368,6 +443,11 @@ function driveServer(clientName, mcpFirst) {
     delete env.MINDRIAN_MCP_FIRST;
     delete env.MINDRIAN_BRAIN_KEY;
     if (typeof mcpFirst === 'string') env.MINDRIAN_MCP_FIRST = mcpFirst;
+    if (envOverrides && typeof envOverrides === 'object') {
+      Object.keys(envOverrides).forEach((k) => {
+        if (envOverrides[k] === null) delete env[k]; else env[k] = envOverrides[k];
+      });
+    }
 
     const proc = cp.spawn('node', [SERVER], {
       cwd: tmpHome,
@@ -468,6 +548,72 @@ function toolPayload(response) {
 function toolNames(response) {
   const tools = response && response.result && response.result.tools;
   return Array.isArray(tools) ? tools.map((t) => t.name) : [];
+}
+
+/**
+ * List the tool names and resource uris of a real server (D-03 MCP App diff).
+ * Same hermetic HOME and room as driveServer. A null value in envOverrides
+ * deletes the key.
+ */
+function listCatalog(envOverrides) {
+  return new Promise((resolve) => {
+    const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-s8c-catalog-'));
+    const room = path.join(tmpHome, 'room');
+    fs.mkdirSync(room, { recursive: true });
+    const env = Object.assign({}, process.env, {
+      HOME: tmpHome,
+      MINDRIAN_ROOM: room,
+      MINDRIAN_ROOMS_HOME: path.join(tmpHome, 'MindrianRooms'),
+      CLAUDE_ACTIVE_ROOM: room,
+    });
+    delete env.MINDRIAN_MCP_FIRST;
+    delete env.MINDRIAN_BRAIN_KEY;
+    Object.keys(envOverrides || {}).forEach((k) => {
+      if (envOverrides[k] === null) delete env[k]; else env[k] = envOverrides[k];
+    });
+    const proc = cp.spawn('node', [SERVER], { cwd: tmpHome, stdio: ['pipe', 'pipe', 'pipe'], env });
+    const out = { tools: [], resources: [] };
+    let buf = '';
+    let settled = false;
+    function finish(payload) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try { proc.kill('SIGKILL'); } catch (_e) { /* gone */ }
+      try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      resolve(payload);
+    }
+    const timer = setTimeout(() => finish({ ok: false, reason: 'timeout' }), TIMEOUT_MS);
+    function send(obj) { try { proc.stdin.write(JSON.stringify(obj) + '\n'); } catch (_e) { /* exit handler */ } }
+    proc.stdout.on('data', (chunk) => {
+      buf += chunk.toString('utf8');
+      let nl;
+      while ((nl = buf.indexOf('\n')) !== -1) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        let obj;
+        try { obj = JSON.parse(line); } catch (_e) { continue; }
+        if (!obj || obj.id === undefined || obj.id === null) continue;
+        if (obj.id === 1) {
+          send({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} });
+          send({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} });
+        } else if (obj.id === 2) {
+          out.tools = ((obj.result && obj.result.tools) || []).map((t) => t.name);
+          send({ jsonrpc: '2.0', id: 3, method: 'resources/list', params: {} });
+        } else if (obj.id === 3) {
+          out.resources = ((obj.result && obj.result.resources) || []).map((r) => r.uri);
+          finish({ ok: true, tools: out.tools, resources: out.resources });
+        }
+      }
+    });
+    proc.on('error', (err) => finish({ ok: false, reason: 'spawn_error', message: err.message }));
+    proc.on('exit', (code) => finish({ ok: false, reason: 'exited_before_completion', code }));
+    send({
+      jsonrpc: '2.0', id: 1, method: 'initialize',
+      params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'SomeNewClientNeverSeenBefore', version: '1.0.0' } },
+    });
+  });
 }
 
 (async function livePart() {
@@ -605,6 +751,66 @@ function toolNames(response) {
     const xf = flaggedStatus && flaggedStatus.segments && flaggedStatus.segments.capability_floor;
     check('capability_floor reports write_path_enabled true under the explicit flag, on a tier1 host',
       !!xf && xf.write_path_enabled === true && xf.host_tier.hostTier === 'tier1');
+  }
+
+  // B6. quick 261026-s8c item 1: the real server, no MINDRIAN_TRANSPORT and no
+  // CLAUDE_SURFACE, ENTRYPOINT=cli. Uses an unrecognized client so only the
+  // surface and the flag decide the write path.
+  process.stdout.write('\n-- B6: CLAUDE_CODE_ENTRYPOINT=cli on the real server (quick 261026-s8c item 1) --\n');
+  if (fs.existsSync('/sessions')) {
+    process.stdout.write('  SKIP - B6 needs a machine without /sessions (Cowork indicator), found /sessions\n');
+  } else {
+    const CLI_ENV = { MINDRIAN_TRANSPORT: null, CLAUDE_SURFACE: null, CLAUDE_CODE_ENTRYPOINT: 'cli', COWORK_SESSION_ID: null };
+    const cliOn = await driveServer('SomeNewClientNeverSeenBefore', 'cli', CLI_ENV);
+    const cliOff = await driveServer('SomeNewClientNeverSeenBefore', undefined, CLI_ENV);
+    const cliDesktop = await driveServer('SomeNewClientNeverSeenBefore', 'cli',
+      Object.assign({}, CLI_ENV, { CLAUDE_SURFACE: 'desktop' }));
+    [['entrypoint cli + flag cli', cliOn], ['entrypoint cli + flag unset', cliOff],
+      ['entrypoint cli + CLAUDE_SURFACE=desktop + flag cli', cliDesktop]].forEach(([label, run]) => {
+      check('B6 drive completed: ' + label + (run.ok ? '' : ' [' + run.reason + ' ' + (run.stderr || run.message || '') + ']'),
+        run.ok === true);
+    });
+    if (cliOn.ok && cliOff.ok && cliDesktop.ok) {
+      const onFloor = (toolPayload(cliOn.responses[4]) || {}).segments;
+      const offFloor = (toolPayload(cliOff.responses[4]) || {}).segments;
+      const deskFloor = (toolPayload(cliDesktop.responses[4]) || {}).segments;
+      const onCf = onFloor && onFloor.capability_floor;
+      const offCf = offFloor && offFloor.capability_floor;
+      const deskCf = deskFloor && deskFloor.capability_floor;
+      check('B6 flag cli: capability_floor surface is cli', !!onCf && onCf.surface === 'cli');
+      check('B6 flag cli: write_path_enabled true', !!onCf && onCf.write_path_enabled === true);
+      const onWrite = toolPayload(cliOn.responses[3]);
+      check('B6 flag cli: graph_write is not refused with write_path_disabled',
+        onWrite !== null && onWrite.reason !== 'write_path_disabled');
+      check('B6 flag unset: capability_floor surface is cli', !!offCf && offCf.surface === 'cli');
+      check('B6 flag unset: write_path_enabled false', !!offCf && offCf.write_path_enabled === false);
+      const offWrite = toolPayload(cliOff.responses[3]);
+      check('B6 flag unset: graph_write refused with write_path_disabled',
+        offWrite !== null && offWrite.ok === false && offWrite.reason === 'write_path_disabled');
+      check('B6 CLAUDE_SURFACE=desktop wins over ENTRYPOINT=cli: surface desktop', !!deskCf && deskCf.surface === 'desktop');
+      check('B6 CLAUDE_SURFACE=desktop + flag cli (names cli only): write_path_enabled false',
+        !!deskCf && deskCf.write_path_enabled === false);
+    }
+
+    // D-03: the MCP App views that stop registering on surface cli.
+    const catCli = await listCatalog(CLI_ENV);
+    const catDesktop = await listCatalog(Object.assign({}, CLI_ENV, { CLAUDE_SURFACE: 'desktop' }));
+    check('MCP-APP-DIFF: cli catalog listing completed', catCli.ok === true);
+    check('MCP-APP-DIFF: desktop catalog listing completed', catDesktop.ok === true);
+    if (catCli.ok && catDesktop.ok) {
+      const ACCEPTED = ['room-dashboard', 'room-wiki', 'room-graph',
+        'ui://mindrian-os/room-dashboard', 'ui://mindrian-os/room-wiki', 'ui://mindrian-os/room-graph'];
+      const cliSet = new Set(catCli.tools.concat(catCli.resources));
+      const deskSet = new Set(catDesktop.tools.concat(catDesktop.resources));
+      const onlyCli = Array.from(cliSet).filter((n) => !deskSet.has(n)).sort();
+      const onlyDesktop = Array.from(deskSet).filter((n) => !cliSet.has(n)).sort();
+      process.stdout.write('  MCP-APP-DIFF onlyDesktop (stop registering on cli): ' + JSON.stringify(onlyDesktop) + '\n');
+      process.stdout.write('  MCP-APP-DIFF onlyCli: ' + JSON.stringify(onlyCli) + '\n');
+      check('MCP-APP-DIFF: the cli catalog is a subset of the desktop catalog (onlyCli is empty)', onlyCli.length === 0);
+      const unaccepted = onlyDesktop.filter((n) => ACCEPTED.indexOf(n) === -1);
+      check('MCP-APP-DIFF: every view lost on cli is one of the six accepted names' +
+        (unaccepted.length ? ' [UNACCEPTED LOSS: ' + JSON.stringify(unaccepted) + ']' : ''), unaccepted.length === 0);
+    }
   }
 
   process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');
