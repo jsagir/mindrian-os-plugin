@@ -1,7 +1,15 @@
 ## [Unreleased] -- v2.0.0-beta.76 (in progress)
 
 ### Added
-- 
+- **`/mos:doctor` now warns when governed saving is off.** The new `mcp-write-path` check reads the same write-path data that `status_read` shows. It is a warning, not an error, so it does not block the release acceptance run. It names the exact setting to change.
+- The MCP server now logs the client name and version once per connection, to stderr only, so a session can show which client and which MCP protocol era it is talking to.
+
+### Fixed
+- **Claude Code can now save to the room by default.** On Claude Code the server read the wrong surface (it reported `desktop` for the CLI) and could not read the client identity on the newer MCP handshake, so every governed save (`artifact_file`, `graph_write`, `memory_event`, the claim tools) was refused with `write_path_disabled`, and the model fell back to writing files by hand with no claim node or journal row. The server now detects the Claude Code CLI from `CLAUDE_CODE_ENTRYPOINT`, and reads the client identity from each request when the handshake does not carry it. A client the server does not recognize still gets writes off.
+- **The `write_path_disabled` message now says what to do.** It names the detected surface and host, and the exact `MINDRIAN_MCP_FIRST` value that works. The old text pointed at a value (`cli`) that did nothing.
+
+### Changed
+- On the Claude Code CLI, the three MCP App views (`room-dashboard`, `room-wiki`, `room-graph`) no longer register, because the CLI surface has apps off. Desktop and Cowork are unchanged.
 
 ## [2.0.0-beta.75] - 2026-10-24
 
