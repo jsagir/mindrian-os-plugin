@@ -444,6 +444,94 @@ process.stdout.write('\n-- A7: client identity log line (stderr, once per connec
 }
 
 // ---------------------------------------------------------------------------
+// PART A8 -- quick 261026-s8c item 3: one shared refusal hint that names the
+// detected surface, the host and the exact MINDRIAN_MCP_FIRST value.
+// ---------------------------------------------------------------------------
+process.stdout.write('\n-- A8: write_path_disabled hint (shared helper) --\n');
+{
+  const { writePathOffHint } = require(path.join(REPO_ROOT, 'lib', 'mcp', 'mcp-first-flag.cjs'));
+  check('writePathOffHint is exported as a function', typeof writePathOffHint === 'function');
+  if (typeof writePathOffHint === 'function') {
+    check('surface cli, no client -> exact text',
+      writePathOffHint({ surface: 'cli', clientVersion: undefined }) ===
+        'Write path is off: detected surface=cli, host=unknown. Set MINDRIAN_MCP_FIRST=cli (or all) and restart the session.');
+    check('surface desktop, Grok Build -> exact text',
+      writePathOffHint({ surface: 'desktop', clientVersion: { name: 'Grok Build' } }) ===
+        'Write path is off: detected surface=desktop, host=grok-build. Set MINDRIAN_MCP_FIRST=desktop (or all) and restart the session.');
+    check('surface cowork with a given host string uses that host',
+      writePathOffHint({ surface: 'cowork', host: 'unknown' }) ===
+        'Write path is off: detected surface=cowork, host=unknown. Set MINDRIAN_MCP_FIRST=cowork (or all) and restart the session.');
+    check('an unknown surface says surface=unknown and names all once',
+      writePathOffHint({ surface: 'weird', host: 'x' }) ===
+        'Write path is off: detected surface=unknown, host=x. Set MINDRIAN_MCP_FIRST=all and restart the session.');
+    check('a missing surface says surface=unknown',
+      writePathOffHint({ clientVersion: undefined }).indexOf('surface=unknown') !== -1);
+    check('a hostile surface value is never echoed',
+      writePathOffHint({ surface: 'cli\nevil', host: 'unknown' }).indexOf('evil') === -1);
+    [undefined, null, 'a string', 42, [], {}].forEach((junk, i) => {
+      let out; let threw = false;
+      try { out = writePathOffHint(junk); } catch (_e) { threw = true; }
+      check('writePathOffHint(junk #' + i + ') never throws and names MINDRIAN_MCP_FIRST',
+        !threw && typeof out === 'string' && out.indexOf('MINDRIAN_MCP_FIRST') !== -1);
+    });
+    check('hint text has no em-dash or en-dash',
+      !/[\u2013\u2014]/.test(writePathOffHint({ surface: 'cli' }) + writePathOffHint({ surface: 'x' })));
+  }
+}
+
+// The six refusing handlers, through register() with a recording fake server.
+// Handlers are async, so the runs are collected here and awaited at the top of
+// the live part, where the results are checked.
+function recordHandlers(modulePath, ctx, getClientVersion) {
+  const handlers = {};
+  const target = {
+    server: { getClientVersion: getClientVersion || (() => undefined) },
+    registerTool(name, _cfg, handler) { handlers[name] = handler; },
+  };
+  const fake = new Proxy(target, {
+    get(t, prop) { return prop in t ? t[prop] : function noop() { return undefined; }; },
+  });
+  require(modulePath).register(fake, ctx);
+  return handlers;
+}
+const TOOLS_DIR = path.join(REPO_ROOT, 'lib', 'mcp', 'tools');
+const SIX_WRITE_TOOLS = [
+  ['graph_write', 'graph.cjs', { source_id: 'node:a', target_id: 'node:b', edge_type: 'INFORMS' }],
+  ['memory_event', 'graph.cjs', { kind: 'k', summary: 's' }],
+  ['artifact_file', 'views.cjs', { section: 'problem-definition', name: 'x', content: 'y' }],
+  ['claim_write', 'claim.cjs', { knowledge_type: 'fact', text: 'x' }],
+  ['claim_verify', 'claim-verify.cjs', { claim_id: 'c' }],
+  ['question_set', 'question.cjs', { text: 'q' }],
+];
+// Start every handler with a getClientVersion that returns `cv` and an `extra`
+// argument. Returns [{ tool, promise }].
+function startSixHandlers(ctx, cv, extra) {
+  return SIX_WRITE_TOOLS.map(([tool, file, args]) => {
+    let promise;
+    try {
+      const h = recordHandlers(path.join(TOOLS_DIR, file), ctx, () => cv);
+      promise = typeof h[tool] === 'function'
+        ? Promise.resolve().then(() => h[tool](args, extra))
+        : Promise.reject(new Error('handler not registered: ' + tool));
+    } catch (e) { promise = Promise.reject(e); }
+    return { tool, promise };
+  });
+}
+async function settleSix(runs) {
+  const out = {};
+  for (const r of runs) {
+    try {
+      const res = await r.promise;
+      out[r.tool] = { result: res, payload: toolPayload({ result: res }) };
+    } catch (e) {
+      out[r.tool] = { error: e };
+    }
+  }
+  return out;
+}
+const refusalRunsA8 = startSixHandlers({ surface: 'cli' }, undefined, {});
+
+// ---------------------------------------------------------------------------
 // PART B -- the live proof. Everything above is a unit call against a pure
 // function. This part spawns the REAL server and speaks real JSON-RPC to it,
 // because the claim being made is about what a FOREIGN HOST receives on the
@@ -749,6 +837,23 @@ function identityLines(text) {
 }
 
 (async function livePart() {
+  // A8 (async part): the six refusing handlers carry the shared hint.
+  process.stdout.write('\n-- A8 (handlers): six write handlers refuse with the shared hint --\n');
+  const a8 = await settleSix(refusalRunsA8);
+  SIX_WRITE_TOOLS.forEach(([tool]) => {
+    const r = a8[tool];
+    const pl = r && r.payload;
+    check(tool + ' refuses with reason write_path_disabled' + (r && r.error ? ' [' + r.error.message + ']' : ''),
+      !!pl && pl.reason === 'write_path_disabled');
+    check(tool + ' hint names surface=cli and MINDRIAN_MCP_FIRST=cli',
+      !!pl && typeof pl.hint === 'string' && pl.hint.indexOf('surface=cli') !== -1 && pl.hint.indexOf('MINDRIAN_MCP_FIRST=cli') !== -1);
+  });
+  ['claim_verify', 'question_set'].forEach((tool) => {
+    const pl = a8[tool] && a8[tool].payload;
+    check(tool + ' payload keeps the host block keys',
+      !!pl && !!pl.host && ['client_name', 'host', 'host_tier', 'write_path_enabled'].every((k) => Object.prototype.hasOwnProperty.call(pl.host, k)));
+  });
+
   process.stdout.write('\n-- B: live JSON-RPC drive against the real server (no MINDRIAN_MCP_FIRST) --\n');
 
   // A Cursor-like identity. Recognized, tier0, not Claude Code -> permitted.
@@ -938,6 +1043,9 @@ function identityLines(text) {
       const offWrite = toolPayload(cliOff.responses[3]);
       check('B6 flag unset: graph_write refused with write_path_disabled',
         offWrite !== null && offWrite.ok === false && offWrite.reason === 'write_path_disabled');
+      check('B6 flag unset: the live refusal hint names surface=cli and MINDRIAN_MCP_FIRST=cli',
+        offWrite !== null && typeof offWrite.hint === 'string' &&
+        offWrite.hint.indexOf('surface=cli') !== -1 && offWrite.hint.indexOf('MINDRIAN_MCP_FIRST=cli') !== -1);
       check('B6 CLAUDE_SURFACE=desktop wins over ENTRYPOINT=cli: surface desktop', !!deskCf && deskCf.surface === 'desktop');
       check('B6 CLAUDE_SURFACE=desktop + flag cli (names cli only): write_path_enabled false',
         !!deskCf && deskCf.write_path_enabled === false);
