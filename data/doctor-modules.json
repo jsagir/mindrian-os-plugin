@@ -32,6 +32,15 @@
       "description": "MCP tool-count and zero-tool check (Phase 265 R-7): spawns both mindrian-os and mindrian-brain over stdio and reports live per-server tool counts, failing on a zero-tool tools/list response or a wedged server. Warns (never caps) when the combined surface exceeds TOTAL_SURFACE_TOKEN_BUDGET. Check-only, cadence always."
     },
     {
+      "id": "mcp-write-path",
+      "introduced_version": "2.0.0-beta.74",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/mcp-write-path-module.cjs",
+      "description": "MCP write-path check (quick 261026-s8c): spawns the mindrian-os server with an unidentified probe client, reads capability_floor from status_read, and warns with the exact MINDRIAN_MCP_FIRST fix text when writes are off. Check-only, cadence always, read-only."
+    },
+    {
       "id": "umbilical",
       "introduced_version": "1.13.1-beta.4",
       "cadence": "once",
