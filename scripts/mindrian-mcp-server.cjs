@@ -240,6 +240,12 @@ function createServer() {
     { instructions: RUNTIME_INSTRUCTIONS }
   );
 
+  // quick 261026-s8c item 2: one stderr line per connection with the client
+  // name and version. oninitialized fires on a legacy-era connection only; the
+  // first status_read call is the second hook (lib/mcp/tools/status.cjs).
+  const { logClientIdentityOnce } = require('../lib/mcp/client-identity-log.cjs');
+  s.server.oninitialized = () => { logClientIdentityOnce(s.server, 'initialize'); };
+
   // Register the hierarchical tool router (11 tools fanning out to ~64 CLI
   // commands; see the header comment above for the full four-seam surface
   // and where the live count is measured).

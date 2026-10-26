@@ -376,6 +376,74 @@ check("MINDRIAN_MCP_FIRST=cli + Grok Build on DESKTOP -> OFF (the flag is still 
 });
 
 // ---------------------------------------------------------------------------
+// PART A7 -- quick 261026-s8c item 2: the client identity log line. One line
+// per connection, stderr only, name and version only, sanitized.
+// ---------------------------------------------------------------------------
+process.stdout.write('\n-- A7: client identity log line (stderr, once per connection) --\n');
+{
+  const { logClientIdentityOnce } = require(path.join(REPO_ROOT, 'lib', 'mcp', 'client-identity-log.cjs'));
+  const realWrite = process.stderr.write;
+  const realStdout = process.stdout.write;
+  function recordStderr(fn) {
+    const lines = [];
+    let stdoutTouched = false;
+    process.stderr.write = function (chunk) { lines.push(String(chunk)); return true; };
+    try {
+      fn();
+    } finally {
+      process.stderr.write = realWrite;
+    }
+    return { lines, stdoutTouched };
+  }
+  const fakeServer = (cv) => ({ getClientVersion: () => cv });
+
+  const s1 = fakeServer({ name: 'Claude Code', version: '2.1.310' });
+  const rec1 = recordStderr(() => {
+    check('logClientIdentityOnce returns true on the first call', logClientIdentityOnce(s1, 'initialize') === true);
+    check('logClientIdentityOnce returns false on the second call, same server', logClientIdentityOnce(s1, 'status_read') === false);
+  });
+  check('one write for two calls with the same fake server', rec1.lines.length === 1);
+  check('the line matches the pinned format',
+    rec1.lines[0] === '[mindrian-os] client identity: name="Claude Code" version="2.1.310" via=initialize source=client_version\n');
+
+  const s2 = fakeServer({ name: 'Other', version: '1' });
+  const rec2 = recordStderr(() => { logClientIdentityOnce(s2, 'initialize'); });
+  check('a second fake server writes again', rec2.lines.length === 1);
+
+  const longVersion = 'v'.repeat(500);
+  const nasty = fakeServer({ name: 'bad"name\nforged line\r\txé', version: longVersion, title: 'TITLE-LEAK', websiteUrl: 'URL-LEAK', icons: [1], capabilities: { x: 1 } });
+  const rec3 = recordStderr(() => { logClientIdentityOnce(nasty, 'initialize'); });
+  const text3 = rec3.lines.join('');
+  check('a hostile name is written as one line (no newline except the final one)',
+    rec3.lines.length === 1 && text3.indexOf('\n') === text3.length - 1 && text3.indexOf('\r') === -1);
+  check('a quote in the name is escaped', text3.indexOf('name="bad\\"name') !== -1);
+  check('non-ASCII characters become ?', text3.indexOf('?') !== -1 && text3.indexOf('é') === -1);
+  check('a 500 character version is cut to 64 characters', text3.indexOf('"' + 'v'.repeat(64) + '"') !== -1 && text3.indexOf('v'.repeat(65)) === -1);
+  check('extra client fields never appear in the line',
+    ['TITLE-LEAK', 'URL-LEAK', 'icons', 'capabilities'].every((w) => text3.indexOf(w) === -1));
+
+  const throwing = { getClientVersion: () => { throw new Error('boom'); } };
+  let threw = false;
+  let throwResult;
+  recordStderr(() => { try { throwResult = logClientIdentityOnce(throwing, 'initialize'); } catch (_e) { threw = true; } });
+  check('a throwing getClientVersion does not throw', threw === false);
+  check('a null inner server returns false and writes nothing', (() => {
+    let r;
+    const rec = recordStderr(() => { r = logClientIdentityOnce(null, 'initialize'); });
+    return r === false && rec.lines.length === 0;
+  })());
+
+  const envExtra = { mcpReq: { envelope: { 'io.modelcontextprotocol/clientInfo': { name: 'Claude Code', version: '2.1.310' } } } };
+  const rec4 = recordStderr(() => { logClientIdentityOnce(fakeServer(undefined), 'status_read', envExtra); });
+  check('the envelope fallback is used when getClientVersion returns undefined',
+    rec4.lines[0] === '[mindrian-os] client identity: name="Claude Code" version="2.1.310" via=status_read source=envelope\n');
+  const rec5 = recordStderr(() => { logClientIdentityOnce(fakeServer(null), 'status_read', {}); });
+  check('both sources missing writes name=none and source=none',
+    rec5.lines[0] === '[mindrian-os] client identity: name=none version=none via=status_read source=none\n');
+  check('process.stdout.write was never replaced or used by the module', process.stdout.write === realStdout);
+}
+
+// ---------------------------------------------------------------------------
 // PART B -- the live proof. Everything above is a unit call against a pure
 // function. This part spawns the REAL server and speaks real JSON-RPC to it,
 // because the claim being made is about what a FOREIGN HOST receives on the
@@ -458,6 +526,7 @@ function driveServer(clientName, mcpFirst, envOverrides) {
     const responses = {};
     let stdoutBuf = '';
     let stderrBuf = '';
+    let badStdout = 0;
     let settled = false;
 
     function finish(payload) {
@@ -466,6 +535,10 @@ function driveServer(clientName, mcpFirst, envOverrides) {
       clearTimeout(timer);
       try { proc.kill('SIGKILL'); } catch (_e) { /* already gone */ }
       try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+      if (payload && payload.ok === true) {
+        payload.stderr = stderrBuf;
+        payload.badStdout = badStdout;
+      }
       resolve(payload);
     }
 
@@ -485,7 +558,8 @@ function driveServer(clientName, mcpFirst, envOverrides) {
         stdoutBuf = stdoutBuf.slice(nl + 1);
         if (!line) continue;
         let obj;
-        try { obj = JSON.parse(line); } catch (_e) { continue; }
+        try { obj = JSON.parse(line); } catch (_e) { badStdout += 1; continue; }
+        if (!obj || obj.jsonrpc !== '2.0') badStdout += 1;
         if (!obj || obj.id === undefined || obj.id === null) continue;
         responses[obj.id] = obj;
 
@@ -614,6 +688,64 @@ function listCatalog(envOverrides) {
       params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'SomeNewClientNeverSeenBefore', version: '1.0.0' } },
     });
   });
+}
+
+/**
+ * Drive the real server with the SDK Client in the 2026 era (versionNegotiation
+ * auto: server/discover, no initialize). One status_read call, then close.
+ * Same hermetic HOME and room as driveServer. Returns the status payload and
+ * the full stderr text.
+ */
+async function driveModern(clientName, envOverrides) {
+  const { Client } = require('@modelcontextprotocol/client');
+  const { StdioClientTransport } = require('@modelcontextprotocol/client/stdio');
+  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'mindrian-s8c-modern-'));
+  const room = path.join(tmpHome, 'room');
+  fs.mkdirSync(room, { recursive: true });
+  try {
+    const boot = roomDb.openRoomDb(room);
+    roomDb.closeRoomDb(boot);
+  } catch (_e) { /* the drive still runs */ }
+  const env = Object.assign({}, process.env, {
+    HOME: tmpHome,
+    MINDRIAN_ROOM: room,
+    MINDRIAN_ROOMS_HOME: path.join(tmpHome, 'MindrianRooms'),
+    CLAUDE_ACTIVE_ROOM: room,
+  });
+  delete env.MINDRIAN_MCP_FIRST;
+  delete env.MINDRIAN_BRAIN_KEY;
+  Object.keys(envOverrides || {}).forEach((k) => {
+    if (envOverrides[k] === null) delete env[k]; else env[k] = envOverrides[k];
+  });
+  let stderrText = '';
+  let client = null;
+  let transport = null;
+  try {
+    transport = new StdioClientTransport({ command: 'node', args: [SERVER], env, cwd: tmpHome, stderr: 'pipe' });
+    if (transport.stderr) transport.stderr.on('data', (d) => { stderrText += d.toString('utf8'); });
+    client = new Client({ name: clientName, version: '2.1.310' }, { versionNegotiation: { mode: 'auto' } });
+    const result = await Promise.race([
+      (async () => {
+        await client.connect(transport);
+        const r = await client.callTool({ name: 'status_read', arguments: {} });
+        return JSON.parse(r.content[0].text);
+      })(),
+      new Promise((_resolve, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT_MS)),
+    ]);
+    return { ok: true, status: result, stderr: stderrText };
+  } catch (e) {
+    return { ok: false, reason: e && e.message, stderr: stderrText };
+  } finally {
+    try { await client.close(); } catch (_e) { /* best effort */ }
+    if (transport && typeof transport.pid === 'number') {
+      try { process.kill(transport.pid, 'SIGKILL'); } catch (_e) { /* gone */ }
+    }
+    try { fs.rmSync(tmpHome, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+  }
+}
+
+function identityLines(text) {
+  return String(text || '').split('\n').filter((l) => l.indexOf('[mindrian-os] client identity:') === 0);
 }
 
 (async function livePart() {
@@ -752,6 +884,25 @@ function listCatalog(envOverrides) {
     check('capability_floor reports write_path_enabled true under the explicit flag, on a tier1 host',
       !!xf && xf.write_path_enabled === true && xf.host_tier.hostTier === 'tier1');
   }
+
+  // B7. quick 261026-s8c item 2: the identity line on a real connection, in
+  // both handshake eras.
+  process.stdout.write('\n-- B7: client identity line on a real connection (legacy and 2026 era) --\n');
+  const legacyLines = identityLines(foreign.stderr);
+  process.stdout.write('  OBSERVED legacy identity line: ' + JSON.stringify(legacyLines) + '\n');
+  check('legacy drive: exactly 1 identity line', legacyLines.length === 1);
+  check('legacy drive: via=initialize, source=client_version, with the client name',
+    legacyLines.length === 1 && legacyLines[0] ===
+      '[mindrian-os] client identity: name="test-cursor-sim" version="1.0.0" via=initialize source=client_version');
+  check('legacy drive: every non-empty stdout line is JSON-RPC 2.0', foreign.badStdout === 0);
+  const modern = await driveModern('Claude Code');
+  check('2026-era drive completed' + (modern.ok ? '' : ' [' + modern.reason + ']'), modern.ok === true);
+  const modernLines = identityLines(modern.stderr);
+  process.stdout.write('  OBSERVED 2026-era identity line: ' + JSON.stringify(modernLines) + '\n');
+  check('2026-era drive: exactly 1 identity line', modernLines.length === 1);
+  check('2026-era drive: via=status_read, source=envelope, with the client name',
+    modernLines.length === 1 && modernLines[0] ===
+      '[mindrian-os] client identity: name="Claude Code" version="2.1.310" via=status_read source=envelope');
 
   // B6. quick 261026-s8c item 1: the real server, no MINDRIAN_TRANSPORT and no
   // CLAUDE_SURFACE, ENTRYPOINT=cli. Uses an unrecognized client so only the
