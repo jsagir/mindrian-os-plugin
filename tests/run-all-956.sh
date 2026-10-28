@@ -22,9 +22,9 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 START_TIME=$(date +%s)
 
+# Phase 341-07: test-install-sh-skill-loop.sh and test-install-preflight-longpath.sh
+# were retired with the shell installer they exercised.
 SHELL_SUITES=(
-  test-install-sh-skill-loop.sh
-  test-install-preflight-longpath.sh
   test-release-npm-gate.sh
 )
 CJS_SUITES=(

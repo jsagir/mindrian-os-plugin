@@ -20,7 +20,7 @@
  *              X.Y.Z core of a pre-release version, e.g. 1.13.0 inside
  *              1.13.0-beta.8). Source finding: 2026-05-07 stale greeting
  *              still claiming an old version (SEED-007). Scoped to the
- *              greeting-copy surfaces only -- README / install.sh carry
+ *              greeting-copy surfaces only -- README carries
  *              legitimate version histories and are out of scope for this
  *              pattern.
  *
@@ -54,7 +54,6 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 // Pattern 1 (em-dash) + Pattern 3 (license-language mislabel) scan this set.
 const DOC_SURFACES = [
   'README.md',
-  'install.sh',
   '.claude-plugin/plugin.json',
   'commands/splash.md',
   'commands/onboard.md',
@@ -65,7 +64,7 @@ const DOC_SURFACES = [
 ];
 
 // Pattern 2 (stale version literal) scans ONLY the pure greeting-copy
-// surfaces. README.md / install.sh legitimately carry version histories
+// surfaces. README.md legitimately carries version histories
 // (milestone tables, CHANGELOG-style headings, shields badges) and
 // agents/larry-extended.md carries version literals in persona-aliasing prose
 // and forward-references (e.g. "extends in Phase 100 / v1.14.0") -- all of
