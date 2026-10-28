@@ -158,6 +158,14 @@ function notCalibrated(reason, table, perN) {
  * reshuffle_min_displacement, calibration }. Pure: no file, no clock, no network.
  */
 function deriveThresholds(table) {
+  // No probed room met the bar: the file records why and keeps calibrated false. The probe list
+  // (hash and counts only) rides in the calibration object so the choice can be reviewed.
+  if (isObj(table) && table.blocker === 'no_qualifying_room') {
+    const r = notCalibrated('no_qualifying_room', table, {});
+    r.calibration.bar = table.bar;
+    r.calibration.probes = Array.isArray(table.probes) ? table.probes : [];
+    return r;
+  }
   if (!isObj(table) || !isObj(table.baseline) || !Array.isArray(table.trials)) return notCalibrated('invalid_table', table, {});
   if (table.baseline.encoder_kind !== 'live') return notCalibrated('stub_encoder', table, {});
   if (!isObj(table.noise) || table.noise.events !== 0) return notCalibrated('noise_floor_nonzero', table, {});

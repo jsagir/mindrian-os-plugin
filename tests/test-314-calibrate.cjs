@@ -243,6 +243,19 @@ async function leg(name, fn) {
     assert.strictEqual(r.top_n, null);
   });
 
+  await leg('CL4b a no_qualifying_room record gives calibrated false with the probe list and no number', function () {
+    const r = derive({
+      run_date: '2026-10-28', blocker: 'no_qualifying_room',
+      bar: { pairs_scored: 200, ranked: 50, cohort_techs: 100 },
+      probes: [{ room_id_hash: 'abcdef012345', node_count: 10, edge_count: 5, cohort_techs: 3, pairs_scored: 2, ranked: 2 }],
+    });
+    assert.strictEqual(r.calibrated, false);
+    assert.strictEqual(r.top_n, null);
+    assert.strictEqual(r.calibration.reason, 'no_qualifying_room');
+    assert.strictEqual(r.calibration.probes.length, 1);
+    assert.strictEqual(r.calibration.bar.pairs_scored, 200);
+  });
+
   await leg('CL5 a nonzero noise floor gives calibrated false', function () {
     const t = syntheticTable();
     t.noise = { events: 2 };
