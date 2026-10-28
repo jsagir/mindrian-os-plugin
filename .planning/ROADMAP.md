@@ -1466,7 +1466,7 @@ Plans:
 **Goal:** Ship /mos:scientific-roadmap (SEED-098): a constraint-first command rooted in the room problem-type classification, entered from the researcher starting point or a hypothesis, with a systems-thinking pass before path enumeration, walking Theo framework_step content only, turning ranked bottlenecks into falsifiable hypotheses and handing them to /mos:research on the Phase 363 engine (D-18, no second engine). Planning input: 364-INPUT.md (SEED-106 inputs added 2026-10-02, section "SEED-106 inputs": Theo answers science questions with business-terminated chains; the graph has no scientific-method content; 109 of 460 frameworks carry a problem type and 5 a watcher, re-measured live 2026-10-02 through `theo_health`, so a thin `recommend_chain` must say "uncovered" rather than read as a fit verdict).
 **Requirements**: SRM364-01..23 (01..21 minted by 364-01, 22..23 by 364-14)
 **Depends on:** Phase 363
-**Plans:** 14 plans
+**Plans:** 14/14 plans complete
 
 Plans:
 
@@ -1483,7 +1483,7 @@ Plans:
 - [x] 364-10-PLAN.md -- Theo notify doc, OPEN-HANDOFFS row, research-planner folder-contract rows (wave 4)
 - [x] 364-11-PLAN.md -- phase gate measured, live smoke with navigator approval, SRM364-01..19 closed, canon-map rows, follow-ons (wave 6, checkpoint)
 - [x] 364-12-PLAN.md -- research trail in both homes, Theo and peer messages, SRM364-20/21, Phase 364 STATE and ROADMAP lines (wave 7, checkpoint)
-- [ ] 364-13-PLAN.md -- CHANGELOG bullet, after 369 lands and jsagi-be is messaged first (wave 8, checkpoint)
+- [x] 364-13-PLAN.md -- CHANGELOG bullet, after 369 lands and jsagi-be is messaged first (wave 8, checkpoint)
 
 ### Phase 365: Verification rung earned not asserted (B2 gate floor, B3 unattended-step constraints, edge-derived rung)
 

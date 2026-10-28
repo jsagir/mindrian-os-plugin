@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 379.1-09-PLAN.md - a-batch applied (DEFAULT_BATCH 8); two ok live large-room legs, drain peak 776.9 and 780.2 MB vs 1024; verification re-run next
-last_updated: "2026-10-22T05:30:32.368Z"
-last_activity: 2026-10-22
+stopped_at: "Completed 364-13-PLAN.md - CHANGELOG bullet for /mos:scientific-roadmap committed dbd6565f7; Phase 364 plans all done, verification next"
+last_updated: "2026-10-28T18:58:25.972Z"
+last_activity: 2026-10-28
 progress:
   total_phases: 144
-  completed_phases: 58
-  total_plans: 705
-  completed_plans: 683
-  percent: 97
+  completed_phases: 61
+  total_plans: 725
+  completed_plans: 716
+  percent: 99
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5994,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-22
+Last activity: 2026-10-28
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -9365,8 +9365,8 @@ Progress: [██████████] 98%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-22T05:30:32.283Z
-Stopped at: Completed 379.1-09-PLAN.md - a-batch applied; two ok live legs; verification re-run next
+Last session: 2026-10-28T18:58:25.824Z
+Stopped at: Completed 364-13-PLAN.md - CHANGELOG bullet for /mos:scientific-roadmap committed dbd6565f7; Phase 364 plans all done, verification next
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
@@ -9492,7 +9492,7 @@ See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY
 ## Session record - Phase 371 UI contract (2026-10-19)
 
 Stopped at: Phase 371 UI-SPEC approved; phase added and ready for planning.
-Resume file: `.planning/phases/371-navigator-startup-ui-first-room-and-returning-workday/371-UI-SPEC.md`.
+Resume file: None
 The existing Phase 369 Current Position is preserved. This record does not claim
 the new startup visual contract has been implemented or verified in ChatGPT.
 
