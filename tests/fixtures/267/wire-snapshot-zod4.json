@@ -1009,7 +1009,8 @@
                 "whitespace",
                 "eureka-run",
                 "eureka-status",
-                "eureka-report"
+                "eureka-report",
+                "eureka-portfolio"
               ],
               "description": "Which intelligence operation to run"
             },
