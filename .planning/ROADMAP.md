@@ -1286,7 +1286,7 @@ Plans:
 
 **Wave 8**
 
-- [ ] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
+- [x] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
 
 **Outcome:** CLOSED 2026-10-28 with R9 DECLINED. R2 pre-change missed forks 17 of 17 prose forks (baseline-359.json). R5 inertness 0 class changes. R6 declared catch rate 1 with 0 control false blocks. R7 parity 0 mismatches. R8 shipped at net +333 B (656cd8a34). R9: smoke only (2 runs, USD 0.668, mode probe); the batch was declined by the navigator because extra-usage billing is real money (projection USD 76.08). FORK359-09 stays open, R8 adoption on live Larry is unmeasured, no follow-on phase. Ruling N-7 (tolerate cosmetic slips) is not implemented. Record: `359-12-SUMMARY.md`.
 
