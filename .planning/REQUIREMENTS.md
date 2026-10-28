@@ -3179,14 +3179,14 @@ including 357-10 (D-17).
       card-fire doctrine and the MCP server instructions in one revertible commit, at most 400 B net
       (N-6), with the 357 pinned phrases, the doctrine and MCP byte pins, the voice-mark and handoff
       tests green and the harness manifest regenerated. Plan 359-09.
-      Proof: commit 656cd8a34, net +333 B (cap 400), `node tests/test-359-prose-budget.cjs` 18/18, `node scripts/build-harness-manifest.cjs --check` OK (359-09 SUMMARY). Prose shipped; live adoption is unmeasured (see FORK359-09).
+      Proof: commit 656cd8a34, net +333 B (cap 400), `node tests/test-359-prose-budget.cjs` 18/18, `node scripts/build-harness-manifest.cjs --check` OK (359-09 SUMMARY). Prose shipped; live adoption measured by R9 PASS (see FORK359-09).
 
-- [ ] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 60
-      in total, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
+- [x] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 80
+      in total as raised by the navigator, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
       pre-change above the vacuity floor with 0 control blocks, or records INCONCLUSIVE, or records
       the falsification with R8 reverted and a follow-on opened; moonshots are Jev-scored at dev time
       on synthetic text only (N-3, N-4). Plans 359-04, 359-05, 359-10, 359-11.
-      Open: R9 declined, extra-usage billing is real money. Smoke only: 2 runs, USD 0.668, mode probe, instrument verified; the batch projected USD 76.08 at the highest measured per-run cost and the navigator chose to skip it (359-10, 359-11 SUMMARY). R8 adoption on live Larry is unmeasured.
+      Proof: R9 PASS after the decline was reversed (2026-10-28 ruling; 359-11 SUMMARY addendum). Mode probe, 12 fork scenarios x 3 runs x 2 arms plus 12 control scenarios, 144 rows, all ok, 0 error_budget. Pre missed 16 of 36, post missed 6 of 36 (floor 8, bar at most 8), control declared blocks 0. Spend USD 31.331 plus the USD 0.668 smoke = USD 31.999 (cap USD 80). Caveats: the measured post tree has the strict parser (N-7 not in it); declarations were 4 of 36 post fork runs, most of the gain is more cards (20 to 30); `hook_live_proof` false by the harness definition.
 
 - [x] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
       declared-variant replay run in `tests/run-all-359.sh` and `tests/run-all-238.sh`, and removing

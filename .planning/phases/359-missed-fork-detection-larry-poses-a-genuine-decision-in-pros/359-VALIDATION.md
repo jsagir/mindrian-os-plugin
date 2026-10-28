@@ -65,4 +65,4 @@ created: 2026-09-23
 - [x] No watch-mode flags
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** approved 2026-10-28 (359-12 close: R9 DECLINED, extra-usage billing is real money; FORK359-09 open, R8 adoption unmeasured)
+**Approval:** approved 2026-10-28 (359-12 close: R9 DECLINED); re-approved 2026-10-29 after the navigator reversed the decline and the batch ran: R9 PASS (pre missed 16 of 36, post missed 6 of 36, floor 8, control declared blocks 0; FORK359-09 ticked; R8 stays; 359-11 SUMMARY addendum)

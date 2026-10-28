@@ -1288,7 +1288,7 @@ Plans:
 
 - [x] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
 
-**Outcome:** CLOSED 2026-10-28 with R9 DECLINED. R2 pre-change missed forks 17 of 17 prose forks (baseline-359.json). R5 inertness 0 class changes. R6 declared catch rate 1 with 0 control false blocks. R7 parity 0 mismatches. R8 shipped at net +333 B (656cd8a34). R9: smoke only (2 runs, USD 0.668, mode probe); the batch was declined by the navigator because extra-usage billing is real money (projection USD 76.08). FORK359-09 stays open, R8 adoption on live Larry is unmeasured, no follow-on phase. Ruling N-7 (tolerate cosmetic slips) is not implemented. Record: `359-12-SUMMARY.md`.
+**Outcome:** CLOSED 2026-10-28, REOPENED and re-closed 2026-10-29 with R9 PASS after the navigator reversed the decline. R2 pre-change missed forks 17 of 17 prose forks (baseline-359.json). R5 inertness 0 class changes. R6 declared catch rate 1 with 0 control false blocks. R7 parity 0 mismatches. R8 shipped at net +333 B (656cd8a34) and stays. R9: pre missed 16 of 36, post missed 6 of 36 (floor 8), control declared blocks 0, 144 rows all ok, USD 31.999 all in with the smoke (cap USD 80); 4 forward declarations Jev-scored (relevance mean 3.53, radical 2.45). Caveats: measured tree has the strict parser (N-7 tolerance not in it, now a separate quick), declarations were 4 of 36 and most gain is more cards, `hook_live_proof` false. FORK359-09 ticked. No follow-on phase. Record: `359-11-SUMMARY.md` addendum, `359-12-SUMMARY.md` addendum.
 
 ### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
 

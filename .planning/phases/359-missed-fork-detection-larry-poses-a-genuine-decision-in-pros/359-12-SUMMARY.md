@@ -120,3 +120,25 @@ None.
 ## Threat Flags
 
 None. Close-out is docs only. `git diff --name-only 7699ebdb4..HEAD -- lib hooks scripts agents skills` prints nothing in this plan's commits (PROVEN for plans 359-11 and 359-12; the earlier plans changed those paths).
+
+## Addendum: R9 decline reversed, R9 PASS (2026-10-29)
+
+The navigator reversed the decline on 2026-10-28 (verbatim ruling in the `359-11-SUMMARY.md` addendum). The forward batch ran. The text above stays as the record of the decline close-out. The numbers below replace the R9 rows of the "Measured numbers" table. Every claim is PROVEN (command run in plan 359-11) unless marked.
+
+| Item | Value | Source |
+|------|-------|--------|
+| R9 | PASS. Pre missed 16 of 36 fork runs, post missed 6 of 36, floor 8, bar at most 8, control declared blocks 0 | 359-11 addendum |
+| Rows | 144 (72 pre, 72 post), all status ok, 0 error_budget, 0 retries, mode probe, model claude-sonnet-5 | 359-11 addendum |
+| Spend | USD 31.331 in `results.jsonl` plus USD 0.668 smoke = USD 31.999. Cap USD 80.00 (harness cap 79.33, commit `4a8b64e39`). Max row USD 0.3255 | 359-11 addendum |
+| Declarations | 4 of 36 post fork runs (each with a card in attempt 1). Cards rose from 20 to 30 of 36 | 359-11 addendum |
+| hook_live_proof | false by the harness definition (needs declared true and card false) | 359-11 addendum |
+| Forward moonshot scores | 4 rows, relevance mean 3.53 of 4, radical mean 2.45 of 4 (commit `f5a190bd3`) | 359-MOONSHOT-SCORES.md |
+
+Effects on this close-out:
+
+- FORK359-09 is now ticked in `.planning/REQUIREMENTS.md`. All 10 FORK359 rows are ticked.
+- R8 (`656cd8a34`) stays. No revert, no follow-on phase.
+- Residual change: the measured post tree has the strict parser. N-7 (cosmetic slips) was built in a separate quick (`84615de32`) after the measured commit. The R9 result does not cover the N-7 parser. Its effect on adoption is UNVERIFIED.
+- Residual still open: declarations are rare (4 of 36). Most of the gain is more cards. Whether the declaration line or the surrounding prose raised the card rate is not separated by this design (ASSUMED the prose as a whole).
+- The user-level larry-extended agent link was renamed to `.shadow-bak` for the run. The main session restores it.
+- Dual filing: the research trail copy in `/home/jsagi/MindrianOS/research/` has the R9 addendum. The room copy stays pending (write-scope hook; not worked around).
