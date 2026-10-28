@@ -1,6 +1,6 @@
 ---
 name: eureka-portfolio
-description: See how the linked ideas in your room rank, with measured numbers, and hear what moved since the last run
+description: Rank your linked ideas and see what moved
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Rank the linked ideas in your room with measured numbers and see what moved since the last run."
 argument-hint: "[show] [--section <name>]"

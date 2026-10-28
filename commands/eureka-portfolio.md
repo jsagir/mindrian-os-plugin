@@ -1,6 +1,6 @@
 ---
 name: eureka-portfolio
-description: See how the linked ideas in your room rank, with measured numbers, and hear what moved since the last run
+description: Rank your linked ideas and see what moved
 help_jtbd: "Rank the linked ideas in your room with measured numbers and see what moved since the last run."
 argument-hint: "[show] [--section <name>]"
 body_shape: E (Action Report)
