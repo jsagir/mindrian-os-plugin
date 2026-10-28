@@ -149,15 +149,6 @@
       "description": "Statusline invisibility probe (class G): stale user-settings path / broken plugin install / statusline-mos isolated execution / disableAllHooks. --fix removes the stale user-settings statusLine override so plugin-level config takes effect."
     },
     {
-      "id": "install-incomplete",
-      "introduced_version": "1.13.0-beta.9",
-      "cadence": "always",
-      "flag": "statuslineVisibility",
-      "fix_supported": true,
-      "runner": "lib/core/doctor/install-incomplete-module.cjs",
-      "description": "Silent install-incomplete detector (class H): missing statusLine block / halted .install-receipt.json tail steps. Shares the --statusline-visibility flag with class G (today's behavior). --fix re-stamps the canonical statusLine block idempotently (recoverable path only; halted-tail case is report-only)."
-    },
-    {
       "id": "verify-surface",
       "introduced_version": "1.12.1-beta.1",
       "cadence": "always",

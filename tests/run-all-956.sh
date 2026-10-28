@@ -6,13 +6,11 @@
 #   RED-by-design until their owning plan lands:
 #     test-install-sh-skill-loop.sh        -> GREEN when 95.6-03 lands
 #     test-install-preflight-longpath.sh   -> GREEN when 95.6-04 lands
-#     test-doctor-class-h.cjs              -> GREEN when 95.6-05 lands
-#     test-doctor-class-h-fix.cjs          -> GREEN when 95.6-05 lands
-#     test-install-receipt.cjs             -> GREEN when 95.6-05 lands
+#     (class H suites and test-install-receipt.cjs retired in Phase 341 plan 09)
 #     test-release-npm-gate.sh             -> GREEN when 95.6-06 lands
 #
 # This runner MUST run to completion (no crash) even when RED suites fail; it
-# prints a per-suite PASS/FAIL line for each of the 8. It exits non-zero if any
+# prints a per-suite PASS/FAIL line for each suite. It exits non-zero if any
 # suite failed -- which is EXPECTED at Wave 0 time.
 #
 # bash only. No emoji. No em-dashes.
@@ -29,9 +27,6 @@ SHELL_SUITES=(
 )
 CJS_SUITES=(
   test-skills-have-skill-md.cjs
-  test-doctor-class-h.cjs
-  test-doctor-class-h-fix.cjs
-  test-install-receipt.cjs
   test-92-rename-no-long-leaves.cjs
 )
 

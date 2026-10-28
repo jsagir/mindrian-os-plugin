@@ -73,7 +73,6 @@ Every check has a stable class letter (or a registry id). The class flag that ac
 - **class E -- room-md** (`--room-md`; `--fix` supported) -- ROOM.md + MINTO.md presence under the active room's `.room-root`. `--fix` invokes `generate-section-intelligence.cjs --recursive`, then re-checks.
 - **class F -- ui-compliance** (`--ui-compliance`; check-only) -- UI Ruling System scan across `commands/*.md` and `scripts/*.cjs` (frontmatter body_shape, forbidden box chars / glyphs, renderer Zone 1 + Zone 4 patterns).
 - **class G -- statusline-visibility** (`--statusline-visibility`; `--fix` supported) -- stale user-settings path / broken plugin install / statusline-mos isolated execution / disableAllHooks. `--fix` removes the stale user-settings statusLine override so the plugin-level config takes effect.
-- **class H -- install-incomplete** (shares `--statusline-visibility`; `--fix` supported) -- missing statusLine block or a halted `.install-receipt.json` tail. `--fix` re-stamps the canonical statusLine block idempotently (the halted-tail case is report-only).
 - **class I -- install-state** (`--install-state`; `--fix` supported) -- install-state record + topology classification + 6-way version-of-record consistency. `--fix` returns MULTIPLE recovery records (session-start record write, LV rewrite, legacy-config reconcile, legacy-clone backup-verify-remove with the dev-clone safety belt). Runs BEFORE class J so J reads its result via `ctx.checks`.
 - **class J -- deployment-surfaces** (shares `--install-state`; `--fix` supported) -- reconciles every owned surface in `data/deployment-surfaces.json` against disk. Reads topology / active-root / active-version from class I's same-invocation result (self-derives via `shared.cjs` when absent). `--fix` re-stamps `ok:false` session-start-owned surfaces and prunes the marketplace cache.
 - **class K -- stale-first-touch-copy** (`--stale-first-touch`; check-only) -- greeting surfaces declared by `data/first-touch-surfaces.json` (banner, splash, onboard, sessionstart, operator-update, larry-extended) scanned for stale version literals and U+2014 em-dash violations. SEED-007 absorption. Also activated by `--all`.
@@ -88,19 +87,23 @@ Every check has a stable class letter (or a registry id). The class flag that ac
 - **room-graph-density** (no flag; bare run + `--all`; check-only) -- per-registered-room census of `room.db` `nodes` and `edges` row counts, plus a system-wide total. Reads every room through the read-only navigation door added in Phase 232.1, so the sweep can never migrate or otherwise mutate a room it only measures. A room with no `room.db` reports 0 / 0 and is not an error. `cadence: always`, LOCAL-only. Reports raw counts ONLY: it makes no density, health, or risk claim in either direction (SEED-074's hard guard on downstream claims).
 - **room-graph-integrity** (no flag; bare run + `--all`; check-only) -- four measurable defect statements against the bound room's `room.db`, plus two informational counts: edge rows whose source or target id has no `nodes` row, claim nodes carrying no `SOURCED_FROM` or `DERIVED_FROM` out-edge, proposed nodes older than the review window, and edge rows whose type falls outside the `writeEdge` allowlist (with the offending type names, capped and shape-filtered), alongside unresolved `CONTRADICTS` edges and self-referencing edges. Two candidate defect statements (a stub-or-placeholder node, a memory-event provenance edge) are reported as not measurable, with the reason for each, in the organ's own output rather than shipped as statements. A column a legacy three-column room cannot answer reports null, never zero. The output also names the writer behind the unanchored-claim count and the writers that bypass the `writeEdge` chokepoint, and states that changing either is Phase 273 territory. Each room's payload also carries a `claim_counter_metric` object (claims filed, claims filed past the citation lag, claims carrying a `CONTRADICTS` edge, claims with no incoming edge past the lag, and a tri-state `divergence` boolean, rolled up into `totals.claim_counter_metric`); a column the schema cannot answer reports null, never zero, same as the rest of this organ, and interpretation lives in `docs/COUNTER-METRIC-DOCTRINE.md`, not here. Scopes to the active room by default; add `--cascade-rooms` to sweep every registered room plus fleet totals. `cadence: always`, LOCAL-only, read-only navigation door. Reports raw counts ONLY: it makes no claim in either direction (SEED-074's hard guard on downstream claims).
 
+### Retired classes
+
+- **class H** (the shell-installer completeness check) was retired in Phase 341. Its only input was a receipt file written by the shell installer, and that installer no longer exists, so nothing can write the receipt. If an old receipt file is still on your disk it is inert and safe to ignore. A leftover old install directory is reported by class I, and `--install-state --fix` backs it up and removes it. The `--statusline-visibility` flag is unchanged and now runs class G alone.
+
 ## Step 1: Parse the user's intent
 
 Look at the user's invocation:
 
 - `/mos:doctor` (no flag) -> class A install-cache + class N plugin-enabled-state + the accumulative engine (the `cadence: once` heals like umbilical plus any `flag: null` always-modules). Fast; this is the bare-run surface.
-- `/mos:doctor --all` -> activates B, C, D, E, F, G, H, I, J, K, L, M, and card-fire-health. `--drift` (P/Q/R) and `--eureka-smoke` (S) stay OPT-IN by design and are NOT part of `--all`.
+- `/mos:doctor --all` -> activates B, C, D, E, F, G, I, J, K, L, M, and card-fire-health. `--drift` (P/Q/R) and `--eureka-smoke` (S) stay OPT-IN by design and are NOT part of `--all`.
 - `/mos:doctor --cascade-rooms` -> class B (.room-root sentinel) + class C (active-room guard silence)
 - `/mos:doctor --graph-derive-health` -> graph-derive-health (semantic-edge derivation health for the active room; add `--cascade-rooms` to sweep every room)
 - `/mos:doctor --heal-room` -> the same class with `--fix` on: re-enqueues every WARN/FAIL room's derive so the next in-session derive rebuilds its semantic layer
 - `/mos:doctor --verify-surface` -> class D live cascade end-to-end via `tests/test-cascade-surface-e2e.cjs`
 - `/mos:doctor --room-md` -> class E (ROOM.md/MINTO.md presence under `.room-root` subtrees)
 - `/mos:doctor --ui-compliance` -> class F (UI Ruling System scan)
-- `/mos:doctor --statusline-visibility` -> class G (user-settings drift, plugin install integrity, statusline-mos isolated execution) + class H (install-incomplete)
+- `/mos:doctor --statusline-visibility` -> class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
 - `/mos:doctor --card-fire-health` -> card-fire-health module (D-05 instrument-health)
 - `/mos:doctor --install-state` -> class I (install-state + topology + 6-way version-of-record) + class J (deployment-surface reconciliation)
 - `/mos:doctor --stale-first-touch` -> class K
@@ -109,7 +112,7 @@ Look at the user's invocation:
 - `/mos:doctor --eureka-smoke` -> class S (4-layer Eureka probe; opt-in)
 - `/mos:doctor --drift` -> class P + class Q + class R (opt-in; NOT in `--all`)
 - `/mos:doctor --report-registration-bug` -> READ-ONLY escalation reporter (below). NOT a class flag, NOT part of `--all`, NOT a `--fix`.
-- `/mos:doctor --fix` -> diagnostic + auto-recovery for every class that declares `fix_supported: true`: class A, B, E, G, H, I, J. Fix support is declared per module in `data/doctor-modules.json` and enforced by `tests/test-doctor-module-contract-parity.cjs`.
+- `/mos:doctor --fix` -> diagnostic + auto-recovery for every class that declares `fix_supported: true`: class A, B, E, G, I, J. Fix support is declared per module in `data/doctor-modules.json` and enforced by `tests/test-doctor-module-contract-parity.cjs`.
 - `/mos:doctor --json` -> machine-readable output (for hooks / regression tests)
 - `/mos:doctor --verbose` (or `-v`) -> extra per-check detail in the human render.
 - `/mos:doctor --dry-run` -> `--fix` runners simulate their remediation without mutating disk.

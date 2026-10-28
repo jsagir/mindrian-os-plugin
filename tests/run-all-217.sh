@@ -93,12 +93,6 @@ run "217 class G (statusline-visibility)" \
 run "217 class G fix" \
   node tests/test-doctor-class-g-fix.cjs
 
-run "217 class H (install-incomplete)" \
-  node tests/test-doctor-class-h.cjs
-
-run "217 class H fix" \
-  node tests/test-doctor-class-h-fix.cjs
-
 run "217 class I (install-state + topology + version-of-record)" \
   node tests/test-doctor-class-i.cjs
 

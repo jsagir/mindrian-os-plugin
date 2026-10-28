@@ -54,7 +54,6 @@ const ID_TO_CLASS = {
   'cascade-rooms': 'B',
   'room-md': 'E',
   'statusline-visibility': 'G',
-  'install-incomplete': 'H',
   'install-state': 'I',
   'deployment-surfaces': 'J',
 };

@@ -105,9 +105,9 @@ const checkDeploymentSurfaces = deploymentSurfacesModule.checkDeploymentSurfaces
 // introduced_version is in (applied_through, running], idempotently.
 const DOCTOR_MODULES_PATH = path.join(__dirname, '..', 'data', 'doctor-modules.json');
 const { readDoctorApplied, writeDoctorApplied } = require(path.join(__dirname, '..', 'lib', 'core', 'migration-snapshot.cjs'));
-// Phase 95.6 D-09 / R-01: the install-receipt const (INSTALL_RECEIPT_JSON) moved
-// into lib/core/doctor/install-incomplete-module.cjs with the class H check
-// (Phase 217 Plan 05).
+// Class H (the shell-installer completeness check) was retired in Phase 341
+// plan 09: its only input was a receipt file that the deleted shell installer
+// wrote, so no code path can produce that state any more.
 
 // -- Argument parsing ------------------------------------------------
 
@@ -132,7 +132,7 @@ function parseArgs(argv) {
     //       em_dash_check: true (the feedback_no_emdashes hard rule).
     // Per data/first-touch-surfaces.json each surface declares both invariants
     // and an allowlist of doc-example version strings. Renamed from class H
-    // in 121.5-05-PLAN.md (class H is install-incomplete; deviation Rule 3).
+    // in 121.5-05-PLAN.md (the letter H was then taken; deviation Rule 3).
     staleFirstTouch: false,
     // Phase 121.5-08 Sub-plan J (D-09 final clause): class L
     // (deprecated-commands-you-still-use). Scans recent
@@ -150,7 +150,7 @@ function parseArgs(argv) {
     // Pure LOCAL scan; zero network surface (Canon Part 8).
     // Letter L chosen because A..K are already assigned (A install-cache,
     // B+C cascade-rooms, D verify-surface, E room-md, F ui-compliance,
-    // G statusline-visibility, H install-incomplete, I install-state,
+    // G statusline-visibility, H (retired in Phase 341), I install-state,
     // J deployment-surfaces, K stale-first-touch-copy).
     deprecatedUsage: false,
     // Phase 127-02 BRAIN-MCP-127-08: class M (Brain end-to-end smoke).
@@ -414,7 +414,6 @@ Class flags (combine freely; --all activates them all):
   --room-md                class E (ROOM.md/MINTO.md presence under .room-root)
   --ui-compliance          class F (UI Ruling System scan)
   --statusline-visibility  class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
-                           + class H (install-incomplete: missing statusLine block and/or a halted .install-receipt.json)
   --card-fire-health       card-fire-health (D-05): health of the check-card-fire.cjs self-diagnostic
                            instrument -- intercept log exists/valid-JSONL/fresh (~/.mindrian/card-fire-
                            intercepts.log), classifier/counter library seams intact, render-coverage
@@ -579,7 +578,6 @@ Claim harness gate (Phase 150 -- the public-site-claim gate; separate from class
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
-                       (class H: re-stamps the canonical statusLine block when missing, idempotently)
   --json               machine-readable output (for hooks / regression tests)
   --verbose, -v        extra diagnostic detail
   --simulate-write=<p> simulate a PWD write at <p> for class C active-room mismatch
@@ -714,16 +712,15 @@ function safeRename(src, dst) {
 // (SKIP_DIRS, listSubdirs) + the generator spawn (invokeGenerator) + findRoomRoot
 // moved WITH those checks into their registry runners in Phase 217 Plan 04.
 
-// -- Class D / G / H bodies removed (Phase 217 Plan 05) -----------------------
+// -- Class D / G bodies removed (Phase 217 Plan 05) ---------------------------
 //
-// checkSurfaceVerification (class D), checkStatuslineVisibility +
-// performStatuslineFix (class G), and checkInstallIncomplete + performClassHFix
-// (class H) -- plus their private helpers (STALE_STATUSLINE_PATH_REGEX,
-// stripAnsi, CLASS_H_CANONICAL_STEPS, classHActionString,
-// userSettingsHasStatusLine) and the INSTALL_RECEIPT_JSON const -- moved into
-// lib/core/doctor/verify-surface-module.cjs, statusline-visibility-module.cjs,
-// and install-incomplete-module.cjs. The accumulative engine owns their
-// dispatch + fix-then-recheck flow via the registry (data/doctor-modules.json).
+// checkSurfaceVerification (class D) and checkStatuslineVisibility +
+// performStatuslineFix (class G) -- plus their private helpers
+// (STALE_STATUSLINE_PATH_REGEX, stripAnsi) -- moved into
+// lib/core/doctor/verify-surface-module.cjs and
+// lib/core/doctor/statusline-visibility-module.cjs. The accumulative engine
+// owns their dispatch + fix-then-recheck flow via the registry
+// (data/doctor-modules.json). Class H was retired in Phase 341 plan 09.
 
 // -- Class I + Class J: install-state + topology + version-of-record  ---
 //   + deployment-surface manifest reconciliation (Phase 123 Plan-03).
@@ -2755,11 +2752,10 @@ function renderHumanReport(report) {
   // BALLOT X is forbidden; U+26A0 WARN and U+2298 CIRCLED DIVISION SLASH
   // are approved per the 12-glyph vocabulary).
   if (report.checks) {
-    // Class G (statusline-visibility) + class H (install-incomplete) hand-coded
-    // render branches RETIRED (Phase 217 Plan 05): both rows -- and class H's
-    // hint sub-line -- now come from the generic loop below + the runner's
-    // action_lines[]. After this plan the ONLY non-generic render path left is
-    // class A (install-cache), the sanctioned carve-out (Plan 06).
+    // Class G (statusline-visibility) hand-coded render branch RETIRED (Phase
+    // 217 Plan 05): its row now comes from the generic loop below + the
+    // runner's action_lines[]. After this plan the ONLY non-generic render path
+    // left is class A (install-cache), the sanctioned carve-out (Plan 06).
     for (const [name, check] of Object.entries(report.checks)) {
       if (name === 'install-cache') continue; // already handled above.
       // Skip entries are omitted, matching the plugin-enabled-state precedent
@@ -2784,7 +2780,7 @@ function renderHumanReport(report) {
       // dispatch), which is why this bug appears only under a combined run.
       bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status || (check.ok ? 'ok' : 'unknown')));
       // Phase 217 Plan-01: action_lines sub-line support. The structural home
-      // for the hand-coded hint sub-lines (class H/K/N) that later migration
+      // for the hand-coded hint sub-lines (class K/N) that later migration
       // plans delete: a cadence:always module returns action_lines[] and the
       // generic renderer prints one dim `-> ` sub-line per entry.
       if (Array.isArray(check.action_lines)) {
@@ -4157,16 +4153,14 @@ function main() {
   // engine now owns cascade-rooms + cascade-rooms-active under the --cascade-rooms
   // flag; class B's --fix (never wired pre-217) lives in the runner's fix(ctx).
 
-  // Class D (verify-surface), class G (statusline-visibility), and class H
-  // (install-incomplete) migrated to registry-driven cadence:always runners
-  // (Phase 217 Plan 05). The accumulative engine now owns:
+  // Class D (verify-surface) and class G (statusline-visibility) migrated to
+  // registry-driven cadence:always runners (Phase 217 Plan 05). The
+  // accumulative engine now owns:
   //   - verify-surface under --verify-surface (check-only, fix_supported false);
-  //   - statusline-visibility + install-incomplete under --statusline-visibility
-  //     (H shares G's flag, today's exact behavior: --statusline-visibility
-  //     surfaces both, --all surfaces both);
-  // and the engine's fix-then-recheck flow owns what the old hand-wired G/H --fix
-  // dispatches did (G gate: warn AND recoverable !== false; H's stricter
-  // recoverable === true gate is enforced runner-internally in its fix(ctx)).
+  //   - statusline-visibility under --statusline-visibility;
+  // and the engine's fix-then-recheck flow owns what the old hand-wired G --fix
+  // dispatch did (G gate: warn AND recoverable !== false). Class H, which used
+  // to share G's flag, was retired in Phase 341 plan 09.
 
   // Class I (install-state) + Class J (deployment-surfaces) migrated to
   // registry-driven cadence:always runners (Phase 217 Plan 06). The

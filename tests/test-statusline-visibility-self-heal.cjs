@@ -45,7 +45,6 @@ function makeSandbox(doctorMode) {
       "require('node:fs').writeFileSync(" + JSON.stringify(sentinel) + ", 'x');",
       'const report = { checks: {',
       "  'statusline-visibility': { status: " + JSON.stringify(gStatus) + " },",
-      "  'install-incomplete': { status: " + JSON.stringify(gStatus) + " },",
       '} };',
       'process.stdout.write(JSON.stringify(report));',
       'process.exit(0);',
