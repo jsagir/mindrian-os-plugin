@@ -356,6 +356,13 @@ async function main() {
         assert.equal(claim.ok, true, JSON.stringify(claim));
         boundNodeIds.push(claim.node_id);
       }
+      // The current Eureka hole-swap null needs at least 2 distinct edges between
+      // different nodes; a graph with 0 edges returns invalid_input. Link the
+      // four claims with a path and a chord (3 edges) so every analysis runs.
+      const edgeSql = roomDb.prepare('INSERT INTO edges (source,target,type,properties) VALUES (?,?,?,?)');
+      for (const [from, to] of [[0, 1], [1, 2], [2, 3]]) {
+        edgeSql.run(boundNodeIds[from], boundNodeIds[to], 'RELATES_TO', '{}');
+      }
     } finally { navigation.closeRoomDbForCaller(roomDb); }
     require('../lib/core/session-binding.cjs').writeSessionBinding(sessionId, {
       bound: [born.slug], primary: born.slug, sticky: true,
