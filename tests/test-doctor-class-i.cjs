@@ -9,7 +9,7 @@
  *   i.1  absent ~/.mindrian/install-state.json -> warn + recoverable
  *   i.2  wrong-version ~/.mindrian-last-version -> drift; --fix rewrites it
  *   i.3  legacy clone + healthy marketplace-cache -> migration candidate;
- *        --fix backup-then-verify-then-remove (legacy gone, tarball
+ *        --fix backup-then-verify-then-remove (legacy gone, backup dir
  *        present, marketplace-cache untouched)
  *   i.4  legacy clone with uncommitted git changes -> --fix REFUSES;
  *        legacy dir remains
@@ -234,14 +234,16 @@ try {
   const findings = c.findings || [];
   const isMigCandidate = findings.some(f => /legacy.*migration|migrate|legacy.clone/i.test(f.finding || ''));
   assert.ok(isMigCandidate, 'expected a legacy-clone migration-candidate finding; findings=' + JSON.stringify(findings));
-  // Apply --fix -- the legacy dir should be tarred + removed.
+  // Apply --fix -- the legacy dir should be backed up + removed.
   ({ report } = runDoctor(home, ['--install-state', '--fix']));
   assert.strictEqual(fs.existsSync(legacyDir), false, 'legacy dir removed');
-  // A backup tarball should exist.
-  const backupsDir = path.join(home, '.mindrian', 'backups');
-  assert.ok(fs.existsSync(backupsDir), 'backups dir created');
-  const tarballs = fs.readdirSync(backupsDir).filter(f => /^legacy-.*\.tar\.gz$/.test(f));
-  assert.ok(tarballs.length >= 1, 'a legacy-* tarball exists in ~/.mindrian/backups/');
+  // Phase 341-07: the teardown is delegated to
+  // scripts/migrate-legacy-install-location.cjs, which writes a verified
+  // directory copy to ~/.mindrian/legacy-install-backup-<ISO>/ (not a tarball).
+  const mindrianDir = path.join(home, '.mindrian');
+  const backups = fs.readdirSync(mindrianDir).filter(f => /^legacy-install-backup-/.test(f));
+  assert.ok(backups.length >= 1, 'a legacy-install-backup-* directory exists in ~/.mindrian/');
+  assert.ok(fs.existsSync(path.join(mindrianDir, backups[0], '.claude-plugin', 'plugin.json')), 'backup holds the legacy files');
   // The marketplace-cache install is UNTOUCHED.
   const mcPj = JSON.parse(fs.readFileSync(path.join(mcDir, '.claude-plugin', 'plugin.json'), 'utf8'));
   assert.strictEqual(mcPj.version, '1.13.0-beta.13', 'marketplace-cache install untouched');
