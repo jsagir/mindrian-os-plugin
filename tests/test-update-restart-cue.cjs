@@ -30,7 +30,6 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PREFLIGHT = path.join(REPO_ROOT, 'scripts', 'sessionstart-post-update-preflight.cjs');
 const UPDATE_MD = path.join(REPO_ROOT, 'commands', 'update.md');
-const ACTIVATION = path.join(REPO_ROOT, 'scripts', 'post-update-activation.cjs');
 
 let pass = 0;
 let fail = 0;
@@ -156,12 +155,9 @@ function runPreflight(home, pluginRoot) {
   assert('(d) update.md: references mindrian-ascii-logo', /mindrian-ascii-logo/.test(md));
 })();
 
-// -- (d') logo wiring in the post-update activation report ----------------
-(function testActivationLogo() {
-  const src = fs.readFileSync(ACTIVATION, 'utf8');
-  assert("(d') activation: references mindrian-ascii-logo", /mindrian-ascii-logo/.test(src));
-  assert("(d') activation: emits RESTART banner", /RESTART THIS SESSION NOW/.test(src));
-})();
+// (d') The logo and banner wiring of the retired activation report went with the
+// activator (Phase 341 plan 08). The banner and logo live ONLY in commands/update.md
+// now, and arm (d) above pins both.
 
 // -- summary --------------------------------------------------------------
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

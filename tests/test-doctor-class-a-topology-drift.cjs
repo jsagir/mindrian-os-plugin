@@ -224,14 +224,12 @@ try {
   assert.ok(/install-cache\s+.*healthy/.test(dOut), 'install-cache reports healthy under marketplace-cache; got: ' + dOut.slice(0, 220));
   assert.ok(dOut.indexOf(V) !== -1, 'install-cache healthy line carries the active version ' + V);
   assert.ok(!/cannot read state/.test(dOut), 'no false "cannot read state" warning; got: ' + dOut.slice(0, 220));
-  // (2) post-update activator: must succeed (already-on-latest), not "activation failed".
-  const a = spawnSync('node', [DOCTOR, '--fix', '--post-update'], { env, encoding: 'utf8', timeout: 30000 });
-  const aOut = ((a.stdout || '') + (a.stderr || '')).replace(/\x1b\[[0-9;]*m/g, '');
-  assert.strictEqual(a.status, 0, 'post-update activator exits 0; got ' + a.status + ' :: ' + aOut.slice(0, 200));
-  assert.ok(!/activation failed/.test(aOut), 'activator must not report "activation failed"; got: ' + aOut.slice(0, 200));
+  // (2) RETIRED in Phase 341 plan 08: the post-update activator arm drove
+  //     `doctor --fix --post-update`, deleted with the activator. The healthy
+  //     install-cache verdict in (1) is the surviving contract.
   rmTmp(home);
-  pass('Test a.4 (marketplace-cache -> install-cache healthy + activator succeeds)');
-} catch (err) { failTest('Test a.4 (marketplace-cache -> install-cache healthy + activator succeeds)', err); }
+  pass('Test a.4 (marketplace-cache -> install-cache healthy)');
+} catch (err) { failTest('Test a.4 (marketplace-cache -> install-cache healthy)', err); }
 
 if (failed > 0) {
   console.log('\n' + failed + ' test(s) FAILED (' + passed + ' passed)');

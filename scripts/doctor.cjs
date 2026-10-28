@@ -191,15 +191,6 @@ function parseArgs(argv) {
     // class A-M drift detection, not for environment readiness probes.
     // Closes the Windows tester 2026-05-23 silent-failure class.
     checkRsEngine: false,
-    // Phase 127.2 Plan 04 Instance #7: --post-update routes through
-    // scripts/post-update-activation.cjs (atomic-swap delegate to the
-    // existing --fix pipeline + touch-file write so the next session's
-    // sessionstart-post-update-preflight.cjs verifies activation reached
-    // the wire). ADD-ONLY -- not a class flag; has its OWN dispatch +
-    // exit-code contract (0 = activated or already on latest; 1 = swap
-    // attempted and failed). Composes with --fix when called as
-    // `doctor --fix --post-update` from /mos:update Step 7.
-    postUpdate: false,
     // Phase 146 Plan 04 (ACPT-01..05) + Phase 150.5-03 (ACPT-06):
     // --dogfood-acceptance is the LOOP-FIRES gate -- the Phase 146 milestone
     // gate. It runs the 6 ACPT dogfood drivers
@@ -311,7 +302,6 @@ function parseArgs(argv) {
     else if (arg === '--reset-install-id') flags.resetInstallId = true;
     else if (arg === '--icm-walk') flags.icmWalk = true;
     else if (arg.startsWith('--room=')) flags.roomDir = arg.slice('--room='.length);
-    else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
     else if (arg === '--dry-run') flags.dryRun = true;
@@ -526,12 +516,6 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            Mints a fresh id, replaces the state-dir file, prints exactly
                            "install id rotated", never prints the value, and always exits
                            0 (even when the state dir is not writable). NOT in --all.
-  --post-update            (Phase 127.2 Plan 04 Instance #7) atomically activate
-                           freshly-landed cache-staging bytes via scripts/post-update-
-                           activation.cjs (delegates to --fix pipeline + writes the
-                           ~/.mindrian/post-update-restart-pending touch-file). Wired
-                           into /mos:update Step 7 + composable as --fix --post-update.
-                           Exit 0 = activated or already on latest; exit 1 = swap failed.
 
 Loop-fires gate (Phase 146 -- the milestone gate; separate from class flags):
   --dogfood-acceptance     run the 6 ACPT dogfood drivers (engine-fires,
@@ -1684,6 +1668,11 @@ function buildAcceptanceChecklist(ctx) {
       // is FALSE before tag + publish, so the pre-tag and pre-flight modes
       // skip this point. Step 9.8 of release.sh runs the full --acceptance
       // gate AFTER publish, which is where this point gates.
+      //
+      // Phase 341 (D-07, plan 341-08): the post-update touch-file mechanism was
+      // retired. This point never read the touch-file, so it is deliberately kept
+      // and it moves onto the D-07a detached leg (scripts/session-verify-probe.cjs
+      // runs it in full mode), because it spawns a real MCP handshake.
       id: 'activation-reached-the-wire',
       label: 'L4 MCP server version matches package.json version-of-record',
       severity: 'blocker',
@@ -3855,50 +3844,6 @@ function main() {
     return;
   }
 
-  // Phase 127.2 Plan 04 Instance #7: --post-update dispatch.
-  //
-  // Delegates to scripts/post-update-activation.cjs which (a) detects the
-  // freshly-landed cache-staging dir, (b) atomically swaps via the existing
-  // --fix pipeline (Phase 95.2; three autopsies of hardening), (c) writes
-  // the ~/.mindrian/post-update-restart-pending touch-file so the next
-  // session's sessionstart-post-update-preflight.cjs can verify activation
-  // reached the wire (Class N acceptance, see buildAcceptanceChecklist).
-  //
-  // SCOPE GUARD: ADD-ONLY -- does not touch any existing acceptance point,
-  // UI-compliance check, or session-start hook. Composable with --fix: when
-  // both flags pass we spawn post-update-activation.cjs which itself spawns
-  // doctor.cjs --fix --json (the existing chain) so the atomic-swap logic
-  // is exercised through ONE canonical code path. Closes Canon Part 7
-  // (reuse before build) on the activation-reached-the-wire surface.
-  if (flags.postUpdate) {
-    try {
-      const activator = require(path.join(__dirname, 'post-update-activation.cjs'));
-      activator.activatePostUpdate({}).then(function (result) {
-        if (flags.json) {
-          process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-        } else {
-          process.stdout.write(activator.renderActionReport(result));
-        }
-        process.exit(result.ok ? 0 : 1);
-      }).catch(function (e) {
-        if (flags.json) {
-          console.log(JSON.stringify({ ok: false, error: (e && e.message) || 'unknown' }, null, 2));
-        } else {
-          console.error('post-update activation threw: ' + (e && e.message));
-        }
-        process.exit(1);
-      });
-    } catch (e) {
-      if (flags.json) {
-        console.log(JSON.stringify({ ok: false, error: 'failed to load post-update-activation: ' + (e && e.message) }, null, 2));
-      } else {
-        console.error('failed to load post-update-activation: ' + (e && e.message));
-      }
-      process.exit(1);
-    }
-    return;
-  }
-
   // Phase 127-02 BRAIN-MCP-127-08: --brain-smoke (class M) dispatch.
   //
   // Phase 217 carve-out: brain-smoke (class M) stays special-cased as an async
@@ -4003,7 +3948,7 @@ function main() {
     recoverySkipped: null, // set when --fix drift recovery is skipped BY DESIGN
                            // (marketplace-cache topology; RCA
                            // doctor-marketplace-cache-drift-deadlock). Stable
-                           // JSON shape for consumers (post-update activator).
+                           // JSON shape for consumers (the --fix report readers).
     checks: {},     // class B/C/D/E/F results land here.
     recovered: [],  // unified array of recovery records across all classes.
   };

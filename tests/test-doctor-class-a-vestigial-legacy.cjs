@@ -210,16 +210,9 @@ try {
   pass('Test v.2 (--fix exits 0, classARecovered/recoveryError null, no unknown render)');
 } catch (err) { failTest('Test v.2 (--fix exits 0, classARecovered/recoveryError null, no unknown render)', err); }
 
-// -- v.3: post-update activation heals --------------------------------------
-try {
-  const home = makeTmpHome('v3');
-  makeCoexistenceFixture(home);
-  const { r, out } = runDoctorHuman(home, ['--fix', '--post-update']);
-  assert.strictEqual(r.status, 0, 'doctor --fix --post-update exits 0; got ' + r.status + ' :: ' + out.slice(0, 250));
-  assert.ok(!/activation failed/.test(out), 'activator must not report "activation failed"; got: ' + out.slice(0, 250));
-  rmTmp(home);
-  pass('Test v.3 (post-update activation succeeds on the coexistence box)');
-} catch (err) { failTest('Test v.3 (post-update activation succeeds on the coexistence box)', err); }
+// -- v.3: RETIRED in Phase 341 plan 08. It drove `doctor --fix --post-update`, whose
+//    activator was deleted (the Claude Code loader owns the swap). The healing it
+//    pinned for the coexistence box is covered by v.1 and v.2 (`doctor --fix`).
 
 // -- v.4: skipped-by-design render + exit (genuine drift, marketplace-cache) -
 try {

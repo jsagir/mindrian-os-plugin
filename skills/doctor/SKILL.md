@@ -3,7 +3,7 @@ name: doctor
 description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
+argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
 layer: "harness"
 layer_why: "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
@@ -127,7 +127,6 @@ These siblings own their own exit contracts and are not part of the class-flag d
 - `--claims` -> the claims-verification leg.
 - `--check-rs-engine` -> the reason-select engine probe (NOT part of `--all`).
 - `--reset-install-id` -> rotates the opaque per-install bucket key the plugin sends to Theo, prints `install id rotated`, never prints the value, and always exits 0. Full contract: `docs/THEO-INSTALL-ID.md`.
-- `--post-update` -> the post-`claude plugin update` confirmation pass.
 - `--bind-check <roomDir>` -> a lightweight LOCAL room-health check run at BIND-TIME (never per-turn, never a Brain call). NEVER-BLOCK: an unhealthy room degrades to an advisory and STILL exits 0.
 - `--icm-walk [--room <dir>] [--json]` -> the ICM walk (below): a measurement-only report of the room root and every nest against the ten ICM invariants and the walk test. NOT part of `--all`; `--room` defaults to the registry's active room; writes nothing, fixes nothing, exits 0 after printing.
 - `--light-npx` -> the lighter npx-roundtrip variant for `--acceptance`.

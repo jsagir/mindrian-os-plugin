@@ -4,7 +4,7 @@
 # Greps + file-existence + minimal functional checks. Designed for fast
 # CI gating; the deep behavioral coverage lives in:
 #   - tests/test-room-registry-windows-path.cjs (Instance #4)
-#   - tests/test-mos-update-activation-gap.cjs  (Instance #7)
+#   - tests/test-341-update-collapsed.cjs  (Instance #7 mechanism retired in Phase 341 plan 08)
 #
 # Expected: 16+ PASS, 0 FAIL.
 
@@ -54,25 +54,22 @@ assert_grep 'instance-4: shim also injected into reapply-modifications' 'normwin
 
 # --- Instance #7 structural checks (post-update activation) --------------
 
-assert_file 'instance-7: scripts/post-update-activation.cjs exists' scripts/post-update-activation.cjs
+# Phase 341 plan 08 retired the touch-file mechanism (the activator script, the
+# doctor flag, the update.md step). What survives, and is asserted here: the
+# SessionStart host hook, the activation-reached-the-wire acceptance point, and
+# the hook registration. tests/test-341-update-collapsed.cjs pins the retirement.
 assert_file 'instance-7: scripts/sessionstart-post-update-preflight.cjs exists' scripts/sessionstart-post-update-preflight.cjs
-assert_grep 'instance-7: doctor.cjs declares --post-update flag handler' '--post-update' scripts/doctor.cjs
 assert_grep 'instance-7: doctor.cjs registers activation-reached-the-wire acceptance point' 'activation-reached-the-wire' scripts/doctor.cjs
-assert_grep 'instance-7: commands/update.md calls --fix --post-update' '\-\-fix --post-update' commands/update.md
 assert_grep 'instance-7: hooks/hooks.json registers post-update-preflight' 'sessionstart-post-update-preflight' hooks/hooks.json
-assert_grep 'instance-7: post-update-activation.cjs exports POST_UPDATE_TOUCH_FILE constant' 'POST_UPDATE_TOUCH_FILE' scripts/post-update-activation.cjs
-assert_grep 'instance-7: post-update-activation.cjs exports activatePostUpdate fn' 'activatePostUpdate' scripts/post-update-activation.cjs
-assert_grep 'instance-7: preflight reads ~/.mindrian/post-update-restart-pending' 'post-update-restart-pending' scripts/sessionstart-post-update-preflight.cjs
 
 # --- Functional smoke (cheap to run, catches gross regressions) ----------
 
 assert_exec 'functional: doctor.cjs --help renders without crashing' node scripts/doctor.cjs --help
-assert_exec 'functional: doctor.cjs --post-update --json executes' bash -c 'node scripts/doctor.cjs --post-update --json | head -1 | grep -q "{"'
 assert_exec 'functional: hooks/hooks.json parses as valid JSON' node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))"
 
 # --- Hygiene: no em-dashes in user-facing surfaces we touched ------------
 
-if grep -l "$(printf '\xe2\x80\x94')" scripts/post-update-activation.cjs scripts/sessionstart-post-update-preflight.cjs >/dev/null 2>&1; then
+if grep -l "$(printf '\xe2\x80\x94')" scripts/sessionstart-post-update-preflight.cjs >/dev/null 2>&1; then
   fail 'hygiene: NEW source files contain em-dashes (forbidden by HARD rule)'
 else
   pass 'hygiene: NEW source files free of em-dashes'

@@ -141,6 +141,8 @@ run_if "341: install-sh-retired" "tests/test-341-install-sh-retired.cjs" \
   node tests/test-341-install-sh-retired.cjs
 run_if "341: update-collapsed" "tests/test-341-update-collapsed.cjs" \
   node tests/test-341-update-collapsed.cjs
+run_if "341: session-verify-state" "tests/test-341-session-verify-state.cjs" \
+  node tests/test-341-session-verify-state.cjs
 run_if "341: retired-classes-a-h" "tests/test-341-retired-classes-a-h.cjs" \
   node tests/test-341-retired-classes-a-h.cjs
 run_if "341: retired-topology-halves" "tests/test-341-retired-topology-halves.cjs" \
