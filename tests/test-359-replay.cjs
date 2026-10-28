@@ -12,7 +12,7 @@
 //   L5 dogfood overlay           L6 hygiene (tmp dirs, baseline.json)
 //   L7 baseline-359 (active once it exists)   L8 write-359 guards (temp corpus)
 //   L9 deriveDeclaredVariant     L10 default mode has no fork359 key
-//   --mutation is reserved: lands in 359-08.
+//   --mutation (359-08): M1 arm removed, M2 free-text regex, HEAD control.
 //
 // Test hygiene (every spawn): TYPESAFE_API_KEY stripped; HOME,
 // USERPROFILE and MINDRIAN_ROOMS_HOME redirected to a fresh mkdtemp dir;
@@ -102,6 +102,105 @@ function replay(args) {
 
 function entryOf(json, id) {
   return json.entries.find(function (e) { return e.id === id; });
+}
+
+// ---------------------------------------------------------------------
+// --mutation (359-08, SPEC R10, D-23, RESEARCH Pattern 3): a distinct
+// invocation mode. Proves that (M1) deleting the declared arm and (M2)
+// adding any free-text fork regex before the no-gate-signal return each
+// make the standing replay fail, and that an unmutated HEAD copy passes.
+// Every mutant lives in its own mkdtemp copy of a `git archive HEAD`;
+// nothing is ever written into the working tree. Every mkdtemp is removed
+// in a finally.
+// ---------------------------------------------------------------------
+if (process.argv.indexOf('--mutation') !== -1) {
+  const MUT_ARGS = ['--source', 'synthetic-359', '--fork359', '--surface', 'cli'];
+  const CHECK_REL = path.join('scripts', 'check-card-fire.cjs');
+  const made = [];
+
+  function buildHeadCopy(label) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-359-root-mutation-' + label + '-'));
+    made.push(dir);
+    const archivePath = path.join(dir, 'a.tar');
+    const arch = spawnSync('git', ['archive', '-o', archivePath, 'HEAD', 'scripts', 'lib', 'data', 'package.json', '.claude-plugin'], { cwd: REPO, encoding: 'utf8' });
+    if (arch.status !== 0) throw new Error('git archive failed: ' + arch.stderr);
+    const tarx = spawnSync('tar', ['-xf', archivePath, '-C', dir], { encoding: 'utf8' });
+    if (tarx.status !== 0) throw new Error('tar failed: ' + tarx.stderr);
+    fs.rmSync(archivePath, { force: true });
+    const nm = path.join(REPO, 'node_modules');
+    if (fs.existsSync(nm)) {
+      try { fs.symlinkSync(nm, path.join(dir, 'node_modules'), 'dir'); } catch (_e) { /* best-effort */ }
+    }
+    return dir;
+  }
+
+  function editCheck(dir, editFn) {
+    const p = path.join(dir, CHECK_REL);
+    const lines = fs.readFileSync(p, 'utf8').split('\n');
+    const out = editFn(lines);
+    fs.writeFileSync(p, out.join('\n'));
+  }
+
+  function findOne(lines, needle, what) {
+    const idx = [];
+    lines.forEach(function (l, i) { if (l.indexOf(needle) !== -1) idx.push(i); });
+    if (idx.length !== 1) throw new Error(what + ': expected exactly 1 line containing "' + needle + '", found ' + idx.length);
+    return idx[0];
+  }
+
+  try {
+    const control = buildHeadCopy('control');
+    const m1 = buildHeadCopy('M1');
+    editCheck(m1, function (lines) {
+      const a = findOne(lines, 'ANCHOR fork359-declared-arm', 'M1 anchor');
+      if (lines[a + 1].indexOf('const forkDeclared = ') === -1) throw new Error('M1: the line after the anchor is not the forkDeclared line');
+      lines[a + 1] = 'const forkDeclared = false;';
+      return lines;
+    });
+    const m2 = buildHeadCopy('M2');
+    editCheck(m2, function (lines) {
+      const a = findOne(lines, 'if (!primaryHit && !backstopHit && !forkDeclared)', 'M2 anchor');
+      lines.splice(a, 0,
+        '// ANCHOR fork359-mutation-M2 (free-text fork regex, must fail the suite)',
+        "if (/\\bor\\b[^\\n]*\\?/.test(outputText)) { return { intercept: true, reason: 'mutation-free-text-fork', degrade: false }; }");
+      return lines;
+    });
+
+    const rc = replay(['--code-root', control].concat(MUT_ARGS));
+    const r1 = replay(['--code-root', m1].concat(MUT_ARGS));
+    const r2 = replay(['--code-root', m2].concat(MUT_ARGS));
+
+    ok('mutation control: the unmutated HEAD copy exits 0 (exit ' + rc.status + ')', function () {
+      assert.ok(rc.json, 'stdout did not parse: ' + rc.stderr);
+      assert.equal(rc.status, 0);
+      assert.equal(rc.json.counts.fork359.declared_catch_rate, 1);
+      assert.equal(rc.json.counts.fork359.control_false_blocks, 0);
+    });
+    ok('mutation M1: the declared arm replaced by `false` exits non-zero with catch rate below 1 (exit ' + r1.status + ', declared_catch_rate ' + (r1.json && r1.json.counts.fork359.declared_catch_rate) + ')', function () {
+      assert.ok(r1.json, 'stdout did not parse: ' + r1.stderr);
+      assert.notEqual(r1.status, 0);
+      const rate = r1.json.counts.fork359.declared_catch_rate;
+      assert.ok(rate === null || rate < 1, 'declared_catch_rate was ' + rate);
+    });
+    ok('mutation M2: a free-text fork regex exits non-zero with control_false_blocks above 0 (exit ' + r2.status + ', control_false_blocks ' + (r2.json && r2.json.counts.fork359.control_false_blocks) + ')', function () {
+      assert.ok(r2.json, 'stdout did not parse: ' + r2.stderr);
+      assert.notEqual(r2.status, 0);
+      assert.ok(r2.json.counts.fork359.control_false_blocks > 0, 'control_false_blocks was ' + r2.json.counts.fork359.control_false_blocks);
+    });
+    ok('mutation: NETWORK_ATTEMPT_359 never appeared', function () {
+      assert.ok(allStderr.every(function (s) { return s.indexOf('NETWORK_ATTEMPT_359') === -1; }));
+    });
+  } catch (e) {
+    total += 1;
+    failures += 1;
+    console.log('  FAIL mutation setup -- ' + (e && e.message ? e.message : String(e)));
+  } finally {
+    made.forEach(function (d) { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* best-effort */ } });
+    try { fs.rmSync(preloadDir, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+  }
+  console.log('');
+  console.log((failures === 0 ? 'PASS ' : 'FAIL ') + (total - failures) + '/' + total);
+  process.exit(failures === 0 ? 0 : 1);
 }
 
 // ---------------------------------------------------------------------
@@ -272,7 +371,8 @@ ok('L10: a default run has no fork359 key in counts or entries', function () {
 // own baseline-359.json (plan 359-08) is never written here.
 // ---------------------------------------------------------------------
 const copyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'replay359-corpus-copy-'));
-for (const name of fs.readdirSync(FIXTURES)) fs.copyFileSync(path.join(FIXTURES, name), path.join(copyDir, name));
+// baseline-359.json is excluded: L8 proves the write guards on a copy that has none (359-08).
+for (const name of fs.readdirSync(FIXTURES)) { if (name === 'baseline-359.json') continue; fs.copyFileSync(path.join(FIXTURES, name), path.join(copyDir, name)); }
 const baselineBytes = fs.readFileSync(path.join(copyDir, 'baseline.json'));
 ok('L8: --baseline write-359 without --code-root git:<pre_359_sha> exits 2 and writes nothing', function () {
   const a = replay(['--corpus-dir', copyDir, '--baseline', 'write-359', '--surface', 'cli']);
