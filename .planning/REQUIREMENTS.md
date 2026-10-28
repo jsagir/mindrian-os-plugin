@@ -4930,17 +4930,28 @@ These 52 IDs were minted in the Phase 369.25 plan set (2026-10-06) from `369.25-
 
 PM314-01..11 were minted in the Phase 314 plan set (2026-10-28) from `314-CONTEXT.md` D-01 to D-07 and the engine-path ruling of 2026-10-28.
 
-- [ ] **PM314-01**: `/mos:eureka-portfolio` exists, is born wired, declares its HITL shape and layer, and takes the whole room or a named section (D-05).
-- [ ] **PM314-02**: The command prints measured numbers with provenance and degrades honestly in plain words when the engine or encoder is unavailable.
-- [ ] **PM314-03**: SENS-13 learns evidence shape B (portfolio movement) with zero new SENSOR_REGISTRY entry and zero decide() change (D-06).
-- [ ] **PM314-04**: `composePortfolioOffer` is a sibling composer next to `composeEurekaOffer` and uses a fixed template (D-06).
-- [ ] **PM314-05**: The previous-run diff is stored locally, on demand only, and the sensor never starts a run (D-01, D-02, D-07).
-- [ ] **PM314-06**: The movement rule is composite: band crossing, or a tail-quadrant entrant, or a top-N reshuffle (D-03).
+- [x] **PM314-01**: `/mos:eureka-portfolio` exists, is born wired, declares its HITL shape and layer, and takes the whole room or a named section (D-05).
+      Proof: `node tests/test-314-command.cjs` 17/17, born wired, F.8 and layer declared, registry gates green (314-05 SUMMARY).
+- [x] **PM314-02**: The command prints measured numbers with provenance and degrades honestly in plain words when the engine or encoder is unavailable.
+      Proof: `node tests/test-314-run.cjs` 13/13 and test-314-command K legs; the plain-words degrade is tested. A real-room run only reached the honest degrade (no_pairs) in calibration, so measured numbers on a real room are not shown (314-07 SUMMARY).
+- [x] **PM314-03**: SENS-13 learns evidence shape B (portfolio movement) with zero new SENSOR_REGISTRY entry and zero decide() change (D-06).
+      Proof: `node tests/test-314-sensor-shape-b.cjs` 13/13; SENSOR_REGISTRY_IDS length 23 with SENS-13 once; `git diff 7699ebdb4 HEAD` on insight-sensors.cjs, navigation-engine.cjs and sensors.cjs is empty (314-03, 314-08 SUMMARY).
+- [x] **PM314-04**: `composePortfolioOffer` is a sibling composer next to `composeEurekaOffer` and uses a fixed template (D-06).
+      Proof: `node tests/test-314-offer.cjs` 10/10, `test-314-label-lockstep.cjs` 6/6; composePortfolioOffer is a sibling file (314-03 SUMMARY).
+- [x] **PM314-05**: The previous-run diff is stored locally, on demand only, and the sensor never starts a run (D-01, D-02, D-07).
+      Proof: `node tests/test-314-e2e.cjs` 9/9 (E4, E9: another scope never wipes an unseen movement), `test-314-cli.cjs` 12/12, source scan C12: no timer, no watcher, no network (314-04 SUMMARY).
+- [x] **PM314-06**: The movement rule is composite: band crossing, or a tail-quadrant entrant, or a top-N reshuffle (D-03).
+      Proof: `node tests/test-314-movement.cjs` 11/11. Band crossing and tail entrant are live. The top-N reshuffle part is built but OFF because thresholds are uncalibrated (see PM314-07).
 - [ ] **PM314-07**: Movement thresholds are calibrated on a real run and the run is recorded (D-04), or the SUMMARY records an accepted degrade that the navigator signs off.
-- [ ] **PM314-08**: Part 8 holds: nothing leaves the room and the envelopes use closed schemas.
-- [ ] **PM314-09**: The Tri-Polar reach (CLI, Desktop, Cowork) is stated and tested.
-- [ ] **PM314-10**: Engine-path correction: a bounded run library over the surviving 215 modules scores only the room's own linked pairs; no all-pairs loop and no runner file returns.
-- [ ] **PM314-11**: The aggregator, the CHANGELOG bullet and the canon ledger row exist.
+      Open: no real room met the calibration bar (best 194 pairs against 200); accepted degrade signed off by the navigator on 2026-10-28, thresholds stay uncalibrated and the reshuffle trigger stays off (314-07 SUMMARY).
+- [x] **PM314-08**: Part 8 holds: nothing leaves the room and the envelopes use closed schemas.
+      Proof: `node tests/test-314-part8-envelope.cjs` 6/6 and source scans show no network or Brain call in the new modules (314-01, 314-04 SUMMARY).
+- [x] **PM314-09**: The Tri-Polar reach (CLI, Desktop, Cowork) is stated and tested.
+      Proof: `node tests/test-314-mcp.cjs` 53/53 (Desktop and Cowork read the last run; they cannot start one) and the Tri-Polar table in commands/eureka-portfolio.md. No live Desktop host call was made (314-06 SUMMARY).
+- [x] **PM314-10**: Engine-path correction: a bounded run library over the surviving 215 modules scores only the room's own linked pairs; no all-pairs loop and no runner file returns.
+      Proof: `node tests/test-366-runner-retired.cjs` 5/5, both retired runner files still absent, `test-314-run.cjs` R2, R3, R8 show no all-pairs loop (314-02 SUMMARY).
+- [x] **PM314-11**: The aggregator, the CHANGELOG bullet and the canon ledger row exist.
+      Proof: `bash tests/run-all-314.sh` PASSED=43 FAILED=0 KNOWN=3; CHANGELOG and canon-map rows in commit 08f6eacc0 (314-08 SUMMARY).
 
 ## Traceability
 
