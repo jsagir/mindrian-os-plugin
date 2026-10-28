@@ -183,6 +183,18 @@ function parseArgs(argv) {
     // the clean-tree gate. Mutually exclusive with --pre-tag; if both
     // pass, --pre-tag wins.
     acceptance: false, preTag: false, preFlight: false, lightNpx: false,
+    // Phase 341 plan 08 (D-07a b): `sessionStart` is the bounded, OFFLINE
+    // acceptance tier the SessionStart hook runs once per install or update,
+    // inside its 12 second hook budget. It is a strict selection of existing
+    // points (install-state, session-start-active-version, harness-policies)
+    // plus the eureka-optin-state reporter (mcp-surface-tool-count stays off the
+    // tier: see the comment at that point). Precedence:
+    // --pre-tag wins, then --pre-flight, then --session-start, then full.
+    sessionStart: false,
+    // Phase 341 plan 08: --only=<id,id,...> with --acceptance narrows the selected
+    // tier to the named point ids. The detached session probe uses it to run just
+    // the wire point and the MCP surface point. Unknown ids select nothing.
+    onlyPoints: null,
     // Phase 127.2-03 Task 2 (Finding F1 + F7): --check-rs-engine pre-flights
     // Python deps reachable from scripts/rs-engine.py (Engine 1 Act 1 surface
     // for /mos:find-bottlenecks et al.). ADD-ONLY -- not a class flag; has
@@ -290,6 +302,8 @@ function parseArgs(argv) {
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
+    else if (arg === '--session-start') flags.sessionStart = true;
+    else if (arg.startsWith('--only=')) flags.onlyPoints = arg.slice('--only='.length);
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     // Quick task 260705-jeq: sibling reporting mode; deliberately NOT added to
@@ -342,6 +356,9 @@ function parseArgs(argv) {
   // checks preTag first); --pre-flight is the strict-subset tier release.sh
   // Step 2.5 uses BEFORE Step 3 mutates the tree.
   if (flags.preFlight) flags.acceptance = true;
+  // --session-start implies --acceptance too (Phase 341 D-07a b). Precedence if
+  // several tier flags are passed: --pre-tag, then --pre-flight, then --session-start.
+  if (flags.sessionStart) flags.acceptance = true;
   // Phase 194-07: capture the space-separated `--bind-check <roomDir>` value (the
   // `=` form is captured inline above). The value is the arg following the flag,
   // provided it is not itself a flag.
@@ -487,6 +504,15 @@ Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
                            checks like verify-release-clean-tree). Runs BEFORE release.sh
                            mutates plugin.json / package.json / CHANGELOG. Mutually
                            exclusive with --pre-tag; if both pass, --pre-tag wins.
+  --session-start          with --acceptance: filter to the bounded OFFLINE tier the
+                           SessionStart hook runs once per install or update (four
+                           points: install-state, session-start-active-version,
+                           harness-policies, eureka-optin-state).
+                           The network wire point stays off this tier. --session-start
+                           IMPLIES --acceptance. Precedence: --pre-tag, --pre-flight,
+                           then --session-start.
+  --only=<id,id,...>       with --acceptance: narrow the selected tier to the named point
+                           ids (unknown ids select nothing). Used by the detached session probe.
   --light-npx              with --acceptance (full): skip the mktemp HOME-override sandbox
                            in the npx-roundtrip point; resolve npx --no-install --help
                            instead of doing a live install. Operator opt-in.
@@ -891,13 +917,14 @@ function buildAcceptanceChecklist(ctx) {
   const home = ctx.home;
   const pluginRoot = ctx.pluginRoot;
   const flagLightNpx = ctx.flagLightNpx;
+  const checklistMode = ctx.mode;
   const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
   return [
     {
       id: 'install-state',
       label: 'install-state record present + snapshot matches a live spot-check',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'install-state') {
           return { ok: false, finding: 'install-state synthesized failure (test mode)', detail: {} };
@@ -915,6 +942,51 @@ function buildAcceptanceChecklist(ctx) {
           }
         }
         return { ok: ok, finding: finding, detail: { status: c.status, findings: c.findings, topology: c.topology } };
+      },
+    },
+    {
+      // Phase 341 plan 08 (D-07b f): the doctor line that reports the Eureka opt-in
+      // state honestly. It brings the session-start tier to FOUR points: the three
+      // D-07a (b) points that fit the hook budget plus this one (the plan said five;
+      // mcp-surface-tool-count is off the tier, see its comment). It is cheap enough for the 12 second hook
+      // budget: one JSON read of a file whose directory the tier's other points
+      // already touched, with no spawn and no network.
+      //
+      // This point is a REPORTER, not a gate. runAcceptance's reduction is
+      // severity-BLIND: any point that returns ok:false FAILS the tier, whatever its
+      // severity string says. D-07b (f) says a navigator's machine is never blocked
+      // by the opt-in behavior, so this point returns ok:true on EVERY path and
+      // carries its state in detail. Do not "fix" it into a gate. The enforcement
+      // for the opt-in behavior lives in two other places: the eureka-optin-once
+      // harness policy at rung logged, and the always-green blocking leg of
+      // tests/run-all-341.sh that runs scripts/check-eureka-optin-once.cjs.
+      //
+      // FOUR answer sentences plus one non-answer fallback (state unreadable).
+      id: 'eureka-optin-state',
+      label: 'Eureka opt-in state reported honestly (reporter, never blocks)',
+      severity: 'info',
+      applies_to: ['session-start', 'full'],
+      run: async function () {
+        let state = null;
+        try {
+          const verifyState = require(path.join(__dirname, '..', 'lib', 'core', 'session-verify-state.cjs'));
+          state = verifyState.readVerifyState();
+        } catch (_e) {
+          return { ok: true, finding: null, detail: { eureka_optin: null, sentence: 'Eureka opt-in: state unreadable' } };
+        }
+        const rec = (state && state.eureka_optin && typeof state.eureka_optin === 'object') ? state.eureka_optin : null;
+        let sentence = 'Eureka opt-in: not yet asked';
+        if (rec && rec.choice === 'installed') {
+          sentence = 'Eureka opt-in: installed at ' + String(rec.version);
+        } else if (rec && rec.choice === 'declined') {
+          sentence = 'Eureka opt-in: declined for ' + String(rec.version);
+          if (rec.install_failed === true) {
+            sentence += ' (install failed: ' + String(rec.install_failure_reason || 'reason not recorded') + ')';
+          }
+        } else if (rec && rec.choice === 'never') {
+          sentence = 'Eureka opt-in: never (cleared by running /mos:eureka enable)';
+        }
+        return { ok: true, finding: null, detail: { eureka_optin: rec, sentence: sentence } };
       },
     },
     {
@@ -1297,7 +1369,7 @@ function buildAcceptanceChecklist(ctx) {
       id: 'session-start-active-version',
       label: 'session-start derives active_version correctly from installed_plugins.json',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'session-start-active-version') {
           return { ok: false, finding: 'session-start-active-version synthesized failure (test mode)', detail: {} };
@@ -1604,7 +1676,7 @@ function buildAcceptanceChecklist(ctx) {
       id: 'harness-policies',
       label: 'every declared harness policy runs and no blocking policy failed',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'harness-policies') {
           return { ok: false, finding: 'harness-policies synthesized failure (test mode)', detail: {} };
@@ -1615,7 +1687,13 @@ function buildAcceptanceChecklist(ctx) {
           return { ok: false, finding: 'harness-policies: script missing at ' + scriptPath, detail: { note: 'script missing' } };
         }
         try {
-          const r = cp.spawnSync('node', [scriptPath, '--check', '--json'], { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          // Phase 341 plan 08 (D-07a b): in session-start mode ONLY, restrict the
+          // runner to the session-start tier so exactly the two session-start
+          // policies run inside the hook budget. Every other mode keeps the
+          // original argv byte for byte.
+          const harnessArgv = [scriptPath, '--check', '--json'];
+          if (checklistMode === 'session-start') harnessArgv.push('--tier', 'session-start');
+          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
           let parsed;
           try {
             parsed = JSON.parse(r.stdout || '{}');
@@ -1670,9 +1748,13 @@ function buildAcceptanceChecklist(ctx) {
       // gate AFTER publish, which is where this point gates.
       //
       // Phase 341 (D-07, plan 341-08): the post-update touch-file mechanism was
-      // retired. This point never read the touch-file, so it is deliberately kept
+      // retired. This point never read the touch-file, so it is deliberately kept,
       // and it moves onto the D-07a detached leg (scripts/session-verify-probe.cjs
-      // runs it in full mode), because it spawns a real MCP handshake.
+      // runs it with --only).
+      //
+      // It is deliberately NOT on the session-start tier: it spawns a real MCP
+      // handshake over the network, the inline session-start leg is offline by
+      // contract, and D-07a (d) puts the wire probe on the DETACHED leg instead.
       id: 'activation-reached-the-wire',
       label: 'L4 MCP server version matches package.json version-of-record',
       severity: 'blocker',
@@ -2037,6 +2119,16 @@ function buildAcceptanceChecklist(ctx) {
       // transfer to a 36-tool server; see the module's header comment).
       // The finding/detail carries the warn text either way so it is
       // visible in acceptance output without blocking a release on it.
+      //
+      // Phase 341 plan 08 (D-07a b): NOT on the session-start tier, a MEASURED
+      // deviation from the plan. This point spawns both MCP servers over stdio and
+      // measured 15.4 s on 2026-10-29 (mindrian-os answers in 0.4 s; the
+      // mindrian-brain shim answers tools/list but does not exit on stdin EOF, so
+      // the organ waits out its 15 s spawn timeout). 15.4 s alone exceeds the 12 s
+      // SessionStart hook budget. Like the wire point it runs on the DETACHED leg
+      // (scripts/session-verify-probe.cjs, --only), so it is relocated, not dropped.
+      // To bring it back inline: make the brain shim exit on stdin EOF, then add
+      // 'session-start' to this array and to the runner's expected set.
       id: 'mcp-surface-tool-count',
       label: 'MCP surface: live per-server tool count for both servers, fails on zero tools',
       severity: 'blocker',
@@ -2347,12 +2439,19 @@ async function runAcceptance(opts) {
   const flagPreTag = opts.flagPreTag;
   const flagPreFlight = opts.flagPreFlight;
   const flagLightNpx = opts.flagLightNpx;
-  const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx });
+  const flagSessionStart = opts.flagSessionStart;
+  const onlyPoints = (typeof opts.onlyPoints === 'string' && opts.onlyPoints.length > 0)
+    ? opts.onlyPoints.split(',').map(function (x) { return x.trim(); }).filter(Boolean)
+    : null;
   // Phase 126.1 hotfix (2026-05-15): tri-state mode. --pre-tag wins when both
   // --pre-tag and --pre-flight are passed; --pre-flight is the strict-subset
   // tier release.sh Step 2.5 uses BEFORE Step 3 mutates the tree.
-  const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : 'full');
+  // Phase 341 plan 08: a fourth tier, session-start, after pre-flight. The mode is
+  // computed BEFORE the checklist is built so a point can read opts.mode.
+  const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : (flagSessionStart ? 'session-start' : 'full'));
+  const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx, mode: mode });
   let filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
+  if (onlyPoints) filtered = filtered.filter(function (p) { return onlyPoints.indexOf(p.id) !== -1; });
 
   const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
   if (inTestMode && process.env.DOCTOR_TEST_ONLY_POINTS) {
@@ -3683,6 +3782,8 @@ function main() {
       pluginRoot: PLUGIN_ROOT,
       flagPreTag: flags.preTag,
       flagPreFlight: flags.preFlight,
+      flagSessionStart: flags.sessionStart,
+      onlyPoints: flags.onlyPoints,
       flagLightNpx: flags.lightNpx,
     }).then(function (result) {
       // Per-point status lines (human-readable). Phase 354-13 (SYS-07): under
@@ -3711,7 +3812,9 @@ function main() {
       // carries the `last_acceptance_run: { timestamp, passed, failed }`
       // field; migrateIfNeeded promotes v1 -> v2 transparently if needed.
       // Canon Part 8: LOCAL file I/O only ($HOME/.mindrian/). Zero network.
-      try {
+      // Phase 341 plan 08: the bounded session-start tier is NOT a full acceptance
+      // run, so it must not overwrite last_acceptance_run with its five-point result.
+      if (result.mode !== 'session-start') try {
         const installStateMod = require(path.join(__dirname, '..', 'lib', 'core', 'install-state.cjs'));
         // Migration is idempotent: v1 -> v2 additive; v2 no-op; future-version
         // returns futureVersion:true without touching the file (Plan 07 D3).
@@ -3736,7 +3839,7 @@ function main() {
       process.exit(result.failed_points.length === 0 ? 0 : 1);
     }).catch(function (e) {
       console.error('acceptance runner threw: ' + (e && e.message));
-      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : 'full'), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
+      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : (flags.sessionStart ? 'session-start' : 'full')), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
       process.exit(1);
     });
     return;

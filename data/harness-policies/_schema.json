@@ -14,7 +14,8 @@
       { "kind": "memory", "meaning": "a write policy: what channel, what verb, what confirmation gate a memory operation must pass through." },
       { "kind": "contract", "meaning": "a parity set: phrases or invariants that must be present across named surfaces, byte budgets included." }
     ],
-    "applies_to_vocabulary": ["pre-flight", "pre-tag", "full", "stop-hook", "room"],
+    "applies_to_vocabulary": ["pre-flight", "pre-tag", "full", "stop-hook", "room", "session-start"],
+    "applies_to_session_start_note": "Phase 341 plan 08 (D-07a f) added the member session-start. It names the tier the SessionStart hook runs once per install or update: offline, bounded, and inside the 12 second hook budget. Policies on this tier are selected by scripts/run-harness.cjs --tier session-start and by scripts/doctor.cjs --acceptance --session-start. The runner needed no change: filterByTier is generic over the vocabulary.",
     "policy_fields": [
       { "field": "id", "type": "string", "meaning": "unique, kebab-case, matches the filename without the .json extension." },
       { "field": "kind", "type": "string, member of kind_vocabulary", "meaning": "what class of check this policy declares." },

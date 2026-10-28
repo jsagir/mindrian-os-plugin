@@ -1,0 +1,13 @@
+{
+  "id": "eureka-optin-once",
+  "kind": "gate",
+  "runner": "scripts/check-eureka-optin-once.cjs",
+  "args": ["--check"],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 50, "max_false_positive_rate": 0.05, "min_true_positives": 3 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-341-eureka-optin-once.cjs", "tests/test-341-eureka-optin-card.cjs"],
+  "applies_to": ["session-start"],
+  "notes": "Enters at logged because D-07b (f) says a navigator's machine is never blocked by the opt-in behavior. The blocking enforcement lives on the dev side: tests/run-all-341.sh runs this same runner as an always-green leg, which is where a regression of the rule is caught before it ships. The runner is offline and starts no process: it drives six named fixture states (fresh, installed, declined-same-version, declined-older-version, never, first-install-reward-pending) through the one decision function and asserts the exact fire or no-fire, the defer flag and the reason for each. It reads no runtime state, so it is green on every machine. The promotion numbers are strict on false positives because a wrong verdict here either nags a navigator or silently drops a card: a 50 run window, a 5 percent ceiling and 3 confirmed true positives. A rung above logged is justified only when an evidence log exists and a human has labeled 3 real regressions the dev side leg did not catch first."
+}

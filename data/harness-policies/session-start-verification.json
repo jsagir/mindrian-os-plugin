@@ -1,0 +1,13 @@
+{
+  "id": "session-start-verification",
+  "kind": "gate",
+  "runner": "scripts/check-session-start-verification.cjs",
+  "args": ["--check"],
+  "rung": "logged",
+  "evidence_log": null,
+  "promotion_rule": { "window_runs": 20, "max_false_positive_rate": 0.1, "min_true_positives": 5 },
+  "owner": "doctor",
+  "pinned_by": ["tests/test-341-session-start-tier.cjs"],
+  "applies_to": ["session-start"],
+  "notes": "Enters at logged, not blocking, because D-07a (f) says a failed verification on a navigator's machine is surfaced and never blocking, and a blocking rung inside a SessionStart hook would let a self-check refuse the session it exists to reassure. The runner is offline and spawns nothing: it checks the hook registration, the 12 second budget, the nine-hook count, the session-start tier membership in doctor, the state module contract and the probe script, and it reports a violation for the last recorded verification only when that verification failed. The promotion numbers are deliberately small because an install or an update is a rare event: a 50 run window would take about a year to fill on one machine, so the window is 20 runs, the false positive ceiling is 10 percent, and 5 confirmed true positives are required. Raising the rung would only ever make sense on the dev side tiers, and only after an evidence log exists and a human has labeled 5 real failures; the runtime rung inside the hook stays logged."
+}
