@@ -877,6 +877,79 @@ function _advanceToDone(state) {
   return emitEmpty();
 }
 
+// ---------- Phase 341 plan 08 (D-07a e): one insight per install or update ----------
+//
+// The detached scripts/session-verify-probe.cjs leaves ONE generic-handle nugget
+// as a capture file plus insight.pending in the shared marker. This branch
+// delivers it on the first turn after the verification line, ONCE per install or
+// update (insight.delivered_for_version, never per session). It is the Phase
+// 267.2 delivery path, not a second mechanism: same hook, same
+// emitContinueWithContext, no ninth UserPromptSubmit hook. It writes ONLY through
+// lib/core/session-verify-state.cjs, and the router's own state.json, telemetry,
+// phase machine and branches are untouched.
+//
+// It never competes with the first-install reward. On a fresh install the 267.2
+// reward owns the first-turn moment, so while onboarding is mid-flight this branch
+// DEFERS: pending stays true, drain_retries increments, and it falls through to the
+// untouched chain. Mid-flight means the router's own state exists and is not done,
+// or the router has no state yet and the onboarding marker still says
+// FIRST_INSTALL. At drain_retries >= 3 it gives up terminally (drain_timeout), so
+// it can never wedge.
+const VERIFY_DRAIN_MAX_RETRIES = 3;
+
+function _loadVerifyState() {
+  try { return require(path.join(__dirname, '..', 'lib', 'core', 'session-verify-state.cjs')); }
+  catch (_e) { return null; }
+}
+
+function _readCapture(capturePath) {
+  try {
+    if (typeof capturePath !== 'string' || capturePath.length === 0) return null;
+    if (fs.statSync(capturePath).size === 0) return null;
+    const text = fs.readFileSync(capturePath, 'utf8');
+    return text.length > 0 ? text : null;
+  } catch (_e) { return null; }
+}
+
+function _deliverVerifyInsight() {
+  try {
+    const vs = _loadVerifyState();
+    if (!vs) return false;
+    const state = vs.readVerifyState();
+    if (!state || !state.insight || state.insight.pending !== true) return false;
+    const insight = state.insight;
+    // Once per install or update: never again for the version already delivered.
+    if (insight.delivered_for_version && insight.delivered_for_version === state.last_seen_version) return false;
+
+    const retries = Number.isInteger(insight.drain_retries) ? insight.drain_retries : 0;
+    if (retries >= VERIFY_DRAIN_MAX_RETRIES) {
+      vs.mergeVerifyState({ insight: Object.assign({}, insight, { pending: false, reason: 'drain_timeout' }) });
+      return false;
+    }
+
+    const text = _readCapture(insight.capture_path);
+    const routerState = _readState();
+    const midFlight = routerState
+      ? routerState.phase !== 'done'
+      : _checkOnboardStatus() === 'FIRST_INSTALL';
+    if (!text || midFlight) {
+      vs.mergeVerifyState({ insight: Object.assign({}, insight, { drain_retries: retries + 1 }) });
+      return false;
+    }
+
+    // Mark delivered BEFORE the emit (emit exits the process). If the marker
+    // cannot be written, do not emit: a repeat on every turn is worse than a miss.
+    const marked = vs.mergeVerifyState({
+      insight: Object.assign({}, insight, { pending: false, delivered_for_version: state.last_seen_version }),
+    });
+    if (!marked) return false;
+    emitContinueWithContext(text);
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 // ---------- Main ----------
 
 function main() {
@@ -884,6 +957,10 @@ function main() {
   const raw = readStdinSync();
   const payload = safeParseJSON(raw);
   const prompt = (payload && typeof payload.prompt === 'string') ? payload.prompt : null;
+
+  // Phase 341 plan 08 (D-07a e): the one-time insight. Exits the process when it
+  // fires; otherwise falls through to the untouched chain below.
+  _deliverVerifyInsight();
 
   const existingState = _readState();
 

@@ -159,6 +159,10 @@ run_if "341: eureka-optin-once" "tests/test-341-eureka-optin-once.cjs" \
   node tests/test-341-eureka-optin-once.cjs
 run_if "341: eureka-optin-once runner (D-07b f, blocking on the dev side)" "scripts/check-eureka-optin-once.cjs" \
   node scripts/check-eureka-optin-once.cjs --check
+run_if "341: session-start-verify-hook" "tests/test-341-session-start-verify-hook.cjs" \
+  node tests/test-341-session-start-verify-hook.cjs
+run_if "341: verify-insight-delivery" "tests/test-341-verify-insight-delivery.cjs" \
+  node tests/test-341-verify-insight-delivery.cjs
 run_if "341: retired-classes-a-h" "tests/test-341-retired-classes-a-h.cjs" \
   node tests/test-341-retired-classes-a-h.cjs
 run_if "341: retired-topology-halves" "tests/test-341-retired-topology-halves.cjs" \
