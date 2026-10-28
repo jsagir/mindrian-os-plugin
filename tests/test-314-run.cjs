@@ -3,7 +3,7 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  * Phase 314-02 Task 2 -- the bounded portfolio run (lib/core/eureka/portfolio-run.cjs).
- * Legs R1 to R12. Hermetic: temp HOME, USERPROFILE and MINDRIAN_ROOMS_HOME, the
+ * Legs R1 to R13. Hermetic: temp HOME, USERPROFILE and MINDRIAN_ROOMS_HOME, the
  * deterministic stub encoder injected through the encodeFn seam, no network.
  * Run with: NODE_OPTIONS="--require ./tests/eureka-offline-preload.cjs" node tests/test-314-run.cjs
  */
@@ -361,6 +361,16 @@ function opts(roomDir, extra) {
     assert.strictEqual(row.rank, 1);
     assert.ok(typeof row.score === 'number' && typeof row.band === 'string');
     assert.ok(row.dims && typeof row.dims.strategic_fit === 'number');
+  });
+
+  await leg('R13 a node id outside the handle pattern gets a stable opaque handle', async function () {
+    const hf = load()._test.handleFor;
+    assert.strictEqual(hf('entity:s:abc123'), 'entity:s:abc123');
+    const h = hf('pd/P1 with space');
+    assert.ok(snap.HANDLE_RE.test(h) && h.indexOf('h_') === 0, h);
+    assert.strictEqual(hf('pd/P1 with space'), h);
+    assert.notStrictEqual(hf('pd/P2 with space'), h);
+    assert.ok(hf('x'.repeat(300)).length <= 128);
   });
 
   tempDirs.forEach(function (d) { try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* ignore */ } });

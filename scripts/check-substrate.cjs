@@ -155,6 +155,14 @@ const ALLOWED_DIRECT_IMPORT = [
   // quick task's own action spec, so the file is allow-listed rather than
   // leaving one twin exempt and the other blocked.
   /^scripts\/gsd-graph-derive-drain\.cjs$/,
+  // Phase 314-02 (SEED-055): lib/core/eureka/portfolio-run.cjs requires room-db.cjs
+  // ONLY to open a caller-owned, allowExtension:true handle (the same idiom
+  // eureka-reach-runner.cjs and semantic-index/research-filing.cjs already use).
+  // It performs ZERO node, edge or memory_event writes: it reads nodes and typed
+  // edges, and the tri-modal index writes only the derived eureka_* projection
+  // tables (Canon Part 9: rebuildable projections, not graph state). The run never
+  // writes the portfolio store and makes no network or Brain call (Canon Part 8).
+  /^lib\/core\/eureka\/portfolio-run\.cjs$/,
 ];
 
 function isAllowedPath(p) {
