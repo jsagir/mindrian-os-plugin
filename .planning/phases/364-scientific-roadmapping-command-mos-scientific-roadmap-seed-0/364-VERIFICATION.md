@@ -91,3 +91,7 @@ The command is on `main` and in `origin/main` but not released. Release-time ite
 ## Gaps
 
 No FAILED requirement. No BLOCKER. One WARNING (SRM364-21 aggregator red from non-364 drift) and one WARNING (live authored state unverified).
+
+## Resolution note (2026-10-28, navigator-approved quick)
+
+The red leg `270 tool schema budget` was a drift from non-364 work, not a Phase 364 defect. The re-baseline of 2026-10-24 (quick 261024-uqs, commit 06b4de866, on origin/main) was cherry-picked onto this branch as 0415ae772. PROVEN: `node tests/test-270-tool-schema-budget.cjs` gives 5 passed, 0 failed. PROVEN: `bash tests/run-all-364.sh` gives PASSED=61 FAILED=0 SKIPPED=1 KNOWN=3 with the same numbers recorded. SRM364-21 (aggregator green apart from known reds) is now true. Still HUMAN_NEEDED: the live Theo walk (follow-on A6), which needs navigator approval and live egress.
