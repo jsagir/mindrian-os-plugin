@@ -197,8 +197,7 @@ function storeFiles(room) {
     });
     assert.equal(r.code, 0);
     assert.ok(r.json, 'stdout parses as one JSON document');
-    assert.equal(r.raw.trim().split('\n').length >= 1, true);
-    assert.equal(JSON.stringify(JSON.parse(r.raw)).length > 10, true);
+    assert.equal(r.raw, JSON.stringify(r.json, null, 2) + '\n', 'stdout is the one document and nothing else');
   });
 
   await leg('C5 a degraded run prints the object, exits 0 and writes nothing', async function () {
