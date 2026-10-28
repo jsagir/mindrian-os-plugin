@@ -2806,9 +2806,8 @@ Plans:
 **Goal:** A navigator can run /mos:eureka-portfolio to get a measured, provenance-stamped ranking of the room's linked opportunities. Larry notices, through the existing SENS-13 sensor, with no new sensor and no change to decide(), when that ranking moved since the previous run: a pair crosses a level, a quiet signal appears, or the top of the list reshuffles. Engine path ruled 2026-10-28: a bounded run library over the four surviving 215 scoring modules, scoring only the room's own linked pairs (the all-pairs runner stays retired by Phase 366).
 **Requirements**: PM314-01..11
 **Depends on:** Phase 313
-****Outcome:** Closed 2026-10-28 (8/8 plans, `bash tests/run-all-314.sh` PASSED=43 FAILED=0 KNOWN=3). /mos:eureka-portfolio exists and is born wired; SENS-13 learns portfolio movement with no new sensor and no change to decide(); Desktop and Cowork read the last run. Engine path ruled 2026-10-28: a bounded run library over the linked pairs (the all-pairs runner stays retired). PM314-07 stays open: no real room met the calibration bar (best 194 pairs against 200), so thresholds stay uncalibrated, the top-of-list reshuffle trigger is OFF, and the navigator accepted that degrade on 2026-10-28. Not live until a release carries it.
-
-Plans:** 8/8 plans complete
+**Outcome:** Closed 2026-10-28 (8/8 plans, `bash tests/run-all-314.sh` PASSED=43 FAILED=0 KNOWN=3). /mos:eureka-portfolio exists and is born wired; SENS-13 learns portfolio movement with no new sensor and no change to decide(); Desktop and Cowork read the last run. Engine path ruled 2026-10-28: a bounded run library over the linked pairs (the all-pairs runner stays retired). PM314-07 stays open: no real room met the calibration bar (best 194 pairs against 200), so thresholds stay uncalibrated, the top-of-list reshuffle trigger is OFF, and the navigator accepted that degrade on 2026-10-28. Not live until a release carries it.
+**Plans:** 8/8 plans complete
 
 Plans:
 
