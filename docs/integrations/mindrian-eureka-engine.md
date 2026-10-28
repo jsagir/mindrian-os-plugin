@@ -129,4 +129,5 @@ The five standalone graph services (`eureka_graph_find_shared_neighbor_gaps`, `e
 - Authorship and reuse rights of the five services are unresolved. Treat them as local-only. This guide describes no export, publish, or release path for them.
 - Each call starts a local process and persists nothing in MindrianOS. Results stay proposed until a person reviews the source evidence.
 - A sealed room, a room whose identity state is not ready, and a selection above the engine size limits are refused before any engine starts. The limits are 1,200 nodes and 6,000 edges for network holes, and 2,500 nodes and 12,000 edges for bridge pairs. The edge pattern service needs a `category_attribute` that the projection carries.
+- The graph workflow child process runs offline: the host sets `UV_OFFLINE`, `HF_HUB_OFFLINE` and `TRANSFORMERS_OFFLINE` to `1`. The engine environment must already be synced. Only the host setting `MINDRIAN_EUREKA_ALLOW_NETWORK=1` lifts this, and the variable is not passed to the child.
 - Failure text is fixed. The host does not forward raw engine messages to the caller.
