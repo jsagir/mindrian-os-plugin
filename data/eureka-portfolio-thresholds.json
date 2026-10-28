@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "calibrated": false,
+  "top_n": null,
+  "reshuffle_min_moved": null,
+  "reshuffle_min_displacement": null,
+  "calibration": null
+}

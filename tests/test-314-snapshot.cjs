@@ -15,7 +15,6 @@ const crypto = require('node:crypto');
 
 const REPO = path.resolve(__dirname, '..');
 const SNAP_PATH = path.join(REPO, 'lib', 'core', 'eureka', 'portfolio-snapshot.cjs');
-const MOVE_PATH = path.join(REPO, 'lib', 'core', 'eureka', 'portfolio-movement.cjs');
 
 const snap = require(SNAP_PATH);
 
@@ -82,8 +81,6 @@ function listing(dir) {
   })(dir);
   return out.sort();
 }
-
-const HAS_MOVEMENT_MODULE = fs.existsSync(MOVE_PATH);
 
 console.log('test-314-snapshot');
 
@@ -207,10 +204,6 @@ ok('S6 readLatest and readPrevious return null for missing, non-JSON and invalid
 });
 
 ok('S7 movement is stored per scope and never crosses scopes', function (mk) {
-  if (!HAS_MOVEMENT_MODULE) {
-    console.log('    (S7 body skipped: portfolio-movement.cjs not built yet, plan task 2 removes this guard)');
-    return;
-  }
   const room = mk();
   const store = path.join(room, '.mindrian', 'eureka-portfolio');
   const envRoom = movementEnvelope('room', 'pm_0123456789ab', '2026-10-28T10:00:00.000Z');
@@ -302,7 +295,7 @@ ok('S9 the module has no network require and writes only under the store folder'
     assert.ok(!/^(node:)?(http|https|http2|net|tls|dgram|dns)$/.test(m), 'forbidden require ' + m);
   });
   assert.ok(!/\bfetch\s*\(/.test(src), 'no fetch call');
-  assert.ok(!/—|–/.test(src), 'no em-dash or en-dash');
+  assert.ok(!new RegExp(String.fromCharCode(0x2014) + "|" + String.fromCharCode(0x2013)).test(src), 'no em-dash or en-dash');
   assert.ok(/renameSync/.test(src));
   assert.strictEqual(snap.STORE_DIRNAME, 'eureka-portfolio');
 });

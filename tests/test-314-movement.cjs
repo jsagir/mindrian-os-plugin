@@ -167,9 +167,12 @@ ok('MV6 reshuffle with injected calibrated thresholds', function () {
   const d3 = mv.diffRuns(prev, mk(['p1', 'p2', 'p3', 'p4', 'p5']), ON);
   assert.deepStrictEqual(d3.events, []);
   assert.strictEqual(d3.reshuffle_active, true);
-  // below both thresholds: 1 entered + 1 left, shift 0
-  const d4 = mv.diffRuns(prev, mk(['p1', 'p2', 'p3', 'p4', 'q5']), ON);
+  // below both thresholds: same members, max shift 2 (under 3)
+  const d4 = mv.diffRuns(prev, mk(['p3', 'p2', 'p1', 'p4', 'p5']), ON);
   assert.deepStrictEqual(d4.events, []);
+  // one member swapped is 1 entered + 1 left = 2, which meets reshuffle_min_moved 2
+  const d5 = mv.diffRuns(prev, mk(['p1', 'p2', 'p3', 'p4', 'q5']), ON);
+  assert.strictEqual(d5.counts.top_n_reshuffle, 1);
 });
 
 ok('MV7 events are ordered and counts hold the full numbers', function () {
@@ -296,7 +299,7 @@ ok('MV10 loadThresholds on the shipped file and on bad files', function () {
   }
   const shipped = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'eureka-portfolio-thresholds.json'), 'utf8'));
   assert.deepStrictEqual(Object.keys(shipped).sort(), ['calibrated', 'calibration', 'reshuffle_min_displacement', 'reshuffle_min_moved', 'schema_version', 'top_n']);
-  assert.ok(!/—|–/.test(fs.readFileSync(path.join(REPO, 'data', 'eureka-portfolio-thresholds.json'), 'utf8')));
+  assert.ok(!new RegExp(String.fromCharCode(0x2014) + "|" + String.fromCharCode(0x2013)).test(fs.readFileSync(path.join(REPO, 'data', 'eureka-portfolio-thresholds.json'), 'utf8')));
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 't314-mv-'));
   try {
@@ -346,7 +349,7 @@ ok('MV11 topNMetrics is the one measure the detector uses', function () {
   // the detector source holds no numeric top_n literal besides the floor of 2
   const src = fs.readFileSync(path.join(REPO, 'lib', 'core', 'eureka', 'portfolio-movement.cjs'), 'utf8');
   assert.ok(!/top_n\s*[:=]\s*[0-9]/.test(src.replace(/\/\*[\s\S]*?\*\//g, '')), 'no numeric top_n literal');
-  assert.ok(!/—|–/.test(src), 'no em-dash or en-dash');
+  assert.ok(!new RegExp(String.fromCharCode(0x2014) + "|" + String.fromCharCode(0x2013)).test(src), 'no em-dash or en-dash');
   const reqs = (src.match(/require\(\s*['"][^'"]+['"]\s*\)/g) || []);
   reqs.forEach(function (r) {
     const name = /['"]([^'"]+)['"]/.exec(r)[1];
