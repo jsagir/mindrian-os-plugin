@@ -1248,7 +1248,7 @@ Plans:
 **Goal note:** superseded by `359-SPEC.md` and the navigator rulings N-1..N-6 in `359-CONTEXT.md`: the hook never guesses a fork from free text. Larry declares a prose fork himself on his last line, `Your call: A | B | What if C` (visible; 2 or 3 practical options, then one relevant, radical What-if moonshot), and the Stop hook and the MCP `stop_gate_check` read only that line. Measured three ways: 0 verdict changes on the 357 corpus, 100% declared-variant catch with 0 control false blocks, and a navigator-gated Sonnet 5 forward run (USD 0.40 per run, USD 60 total) that must cut forward missed forks by at least half above a vacuity floor, or the R8 prose is reverted and a follow-on opens.
 **Requirements**: FORK359-01..10 (minted at plan time 2026-09-23; registered in `.planning/REQUIREMENTS.md`; one per SPEC R1-R10)
 **Depends on:** Phase 357 (replay corpus, harness, labeler and card_fire_replay profile, the D-06 dogfood labels, the 357-10 prose shrink); execution HALTS at 359-01 until every 357 SUMMARY (01-10) is on main with R4 MET (D-17)
-**Plans:** 12 plans
+**Plans:** 12/12 plans complete
 
 Plans:
 
@@ -3632,11 +3632,11 @@ Plans:
 **Goal:** Bring the reviewed adapter wave into the canonical plugin checkout, align it with Eureka's current 66-capability catalog, and make five standalone graph algorithms callable over explicit authorized MindrianOS graph projections.
 **Requirements**: EUREKA-HOST-01 through EUREKA-HOST-05.
 **Depends on:** Phase 372
-**Plans:** 1 plan
+**Plans:** 2/2 plans complete
 
 Plans:
 
-- [ ] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph
+- [x] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph
 
 ### Critical path after Phase 372 (SEED-134, ruled 2026-10-20)
 
