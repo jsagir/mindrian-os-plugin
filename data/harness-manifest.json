@@ -54,17 +54,17 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "1d56c7340dc86a2f8e12cc4a897c8c56242df62dde63ac49f7f848328012e68e"
+      "digest": "6331867a1ff81844b5b92fe98dd9e4a6f0a90f47641944489311ce1b2202138d"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "2d15cdcd1b055ec4d5dc6d5fa988483099071906b4df399e1a36ae534b61f888"
+      "digest": "d49bd44e1fa96a2fe151d6a789fc0df7e668bff089c7a19d1107692c372e9ee3"
     },
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "e625182db40dc5d94754501180b47d152330c70436440e1d54872b1c9663d62e"
+      "digest": "87c22d9d9d5149ed5d61dce4d91c07536e98df7262e0c2780b73e245ed495621"
     }
   ],
   "fixture_ref": {
