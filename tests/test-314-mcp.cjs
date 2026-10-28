@@ -126,7 +126,7 @@ function makeSnapshot(scope, over) {
   for (let i = 1; i <= 12; i += 1) {
     pairs.push({ a: 'n' + pad3(i * 2 - 1), b: 'n' + pad3(i * 2), band: BANDS_BY_RANK[i - 1], score: Math.round((0.95 - i * 0.05) * 1000) / 1000, rank: i });
   }
-  // Labels for the first three pairs only. Pair 3 has one label; the rest have none.
+  // Labels for the first five handles only: pairs 1 and 2 have both, pair 3 has one, the rest have none.
   labels.n001 = 'Reuse of desalination brine';
   labels.n002 = 'Fertilizer plant demand';
   labels.n003 = 'Membrane coating patents';
@@ -226,7 +226,7 @@ async function main() {
   C.check('MC3 row 1 shows both labels, the level word and the score to 2 decimals',
     row1.indexOf('Reuse of desalination brine') !== -1 && row1.indexOf('Fertilizer plant demand') !== -1 && /strong/.test(row1) && /\(0\.90\)/.test(row1), row1);
   C.check('MC3 a pair with one label uses the fixed words for the other side',
-    rows[2] && rows[2].indexOf('Membrane coating patents') !== -1 && rows[2].indexOf('a pair outside the top of the list') !== -1 && /worth a look/.test(rows[2]), String(rows[2]));
+    rows[2] && rows[2].indexOf('Solar thermal pumps') !== -1 && rows[2].indexOf('a pair outside the top of the list') !== -1 && /worth a look/.test(rows[2]), String(rows[2]));
   C.check('MC3 a pair with no label uses the fixed words', rows[5] && rows[5].indexOf('a pair outside the top of the list') !== -1 && /some/.test(rows[5]), String(rows[5]));
   C.check('MC3 the quiet-signal line shows the count', /Quiet signals: 2 found/.test(t3), t3);
   const sentence = offer.composeMovementSummary({ band_cross: 2, tail_enter: 1, top_n_reshuffle: 0 });
