@@ -141,7 +141,7 @@ async function main() {
   //    and the engine request has exactly the snapshot plus validated options.
   for (const spec of TOOLS) {
     let seen;
-    const opts = Object.fromEntries(EXPECTED[spec.capability_id].slice(0, 1).map((name) => [name, 1]));
+    const opts = Object.fromEntries(EXPECTED[spec.capability_id].slice(0, 1).map((name) => [name, name === 'category_attribute' ? 'domain' : 1]));
     await runDiscoverySignal(spec, { node_ids: ['n1'], ...opts }, {}, {}, {
       project: () => host(),
       callEurekaWorkflow: async (capabilityId, request) => { seen = { capabilityId, request }; return { ok: true, result: goodResult(spec) }; },
