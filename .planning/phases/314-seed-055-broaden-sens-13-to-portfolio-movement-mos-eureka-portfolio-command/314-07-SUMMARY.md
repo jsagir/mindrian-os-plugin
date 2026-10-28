@@ -103,7 +103,7 @@ What the user sees: pairs that cross a level and new quiet signals are still rep
 
 Options for the navigator: accept the degrade as it is, or lower the bar and run again. A lower bar needs a ruling: for example 8c064edfb920 (194 scored pairs) would pass a bar of 150, but the plan says not to lower it, so this plan did not.
 
-NAVIGATOR SIGN-OFF: thresholds [accepted / not accepted] by ________ on ________.
+NAVIGATOR SIGN-OFF: thresholds accepted by the navigator on 2026-10-28 (decision card in the main session; question: "No room met the calibration bar (best: 194 pairs vs 200). How do you rule?"; answer verbatim: "Accept the degrade, sign off (Recommended)"). The bar was not lowered. The top-of-list reshuffle trigger stays off.
 
 ## Known Stubs
 
