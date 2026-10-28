@@ -3614,14 +3614,14 @@ and MCP bridge authorities remain unchanged.
 4. Missing history, unavailable memory and wrong-room results are distinct; viewing a room never confirms a claim or starts Theo/commands automatically.
 5. Local protocol/browser evidence is recorded separately from real ChatGPT host verification, which makes no guarantee about host panel persistence.
 
-**Plans:** 2 complete; Plan 03 local tasks pass and its human-host checkpoint is pending.
-**Verification:** human_needed; 7/8 requirements locally verified, STARTUI371-08 open.
+**Plans:** 3/3 complete (plan 03 closed by navigator waiver).
+**Verification:** passed-with-waiver; 7/8 requirements locally verified, STARTUI371-08 closed by the navigator's waiver of the real ChatGPT host checks on 2026-10-29 (ruling: "371 clear i approve it ."). The real-host resource, CSP, placement and both journeys are UNOBSERVED.
 
 Plans:
 
 - [x] 371-01-PLAN.md - v5 startup composition and local assets
 - [x] 371-02-PLAN.md - guarded startup recovery and workday handover
-- [ ] 371-03-PLAN.md - local acceptance/audits pass; blocking real-host checkpoint pending
+- [x] 371-03-PLAN.md - local acceptance/audits pass; real-host checkpoint WAIVED by the navigator (not observed)
 
 ### Phase 372: context_assemble reports what it omitted: _meta.omitted[] (SEED-134 Plan 01, bounded focus deferred)
 

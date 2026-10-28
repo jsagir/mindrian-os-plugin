@@ -5129,9 +5129,10 @@ startup mechanics are baseline evidence, not a substitute for host acceptance.
   composition, room-space picture, human threshold, semantic color, type and copy.
 - [x] **STARTUI371-07**: Both journeys support narrow/wide host containers,
   keyboard, 200% text zoom, forced colors, reduced motion and explicit recovery.
-- [ ] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
+- [x] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
   verifies new visual/accessibility/font delivery behavior, and distinguishes
   local evidence from a real ChatGPT host smoke test and host placement limits.
+      Proof: complete local runner and reviews pass (371-VERIFICATION.md, 371-REVIEW.md clean, 371-UI-REVIEW.md 23/24). Real ChatGPT host resource, CSP, placement and both journeys are UNOBSERVED and WAIVED by the navigator on 2026-10-29 (371-UAT.md).
 
 
 ## Phase 373 - Eureka graph algorithm services (added 2026-10-19)
