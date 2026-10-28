@@ -132,7 +132,7 @@ node -e "console.log(require('${CLAUDE_PLUGIN_ROOT}/package.json').version)" 2>&
 # B. Gate 1 -- Hook schema compatibility scan (must PASS)
 node "${CLAUDE_PLUGIN_ROOT}/scripts/check-hook-schema-compatibility.cjs" 2>&1
 
-# C. Gate 2 -- SHA-aware version check (any STATUS is informative)
+# C. Gate 2 -- version check against the catalog pin (any STATUS is informative)
 node "${CLAUDE_PLUGIN_ROOT}/scripts/check-version-and-sha.cjs" 2>&1
 
 # D. Gate 3 -- Stale user-settings detection (dry run; advisory)
@@ -148,13 +148,13 @@ grep -A2 enabledPlugins ~/.claude/settings.json 2>/dev/null | head -10
 Capture per check:
 - **Plugin version**: actual semver string from plugin.json + package.json (must match)
 - **Gate 1**: PASS / FAIL + count of forbidden patterns found
-- **Gate 2**: STATUS (UP_TO_DATE / VERSION_DIFFERS / SHA_DIFFERS_INVERSION_HOTFIX / NETWORK_ERROR), local SHA, remote tag SHA
+- **Gate 2**: STATUS (UP_TO_DATE / VERSION_DIFFERS / NETWORK_ERROR)
 - **Gate 3**: number of stale paths detected (0 = clean)
 - **Registry coherence**: gitCommitSha for `mos@mindrian-marketplace`, presence in enabledPlugins
 
 If Gate 1 reports FAIL, halt and write the FAILED report. The plugin cannot ship a power demo with broken hooks.
 
-If Gate 2 reports SHA_DIFFERS_INVERSION_HOTFIX, the demo can proceed BUT the diagnostics page must surface this prominently as a "platform update available" warning.
+If Gate 2 reports VERSION_DIFFERS, the demo can proceed BUT the diagnostics page must surface this prominently as a "platform update available" warning.
 
 If Gate 3 reports >0 stale paths, the demo proceeds with a "user settings need migration" callout on the platform-health page.
 
@@ -276,7 +276,7 @@ Cited numbers also get tooltips:
 - `CD = -0.71` hover: "Source: `.mindrian/disruption-index.json` field `metadata.room_cd`, computed YYYY-MM-DD"
 - `13 analogy zones` hover: "Source: `.mindrian/discovery-analogy-whitespace.json`, breakdown: 0 strong, 0 moderate, 13 weak"
 - Opportunity title hover: "HSI: 0.67 | Domain: {tag} | Filed: {date} | Source: `opportunity-bank/opp-03-*.md`"
-- **Plugin version `v1.10.19` (← v1.10.19)**: "Installed via `claude plugin install mos@mindrian-marketplace`. Marketplace ref: `v1.10.19`. Local commit SHA: {LOCAL_SHA}. Gate status: {GATE_BADGE}."
+- **Plugin version `v1.10.19` (← v1.10.19)**: "Installed via `claude plugin install mos@mindrian-marketplace`. Marketplace ref: `v1.10.19`. Gate status: {GATE_BADGE}."
 
 Tooltip styling:
 - Black background (#1A1A1A), white text
@@ -442,20 +442,17 @@ Pre-formatted output of `scripts/check-hook-schema-compatibility.cjs`. Display:
 
 Callout: "This gate ensures every hook script emits JSON that Claude Code 2.x's schema accepts. The class of bugs it prevents: 'Hook JSON output validation failed -- (root): Invalid input' on every Read/Grep/Glob/Write/Edit. Reference: docs/RELEASE-GATES.md Gate 1."
 
-#### Section: Gate 2 -- SHA-aware update detection
+#### Section: Gate 2 -- update detection
 
 Pre-formatted output of `scripts/check-version-and-sha.cjs`. Display:
-- Status: `{STATUS}` (one of UP_TO_DATE / VERSION_DIFFERS / SHA_DIFFERS_INVERSION_HOTFIX / NETWORK_ERROR)
+- Status: `{STATUS}` (one of UP_TO_DATE / VERSION_DIFFERS / NETWORK_ERROR)
 - Local version: `{LOCAL_VERSION}`
 - Latest version: `{LATEST_VERSION}`
-- Local commit SHA: `{LOCAL_SHA}`
-- Remote tag SHA: `{REMOTE_TAG_SHA}`
 - Reason: `{REASON}`
 
 Callout color follows status:
 - UP_TO_DATE -> green: "You are running the canonical v{LOCAL_VERSION}."
 - VERSION_DIFFERS -> amber: "Update available. Run `/mos:update`."
-- SHA_DIFFERS_INVERSION_HOTFIX -> amber: "In-version hotfix detected. Run `/plugin install mos@mindrian-marketplace --force` to pull."
 - NETWORK_ERROR -> gray: "Could not check. Try again with internet access."
 
 #### Section: Gate 3 -- User-settings migration
