@@ -163,6 +163,8 @@ run_if "341: session-start-verify-hook" "tests/test-341-session-start-verify-hoo
   node tests/test-341-session-start-verify-hook.cjs
 run_if "341: verify-insight-delivery" "tests/test-341-verify-insight-delivery.cjs" \
   node tests/test-341-verify-insight-delivery.cjs
+run_if "341: eureka-optin-card" "tests/test-341-eureka-optin-card.cjs" \
+  node tests/test-341-eureka-optin-card.cjs
 run_if "341: retired-classes-a-h" "tests/test-341-retired-classes-a-h.cjs" \
   node tests/test-341-retired-classes-a-h.cjs
 run_if "341: retired-topology-halves" "tests/test-341-retired-topology-halves.cjs" \

@@ -985,7 +985,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork.",
+      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork. It may carry a one-time pointer to the Eureka opt-in card, which the gate tools own; room_list itself forks nothing and returns on one path.",
       "layer": "context",
       "layer_why": "Enumerates room directories to let the navigator choose which room's context to bind; a room-context reader."
     },

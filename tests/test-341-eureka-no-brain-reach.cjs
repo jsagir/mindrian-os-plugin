@@ -195,11 +195,17 @@ ok('the ONLY network-capable call in the Eureka surface is the npm spawn in enab
   const enableSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'eureka', 'eureka-enable.cjs'), 'utf8');
   const enableLines = enableSrc.split('\n');
   const buildFnStart = enableLines.findIndex(function (l) { return /function\s+buildEurekaInstallArgv\s*\(/.test(l); });
-  const enableFnStart = enableLines.findIndex(function (l) { return /^async function\s+enableEureka\s*\(/.test(l); });
+  // Phase 341 plan 08 (D-07b d): enableEureka is now a thin public wrapper over
+  // _enableEurekaInner, where the installer body (and its single npm spawn) lives.
+  // The anchor moved with the body. The wrapper must still be the ONLY caller.
+  const enableFnStart = enableLines.findIndex(function (l) { return /^async function\s+_enableEurekaInner\s*\(/.test(l); });
+  const wrapperDecl = enableLines.findIndex(function (l) { return /^async function\s+enableEureka\s*\(/.test(l); });
+  const innerRefs = enableLines.filter(function (l) { return !/^\s*[*/]/.test(l) && /_enableEurekaInner\s*\(/.test(l); });
+  assert.ok(wrapperDecl !== -1 && innerRefs.length === 2, 'enableEureka must be the single wrapper that calls _enableEurekaInner (declaration plus one call), refs: ' + innerRefs.length);
   const spawnLineIdx = enableLines.findIndex(function (l, idx) { return idx > enableFnStart && NETWORK_PATTERN.test(l); });
   assert.ok(buildFnStart !== -1 && enableFnStart !== -1 && spawnLineIdx !== -1, 'could not locate the three anchor lines in eureka-enable.cjs');
-  assert.ok(enableFnStart > buildFnStart, 'enableEureka must be declared after buildEurekaInstallArgv in this file');
-  assert.ok(spawnLineIdx > enableFnStart, 'the real network call must be inside enableEureka, not buildEurekaInstallArgv');
+  assert.ok(enableFnStart > buildFnStart, 'the installer body must be declared after buildEurekaInstallArgv in this file');
+  assert.ok(spawnLineIdx > enableFnStart, 'the real network call must be inside the installer body (called only by enableEureka), not buildEurekaInstallArgv');
 });
 
 // ---------------------------------------------------------------------------

@@ -92,11 +92,17 @@ function setRouterPhase(home, phase) {
 }
 function markOnboarded(home) { fs.writeFileSync(path.join(home, '.mindrian-onboarded'), '2.0.0-beta.1\n2026-01-01\n', 'utf8'); }
 
-function seedPendingInsight(home, retries) {
+// The Eureka opt-in card rides this same branch (Task 6), so these arms mark the card
+// as already shown for the version: they test the INSIGHT alone. The card has its own
+// suite (tests/test-341-eureka-optin-card.cjs), including both on one emit.
+function seedPendingInsight(home, retries, opts) {
   const cap = path.join(home, '.mindrian', 'session-verify', 'insight-' + V + '.md');
   fs.mkdirSync(path.dirname(cap), { recursive: true });
-  fs.writeFileSync(cap, 'INSTRUCTION FOR LARRY: ask one question about the narrow job.\n', 'utf8');
-  seed(home, { last_seen_version: V, local: { ok: true }, insight: { pending: true, capture_path: cap, handle: 'IDP', drain_retries: retries || 0 } });
+  if (!(opts && opts.noCapture)) fs.writeFileSync(cap, 'INSTRUCTION FOR LARRY: ask one question about the narrow job.\n', 'utf8');
+  seed(home, {
+    last_seen_version: V, local: { ok: true }, eureka_optin_shown_for_version: V,
+    insight: { pending: true, capture_path: cap, handle: 'IDP', drain_retries: retries || 0 },
+  });
   return cap;
 }
 
@@ -202,14 +208,28 @@ arm('router: defers while the first-install reward owns the turn; the capture su
   must(fs.existsSync(cap), 'capture removed');
 });
 
-arm('router: never wedges: at drain_retries 3 it gives up terminally and the normal envelope still comes out', () => {
-  const home = mk('mos-341-router-');
-  seedPendingInsight(home, 3);
-  setRouterPhase(home, 'done');
-  const r = runRouter(home);
-  must(r.status === 0 && r.stdout.trim() === '{"continue":true}', 'envelope ' + r.stdout);
-  const s = readState(home);
-  must(s.insight.pending === false && s.insight.reason === 'drain_timeout', JSON.stringify(s.insight));
+arm('router: never wedges: a missing capture gives up at 3; a mid-flight defer gives up at 8; both are terminal', () => {
+  const a = mk('mos-341-router-');
+  seedPendingInsight(a, 3, { noCapture: true });
+  setRouterPhase(a, 'done');
+  const ra = runRouter(a);
+  must(ra.status === 0 && ra.stdout.trim() === '{"continue":true}', 'envelope ' + ra.stdout);
+  must(readState(a).insight.pending === false && readState(a).insight.reason === 'drain_timeout', JSON.stringify(readState(a).insight));
+  const b = mk('mos-341-router-');
+  seedPendingInsight(b, 8);
+  setRouterPhase(b, 'routed');
+  markOnboarded(b);
+  const rb = runRouter(b);
+  must(rb.status === 0 && rb.stdout.trim() === '{"continue":true}', 'envelope ' + rb.stdout);
+  must(readState(b).insight.pending === false && readState(b).insight.reason === 'drain_timeout', JSON.stringify(readState(b).insight));
+});
+
+arm('router: three earlier defers do not forfeit the insight once the reward is done', () => {
+  const c = mk('mos-341-router-');
+  const cap = seedPendingInsight(c, 3);
+  setRouterPhase(c, 'done');
+  const rc = runRouter(c);
+  must(rc.json.hookSpecificOutput.additionalContext === fs.readFileSync(cap, 'utf8'), 'the insight was dropped after 3 defers');
 });
 
 arm('router: with no router state yet, a FIRST_INSTALL machine defers and an onboarded machine delivers', () => {

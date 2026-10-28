@@ -877,25 +877,45 @@ function _advanceToDone(state) {
   return emitEmpty();
 }
 
-// ---------- Phase 341 plan 08 (D-07a e): one insight per install or update ----------
+// ---------- Phase 341 plan 08 (D-07a e + D-07b a): one insight, one card ----------
 //
 // The detached scripts/session-verify-probe.cjs leaves ONE generic-handle nugget
 // as a capture file plus insight.pending in the shared marker. This branch
 // delivers it on the first turn after the verification line, ONCE per install or
 // update (insight.delivered_for_version, never per session). It is the Phase
 // 267.2 delivery path, not a second mechanism: same hook, same
-// emitContinueWithContext, no ninth UserPromptSubmit hook. It writes ONLY through
-// lib/core/session-verify-state.cjs, and the router's own state.json, telemetry,
-// phase machine and branches are untouched.
+// context emit helper, no ninth UserPromptSubmit hook.
 //
-// It never competes with the first-install reward. On a fresh install the 267.2
+// D-07b (a): the Eureka opt-in card rides this SAME branch and the SAME single
+// emit. The verdict comes from the ONE decision function
+// (shouldAskEurekaOptin in lib/core/session-verify-state.cjs), the instruction text
+// from the ONE builder (buildEurekaOptinInstruction); this file keeps no copy of
+// the locked question, the option ids or the four-state rule. The card is shown at
+// most once per version (eureka_optin_shown_for_version): an unanswered or
+// dismissed card is not an answer, but it must not nag on every turn either.
+//
+// Both write ONLY through lib/core/session-verify-state.cjs. The router's own
+// state.json, telemetry, phase machine and branches are untouched.
+//
+// Neither competes with the first-install reward. On a fresh install the 267.2
 // reward owns the first-turn moment, so while onboarding is mid-flight this branch
-// DEFERS: pending stays true, drain_retries increments, and it falls through to the
-// untouched chain. Mid-flight means the router's own state exists and is not done,
-// or the router has no state yet and the onboarding marker still says
-// FIRST_INSTALL. At drain_retries >= 3 it gives up terminally (drain_timeout), so
-// it can never wedge.
+// DEFERS and falls through to the untouched chain. Mid-flight means the router's own
+// state exists and is not done, or the router has no state yet and the onboarding
+// marker still says FIRST_INSTALL. Deferral is bounded so it can never wedge:
+//   - insight: drain_retries. A missing capture gives up at 3 (the same bound the
+//     reward drain uses). A mid-flight defer gives up at 8 turns: the reward
+//     machine declares six phases and takes about six turns to reach done, so a
+//     bound of 3 would cut it off while it is still healthy, and 2 turns of margin
+//     cover a slow user. Giving up is terminal (drain_timeout).
+//   - card: eureka_optin_defer_retries, counted PER SESSION (keyed by the hook
+//     payload's session_id) with the same bound of 8. At the bound the
+//     card is not shown and NO opt-in record is written. A defer is not an answer,
+//     so the next session re-evaluates from scratch. This is the one path on which
+//     the card lands in a later session, which is strictly better than firing on top
+//     of a competing reward or spinning forever; it only happens for a router state
+//     that never reaches done.
 const VERIFY_DRAIN_MAX_RETRIES = 3;
+const VERIFY_DEFER_MAX_TURNS = 8; // six declared phases + 2 turns of margin
 
 function _loadVerifyState() {
   try { return require(path.join(__dirname, '..', 'lib', 'core', 'session-verify-state.cjs')); }
@@ -911,39 +931,94 @@ function _readCapture(capturePath) {
   } catch (_e) { return null; }
 }
 
-function _deliverVerifyInsight() {
+// installedNow for D-07b (b). Two installed signals exist, the wave-2 resolver and
+// the class S L5 model_installed advisory, and plan 341-03 routes L5's probe THROUGH
+// eurekaDepInstalled, so they are two views of ONE authority. Calling it directly is
+// the Canon Part 7 reuse and one filesystem probe. Class S is NOT spawned from a
+// UserPromptSubmit hook to re-derive a boolean; the doctor reporter point surfaces
+// the L5 view. Never throws.
+function _eurekaInstalledNow() {
+  try {
+    return require(path.join(__dirname, '..', 'lib', 'core', 'eureka-deps-resolver.cjs'))
+      .eurekaDepInstalled('@huggingface/transformers').installed === true;
+  } catch (_e) { return false; }
+}
+
+function _deliverVerifyInsight(payload) {
   try {
     const vs = _loadVerifyState();
     if (!vs) return false;
     const state = vs.readVerifyState();
-    if (!state || !state.insight || state.insight.pending !== true) return false;
+    if (!state) return false;
+
+    // Mid-flight is computed lazily and at most once: it can spawn the onboarding
+    // marker read, which must not run on every prompt of every session.
+    let midFlightMemo;
+    const midFlight = function () {
+      if (midFlightMemo === undefined) {
+        const routerState = _readState();
+        midFlightMemo = routerState
+          ? routerState.phase !== 'done'
+          : _checkOnboardStatus() === 'FIRST_INSTALL';
+      }
+      return midFlightMemo;
+    };
+
+    const parts = [];
+    const patch = {};
+
+    // ---- the insight (D-07a e) ----
     const insight = state.insight;
-    // Once per install or update: never again for the version already delivered.
-    if (insight.delivered_for_version && insight.delivered_for_version === state.last_seen_version) return false;
-
-    const retries = Number.isInteger(insight.drain_retries) ? insight.drain_retries : 0;
-    if (retries >= VERIFY_DRAIN_MAX_RETRIES) {
-      vs.mergeVerifyState({ insight: Object.assign({}, insight, { pending: false, reason: 'drain_timeout' }) });
-      return false;
+    const insightLive = insight && insight.pending === true
+      && !(insight.delivered_for_version && insight.delivered_for_version === state.last_seen_version);
+    if (insightLive) {
+      const retries = Number.isInteger(insight.drain_retries) ? insight.drain_retries : 0;
+      const text = _readCapture(insight.capture_path);
+      if (!text && retries >= VERIFY_DRAIN_MAX_RETRIES) {
+        patch.insight = Object.assign({}, insight, { pending: false, reason: 'drain_timeout' });
+      } else if (text && retries >= VERIFY_DEFER_MAX_TURNS) {
+        patch.insight = Object.assign({}, insight, { pending: false, reason: 'drain_timeout' });
+      } else if (!text || midFlight()) {
+        patch.insight = Object.assign({}, insight, { drain_retries: retries + 1 });
+      } else {
+        parts.push(text);
+        patch.insight = Object.assign({}, insight, { pending: false, delivered_for_version: state.last_seen_version });
+      }
     }
 
-    const text = _readCapture(insight.capture_path);
-    const routerState = _readState();
-    const midFlight = routerState
-      ? routerState.phase !== 'done'
-      : _checkOnboardStatus() === 'FIRST_INSTALL';
-    if (!text || midFlight) {
-      vs.mergeVerifyState({ insight: Object.assign({}, insight, { drain_retries: retries + 1 }) });
-      return false;
+    // ---- the Eureka opt-in card (D-07b a) ----
+    const version = vs.resolveOptinVersion(state);
+    if (version && state.eureka_optin_shown_for_version !== version) {
+      const base = { installedNow: false, state: state, currentVersion: version, firstInstallRewardPending: false };
+      // Cheap early-out through the SAME function: if it says no even with the stack
+      // assumed absent and no reward pending, no later input can turn it into a yes.
+      if (vs.shouldAskEurekaOptin(base).ask) {
+        const full = Object.assign({}, base, { installedNow: _eurekaInstalledNow() });
+        if (!full.installedNow) {
+          full.firstInstallRewardPending = midFlight();
+          const verdict = vs.shouldAskEurekaOptin(full);
+          if (verdict.ask) {
+            parts.push(vs.buildEurekaOptinInstruction(vs.buildEurekaOptinCard(version), { surface: 'cli' }));
+            patch.eureka_optin_shown_for_version = version;
+          } else if (verdict.defer) {
+            const session = (payload && typeof payload.session_id === 'string') ? payload.session_id : 'no-session';
+            const sameSession = state.eureka_optin_defer_session === session;
+            const tries = sameSession && Number.isInteger(state.eureka_optin_defer_retries) ? state.eureka_optin_defer_retries : 0;
+            if (tries < VERIFY_DEFER_MAX_TURNS) {
+              patch.eureka_optin_defer_session = session;
+              patch.eureka_optin_defer_retries = tries + 1;
+            }
+          }
+        }
+      }
     }
 
-    // Mark delivered BEFORE the emit (emit exits the process). If the marker
-    // cannot be written, do not emit: a repeat on every turn is worse than a miss.
-    const marked = vs.mergeVerifyState({
-      insight: Object.assign({}, insight, { pending: false, delivered_for_version: state.last_seen_version }),
-    });
-    if (!marked) return false;
-    emitContinueWithContext(text);
+    if (Object.keys(patch).length === 0) return false;
+    // Write the markers BEFORE the emit (emit exits the process). If they cannot be
+    // written, do not emit: a repeat on every turn is worse than a miss.
+    const written = vs.mergeVerifyState(patch);
+    if (!written || parts.length === 0) return false;
+    emitContinueWithContext(parts.join('\n\n'));
     return true;
   } catch (_e) {
     return false;
@@ -960,7 +1035,7 @@ function main() {
 
   // Phase 341 plan 08 (D-07a e): the one-time insight. Exits the process when it
   // fires; otherwise falls through to the untouched chain below.
-  _deliverVerifyInsight();
+  _deliverVerifyInsight(payload);
 
   const existingState = _readState();
 
