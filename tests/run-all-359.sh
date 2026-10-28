@@ -52,6 +52,7 @@ run_if() {
 
 # --- 359 legs ----------------------------------------------------------------
 run "359: fork declaration parser (FORK359-03)" node tests/test-359-fork-declaration.cjs
+run "359: fork declaration cosmetic tolerance (N-7)" node tests/test-359-fork-declaration-n7.cjs
 run "359: declared arm (FORK359-04)" node tests/test-359-declared-arm.cjs
 run "359: R5 tripwires, no free-text fork heuristic (FORK359-05)" node tests/test-359-declared-arm.cjs --tripwires
 run "359: MCP declared card (FORK359-07)" node tests/test-359-mcp-declared.cjs
