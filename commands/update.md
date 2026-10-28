@@ -9,7 +9,7 @@ hitl_shape: "F.0"
 hitl_why: "It offers one update action to approve or defer."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 22): first delivery at commands/update.md:58, the plugin's own version-comparison verdict against the latest release.
 interactive_first_reward: "--none (diagnostic surface)"
-argument-hint: "[check|reapply|force]"
+argument-hint: "[check|force]"
 serves_jtbd: ["audit-room"]
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."
 allowed-tools:
@@ -26,6 +26,8 @@ connector:
 
 You are Larry. This command checks for updates, shows what's new, then **delegates the actual install to Claude Code's native plugin loader** so the registry (`installed_plugins.json` + `enabledPlugins`) stays in sync with the cache.
 
+Four steps, nothing more: Check, Confirm, Loader, Verify. Fetching and swapping the new bytes have no owner in this plugin any more. The Claude Code loader owns both, end to end.
+
 ## Why native delegation (v1.10.19 (hotfixes shipped 2026-04-26))
 
 The previous version of this command shelled out to `scripts/self-update install`, which copied files to the cache directory but **did not update `~/.claude/plugins/installed_plugins.json` or `~/.claude/settings.json` `enabledPlugins`**. The result: Claude Code's plugin loader never registered the new version. Slash commands disappeared. Users restarted, saw nothing, and assumed the plugin was broken.
@@ -36,54 +38,41 @@ The fix is structural: defer to Claude Code's native commands. They keep all fou
 
 ## Determine Mode
 
-- `reapply` -> jump to the Reapply section.
-- `force`   -> skip version comparison, run native install regardless.
+- `force`   -> skip the UP_TO_DATE stop in Step 1 and run Steps 3 and 4 regardless. It exists for a corrupted cache or registry state that drifted from the cache. It adds no code path of its own: it is the same loader call.
 - (no arg)  -> Update Check flow.
+
+The old patch-restore mode is gone (see the last section). `check` is the same as no argument.
 
 ## Update Check Flow
 
-### Step 1: Run SHA-aware version check
+### Step 1: Check
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/check-version-and-sha.cjs"
 ```
 
-This script compares BOTH the semver version string AND the underlying git commit SHA, distinguishing four states:
-- `UP_TO_DATE` -- both version and SHA match
-- `VERSION_DIFFERS` -- standard semver upgrade available
-- `SHA_DIFFERS_INVERSION_HOTFIX` -- same version, but the v<version> tag was force-moved (in-version hotfix). **This is the case standard version-only checkers miss.**
+This script compares the installed version with the version pinned in the marketplace catalog. A published npm version is immutable, so a version comparison is the whole check. Three states:
+- `UP_TO_DATE` -- the installed version matches the catalog pin
+- `VERSION_DIFFERS` -- a newer version is available
 - `NETWORK_ERROR` / `ERROR` -- couldn't run the check
 
 Parse `STATUS=...` from the first line.
 
-### Step 2: Decide based on STATUS
-
 **If `STATUS=UP_TO_DATE`:**
-> "You're running the latest, v{LOCAL_VERSION} (SHA {LOCAL_SHA}). Nothing to update."
+> "You're running the latest, v{LOCAL_VERSION}. Nothing to update."
 
-**If `STATUS=NETWORK_ERROR`:**
-> "Couldn't reach GitHub: {REASON}. Your current version works fine. Try again later."
+Say that in one line and STOP. No confirmation, no loader call, and no restart banner: nothing was swapped, so nothing needs a restart.
+
+**If `STATUS=NETWORK_ERROR` or `STATUS=ERROR`:**
+> "Couldn't reach the marketplace catalog: {REASON}. Your current version works fine. Try again later."
+
 Done.
 
-**If `STATUS=SHA_DIFFERS_INVERSION_HOTFIX`:**
-> "Heads up -- you're on v{LOCAL_VERSION} (SHA {LOCAL_SHA}) but the v{LATEST_VERSION} tag has been force-moved to SHA {REMOTE_TAG_SHA}. That means an in-version hotfix shipped under the same tag and you're missing it."
-> "This is exactly the case Aryeh hit on 2026-04-26 -- standard `claude plugin update` may or may not detect it, so we'll force a clean re-install."
+**If `STATUS=VERSION_DIFFERS`:** continue to Step 2.
 
-Continue to Step 3, then run Step 5 with the recovery path:
-```bash
-claude plugin install mos@mindrian-marketplace --force 2>&1
-# OR if --force is unsupported:
-claude plugin uninstall mos@mindrian-marketplace && \
-  claude plugin marketplace update && \
-  claude plugin install mos@mindrian-marketplace
-```
+### Step 2: Confirm
 
-**If `STATUS=VERSION_DIFFERS`:**
-Continue to Step 3 (standard upgrade flow).
-
-### Step 3: Show what's new
-
-Fetch the relevant CHANGELOG section. CRITICAL: anchor on a NUMBERED release heading. The top of main's CHANGELOG is the next-version `[Unreleased] -- (in progress)` placeholder (the two-commit release form burns it), and showing it to a user installing the released version reads as a phantom version (live confusion report, 2026-06-12):
+First show what's new. Fetch the relevant CHANGELOG section. CRITICAL: anchor on a NUMBERED release heading. The top of main's CHANGELOG is the next-version `[Unreleased] -- (in progress)` placeholder (the two-commit release form burns it), and showing it to a user installing the released version reads as a phantom version (live confusion report, 2026-06-12):
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHANGELOG.md" | sed -n '/^## \[[0-9]/,/^## \[/p' | head -60
 ```
@@ -91,9 +80,7 @@ curl -fsSL "https://raw.githubusercontent.com/jsagir/mindrian-os-plugin/main/CHA
 Show in Larry's voice:
 > "v{latest} dropped. You're on v{local}. Here's what's new:"
 
-Render the changelog readably. Keep it tight.
-
-### Step 4: Confirm with the user
+Render the changelog readably. Keep it tight. Then ask.
 
 Use AskUserQuestion:
 - Question: "Update to v{latest} via Claude Code's native plugin loader?"
@@ -107,7 +94,7 @@ Tell them:
 > "These are the two commands. You can paste them yourself and skip the rest of this flow. They are what `/mos:update` runs under the hood."
 > ```
 > /plugin marketplace update
-> /plugin update mos@mindrian-marketplace
+> claude plugin update mos@mindrian-marketplace
 > ```
 > "After both succeed, restart Claude Code and verify with `/mos:help`."
 
@@ -116,10 +103,10 @@ Then re-ask whether to proceed.
 **If cancelled:** "Update cancelled. You're still on v{local}."
 Done.
 
-### Step 5: Run native install
+### Step 3: Loader
 
 ```bash
-# Step 5a: refresh the marketplace catalog (gets the new commit behind the tag)
+# Step 3a: refresh the marketplace catalog (gets the new pin)
 claude plugin marketplace update 2>&1
 ```
 
@@ -128,65 +115,23 @@ Stream output to user. If exit code is non-zero, report:
 Done.
 
 ```bash
-# Step 5b: install the new version (updates registry + cache + enabledPlugins atomically)
+# Step 3b: install the new version (updates registry + cache + enabledPlugins atomically)
 claude plugin update mos@mindrian-marketplace 2>&1
 ```
 
 Stream output. If non-zero exit, fall back instructions:
 > "Native update failed: {stderr}. Two recovery paths -- (1) try `/plugin update mos@mindrian-marketplace` from inside this session, or (2) `/plugin install mos@mindrian-marketplace` for a clean re-install. Either path keeps the registry in sync."
 
-### Step 6: Migrate stale user-settings paths
+What the loader owns, so nobody adds a staging step back: it installs the package into a shared `~/.claude/plugins/npm-cache`, copies the package into a versioned cache directory, and runs `npm ci --ignore-scripts` there with a 60 second cap. This command does none of that.
 
-Run the user-settings migration to clean up any stale version-pinned paths the deprecated self-update wrote into `~/.claude/settings.json`:
+### Step 4: Verify
 
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/migrate-stale-user-settings.cjs" --apply
-```
+Re-run the version check from Step 1 and report the new version.
 
-If the migrator finds and removes stale entries, surface that to the user:
-> "Cleaned {N} stale path(s) from your user settings.json. The plugin's own `${CLAUDE_PLUGIN_ROOT}`-based paths now take effect. A backup was saved to settings.json.bak.<timestamp> in case you need to roll back."
+If Step 3 ran and the version moved, a real swap happened. Say briefly:
+> "Done. v{latest} installed via Claude Code's plugin loader. Registry, cache, and `enabledPlugins` are all in sync."
 
-If no findings, mention it briefly:
-> "User settings clean -- no stale paths."
-
-### Step 7: Atomically activate the new bytes (Phase 127.2 Plan 04 Instance #7)
-
-Claude Code's native `plugin update` lands the new version in the cache
-(`~/.claude/plugins/cache/mindrian-marketplace/mos/<NEW_VERSION>/`) but does
-NOT atomically swap the live install at `~/.claude/plugins/mindrian-os/`.
-Without this step every Brain MCP probe + statusline render + hook output
-continues to serve the OLD version. The user thinks they are on beta.N+1
-while every Brain interaction silently reads beta.N -- the "silent
-activation gap" surfaced on the 2026-05-23 dogfood box.
-
-Run the post-update activator to swap atomically:
-
-```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.cjs" --fix --post-update
-```
-
-Stream the output to the user. It prints a Shape E action report showing
-the old -> new transition + the backup path of the stale bytes. After
-success it writes a touch-file at `~/.mindrian/post-update-restart-pending`
-that the next SessionStart's preflight hook reads to verify activation
-reached the wire (the L4 MCP server's version matches package.json
-version-of-record). On version-mismatch the preflight hook refuses Larry
-load with a red banner pointing at `/mos:doctor --fix`.
-
-If the activator reports `swapped: false` and `already on latest`: no
-action needed. The cache and live install were already in sync (rare but
-possible if a previous /mos:update sequence completed cleanly).
-
-If it reports `ok: false`: surface the error to the user. They can manually
-run `/mos:doctor --fix` to re-attempt; if that also fails, file an RCA at
-`.planning/debug/post-update-activation-failure-<date>.md`.
-
-### Step 8: Verify, then emit the LOUD restart banner (ALWAYS last)
-
-If all steps succeeded, say briefly:
-> "Done. v{latest} installed via Claude Code's plugin loader and atomically swapped into the live install path. Registry, cache, and `enabledPlugins` are all in sync. User settings checked for stale paths."
-
-Then close the flow with the Mindrian mark FIRST, the loud restart banner SECOND. This block is the **LAST thing the user sees** (never a footnote, never buried under other prose), and it is mandatory on EVERY successful update path (standard, force, and in-version-hotfix).
+Then close the flow with the Mindrian mark FIRST, the loud restart banner SECOND. This block is the **LAST thing the user sees** (never a footnote, never buried under other prose), and it fires ONLY on a real swap (standard or force). It never fires on `UP_TO_DATE`.
 
 First render the Mindrian logo:
 
@@ -198,28 +143,7 @@ Stream its output as-is (it is the De Stijl block-letter mark and degrades to pl
 
 The reason the banner must be loud and last: the update swapped the install under this running session, and the slash-command registry was built once at session start, so `/mos:help` and every `/mos:*` command will read as "Unknown command" until the user restarts. That vanish looks like breakage; the banner is what tells the user it is expected.
 
-## Force Mode
-
-When the user runs `/mos:update force`, skip Steps 1-3 and go directly to Step 5 with the same native commands. Useful when:
-- An in-version hotfix shipped under the same tag (latest == local but tag was force-moved)
-- The cache is corrupted
-- Registry state files drifted from the cache
-
-## Reapply Flow
-
-When the user runs `/mos:update reapply`:
-
-### Step 1: Check for patches
-
-```bash
-ls ~/.mindrian/backups/*/patches/ 2>/dev/null | head -20
-```
-
-**If no backups found:**
-> "No backed-up modifications found. You're running a clean install."
-
-**If patches found:**
-List the backed-up files. Guide the user on which to restore. (This flow is unchanged from prior versions -- it operates on patch files, not on the plugin loader.)
+The next session detects that the version changed, runs a bounded offline self-check, and shows the result as one statusline segment beside the version. Larry opens that session with the detail plus one insight. That is why this command no longer writes a file to remind itself to check later.
 
 ## Voice Rules
 
@@ -234,12 +158,18 @@ List the backed-up files. Guide the user on which to restore. (This flow is unch
 - Does NOT call `scripts/self-update install` (deprecated -- the self-update script now errors out with a deprecation message)
 - Does NOT manually copy files to `~/.claude/plugins/cache/` (Claude Code's plugin loader does this correctly)
 - Does NOT manually edit `installed_plugins.json` or `enabledPlugins` (Claude Code owns those files)
+- Does NOT stage or swap bytes (the loader's fetch-and-cache step and its copy into the versioned cache directory do)
+- Does NOT install dependencies (the loader's `npm ci --ignore-scripts` does)
+- Does NOT migrate stale settings paths (the second install location is retired, plan 341-07)
+- Does NOT write a restart touch-file (the next session's version-change check is the signal now, per D-07a)
+- Does NOT check a tag SHA (published npm versions are immutable, so an in-version hotfix is a new version)
+- Does NOT restore backed-up local patches (the old patch-restore mode is retired: it listed a backup folder that nothing writes any more, and the local wiring it served was done by the retired shell installer)
 
 The principle: **Reuse Before Build (Canon Part 7)**. We had a homegrown installer. The platform already had one that worked. We were maintaining a divergence, not a feature.
 
-## RESTART BANNER (the LAST thing the user sees on any successful update)
+## RESTART BANNER (the LAST thing the user sees after a real swap)
 
-Emit this block verbatim, exactly as written, as the final output of the update flow. Do not summarize it, do not move it above other text, do not soften it. Approved glyphs only (no emoji):
+Emit this block verbatim, exactly as written, as the final output of the update flow, and only when Step 4 saw a real swap. Do not summarize it, do not move it above other text, do not soften it. Approved glyphs only (no emoji):
 
 ```
 ────────────────────────────────────────────────────────────
