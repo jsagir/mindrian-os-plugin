@@ -745,6 +745,36 @@
       }
     },
     {
+      "id": "command:/mos:eureka-portfolio",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:eureka-portfolio",
+      "reach_id": "context_block",
+      "sub_mode": "portfolio-movement",
+      "hierarchy_rank": 3,
+      "posture": "hold",
+      "sensor_triggers": [
+        "SENS-13"
+      ],
+      "chain_provenance": {
+        "command": "/mos:eureka-portfolio",
+        "reach_id": "context_block",
+        "sub_mode": "portfolio-movement",
+        "firing_sensors": [
+          "SENS-13"
+        ]
+      },
+      "ranking": {
+        "reach_id": "context_block",
+        "sub_mode": "portfolio-movement",
+        "hierarchy_rank": 3,
+        "posture": "hold",
+        "sensor_triggers": [
+          "SENS-13"
+        ]
+      }
+    },
+    {
       "id": "command:/mos:eureka",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -2941,6 +2971,12 @@
       "name": "eureka"
     },
     {
+      "id": "skill:eureka-portfolio",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "eureka-portfolio"
+    },
+    {
       "id": "skill:explain-decision",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4397,6 +4433,12 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "pipeline-chain"
+    },
+    {
+      "id": "sub_mode:portfolio-movement",
+      "kind": "sub_mode",
+      "methodology_tier": "mindrian-operation",
+      "name": "portfolio-movement"
     },
     {
       "id": "sub_mode:problem-diagnosis",

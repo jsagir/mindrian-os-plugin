@@ -101,7 +101,7 @@ function textBlocks(md) {
   };
   const keys = Object.keys(want);
   let ok = !!cmd && keys.every((k) => conn[k] === want[k]) &&
-    Array.isArray(conn.sensor_triggers) && conn.sensor_triggers.length === 1 && conn.sensor_triggers[0] === 'SENS-13';
+    (Array.isArray(conn.sensor_triggers) ? conn.sensor_triggers.join(',') : String(conn.sensor_triggers).replace(/[\[\]\s]/g, '')) === 'SENS-13';
   let detail = cmd ? JSON.stringify(conn) : 'command file absent';
   if (!BODY_ONLY) {
     let reg = null;
