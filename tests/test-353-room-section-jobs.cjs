@@ -323,6 +323,76 @@ try {
     const rej = registry.readRoomSectionJobs(r).rejected;
     return rej.length === 2 && rej[0].slug === 'alpha' && rej[1].slug === 'zeta';
   })());
+
+  // --- Task 3 callers (C1-C4) ---
+  const nextMove = require(path.join(REPO, 'lib', 'core', 'feyminto', 'next-move.cjs'));
+  const navigationEngine = require(path.join(REPO, 'lib', 'core', 'navigation-engine.cjs'));
+  const candidates = require(path.join(REPO, 'lib', 'core', 'section-ruling-candidates.cjs'));
+  const scaffold = require(path.join(REPO, 'lib', 'core', 'room-skeleton-scaffold.cjs'));
+  const grayMatter = require('gray-matter');
+  const ledger = JSON.parse(fs.readFileSync(path.join(REPO, 'data', 'section-command-ledger.json'), 'utf8'));
+
+  function mkNestRoom(withDecl) {
+    const room = mkRoom();
+    for (const slug of ['homepage', 'problem-definition', 'Clients']) {
+      fs.mkdirSync(path.join(room, slug), { recursive: true });
+      fs.writeFileSync(path.join(room, slug, 'notes.md'), '# notes\n');
+    }
+    if (withDecl) {
+      writeDecl(room, {
+        homepage: good('understand-market'),
+        Clients: good('understand-market'),
+        'problem-definition': good('find-bottleneck'),
+      });
+    }
+    return room;
+  }
+  const declRoom = mkNestRoom(true);
+  const twinRoom = mkNestRoom(false);
+
+  // C1 next-move
+  const nestHome = nextMove.gatherNest({ roomDir: declRoom, sectionDir: path.join(declRoom, 'homepage') });
+  check('C1: gatherNest job.id is the declared job for a custom nest', nestHome.job.id === 'understand-market');
+  const nestPd = nextMove.gatherNest({ roomDir: declRoom, sectionDir: path.join(declRoom, 'problem-definition') });
+  check('C1: canon wins for problem-definition', nestPd.job.id === 'find-problem');
+  const nestTwin = nextMove.gatherNest({ roomDir: twinRoom, sectionDir: path.join(twinRoom, 'homepage') });
+  check('C1: twin room with no file gives a null job', nestTwin.job.id === null);
+
+  // C2 decide() ledger fallback
+  check('C2: precondition, the ledger has candidates for understand-market', candidates.buildLedgerCandidates({ jobId: 'understand-market' }) !== null);
+  const ctx2 = { section: 'Clients', roomDir: declRoom };
+  navigationEngine.decide({}, ctx2);
+  check('C2: declared custom section fills tierCandidates through the ledger fallback', Array.isArray(ctx2.tierCandidates));
+  check('C2: the face block named bad_section', ctx2.tierCandidatesFallbackReason === 'bad_section');
+  const ctx2t = { section: 'Clients', roomDir: twinRoom };
+  navigationEngine.decide({}, ctx2t);
+  check('C2: twin room leaves tierCandidates unset', !Array.isArray(ctx2t.tierCandidates));
+
+  // C3 decide() face path (full form)
+  const ctx3 = { section: 'homepage', roomDir: declRoom };
+  navigationEngine.decide({}, ctx3);
+  const ctx3t = { section: 'homepage', roomDir: twinRoom };
+  navigationEngine.decide({}, ctx3t);
+  check('C3: declared custom section fills tierCandidates', Array.isArray(ctx3.tierCandidates));
+  check('C3: twin room leaves tierCandidates unset', !Array.isArray(ctx3t.tierCandidates));
+
+  // C4 writeSectionContracts
+  function runContracts(room) {
+    const result = { warnings: [], errors: [], contracts_created: [], ruling_regenerated: [] };
+    scaffold.writeSectionContracts(room, ['problem-definition', 'homepage'], result);
+    const p = path.join(room, 'problem-definition', 'CONTEXT.md');
+    const fp = fs.existsSync(p) ? grayMatter(fs.readFileSync(p, 'utf8')).data.ruling_fingerprint : null;
+    return { result: result, fp: fp };
+  }
+  const c4d = runContracts(declRoom);
+  const c4t = runContracts(twinRoom);
+  const expectedFp = scaffold.buildRulingBlock(registry.getSectionJob('problem-definition'), ledger).fingerprint;
+  check('C4: problem-definition fingerprint equal in both rooms', typeof c4d.fp === 'string' && c4d.fp === c4t.fp);
+  check('C4: fingerprint equals the canon recomputation', c4d.fp === expectedFp);
+  check('C4: contract_template_missing:homepage in both rooms',
+    c4d.result.warnings.indexOf('contract_template_missing:homepage') !== -1 && c4t.result.warnings.indexOf('contract_template_missing:homepage') !== -1);
+  check('C4: homepage/CONTEXT.md exists in neither room',
+    !fs.existsSync(path.join(declRoom, 'homepage', 'CONTEXT.md')) && !fs.existsSync(path.join(twinRoom, 'homepage', 'CONTEXT.md')));
 } finally {
   cleanup();
 }
