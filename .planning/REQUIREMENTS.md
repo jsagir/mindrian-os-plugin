@@ -3132,56 +3132,66 @@ plan time as `- [ ]` rows to be closed with measured proof, or left open with a 
 phase close by `359-12-PLAN.md` Task 1. Execution is held until Phase 357 is complete on `main`,
 including 357-10 (D-17).
 
-- [ ] **FORK359-01**: The replay corpus carries a prose_fork / fork_labels dimension:
+- [x] **FORK359-01**: The replay corpus carries a prose_fork / fork_labels dimension:
       `prose-forks-359.json` holds at least 15 synthetic prose forks and at least 15 non-fork
       controls as an opt-in `synthetic-359` source (357's default load unchanged), every prose fork
       has at least 2 fork_labels in the N-3 grammar, the synthetic entries are labeled through 357's
       labeler and card_fire_replay profile, and the 357 dogfood entries carry navigator-ratified
       prose_fork labels while the labeler still refuses dogfood. Plans 359-02, 359-06.
+      Proof: `node tests/test-359-corpus.cjs` 10/10, `node tests/test-357-labeler-refusal.cjs` green, 24 dogfood ids ratified prose_fork false (359-02, 359-06 SUMMARY). Note: ruling N-7 re-reads the near-miss controls syn359-ctrl-16/17/18 and is not implemented (see FORK359-03).
 
-- [ ] **FORK359-02**: The replay reports `fork359.missed_forks` (prose fork, no card, verdict pass);
+- [x] **FORK359-02**: The replay reports `fork359.missed_forks` (prose fork, no card, verdict pass);
       the pre-359 value, equal to the no-card prose-fork count on pre-359 code, is written to
       `baseline-359.json` through `--code-root git:<pre-359 sha>` and recorded in the SUMMARY.
       Plans 359-07, 359-08.
+      Proof: `baseline-359.json` written from pre-359 sha 2797903a0, missed_forks 17 of 17 prose forks; `node tests/test-359-replay.cjs` 26/26 (359-07, 359-08 SUMMARY).
 
-- [ ] **FORK359-03**: `lib/core/fork-declaration.cjs` exports a pure `parseForkDeclaration` that
+- [x] **FORK359-03**: `lib/core/fork-declaration.cjs` exports a pure `parseForkDeclaration` that
       accepts only a last-line `Your call: p1 | p2[ | p3] | What if m` declaration (2 or 3 practical
       labels plus one final What-if moonshot, at most 80 code points per label, no brackets, no voice
       glyph, no box literal), makes no network call and never throws. Plan 359-01.
+      Proof: `node tests/test-359-fork-declaration.cjs` 39/39 (359-01 SUMMARY). The grammar is the strict N-3 form as the row states. Ruling N-7 (tolerate cosmetic slips) is NOT implemented: no plan carried it; recorded as a residual in 359-12-SUMMARY.
 
-- [ ] **FORK359-04**: `classifyCardFire` gains a declared arm fed by `deriveTurnSignals` from this
+- [x] **FORK359-04**: `classifyCardFire` gains a declared arm fed by `deriveTurnSignals` from this
       turn's final text: card-fired first, both ceilings degrade with today's reason strings,
       yes/no-shaped practical labels pass as `gate-is-simple-binary`, otherwise intercept
       `declared-fork-no-card`; the retry key includes the declared labels and the calm block envelope
       is unchanged. Plan 359-03.
+      Proof: `node tests/test-359-declared-arm.cjs` 20/20 (359-03 SUMMARY, rerun 359-12).
 
-- [ ] **FORK359-05**: The arm is inert on the 357 corpus: 0 verdict class or reason changes versus
+- [x] **FORK359-05**: The arm is inert on the 357 corpus: 0 verdict class or reason changes versus
       the pre-359 snapshot, false_blocks 0 and new_misses 0, both box regex literals byte-identical,
       and `classifyCardFire` reads output text only through the pre-359 helpers plus the declaration
       parser. Plans 359-01, 359-03, 359-07, 359-08.
+      Proof: `node tests/test-359-inertness.cjs` 4/4, 0 class or reason changes versus pre-359.json, false_blocks 0, new_misses 0 (359-01, 359-07, 359-12).
 
-- [ ] **FORK359-06**: Declared variants of every prose fork are caught at 100% (yes/no practical
+- [x] **FORK359-06**: Declared variants of every prose fork are caught at 100% (yes/no practical
       pairs reported separately as `gate-is-simple-binary`), with `control_false_blocks` 0 and 0
       missed forks on the declared variants. Plans 359-07, 359-08.
+      Proof: `node scripts/replay-card-fire.cjs --source synthetic-359 --fork359 --surface both` declared_catch_rate 1, control_false_blocks 0, declared_missed_forks 0, simple-binary excluded 3 (syn359-fork-14, -15, -16) (359-07 SUMMARY).
 
-- [ ] **FORK359-07**: CLI and MCP verdict classes match on every R5 and R6 entry (dedup excluded),
+- [x] **FORK359-07**: CLI and MCP verdict classes match on every R5 and R6 entry (dedup excluded),
       the MCP card options equal the declared labels with the moonshot last, and two distinct
       declared forks in one MCP session both fire. Plans 359-03, 359-07.
+      Proof: `node tests/test-359-mcp-declared.cjs` 7/7, `node tests/test-359-replay.cjs` L3 and L4 green, parity mismatches 0, MCP payload mismatches 0 (359-03, 359-07 SUMMARY).
 
-- [ ] **FORK359-08**: Larry's declaration rule lands on the two Larry card spans, the session-start
+- [x] **FORK359-08**: Larry's declaration rule lands on the two Larry card spans, the session-start
       card-fire doctrine and the MCP server instructions in one revertible commit, at most 400 B net
       (N-6), with the 357 pinned phrases, the doctrine and MCP byte pins, the voice-mark and handoff
       tests green and the harness manifest regenerated. Plan 359-09.
+      Proof: commit 656cd8a34, net +333 B (cap 400), `node tests/test-359-prose-budget.cjs` 18/18, `node scripts/build-harness-manifest.cjs --check` OK (359-09 SUMMARY). Prose shipped; live adoption is unmeasured (see FORK359-09).
 
 - [ ] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 60
       in total, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
       pre-change above the vacuity floor with 0 control blocks, or records INCONCLUSIVE, or records
       the falsification with R8 reverted and a follow-on opened; moonshots are Jev-scored at dev time
       on synthetic text only (N-3, N-4). Plans 359-04, 359-05, 359-10, 359-11.
+      Open: R9 declined, extra-usage billing is real money. Smoke only: 2 runs, USD 0.668, mode probe, instrument verified; the batch projected USD 76.08 at the highest measured per-run cost and the navigator chose to skip it (359-10, 359-11 SUMMARY). R8 adoption on live Larry is unmeasured.
 
-- [ ] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
+- [x] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
       declared-variant replay run in `tests/run-all-359.sh` and `tests/run-all-238.sh`, and removing
       the declared arm or adding a free-text fork regex each fails the suite. Plan 359-08.
+      Proof: `bash tests/run-all-359.sh` PASS=26 FAIL=0 SKIP=0; `node tests/test-359-replay.cjs --mutation` 4/4 (M1 arm removed exit 1, M2 free-text regex exit 1); `node tests/test-359-devonly-tripwire.cjs` 9/9 (359-08, 359-12).
 
 ### Phase 360 - Room-bind picker on harness turns and in dev repos (BIND360 family)
 

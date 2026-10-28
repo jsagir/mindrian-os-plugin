@@ -1254,39 +1254,41 @@ Plans:
 
 **Wave 1**
 
-- [ ] 359-01-PLAN.md -- FORK359-03, -05: 357 completeness gate and shipped-contract capture, pre-359 anchor and verdict snapshot, the inertness gate, the N-3 declaration parser, normalizeOptionLabel export
+- [x] 359-01-PLAN.md -- FORK359-03, -05: 357 completeness gate and shipped-contract capture, pre-359 anchor and verdict snapshot, the inertness gate, the N-3 declaration parser, normalizeOptionLabel export
 
 **Wave 2** *(depends on 359-01)*
 
-- [ ] 359-02-PLAN.md -- FORK359-01: synthetic prose-fork and control fixture (15/15, N-3 labels), dogfood fork-label overlay and review sheet, opt-in synthetic-359 loader source, labeler source
-- [ ] 359-03-PLAN.md -- FORK359-04, -05, -07: declared arm in classifyCardFire, this-turn declaration source, decl retry key, R5 tripwires, MCP card from declared labels and per-fork dedup
-- [ ] 359-04-PLAN.md -- FORK359-09, -01: fork359_moonshot Score policies and egress profile, dev-only moonshot scorer (synthetic text only)
-- [ ] 359-05-PLAN.md -- FORK359-09: authored forward scenarios, deny-all permission probe, dev-only forward harness proven offline
+- [x] 359-02-PLAN.md -- FORK359-01: synthetic prose-fork and control fixture (15/15, N-3 labels), dogfood fork-label overlay and review sheet, opt-in synthetic-359 loader source, labeler source
+- [x] 359-03-PLAN.md -- FORK359-04, -05, -07: declared arm in classifyCardFire, this-turn declaration source, decl retry key, R5 tripwires, MCP card from declared labels and per-fork dedup
+- [x] 359-04-PLAN.md -- FORK359-09, -01: fork359_moonshot Score policies and egress profile, dev-only moonshot scorer (synthetic text only)
+- [x] 359-05-PLAN.md -- FORK359-09: authored forward scenarios, deny-all permission probe, dev-only forward harness proven offline
 
 **Wave 3**
 
-- [ ] 359-06-PLAN.md -- FORK359-01, -09: dev-time is_fork labels and moonshot scores, the single navigator checkpoint (dogfood labels, Jev disagreements, I-1 and I-2 interpretations) *(non-autonomous)*
-- [ ] 359-07-PLAN.md -- FORK359-02, -05, -06, -07: replay fork359 metrics, declared variants, MCP payload parity, git:<sha> code root, write-359 baseline mode, replay test
+- [x] 359-06-PLAN.md -- FORK359-01, -09: dev-time is_fork labels and moonshot scores, the single navigator checkpoint (dogfood labels, Jev disagreements, I-1 and I-2 interpretations) *(non-autonomous)*
+- [x] 359-07-PLAN.md -- FORK359-02, -05, -06, -07: replay fork359 metrics, declared variants, MCP payload parity, git:<sha> code root, write-359 baseline mode, replay test
 
 **Wave 4**
 
-- [ ] 359-08-PLAN.md -- FORK359-02, -05, -06, -10: baseline-359 from the pre-359 commit, M1/M2 mutation legs, dev-only tripwire, run-all-359 and run-all-238 legs, VALIDATION sign-off
+- [x] 359-08-PLAN.md -- FORK359-02, -05, -06, -10: baseline-359 from the pre-359 commit, M1/M2 mutation legs, dev-only tripwire, run-all-359 and run-all-238 legs, VALIDATION sign-off
 
 **Wave 5**
 
-- [ ] 359-09-PLAN.md -- FORK359-08: R8 declaration rule on the two Larry spans, the doctrine and the MCP instructions (400 B net), prose-budget test, manifest regen, one revertible commit
+- [x] 359-09-PLAN.md -- FORK359-08: R8 declaration rule on the two Larry spans, the doctrine and the MCP instructions (400 B net), prose-budget test, manifest regen, one revertible commit
 
 **Wave 6**
 
-- [ ] 359-10-PLAN.md -- FORK359-09: navigator-gated smoke run, A1-A9 verification, probe or text mode, measured cost projection *(non-autonomous)*
+- [x] 359-10-PLAN.md -- FORK359-09: navigator-gated smoke run, A1-A9 verification, probe or text mode, measured cost projection *(non-autonomous)*
 
 **Wave 7**
 
-- [ ] 359-11-PLAN.md -- FORK359-09, -08: navigator-gated forward batch, floor-guarded verdict, falsification branch (revert R8, open follow-on), forward moonshot scores *(non-autonomous)*
+- [x] 359-11-PLAN.md -- FORK359-09, -08: navigator-gated forward batch, floor-guarded verdict, falsification branch (revert R8, open follow-on), forward moonshot scores *(non-autonomous)*
 
 **Wave 8**
 
 - [ ] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
+
+**Outcome:** CLOSED 2026-10-28 with R9 DECLINED. R2 pre-change missed forks 17 of 17 prose forks (baseline-359.json). R5 inertness 0 class changes. R6 declared catch rate 1 with 0 control false blocks. R7 parity 0 mismatches. R8 shipped at net +333 B (656cd8a34). R9: smoke only (2 runs, USD 0.668, mode probe); the batch was declined by the navigator because extra-usage billing is real money (projection USD 76.08). FORK359-09 stays open, R8 adoption on live Larry is unmeasured, no follow-on phase. Ruling N-7 (tolerate cosmetic slips) is not implemented. Record: `359-12-SUMMARY.md`.
 
 ### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
 

@@ -1,7 +1,7 @@
 ---
 phase: 359
 slug: missed-fork-detection-larry-poses-a-genuine-decision-in-pros
-status: draft
+status: complete
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-09-23
@@ -46,7 +46,7 @@ created: 2026-09-23
 - [x] `tests/test-359-declared-arm.cjs`: FORK359-04, FORK359-05 tripwires
 - [x] `tests/test-359-corpus.cjs`: FORK359-01
 - [x] `tests/test-359-replay.cjs` (with `--mutation`): FORK359-02, -06, -07, -10
-- [ ] `tests/test-359-prose-budget.cjs`: FORK359-08
+- [x] `tests/test-359-prose-budget.cjs`: FORK359-08
 - [x] `tests/test-359-devonly-tripwire.cjs`: FORK359-10 (R9 script and probe not required from `lib/`/`hooks/`; no `api.typesafe.ai` under `lib/`/`hooks/`)
 - [x] `tests/run-all-359.sh` plus one `run_if` leg appended to `tests/run-all-238.sh`
 - [x] Framework install: none
@@ -63,6 +63,6 @@ created: 2026-09-23
 
 - [x] All tasks have `<automated>` verify or Wave 0 dependencies
 - [x] No watch-mode flags
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** approved 2026-10-28 (359-08 standing gate green; R8 and R9 pending)
+**Approval:** approved 2026-10-28 (359-12 close: R9 DECLINED, extra-usage billing is real money; FORK359-09 open, R8 adoption unmeasured)
