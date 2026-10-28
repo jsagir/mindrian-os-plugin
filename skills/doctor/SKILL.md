@@ -3,7 +3,7 @@ name: doctor
 description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
+argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--session-start] [--only=<id,id>] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
 layer: "harness"
 layer_why: "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
@@ -123,6 +123,8 @@ These siblings own their own exit contracts and are not part of the class-flag d
 - `--acceptance` -> the release-gate checklist (install-state + deployment-surfaces + version-of-record + verify-release + doctor-all + published + npx-roundtrip). Hard abort on any sub-check failure.
 - `--pre-tag` -> with `--acceptance`, filter to the pre-tag-applicable points (implies `--acceptance`).
 - `--pre-flight` -> the strict-subset tier `release.sh` uses before it mutates the tree (implies `--acceptance`).
+- `--session-start` -> with `--acceptance`, filter to the bounded OFFLINE tier the SessionStart hook runs once per install or update: four points (install-state, session-start-active-version, harness-policies, eureka-optin-state). The network wire point stays off this tier. Implies `--acceptance`. Precedence: `--pre-tag`, then `--pre-flight`, then `--session-start`.
+- `--only=<id,id,...>` -> with `--acceptance`, narrow the selected tier to the named point ids (an unknown id selects nothing). The detached session probe uses it.
 - `--dogfood-acceptance` -> the Canon Part 6 dog-fooding acceptance pass.
 - `--claims` -> the claims-verification leg.
 - `--check-rs-engine` -> the reason-select engine probe (NOT part of `--all`).
