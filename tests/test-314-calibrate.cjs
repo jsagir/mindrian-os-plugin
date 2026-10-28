@@ -270,6 +270,10 @@ async function leg(name, fn) {
       });
       assert.ok(Number.isInteger(tr.band_cross) && Number.isInteger(tr.tail_enter));
     });
+    if (process.env.T314_DEBUG) console.log(JSON.stringify(table.trials.map(function (t) { return [t.share, t.kind, t.seed, t.held_out, t.skipped || '', JSON.stringify(t.perN['10']), t.band_cross, t.tail_enter]; })));
+    table.trials.forEach(function (tr) { assert.ok(!tr.skipped, 'trial ran: ' + tr.skipped); assert.ok(tr.held_out >= 1, 'something held out'); });
+    const big = table.trials.filter(function (tr) { return tr.share === 0.10; });
+    assert.ok(big.some(function (tr) { return Object.keys(tr.perN).some(function (k) { const m = tr.perN[k]; return m.entered + m.left + m.max_shift > 0; }); }), 'a 10 percent holdout moves the top of the list');
     assert.strictEqual(roomFingerprint(roomDir), before, 'original room is byte-identical');
     // No room name or text in the table: only the hash.
     const text = JSON.stringify(table);
@@ -336,7 +340,7 @@ async function leg(name, fn) {
     const reqs = src.split('\n').filter(function (l) { return /require\(/.test(l) && !/^\s*(\/\/|\*)/.test(l); }).join('\n');
     assert.ok(!/node:https?['"]|require\(\s*['"]https?['"]/.test(reqs), 'no http or https require');
     assert.ok(!/brain-client|mindrian-brain|fetch\(/i.test(src.replace(/^\s*(\/\/|\*).*$/gm, '')), 'no Brain client or fetch');
-    assert.ok(!/[–—]/.test(src), 'no em-dash or en-dash');
+    assert.ok(!src.includes(String.fromCharCode(0x2013)) && !src.includes(String.fromCharCode(0x2014)), 'no em-dash or en-dash');
     assert.ok(/^#!\/usr\/bin\/env node/.test(src), 'shebang');
   });
 
