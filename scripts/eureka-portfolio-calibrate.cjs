@@ -48,6 +48,10 @@ const SHARES = Object.freeze([0.01, 0.02, 0.05, 0.10]);
 const CANDIDATE_NS = Object.freeze([5, 10, 25, 50]);
 const DEFAULT_SEEDS = 5;
 const MAX_SEEDS = 50;
+// The plan's bar for a room worth measuring (314-07 Task 3 step 2). It is not lowered.
+const QUALIFY_PAIRS_SCORED = 200;
+const QUALIFY_RANKED = 50;
+const QUALIFY_COHORT = 100;
 
 const RULE = 'Candidate N values are 5, 10, 25 and 50 that do not exceed the number of ranked pairs in the baseline. ' +
   'For each N, wobble_moved(N) is the 90th percentile (nearest rank) of entered plus left over the 1 percent trials, ' +
@@ -334,6 +338,19 @@ async function measureRoom(opts) {
     // 1. Baseline.
     const baseRes = await run(work);
     if (baseRes.status !== 'ok') {
+      if (o.probe) {
+        // A probe reports counts for a room that cannot be scored, so the room can be judged.
+        const q = (baseRes.qualitative && baseRes.qualitative.counts) || {};
+        return {
+          probe: true,
+          qualifies: false,
+          status: baseRes.status,
+          reason: baseRes.reason || null,
+          counts: q,
+          baseline: Object.assign({ room_id_hash: roomIdHash(roomDir) }, dbCounts(work)),
+          elapsed_seconds: Math.round((Date.now() - started) / 1000),
+        };
+      }
       throw new Error('baseline run did not score: ' + baseRes.status + ' ' + (baseRes.reason || ''));
     }
     const base = baseRes.snapshot;
@@ -354,7 +371,12 @@ async function measureRoom(opts) {
       ranked: ranked,
     };
     if (o.probe) {
-      return { probe: true, baseline: baseline, elapsed_seconds: Math.round((Date.now() - started) / 1000) };
+      return {
+        probe: true,
+        qualifies: baseline.pairs_scored >= QUALIFY_PAIRS_SCORED && ranked >= QUALIFY_RANKED && baseline.cohort_techs >= QUALIFY_COHORT,
+        baseline: baseline,
+        elapsed_seconds: Math.round((Date.now() - started) / 1000),
+      };
     }
 
     const candidateNs = CANDIDATE_NS.filter(function (n) { return n <= ranked; });

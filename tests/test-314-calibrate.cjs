@@ -283,6 +283,17 @@ async function leg(name, fn) {
     assert.ok(!table.scratch || !fs.existsSync(table.scratch), 'scratch folder cleaned up');
   });
 
+  await leg('CL6c probe reports counts and the qualify verdict without trials', async function () {
+    const roomDir = buildRoom();
+    const before = roomFingerprint(roomDir);
+    const r = await mod.measureRoom({ room: roomDir, probe: true, offline: true });
+    assert.strictEqual(r.probe, true);
+    assert.strictEqual(r.qualifies, false, 'the 36-thing fixture is below the bar');
+    assert.ok(r.baseline.pairs_scored > 0 && r.baseline.cohort_techs > 0 && r.baseline.node_count > 0);
+    assert.strictEqual(r.trials, undefined);
+    assert.strictEqual(roomFingerprint(roomDir), before);
+  });
+
   await leg('CL6b a room inside the plugin cache and a sealed room are refused', async function () {
     const cacheRoom = path.join(process.env.HOME, '.claude', 'plugins', 'x', 'room');
     fs.mkdirSync(path.join(cacheRoom, '.mindrian'), { recursive: true });
