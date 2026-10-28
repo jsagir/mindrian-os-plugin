@@ -2803,14 +2803,21 @@ Plans:
 
 ### Phase 314: SEED-055: Broaden SENS-13 to Portfolio Movement + mos eureka-portfolio Command
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A navigator can run /mos:eureka-portfolio to get a measured, provenance-stamped ranking of the room's linked opportunities. Larry notices, through the existing SENS-13 sensor, with no new sensor and no change to decide(), when that ranking moved since the previous run: a pair crosses a level, a quiet signal appears, or the top of the list reshuffles. Engine path ruled 2026-10-28: a bounded run library over the four surviving 215 scoring modules, scoring only the room's own linked pairs (the all-pairs runner stays retired by Phase 366).
+**Requirements**: PM314-01..11
 **Depends on:** Phase 313
-**Plans:** 0 plans
+**Plans:** 8 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 314 to break down)
+- [ ] 314-01-PLAN.md - snapshot store, movement detector, thresholds data file, Part 8 envelope fence (wave 1)
+- [ ] 314-02-PLAN.md - engine-path decision (ruled: bounded run library) and the bounded run library (wave 2)
+- [ ] 314-03-PLAN.md - SENS-13 evidence shape B and the sibling composePortfolioOffer (wave 2)
+- [ ] 314-04-PLAN.md - scripts/eureka-portfolio.cjs (run, show, seen, help) and an end-to-end test (wave 3)
+- [ ] 314-06-PLAN.md - Desktop and Cowork read the last run through the existing intelligence tool (wave 3)
+- [ ] 314-05-PLAN.md - commands/eureka-portfolio.md, born wired, plus registries (wave 4)
+- [ ] 314-07-PLAN.md - D-04 threshold calibration on a copy of a real room (wave 4)
+- [ ] 314-08-PLAN.md - aggregator run-all-314.sh, CHANGELOG bullet, canon ledger row (wave 5)
 
 ### Phase 315: SEED-056: Wire Intelligence + Eureka Engines Into Larrys Own Behavior Contract
 

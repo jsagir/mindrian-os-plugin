@@ -4926,6 +4926,22 @@ These 52 IDs were minted in the Phase 369.25 plan set (2026-10-06) from `369.25-
 - [x] **FCLOSE-06**: beta.63 cut behind RULE 10, ledger rebuild at the placeholder version as a pre-step (the ICM eval refresh runs after the cut, the eval-refresh recovery path). Plan(s) 369.25-25. **Measured (2026-10-06):** receipt for 0f8a9a984 read by the navigator at 07:15:09Z with the negative leg 12 of 12 refused (room_db_missing, room_db_unreadable, room_graph_lost); release commit 563c24262, tag v2.0.0-beta.63 verified at origin; npm next and latest 2.0.0-beta.63; marketplace pinned beta.63; post-publish acceptance 24/24 after the eval-refresh recovery e79bd0430.
 - [x] **FCLOSE-07**: the real-room negative leg (navigator 2026-10-06 01:00, from Lawrence's session): the never-ready fixture with room.db removed and with it corrupted; quick, deep, Eureka and analogies each refuse with a typed not_ready reason naming the failed requirement; the receipt records both legs; the Step 2.6 gate refuses a receipt whose negative leg is missing or did not refuse. Plan(s) 369.25-13, 369.25-23, 369.25-24, 369.25-27. **Measured:** (2026-10-06, plan 369.25-25) `node scripts/real-room-run.cjs --negative-only` exit 0, refused 12 of 12 (3 rooms times 4 jobs: room.db missing, damaged, deleted and silently re-minted empty; reasons `room_db_missing`, `room_db_unreadable`, `room_graph_lost`); `node tests/test-36925-negative-leg.cjs` PASS=52 FAIL=0; `node tests/test-muy-real-room-rule.cjs` 20 passed, 0 failed (G11-G14: Step 2.6 refuses a receipt with no negative leg or one where any job ran; `release.sh` unedited). **Residual:** the live receipt on the final sha is the navigator's read (FCLOSE-06).
 
+### Phase 314 - Portfolio movement and /mos:eureka-portfolio (PM314 family)
+
+PM314-01..11 were minted in the Phase 314 plan set (2026-10-28) from `314-CONTEXT.md` D-01 to D-07 and the engine-path ruling of 2026-10-28.
+
+- [ ] **PM314-01**: `/mos:eureka-portfolio` exists, is born wired, declares its HITL shape and layer, and takes the whole room or a named section (D-05).
+- [ ] **PM314-02**: The command prints measured numbers with provenance and degrades honestly in plain words when the engine or encoder is unavailable.
+- [ ] **PM314-03**: SENS-13 learns evidence shape B (portfolio movement) with zero new SENSOR_REGISTRY entry and zero decide() change (D-06).
+- [ ] **PM314-04**: `composePortfolioOffer` is a sibling composer next to `composeEurekaOffer` and uses a fixed template (D-06).
+- [ ] **PM314-05**: The previous-run diff is stored locally, on demand only, and the sensor never starts a run (D-01, D-02, D-07).
+- [ ] **PM314-06**: The movement rule is composite: band crossing, or a tail-quadrant entrant, or a top-N reshuffle (D-03).
+- [ ] **PM314-07**: Movement thresholds are calibrated on a real run and the run is recorded (D-04), or the SUMMARY records an accepted degrade that the navigator signs off.
+- [ ] **PM314-08**: Part 8 holds: nothing leaves the room and the envelopes use closed schemas.
+- [ ] **PM314-09**: The Tri-Polar reach (CLI, Desktop, Cowork) is stated and tested.
+- [ ] **PM314-10**: Engine-path correction: a bounded run library over the surviving 215 modules scores only the room's own linked pairs; no all-pairs loop and no runner file returns.
+- [ ] **PM314-11**: The aggregator, the CHANGELOG bullet and the canon ledger row exist.
+
 ## Traceability
 
 485 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
