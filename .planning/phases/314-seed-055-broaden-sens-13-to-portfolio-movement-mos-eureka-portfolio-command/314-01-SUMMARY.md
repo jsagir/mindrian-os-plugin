@@ -99,7 +99,7 @@ None beyond the plan register. T-314-01 to T-314-05a are mitigated in code and t
 
 ## Issues Encountered
 
-- The Write tool turned the `—` escape text I typed in two test regexes into literal dash characters. I replaced them with `String.fromCharCode` so the test files carry no dash characters. No effect on behavior.
+- The Write tool turned the unicode escape text I typed for the dash characters in two test regexes into literal dash characters. I replaced them with `String.fromCharCode` so the test files carry no dash characters. No effect on behavior.
 
 ## Next Phase Readiness
 
