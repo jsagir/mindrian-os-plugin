@@ -7,6 +7,15 @@
 # Output: Writes room/team/TEAM-STATE.md directly
 # Exit: 0 on success, 1 on error. If no team/ directory, exit 0 silently.
 
+# Phase 381: the work runs in lib/core/room-render.cjs (node). MINDRIAN_LEGACY_COMPUTE=1,
+# no node on PATH, or a missing module runs the bash body below (removed by plan 381-09).
+if [ "${MINDRIAN_LEGACY_COMPUTE:-}" != "1" ] && command -v node >/dev/null 2>&1; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [ -f "${SCRIPT_DIR}/../lib/core/room-render.cjs" ]; then
+    NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" team "$@"
+  fi
+fi
+
 # macOS bash 3.2 compatibility -- Python3 fallback for declare -A (associative arrays)
 if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
   exec python3 - "$@" << 'PYEOF'

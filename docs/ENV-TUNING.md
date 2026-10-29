@@ -904,6 +904,21 @@ running, so the NEXT real call benefits from it regardless.
 export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
 ```
 
+## Room Summary Renderers (Phase 381, room-local, zero egress)
+
+The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room once and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path. Nothing here reaches the network or the Brain (Canon Part 8).
+
+### MINDRIAN_LEGACY_COMPUTE
+
+**What:** Set it to `1` to run the old bash body of the room summary scripts instead of the node renderer. The bash body also runs when `node` is not on the PATH or when `lib/core/room-render.cjs` is missing.
+**Default:** unset (the node renderer runs).
+**Read:** by the bash wrapper header at the top of each script, on every run.
+**Why:** The switch is transitional. It keeps the old path one variable away while the parity gate (old and new output byte for byte the same) is recorded. Plan 381-09 removes it, together with the bash bodies, after the recorded zero-diff run.
+
+```bash
+export MINDRIAN_LEGACY_COMPUTE=1
+```
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:
