@@ -40,6 +40,18 @@
  * The backslash section name, the u8x folder-name payloads and the u8x funding date payload are
  * parity cases in the hostile room (tests/test-381-parity.cjs), not legs here.
  *
+ * Plan 381-07 appends the compute-state legs:
+ *   macos-python-path (compute-state)  source-level plus behaviour: the wrapper exec line comes
+ *                                  before "set -euo pipefail" and before the python3 registry
+ *                                  heredoc. NEW reads the registry in node, so a host without
+ *                                  python3 now prints the current_room line; OLD printed no
+ *                                  current_room line there (the heredoc failed under || true).
+ *                                  This is the ruling 2 python-path class.
+ *   no-experimental-warning (compute-state)  NEW stderr is empty on a fresh edge-room copy: the
+ *                                  NODE_NO_WARNINGS=1 prefix of the wrapper exec line keeps the
+ *                                  node:sqlite ExperimentalWarning of the predicate chain off
+ *                                  stderr.
+ *
  * Plain node:assert/strict, zero deps. Every script runs on a fresh cp -a copy under os.tmpdir().
  * Exit 0 pass, 1 fail. A missing precondition prints a SKIP line. Hyphens only.
  */
@@ -212,6 +224,69 @@ function main() {
     assert.ok(execLine >= 0, 'the exec line exists');
     assert.ok(versLine >= 0, 'the BASH_VERSINFO line exists');
     assert.ok(execLine < versLine, 'exec line ' + (execLine + 1) + ' comes before BASH_VERSINFO line ' + (versLine + 1));
+  });
+
+  // ---------------------------------------------------------------------------------------------
+  // compute-state legs (plan 381-07)
+  // ---------------------------------------------------------------------------------------------
+  leg('macos-python-path (compute-state): the exec line precedes set -euo pipefail and the python3 heredoc; NEW needs no python3 for current_room', () => {
+    const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-state'), 'utf8').split('\n');
+    const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" state "$@"'));
+    const setLine = lines.findIndex((l) => l === 'set -euo pipefail');
+    const pyLine = lines.findIndex((l) => l.includes('python3 - <<'));
+    assert.ok(execLine >= 0, 'the exec line exists');
+    assert.ok(setLine >= 0, 'the set -euo pipefail line exists');
+    assert.ok(pyLine >= 0, 'the python3 registry heredoc line exists');
+    assert.ok(execLine < setLine, 'exec line ' + (execLine + 1) + ' comes before set line ' + (setLine + 1));
+    assert.ok(execLine < pyLine, 'exec line ' + (execLine + 1) + ' comes before python3 line ' + (pyLine + 1));
+
+    // A PATH without python3: a bin dir of symlinks to the tools the scripts use, plus node.
+    const bin = oracle.mkTmp('nopy-bin');
+    const tools = ['bash', 'dirname', 'basename', 'find', 'sort', 'head', 'cut', 'date', 'wc', 'tr', 'grep', 'sed', 'uname',
+      'cat', 'awk', 'mkdir', 'mv', 'rm', 'xargs', 'stat', 'printf', 'env', 'ls'];
+    tools.forEach((t) => {
+      const w = spawnSync('bash', ['-c', 'command -v "$1"', '_', t], { encoding: 'utf8' });
+      const where = String(w.stdout || '').trim();
+      if (w.status === 0 && where.startsWith('/')) fs.symlinkSync(where, path.join(bin, t));
+    });
+    fs.symlinkSync(process.execPath, path.join(bin, 'node'));
+    const envPath = bin;
+    const probe = spawnSync(path.join(bin, 'bash'), ['-c', 'command -v python3 || echo none'], { encoding: 'utf8', env: { PATH: envPath } });
+    assert.equal(String(probe.stdout).trim(), 'none', 'python3 is not on the test PATH');
+
+    const small = path.join(oracle.mkTmp('nopy-src'), 'room');
+    fs.mkdirSync(path.join(small, 'problem-definition'), { recursive: true });
+    fs.writeFileSync(path.join(small, 'problem-definition', 'p.md'), '# P\n');
+    const runNoPy = (tree, label) => {
+      const base = oracle.mkTmp('nopy-' + label);
+      const room = path.join(base, 'room');
+      oracle.copyRoom(small, room);
+      const roomsHome = path.join(base, 'rooms-home');
+      const home = path.join(base, 'home');
+      const cwd = path.join(base, 'cwd');
+      [roomsHome, home, cwd].forEach((d) => fs.mkdirSync(d, { recursive: true }));
+      fs.mkdirSync(path.join(roomsHome, '.rooms'), { recursive: true });
+      fs.writeFileSync(path.join(roomsHome, '.rooms', 'registry.json'), JSON.stringify({ active: 'nopy-room', rooms: { 'nopy-room': { abs_path: room } } }));
+      const env = { PATH: envPath, HOME: home, MINDRIAN_ROOMS_HOME: roomsHome, LANG: 'C.UTF-8', LC_ALL: 'C.UTF-8', TZ: 'UTC' };
+      const r = spawnSync(path.join(bin, 'bash'), [path.join(tree, 'scripts', 'compute-state'), room], { cwd, env, encoding: 'utf8' });
+      return { status: r.status, stdout: String(r.stdout || '') };
+    };
+    const n = runNoPy(ROOT, 'new');
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.ok(n.stdout.split('\n').includes('current_room: nopy-room'), 'NEW prints current_room without python3: ' + JSON.stringify(n.stdout.split('\n').slice(0, 6)));
+    const o = runNoPy(oldTree, 'old');
+    const oldHas = o.stdout.split('\n').includes('current_room: nopy-room');
+    console.log('    OLD exit ' + o.status + ', current_room line ' + (oldHas ? 'present' : 'absent') + '; NEW exit 0, current_room line present');
+  });
+
+  leg('no-experimental-warning (compute-state): NEW stderr is empty on a fresh edge-room copy', () => {
+    const edge = builders.buildEdgeRoom(path.join(scratch, 'state-edge-src'), {});
+    const base = oracle.mkTmp('state-warn');
+    const n = runOn(ROOT, edge.roomDir, path.join(base, 'new-room'), 'compute-state');
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.ok(n.stdout.includes('# Data Room State'), 'NEW printed the STATE.md text');
+    assert.equal(n.stderr, '', 'NEW stderr is empty: ' + JSON.stringify(n.stderr.slice(0, 200)));
+    assert.deepEqual(n.cwdFiles, [], 'no file appears in the run cwd');
   });
 
   return failures === 0 ? 0 : 1;

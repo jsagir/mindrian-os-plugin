@@ -58,6 +58,27 @@
  *                         python3 for a u8x payload value; no file in the fresh run cwd; no marker
  *                         in the room (spawn-level parity leg of T-381-01)
  *
+ * EDGE_STATE_SPAWNS (compute-state renderer on the same edge room, plan 381-07):
+ *   bash compute-meetings-intelligence <room>   meetings/ holds 2 meeting dirs; the script is
+ *                                               spawned once (argv only)                      = 1
+ *   grep -lZE -- PATTERN files...               the cross-reference pass for the section name
+ *                                               market.analysis (ERE metacharacter); one spawn
+ *                                               for every content file                        = 1
+ *   the in-process team step (runTeam)          the dateDToEpoch chain once per distinct
+ *                                               last_active value, the same spawns as
+ *                                               EDGE_TEAM_SPAWNS                              = 9
+ *   Total 11. The scaffold predicate, visual-ops (diagram, sparkline, one progress bar per
+ *   section) and the registry read run in process: no node and no python3 for them. 50 more
+ *   artifacts in problem-definition give the same count.
+ *
+ * State legs:
+ *   state edge          run('state', [edgeCopy]) spawns exactly EDGE_STATE_SPAWNS processes
+ *   state edge plus 50  the same count with 50 more artifacts (zero per-file spawns)
+ *   state hostile       every spawn is bash compute-meetings-intelligence, grep -lZE with the
+ *                       pattern as one argv element, or a date-chain step of the team step; no
+ *                       node; no python3 for a u8x payload value; no file in the fresh run cwd;
+ *                       no marker in the room (spawn-level parity leg of T-381-01)
+ *
  * Plain node:assert/strict, zero deps, temp dirs under os.tmpdir() only. A missing precondition
  * (bash 4, symlinks) prints a SKIP line. Exit 0 pass, 1 fail. Hyphens only.
  */
@@ -81,6 +102,7 @@ const builders = require(path.join(ROOT, 'tests', 'fixtures', 'room-381', 'build
 
 const EDGE_TEAM_SPAWNS = 9;
 const EDGE_ANALYZE_SPAWNS = 5;
+const EDGE_STATE_SPAWNS = 11;
 
 // ---------------------------------------------------------------------------
 // child_process recorder
@@ -104,7 +126,7 @@ const netLog = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'test-381-spawn-n
 process.env.NET_GUARD_381_LOG = netLog;
 require(path.join(ROOT, 'tests', 'helpers', 'net-guard-381.cjs'));
 
-const ROOM_MODULES = ['room-scan.cjs', 'room-render.cjs', 'room-render-team.cjs', 'room-render-analyze.cjs']
+const ROOM_MODULES = ['room-scan.cjs', 'room-render.cjs', 'room-render-team.cjs', 'room-render-analyze.cjs', 'room-render-state.cjs']
   .map((f) => path.join(ROOT, 'lib', 'core', f));
 
 function freshModules() {
@@ -188,6 +210,17 @@ function analyzeKind(s, datePy) {
   if (s.file === 'grep' && (s.args[0] === '-lZE' || s.args[0] === '-liZE') && s.args[1] === '--' && s.args.length >= 4) return 'grep-files';
   if (s.file === 'grep' && s.args[0] === '-q' && s.args.length === 2) return 'grep-q';
   if (s.file === 'xargs' && s.args.length === 0) return 'xargs';
+  if (dateChainValue(s, datePy) !== null) return 'date';
+  return null;
+}
+
+// The state spawn kinds: the meetings script once (argv only), grep -lZE with the pattern as one
+// argv element, or a date-chain step of the in-process team step. Returns the kind or null.
+const MEETINGS_SCRIPT = path.join(ROOT, 'scripts', 'compute-meetings-intelligence');
+function stateKind(s, datePy, roomDir) {
+  if (s.fn !== 'spawnSync') return null;
+  if (s.file === 'bash' && s.args.length === 2 && s.args[0] === MEETINGS_SCRIPT && s.args[1] === roomDir) return 'meetings';
+  if (s.file === 'grep' && s.args[0] === '-lZE' && s.args[1] === '--' && s.args.length >= 4) return 'grep-files';
   if (dateChainValue(s, datePy) !== null) return 'date';
   return null;
 }
@@ -314,6 +347,69 @@ async function main() {
     r.spawns.forEach((sp) => {
       const kind = analyzeKind(sp, r.mods.scan.DATE_PY_PROGRAM);
       assert.ok(kind !== null, 'grep, xargs or a date-chain step: ' + describe(sp));
+      if (kind === 'date') {
+        const v = dateChainValue(sp, r.mods.scan.DATE_PY_PROGRAM);
+        const k = sp.file + ' ' + sp.args[0] + '\u0000' + v;
+        assert.ok(!seen.has(k), 'each date step runs once per distinct value: ' + describe(sp));
+        seen.set(k, true);
+      }
+      if (path.basename(sp.file).startsWith('python')) {
+        const v = dateChainValue(sp, r.mods.scan.DATE_PY_PROGRAM) || '';
+        hostile.markers.forEach((m) => assert.ok(!v.includes(m), 'no payload value reaches python3'));
+      }
+    });
+    console.log('    spawn count ' + r.spawns.length);
+    assert.deepEqual(r.cwdFiles, [], 'no file appears in the run cwd');
+    hostile.markers.forEach((m) => {
+      assert.ok(!fs.existsSync(path.join(copy, m)), 'no marker in the room: ' + m);
+    });
+  });
+
+  let edgeState = -1;
+  await leg('state edge: run(state) spawns exactly EDGE_STATE_SPAWNS (' + EDGE_STATE_SPAWNS + ') processes', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-sedge'), 'room');
+    oracle.copyRoom(edge.roomDir, copy);
+    const r = await recordMode('state', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    assert.ok(String(r.res.stdout).includes('# Data Room State'), 'STATE.md text printed');
+    r.spawns.forEach((sp) => console.log('    spawn: ' + describe(sp).slice(0, 160)));
+    const kinds = r.spawns.map((sp) => stateKind(sp, r.mods.scan.DATE_PY_PROGRAM, copy));
+    assert.ok(kinds.every((k) => k !== null), 'every spawn is the meetings script, grep -lZE or a date-chain step');
+    checkPrograms(r.spawns, r.mods);
+    const count = (k) => kinds.filter((x) => x === k).length;
+    assert.equal(count('meetings'), 1, 'one compute-meetings-intelligence spawn');
+    assert.equal(count('grep-files'), 1, 'one grep spawn for market.analysis');
+    r.spawns.filter((sp) => sp.file === 'grep').forEach((sp) => assert.ok(sp.args[2].includes('market.analysis'), 'the grep pattern names market.analysis'));
+    assert.equal(count('date'), EDGE_TEAM_SPAWNS, 'the team step date chain, as in the team leg');
+    edgeState = r.spawns.length;
+    console.log('    spawn count ' + edgeState + ' (EDGE_STATE_SPAWNS ' + EDGE_STATE_SPAWNS + ')');
+    assert.equal(edgeState, EDGE_STATE_SPAWNS, 'spawn count');
+    assert.deepEqual(r.cwdFiles, [], 'no file appears in the run cwd');
+  });
+
+  await leg('state edge plus 50 artifacts: the same spawn count (zero per-file spawns)', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-sedge50'), 'room');
+    oracle.copyRoom(edge.roomDir, copy);
+    addAnalyzeArtifacts(copy, 50);
+    const r = await recordMode('state', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    assert.ok(r.spawns.every((sp) => stateKind(sp, r.mods.scan.DATE_PY_PROGRAM, copy) !== null), 'every spawn is the meetings script, grep -lZE or a date-chain step');
+    checkPrograms(r.spawns, r.mods);
+    console.log('    spawn count ' + r.spawns.length + ' with 50 extra artifacts (edge ' + edgeState + ')');
+    assert.equal(r.spawns.length, EDGE_STATE_SPAWNS, 'spawn count with 50 extra artifacts');
+  });
+
+  await leg('state hostile: meetings, grep and date-chain spawns only, no node, no payload reaches python3, no marker', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-shostile'), 'room');
+    oracle.copyRoom(hostile.roomDir, copy);
+    const r = await recordMode('state', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    r.spawns.forEach((sp) => console.log('    spawn: ' + describe(sp).slice(0, 160)));
+    checkPrograms(r.spawns, r.mods);
+    const seen = new Map();
+    r.spawns.forEach((sp) => {
+      const kind = stateKind(sp, r.mods.scan.DATE_PY_PROGRAM, copy);
+      assert.ok(kind !== null, 'the meetings script, grep -lZE or a date-chain step: ' + describe(sp));
       if (kind === 'date') {
         const v = dateChainValue(sp, r.mods.scan.DATE_PY_PROGRAM);
         const k = sp.file + ' ' + sp.args[0] + '\u0000' + v;
