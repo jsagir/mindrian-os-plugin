@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "note": "The fixed probe set of the Larry eval (Phase 369.6 plan 02; D-30, D-43). Invented prompts only: no room content, no real names. The voice probes follow research/P-probe-replies.md (A, C, D) and research/L3-lawrence-rubric.md model exchanges (G, H, I). turn_index is the position of the prompt in the conversation (1 is the first reply). context is a short prior-turn transcript (empty on turn 1). expect_mode is conversation, report, fork or pre_research; a report probe marks R3, R4, R6, R9 and R11 not applicable (D-12). Hyphens only.",
+  "probes": [
+    {
+      "id": "A",
+      "prompt": "hi. i'm a postdoc and my lab found a material that stays stable at weird humidity. i think it could be a product but i have no idea where to even start. what should i do?",
+      "turn_index": 1,
+      "context": "",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["turn_1", "un_defined"],
+      "source": "research/P-probe-replies.md probe A"
+    },
+    {
+      "id": "C",
+      "prompt": "My market is universities, I'm already sure. Just list me the frameworks I should run to validate it, I don't want a lecture.",
+      "turn_index": 1,
+      "context": "",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["turn_1", "list_request", "escape_phrase"],
+      "asks_for_list": true,
+      "source": "research/P-probe-replies.md probe C"
+    },
+    {
+      "id": "D",
+      "prompt": "bottom line - grants or investors first?",
+      "turn_index": 4,
+      "context": "Navigator: My lab found a material that stays stable at weird humidity. I see two grant programs and one corporate partner as possible ways forward. The team has 8 months of funding left.\nLarry: That is three paths, not two. Tell me what each one would need from you in the next quarter.",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["mid_conversation", "escape_phrase"],
+      "source": "research/P-probe-replies.md probe D"
+    },
+    {
+      "id": "E",
+      "prompt": "Give me a status report on where the humidity material work stands.",
+      "turn_index": 4,
+      "context": "Navigator: We tested the material at three humidity settings last week.\nLarry: What did you see at the extremes?\nNavigator: It held at the low and the middle setting. The high setting is still running.",
+      "expect_mode": "report",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["report_mode", "work_session"],
+      "source": "research/P-probe-replies.md sample E (reworded as an invented prompt with a three-line context)"
+    },
+    {
+      "id": "F",
+      "prompt": "I can take the humidity-stable material to packaging companies or to museum conservators, and I can only talk to one group this quarter. I have not decided. Help me think it through.",
+      "turn_index": 3,
+      "context": "Navigator: The material keeps its shape when the air gets damp.\nLarry: Who would lose something if it did not?",
+      "expect_mode": "fork",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["genuine_fork", "no_card_fires"],
+      "source": "invented for plan 369.6-02 (D-09 genuine fork)"
+    },
+    {
+      "id": "G",
+      "prompt": "I want to do something about the future of food.",
+      "turn_index": 1,
+      "context": "",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["turn_1", "un_defined"],
+      "source": "research/L3-lawrence-rubric.md model exchange 1"
+    },
+    {
+      "id": "H",
+      "prompt": "Our clinic loses most new nurses inside their first year. I think we need a better onboarding app.",
+      "turn_index": 3,
+      "context": "Navigator: I run operations at a small clinic.\nLarry: What decision is stuck?",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["solution_as_problem", "ill_defined"],
+      "source": "research/L3-lawrence-rubric.md model exchange 2"
+    },
+    {
+      "id": "I",
+      "prompt": "I have two suppliers. A is cheaper and ships slower; B costs more and ships in time for my launch. Just tell me which.",
+      "turn_index": 2,
+      "context": "Navigator: I am about to launch a small product.",
+      "expect_mode": "conversation",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["escape_phrase", "well_defined"],
+      "source": "research/L3-lawrence-rubric.md model exchange 3"
+    },
+    {
+      "id": "K",
+      "prompt": "Before you search anything, tell me if this market is real.",
+      "turn_index": 2,
+      "context": "Navigator: I am looking at the market for humidity-stable packaging film.",
+      "expect_mode": "pre_research",
+      "surface": "cli",
+      "samples": 1,
+      "traits": ["pre_research_claim"],
+      "source": "invented for plan 369.6-02 (no unbacked claim before research)"
+    }
+  ],
+  "operation_probes": [
+    {
+      "id": "OA",
+      "prompt": "What did I already decide about who rents the cold lockers first?",
+      "expect_mode": "conversation",
+      "expect_routes": ["room read: context_assemble or room search"],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "A question about what the navigator already decided: a room read, answered in the room's own words (the resellers are the segment to test first).",
+      "surface": "cli"
+    },
+    {
+      "id": "OB",
+      "prompt": "Look through my notes for anything that contradicts my assumption that stall holders will rent cold storage by the day.",
+      "expect_mode": "conversation",
+      "expect_routes": ["contradiction scan", "Eureka route"],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "Find a contradiction; the route fires and the result is surfaced as insight, not as tool output.",
+      "surface": "cli"
+    },
+    {
+      "id": "OC",
+      "prompt": "Look into whether anyone already sells a solar cold locker to market stall holders in Lisbon.",
+      "expect_routes": ["research route, proposed at the gate before a material run"],
+      "expect_mode": "conversation",
+      "cells": ["2s-live", "3s-live"],
+      "intent": "A research route: the material step waits at the gate (GUIDED default, Canon Part 3).",
+      "surface": "cli"
+    },
+    {
+      "id": "OD",
+      "prompt": "What is the difference between a problem that is well defined and one that is not?",
+      "expect_mode": "conversation",
+      "expect_routes": [],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "A plain methodology question with no room angle: no needless room machinery.",
+      "surface": "cli"
+    },
+    {
+      "id": "OE",
+      "prompt": "How do you know what is in my room?",
+      "expect_mode": "conversation",
+      "expect_routes": [],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "Asked by topic, so a brief honest answer about how Larry works is allowed (D-29); OP1 is satisfied by the asked-for allowance.",
+      "surface": "cli"
+    },
+    {
+      "id": "OF",
+      "prompt": "File this as a confirmed claim right now: A roof panel and a small battery can carry one locker through a cloudy winter day.",
+      "expect_mode": "conversation",
+      "expect_routes": ["claim_write proposed at the gate"],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "Proposed only, through the gate; no policy code or guard name in the reply (D-29).",
+      "surface": "cli"
+    },
+    {
+      "id": "OG",
+      "prompt": "What should I do next on this?",
+      "expect_mode": "conversation",
+      "expect_routes": ["suggest_next", "chain_resolve"],
+      "cells": ["2s-live", "3s-live"],
+      "intent": "OP5: the closing step must match what the linked suggest_next or chain_resolve result surfaced.",
+      "surface": "cli"
+    }
+  ]
+}

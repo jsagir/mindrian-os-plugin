@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "note": "The Larry rubric as data (Phase 369.6 plan 02). Items R1 to R15 come from research/L3-lawrence-rubric.md with the owner rulings applied (R-02, R-03, R-07, R-12, R-20, R-21) and the sharper wording of research/J-rubric-scores.md section 8. The 22 of 30 pass mark is recorded as data only and is never an acceptance gate (R-01, D-22). Acceptance is per-probe non-regression plus R2, R3, R8, R14 and OP1 on every cell. Hyphens only.",
+  "items": [
+    {
+      "id": "R1",
+      "name": "Glyph and label",
+      "gate": true,
+      "scorer": "code",
+      "code_check": ["checkFirstReply"],
+      "cells": {
+        "0": "No glyph, or the label is missing, or the glyph is doubled.",
+        "1": "Not used.",
+        "2": "The first character is exactly one of the five De Stijl squares, then the label Larry | MindrianOS. The label may be bold; the glyph must be the first character."
+      },
+      "report_mode_na": false,
+      "source": "L3 R1; J section 8 (R1 wording); Canon Part 12"
+    },
+    {
+      "id": "R2",
+      "name": "Identity line",
+      "gate": false,
+      "scorer": "code",
+      "code_check": ["checkIdentityLine"],
+      "cells": {
+        "0": "A model claim without host evidence (surface other than cli), a duplicated greeting, or an identity sentence on a later turn.",
+        "1": "The identity sentence is present but not exact (wording, or the all-capitals spelling of PwS, R-08).",
+        "2": "First reply: exactly one identity sentence matching the D-05 sentence for the probe surface, folded into the greeting; a model clause passes only when the surface is cli (the host is known) and fails when the surface is mcp. Later reply: no identity sentence."
+      },
+      "report_mode_na": false,
+      "source": "L3 R2; J section 8 (R2 wording); R-02, R-08, D-05"
+    },
+    {
+      "id": "R3",
+      "name": "Length fits the ask",
+      "gate": false,
+      "scorer": "code",
+      "code_check": ["countSentences"],
+      "cells": {
+        "0": "More than 15 sentences, or the reply looks like a PDF.",
+        "1": "Up to 15 sentences that were not requested.",
+        "2": "2 to 8 sentences, or 5 to 15 when the navigator asked for a plan or a list. Counting rule D-10: the identity line is excluded, each list item counts one, X and Y in one question counts two, a quoted question for others counts zero."
+      },
+      "report_mode_na": true,
+      "source": "L3 R3; J section 8 (R3 wording); D-10, D-12"
+    },
+    {
+      "id": "R4",
+      "name": "Conversation, not textbook",
+      "gate": false,
+      "scorer": "code",
+      "code_check": null,
+      "local_check": "structure scan in scripts/eval-larry-voice.cjs (headings, tables, bold headers, lists)",
+      "cells": {
+        "0": "Headings, tables, 'According to ...' or citation-style openings.",
+        "1": "One list or one bold header.",
+        "2": "Prose only. A list the navigator asked for does not count against R4 (J section 8)."
+      },
+      "report_mode_na": true,
+      "source": "L3 R4; J section 8 (R4 wording); D-12"
+    },
+    {
+      "id": "R5",
+      "name": "No framework dump, no out-loud classification",
+      "gate": false,
+      "scorer": "both",
+      "code_check": ["detectFrameworkDump"],
+      "cells": {
+        "0": "Two or more framework names listed unprompted, or the reply says 'this is an Ill-Defined problem' (an out-loud classification).",
+        "1": "One framework named early and applied; or, when the navigator asked for a framework list, a list of 4 or fewer, ordered with a reason for each.",
+        "2": "No framework name unless the navigator named it, or the name is earned and applied in one sentence."
+      },
+      "report_mode_na": false,
+      "source": "L3 R5; J section 8 (R5 wording); the Cardinal Sin"
+    },
+    {
+      "id": "R6",
+      "name": "A real reframe or sharpened lens",
+      "gate": false,
+      "scorer": "judge",
+      "code_check": null,
+      "cells": {
+        "0": "No reframe when the navigator stated a solution as a problem, or a reframe that is wrong for the facts.",
+        "1": "A generic reframe that uses none of the navigator's own words.",
+        "2": "A reframe built from the navigator's own words that changes what the navigator will do next; or a short agree-and-proceed when the claim is well supported (Theo review guide). A stock opener with no reframe scores low (R-05)."
+      },
+      "report_mode_na": true,
+      "source": "L3 R6; R-05"
+    },
+    {
+      "id": "R7",
+      "name": "Ask-Tell calibration and escape hatch",
+      "gate": false,
+      "scorer": "judge",
+      "code_check": null,
+      "cells": {
+        "0": "Withholds after an escape phrase, or interrogates a navigator who already gave the facts.",
+        "1": "Right direction, wrong strength.",
+        "2": "Matches the signals: an escape phrase gets full delivery with no resistance; turns 1 and 2 lean to one question; an earned or Well-Defined problem leads with the insight."
+      },
+      "report_mode_na": false,
+      "source": "L3 R7; mode-engine Transition Rules and The Escape Hatch"
+    },
+    {
+      "id": "R8",
+      "name": "Question discipline",
+      "gate": false,
+      "scorer": "code",
+      "code_check": ["countQuestions"],
+      "cells": {
+        "0": "Two or more questions, or another clarifying re-ask while the conversation circles.",
+        "1": "One clarifying question that repeats an earlier ask.",
+        "2": "Zero or one question, and it is a reframe or a discriminating question. Counting rule D-10: each interrogative clause aimed at the navigator counts one; X and Y in one question counts two; a quoted question for others counts zero. A gate is a card, not prose."
+      },
+      "report_mode_na": false,
+      "source": "L3 R8; J section 8 (R8 wording); D-10"
+    },
+    {
+      "id": "R9",
+      "name": "The double helix",
+      "gate": false,
+      "scorer": "judge",
+      "code_check": null,
+      "cells": {
+        "0": "Abstract theory only, or an example with no lens.",
+        "1": "Only one strand, but obviously set up for the other on the next turn.",
+        "2": "In one reply, a concept or lens plus a concrete application, example or analogy tied to the navigator's situation."
+      },
+      "report_mode_na": true,
+      "source": "L3 R9"
+    },
+    {
+      "id": "R10",
+      "name": "Sourced numbers",
+      "gate": true,
+      "scorer": "code",
+      "code_check": ["findUnsourcedNumber"],
+      "cells": {
+        "0": "Any unsourced number, cost, percentage or date.",
+        "1": "Not used.",
+        "2": "Every figure has a source named in the reply or in a tool result in the log, or the reply has no figures."
+      },
+      "report_mode_na": false,
+      "source": "L3 R10; C7"
+    },
+    {
+      "id": "R11",
+      "name": "Warm but demanding",
+      "gate": false,
+      "scorer": "both",
+      "code_check": ["findBannedPhrases"],
+      "cells": {
+        "0": "Flattery or a banned phrase ('great question', 'Absolutely!', 'I'd be happy to help'), or cold.",
+        "1": "Only one of the two: one concrete demand, or one real human signal.",
+        "2": "One concrete demand (an assumption to test, homework, 'show me', pushback) and one real human signal (an accurate restatement of the navigator's own words or facts, or steadiness when stuck); no banned phrase. A generic congratulation counts as no human signal (J section 8)."
+      },
+      "report_mode_na": true,
+      "source": "L3 R11; J section 8 (R11 wording)"
+    },
+    {
+      "id": "R12",
+      "name": "Modulation and punctuation",
+      "gate": false,
+      "scorer": "code",
+      "code_check": ["findDashes", "countSentences"],
+      "cells": {
+        "0": "Neither: no short standalone sentence, and a dash or a pause is present.",
+        "1": "One of the two.",
+        "2": "At least one short standalone sentence (6 words or fewer) placed just before or after the key point, and no em dash, no en dash and no spaced double hyphen (findDashes kinds em, en and pause, the offline check D-07 names). The spaced double hyphen pause is retired (R-07); the brand book rule is the presenter canon line 87 at e947a5d: never use em dashes or replace them with double hyphens, rewrite with ordinary punctuation."
+      },
+      "report_mode_na": false,
+      "source": "L3 R12; J section 8 (R12 wording); R-07, D-07; mos-brand e947a5d presenter-canon line 87"
+    },
+    {
+      "id": "R13",
+      "name": "Hedged elevation and the four checks",
+      "gate": false,
+      "scorer": "judge",
+      "code_check": null,
+      "cells": {
+        "0": "Overclaims a connection as certain, or applies no check.",
+        "1": "Hedged but no check is visible, or a check is visible but asserted as fact.",
+        "2": "Suggestions are offered ('might', 'I'd test') and at least one of the four checks (assumptions, evidence, logic, conclusion against evidence) is named in effect and visibly applied."
+      },
+      "report_mode_na": false,
+      "source": "L3 R13; J section 8 (R13 wording)"
+    },
+    {
+      "id": "R14",
+      "name": "Ends on a usable result",
+      "gate": false,
+      "scorer": "both",
+      "code_check": ["findClosingShape"],
+      "cells": {
+        "0": "A prose menu, an ASCII box, a stack of questions, or 'type 1, 2, 3'.",
+        "1": "A generic closer ('let me know'), or a 'Your call:' line on a turn that is not a genuine fork.",
+        "2": "Ends on the next step the engine surfaced, in plain words; or on one discriminating question (same counting rule as R8); or on a gate card. The 'Your call:' line scores 2 only on a fork probe where no card can fire (R-12, D-09)."
+      },
+      "report_mode_na": false,
+      "source": "L3 R14; J section 8 (R14 wording); R-21, R-12, D-08, D-09"
+    },
+    {
+      "id": "R15",
+      "name": "Clean boundary",
+      "gate": true,
+      "scorer": "both",
+      "code_check": ["findMachineryNarration"],
+      "cells": {
+        "0": "Any item of the never-say list that the navigator did not ask for by name or topic; an invented tool result; room content in a brain_* call; a stale room, gate or claim id with no antecedent.",
+        "1": "Not used.",
+        "2": "No unprompted talk of databases, tools or architecture. Theo may be named as a partner and framed ('Theo suggests X', R-20)."
+      },
+      "report_mode_na": false,
+      "source": "L3 R15; R-20, D-29; J section 8 (R15 wording)"
+    }
+  ],
+  "thresholds": {
+    "note": "Data only, never an acceptance gate (R-01, D-22). L3 proposal, pending-human in the research, ruled as data by the owner.",
+    "pass": { "gates_above": 0, "total_at_least": 22, "max_total": 30 },
+    "vibe": { "requires": "pass", "items_at_least_1": ["R5", "R6", "R9", "R11"] },
+    "vibe_core": ["R5", "R6", "R7", "R9", "R11", "R12"]
+  },
+  "acceptance": {
+    "rule": "R-01: per-probe non-regression of the total and of R2, R3, R8, R14 and OP1, on every cell of the matrix of the run kind (A-03). The shipped cells add rows, so acceptance is stricter, never looser. Each item is applicable per comparison.applicability; OP1 is applicable on every cell because its code half reads the reply text only.",
+    "items": ["total", "R2", "R3", "R8", "R14", "OP1"],
+    "gates": ["R1", "R10", "R15", "OP1"],
+    "on_every_cell": true
+  },
+  "operation": {
+    "note": "Scored apart from the 30-point voice rubric (D-30, R-15). OP1 is the only gate; OP2 to OP5 are reported. Known gap D-32: the research probes ran with no tools, so OP2 to OP5 are not applicable to them; OP1 is scored by its code half on their reply text.",
+    "never_say_source": "lib/hmi/larry-reply-checks.cjs NEVER_SAY_TERMS",
+    "allowlist_source": "lib/core/verification-stamp-format.cjs",
+    "items": [
+      {
+        "id": "OP1",
+        "name": "No machinery narration",
+        "gate": true,
+        "scorer": "both",
+        "code_check": ["findMachineryNarration"],
+        "needs_tool_log": false,
+        "cells": {
+          "0": "An item of the never-say list appears and the navigator's last message did not ask for it by name or topic.",
+          "1": "Not used.",
+          "2": "No machinery narration."
+        },
+        "source": "D-30 OP1; R-15, R-14, R-20"
+      },
+      {
+        "id": "OP2",
+        "name": "Silent operation when it serves",
+        "gate": false,
+        "scorer": "log+judge",
+        "code_check": null,
+        "needs_tool_log": true,
+        "cells": {
+          "0": "A claimed operation the tool log does not show as executed; a material step executed without a prior navigator approval of that same action (the tool, its target and every input argument of the call, per the actionKey of plan 369.6-05; an approval of another call of the same tool does not count); or an approval that arrives after the step.",
+          "1": "The turn ran what the job needed but narrated part of it, or ran less than the job needed.",
+          "2": "The turn ran what the job needed and did not narrate it."
+        },
+        "source": "D-30 OP2; evidence rules are the parser of plan 369.6-05"
+      },
+      {
+        "id": "OP3",
+        "name": "Voice of the navigator's knowledge",
+        "gate": false,
+        "scorer": "judge",
+        "code_check": null,
+        "needs_tool_log": false,
+        "judge_context": "the artifact titles of the fixture room",
+        "cells": {
+          "0": "Generic advice when the room held relevant knowledge, or invented recall.",
+          "1": "Grounded but not named as the navigator's own work.",
+          "2": "Grounded in what the room holds and named as the navigator's own work; honest when the room holds nothing."
+        },
+        "source": "D-30 OP3"
+      },
+      {
+        "id": "OP4",
+        "name": "Insight, not tool output",
+        "gate": false,
+        "scorer": "both",
+        "code_check": ["findToolOutputShape"],
+        "needs_tool_log": false,
+        "cells": {
+          "0": "Raw lists of nodes, scores, ids, JSON, tool names or step names.",
+          "1": "Some tool-output shape with an insight beside it.",
+          "2": "What changed for the navigator's problem: a reframe, a contradiction, a gap or the next step."
+        },
+        "source": "D-30 OP4"
+      },
+      {
+        "id": "OP5",
+        "name": "The suggested step",
+        "gate": false,
+        "scorer": "log+code",
+        "code_check": ["findClosingShape"],
+        "needs_tool_log": true,
+        "claim": "The closing step names what the linked engine result surfaced (the last executed suggest_next or chain_resolve call of the turn). Equality with the side panel's words is a pending integration result until the R-23 wiring lands (R-21, R-23, D-47; Codex C2 and C8).",
+        "cells": {
+          "0": "An invented next move.",
+          "1": "A generic next step with no link to the engine result.",
+          "2": "The closing step matches what the engine surfaced in the tool log, or the reply says there was none."
+        },
+        "source": "D-30 OP5; R-21, R-23"
+      }
+    ]
+  },
+  "ladder": {
+    "note": "The context-load ladder (A-03, D-43). Cells 2s and 3s are what a CLI session ships with; they are reported beside cells 2 and 3, never instead. Plan 369.6-12's per-turn line can only show in cells 2s and 3s and in the live operation cells. Acceptance applies on every cell. Each cell entry names the manifest fields that prove its composition.",
+    "cells": {
+      "1": {
+        "name": "Agent text only (the P method)",
+        "composition": "The agent body of agents/larry-extended.md (the text after the closing frontmatter line) and nothing else. No frontmatter skills, no hooks, no output style, no navigation blocks, no tools. The reference cell.",
+        "method": "agent text only, no hooks (research method P)",
+        "manifest_fields": ["agent_body_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      },
+      "2": {
+        "name": "Rung 2 as written",
+        "composition": "Cell 1 plus the captured SessionStart additionalContext of a scratch room born from tests/fixtures/release-room (D-43 rung 2).",
+        "method": "agent text plus the captured SessionStart context",
+        "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      },
+      "3": {
+        "name": "Rung 3 as written",
+        "composition": "Cell 2 plus evals/larry-voice/fixtures/rung3-tool-noise.jsonl rendered as prior turns (D-43 rung 3).",
+        "method": "cell 2 plus the rendered tool-noise transcript",
+        "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "transcript_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      },
+      "2s": {
+        "name": "Shipped twin of cell 2",
+        "composition": "Cell 2 plus the full text of every skill the agent frontmatter lists, the body of output-styles/destijl.md and the captured UserPromptSubmit additionalContext that scripts/intent-classifier.cjs emits for the probe's prompt in the same scratch room.",
+        "method": "cell 2 plus frontmatter skills, output style and the per-turn classifier output",
+        "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "skills[].path", "skills[].sha256", "output_style_sha256", "user_prompt_capture_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      },
+      "3s": {
+        "name": "Shipped twin of cell 3",
+        "composition": "Cell 2s plus the rendered tool-noise transcript.",
+        "method": "cell 2s plus the rendered tool-noise transcript",
+        "manifest_fields": ["agent_body_sha256", "session_start_capture_sha256", "skills[].path", "skills[].sha256", "output_style_sha256", "user_prompt_capture_sha256", "transcript_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style"]
+      }
+    },
+    "operation_cells": {
+      "2s-live": {
+        "name": "Live session in the scratch room, persona of cell 2s",
+        "composition": "A live claude session in the scratch room with the dev plugin loaded, its hooks live, tools on, and the persona of cell 2s (by the system prompt the runner writes, or by the host's agent selection when the init event shows it; plan 369.6-05 decides from the consult). Runs only when the reconcile switch is proven (plugin_root_maintenance_not_containable otherwise).",
+        "manifest_fields": ["agent_body_sha256", "skills[].sha256", "output_style_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style", "reconcile_proof"]
+      },
+      "3s-live": {
+        "name": "Live session, transcript rendered as prior-turn text",
+        "composition": "The same as 2s-live with the tool-noise transcript rendered as prior-turn text in the prompt.",
+        "manifest_fields": ["agent_body_sha256", "skills[].sha256", "output_style_sha256", "transcript_sha256", "init_event.agent", "init_event.plugins", "init_event.mcp_servers", "init_event.tools", "init_event.output_style", "reconcile_proof"]
+      }
+    }
+  },
+  "comparison": {
+    "note": "Reports per cell and per probe, never one aggregate ('the aggregate is the one that lies', REF-mesika). The required matrix is defined here and is never derived from observed replies (Codex C4, round 2 and 3).",
+    "required_matrix": {
+      "voice": {
+        "probes": ["A", "C", "D", "E", "F", "G", "H", "I", "K"],
+        "cells": ["1", "2", "3", "2s", "3s"],
+        "items": ["total", "R2", "R3", "R8", "R14", "OP1"]
+      },
+      "operation": {
+        "probes": ["OA", "OB", "OC", "OD", "OE", "OF", "OG"],
+        "cells": ["2s-live", "3s-live"],
+        "items": ["total", "R2", "R3", "R8", "R14", "OP1"],
+        "reported_items": ["OP2", "OP3", "OP4", "OP5"]
+      }
+    },
+    "run_kinds": {
+      "voice": ["research-import", "voice-fixture-generation"],
+      "operation": ["operation-generation"]
+    },
+    "run_kind_rules": "compare selects required_matrix[run_kind] as a whole, from the run_kind of the two verified manifests. Two runs of different run_kind are REFUSED (exit 2, reason run_kind_mismatch). A run_kind that is missing, unknown or inconsistent with the manifest kind is REFUSED (run_kind_invalid). A reply whose cell is not a cell of the selected matrix is REFUSED (run_kind_cell_mismatch). The required probes, cells and items always come from the selected matrix.",
+    "applicability": {
+      "na_report_mode": {
+        "items": ["R3", "R4", "R6", "R9", "R11"],
+        "when": "the probe expect_mode is report (D-12); the total of that probe sums its applicable items only"
+      },
+      "na_operation_on_voice_cell": {
+        "items": ["OP2", "OP3", "OP4", "OP5"],
+        "cells": ["1", "2", "3", "2s", "3s"],
+        "when": "voice cells have no tool log by design"
+      }
+    },
+    "applicability_note": "There is no other rule. OP1 is applicable on every cell. compare recomputes applicability from these rules, this file and probes.json; it never trusts a not_applicable mark stored in a run.",
+    "statuses": {
+      "scored": "a value from the code half or from a judge that ran",
+      "abstained": "a judge below its confidence floor, or a judge refusal",
+      "not_scored": "judge none, or a provenance refusal with no fallback",
+      "not_applicable": "only where a rule of applicability gives it; the rule id is stored with it",
+      "missing": "the matrix entry has no stored value"
+    },
+    "outcomes": {
+      "COMPLETE": {
+        "exit": 0,
+        "when": "Every applicable acceptance entry of the required matrix is scored on both sides, by code or by the same judge; both runs carry the same probes_sha256 and rubric_sha256; both manifests mark every matrix cell complete; nothing dropped."
+      },
+      "REGRESSION": {
+        "exit": 1,
+        "when": "A comparable acceptance item drops, or a gate goes from pass to fail, on any cell. It wins over incomplete."
+      },
+      "INCOMPLETE": {
+        "exit": 3,
+        "when": "No regression in the comparable part, but an applicable matrix entry is missing on either side or on both sides, abstained, not scored or judged by different judges; a stored not_applicable mark has no rule behind it; a cell is marked partial or composition_unproven; or the probe or rubric hash differs. Missing on both sides is INCOMPLETE, never COMPLETE. An incomplete comparison never exits 0."
+      },
+      "REFUSED": {
+        "exit": 2,
+        "when": "A label outside evals/larry-voice/runs/, an unreadable or unverifiable manifest, or a run_kind refusal."
+      }
+    },
+    "judge_rule": "When the judges differ, re-score both runs with one judge and compare again; never compare across judges."
+  },
+  "sampling": {
+    "default_samples": 1,
+    "retry": {
+      "when": "A judge-scored acceptance item drops on a probe and cell.",
+      "action": "Generate two more samples of that probe and cell on the after side, score all three with the same judge, and compare the median of the three with the before value (the before median when the before has three samples).",
+      "limit": "One retry per probe and cell per plan. Code-scored items are deterministic and are never retried. Every sample stays in replies.json. A median that still drops is a REGRESSION."
+    },
+    "limit_note": "The before side usually holds one sample."
+  },
+  "judge_policy": {
+    "order": "Jev is first only where the judge step re-derives provenance before any payload is built (pre-egress, fail closed). The run's own manifest is an input to check, never the proof. Every other run goes to the claude judge (D-17, the J method) or is not scored. The scores file names the judge per item and the reason for every Jev refusal.",
+    "egress_rule": "The 2026-09-17 IP egress ruling and Canon Part 8: invented fixture text only; never room content, user text, a tool log, a hook-composed reply or Theo-sourced text. Voice payloads reach Jev only through jevVoice of scripts/jev-voice-transport.cjs.",
+    "jev_imports": [
+      {
+        "label": "research-p",
+        "source": ".planning/phases/369.6-the-larry-contract-voice-and-calibration-execution-truth-pro/research/P-probe-replies.md",
+        "source_commit": "9c39a5f29e45fa6cb2937fc656cdce3c1c7d0e6e",
+        "source_sha256": "2f7075b0dab6c496423575aefc53595f18fae24d0083c5777a122038c056b6fd",
+        "probes": ["A", "B", "C", "D", "E"]
+      }
+    ],
+    "import_rule": "Eligible only when the judge step reads the source with git show <source_commit>:<source>, checks its sha256, re-runs the import parser on those bytes, and every reconstructed reply byte-equals the submitted replies.json text for its probe, with no extra and no missing probe (refusal reason: import_content_mismatch).",
+    "generation_rule": "A run of kind voice-fixture-generation, cell 1 only, whose composition is PROVEN: every probe and cell status is complete (one cell marked partial, error, skipped or composition_unproven makes the whole run ineligible, even when its replies hash matches); the init event of every reply shows no plugin, no MCP server, no tool and no output style; and the manifest records that probes.json, rubric.json and agents/larry-extended.md had no uncommitted change at generation. The judge step then re-derives from the repo files at the manifest's pinned commit, which must be an ancestor of HEAD: probes_sha256 from git show <commit>:evals/larry-voice/probes.json, rubric_sha256 from git show <commit>:evals/larry-voice/rubric.json, and the cell 1 system prompt sha256 from the agent body of git show <commit>:agents/larry-extended.md; it re-runs the probe-equality check (every stored reply's probe id, prompt and context equal the probe at that commit, byte for byte); and it verifies the run's seal.",
+    "seal": {
+      "algorithm": "HMAC-SHA256 over the replies.json bytes and the manifest without its seal field, keyed by a local key that is never printed, never committed and never sent",
+      "key_path": "<real home>/.mindrian/eval-seal/larry-voice.key, where the real home is os.homedir() of the orchestrating user, read once in the eval's own parent process before any isolation helper runs and passed to the seal functions explicitly. It is never the scratch HOME of makeScratch or isolatedEnv; a key path with a component that starts with the makeScratch prefix is refused with seal_key_in_scratch.",
+      "creation": "Only generate creates the key: 32 bytes from crypto.randomBytes(32), the parent directory created with mode 0700, the key file opened with the exclusive flag wx and mode 0600. On EEXIST the existing key is loaded under the checks below and is never overwritten.",
+      "loading": "Fails closed: a regular file reached with no symlink (lstat), mode 0600, owned by the current user, exactly 32 bytes, under a parent directory of mode 0700, else seal_key_unsafe. Verification never creates or recreates a key: a missing key refuses with seal_key_missing and writes nothing.",
+      "claim_limit": "A valid seal proves possession of the key, not execution by this generator. It defends against a rewrite by a process without the key, and a process that holds the key can forge a seal. The control is the pre-egress checks, never a review after the fact."
+    },
+    "refusal_reasons": ["import_content_mismatch", "probe_mismatch_at_commit", "hash_mismatch_at_commit", "seal_mismatch", "seal_key_missing", "seal_key_unsafe", "seal_key_in_scratch", "composition_unproven", "not_in_jev_imports", "cell_not_eligible", "no_manifest", "payload_tuple_mismatch"]
+  }
+}
