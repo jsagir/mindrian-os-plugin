@@ -1,0 +1,256 @@
+{
+  "recorded_at": "e90ab96bb (plan 369.6-01 base: dispatch HEAD 540f7e286 plus the 369.6-01 measurement and reply-check files)",
+  "note": "Exact failing-leg set and exit code of every persona-reader test that failed at the plan base, recorded with the tree clean, MINDRIAN_SKIP_LIVE_CLAUDE=1 and a fresh temporary rooms home. Never widen an entry by hand: a later plan whose change alters the text of a recorded leg without adding a leg re-records that entry in a reviewed diff with a dated note naming the old and new lines and the reason; a new leg is a new failure (D-19). Legs are normalized (temporary paths, ISO timestamps, millisecond durations and pids become fixed tokens).",
+  "entries": {
+    "lib/memory/body-shape-coverage.test.cjs": {
+      "command": "node lib/memory/body-shape-coverage.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL Test 5a: audit exits 0 against live commands/ (100% coverage)",
+        "FAIL Test 6: --json mode reports histogram per category",
+        "FAIL Test 7: every body_shape value in commands/*.md is in locked vocab"
+      ]
+    },
+    "lib/memory/debouncer-drain-at-prompt.test.cjs": {
+      "command": "node lib/memory/debouncer-drain-at-prompt.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL Test 5: 20-entry old queue -> hook wall-clock under <MS>"
+      ],
+      "note": "wall-clock leg: red in the first base run, green in the second; a green run counts as PASSED (healed), the same red leg counts as KNOWN"
+    },
+    "lib/memory/mcp-server-brain-deps.test.cjs": {
+      "command": "node lib/memory/mcp-server-brain-deps.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL T4 docs/install/BRAIN-SETUP.md contains bundled-server deprecation section"
+      ]
+    },
+    "lib/memory/offer-presenter.test.cjs": {
+      "command": "node lib/memory/offer-presenter.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL Test 16: integration -- engine offer renders Offer line in additionalContext",
+        "FAIL Test 17: integration -- ignore loop turn 1 shown, turn 2 marks turn-1 ignored"
+      ]
+    },
+    "lib/memory/problem-type-router.test.cjs": {
+      "command": "node lib/memory/problem-type-router.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL Test 22: Brain reachable (isAvailable -> true) + fresh BRAIN.md IDP -> mode_a",
+        "FAIL Test 23: Brain unreachable (isAvailable -> false) + brain_offline -> mode_b; routing still works locally",
+        "FAIL Test 24: brain-client require failure -> brainAvailable=false; no throw"
+      ]
+    },
+    "lib/memory/session-start-brain-staleness.test.cjs": {
+      "command": "node lib/memory/session-start-brain-staleness.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: Test 3: Brain online + stale -> enqueue lands, session-start < <MS>"
+      ]
+    },
+    "lib/memory/session-start-triple-injection.test.cjs": {
+      "command": "node lib/memory/session-start-triple-injection.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: Test 6: 5-section room -> session-start wall-clock < <MS> (excluding bash/node cold start)"
+      ]
+    },
+    "lib/memory/userpromptsubmit-integration.test.cjs": {
+      "command": "node lib/memory/userpromptsubmit-integration.test.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL Test 8: tier_0 fallback leaves Phase 83 intent classifier path intact"
+      ]
+    },
+    "tests/test-115-surfaces-grep.sh": {
+      "command": "bash tests/test-115-surfaces-grep.sh",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: Assertion 3: '**For founders stuck on a decision they can't name.**' missing from README.md"
+      ]
+    },
+    "tests/test-127.3-sibling-sweep.sh": {
+      "command": "bash tests/test-127.3-sibling-sweep.sh",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: broken registry-resolution pattern found outside the chokepoint + deferral allow-list:"
+      ]
+    },
+    "tests/test-158-reach-presentation-counter.cjs": {
+      "command": "node tests/test-158-reach-presentation-counter.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: deep_research presentations counted independently; got 0"
+      ]
+    },
+    "tests/test-159-integration-2turn-suppress.cjs": {
+      "command": "node tests/test-159-integration-2turn-suppress.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: the db carries N=3 REAL rejects; got 0"
+      ]
+    },
+    "tests/test-209-declared-implies-wired.cjs": {
+      "command": "node tests/test-209-declared-implies-wired.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: if this list changed: either a surface was fixed (remove it here) or a NEW contradiction appeared (investigate before updating this list -- do not blindly add). This --check run is ADVISORY (WARN, exit 0) by default per Phase 210, so this pre-existing set does not block CI, but a genuine regression here still fails this test."
+      ]
+    },
+    "tests/test-252-guard-census.cjs": {
+      "command": "node tests/test-252-guard-census.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL - census.1: every executable is/ensureAvailable( guard site under lib/bin/scripts/hooks (excl. test files) is classified",
+        "FAIL - census.5b: skills/rs-experts/SKILL.md still contains 'Tier 1' (local-mirror-vs-Aura vocabulary canary)"
+      ]
+    },
+    "tests/test-267-mcpv2-dual-era.cjs": {
+      "command": "node tests/test-267-mcpv2-dual-era.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL era 2025 (default v2 client): negotiates 2025-11-25; instructions + tools/prompts/resources/templates match the snapshot; every tool titled",
+        "FAIL era 2026 (auto-negotiating v2 client): negotiates 2026-07-28; same instructions and surface"
+      ]
+    },
+    "tests/test-267-mcpv2-registration-api.cjs": {
+      "command": "node tests/test-267-mcpv2-registration-api.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: lib/mcp/tools/eureka-capability-jobs.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-capability-run.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-analyze.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-backtest.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-compare-topics.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-discovery-signals.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-genesis-plan.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-map.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-opportunity-scout.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-package-relationships.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-prepare-artifacts.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-projection.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-propose.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-rank-paths.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-graph-score-surprise.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: lib/mcp/tools/eureka-hsi-interpret-whitespace.cjs: zero calls attributed to this file (registrar may not have run, or a broken module dropped silently)",
+        "FAIL: live tools/list count (75) != wire-snapshot-zod4.json local.tools count (50)"
+      ]
+    },
+    "tests/test-346-catalogue-schema.cjs": {
+      "command": "node tests/test-346-catalogue-schema.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL 12: every distinct conversation-time hook mechanism is either catalogued or excluded with a reason (enumerate-from-disk partition)"
+      ]
+    },
+    "tests/test-359-forward-harness.cjs": {
+      "command": "node tests/test-359-forward-harness.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL preflight: refuses a per-run cap other than $0.40 -- The input did not match the regular expression /0\\.4/. Input:",
+        "FAIL preflight: refuses a claude version older than 2.1.259 -- The input did not match the regular expression /older/. Input:",
+        "FAIL preflight: refuses when the projected total exceeds the cap -- The input did not match the regular expression /exceeds/. Input:",
+        "FAIL preflight: passes when every check clears -- Expected values to be strictly equal:",
+        "FAIL --dry-run: prints one command per planned run, invokes the fake claude only for --version, spends nothing -- dry-run must exit 0; stderr: [forward-fork-scenarios-359] preflight refused: shadowed agent: /home/jsagi/.claude/agents/larry-extended.md resolves to a real file (Finding 10, Pitfall 9)",
+        "FAIL --project prints a planned-runs / projected-total-usd JSON without touching the claude run path -- stderr: [forward-fork-scenarios-359] preflight refused: shadowed agent: /home/jsagi/.claude/agents/larry-extended.md resolves to a real file (Finding 10, Pitfall 9)"
+      ]
+    },
+    "tests/test-369-launch-surface.cjs": {
+      "command": "node tests/test-369-launch-surface.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL arm 4: the Part 8 BOUNDARIES paragraph is untouched",
+        "FAIL arm 6b: the 267 registration, 270 budget and 276 honesty suites exit 0"
+      ]
+    },
+    "tests/test-36925-naming.cjs": {
+      "command": "node tests/test-36925-naming.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL: N6 agents/larry-extended.md and skills/larry-personality/SKILL.md are byte-identical to the phase base f06c4ef78^ :: git diff --quiet exit 1"
+      ]
+    },
+    "tests/test-check-render-coverage.cjs": {
+      "command": "node tests/test-check-render-coverage.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: live repo has 15 entries (Wave 1 reconciled 16 -> 15)"
+      ]
+    },
+    "tests/test-l8g-theo-bare.cjs": {
+      "command": "node tests/test-l8g-theo-bare.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL A4 no key / Tier 0 / no_key / register lines on the shipped surface"
+      ]
+    },
+    "tests/test-meter-gate-reach.cjs": {
+      "command": "node tests/test-meter-gate-reach.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: the gate_reached payload carries a dedupe_key"
+      ]
+    },
+    "tests/test-mux-card-before-answer.cjs": {
+      "command": "node tests/test-mux-card-before-answer.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL S3 every gateLedger.mintGate( call site stores a renderer"
+      ]
+    },
+    "tests/test-render-registry-build.cjs": {
+      "command": "node tests/test-render-registry-build.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^(\\w*Error)\\b",
+      "failing_legs": [
+        "AssertionError [ERR_ASSERTION]: registry has exactly 15 render entry points"
+      ]
+    },
+    "tests/test-card-fire-relevance-gate.cjs": {
+      "command": "node tests/test-card-fire-relevance-gate.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*RED\\b",
+      "failing_legs": [
+        "RED (leg 1 SOFTENED: already-answered plain-text \"yes\" must not force-block (RED until plan 210-05)): SOFTENED direction: the verdict must name the already-answered relevance reason",
+        "RED (leg 2 SOFTENED: an irrelevant/stale gate must not force-block (RED until plan 210-05)): SOFTENED direction: the verdict must name the irrelevance reason",
+        "RED (leg 3 PRESERVE FLOOR: a genuine relevant unanswered fork still intercepts (green now, stays green)): PRESERVE FLOOR: a genuine, relevant, unanswered fork must STILL intercept (Phase 209 guarantee)",
+        "RED (leg 4 FORK NOW FORCE-FIRES: a relevant unanswered non-yes/no 2-option fork intercepts (intern-w1-card-discipline-decay fix)): FIXED: a genuine non-yes/no 2-option fork must force-fire, not be swallowed as gate-is-simple-binary",
+        "RED (leg 5 YES/NO EXEMPTION PRESERVED: a relevant unanswered yes/no closer still passes as gate-is-simple-binary): PRESERVED: the verdict must still name the simple-binary pass-reason"
+      ]
+    },
+    "tests/test-hmi-compliance-e2e.cjs": {
+      "command": "node tests/test-hmi-compliance-e2e.cjs",
+      "exit_code": 1,
+      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
+      "failing_legs": [
+        "FAIL 11 hooks.json byte-identity for Phase 99/100/103 Stop entries"
+      ]
+    }
+  }
+}
