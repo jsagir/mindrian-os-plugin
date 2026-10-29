@@ -22,8 +22,8 @@
  *   H4  no transcript_path                    -> allow, stderr surface_degraded
  *   H5  gate id absent from the transcript    -> allow, stderr gate_not_in_transcript
  *   H6  the hooks.json matcher: gate_answer on both server scopes, never gate_render
- *   H7  cold start on a 5 MB transcript stays inside the hooks.json budget (2000 ms, the spike 003
- *       PreToolUse budget scripts/measure-hook-cold-start.cjs enforces)
+ *   H7  cold start on a 5 MB transcript stays under the spike 003 cold-start target (2000 ms); the
+ *       hooks.json budget of the hook is 3 s (quick 261029-qef)
  *   H8  garbage or empty stdin, a foreign tool name -> allow, exit 0, never throws
  *   H9  a card shown BEFORE the gate_render does not count (order matters) -> deny
  *   S1  run approval gate, elicitation dialog cancelled -> gate_answer card_pending, ledger entry open
@@ -169,15 +169,17 @@ async function hookArms() {
     return true;
   });
 
-  await arm('H7 cold start on a 5 MB transcript stays inside the hooks.json PreToolUse budget (2000 ms)', function () {
-    // The budget is the hooks.json timeout of the hook's own entry, the number scripts/measure-hook-cold-start.cjs
-    // compares every hook against (parseHookCommands -> timeout_ms); 2000 ms is the spike 003 PreToolUse budget
-    // recorded in 369-HOOK-COLD-START.md.
+  await arm('H7 cold start on a 5 MB transcript stays under the spike 003 cold-start target (2000 ms); the hooks.json budget is 3 s', function () {
+    // DECLARED_BUDGET_MS is the hooks.json timeout of the hook's own entry (3 s) as scripts/measure-hook-cold-start.cjs
+    // reads it (parseHookCommands -> timeout_ms). SPIKE_003_COLD_START_MS (2000 ms) is the spike 003 PreToolUse
+    // cold-start target recorded in 369-HOOK-COLD-START.md. Quick 261029-qef split the two: the budget got larger,
+    // the performance bar did not get weaker.
     const measure = require(path.join(ROOT, 'scripts', 'measure-hook-cold-start.cjs'));
     const entry = measure.parseHookCommands(measure.HOOKS_JSON).find(function (e) { return e.command.indexOf('card-before-answer-hook.cjs') !== -1; });
     if (!entry) return 'hooks.json has no entry for the hook';
-    const BUDGET_MS = 2000;
-    if (entry.timeout_ms !== BUDGET_MS) return 'declared budget ' + entry.timeout_ms + ' is not the 2000 ms PreToolUse budget';
+    const DECLARED_BUDGET_MS = 3000;
+    const SPIKE_003_COLD_START_MS = 2000;
+    if (entry.timeout_ms !== DECLARED_BUDGET_MS) return 'declared budget ' + entry.timeout_ms + ' is not the 3 s hooks.json budget (quick 261029-qef)';
     const shown = fs.readFileSync(path.join(FIX, 'card-shown.jsonl'), 'utf8').split('\n').filter(Boolean);
     const filler = JSON.stringify({ parentUuid: null, isSidechain: false, type: 'assistant', uuid: 'filler', sessionId: 'mux-session-0001', message: { role: 'assistant', content: [{ type: 'text', text: 'x'.repeat(900) }] } });
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mux-5mb-'));
@@ -197,8 +199,8 @@ async function hookArms() {
         samples.push(r.ms);
       }
       samples.sort(function (a, b) { return a - b; });
-      console.log('    5 MB cold start (n=5): min ' + samples[0].toFixed(1) + ' ms, median ' + samples[2].toFixed(1) + ' ms, max ' + samples[4].toFixed(1) + ' ms, budget ' + BUDGET_MS + ' ms');
-      if (samples[4] >= BUDGET_MS) return 'slowest run ' + samples[4].toFixed(1) + ' ms is not under ' + BUDGET_MS;
+      console.log('    5 MB cold start (n=5): min ' + samples[0].toFixed(1) + ' ms, median ' + samples[2].toFixed(1) + ' ms, max ' + samples[4].toFixed(1) + ' ms, target ' + SPIKE_003_COLD_START_MS + ' ms (hooks.json budget ' + DECLARED_BUDGET_MS + ' ms)');
+      if (samples[4] >= SPIKE_003_COLD_START_MS) return 'slowest run ' + samples[4].toFixed(1) + ' ms is not under ' + SPIKE_003_COLD_START_MS;
       return true;
     } finally {
       try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_e) { /* best effort */ }

@@ -13,7 +13,10 @@
  *   1. Estimates tokens_used from the tool's returned payload (the envelope's
  *      tool_response.content field) via chars/4.
  *   2. Estimates tokens_naive_estimate as the total .md token count for the
- *      active room (session-cached per room path).
+ *      active room. The estimate is cached for 10 minutes in
+ *      <room>/.mindrian/token-estimate.json (4 integers, nothing else; quick
+ *      261029-s9x). A tool result with no countable text exits before the
+ *      room is resolved or walked.
  *   3. Computes ratio = tokens_naive_estimate / tokens_used and appends one
  *      JSONL event to ~/.mindrian/telemetry/query-efficiency.jsonl with the
  *      8-field contract from PLAN <interfaces>.
@@ -262,7 +265,7 @@ function appendEventAtomic(event) {
 
 // ---------- Main ----------
 
-function main() {
+async function main() {
   let raw;
   try {
     raw = readStdinSync();
@@ -291,29 +294,41 @@ function main() {
   // strings; command is a generic /mos: handle or null, never user content.
   const command = extractSlashCommand(payload);
 
-  // Resolve room. No room -> naive-estimate baseline undefined -> exit.
-  const roomRoot = resolveRoomRoot();
-  if (!roomRoot) return exitSilent();
-
   // Load the pure estimator + aggregation math.
   let estimator;
   try {
     estimator = require(path.resolve(__dirname, '..', 'lib', 'core', 'token-estimator.cjs'));
   } catch (_e) { return exitSilent(); }
 
-  // Compute tokens_used from the tool response. Missing/empty -> 0, which
-  // will divide into Infinity and be classified as 'normal' (not a leak
-  // signal). We still emit the event so aggregation can observe it.
+  // Compute tokens_used from the tool response (chars/4). A zero-token result
+  // has no ratio to record, so it exits here, before the room is resolved and
+  // before any room walk (quick 261029-s9x, DD-1). Every exit before the JSONL
+  // append is silent, so the output does not change on any path.
+  // Known gap (DD-9, not fixed here): a real Read result keeps its text under
+  // tool_response.file.content, which extractToolResponse does not read, so a
+  // real Read gives 0 tokens and exits here. Reading that field would start
+  // a JSONL line for every Read; that is a decision for the owner.
   const payloadStr = extractToolResponse(payload);
   const tokensUsed = estimator.estimateTokens(payloadStr);
+  if (tokensUsed <= 0) return exitSilent();
 
-  // Compute tokens_naive_estimate. null -> can't compute ratio -> exit.
-  const tokensNaive = estimator.estimateRoomTokens(roomRoot);
+  // Resolve room. No room -> naive-estimate baseline undefined -> exit.
+  const roomRoot = resolveRoomRoot();
+  if (!roomRoot) return exitSilent();
+
+  // Compute tokens_naive_estimate: the cached async estimate (10 minutes,
+  // <room>/.mindrian/token-estimate.json), or the sync walk when an older
+  // estimator without the cached export is loaded. null -> can't compute
+  // ratio -> exit.
+  let tokensNaive;
+  if (typeof estimator.estimateRoomTokensCached === 'function') {
+    tokensNaive = await estimator.estimateRoomTokensCached(roomRoot);
+  } else {
+    tokensNaive = estimator.estimateRoomTokens(roomRoot);
+  }
   if (tokensNaive === null || typeof tokensNaive !== 'number') return exitSilent();
 
-  // Ratio. Guard divide-by-zero: if tokens_used is 0, the query returned
-  // literally nothing, so efficiency is undefined. Exit silent.
-  if (tokensUsed <= 0) return exitSilent();
+  // Ratio. tokensUsed is above 0 here (checked above).
   const ratio = tokensNaive / tokensUsed;
 
   // Build the event per PLAN <interfaces>. Only scalar counts + a LOCAL
@@ -358,7 +373,8 @@ function main() {
   return exitSilent();
 }
 
-// Outer try/catch is the soft-fail guarantee. An advisory hook must never
+// The catch below is the soft-fail guarantee (main is async). An advisory hook must never
 // crash the PostToolUse lifecycle or fail a user's Read/Grep/Glob call.
-try { main(); }
-catch (_e) { try { exitSilent(); } catch (_f) { process.exit(0); } }
+main().catch(function () {
+  try { exitSilent(); } catch (_f) { process.exit(0); }
+});

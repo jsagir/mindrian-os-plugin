@@ -63,10 +63,8 @@ const FROZEN_SHA = Object.freeze({
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
   SKILL_OUTSIDE_ITEM5: 'ebd5ee398705825a07a0589c190f8f3658d6a0c080a8b70d05176c61aef2bb61',
-  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed
-  // Re-pinned by quick 261029-sob: quick 261029-sof (commit dfbadf150) changed 3 lines
-  // (BRIDGE_FILE, the mktemp fallback, UPDATE_CACHE) to follow TMPDIR. Old pin: 247f7746...
-  SESSION_START_OUTSIDE_DOCTRINE: 'e308e7363ba820865ad5e8ef0783e91c3d27ebfed1b49c8404c6c8798a153d86',
+  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
+  SESSION_START_OUTSIDE_DOCTRINE: '5be7b46dc897b0eab227f2e09713b71f5e0b44c44316ff451051148ecaef2670',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   MCP_PERSONA: '2f3c40f2ed1ccf01ae28c012d4cfb7d48e852eda445f79644852584335b0588c',
   MCP_THEO: '8f096d7ddf4380c99aa57645ce8101065a89affef58f83b67f7895f6d067851f',

@@ -61,10 +61,24 @@ console.log('test-3551-tri-polar:');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const AMBIENT_STOP_PATH = path.join(REPO_ROOT, 'scripts', 'ambient-stop.cjs');
 const HOOKS_JSON_PATH = path.join(REPO_ROOT, 'hooks', 'hooks.json');
-// 355.1-BASELINE.md's own BASE_3551 sha. `git log 2f5109bef..HEAD --
-// hooks/hooks.json` was empty at the time this test was written, so every
-// non-Stop array in the current file must still deep-equal this tree.
+// BASE_3551 is the 355.1 baseline (355.1-BASELINE.md). The Stop leg counts
+// exactly one new async Stop entry (55aee879a, 355.1-14) beyond it.
 const BASE_3551 = '2f5109bef';
+// BASE_NON_STOP is the pin for the non-Stop compare. 3 changes landed after
+// BASE_3551: 80ef6a9d5 (261005-mux) added the PreToolUse card-before-answer
+// hook on gate_answer; a13ab61f1 (341-08) reworded one SessionStart
+// statusMessage (see normalizePreflight); 683a6b83c and 950b5794c (261029-qef)
+// moved each timeout to seconds and added onFailure "block" on the Part 8
+// guard. The qef commits changed only the timeout and onFailure keys, so the
+// compares ignore those 2 keys. Re-base again only for an intended hooks.json
+// change.
+const BASE_NON_STOP = 'a13ab61f1';
+
+// Deep copy without the timeout and onFailure keys. Order, commands, matchers,
+// async and statusMessage still compare.
+function withoutTimeoutKeys(value) {
+  return JSON.parse(JSON.stringify(value), (k, v) => (k === 'timeout' || k === 'onFailure' ? undefined : v));
+}
 
 // ---------------------------------------------------------------------------
 // Env isolation for every spawned CLI child process.
@@ -314,26 +328,28 @@ function legHooksJson() {
   const cur = JSON.parse(fs.readFileSync(HOOKS_JSON_PATH, 'utf8'));
   const baseRaw = execFileSync('git', ['show', BASE_3551 + ':hooks/hooks.json'], { cwd: REPO_ROOT, encoding: 'utf8' });
   const base = JSON.parse(baseRaw);
+  const nonStopBase = JSON.parse(execFileSync('git', ['show', BASE_NON_STOP + ':hooks/hooks.json'], { cwd: REPO_ROOT, encoding: 'utf8' }));
 
   // Phase 341 plan 08 (D-07a) deliberately rewords ONE field of ONE entry: the
   // statusMessage of the converted preflight SessionStart hook. Everything else
   // about it (command, timeout, async, position) must still be unchanged, so the
   // field is normalized on both sides and nothing else is excused.
   const normalizePreflight = (arr) => JSON.parse(JSON.stringify(arr), (k, v) => (k === 'statusMessage' && typeof v === 'string' && /post-update|after an update/.test(v) ? '<preflight statusMessage>' : v));
-  for (const key of Object.keys(base.hooks)) {
+  assert.deepStrictEqual(Object.keys(cur.hooks).sort(), Object.keys(nonStopBase.hooks).sort(), 'hooks.json must declare the same events as BASE_NON_STOP');
+  for (const key of Object.keys(nonStopBase.hooks)) {
     if (key === 'Stop') continue;
-    const curSide = key === 'SessionStart' ? normalizePreflight(cur.hooks[key]) : cur.hooks[key];
-    const baseSide = key === 'SessionStart' ? normalizePreflight(base.hooks[key]) : base.hooks[key];
-    assert.deepStrictEqual(curSide, baseSide, 'hooks.json[' + key + '] must be unchanged from BASE_3551');
+    const curSide = withoutTimeoutKeys(key === 'SessionStart' ? normalizePreflight(cur.hooks[key]) : cur.hooks[key]);
+    const baseSide = withoutTimeoutKeys(key === 'SessionStart' ? normalizePreflight(nonStopBase.hooks[key]) : nonStopBase.hooks[key]);
+    assert.deepStrictEqual(curSide, baseSide, 'hooks.json[' + key + '] must be unchanged from BASE_NON_STOP (timeout and onFailure aside)');
   }
-  ok('hooks.json: every non-Stop array is byte-identical to BASE_3551');
+  ok('hooks.json: every non-Stop array equals BASE_NON_STOP (a13ab61f1), timeout and onFailure aside');
 
   assert.strictEqual(cur.hooks.Stop.length, base.hooks.Stop.length + 1, 'exactly one new Stop entry beyond BASE_3551');
   for (const entry of base.hooks.Stop) {
-    const stillPresent = cur.hooks.Stop.some((e) => JSON.stringify(e) === JSON.stringify(entry));
+    const stillPresent = cur.hooks.Stop.some((e) => JSON.stringify(withoutTimeoutKeys(e)) === JSON.stringify(withoutTimeoutKeys(entry)));
     assert.ok(stillPresent, 'every BASE_3551 Stop entry must survive unchanged: ' + JSON.stringify(entry));
   }
-  ok('hooks.json: every BASE_3551 Stop entry survives unchanged, plus exactly one new entry');
+  ok('hooks.json: every BASE_3551 Stop entry survives (timeout and onFailure aside), plus exactly one new entry');
 
   const newEntries = cur.hooks.Stop.filter((group) =>
     Array.isArray(group.hooks) && group.hooks.some((h) => typeof h.command === 'string' && h.command.indexOf('ambient-stop.cjs') !== -1));

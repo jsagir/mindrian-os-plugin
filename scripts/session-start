@@ -438,8 +438,8 @@ if [ -d "$ROOM_DIR" ]; then
     minimal|balanced|rich) CONTEXT_TIER="${MINDRIAN_CONTEXT_TIER}" ;;
   esac
 
-  # Room exists -- compute state and build context
-  state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
+  # Room exists -- reuse STATE.md when nothing changed, else compute state (quick 261029-lx3, see scripts/session-start-state)
+  state_output=$(bash "${SCRIPT_DIR}/session-start-state" state "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
 
   # Read USER.md if exists
   user_context=""
@@ -518,7 +518,7 @@ if [ -d "$ROOM_DIR" ]; then
     fi
   elif [ "$CONTEXT_TIER" = "rich" ]; then
     # ~5K tokens: full context with proactive analysis, learnings, and detailed nudges
-    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    proactive_output=$(bash "${SCRIPT_DIR}/session-start-state" analyze "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "")
     ctx_mark room-state
     context="${context}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: rich | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then
@@ -539,7 +539,7 @@ if [ -d "$ROOM_DIR" ]; then
     fi
   else
     # balanced (~2K tokens): state + user + brief proactive
-    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    proactive_output=$(bash "${SCRIPT_DIR}/session-start-state" analyze "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "")
     ctx_mark room-state
     context="${context}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: balanced | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then

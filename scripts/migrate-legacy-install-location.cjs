@@ -29,6 +29,18 @@
  *             exact derived path, ends in .claude/plugins/mindrian-os, is not
  *             home, is not the filesystem root, no ".." segment, not a symlink.
  *   5. REMOVE fs.rmSync on the guarded path. Only then.
+ *   6. LINKS  (quick 261029-lcg) top-level symlinks in ~/.claude/agents,
+ *             ~/.claude/commands/mos and ~/.claude/skills whose readlink target
+ *             lies inside the removed directory are repointed at the same file
+ *             in the active marketplace cache install, or removed when the cache
+ *             has no such file. The manifest
+ *             ~/.mindrian/legacy-symlink-manifest-<ISO>.json is written BEFORE
+ *             any link changes. A dry run only lists the planned changes.
+ *
+ * The dirty and unpushed check (legacyDirtyOrUnpushed) applies only when the
+ * legacy directory owns a git root. A directory with no .git of its own inside
+ * a HOME that is a git repo is not a clone and is never refused for the HOME
+ * repo's state.
  *
  * Already clean (directory absent) is a normal, silent success. The directory
  * is absent on most Linux boxes and present on Windows installs that ran
@@ -311,6 +323,107 @@ function backupLegacyDir(legacyDir, root) {
 }
 
 // ---------------------------------------------------------------------------
+// Symlink repoint (quick 261029-lcg)
+//
+// The retired install.sh linked agents, commands and skills from ~/.claude
+// into the legacy directory. After the directory is removed those links dangle.
+// This step finds the top-level symlinks whose readlink target lies inside the
+// legacy directory and either repoints them at the same relative file in the
+// active marketplace cache install, or removes them when the cache has no such
+// file. Matching is on the readlink string (no realpath), so a link into a
+// sibling directory that only shares a name prefix is never touched.
+// ---------------------------------------------------------------------------
+
+const SYMLINK_DIRS = [
+  ['.claude', 'agents'],
+  ['.claude', 'commands', 'mos'],
+  ['.claude', 'skills'],
+];
+
+function insideDir(target, dir) {
+  const rel = path.relative(dir, target);
+  return rel.length > 0 && !rel.startsWith('..') && !path.isAbsolute(rel);
+}
+
+// Pure scan. Returns planned entries { link, originalTarget, action, newTarget }.
+function planLegacySymlinks(root, legacyDir, cacheRoot) {
+  const planned = [];
+  const legacyAbs = path.resolve(legacyDir);
+  for (const segs of SYMLINK_DIRS) {
+    const dir = path.join(root, ...segs);
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch (_) { continue; }
+    for (const e of entries) {
+      if (!e.isSymbolicLink()) continue;
+      const link = path.join(dir, e.name);
+      let raw;
+      try { raw = fs.readlinkSync(link); } catch (_) { continue; }
+      const target = path.resolve(dir, raw);
+      if (!insideDir(target, legacyAbs)) continue;
+      const rel = path.relative(legacyAbs, target);
+      let action = 'remove';
+      let newTarget = null;
+      if (cacheRoot) {
+        const candidate = path.join(cacheRoot, rel);
+        if (fs.existsSync(candidate)) { action = 'repoint'; newTarget = candidate; }
+      }
+      planned.push({ link, originalTarget: raw, action, newTarget });
+    }
+  }
+  return planned;
+}
+
+// apply=false: report only, touch nothing. apply=true: write the manifest
+// FIRST, then change each link. Never throws; per-link failures go in errors.
+function repointLegacySymlinks(root, legacyDir, cacheRoot, apply) {
+  const out = { planned: [], manifestPath: null, changed: 0, errors: [] };
+  out.planned = planLegacySymlinks(root, legacyDir, cacheRoot);
+  if (apply !== true || out.planned.length === 0) return out;
+
+  const manifestPath = path.join(root, '.mindrian', 'legacy-symlink-manifest-' + timestamp() + '.json');
+  try {
+    fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+    fs.writeFileSync(manifestPath, JSON.stringify({
+      created: new Date().toISOString(),
+      legacyDir: path.resolve(legacyDir),
+      cacheRoot: cacheRoot || null,
+      entries: out.planned,
+    }, null, 2) + '\n', { flag: 'wx' });
+  } catch (err) {
+    out.errors.push('manifest write failed, no symlink changed: ' + (err && err.message ? err.message : 'error'));
+    return out;
+  }
+  out.manifestPath = manifestPath;
+
+  for (const p of out.planned) {
+    try {
+      if (p.action === 'remove') {
+        fs.unlinkSync(p.link);
+      } else {
+        const tmpLink = p.link + '.mos-lcg-tmp';
+        try { fs.unlinkSync(tmpLink); } catch (_) { /* none */ }
+        let type = 'file';
+        try { if (fs.statSync(p.newTarget).isDirectory()) type = 'dir'; } catch (_) { /* keep file */ }
+        fs.symlinkSync(p.newTarget, tmpLink, type);
+        fs.renameSync(tmpLink, p.link);
+      }
+      out.changed += 1;
+    } catch (err) {
+      out.errors.push(p.link + ': ' + (err && err.message ? err.message : 'error'));
+    }
+  }
+  return out;
+}
+
+function cacheRootOf(shared, root) {
+  try {
+    const mc = shared && typeof shared.detectMarketplaceCacheInstall === 'function'
+      ? shared.detectMarketplaceCacheInstall(root) : null;
+    return mc && mc.root ? mc.root : null;
+  } catch (_) { return null; }
+}
+
+// ---------------------------------------------------------------------------
 // migrate
 // ---------------------------------------------------------------------------
 
@@ -376,10 +489,18 @@ function migrate(opts) {
     return result(false, 'refused', { detail: 'path guard: ' + preGuard.reason });
   }
 
+  const cacheRoot = cacheRootOf(shared, root);
+
   if (!apply) {
+    const plan = repointLegacySymlinks(root, scan.legacyDir, cacheRoot, false);
     return result(true, 'dry-run', {
+      symlinks: plan,
       detail: 'would back up ' + scan.legacyDir + ' to ' + path.join(root, '.mindrian', 'legacy-install-backup-<ISO>')
-        + ' and then remove it. Nothing was changed. Run with --apply to do it.',
+        + ' and then remove it'
+        + (plan.planned.length > 0
+          ? ', then repoint or remove ' + plan.planned.length + ' symlink(s) that still point into it'
+          : '')
+        + '. Nothing was changed. Run with --apply to do it.',
     });
   }
 
@@ -412,11 +533,23 @@ function migrate(opts) {
     });
   }
 
-  // f. report
+  // f. symlinks that pointed into the removed directory: manifest first, then
+  // repoint or remove. A failure here never undoes the removal (the backup and
+  // the manifest hold the way back); it is reported in the detail.
+  const symlinks = repointLegacySymlinks(root, scan.legacyDir, cacheRoot, true);
+  let linkNote = '';
+  if (symlinks.planned.length > 0) {
+    linkNote = '; symlinks: ' + symlinks.changed + ' of ' + symlinks.planned.length + ' repointed or removed'
+      + (symlinks.manifestPath ? ', manifest at ' + symlinks.manifestPath : '')
+      + (symlinks.errors.length > 0 ? ', ' + symlinks.errors.length + ' error(s): ' + symlinks.errors.join(' | ') : '');
+  }
+
+  // g. report
   return result(true, 'removed', {
     backupPath: backup.backupPath,
+    symlinks,
     detail: 'removed ' + scan.legacyDir + '; verified backup (' + backup.src.count + ' files, ' + backup.src.bytes
-      + ' bytes) at ' + backup.backupPath,
+      + ' bytes) at ' + backup.backupPath + linkNote,
   });
 }
 
@@ -457,6 +590,11 @@ function main() {
       for (const r of res.references) {
         process.stdout.write('  reference: ' + r.where + ' = ' + r.value + '\n');
       }
+      if (res.symlinks) {
+        for (const s of res.symlinks.planned) {
+          process.stdout.write('  symlink ' + s.action + ': ' + s.link + (s.newTarget ? ' -> ' + s.newTarget : '') + '\n');
+        }
+      }
     }
   }
   process.exit(res.ok ? 0 : 1);
@@ -464,4 +602,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { scanLegacyReferences, migrate, guardRemovalPath };
+module.exports = { scanLegacyReferences, migrate, guardRemovalPath, repointLegacySymlinks };

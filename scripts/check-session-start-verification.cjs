@@ -12,8 +12,9 @@
  * Each assertion is reported as its own violation with a one-line remedy:
  *   1. hooks/hooks.json parses and registers the preflight host exactly once
  *      under hooks.SessionStart.
- *   2. that hook entry carries a timeout and the timeout is at most 12000 ms,
- *      the budget D-07a (b) binds the verification to.
+ *   2. that hook entry carries a timeout and the timeout is at most 12 seconds
+ *      (Claude Code reads the hooks.json timeout in seconds), the budget
+ *      D-07a (b) binds the verification to.
  *   3. the SessionStart entry count is 9 (D-07a: no tenth hook).
  *   4. scripts/doctor.cjs declares the session-start tier: the --session-start
  *      flag is present and EXACTLY the expected set of point ids carries the
@@ -54,7 +55,7 @@ const path = require('node:path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 const PREFLIGHT_SCRIPT = 'sessionstart-post-update-preflight.cjs';
-const HOOK_BUDGET_MS = 12000;
+const HOOK_BUDGET_S = 12;
 const EXPECTED_SESSION_START_HOOKS = 9;
 const EXPECTED_TIER_POINTS = Object.freeze([
   'eureka-optin-state',
@@ -114,11 +115,11 @@ function checkHooks(rootDir) {
     if (typeof timeout !== 'number') {
       out.push(violation('preflight-timeout-present',
         'the preflight hook entry carries no numeric timeout',
-        'set "timeout": ' + HOOK_BUDGET_MS + ' on the preflight entry in hooks/hooks.json'));
-    } else if (timeout > HOOK_BUDGET_MS) {
+        'set "timeout": ' + HOOK_BUDGET_S + ' (seconds) on the preflight entry in hooks/hooks.json'));
+    } else if (timeout > HOOK_BUDGET_S) {
       out.push(violation('preflight-timeout-budget',
-        'the preflight hook timeout is ' + timeout + ' ms (budget ' + HOOK_BUDGET_MS + ' ms)',
-        'lower the preflight timeout to at most ' + HOOK_BUDGET_MS + ' ms; do not raise the hook budget'));
+        'the preflight hook timeout is ' + timeout + ' s (budget ' + HOOK_BUDGET_S + ' s)',
+        'lower the preflight timeout to at most ' + HOOK_BUDGET_S + ' seconds; do not raise the hook budget'));
     }
   }
   if (found.list.length !== EXPECTED_SESSION_START_HOOKS) {
