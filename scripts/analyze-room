@@ -920,7 +920,7 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
     opp_file_count=$((opp_file_count + 1))
 
     # Parse status from frontmatter
-    status=$(grep -m1 '^status:' "$f" 2>/dev/null | sed 's/status:[[:space:]]*//' | tr -d '"' | xargs)
+    status=$(grep -m1 '^status:' "$f" 2>/dev/null | sed 's/status:[[:space:]]*//' | tr -d '"' | xargs || true)
     status=${status:-unknown}
     opp_status_counts["$status"]=$(( ${opp_status_counts[$status]:-0} + 1 ))
   done
@@ -940,8 +940,8 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
       fname=$(basename "$f")
       [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
 
-      rel_score=$(grep -m1 '^relevance_score:' "$f" 2>/dev/null | sed 's/relevance_score:[[:space:]]*//' | tr -d '"' | xargs)
-      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+      rel_score=$(grep -m1 '^relevance_score:' "$f" 2>/dev/null | sed 's/relevance_score:[[:space:]]*//' | tr -d '"' | xargs || true)
+      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs || true)
       [ -n "$rel_score" ] && opp_relevance_lines+=("${rel_score}:${fname}:${funder}")
     done
 
@@ -960,8 +960,8 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
       fname=$(basename "$f")
       [ "$fname" = "STATE.md" ] || [ "$fname" = "ROOM.md" ] && continue
 
-      deadline=$(grep -m1 '^deadline:' "$f" 2>/dev/null | sed 's/deadline:[[:space:]]*//' | tr -d '"' | xargs)
-      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs)
+      deadline=$(grep -m1 '^deadline:' "$f" 2>/dev/null | sed 's/deadline:[[:space:]]*//' | tr -d '"' | xargs || true)
+      funder=$(grep -m1 '^funder:' "$f" 2>/dev/null | sed 's/funder:[[:space:]]*//' | tr -d '"' | xargs || true)
       if [ -n "$deadline" ] && [[ "$deadline" > "$today_str" || "$deadline" = "$today_str" ]]; then
         opp_deadline_lines+=("${deadline}:${fname}:${funder}")
       fi
@@ -984,12 +984,12 @@ if [ -d "$ROOM_DIR/opportunity-bank" ]; then
       status_file="${fund_dir}STATUS.md"
       [ -f "$status_file" ] || continue
 
-      stage=$(grep -m1 '^stage:' "$status_file" 2>/dev/null | sed 's/stage:[[:space:]]*//' | tr -d '"' | xargs)
+      stage=$(grep -m1 '^stage:' "$status_file" 2>/dev/null | sed 's/stage:[[:space:]]*//' | tr -d '"' | xargs || true)
       stage=${stage:-unknown}
       fund_stage_counts["$stage"]=$(( ${fund_stage_counts[$stage]:-0} + 1 ))
 
       # Check for stale entries (last_updated > 14 days ago)
-      last_updated=$(grep -m1 '^last_updated:' "$status_file" 2>/dev/null | sed 's/last_updated:[[:space:]]*//' | tr -d '"' | xargs)
+      last_updated=$(grep -m1 '^last_updated:' "$status_file" 2>/dev/null | sed 's/last_updated:[[:space:]]*//' | tr -d '"' | xargs || true)
       if [ -n "$last_updated" ]; then
         last_epoch=$(portable_date_to_epoch "$last_updated")
         now_epoch=$(date +%s)
