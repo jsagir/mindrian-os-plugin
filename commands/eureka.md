@@ -210,7 +210,7 @@ Use a single catalogued engine directly when the user or Theo's method selection
    ```
 
 3. Continue only when the catalog status is `experimental` or `host_brokered`. Build a JSON request file that satisfies the published input schema. Keep room text out of command arguments, and preserve `scope_id` and `snapshot_id` whenever the capability uses them.
-4. Run the executable and argument shape published in that capability's `routes.cli`. For the shared-workflow capabilities (54 in the current catalog), the form is:
+4. Run the executable and argument shape published in that capability's `routes.cli`. For the 53 shared-workflow capabilities, the form is:
 
    ```bash
    uv run --project "$MINDRIAN_EUREKA_ROOT" eureka-workflow <capability_id> request.json --output result.json

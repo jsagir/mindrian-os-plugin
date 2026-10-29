@@ -1,0 +1,19 @@
+{
+  "name": "mos-face",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The walled package of the /m:os face panel mod: a side panel, one status line and prompt-box buttons drawn natively in Claude Code. It never enters the root package.json and never reaches the tarball. Only built output ships, in a later plan.",
+  "scripts": {
+    "typecheck": "node scripts/typecheck.cjs",
+    "test": "claude plugin test .",
+    "validate": "claude plugin validate .",
+    "build": "node ../../scripts/build-mos-face.cjs",
+    "check": "node ../../scripts/build-mos-face.cjs --check",
+    "copy-check": "node scripts/face-commands.cjs --check",
+    "shots": "node scripts/capture-shots.cjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

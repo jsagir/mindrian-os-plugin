@@ -1,0 +1,421 @@
+{
+  "version": "1.0",
+  "sourceGeometry": "400 unit master; production source retrieved 2026-10-19",
+  "states": [
+    {
+      "id": "rest",
+      "sourceKey": "rest",
+      "label": "Rest",
+      "he": "מנוחה",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          312,
+          300,
+          52,
+          52
+        ],
+        "s": [
+          110,
+          205,
+          18,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#FFFFFF",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false,
+        "sway": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "listen",
+      "sourceKey": "t_listen",
+      "label": "Listening",
+      "he": "הקשבה",
+      "pose": {
+        "e1": [
+          300,
+          120,
+          68,
+          68
+        ],
+        "e2": [
+          300,
+          300,
+          68,
+          68
+        ],
+        "s": [
+          110,
+          205,
+          10,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#FFFFFF",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "search",
+      "sourceKey": "t_search",
+      "label": "Searching",
+      "he": "חיפוש",
+      "pose": {
+        "e1": [
+          262,
+          100,
+          44,
+          44
+        ],
+        "e2": [
+          340,
+          320,
+          44,
+          44
+        ],
+        "s": [
+          300,
+          205,
+          30,
+          250,
+          36
+        ],
+        "r": [
+          214,
+          225
+        ],
+        "plane": "#1F3FBF",
+        "c1": "#F7F5EE",
+        "c2": "#111111",
+        "hollow": false,
+        "bob": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": "Upper eye uses paper on cobalt for contrast; geometry unchanged."
+    },
+    {
+      "id": "found",
+      "sourceKey": "t_found",
+      "label": "Found",
+      "he": "נמצא חומר",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          312,
+          300,
+          52,
+          52
+        ],
+        "s": [
+          110,
+          205,
+          0,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#1F3FBF",
+        "c1": "#F7F5EE",
+        "c2": "#111111",
+        "hollow": false
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": "Upper eye uses paper on cobalt for contrast; geometry unchanged."
+    },
+    {
+      "id": "challenge",
+      "sourceKey": "challenge",
+      "label": "Challenge",
+      "he": "בחינת הנחה",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          312,
+          312,
+          52,
+          14
+        ],
+        "s": [
+          110,
+          205,
+          -32,
+          262,
+          36
+        ],
+        "r": [
+          236,
+          190
+        ],
+        "plane": "#D6281F",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false,
+        "sway": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "contradiction",
+      "sourceKey": "contra",
+      "label": "Contradiction",
+      "he": "סתירה",
+      "pose": {
+        "e1": [
+          284,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          346,
+          300,
+          52,
+          52
+        ],
+        "s": [
+          110,
+          205,
+          0,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#F2C200",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false,
+        "sway": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "reframe",
+      "sourceKey": "rf2",
+      "label": "Reframe",
+      "he": "נקודת מבט נוספת",
+      "pose": {
+        "e1": [
+          268,
+          138,
+          60,
+          60
+        ],
+        "e2": [
+          340,
+          138,
+          60,
+          60
+        ],
+        "s": [
+          110,
+          205,
+          -24,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          260
+        ],
+        "plane": "#F2C200",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "limit",
+      "sourceKey": "t_none",
+      "label": "Nothing found",
+      "he": "לא נמצא חומר",
+      "pose": {
+        "e1": [
+          278,
+          120,
+          44,
+          44
+        ],
+        "e2": [
+          350,
+          300,
+          44,
+          44
+        ],
+        "s": [
+          110,
+          205,
+          90,
+          250,
+          30
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#FFFFFF",
+        "c1": "#4B4943",
+        "c2": "#4B4943",
+        "hollow": false,
+        "still": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "decision",
+      "sourceKey": "decision",
+      "label": "Your decision",
+      "he": "ההחלטה שלכם",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          312,
+          300,
+          52,
+          52
+        ],
+        "s": [
+          110,
+          205,
+          0,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#111111",
+        "c1": "#F7F5EE",
+        "c2": "#111111",
+        "hollow": false,
+        "still": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "boundary",
+      "sourceKey": "t_refused",
+      "label": "Boundary",
+      "he": "גבול הפעולה",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          12
+        ],
+        "e2": [
+          312,
+          300,
+          52,
+          12
+        ],
+        "s": [
+          110,
+          205,
+          0,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          190
+        ],
+        "plane": "#D6281F",
+        "c1": "#111111",
+        "c2": "#111111",
+        "hollow": false,
+        "still": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    },
+    {
+      "id": "handover",
+      "sourceKey": "t_handover",
+      "label": "Handover",
+      "he": "העברת התוצר",
+      "pose": {
+        "e1": [
+          312,
+          120,
+          52,
+          52
+        ],
+        "e2": [
+          312,
+          300,
+          52,
+          52
+        ],
+        "s": [
+          96,
+          205,
+          18,
+          250,
+          36
+        ],
+        "r": [
+          236,
+          225
+        ],
+        "plane": "#FFFFFF",
+        "c1": "#FFFFFF",
+        "c2": "#FFFFFF",
+        "hollow": true,
+        "still": 1
+      },
+      "source": "website/public/theo-face.js",
+      "adjustment": null
+    }
+  ]
+}

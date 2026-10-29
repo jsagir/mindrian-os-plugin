@@ -739,37 +739,37 @@ NOTE: No active room is named in the registry
 > Site ok
 > Theo down
 A boundary. Is something here an assumption worth examining?
-A broad change in society that creates new opportunities.
-A broad survey over many domains, looking for connections, patterns and random intersections that may prove valuable.
-A business or marketing statement that summarizes why a consumer should buy a product or use a service, and convinces them it adds more value than similar offerings.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 A closed door. Is there another way in?
 A count is not a verdict. Only a person confirms a claim.
-A cross-scenario pattern is a problem, input, outcome or uncertainty that shows up in all or most of your scenarios.
-A cycle of three questions: Why does this exist, What if we changed it, How might we.
-A deeply entrenched belief or assumption (received wisdom) in an industry that people accept without question.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 A gap is a place to look, not a failure.
-A lagging component of a technological system that holds up the progress of the whole system, like one group of soldiers that cannot advance and holds back the army.
+[glossary text withheld]
 A lead, not a verdict. What would settle it?
-A one-sentence problem statement: how can we help whom do what, under which circumstances, in order to accomplish what.
-A place in a system where a small change might produce a large effect.
-A possible course of action for the company, developed for each scenario by asking how the group would want the company to react if that future arrives.
-A problem important and valuable enough to be worth working on; one of three components of innovation, with a solution and a business case, and all three must be validated.
-A problem that does not ask for a solution but asks what distant futures might look like, what problems might live there, and what opportunities they could offer today.
-A problem with a general direction, such as the next big thing for an industry, which you explore to find problems worth solving before narrowing it to a well-defined problem.
-A problem with a needs statement that makes it crystal clear what the solution must deliver.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 A problem, a discovery or an opportunity - where would you like to begin?
-A product is commoditized when its market matures and rivals copy it right away, so it no longer earns a premium.
+[glossary text withheld]
 A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence
 A question stem is in the prompt box. Finish it and press Enter.
-A shared bank of opportunities and ideas, built week by week; every idea belongs to everyone, and good ideas come only from having a lot of them.
-A standard design that everyone in an industry follows, like the USB port; it emerges when one player wins the market, the industry agrees, or government mandates it.
-A statement of a desired outcome: a direction of improvement (minimize or increase), a unit of measure, and the outcome wanted.
-A strategy that holds up across several possible futures instead of betting on one predicted future.
-A tool that starts from one change and maps its first-order, second-order, and third-order consequences.
-A tree that breaks a problem into its components, starting at the 20,000-foot view and moving down.
-A value proposition powerful enough to overcome inertia, so a customer gives up what they already have (time, money, old product) and moves to the new state.
-A way of challenging assumptions, paradigms, and accepted ways of thinking, and of fighting groupthink.
-A way to sort problems into un-defined, ill-defined and well-defined kinds, across three time horizons, to guide which innovation approach to use.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 Artifact 43, Section 17
 Ask Theo now
 Ask Theo now what to do next
@@ -778,7 +778,7 @@ Asking what the method says about a problem like this.
 Beautiful Question Framework
 Before I guess, let me look at how this is usually approached.
 Before the answer, what is the question?
-Being stuck in the present: working only on the problems people face right now and never imagining where they could lead.
+[glossary text withheld]
 Blocked. Let us look at why before we push.
 Blue Ocean
 Boundary
@@ -801,34 +801,34 @@ Colored badge in replies is off.
 Colored badge in replies is on.
 Commoditization
 Context 62% - filling up
-Creating new value by changing what a product means to people, not only its features.
+[glossary text withheld]
 Cross-Scenario Pattern
-Customers buy products to make progress in a given circumstance: a job is the progress an individual seeks.
-Customers not consuming any product, or consuming only in inconvenient settings.
-Deep dive into a single domain, researching and exploring that domain intensively.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 Deprecated alias
 Destruction Dynamics
 Does this connect to something you already hold?
 Does this still serve the problem you started with?
 Domain Selection
 Dominant Design
-Early signs that a future other than the assumed one may arrive.
+[glossary text withheld]
 Emotional Job
 Empty hands. What needs more understanding?
 Era of Ferment
 Era of Incremental Change
-Every change destroys something, and that destruction opens opportunities.
-Every innovation has two parts that always come in the same order: an insight, which is seeing what others do not see, and then the big idea that comes out of it.
-Evolution as variation, selection and retention.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 Extensive Searching
 Face style: crew - the six workshop faces, each with its question.
 Face style: line - one plain-text line.
 Face style: mini - a small tile.
 Face style: tile - the Theo states.
-Finding problems worth solving and turning them into opportunities that become products and services built and delivered to the market.
+[glossary text withheld]
 Fix: /mos:doctor
 Following the thread. Where does it lead?
-Forcing a market that does not yet exist into TAM sizing.
+[glossary text withheld]
 Found
 Found  Theo: ok
 Found  Theo: ok | Theo 1 this turn, 1 in all
@@ -859,11 +859,11 @@ If the target moved tomorrow, what would you want to know now?
 Ill-defined Problem
 Implement & Scale
 Importance-Satisfaction
-In needs mapping, the step where importance is high and satisfaction is low: something people need badly and are getting badly.
+[glossary text withheld]
 In the prompt box, press Enter to send: About the room demo-room: 
 Innovation
 Innovation Formula
-Innovation at the intersection of different fields.
+[glossary text withheld]
 Innovation of Meaning
 Intensive Searching
 Interesting - what does this change?
@@ -880,7 +880,7 @@ Keep it, but label it - fact, guess or connection?
 Keep what holds. Question the rest.
 Knightian uncertainty
 Knowns and Unknowns Matrix Framework
-Lay out alternative futures, all equally possible, with no predictions and no probabilities, then prepare for any of them or dive deep into one to find opportunities.
+[glossary text withheld]
 Lean Canvas
 Let me ask rather than push through.
 Let me check the method first - what does it suggest here?
@@ -928,15 +928,15 @@ Opportunity Sweet Spot
 Orthodoxy
 Over to you. What stays, what goes?
 Overshoot
-Overshoot: a product or service gives more than mainstream customers need.
+[glossary text withheld]
 Overshooting
-Overshooting: a company adds more product features than customers need or will pay for.
+[glossary text withheld]
 PEST Analysis
 PLUGIN: unknown active, unknown installed
 PWS Triple Validation Compass
 PWS Value Proposition
 Pains & Gains
-Pains are customer problems that your solution relieves.
+[glossary text withheld]
 Pause. What would you want to approve first?
 Plain mode off.
 Plain mode on: ASCII only, no color pictures.
@@ -950,7 +950,7 @@ Problem Type Progression
 Problem Worth Solving
 READS: demo-room
 ROOM demo-room: stage Design, 14 entries, state read 2026-10-20T21:00:00Z
-Rate each step of a process for importance and for how well current offers serve it.
+[glossary text withheld]
 Read the room, the data room, Theo and the website again
 Reading the room, the data room, Theo and the website again.
 Ready when the question is.
@@ -961,7 +961,7 @@ Rest
 Rest | Theo 0 this turn, 0 in all
 Rest | Theo 0 this turn, ~
 Rest | Theo 0 this ~
-Results of a well-meant action that nobody anticipated, because changing one part of a system affects the whole system.
+[glossary text withheld]
 Reverse Salient
 Reverse Salient Analysis
 Robust Strategy
@@ -977,8 +977,8 @@ Search  Theo: hold | Theo 1 this turn, 1 in all
 Search  Theo: hold | Theo 1 this ~
 Search  Theo: hold | Theo~
 Search  Theo: hold ~
-Searching for opportunities from the future back asks what is possible.
-Seeing how the parts of a system interact over time and shape outcomes, through feedback loops and interdependencies, instead of treating problems as isolated events.
+[glossary text withheld]
+[glossary text withheld]
 Show or hide the Theo face box (shown when the panel is not)
 Signals of Change
 Silence can be a signal. What did we expect to hear?
@@ -989,8 +989,8 @@ Start anywhere. What matters to you right now?
 Stopping here is a choice. Is it the right one?
 Strategic Options
 Strong Value Proposition
-Studying a system's parts and links to place a problem inside a broader system, so solutions fit its constraints and influences.
-Subtle early changes in consumer sentiment, regulations or trends that point to emerging futures.
+[glossary text withheld]
+[glossary text withheld]
 Switch room
 Systematic Innovation
 Systems Analysis
@@ -1006,22 +1006,22 @@ That is the thread so far. Which part do you trust least?
 That may change the question. Worth testing?
 The /m:os dashboard is open in the side panel. It seats at any width when you ask for it.
 The call to Theo did not complete. I will not guess in its place.
-The core practical job the customer needs done.
-The feeling a customer wants to have, or avoid, while or after getting a job done.
-The habit of jumping straight to a solution before you understand the problem.
-The last node of the PWS flowchart, after Develop Business Case.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 The panel asks Theo every second turn.
 The panel no longer asks Theo by itself.
-The part of innovation that lets a solution enter the market and scale.
-The path from Un-Defined to Ill-Defined to Well-Defined problems: explore un-defined spaces for ill-defined problems, then refine them into problems that can be solved.
-The period after a dominant design is set, when macro invention gives way to many small micro improvements, until a new technological discontinuity opens an era of ferment.
-The period after a technological breakthrough, or when a dominant design breaks apart, when rival designs compete, the outcome is uncertain, and opportunity is high for new entrants.
-The principle that innovation starts with finding and understanding a problem worth solving, before any solution, design or business case.
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
+[glossary text withheld]
 The prompt box could not take it. Type this: About the room demo-room: 
 The prompt box is busy, so it is waiting there dim. Press Tab to take it.
-The purposeful and organized search for changes, and the systematic analysis of the opportunities such changes offer for economic or social innovation, not waiting for random inspiration.
+[glossary text withheld]
 The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface
-The things companies in a market compete on, such as image quality, control and lenses for cameras.
+[glossary text withheld]
 Theo call failed: broken
 Theo call was blocked: blocked
 Theo calls pane opened (it seats from 110 columns wide, or at any width on request).
@@ -1037,18 +1037,18 @@ Theo walks you through three birth gates (starting point, blueprint approve, fir
 Theo was sent: "why does the bug keep happening and the symptom returns"
 Theo will suggest once the talk gives something to go on.
 This might change the picture. Let us see.
-Tracing a problem back through its chain of causes to find the real source, for example by asking why repeatedly (5 Whys), so the problem statement points at the cause and not a symptom.
+[glossary text withheld]
 Try the question from the other end?
 Turn on or off sending your own recent words to Theo with each ask
 Turn the colored badge on replies on or off
 Turn the grey command suggestion in the prompt box on or off
 Turn the panel asking Theo every second turn on or off
 Un-defined Problem
-Uncertainty that cannot be exactly quantified: all possible future states of the world.
-Uncontested market space where competition is irrelevant because the rules are not set yet.
+[glossary text withheld]
+[glossary text withheld]
 Unintended Consequences
 Usher's Model of Cumulative Synthesis
-Using existing strengths and resources in new ways or new markets to create value, instead of buying growth from outside.
+[glossary text withheld]
 Value Proposition
 Variation-Selection-Retention
 WRITES TO: demo-room

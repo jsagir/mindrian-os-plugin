@@ -1,0 +1,3 @@
+{"ts":"2026-10-18T06:00:24Z","tool":"icm.sh","cmd":"/home/jsagi/.agents/skills/icm/runtime/icm.sh","args":["/home/jsagi/.agents/skills/icm/runtime/icm.sh","init","pws/tool-combinations"],"cwd":"/home/jsagi/dev/MindrianOS-Plugin","ec":0}
+{"ts":"2026-10-18T06:01:41Z","tool":"icm.sh","cmd":"/home/jsagi/.agents/skills/icm/runtime/icm.sh","args":["/home/jsagi/.agents/skills/icm/runtime/icm.sh","init","pws/research-tools"],"cwd":"/home/jsagi/dev/MindrianOS-Plugin","ec":1}
+{"ts":"2026-10-18T06:01:41Z","tool":"icm.sh","cmd":"/home/jsagi/.agents/skills/icm/runtime/icm.sh","args":["/home/jsagi/.agents/skills/icm/runtime/icm.sh","init","pws/tool-combinations"],"cwd":"/home/jsagi/dev/MindrianOS-Plugin","ec":1}

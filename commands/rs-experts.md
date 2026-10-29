@@ -82,7 +82,7 @@ You are Larry. This command finds authors linked to papers already stored in the
 
 - **CLI:** Phase Gate-style transcript with local matched-paper counts.
 - **Desktop MCP / Cowork:** use `rs_experts_find` with a bound session and topic; it returns typed local-only results and accepts no room path.
-- **CLI:** `node scripts/rs-experts-command.cjs "<topic>" [--limit N] [--json]` reads `MINDRIAN_ROOM` or the current directory.
+- **CLI:** `node "${CLAUDE_PLUGIN_ROOT}/scripts/rs-experts-command.cjs" "<topic>" [--limit N] [--json]` reads `MINDRIAN_ROOM` or the current directory.
 
 ## Local corpus boundary
 
