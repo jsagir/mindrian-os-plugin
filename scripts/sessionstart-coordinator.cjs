@@ -57,13 +57,14 @@ const DEFAULT_TELEMETRY_PATH = path.join(
 // graceful-degradation pattern. Each entry returns a () => contributeFn binding,
 // resolved at runAll() invocation time (NOT module load) so a single broken
 // require does not prevent the coordinator module from loading.
+// Quick 261029-lx3: install-drift and onboarding run through preflight-doctor.cjs throttled(), so the doctor runs at most once in 24 h per plugin version, detached.
 const DEFAULT_CONTRIBUTOR_MAP = Object.freeze({
-  'install-drift':       () => { try { return require('./preflight-doctor.cjs').contribute; } catch (_) { return null; } },
+  'install-drift':       () => { try { return require('./preflight-doctor.cjs').throttled('install-drift'); } catch (_) { return null; } },
   'sealed-room':         () => { try { return require('./check-onboard-statusline.cjs').contributeSealed; } catch (_) { return null; } },
   'tension-hook':        () => { try { return require('./preflight-tension-surface.cjs').contribute; } catch (_) { return null; } },
   'memory-resume':       () => { try { return require('./memory-resume-nudge.cjs').contribute; } catch (_) { return null; } },
   'auto-explore':        () => { try { return require('./preflight-auto-explore.cjs').contribute; } catch (_) { return null; } },
-  'onboarding':          () => { try { return require('./check-onboard-statusline.cjs').contributeOnboarding; } catch (_) { return null; } },
+  'onboarding':          () => { try { return require('./preflight-doctor.cjs').throttled('onboarding'); } catch (_) { return null; } },
   'minto':               () => { try { return require('./statusline-fallback-echo.cjs').contributeMintoSegment; } catch (_) { return null; } },
   'jtbd':                () => { try { return require('./operator-update.cjs').contributeJtbd; } catch (_) { return null; } },
   'operator':            () => { try { return require('./operator-update.cjs').contributeOperator; } catch (_) { return null; } },
