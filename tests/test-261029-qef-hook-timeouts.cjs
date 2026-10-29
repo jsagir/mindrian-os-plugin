@@ -14,7 +14,9 @@
  * least 3 times the measured worst case, minimum 3 s, or the value the
  * orchestrator fixed (session-start 180, npm reconcile 150, coordinator 40,
  * on-stop 20). After the real-room measurement of Task 1, the raise rule moved
- * one row: post-compact (24,342 ms worst, so 74 s).
+ * one row: post-compact (24,342 ms worst, so 74 s). The orchestrator ruling of
+ * 2026-10-29 then set post-compact to 120 s (3 x 38,881 ms measured after the
+ * change); the 100 s cap of the raise rule is lifted for that one hook.
  * DD-2: the Part 8 egress guard carries "onFailure": "block" so a timeout or a
  * crash blocks the Brain call; no other hook entry has the key.
  * DD-3 / DD-4: scripts/measure-hook-cold-start.cjs and
@@ -23,7 +25,7 @@
  * Base commit for the shape check: a13ab61f1 (last change of hooks/hooks.json
  * before this quick task).
  *
- * Arms: A1 shape, A2 range, A3 two hooks above 100 s, A4 the DD-1 table,
+ * Arms: A1 shape, A2 range, A3 three hooks above 100 s, A4 the DD-1 table,
  * A5 onFailure, A6 ambient-stop, A7 parseHookCommands unit rule,
  * A8 isNetworkCapable, A9 preflight budget check.
  *
@@ -53,7 +55,8 @@ function check(name, fn) {
 function must(cond, msg) { if (!cond) throw new Error(msg); }
 
 // DD-1 final table: [event, command substring, seconds]. Row 11 (post-compact)
-// was raised from 8 to 74 by the measurement of Task 1.
+// was raised from 8 to 74 by the measurement of Task 1, then set to 120 by the
+// orchestrator ruling (3 x 38,881 ms).
 const TABLE = [
   ['SessionStart', 'sessionstart-npm-reconcile.cjs', 150],
   ['SessionStart', 'sessionstart-post-update-preflight.cjs', 12],
@@ -65,7 +68,7 @@ const TABLE = [
   ['SessionStart', 'gsd-graph-derive-drain.cjs', 5],
   ['SessionStart', 'agentshield-sessionstart-scan.cjs', 8],
   ['PreCompact', 'run-hook.cmd" pre-compact', 6],
-  ['PostCompact', 'run-hook.cmd" post-compact', 74],
+  ['PostCompact', 'run-hook.cmd" post-compact', 120],
   ['Stop', 'run-hook.cmd" on-stop', 20],
   ['Stop', 'operator-update.cjs', 5],
   ['Stop', 'jtbd-update.cjs" stop', 5],
@@ -147,13 +150,15 @@ check('A2 every command hook timeout is an integer from 1 to 180', () => {
   }
 });
 
-check('A3 exactly two hooks above 100 s: npm reconcile 150, session-start 180', () => {
+check('A3 exactly three hooks above 100 s: npm reconcile 150, session-start 180, post-compact 120', () => {
   const big = entries.filter((e) => e.h.timeout > 100).map((e) => e.h.command.replace(/^.*[\\/]/, '') + '=' + e.h.timeout).sort();
-  must(big.length === 2, 'hooks above 100 s: ' + big.join(', '));
+  must(big.length === 3, 'hooks above 100 s: ' + big.join(', '));
   const npm = entries.find((e) => e.h.command.indexOf('sessionstart-npm-reconcile.cjs') !== -1);
   const ss = entries.find((e) => e.h.command.indexOf('run-hook.cmd" session-start') !== -1);
   must(npm && npm.h.timeout === 150, 'npm reconcile timeout is ' + (npm && npm.h.timeout));
   must(ss && ss.h.timeout === 180, 'session-start timeout is ' + (ss && ss.h.timeout));
+  const pc = entries.find((e) => e.h.command.indexOf('run-hook.cmd" post-compact') !== -1);
+  must(pc && pc.h.timeout === 120, 'post-compact timeout is ' + (pc && pc.h.timeout));
 });
 
 check('A4 the DD-1 table matches every entry exactly once', () => {
