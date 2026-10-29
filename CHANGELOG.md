@@ -17,6 +17,7 @@
 
 ### Changed
 - On the Claude Code CLI, the three MCP App views (`room-dashboard`, `room-wiki`, `room-graph`) no longer register, because the CLI surface has apps off. Desktop and Cowork are unchanged.
+- **The end of each turn no longer waits for the room summary (STATE.md) to be rebuilt when nothing in the room changed.** Before, every turn end rebuilt the whole summary from scratch, and your session waited for it. Now the Stop hook first asks one cheap question: did any room file change since the summary was written? If no, it skips the rebuild. If yes, the rebuild runs in the background, with a lock so only one runs at a time, and the hook does not wait for it. We measured the Stop event on a real room on a Windows drive under WSL, as a median of 3 runs with nothing changed in the room. Before: median 15,754 ms, and the on-stop script alone took 19,110 ms. After: median 4,764 ms, and the on-stop script took 4,810 ms. The rest of that time is other work the hook still does at turn end. Not live until a release carries it.
 
 ## [2.0.0-beta.75] - 2026-10-24
 
