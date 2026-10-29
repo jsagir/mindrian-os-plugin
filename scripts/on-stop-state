@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# on-stop-state -- STATE.md rebuild step of the Stop hook (quick 261029-kqv).
+# Called by scripts/on-stop as: on-stop-state <room-dir> <script-dir>
+# Moved out of on-stop to keep that file inside its line budget
+# (lib/mcp/hook-adapter-audit.cjs). No set -e: every step is guarded, and the
+# hook must never fail because of this step. Stdout stays empty. Stderr is
+# inherited, so the state-write advisory line stays visible in the sync path.
+
+ROOM_DIR="${1:-}"
+SCRIPT_DIR="${2:-}"
+[ -d "$ROOM_DIR" ] || exit 0
+[ -d "$SCRIPT_DIR" ] || exit 0
+
+# Room exists -- decide if STATE.md needs a rebuild, then rebuild it.
+#
+# Quick 261029-kqv: scripts/compute-state cost 8,382 ms on a real room on
+# /mnt/c (584 forks), and this hook paid it on every turn end. Now:
+#   skip     nothing in the room changed since STATE.md was written (C-1)
+#   detached something changed: a detached child runs compute-state plus
+#            state-write.cjs under .mindrian/state-recompute.lock, and the
+#            hook returns without waiting (C-2)
+#   locked   a live rebuild already holds the lock, so start nothing
+#   sync     STATE.md is missing or empty (DD-1), or the room has no
+#            .mindrian/ directory for the lock (DD-2): the legacy
+#            synchronous rebuild, in this process
+# One find call is the whole "did anything change" question (C-1). It prunes
+# every hidden entry, because compute-state reads only non-hidden section
+# folders, meetings/, team/ and MEETINGS-INTELLIGENCE.md (DD-3). ROOM.md and
+# USER.md stay in the check: compute-state reads the newest *.md mtime per
+# section, ROOM.md included. Two cheap extra triggers only add rebuilds
+# (DD-4): the rooms registry is newer than STATE.md, or STATE.md is older
+# than 24 h (compute-team writes day-relative trend labels).
+STATE_FILE="${ROOM_DIR}/STATE.md"
+STATE_LOCK="${ROOM_DIR}/.mindrian/state-recompute.lock"
+STATE_MODE="skip"
+STATE_REASON="unchanged"
+if [ ! -s "$STATE_FILE" ]; then
+  STATE_MODE="sync"
+  STATE_REASON="missing-or-empty"
+else
+  STATE_REGISTRY="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}/.rooms/registry.json"
+  if [ -f "$STATE_REGISTRY" ] && [ "$STATE_REGISTRY" -nt "$STATE_FILE" ]; then
+    STATE_MODE="needed"
+    STATE_REASON="registry"
+  elif [ -n "$(find "$STATE_FILE" -mmin +1440 -print -quit 2>/dev/null || true)" ]; then
+    STATE_MODE="needed"
+    STATE_REASON="age"
+  else
+    STATE_NEWER=$(find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' -newer "$STATE_FILE" -print -quit 2>/dev/null || true)
+    if [ -n "$STATE_NEWER" ]; then
+      STATE_MODE="needed"
+      STATE_REASON="newer:${STATE_NEWER#"${ROOM_DIR}"/}"
+      STATE_REASON="${STATE_REASON//[$'\n\r']/ }"
+    fi
+  fi
+fi
+
+# DD-2: the lock lives in .mindrian/. Do not create that directory here,
+# because it would switch on the Phase 88 block below.
+if [ "$STATE_MODE" = "needed" ] && [ ! -d "${ROOM_DIR}/.mindrian" ]; then
+  STATE_MODE="sync"
+  STATE_REASON="no-mindrian-dir"
+fi
+
+# C-2: a lock is live only when its pid is alive AND it is 120 s old or
+# less. A dead pid or an old lock is stale and is taken over. The age uses
+# exact stat seconds, not find -mmin, which rounds (DD-6).
+if [ "$STATE_MODE" = "needed" ] && [ -e "$STATE_LOCK" ]; then
+  STATE_LOCK_PID=""
+  { read -r STATE_LOCK_PID < "$STATE_LOCK"; } 2>/dev/null || true
+  STATE_LOCK_LIVE=0
+  case "$STATE_LOCK_PID" in
+    ''|*[!0-9]*) ;;
+    *)
+      if kill -0 "$STATE_LOCK_PID" 2>/dev/null; then
+        STATE_LOCK_MTIME=$(stat -c %Y "$STATE_LOCK" 2>/dev/null || stat -f %m "$STATE_LOCK" 2>/dev/null || echo 0)
+        case "$STATE_LOCK_MTIME" in
+          ''|*[!0-9]*) STATE_LOCK_MTIME=0 ;;
+        esac
+        if [ $(( $(date +%s) - STATE_LOCK_MTIME )) -le 120 ]; then
+          STATE_LOCK_LIVE=1
+        fi
+      fi
+      ;;
+  esac
+  if [ "$STATE_LOCK_LIVE" = "1" ]; then
+    STATE_MODE="locked"
+    STATE_REASON="lock-held-by-pid-${STATE_LOCK_PID}"
+  else
+    rm -f "$STATE_LOCK" 2>/dev/null || true
+  fi
+fi
+
+if [ "$STATE_MODE" = "needed" ]; then
+  # The child code is a quoted heredoc: nothing from the room path is
+  # expanded into code. The room dir, the script dir and the lock path
+  # reach the child as positional arguments only (threat T-kqv-01).
+  IFS= read -r -d '' STATE_CHILD <<'KQV_CHILD' || true
+set +e
+kqv_lock="$3"
+set -C
+if ! { printf "%s\n" "$$" > "$kqv_lock"; } 2>/dev/null; then
+exit 0
+fi
+set +C
+kqv_release() {
+kqv_pid=""
+{ read -r kqv_pid < "$kqv_lock"; } 2>/dev/null || true
+if [ "$kqv_pid" = "$$" ]; then
+  rm -f "$kqv_lock" 2>/dev/null || true
+fi
+}
+trap kqv_release EXIT
+[ -d "$1" ] || exit 0
+state_content=$("$2/compute-state" "$1" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
+printf "%s\n" "$state_content" | node "$2/state-write.cjs" "$1" || true
+{ printf "%s on-stop-state-bg done elapsed_s=%s\n" "$(date -u +%FT%TZ)" "$SECONDS" >> "$1/.mindrian/session-close.log"; } 2>/dev/null || true
+KQV_CHILD
+  # Fully detached: own session when setsid exists (nohup otherwise), no
+  # std stream shared with the hook, and out of the job table so the
+  # kill and wait on `jobs -p` further down never touch it.
+  if command -v setsid >/dev/null 2>&1; then
+    setsid bash -c "$STATE_CHILD" kqv-state-bg "$ROOM_DIR" "$SCRIPT_DIR" "$STATE_LOCK" </dev/null >/dev/null 2>&1 &
+  else
+    nohup bash -c "$STATE_CHILD" kqv-state-bg "$ROOM_DIR" "$SCRIPT_DIR" "$STATE_LOCK" </dev/null >/dev/null 2>&1 &
+  fi
+  disown "$!" 2>/dev/null || true
+  STATE_MODE="detached"
+elif [ "$STATE_MODE" = "sync" ]; then
+  # Legacy synchronous rebuild, unchanged from before quick 261029-kqv.
+  state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
+  # Phase 240.1 Plan 03 (CTXL-01): route the persist through
+  # scripts/state-write.cjs (which calls lib/core/state-version.cjs::persistState)
+  # instead of a bare redirect, so the gsd_state_version/status stamp survives
+  # regeneration at this hook-driven write site too. Never blocking: the
+  # bridge always exits 0 and the advisory stderr line is intentionally left
+  # un-redirected (not sent to /dev/null) so it stays visible.
+  printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" || true
+fi
+
+# DD-5: one log line per run says which mode ran and why. Stdout stays
+# clean: it carries only the final JSON.
+if [ -d "${ROOM_DIR}/.mindrian" ]; then
+  { printf '%s on-stop-state mode=%s reason=%s\n' "$(date -u +%FT%TZ)" "$STATE_MODE" "$STATE_REASON" >> "${ROOM_DIR}/.mindrian/session-close.log"; } 2>/dev/null || true
+fi
