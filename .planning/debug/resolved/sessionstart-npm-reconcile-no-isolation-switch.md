@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "sessionstart-npm-reconcile-no-isolation-switch"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-10-29T17:26:00Z
-updated: 2026-10-29T17:26:00Z
+updated: 2026-10-29T18:59:53Z
 ---
 
 ## Source-of-Truth Preamble
@@ -20,10 +20,10 @@ updated: 2026-10-29T17:26:00Z
 
 ## Current Focus
 
-hypothesis: Two gaps stop the eval from proving that a live session which loads the plugin writes only under its scratch root. Gap 1 (the npm reconcile has no off switch at the phase base) is closed on this branch by quick 261029-nhu and PROVEN by the run-time proof. Gap 2 (scripts/session-start holds literal /tmp paths, found at execution) is open.
+hypothesis: Two gaps stop the eval from proving that a live session which loads the plugin writes only under its scratch root. Gap 1 (the npm reconcile has no off switch at the phase base) is closed on this branch by quick 261029-nhu and PROVEN by the run-time proof. Gap 2 (scripts/session-start held literal /tmp paths, found at execution) is closed by quick 261029-sof.
 test: `proveReconcileSwitch` of scripts/isolate-larry-voice.cjs for gap 1; `scanFile('scripts/session-start')` for gap 2; both run in `node tests/test-3696-isolation.cjs`.
-expecting: gap 1 PROVEN; gap 2 lists the literal /tmp lines until a fix removes them.
-next_action: the main session routes gap 2 to a quick task that edits scripts/session-start (this phase edits no hook).
+expecting: gap 1 PROVEN; gap 2 lists no line after the fix.
+next_action: none
 
 ## Meta
 
@@ -90,12 +90,20 @@ started: gap 1 from Phase 95.6 D-05d (the reconcile hook); gap 2 from the update
   checked: the two compare-only lines 24 and 25 of scripts/session-start
   found: they test PWD against the plugin cache path and write nothing
   implication: listed in COMPARE_ONLY_LINES, not a finding
+- timestamp: 2026-10-29T18:59:53Z
+  checked: `scanFile('scripts/session-start')` and `node tests/test-3696-isolation.cjs` after quick 261029-sof (commit dfbadf150)
+  found: the scan returns an empty list; PASS 70, FAIL 0; INFO chain not executed: none; INFO chain blockers: []; B8h, B8i and B8j prove the TMPDIR read and write
+  implication: gap 2 is closed
+- timestamp: 2026-10-29T18:59:53Z
+  checked: every reader and writer of /tmp/mindrian-context-state (git grep, grep -rIn, installed plugin copies, ~/.claude user files, `git log -S`)
+  found: the file has readers only (session-start lines 414 to 417 and 567 to 572, and skills/context-engine/SKILL.md:124) and no writer; the last writer left in commit 256560658 (feat 54-02), which moved the bridge to ~/.mindrian/bridge/<room-hash>.json
+  implication: pre-existing defect tracked in sessionstart-blocks-first-prompt-windows-arm64.md; not fixed by the TMPDIR change, which cannot create a reader and writer mismatch
 
 ## Technical Root Cause
 
 - Site (gap 1, closed): scripts/sessionstart-npm-reconcile.cjs:56 and the install block below it; function body of the hook.
 - Cause (gap 1): the hook installs under its own directory and the base had no off switch.
-- Site (gap 2, open): scripts/session-start:413, :1332, :1829 (writes at :1848 and :1867).
+- Site (gap 2, closed): scripts/session-start:413, :1332, :1829 (writes at :1848 and :1867).
 - Cause (gap 2): three literal /tmp paths instead of `${TMPDIR:-/tmp}`; the scratch TMPDIR of the isolation table never reaches them.
 - Why it surfaces now: plan 369.6-02 is the first caller that needs these hooks to run against a scratch root and to prove it.
 
@@ -105,7 +113,7 @@ started: gap 1 from Phase 95.6 D-05d (the reconcile hook); gap 2 from the update
   - Location: scripts/sessionstart-npm-reconcile.cjs:47
   - Current behavior: ends at the switch when MINDRIAN_NPM_RECONCILE_SKIP=1
   - Required behavior: unchanged
-- Change 2 (gap 2, open, owner: a quick task, not this phase):
+- Change 2 (gap 2, done by quick 261029-sof):
   - Location: scripts/session-start:413, :1332, :1829
   - Current behavior: literal /tmp paths
   - Required behavior: derive each path from `${TMPDIR:-/tmp}` (the 1332 fallback too)
@@ -119,22 +127,25 @@ started: gap 1 from Phase 95.6 D-05d (the reconcile hook); gap 2 from the update
   - Location: tests/test-3696-isolation.cjs
   - Given: scripts/session-start after the Change 2 substitutions
   - When: the scan and the canary run
-  - Then: B4e takes its second branch (the session-start capture runs), the chain verdict has no blocker, B8 prints 0 of 3 known escapes
+  - Then: B4e takes its second branch (the session-start capture runs), the chain verdict has no blocker, B8 prints 0 of 0 known escapes
   - Runner registration: tests/run-all-3696.sh already lists it
 
 ## Non-Code Follow-ups
 
 - Route for gap 1: closed by quick 261029-nhu (commit 58a997ca8, an ancestor of this branch). Verified on this branch by the run-time proof above.
-- Route for gap 2: a `/gsd-quick` that edits scripts/session-start (three substitutions). Until it lands, `captureHookContext` refuses the session-start capture with isolation_canary_failed, and any live leg that loads the plugin refuses with exit 77 (1 under LARRY_VOICE_REQUIRE_LIVE=1). Cells 1 and the classifier capture do not need session-start; cells 2, 3, 2s and 3s that need the session-start capture stay NOT RUN. The main session decides whether to run the quick before plan 369.6-05.
+- Route for gap 2: DONE. Quick 261029-sof (commit dfbadf150) made the three paths follow TMPDIR. The session-start capture now runs, so cells 2, 3, 2s and 3s can capture it in plan 369.6-05.
 - This phase never edits the reconcile or scripts/session-start and never relaxes the canary.
-- knowledge-base.md: add the summary block when both gaps are closed.
+- knowledge-base.md: summary block added when both gaps closed.
 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: gap 1 confirmed and closed; gap 2 confirmed and open.
-fix: gap 1 by quick 261029-nhu; gap 2 pending.
-verification: `node tests/test-3696-isolation.cjs` prints PASS 63, FAIL 0 on 2026-10-29; B6d records the reconcile proof PROVEN; B8 records 3 of 3 known literal-path escapes present.
+root_cause: gap 1 confirmed and closed; gap 2 confirmed and closed.
+fix: gap 1 by quick 261029-nhu; gap 2 by quick 261029-sof (BRIDGE_FILE, UPDATE_CACHE and the mktemp fallback of scripts/session-start use ${TMPDIR:-/tmp}; evidence table and SKILL.md line updated; B8 known-escape set removed; B8d to B8j added).
+verification: `node tests/test-3696-isolation.cjs` prints PASS 70, FAIL 0, chain blockers [] and chain not executed none on 2026-10-29; the six session-start regression tests exit 0.
 files_changed:
-  - none by this phase for either gap
-commits: 58a997ca8 (gap 1)
+  - scripts/session-start
+  - scripts/isolate-larry-voice.cjs
+  - skills/context-engine/SKILL.md
+  - tests/test-3696-isolation.cjs
+commits: 58a997ca8 (gap 1), dfbadf150 (gap 2)
