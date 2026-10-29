@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: "379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)"
-stopped_at: Phase 369.6 context gathered (24 owner rulings + 4 article decisions locked; replan next, then Codex review gate)
-last_updated: "2026-10-29T10:48:55.023Z"
-last_activity: 2026-10-28
+stopped_at: "Phase 369.6 planned: 13 plans in 10 waves (plans a137c1fd7, revision 3bf4223a1, checker PASS iteration 2); Codex review gate (/gsd-review --phase 369.6 --codex) next, then execution"
+last_updated: "2026-10-29T12:49:50.260Z"
+last_activity: 2026-10-29 -- Phase 369.6 planning complete
 progress:
   total_phases: 144
   completed_phases: 34
@@ -5994,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-28
+Last activity: 2026-10-29 -- Phase 369.6 planning complete
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
