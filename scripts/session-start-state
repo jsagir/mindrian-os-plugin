@@ -35,8 +35,21 @@ esac
 [ -d "$ROOM_DIR" ] || exit 0
 [ -d "$SCRIPT_DIR" ] || exit 2
 
+# Quick 261029-lx3, plugin-generated artifacts: the find below ignores files
+# that the plugin itself rewrites at every start, because they would make the
+# room look changed at every next start. The same list is in
+# scripts/on-stop-state, so the Stop hook and SessionStart agree. Writers:
+#   FEYNMAN.md   lib/core/feynman/timeline-runner.cjs (session-start timeline
+#                refresh), scripts/vault-section-minto-generator.cjs
+#   MINTO.md, BRIEF.md   scripts/vault-section-minto-generator.cjs
+#   MEETINGS-INTELLIGENCE.md, action-items.md (room root only)
+#                scripts/compute-meetings-intelligence, run by compute-state
+#   team/TEAM-STATE.md   scripts/compute-team, run by compute-state
+# ROOM.md and USER.md stay in the check. A per-meeting meetings/*/action-items.md
+# stays in the check too (the list matches the room-root file by path).
+# Follow-up: make these generators write only when the content changed.
 # First room file newer than the reference file given as $1 (prints a path or nothing).
-room_newer() { find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' -newer "$1" -print -quit 2>/dev/null || true; }
+room_newer() { find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' ! -name FEYNMAN.md ! -name MINTO.md ! -name BRIEF.md ! -path "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" ! -path "$ROOM_DIR/action-items.md" ! -path "$ROOM_DIR/team/TEAM-STATE.md" -newer "$1" -print -quit 2>/dev/null || true; }
 
 # DD-7: one line per call. Nothing is written when the room has no .mindrian/.
 log_line() {

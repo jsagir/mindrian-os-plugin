@@ -198,6 +198,23 @@ function stripKeys(text) {
   return text.split('\n').filter((l) => !/^(gsd_state_version|status):/.test(l)).join('\n');
 }
 
+// Plugin-generated artifacts that the start itself rewrites (list in scripts/session-start-state).
+function writeGeneratedFiles(fx) {
+  const files = [
+    path.join(fx.section, 'FEYNMAN.md'),
+    path.join(fx.section, 'MINTO.md'),
+    path.join(fx.section, 'BRIEF.md'),
+    path.join(fx.room, 'MEETINGS-INTELLIGENCE.md'),
+    path.join(fx.room, 'action-items.md'),
+    path.join(fx.room, 'team', 'TEAM-STATE.md'),
+  ];
+  fs.mkdirSync(path.join(fx.room, 'team'), { recursive: true });
+  for (const f of files) {
+    fs.writeFileSync(f, 'generated\n');
+    setMtime(f, Date.now());
+  }
+}
+
 // Plant a warm cache. Room files are 1 h old, the cache is 30 s old.
 function writeWarmCache(fx, body) {
   backdateRoom(fx);
@@ -417,6 +434,42 @@ async function main() {
     } finally { rmTree(base); }
   });
 
+  await checkAsync('S6 generated files: rewritten FEYNMAN, MINTO, BRIEF, root intelligence and team state files do not defeat the reuse (NEEDS_HUMAN 2)', async () => {
+    const fx = mkHelperFx();
+    try {
+      writeUnchangedState(fx);
+      writeGeneratedFiles(fx);
+      const res = runHelper(fx, 'state');
+      assert.ok(!fs.existsSync(fx.markerCs), 'compute-state ran after only generated files changed');
+      assert.ok(res.stdout.includes('lx3-state-token'), 'stdout is not the STATE.md text');
+      assert.ok(/state mode=reuse/.test(logText(fx)), 'log has no "state mode=reuse": ' + logText(fx));
+    } finally { rmTree(fx.tmp); }
+  });
+
+  const s7 = [
+    ['a per-meeting action-items.md', (fx) => {
+      fs.mkdirSync(path.join(fx.room, 'meetings', 'm1'), { recursive: true });
+      fs.writeFileSync(path.join(fx.room, 'meetings', 'm1', 'action-items.md'), 'x\n');
+      setMtime(path.join(fx.room, 'meetings', 'm1', 'action-items.md'), Date.now());
+    }],
+    ['a section ROOM.md', (fx) => setMtime(path.join(fx.section, 'ROOM.md'), Date.now())],
+    ['a USER.md', (fx) => {
+      fs.writeFileSync(path.join(fx.room, 'USER.md'), 'x\n');
+      setMtime(path.join(fx.room, 'USER.md'), Date.now());
+    }],
+  ];
+  for (const [label, prep] of s7) {
+    await checkAsync('S7 still counts: ' + label + ' newer than STATE.md runs compute-state (NEEDS_HUMAN 2)', async () => {
+      const fx = mkHelperFx();
+      try {
+        writeUnchangedState(fx);
+        prep(fx);
+        runHelper(fx, 'state');
+        assert.strictEqual(countLines(fx.markerCs), 1, 'compute-state did not run');
+      } finally { rmTree(fx.tmp); }
+    });
+  }
+
   // ----- A: analyze-room cache -----
   await checkAsync('A1 miss then hit: the second call does not run analyze-room (C-2)', async () => {
     const fx = mkHelperFx();
@@ -508,6 +561,18 @@ async function main() {
       assert.strictEqual(countLines(fx.markerAr), 1, 'analyze-room did not run');
       assert.strictEqual(res.stdout, 'GAP:lx3-fake-analyze-token\n');
       assert.ok(!fs.existsSync(path.join(fx.room, '.mindrian')), '.mindrian was created');
+    } finally { rmTree(fx.tmp); }
+  });
+
+  await checkAsync('A7 generated files: rewritten generated artifacts do not defeat the cache hit (NEEDS_HUMAN 2)', async () => {
+    const fx = mkHelperFx();
+    try {
+      writeWarmCache(fx);
+      writeGeneratedFiles(fx);
+      const res = runHelper(fx, 'analyze');
+      assert.ok(!fs.existsSync(fx.markerAr), 'analyze-room ran after only generated files changed');
+      assert.strictEqual(res.stdout, 'GAP:lx3-old-cache-token\n');
+      assert.ok(/analyze mode=hit/.test(logText(fx)), 'log has no "analyze mode=hit": ' + logText(fx));
     } finally { rmTree(fx.tmp); }
   });
 

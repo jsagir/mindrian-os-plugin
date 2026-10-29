@@ -30,6 +30,10 @@ SCRIPT_DIR="${2:-}"
 # section, ROOM.md included. Two cheap extra triggers only add rebuilds
 # (DD-4): the rooms registry is newer than STATE.md, or STATE.md is older
 # than 24 h (compute-team writes day-relative trend labels).
+# Quick 261029-lx3: the find below ignores plugin-generated artifacts (FEYNMAN.md,
+# MINTO.md, BRIEF.md, root MEETINGS-INTELLIGENCE.md and action-items.md, team/
+# TEAM-STATE.md). The same list is in scripts/session-start-state; the writers
+# are named there. ROOM.md and USER.md stay in the check.
 STATE_FILE="${ROOM_DIR}/STATE.md"
 STATE_LOCK="${ROOM_DIR}/.mindrian/state-recompute.lock"
 STATE_MODE="skip"
@@ -46,7 +50,7 @@ else
     STATE_MODE="needed"
     STATE_REASON="age"
   else
-    STATE_NEWER=$(find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' -newer "$STATE_FILE" -print -quit 2>/dev/null || true)
+    STATE_NEWER=$(find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' ! -name FEYNMAN.md ! -name MINTO.md ! -name BRIEF.md ! -path "$ROOM_DIR/MEETINGS-INTELLIGENCE.md" ! -path "$ROOM_DIR/action-items.md" ! -path "$ROOM_DIR/team/TEAM-STATE.md" -newer "$STATE_FILE" -print -quit 2>/dev/null || true)
     if [ -n "$STATE_NEWER" ]; then
       STATE_MODE="needed"
       STATE_REASON="newer:${STATE_NEWER#"${ROOM_DIR}"/}"
