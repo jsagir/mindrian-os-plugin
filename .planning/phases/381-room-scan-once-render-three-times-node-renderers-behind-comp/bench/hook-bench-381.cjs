@@ -36,6 +36,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       walls.push(Number(process.hrtime.bigint() - a) / 1e6);
       // 381: WAIT_ABSENT polls every 500 ms until the path is gone, at most 120 s, and prints the wait
       if (process.env.WAIT_ABSENT) { const w0 = Date.now(); while (fs.existsSync(process.env.WAIT_ABSENT) && Date.now() - w0 < 120000) await sleep(500); console.log(`  waited ${Date.now() - w0} ms for ${process.env.WAIT_ABSENT}`); }
+      // 381: PAUSE_MS sleeps after each run (after WAIT_ABSENT) so the next TOUCH lands in a later clock second than the previous STATE.md write; the /mnt/c 9p mount keeps whole seconds only
+      if (process.env.PAUSE_MS) await sleep(+process.env.PAUSE_MS);
     }
     const raw = walls.slice(); walls.sort((x, y) => x - y);
     const top = [...slowest].sort((x, y) => y[1] - x[1]).slice(0, 2).map(([k, v]) => `${k}=${v.toFixed(0)}ms`).join(', ');
