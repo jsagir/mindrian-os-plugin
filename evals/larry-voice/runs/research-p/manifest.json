@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "research-import",
+  "run_kind": "voice",
+  "label": "research-p",
+  "generator": "scripts/eval-larry-voice.cjs",
+  "commit": "dd02808412344c9d97861c6d82cd5320f132fe86",
+  "plugin_version": "2.0.0-beta.76",
+  "claude_version": null,
+  "probes_sha256": "3c95f4b8bc0372e9f8bbfb2179f1a65da4ed1467299894875ac8cefe6d7fb191",
+  "rubric_sha256": "568e48c4fc815a585168dc2d8ca28cfbe1ea06da63c76f2520f24233e8b3688a",
+  "agent_body_sha256": "5b7665e2e92d09ccf7a9fb7ba9778c2a06ceda7aa136410fd6239671cecc1660",
+  "cells": [
+    "1"
+  ],
+  "statuses": {
+    "A": {
+      "1": "complete"
+    },
+    "B": {
+      "1": "complete"
+    },
+    "C": {
+      "1": "complete"
+    },
+    "D": {
+      "1": "complete"
+    },
+    "E": {
+      "1": "complete"
+    }
+  },
+  "replies_sha256": "417b5e2f81199c4ceb29f43050d92e76bef5bbbab465af72343c76d14a5a33d1",
+  "inputs_clean": true,
+  "executables": null,
+  "created": "2026-10-29T17:39:30.076Z",
+  "source": ".planning/phases/369.6-the-larry-contract-voice-and-calibration-execution-truth-pro/research/P-probe-replies.md",
+  "source_commit": "9c39a5f29e45fa6cb2937fc656cdce3c1c7d0e6e",
+  "source_sha256": "2f7075b0dab6c496423575aefc53595f18fae24d0083c5777a122038c056b6fd",
+  "source_dirty": false
+}
