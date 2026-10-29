@@ -5,13 +5,13 @@ milestone_name: milestone
 status: executing
 stopped_at: "Phase 369.6 wave 1 of 13 complete (plan 01: measurement script, reply checks, phase suite, BEFORE record; SUMMARY 0770d0af7); wave 2 (plan 02) starting"
 last_updated: "2026-10-29T16:18:38.474Z"
-last_activity: 2026-10-29 -- Phase 369.6 execution started
+last_activity: 2026-10-29 -- Phase 369.6 execution continuing (369.6-01 complete)
 progress:
   total_phases: 144
   completed_phases: 34
   total_plans: 670
   completed_plans: 550
-  percent: 24
+  percent: 82
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -9165,8 +9165,8 @@ Progress: [██████████] 98%
 - [Phase 379.1]: GATE PASSED: the seeded randomized truncated SVD ships behind the auto rule (min side above 300); jacobi path unchanged for small matrices; the scout cap stays Jacobi-derived this phase — 272 gate: spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210, 0 sign flips; 2105x2000 at k=80 in 968 ms; deterministic
 - [Phase 379.1-05]: Scout artifact cap stays 400 (Jacobi-derived probe value) although the randomized solver shipped; the cap rise is a Plan 06 seed - jacobi_ms_n400 = 50663 ms; D-379.1-14
 - [Phase 379.1-06]: The large room leg never starts the drain child without a local model (inconclusive, never a download); the gate refuses inconclusive; the limits stay at 300000 ms, 600000 ms, 1024 MB - the first live full leg breached on drain peak RSS (1837 MB); recorded in deferred-items.md and not hidden by a raised limit
-- [Phase 369.6]: Plan 01: the failing-leg comparison counts legs as a multiset with the exit code, so a new failing leg beside a known red fails the suite (holds by code: tests/test-3696-known-set.cjs K2 and K8) — Codex C5: a signature substring hides a new failure
-- [Phase 369.6]: Plan 01: section bytes use the loose counting rule with an intro entry so budget plans can project a section allocation before editing (holds by code: tests/test-3696-measure-voice.cjs M6) — Codex C10
+- [Phase 369.6]: Plan 01: the failing-leg comparison counts legs as a multiset with the exit code, so a new failing leg beside a known red fails the suite (holds by code: tests/test-3696-known-set.cjs K2 and K8) - Codex C5: a signature substring hides a new failure
+- [Phase 369.6]: Plan 01: section bytes use the loose counting rule with an intro entry so budget plans can project a section allocation before editing (holds by code: tests/test-3696-measure-voice.cjs M6) - Codex C10
 
 ### Pending Todos
 
@@ -9370,7 +9370,7 @@ Progress: [██████████] 98%
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-10-29T16:18:32.000Z
-Stopped at: Phase 369.6 context gathered (24 owner rulings + 4 article decisions locked; replan next, then Codex review gate)
+Stopped at: Completed 369.6-01-PLAN.md: measurement script, 18 reply checks with a 98-row labelled corpus, phase suite with an exact failing-leg baseline (27 recorded reds), BEFORE ledger; wave 2 (plan 02) next
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
