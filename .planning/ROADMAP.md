@@ -1929,13 +1929,54 @@ Plans:
 ### Phase 369.6: The Larry contract: voice and calibration (execution-truth program, AI behavior after the harness supplies true state) (INSERTED)
 
 **Goal:** Larry speaks as Larry and claims only what the executed state supports. From SEED-116 and the annex: a turn names the job and the move, never a leaf id or a verdict code; a term is defined at first use and every pronoun has a referent (AI-01, GEN-01); pre-research narration is hypothesis language with evidence_status: pre-research, and "every", "only", "proven", "confirmed", "kills", "decisive" require a cited executed operation or canonical claim state (AI-06, AI-10, annex C09-C14, C19); internal convergence is called consistency (C13); a changed objective is a new hypothesis (C08); quantities are typed before they are compared (AI-09, C10); a correction repairs the artifact, records a room-scoped rule and is checked on the next output, never ending in an apology (AI-02, A03); a coverage checklist runs before a landscape is presented (AI-08); the framework dump and the em-dash do not return mid-session; the product prints nothing into the chat that is not Larry's line or silence (Stop trailer, host-voice banners, instruction-returning tools). Measured on three recorded sessions before and after, not on one.
-**Requirements**: TBD (brief test 16 and annex section 5 fixtures; the no-dump and glyph detectors in lib/hmi)
+**Requirements**: NS369.6-01..NS369.6-21 (phase-local ids minted at plan time from 369.6-CONTEXT.md; registered in `.planning/REQUIREMENTS.md` by plan 369.6-13 with the "minted at plan time" caveat, the Phase 270 precedent; covers brief test 16, the annex section 5 fixtures and the no-dump and narration detectors in lib/hmi)
 **Depends on:** Phase 369.2 (true execution state is what calibration is calibrated to), Phase 369.4 (the report schema the voice fills)
-**Plans:** 0 plans
+**Plans:** 13 plans (replanned 2026-10-29 on the locked owner rulings; the Codex plan review `/gsd-review --phase 369.6 --codex` runs before any execution)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.6 to break down)
+**Wave 1**
+
+- [ ] 369.6-01-PLAN.md - measurement script (L2 and L5 rules ported), pure reply checks with a labelled corpus, the phase suite written once, the BEFORE record
+
+**Wave 2** *(parallel)*
+
+- [ ] 369.6-02-PLAN.md - the rubric with the owner rulings, the operation block OP1 to OP5, the three-rung context-load ladder, the eval runner, the BEFORE rubric per rung
+- [ ] 369.6-03-PLAN.md - the identity constant, carrier parity with the mod label pin, the fail-closed drift test, the holds-by test, the agent and skill budget tests
+
+**Wave 3** *(parallel)*
+
+- [ ] 369.6-04-PLAN.md - doctrine presence, the 114 rubric fixed against the glyph, the panel thought pool through the shared checks, the one-next-move fixture
+- [ ] 369.6-05-PLAN.md - the operation doctrine check, the scratch-room operational probe, the operation BEFORE
+- [ ] 369.6-06-PLAN.md - the voice-log denominator and template version, the shadow dump and narration detectors, doctor rates (Stop hook, Codex-reviewed)
+
+**Wave 4**
+
+- [ ] 369.6-07-PLAN.md - one PwS identity sentence from one source on every carrier, the book punctuation rule, optional openers, the destijl carve-out (persona edit)
+
+**Wave 5**
+
+- [ ] 369.6-08-PLAN.md - agent operating procedures move to references/personality/agent-operations.md with compact pointers (persona edit)
+
+**Wave 6**
+
+- [ ] 369.6-09-PLAN.md - voice-first agent body: practitioner identity, Operating invisibly, Calibration, the closing rule, report mode, Theo as a named partner (persona edit)
+
+**Wave 7**
+
+- [ ] 369.6-10-PLAN.md - the skill operator manual moves to three references; triggers stay inline (persona edit)
+
+**Wave 8**
+
+- [ ] 369.6-11-PLAN.md - the skill stops teaching visible machinery: trace on request, silent Theo consult, no command cadence, plain examples (persona edit)
+
+**Wave 9**
+
+- [ ] 369.6-12-PLAN.md - one static voice and operation line per CLI turn with an off switch (hook, Codex-reviewed)
+
+**Wave 10**
+
+- [ ] 369.6-13-PLAN.md - the close: final suite, BEFORE-to-final per rung, requirement rows, CHANGELOG, the 369.7 split record, owner review (checkpoint)
 
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 
