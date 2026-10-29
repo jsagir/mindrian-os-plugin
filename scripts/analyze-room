@@ -235,7 +235,7 @@ for section in ALL_SECTIONS:
                 try:
                     lib_path = os.path.join(SCRIPT_DIR, '..', 'lib', 'core', 'visual-ops.cjs')
                     result = subprocess.run(
-                        ['node', '-e', f"const v = require('{lib_path}'); console.log(v.formatEdge('{section}', '{target}', 'INFORMS'));"],
+                        ['node', '-e', "const v = require(process.argv[1]); console.log(v.formatEdge(process.argv[2], process.argv[3], 'INFORMS'));", '--', lib_path, section, target],
                         capture_output=True, text=True, timeout=2
                     )
                     if result.returncode == 0 and result.stdout.strip():
@@ -255,7 +255,7 @@ for section in ALL_SECTIONS:
                 try:
                     lib_path = os.path.join(SCRIPT_DIR, '..', 'lib', 'core', 'visual-ops.cjs')
                     result = subprocess.run(
-                        ['node', '-e', f"const v = require('{lib_path}'); console.log(v.formatEdge('{section}', '{target}', 'CONTRADICTS'));"],
+                        ['node', '-e', "const v = require(process.argv[1]); console.log(v.formatEdge(process.argv[2], process.argv[3], 'CONTRADICTS'));", '--', lib_path, section, target],
                         capture_output=True, text=True, timeout=2
                     )
                     if result.returncode == 0 and result.stdout.strip():
@@ -517,7 +517,7 @@ portable_date_to_epoch() {
   local datestr="$1"
   date -d "$datestr" +%s 2>/dev/null \
     || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \
-    || python3 -c "from datetime import datetime; print(int(datetime.strptime('$datestr','%Y-%m-%d').timestamp()))" 2>/dev/null \
+    || { [[ "$datestr" =~ ^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$ ]] && python3 -c 'import sys; from datetime import datetime; print(int(datetime.strptime(sys.argv[1], "%Y-%m-%d").timestamp()))' "$datestr" 2>/dev/null; } \
     || echo "0"
 }
 
@@ -799,10 +799,7 @@ for section in "${ALL_SECTIONS[@]}"; do
         cross_ref_found=true
         XREF_SOURCE_FILES="${XREF_SOURCE_FILES}${f}"$'\n'
         # Format edge with visual-ops symbols (graceful degradation)
-        FORMATTED_EDGE=$(node -e "
-          const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
-          console.log(v.formatEdge('$section', '$target', 'INFORMS'));
-        " 2>/dev/null || echo "$section INFORMS $target")
+        FORMATTED_EDGE=$(node -e "const v = require(process.argv[1]); console.log(v.formatEdge(process.argv[2], process.argv[3], 'INFORMS'));" -- "$SCRIPT_DIR/../lib/core/visual-ops.cjs" "$section" "$target" 2>/dev/null || echo "$section INFORMS $target")
         echo "EDGE:${section}:${target}:INFORMS:${FORMATTED_EDGE}"
       fi
     done
@@ -814,10 +811,7 @@ for section in "${ALL_SECTIONS[@]}"; do
       if echo "$content" | grep -iqE "contradict.*$target|conflict.*$target|inconsisten.*$target" 2>/dev/null; then
         cross_ref_found=true
         XREF_SOURCE_FILES="${XREF_SOURCE_FILES}${f}"$'\n'
-        FORMATTED_EDGE=$(node -e "
-          const v = require('$SCRIPT_DIR/../lib/core/visual-ops.cjs');
-          console.log(v.formatEdge('$section', '$target', 'CONTRADICTS'));
-        " 2>/dev/null || echo "$section CONTRADICTS $target")
+        FORMATTED_EDGE=$(node -e "const v = require(process.argv[1]); console.log(v.formatEdge(process.argv[2], process.argv[3], 'CONTRADICTS'));" -- "$SCRIPT_DIR/../lib/core/visual-ops.cjs" "$section" "$target" 2>/dev/null || echo "$section CONTRADICTS $target")
         echo "EDGE:${section}:${target}:CONTRADICTS:${FORMATTED_EDGE}"
       fi
     done

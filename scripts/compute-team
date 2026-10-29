@@ -518,7 +518,7 @@ portable_date_to_epoch() {
   local datestr="$1"
   date -d "$datestr" +%s 2>/dev/null \
     || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \
-    || python3 -c "from datetime import datetime; print(int(datetime.strptime('$datestr','%Y-%m-%d').timestamp()))" 2>/dev/null \
+    || { [[ "$datestr" =~ ^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$ ]] && python3 -c 'import sys; from datetime import datetime; print(int(datetime.strptime(sys.argv[1], "%Y-%m-%d").timestamp()))' "$datestr" 2>/dev/null; } \
     || echo "0"
 }
 
