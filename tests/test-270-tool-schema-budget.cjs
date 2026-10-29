@@ -488,6 +488,20 @@ const AFTER_270_12 = {
  *     toolCount changed 50 -> 75, which this file's first check requires to be
  *     exact.
  */
+/*
+ * Release prep for the next cut (2.0.0-beta.77), 2026-10-29 -- measurement only,
+ * the baseline below is NOT moved. This tree merges origin/main and restores the
+ * Phase 373 hardening of the Eureka graph services (descriptions and tool names
+ * unchanged by the hardening itself).
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   75 tools, 36010 desc bytes, 47531 schema bytes, 83541 total bytes,
+ *   ~20885 approx tokens (router 9 / atomic 66).
+ *   toolCount 75 matches the recorded AFTER exactly. totalBytes 83541 against
+ *   the recorded 83522 is +19 bytes, a signed 0.02 percent change, inside
+ *   DRIFT_TOLERANCE_PCT (which stays 10). The 19 bytes come from description or
+ *   schema edits to existing tools on this branch (not traced to one commit);
+ *   no tool was added or removed.
+ */
 const AFTER = {
   measuredAt: '2026-10-24',
   plan: 'quick-261024-uqs',
