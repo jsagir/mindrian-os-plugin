@@ -107,8 +107,8 @@ function isByteOrdered(list) {
   return true;
 }
 
-const GLOB_DIRS = 'for d in "$1"/*/; do [ -d "$d" ] && printf "%s\\0" "$d"; done';
-const GLOB_FILES = 'for f in "$1"/*.md; do [ -f "$f" ] && printf "%s\\0" "$f"; done';
+const GLOB_DIRS = 'for d in "$1"/*/; do [ -d "$d" ] && printf "%s\\0" "$d"; done; true';
+const GLOB_FILES = 'for f in "$1"/*.md; do [ -f "$f" ] && printf "%s\\0" "$f"; done; true';
 const FIND_D1 = 'find "$1" -maxdepth 1 -name "*.md" ! -name ROOM.md ! -name STATE.md -print0 | sort -z';
 const FIND_NAME = 'find "$1" -name PROFILE.md -print0 | sort -z';
 const FIND_NAME_F = 'find "$1" -name PROFILE.md -type f -print0 | sort -z';
@@ -188,7 +188,8 @@ leg('glob: globDirs equals the bash glob */ with [ -d ]', async () => {
   const withSlash = (await scan.globDirs(mix + '/')).map((e) => e.path);
   assert.deepEqual(withSlash, bashList(GLOB_DIRS, [mix + '/']));
   const names = (await scan.globDirs(mix)).map((e) => e.name);
-  assert.ok(isByteOrdered(names));
+  assert.ok(isByteOrdered(got), 'sorted by the printed path (bash sorts with the trailing slash)');
+  assert.ok(names.indexOf('a-b') < names.indexOf('a'), 'a-b/ sorts before a/ because - is 0x2D and / is 0x2F');
   assert.ok(names.indexOf('ｚ') < names.indexOf('\u{1F600}'), 'byte order puts U+FF5A before the emoji');
   assert.ok(!names.includes('.hid'), 'dot names are skipped');
   if (symlinksOk) {
@@ -301,10 +302,10 @@ leg('order: random delays give deep-equal models and byte-ordered lists', async 
   const second = await scan.scanRoom(room);
   resetHook();
   assert.deepStrictEqual(first, second);
-  assert.ok(isByteOrdered(first.sections.map((s) => s.name)));
-  assert.ok(isByteOrdered(first.meetings.map((s) => s.name)));
+  assert.ok(isByteOrdered(first.sections.map((s) => s.path)));
+  assert.ok(isByteOrdered(first.meetings.map((s) => s.path)));
   assert.ok(isByteOrdered(first.profiles.map((p) => p.path)));
-  assert.ok(isByteOrdered(first.funding.map((s) => s.name)));
+  assert.ok(isByteOrdered(first.funding.map((s) => s.path)));
   const perSection = new Map();
   first.files.forEach((e) => {
     if (!perSection.has(e.section)) perSection.set(e.section, []);
