@@ -37,7 +37,7 @@ export const STATUS_FIELDS: Record<string, StatusField> = {
   stage: { source: 'host: STATE.md venture_stage', panel: 'room', wide: 'ROOM', narrow: 'ROOM' },
   section: { source: 'host: STATE.md sections table', panel: 'filed', wide: 'FILED', narrow: 'FILED' },
   health: { source: '~/.mindrian/room-health.json', panel: 'health', wide: 'HEALTH', narrow: 'HEALTH' },
-  post_update: { source: '~/.mindrian/post-update-restart-pending', panel: 'now', wide: 'NOW', narrow: 'NOW' },
+  post_update: { source: '~/.mindrian/session-verify/state.json, local.ok', panel: 'now', wide: 'NOW', narrow: 'NOW' },
   ctx_pct: { source: 'host: session usage, context percent', panel: 'context', wide: 'Context', narrow: 'CTX' },
   next_move: { source: '~/.mindrian/next-move.json', panel: 'next', wide: 'NEXT MOVE', narrow: 'MOVE' },
   brain: { source: '~/.mindrian/bridge/brain-health.json', panel: 'theo', wide: 'THEO', narrow: 'THEO' },
@@ -134,10 +134,10 @@ export async function readStatusLocal($: Engine, roomPath: string): Promise<Stat
   const dir = await mindrianDir($)
   const get = (path: string): Promise<string | null> => $.fs.read(path).then(String, () => null)
   const absent: Promise<string | null> = Promise.resolve(null)
-  const [next, brain, pending, voice, stance, update, health, operator] = await Promise.all([
+  const [next, brain, verify, voice, stance, update, health, operator] = await Promise.all([
     get(`${dir}/next-move.json`),
     get(`${dir}/bridge/brain-health.json`),
-    get(`${dir}/post-update-restart-pending`),
+    get(`${dir}/session-verify/state.json`),
     get(`${dir}/voice-mark.json`),
     get(`${dir}/stance-state.json`),
     get(`${dir}/update-check.json`),
@@ -156,13 +156,17 @@ export async function readStatusLocal($: Engine, roomPath: string): Promise<Stat
   const healthName = str(parse(health)?.status)
   const operatorData = parse(operator)
   const operatorName = str(operatorData?.current)
+  // Phase 341-08: the post-update cue is the session-start verification, as in readPostUpdateVerification
+  // (lib/statusline/cockpit-signals.cjs). True only when the last bounded offline check FAILED (local.ok is
+  // false). A missing, pending or damaged file claims nothing.
+  const local = parse(verify)?.local
+  const verifyFailed = local !== null && typeof local === 'object' && (local as Obj).ok === false
 
   return {
     at: await $.clock.now(),
     nextMove: cue === '' ? null : cue,
     brain: brainStatus,
-    // The touch file counts when it could be read at all, empty or not.
-    postUpdate: pending !== null,
+    postUpdate: verifyFailed,
     voice: parseVoice(voice),
     stance: STANCES.includes(stanceName) ? stanceName : null,
     update: available === '' ? null : available,
@@ -190,7 +194,7 @@ export function contextBand(percent: number | undefined): Band {
   return { band, words, bar }
 }
 
-// The health word. A restart pending after an update escalates a sound room to drift, as the status
+// The health word. A failed check after an update escalates a sound room to drift, as the status
 // line does; a room health file that was not read says so.
 export function healthWord(status: string | null, postUpdate: boolean): string {
   if (postUpdate && (status === null || status === 'sound')) return 'drift'

@@ -276,6 +276,7 @@ function readerReport(home, room) {
     "  stance: r('lib/core/stance-state.cjs').readStance(),",
     "  health: r('lib/statusline/cockpit-signals.cjs').readHealthStatus(),",
     "  glyph: r('lib/statusline/cockpit-signals.cjs').readVoiceGlyph(),",
+    "  postUpdate: r('lib/statusline/cockpit-signals.cjs').readPostUpdateVerification(),",
     "  update: r('lib/statusline/version-resolver.cjs').resolveVersion().update_available_version,",
     "  operator: r('lib/conversation/operator.cjs').getCurrent(process.argv[2]).current,",
     "  job: (r('lib/hmi/jtbd-state.cjs').getCurrent(process.argv[2]) || {}).jtbd,",
@@ -298,6 +299,7 @@ scenario('P11 session home: the fixture files are in the formats the plugin read
   assert.strictEqual(got.update, '9.9.9');
   assert.strictEqual(got.operator, 'BUILD_ROOM');
   assert.strictEqual(got.job, 'find-bottleneck');
+  assert.strictEqual(got.postUpdate, false, 'a healthy fixture writes no failed verification');
   const all = [];
   (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const a = path.join(d, e.name); if (e.isDirectory()) walk(a); else all.push(a); } })(root);
   assert.ok(all.length >= 12, 'files written: ' + all.length);
@@ -338,7 +340,10 @@ scenario('P11d session home: a health, post-update and operator variant also rea
   assert.strictEqual(got.health, 'drift');
   assert.strictEqual(got.operator, 'DECISION_GATE');
   assert.strictEqual(got.stance, 'ask');
-  assert.ok(fs.existsSync(path.join(fx.home, '.mindrian', 'post-update-restart-pending')));
+  // Quick 261029-pnl: the restart cue is the session-start verification result (Phase 341-08), read by the
+  // plugin's own reader. The fixture writes that state file, so the reader says true.
+  assert.strictEqual(got.postUpdate, true);
+  assert.ok(fs.existsSync(path.join(fx.home, '.mindrian', 'session-verify', 'state.json')));
 });
 
 // ---- S1: the real self-test (tmux, a fixed ANSI program, Playwright) -------------------------

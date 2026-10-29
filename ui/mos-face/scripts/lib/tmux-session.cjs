@@ -136,7 +136,8 @@ function repoPluginVersion() {
 // the plugin's own readers accept (lib/statusline/next-move-cache.cjs, cockpit-signals.cjs,
 // version-resolver.cjs, lib/core/stance-state.cjs, lib/conversation/operator.cjs, lib/hmi/jtbd-state.cjs).
 // Under HOME/.mindrian: next-move, bridge/brain-health, room-health, stance-state, voice-mark,
-// update-check, install-state (and post-update-restart-pending when over.postUpdate). Under the room:
+// update-check, install-state (and session-verify/state.json with a failed verification when over.postUpdate;
+// Phase 341-08 retired the old restart touch-file, lib/core/session-verify-state.cjs is the authority). Under the room:
 // .mindrian/conversation-operator, jtbd-state, minto-stale. It writes only inside homeDir, and refuses
 // the real home folder, so a scratch session can never touch the person's own files (T-380-63).
 // Returns the list of files written.
@@ -169,7 +170,14 @@ function writeStatusFiles(opts) {
   if (o.voice) put(path.join(mind, 'voice-mark.json'), JSON.stringify(o.voice));
   if (o.update) put(path.join(mind, 'update-check.json'), JSON.stringify({ available: true, available_version: o.update }));
   if (o.version) put(path.join(mind, 'install-state.json'), JSON.stringify({ active_version: o.version, installed_plugins_version: o.version }));
-  if (o.postUpdate) put(path.join(mind, 'post-update-restart-pending'), '');
+  // The failed session-start verification, in the shape of lib/core/session-verify-state.cjs (schema 'mos-session-verify/1').
+  if (o.postUpdate) {
+    put(path.join(mind, 'session-verify', 'state.json'), JSON.stringify({
+      schema: 'mos-session-verify/1', last_seen_version: o.version, verified_at_ms: Date.now(),
+      local: { ok: false, ran: 4, failed_count: 1, failed_points: ['fixture'], mode: 'fixture', elapsed_ms: 1, inconclusive_reason: null },
+      wire: 'skipped', theo: 'pending',
+    }));
+  }
   if (o.operator) put(path.join(roomDir, '.mindrian', 'conversation-operator.json'), JSON.stringify({ schema_version: '1.0.0', current: o.operator, previous: null, entered_at: iso, context: {}, history: [] }));
   if (o.job) put(path.join(roomDir, '.mindrian', 'jtbd-state.json'), JSON.stringify({ version: 1, current: { jtbd: o.job, confidence: 0.8, entered_at: iso, evidence: [], expires_at: null, turn_count: 3, manual_set: false }, history: [] }));
   if (o.stale && o.stale.length) put(path.join(roomDir, '.mindrian', 'minto-stale.json'), JSON.stringify({ sections: o.stale.map((section) => ({ section, reason: 'older than its files' })) }));

@@ -189,6 +189,16 @@ check(drift.includes('-> run /mos:doctor --fix') && drift.includes('demo-room'),
 // stance chip with the fix. The panel keeps all of them, so it shows more than the line does here.
 check(!drift.includes('Next:') && !drift.includes('[redteam]'), 'B drops Next and the stance chip (the panel keeps them)');
 
+// Quick 261029-pnl: the post_update signal is the failed session-start verification (Phase 341-08), not a
+// touch-file. On a SOUND room with a failed verification the real status line still shows the fix, so the
+// fixture state file is what the plugin reads, and the panel reads the same file.
+const verifyOnly = runStatusLine(buildStatusFixture(path.join(scratch, 'b2'), { health: 'sound', postUpdate: true }), 62);
+say('  line B2 (sound room, failed verification, 62 percent): ' + verifyOnly);
+check(verifyOnly.includes('-> run /mos:doctor --fix'), 'B2 a failed verification alone puts the doctor fix on the line');
+const panelSource = fs.readFileSync(STATUS_TS, 'utf8');
+check(/post_update:\s*\{\s*source:\s*'~\/\.mindrian\/session-verify\/state\.json/.test(panelSource), 'the panel maps post_update to the session-verify state file');
+check(!/post-update-/.test(panelSource + fs.readFileSync(path.join(MOD, 'scripts', 'lib', 'tmux-session.cjs'), 'utf8')), 'neither the panel source nor its fixture names the retired touch-file');
+
 const cliff = runStatusLine(buildStatusFixture(path.join(scratch, 'c')), 85);
 say('  line C (the cliff, 85 percent): ' + cliff);
 check(cliff.includes('file this insight') && cliff.includes('85%'), 'C holds the file-this-insight words and the percent');
