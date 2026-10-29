@@ -32,6 +32,19 @@
  * Both rules can fire in the same turn (two rows). An empty turn text
  * produces zero rows.
  *
+ * Phase 369.6-06 (D-18, D-44, A-04, R-14) adds three things, all shadow mode (evaluate, log,
+ * never block):
+ *   - a denominator row, policy_id 'voice-turn-evaluated', one per evaluated turn, so a violation
+ *     rate per policy and template version can be computed;
+ *   - a framework-dump rule, policy_id 'voice-no-framework-dump', through
+ *     detectFrameworkDump of lib/hmi/larry-reply-checks.cjs (reused, never a second detector);
+ *   - a machinery-narration rule, policy_id 'voice-backend-noun-free', through
+ *     findMachineryNarration of the same module.
+ * Every row carries the template VERSION of lib/hmi/larry-identity.cjs (stamped by the log
+ * module). No row carries reply text, user text or room content: detail fields hold counts and
+ * term classes only. The punctuation pause (a spaced double hyphen) has no live rule here; it is
+ * measured offline by findDashes (plan 369.6-01).
+ *
  * Canon Part 8 (Graph Boundary): LOCAL ONLY. This hook reads a local
  * transcript file (via lib/hmi/turn-text.cjs, the ONE transcript reader --
  * never a second copy) and writes a local JSONL row (via
@@ -102,7 +115,28 @@ function firstDashHit(text) {
 // nothing; appends zero, one, or two rows via appendRow(row). Never throws
 // (each rule is independently wrapped so one rule's fault cannot suppress
 // the other rule's finding).
-function scanTurn(text, sessionId, appendRow) {
+function scanTurn(text, sessionId, appendRow, userText) {
+  const userTextSafe = typeof userText === 'string' ? userText : '';
+
+  // Rule 0 (369.6-06): the denominator row. One per evaluated turn; counts only.
+  try {
+    let isNative = 'unknown';
+    try {
+      const { detectVoiceMark } = require('../lib/hmi/voice-color-mark.cjs');
+      isNative = String(detectVoiceMark(text).isNativeHost);
+    } catch (_eNative) {
+      isNative = 'unknown';
+    }
+    appendRow({
+      policy_id: 'voice-turn-evaluated',
+      result: 'evaluated',
+      detail: 'isNativeHost=' + isNative,
+      session_id: sessionId,
+    });
+  } catch (_e0) {
+    /* a scanner fault must never block the hook */
+  }
+
   // Rule 1: dash scan.
   try {
     const hit = firstDashHit(text);
@@ -135,6 +169,49 @@ function scanTurn(text, sessionId, appendRow) {
   } catch (_e2) {
     /* a scanner fault must never block the hook; the rule simply does not fire */
   }
+
+  // Rule 3 (369.6-06, shadow): framework dump. detectFrameworkDump is reused from the reply checks.
+  try {
+    const { detectFrameworkDump } = require('../lib/hmi/larry-reply-checks.cjs');
+    const v = detectFrameworkDump(text, { userText: userTextSafe });
+    if (v && v.ok === false) {
+      const hits = Array.isArray(v.hits) ? v.hits : [];
+      let names = 0;
+      let commands = 0;
+      for (const h of hits) {
+        if (h && h.kind === 'framework_names') names = Number(h.count) || 0;
+        if (h && h.kind === 'mos_commands') commands = Number(h.count) || 0;
+      }
+      appendRow({
+        policy_id: 'voice-no-framework-dump',
+        detail: 'framework_names=' + names + ', mos_commands=' + commands,
+        session_id: sessionId,
+      });
+    }
+  } catch (_e3) {
+    /* shadow detector fault: the rule simply does not fire */
+  }
+
+  // Rule 4 (369.6-06, shadow): machinery narration. findMachineryNarration is reused from the reply checks.
+  try {
+    const { findMachineryNarration } = require('../lib/hmi/larry-reply-checks.cjs');
+    const v = findMachineryNarration(text, { userText: userTextSafe });
+    if (v && v.ok === false) {
+      const hits = Array.isArray(v.hits) ? v.hits : [];
+      const classes = [];
+      for (const h of hits) {
+        const k = h && typeof h.kind === 'string' ? h.kind : '';
+        if (k && classes.indexOf(k) === -1) classes.push(k);
+      }
+      appendRow({
+        policy_id: 'voice-backend-noun-free',
+        detail: 'hits=' + hits.length + ', classes=' + classes.join('|'),
+        session_id: sessionId,
+      });
+    }
+  } catch (_e4) {
+    /* shadow detector fault: the rule simply does not fire */
+  }
 }
 
 // main() -- the Stop-hook entry point. Only real work: resolve the turn
@@ -150,11 +227,13 @@ function main() {
   const sessionId = typeof env.session_id === 'string' ? env.session_id : '';
 
   let text = '';
+  let userText = '';
   if (transcriptPath) {
     try {
       const { readTurnText } = require('../lib/hmi/turn-text.cjs');
       const turn = readTurnText(transcriptPath);
       text = typeof turn.output_text === 'string' ? turn.output_text : '';
+      userText = typeof turn.preceding_user_text === 'string' ? turn.preceding_user_text : '';
     } catch (_e) {
       text = '';
     }
@@ -163,7 +242,7 @@ function main() {
   if (text) {
     try {
       const { appendVoiceStyleRow } = require('../lib/hmi/voice-style-log.cjs');
-      scanTurn(text, sessionId, appendVoiceStyleRow);
+      scanTurn(text, sessionId, appendVoiceStyleRow, userText);
     } catch (_eScan) {
       /* a logging fault must never block the hook */
     }
