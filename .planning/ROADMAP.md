@@ -3882,3 +3882,22 @@ Plans:
 **Wave 20** *(blocked on Wave 19; stops at human checkpoints)*
 
 - [ ] 380-11-PLAN.md - book follow-ups A1 to A7 and defaults (one-flag veto of the two proposals, no re-plan), Windows and Desktop checks, real-room receipt at the cut (human gates; MOD380-06 stays open until the receipt is signed)
+
+### Phase 381: Room scan once, render three times: node renderers behind compute-state, compute-team and analyze-room (perf change C, the fork-storm rewrite)
+
+**Goal:** Make the room summary cheap at the root: one node room scan feeds three node renderers behind the unchanged bash entry points compute-state, compute-team and analyze-room, with byte-for-byte stdout parity proven by a diff harness and before/after hook timings measured on the real room (Stop 8.4-13.4 s and SessionStart 24-81 s today).
+**Requirements**: PERF381-01, PERF381-02, PERF381-03, PERF381-04, PERF381-05, PERF381-06, PERF381-07, PERF381-08, PERF381-09 (defined in 381-RESEARCH.md "Proposed requirements"; byte parity, no per-file spawn, bounded fan-out scan, bash hash-order emulation, named divergences pinned, cache key covers renderers, measured before/after in CHANGELOG, hook require graph and zero network, legacy removal only after the recorded zero-diff run)
+**Depends on:** Phase 380
+**Plans:** 9 plans
+
+Plans:
+
+- [ ] 381-01-PLAN.md - Parity gate first: OLD oracle from BASE_SHA (git archive), edge, bad-stage and divergence rooms, net guard, parity CLI, tests/run-all-381.sh, harness self-check (OLD vs OLD, OLD vs HEAD, prove-fail)
+- [ ] 381-02-PLAN.md - Before numbers at the phase base with the phase's own hook bench copy (SessionStart payload) and per-script timing, written to 381-MEASUREMENTS.md
+- [ ] 381-03-PLAN.md - lib/core/room-scan.cjs: one bounded async room snapshot (fan-out 32) and the bash-semantics helpers (BashAssoc hash order, bash-dialect frontmatter reader, read split, sort, xargs, date, grep word chars), each proven against the live tools
+- [ ] 381-04-PLAN.md - compute-team renderer and the room-render.cjs router with the Node 22.18 floor; wrapper header; parity on the gate rooms and a real-room copy; divergence and spawn-budget legs
+- [ ] 381-05-PLAN.md - analyze-room part 1: Gaps, Convergence, Contradictions, Cross-References in process (scripts/analyze-room unchanged)
+- [ ] 381-06-PLAN.md - analyze-room part 2: Meeting Coverage, Opportunity Bank and funding, Capability; wrapper; session-start-state cache arms for the renderer modules; parity and timing
+- [ ] 381-07-PLAN.md - compute-state renderer (two-phase read, team in process, meetings script once, predicate and visual-ops in process); wrapper; stop-gate-handler through persistState; parity and timing
+- [ ] 381-08-PLAN.md - 381-PARITY.md with five zero-diff runs and the full suite; after numbers with the same protocol; CHANGELOG entries with measured numbers only
+- [ ] 381-09-PLAN.md - Human checkpoint on 381-PARITY.md; remove the legacy bash bodies; re-pin test-363.1 leg D; ENV-TUNING retirement line; research mirror entry; follow-ups
