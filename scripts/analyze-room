@@ -4,6 +4,15 @@
 # Called by session-start hook; outputs structured lines for Claude to interpret
 # Must complete in under 2 seconds
 
+# Phase 381: the work runs in lib/core/room-render.cjs (node). MINDRIAN_LEGACY_COMPUTE=1,
+# no node on PATH, or a missing module runs the bash body below (removed by plan 381-09).
+if [ "${MINDRIAN_LEGACY_COMPUTE:-}" != "1" ] && command -v node >/dev/null 2>&1; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [ -f "${SCRIPT_DIR}/../lib/core/room-render.cjs" ]; then
+    NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" analyze "$@"
+  fi
+fi
+
 # macOS bash 3.2 compatibility -- Python3 fallback
 if [ "${BASH_VERSINFO[0]:-0}" -lt 4 ]; then
   exec python3 - "$@" << 'PYEOF'
