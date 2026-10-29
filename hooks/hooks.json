@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs\"",
-            "timeout": 120000,
+            "timeout": 150,
             "async": false,
             "statusMessage": "Reconciling dependencies..."
           }
@@ -19,7 +19,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-post-update-preflight.cjs\"",
-            "timeout": 12000,
+            "timeout": 12,
             "async": false,
             "statusMessage": "Checking the install after an update..."
           }
@@ -31,7 +31,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" session-start",
-            "timeout": 10000,
+            "timeout": 180,
             "async": false,
             "statusMessage": "Loading room context..."
           }
@@ -43,7 +43,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-coordinator.cjs\"",
-            "timeout": 10000,
+            "timeout": 40,
             "async": false,
             "statusMessage": "Loading room context..."
           }
@@ -55,7 +55,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-reference-now-seed.cjs\"",
-            "timeout": 5000,
+            "timeout": 5,
             "async": false,
             "statusMessage": "Seeding reference clock..."
           }
@@ -67,7 +67,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-breakthrough.cjs\"",
-            "timeout": 2000,
+            "timeout": 3,
             "async": false,
             "statusMessage": "Scanning for breakthroughs..."
           }
@@ -79,7 +79,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-pending-ambiguous.cjs\"",
-            "timeout": 2000,
+            "timeout": 3,
             "async": false,
             "statusMessage": "Scanning for ambiguous segments..."
           }
@@ -91,7 +91,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-drain.cjs\"",
-            "timeout": 5000,
+            "timeout": 5,
             "async": false,
             "statusMessage": "Draining graph-derivation queue..."
           }
@@ -103,7 +103,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/agentshield-sessionstart-scan.cjs\"",
-            "timeout": 8000,
+            "timeout": 8,
             "async": false,
             "statusMessage": "Scanning plugin surfaces for security drift..."
           }
@@ -116,7 +116,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" pre-compact",
-            "timeout": 2000,
+            "timeout": 6,
             "statusMessage": "Saving room context before compact..."
           }
         ]
@@ -128,7 +128,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-compact",
-            "timeout": 3000,
+            "timeout": 74,
             "statusMessage": "Restoring room context..."
           }
         ]
@@ -140,7 +140,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-stop",
-            "timeout": 3000
+            "timeout": 20
           }
         ]
       },
@@ -149,7 +149,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -158,7 +158,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-update.cjs\" stop",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -167,7 +167,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/hmi-compliance-poll.cjs\" --hook",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -176,7 +176,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-graph-derive-sweep.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -185,7 +185,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-card-fire.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -194,7 +194,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/check-voice-style.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -215,7 +215,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-end-presence.cjs\"",
-            "timeout": 3000
+            "timeout": 3
           }
         ]
       }
@@ -227,7 +227,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" write-scope-check",
-            "timeout": 2000
+            "timeout": 3
           }
         ]
       },
@@ -237,7 +237,8 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/part8-egress-guard-hook.cjs\"",
-            "timeout": 2000
+            "timeout": 5,
+            "onFailure": "block"
           }
         ]
       },
@@ -247,7 +248,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/card-before-answer-hook.cjs\"",
-            "timeout": 2000
+            "timeout": 3
           }
         ]
       }
@@ -259,7 +260,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" post-write",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -269,7 +270,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/frontmatter-schema-validator.cjs\"",
-            "timeout": 2000
+            "timeout": 5
           }
         ]
       },
@@ -279,7 +280,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/async-artifact-auto-commit.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -289,7 +290,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-completion-detector.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -299,7 +300,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-explore-fingerprint.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -309,7 +310,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/gsd-artifact-graph-hook.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -319,7 +320,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/memory-artifact-graph-hook.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -329,7 +330,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/query-efficiency-telemetry.cjs\"",
-            "timeout": 1500
+            "timeout": 3
           }
         ]
       },
@@ -339,7 +340,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -349,7 +350,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-response-sanitize-hook.cjs\"",
-            "timeout": 3000
+            "timeout": 5
           }
         ]
       },
@@ -359,7 +360,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command-invocation.cjs\"",
-            "timeout": 5000
+            "timeout": 5
           }
         ]
       }
@@ -370,7 +371,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/admin-command-gate.cjs\"",
-            "timeout": 2000
+            "timeout": 3
           }
         ]
       },
@@ -379,7 +380,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" intent-classifier",
-            "timeout": 2000
+            "timeout": 5
           }
         ]
       },
@@ -388,7 +389,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/mva-detect.cjs\"",
-            "timeout": 1500
+            "timeout": 3
           }
         ]
       },
@@ -397,7 +398,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/first-install-router.cjs\"",
-            "timeout": 1500
+            "timeout": 3
           }
         ]
       },
@@ -406,7 +407,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/brain-derivation-drain.cjs\"",
-            "timeout": 2000
+            "timeout": 3
           }
         ]
       },
@@ -415,7 +416,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
-            "timeout": 3000
+            "timeout": 3
           }
         ]
       },
@@ -424,7 +425,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-update.cjs\" userprompt",
-            "timeout": 3000
+            "timeout": 3
           }
         ]
       },
@@ -433,7 +434,7 @@
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-explore-drain.cjs\"",
-            "timeout": 3000
+            "timeout": 3
           }
         ]
       }
@@ -444,7 +445,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-file-changed",
-            "timeout": 3000,
+            "timeout": 3,
             "statusMessage": "Processing external file change..."
           }
         ]
@@ -456,7 +457,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-cwd-changed",
-            "timeout": 2000,
+            "timeout": 45,
             "statusMessage": "Switching room context..."
           }
         ]
@@ -468,7 +469,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-agent-complete",
-            "timeout": 3000,
+            "timeout": 45,
             "statusMessage": "Processing agent output..."
           }
         ]
@@ -480,7 +481,7 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" on-task-complete",
-            "timeout": 3000,
+            "timeout": 45,
             "statusMessage": "Updating pipeline progress..."
           }
         ]
