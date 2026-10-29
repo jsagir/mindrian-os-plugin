@@ -80,9 +80,19 @@ function todayOf(opts) {
 // exactly as tests/test-363.1-compute-state.cjs seededFeynman does.
 // ---------------------------------------------------------------------------
 function seededFeynman(slug) {
-  const roomBirth = require(path.join(REPO, 'lib', 'core', 'navigation', 'room-birth.cjs'));
-  const timelineRunner = require(path.join(REPO, 'lib', 'core', 'feynman', 'timeline-runner.cjs'));
-  const dialMemory = require(path.join(REPO, 'lib', 'core', 'feynman', 'dial-memory-renderer.cjs'));
+  // room-birth pulls node:sqlite, which prints an ExperimentalWarning at load; silence only that.
+  const emit = process.emitWarning;
+  let roomBirth;
+  let timelineRunner;
+  let dialMemory;
+  process.emitWarning = function quiet() {};
+  try {
+    roomBirth = require(path.join(REPO, 'lib', 'core', 'navigation', 'room-birth.cjs'));
+    timelineRunner = require(path.join(REPO, 'lib', 'core', 'feynman', 'timeline-runner.cjs'));
+    dialMemory = require(path.join(REPO, 'lib', 'core', 'feynman', 'dial-memory-renderer.cjs'));
+  } finally {
+    process.emitWarning = emit;
+  }
   const seed = String(roomBirth.FEYNMAN_BIRTH_SEED_TEMPLATE).replace(/\{\{SECTION_SLUG\}\}/g, slug);
   return [
     '---',
