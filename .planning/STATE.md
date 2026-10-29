@@ -4,8 +4,8 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: "Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator"
-last_updated: "2026-10-29T00:23:10.380Z"
-last_activity: 2026-10-29
+last_updated: "2026-10-29T20:30:38.346Z"
+last_activity: 2026-10-29 -- Phase 381 execution started (wave 1)
 progress:
   total_phases: 144
   completed_phases: 65
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 379.1 - Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)
+**Current focus:** Phase 381 - Room scan once, render three times (perf change C)
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
