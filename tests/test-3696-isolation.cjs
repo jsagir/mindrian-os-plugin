@@ -25,7 +25,9 @@
  *   B6   the reconcile switch proof: the base bytes fail (install_called), a synthetic variant
  *        passes, and the verdict follows the proof for the repo file at this commit
  *   B7   the env-root scan: every environment name the scripts read is classified in the table
- *   B8   the hard-coded path scan: the literal paths the scripts hold equal the declared known set
+ *   B8   the hard-coded path scan: no literal path remains in the scripts; the temp file names of
+ *        session-start resolve through TMPDIR for the reader and the writer (static text, bash
+ *        evaluation of the shipped lines, and a seeded capture)
  *   B9   credential pass-through by name only, and no function prints a value
  *   B10  requiring scripts/real-room-run.cjs runs no main; its --help output equals the base
  *   B11  no em-dash or en-dash in this file
@@ -279,11 +281,8 @@ check('B7b the scan saw the names the plan lists', ['HOME', 'MINDRIAN_ROOMS_HOME
 check('B7c a name that the table does not hold would fail the scan (control)', tableNames.indexOf('MINDRIAN_NOT_A_REAL_NAME') === -1);
 
 // ---- B8 ---------------------------------------------------------------------------------------
-const KNOWN_ESCAPES = [
-  'BRIDGE_FILE="/tmp/mindrian-context-state"',
-  'tmp=$(mktemp 2>/dev/null || echo "/tmp/mos-sealed-$$")',
-  'UPDATE_CACHE="/tmp/mindrian-update-check"',
-];
+// the tolerance for known literal paths was removed by quick 261029-sof; a literal path is now a failure
+const KNOWN_ESCAPES = [];
 let unknownLiteral = [];
 const knownSeen = [];
 SCAN_FILES.forEach(function (f) {
@@ -296,6 +295,90 @@ check('B8a the scripts hold no literal absolute home or temp path beyond the dec
 check('B8b the two compare-only workspace-guard lines of session-start are the only allowed literals (listed by line text)',
   iso.COMPARE_ONLY_LINES.length === 2 && iso.COMPARE_ONLY_LINES.every(function (t) { return fs.readFileSync(path.join(ROOT, 'scripts/session-start'), 'utf8').split('\n').some(function (l) { return l.trim() === t; }); }));
 check('B8c the scan detects a planted literal (control)', iso.scanHardcodedPaths('X="/tmp/planted"\n# "/tmp/in-a-comment"\nY="${TMPDIR:-/tmp}/ok"').length === 1);
+const ssText = fs.readFileSync(path.join(ROOT, 'scripts/session-start'), 'utf8');
+const ssLines = ssText.split('\n');
+// B8d: no literal /tmp/mindrian or /tmp/mos-sealed text anywhere, comments included
+const literalLines = [];
+ssLines.forEach(function (l, i) { if (l.indexOf('/tmp/mindrian') !== -1 || l.indexOf('/tmp/mos-sealed') !== -1) literalLines.push(i + 1); });
+check('B8d scripts/session-start holds no /tmp/mindrian and no /tmp/mos-sealed text', literalLines.length === 0, 'lines ' + literalLines.join(','));
+// B8e: each file name sits on one line only, the variable assignment, and that line goes through TMPDIR
+function oneAssignment(name, varName) {
+  const hits = ssLines.filter(function (l) { return l.indexOf(name) !== -1; });
+  return hits.length === 1 && hits[0].trim().indexOf(varName + '=') === 0 && hits[0].indexOf('${TMPDIR:-/tmp}/') !== -1;
+}
+check('B8e each temp file name sits on one line of session-start (the variable assignment) and goes through TMPDIR',
+  oneAssignment('mindrian-context-state', 'BRIDGE_FILE') && oneAssignment('mindrian-update-check', 'UPDATE_CACHE'));
+// B8f: the tracked code files that name either file are exactly the expected three.
+// mindrian-context-state has no writer in the repo since commit 256560658 (the live bridge is
+// ~/.mindrian/bridge/<room-hash>.json); a new reader or writer must resolve through TMPDIR and
+// must be added to this list in a reviewed diff.
+let b8fDetail = '';
+let b8fOk = false;
+try {
+  const named = execFileSync('git', ['grep', '-l', '-I', '-e', 'mindrian-context-state', '-e', 'mindrian-update-check', '--', 'scripts', 'lib', 'hooks', 'bin', 'skills', 'commands', 'agents'], { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean).sort();
+  const expected = ['scripts/isolate-larry-voice.cjs', 'scripts/session-start', 'skills/context-engine/SKILL.md'];
+  const bare = /(^|[^}])\/tmp\/(mindrian-context-state|mindrian-update-check)/;
+  const bareFiles = named.filter(function (f) { return bare.test(fs.readFileSync(path.join(ROOT, f), 'utf8')); });
+  b8fOk = named.join('|') === expected.join('|') && bareFiles.length === 0;
+  b8fDetail = 'named: ' + named.join(',') + ' bare: ' + bareFiles.join(',');
+} catch (e) { b8fDetail = String(e && e.message).slice(0, 200); }
+check('B8f only the three expected code files name the temp files and none holds a bare /tmp path', b8fOk, b8fDetail);
+// B8g and B8h: evaluate the shipped lines in bash
+function shippedLine(pred) { return ssLines.filter(pred)[0]; }
+const LINE_BRIDGE = shippedLine(function (l) { return l.trim().indexOf('BRIDGE_FILE=') === 0; });
+const LINE_UPDATE = shippedLine(function (l) { return l.trim().indexOf('UPDATE_CACHE=') === 0; });
+const LINE_SEALED = shippedLine(function (l) { return l.indexOf('mos-sealed-') !== -1; });
+function evalLines(tmpdir) {
+  const env = { PATH: process.env.PATH };
+  if (tmpdir !== undefined) env.TMPDIR = tmpdir;
+  function run(script) { return spawnSync('bash', ['-c', script], { env: env, encoding: 'utf8' }).stdout; }
+  return {
+    bridge: run(LINE_BRIDGE + '; printf %s "$BRIDGE_FILE"'),
+    update: run(LINE_UPDATE + '; printf %s "$UPDATE_CACHE"'),
+    sealed: run('mktemp() { return 1; }; ' + LINE_SEALED + '; printf %s "$tmp"'),
+  };
+}
+let b8gOk = false; let b8gDetail = '';
+try {
+  b8gOk = [undefined, ''].every(function (t) {
+    const r = evalLines(t);
+    return r.bridge === '/tmp/mindrian-context-state' && r.update === '/tmp/mindrian-update-check' && /^\/tmp\/mos-sealed-[0-9]+$/.test(r.sealed);
+  });
+} catch (e) { b8gDetail = String(e && e.message).slice(0, 200); }
+check('B8g with TMPDIR unset or empty the shipped lines give the three old strings', b8gOk, b8gDetail);
+let b8hOk = false; let b8hDetail = '';
+try {
+  const r = evalLines('/scratch-x');
+  b8hOk = r.bridge === '/scratch-x/mindrian-context-state' && r.update === '/scratch-x/mindrian-update-check' && /^\/scratch-x\/mos-sealed-[0-9]+$/.test(r.sealed);
+  b8hDetail = JSON.stringify(r);
+} catch (e) { b8hDetail = String(e && e.message).slice(0, 200); }
+check('B8h with TMPDIR set the shipped lines give paths under TMPDIR', b8hOk, b8hDetail);
+// B8i: the writer proof; the unseeded session-start capture of B4 created the update cache under the scratch TMPDIR
+let b8iOk = false; let b8iDetail = '';
+try {
+  const uc = path.join(S3.tmp, 'mindrian-update-check');
+  for (let n = 0; n < 10 && !fs.existsSync(uc); n++) sleep(1000);
+  if (fs.existsSync(uc)) {
+    const lines = fs.readFileSync(uc, 'utf8').split('\n');
+    b8iOk = /^\d{4}-\d{2}-\d{2}$/.test(lines[0]) && ['UP_TO_DATE', 'UPDATE_AVAILABLE', 'CHECK_FAILED'].indexOf(lines[1]) !== -1;
+    b8iDetail = lines.slice(0, 2).join(' / ');
+  } else b8iDetail = 'no mindrian-update-check under the scratch TMPDIR';
+} catch (e) { b8iDetail = String(e && e.message).slice(0, 200); }
+check('B8i the daily update check wrote mindrian-update-check under the scratch TMPDIR (writer)', b8iOk, b8iDetail);
+// B8j: the reader proof; seeded values under the scratch TMPDIR reach the full session context file
+let b8jOk = false; let b8jDetail = '';
+if (escapes.length !== 0) b8jDetail = 'scan not clean';
+else {
+  try {
+    fs.writeFileSync(path.join(S3.tmp, 'mindrian-update-check'), new Date().toISOString().slice(0, 10) + '\nUPDATE_AVAILABLE\n9.9.9-sof-seed\n');
+    fs.writeFileSync(path.join(S3.tmp, 'mindrian-context-state'), JSON.stringify({ ctx_pct: 83, model_name: 'sof-model', ctx_size: 123456, timestamp: Math.floor(Date.now() / 1000) }));
+    iso.captureHookContext(S3, { roomDir: room.roomDir, hook: 'session-start' });
+    const full = fs.readFileSync(path.join(room.roomDir, '.mindrian', 'session-context.txt'), 'utf8');
+    b8jOk = full.indexOf('9.9.9-sof-seed') !== -1 && full.indexOf('sof-model') !== -1 && full.indexOf('Usage: 83%') !== -1;
+    b8jDetail = 'seed: ' + full.indexOf('9.9.9-sof-seed') + ' model: ' + full.indexOf('sof-model') + ' usage: ' + full.indexOf('Usage: 83%');
+  } catch (e) { b8jDetail = String(e && e.message).slice(0, 200); }
+}
+check('B8j values seeded under the scratch TMPDIR reach the session context (reader)', b8jOk, b8jDetail);
 console.log('INFO known literal-path escapes still present in scripts/session-start: ' + knownSeen.length + ' of ' + KNOWN_ESCAPES.length + ' (' + knownSeen.join(' ; ') + ')');
 
 // ---- B9 ---------------------------------------------------------------------------------------

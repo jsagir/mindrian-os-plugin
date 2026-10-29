@@ -424,12 +424,12 @@ const STARTUP_CONTAINMENT = Object.freeze({
   }),
   'hooks/run-hook.cmd session-start': Object.freeze({
     kind: 'scan_gated',
-    reason: 'every write target derives from HOME, MINDRIAN_ROOMS_*, CLAUDE_CONFIG_DIR or TMPDIR, except the literal /tmp paths the scan reports; contained only while the scan finds none',
+    reason: 'every write target derives from HOME, MINDRIAN_ROOMS_*, CLAUDE_CONFIG_DIR or TMPDIR; contained only while the scan finds no literal path',
     fallback_reason: 'hardcoded_path_write',
     evidence: [
-      ev('scripts/session-start', 413, 'BRIDGE_FILE="/tmp/mindrian-context-state"'),
-      ev('scripts/session-start', 1332, 'tmp=$(mktemp 2>/dev/null || echo "/tmp/mos-sealed-$$")'),
-      ev('scripts/session-start', 1829, 'UPDATE_CACHE="/tmp/mindrian-update-check"'),
+      ev('scripts/session-start', 413, 'BRIDGE_FILE="${TMPDIR:-/tmp}/mindrian-context-state"'),
+      ev('scripts/session-start', 1332, 'tmp=$(mktemp 2>/dev/null || echo "${TMPDIR:-/tmp}/mos-sealed-$$")'),
+      ev('scripts/session-start', 1829, 'UPDATE_CACHE="${TMPDIR:-/tmp}/mindrian-update-check"'),
       ev('scripts/session-start', 1867, 'echo "$TODAY" > "$UPDATE_CACHE"'),
       ev('scripts/session-start', 1980, '( node "${PLUGIN_ROOT}/lib/core/brain-prewarm.cjs" >/dev/null 2>&1 || true ) &'),
     ],

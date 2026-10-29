@@ -410,7 +410,7 @@ if [ -d "$ROOM_DIR" ]; then
 
   # Read context bridge file for budget-aware tiering
   CTX_PCT_RAW=""
-  BRIDGE_FILE="/tmp/mindrian-context-state"
+  BRIDGE_FILE="${TMPDIR:-/tmp}/mindrian-context-state"
   if [ -f "$BRIDGE_FILE" ]; then
     BRIDGE_AGE=$(( $(date +%s) - $(portable_stat_mtime "$BRIDGE_FILE") ))
     if [ "$BRIDGE_AGE" -lt 300 ]; then
@@ -1329,7 +1329,7 @@ walk_sealed_rooms() {
   # Run the walk + parse in a background subshell, write result to tempfile,
   # enforce a 500ms hard cap via a wait loop. Partial results are acceptable.
   local tmp
-  tmp=$(mktemp 2>/dev/null || echo "/tmp/mos-sealed-$$")
+  tmp=$(mktemp 2>/dev/null || echo "${TMPDIR:-/tmp}/mos-sealed-$$")
   : > "$tmp"
 
   # Gate the GUARDRAIL parser on python3 availability. On Windows without
@@ -1826,7 +1826,7 @@ fi
 
 # Check for updates (async, non-blocking, max 3 second timeout)
 # Only check once per day - cache result
-UPDATE_CACHE="/tmp/mindrian-update-check"
+UPDATE_CACHE="${TMPDIR:-/tmp}/mindrian-update-check"
 TODAY=$(date -u +"%Y-%m-%d")
 SHOULD_CHECK=true
 

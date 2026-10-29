@@ -121,7 +121,7 @@ When `tengu_kairos` is NOT set and `kairos-active` does not exist, this section 
 
 ## Context Window Awareness
 
-Read `/tmp/mindrian-context-state` if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
+Read the file `mindrian-context-state` in the temp folder (`$TMPDIR`, or `/tmp` when TMPDIR is unset) if it exists. If the file is missing or older than 5 minutes (compare TIMESTAMP to current epoch), use conservative defaults: assume 200K context window, 50% usage, unknown model.
 
 ### Model-Specific Behavior
 
