@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: "Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator"
 last_updated: "2026-10-29T00:23:10.380Z"
-last_activity: 2026-10-28
+last_activity: 2026-10-29
 progress:
   total_phases: 144
   completed_phases: 65
@@ -9361,10 +9361,11 @@ Progress: [██████████] 98%
 | 261019-kl4 | Project skill mindrian-mcp-app so /mcp-apps:create-mcp-app follows the house MCP App pattern; CLAUDE.md row | 2026-10-19 | 1322656e1 | complete | [261019-kl4-project-skill-so-the-mcp-app-builder-fol](./quick/261019-kl4-project-skill-so-the-mcp-app-builder-fol/) |
 | 261019-ksf | Fix the 371 release-review blockers: CR-01 room-creation gate leaks into the bound room (Part 9), CR-02 frozen stdio workday briefing, WR-02 own card listed as pending, room_list ruled sentence restored, 366 integrity timeout 300 s; 267/276 pin re-baseline | 2026-10-19 | 17c64f51b | complete | [261019-ksf-fix-the-371-release-review-blockers-befo](./quick/261019-ksf-fix-the-371-release-review-blockers-befo/) |
 | 261019-ui8 | SEED-134: record the scope cut to the omitted[] slice (Plan 02 and proposal Phases 2-6 gated on derive re-measure and baseline A/B) | 2026-10-19 | 1a4a6496a | complete | [261019-ui8-seed-134-record-the-scope-cut-to-the-omi](./quick/261019-ui8-seed-134-record-the-scope-cut-to-the-omi/) |
+| 261029-kqv | Stop hook: skip compute-state when the room is unchanged and run the recompute detached with a lock (perf change A); Stop event median 15,754 ms to 4,764 ms on the real room | 2026-10-29 | 2aeacd391 | complete | [261029-kqv-stop-hook-skip-compute-state-when-the-ro](./quick/261029-kqv-stop-hook-skip-compute-state-when-the-ro/) |
 
 ## Session Continuity
 
-Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
+Last activity: 2026-10-29 - Completed quick task 261029-kqv: Stop hook skip of compute-state on an unchanged room, detached rebuild under a lock (Stop event median 15,754 ms to 4,764 ms, measured). Earlier: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-10-29T00:23:10.287Z
 Stopped at: Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator
 
