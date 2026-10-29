@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: "379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)"
-stopped_at: "Phase 369.6 planned: 13 plans in 10 waves (plans a137c1fd7, revision 3bf4223a1, checker PASS iteration 2); Codex review gate (/gsd-review --phase 369.6 --codex) next, then execution"
-last_updated: "2026-10-29T12:49:50.260Z"
-last_activity: 2026-10-29 -- Completed quick task 261029-nhu: MINDRIAN_NPM_RECONCILE_SKIP off switch; Phase 369.6 Codex gate cleared (round 4 EXECUTE), execution next
+status: executing
+stopped_at: "Phase 369.6 EXECUTING: Codex gate cleared (round 4 EXECUTE, b706842b2); quick 261029-nhu landed (58a997ca8); wave 1 of 13 (plan 01) starting"
+last_updated: "2026-10-29T15:17:30.345Z"
+last_activity: 2026-10-29 -- Phase 369.6 execution started
 progress:
   total_phases: 144
   completed_phases: 34
-  total_plans: 657
+  total_plans: 670
   completed_plans: 549
   percent: 24
 ---
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 379.1 - Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)
+**Current focus:** Phase 369.6 — The Larry contract: voice and calibration (execution-truth program)
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,9 +5423,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
-Plan: 9 of 9 (all nine plans complete; phase verification re-run and the human-read real-room receipt are next)
-Status: 379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)
+Phase: 369.6 (The Larry contract: voice and calibration (execution-truth program)) — EXECUTING
+Plan: 1 of 13
+Status: Executing Phase 369.6
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
@@ -5994,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-29 -- Phase 369.6 planning complete
+Last activity: 2026-10-29 -- Phase 369.6 execution started
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
