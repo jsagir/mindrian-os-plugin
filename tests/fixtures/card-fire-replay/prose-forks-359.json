@@ -659,54 +659,6 @@
       "prose_fork": false
     },
     {
-      "id": "syn359-ctrl-16",
-      "source": "synthetic-359",
-      "envelope": {
-        "mode": "direct",
-        "output_text": "⬛ Your call: Build it | Research it | What if we prototype both\nLet me know what you think, no rush on this.",
-        "preceding_user_text": "What are the options here?",
-        "ran_entries": [],
-        "sidechannel_health": "healthy",
-        "reach_corroborated": false
-      },
-      "expected_verdict_class": "pass",
-      "label_origin": "hand",
-      "why": "Near-miss declaration (parser negative): the declaration is not the LAST non-empty line, a trailing prose line follows it; parseForkDeclaration reads only the last line.",
-      "prose_fork": false
-    },
-    {
-      "id": "syn359-ctrl-17",
-      "source": "synthetic-359",
-      "envelope": {
-        "mode": "direct",
-        "output_text": "⬛ Laying out the choice plainly below.\n**Your call:** Build it | Research it | What if we prototype both",
-        "preceding_user_text": "Can you lay out the choice plainly?",
-        "ran_entries": [],
-        "sidechannel_health": "healthy",
-        "reach_corroborated": false
-      },
-      "expected_verdict_class": "pass",
-      "label_origin": "hand",
-      "why": "Near-miss declaration (parser negative): markdown emphasis around the prefix; the line does not start with the literal \"Your call: \" (no leading \"**\"), so it is not-declared.",
-      "prose_fork": false
-    },
-    {
-      "id": "syn359-ctrl-18",
-      "source": "synthetic-359",
-      "envelope": {
-        "mode": "direct",
-        "output_text": "⬛ One more decision point before we move on.\nYour call: Build it | Research it | what if we prototype both",
-        "preceding_user_text": "What's the decision point?",
-        "ran_entries": [],
-        "sidechannel_health": "healthy",
-        "reach_corroborated": false
-      },
-      "expected_verdict_class": "pass",
-      "label_origin": "hand",
-      "why": "Near-miss declaration (parser negative): the moonshot uses a lowercase \"what if\" (case-sensitive MOONSHOT_PREFIX requires capital \"What if\"), so it is not-declared.",
-      "prose_fork": false
-    },
-    {
       "id": "syn359-ctrl-19",
       "source": "synthetic-359",
       "envelope": {
@@ -720,6 +672,54 @@
       "expected_verdict_class": "pass",
       "label_origin": "hand",
       "why": "Near-miss declaration (parser negative): 5 labels total, one over MAX_LABELS=4 (AskUserQuestion cannot render a 5th option); not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-20",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Two paths, and I have repeated one by accident.\nYour call: Build it | Build it | What if we prototype both",
+        "preceding_user_text": "Which paths are we choosing between?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative, N-7 replacement for the retired ctrl-16): duplicate labels; N-7 tolerates only cosmetic slips, so a structural duplicate stays not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-21",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Laying out the choice and then some closing remarks.\nYour call: Build it | Research it | What if we prototype both\nLet me know what you think.\nNo rush on this, take the weekend if you like.",
+        "preceding_user_text": "Can you lay out the choice for me?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative, N-7 replacement for the retired ctrl-17): the declaration is followed by TWO trailing lines; N-7 tolerates exactly one short sign-off line, so this stays not-declared.",
+      "prose_fork": false
+    },
+    {
+      "id": "syn359-ctrl-22",
+      "source": "synthetic-359",
+      "envelope": {
+        "mode": "direct",
+        "output_text": "⬛ Here is how the options line up.\n**Your call: Build it | Research it | What if we prototype both*",
+        "preceding_user_text": "How do the options line up?",
+        "ran_entries": [],
+        "sidechannel_health": "healthy",
+        "reach_corroborated": false
+      },
+      "expected_verdict_class": "pass",
+      "label_origin": "hand",
+      "why": "Near-miss declaration (parser negative, N-7 replacement for the retired ctrl-18): emphasis marks that do not form one balanced pair around the whole line; N-7 tolerates a balanced pair only, so this stays not-declared.",
       "prose_fork": false
     }
   ]

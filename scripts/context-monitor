@@ -472,6 +472,11 @@ let cockpitTelemetry = null;
 try { cockpitRenderer = require('../lib/statusline/cockpit-renderer.cjs'); } catch (_e) { /* graceful */ }
 try { cockpitSignals = require('../lib/statusline/cockpit-signals.cjs'); } catch (_e) { /* graceful */ }
 try { cockpitTelemetry = require('../lib/statusline/cockpit-telemetry.cjs'); } catch (_e) { /* graceful */ }
+// Phase 341 (D-07a c): the ONE version-plus-glyph statusline segment. Lazy-required
+// in the same graceful style: a missing module on a degraded install leaves the
+// pre-341 bare version suffix byte-identical. Zero network, local marker read only.
+let sessionVerifyState = null;
+try { sessionVerifyState = require('../lib/core/session-verify-state.cjs'); } catch (_e) { /* graceful */ }
 
 /**
  * Phase 187 -- build the four-tier navigator cockpit line from collected state.
@@ -913,9 +918,21 @@ process.stdin.on('end', () => {
     // (accept-edits / shift+tab) is emitted by the host below this and is untouched.
     // twoRow remains ONLY as the degraded-install fallback (cockpit machinery absent)
     // so the bar is never blank.
-    const verSuffix = (rowState && rowState.current_version && rowState.current_version !== 'unknown')
-      ? ' · v' + rowState.current_version
-      : '';
+    // Phase 341 (D-07a c): ONE segment, version plus glyph. It REPLACES the bare
+    // version suffix, it does not sit beside it. Falls back to the exact pre-341
+    // suffix when the module is absent or the marker carries no version yet.
+    let verSegment = '';
+    try {
+      if (sessionVerifyState) {
+        const seg = sessionVerifyState.buildStatuslineSegment(sessionVerifyState.readVerifyState());
+        if (typeof seg === 'string' && seg.length > 0) verSegment = ' · ' + seg;
+      }
+    } catch (_e) { verSegment = ''; }
+    const verSuffix = verSegment !== ''
+      ? verSegment
+      : ((rowState && rowState.current_version && rowState.current_version !== 'unknown')
+        ? ' · v' + rowState.current_version
+        : '');
     // D-02 broadcast preserved in the single line (navigator decision B, 2026-06-29):
     // the operator (gear) and JTBD (target) facts ride the cockpit line when set, instead
     // of a separate two-row block. JUST_TALK (the default operator) is suppressed (D-02 Test 6).

@@ -110,14 +110,14 @@ function runDoctorSelfCheck() {
 // F6 self-heal (windows-install-update-ux.md). Auto-run the shipped repair
 // pipeline: `node <PLUGIN_ROOT>/scripts/doctor.cjs --statusline-visibility --fix
 // --json`. Canon Part 7 (reuse before build): doctor.cjs already implements the
-// class G (user-settings drift) + class H (install-incomplete: missing statusLine
-// block) detect+repair, so we do NOT reimplement the settings.json rewrite here.
+// class G (user-settings drift) detect+repair, so we do NOT reimplement the
+// settings.json rewrite here. (Class H, the old missing-statusLine-block check, was
+// retired in Phase 341 plan 09; class G alone decides health.)
 //
 // Exit code is NOT trusted: under class flags doctor honors the graceful-
 // degradation invariant and ALWAYS exits 0 (doctor.cjs _finalizeAndExit,
 // classFlagsActive branch). Health is read from the JSON check statuses instead:
-// resolved iff BOTH statusline-visibility (class G) AND install-incomplete
-// (class H) re-check to status 'ok' after --fix.
+// resolved iff statusline-visibility (class G) re-checks to status 'ok' after --fix.
 //
 // Defensive: guarded by a timeout + try/catch. On doctor missing / spawn error /
 // no output / parse error / still-drift, returns { resolved:false } so the caller
@@ -152,10 +152,8 @@ function attemptStatuslineSelfHeal() {
     try { report = JSON.parse(r.stdout); } catch (_e) { return { resolved: false, reason: 'parse-error' }; }
     const checks = (report && report.checks) || {};
     const g = checks['statusline-visibility'];
-    const h = checks['install-incomplete'];
     const gOk = !!(g && g.status === 'ok');
-    const hOk = !!(h && h.status === 'ok');
-    if (gOk && hOk) return { resolved: true, reason: 'repaired' };
+    if (gOk) return { resolved: true, reason: 'repaired' };
     return { resolved: false, reason: 'still-drift' };
   } catch (_e) {
     return { resolved: false, reason: 'spawn-error' };

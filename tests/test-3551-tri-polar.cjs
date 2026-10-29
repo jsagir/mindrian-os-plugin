@@ -315,9 +315,16 @@ function legHooksJson() {
   const baseRaw = execFileSync('git', ['show', BASE_3551 + ':hooks/hooks.json'], { cwd: REPO_ROOT, encoding: 'utf8' });
   const base = JSON.parse(baseRaw);
 
+  // Phase 341 plan 08 (D-07a) deliberately rewords ONE field of ONE entry: the
+  // statusMessage of the converted preflight SessionStart hook. Everything else
+  // about it (command, timeout, async, position) must still be unchanged, so the
+  // field is normalized on both sides and nothing else is excused.
+  const normalizePreflight = (arr) => JSON.parse(JSON.stringify(arr), (k, v) => (k === 'statusMessage' && typeof v === 'string' && /post-update|after an update/.test(v) ? '<preflight statusMessage>' : v));
   for (const key of Object.keys(base.hooks)) {
     if (key === 'Stop') continue;
-    assert.deepStrictEqual(cur.hooks[key], base.hooks[key], 'hooks.json[' + key + '] must be unchanged from BASE_3551');
+    const curSide = key === 'SessionStart' ? normalizePreflight(cur.hooks[key]) : cur.hooks[key];
+    const baseSide = key === 'SessionStart' ? normalizePreflight(base.hooks[key]) : base.hooks[key];
+    assert.deepStrictEqual(curSide, baseSide, 'hooks.json[' + key + '] must be unchanged from BASE_3551');
   }
   ok('hooks.json: every non-Stop array is byte-identical to BASE_3551');
 

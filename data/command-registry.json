@@ -518,7 +518,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
+      "teaching": "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
@@ -561,6 +561,26 @@
       "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it. The deep dive can open with a sourced research pass: four evidence lanes, searched only after you approve the queries, every claim with its source.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+    },
+    {
+      "command": "/mos:eureka-portfolio",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null,
+      "frameworks": [],
+      "produces": null,
+      "executable": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E (Action Report)",
+      "layer": "loop",
+      "serves_jtbd": [
+        "connect-domains",
+        "explore"
+      ],
+      "teaching": "When you want to know which of your linked ideas deserve your attention first, /mos:eureka-portfolio measures each linked pair on this machine, ranks them, and tells you what moved since the last run.",
+      "jtbd_label": "Connect Domains",
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
     },
     {
       "command": "/mos:eureka",

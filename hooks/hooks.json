@@ -21,7 +21,7 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-post-update-preflight.cjs\"",
             "timeout": 12000,
             "async": false,
-            "statusMessage": "Verifying post-update activation..."
+            "statusMessage": "Checking the install after an update..."
           }
         ]
       },

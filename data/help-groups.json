@@ -127,7 +127,8 @@
         "systems-thinking",
         "analyze-systems",
         "find-analogies",
-        "eureka"
+        "eureka",
+        "eureka-portfolio"
       ],
       "lane": "explore",
       "jtbd": ["find-bottleneck", "connect-domains", "explore", "decide-pursue", "compare-options", "find-problem"]

@@ -675,7 +675,8 @@ Handoff (added by 344-09, 2026-09-14): `docs/2026-09-14-CANON-APPENDIX-B-PROPOSE
 **Goal:** Make `claude plugin install/update mos@mindrian-marketplace` complete on Windows, Mac and Linux by shipping a built artifact instead of a git checkout. Verified 2026-09-09 on two platforms (Windows 11 QA teardown + Linux dev box): the documented update path dies in `git clone` (`fatal: early EOF`) because release.sh Step 6.7 force-vendors `node_modules` into the release tag - 410 MB / 8,880 files at v2.0.0-beta.29, of which ~380 MB is `@huggingface/transformers` + onnxruntime-node/-web + sharp/libvips (23 native binaries for every platform), added 2026-07-05 by Phase 211-01 AFTER the 2026-05-21 "32M pure JS" audit that justified vendoring. The tag checks out at 755 MB / 16,597 files (`.planning` 57 MB and `tests` 44 MB ship too); product code is 30 MB / 2,079 files; the MCP-critical pure-JS dep set is 29 MB. Navigator-locked path (Decision Gate 2026-09-09): marketplace `source: npm` pinned to the version; `package.json` `files` whitelist = runtime tree; transformers out of `dependencies` (Eureka installs on demand, existing `encoder_unavailable` degrade + Doctor class S); pure-JS deps via `npm-shrinkwrap.json` + the loader's `npm ci --ignore-scripts` (ratified 2026-09-09: platform-correct per machine, sqlite-vec's five platform packages resolve locally; measured 9.3 s cold against the documented 60 s cutoff; `bundleDependencies` rejected by measurement, it packs only the publish host's platform package). Target tarball ~2,092 entries / 30.5 MiB, far under the platform's documented 256 MiB / 20,000-entry plugin ceiling; exclude `lib/wiki/editor-src` (its nested node_modules alone is 9,119 entries). Then: delete Step 6.7 + Commit A/B node_modules churn; retire `install.sh` as a primary path, `/mos:update` Steps 6-7 + restart touch-file, doctor classes A/H and the two-topology halves of I/J; collapse `/mos:update` to Check, Confirm, loader, Verify; add a Phase 298 harness policy (blocking rung) asserting published tarball size + entry count against the ceiling so a 211-01-class dependency can never silently 13x the payload again. Fallback: `archive` source (HTTPS zip + documented `sha256`, Claude Code v2.1.224+) via `git archive` + `export-ignore`. Findings prelude: `.planning/phases/341-*/341-FINDINGS.md`. Sibling scope: Phase 285 (SEED-015 selective install).
 **Requirements**: D-01 .. D-13 (no REQ-IDs are registered for this phase in REQUIREMENTS.md; the CONTEXT.md locked decisions ARE the requirements, plus the folded registry-drift todo which rides D-08). Discretion items resolved by research: the exact `files` list with `!` negations (`docs/` and `dist/` do NOT ship, zero runtime readers each), the `.planning` runtime readers (`pitch-feedback-schemas.cjs` self-test writes to `os.tmpdir()`; `drift-baseline`, `skillopt-schemas` and `reconcile-runner` ship), shrinkwrap generation at the former Step 6.7 slot with no `NODE_ENV=production`, and `install.sh` retired (four documented distribution paths, none of which need it).
 **Depends on:** Phase 340
-**Plans:** 5/10 plans executed
+**Outcome:** Executed 2026-10-28 and 2026-10-29 (10/10 plans), NOT live until a release carries it. Cold install proof WAIVED by the navigator, not observed on Windows or macOS (ruling 2026-10-28). install.sh is retired, /mos:update is Check, Confirm, Loader, Verify, and doctor classes A and H are retired. Plan 341-10 kept the class I and J legacy-topology halves because they are still reachable. OPEN: Windows and macOS runs, the legacy-clone migrator gap and dangling symlinks, the brain-shim exit defect, the three known red legs in tests/run-all-341.sh, and the room-side research trail (see docs/install/INSTALL-OVERHAUL-341.md).
+**Plans:** 10/10 plans complete
 Plans:
 **Wave 1**
 
@@ -699,23 +700,23 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 341-06-PLAN.md - Cold-install proof (D-13 step 2, BLOCKING): `scripts/collect-cold-install-evidence.cjs`, a three-platform human-verify checkpoint, the tracked `docs/install/COLD-INSTALL-PROOF-341.md`, and a gate test that rejects placeholders. Nothing later ships until this passes. Has a checkpoint (D-01, D-04, D-13)
+- [x] 341-06-PLAN.md - Cold-install proof (D-13 step 2, BLOCKING): `scripts/collect-cold-install-evidence.cjs`, a three-platform human-verify checkpoint, the tracked `docs/install/COLD-INSTALL-PROOF-341.md`, and a gate test that rejects placeholders. Nothing later ships until this passes. Has a checkpoint (D-01, D-04, D-13)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 341-07-PLAN.md - One install location: `scripts/migrate-legacy-install-location.cjs` (verify, then verified backup, then guarded remove), the Class I fix wired to it, `install.sh` deleted with its `check-first-touch-drift` entry in the same commit, and `docs/install/PACKAGING-PATHS.md` refreshed. Autonomous (D-05, D-13)
+- [x] 341-07-PLAN.md - One install location: `scripts/migrate-legacy-install-location.cjs` (verify, then verified backup, then guarded remove), the Class I fix wired to it, `install.sh` deleted with its `check-first-touch-drift` entry in the same commit, and `docs/install/PACKAGING-PATHS.md` refreshed. Autonomous (D-05, D-13)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 341-08-PLAN.md - Collapse `/mos:update` to Check, Confirm, loader, Verify: Steps 6 and 7 deleted, the SHA leg and the api.github.com tag-ref call retired, and the `post-update-restart-pending` touch-file with its writer, SessionStart reader, statusline signal and doctor flag removed. Autonomous (D-07, D-13)
+- [x] 341-08-PLAN.md - Collapse `/mos:update` to Check, Confirm, loader, Verify: Steps 6 and 7 deleted, the SHA leg and the api.github.com tag-ref call retired, and the `post-update-restart-pending` touch-file with its writer, SessionStart reader, statusline signal and doctor flag removed. Autonomous (D-07, D-13)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 341-09-PLAN.md - Retire doctor classes A (install-cache) and H (install-incomplete), each in one commit spanning module, registry, renderer, help text and doc, with unreachability proved by literal command output first. Autonomous (D-13)
+- [x] 341-09-PLAN.md - Retire doctor classes A (install-cache) and H (install-incomplete), each in one commit spanning module, registry, renderer, help text and doc, with unreachability proved by literal command output first. Autonomous (D-13)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 341-10-PLAN.md - Retire the legacy-topology halves of classes I and J (vocabulary drops to `marketplace-cache | dev-clone | not-found`), then close the phase with the tracked `docs/install/INSTALL-OVERHAUL-341.md` carrying a full D-01..D-13 coverage table, the OPEN-HANDOFFS entry, and the rethinking-mindrianos research trail. Autonomous (D-01 .. D-13)
+- [x] 341-10-PLAN.md - Retire the legacy-topology halves of classes I and J (vocabulary drops to `marketplace-cache | dev-clone | not-found`), then close the phase with the tracked `docs/install/INSTALL-OVERHAUL-341.md` carrying a full D-01..D-13 coverage table, the OPEN-HANDOFFS entry, and the rethinking-mindrianos research trail. Autonomous (D-01 .. D-13)
 
 ### Phase 342: Theo-aware intelligence layer: register every local engine (Eureka, RS, whitespace, the intelligence and analysis families) as a Theo-known handle, triggerable through chain_run
 
@@ -1248,45 +1249,47 @@ Plans:
 **Goal note:** superseded by `359-SPEC.md` and the navigator rulings N-1..N-6 in `359-CONTEXT.md`: the hook never guesses a fork from free text. Larry declares a prose fork himself on his last line, `Your call: A | B | What if C` (visible; 2 or 3 practical options, then one relevant, radical What-if moonshot), and the Stop hook and the MCP `stop_gate_check` read only that line. Measured three ways: 0 verdict changes on the 357 corpus, 100% declared-variant catch with 0 control false blocks, and a navigator-gated Sonnet 5 forward run (USD 0.40 per run, USD 60 total) that must cut forward missed forks by at least half above a vacuity floor, or the R8 prose is reverted and a follow-on opens.
 **Requirements**: FORK359-01..10 (minted at plan time 2026-09-23; registered in `.planning/REQUIREMENTS.md`; one per SPEC R1-R10)
 **Depends on:** Phase 357 (replay corpus, harness, labeler and card_fire_replay profile, the D-06 dogfood labels, the 357-10 prose shrink); execution HALTS at 359-01 until every 357 SUMMARY (01-10) is on main with R4 MET (D-17)
-**Plans:** 12 plans
+**Plans:** 12/12 plans complete
 
 Plans:
 
 **Wave 1**
 
-- [ ] 359-01-PLAN.md -- FORK359-03, -05: 357 completeness gate and shipped-contract capture, pre-359 anchor and verdict snapshot, the inertness gate, the N-3 declaration parser, normalizeOptionLabel export
+- [x] 359-01-PLAN.md -- FORK359-03, -05: 357 completeness gate and shipped-contract capture, pre-359 anchor and verdict snapshot, the inertness gate, the N-3 declaration parser, normalizeOptionLabel export
 
 **Wave 2** *(depends on 359-01)*
 
-- [ ] 359-02-PLAN.md -- FORK359-01: synthetic prose-fork and control fixture (15/15, N-3 labels), dogfood fork-label overlay and review sheet, opt-in synthetic-359 loader source, labeler source
-- [ ] 359-03-PLAN.md -- FORK359-04, -05, -07: declared arm in classifyCardFire, this-turn declaration source, decl retry key, R5 tripwires, MCP card from declared labels and per-fork dedup
-- [ ] 359-04-PLAN.md -- FORK359-09, -01: fork359_moonshot Score policies and egress profile, dev-only moonshot scorer (synthetic text only)
-- [ ] 359-05-PLAN.md -- FORK359-09: authored forward scenarios, deny-all permission probe, dev-only forward harness proven offline
+- [x] 359-02-PLAN.md -- FORK359-01: synthetic prose-fork and control fixture (15/15, N-3 labels), dogfood fork-label overlay and review sheet, opt-in synthetic-359 loader source, labeler source
+- [x] 359-03-PLAN.md -- FORK359-04, -05, -07: declared arm in classifyCardFire, this-turn declaration source, decl retry key, R5 tripwires, MCP card from declared labels and per-fork dedup
+- [x] 359-04-PLAN.md -- FORK359-09, -01: fork359_moonshot Score policies and egress profile, dev-only moonshot scorer (synthetic text only)
+- [x] 359-05-PLAN.md -- FORK359-09: authored forward scenarios, deny-all permission probe, dev-only forward harness proven offline
 
 **Wave 3**
 
-- [ ] 359-06-PLAN.md -- FORK359-01, -09: dev-time is_fork labels and moonshot scores, the single navigator checkpoint (dogfood labels, Jev disagreements, I-1 and I-2 interpretations) *(non-autonomous)*
-- [ ] 359-07-PLAN.md -- FORK359-02, -05, -06, -07: replay fork359 metrics, declared variants, MCP payload parity, git:<sha> code root, write-359 baseline mode, replay test
+- [x] 359-06-PLAN.md -- FORK359-01, -09: dev-time is_fork labels and moonshot scores, the single navigator checkpoint (dogfood labels, Jev disagreements, I-1 and I-2 interpretations) *(non-autonomous)*
+- [x] 359-07-PLAN.md -- FORK359-02, -05, -06, -07: replay fork359 metrics, declared variants, MCP payload parity, git:<sha> code root, write-359 baseline mode, replay test
 
 **Wave 4**
 
-- [ ] 359-08-PLAN.md -- FORK359-02, -05, -06, -10: baseline-359 from the pre-359 commit, M1/M2 mutation legs, dev-only tripwire, run-all-359 and run-all-238 legs, VALIDATION sign-off
+- [x] 359-08-PLAN.md -- FORK359-02, -05, -06, -10: baseline-359 from the pre-359 commit, M1/M2 mutation legs, dev-only tripwire, run-all-359 and run-all-238 legs, VALIDATION sign-off
 
 **Wave 5**
 
-- [ ] 359-09-PLAN.md -- FORK359-08: R8 declaration rule on the two Larry spans, the doctrine and the MCP instructions (400 B net), prose-budget test, manifest regen, one revertible commit
+- [x] 359-09-PLAN.md -- FORK359-08: R8 declaration rule on the two Larry spans, the doctrine and the MCP instructions (400 B net), prose-budget test, manifest regen, one revertible commit
 
 **Wave 6**
 
-- [ ] 359-10-PLAN.md -- FORK359-09: navigator-gated smoke run, A1-A9 verification, probe or text mode, measured cost projection *(non-autonomous)*
+- [x] 359-10-PLAN.md -- FORK359-09: navigator-gated smoke run, A1-A9 verification, probe or text mode, measured cost projection *(non-autonomous)*
 
 **Wave 7**
 
-- [ ] 359-11-PLAN.md -- FORK359-09, -08: navigator-gated forward batch, floor-guarded verdict, falsification branch (revert R8, open follow-on), forward moonshot scores *(non-autonomous)*
+- [x] 359-11-PLAN.md -- FORK359-09, -08: navigator-gated forward batch, floor-guarded verdict, falsification branch (revert R8, open follow-on), forward moonshot scores *(non-autonomous)*
 
 **Wave 8**
 
-- [ ] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
+- [x] 359-12-PLAN.md -- FORK359-01..10: requirement closure with proof, VALIDATION approval, dual research filing, residuals
+
+**Outcome:** CLOSED 2026-10-28, REOPENED and re-closed 2026-10-29 with R9 PASS after the navigator reversed the decline. R2 pre-change missed forks 17 of 17 prose forks (baseline-359.json). R5 inertness 0 class changes. R6 declared catch rate 1 with 0 control false blocks. R7 parity 0 mismatches. R8 shipped at net +333 B (656cd8a34) and stays. R9: pre missed 16 of 36, post missed 6 of 36 (floor 8), control declared blocks 0, 144 rows all ok, USD 31.999 all in with the smoke (cap USD 80); 4 forward declarations Jev-scored (relevance mean 3.53, radical 2.45). Caveats: measured tree has the strict parser (N-7 tolerance not in it, now a separate quick), declarations were 4 of 36 and most gain is more cards, `hook_live_proof` false. FORK359-09 ticked. No follow-on phase. Record: `359-11-SUMMARY.md` addendum, `359-12-SUMMARY.md` addendum.
 
 ### Phase 360: Room-bind picker fires on harness turns: UserPromptSubmit F.8 gate re-injected on agent-message / cross-session / task-notification records
 
@@ -1466,7 +1469,7 @@ Plans:
 **Goal:** Ship /mos:scientific-roadmap (SEED-098): a constraint-first command rooted in the room problem-type classification, entered from the researcher starting point or a hypothesis, with a systems-thinking pass before path enumeration, walking Theo framework_step content only, turning ranked bottlenecks into falsifiable hypotheses and handing them to /mos:research on the Phase 363 engine (D-18, no second engine). Planning input: 364-INPUT.md (SEED-106 inputs added 2026-10-02, section "SEED-106 inputs": Theo answers science questions with business-terminated chains; the graph has no scientific-method content; 109 of 460 frameworks carry a problem type and 5 a watcher, re-measured live 2026-10-02 through `theo_health`, so a thin `recommend_chain` must say "uncovered" rather than read as a fit verdict).
 **Requirements**: SRM364-01..23 (01..21 minted by 364-01, 22..23 by 364-14)
 **Depends on:** Phase 363
-**Plans:** 14 plans
+**Plans:** 14/14 plans complete
 
 Plans:
 
@@ -1483,7 +1486,7 @@ Plans:
 - [x] 364-10-PLAN.md -- Theo notify doc, OPEN-HANDOFFS row, research-planner folder-contract rows (wave 4)
 - [x] 364-11-PLAN.md -- phase gate measured, live smoke with navigator approval, SRM364-01..19 closed, canon-map rows, follow-ons (wave 6, checkpoint)
 - [x] 364-12-PLAN.md -- research trail in both homes, Theo and peer messages, SRM364-20/21, Phase 364 STATE and ROADMAP lines (wave 7, checkpoint)
-- [ ] 364-13-PLAN.md -- CHANGELOG bullet, after 369 lands and jsagi-be is messaged first (wave 8, checkpoint)
+- [x] 364-13-PLAN.md -- CHANGELOG bullet, after 369 lands and jsagi-be is messaged first (wave 8, checkpoint)
 
 ### Phase 365: Verification rung earned not asserted (B2 gate floor, B3 unattended-step constraints, edge-derived rung)
 
@@ -2801,14 +2804,22 @@ Plans:
 
 ### Phase 314: SEED-055: Broaden SENS-13 to Portfolio Movement + mos eureka-portfolio Command
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** A navigator can run /mos:eureka-portfolio to get a measured, provenance-stamped ranking of the room's linked opportunities. Larry notices, through the existing SENS-13 sensor, with no new sensor and no change to decide(), when that ranking moved since the previous run: a pair crosses a level, a quiet signal appears, or the top of the list reshuffles. Engine path ruled 2026-10-28: a bounded run library over the four surviving 215 scoring modules, scoring only the room's own linked pairs (the all-pairs runner stays retired by Phase 366).
+**Requirements**: PM314-01..11
 **Depends on:** Phase 313
-**Plans:** 0 plans
+**Outcome:** Closed 2026-10-28 (8/8 plans, `bash tests/run-all-314.sh` PASSED=43 FAILED=0 KNOWN=3). /mos:eureka-portfolio exists and is born wired; SENS-13 learns portfolio movement with no new sensor and no change to decide(); Desktop and Cowork read the last run. Engine path ruled 2026-10-28: a bounded run library over the linked pairs (the all-pairs runner stays retired). PM314-07 stays open: no real room met the calibration bar (best 194 pairs against 200), so thresholds stay uncalibrated, the top-of-list reshuffle trigger is OFF, and the navigator accepted that degrade on 2026-10-28. Not live until a release carries it.
+**Plans:** 8/8 plans complete
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 314 to break down)
+- [x] 314-01-PLAN.md - snapshot store, movement detector, thresholds data file, Part 8 envelope fence (wave 1)
+- [x] 314-02-PLAN.md - engine-path decision (ruled: bounded run library) and the bounded run library (wave 2)
+- [x] 314-03-PLAN.md - SENS-13 evidence shape B and the sibling composePortfolioOffer (wave 2)
+- [x] 314-04-PLAN.md - scripts/eureka-portfolio.cjs (run, show, seen, help) and an end-to-end test (wave 3)
+- [x] 314-06-PLAN.md - Desktop and Cowork read the last run through the existing intelligence tool (wave 3)
+- [x] 314-05-PLAN.md - commands/eureka-portfolio.md, born wired, plus registries (wave 4)
+- [x] 314-07-PLAN.md - D-04 threshold calibration on a copy of a real room (wave 4)
+- [x] 314-08-PLAN.md - aggregator run-all-314.sh, CHANGELOG bullet, canon ledger row (wave 5)
 
 ### Phase 315: SEED-056: Wire Intelligence + Eureka Engines Into Larrys Own Behavior Contract
 
@@ -3604,14 +3615,14 @@ and MCP bridge authorities remain unchanged.
 4. Missing history, unavailable memory and wrong-room results are distinct; viewing a room never confirms a claim or starts Theo/commands automatically.
 5. Local protocol/browser evidence is recorded separately from real ChatGPT host verification, which makes no guarantee about host panel persistence.
 
-**Plans:** 2 complete; Plan 03 local tasks pass and its human-host checkpoint is pending.
-**Verification:** human_needed; 7/8 requirements locally verified, STARTUI371-08 open.
+**Plans:** 3/3 complete (plan 03 closed by navigator waiver).
+**Verification:** passed-with-waiver; 7/8 requirements locally verified, STARTUI371-08 closed by the navigator's waiver of the real ChatGPT host checks on 2026-10-29 (ruling: "371 clear i approve it ."). The real-host resource, CSP, placement and both journeys are UNOBSERVED.
 
 Plans:
 
 - [x] 371-01-PLAN.md - v5 startup composition and local assets
 - [x] 371-02-PLAN.md - guarded startup recovery and workday handover
-- [ ] 371-03-PLAN.md - local acceptance/audits pass; blocking real-host checkpoint pending
+- [x] 371-03-PLAN.md - local acceptance/audits pass; real-host checkpoint WAIVED by the navigator (not observed)
 
 ### Phase 372: context_assemble reports what it omitted: _meta.omitted[] (SEED-134 Plan 01, bounded focus deferred)
 
@@ -3630,11 +3641,11 @@ Plans:
 **Goal:** Bring the reviewed adapter wave into the canonical plugin checkout, align it with Eureka's current 66-capability catalog, and make five standalone graph algorithms callable over explicit authorized MindrianOS graph projections.
 **Requirements**: EUREKA-HOST-01 through EUREKA-HOST-05.
 **Depends on:** Phase 372
-**Plans:** 1 plan
+**Plans:** 2/2 plans complete
 
 Plans:
 
-- [ ] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph
+- [x] 373-01-PLAN.md - rebase the reviewed adapter wave, reconcile current catalog coverage, and bind the five graph services to the authorized local graph
 
 ### Critical path after Phase 372 (SEED-134, ruled 2026-10-20)
 

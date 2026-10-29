@@ -379,6 +379,23 @@
       "decision_surface": null
     },
     {
+      "surface": "/mos:eureka-portfolio",
+      "source": "command",
+      "connects_to_spine": true,
+      "sensor_triggers": [
+        "SENS-13"
+      ],
+      "reach_id": "context_block",
+      "sub_mode": "portfolio-movement",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 3,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
       "surface": "/mos:eureka",
       "source": "command",
       "connects_to_spine": true,
@@ -1789,6 +1806,21 @@
       "sensor_triggers": [],
       "reach_id": "context_block",
       "sub_mode": "eureka-portfolio",
+      "framework": null,
+      "posture": "hold",
+      "hierarchy_rank": 3,
+      "filing": "none",
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": "F.1"
+    },
+    {
+      "surface": "skill:eureka-portfolio",
+      "source": "skill",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": "context_block",
+      "sub_mode": "portfolio-movement",
       "framework": null,
       "posture": "hold",
       "hierarchy_rank": 3,
@@ -3909,7 +3941,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork.",
+      "hitl_why": "Pure read: enumerates room directories under MINDRIAN_ROOMS_HOME, no fork. It may carry a one-time pointer to the Eureka opt-in card, which the gate tools own; room_list itself forks nothing and returns on one path.",
       "layer": "context",
       "layer_why": "Enumerates room directories to let the navigator choose which room's context to bind; a room-context reader."
     },
@@ -4202,6 +4234,7 @@
       "agent:reverse-salient-agent"
     ],
     "SENS-13": [
+      "/mos:eureka-portfolio",
       "/mos:eureka"
     ],
     "SENS-04": [

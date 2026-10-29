@@ -4,7 +4,7 @@
     "sanitization_statement": "authored for this phase; no user, dogfood or transcript text (SPEC R9, Part 8)",
     "model": "claude-sonnet-5",
     "runs_per_scenario": 3,
-    "caps": { "per_run_usd": 0.40, "total_usd": 60 },
+    "caps": { "per_run_usd": 0.40, "total_usd": 79.33 },
     "vacuity_floor": { "min_pre_missed": 6, "min_fraction_of_pre_fork_runs": 0.2 }
   },
   "scenarios": [

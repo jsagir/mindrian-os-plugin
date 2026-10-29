@@ -1,9 +1,9 @@
 ---
 phase: 359
 slug: missed-fork-detection-larry-poses-a-genuine-decision-in-pros
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-09-23
 ---
 
@@ -42,14 +42,14 @@ created: 2026-09-23
 - **Phase gate:** `bash tests/run-all-359.sh && bash tests/run-all-238.sh && bash tests/run-all-357.sh && bash tests/run-all-251.sh && node scripts/build-harness-manifest.cjs --check`. Known pre-existing reds in 179/209/238/relevance-gate are recorded per 357 R-J, not fixed. R9 results go in the SUMMARY.
 
 ### Wave 0 Gaps
-- [ ] `tests/test-359-fork-declaration.cjs`: covers FORK359-03 (and the D-05 drift leg once R8 lands)
-- [ ] `tests/test-359-declared-arm.cjs`: FORK359-04, FORK359-05 tripwires
-- [ ] `tests/test-359-corpus.cjs`: FORK359-01
-- [ ] `tests/test-359-replay.cjs` (with `--mutation`): FORK359-02, -06, -07, -10
-- [ ] `tests/test-359-prose-budget.cjs`: FORK359-08
-- [ ] `tests/test-359-devonly-tripwire.cjs`: FORK359-10 (R9 script and probe not required from `lib/`/`hooks/`; no `api.typesafe.ai` under `lib/`/`hooks/`)
-- [ ] `tests/run-all-359.sh` plus one `run_if` leg appended to `tests/run-all-238.sh`
-- [ ] Framework install: none
+- [x] `tests/test-359-fork-declaration.cjs`: covers FORK359-03 (and the D-05 drift leg once R8 lands)
+- [x] `tests/test-359-declared-arm.cjs`: FORK359-04, FORK359-05 tripwires
+- [x] `tests/test-359-corpus.cjs`: FORK359-01
+- [x] `tests/test-359-replay.cjs` (with `--mutation`): FORK359-02, -06, -07, -10
+- [x] `tests/test-359-prose-budget.cjs`: FORK359-08
+- [x] `tests/test-359-devonly-tripwire.cjs`: FORK359-10 (R9 script and probe not required from `lib/`/`hooks/`; no `api.typesafe.ai` under `lib/`/`hooks/`)
+- [x] `tests/run-all-359.sh` plus one `run_if` leg appended to `tests/run-all-238.sh`
+- [x] Framework install: none
 
 
 ## Manual-Only Verifications
@@ -61,8 +61,8 @@ created: 2026-09-23
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] No watch-mode flags
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] No watch-mode flags
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-10-28 (359-12 close: R9 DECLINED); re-approved 2026-10-29 after the navigator reversed the decline and the batch ran: R9 PASS (pre missed 16 of 36, post missed 6 of 36, floor 8, control declared blocks 0; FORK359-09 ticked; R8 stays; 359-11 SUMMARY addendum)

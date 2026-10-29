@@ -58,18 +58,18 @@ When a new Claude Code release breaks something else, the pattern is:
 
 This is the dog-fooding loop applied to plugin compatibility -- every regression we hit becomes a permanent gate so we never hit it twice.
 
-## Gate 2 -- SHA-Aware Update Detection (advisory, not blocking)
+## Gate 2 -- Update Detection (advisory, not blocking)
 
 **Script:** `scripts/check-version-and-sha.cjs`
 
-**What it does:** compares both the local plugin version AND the local commit SHA against the remote `v<version>` git tag. Detects three states version-only checkers miss:
-- `SHA_DIFFERS_INVERSION_HOTFIX` -- same version, but tag was force-moved
-- `LOCAL_SHA=unknown` -- registry is missing gitCommitSha (manual `claude plugin install` recommended)
+**What it does:** compares the local plugin version against the version pinned in the marketplace catalog. Three outcomes:
+- `UP_TO_DATE` -- the installed version matches or is ahead of the catalog pin
+- `VERSION_DIFFERS` -- a newer version is available
 - `NETWORK_ERROR` -- gracefully degrades
 
-**Why it matters:** `claude plugin update` and `/mos:update` both rely on version comparison. When an in-version hotfix ships under the same tag, version comparison shows "no change available" and users stay broken. SHA comparison catches it.
+**Why a version comparison is enough (Phase 341, D-07):** this gate used to also compare the local commit SHA with the SHA behind the `v<version>` git tag, to catch an in-version hotfix. A published npm version is immutable, so an in-version hotfix is now a new version and the version comparison sees it. The SHA leg and its GitHub tag-ref call were retired. The "-and-sha" in the script name is historical.
 
-**Wired into:** `/mos:update` Step 1.
+**Wired into:** `/mos:update` Step 1 and Step 4.
 
 **Run manually:**
 ```bash

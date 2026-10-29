@@ -155,6 +155,23 @@ const ALLOWED_DIRECT_IMPORT = [
   // quick task's own action spec, so the file is allow-listed rather than
   // leaving one twin exempt and the other blocked.
   /^scripts\/gsd-graph-derive-drain\.cjs$/,
+  // Phase 314-02 (SEED-055): lib/core/eureka/portfolio-run.cjs requires room-db.cjs
+  // ONLY to open a caller-owned, allowExtension:true handle (the same idiom
+  // eureka-reach-runner.cjs and semantic-index/research-filing.cjs already use).
+  // It performs ZERO node, edge or memory_event writes: it reads nodes and typed
+  // edges, and the tri-modal index writes only the derived eureka_* projection
+  // tables (Canon Part 9: rebuildable projections, not graph state). The run never
+  // writes the portfolio store and makes no network or Brain call (Canon Part 8).
+  /^lib\/core\/eureka\/portfolio-run\.cjs$/,
+  // Phase 314-07 (SEED-055, D-04): scripts/eureka-portfolio-calibrate.cjs requires
+  // room-db.cjs to open a handle on a SCRATCH COPY of a room in the OS temp folder,
+  // and holds out a share of things there with DELETE statements to simulate the
+  // room before new content arrived. The statements never touch a real room: the
+  // harness refuses a room path in the plugin cache or sealed by a GUARDRAIL.md, it
+  // copies the room first, and it removes the scratch folder when it ends. This is
+  // a measurement harness for a derived threshold file, not graph state (Canon Part
+  // 9). It makes no network or Brain call (Canon Part 8).
+  /^scripts\/eureka-portfolio-calibrate\.cjs$/,
 ];
 
 function isAllowedPath(p) {

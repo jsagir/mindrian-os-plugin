@@ -26,7 +26,8 @@
  *   update    Bring MindrianOS current. For a marketplace install: `claude plugin
  *             marketplace update` + `claude plugin update mos@mindrian-marketplace`.
  *             For a dev clone (MINDRIAN_OS_ROOT set): `git -C <root> pull --ff-only`
- *             + `bash <root>/install.sh`.
+ *             only. The shell installer is retired (Phase 341-07); a dev clone is
+ *             loaded with `claude --plugin-dir <root>`.
  *
  * GSD pattern: pure CJS, node built-ins only, zero npm deps. No CLI framework
  * (no commander/yargs/meow). process.argv switch-case routing, mirroring
@@ -134,13 +135,18 @@ switch (sub) {
   }
 
   case 'update': {
-    // Dev clone (MINDRIAN_OS_ROOT or a legacy hand-clone): git pull + re-run install.sh.
+    // Dev clone (MINDRIAN_OS_ROOT or a hand-clone): git pull only. The shell
+    // installer is retired (Phase 341-07); load a dev clone with --plugin-dir.
     const { root } = resolveActivePluginRoot();
     const isDevClone = !!process.env.MINDRIAN_OS_ROOT
-      || (root && fs.existsSync(path.join(root, '.git')) && fs.existsSync(path.join(root, 'install.sh')));
+      || (root && fs.existsSync(path.join(root, '.git')) && fs.existsSync(path.join(root, '.claude-plugin', 'plugin.json')));
     if (isDevClone && root) {
-      run('git', ['-C', root, 'pull', '--ff-only']);
-      const r = run('bash', [path.join(root, 'install.sh')]);
+      const r = run('git', ['-C', root, 'pull', '--ff-only']);
+      if (ok(r)) {
+        console.log('');
+        console.log('Dev clone updated at ' + root + '.');
+        console.log('The shell installer is retired. Load this clone with:  claude --plugin-dir ' + root);
+      }
       exitFrom(r);
       break;
     }

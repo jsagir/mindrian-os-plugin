@@ -1,5 +1,5 @@
 {"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-h"}],"model":"claude-sonnet-5","session_id":"sess-h"}
-{"type":"system","subtype":"hook_event","hook_event_name":"SessionStart","output":"[MindrianOS] Room bound: scratch-359."}
+{"type":"system","subtype":"hook_response","hook_event":"SessionStart","hook_name":"SessionStart:startup","output":"[MindrianOS] Room bound: scratch-359.","exit_code":0,"outcome":"success"}
 {"type":"user","message":{"role":"user","content":[{"type":"text","text":"warm-up turn 1"}]}}
 {"type":"assistant","message":{"content":[{"type":"text","text":"A short warm-up reply."}]}}
 {"type":"result","subtype":"success","total_cost_usd":0.18,"duration_ms":6000}

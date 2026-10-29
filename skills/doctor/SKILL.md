@@ -1,19 +1,19 @@
 ---
 name: doctor
-description: "Diagnose and optionally repair MindrianOS install: install-cache drift, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
+description: "Diagnose and optionally repair MindrianOS install: legacy install leftovers, sentinel gaps, active-room guard, surface-verification, ROOM.md drift, UI compliance, statusline visibility, Brain smoke, and a paste-ready command-registration bug report for Anthropic"
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Diagnose and optionally repair an off-feeling install."
-argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--post-update] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
+argument-hint: "[--fix] [--all] [--cascade-rooms] [--graph-derive-health] [--heal-room] [--verify-surface] [--room-md] [--ui-compliance] [--statusline-visibility] [--card-fire-health] [--install-state] [--stale-first-touch] [--deprecated-usage] [--brain-smoke] [--eureka-smoke] [--drift] [--report-registration-bug] [--reset-install-id] [--acceptance] [--pre-tag] [--pre-flight] [--session-start] [--only=<id,id>] [--dogfood-acceptance] [--claims] [--check-rs-engine] [--bind-check] [--icm-walk] [--room <dir>] [--simulate-write] [--scan-commands] [--scan-scripts] [--light-npx] [--dry-run] [--json]"
 body_shape: E (Action Report)
 layer: "harness"
-layer_why: "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
+layer_why: "Diagnoses install-state and deployment-surface drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name."
 hitl_shape: "F.0"
 hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decision."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/doctor.md:42, one status row per check plus a tallied summary, which the rule doc names outright as not a reward.
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
-teaching: "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
+teaching: "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
 allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
@@ -37,7 +37,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:doctor
 
-Self-service diagnostic for MindrianOS installs. It started as an install-cache drift detector (a real failure mode that happened twice -- see `docs/autopsies/2026-04-13-wrong-workspace-incident.md` and `docs/autopsies/2026-04-28-install-cache-drift-incident.md`) and grew into a family of health checks. As of Phase 217 every check except three carve-outs is a data-driven module: one row in `data/doctor-modules.json` plus one runner file under `lib/core/doctor/`.
+Self-service diagnostic for MindrianOS installs. It started as a drift detector for the legacy install directory (a real failure mode that happened twice -- see `docs/autopsies/2026-04-13-wrong-workspace-incident.md` and `docs/autopsies/2026-04-28-install-cache-drift-incident.md`) and grew into a family of health checks. As of Phase 217 every check except two carve-outs is a data-driven module: one row in `data/doctor-modules.json` plus one runner file under `lib/core/doctor/`.
 
 ## How it works
 
@@ -52,28 +52,16 @@ Both cadences are also gated by `introduced_version <= running`, so an install i
 
 `--fix` support is declared per module by the boolean `fix_supported` in `data/doctor-modules.json` (never omitted -- silence is not a legal no-fix declaration). Under `--fix`, a fix-supported module whose `check()` surfaced a `warn`/`error` is passed to `fix()`, then `check()` re-runs so the reported row reflects the post-fix state. The completeness of every module's declaration is enforced as a HARD-BLOCKING test by `tests/test-doctor-module-contract-parity.cjs` (the D-03 gate). The doc-vs-code parity of this file is guarded by `tests/test-doctor-doc-parity.cjs`.
 
-### The class-A install-cache check (the original)
-
-Class A still runs on a bare invocation and stays special-cased (one of the three Phase 217 carve-outs, below). It:
-
-1. Reads the live install version at `~/.claude/plugins/mindrian-os/.claude-plugin/plugin.json`.
-2. Enumerates `~/.claude/plugins/cache/mindrian-marketplace/mos/*` and picks the highest semver as "latest".
-3. Reports drift when install < latest.
-
-Under `--fix` it renames the live install to `~/.claude/plugins/mindrian-os.stale-<old-version>-<timestamp>`, copies the latest marketplace cache in via `cp -aT`, and re-reads `plugin.json` to verify the version matches. The backup is preserved indefinitely; after 24 hours of normal use the user can delete it by hand.
-
 ## The check inventory
 
 Every check has a stable class letter (or a registry id). The class flag that activates it is in parentheses; check-only means no `--fix` remediation.
 
-- **class A -- install-cache** (bare run; `--fix` supported) -- live-install-vs-marketplace-cache drift, plus recovery.
 - **class B -- cascade-rooms sentinel** (`--cascade-rooms`; `--fix` supported) -- every registered room carries its `.room-root` sentinel. `--fix` CREATES missing sentinels for rooms whose dir exists (dir-missing rooms are suggested, never auto-created). This fix was NEWLY wired in Phase 217 Plan 04 -- before that the class-B `--fix` claim was a false doc promise.
 - **class C -- active-room guard silence** (`--cascade-rooms`; check-only) -- detects when a write to a non-active room would be silenced before the cascade side-channel runs. Shares the `--cascade-rooms` flag with class B.
 - **class D -- verify-surface** (`--verify-surface`; check-only) -- live cascade end-to-end. Spawns the child runner `tests/test-cascade-surface-e2e.cjs` (30s timeout) and asserts its 8-key shape. Self-skips honestly when `bash` or the harness is absent (never faults an install for a missing dev harness).
 - **class E -- room-md** (`--room-md`; `--fix` supported) -- ROOM.md + MINTO.md presence under the active room's `.room-root`. `--fix` invokes `generate-section-intelligence.cjs --recursive`, then re-checks.
 - **class F -- ui-compliance** (`--ui-compliance`; check-only) -- UI Ruling System scan across `commands/*.md` and `scripts/*.cjs` (frontmatter body_shape, forbidden box chars / glyphs, renderer Zone 1 + Zone 4 patterns).
 - **class G -- statusline-visibility** (`--statusline-visibility`; `--fix` supported) -- stale user-settings path / broken plugin install / statusline-mos isolated execution / disableAllHooks. `--fix` removes the stale user-settings statusLine override so the plugin-level config takes effect.
-- **class H -- install-incomplete** (shares `--statusline-visibility`; `--fix` supported) -- missing statusLine block or a halted `.install-receipt.json` tail. `--fix` re-stamps the canonical statusLine block idempotently (the halted-tail case is report-only).
 - **class I -- install-state** (`--install-state`; `--fix` supported) -- install-state record + topology classification + 6-way version-of-record consistency. `--fix` returns MULTIPLE recovery records (session-start record write, LV rewrite, legacy-config reconcile, legacy-clone backup-verify-remove with the dev-clone safety belt). Runs BEFORE class J so J reads its result via `ctx.checks`.
 - **class J -- deployment-surfaces** (shares `--install-state`; `--fix` supported) -- reconciles every owned surface in `data/deployment-surfaces.json` against disk. Reads topology / active-root / active-version from class I's same-invocation result (self-derives via `shared.cjs` when absent). `--fix` re-stamps `ok:false` session-start-owned surfaces and prunes the marketplace cache.
 - **class K -- stale-first-touch-copy** (`--stale-first-touch`; check-only) -- greeting surfaces declared by `data/first-touch-surfaces.json` (banner, splash, onboard, sessionstart, operator-update, larry-extended) scanned for stale version literals and U+2014 em-dash violations. SEED-007 absorption. Also activated by `--all`.
@@ -88,19 +76,24 @@ Every check has a stable class letter (or a registry id). The class flag that ac
 - **room-graph-density** (no flag; bare run + `--all`; check-only) -- per-registered-room census of `room.db` `nodes` and `edges` row counts, plus a system-wide total. Reads every room through the read-only navigation door added in Phase 232.1, so the sweep can never migrate or otherwise mutate a room it only measures. A room with no `room.db` reports 0 / 0 and is not an error. `cadence: always`, LOCAL-only. Reports raw counts ONLY: it makes no density, health, or risk claim in either direction (SEED-074's hard guard on downstream claims).
 - **room-graph-integrity** (no flag; bare run + `--all`; check-only) -- four measurable defect statements against the bound room's `room.db`, plus two informational counts: edge rows whose source or target id has no `nodes` row, claim nodes carrying no `SOURCED_FROM` or `DERIVED_FROM` out-edge, proposed nodes older than the review window, and edge rows whose type falls outside the `writeEdge` allowlist (with the offending type names, capped and shape-filtered), alongside unresolved `CONTRADICTS` edges and self-referencing edges. Two candidate defect statements (a stub-or-placeholder node, a memory-event provenance edge) are reported as not measurable, with the reason for each, in the organ's own output rather than shipped as statements. A column a legacy three-column room cannot answer reports null, never zero. The output also names the writer behind the unanchored-claim count and the writers that bypass the `writeEdge` chokepoint, and states that changing either is Phase 273 territory. Each room's payload also carries a `claim_counter_metric` object (claims filed, claims filed past the citation lag, claims carrying a `CONTRADICTS` edge, claims with no incoming edge past the lag, and a tri-state `divergence` boolean, rolled up into `totals.claim_counter_metric`); a column the schema cannot answer reports null, never zero, same as the rest of this organ, and interpretation lives in `docs/COUNTER-METRIC-DOCTRINE.md`, not here. Scopes to the active room by default; add `--cascade-rooms` to sweep every registered room plus fleet totals. `cadence: always`, LOCAL-only, read-only navigation door. Reports raw counts ONLY: it makes no claim in either direction (SEED-074's hard guard on downstream claims).
 
+### Retired classes
+
+- **class A** (the drift check between the legacy install directory and the marketplace cache, with a rename-and-copy recovery) was retired in Phase 341. The plugin loader now owns the swap, there is one install location, and nothing in the plugin creates the legacy directory. If you still have an old `~/.claude/plugins/mindrian-os` directory, class I reports it and `--install-state --fix` backs it up, verifies the backup and removes it. The old report keys (`install`, `cache`, `drift`, `classARecovered`) and the old bare-run exit codes 2, 3 and 4 are gone.
+- **class H** (the shell-installer completeness check) was retired in Phase 341. Its only input was a receipt file written by the shell installer, and that installer no longer exists, so nothing can write the receipt. If an old receipt file is still on your disk it is inert and safe to ignore. A leftover old install directory is reported by class I, and `--install-state --fix` backs it up and removes it. The `--statusline-visibility` flag is unchanged and now runs class G alone.
+
 ## Step 1: Parse the user's intent
 
 Look at the user's invocation:
 
-- `/mos:doctor` (no flag) -> class A install-cache + class N plugin-enabled-state + the accumulative engine (the `cadence: once` heals like umbilical plus any `flag: null` always-modules). Fast; this is the bare-run surface.
-- `/mos:doctor --all` -> activates B, C, D, E, F, G, H, I, J, K, L, M, and card-fire-health. `--drift` (P/Q/R) and `--eureka-smoke` (S) stay OPT-IN by design and are NOT part of `--all`.
+- `/mos:doctor` (no flag) -> class N plugin-enabled-state + the accumulative engine (the `cadence: once` heals like umbilical plus any `flag: null` always-modules). Fast; this is the bare-run surface.
+- `/mos:doctor --all` -> activates B, C, D, E, F, G, I, J, K, L, M, and card-fire-health. `--drift` (P/Q/R) and `--eureka-smoke` (S) stay OPT-IN by design and are NOT part of `--all`.
 - `/mos:doctor --cascade-rooms` -> class B (.room-root sentinel) + class C (active-room guard silence)
 - `/mos:doctor --graph-derive-health` -> graph-derive-health (semantic-edge derivation health for the active room; add `--cascade-rooms` to sweep every room)
 - `/mos:doctor --heal-room` -> the same class with `--fix` on: re-enqueues every WARN/FAIL room's derive so the next in-session derive rebuilds its semantic layer
 - `/mos:doctor --verify-surface` -> class D live cascade end-to-end via `tests/test-cascade-surface-e2e.cjs`
 - `/mos:doctor --room-md` -> class E (ROOM.md/MINTO.md presence under `.room-root` subtrees)
 - `/mos:doctor --ui-compliance` -> class F (UI Ruling System scan)
-- `/mos:doctor --statusline-visibility` -> class G (user-settings drift, plugin install integrity, statusline-mos isolated execution) + class H (install-incomplete)
+- `/mos:doctor --statusline-visibility` -> class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
 - `/mos:doctor --card-fire-health` -> card-fire-health module (D-05 instrument-health)
 - `/mos:doctor --install-state` -> class I (install-state + topology + 6-way version-of-record) + class J (deployment-surface reconciliation)
 - `/mos:doctor --stale-first-touch` -> class K
@@ -109,7 +102,7 @@ Look at the user's invocation:
 - `/mos:doctor --eureka-smoke` -> class S (4-layer Eureka probe; opt-in)
 - `/mos:doctor --drift` -> class P + class Q + class R (opt-in; NOT in `--all`)
 - `/mos:doctor --report-registration-bug` -> READ-ONLY escalation reporter (below). NOT a class flag, NOT part of `--all`, NOT a `--fix`.
-- `/mos:doctor --fix` -> diagnostic + auto-recovery for every class that declares `fix_supported: true`: class A, B, E, G, H, I, J. Fix support is declared per module in `data/doctor-modules.json` and enforced by `tests/test-doctor-module-contract-parity.cjs`.
+- `/mos:doctor --fix` -> diagnostic + auto-recovery for every class that declares `fix_supported: true`: class B, E, G, I, J. Fix support is declared per module in `data/doctor-modules.json` and enforced by `tests/test-doctor-module-contract-parity.cjs`.
 - `/mos:doctor --json` -> machine-readable output (for hooks / regression tests)
 - `/mos:doctor --verbose` (or `-v`) -> extra per-check detail in the human render.
 - `/mos:doctor --dry-run` -> `--fix` runners simulate their remediation without mutating disk.
@@ -123,11 +116,12 @@ These siblings own their own exit contracts and are not part of the class-flag d
 - `--acceptance` -> the release-gate checklist (install-state + deployment-surfaces + version-of-record + verify-release + doctor-all + published + npx-roundtrip). Hard abort on any sub-check failure.
 - `--pre-tag` -> with `--acceptance`, filter to the pre-tag-applicable points (implies `--acceptance`).
 - `--pre-flight` -> the strict-subset tier `release.sh` uses before it mutates the tree (implies `--acceptance`).
+- `--session-start` -> with `--acceptance`, filter to the bounded OFFLINE tier the SessionStart hook runs once per install or update: four points (install-state, session-start-active-version, harness-policies, eureka-optin-state). The network wire point stays off this tier. Implies `--acceptance`. Precedence: `--pre-tag`, then `--pre-flight`, then `--session-start`.
+- `--only=<id,id,...>` -> with `--acceptance`, narrow the selected tier to the named point ids (an unknown id selects nothing). The detached session probe uses it.
 - `--dogfood-acceptance` -> the Canon Part 6 dog-fooding acceptance pass.
 - `--claims` -> the claims-verification leg.
 - `--check-rs-engine` -> the reason-select engine probe (NOT part of `--all`).
 - `--reset-install-id` -> rotates the opaque per-install bucket key the plugin sends to Theo, prints `install id rotated`, never prints the value, and always exits 0. Full contract: `docs/THEO-INSTALL-ID.md`.
-- `--post-update` -> the post-`claude plugin update` confirmation pass.
 - `--bind-check <roomDir>` -> a lightweight LOCAL room-health check run at BIND-TIME (never per-turn, never a Brain call). NEVER-BLOCK: an unhealthy room degrades to an advisory and STILL exits 0.
 - `--icm-walk [--room <dir>] [--json]` -> the ICM walk (below): a measurement-only report of the room root and every nest against the ten ICM invariants and the walk test. NOT part of `--all`; `--room` defaults to the registry's active room; writes nothing, fixes nothing, exits 0 after printing.
 - `--light-npx` -> the lighter npx-roundtrip variant for `--acceptance`.
@@ -173,22 +167,18 @@ The script outputs a 4-zone Shape E (Action Report) per skills/ui-system/SKILL.m
 |---|---|
 | 0 | Healthy, no drift |
 | 1 | Drift detected (read-only mode, or `--fix` did not run) |
-| 2 | Drift detected and recovered (`--fix` mode) |
-| 3 | Internal error (cannot read directories, no marketplace cache, install in `error` state) |
-| 4 | Recovery attempted but rolled back to the backup state (the D-03 rollback path) |
 
 Two invariants layer on top of the table:
 
 - **Class-flag runs force exit 0.** When any class flag is active (`classFlagsActive`), the run honors the graceful-degradation invariant (Canon Part 8) and exits 0 unless an explicit `--fix` attempt failed. A detected drift is still visible in the rows; it does not abort a scoped scan. Hermetic scratch-registry test runs rely on this.
 - **Two narrow non-zero escalations.** A `--drift` run whose class-R runtime-reachability check returns `warn` exits 1 (a WIRED-but-UNREACHABLE capability is a hard CIRS R9 fail, not a warning). And on a bare / non-class-flag run, the class-N plugin-disabled state (`warn`) exits 1, because that is the one failure mode no SessionStart hook can ever self-report.
 
-## The three Phase 217 carve-outs
+## The two Phase 217 carve-outs
 
-Every other check is a registry module; these three are deliberately special-cased in `main()`, each opened with a written `Phase 217 carve-out:` justification comment (loud and auditable, never a silent omission):
+Every other check is a registry module; these two are deliberately special-cased in `main()`, each opened with a written `Phase 217 carve-out:` justification comment (loud and auditable, never a silent omission):
 
-1. **class A install-cache** -- its inline drift + atomic recovery + topology guards are positionally coupled to `_finalizeAndExit` (the exit-code chain), and its render is hand-coded; forcing it into the uniform module shape would risk the most-tested path.
-2. **class M brain-smoke** -- an `async` runner; the engine loop is synchronous, so it stays in its own `await` block.
-3. **class S eureka-smoke** -- the same async-vs-sync-engine reason as brain-smoke.
+1. **class M brain-smoke** -- an `async` runner; the engine loop is synchronous, so it stays in its own `await` block.
+2. **class S eureka-smoke** -- the same async-vs-sync-engine reason as brain-smoke.
 
 ## Extension architecture
 
@@ -213,17 +203,16 @@ Surface this command proactively when:
 - No "I" sentences
 - Lead with the script's output, then a one-line interpretation
 - If drift detected without `--fix`: suggest `/mos:doctor --fix` as the next step
-- If drift detected and recovered: confirm the version, mention the backup location, recommend `/clear` and a fresh session
+- If a `--fix` recovered something: name what changed from the `fix` rows, and recommend `/clear` and a fresh session when plugin files were touched
 
 ## Example output (healthy)
 
 ```
 -- MindrianOS -- doctor -- no-drift --
 
-  ■ install-cache              ✓ healthy (1.12.0)
   ■ dev-source                 ✓ consistent (1.12.0)
 
-  Summary: 2 healthy / 0 drift / 0 warnings
+  Summary: 1 healthy / 0 drift / 0 warnings
 
   ▶ /mos:status                  # room state overview
   ▷ /mos:doctor --all          # re-run all classes
@@ -235,8 +224,7 @@ Surface this command proactively when:
 ```
 -- MindrianOS -- doctor -- drift-detected --
 
-  ■ install-cache              ⚠ drift detected
-     live    1.10.10 → 1.11.0
+  ■ room-md                    ⚠ 3 dir(s) missing ROOM.md or MINTO.md
 
   Summary: 0 healthy / 1 drift / 0 warnings
 
@@ -248,30 +236,6 @@ Surface this command proactively when:
   ▶ /mos:doctor --fix --all     # auto-recover all drift classes
   ▷ /mos:rooms                 # inspect known rooms
   ▷ /mos:doctor --json         # machine-readable output
-```
-
-## Example output (recovery successful)
-
-```
--- MindrianOS -- doctor -- recovered --
-
-  ■ install-cache              ⚠ drift detected
-     live    1.10.10 → 1.11.0
-     ✓ recovered to 1.11.0
-     backup /home/jsagi/.claude/plugins/mindrian-os.stale-1.10.10-20260428-095548
-
-  Summary: 0 healthy / 0 drift / 0 warnings
-
-  ▶ /mos:status                  # room state overview
-  ▷ /mos:doctor --all          # re-run all classes
-  ▷ /mos:doctor --json         # machine-readable output
-```
-
-After successful recovery, suggest:
-
-```
-Recovery applied. Run /clear to refresh the context window
-so Larry picks up the new plugin code.
 ```
 
 Note: per D-19, the renderer above is structural. Larry handles narrative interpretation of any drift finding when surfacing conversationally (e.g., "what does this mean?"). See ${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/personality/voice-dna.md for voice patterns.

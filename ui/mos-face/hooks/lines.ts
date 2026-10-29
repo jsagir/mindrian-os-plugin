@@ -85,11 +85,11 @@ export type Now = { text: string; short: string; command: string; label: string 
 export function nowLine(i: PaneInput): Now {
   const { snap, bound, advice, totals } = i
   if (!snap) return { text: 'Reading this machine...', short: '', command: '', label: '' }
-  // A restart pending after an update outranks the rest: it is the status line's own corrective.
+  // A failed check after an update outranks the rest: it is the status line's own corrective.
   if (i.local?.postUpdate === true) {
     return {
-      text: 'A restart is pending after the update. Run /mos:doctor --fix',
-      short: 'restart pending after the update',
+      text: 'The check after the update found a problem. Run /mos:doctor --fix',
+      short: 'check after the update found a problem',
       command: '/mos:doctor --fix',
       label: 'Fix',
     }

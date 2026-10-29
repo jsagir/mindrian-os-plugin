@@ -22,7 +22,7 @@ import type { Call } from './support'
 //
 //   P2  the field map           P4  every mapped field renders (wide, standard, narrow, plain)
 //   P5  filing facts            P6  honest unknowns            P7  one signal
-//   P8  order                   P9  context band               P10 post-update restart
+//   P8  order                   P9  context band               P10 post-update check
 //   P11 plain mode              P12 /mos-text                  P13 no panel string names Larry
 //   P14 nothing leaves          P15 damaged files
 //
@@ -326,25 +326,39 @@ test('P9 context band: the pane reads the cliff in words at 85 percent, and a te
   await ui.unmount()
 })
 
-// ---- P10 post-update restart ----------------------------------------------------------------------------
+// ---- P10 post-update check ----------------------------------------------------------------------------
 
-test('P10 post-update: a restart pending says so in NOW with the fix command, and the health word reads drift', async ($, on) => {
-  const files = { ...FILES, '/.mindrian/room-health.json': json({ status: 'sound', at: iso(NOW) }), '/.mindrian/post-update-restart-pending': '' }
+test('P10 post-update: a failed check after the update says so in NOW with the fix command, and the health word reads drift', async ($, on) => {
+  const files = { ...FILES, '/.mindrian/room-health.json': json({ status: 'sound', at: iso(NOW) }), '/.mindrian/session-verify/state.json': json({ schema: 'mos-session-verify/1', last_seen_version: '2.0.0-beta.74', local: { ok: false, failed_count: 1 } }) }
   const { ui } = await open($, on, WIDE, files)
   const texts = await textsOf(ui)
-  expect(rowOf(texts, 'NOW', /restart/i, /pending/i, /\/mos:doctor --fix/)).toBeDefined()
+  expect(rowOf(texts, 'NOW', /check after the update/i, /problem/i, /\/mos:doctor --fix/)).toBeDefined()
   expect(rowOf(texts, 'HEALTH', /drift/)).toBeDefined()
   await ui.unmount()
 })
 
-test('P10 post-update: with no restart pending and a sound room, NOW does not mention a restart', async ($, on) => {
+test('P10 post-update: with no failed check and a sound room, NOW does not mention the update check', async ($, on) => {
   const files = { ...FILES, '/.mindrian/room-health.json': json({ status: 'sound', at: iso(NOW) }) }
   const { ui } = await open($, on, WIDE, files)
   const texts = await textsOf(ui)
   expect(rowOf(texts, 'HEALTH', /sound/)).toBeDefined()
-  expect(texts.some(text => /restart is pending/i.test(text))).toBe(false)
+  expect(texts.some(text => /check after the update/i.test(text))).toBe(false)
   await ui.unmount()
 })
+
+const quiet = (text: string): TestBody => async ($, on) => {
+  const files = { ...FILES, '/.mindrian/room-health.json': json({ status: 'sound', at: iso(NOW) }), '/.mindrian/session-verify/state.json': text }
+  const { ui } = await open($, on, WIDE, files)
+  const texts = await textsOf(ui)
+  expect(rowOf(texts, 'HEALTH', /sound/)).toBeDefined()
+  expect(texts.some(line => /check after the update/i.test(line))).toBe(false)
+  await ui.unmount()
+}
+
+test('P10 post-update: a passed verification claims nothing', quiet(json({ local: { ok: true } })))
+test('P10 post-update: an inconclusive verification (ok null) claims nothing', quiet(json({ local: { ok: null } })))
+test('P10 post-update: a pending verification (no local result yet) claims nothing', quiet(json({ wire: 'pending' })))
+test('P10 post-update: a damaged verification file claims nothing', quiet('{not json'))
 
 // ---- P11 plain mode ---------------------------------------------------------------------------------------
 
@@ -449,7 +463,7 @@ const p16 = (scene: Record<string, string>, width: number): TestBody => async ($
 }
 
 test('P16 copy: the healthy scene is clean at 56 columns', p16({}, WIDE))
-test('P16 copy: the restart and drift scene is clean at 44 columns', p16({ '/.mindrian/post-update-restart-pending': '' }, STD))
+test('P16 copy: the failed check and drift scene is clean at 44 columns', p16({ '/.mindrian/session-verify/state.json': json({ schema: 'mos-session-verify/1', last_seen_version: '2.0.0-beta.74', local: { ok: false, failed_count: 1 } }) }, STD))
 test('P16 copy: the host voice, off Theo and a broken room scene is clean at 35 columns', p16({
   '/.mindrian/voice-mark.json': json({ color: 'yellow', current_who: 'claude', prior_who: 'larry', switched_now: true }),
   '/.mindrian/bridge/brain-health.json': json({ status: 'error' }),
@@ -481,7 +495,7 @@ test('formatters: health, next move, Theo, voice and version say the same thing 
   expect(healthWord('drift', false)).toBe('drift')
   expect(healthWord('broken', false)).toBe('broken')
   expect(healthWord(null, false)).toBe('not read')
-  // A post-update restart escalates a sound room to drift, as the status line does.
+  // A failed check after the update escalates a sound room to drift, as the status line does.
   expect(healthWord('sound', true)).toBe('drift')
   expect(healthWord(null, true)).toBe('drift')
   expect(healthWord('broken', true)).toBe('broken')

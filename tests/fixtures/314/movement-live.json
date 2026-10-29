@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "portfolio_movement",
+  "movement_id": "pm_0123456789ab",
+  "detected_at": "2026-10-28T09:00:00.000Z",
+  "scope": "room",
+  "scope_id": "room",
+  "encoder_kind": "live",
+  "counts": { "band_cross": 1, "tail_enter": 0, "top_n_reshuffle": 0 },
+  "events": [
+    { "kind": "band_cross", "a_handle": "n042", "b_handle": "n317", "from_band": "moderate", "to_band": "high", "direction": "up" }
+  ]
+}

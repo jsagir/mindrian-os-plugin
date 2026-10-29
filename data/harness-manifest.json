@@ -7,20 +7,20 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "4be6ecc3948a91818bd3fb1c8f210593eca13ffd7c2bafd99cc6d24ecc996c24",
-      "source_count": 112
+      "digest": "c4c567ce90e02e0f5a88864192c09ca23dc450c920f915bc7093af6059474828",
+      "source_count": 113
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "77966b22ea9291517b3fd065cf08c832fe27ba13e11ca053d32460c88690d101",
-      "source_count": 246
+      "digest": "ff142def95b18a40ad44ab4fb1dfaa7c38c237f33906284997fc34233aa855b4",
+      "source_count": 248
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "4349c105725f313b2406b419406d6d02cf8907222fe90ee795a8a4a5ed9f3d28",
-      "source_count": 388
+      "digest": "6fe4591a76a6dd18b2ccf7cb685f6565c5ed9b28a882050981e5585ed61ab5ec",
+      "source_count": 391
     }
   ],
   "runtime_surfaces": [
@@ -47,24 +47,24 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "a1261ad06072bc66e4be288a646782f4af78fa8e2f3feba25eae2f713edfd105",
-    "count": 15
+    "digest": "ea2f3bf3fc4e421074b552e8881031c28017f5d03d3d01b53b7a2acffdda2f57",
+    "count": 17
   },
   "larry_surfaces": [
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "1d56c7340dc86a2f8e12cc4a897c8c56242df62dde63ac49f7f848328012e68e"
+      "digest": "6331867a1ff81844b5b92fe98dd9e4a6f0a90f47641944489311ce1b2202138d"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "2d15cdcd1b055ec4d5dc6d5fa988483099071906b4df399e1a36ae534b61f888"
+      "digest": "d49bd44e1fa96a2fe151d6a789fc0df7e668bff089c7a19d1107692c372e9ee3"
     },
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "e625182db40dc5d94754501180b47d152330c70436440e1d54872b1c9663d62e"
+      "digest": "87c22d9d9d5149ed5d61dce4d91c07536e98df7262e0c2780b73e245ed495621"
     }
   ],
   "fixture_ref": {

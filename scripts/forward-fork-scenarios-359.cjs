@@ -12,16 +12,19 @@
 // canned streams, and --evaluate over synthetic rows. No paid `claude -p`
 // call is ever made by this plan or its tests.
 //
-// SHAPE NOTE (provisional): the stream-json event shapes this file parses
-// (system/init, system/hook_event with hook_event_name SessionStart|Stop,
-// user, assistant with text/tool_use content blocks, result with
-// total_cost_usd/duration_ms/subtype) are this plan's best-effort reading of
-// the documented contract (RESEARCH Findings 8-9, hooks.md, headless.md,
-// cli-reference). They are PROVISIONAL until the plan-10 smoke run confirms
-// or corrects them against a real `claude -p --include-hook-events` stream.
-// If the smoke run finds a different shape, only parseRun's event-matching
-// needs to change; buildRunCommand, preflight and evaluate do not depend on
-// the exact shape.
+// SHAPE NOTE (observed, plan 359-10 smoke run, claude 2.1.312): the real
+// stream-json shape differs from the first reading in four ways, and
+// parseRun matches the observed shape:
+//  - hook events are system events with subtype hook_started | hook_progress |
+//    hook_response and the event name in the field `hook_event` (not
+//    `hook_event_name`); the legacy subtype "hook_event" is still accepted;
+//  - the Stop hook events come BEFORE the result event of the turn they end;
+//  - system/init is emitted once per user turn, and total_cost_usd on each
+//    result is cumulative for the session;
+//  - system/init carries no agent field (the agent list is under `agents`).
+// A multi-turn run has one Stop per turn, so attempt 1 of the MEASURED turn
+// (the last scenario turn) is the slice of events after the previous turn's
+// result and before the first Stop hook event in that slice.
 //
 // House rule: hyphens only, no em-dashes anywhere.
 
@@ -396,8 +399,20 @@ function setupRunTempDir() {
 // ---------------------------------------------------------------------
 
 /**
+ * isHookEvent(e, name) -- true for a system hook event of the given name in
+ * either the observed shape (subtype hook_started|hook_progress|hook_response,
+ * field hook_event) or the legacy canned shape (subtype hook_event, field
+ * hook_event_name).
+ */
+function isHookEvent(e, name) {
+  if (!e || e.type !== 'system' || typeof e.subtype !== 'string') return false;
+  if (e.subtype !== 'hook_event' && e.subtype.indexOf('hook_') !== 0) return false;
+  return e.hook_event === name || e.hook_event_name === name;
+}
+
+/**
  * parseRun(events, scenario, opts) -- splits the measured turn's attempt 1
- * at the first Stop hook_event (RESEARCH Finding 9), then classifies the
+ * (the last scenario turn) at its first Stop hook event (RESEARCH Finding 9), then classifies the
  * run. opts: {tree, mode ('probe'|'text'), interceptLogPath, sessionId, arm,
  * run, sha}.
  *
@@ -458,14 +473,13 @@ function parseRun(events, scenario, opts) {
     }
   }
 
-  const sessionStartEvent = evts.find(function (e) {
-    return e && e.type === 'system' && e.subtype === 'hook_event' && e.hook_event_name === 'SessionStart';
+  const modeRoutingHit = evts.some(function (e) {
+    if (!isHookEvent(e, 'SessionStart')) return false;
+    return ['output', 'stdout'].some(function (k) {
+      return typeof e[k] === 'string' && e[k].indexOf('No room detected') !== -1;
+    });
   });
-  if (
-    sessionStartEvent &&
-    typeof sessionStartEvent.output === 'string' &&
-    sessionStartEvent.output.indexOf('No room detected') !== -1
-  ) {
+  if (modeRoutingHit) {
     row.status = 'error_mode_routing';
     return row;
   }
@@ -482,15 +496,21 @@ function parseRun(events, scenario, opts) {
     }
   }
 
-  const stopIdx = evts.findIndex(function (e) {
-    return e && e.type === 'system' && e.subtype === 'hook_event' && e.hook_event_name === 'Stop';
-  });
+  // The measured turn is the last scenario turn. Its slice starts after the
+  // result of the previous turn (cumulative stream, one result per turn).
+  const turnCount = (scenario && Array.isArray(scenario.turns)) ? scenario.turns.length : 0;
+  const resultIdxs = [];
+  evts.forEach(function (e, i) { if (e && e.type === 'result') resultIdxs.push(i); });
+  const windowStart = (turnCount > 1 && resultIdxs.length >= turnCount - 1)
+    ? resultIdxs[turnCount - 2] + 1
+    : 0;
+  const stopRel = evts.slice(windowStart).findIndex(function (e) { return isHookEvent(e, 'Stop'); });
   let attempt1Events;
-  if (stopIdx === -1) {
-    attempt1Events = evts;
+  if (stopRel === -1) {
+    attempt1Events = evts.slice(windowStart);
     row.split = 'no-hook-events';
   } else {
-    attempt1Events = evts.slice(0, stopIdx);
+    attempt1Events = evts.slice(windowStart, windowStart + stopRel);
     row.split = 'stop-hook';
   }
 

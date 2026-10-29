@@ -84,6 +84,13 @@ mindrian-os update           # marketplace + plugin update
 mindrian-os doctor --all     # diagnose drift, suggest fixes
 ```
 
+Or do the two steps by hand. Third-party plugins do not update on their own, so run both:
+
+```bash
+/plugin marketplace update                      # refreshes the catalog
+claude plugin update mos@mindrian-marketplace   # installs the latest version
+```
+
 ---
 
 ## What talking to Larry feels like
@@ -199,4 +206,6 @@ Install MindrianOS. Start thinking with Larry.
 
 ## License
 
-Source-available (BSL 1.1), not open source. Copyright Jonathan Sagir and PWS / Mindrian.
+Source-available under BSL 1.1. Copyright Jonathan Sagir and PWS / Mindrian.
+
+This is a source-available license. It is not an open source license.

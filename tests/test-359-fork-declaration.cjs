@@ -162,8 +162,10 @@ ok('N4: last label not starting with What if is not declared', function () {
   assert.equal(forkDecl.parseForkDeclaration('Your call: A one | B two | C three').declared, false);
 });
 
-ok('N5: last label "what if x" (lowercase) is not declared', function () {
-  assert.equal(forkDecl.parseForkDeclaration('Your call: A one | B two | what if x three').declared, false);
+ok('N5: last label "what if x" (lowercase) is declared and canonicalized (N-7)', function () {
+  const r = forkDecl.parseForkDeclaration('Your call: A one | B two | what if x three');
+  assert.equal(r.declared, true);
+  assert.equal(r.moonshot, 'What if x three');
 });
 
 ok('N6: last label exactly "What if" with nothing after is not declared', function () {
@@ -211,16 +213,20 @@ ok('N15: leading whitespace before the prefix is not declared', function () {
   assert.equal(forkDecl.parseForkDeclaration('  Your call: A one | B two | What if C three').declared, false);
 });
 
-ok('N16: markdown emphasis on the prefix is not declared', function () {
-  assert.equal(forkDecl.parseForkDeclaration('**Your call:** A one | B two | What if C three').declared, false);
+ok('N16: markdown emphasis on the prefix is declared (N-7); emphasis elsewhere in the line is not', function () {
+  const r = forkDecl.parseForkDeclaration('**Your call:** A one | B two | What if C three');
+  assert.equal(r.declared, true);
+  assert.deepEqual(r.labels, ['A one', 'B two', 'What if C three']);
+  assert.equal(forkDecl.parseForkDeclaration('Intro **Your call:** A one | B two | What if C three').declared, false);
 });
 
 ok('N17: lowercase prefix "your call:" is not declared', function () {
   assert.equal(forkDecl.parseForkDeclaration('your call: A one | B two | What if C three').declared, false);
 });
 
-ok('N18: a valid line followed by one more non-empty line is not declared', function () {
-  assert.equal(forkDecl.parseForkDeclaration(VALID_2PRACTICAL + '\none more line').declared, false);
+ok('N18: a valid line followed by ONE short sign-off line is declared (N-7); by two lines it is not', function () {
+  assert.equal(forkDecl.parseForkDeclaration(VALID_2PRACTICAL + '\none more line').declared, true);
+  assert.equal(forkDecl.parseForkDeclaration(VALID_2PRACTICAL + '\none more line\nand another').declared, false);
 });
 
 ok('N19: the empty string is not declared, no throw', function () {

@@ -85,6 +85,16 @@ PHASE_341_SURFACES=(
   "commands/doctor.md"
   "data/harness-policies/release-payload-ceiling.json"
   "data/harness-policies/registry-drift.json"
+  "lib/core/session-verify-state.cjs"
+  "scripts/session-verify-probe.cjs"
+  "scripts/sessionstart-post-update-preflight.cjs"
+  "scripts/first-install-router.cjs"
+  "scripts/check-session-start-verification.cjs"
+  "scripts/check-eureka-optin-once.cjs"
+  "lib/mcp/tools/gate.cjs"
+  "lib/mcp/tools/room.cjs"
+  "data/harness-policies/session-start-verification.json"
+  "data/harness-policies/eureka-optin-once.json"
   "tests/run-all-341.sh"
 )
 
@@ -141,6 +151,20 @@ run_if "341: install-sh-retired" "tests/test-341-install-sh-retired.cjs" \
   node tests/test-341-install-sh-retired.cjs
 run_if "341: update-collapsed" "tests/test-341-update-collapsed.cjs" \
   node tests/test-341-update-collapsed.cjs
+run_if "341: session-verify-state" "tests/test-341-session-verify-state.cjs" \
+  node tests/test-341-session-verify-state.cjs
+run_if "341: session-start-tier" "tests/test-341-session-start-tier.cjs" \
+  node tests/test-341-session-start-tier.cjs
+run_if "341: eureka-optin-once" "tests/test-341-eureka-optin-once.cjs" \
+  node tests/test-341-eureka-optin-once.cjs
+run_if "341: eureka-optin-once runner (D-07b f, blocking on the dev side)" "scripts/check-eureka-optin-once.cjs" \
+  node scripts/check-eureka-optin-once.cjs --check
+run_if "341: session-start-verify-hook" "tests/test-341-session-start-verify-hook.cjs" \
+  node tests/test-341-session-start-verify-hook.cjs
+run_if "341: verify-insight-delivery" "tests/test-341-verify-insight-delivery.cjs" \
+  node tests/test-341-verify-insight-delivery.cjs
+run_if "341: eureka-optin-card" "tests/test-341-eureka-optin-card.cjs" \
+  node tests/test-341-eureka-optin-card.cjs
 run_if "341: retired-classes-a-h" "tests/test-341-retired-classes-a-h.cjs" \
   node tests/test-341-retired-classes-a-h.cjs
 run_if "341: retired-topology-halves" "tests/test-341-retired-topology-halves.cjs" \

@@ -1,0 +1,14 @@
+{"type":"system","subtype":"init","tools":["Read","Write","AskUserQuestion"],"plugins":[{"name":"mos","path":"/tmp/arm-tree-j"}],"model":"claude-sonnet-5","session_id":"sess-j"}
+{"type":"system","subtype":"hook_response","hook_event":"SessionStart","hook_name":"SessionStart:startup","output":"[MindrianOS] Room bound: scratch-359.","exit_code":0,"outcome":"success"}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"AskUserQuestion","input":{"questions":[{"question":"Which way?","options":[{"label":"Option A"},{"label":"Option B"}]}]}}]}}
+{"type":"system","subtype":"hook_started","hook_event":"Stop","hook_name":"Stop"}
+{"type":"system","subtype":"hook_response","hook_event":"Stop","hook_name":"Stop","output":"","exit_code":0,"outcome":"success"}
+{"type":"result","subtype":"success","total_cost_usd":0.05,"duration_ms":3000}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A second warm-up reply."}]}}
+{"type":"system","subtype":"hook_started","hook_event":"Stop","hook_name":"Stop"}
+{"type":"system","subtype":"hook_response","hook_event":"Stop","hook_name":"Stop","output":"","exit_code":0,"outcome":"success"}
+{"type":"result","subtype":"success","total_cost_usd":0.09,"duration_ms":3200}
+{"type":"assistant","message":{"content":[{"type":"text","text":"A plain reply with no fork and no card."}]}}
+{"type":"system","subtype":"hook_started","hook_event":"Stop","hook_name":"Stop"}
+{"type":"system","subtype":"hook_response","hook_event":"Stop","hook_name":"Stop","output":"","exit_code":0,"outcome":"success"}
+{"type":"result","subtype":"success","total_cost_usd":0.14,"duration_ms":3900}

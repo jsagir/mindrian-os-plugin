@@ -55,6 +55,9 @@
  * (in --surface both) a CLI/MCP class mismatch outside dedup; 1 when
  * false_blocks > 0 or new_misses > 0 (known_miss / known_false_block
  * excluded, R-C); 0 otherwise.
+ *
+ * Phase 359-07 additions (SPEC R2, R6, R7; D-22; all opt-in, 357 default output unchanged):
+ * --fork359 adds counts.fork359 + a per-entry fork359 object (missed forks, declared variants, control false blocks, CLI/MCP payload parity); --code-root git:<sha> and --baseline write-359 (baseline-359.json only).
  */
 
 'use strict';
@@ -181,7 +184,63 @@ function prepareCodeRoot(spec) {
     };
   }
 
+  // Phase 359-07 (D-22): git:<sha> archives any commit exactly like pre-phase.
+  const gitMatch = /^git:([0-9a-fA-F]{7,40})$/.exec(String(spec));
+  if (gitMatch) return prepareGitCodeRoot(gitMatch[1]);
+
   return { dir: spec, cleanup: function () {} };
+}
+
+/**
+ * prepareGitCodeRoot(sha) -- the 359 sibling of the pre-phase branch above.
+ * Same archive pathspec, a `replay-359-root-` mkdtemp, node_modules symlink,
+ * cleanup in the caller's finally. When sha is pre-359.json's pre_359_sha the
+ * extracted runtime_files are digest-verified (agents and skills are added to
+ * the archive pathspec for that one sha, because runtime_files names them).
+ */
+function prepareGitCodeRoot(sha) {
+  const pre359 = readPre359();
+  const isPre359 = !!(pre359 && typeof pre359.pre_359_sha === 'string' && pre359.pre_359_sha.indexOf(sha.toLowerCase()) === 0);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-359-root-'));
+  try {
+    const archivePath = path.join(tmp, 'a.tar');
+    const pathspec = ['scripts', 'lib', 'data', 'package.json', '.claude-plugin'];
+    if (isPre359) pathspec.push('agents', 'skills');
+    execFileSync('git', ['archive', '-o', archivePath, sha].concat(pathspec), { cwd: REPO_ROOT, stdio: ['ignore', 'ignore', 'pipe'] });
+    execFileSync('tar', ['-xf', archivePath, '-C', tmp], { stdio: ['ignore', 'ignore', 'pipe'] });
+    fs.rmSync(archivePath, { force: true });
+    if (isPre359 && pre359.runtime_files && typeof pre359.runtime_files === 'object') {
+      for (const relPath of Object.keys(pre359.runtime_files)) {
+        let contents;
+        try { contents = fs.readFileSync(path.join(tmp, relPath)); } catch (_e) { throw new Error('pre-359 archive missing runtime file: ' + relPath); }
+        if (crypto.createHash('sha256').update(contents).digest('hex') !== pre359.runtime_files[relPath]) {
+          throw new Error('pre-359 runtime file digest mismatch: ' + relPath);
+        }
+      }
+    }
+    const nodeModulesSrc = path.join(REPO_ROOT, 'node_modules');
+    if (fs.existsSync(nodeModulesSrc)) {
+      try { fs.symlinkSync(nodeModulesSrc, path.join(tmp, 'node_modules'), 'dir'); } catch (_eSymlink) { /* best-effort */ }
+    }
+  } catch (e) {
+    try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_eCleanup) { /* best-effort */ }
+    throw e;
+  }
+  return {
+    dir: tmp,
+    cleanup: function () {
+      try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) { /* best-effort */ }
+    },
+  };
+}
+
+/** readPre359(corpusDir) -- parsed pre-359.json or null; never throws. */
+function readPre359(corpusDir) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(corpusDir || corpusLoader.CORPUS_DIR, 'pre-359.json'), 'utf8'));
+  } catch (_e) {
+    return null;
+  }
 }
 
 /**
@@ -390,7 +449,7 @@ function runCliStop(ctx, mods) {
  * `dedup: true` when the MCP-only suppression reason fired (excluded from
  * parity per D-14). `handler-error` -> class 'error'.
  */
-async function runMcpStop(ctx, mods) {
+async function runMcpStop(ctx, mods, capture) {
   const r = await mods.stopGateHandler.handleStopEvent(ctx.session_id, ctx);
   const roomDir = (r && r.business && Object.prototype.hasOwnProperty.call(r.business, 'room_dir'))
     ? r.business.room_dir
@@ -400,7 +459,10 @@ async function runMcpStop(ctx, mods) {
     return { class: 'error', room_dir: roomDir };
   }
   if (r && r.fire === true) {
-    return { class: 'block', reason: r.reason, room_dir: roomDir };
+    const blockOut = { class: 'block', reason: r.reason, room_dir: roomDir };
+    // 359-07 (R7): rendered option labels, captured only for --fork359.
+    if (capture === true) blockOut.card_labels = ((r.card && Array.isArray(r.card.options)) ? r.card.options : []).map(function (o) { return o && o.label; });
+    return blockOut;
   }
   const out = { class: 'pass', reason: r ? r.reason : undefined, room_dir: roomDir };
   if (r && r.reason === 'dedup-already-fired-this-session') out.dedup = true;
@@ -420,6 +482,7 @@ async function runEntry(entry, opts) {
   const surface = options.surface || 'both';
   const codeRoot = options.codeRoot || REPO_ROOT;
   const mods = loadCodeRootModules(codeRoot);
+  const capture = options.capture === true;
 
   const wantCli = surface === 'cli' || surface === 'both';
   const wantMcp = surface === 'mcp' || surface === 'both';
@@ -436,7 +499,9 @@ async function runEntry(entry, opts) {
       let last = null;
       for (const stepEnv of steps) {
         const ctx = materializeEnvelope(stepEnv, h.dir, sessionId, mods);
+        const askFired = capture ? mods.checkCardFire.deriveTurnSignals(ctx).askuserquestion_fired === true : false;
         last = runCliStop(ctx, mods);
+        if (capture) last.card_fired = askFired;
       }
       return last;
     });
@@ -449,7 +514,9 @@ async function runEntry(entry, opts) {
       let last = null;
       for (const stepEnv of steps) {
         const ctx = materializeEnvelope(stepEnv, h.dir, sessionId, mods);
-        last = await runMcpStop(ctx, mods);
+        const askFired = capture ? mods.checkCardFire.deriveTurnSignals(ctx).askuserquestion_fired === true : false;
+        last = await runMcpStop(ctx, mods, capture);
+        if (capture) last.card_fired = askFired;
       }
       return last;
     });
@@ -495,6 +562,176 @@ function classifyOutcome(entry, cls, baselineClass) {
   return 'OK';
 }
 
+// ---------------------------------------------------------------------
+// Phase 359-07 (SPEC R2, R6, R7; RESEARCH Finding 6 and Patterns 2, 4).
+// Everything below runs only under --fork359 (or --baseline write-359), so
+// every 357 count, flag, JSON key and exit rule keeps its meaning. The
+// EXPECTATIONS (declaration formatter, label normalizer, yes/no test) always
+// come from HEAD, never from the code root: a pre-359 code root then measures
+// the missing declared arm instead of moving the target.
+// ---------------------------------------------------------------------
+let _headFork359 = null;
+function headFork359() {
+  if (!_headFork359) {
+    const decl = require(path.join(REPO_ROOT, 'lib', 'core', 'fork-declaration.cjs'));
+    const rel = require(path.join(REPO_ROOT, 'lib', 'core', 'gate-relevance.cjs'));
+    _headFork359 = { formatDeclaration: decl.formatDeclaration, normalize: rel.normalizeOptionLabel, isYesNo: rel.isYesNoShapedGate };
+  }
+  return _headFork359;
+}
+
+function appendDeclarationLine(text, line) {
+  return String(text).replace(/\s+$/, '') + '\n' + line;
+}
+
+/**
+ * deriveDeclaredVariant(entry) -- deep copy of a prose_fork entry with the
+ * declaration line (HEAD formatDeclaration of fork_labels) as the FINAL line:
+ * direct mode appends to output_text; transcript modes append to the last
+ * assistant record that carries text. Returns null when no such text exists.
+ */
+function deriveDeclaredVariant(entry) {
+  const variant = JSON.parse(JSON.stringify(entry));
+  variant.id = entry.id + '#decl';
+  const line = headFork359().formatDeclaration(entry.fork_labels);
+  const env = variant.envelope;
+  if (Array.isArray(env.transcript)) {
+    for (let i = env.transcript.length - 1; i >= 0; i -= 1) {
+      const rec = env.transcript[i];
+      const msg = rec && rec.message;
+      if (!msg || (rec.type !== 'assistant' && msg.role !== 'assistant')) continue;
+      if (typeof msg.content === 'string' && msg.content.trim() !== '') {
+        msg.content = appendDeclarationLine(msg.content, line);
+        return variant;
+      }
+      if (Array.isArray(msg.content)) {
+        for (let j = msg.content.length - 1; j >= 0; j -= 1) {
+          const block = msg.content[j];
+          if (block && block.type === 'text' && typeof block.text === 'string' && block.text.trim() !== '') {
+            block.text = appendDeclarationLine(block.text, line);
+            return variant;
+          }
+        }
+      }
+    }
+    return null;
+  }
+  if (typeof env.output_text !== 'string') return null;
+  env.output_text = appendDeclarationLine(env.output_text, line);
+  return variant;
+}
+
+function newFork359State() {
+  return {
+    prose_forks: 0, missed_forks: 0, controls: 0, control_false_blocks: 0,
+    declared_variants: 0, declared_caught: 0, simple_binary_excluded: 0, card_fired_excluded: 0,
+    ceiling_excluded: 0, variant_unbuildable: 0, declared_missed_forks: 0,
+    declared_parity_mismatches: 0, mcp_payload_mismatches: 0,
+  };
+}
+
+function finishFork359(st) {
+  const denom = st.declared_variants - st.simple_binary_excluded - st.card_fired_excluded - st.ceiling_excluded - st.variant_unbuildable;
+  return Object.assign({}, st, { declared_catch_rate: denom > 0 ? st.declared_caught / denom : null });
+}
+
+/**
+ * evaluateFork359(entry, raw, st, opts) -- fold one entry's raw result into
+ * the tally and, for a prose_fork entry, run its declared variant on the
+ * requested surface(s). Returns the per-entry `fork359` object.
+ */
+async function evaluateFork359(entry, raw, st, opts) {
+  const out = { raw_missed: false, variant: null };
+  const cli = raw.cli;
+  const mcp = raw.mcp;
+
+  // A 357 known_false_block (R-C, Phase 362) is tracked by 357's own counts; it is not a 359 control.
+  if (entry.prose_fork === false && entry.expected_verdict_class === 'pass' && !entry.known_false_block) {
+    st.controls += 1;
+    if ((cli && cli.class === 'block') || (mcp && mcp.class === 'block')) {
+      st.control_false_blocks += 1;
+      out.control_false_block = true;
+    }
+    return out;
+  }
+  if (entry.prose_fork !== true) return out;
+
+  st.prose_forks += 1;
+  st.declared_variants += 1;
+  const rawClass = cli ? cli.class : (mcp && mcp.class);
+  const rawCard = !!((cli && cli.card_fired) || (mcp && mcp.card_fired));
+  out.raw_missed = rawClass === 'pass' && !rawCard;
+  if (out.raw_missed) st.missed_forks += 1;
+
+  const variant = deriveDeclaredVariant(entry);
+  if (!variant) {
+    st.variant_unbuildable += 1;
+    out.variant = { cli: null, mcp: null, expected: null, outcome: 'UNBUILDABLE' };
+    return out;
+  }
+  if (rawCard) {
+    st.card_fired_excluded += 1;
+    out.variant = { cli: null, mcp: null, expected: 'pass', outcome: 'CARD_FIRED_EXCLUDED' };
+    return out;
+  }
+
+  // Expected verdict: ceilings first (the arm checks them first), then the
+  // yes/no practical-pair exemption (N-3), else the declared block.
+  const mods = loadCodeRootModules(opts.codeRoot);
+  const counters = (entry.envelope && entry.envelope.counters) || {};
+  let expected = { cls: 'block', reason: 'declared-fork-no-card', bucket: null };
+  if (Number.isInteger(counters.session) && counters.session >= mods.checkCardFire.MAX_SESSION_INTERCEPTS) {
+    expected = { cls: 'pass', reason: 'session-intercept-ceiling-reached-after-' + mods.checkCardFire.MAX_SESSION_INTERCEPTS + '-intercepts', bucket: 'ceiling_excluded' };
+  } else if (Number.isInteger(counters.retry) && counters.retry >= mods.checkCardFire.MAX_FORCE_RETRIES) {
+    expected = { cls: 'pass', reason: 'bounded-escape-released-after-' + mods.checkCardFire.MAX_FORCE_RETRIES + '-retries', bucket: 'ceiling_excluded' };
+  } else {
+    const head = headFork359();
+    if (head.isYesNo(entry.fork_labels.slice(0, -1).map(head.normalize))) {
+      expected = { cls: 'pass', reason: 'gate-is-simple-binary', bucket: 'simple_binary_excluded' };
+    }
+  }
+  if (expected.bucket) st[expected.bucket] += 1;
+
+  let vr;
+  try {
+    vr = await runEntry(variant, { codeRoot: opts.codeRoot, surface: opts.surface, capture: true });
+  } catch (_e) {
+    vr = { cli: { class: 'error' }, mcp: { class: 'error' } };
+  }
+  const vc = vr.cli;
+  const vm = vr.mcp;
+
+  let hit;
+  if (expected.cls === 'block') hit = vc ? (vc.class === 'block' && vc.reason === expected.reason) : (!!vm && vm.class === 'block');
+  else hit = vc ? (vc.class === 'pass' && vc.reason === expected.reason) : (!!vm && vm.class === 'pass');
+  let parity = false;
+  if (vc && vm && !vm.dedup && vc.class !== vm.class) parity = true;
+  if (vm && expected.cls === 'block' && vm.class !== 'block') parity = true;
+  let payload = false;
+  if (vm && expected.cls === 'block' && vm.class === 'block') {
+    payload = JSON.stringify(vm.card_labels) !== JSON.stringify(entry.fork_labels);
+  }
+
+  if (!hit) st.declared_missed_forks += 1;
+  if (parity) st.declared_parity_mismatches += 1;
+  if (payload) st.mcp_payload_mismatches += 1;
+  if (hit && expected.cls === 'block') st.declared_caught += 1;
+
+  let outcome = 'CAUGHT';
+  if (!hit) outcome = 'MISSED_DECLARED';
+  else if (parity) outcome = 'PARITY_MISMATCH';
+  else if (payload) outcome = 'PAYLOAD_MISMATCH';
+  else if (expected.bucket === 'ceiling_excluded') outcome = 'CEILING_EXCLUDED';
+  else if (expected.bucket === 'simple_binary_excluded') outcome = 'SIMPLE_BINARY_EXCLUDED';
+  out.variant = {
+    cli: vc ? { class: vc.class, reason: vc.reason } : null,
+    mcp: vm ? { class: vm.class, card_labels: vm.card_labels } : null,
+    expected: expected.cls + ':' + expected.reason,
+    outcome: outcome,
+  };
+  return out;
+}
+
 /**
  * runReplay(opts) -- load the corpus, replay every (filtered) entry on the
  * requested surface(s), classify each outcome, tally counts, optionally
@@ -515,6 +752,12 @@ async function runReplay(opts) {
 
   const loadOpts = { corpusDir: corpusDir };
   if (sourceFilter) loadOpts.sources = [sourceFilter];
+  // 359-07: write-359 measures fork359 too. fork359 / opt-in sources load the opt-in corpus; the dogfood overlay
+  // only merges when dogfood can be present (a --source filter that excludes it would make every overlay id an error).
+  const baselineWrite359 = options.baseline === 'write-359';
+  const fork359On = options.fork359 === true || baselineWrite359;
+  if (fork359On || (sourceFilter && corpusLoader.OPT_IN_SOURCES.indexOf(sourceFilter) !== -1)) loadOpts.optIn = corpusLoader.OPT_IN_SOURCES;
+  if (fork359On && (!sourceFilter || sourceFilter === 'dogfood')) loadOpts.fork359Overlay = true;
   const corpus = corpusLoader.loadCorpus(loadOpts);
 
   if (corpus.errors.length > 0) {
@@ -534,8 +777,8 @@ async function runReplay(opts) {
     return { exitCode: 2, error: 'code root preparation failed: ' + e.message };
   }
   const codeRootDir = codeRootResult.dir;
-  const codeRootLabel = options.codeRoot === 'pre-phase'
-    ? 'pre-phase'
+  const codeRootLabel = (options.codeRoot === 'pre-phase' || /^git:/.test(String(options.codeRoot)))
+    ? options.codeRoot
     : (codeRootDir === REPO_ROOT ? 'HEAD' : codeRootDir);
 
   const baselinePath = path.join(corpusDir, 'baseline.json');
@@ -544,6 +787,15 @@ async function runReplay(opts) {
   if (baselineMode === 'write' && options.codeRoot !== 'pre-phase') {
     codeRootResult.cleanup();
     return { exitCode: 2, error: '--baseline write requires --code-root pre-phase (D-03)' };
+  }
+
+  // 359-07 (D-22): write-359 accepts ONLY git:<pre_359_sha> from pre-359.json and never touches baseline.json.
+  if (baselineWrite359) {
+    const pre359 = readPre359(corpusDir);
+    if (!pre359 || typeof pre359.pre_359_sha !== 'string' || options.codeRoot !== 'git:' + pre359.pre_359_sha) {
+      codeRootResult.cleanup();
+      return { exitCode: 2, error: '--baseline write-359 requires --code-root git:<pre_359_sha> from pre-359.json (D-22)' };
+    }
   }
 
   let baselineData = null;
@@ -570,6 +822,7 @@ async function runReplay(opts) {
     throw new Error(NETWORK_FORBIDDEN_MESSAGE);
   };
 
+  const fork359State = newFork359State();
   const results = [];
   let errorsCount = 0;
   let parityMismatches = 0;
@@ -578,7 +831,7 @@ async function runReplay(opts) {
     for (const entry of entries) {
       let entryResult;
       try {
-        entryResult = await runEntry(entry, { codeRoot: codeRootDir, surface: surface });
+        entryResult = await runEntry(entry, { codeRoot: codeRootDir, surface: surface, capture: fork359On });
       } catch (_e) {
         entryResult = { cli: { class: 'error' }, mcp: { class: 'error' } };
       }
@@ -612,6 +865,7 @@ async function runReplay(opts) {
         baseline: baselineClass !== undefined ? baselineClass : null,
         outcome: outcome,
       });
+      if (fork359On) results[results.length - 1].fork359 = await evaluateFork359(entry, entryResult, fork359State, { codeRoot: codeRootDir, surface: surface });
     }
   } finally {
     globalThis.fetch = savedFetch;
@@ -651,6 +905,25 @@ async function runReplay(opts) {
     unmarked_misses: results.filter(function (r) { return r.outcome === 'MISSED_FORK'; }).length,
   };
 
+  if (fork359On) counts.fork359 = finishFork359(fork359State);
+
+  if (baselineWrite359) {
+    const verdicts359 = {};
+    for (const r of results) verdicts359[r.id] = (surface === 'mcp') ? (r.mcp && r.mcp.class) : (r.cli && r.cli.class);
+    const f = counts.fork359;
+    fs.writeFileSync(path.join(corpusDir, 'baseline-359.json'), JSON.stringify({
+      meta: {
+        pre_359_sha: readPre359(corpusDir).pre_359_sha,
+        code_root: codeRootLabel,
+        written_at: new Date().toISOString(),
+        entry_count: results.length,
+        sources: Array.from(new Set(results.map(function (r) { return r.source; }))).sort(),
+      },
+      fork359: { prose_forks: f.prose_forks, missed_forks: f.missed_forks, controls: f.controls, control_false_blocks: f.control_false_blocks },
+      verdicts: verdicts359,
+    }, null, 2) + '\n');
+  }
+
   let missingFromBaseline = [];
   if (baselineMode === 'compare' && baselineData && baselineData.verdicts) {
     missingFromBaseline = results
@@ -658,9 +931,17 @@ async function runReplay(opts) {
       .map(function (r) { return r.id; });
   }
 
-  const exitCode = (counts.errors > 0 || counts.parity_mismatches > 0)
+  let exitCode = (counts.errors > 0 || counts.parity_mismatches > 0)
     ? 2
     : ((counts.false_blocks > 0 || counts.new_misses > 0) ? 1 : 0);
+  // 359-07 (R6, R7): the fork359 bar. write-359 records instead of gating.
+  if (fork359On && baselineWrite359) {
+    if (exitCode === 1) exitCode = 0;
+  } else if (fork359On && exitCode === 0) {
+    const f = counts.fork359;
+    if (f.declared_catch_rate === null || f.declared_catch_rate < 1 || f.control_false_blocks > 0
+      || f.declared_missed_forks > 0 || f.declared_parity_mismatches > 0 || f.mcp_payload_mismatches > 0) exitCode = 1;
+  }
 
   return {
     exitCode: exitCode,
@@ -687,6 +968,7 @@ function parseArgs(argv) {
       case '--only': opts.only = argv[i += 1]; break;
       case '--source': opts.source = argv[i += 1]; break;
       case '--corpus-dir': opts.corpusDir = argv[i += 1]; break;
+      case '--fork359': opts.fork359 = true; break;
       default:
         // Unknown flags are ignored rather than fatal, so a later plan can
         // add flags (e.g. --mutation, reserved for 357-09's leg) without
@@ -740,6 +1022,15 @@ async function main() {
       ' parity_mismatches=' + c.parity_mismatches +
       ' errors=' + c.errors + '\n'
     );
+    if (c.fork359) {
+      const f = c.fork359;
+      process.stdout.write('fork359: ' + Object.keys(f).map(function (k) { return k + '=' + f[k]; }).join(' ') + '\n');
+      for (const e of result.entries) {
+        if (e.fork359 && e.fork359.variant && e.fork359.variant.outcome !== 'CAUGHT') {
+          process.stdout.write('  fork359 ' + e.fork359.variant.outcome + ' ' + e.id + '\n');
+        }
+      }
+    }
     for (const e of result.entries) {
       if (e.outcome !== 'OK') {
         process.stdout.write(
@@ -760,6 +1051,7 @@ module.exports = {
   runReplay: runReplay,
   runEntry: runEntry,
   prepareCodeRoot: prepareCodeRoot,
+  deriveDeclaredVariant: deriveDeclaredVariant,
   classifyOutcome: classifyOutcome,
   main: main,
 };

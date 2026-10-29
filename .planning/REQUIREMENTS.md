@@ -3132,56 +3132,66 @@ plan time as `- [ ]` rows to be closed with measured proof, or left open with a 
 phase close by `359-12-PLAN.md` Task 1. Execution is held until Phase 357 is complete on `main`,
 including 357-10 (D-17).
 
-- [ ] **FORK359-01**: The replay corpus carries a prose_fork / fork_labels dimension:
+- [x] **FORK359-01**: The replay corpus carries a prose_fork / fork_labels dimension:
       `prose-forks-359.json` holds at least 15 synthetic prose forks and at least 15 non-fork
       controls as an opt-in `synthetic-359` source (357's default load unchanged), every prose fork
       has at least 2 fork_labels in the N-3 grammar, the synthetic entries are labeled through 357's
       labeler and card_fire_replay profile, and the 357 dogfood entries carry navigator-ratified
       prose_fork labels while the labeler still refuses dogfood. Plans 359-02, 359-06.
+      Proof: `node tests/test-359-corpus.cjs` 10/10, `node tests/test-357-labeler-refusal.cjs` green, 24 dogfood ids ratified prose_fork false (359-02, 359-06 SUMMARY). Note: ruling N-7 re-reads the near-miss controls syn359-ctrl-16/17/18 and is not implemented (see FORK359-03).
 
-- [ ] **FORK359-02**: The replay reports `fork359.missed_forks` (prose fork, no card, verdict pass);
+- [x] **FORK359-02**: The replay reports `fork359.missed_forks` (prose fork, no card, verdict pass);
       the pre-359 value, equal to the no-card prose-fork count on pre-359 code, is written to
       `baseline-359.json` through `--code-root git:<pre-359 sha>` and recorded in the SUMMARY.
       Plans 359-07, 359-08.
+      Proof: `baseline-359.json` written from pre-359 sha 2797903a0, missed_forks 17 of 17 prose forks; `node tests/test-359-replay.cjs` 26/26 (359-07, 359-08 SUMMARY).
 
-- [ ] **FORK359-03**: `lib/core/fork-declaration.cjs` exports a pure `parseForkDeclaration` that
+- [x] **FORK359-03**: `lib/core/fork-declaration.cjs` exports a pure `parseForkDeclaration` that
       accepts only a last-line `Your call: p1 | p2[ | p3] | What if m` declaration (2 or 3 practical
       labels plus one final What-if moonshot, at most 80 code points per label, no brackets, no voice
       glyph, no box literal), makes no network call and never throws. Plan 359-01.
+      Proof: `node tests/test-359-fork-declaration.cjs` 39/39 (359-01 SUMMARY). The grammar is the strict N-3 form as the row states. Ruling N-7 (tolerate cosmetic slips) is NOT implemented: no plan carried it; recorded as a residual in 359-12-SUMMARY.
 
-- [ ] **FORK359-04**: `classifyCardFire` gains a declared arm fed by `deriveTurnSignals` from this
+- [x] **FORK359-04**: `classifyCardFire` gains a declared arm fed by `deriveTurnSignals` from this
       turn's final text: card-fired first, both ceilings degrade with today's reason strings,
       yes/no-shaped practical labels pass as `gate-is-simple-binary`, otherwise intercept
       `declared-fork-no-card`; the retry key includes the declared labels and the calm block envelope
       is unchanged. Plan 359-03.
+      Proof: `node tests/test-359-declared-arm.cjs` 20/20 (359-03 SUMMARY, rerun 359-12).
 
-- [ ] **FORK359-05**: The arm is inert on the 357 corpus: 0 verdict class or reason changes versus
+- [x] **FORK359-05**: The arm is inert on the 357 corpus: 0 verdict class or reason changes versus
       the pre-359 snapshot, false_blocks 0 and new_misses 0, both box regex literals byte-identical,
       and `classifyCardFire` reads output text only through the pre-359 helpers plus the declaration
       parser. Plans 359-01, 359-03, 359-07, 359-08.
+      Proof: `node tests/test-359-inertness.cjs` 4/4, 0 class or reason changes versus pre-359.json, false_blocks 0, new_misses 0 (359-01, 359-07, 359-12).
 
-- [ ] **FORK359-06**: Declared variants of every prose fork are caught at 100% (yes/no practical
+- [x] **FORK359-06**: Declared variants of every prose fork are caught at 100% (yes/no practical
       pairs reported separately as `gate-is-simple-binary`), with `control_false_blocks` 0 and 0
       missed forks on the declared variants. Plans 359-07, 359-08.
+      Proof: `node scripts/replay-card-fire.cjs --source synthetic-359 --fork359 --surface both` declared_catch_rate 1, control_false_blocks 0, declared_missed_forks 0, simple-binary excluded 3 (syn359-fork-14, -15, -16) (359-07 SUMMARY).
 
-- [ ] **FORK359-07**: CLI and MCP verdict classes match on every R5 and R6 entry (dedup excluded),
+- [x] **FORK359-07**: CLI and MCP verdict classes match on every R5 and R6 entry (dedup excluded),
       the MCP card options equal the declared labels with the moonshot last, and two distinct
       declared forks in one MCP session both fire. Plans 359-03, 359-07.
+      Proof: `node tests/test-359-mcp-declared.cjs` 7/7, `node tests/test-359-replay.cjs` L3 and L4 green, parity mismatches 0, MCP payload mismatches 0 (359-03, 359-07 SUMMARY).
 
-- [ ] **FORK359-08**: Larry's declaration rule lands on the two Larry card spans, the session-start
+- [x] **FORK359-08**: Larry's declaration rule lands on the two Larry card spans, the session-start
       card-fire doctrine and the MCP server instructions in one revertible commit, at most 400 B net
       (N-6), with the 357 pinned phrases, the doctrine and MCP byte pins, the voice-mark and handoff
       tests green and the harness manifest regenerated. Plan 359-09.
+      Proof: commit 656cd8a34, net +333 B (cap 400), `node tests/test-359-prose-budget.cjs` 18/18, `node scripts/build-harness-manifest.cjs --check` OK (359-09 SUMMARY). Prose shipped; live adoption measured by R9 PASS (see FORK359-09).
 
-- [ ] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 60
-      in total, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
+- [x] **FORK359-09**: A dev-only headless forward run (Sonnet 5, at most USD 0.40 per run and USD 80
+      in total as raised by the navigator, navigator-gated smoke first) shows post-change forward missed forks at most 50% of
       pre-change above the vacuity floor with 0 control blocks, or records INCONCLUSIVE, or records
       the falsification with R8 reverted and a follow-on opened; moonshots are Jev-scored at dev time
       on synthetic text only (N-3, N-4). Plans 359-04, 359-05, 359-10, 359-11.
+      Proof: R9 PASS after the decline was reversed (2026-10-28 ruling; 359-11 SUMMARY addendum). Mode probe, 12 fork scenarios x 3 runs x 2 arms plus 12 control scenarios, 144 rows, all ok, 0 error_budget. Pre missed 16 of 36, post missed 6 of 36 (floor 8, bar at most 8), control declared blocks 0. Spend USD 31.331 plus the USD 0.668 smoke = USD 31.999 (cap USD 80). Caveats: the measured post tree has the strict parser (N-7 not in it); declarations were 4 of 36 post fork runs, most of the gain is more cards (20 to 30); `hook_live_proof` false by the harness definition.
 
-- [ ] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
+- [x] **FORK359-10**: The R1 fixture legs, the R4 legs, the R5 inertness replay and the R6
       declared-variant replay run in `tests/run-all-359.sh` and `tests/run-all-238.sh`, and removing
       the declared arm or adding a free-text fork regex each fails the suite. Plan 359-08.
+      Proof: `bash tests/run-all-359.sh` PASS=26 FAIL=0 SKIP=0; `node tests/test-359-replay.cjs --mutation` 4/4 (M1 arm removed exit 1, M2 free-text regex exit 1); `node tests/test-359-devonly-tripwire.cjs` 9/9 (359-08, 359-12).
 
 ### Phase 360 - Room-bind picker on harness turns and in dev repos (BIND360 family)
 
@@ -4916,6 +4926,33 @@ These 52 IDs were minted in the Phase 369.25 plan set (2026-10-06) from `369.25-
 - [x] **FCLOSE-06**: beta.63 cut behind RULE 10, ledger rebuild at the placeholder version as a pre-step (the ICM eval refresh runs after the cut, the eval-refresh recovery path). Plan(s) 369.25-25. **Measured (2026-10-06):** receipt for 0f8a9a984 read by the navigator at 07:15:09Z with the negative leg 12 of 12 refused (room_db_missing, room_db_unreadable, room_graph_lost); release commit 563c24262, tag v2.0.0-beta.63 verified at origin; npm next and latest 2.0.0-beta.63; marketplace pinned beta.63; post-publish acceptance 24/24 after the eval-refresh recovery e79bd0430.
 - [x] **FCLOSE-07**: the real-room negative leg (navigator 2026-10-06 01:00, from Lawrence's session): the never-ready fixture with room.db removed and with it corrupted; quick, deep, Eureka and analogies each refuse with a typed not_ready reason naming the failed requirement; the receipt records both legs; the Step 2.6 gate refuses a receipt whose negative leg is missing or did not refuse. Plan(s) 369.25-13, 369.25-23, 369.25-24, 369.25-27. **Measured:** (2026-10-06, plan 369.25-25) `node scripts/real-room-run.cjs --negative-only` exit 0, refused 12 of 12 (3 rooms times 4 jobs: room.db missing, damaged, deleted and silently re-minted empty; reasons `room_db_missing`, `room_db_unreadable`, `room_graph_lost`); `node tests/test-36925-negative-leg.cjs` PASS=52 FAIL=0; `node tests/test-muy-real-room-rule.cjs` 20 passed, 0 failed (G11-G14: Step 2.6 refuses a receipt with no negative leg or one where any job ran; `release.sh` unedited). **Residual:** the live receipt on the final sha is the navigator's read (FCLOSE-06).
 
+### Phase 314 - Portfolio movement and /mos:eureka-portfolio (PM314 family)
+
+PM314-01..11 were minted in the Phase 314 plan set (2026-10-28) from `314-CONTEXT.md` D-01 to D-07 and the engine-path ruling of 2026-10-28.
+
+- [x] **PM314-01**: `/mos:eureka-portfolio` exists, is born wired, declares its HITL shape and layer, and takes the whole room or a named section (D-05).
+      Proof: `node tests/test-314-command.cjs` 17/17, born wired, F.8 and layer declared, registry gates green (314-05 SUMMARY).
+- [x] **PM314-02**: The command prints measured numbers with provenance and degrades honestly in plain words when the engine or encoder is unavailable.
+      Proof: `node tests/test-314-run.cjs` 13/13 and test-314-command K legs; the plain-words degrade is tested. A real-room run only reached the honest degrade (no_pairs) in calibration, so measured numbers on a real room are not shown (314-07 SUMMARY).
+- [x] **PM314-03**: SENS-13 learns evidence shape B (portfolio movement) with zero new SENSOR_REGISTRY entry and zero decide() change (D-06).
+      Proof: `node tests/test-314-sensor-shape-b.cjs` 13/13; SENSOR_REGISTRY_IDS length 23 with SENS-13 once; `git diff 7699ebdb4 HEAD` on insight-sensors.cjs, navigation-engine.cjs and sensors.cjs is empty (314-03, 314-08 SUMMARY).
+- [x] **PM314-04**: `composePortfolioOffer` is a sibling composer next to `composeEurekaOffer` and uses a fixed template (D-06).
+      Proof: `node tests/test-314-offer.cjs` 10/10, `test-314-label-lockstep.cjs` 6/6; composePortfolioOffer is a sibling file (314-03 SUMMARY).
+- [x] **PM314-05**: The previous-run diff is stored locally, on demand only, and the sensor never starts a run (D-01, D-02, D-07).
+      Proof: `node tests/test-314-e2e.cjs` 9/9 (E4, E9: another scope never wipes an unseen movement), `test-314-cli.cjs` 12/12, source scan C12: no timer, no watcher, no network (314-04 SUMMARY).
+- [x] **PM314-06**: The movement rule is composite: band crossing, or a tail-quadrant entrant, or a top-N reshuffle (D-03).
+      Proof: `node tests/test-314-movement.cjs` 11/11. Band crossing and tail entrant are live. The top-N reshuffle part is built but OFF because thresholds are uncalibrated (see PM314-07).
+- [ ] **PM314-07**: Movement thresholds are calibrated on a real run and the run is recorded (D-04), or the SUMMARY records an accepted degrade that the navigator signs off.
+      Open: no real room met the calibration bar (best 194 pairs against 200); accepted degrade signed off by the navigator on 2026-10-28, thresholds stay uncalibrated and the reshuffle trigger stays off (314-07 SUMMARY).
+- [x] **PM314-08**: Part 8 holds: nothing leaves the room and the envelopes use closed schemas.
+      Proof: `node tests/test-314-part8-envelope.cjs` 6/6 and source scans show no network or Brain call in the new modules (314-01, 314-04 SUMMARY).
+- [x] **PM314-09**: The Tri-Polar reach (CLI, Desktop, Cowork) is stated and tested.
+      Proof: `node tests/test-314-mcp.cjs` 53/53 (Desktop and Cowork read the last run; they cannot start one) and the Tri-Polar table in commands/eureka-portfolio.md. No live Desktop host call was made (314-06 SUMMARY).
+- [x] **PM314-10**: Engine-path correction: a bounded run library over the surviving 215 modules scores only the room's own linked pairs; no all-pairs loop and no runner file returns.
+      Proof: `node tests/test-366-runner-retired.cjs` 5/5, both retired runner files still absent, `test-314-run.cjs` R2, R3, R8 show no all-pairs loop (314-02 SUMMARY).
+- [x] **PM314-11**: The aggregator, the CHANGELOG bullet and the canon ledger row exist.
+      Proof: `bash tests/run-all-314.sh` PASSED=43 FAILED=0 KNOWN=3; CHANGELOG and canon-map rows in commit 08f6eacc0 (314-08 SUMMARY).
+
 ## Traceability
 
 485 active requirements: RECON-01..04, TRUST-01..02, FIX-01..04, CER-01..06, FLOOR-01..03,
@@ -5092,9 +5129,10 @@ startup mechanics are baseline evidence, not a substitute for host acceptance.
   composition, room-space picture, human threshold, semantic color, type and copy.
 - [x] **STARTUI371-07**: Both journeys support narrow/wide host containers,
   keyboard, 200% text zoom, forced colors, reduced motion and explicit recovery.
-- [ ] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
+- [x] **STARTUI371-08**: Acceptance preserves existing protocol/browser tests,
   verifies new visual/accessibility/font delivery behavior, and distinguishes
   local evidence from a real ChatGPT host smoke test and host placement limits.
+      Proof: complete local runner and reviews pass (371-VERIFICATION.md, 371-REVIEW.md clean, 371-UI-REVIEW.md 23/24). Real ChatGPT host resource, CSP, placement and both journeys are UNOBSERVED and WAIVED by the navigator on 2026-10-29 (371-UAT.md).
 
 
 ## Phase 373 - Eureka graph algorithm services (added 2026-10-19)

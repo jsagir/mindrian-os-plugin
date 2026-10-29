@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "calibrated": false,
+  "top_n": null,
+  "reshuffle_min_moved": null,
+  "reshuffle_min_displacement": null,
+  "calibration": {
+    "reason": "no_qualifying_room",
+    "run_date": "2026-10-28",
+    "rule": "Candidate N values are 5, 10, 25 and 50 that do not exceed the number of ranked pairs in the baseline. For each N, wobble_moved(N) is the 90th percentile (nearest rank) of entered plus left over the 1 percent trials, wobble_shift(N) the same for max_shift; change_moved(N) and change_shift(N) are the medians over the 10 percent trials. Choose the smallest N where wobble_moved(N) is at most floor(N / 4) and change_moved(N) is greater than wobble_moved(N). reshuffle_min_moved is wobble_moved(N) plus 1, never below 2. reshuffle_min_displacement is wobble_shift(N) plus 1, never below 2. displacement_separates is true when that minimum is at most change_shift(N).",
+    "per_n": {},
+    "bar": {
+      "pairs_scored": 200,
+      "ranked": 50,
+      "cohort_techs": 100
+    },
+    "probes": [
+      {
+        "room_id_hash": "8fb9034c29b4",
+        "node_count": 8170,
+        "edge_count": 1076,
+        "result": "degraded:no_pairs",
+        "typed_edge_pairs": 58,
+        "things": 2841
+      },
+      {
+        "room_id_hash": "a43ff1b737f4",
+        "node_count": 13877,
+        "edge_count": 2242,
+        "result": "scored",
+        "cohort_techs": 89,
+        "pairs_scored": 2,
+        "ranked": 2,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "a2e80d4cd53e",
+        "node_count": 11163,
+        "edge_count": 3782,
+        "result": "scored",
+        "cohort_techs": 3628,
+        "pairs_scored": 27,
+        "ranked": 27,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "8c064edfb920",
+        "node_count": 6338,
+        "edge_count": 2136,
+        "result": "scored",
+        "cohort_techs": 3277,
+        "pairs_scored": 194,
+        "ranked": 194,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "ed38d66b6660",
+        "node_count": 2804,
+        "edge_count": 553,
+        "result": "degraded:too_few_things",
+        "typed_edge_pairs": 0,
+        "things": 0
+      },
+      {
+        "room_id_hash": "6c0a21e095a6",
+        "node_count": 6193,
+        "edge_count": 436,
+        "result": "degraded:no_pairs",
+        "typed_edge_pairs": 72,
+        "things": 133
+      },
+      {
+        "room_id_hash": "66c264381a7f",
+        "node_count": 1575,
+        "edge_count": 381,
+        "result": "scored",
+        "cohort_techs": 306,
+        "pairs_scored": 1,
+        "ranked": 1,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "0acbf84757d0",
+        "node_count": 2330,
+        "edge_count": 1569,
+        "result": "scored",
+        "cohort_techs": 679,
+        "pairs_scored": 31,
+        "ranked": 31,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "7c0d6bb84bb5",
+        "node_count": 1925,
+        "edge_count": 3661,
+        "result": "degraded:no_pairs",
+        "typed_edge_pairs": 3073,
+        "things": 317
+      },
+      {
+        "room_id_hash": "257b9eaa97a2",
+        "node_count": 1021,
+        "edge_count": 1722,
+        "result": "scored",
+        "cohort_techs": 893,
+        "pairs_scored": 96,
+        "ranked": 96,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      },
+      {
+        "room_id_hash": "6fb30445011e",
+        "node_count": 801,
+        "edge_count": 267,
+        "result": "scored",
+        "cohort_techs": 130,
+        "pairs_scored": 4,
+        "ranked": 4,
+        "encoder_model": "MongoDB/mdbr-leaf-ir"
+      }
+    ]
+  }
+}

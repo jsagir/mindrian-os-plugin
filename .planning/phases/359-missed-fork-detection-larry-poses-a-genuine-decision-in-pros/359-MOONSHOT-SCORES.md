@@ -31,3 +31,29 @@ Scores are dev-time evidence only and are never auto-applied to any fixture (N-3
 
 relevant_to_context: mean=3.52, histogram(0-4)=0,0,0,8,9
 radical_departure: mean=2.50, histogram(0-4)=0,0,9,8,0
+
+## Forward run (plan 11)
+
+Run timestamp: 2026-10-28T23:18:46Z
+Model: jev-latest
+Policy sha256: 68ddcbce21f6ce762922ea462223cbbca7cff21530bb423a35581dc7586e1989
+Source: forward batch rows with declared true (post arm only; the pre arm had 0 declarations). Context sent to Jev: authored scenario turns plus declared labels only (N-3, Part 8).
+Counts by status: labeled=4
+Share of declarations whose last label was a What-if moonshot: 4 of 4 (100%).
+Moonshot label text from the live runs is withheld on purpose: reply text from the paid runs never enters git. Raw rows stay in ~/.cache/mindrian-dev/359-forward/.
+
+Scores are dev-time evidence only and are never auto-applied to any fixture (N-3).
+
+| id | moonshot | relevant score | relevant confidence | radical score | radical confidence | status |
+|----|----------|-----------------|----------------------|----------------|----------------------|--------|
+| fwd-fork-05:post:2 | (withheld) | 2.95 | 0.44 | 2.91 | 0.91 | labeled |
+| fwd-fork-07:post:1 | (withheld) | 3.87 | 0.91 | 2.48 | 0.58 | labeled |
+| fwd-fork-07:post:2 | (withheld) | 3.87 | 0.9 | 2.48 | 0.55 | labeled |
+| fwd-fork-08:post:1 | (withheld) | 3.43 | 0.56 | 1.92 | 0 | labeled |
+
+### Distribution (forward run, post arm)
+
+relevant_to_context: mean=3.53, histogram(0-4)=0,0,0,2,2
+radical_departure: mean=2.45, histogram(0-4)=0,0,3,1,0
+
+Reading (ASSUMED, 4 rows): forward declarations stay relevant to the decision (mean 3.53, like the fixture mean 3.52) and are somewhat less radical than the fixture mean 2.50 (2.45, within noise at n=4). One row has radical confidence 0.

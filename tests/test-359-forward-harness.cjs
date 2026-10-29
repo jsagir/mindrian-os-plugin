@@ -195,6 +195,25 @@ function buildForkRows(prefix, arm, total_, missedCount) {
   assert.equal(row.card, true);
 });
 
+  await ok('parseRun (j): a card in a warm-up turn only is NOT counted; the measured turn is the last scenario turn (observed multi-turn shape)', function () {
+  const events = loadStream('j-card-in-warmup-only');
+  const scenario = { id: 'j', poses_fork: true, turns: ['t1', 't2', 't3'] };
+  const row = harness.parseRun(events, scenario, { tree: '/tmp/arm-tree-j', mode: 'probe' });
+  assert.equal(row.status, 'ok');
+  assert.equal(row.card, false);
+  assert.deepEqual(row.card_options, []);
+  assert.equal(row.split, 'stop-hook');
+});
+
+  await ok('parseRun (k): the observed hook shape (subtype hook_response, field hook_event) is recognised for Stop and SessionStart', function () {
+  const events = loadStream('a-card-in-attempt1');
+  assert.ok(events.some(function (e) { return e.subtype === 'hook_response' && e.hook_event === 'Stop'; }));
+  assert.ok(!events.some(function (e) { return e.subtype === 'hook_event' || e.hook_event_name; }));
+  const row = harness.parseRun(events, { id: 'a', poses_fork: true, turns: ['t1', 't2', 't3'] }, { tree: '/tmp/arm-tree-a', mode: 'probe' });
+  assert.equal(row.split, 'stop-hook');
+  assert.equal(row.card, true);
+});
+
 // ---------------------------------------------------------------------
 // preflight: refusal shapes and the pass shape
 // ---------------------------------------------------------------------

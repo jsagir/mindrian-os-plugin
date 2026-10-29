@@ -54,7 +54,6 @@ const ID_TO_CLASS = {
   'cascade-rooms': 'B',
   'room-md': 'E',
   'statusline-visibility': 'G',
-  'install-incomplete': 'H',
   'install-state': 'I',
   'deployment-surfaces': 'J',
 };
@@ -94,9 +93,10 @@ function docFixClassLetters(doc) {
   return [...new Set(letters)].sort();
 }
 
-// derivedFixClassLetters(registry) -> sorted array: A (carve-out) + fix_supported:true class letters.
+// derivedFixClassLetters(registry) -> sorted array of the fix_supported:true class letters.
+// Class A (the hand-coded carve-out) was retired in Phase 341 plan 09, so no letter is seeded.
 function derivedFixClassLetters(registry) {
-  const set = new Set(['A']); // class A install-cache: special-cased in main(), --fix supported.
+  const set = new Set();
   for (const mod of registry.modules || []) {
     if (mod.fix_supported === true && ID_TO_CLASS[mod.id]) {
       set.add(ID_TO_CLASS[mod.id]);
@@ -146,12 +146,12 @@ const docFix = docFixClassLetters(doc);
 const derivedFix = derivedFixClassLetters(registry);
 for (const l of docFix) {
   if (!derivedFix.includes(l)) {
-    violations.push('--fix line names class ' + l + ' but no fix_supported:true module (nor carve-out A) backs it');
+    violations.push('--fix line names class ' + l + ' but no fix_supported:true module backs it');
   }
 }
 for (const l of derivedFix) {
   if (!docFix.includes(l)) {
-    violations.push('class ' + l + ' declares fix_supported (or is the A carve-out) but the doc --fix line omits it');
+    violations.push('class ' + l + ' declares fix_supported but the doc --fix line omits it');
   }
 }
 

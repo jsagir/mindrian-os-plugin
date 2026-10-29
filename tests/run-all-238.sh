@@ -58,6 +58,14 @@ run_if "238-07/08 card-fire corpus (GATE-04)" "tests/test-238-card-fire-corpus.c
   node tests/test-238-card-fire-corpus.cjs
 run_if "357 card-fire replay standing gate (GATE-04, R-J)" "tests/test-357-replay.cjs" \
   node tests/test-357-replay.cjs
+run_if "359 fork fixtures (FORK359-01, R10)" "tests/test-359-corpus.cjs" \
+  node tests/test-359-corpus.cjs
+run_if "359 declared arm legs (FORK359-04, R10)" "tests/test-359-declared-arm.cjs" \
+  node tests/test-359-declared-arm.cjs
+run_if "359 inertness on the 357 corpus (FORK359-05, R10)" "tests/test-359-inertness.cjs" \
+  node tests/test-359-inertness.cjs
+run_if "359 declared-variant replay (FORK359-06, R10)" "tests/test-359-replay.cjs" \
+  node tests/test-359-replay.cjs
 run_if "regression: 209 backstop tuning (ASCII_BOX_GLYPH_RE stability)" "tests/test-209-backstop-tuning.cjs" \
   node tests/test-209-backstop-tuning.cjs
 run_if "regression: 198 chain run halt" "tests/test-198-chain-run-halt.test.cjs" \

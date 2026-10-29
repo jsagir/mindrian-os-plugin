@@ -1,7 +1,7 @@
 ---
 phase: 371-navigator-startup-ui-first-room-and-returning-workday
 verified: 2026-10-19T09:24:11.493309+00:00
-status: human_needed
+status: passed-with-waiver
 score: 7/8 requirements locally verified
 human_verification:
   - test: Actual ChatGPT connection and both startup journeys
@@ -73,3 +73,9 @@ has no new picker metadata. The available Windows plugin cache is beta.66.
 The actual ChatGPT Plugins page is signed out; navigation reached account login.
 See 371-HOST-VALIDATION-ATTEMPT.md/json. Status remains human_needed because the
 updated host connection and authenticated browser are not yet available.
+
+## Navigator ruling (waiver)
+
+navigator ruling of 2026-10-29 in the main session, verbatim: "371 clear i approve it ." Read as: the navigator waives the real-host (ChatGPT) acceptance and clears Phase 371.
+
+STARTUI371-08 is closed by waiver. Local acceptance (7 of 8 requirements verified locally, complete local runner and reviews) stands as recorded above. The real ChatGPT host resource, CSP, placement and both journeys remain UNOBSERVED.

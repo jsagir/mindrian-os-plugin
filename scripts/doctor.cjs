@@ -1,26 +1,23 @@
 #!/usr/bin/env node
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
- * Phase 93 D2 -- /mos:doctor diagnostic + recovery for install-cache drift.
+ * /mos:doctor diagnostic + recovery CLI.
  *
- * Detects whether the live install at ~/.claude/plugins/mindrian-os/ is
- * out of sync with the marketplace cache at
- * ~/.claude/plugins/cache/mindrian-marketplace/mos/<latest>/, and offers
- * a one-shot recovery via --fix that backs up the stale install and
- * replaces it with the latest cached version.
+ * Class A (install-cache drift between the legacy install at
+ * ~/.claude/plugins/mindrian-os and the marketplace cache) was built in Phase 93
+ * and RETIRED in Phase 341 plan 09: the loader owns the swap, there is one
+ * install location, and nothing in the tree creates the legacy directory any
+ * more. A leftover legacy directory is reported by class I (--install-state)
+ * and removed by its --fix. History: docs/autopsies/2026-04-28-install-cache-drift-incident.md.
  *
  * MODES:
- *   doctor             read-only diagnostic - exits with status code only
- *   doctor --fix       runs backup-then-replace recovery if drift detected
+ *   doctor             read-only diagnostic
+ *   doctor --fix       runs the fix of every class that supports it
  *   doctor --json      machine-readable output (for hooks / regression tests)
  *
- * Exit codes:
- *   0  -> healthy, no drift
- *   1  -> drift detected (read-only mode)
- *   2  -> drift detected and recovered (--fix mode)
- *   3  -> internal error (cannot read directories, no marketplace cache, etc.)
- *
- * Phase 93 scope. See docs/autopsies/2026-04-28-install-cache-drift-incident.md.
+ * Exit codes (bare run):
+ *   0  -> healthy
+ *   1  -> a drift signal (for example plugin-enabled-state warn)
  */
 
 'use strict';
@@ -43,28 +40,21 @@ const semver = require('semver');
 // Phase 217 Plan-01 (D-02): shared constants + helpers + the pure class-A
 // constituent readers live in the leaf module lib/core/doctor/shared.cjs. ONE
 // destructuring require -- doctor.cjs -> shared.cjs is the ONLY direction (no
-// back-require). C (the color table), HOME, PLUGIN_HOME, INSTALL_DIR,
-// MARKETPLACE_CACHE_DIR, PLUGIN_ROOT, parseVersion, cmpVersion,
+// back-require). C (the color table), HOME, PLUGIN_ROOT,
 // resolveActivePluginRoot (re-exported by shared from
 // lib/core/active-plugin-root.cjs), readRegistry,
-// readInstalledPluginsVersion, checkInstallVersion, checkMarketplaceCache, and
-// checkDevSourceConsistency all resolve here. INSTALL_DIR remains the source of
-// truth for the class A check; new code MUST use resolveActivePluginRoot()
-// instead of the hardcoded INSTALL_DIR constant.
+// readInstalledPluginsVersion, checkInstallVersion (the engine's running-version
+// read), and checkDevSourceConsistency all resolve here. New code MUST use
+// resolveActivePluginRoot() instead of the hardcoded legacy INSTALL_DIR
+// constant, which survives in shared.cjs only for class I and class J.
 const {
   C,
   HOME,
-  PLUGIN_HOME,
-  INSTALL_DIR,
-  MARKETPLACE_CACHE_DIR,
   PLUGIN_ROOT,
-  parseVersion,
-  cmpVersion,
   resolveActivePluginRoot,
   readRegistry,
   readInstalledPluginsVersion,
   checkInstallVersion,
-  checkMarketplaceCache,
   checkDevSourceConsistency,
   // Phase 217 Plan 06: the class I/J shared readers moved to shared.cjs with the
   // I/J migration. doctor.cjs still needs these five in the
@@ -105,9 +95,9 @@ const checkDeploymentSurfaces = deploymentSurfacesModule.checkDeploymentSurfaces
 // introduced_version is in (applied_through, running], idempotently.
 const DOCTOR_MODULES_PATH = path.join(__dirname, '..', 'data', 'doctor-modules.json');
 const { readDoctorApplied, writeDoctorApplied } = require(path.join(__dirname, '..', 'lib', 'core', 'migration-snapshot.cjs'));
-// Phase 95.6 D-09 / R-01: the install-receipt const (INSTALL_RECEIPT_JSON) moved
-// into lib/core/doctor/install-incomplete-module.cjs with the class H check
-// (Phase 217 Plan 05).
+// Class H (the shell-installer completeness check) was retired in Phase 341
+// plan 09: its only input was a receipt file that the deleted shell installer
+// wrote, so no code path can produce that state any more.
 
 // -- Argument parsing ------------------------------------------------
 
@@ -132,7 +122,7 @@ function parseArgs(argv) {
     //       em_dash_check: true (the feedback_no_emdashes hard rule).
     // Per data/first-touch-surfaces.json each surface declares both invariants
     // and an allowlist of doc-example version strings. Renamed from class H
-    // in 121.5-05-PLAN.md (class H is install-incomplete; deviation Rule 3).
+    // in 121.5-05-PLAN.md (the letter H was then taken; deviation Rule 3).
     staleFirstTouch: false,
     // Phase 121.5-08 Sub-plan J (D-09 final clause): class L
     // (deprecated-commands-you-still-use). Scans recent
@@ -148,9 +138,9 @@ function parseArgs(argv) {
     // MINDRIAN_DOCTOR_TRANSCRIPTS_DIR overrides the default scan dir for
     // hermetic tests. Activated by --deprecated-usage AND --all.
     // Pure LOCAL scan; zero network surface (Canon Part 8).
-    // Letter L chosen because A..K are already assigned (A install-cache,
+    // Letter L chosen because A..K are already assigned (A retired in Phase 341,
     // B+C cascade-rooms, D verify-surface, E room-md, F ui-compliance,
-    // G statusline-visibility, H install-incomplete, I install-state,
+    // G statusline-visibility, H (retired in Phase 341), I install-state,
     // J deployment-surfaces, K stale-first-touch-copy).
     deprecatedUsage: false,
     // Phase 127-02 BRAIN-MCP-127-08: class M (Brain end-to-end smoke).
@@ -183,6 +173,18 @@ function parseArgs(argv) {
     // the clean-tree gate. Mutually exclusive with --pre-tag; if both
     // pass, --pre-tag wins.
     acceptance: false, preTag: false, preFlight: false, lightNpx: false,
+    // Phase 341 plan 08 (D-07a b): `sessionStart` is the bounded, OFFLINE
+    // acceptance tier the SessionStart hook runs once per install or update,
+    // inside its 12 second hook budget. It is a strict selection of existing
+    // points (install-state, session-start-active-version, harness-policies)
+    // plus the eureka-optin-state reporter (mcp-surface-tool-count stays off the
+    // tier: see the comment at that point). Precedence:
+    // --pre-tag wins, then --pre-flight, then --session-start, then full.
+    sessionStart: false,
+    // Phase 341 plan 08: --only=<id,id,...> with --acceptance narrows the selected
+    // tier to the named point ids. The detached session probe uses it to run just
+    // the wire point and the MCP surface point. Unknown ids select nothing.
+    onlyPoints: null,
     // Phase 127.2-03 Task 2 (Finding F1 + F7): --check-rs-engine pre-flights
     // Python deps reachable from scripts/rs-engine.py (Engine 1 Act 1 surface
     // for /mos:find-bottlenecks et al.). ADD-ONLY -- not a class flag; has
@@ -191,15 +193,6 @@ function parseArgs(argv) {
     // class A-M drift detection, not for environment readiness probes.
     // Closes the Windows tester 2026-05-23 silent-failure class.
     checkRsEngine: false,
-    // Phase 127.2 Plan 04 Instance #7: --post-update routes through
-    // scripts/post-update-activation.cjs (atomic-swap delegate to the
-    // existing --fix pipeline + touch-file write so the next session's
-    // sessionstart-post-update-preflight.cjs verifies activation reached
-    // the wire). ADD-ONLY -- not a class flag; has its OWN dispatch +
-    // exit-code contract (0 = activated or already on latest; 1 = swap
-    // attempted and failed). Composes with --fix when called as
-    // `doctor --fix --post-update` from /mos:update Step 7.
-    postUpdate: false,
     // Phase 146 Plan 04 (ACPT-01..05) + Phase 150.5-03 (ACPT-06):
     // --dogfood-acceptance is the LOOP-FIRES gate -- the Phase 146 milestone
     // gate. It runs the 6 ACPT dogfood drivers
@@ -299,6 +292,8 @@ function parseArgs(argv) {
     else if (arg === '--acceptance') flags.acceptance = true;
     else if (arg === '--pre-tag') flags.preTag = true;
     else if (arg === '--pre-flight') flags.preFlight = true;
+    else if (arg === '--session-start') flags.sessionStart = true;
+    else if (arg.startsWith('--only=')) flags.onlyPoints = arg.slice('--only='.length);
     else if (arg === '--light-npx') flags.lightNpx = true;
     else if (arg === '--check-rs-engine') flags.checkRsEngine = true;
     // Quick task 260705-jeq: sibling reporting mode; deliberately NOT added to
@@ -311,7 +306,6 @@ function parseArgs(argv) {
     else if (arg === '--reset-install-id') flags.resetInstallId = true;
     else if (arg === '--icm-walk') flags.icmWalk = true;
     else if (arg.startsWith('--room=')) flags.roomDir = arg.slice('--room='.length);
-    else if (arg === '--post-update') flags.postUpdate = true;
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
     else if (arg === '--dry-run') flags.dryRun = true;
@@ -352,6 +346,9 @@ function parseArgs(argv) {
   // checks preTag first); --pre-flight is the strict-subset tier release.sh
   // Step 2.5 uses BEFORE Step 3 mutates the tree.
   if (flags.preFlight) flags.acceptance = true;
+  // --session-start implies --acceptance too (Phase 341 D-07a b). Precedence if
+  // several tier flags are passed: --pre-tag, then --pre-flight, then --session-start.
+  if (flags.sessionStart) flags.acceptance = true;
   // Phase 194-07: capture the space-separated `--bind-check <roomDir>` value (the
   // `=` form is captured inline above). The value is the arg following the flag,
   // provided it is not itself a flag.
@@ -391,7 +388,7 @@ function parseArgs(argv) {
 function usageText() {
   return `Usage: doctor.cjs [flags]
 
-Default (no flag) runs class A install-cache check + class N plugin-enabled-state
+Default (no flag) runs class N plugin-enabled-state
 (the silent-disable detector -- runs on a bare doctor run because the plugin's own
 SessionStart hooks cannot fire while the plugin is DISABLED).
 
@@ -407,7 +404,6 @@ Class flags (combine freely; --all activates them all):
   --room-md                class E (ROOM.md/MINTO.md presence under .room-root)
   --ui-compliance          class F (UI Ruling System scan)
   --statusline-visibility  class G (user-settings drift, plugin install integrity, statusline-mos isolated execution)
-                           + class H (install-incomplete: missing statusLine block and/or a halted .install-receipt.json)
   --card-fire-health       card-fire-health (D-05): health of the check-card-fire.cjs self-diagnostic
                            instrument -- intercept log exists/valid-JSONL/fresh (~/.mindrian/card-fire-
                            intercepts.log), classifier/counter library seams intact, render-coverage
@@ -497,6 +493,15 @@ Release-gate runner (Phase 123 Plan-04 -- separate from class flags):
                            checks like verify-release-clean-tree). Runs BEFORE release.sh
                            mutates plugin.json / package.json / CHANGELOG. Mutually
                            exclusive with --pre-tag; if both pass, --pre-tag wins.
+  --session-start          with --acceptance: filter to the bounded OFFLINE tier the
+                           SessionStart hook runs once per install or update (four
+                           points: install-state, session-start-active-version,
+                           harness-policies, eureka-optin-state).
+                           The network wire point stays off this tier. --session-start
+                           IMPLIES --acceptance. Precedence: --pre-tag, --pre-flight,
+                           then --session-start.
+  --only=<id,id,...>       with --acceptance: narrow the selected tier to the named point
+                           ids (unknown ids select nothing). Used by the detached session probe.
   --light-npx              with --acceptance (full): skip the mktemp HOME-override sandbox
                            in the npx-roundtrip point; resolve npx --no-install --help
                            instead of doing a live install. Operator opt-in.
@@ -512,7 +517,7 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            NOT the class-flag-always-exit-0 invariant).
   --report-registration-bug  (Quick task 260705-jeq) READ-ONLY escalation reporter:
                            proves every locally-checkable cause of "valid install yet a
-                           command did not register" is CLEAN (install-cache drift,
+                           command did not register" is CLEAN (install-cache drift (installed_plugins.json vs the newest cache),
                            enabledPlugins silent-disable, legacy config.json pin,
                            marketplace clone git-dirt, version-of-record legs, on-disk
                            command count, static precondition sweep), then assembles a
@@ -526,12 +531,6 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            Mints a fresh id, replaces the state-dir file, prints exactly
                            "install id rotated", never prints the value, and always exits
                            0 (even when the state dir is not writable). NOT in --all.
-  --post-update            (Phase 127.2 Plan 04 Instance #7) atomically activate
-                           freshly-landed cache-staging bytes via scripts/post-update-
-                           activation.cjs (delegates to --fix pipeline + writes the
-                           ~/.mindrian/post-update-restart-pending touch-file). Wired
-                           into /mos:update Step 7 + composable as --fix --post-update.
-                           Exit 0 = activated or already on latest; exit 1 = swap failed.
 
 Loop-fires gate (Phase 146 -- the milestone gate; separate from class flags):
   --dogfood-acceptance     run the 6 ACPT dogfood drivers (engine-fires,
@@ -569,7 +568,6 @@ Claim harness gate (Phase 150 -- the public-site-claim gate; separate from class
 
 Behavior flags:
   --fix                attempt auto-recovery for each class that supports it
-                       (class H: re-stamps the canonical statusLine block when missing, idempotently)
   --json               machine-readable output (for hooks / regression tests)
   --verbose, -v        extra diagnostic detail
   --simulate-write=<p> simulate a PWD write at <p> for class C active-room mismatch
@@ -580,140 +578,29 @@ Behavior flags:
 Exit codes:
   0  healthy, no drift across activated classes; --acceptance: all points passed
   1  drift detected (read-only mode); --acceptance: any point failed (hard abort)
-  2  drift detected and recovered (--fix mode)
-  3  internal error
 `;
 }
 
 // -- Comparable semver helpers + diagnostic checks -------------------
-// parseVersion, cmpVersion, checkInstallVersion, checkMarketplaceCache, and
-// checkDevSourceConsistency moved to lib/core/doctor/shared.cjs (Phase 217
-// Plan-01 D-02) and are imported at the top of this file.
-
-// -- Recovery --------------------------------------------------------
-// Phase 95.2 D-01..D-04: atomic-swap recovery.
-// Pattern: cp -> verify -> two-step rename. Destructive ops only after
-// non-destructive verification has passed. POSIX rename(2) is atomic on
-// the same filesystem (~/.claude/plugins/ is single-mount in practice).
-// For cross-fs (EXDEV) we fall back to cpSync+rmSync per safeRename().
-
-function performRecoveryAtomic(installVersion, latestCacheVersion) {
-  const sourceDir = path.join(MARKETPLACE_CACHE_DIR, latestCacheVersion);
-  if (!fs.existsSync(sourceDir)) {
-    return { status: 'error', detail: `marketplace cache for ${latestCacheVersion} not found at ${sourceDir}`, stage: 'precheck' };
-  }
-  const installNewDir = INSTALL_DIR + '.new';
-  const ts = new Date().toISOString().replace(/[:.]/g, '').replace(/T/, '-').slice(0, 15);
-  // Finding F: 'missing' is more truthful than 'unknown' when the install dir doesn't exist.
-  const backupTag = installVersion || (fs.existsSync(INSTALL_DIR) ? 'unknown' : 'missing');
-  const backupDir = path.join(PLUGIN_HOME, `mindrian-os.stale-${backupTag}-${ts}`);
-
-  // Phase 1: prepare install.new (cleanup any stale install.new from a prior failed run -- recover-the-recoverer logic)
-  try {
-    if (fs.existsSync(installNewDir)) fs.rmSync(installNewDir, { recursive: true, force: true });
-  } catch (err) {
-    return { status: 'error', detail: `failed to clean prior install.new: ${err.message}`, stage: 'cleanup-installnew' };
-  }
-
-  // Finding E: hermetic test injection point.
-  if (process.env.MOS_TEST_FORCE_FAIL === 'copy') {
-    return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=copy injection', stage: 'cp', installNewDir };
-  }
-
-  // Phase 2: cp via fs.cpSync (Finding A; replaces the prior shell-out copy -- Windows-functional, no exec)
-  try {
-    fs.cpSync(sourceDir, installNewDir, { recursive: true, dereference: false, preserveTimestamps: true });
-  } catch (err) {
-    // install untouched; install.new may be incomplete -- leave for inspection.
-    return { status: 'error', detail: `cp failed: ${err.message}`, stage: 'cp', installNewDir };
-  }
-
-  // Phase 3: structural version verify (D-02). Read plugin.json from install.new ONLY; do not load any plugin code.
-  if (process.env.MOS_TEST_FORCE_FAIL === 'verify') {
-    return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=verify injection', stage: 'verify', installNewDir };
-  }
-  try {
-    const pj = JSON.parse(fs.readFileSync(path.join(installNewDir, '.claude-plugin/plugin.json'), 'utf8'));
-    if (pj.version !== latestCacheVersion) {
-      return { status: 'error', detail: `verify failed: install.new version is ${pj.version}, expected ${latestCacheVersion}`, stage: 'verify', installNewDir };
-    }
-  } catch (err) {
-    return { status: 'error', detail: `verify failed: ${err.message}`, stage: 'verify', installNewDir };
-  }
-
-  // Phase 4: two-step atomic-swap.
-  // Phase 4a: mv install -> install.stale-X (only if install exists). Finding D safeRename for cross-fs.
-  let backedUp = false;
-  if (fs.existsSync(INSTALL_DIR)) {
-    if (process.env.MOS_TEST_FORCE_FAIL === 'rename-old') {
-      return { status: 'error', detail: 'MOS_TEST_FORCE_FAIL=rename-old injection', stage: 'backup-mv', installNewDir };
-    }
-    try {
-      safeRename(INSTALL_DIR, backupDir);
-      backedUp = true;
-    } catch (err) {
-      // install untouched (rename didn't complete); install.new left for inspection.
-      return { status: 'error', detail: `backup mv failed: ${err.message}`, stage: 'backup-mv', installNewDir };
-    }
-  }
-
-  // Phase 4b: mv install.new -> install. The atomic moment.
-  if (process.env.MOS_TEST_FORCE_FAIL === 'commit') {
-    // Simulate post-backup commit failure -> trigger D-03 rollback path.
-    if (backedUp) {
-      try { safeRename(backupDir, INSTALL_DIR); } catch (_) { /* double failure; user must recover manually */ }
-    }
-    return { status: 'error', detail: 'recovery failed -- live install restored from backup; investigate manually', stage: 'commit-rollback', exitCode: 4 };
-  }
-  try {
-    safeRename(installNewDir, INSTALL_DIR);
-  } catch (err) {
-    // D-03 rollback: restore from backup so live install is recovered to pre-recovery state.
-    if (backedUp) {
-      try { safeRename(backupDir, INSTALL_DIR); }
-      catch (_) { /* double failure; backup remains on disk for manual recovery */ }
-    }
-    return { status: 'error', detail: `recovery failed -- live install restored from backup; investigate manually (root: ${err.message})`, stage: 'commit-rollback', exitCode: 4 };
-  }
-
-  // Phase 5: post-swap verification (cheap re-check; should-never-fail given Phase 3 already passed).
-  const after = checkInstallVersion();
-  if (after.status !== 'ok' || after.version !== latestCacheVersion) {
-    return { status: 'error', detail: `post-swap verify mismatch: install version is ${after.version || 'unknown'}, expected ${latestCacheVersion}`, backup: backedUp ? backupDir : null };
-  }
-  return { status: 'ok', backup: backedUp ? backupDir : null, recoveredVersion: latestCacheVersion };
-}
-
-// Finding D: rename(2) is atomic on the same filesystem; cpSync+rmSync fallback for EXDEV.
-function safeRename(src, dst) {
-  try {
-    fs.renameSync(src, dst);
-  } catch (err) {
-    if (err && err.code === 'EXDEV') {
-      // Cross-filesystem move; copy + delete (NOT atomic, but only path that works across mounts).
-      fs.cpSync(src, dst, { recursive: true, dereference: false, preserveTimestamps: true });
-      fs.rmSync(src, { recursive: true, force: true });
-      return;
-    }
-    throw err;
-  }
-}
+// parseVersion, cmpVersion, checkInstallVersion, and checkDevSourceConsistency
+// moved to lib/core/doctor/shared.cjs (Phase 217 Plan-01 D-02) and are imported
+// at the top of this file. The class A recovery (back up the legacy install, copy
+// the cache over it) was DELETED in Phase 341 plan 09 with class A itself.
 
 // readRegistry moved to lib/core/doctor/shared.cjs (Phase 217 Plan-01 D-02) and
 // is imported at the top of this file. The class B/C/E section-walk helpers
 // (SKIP_DIRS, listSubdirs) + the generator spawn (invokeGenerator) + findRoomRoot
 // moved WITH those checks into their registry runners in Phase 217 Plan 04.
 
-// -- Class D / G / H bodies removed (Phase 217 Plan 05) -----------------------
+// -- Class D / G bodies removed (Phase 217 Plan 05) ---------------------------
 //
-// checkSurfaceVerification (class D), checkStatuslineVisibility +
-// performStatuslineFix (class G), and checkInstallIncomplete + performClassHFix
-// (class H) -- plus their private helpers (STALE_STATUSLINE_PATH_REGEX,
-// stripAnsi, CLASS_H_CANONICAL_STEPS, classHActionString,
-// userSettingsHasStatusLine) and the INSTALL_RECEIPT_JSON const -- moved into
-// lib/core/doctor/verify-surface-module.cjs, statusline-visibility-module.cjs,
-// and install-incomplete-module.cjs. The accumulative engine owns their
-// dispatch + fix-then-recheck flow via the registry (data/doctor-modules.json).
+// checkSurfaceVerification (class D) and checkStatuslineVisibility +
+// performStatuslineFix (class G) -- plus their private helpers
+// (STALE_STATUSLINE_PATH_REGEX, stripAnsi) -- moved into
+// lib/core/doctor/verify-surface-module.cjs and
+// lib/core/doctor/statusline-visibility-module.cjs. The accumulative engine
+// owns their dispatch + fix-then-recheck flow via the registry
+// (data/doctor-modules.json). Class H was retired in Phase 341 plan 09.
 
 // -- Class I + Class J: install-state + topology + version-of-record  ---
 //   + deployment-surface manifest reconciliation (Phase 123 Plan-03).
@@ -907,13 +794,14 @@ function buildAcceptanceChecklist(ctx) {
   const home = ctx.home;
   const pluginRoot = ctx.pluginRoot;
   const flagLightNpx = ctx.flagLightNpx;
+  const checklistMode = ctx.mode;
   const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
   return [
     {
       id: 'install-state',
       label: 'install-state record present + snapshot matches a live spot-check',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'install-state') {
           return { ok: false, finding: 'install-state synthesized failure (test mode)', detail: {} };
@@ -931,6 +819,51 @@ function buildAcceptanceChecklist(ctx) {
           }
         }
         return { ok: ok, finding: finding, detail: { status: c.status, findings: c.findings, topology: c.topology } };
+      },
+    },
+    {
+      // Phase 341 plan 08 (D-07b f): the doctor line that reports the Eureka opt-in
+      // state honestly. It brings the session-start tier to FOUR points: the three
+      // D-07a (b) points that fit the hook budget plus this one (the plan said five;
+      // mcp-surface-tool-count is off the tier, see its comment). It is cheap enough for the 12 second hook
+      // budget: one JSON read of a file whose directory the tier's other points
+      // already touched, with no spawn and no network.
+      //
+      // This point is a REPORTER, not a gate. runAcceptance's reduction is
+      // severity-BLIND: any point that returns ok:false FAILS the tier, whatever its
+      // severity string says. D-07b (f) says a navigator's machine is never blocked
+      // by the opt-in behavior, so this point returns ok:true on EVERY path and
+      // carries its state in detail. Do not "fix" it into a gate. The enforcement
+      // for the opt-in behavior lives in two other places: the eureka-optin-once
+      // harness policy at rung logged, and the always-green blocking leg of
+      // tests/run-all-341.sh that runs scripts/check-eureka-optin-once.cjs.
+      //
+      // FOUR answer sentences plus one non-answer fallback (state unreadable).
+      id: 'eureka-optin-state',
+      label: 'Eureka opt-in state reported honestly (reporter, never blocks)',
+      severity: 'info',
+      applies_to: ['session-start', 'full'],
+      run: async function () {
+        let state = null;
+        try {
+          const verifyState = require(path.join(__dirname, '..', 'lib', 'core', 'session-verify-state.cjs'));
+          state = verifyState.readVerifyState();
+        } catch (_e) {
+          return { ok: true, finding: null, detail: { eureka_optin: null, sentence: 'Eureka opt-in: state unreadable' } };
+        }
+        const rec = (state && state.eureka_optin && typeof state.eureka_optin === 'object') ? state.eureka_optin : null;
+        let sentence = 'Eureka opt-in: not yet asked';
+        if (rec && rec.choice === 'installed') {
+          sentence = 'Eureka opt-in: installed at ' + String(rec.version);
+        } else if (rec && rec.choice === 'declined') {
+          sentence = 'Eureka opt-in: declined for ' + String(rec.version);
+          if (rec.install_failed === true) {
+            sentence += ' (install failed: ' + String(rec.install_failure_reason || 'reason not recorded') + ')';
+          }
+        } else if (rec && rec.choice === 'never') {
+          sentence = 'Eureka opt-in: never (cleared by running /mos:eureka enable)';
+        }
+        return { ok: true, finding: null, detail: { eureka_optin: rec, sentence: sentence } };
       },
     },
     {
@@ -1313,7 +1246,7 @@ function buildAcceptanceChecklist(ctx) {
       id: 'session-start-active-version',
       label: 'session-start derives active_version correctly from installed_plugins.json',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'session-start-active-version') {
           return { ok: false, finding: 'session-start-active-version synthesized failure (test mode)', detail: {} };
@@ -1620,7 +1553,7 @@ function buildAcceptanceChecklist(ctx) {
       id: 'harness-policies',
       label: 'every declared harness policy runs and no blocking policy failed',
       severity: 'blocker',
-      applies_to: ['pre-tag', 'full'],
+      applies_to: ['pre-tag', 'session-start', 'full'],
       run: async function () {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'harness-policies') {
           return { ok: false, finding: 'harness-policies synthesized failure (test mode)', detail: {} };
@@ -1631,7 +1564,13 @@ function buildAcceptanceChecklist(ctx) {
           return { ok: false, finding: 'harness-policies: script missing at ' + scriptPath, detail: { note: 'script missing' } };
         }
         try {
-          const r = cp.spawnSync('node', [scriptPath, '--check', '--json'], { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          // Phase 341 plan 08 (D-07a b): in session-start mode ONLY, restrict the
+          // runner to the session-start tier so exactly the two session-start
+          // policies run inside the hook budget. Every other mode keeps the
+          // original argv byte for byte.
+          const harnessArgv = [scriptPath, '--check', '--json'];
+          if (checklistMode === 'session-start') harnessArgv.push('--tier', 'session-start');
+          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
           let parsed;
           try {
             parsed = JSON.parse(r.stdout || '{}');
@@ -1684,6 +1623,15 @@ function buildAcceptanceChecklist(ctx) {
       // is FALSE before tag + publish, so the pre-tag and pre-flight modes
       // skip this point. Step 9.8 of release.sh runs the full --acceptance
       // gate AFTER publish, which is where this point gates.
+      //
+      // Phase 341 (D-07, plan 341-08): the post-update touch-file mechanism was
+      // retired. This point never read the touch-file, so it is deliberately kept,
+      // and it moves onto the D-07a detached leg (scripts/session-verify-probe.cjs
+      // runs it with --only).
+      //
+      // It is deliberately NOT on the session-start tier: it spawns a real MCP
+      // handshake over the network, the inline session-start leg is offline by
+      // contract, and D-07a (d) puts the wire probe on the DETACHED leg instead.
       id: 'activation-reached-the-wire',
       label: 'L4 MCP server version matches package.json version-of-record',
       severity: 'blocker',
@@ -2048,6 +1996,16 @@ function buildAcceptanceChecklist(ctx) {
       // transfer to a 36-tool server; see the module's header comment).
       // The finding/detail carries the warn text either way so it is
       // visible in acceptance output without blocking a release on it.
+      //
+      // Phase 341 plan 08 (D-07a b): NOT on the session-start tier, a MEASURED
+      // deviation from the plan. This point spawns both MCP servers over stdio and
+      // measured 15.4 s on 2026-10-29 (mindrian-os answers in 0.4 s; the
+      // mindrian-brain shim answers tools/list but does not exit on stdin EOF, so
+      // the organ waits out its 15 s spawn timeout). 15.4 s alone exceeds the 12 s
+      // SessionStart hook budget. Like the wire point it runs on the DETACHED leg
+      // (scripts/session-verify-probe.cjs, --only), so it is relocated, not dropped.
+      // To bring it back inline: make the brain shim exit on stdin EOF, then add
+      // 'session-start' to this array and to the runner's expected set.
       id: 'mcp-surface-tool-count',
       label: 'MCP surface: live per-server tool count for both servers, fails on zero tools',
       severity: 'blocker',
@@ -2358,12 +2316,19 @@ async function runAcceptance(opts) {
   const flagPreTag = opts.flagPreTag;
   const flagPreFlight = opts.flagPreFlight;
   const flagLightNpx = opts.flagLightNpx;
-  const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx });
+  const flagSessionStart = opts.flagSessionStart;
+  const onlyPoints = (typeof opts.onlyPoints === 'string' && opts.onlyPoints.length > 0)
+    ? opts.onlyPoints.split(',').map(function (x) { return x.trim(); }).filter(Boolean)
+    : null;
   // Phase 126.1 hotfix (2026-05-15): tri-state mode. --pre-tag wins when both
   // --pre-tag and --pre-flight are passed; --pre-flight is the strict-subset
   // tier release.sh Step 2.5 uses BEFORE Step 3 mutates the tree.
-  const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : 'full');
+  // Phase 341 plan 08: a fourth tier, session-start, after pre-flight. The mode is
+  // computed BEFORE the checklist is built so a point can read opts.mode.
+  const mode = flagPreTag ? 'pre-tag' : (flagPreFlight ? 'pre-flight' : (flagSessionStart ? 'session-start' : 'full'));
+  const checklist = buildAcceptanceChecklist({ home: home, pluginRoot: pluginRoot, flagLightNpx: flagLightNpx, mode: mode });
   let filtered = checklist.filter(function (p) { return p.applies_to.indexOf(mode) !== -1; });
+  if (onlyPoints) filtered = filtered.filter(function (p) { return onlyPoints.indexOf(p.id) !== -1; });
 
   const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
   if (inTestMode && process.env.DOCTOR_TEST_ONLY_POINTS) {
@@ -2583,74 +2548,18 @@ function renderHumanReport(report) {
 
   // Compute stage label for Zone 1 per D-12 stage values.
   let stage = 'no-drift';
-  if (report.fixRequested && report.classARecovered) stage = 'recovered';
-  else if (report.fixRequested) stage = 'recovering';
-  else if (report.drift && report.drift.detected) stage = 'drift-detected';
-  // Additional class-driven drift detection added by 95.1 plans 05+06 will populate
-  // report.checks; iterate and aggregate stage accordingly.
+  if (report.fixRequested) stage = 'recovering';
+  else if (computeSummary(report).drift > 0) stage = 'drift-detected';
+  // Class-driven drift detection (report.checks) feeds computeSummary; class A
+  // (the legacy install check) no longer contributes (retired in Phase 341 plan 09).
 
   // Compute body rows BEFORE deciding header density (D-16).
   const bodyRows = [];
 
-  // Class A -- install-cache (existing logic preserved, glyphs swapped to vocabulary).
-  //
-  // Phase 126 Plan-01 fix: when classARecovered is set (recovery succeeded),
-  // the renderer MUST emit BOTH `✓ recovered to <version>` AND `backup <path>`
-  // lines per the commands/doctor.md Step 3 contract -- INCLUDING the
-  // missing-install case (installResult.status === 'missing') where the
-  // pre-fix renderer fell into the `cannot read state` branch and never
-  // emitted the contract lines (2026-05-13 Windows dogfood finding 3a).
-  // Recovery-succeeded takes precedence over status-shape branching.
-  if (report.classARecovered) {
-    // Drift was detected (either status==='ok' + cmp<0 OR status==='missing'
-    // with available cache; see drift detection at line ~2634-2649) and was
-    // closed by performRecoveryAtomic. Use the drift-detected layout for
-    // continuity with the live-stale recovery case.
-    bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
-    // Show the live -> recovered transition. For the missing-install case
-    // report.install.version is undefined; show `missing` instead so the
-    // line is still informative.
-    const liveLabel = report.install.version || (report.install.status === 'missing' ? 'missing' : 'unknown');
-    bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${liveLabel}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest || report.classARecovered.recoveredVersion}${C.reset}`);
-    bodyRows.push(`     ${C.green}✓${C.reset} recovered to ${C.green}${report.classARecovered.recoveredVersion}${C.reset}`);
-    // Backup line: omit when backup is null (missing-install case -- nothing
-    // existed to rename; performRecoveryAtomic returned backup=null at
-    // line ~370 of this file). The contract example specifies the line is
-    // emitted WHEN a backup exists, not unconditionally.
-    if (report.classARecovered.backup) {
-      bodyRows.push(`     ${C.dim}backup ${report.classARecovered.backup}${C.reset}`);
-    }
-  } else if (report.install.status === 'ok' && report.cache.status === 'ok') {
-    if (report.drift.detected) {
-      bodyRows.push(`  ${C.yellow}■${C.reset} install-cache              ${C.yellow}⚠${C.reset} drift detected`);
-      bodyRows.push(`     ${C.dim}live${C.reset}    ${C.yellow}${report.install.version}${C.reset} ${C.dim}→${C.reset} ${C.green}${report.cache.latest}${C.reset}`);
-      if (report.fixRequested) {
-        // RCA doctor-marketplace-cache-drift-deadlock (2026-06-12): three-way
-        // branch replaces the single `recovery failed: <err || 'unknown'>`
-        // line. The literal 'unknown' rendered whenever recovery was never
-        // ATTEMPTED (gated/skipped) -- classARecovered and recoveryError both
-        // null is not a failure, it is an un-run.
-        if (report.recoveryError) {
-          bodyRows.push(`     ${C.red}⚠${C.reset} recovery failed: ${report.recoveryError}`);
-        } else if (report.recoverySkipped) {
-          bodyRows.push(`     ${C.yellow}⚠${C.reset} recovery skipped (topology marketplace-cache -- legacy install dir is vestigial)`);
-        } else {
-          bodyRows.push(`     ${C.dim}recovery not attempted (gated)${C.reset}`);
-        }
-      }
-    } else {
-      bodyRows.push(`  ${C.green}■${C.reset} install-cache              ${C.green}✓${C.reset} healthy ${C.dim}(${report.install.version})${C.reset}`);
-    }
-  } else {
-    bodyRows.push(`  ${C.red}■${C.reset} install-cache              ${C.red}⚠${C.reset} cannot read state`);
-    if (report.install.status !== 'ok') bodyRows.push(`     ${C.dim}install: ${report.install.detail || report.install.status}${C.reset}`);
-    if (report.cache.status !== 'ok') bodyRows.push(`     ${C.dim}cache:   ${report.cache.detail || report.cache.status}${C.reset}`);
-  }
-
   // Dev source consistency.
-  if (report.dev.status === 'ok') {
+  if (report.dev && report.dev.status === 'ok') {
     bodyRows.push(`  ${C.green}■${C.reset} dev-source                 ${C.green}✓${C.reset} consistent ${C.dim}(${report.dev.pluginJson})${C.reset}`);
-  } else if (report.dev.status === 'mismatch') {
+  } else if (report.dev && report.dev.status === 'mismatch') {
     bodyRows.push(`  ${C.yellow}■${C.reset} dev-source                 ${C.yellow}⚠${C.reset} version mismatch`);
     bodyRows.push(`     ${C.dim}plugin.json  ${report.dev.pluginJson}${C.reset}`);
     bodyRows.push(`     ${C.dim}package.json ${report.dev.packageJson}${C.reset}`);
@@ -2667,13 +2576,11 @@ function renderHumanReport(report) {
   // BALLOT X is forbidden; U+26A0 WARN and U+2298 CIRCLED DIVISION SLASH
   // are approved per the 12-glyph vocabulary).
   if (report.checks) {
-    // Class G (statusline-visibility) + class H (install-incomplete) hand-coded
-    // render branches RETIRED (Phase 217 Plan 05): both rows -- and class H's
-    // hint sub-line -- now come from the generic loop below + the runner's
-    // action_lines[]. After this plan the ONLY non-generic render path left is
-    // class A (install-cache), the sanctioned carve-out (Plan 06).
+    // Class G (statusline-visibility) hand-coded render branch RETIRED (Phase
+    // 217 Plan 05): its row now comes from the generic loop below + the
+    // runner's action_lines[]. Class A, the last non-generic
+    // render path, was retired in Phase 341 plan 09.
     for (const [name, check] of Object.entries(report.checks)) {
-      if (name === 'install-cache') continue; // already handled above.
       // Skip entries are omitted, matching the plugin-enabled-state precedent
       // above and computeSummary's skip omission, so visible rows stay in exact
       // parity with the Summary tally.
@@ -2696,7 +2603,7 @@ function renderHumanReport(report) {
       // dispatch), which is why this bug appears only under a combined run.
       bodyRows.push('  ' + color + '■' + C.reset + ' ' + name.padEnd(28) + color + glyph + C.reset + ' ' + (check.detail || check.status || (check.ok ? 'ok' : 'unknown')));
       // Phase 217 Plan-01: action_lines sub-line support. The structural home
-      // for the hand-coded hint sub-lines (class H/K/N) that later migration
+      // for the hand-coded hint sub-lines (class K/N) that later migration
       // plans delete: a cadence:always module returns action_lines[] and the
       // generic renderer prints one dim `-> ` sub-line per entry.
       if (Array.isArray(check.action_lines)) {
@@ -2708,14 +2615,11 @@ function renderHumanReport(report) {
   }
 
   // Render --fix outcomes so a fix attempt is never invisible. Every --fix
-  // dispatch pushes its result into report.recovered; class A recovery already
-  // renders via classARecovered above, so the install-cache tool is guarded to
-  // avoid a double line.
+  // dispatch pushes its result into report.recovered.
   if (report.fixRequested && Array.isArray(report.recovered) && report.recovered.length > 0) {
     for (const entry of report.recovered) {
       if (!entry) continue;
       if (entry.status === 'skip') continue; // skip entries omitted.
-      if (entry.tool === 'install-cache') continue; // already rendered via classARecovered.
       let glyph;
       let color;
       if (entry.status === 'ok') { glyph = '✓'; color = C.green; }
@@ -2742,7 +2646,7 @@ function renderHumanReport(report) {
   // a STRUCTURAL marker. Larry handles conversational selection per D-19.
   // Phase 88.2 will replace this with the canonical AskUserQuestion primitive.
   // See .planning/phases/95.1-.../f1-selector-deferred.md for the deferral note.
-  if (!report.fixRequested && (report.drift.detected || summary.drift > 0)) {
+  if (!report.fixRequested && summary.drift > 0) {
     bodyRows.push('');
     bodyRows.push(`  ${C.cyan}[F.1 Next Move]${C.reset}`);
     bodyRows.push(`   ${C.cyan}▶${C.reset} Run ${C.cyan}/mos:doctor --fix${C.reset}`);
@@ -2753,7 +2657,7 @@ function renderHumanReport(report) {
   // Zone 4 action footer -- ALWAYS present (D-12 mandate). 2-3 grounded /mos:
   // commands. Primary action uses U+25B6, alternatives use U+25B7.
   bodyRows.push('');
-  if (report.drift.detected || summary.drift > 0) {
+  if (summary.drift > 0) {
     bodyRows.push(`  ${C.cyan}▶ /mos:doctor --fix --all${C.reset}     ${C.dim}# auto-recover all drift classes${C.reset}`);
     bodyRows.push(`  ${C.dim}▷${C.reset} ${C.cyan}/mos:rooms${C.reset}                 ${C.dim}# inspect known rooms${C.reset}`);
     bodyRows.push(`  ${C.dim}▷${C.reset} ${C.cyan}/mos:doctor --json${C.reset}         ${C.dim}# machine-readable output${C.reset}`);
@@ -2769,7 +2673,7 @@ function renderHumanReport(report) {
   const projectedLineCount = bodyRows.length + 4; // header + blank + body + trailing blank.
   if (projectedLineCount > 30) {
     // Compact header per D-16 density rule.
-    const classCount = Object.keys(report.checks || { 'install-cache': 1 }).length;
+    const classCount = Object.keys(report.checks || {}).length;
     lines.push(`${C.dim}-- doctor: ${classCount} drift classes checked --${C.reset}`);
   } else {
     // Standard Zone 1 header per D-12. Literal prefix '-- MindrianOS -- doctor'
@@ -2783,38 +2687,19 @@ function renderHumanReport(report) {
   return lines.join('\n');
 }
 
-// Helper for Zone 2 summary aggregation. Walks install/dev/drift signals plus
+// Helper for Zone 2 summary aggregation. Walks the dev signal plus
 // any report.checks.* rows that Plans 05+06 will register and returns
 // healthy / drift / warning totals.
 function computeSummary(report) {
   let healthy = 0;
   let drift = 0;
   let warnings = 0;
-  // Class A -- install-cache + drift signal.
-  //
-  // Phase 126 Plan-01 fix: after a successful classA recovery, the drift was
-  // RESOLVED -- the summary must NOT report `1 drift` while the header says
-  // `recovered` (Option A: decrement-after-recovery, minimum surface delta
-  // per Canon Part 7). 2026-05-13 Windows dogfood finding 3a flagged the
-  // `0 healthy / 1 drift / 0 warnings` line as semantically inconsistent
-  // with the recovered header. After recovery the install is on the cache's
-  // latest version; classify as healthy.
-  if (report.classARecovered) {
-    healthy += 1;
-  } else if (report.install.status === 'ok' && report.cache.status === 'ok' && !report.drift.detected) {
-    healthy += 1;
-  } else if (report.drift.detected) {
-    drift += 1;
-  } else {
-    warnings += 1;
-  }
   // Dev source.
-  if (report.dev.status === 'ok') healthy += 1;
-  else if (report.dev.status === 'mismatch') warnings += 1;
+  if (report.dev && report.dev.status === 'ok') healthy += 1;
+  else if (report.dev && report.dev.status === 'mismatch') warnings += 1;
   // Future class B/C/D/E/F: walk report.checks.
   if (report.checks) {
     for (const [name, check] of Object.entries(report.checks)) {
-      if (name === 'install-cache') continue;
       if (check && check.status === 'ok') healthy += 1;
       else if (check && (check.status === 'warn' || check.status === 'error')) drift += 1;
       // status='skip' omitted from totals.
@@ -3342,7 +3227,8 @@ function assembleRegistrationBugData() {
   // The 7 ruled-out causes, each CLEAN or FLAGGED (fix-locally-first).
   const ruledOut = [];
 
-  // (a) install-cache drift (class A).
+  // (a) install-cache drift: installed_plugins.json versus the newest marketplace
+  // cache. This is a registration-bug cause, NOT the retired class A check.
   (function () {
     let status = 'CLEAN';
     let detail = 'active install matches the newest marketplace cache';
@@ -3694,6 +3580,8 @@ function main() {
       pluginRoot: PLUGIN_ROOT,
       flagPreTag: flags.preTag,
       flagPreFlight: flags.preFlight,
+      flagSessionStart: flags.sessionStart,
+      onlyPoints: flags.onlyPoints,
       flagLightNpx: flags.lightNpx,
     }).then(function (result) {
       // Per-point status lines (human-readable). Phase 354-13 (SYS-07): under
@@ -3722,7 +3610,9 @@ function main() {
       // carries the `last_acceptance_run: { timestamp, passed, failed }`
       // field; migrateIfNeeded promotes v1 -> v2 transparently if needed.
       // Canon Part 8: LOCAL file I/O only ($HOME/.mindrian/). Zero network.
-      try {
+      // Phase 341 plan 08: the bounded session-start tier is NOT a full acceptance
+      // run, so it must not overwrite last_acceptance_run with its five-point result.
+      if (result.mode !== 'session-start') try {
         const installStateMod = require(path.join(__dirname, '..', 'lib', 'core', 'install-state.cjs'));
         // Migration is idempotent: v1 -> v2 additive; v2 no-op; future-version
         // returns futureVersion:true without touching the file (Plan 07 D3).
@@ -3747,7 +3637,7 @@ function main() {
       process.exit(result.failed_points.length === 0 ? 0 : 1);
     }).catch(function (e) {
       console.error('acceptance runner threw: ' + (e && e.message));
-      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : 'full'), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
+      if (flags.json) console.log(JSON.stringify({ mode: flags.preTag ? 'pre-tag' : (flags.preFlight ? 'pre-flight' : (flags.sessionStart ? 'session-start' : 'full')), error: e && e.message, points: [], failed_points: ['__runner__'], summary: { total: 0, passed: 0, failed: 1 } }, null, 2));
       process.exit(1);
     });
     return;
@@ -3855,50 +3745,6 @@ function main() {
     return;
   }
 
-  // Phase 127.2 Plan 04 Instance #7: --post-update dispatch.
-  //
-  // Delegates to scripts/post-update-activation.cjs which (a) detects the
-  // freshly-landed cache-staging dir, (b) atomically swaps via the existing
-  // --fix pipeline (Phase 95.2; three autopsies of hardening), (c) writes
-  // the ~/.mindrian/post-update-restart-pending touch-file so the next
-  // session's sessionstart-post-update-preflight.cjs can verify activation
-  // reached the wire (Class N acceptance, see buildAcceptanceChecklist).
-  //
-  // SCOPE GUARD: ADD-ONLY -- does not touch any existing acceptance point,
-  // UI-compliance check, or session-start hook. Composable with --fix: when
-  // both flags pass we spawn post-update-activation.cjs which itself spawns
-  // doctor.cjs --fix --json (the existing chain) so the atomic-swap logic
-  // is exercised through ONE canonical code path. Closes Canon Part 7
-  // (reuse before build) on the activation-reached-the-wire surface.
-  if (flags.postUpdate) {
-    try {
-      const activator = require(path.join(__dirname, 'post-update-activation.cjs'));
-      activator.activatePostUpdate({}).then(function (result) {
-        if (flags.json) {
-          process.stdout.write(JSON.stringify(result, null, 2) + '\n');
-        } else {
-          process.stdout.write(activator.renderActionReport(result));
-        }
-        process.exit(result.ok ? 0 : 1);
-      }).catch(function (e) {
-        if (flags.json) {
-          console.log(JSON.stringify({ ok: false, error: (e && e.message) || 'unknown' }, null, 2));
-        } else {
-          console.error('post-update activation threw: ' + (e && e.message));
-        }
-        process.exit(1);
-      });
-    } catch (e) {
-      if (flags.json) {
-        console.log(JSON.stringify({ ok: false, error: 'failed to load post-update-activation: ' + (e && e.message) }, null, 2));
-      } else {
-        console.error('failed to load post-update-activation: ' + (e && e.message));
-      }
-      process.exit(1);
-    }
-    return;
-  }
-
   // Phase 127-02 BRAIN-MCP-127-08: --brain-smoke (class M) dispatch.
   //
   // Phase 217 carve-out: brain-smoke (class M) stays special-cased as an async
@@ -3970,14 +3816,12 @@ function main() {
     return;
   }
 
-  const installResult = checkInstallVersion();
-  const cacheResult = checkMarketplaceCache();
   const devResult = checkDevSourceConsistency();
 
   // Detect whether any class B/C/D/E/F/G/I/J flag was activated -- when YES the
   // doctor run is in "class-flag mode" (graceful degradation per Canon Part
-  // 8 invariant): class A install/cache issues become informational, never
-  // hard exits, and warnings from new checks return 0 unless --fix-failed.
+  // 8 invariant): warnings from the class checks never become hard exits, and
+  // return 0 unless --fix-failed.
   const classFlagsActive = flags.cascadeRooms || flags.verifySurface
     || flags.roomMd || flags.uiCompliance || flags.statuslineVisibility
     || flags.cardFireHealth
@@ -3987,138 +3831,38 @@ function main() {
     // ^ Phase 150.9 Plan-02: registering flags.drift here honors the
     //   graceful-degradation exit-0 invariant. This is what preserves the
     //   marketplace-cache-drift-deadlock carve-out automatically: that carve-out
-    //   lives in Class A's checkInstallVersion() which --drift never touches, and
-    //   classFlagsActive forces _finalizeAndExit to exit 0 (so a detected install
-    //   drift never flips a --drift run to exit 1). Per D-04 + the CONTEXT
-    //   discretion ruling.
+    //   was about class A, which was retired in Phase 341 plan 09;
+    //   classFlagsActive still forces _finalizeAndExit to exit 0 for a --drift
+    //   run. Per D-04 + the CONTEXT discretion ruling.
 
   const report = {
-    install: installResult,
-    cache: cacheResult,
     dev: devResult,
-    drift: { detected: false },
     fixRequested: flags.fix,
-    classARecovered: null, // class A install-cache recovery result (single object)
-    recoveryError: null,
-    recoverySkipped: null, // set when --fix drift recovery is skipped BY DESIGN
-                           // (marketplace-cache topology; RCA
-                           // doctor-marketplace-cache-drift-deadlock). Stable
-                           // JSON shape for consumers (post-update activator).
     checks: {},     // class B/C/D/E/F results land here.
     recovered: [],  // unified array of recovery records across all classes.
   };
 
-  // Drift detection (class A) -- widened in Phase 95.2 D-05/D-06.
-  if (installResult.status === 'ok' && cacheResult.status === 'ok') {
-    if (installResult.parsed && cacheResult.latestParsed) {
-      const cmp = cmpVersion(installResult.parsed, cacheResult.latestParsed);
-      report.drift = {
-        detected: cmp < 0,
-        compare: cmp,
-      };
-    }
-  } else if (installResult.status === 'missing'
-             && cacheResult.status === 'ok'
-             && cacheResult.versions
-             && cacheResult.versions.length > 0
-             && resolveActivePluginRoot().topology !== 'marketplace-cache') {
-    // Phase 95.2 D-05: missing install with available cache is a recoverable drift case.
-    // Topology guard (debug session doctor-class-a-drift-topology-blind-false-positive,
-    // 2026-05-31): installResult is computed against the hardcoded legacy INSTALL_DIR
-    // (line 55, ~/.claude/plugins/mindrian-os). Under marketplace-cache topology that
-    // legacy dir is CORRECTLY absent -- Claude Code loads the plugin from the cache
-    // path recorded in installed_plugins.json -- so a missing legacy dir is the healthy
-    // state, not drift. resolveActivePluginRoot() only returns a marketplace-cache root
-    // when that root passed isPluginDir() (a valid .claude-plugin/plugin.json), so the
-    // marketplace-cache topology already implies a healthy resolved active root. This
-    // guard makes class A agree with the topology-aware class I gate (--install-state)
-    // while preserving the legacy-topology recovery path: a genuinely-missing legacy
-    // active root (topology !== marketplace-cache) still reports install-missing drift.
-    report.drift = { detected: true, reason: 'install-missing' };
-  }
-
-  // Phase 95.2 D-07: install.recoverable (pure addition; preserves byte-stability of existing fields).
-  // True iff the cache holds at least one valid version. Lets automation distinguish
-  // 'can fix automatically' from 'needs manual intervention' without parsing cache.versions[].
-  report.install.recoverable = (cacheResult.status === 'ok' && cacheResult.versions && cacheResult.versions.length > 0);
-
-  // Phase 217 carve-out: class A (install-cache) stays special-cased in main()
-  // and is NOT migrated to a registry runner. Its results live OUTSIDE
-  // report.checks (report.install / report.cache / report.drift /
-  // report.classARecovered), its recovery is the atomic-swap path, and
-  // _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult)
-  // consumes cacheResult + installResult POSITIONALLY -- the exit-code contract
-  // is structurally coupled to main(). Forcing it into the uniform module shape
-  // would restructure the most-tested path days before the 211-217 release. Its
-  // three pure constituent readers (checkInstallVersion, checkMarketplaceCache,
-  // checkDevSourceConsistency) already left the monolith into
-  // lib/core/doctor/shared.cjs in 217-01. Full migration is future work, per
-  // 217-RESEARCH Open Question 3.
-  //
-  // Class A recovery (existing behavior preserved; result also pushed onto
-  // the unified report.recovered array for class B/C/D/E/F co-existence).
-  // Phase 95.2 D-01..D-04: now uses performRecoveryAtomic with two-step atomic-swap.
-  // Phase 123 Plan-03 carve-out: when --install-state (class I) is active,
-  // class A's `--fix` is suppressed. Class I owns the legacy-migration
-  // semantics (backup-then-verify-then-remove with the dev-clone safety belt
-  // and the dirty/unpushed refuse checks per D-13). Without this carve-out
-  // class A would migrate the legacy dir AHEAD of class I, defeating the
-  // dirty-legacy refuse contract.
-  // Resolve the active topology ONCE for both the recovery gate and the
-  // skipped-by-design branch (RCA doctor-marketplace-cache-drift-deadlock:
-  // the prior double-call pattern made the gate and the drift detector read
-  // two different sources of truth).
-  const activeTopologyAtGate = resolveActivePluginRoot().topology;
-  if (flags.fix && report.drift.detected && !flags.installState
-      && activeTopologyAtGate !== 'marketplace-cache') {
-    // Defense-in-depth (debug session doctor-class-a-drift-topology-blind-false-positive,
-    // 2026-05-31): with the Change-1 topology guard above, drift.detected is already
-    // false for the healthy marketplace-cache case so this gate is not reached for it.
-    // This redundant topology check ensures a future regression in the drift branch
-    // cannot re-enable performRecoveryAtomic recreating the legacy ~/.claude/plugins/
-    // mindrian-os dir under marketplace-cache topology (which class I would then flag
-    // as a migration candidate -- the two subsystems must never contradict).
-    const result = performRecoveryAtomic(installResult.version, cacheResult.latest);
-    if (result.status === 'ok') {
-      report.classARecovered = result;
-      report.recovered.push({ tool: 'install-cache', status: 'ok', version: result.recoveredVersion, backup: result.backup });
-    } else {
-      report.recoveryError = result.detail;
-      // Phase 95.2 D-03: distinguish rollback exit (code 4) from regular failure (code 1).
-      if (result.exitCode === 4 || result.stage === 'commit-rollback') {
-        report.recoveryRolledBack = true;
-      }
-    }
-  } else if (flags.fix && report.drift.detected && !flags.installState
-      && activeTopologyAtGate === 'marketplace-cache') {
-    // RCA doctor-marketplace-cache-drift-deadlock (2026-06-12): the topology
-    // check is what blocked recovery. Record the skip instead of silently
-    // falling through -- a silent skip left classARecovered AND recoveryError
-    // both null, which rendered as the useless 'recovery failed: unknown' and
-    // tripped the unconditional drift exit-1 in _finalizeAndExit (the
-    // permanent /mos:update Step 7 deadlock). Skipped-by-design is NOT
-    // failure: the renderer and the exit finalizer both read this field.
-    report.recoverySkipped = {
-      reason: 'topology-marketplace-cache',
-      detail: 'recovery skipped by design: active topology is marketplace-cache; the legacy install dir is vestigial and class A will not touch it (class I owns legacy migration)',
-    };
-  }
+  // Class A (install-cache drift detection and the atomic-swap recovery) was
+  // RETIRED here in Phase 341 plan 09. Its subject was drift between the legacy
+  // install directory and the marketplace cache; the loader now owns the swap and
+  // nothing creates the legacy directory. A leftover legacy directory is class I's
+  // finding (--install-state), and class I --fix backs it up, verifies and removes
+  // it. The report no longer carries install, cache or drift keys, or any
+  // class A recovery fields.
 
   // Class B + C: cascade-rooms (sentinel + active-room guard silence) migrated to
   // registry-driven cadence:always runners (Phase 217 Plan 04). The accumulative
   // engine now owns cascade-rooms + cascade-rooms-active under the --cascade-rooms
   // flag; class B's --fix (never wired pre-217) lives in the runner's fix(ctx).
 
-  // Class D (verify-surface), class G (statusline-visibility), and class H
-  // (install-incomplete) migrated to registry-driven cadence:always runners
-  // (Phase 217 Plan 05). The accumulative engine now owns:
+  // Class D (verify-surface) and class G (statusline-visibility) migrated to
+  // registry-driven cadence:always runners (Phase 217 Plan 05). The
+  // accumulative engine now owns:
   //   - verify-surface under --verify-surface (check-only, fix_supported false);
-  //   - statusline-visibility + install-incomplete under --statusline-visibility
-  //     (H shares G's flag, today's exact behavior: --statusline-visibility
-  //     surfaces both, --all surfaces both);
-  // and the engine's fix-then-recheck flow owns what the old hand-wired G/H --fix
-  // dispatches did (G gate: warn AND recoverable !== false; H's stricter
-  // recoverable === true gate is enforced runner-internally in its fix(ctx)).
+  //   - statusline-visibility under --statusline-visibility;
+  // and the engine's fix-then-recheck flow owns what the old hand-wired G --fix
+  // dispatch did (G gate: warn AND recoverable !== false). Class H, which used
+  // to share G's flag, was retired in Phase 341 plan 09.
 
   // Class I (install-state) + Class J (deployment-surfaces) migrated to
   // registry-driven cadence:always runners (Phase 217 Plan 06). The
@@ -4489,39 +4233,15 @@ function main() {
     report.checks['accumulative-engine'] = { status: 'error', detail: (err && err.message) || 'engine threw', selected: [], deferred: [], findings: [], advanced: false };
   }
 
-  // BUG 7 reinterpretation (relocated from the retired class I/J main() block,
-  // Phase 217 Plan 06): class A (install-cache) x class I (install-state)
-  // interplay. When class A reports install status:'missing' AND class I
-  // resolves topology=='marketplace-cache', the legacy clone path is EXPECTED
-  // absent (Claude Code loads from the cache), so downgrade class A to a note
-  // and neutralize an install-missing-based drift. Class I now runs inside the
-  // accumulative engine, so this reads the engine-populated
-  // report.checks['install-state']. Gated on flags.installState (the flag that
-  // activates class I), matching the pre-migration guard.
-  if (flags.installState) {
-    const stateAfter = report.checks['install-state'];
-    if (report.install && report.install.status === 'missing'
-        && stateAfter && stateAfter.topology === 'marketplace-cache') {
-      report.install = Object.assign({}, report.install, {
-        status: 'ok',
-        note: 'legacy clone path expected absent on a marketplace-cache install (Bug 7 fix)',
-        bug7_fix: true,
-      });
-      if (report.drift && report.drift.reason === 'install-missing') {
-        report.drift = { detected: false, reason: 'bug7-fix-marketplace-cache' };
-      }
-    }
-  }
-
 
   if (flags.brainSmoke) {
     const { checkBrainSmoke } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'class-m-brain-smoke.cjs'));
     checkBrainSmoke().then(function (result) {
       report.checks['brain-smoke'] = Object.assign({ class: 'M' }, result);
-      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+      _finalizeAndExit(flags, report, classFlagsActive);
     }).catch(function (err) {
       report.checks['brain-smoke'] = { class: 'M', status: 'error', detail: err && err.message };
-      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+      _finalizeAndExit(flags, report, classFlagsActive);
     });
     return;
   }
@@ -4572,12 +4292,12 @@ function main() {
       } catch (err) {
         report.checks['eureka-smoke'] = { class: 'S', status: 'error', detail: err && err.message };
       }
-      _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+      _finalizeAndExit(flags, report, classFlagsActive);
     })();
     return;
   }
 
-  _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult);
+  _finalizeAndExit(flags, report, classFlagsActive);
 }
 
 // -- --check-rs-engine probe (Phase 127.2 Plan 03, Findings F1 + F7) ---------
@@ -4878,7 +4598,7 @@ async function classSEurekaSmoke(flags) {
 }
 
 // -- Output + exit finalizer (extracted Phase 127-02 to allow async injection)
-function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installResult) {
+function _finalizeAndExit(flags, report, classFlagsActive) {
   // Output
   if (flags.json) {
     console.log(JSON.stringify(report, null, 2));
@@ -4910,21 +4630,9 @@ function _finalizeAndExit(flags, report, classFlagsActive, cacheResult, installR
   if (classFlagsActive) {
     process.exit(0);
   }
-  // Phase 95.2 exit-code chain (additive; preserves existing 0/1/2/3 semantics, adds 4).
-  // 0 = healthy (no drift detected).
-  // 1 = drift detected (read-only mode OR --fix didn't run).
-  // 2 = drift detected and recovered via --fix.
-  // 3 = internal error (cache unreadable, or install in 'error' state -- not 'missing').
-  // 4 = recovery attempted but rolled back to backup state (D-03).
-  // 0 = drift detected but recovery skipped by design (marketplace-cache
-  //     topology; report.recoverySkipped set -- only ever under --fix, so
-  //     read-only drift keeps exiting 1). RCA:
-  //     doctor-marketplace-cache-drift-deadlock (2026-06-12).
-  if (cacheResult.status !== 'ok') process.exit(3);
-  if (installResult.status === 'error') process.exit(3);
-  if (report.recoveryRolledBack) process.exit(4);
-  if (report.classARecovered) process.exit(2);
-  if (report.drift.detected && !report.recoverySkipped) process.exit(1);
+  // Exit-code chain. Class A exits 2, 3 and 4 were retired with
+  // it in Phase 341 plan 09.
+  // 0 = healthy. 1 = a drift signal below (read-only run).
   // Class N (DRIFT-12): the plugin-DISABLED silent-disable state is a drift
   // signal on a bare / non-class-flag run. enabled===false -> exit 1 so
   // `mindrian-os doctor` returns non-zero for the one failure mode that no

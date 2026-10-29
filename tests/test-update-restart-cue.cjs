@@ -30,7 +30,6 @@ const { spawnSync } = require('node:child_process');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const PREFLIGHT = path.join(REPO_ROOT, 'scripts', 'sessionstart-post-update-preflight.cjs');
 const UPDATE_MD = path.join(REPO_ROOT, 'commands', 'update.md');
-const ACTIVATION = path.join(REPO_ROOT, 'scripts', 'post-update-activation.cjs');
 
 let pass = 0;
 let fail = 0;
@@ -87,6 +86,10 @@ function runPreflight(home, pluginRoot) {
   const env = Object.assign({}, process.env, {
     HOME: home,
     USERPROFILE: home,
+    MOS_SESSION_VERIFY_HOME: home,
+    // Phase 341 plan 08: the converted hook may fire the detached probe; keep this
+    // suite hermetic and deterministic.
+    MOS_SESSION_VERIFY_NO_PROBE: '1',
     MOS_NO_COLOR: '1',
   });
   if (pluginRoot) env.CLAUDE_PLUGIN_ROOT = pluginRoot;
@@ -115,6 +118,11 @@ function runPreflight(home, pluginRoot) {
 // -- (b) versions match -> silent no-op -----------------------------------
 (function testMatch() {
   const home = makeHome('registered', '1.15.1');
+  // Phase 341 D-07a: a session whose version equals the last-seen marker is the
+  // common path and stays silent. (With NO marker the hook would verify, which the
+  // 341 hook suite covers.)
+  fs.mkdirSync(path.join(home, '.mindrian', 'session-verify'), { recursive: true });
+  fs.writeFileSync(path.join(home, '.mindrian', 'session-verify', 'state.json'), JSON.stringify({ last_seen_version: '1.15.1' }), 'utf8');
   const root = makePluginRoot('1.15.1');
   const r = runPreflight(home, root);
   assert('(b) match: exit 0', r.status === 0, 'status=' + r.status);
@@ -156,12 +164,34 @@ function runPreflight(home, pluginRoot) {
   assert('(d) update.md: references mindrian-ascii-logo', /mindrian-ascii-logo/.test(md));
 })();
 
-// -- (d') logo wiring in the post-update activation report ----------------
-(function testActivationLogo() {
-  const src = fs.readFileSync(ACTIVATION, 'utf8');
-  assert("(d') activation: references mindrian-ascii-logo", /mindrian-ascii-logo/.test(src));
-  assert("(d') activation: emits RESTART banner", /RESTART THIS SESSION NOW/.test(src));
+// -- (e) Phase 341: the converted hook NEVER blocks, on any input ----------
+// The deleted drift path could emit continue:false and exit 1 on an ambiguous
+// probe. This arm is the contract that path used to violate: across a fresh
+// install (no marker, no doctor to run), a malformed marker, and a marker for a
+// different version, the hook exits 0 and emits continue:true.
+(function testNeverBlocks() {
+  const scenarios = [];
+  const fresh = makeHome('registered', '1.15.1');
+  scenarios.push(['fresh install, doctor absent (inconclusive)', fresh, makePluginRoot('1.15.1')]);
+  const malformed = makeHome('registered', '1.15.1');
+  fs.mkdirSync(path.join(malformed, '.mindrian', 'session-verify'), { recursive: true });
+  fs.writeFileSync(path.join(malformed, '.mindrian', 'session-verify', 'state.json'), '{ not json', 'utf8');
+  scenarios.push(['malformed marker', malformed, makePluginRoot('1.15.1')]);
+  const older = makeHome('registered', '1.15.1');
+  fs.mkdirSync(path.join(older, '.mindrian', 'session-verify'), { recursive: true });
+  fs.writeFileSync(path.join(older, '.mindrian', 'session-verify', 'state.json'), JSON.stringify({ last_seen_version: '1.14.0' }), 'utf8');
+  scenarios.push(['marker for an older version', older, makePluginRoot('1.15.1')]);
+  for (const sc of scenarios) {
+    const r = runPreflight(sc[1], sc[2]);
+    assert('(e) never blocks: ' + sc[0] + ': exit 0', r.status === 0, 'status=' + r.status);
+    assert('(e) never blocks: ' + sc[0] + ': continue:true', !!r.json && r.json.continue === true, 'stdout=' + r.stdout);
+    assert('(e) never blocks: ' + sc[0] + ': no stopReason', !r.json || r.json.stopReason === undefined);
+  }
 })();
+
+// (d') The logo and banner wiring of the retired activation report went with the
+// activator (Phase 341 plan 08). The banner and logo live ONLY in commands/update.md
+// now, and arm (d) above pins both.
 
 // -- summary --------------------------------------------------------------
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
