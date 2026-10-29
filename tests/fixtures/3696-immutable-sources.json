@@ -26,6 +26,13 @@
       "reason": "verbatim measurement baseline; the historical text keeps its pauses and spellings"
     }
   ],
-  "fields": [],
+  "fields": [
+    {
+      "path": "tests/fixtures/3696-voice-corpus.json",
+      "rows_of_kind": "original",
+      "field": "text",
+      "reason": "verbatim samples; checked by source_sha256; never normalized"
+    }
+  ],
   "globs": []
 }
