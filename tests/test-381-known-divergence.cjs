@@ -25,7 +25,20 @@
  * injection (python-date-injection, node-e-section-name). After quick 261029-u8x the OLD oracle is
  * safe, so they are parity cases in the hostile room of the parity gate (equal bytes, no marker).
  *
- * Later plans append the analyze and state legs (sigpipe-large-file, nul-byte, ...).
+ * Plan 381-06 appends the analyze legs (the divergence room of build-fixture.cjs):
+ *   sigpipe-large-file (analyze)   a section file over 200 KiB with B2B on its first line. OLD
+ *                                  runs echo "$content" | grep -q under pipefail and can report
+ *                                  no match (Pitfall 6: OLD is not deterministic here, so both OLD
+ *                                  runs are printed, not asserted). NEW pairs it with the consumer
+ *                                  section in a CONTRADICT line.
+ *   invalid-utf8 (analyze)         a "## " header with the byte 0xE9. NEW decodes it to U+FFFD and
+ *                                  termsOf still gives terms; the OLD Convergence block is printed
+ *                                  for the record.
+ *   nul-byte (analyze)             a NUL inside a bold run and a B2C line. NEW names the NUL-byte
+ *                                  section as the B2C side of a CONTRADICT line.
+ *   macos-python-path (analyze-room)  source-level, as for compute-team.
+ * The backslash section name, the u8x folder-name payloads and the u8x funding date payload are
+ * parity cases in the hostile room (tests/test-381-parity.cjs), not legs here.
  *
  * Plain node:assert/strict, zero deps. Every script runs on a fresh cp -a copy under os.tmpdir().
  * Exit 0 pass, 1 fail. A missing precondition prints a SKIP line. Hyphens only.
@@ -58,7 +71,7 @@ function bashMajor() {
 }
 
 // Run one side on its own copy of src. tree = the OLD tree or ROOT (the HEAD entry point).
-function runOn(tree, src, dst) {
+function runOn(tree, src, dst, script) {
   oracle.copyRoom(src, dst);
   const side = oracle.mkTmp('div-side');
   const home = path.join(side, 'home');
@@ -67,8 +80,10 @@ function runOn(tree, src, dst) {
   [home, roomsHome, cwd].forEach((d) => fs.mkdirSync(d, { recursive: true }));
   const env = oracle.cleanEnv({ home, roomsHome, tz: 'UTC' });
   delete env.NODE_OPTIONS;
-  const r = oracle.runScript({ tree, script: 'compute-team', roomArg: dst, env, cwd });
-  return { status: r.status, stderr: r.stderr.toString('utf8'), cwdFiles: fs.readdirSync(cwd) };
+  const r = oracle.runScript({ tree, script: script || 'compute-team', roomArg: dst, env, cwd });
+  return {
+    status: r.status, stdout: r.stdout.toString('utf8'), stderr: r.stderr.toString('utf8'), cwdFiles: fs.readdirSync(cwd),
+  };
 }
 
 function readOrNull(p) {
@@ -129,6 +144,70 @@ function main() {
   leg('macos-python-path (compute-team): the node exec line precedes the first BASH_VERSINFO line', () => {
     const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-team'), 'utf8').split('\n');
     const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" team "$@"'));
+    const versLine = lines.findIndex((l) => l.includes('BASH_VERSINFO'));
+    assert.ok(execLine >= 0, 'the exec line exists');
+    assert.ok(versLine >= 0, 'the BASH_VERSINFO line exists');
+    assert.ok(execLine < versLine, 'exec line ' + (execLine + 1) + ' comes before BASH_VERSINFO line ' + (versLine + 1));
+  });
+
+  // ---------------------------------------------------------------------------------------------
+  // analyze-room legs (plan 381-06). Each leg builds its own divergence room and runs every side
+  // on a fresh copy of it.
+  // ---------------------------------------------------------------------------------------------
+  const contradictLines = (text) => text.split('\n').filter((l) => l.startsWith('CONTRADICT:'));
+  const blockOf = (text, head) => {
+    const lines = text.split('\n');
+    const i = lines.indexOf(head);
+    if (i < 0) return [];
+    const j = lines.indexOf('', i);
+    return lines.slice(i, j < 0 ? lines.length : j);
+  };
+  const analyzeSides = (label, runsOld) => {
+    const built = builders.buildDivergenceRoom(path.join(scratch, label + '-src'), {});
+    const base = oracle.mkTmp(label);
+    const n = runOn(ROOT, built.roomDir, path.join(base, 'new-room'), 'analyze-room');
+    const olds = [];
+    for (let i = 0; i < runsOld; i += 1) {
+      olds.push(runOn(oldTree, built.roomDir, path.join(base, 'old-room-' + i), 'analyze-room'));
+    }
+    return { built, n, olds };
+  };
+
+  leg('sigpipe-large-file (analyze): NEW pairs the large-file section with the consumer section', () => {
+    const { n, olds } = analyzeSides('sigpipe', 2);
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.ok(contradictLines(n.stdout).includes(
+      'CONTRADICT:div-big:div-consumer:MEDIUM:Customer type mismatch -- B2B/enterprise vs B2C/consumer'),
+    'NEW has the div-big / div-consumer CONTRADICT line: ' + JSON.stringify(contradictLines(n.stdout)));
+    olds.forEach((o, i) => {
+      const hit = contradictLines(o.stdout).some((l) => l.startsWith('CONTRADICT:div-big:'));
+      console.log('    OLD run ' + (i + 1) + ': exit ' + o.status + ', div-big CONTRADICT line ' + (hit ? 'present' : 'absent'));
+    });
+  });
+
+  leg('invalid-utf8 (analyze): termsOf keeps terms for the U+FFFD header and NEW exits 0', () => {
+    const { built, n, olds } = analyzeSides('utf8a', 1);
+    const analyze = require(path.join(ROOT, 'lib', 'core', 'room-render-analyze.cjs'));
+    const text = fs.readFileSync(path.join(built.roomDir, 'div-utf8', 'u.md')).toString('utf8');
+    assert.ok(text.includes('\uFFFD'), 'the renderer decoding gives U+FFFD');
+    const terms = analyze.termsOf(text);
+    assert.ok(Array.isArray(terms) && terms.length >= 1, 'termsOf returned at least one term: ' + JSON.stringify(terms));
+    assert.equal(n.status, 0, 'NEW exit code');
+    console.log('    NEW terms: ' + JSON.stringify(terms));
+    console.log('    OLD exit ' + olds[0].status + ', Convergence block: ' + JSON.stringify(blockOf(olds[0].stdout, '## Convergence')));
+  });
+
+  leg('nul-byte (analyze): NEW names the NUL-byte section as the B2C side of a CONTRADICT line', () => {
+    const { n, olds } = analyzeSides('nul', 1);
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.ok(contradictLines(n.stdout).some((l) => l.split(':')[2] === 'div-nul'),
+      'NEW has a CONTRADICT line with div-nul as the B2C side: ' + JSON.stringify(contradictLines(n.stdout)));
+    console.log('    OLD exit ' + olds[0].status + ', CONTRADICT lines: ' + JSON.stringify(contradictLines(olds[0].stdout)));
+  });
+
+  leg('macos-python-path (analyze-room): the node exec line precedes the first BASH_VERSINFO line', () => {
+    const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'analyze-room'), 'utf8').split('\n');
+    const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" analyze "$@"'));
     const versLine = lines.findIndex((l) => l.includes('BASH_VERSINFO'));
     assert.ok(execLine >= 0, 'the exec line exists');
     assert.ok(versLine >= 0, 'the BASH_VERSINFO line exists');

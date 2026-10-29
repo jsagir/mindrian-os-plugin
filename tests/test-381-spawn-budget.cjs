@@ -36,6 +36,28 @@
  *                 only as dateDToEpoch step 3 with a shape-valid value; node never
  *   net guard     the net guard log is empty
  *
+ * EDGE_ANALYZE_SPAWNS (analyze renderer on the same edge room, plan 381-06):
+ *   grep -lZE -- PATTERN files...    the cross-reference INFORMS pass for the section name
+ *                                    market.analysis (an ERE metacharacter, so not the in-process
+ *                                    fast path); one spawn for every candidate file      = 1
+ *   grep -liZE -- PATTERN2 files...  the CONTRADICTS pass for the same name               = 1
+ *   xargs (argv [], value on stdin)  the opportunity status value -n (echo reads it as an
+ *                                    option, so it is off the xargsEcho fast path)        = 1
+ *   date -d V +%s                    the funding last_updated values 2020-01-01 and
+ *                                    yesterday, once per distinct value (date -d accepts
+ *                                    both, so no date -j -f and no python3)               = 2
+ *   Total 5. Every other value, name and term is done in-process. The candidate file list goes to
+ *   grep in 96 KiB argv chunks, so 50 more artifacts (## headers, bold runs and [[market-analysis]]
+ *   references in problem-definition) give the same count.
+ *
+ * Analyze legs:
+ *   analyze edge          run('analyze', [edgeCopy]) spawns exactly EDGE_ANALYZE_SPAWNS processes
+ *   analyze edge plus 50  the same count with 50 more artifacts (zero per-file spawns)
+ *   analyze hostile       every spawn is grep (pattern as one argv element after --, or -q with
+ *                         the line on stdin), xargs with argv [] or a date-chain step; no node; no
+ *                         python3 for a u8x payload value; no file in the fresh run cwd; no marker
+ *                         in the room (spawn-level parity leg of T-381-01)
+ *
  * Plain node:assert/strict, zero deps, temp dirs under os.tmpdir() only. A missing precondition
  * (bash 4, symlinks) prints a SKIP line. Exit 0 pass, 1 fail. Hyphens only.
  */
@@ -58,6 +80,7 @@ const oracle = require(path.join(ROOT, 'tests', 'helpers', 'oracle-381.cjs'));
 const builders = require(path.join(ROOT, 'tests', 'fixtures', 'room-381', 'build-fixture.cjs'));
 
 const EDGE_TEAM_SPAWNS = 9;
+const EDGE_ANALYZE_SPAWNS = 5;
 
 // ---------------------------------------------------------------------------
 // child_process recorder
@@ -81,13 +104,15 @@ const netLog = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'test-381-spawn-n
 process.env.NET_GUARD_381_LOG = netLog;
 require(path.join(ROOT, 'tests', 'helpers', 'net-guard-381.cjs'));
 
-const ROOM_MODULES = ['room-scan.cjs', 'room-render.cjs', 'room-render-team.cjs'].map((f) => path.join(ROOT, 'lib', 'core', f));
+const ROOM_MODULES = ['room-scan.cjs', 'room-render.cjs', 'room-render-team.cjs', 'room-render-analyze.cjs']
+  .map((f) => path.join(ROOT, 'lib', 'core', f));
 
 function freshModules() {
   ROOM_MODULES.forEach((m) => { delete require.cache[m]; });
   return {
     render: require(path.join(ROOT, 'lib', 'core', 'room-render.cjs')),
     team: require(path.join(ROOT, 'lib', 'core', 'room-render-team.cjs')),
+    analyze: require(path.join(ROOT, 'lib', 'core', 'room-render-analyze.cjs')),
     scan: require(path.join(ROOT, 'lib', 'core', 'room-scan.cjs')),
   };
 }
@@ -104,8 +129,12 @@ async function leg(name, fn) {
   }
 }
 
-// Run the team renderer in-process with a fresh module set and a fresh empty cwd.
+// Run a renderer in-process with a fresh module set and a fresh empty cwd.
 async function recordTeam(roomDir) {
+  return recordMode('team', roomDir);
+}
+
+async function recordMode(mode, roomDir) {
   const mods = freshModules();
   const cwd = oracle.mkTmp('spawn-cwd');
   const prevCwd = process.cwd();
@@ -114,7 +143,7 @@ async function recordTeam(roomDir) {
   recording = true;
   let res;
   try {
-    res = await mods.render.run('team', [roomDir]);
+    res = await mods.render.run(mode, [roomDir]);
   } finally {
     recording = false;
     process.chdir(prevCwd);
@@ -139,7 +168,8 @@ function dateChainValue(s, datePy) {
 }
 
 function checkPrograms(spawns, mods) {
-  const allowed = new Set(Object.values(mods.team.FALLBACK_PROGRAMS).concat([mods.scan.DATE_PY_PROGRAM]));
+  const allowed = new Set(Object.values(mods.team.FALLBACK_PROGRAMS)
+    .concat(Object.values(mods.analyze.FALLBACK_PROGRAMS), [mods.scan.DATE_PY_PROGRAM]));
   spawns.forEach((s) => {
     const i = s.args.findIndex((a) => a === '-c' || a === '-e');
     if (i >= 0) assert.ok(allowed.has(s.args[i + 1]), 'a spawn with ' + s.args[i] + ' carries a constant program: ' + describe(s));
@@ -149,6 +179,26 @@ function checkPrograms(spawns, mods) {
       assert.ok(dateChainValue(s, mods.scan.DATE_PY_PROGRAM) !== null, 'python3 only as dateDToEpoch step 3 with a shape-valid value: ' + describe(s));
     }
   });
+}
+
+// The analyze spawn kinds: grep with the pattern as one argv element, xargs with argv [], or a
+// date-chain step. Returns 'grep-files', 'grep-q', 'xargs', 'date' or null.
+function analyzeKind(s, datePy) {
+  if (s.fn !== 'spawnSync') return null;
+  if (s.file === 'grep' && (s.args[0] === '-lZE' || s.args[0] === '-liZE') && s.args[1] === '--' && s.args.length >= 4) return 'grep-files';
+  if (s.file === 'grep' && s.args[0] === '-q' && s.args.length === 2) return 'grep-q';
+  if (s.file === 'xargs' && s.args.length === 0) return 'xargs';
+  if (dateChainValue(s, datePy) !== null) return 'date';
+  return null;
+}
+
+function addAnalyzeArtifacts(roomDir, n) {
+  for (let i = 0; i < n; i += 1) {
+    const id = String(i).padStart(2, '0');
+    fs.writeFileSync(path.join(roomDir, 'problem-definition', 'extra-' + id + '.md'),
+      '---\nmethodology: porter\n---\n# Extra ' + id + '\n\n## Pricing signal ' + id + '\n\n' +
+      'A **bold claim ' + id + '** about [[market-analysis]] and its buyers.\n');
+  }
 }
 
 async function main() {
@@ -214,6 +264,68 @@ async function main() {
         hostile.markers.forEach((m) => assert.ok(!v.includes(m), 'no payload value reaches python3'));
       }
     });
+    assert.deepEqual(r.cwdFiles, [], 'no file appears in the run cwd');
+    hostile.markers.forEach((m) => {
+      assert.ok(!fs.existsSync(path.join(copy, m)), 'no marker in the room: ' + m);
+    });
+  });
+
+  let edgeAnalyze = -1;
+  await leg('analyze edge: run(analyze) spawns exactly EDGE_ANALYZE_SPAWNS (' + EDGE_ANALYZE_SPAWNS + ') processes', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-aedge'), 'room');
+    oracle.copyRoom(edge.roomDir, copy);
+    const r = await recordMode('analyze', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    r.spawns.forEach((sp) => console.log('    spawn: ' + describe(sp).slice(0, 160)));
+    const kinds = r.spawns.map((sp) => analyzeKind(sp, r.mods.scan.DATE_PY_PROGRAM));
+    assert.ok(kinds.every((k) => k !== null), 'every spawn is grep, xargs or a date-chain step');
+    checkPrograms(r.spawns, r.mods);
+    const count = (k) => kinds.filter((x) => x === k).length;
+    assert.equal(count('grep-files'), 2, 'two grep spawns for market.analysis');
+    r.spawns.filter((sp) => sp.file === 'grep').forEach((sp) => assert.ok(sp.args[2].includes('market.analysis'), 'the grep pattern names market.analysis'));
+    assert.equal(count('xargs'), 1, 'one xargs spawn (the status value -n)');
+    assert.equal(count('date'), 2, 'one date -d per distinct funding last_updated value');
+    edgeAnalyze = r.spawns.length;
+    console.log('    spawn count ' + edgeAnalyze + ' (EDGE_ANALYZE_SPAWNS ' + EDGE_ANALYZE_SPAWNS + ')');
+    assert.equal(edgeAnalyze, EDGE_ANALYZE_SPAWNS, 'spawn count');
+    assert.deepEqual(r.cwdFiles, [], 'no file appears in the run cwd');
+  });
+
+  await leg('analyze edge plus 50 artifacts: the same spawn count (zero per-file spawns)', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-aedge50'), 'room');
+    oracle.copyRoom(edge.roomDir, copy);
+    addAnalyzeArtifacts(copy, 50);
+    const r = await recordMode('analyze', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    assert.ok(r.spawns.every((sp) => analyzeKind(sp, r.mods.scan.DATE_PY_PROGRAM) !== null), 'every spawn is grep, xargs or a date-chain step');
+    checkPrograms(r.spawns, r.mods);
+    console.log('    spawn count ' + r.spawns.length + ' with 50 extra artifacts (edge ' + edgeAnalyze + ')');
+    assert.equal(r.spawns.length, EDGE_ANALYZE_SPAWNS, 'spawn count with 50 extra artifacts');
+  });
+
+  await leg('analyze hostile: grep, xargs and date-chain spawns only, no node, no payload reaches python3, no marker', async () => {
+    const copy = path.join(oracle.mkTmp('spawn-ahostile'), 'room');
+    oracle.copyRoom(hostile.roomDir, copy);
+    const r = await recordMode('analyze', copy);
+    assert.equal(r.res.code, 0, 'exit code');
+    r.spawns.forEach((sp) => console.log('    spawn: ' + describe(sp).slice(0, 160)));
+    checkPrograms(r.spawns, r.mods);
+    const seen = new Map();
+    r.spawns.forEach((sp) => {
+      const kind = analyzeKind(sp, r.mods.scan.DATE_PY_PROGRAM);
+      assert.ok(kind !== null, 'grep, xargs or a date-chain step: ' + describe(sp));
+      if (kind === 'date') {
+        const v = dateChainValue(sp, r.mods.scan.DATE_PY_PROGRAM);
+        const k = sp.file + ' ' + sp.args[0] + '\u0000' + v;
+        assert.ok(!seen.has(k), 'each date step runs once per distinct value: ' + describe(sp));
+        seen.set(k, true);
+      }
+      if (path.basename(sp.file).startsWith('python')) {
+        const v = dateChainValue(sp, r.mods.scan.DATE_PY_PROGRAM) || '';
+        hostile.markers.forEach((m) => assert.ok(!v.includes(m), 'no payload value reaches python3'));
+      }
+    });
+    console.log('    spawn count ' + r.spawns.length);
     assert.deepEqual(r.cwdFiles, [], 'no file appears in the run cwd');
     hostile.markers.forEach((m) => {
       assert.ok(!fs.existsSync(path.join(copy, m)), 'no marker in the room: ' + m);
