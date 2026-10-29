@@ -198,6 +198,37 @@ check('B7 a thrown detector: exit 0, allowed envelope', stubRun.status === 0 && 
   Object.keys(stubEnvelope).every(function (k) { return ALLOWED_ENVELOPE.indexOf(k) !== -1; }));
 check('B7 a thrown detector still writes the denominator row', rowsNow().length === beforeStub + 1);
 
+// ---- D: doctor module and policies (plan 369.6-06 Task 2) ----
+const doctorMod = require(path.join(ROOT, 'lib', 'core', 'doctor', 'voice-style-log-module.cjs'));
+const dNow = Date.now();
+const dRows = [
+  { ts: dNow - 100000, policy_id: 'voice-hyphens-only', result: 'fire', version: 'x' },
+  { ts: dNow - 50000, policy_id: 'voice-turn-evaluated', template_version: '1', result: 'evaluated' },
+  { ts: dNow - 49000, policy_id: 'voice-turn-evaluated', template_version: '1', result: 'evaluated' },
+  { ts: dNow - 48000, policy_id: 'voice-hyphens-only', template_version: '1', result: 'fire' },
+  { ts: dNow - 10000, policy_id: 'voice-turn-evaluated', template_version: '2', result: 'evaluated' },
+  { ts: dNow - 9000, policy_id: 'voice-turn-evaluated', template_version: '2', result: 'evaluated' },
+  { ts: dNow - 8000, policy_id: 'voice-hyphens-only', template_version: '2', result: 'fire' },
+  { ts: dNow - 7000, policy_id: 'voice-hyphens-only', template_version: '2', result: 'fire' },
+];
+const dLog = path.join(scratch.root, 'doctor-log.jsonl');
+fs.writeFileSync(dLog, dRows.map(function (r) { return JSON.stringify(r); }).join('\n') + '\n');
+const dRes = doctorMod.check({ log_path: dLog });
+check('D1 the doctor module status is ok on a rising-rate log', dRes.status === 'ok');
+check('D2 the doctor detail reports violations per evaluated turn per template version', /voice-hyphens-only v1 1\/2 \(50%\), v2 2\/2 \(100%\)/.test(dRes.detail), dRes.detail);
+check('D3 a policy whose newest-version rate is above the previous one is named in an action line',
+  Array.isArray(dRes.action_lines) && dRes.action_lines.some(function (l) { return /^RATE RISING: voice-hyphens-only v2 100% is above v1 50%/.test(l); }), JSON.stringify(dRes.action_lines));
+check('D4 rows before the first evaluated row are reported as having no denominator', /1 row\(s\) have no denominator before \d{4}-\d{2}-\d{2}/.test(dRes.detail), dRes.detail);
+check('D5 the denominator row is not counted as a policy fire', !/voice-turn-evaluated: /.test(dRes.detail));
+check('D6 a missing log and a garbage log both stay ok', doctorMod.check({ log_path: path.join(scratch.root, 'absent.jsonl') }).status === 'ok' &&
+  (function () { const g = path.join(scratch.root, 'garbage.jsonl'); fs.writeFileSync(g, 'garbage\n'); return doctorMod.check({ log_path: g }).status === 'ok'; })());
+const dSrc = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'doctor', 'voice-style-log-module.cjs'), 'utf8');
+check('D7 the doctor module never returns warn or error', !/status:\s*['"](?:warn|error)['"]/.test(dSrc));
+const pDump = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'harness-policies', 'voice-no-framework-dump.json'), 'utf8'));
+const pNoun = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'harness-policies', 'voice-backend-noun-free.json'), 'utf8'));
+check('D8 the dump policy is declared with the observer as runner', pDump.rung === 'declared' && pDump.runner === 'scripts/check-voice-style.cjs' && pDump.pinned_by.indexOf('tests/test-3696-voice-log-denominator.cjs') !== -1);
+check('D9 the backend-noun policy has the observer as runner and stays declared', pNoun.rung === 'declared' && pNoun.runner === 'scripts/check-voice-style.cjs' && pNoun.evidence_log === '$MINDRIAN_HOME/voice-style.jsonl');
+
 // ---- static guards ----
 const src = fs.readFileSync(SUBJECT, 'utf8');
 check('S1 the observer never names the hook-specific output key', src.indexOf('hookSpecific' + 'Output') === -1);

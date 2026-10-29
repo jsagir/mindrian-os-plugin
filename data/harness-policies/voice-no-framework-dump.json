@@ -1,0 +1,13 @@
+{
+  "id": "voice-no-framework-dump",
+  "kind": "voice",
+  "runner": "scripts/check-voice-style.cjs",
+  "args": [],
+  "rung": "declared",
+  "evidence_log": "$MINDRIAN_HOME/voice-style.jsonl",
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": ["tests/test-3696-voice-log-denominator.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "Larry does not list three or more framework names, or three or more /mos: commands, in one reply when the navigator did not ask for a list (SEED-116 direction 1; the three-name marker rule of research L5). The Stop observer logs one row per hit through detectFrameworkDump in lib/hmi/larry-reply-checks.cjs, in shadow mode only (A-04): it evaluates and logs, it never blocks. A blocking rung is a Phase 369.7 decision against a measured rate (R-14); promotion stays a human edit. min_true_positives uses the same sourced baseline as the other voice policies: the 50 to 100 human-reviewed-traces figure from Vanishing Gradients Ep. 57 (Shreya Shankar), low end adopted."
+}
