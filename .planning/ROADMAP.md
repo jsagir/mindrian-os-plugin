@@ -675,7 +675,8 @@ Handoff (added by 344-09, 2026-09-14): `docs/2026-09-14-CANON-APPENDIX-B-PROPOSE
 **Goal:** Make `claude plugin install/update mos@mindrian-marketplace` complete on Windows, Mac and Linux by shipping a built artifact instead of a git checkout. Verified 2026-09-09 on two platforms (Windows 11 QA teardown + Linux dev box): the documented update path dies in `git clone` (`fatal: early EOF`) because release.sh Step 6.7 force-vendors `node_modules` into the release tag - 410 MB / 8,880 files at v2.0.0-beta.29, of which ~380 MB is `@huggingface/transformers` + onnxruntime-node/-web + sharp/libvips (23 native binaries for every platform), added 2026-07-05 by Phase 211-01 AFTER the 2026-05-21 "32M pure JS" audit that justified vendoring. The tag checks out at 755 MB / 16,597 files (`.planning` 57 MB and `tests` 44 MB ship too); product code is 30 MB / 2,079 files; the MCP-critical pure-JS dep set is 29 MB. Navigator-locked path (Decision Gate 2026-09-09): marketplace `source: npm` pinned to the version; `package.json` `files` whitelist = runtime tree; transformers out of `dependencies` (Eureka installs on demand, existing `encoder_unavailable` degrade + Doctor class S); pure-JS deps via `npm-shrinkwrap.json` + the loader's `npm ci --ignore-scripts` (ratified 2026-09-09: platform-correct per machine, sqlite-vec's five platform packages resolve locally; measured 9.3 s cold against the documented 60 s cutoff; `bundleDependencies` rejected by measurement, it packs only the publish host's platform package). Target tarball ~2,092 entries / 30.5 MiB, far under the platform's documented 256 MiB / 20,000-entry plugin ceiling; exclude `lib/wiki/editor-src` (its nested node_modules alone is 9,119 entries). Then: delete Step 6.7 + Commit A/B node_modules churn; retire `install.sh` as a primary path, `/mos:update` Steps 6-7 + restart touch-file, doctor classes A/H and the two-topology halves of I/J; collapse `/mos:update` to Check, Confirm, loader, Verify; add a Phase 298 harness policy (blocking rung) asserting published tarball size + entry count against the ceiling so a 211-01-class dependency can never silently 13x the payload again. Fallback: `archive` source (HTTPS zip + documented `sha256`, Claude Code v2.1.224+) via `git archive` + `export-ignore`. Findings prelude: `.planning/phases/341-*/341-FINDINGS.md`. Sibling scope: Phase 285 (SEED-015 selective install).
 **Requirements**: D-01 .. D-13 (no REQ-IDs are registered for this phase in REQUIREMENTS.md; the CONTEXT.md locked decisions ARE the requirements, plus the folded registry-drift todo which rides D-08). Discretion items resolved by research: the exact `files` list with `!` negations (`docs/` and `dist/` do NOT ship, zero runtime readers each), the `.planning` runtime readers (`pitch-feedback-schemas.cjs` self-test writes to `os.tmpdir()`; `drift-baseline`, `skillopt-schemas` and `reconcile-runner` ship), shrinkwrap generation at the former Step 6.7 slot with no `NODE_ENV=production`, and `install.sh` retired (four documented distribution paths, none of which need it).
 **Depends on:** Phase 340
-**Plans:** 5/10 plans executed
+**Outcome:** Executed 2026-10-28 and 2026-10-29 (10/10 plans), NOT live until a release carries it. Cold install proof WAIVED by the navigator, not observed on Windows or macOS (ruling 2026-10-28). install.sh is retired, /mos:update is Check, Confirm, Loader, Verify, and doctor classes A and H are retired. Plan 341-10 kept the class I and J legacy-topology halves because they are still reachable. OPEN: Windows and macOS runs, the legacy-clone migrator gap and dangling symlinks, the brain-shim exit defect, the three known red legs in tests/run-all-341.sh, and the room-side research trail (see docs/install/INSTALL-OVERHAUL-341.md).
+**Plans:** 10/10 plans complete
 Plans:
 **Wave 1**
 
@@ -699,23 +700,23 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 341-06-PLAN.md - Cold-install proof (D-13 step 2, BLOCKING): `scripts/collect-cold-install-evidence.cjs`, a three-platform human-verify checkpoint, the tracked `docs/install/COLD-INSTALL-PROOF-341.md`, and a gate test that rejects placeholders. Nothing later ships until this passes. Has a checkpoint (D-01, D-04, D-13)
+- [x] 341-06-PLAN.md - Cold-install proof (D-13 step 2, BLOCKING): `scripts/collect-cold-install-evidence.cjs`, a three-platform human-verify checkpoint, the tracked `docs/install/COLD-INSTALL-PROOF-341.md`, and a gate test that rejects placeholders. Nothing later ships until this passes. Has a checkpoint (D-01, D-04, D-13)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 341-07-PLAN.md - One install location: `scripts/migrate-legacy-install-location.cjs` (verify, then verified backup, then guarded remove), the Class I fix wired to it, `install.sh` deleted with its `check-first-touch-drift` entry in the same commit, and `docs/install/PACKAGING-PATHS.md` refreshed. Autonomous (D-05, D-13)
+- [x] 341-07-PLAN.md - One install location: `scripts/migrate-legacy-install-location.cjs` (verify, then verified backup, then guarded remove), the Class I fix wired to it, `install.sh` deleted with its `check-first-touch-drift` entry in the same commit, and `docs/install/PACKAGING-PATHS.md` refreshed. Autonomous (D-05, D-13)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 341-08-PLAN.md - Collapse `/mos:update` to Check, Confirm, loader, Verify: Steps 6 and 7 deleted, the SHA leg and the api.github.com tag-ref call retired, and the `post-update-restart-pending` touch-file with its writer, SessionStart reader, statusline signal and doctor flag removed. Autonomous (D-07, D-13)
+- [x] 341-08-PLAN.md - Collapse `/mos:update` to Check, Confirm, loader, Verify: Steps 6 and 7 deleted, the SHA leg and the api.github.com tag-ref call retired, and the `post-update-restart-pending` touch-file with its writer, SessionStart reader, statusline signal and doctor flag removed. Autonomous (D-07, D-13)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 341-09-PLAN.md - Retire doctor classes A (install-cache) and H (install-incomplete), each in one commit spanning module, registry, renderer, help text and doc, with unreachability proved by literal command output first. Autonomous (D-13)
+- [x] 341-09-PLAN.md - Retire doctor classes A (install-cache) and H (install-incomplete), each in one commit spanning module, registry, renderer, help text and doc, with unreachability proved by literal command output first. Autonomous (D-13)
 
 **Wave 10** *(blocked on Wave 9 completion)*
 
-- [ ] 341-10-PLAN.md - Retire the legacy-topology halves of classes I and J (vocabulary drops to `marketplace-cache | dev-clone | not-found`), then close the phase with the tracked `docs/install/INSTALL-OVERHAUL-341.md` carrying a full D-01..D-13 coverage table, the OPEN-HANDOFFS entry, and the rethinking-mindrianos research trail. Autonomous (D-01 .. D-13)
+- [x] 341-10-PLAN.md - Retire the legacy-topology halves of classes I and J (vocabulary drops to `marketplace-cache | dev-clone | not-found`), then close the phase with the tracked `docs/install/INSTALL-OVERHAUL-341.md` carrying a full D-01..D-13 coverage table, the OPEN-HANDOFFS entry, and the rethinking-mindrianos research trail. Autonomous (D-01 .. D-13)
 
 ### Phase 342: Theo-aware intelligence layer: register every local engine (Eureka, RS, whitespace, the intelligence and analysis families) as a Theo-known handle, triggerable through chain_run
 
