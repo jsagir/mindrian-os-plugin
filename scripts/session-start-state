@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# session-start-state -- STATE.md reuse and analyze-room cache step of the
+# SessionStart hook (quick 261029-lx3).
+# Called by scripts/session-start as:
+#   session-start-state <state|analyze> <room-dir> <script-dir>
+# Stdout carries only the result text. Every log line goes to the room-local
+# log file. No set -e: every step is guarded, and session-start must never
+# fail because of this helper.
+#
+# Why: on a real room on /mnt/c, one trace of the SessionStart event showed
+# scripts/analyze-room at 24,207 ms and scripts/compute-state at 9,876 ms.
+# Claude Code holds the first reply until every SessionStart hook ends. Both
+# results are a function of the room files, so an unchanged room can reuse
+# them:
+#   state    nothing changed since STATE.md was written: print STATE.md
+#            instead of running compute-state (C-1). Only the
+#            gsd_state_version and status lines are removed, because
+#            state-write.cjs added them and compute-state never prints them
+#            (DD-1). The format guard (DD-2) and the recompute triggers
+#            (DD-3) decide when compute-state still runs.
+#   analyze  nothing changed since the cache was written: print the cache
+#            instead of running analyze-room (C-2). A failed run never
+#            overwrites the cache (DD-6).
+# One find call is the whole "did anything change" question. It is the find
+# of scripts/on-stop-state with another reference file. It prunes every
+# hidden entry, so .mindrian/ (where the cache lives) never invalidates it.
+
+MODE="${1:-}"
+ROOM_DIR="${2:-}"
+SCRIPT_DIR="${3:-}"
+case "$MODE" in
+  state|analyze) ;;
+  *) exit 2 ;;
+esac
+[ -d "$ROOM_DIR" ] || exit 0
+[ -d "$SCRIPT_DIR" ] || exit 2
+
+# First room file newer than the reference file given as $1 (prints a path or nothing).
+room_newer() { find -H "$ROOM_DIR" -mindepth 1 -name '.*' -prune -o -type f ! -name STATE.md ! -name 'STATE.md.tmp.*' -newer "$1" -print -quit 2>/dev/null || true; }
+
+# DD-7: one line per call. Nothing is written when the room has no .mindrian/.
+log_line() {
+  [ -d "${ROOM_DIR}/.mindrian" ] || return 0
+  { printf '%s %s\n' "$(date -u +%FT%TZ)" "${1//[$'\n\r']/ }" >> "${ROOM_DIR}/.mindrian/session-start-state.log"; } 2>/dev/null || true
+}
+
+do_state() {
+  local state_file="${ROOM_DIR}/STATE.md" reason="" registry newer text rc
+  if [ ! -s "$state_file" ]; then
+    reason="missing-or-empty"
+  else
+    registry="${MINDRIAN_ROOMS_HOME:-$HOME/MindrianRooms}/.rooms/registry.json"
+    if [ -f "$registry" ] && [ "$registry" -nt "$state_file" ]; then
+      reason="registry"
+    elif [ -n "$(find "$state_file" -mmin +1440 -print -quit 2>/dev/null || true)" ]; then
+      reason="age"
+    else
+      newer=$(room_newer "$state_file")
+      if [ -n "$newer" ]; then
+        reason="newer:${newer#"${ROOM_DIR}"/}"
+      fi
+    fi
+  fi
+  if [ -z "$reason" ]; then
+    # DD-1 and DD-2: remove only the two keys that state-write.cjs added, and
+    # accept only the exact compute-state shape. awk prints while it reads,
+    # so the text is dropped when the exit code is not 0.
+    text=$(awk '
+NR == 1 { if ($0 != "---") { bad = 1; exit } ; fm = 1; print; next }
+fm == 1 && $0 == "---" { fm = 2; print; next }
+fm == 1 && /^computed:/ { seen = 1 }
+fm == 1 && /^(gsd_state_version|status):/ { next }
+fm == 2 { if ($0 != "# Data Room State") { bad = 1; exit } ; fm = 3; print; next }
+fm == 3 && $0 == "## Live (auto)" { bad = 1; exit }
+{ print }
+END { if (bad || fm < 3 || !seen) exit 3 }
+' "$state_file" 2>/dev/null)
+    rc=$?
+    if [ "$rc" -eq 0 ]; then
+      printf '%s\n' "$text"
+      log_line "state mode=reuse reason=unchanged"
+      return 0
+    fi
+    reason="format"
+  fi
+  log_line "state mode=compute reason=${reason}"
+  "${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose."
+}
+
+do_analyze() {
+  local cache="${ROOM_DIR}/.mindrian/analyze-room.cache" reason="" newer out rc tmp cached
+  # DD-5: no .mindrian/ means no cache, no log, and no mkdir.
+  if [ ! -d "${ROOM_DIR}/.mindrian" ]; then
+    out=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null) || true
+    printf '%s\n' "$out"
+    return 0
+  fi
+  # DD-4: the cache is a miss on the first true check below.
+  if [ ! -s "$cache" ]; then
+    reason="missing-or-empty"
+  elif [ "${SCRIPT_DIR}/analyze-room" -nt "$cache" ]; then
+    reason="script"
+  elif [ "${ROOM_DIR}/STATE.md" -nt "$cache" ]; then
+    reason="state"
+  elif [ -n "$(find "$cache" -mmin +1440 -print -quit 2>/dev/null || true)" ]; then
+    reason="age"
+  else
+    newer=$(room_newer "$cache")
+    if [ -n "$newer" ]; then
+      reason="newer:${newer#"${ROOM_DIR}"/}"
+    fi
+  fi
+  if [ -z "$reason" ]; then
+    out=$(cat "$cache" 2>/dev/null)
+    rc=$?
+    if [ "$rc" -eq 0 ] && [ -n "$out" ]; then
+      printf '%s\n' "$out"
+      log_line "analyze mode=hit reason=unchanged rc=0 cached=yes"
+      return 0
+    fi
+    reason="read-failed"
+  fi
+  # DD-6: print what analyze-room printed, whatever its exit code (as before
+  # this change). Write the cache only for a clean run with real output.
+  out=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null)
+  rc=$?
+  printf '%s\n' "$out"
+  cached="no"
+  if [ "$rc" -eq 0 ] && [ -n "$out" ] && [ "$out" != "NO_ROOM" ]; then
+    tmp="${cache}.tmp.$$"
+    if { printf '%s\n' "$out" > "$tmp"; } 2>/dev/null && mv -f "$tmp" "$cache" 2>/dev/null; then
+      cached="yes"
+    else
+      rm -f "$tmp" 2>/dev/null || true
+    fi
+  fi
+  log_line "analyze mode=miss reason=${reason} rc=${rc} cached=${cached}"
+}
+
+if [ "$MODE" = "state" ]; then
+  do_state
+else
+  do_analyze
+fi
+exit 0
