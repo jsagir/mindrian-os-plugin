@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator"
-last_updated: "2026-10-29T00:23:10.380Z"
+status: "379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)"
+stopped_at: Phase 369.6 context gathered (24 owner rulings + 4 article decisions locked; replan next, then Codex review gate)
+last_updated: "2026-10-29T10:48:55.023Z"
 last_activity: 2026-10-28
 progress:
   total_phases: 144
-  completed_phases: 65
-  total_plans: 733
-  completed_plans: 737
-  percent: 99
+  completed_phases: 34
+  total_plans: 657
+  completed_plans: 549
+  percent: 24
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -9365,8 +9365,8 @@ Progress: [██████████] 98%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-29T00:23:10.287Z
-Stopped at: Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator
+Last session: 2026-10-29T10:48:54.915Z
+Stopped at: Phase 369.6 context gathered (24 owner rulings + 4 article decisions locked; replan next, then Codex review gate)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
@@ -9492,7 +9492,7 @@ See `.planning/quick/261019-fs6-implement-first-room-creation-and-return/SUMMARY
 ## Session record - Phase 371 UI contract (2026-10-19)
 
 Stopped at: Phase 371 UI-SPEC approved; phase added and ready for planning.
-Resume file: None
+Resume file: .planning/phases/369.6-the-larry-contract-voice-and-calibration-execution-truth-pro/369.6-CONTEXT.md
 The existing Phase 369 Current Position is preserved. This record does not claim
 the new startup visual contract has been implemented or verified in ChatGPT.
 
