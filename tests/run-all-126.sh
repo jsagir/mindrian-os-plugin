@@ -2,7 +2,7 @@
 # Phase 126 scoped runner -- run before each 126 task commit. Expect GREEN
 # once all plans land (each plan adds its own test suite here):
 #   test-doctor-fix-renderer.cjs                  -> Plan 126-01 (--fix renderer contract test + fix)
-#   test-marketplace-cache-prerelease-pick.cjs    -> Plan 126-02 (semver prerelease ordering)
+#   (test-marketplace-cache-prerelease-pick.cjs retired in Phase 341 plan 09 with doctor class A)
 #   test-doctor-acceptance-self-coverage.cjs      -> Plan 126-03 (acceptance-gate self-coverage)
 #   test-release-bump-tag-and-publish-gates.cjs   -> Plan 126-04 (tag-push + install-minisite HARD + npx-publish self-test)
 #   test-doctor-acceptance-preflight-checks.cjs   -> Plan 126-05 (5 release-flight preflight checks)
@@ -28,7 +28,6 @@ SHELL_SUITES=(
 )
 CJS_SUITES=(
   test-doctor-fix-renderer.cjs
-  test-marketplace-cache-prerelease-pick.cjs
   test-doctor-acceptance-self-coverage.cjs
   test-release-bump-tag-and-publish-gates.cjs
   test-doctor-acceptance-preflight-checks.cjs

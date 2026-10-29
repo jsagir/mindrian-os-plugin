@@ -142,7 +142,7 @@
   },
   "commands/doctor.md": {
     "layer": "harness",
-    "layer_why": "Diagnoses install-cache drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name.",
+    "layer_why": "Diagnoses install-state and deployment-surface drift, ROOM.md gaps, statusline visibility and UI compliance; the canonical doctor-organ measurement and repair tool the rubric's own step 3 signal names by name.",
     "rubric_stopped_at": 3
   },
   "commands/dogfood-flush.md": {

@@ -518,7 +518,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When something feels off with the install, /mos:doctor diagnoses install-cache drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
+      "teaching": "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
