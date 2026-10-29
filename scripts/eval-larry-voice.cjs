@@ -360,6 +360,7 @@ function writeRunFiles(dir, repliesBytes, manifest) {
 // the code half: every item the rubric lets a string decide
 // ---------------------------------------------------------------------------------------------
 const checks = require('../lib/hmi/larry-reply-checks.cjs');
+const oplog = require('./oplog-larry-voice.cjs');
 
 const VOICE_ITEMS = Object.freeze(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11', 'R12', 'R13', 'R14', 'R15']);
 const OP_ITEMS = Object.freeze(['OP1', 'OP2', 'OP3', 'OP4', 'OP5']);
@@ -367,7 +368,9 @@ const ALL_ITEMS = Object.freeze(VOICE_ITEMS.concat(OP_ITEMS));
 // Items a judge scores. The code half is a ceiling for the "both" items and the whole value for the
 // code-authoritative ones; the judge can lower a value, never raise it.
 const JUDGE_IDS = Object.freeze(['R5', 'R6', 'R7', 'R9', 'R11', 'R13', 'R14', 'R15']);
-const JUDGE_ONLY = Object.freeze(['R6', 'R7', 'R9', 'R13']);
+const JUDGE_ONLY = Object.freeze(['R6', 'R7', 'R9', 'R13', 'OP3']);
+// The operation items a judge may score on a reply that carries a tool log (plan 369.6-05). Only the claude judge ever sees them.
+const OP_JUDGE_IDS = Object.freeze(['OP2', 'OP3']);
 const GATES = Object.freeze(['R1', 'R10', 'R15', 'OP1']);
 const VIBE_CORE = Object.freeze(['R5', 'R6', 'R7', 'R9', 'R11', 'R12']);
 
@@ -514,12 +517,18 @@ function scoreCode(reply, probe, rubric) {
   const mach = checks.findMachineryNarration(text, { userText: userText });
   put('R15', item(mach.ok ? 2 : 0, mach.ok ? 'no machinery narration' : 'machinery: ' + mach.hits.map(function (h) { return h.term; }).join(','), { scorer: 'both', ceiling: mach.ok ? 2 : 0 }));
   put('OP1', item(mach.ok ? 2 : 0, mach.ok ? 'no machinery narration' : 'machinery: ' + mach.hits.map(function (h) { return h.term; }).join(','), { scorer: 'both' }));
-  const hasLog = Array.isArray(reply.tool_log) && reply.tool_log.length > 0;
-  put('OP2', hasLog ? notScored('tool log present; the judge and the plan 369.6-05 parser score it', { scorer: 'log+judge' }) : { value: null, status: 'missing', judge: null, scorer: 'log+judge', detail: 'no tool log' });
+  // A reply with a stored tool log (the redacted record of scripts/oplog-larry-voice.cjs) is scored from that log on every
+  // run of score and compare: the stored op_code is evidence, never the source of the value (plan 369.6-05, Codex C2).
+  const hasLog = !!(reply.tool_log && typeof reply.tool_log === 'object' && Array.isArray(reply.tool_log.calls));
+  let opScore = null;
+  if (hasLog) opScore = oplog.scoreOperationLog(reply.tool_log, text, probe);
+  if (opScore) put('OP2', item(opScore.OP2.value, opScore.OP2.reason, { scorer: 'log+judge', ceiling: opScore.OP2.ceiling, evidence: opScore.OP2.evidence, judge: 'code' }));
+  else put('OP2', { value: null, status: 'missing', judge: null, scorer: 'log+judge', detail: 'no tool log' });
   put('OP3', notScored('judge item, no judge ran', { scorer: 'judge' }));
   const tos = checks.findToolOutputShape(text);
   put('OP4', item(tos.ok ? 2 : 0, tos.ok ? 'no tool output shape' : 'tool output shape', { scorer: 'both' }));
-  put('OP5', hasLog ? notScored('tool log present; the plan 369.6-05 parser scores it', { scorer: 'log+code' }) : { value: null, status: 'missing', judge: null, scorer: 'log+code', detail: 'no tool log' });
+  if (opScore) put('OP5', item(opScore.OP5.value, opScore.OP5.reason, { scorer: 'log+code', evidence: opScore.OP5.evidence }));
+  else put('OP5', { value: null, status: 'missing', judge: null, scorer: 'log+code', detail: 'no tool log' });
   return { items: out, applicable: app.applicable, not_applicable: app.not_applicable };
 }
 
@@ -532,9 +541,10 @@ function clip(s, n) { const t = String(s); return t.length > n ? t.slice(0, n) :
  * judgeItems(rubric) -> [{ id, judge, criteria: [level0, level1, level2] }]: the questions a judge answers,
  * built from the rubric item cells (levels worded as situations, the Jev contract).
  */
-function judgeItems(rubric) {
-  return JUDGE_IDS.map(function (id) {
-    const it = rubric.items.filter(function (x) { return x.id === id; })[0];
+function judgeItems(rubric, withOperation) {
+  const opItems = (rubric.operation && rubric.operation.items) || [];
+  return JUDGE_IDS.concat(withOperation ? OP_JUDGE_IDS : []).map(function (id) {
+    const it = rubric.items.concat(opItems).filter(function (x) { return x.id === id; })[0];
     return {
       id: id,
       judge: clip(it.name + '. Score the reply to the navigator message in the state, from 0 to 2.', 400),
@@ -620,7 +630,7 @@ function mergeJudge(code, results, name) {
   const items = {};
   Object.keys(code.items).forEach(function (id) { items[id] = Object.assign({}, code.items[id]); });
   if (!results) return items;
-  JUDGE_IDS.forEach(function (id) {
+  JUDGE_IDS.concat(OP_JUDGE_IDS).forEach(function (id) {
     const base = items[id];
     if (!base || base.status === 'not_applicable') return;
     const r = results[id];
@@ -822,7 +832,8 @@ async function defaultClaudeJudge(entry, ids, ctx) {
   // the judge sees the same supplied context and turn index as the Jev payload carries
   const userMsg = 'Turn index: ' + entry.turn_index + '\n' +
     (entry.context ? 'Conversation so far:\n' + entry.context + '\n\n' : '') +
-    'Navigator message:\n' + entry.prompt + '\n\nLarry reply:\n' + entry.reply;
+    'Navigator message:\n' + entry.prompt + '\n\nLarry reply:\n' + entry.reply +
+    (entry.evidence ? '\n\nEvidence for the operation items (from the recorded tool log):\n' + entry.evidence : '');
   const spawn = ctx.spawn || iso.spawnIsolated;
   const r = spawn(scratch, path.join(scratch.bin, 'claude'), args.concat([userMsg]), { envOpts: { withCredential: true, parentEnv: ctx.env }, timeout: 180000 });
   if (r.status !== 0) return { refused: 'claude_exit_' + r.status };
@@ -838,6 +849,45 @@ async function defaultClaudeJudge(entry, ids, ctx) {
     out[id] = typeof v === 'number' ? { value: Math.max(0, Math.min(2, Math.round(v))), confidence: null } : { abstained: true, reason: 'claude_no_score' };
   });
   return { results: out };
+}
+
+// The evidence a judge needs for OP2 and OP3 (Codex round 1 of plan 369.6-05, finding 3): the ordered calls with their
+// outcomes, the approval facts, the code finding for OP2, the step the last executed engine call surfaced, and the artifact
+// titles of the fixture room (invented content). It holds no argument text and no result text beyond the engine step.
+function fixtureRoomTitles(repoRoot) {
+  const base = path.join(repoRoot || REPO_ROOT, 'tests', 'fixtures', 'release-room', 'sections');
+  const out = [];
+  try {
+    fs.readdirSync(base).sort().forEach(function (sec) {
+      const dirSec = path.join(base, sec);
+      fs.readdirSync(dirSec).sort().forEach(function (art) {
+        const f = path.join(dirSec, art, art + '.md');
+        if (!fs.existsSync(f)) return;
+        const m = /^title:\s*(.+)$/m.exec(fs.readFileSync(f, 'utf8'));
+        out.push(sec + ': ' + (m ? m[1].trim() : art));
+      });
+    });
+  } catch (_e) { /* the fixture room is optional evidence */ }
+  return out;
+}
+
+function operationEvidenceText(reply, repoRoot) {
+  const log = reply.tool_log;
+  const lines = ['Tool calls in order (id, tool, outcome, flags):'];
+  (log.calls || []).forEach(function (c) {
+    lines.push('  ' + c.id + ' ' + c.tool + ' ' + c.outcome + (c.material ? ' material' : '') + (c.exempt ? ' exempt' : '') + (c.setup ? ' setup' : ''));
+  });
+  if (!(log.calls || []).length) lines.push('  none');
+  lines.push('Navigator approvals before a step: ' + (log.approvals || []).filter(function (a) { return a.approve; }).length + '; model-made gate answers: ' + (log.selfApprovals || []).length + '.');
+  if (reply.op_code && reply.op_code.OP2) lines.push('Code finding for OP2: ' + reply.op_code.OP2.value + ' (' + reply.op_code.OP2.reason + ').');
+  const eng = (log.calls || []).filter(function (c) { return c.engine && c.outcome === 'executed'; });
+  if (eng.length) {
+    const last = eng[eng.length - 1];
+    lines.push('Last executed engine call ' + last.id + ' surfaced: commands [' + last.engine.commands.join(', ') + '], frameworks [' + last.engine.frameworks.join(', ') + '].');
+  }
+  const titles = fixtureRoomTitles(repoRoot);
+  if (titles.length) lines.push('Artifact titles the room holds (invented fixture content):\n  ' + titles.join('\n  '));
+  return lines.join('\n');
 }
 
 /*
@@ -871,12 +921,14 @@ async function scoreRun(run, opts) {
   for (const reply of replies) {
     const probe = probeForReply(reply, probes);
     const code = scoreCode(reply, probe, rubric);
-    const ids = JUDGE_IDS.filter(function (id) { return code.items[id] && code.items[id].status !== 'not_applicable'; });
+    const hasLog = !!(reply.tool_log && typeof reply.tool_log === 'object' && Array.isArray(reply.tool_log.calls));
+    const ids = JUDGE_IDS.concat(hasLog ? OP_JUDGE_IDS : []).filter(function (id) { return code.items[id] && code.items[id].status !== 'not_applicable'; });
     let judge = null;
     const reasons = [];
     if (mode !== 'none' && ids.length) {
       const vEntry = prov && prov.record.entries.filter(function (e) { return replyKey(e) === replyKey(reply); })[0];
-      if (jevWanted && key && vEntry) {
+      // a reply that carries a tool log never goes to Jev: the judge policy refuses it (Canon Part 8, the IP egress ruling)
+      if (jevWanted && key && vEntry && !hasLog) {
         try {
           const body = buildJudgePayload(vEntry);
           const res = await transport(key, body, { verified: prov.record });
@@ -895,7 +947,8 @@ async function scoreRun(run, opts) {
       }
       if (!judge && claudeWanted) {
         const forJudge = {
-          probe_id: reply.probe, turn_index: probe.turn_index, prompt: probe.prompt, context: probe.context, reply: reply.text, items: judgeItems(rubric),
+          probe_id: reply.probe, turn_index: probe.turn_index, prompt: probe.prompt, context: probe.context, reply: reply.text, items: judgeItems(rubric, hasLog),
+          evidence: hasLog ? operationEvidenceText(reply, o.repoRoot) : '',
         };
         const res = await claudeJudge(forJudge, ids, { env: o.env, model: o.model, scratch: o.scratch, spawn: o.spawn, claudeCli: o.claudeCli });
         if (res && res.results) judge = { name: 'claude', results: res.results };
@@ -994,9 +1047,9 @@ function buildTable(run, rubric, probes) {
     let items = Object.keys(code.items).reduce(function (a, id) { a[id] = Object.assign({}, code.items[id]); return a; }, {});
     if (stored) {
       const byName = {};
-      JUDGE_IDS.forEach(function (id) {
+      JUDGE_IDS.concat(OP_JUDGE_IDS).forEach(function (id) {
         const s = stored.items && stored.items[id];
-        if (!s || !s.judge || s.judge === 'code' || s.judge === 'none') return;
+        if (!s || !s.judge || s.judge === 'code' || s.judge === 'none' || s.judge === 'log') return;
         byName[s.judge] = byName[s.judge] || {};
         byName[s.judge][id] = s.status === 'abstained' ? { abstained: true, reason: s.detail } : (s.status === 'scored' ? { value: s.judge_value, confidence: s.confidence } : null);
         if (byName[s.judge][id] === null) delete byName[s.judge][id];
@@ -1450,6 +1503,253 @@ async function generateRun(o) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// the operational probe (plan 369.6-05): a live session in a scratch room, tools on, isolated
+// ---------------------------------------------------------------------------------------------
+const FENCE_HOOK_REL = 'evals/larry-voice/fence-hook.cjs';
+const OPERATE_CELLS = Object.freeze(['2s-live', '3s-live']);
+// built-in file, shell, web and agent tools: denied in the scratch settings and off through --tools ""
+const DENIED_BUILTINS = Object.freeze(['Bash', 'Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'PowerShell', 'Task', 'TodoWrite']);
+const OWN_MCP_ALLOW = Object.freeze(['mcp__plugin_mos_mindrian-os', 'mcp__plugin_mos_mindrian-brain']);
+const OPERATE_METHOD = 'scratch room, tools on, isolated';
+
+function shellQuote(v) {
+  const s = String(v);
+  if (/['\n\r\0]/.test(s) || !path.isAbsolute(s)) throw fail('settings_path_unsafe', 'a settings path must be absolute and hold no quote or newline');
+  return "'" + s + "'";
+}
+
+/*
+ * writeScratchSettings(scratch, opts) -> { file, fenceLog }. Writes a settings file INSIDE the scratch root: the built-in file,
+ * shell and web tools denied, the dev plugin's own MCP tools allowed, the fence registered as the PreToolUse hook of every tool
+ * with FENCE_ROOT and FENCE_LOG set in the hook command. opts: fenceHook (absolute path), allowedMcpTools, node (absolute path).
+ */
+function writeScratchSettings(scratch, opts) {
+  const o = opts || {};
+  const fenceHook = o.fenceHook || path.join(REPO_ROOT, FENCE_HOOK_REL);
+  const node = o.node || path.join(scratch.bin, 'node');
+  const dir = path.join(scratch.root, 'settings');
+  fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const fenceLog = path.join(scratch.root, 'fence-log.jsonl');
+  fs.writeFileSync(fenceLog, '', { mode: 0o600 });
+  const command = 'env FENCE_ROOT=' + shellQuote(scratch.root) + ' FENCE_LOG=' + shellQuote(fenceLog) + ' ' + shellQuote(node) + ' ' + shellQuote(fenceHook);
+  const settings = {
+    permissions: { deny: DENIED_BUILTINS.slice(), allow: (o.allowedMcpTools || OWN_MCP_ALLOW).slice() },
+    hooks: { PreToolUse: [{ matcher: '.*', hooks: [{ type: 'command', command: command, timeout: 10 }] }] },
+  };
+  const file = path.join(dir, 'operate-settings.json');
+  fs.writeFileSync(file, JSON.stringify(settings, null, 2) + '\n', { mode: 0o600 });
+  return { file: file, fenceLog: fenceLog };
+}
+
+/*
+ * buildOperateArgs(spec) -> the claude argument list (pure). One plugin directory (the dev plugin), its own MCP servers, the
+ * built-in tools off, the scratch settings file that registers the fence, stream-json with tool calls and the init event,
+ * no saved session, a permission mode that answers nobody, and the persona by a system prompt file the runner wrote.
+ */
+function buildOperateArgs(spec) {
+  const model = spec && spec.model;
+  if (model && /fable/i.test(String(model))) throw fail('model_refused', 'a model id containing fable is refused');
+  if (!spec || typeof spec.prompt !== 'string' || !spec.pluginDir || !spec.settingsFile || !spec.systemPromptFile) throw fail('operate_args_incomplete');
+  ['pluginDir', 'settingsFile', 'systemPromptFile'].forEach(function (k) { if (!path.isAbsolute(String(spec[k]))) throw fail('operate_args_incomplete', k + ' must be absolute'); });
+  const args = ['--print', '--output-format', 'stream-json', '--verbose', '--tools', '', '--no-session-persistence',
+    '--plugin-dir', String(spec.pluginDir), '--settings', String(spec.settingsFile), '--setting-sources', 'user',
+    '--permission-mode', 'dontAsk', '--permission-prompts', 'none', '--disable-slash-commands', '--system-prompt-file', String(spec.systemPromptFile)];
+  if (model) args.push('--model', String(model));
+  args.push(spec.prompt);
+  return args;
+}
+
+// The system prompt of an operation cell: the agent body and the full text of its frontmatter skills only. In the live
+// session the hooks supply the session-start and per-turn context and the plugin supplies the output style.
+function buildOperateCellPrompt(cell, parts) {
+  const c = String(cell);
+  if (OPERATE_CELLS.indexOf(c) === -1) throw fail('cell_unknown', c);
+  const body = String(parts.agentBody);
+  const manifest = { cell: c, agent_body_sha256: sha256(Buffer.from(body)), parts: ['agent_body'], skills: [] };
+  let system = body;
+  (parts.skills || []).forEach(function (sk) {
+    system += '\n\n' + SKILL_HEAD + sk.path + '\n' + sk.text;
+    manifest.skills.push({ path: sk.path, sha256: sha256(Buffer.from(String(sk.text))) });
+  });
+  manifest.parts.push('skills');
+  manifest.system_prompt_sha256 = sha256(Buffer.from(system));
+  let transcriptPrefix = '';
+  if (c === '3s-live') {
+    transcriptPrefix = renderTranscript(parts.transcriptText || '');
+    manifest.transcript_sha256 = sha256(Buffer.from(String(parts.transcriptText || '')));
+    manifest.parts.push('transcript');
+  }
+  return { system: system, transcriptPrefix: transcriptPrefix, manifest: manifest };
+}
+
+function operationCompositionProven(init, systemSha) {
+  return !!(init && Array.isArray(init.plugins) && Array.isArray(init.mcp_servers) && Array.isArray(init.tools) && systemSha);
+}
+
+function readFenceLines(file, offset) {
+  let text = '';
+  try { text = fs.readFileSync(file, 'utf8'); } catch (_e) { return { entries: [], next: offset }; }
+  const lines = text.split('\n').filter(Boolean);
+  const entries = [];
+  lines.slice(offset).forEach(function (l) { try { entries.push(JSON.parse(l)); } catch (_e) { entries.push({ seq: null, tool: '', reason: 'fence_log_unreadable' }); } });
+  return { entries: entries, next: lines.length };
+}
+
+// A fingerprint of the repository state: the status lines, a hash of the content difference of every tracked file against
+// HEAD (so a second write to a file that was already modified still shows), and a hash of every untracked file. The run
+// folder of the label is excluded. Codex round 3, finding 4.
+function repoFingerprint(repoRoot, relRunDir) {
+  const st = git(['status', '--porcelain'], { cwd: repoRoot });
+  if (st.status !== 0) return null;
+  const lines = String(st.stdout).split('\n').filter(Boolean).filter(function (l) { return !relRunDir || l.indexOf(relRunDir) === -1; });
+  const diffArgs = ['diff', 'HEAD', '--binary', '--'].concat(['.']).concat(relRunDir ? [':(exclude)' + relRunDir] : []);
+  const df = git(diffArgs, { cwd: repoRoot, buffer: true });
+  const diffSha = df.status === 0 ? sha256(df.stdout) : 'diff_failed';
+  // NUL separated, so a file name with non-ASCII characters is read by its real name. A symlink is fingerprinted by its link
+  // text and never followed; a file that is not a regular file is recorded by type and never opened (Codex round 4).
+  const un = git(['ls-files', '-z', '--others', '--exclude-standard'], { cwd: repoRoot });
+  const untracked = {};
+  if (un.status === 0) {
+    String(un.stdout).split('\0').filter(Boolean).forEach(function (rel) {
+      if (relRunDir && rel.indexOf(relRunDir) === 0) return;
+      const abs = path.join(repoRoot, rel);
+      try {
+        const st = fs.lstatSync(abs);
+        if (st.isSymbolicLink()) untracked[rel] = 'link:' + fs.readlinkSync(abs);
+        else if (st.isFile()) untracked[rel] = sha256(fs.readFileSync(abs));
+        else untracked[rel] = 'type:' + (st.isDirectory() ? 'dir' : 'special');
+      } catch (_e) { untracked[rel] = 'unreadable'; }
+    });
+  }
+  return { lines: lines, diffSha: diffSha, untracked: untracked };
+}
+
+function repoChanges(before, after) {
+  if (!before || !after) return [];
+  const out = after.lines.filter(function (l) { return before.lines.indexOf(l) === -1; });
+  if (before.diffSha !== after.diffSha) out.push('content of tracked files changed');
+  Object.keys(after.untracked).forEach(function (rel) { if (before.untracked[rel] !== after.untracked[rel]) out.push('untracked file changed: ' + rel); });
+  Object.keys(before.untracked).forEach(function (rel) { if (!(rel in after.untracked)) out.push('untracked file removed: ' + rel); });
+  return out;
+}
+
+/*
+ * operateRun(o) -> { exit, reason?, label, statuses, dir, replies }.
+ * Order: the live gate (skip variable, credential), the scratch root, the startup chain verdict (the reconcile switch proof
+ * runs here, on a stand-in copy), only then the room birth and any claude spawn. A safety stop is not a test result:
+ * exit 1 with the replies kept under status breach.
+ */
+async function operateInner(o, holder) {
+  const iso = require('./isolate-larry-voice.cjs');
+  const repoRoot = o.repoRoot || REPO_ROOT;
+  const rubric = o.rubric || loadRubric(repoRoot);
+  const probes = o.probeSet || loadProbes(repoRoot);
+  const env = o.env || process.env;
+  if (o.model && /fable/i.test(String(o.model))) throw fail('model_refused', 'a model id containing fable is refused');
+  const dir = resolveLabelDir(o.label, o.runsDir);
+  if (fs.existsSync(path.join(dir, 'replies.json'))) throw fail('label_exists', o.label);
+  const cells = (o.cells && o.cells.length ? o.cells : OPERATE_CELLS).map(String);
+  cells.forEach(function (c) { if (OPERATE_CELLS.indexOf(c) === -1) throw fail('cell_unknown', c); });
+  const wanted = o.probes && o.probes.length ? o.probes : (probes.operation_probes || []).map(function (p) { return p.id; });
+  const probeList = wanted.map(function (id) {
+    const p = (probes.operation_probes || []).filter(function (x) { return x.id === id; })[0];
+    if (!p) throw fail('probe_unknown', id);
+    return { raw: p, probe: normalizeProbe(p) };
+  });
+  const gate = liveGate(env);
+  if (!gate.ok) return { exit: liveExit(77), reason: gate.reason, label: o.label };
+  const scratch = iso.makeScratch(SEAL_SCRATCH_PREFIX, { claudeCli: o.claudeCli });
+  holder.scratch = scratch;
+  if (!scratch.claude) return { exit: liveExit(77), reason: 'claude_cli_missing', label: o.label };
+  const verdictFn = o.startupChainVerdict || iso.startupChainVerdict;
+  const verdict = verdictFn(path.join(repoRoot, 'hooks', 'hooks.json'), { scratch: scratch, repoRoot: repoRoot });
+  const live = iso.liveLegGate(verdict, { loadsPlugin: true });
+  if (!live.ok) {
+    return { exit: live.exit, reason: live.reason, label: o.label, proof: verdict.reconcile_proof ? verdict.reconcile_proof.reason : null, blockers: verdict.blockers };
+  }
+  const spawn = o.spawn || iso.spawnIsolated;
+  const startClean = inputsClean(repoRoot);
+  const probesBytesUsed = fs.readFileSync(path.join(repoRoot, PROBES_REL));
+  const rubricBytesUsed = fs.readFileSync(path.join(repoRoot, RUBRIC_REL));
+  const agentText = fs.readFileSync(path.join(repoRoot, AGENT_REL), 'utf8');
+  const agentBody = agentBodyOf(agentText);
+  const skills = frontmatterSkills(agentText, repoRoot);
+  const transcriptText = fs.readFileSync(path.join(repoRoot, TRANSCRIPT_REL), 'utf8');
+  const born = (o.born || iso.bornScratchRoom)(scratch, { envOpts: { parentEnv: env } });
+  const settings = writeScratchSettings(scratch, {});
+  const registry = o.registry || oplog.loadRegistry(repoRoot);
+  const relRunDir = path.relative(repoRoot, dir).split(path.sep).join('/');
+  const fingerprint = o.fingerprint || repoFingerprint;
+  const before = fingerprint(repoRoot, relRunDir);
+  const statuses = {};
+  const replies = [];
+  probeList.forEach(function (p) { statuses[p.probe.id] = {}; });
+  let breach = null;
+  let fenceOffset = 0;
+  const claudeBin = path.join(scratch.bin, 'claude');
+  outer:
+  for (const cell of cells) {
+    for (const p of probeList) {
+      if (p.raw.cells && p.raw.cells.indexOf(cell) === -1) continue;
+      const built = buildOperateCellPrompt(cell, { agentBody: agentBody, skills: skills, transcriptText: transcriptText });
+      const promptFile = path.join(scratch.tmp, 'system-' + p.probe.id + '-' + cell + '.txt');
+      fs.writeFileSync(promptFile, built.system);
+      const args = buildOperateArgs({ prompt: buildUserPrompt(p.probe, built), model: o.model, pluginDir: repoRoot, settingsFile: settings.file, systemPromptFile: promptFile });
+      const r = spawn(scratch, claudeBin, args, { cwd: born.roomDir, input: '', envOpts: { withCredential: true, parentEnv: env }, timeout: o.timeoutMs || 300000 });
+      const stdout = r && r.stdout ? String(r.stdout) : '';
+      const record = oplog.parseStream(stdout, { scratchRoot: scratch.root, roomDir: born.roomDir, slug: born.slug, registry: registry });
+      const fl = readFenceLines(settings.fenceLog, fenceOffset);
+      fenceOffset = fl.next;
+      record.fence = fl.entries;
+      const fv = oplog.fenceVerdict(record, {});
+      const changed = repoChanges(before, fingerprint(repoRoot, relRunDir));
+      const text = record.reply;
+      const score = oplog.scoreOperationLog(record, text || '', p.probe);
+      const init = record.init;
+      const proven = operationCompositionProven(init, built.manifest.system_prompt_sha256);
+      let status = 'complete';
+      if (fv.verdict !== 'ok') status = 'breach';
+      else if (changed.length) status = 'breach';
+      else if (!text || !r || r.status !== 0) status = 'error';
+      else if (!proven) status = 'composition_unproven';
+      statuses[p.probe.id][cell] = status;
+      if (text) {
+        replies.push({
+          probe: p.probe.id, cell: cell, sample: 1, text: text, prompt: p.probe.prompt, context: p.probe.context, turn_index: p.probe.turn_index,
+          date: new Date().toISOString(), args: args.slice(0, -1), method: OPERATE_METHOD, status: status,
+          composition: Object.assign({ proven: proven, init_event: init }, built.manifest),
+          tool_log: oplog.redactToolLog(record),
+          op_code: { OP2: { value: score.OP2.value, reason: score.OP2.reason, evidence: score.OP2.evidence }, OP5: { value: score.OP5.value, reason: score.OP5.reason, evidence: score.OP5.evidence } },
+          routes: oplog.routesReport(record),
+        });
+      }
+      if (status === 'breach') {
+        breach = fv.verdict !== 'ok' ? fv.reason : 'repo_file_changed';
+        if (changed.length) breach += ': ' + changed.slice(0, 3).join(' ; ');
+        break outer;
+      }
+    }
+  }
+  const repliesBytes = Buffer.from(JSON.stringify({ version: 1, label: o.label, kind: 'operation-generation', replies: replies }, null, 2) + '\n');
+  const ver = spawnSync(claudeBin, ['--version'], { encoding: 'utf8', timeout: 30000, env: iso.isolatedEnv(scratch, {}) });
+  const manifest = writeRunManifest({
+    kind: 'operation-generation', label: o.label, repliesBytes: repliesBytes, statuses: statuses, cells: cells, rubric: rubric, repoRoot: repoRoot,
+    claudeVersion: ver.status === 0 ? String(ver.stdout).trim().slice(0, 60) : null,
+    executables: { node: scratch.node, claude: scratch.claude },
+    used: { probes_sha256: sha256(probesBytesUsed), rubric_sha256: sha256(rubricBytesUsed), agent_body_sha256: sha256(Buffer.from(agentBody)), inputs_clean: startClean },
+    extra: {
+      samples: 1, model: o.model || null, method: OPERATE_METHOD, breach: breach,
+      reconcile_proof: verdict.reconcile_proof ? { proven: verdict.reconcile_proof.proven, reason: verdict.reconcile_proof.reason, reconcile_sha256: verdict.reconcile_proof.reconcile_sha256 || null } : null,
+      startup_chain: { containable: verdict.containable, hooks: verdict.hooks.map(function (h) { return { hook: h.hook, containable: h.containable }; }) },
+    },
+  });
+  writeRunFiles(dir, repliesBytes, manifest);
+  if (breach) return { exit: 1, reason: breach, label: o.label, statuses: statuses, dir: dir, replies: replies.length };
+  const all = Object.keys(statuses).every(function (id) { return Object.keys(statuses[id]).length > 0 && Object.keys(statuses[id]).every(function (c) { return statuses[id][c] === 'complete'; }); });
+  return { exit: all ? 0 : 3, label: o.label, statuses: statuses, dir: dir, replies: replies.length };
+}
+
+// ---------------------------------------------------------------------------------------------
 // ledger rows (the CONTEXT "Measurement ledger" columns)
 // ---------------------------------------------------------------------------------------------
 function voiceShares(repoRoot) {
@@ -1459,6 +1759,56 @@ function voiceShares(repoRoot) {
     const j = JSON.parse(r.stdout);
     return 'agent voice ' + j.agent.loose.share.voice + '/brand ' + j.agent.loose.share.brand + '/op ' + j.agent.loose.share.operation + ' strict ' + j.agent.strict.share + '; skill voice ' + j.skill.loose.share.voice;
   } catch (_e) { return 'shares not available'; }
+}
+
+// The scratch root holds a copy of nothing the operator owns, but its HOME may hold a session cache: remove it after the run.
+async function operateRun(o) {
+  const holder = { scratch: null };
+  try {
+    return await operateInner(o, holder);
+  } finally {
+    const root = holder.scratch && holder.scratch.root;
+    if (root && !o.keepScratch && path.basename(root).indexOf(SEAL_SCRATCH_PREFIX) === 0 && path.dirname(root) === fs.realpathSync(os.tmpdir())) {
+      try { fs.rmSync(root, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+    }
+  }
+}
+
+// One row per operation cell: OP1 to OP5 per probe, the routes the evidence shows (executed or proposed) against the
+// probe's expect_routes, the judge that ran per item, and the status. A claim of a route the evidence does not show is not made.
+function operationRows(spec, opRun, probes, rubric) {
+  const out = [];
+  const scores = opRun.scores;
+  const cells = (opRun.manifest.cells || []).slice();
+  const probeDefs = {};
+  (probes.operation_probes || []).forEach(function (p) { probeDefs[p.id] = p; });
+  let required = [];
+  try { required = requiredMatrix(rubric, probes, opRun.manifest.run_kind).probes; } catch (_e) { required = []; }
+  cells.forEach(function (cell) {
+    const replies = (opRun.replies.replies || []).filter(function (r) { return String(r.cell) === String(cell); });
+    const entries = scores ? (scores.entries || []).filter(function (e) { return String(e.cell) === String(cell); }) : [];
+    const st = opRun.manifest.statuses || {};
+    const bad = [];
+    required.forEach(function (pid) {
+      const v = st[pid] && st[pid][cell];
+      if (v !== 'complete') bad.push(pid + ' ' + (v || 'no status'));
+    });
+    let status;
+    if (!replies.length) status = 'NOT RUN: no replies for this cell' + (opRun.manifest.breach ? ' (breach: ' + opRun.manifest.breach + ')' : '');
+    else if (!scores) status = 'NOT RUN: not scored';
+    else status = bad.length ? 'INCOMPLETE: ' + bad.join('; ') : (entries.some(function (e) { return e.total.status !== 'scored'; }) ? 'INCOMPLETE: a total is not scored' : 'COMPLETE');
+    const perProbe = replies.map(function (r) {
+      const e = entries.filter(function (x) { return x.probe === r.probe; })[0];
+      const it = function (id) { return e && e.items[id] ? (e.items[id].status === 'scored' ? e.items[id].value : e.items[id].status) : '-'; };
+      const expect = (probeDefs[r.probe] && probeDefs[r.probe].expect_routes) || [];
+      const routes = r.routes || { executed: [], proposed: [] };
+      return r.probe + ' OP1 ' + it('OP1') + ' OP2 ' + it('OP2') + ' OP3 ' + it('OP3') + ' OP4 ' + it('OP4') + ' OP5 ' + it('OP5') +
+        ' executed [' + routes.executed.join(',') + '] proposed [' + routes.proposed.join(',') + '] expect [' + expect.join(' / ') + ']';
+    }).join('; ');
+    const judges = scores && scores.judge_per_item ? ['OP2', 'OP3'].map(function (id) { return id + '=' + (scores.judge_per_item[id] ? Object.keys(scores.judge_per_item[id]).join('/') : 'none'); }).join(' ') : '-';
+    out.push({ cell: String(cell), status: status, perProbe: perProbe || '-', judges: judges, ran: replies.length > 0 });
+  });
+  return out;
 }
 
 function ledgerRows(spec) {
@@ -1516,7 +1866,9 @@ function ledgerRows(spec) {
   if (!opRun) {
     rows.push('| ' + [commit, 'operation', 'NOT RUN: no operation run named', shares, 'OP1 to OP5 per operation probe: NOT RUN', '-', 'live leg did not run', doctrine, 'template VERSION ' + version, 'plan ' + spec.plan].join(' | ') + ' |');
   } else {
-    rows.push('| ' + [commit, 'operation', 'see operation run ' + opRun.label, shares, 'see compare output', '-', 'live leg ran', doctrine, 'template VERSION ' + version, 'plan ' + spec.plan].join(' | ') + ' |');
+    operationRows(spec, opRun, probes, rubric).forEach(function (r) {
+      rows.push('| ' + [commit, r.cell, r.status, shares, r.perProbe, r.judges, 'live leg ' + (r.ran ? 'ran' : 'did not run'), doctrine, 'template VERSION ' + version, 'plan ' + spec.plan].join(' | ') + ' |');
+    });
   }
   void probes;
   return rows;
@@ -1557,6 +1909,17 @@ async function cli(argv) {
       process.stdout.write('generate ' + r.label + ': ' + (r.exit === 0 ? 'complete' : 'PARTIAL') + ', ' + r.replies + ' replies' + (Object.keys(r.skipped).length ? ', skipped ' + JSON.stringify(r.skipped) : '') + '\n');
       return r.exit;
     }
+    if (cmd === 'operate') {
+      if (!a.label) throw fail('usage', 'operate --label <l> [--probes ids] [--cells 2s-live,3s-live] [--model m]');
+      const r = await operateRun({ label: a.label, probes: listArg(a.probes), cells: listArg(a.cells), model: a.model });
+      if (r.exit === 77 || (r.exit === 1 && r.reason && !r.statuses)) {
+        process.stdout.write('NOT RUN: ' + r.reason + (r.proof ? ' (reconcile proof: ' + r.proof + ')' : '') + '\n');
+        return r.exit;
+      }
+      if (r.exit === 1) { process.stderr.write('SAFETY STOP: ' + r.reason + '. The replies are kept with status breach under ' + path.relative(REPO_ROOT, r.dir) + '\n'); return 1; }
+      process.stdout.write('operate ' + r.label + ': ' + (r.exit === 0 ? 'complete' : 'PARTIAL') + ', ' + r.replies + ' replies ' + JSON.stringify(r.statuses) + '\n');
+      return r.exit;
+    }
     if (cmd === 'score') {
       if (!a.label) throw fail('usage', 'score --label <l> --judge jev|claude|none|auto');
       const run = loadRun(a.label);
@@ -1579,7 +1942,7 @@ async function cli(argv) {
       process.stdout.write(ledgerRows({ run: run, operationRun: opRun, plan: a.plan }).join('\n') + '\n');
       return 0;
     }
-    process.stderr.write('usage: eval-larry-voice.cjs import|generate|score|compare|ledger-row ...\n');
+    process.stderr.write('usage: eval-larry-voice.cjs import|generate|operate|score|compare|ledger-row ...\n');
     return 2;
   } catch (e) {
     if (e && e.reason) {
@@ -1622,6 +1985,13 @@ module.exports = {
   ledgerRows,
   importRun,
   generateRun,
+  operateRun,
+  repoFingerprint,
+  repoChanges,
+  buildOperateArgs,
+  writeScratchSettings,
+  buildOperateCellPrompt,
+  OPERATE_CELLS,
   loadRun,
   parseProbeReplies,
   parseStreamJson,
