@@ -136,7 +136,7 @@ run_known "363: existing run-all-164 (red at PLAN_BASE: canon-version assertion,
 # 369.2-12 (2026-10-05): 355.1 moved 63/5 -> 62/6 because test-3551-tri-polar pins hooks.json[PreToolUse]
 # to BASE_3551 and the PreToolUse card-before-answer hook (quick 261005-mux) changed it; not a 369.2 change.
 run_known "363: existing run-all-3551 (red at PLAN_BASE, outside 363)" \
-  "Phase 355.1: PASS=62 FAIL=6 SKIP=0" \
+  "Phase 355.1: PASS=64 FAIL=4 SKIP=0" \
   bash tests/run-all-3551.sh
 # 366-04: one of the three known reds healed before plan 04 (not by it); the two
 # left were the part8-egress-guard self-test and 209 declared-implies-wired.
