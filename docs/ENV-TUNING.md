@@ -529,6 +529,17 @@ export MINDRIAN_DERIVE_BUDGET_MS=240000
 export MINDRIAN_DERIVE_SKIP=1
 ```
 
+### MINDRIAN_NPM_RECONCILE_SKIP
+
+**What:** An operator switch. `1` makes the SessionStart dependency check (`scripts/sessionstart-npm-reconcile.cjs`) print its normal `{"continue":true}` and exit 0 before it reads the plugin folder, loads the install code, or starts npm. It is the sibling of `MINDRIAN_DERIVE_SKIP`.
+**Default:** unset (the check runs, and it installs missing dependencies under the plugin folder).
+**Read:** at call time, first thing after the hook arms its error handler.
+**Why:** An isolated session (for example the voice and operation eval of Phase 369.6) must not write under the plugin folder. With the switch on, nothing installs, so a session with missing dependencies stays without them until a session starts with the switch off. Any value other than `1` keeps the check on.
+
+```bash
+export MINDRIAN_NPM_RECONCILE_SKIP=1
+```
+
 ### MINDRIAN_RS_MAX_ARTIFACTS
 
 **What:** The artifact cap of the scout. Above the cap, `runModeInternal` returns a degraded result (`artifact_cap_exceeded`) before it builds the LSA matrix; the HSI tier-1 engine returns the same error. Both say how many artifacts the scope removed.
