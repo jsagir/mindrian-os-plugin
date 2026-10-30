@@ -222,8 +222,13 @@ if [[ "$APPLY_FLAG" == "--apply" ]]; then
   # Add research_date to frontmatter (after research_status line)
   UPDATED=$(echo "$UPDATED" | sed "/^research_status:/a research_date: ${TODAY}")
 
-  # Replace placeholder context section
-  UPDATED=$(echo "$UPDATED" | sed "s/\[To be filled after proactive research\]/Researched on ${TODAY} in context of: ${PROJECT_CONTEXT}/")
+  # Replace placeholder context section. The context reaches awk as data
+  # through the environment, never as sed program text (quick 261030-eo7, N1:
+  # a context could add the sed e or w flag and run a command or write a file).
+  # Same result as the old sed line: the first placeholder on each line.
+  UPDATED=$(echo "$UPDATED" | RS_REPLACEMENT="Researched on ${TODAY} in context of: ${PROJECT_CONTEXT}" awk '
+    BEGIN { pat = "[To be filled after proactive research]"; rep = ENVIRON["RS_REPLACEMENT"] }
+    { line = $0; i = index(line, pat); if (i > 0) line = substr(line, 1, i - 1) rep substr(line, i + length(pat)); print line }')
 
   # Write updated profile
   echo "$UPDATED" > "$PROFILE_PATH"

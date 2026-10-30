@@ -179,11 +179,22 @@ leg('A2. repo urlencode equals the pinned argv literal', () => {
   assert.equal(extractUrlencode(newText()), NEW_FN_LITERAL);
 });
 
-leg('A3. repo script differs from the OLD script in exactly 1 line, line 120', () => {
+// Re-pinned by the N1 fix (same quick): the --apply block changed too and is
+// covered by tests/test-261030-eo7-research-speaker-apply-context.cjs, so the
+// compare stops at the --apply marker line.
+const APPLY_MARKER = '# --apply mode: update PROFILE.md';
+function headUntilApply(text) {
+  const lines = text.split('\n');
+  const i = lines.indexOf(APPLY_MARKER);
+  assert.ok(i > 0, 'the --apply marker line must exist once');
+  assert.equal(lines.lastIndexOf(APPLY_MARKER), i, 'the --apply marker line must exist once');
+  return lines.slice(0, i);
+}
+leg('A3. before the --apply block, the repo script differs from the OLD script only at line 120', () => {
   needOracle();
-  const o = oldText().split('\n');
-  const n = newText().split('\n');
-  assert.equal(n.length, o.length, 'line count');
+  const o = headUntilApply(oldText());
+  const n = headUntilApply(newText());
+  assert.equal(n.length, o.length, 'line count before the --apply block');
   const diff = [];
   for (let i = 0; i < o.length; i += 1) if (o[i] !== n[i]) diff.push(i + 1);
   assert.deepEqual(diff, [120]);
