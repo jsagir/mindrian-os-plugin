@@ -343,6 +343,9 @@ echo ""
 echo "--- Running: Wave-7 doc-content grep gate (both larry docs name runChain + auto-sequence + safe-halt verbatim) ---"
 LARRY_EXTENDED="$REPO_ROOT/agents/larry-extended.md"
 LARRY_SKILL="$REPO_ROOT/skills/larry-personality/SKILL.md"
+# 369.6-10 (D-04): the reach rules (auto-sequence, safe halt, one reach per beat, the chain-executor handoff) moved line for line
+# from SKILL.md to references/personality/reach-and-dial.md. The skill checks below read the skill plus that reference.
+LARRY_REACH="$REPO_ROOT/references/personality/reach-and-dial.md"
 LARRY_DOC_OK=1
 if [[ ! -f "$LARRY_EXTENDED" ]]; then
   echo "    MISSING doc: agents/larry-extended.md"; LARRY_DOC_OK=0
@@ -353,25 +356,27 @@ fi
 if [[ $LARRY_DOC_OK -eq 1 ]]; then
   # (a) BOTH docs NAME the runtime -- chain-executor AND runChain in EACH file.
   for d in "$LARRY_EXTENDED" "$LARRY_SKILL"; do
-    if ! grep -q "chain-executor" "$d"; then
+    # only the skill reads its reference too; the agent body must name the runtime itself
+    extra=""; [[ "$d" == "$LARRY_SKILL" ]] && extra="$LARRY_REACH"
+    if ! grep -q "chain-executor" "$d" $extra; then
       echo "    $(basename "$d") does NOT name chain-executor (the handoff runtime)"; LARRY_DOC_OK=0
     fi
-    if ! grep -q "runChain" "$d"; then
+    if ! grep -q "runChain" "$d" $extra; then
       echo "    $(basename "$d") does NOT name runChain (the handoff target)"; LARRY_DOC_OK=0
     fi
   done
   # (b) the auto-sequence branch is documented in SKILL.md.
-  if ! grep -q "auto-sequence" "$LARRY_SKILL"; then
+  if ! grep -q "auto-sequence" "$LARRY_SKILL" "$LARRY_REACH"; then
     echo "    SKILL.md does NOT document the auto-sequence branch (the 'auto-sequence' token is missing)"; LARRY_DOC_OK=0
   fi
   # (c) the non-autonomous_safe SAFE-HALT rule preserved VERBATIM (D-166-05). The
   # GUIDED-default line must survive byte-intact so the auto-sequence branch can
   # never be read as weakening it.
-  if ! grep -q "ends in a Decision Gate, not a verdict" "$LARRY_SKILL"; then
+  if ! grep -q "ends in a Decision Gate, not a verdict" "$LARRY_SKILL" "$LARRY_REACH"; then
     echo "    MISSING/REWORDED safe-halt rule: SKILL.md no longer carries 'ends in a Decision Gate, not a verdict' verbatim"; LARRY_DOC_OK=0
   fi
   # (d) the "One reach per beat" rule survives in SKILL.md.
-  if ! grep -q "One reach per beat" "$LARRY_SKILL"; then
+  if ! grep -q "One reach per beat" "$LARRY_SKILL" "$LARRY_REACH"; then
     echo "    MISSING 'One reach per beat' rule in SKILL.md (the GUIDED-default one-reach contract)"; LARRY_DOC_OK=0
   fi
 fi
