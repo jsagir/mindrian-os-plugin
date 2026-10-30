@@ -45,7 +45,7 @@ fi
 # ---------------------------------------------------------------------------
 # Node version preflight (added 2026-04-15 for v1.10.9, plan 85-01).
 #
-# MindrianOS v1.10.9+ requires Node >= 22.5.0 for node:sqlite. If the
+# MindrianOS v1.10.9+ requires Node >= 22.18.0 (the floor of package.json engines; the room scripts of Phase 381 refuse below it). If the
 # installed Node is older, print a friendly upgrade message and exit 0.
 # This is a SOFT fail: session-start is non-critical and must NEVER hard-
 # fail the Claude Code launch. The plugin continues with reduced
@@ -59,11 +59,11 @@ if [ -z "${SESSION_START_NODE_PREFLIGHT_SKIP:-}" ]; then
     NODE_OK=$(node -e "
       var v = (process.env.FORCE_NODE_VERSION || process.versions.node).split('.').map(Number);
       var major = v[0] || 0, minor = v[1] || 0;
-      process.stdout.write((major > 22 || (major === 22 && minor >= 5)) ? 'ok' : 'old');
+      process.stdout.write((major > 22 || (major === 22 && minor >= 18)) ? 'ok' : 'old');
     " 2>/dev/null || echo "ok")
     if [ "$NODE_OK" = "old" ]; then
       DETECTED="${FORCE_NODE_VERSION:-$NODE_VERSION_RAW}"
-      echo "MindrianOS v1.10.9+ requires Node >= 22.5.0. You are running Node ${DETECTED}. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded." >&2
+      echo "MindrianOS v1.10.9+ requires Node >= 22.18.0. You are running Node ${DETECTED}. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded." >&2
       exit 0
     fi
   fi
