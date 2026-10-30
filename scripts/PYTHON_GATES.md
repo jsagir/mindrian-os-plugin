@@ -39,7 +39,7 @@ buckets:
 | `scripts/update-icm-index` | 24 | KEEP-AS-IS | no change | multi-line python script, real parser work |
 | `scripts/on-cwd-changed` | 62 | KEEP-AS-IS | no change | multi-line python, out of scope for hotfix |
 | `scripts/on-cwd-changed` | 90 | PORT-CANDIDATE | deferred | plugin.json version read, will fold into 85-06 |
-| `scripts/analyze-room` | 520 | KEEP-AS-IS | no change | datetime parser, fallback path |
+| `scripts/analyze-room` | 520 | RETIRED | removed in Phase 381 | the bash body and its python date fallback no longer exist; the node renderer replaces it |
 | `scripts/build-graph` | 720 | KEEP-AS-IS | no change | path realpath, fallback path |
 | `scripts/room-registry` | 61, 111, 128, 164, 195, 233, 259, 285 | KEEP-AS-IS | no change | registry manipulation helpers, multi-line python, substantial. Defer to follow-up hotfix. |
 | `scripts/resolve-room` | 39, 76, 125 | KEEP-AS-IS | no change | multi-line python room resolution |
@@ -52,7 +52,7 @@ buckets:
 | `scripts/git-ops` | 189 | KEEP-AS-IS | no change | multi-line git helper |
 | `scripts/migrate-rooms` | 26, 84 | KEEP-AS-IS | no change | multi-line migration tool |
 | `scripts/sentinel-deadline-monitor` | 22 | KEEP-AS-IS | no change | datetime parser fallback |
-| `scripts/compute-team` | 521 | KEEP-AS-IS | no change | datetime parser fallback |
+| `scripts/compute-team` | 521 | RETIRED | removed in Phase 381 | the bash body and its python date fallback no longer exist; the node renderer replaces it |
 | `scripts/serve-presentation` | 20 | KEEP-AS-IS | no change | port probe |
 | `scripts/on-agent-complete` | 39 | KEEP-AS-IS | no change | time.time fallback |
 | `scripts/discovery-cycle.cjs` | 494 | KEEP-AS-IS | no change | runs python inside a node discovery step, target is a .py file not `-c` script -- false positive |

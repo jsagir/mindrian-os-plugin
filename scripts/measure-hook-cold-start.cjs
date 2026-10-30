@@ -23,13 +23,20 @@
  * default n = 10 the p95 is therefore the second-largest sample; the report
  * records n so a reader knows how coarse the tail is.
  *
- * Units note: hooks.json declares most timeouts as 1500..120000 (treated here as
- * milliseconds, the unit the spike 003 budget uses). One entry (ambient-stop,
- * async) declares `5`; any declared timeout below 100 is read as SECONDS and
- * converted (x 1000), and the entry records `timeout_unit_note`.
+ * Units note: Claude Code reads the hooks.json `timeout` field in SECONDS
+ * (https://code.claude.com/docs/en/hooks, "Seconds before canceling"). Quick
+ * 261029-qef converted hooks.json to seconds. A declared value below 1000 is
+ * read as seconds and converted (x 1000); a value of 1000 or more is read as a
+ * legacy millisecond value and kept as it is (that branch exists for old
+ * fixtures only). Every entry with a numeric timeout records `timeout_unit_note`.
+ *
+ * Network-capable hooks: isNetworkCapable(entry) is true only for the
+ * SessionStart npm reconcile hook, which may run `npm install`. It is not
+ * measured unless --include-heavy is given.
  *
  * Usage:
  *   node scripts/measure-hook-cold-start.cjs [--n <count>] [--json] [--out <file>] [--include-heavy]
+ *   --include-heavy  also measure the network-capable npm reconcile hook
  *
  * Exports (for the tests): payloadFor, parseHookCommands, makeSandbox, hookEnv,
  * percentile, spawnHook.
@@ -42,7 +49,6 @@ const { spawn, spawnSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const HOOKS_JSON = path.join(REPO_ROOT, 'hooks', 'hooks.json');
-const HEAVY_TIMEOUT_MS = 30000; // over 30 s = the network-capable SessionStart npm reconcile class
 const GRACE_MS = 1000; // one second past the declared timeout, so a right-at-budget hook is a recorded breach not a cut-off
 
 // ---------------------------------------------------------------------------
@@ -65,9 +71,11 @@ function parseHookCommands(hooksJson) {
         const declared = typeof h.timeout === 'number' ? h.timeout : null;
         let timeoutMs = declared;
         let note = null;
-        if (declared !== null && declared < 100) {
+        if (declared !== null && declared < 1000) {
           timeoutMs = declared * 1000;
           note = 'declared ' + declared + ' read as seconds';
+        } else if (declared !== null) {
+          note = 'declared ' + declared + ' read as legacy milliseconds';
         }
         out.push({
           event,
@@ -82,6 +90,15 @@ function parseHookCommands(hooksJson) {
     }
   }
   return out;
+}
+
+/**
+ * isNetworkCapable(entry): true only for the SessionStart npm reconcile hook, which may run
+ * `npm install`. Quick 261029-qef: the old rule (budget over 30 s) would also skip session-start,
+ * which now has a 180 s budget but makes no network call.
+ */
+function isNetworkCapable(entry) {
+  return !!entry && typeof entry.command === 'string' && /sessionstart-npm-reconcile\.cjs/.test(entry.command);
 }
 
 // ---------------------------------------------------------------------------
@@ -303,8 +320,8 @@ async function measureAll(opts) {
         async: e.async,
       };
       if (e.timeout_unit_note) rec.timeout_unit_note = e.timeout_unit_note;
-      if (e.timeout_ms > HEAVY_TIMEOUT_MS && !opts.includeHeavy) {
-        rec.not_measured = 'budget over 30 s, network-capable';
+      if (isNetworkCapable(e) && !opts.includeHeavy) {
+        rec.not_measured = 'network-capable (may run npm install)';
         results.push(rec);
         continue;
       }
@@ -471,4 +488,4 @@ if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), (err) => { process.stderr.write(String(err && err.stack || err) + '\n'); process.exit(1); });
 }
 
-module.exports = { payloadFor, parseHookCommands, makeSandbox, hookEnv, spawnHook, percentile, statsOf, HOOKS_JSON, REPO_ROOT };
+module.exports = { payloadFor, parseHookCommands, isNetworkCapable, makeSandbox, hookEnv, spawnHook, percentile, statsOf, HOOKS_JSON, REPO_ROOT };

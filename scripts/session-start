@@ -45,7 +45,7 @@ fi
 # ---------------------------------------------------------------------------
 # Node version preflight (added 2026-04-15 for v1.10.9, plan 85-01).
 #
-# MindrianOS v1.10.9+ requires Node >= 22.5.0 for node:sqlite. If the
+# MindrianOS v1.10.9+ requires Node >= 22.18.0 (the floor of package.json engines; the room scripts of Phase 381 refuse below it). If the
 # installed Node is older, print a friendly upgrade message and exit 0.
 # This is a SOFT fail: session-start is non-critical and must NEVER hard-
 # fail the Claude Code launch. The plugin continues with reduced
@@ -59,11 +59,11 @@ if [ -z "${SESSION_START_NODE_PREFLIGHT_SKIP:-}" ]; then
     NODE_OK=$(node -e "
       var v = (process.env.FORCE_NODE_VERSION || process.versions.node).split('.').map(Number);
       var major = v[0] || 0, minor = v[1] || 0;
-      process.stdout.write((major > 22 || (major === 22 && minor >= 5)) ? 'ok' : 'old');
+      process.stdout.write((major > 22 || (major === 22 && minor >= 18)) ? 'ok' : 'old');
     " 2>/dev/null || echo "ok")
     if [ "$NODE_OK" = "old" ]; then
       DETECTED="${FORCE_NODE_VERSION:-$NODE_VERSION_RAW}"
-      echo "MindrianOS v1.10.9+ requires Node >= 22.5.0. You are running Node ${DETECTED}. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded." >&2
+      echo "MindrianOS v1.10.9+ requires Node >= 22.18.0. You are running Node ${DETECTED}. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded." >&2
       exit 0
     fi
   fi
@@ -438,8 +438,8 @@ if [ -d "$ROOM_DIR" ]; then
     minimal|balanced|rich) CONTEXT_TIER="${MINDRIAN_CONTEXT_TIER}" ;;
   esac
 
-  # Room exists -- compute state and build context
-  state_output=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
+  # Room exists -- reuse STATE.md when nothing changed, else compute state (quick 261029-lx3, see scripts/session-start-state)
+  state_output=$(bash "${SCRIPT_DIR}/session-start-state" state "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "Could not compute room state. Your room exists but state analysis failed. Try /mos:status to diagnose.")
 
   # Read USER.md if exists
   user_context=""
@@ -518,7 +518,7 @@ if [ -d "$ROOM_DIR" ]; then
     fi
   elif [ "$CONTEXT_TIER" = "rich" ]; then
     # ~5K tokens: full context with proactive analysis, learnings, and detailed nudges
-    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    proactive_output=$(bash "${SCRIPT_DIR}/session-start-state" analyze "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "")
     ctx_mark room-state
     context="${context}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: rich | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then
@@ -539,7 +539,7 @@ if [ -d "$ROOM_DIR" ]; then
     fi
   else
     # balanced (~2K tokens): state + user + brief proactive
-    proactive_output=$("${SCRIPT_DIR}/analyze-room" "$ROOM_DIR" 2>/dev/null || echo "")
+    proactive_output=$(bash "${SCRIPT_DIR}/session-start-state" analyze "$ROOM_DIR" "$SCRIPT_DIR" 2>/dev/null || echo "")
     ctx_mark room-state
     context="${context}\n\n--- DYNAMIC SESSION CONTEXT ---\n\n[Context Tier: balanced | Archetype: ${USER_ARCHETYPE} | MCP Profile: ${MCP_PROFILE}]\n\n[Room State]\n${state_output}"
     if [ -n "$RETURNING_USER_HINT" ]; then
