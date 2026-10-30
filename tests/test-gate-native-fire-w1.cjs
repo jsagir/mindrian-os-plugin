@@ -115,9 +115,11 @@ check('P1: agents/larry-extended.md BODY carries a Decision-Gate fire mandate', 
   assert.ok(/no card, no picture \(SEED-021\)/i.test(LARRY), 'the body cites the SEED-021 no-card-no-picture rule');
 });
 
+// 369.6-09 (D-08, R-21): the closing rule is reworded; the leg keeps its name. The rule now ends on the engine's next step
+// (never invented) and the gate question IS the card.
 check('P1: larry-extended.md qualifies "End with a question" so the gate question IS the card', function () {
-  assert.ok(/End with a question or next step[\s\S]{0,120}AskUserQuestion card/i.test(LARRY),
-    'the "End with a question" rule must be qualified: at a gate the question IS the card');
+  assert.ok(/never invent the next move[\s\S]{0,240}AskUserQuestion card/i.test(LARRY),
+    'the closing rule must be qualified: at a gate the question IS the card');
 });
 
 check('P1: the frontmatter is intact (excluded connector + hitl_shape preserved)', function () {

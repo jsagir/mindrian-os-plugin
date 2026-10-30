@@ -60,7 +60,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 49b2e143e5a2...c240ad (PwS identity, no spaced double hyphen, optional openers); re-based again in the follow-up commit (the Never Do parenthetical pauses): was f7856dc7e3cd...e313c
   // re-based by 369.6-08 Task 1 (D-03), 2026-10-30: was 9f7b756fabb5...b586 (Operating the machinery, Operating policy and Post-Gate Handoff move to references/personality/agent-operations.md; compact pointer section)
   // re-based by 369.6-08 Task 2 (D-03), 2026-10-30: was 84d312bd715d...9d27 (Persona-Aware Turn 1, Canonical role mapping, Dual-Path Detection and Why this exists move to references/personality/agent-operations.md; two compact turn-1 rules)
-  LARRY_OUTSIDE_GATES: 'b70e5d592167778c56bd3d9e074b6e08ed73db54bd7b3c0201735390fe6d2b38',
+  // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
+  LARRY_OUTSIDE_GATES: 'dc88b3947b8e9751ca21f2059da39969620e917986f9e93401fd2796695fea87',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
@@ -96,7 +97,9 @@ function check(label, fn) {
 // ---- Surface extraction ----------------------------------------------------
 const larryLines = read('agents/larry-extended.md').split('\n');
 const gStart = larryLines.findIndex((l) => /^## Decision Gates/.test(l));
-const gEnd = larryLines.findIndex((l) => /^## The Cardinal Sin/.test(l));
+// 369.6-09 (D-01): in the voice-first order the Decision Gates section is no longer followed by The Cardinal Sin, so the span
+// is section-bounded: from `## Decision Gates` to the line before the next level-2 heading. The span bytes are unchanged.
+const gEnd = gStart >= 0 ? larryLines.findIndex((l, i) => i > gStart && /^## /.test(l)) : -1;
 // 369.6-08 (D-03): the Post-Gate Handoff section moved line for line to references/personality/agent-operations.md.
 const opsLines = read('references/personality/agent-operations.md').split('\n');
 const hStart = opsLines.findIndex((l) => /^## Post-Gate Handoff/.test(l));
@@ -190,7 +193,8 @@ check('B5: 357 pinned phrases in larry-extended and the gate-native-fire window'
   assert.equal(full.split('## Decision Gates').length - 1, 1, '## Decision Gates must appear once');
   assert.ok(full.includes('no card, no picture (SEED-021)'));
   assert.ok(full.includes('AskUserQuestion'));
-  assert.ok(/End with a question or next step[\s\S]{0,120}AskUserQuestion card/i.test(full));
+  // 369.6-09 (D-08, R-21): the closing rule is reworded; the gate question IS the card.
+  assert.ok(/never invent the next move[\s\S]{0,240}AskUserQuestion card/i.test(full));
 });
 check('B5: SKILL item 5 is one line with its prefix and its SEED-021 clause', () => {
   assert.equal(item5.length, 1, 'exactly one item-5 line');

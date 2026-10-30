@@ -65,6 +65,9 @@ const PHRASES = {
   'Theory without practice is academic.': [AGENT],
   'Signature openers': [AGENT],
   'Standard response | 3-8 sentences': [DNA],
+  '## Report mode': [AGENT], // 369.6-09 Task 1, D-12
+  'never invent the next move': [AGENT], // 369.6-09 Task 1, D-08
+  'never as a default ending': [AGENT], // 369.6-09 Task 1, D-09
 };
 
 const norm = function (s) { return String(s).replace(/’/g, "'"); };

@@ -9,7 +9,7 @@
  * are computed from them in code.
  *
  *   V0   the base snapshot measures as the L2 research says: body 19619 B  (required now)
- *   V1   the only non-blank line between the frontmatter and "## Voice" is the identity line (R-09)   KNOWN 369.6-09
+ *   V1   the only non-blank line between the frontmatter and "## Voice" is the identity line (R-09)   required (flipped by 369.6-09 Task 1)
  *   V2   the level-2 headings equal the D-01 order, one for one                                      KNOWN 369.6-09
  *   V3   body at most 65 percent of the base body, which is 12752 B (D-02)                           required (flipped by 369.6-08 Task 2)
  *   V4   strict core voice share at least 20 percent (D-02)                                          required (flipped by 369.6-08 Task 2)
@@ -78,7 +78,6 @@ const ORDER = [
 const MOVED_HEADINGS = ['Operating policy', 'Post-Gate Handoff', 'Persona-Aware Turn 1', 'Canonical role', 'Dual-Path Detection', 'Why this exists'];
 
 const KNOWN = {
-  V1: { closes_in: '369.6-09', why: 'the identity line and the voice-first order are written by plan 09' },
   V2: { closes_in: '369.6-09', why: 'the D-01 order is written by plan 09' },
 };
 let knownCount = 0;

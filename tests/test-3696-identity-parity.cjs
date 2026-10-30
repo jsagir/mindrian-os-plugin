@@ -76,9 +76,8 @@ const KNOWN = {
 
 // C12: lines that name a person at the base, keyed by the sha256 of the exact trimmed line text; the excerpt
 // and the base location are information only.
+// 369.6-09 Task 1 (2026-10-30): the two agent lines (the identity line and the DNA heading) are rewritten; their KNOWN entries are removed.
 const KNOWN_LINES = [
-  { sha: 'bde08402a105c1a925b5cda415e325949345ae69ab385b42252f2ef96cede4f7', excerpt: 'You are Larry -- a thinking partner modeled on Prof.', closes_in: '369.6-09', base: 'agents/larry-extended.md:37' },
-  { sha: '350baa5a44cd79b3420dded58a982659b5bc7ee4ffb2129f9bb4d624db4237f5', excerpt: '## The Aronhime DNA', closes_in: '369.6-09', base: 'agents/larry-extended.md:107' },
   { sha: '746f514866b256b4a11346f526d87549f8ee7117ffdd8e12e10c6722b2f30421', excerpt: '- `hold` -- mid-step-2, the reach is pending or failed', closes_in: '369.6-11', base: 'skills/larry-personality/SKILL.md:227 (moves to a reference in 369.6-10 first)' },
   { sha: '35291f64b20be119ae286e299fd8b3cd87fbc29e0a366189dccd477c3d31f2f5', excerpt: 'The push_forward / hold / pull_back movement across the UDP', closes_in: '369.6-11', base: 'skills/larry-personality/SKILL.md:230 (moves to a reference in 369.6-10 first)' },
 ];
