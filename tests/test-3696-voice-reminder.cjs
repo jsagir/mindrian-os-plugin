@@ -64,7 +64,20 @@ writeSessionBinding(SESSION_OFF, { bound: [PRIMARY], primary: PRIMARY }, { home:
 
 function spawnClassifier(input, extraEnv) {
   const env = Object.assign(isolatedEnv(scratch), { CLAUDE_SESSION_ID: SESSION }, extraEnv || {});
-  return spawnSync(process.execPath, [IC_PATH], { input: input, encoding: 'utf8', env: env, timeout: 30000 });
+  // stdin is always explicit: a piped payload, or /dev/null for an empty one. The test never inherits stdin
+  // and never touches process.stdin (369.6-13: the old form could wait on an inherited stdin).
+  const opts = { encoding: 'utf8', env: env, timeout: 30000 };
+  if (typeof input === 'string' && input.length > 0) opts.input = input; else opts.stdio = ['ignore', 'pipe', 'pipe'];
+  return spawnSync(process.execPath, [IC_PATH], opts);
+}
+// The classifier reads file descriptor 0 when it loads (module init). A require() inside this process would wait
+// on the inherited stdin, so the load happens in a child that has stdin set to ignore (369.6-13).
+function loadClassifierProbe() {
+  const code = "const ic = require(process.argv[1]);" +
+    "const block = ic.renderEngineDecisionWithDial({ fire_skill: 'discover', suppress_skills: [], decision_trace: { brain_md_tier_mode: 'tier_0', chosen_rationale: 'first reason' } }, { source: 'engine' }, '', { cortexNodes: [] });" +
+    "process.stdout.write(JSON.stringify({ marker: ic.NAV_UNCHANGED_MARKER, budget: ic.NAV_BLOCK_BUDGET_BYTES, block: block }));";
+  const r = spawnSync(process.execPath, ['-e', code, IC_PATH], { encoding: 'utf8', env: isolatedEnv(scratch), stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000 });
+  try { return JSON.parse(r.stdout); } catch (_e) { return { marker: '', budget: -1, block: null }; }
 }
 function count(hay, needle) {
   let n = 0;
@@ -129,13 +142,12 @@ const LINE = ID.REMINDER_LINE;
 
 // ---- B4 outside the navigation block ----------------------------------------------------------------------
 {
-  const ic = require(IC_PATH);
+  const ic = loadClassifierProbe();
   const src = fs.readFileSync(IC_PATH, 'utf8');
   check('B4a the suppress marker and the budget are untouched constants that do not hold the line',
-    ic.NAV_UNCHANGED_MARKER.indexOf(LINE) === -1 && ic.NAV_UNCHANGED_MARKER === '[NAV DECISION unchanged - prior block stands]'
-    && ic.NAV_BLOCK_BUDGET_BYTES === 1100);
-  const block = ic.renderEngineDecisionWithDial({ fire_skill: 'discover', suppress_skills: [], decision_trace: { brain_md_tier_mode: 'tier_0', chosen_rationale: 'first reason' } },
-    { source: 'engine' }, '', { cortexNodes: [] });
+    ic.marker.indexOf(LINE) === -1 && ic.marker === '[NAV DECISION unchanged - prior block stands]'
+    && ic.budget === 1100);
+  const block = ic.block;
   check('B4b the navigation block render does not hold the line', typeof block === 'string' && block.indexOf(LINE) === -1);
   const mainAt = src.indexOf('const code = main();');
   const callAt = src.indexOf('emitVoiceReminder();', mainAt);
@@ -146,7 +158,7 @@ const LINE = ID.REMINDER_LINE;
   const t1 = spawnClassifier(PLAIN);
   const t2 = spawnClassifier(PLAIN);
   check('B4d a repeated identical turn still carries the line once', count(t1.stdout || '', LINE) === 1 && count(t2.stdout || '', LINE) === 1);
-  if ((t2.stdout || '').indexOf(ic.NAV_UNCHANGED_MARKER) !== -1) {
+  if ((t2.stdout || '').indexOf(ic.marker) !== -1) {
     check('B4e on a turn that carries the unchanged marker the line is present', (t2.stdout || '').indexOf(LINE) !== -1);
   }
 }
