@@ -117,7 +117,7 @@ TODAY=$(date +%Y-%m-%d)
 # URL-encode a string for search queries
 urlencode() {
   local string="$1"
-  python3 -c "import urllib.parse; print(urllib.parse.quote('$string'))" 2>/dev/null \
+  python3 -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$string" 2>/dev/null \
     || echo "$string" | sed 's/ /+/g; s/"/%22/g'
 }
 
