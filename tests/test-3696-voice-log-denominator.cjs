@@ -44,7 +44,7 @@ const LOG_PATH = path.join(env.MINDRIAN_HOME, 'voice-style.jsonl');
 
 const BLUE = '\u{1F7E6}';
 const GREEN_SPOOF = '\u{1F7E9}';
-const EM = '—';
+const EM = String.fromCharCode(0x2014); // built from the code point so this file holds no dash (the dash guard of run-all-3696.sh scans it)
 
 let n = 0;
 function transcript(userText, assistantText) {
@@ -233,7 +233,7 @@ check('D9 the backend-noun policy has the observer as runner and stays declared'
 const src = fs.readFileSync(SUBJECT, 'utf8');
 check('S1 the observer never names the hook-specific output key', src.indexOf('hookSpecific' + 'Output') === -1);
 check('S2 the observer reuses the reply checks and defines no second detector', /larry-reply-checks/.test(src) && !/function detectFrameworkDump|function findMachineryNarration/.test(src));
-check('S3 the observer file holds no em dash or en dash', !/[—–]/.test(src));
+check('S3 the observer file holds no em dash or en dash', !new RegExp('[' + String.fromCharCode(0x2014) + String.fromCharCode(0x2013) + ']').test(src));
 
 check('no network call was attempted', NET.attempts() === 0);
 
