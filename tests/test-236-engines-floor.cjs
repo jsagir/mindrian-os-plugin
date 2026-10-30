@@ -253,6 +253,30 @@ scenario('5. the stack source and the CLAUDE.md stack block agree on the type-st
   assert.deepEqual(block.slice(1), kept(stackSrc));
 });
 
+scenario('6. scripts/session-start preflight names the same floor as engines.node', () => {
+  const floor = EXPECTED_FLOOR.replace(/^>=/, '');
+  assert.match(floor, /^\d+\.\d+\.\d+$/, 'EXPECTED_FLOOR is not a plain version string');
+  const src = readRepoFile('scripts/session-start');
+  assert.ok(
+    src.includes('Node >= ' + floor),
+    'scripts/session-start does not say "Node >= ' + floor + '". The session-start Node ' +
+    'preflight is a third surface for the floor; if it drifts, Node below the floor starts a ' +
+    'session that the room scripts then refuse.'
+  );
+  assert.ok(
+    src.includes('minor >= ' + FLOOR_MINOR),
+    'scripts/session-start preflight condition does not test "minor >= ' + FLOOR_MINOR + '"'
+  );
+  assert.ok(
+    !src.includes('22.5.0'),
+    'scripts/session-start still carries the old 22.5.0 floor in a message or comment'
+  );
+  assert.ok(
+    !src.includes('minor >= 5'),
+    'scripts/session-start still tests the old "minor >= 5" condition'
+  );
+});
+
 // ---------- tail ----------
 
 process.stdout.write('\n  ' + passed + ' passed, ' + failed + ' failed\n');

@@ -5,7 +5,8 @@
  * version preflight block in scripts/session-start.
  *
  * Spoofs Node 20.0.0 via FORCE_NODE_VERSION, runs session-start, and
- * asserts:
+ * asserts (the floor is 22.18.0, the same as package.json engines.node;
+ * boundary cases below spoof 22.5.0, 22.12.0, 22.17.9, 22.18.0, 23.0.0, 24.1.0):
  *   - stderr contains the verbatim friendly upgrade message
  *   - exit code is 0 (soft fail, NEVER hard-fail the Claude launch)
  *
@@ -22,7 +23,7 @@ const assert = require('node:assert');
 const PLUGIN_ROOT = path.resolve(__dirname, '..');
 const SESSION_START = path.join(PLUGIN_ROOT, 'scripts', 'session-start');
 
-const EXPECTED_PREFIX = 'MindrianOS v1.10.9+ requires Node >= 22.5.0. You are running Node ';
+const EXPECTED_PREFIX = 'MindrianOS v1.10.9+ requires Node >= 22.18.0. You are running Node ';
 const EXPECTED_SUFFIX =
   '. Please upgrade Node (nvm install 22, fnm install 22, or your package manager) and restart Claude Code. Plugin will continue with reduced functionality until Node is upgraded.';
 
@@ -68,6 +69,46 @@ run('Node 20 spoof triggers friendly message and exit 0', () => {
     `stderr missing expected suffix. got:\n${stderr}`
   );
 });
+
+function spoof(version) {
+  return spawnSync('bash', [SESSION_START], {
+    env: {
+      ...process.env,
+      FORCE_NODE_VERSION: version,
+      HOME: process.env.HOME,
+    },
+    input: '{}',
+    encoding: 'utf8',
+    timeout: 15000,
+  });
+}
+
+for (const version of ['22.5.0', '22.12.0', '22.17.9']) {
+  run(`Node ${version} spoof is below the floor: friendly message and exit 0`, () => {
+    const result = spoof(version);
+    assert.strictEqual(result.status, 0, `expected exit 0, got ${result.status}`);
+    const stderr = result.stderr || '';
+    assert.ok(
+      stderr.includes(EXPECTED_PREFIX),
+      `stderr missing expected prefix. got:\n${stderr}`
+    );
+    assert.ok(
+      stderr.includes(version),
+      `stderr missing detected version. got:\n${stderr}`
+    );
+  });
+}
+
+for (const version of ['22.18.0', '23.0.0', '24.1.0']) {
+  run(`Node ${version} spoof meets the floor: no friendly message`, () => {
+    const result = spoof(version);
+    const stderr = result.stderr || '';
+    assert.ok(
+      !stderr.includes(EXPECTED_PREFIX),
+      `preflight message should not appear at Node ${version}. got:\n${stderr}`
+    );
+  });
+}
 
 run('Preflight skip bypasses the message', () => {
   const result = spawnSync('bash', [SESSION_START], {
