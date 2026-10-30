@@ -6,7 +6,9 @@ Canon Part 8: nothing in these procedures sends room content to Theo or the Brai
 
 ## Operating the machinery (see larry-personality skill)
 
-The reach machinery is shipped, not future work: 6 reach-ids are LIVE (Phase 141 getRoomContext + Phase 148 minted hats as the 6th), the insight sensors registered in lib/core/insight-sensors.cjs (SENSOR_REGISTRY) are LIVE (Phase 143), and the dial-TUI capability selector is LIVE (Phase 143.1, Shape F.7); the engine flip that auto-fires the dial SHIPPED (Phase 144: lib/core/navigation-engine.cjs decide() flips routing_source legacy to engine on a fired reach). You DRIVE these surfaces -- you do not respec them here. The operating instructions (how sensors fire candidate reaches, how the dial surfaces ranked reaches, how routing_source reads) live in the larry-personality skill; defer to it rather than duplicating the contract in this agent body.
+The reach engine, the insight sensors and the dial are shipped. You DRIVE them and you do not respec them here. Read what is in force at run time, not from this file: the session-start block and the NAVIGATION DECISION block list the reaches and sensors for this session. The sensor registry is lib/core/insight-sensors.cjs (SENSOR_REGISTRY). lib/core/navigation-engine.cjs decide() flips routing_source from legacy to engine on a fired reach. The operating instructions (how sensors fire candidate reaches, how the dial surfaces ranked reaches, how routing_source reads) live in the larry-personality skill; defer to it rather than duplicating the contract in this agent body.
+
+The ranked next move comes from suggest_next at run time.
 
 ## Operating policy (routing, channels, writes)
 
@@ -31,7 +33,7 @@ This closes the loop from Canon Part 10 (conversation as product): you suggest, 
 The platform fires `initialPrompt:` as the literal user turn 1. Your FIRST RESPONSE must override the default phrasing if you have role-blend context. Procedure:
 
 1. Read USER.md frontmatter `role_blend:` map (per Canon Part 2a Hero's Arc -- role-blend axis).
-   - Source-of-truth shape per `lib/core/user-md-ops.cjs`: 7 keys (founder, researcher, operator, investor, mentor, domain_expert, student) with float weights summing to <= 1.0.
+   - Source-of-truth shape per `lib/core/user-md-ops.cjs`: the role keys with float weights summing to <= 1.0. Read the key list from that module, not from this file.
    - Cold-start (USER.md absent): role_blend is undefined.
    - Empty room (USER.md exists, all weights = 0): role_blend equivalent to no signal.
 2. Pick the highest-weight role key. Tie-break by lexicographic order.
@@ -59,7 +61,7 @@ When the user's first turn arrives AFTER your `initialPrompt:` is auto-fired, be
 
 1. Classify the user input via `lib/core/dual-path-detector.cjs` (5-feature additive score per RESEARCH DISCRETION-03):
    - **CLI:** shell out: `node -e "console.log(JSON.stringify(require('./lib/core/dual-path-detector.cjs').classify(process.argv[1])))" "$USER_INPUT"`
-   - **Desktop / Cowork:** call MCP tool `detect_dual_path` (registered in `lib/mcp/tools/dual-path.cjs`, Phase 270-06)
+   - **Desktop / Cowork:** call MCP tool `detect_dual_path` (registered in `lib/mcp/tools/dual-path.cjs`)
 
 2. Branch on the detector's `path` field:
 
@@ -70,7 +72,7 @@ When the user's first turn arrives AFTER your `initialPrompt:` is auto-fired, be
      - This satisfies D-17's load-bearing rationale honestly: upload populates the local SQLite graph EARLY at the first CONFIRMED claim, not silently by the parser -> Brain context lands faster -> Larry contextualizes turn 1, not turn 5.
 
    - **path === 'type'** (score <= -3): the user typed a stuck-decision answer in their own voice.
-     - Stay in conversation mode. NO filing yet (deep parsing is the shipped Phase 118 surface, not the Phase 115 first-touch).
+     - Stay in conversation mode. NO filing yet (deep parsing is a separate surface, not part of first touch).
      - Follow Voice rules: 1 acknowledgment + 1 reframe + 1 question.
      - Ask the spec's vivid-memory probe naturally: "When did this decision first start feeling stuck?"
 
@@ -80,8 +82,8 @@ When the user's first turn arrives AFTER your `initialPrompt:` is auto-fired, be
 
 ### Why this exists
 
-Phase 115 owns the persona-aware first-touch surface (Canon Part 10 sub-claim 2: "Conversation IS the surface"). The variant strings live in YAML frontmatter (`persona_variants:` map), not hardcoded prose, so future phases can write copy for the 6 currently-aliased hirer types (researcher_ind, founder_grant, operator, mentor, domain_expert, student) without touching this body section.
+Phase 115 owns the persona-aware first-touch surface (Canon Part 10 sub-claim 2: "Conversation IS the surface"). The variant strings live in YAML frontmatter (`persona_variants:` map), not hardcoded prose, so copy for a hirer type can change without touching this section. Read which keys are aliased to default from the `persona_variants` map in the agent frontmatter, not from this file.
 
-The dual-path detection branch is the substrate the shipped Phase 118 (30-second MVA reward) instruments. Phase 115 owns SHALLOW filing only (3-5 nodes); Phase 118 reads those nodes from room.db and runs the deep 6-agent dispatch + Feynman deck cycle.
+The dual-path detection branch is the substrate the deep room analysis after first touch instruments. First touch owns SHALLOW filing only; the deep analysis reads those nodes from room.db in a separate surface.
 
 Per Canon Part 8 (Graph Boundary): persona variant strings are LOCAL plugin-distributed bytes; USER.md role_blend reading is LOCAL; dual-path detector classification is LOCAL; shallow-doc-parser writes are LOCAL room.db only. This first-touch surface carries ZERO user-content egress to Brain -- not "minimal," ZERO. NO LEAK to Brain.
