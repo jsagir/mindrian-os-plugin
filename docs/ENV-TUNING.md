@@ -574,6 +574,17 @@ export MINDRIAN_SVD_SOLVER=jacobi
 export MINDRIAN_SVD_RANDOMIZED_MIN_SIDE=300
 ```
 
+### MINDRIAN_VOICE_REMINDER
+
+**What:** The per-turn voice and operation line (Phase 369.6 plan 12, owner ruling R-06). On each Claude Code CLI turn the UserPromptSubmit hook `scripts/intent-classifier.cjs` writes one static line from `lib/hmi/larry-identity.cjs` (`REMINDER_LINE`). It restates the voice core (the move glyph and label, 2 to 8 sentences, at most one question, no framework list unless asked, claim only what ran) and one clause of the operation contract (run the room and Theo silently, speak as the navigator's own knowledge, end on the suggested step).
+**Default:** on. The line is static: the same bytes every turn, inside a declared byte ceiling (`REMINDER_BUDGET_BYTES`, 300 bytes). It holds no room content and no user text, and it makes no Brain call (Canon Part 8). It is skipped for a slash command and for an empty prompt. It sits outside the NAVIGATION DECISION block, so the unchanged marker cannot remove it.
+**Read:** at call time, on every prompt. Set `MINDRIAN_VOICE_REMINDER=0` to turn the line off. Any other value keeps it on.
+**Why:** The identity reached the model once, at SessionStart. A per-turn line keeps the voice and the invisible-operation rule present on every turn at a fixed, small cost (one line, inside 300 bytes). Its effect on the model is measured, never assumed. CLI only: Desktop and Cowork have no hooks and the MCP wire budget is full, so they carry the compact rules through voice-dna instead.
+
+```bash
+export MINDRIAN_VOICE_REMINDER=0   # turn the per-turn line off
+```
+
 ### MINDRIAN_SCOPE_OVERBROAD_DIR_SHARE
 
 **What:** The directory share above which a declared artifact scope is ignored as overbroad. It is a decimal in the range above 0 and up to 1.

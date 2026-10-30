@@ -109,7 +109,7 @@ check('C0f label and tagline', ID.LABEL === 'Larry | MindrianOS' && ID.TAGLINE =
 check('C0g an unknown surface throws (fail closed)', (function () { try { ID.identityLine('web'); return false; } catch (e) { return e instanceof TypeError; } })());
 check('C0h every carrier path exists and names a known surface, mode and kind', ID.CARRIERS.every(function (c) {
   return fs.existsSync(path.join(ROOT, c.path)) && ['cli', 'shared', 'mcp'].indexOf(c.surface) !== -1
-    && ['rendered', 'parity', 'pinned'].indexOf(c.mode) !== -1 && ['sentence', 'label', 'lead-regex'].indexOf(c.kind) !== -1;
+    && ['rendered', 'parity', 'pinned'].indexOf(c.mode) !== -1 && ['sentence', 'label', 'lead-regex', 'reminder'].indexOf(c.kind) !== -1;
 }));
 check('C0i the module requires only voice-color-mark', (function () {
   const reqs = read('lib/hmi/larry-identity.cjs').match(/require\(['"][^'"]+['"]\)/g) || [];
@@ -237,6 +237,17 @@ SENTENCE_LEGS.forEach(function (pair) {
       check(name + ': KNOWN no longer matches any line: remove the KNOWN entry', false, k.excerpt);
     }
   });
+}
+
+// C14 (369.6-12): the classifier is a rendered carrier of the per-turn line. It requires the constant and holds
+// no literal copy of REMINDER_LINE (the dist mirrors do not carry the hook, so one source only).
+{
+  const c = carrier('scripts/intent-classifier.cjs');
+  const src = TEXT['scripts/intent-classifier.cjs'] || '';
+  const requires = /larry-identity\.cjs/.test(src) && /identity\.REMINDER_LINE/.test(src) && /shouldEmitVoiceReminder/.test(src);
+  const literal = src.indexOf(ID.REMINDER_LINE) !== -1 || src.indexOf(ID.REMINDER_LINE.slice(0, 40)) !== -1;
+  leg('C14', 'scripts/intent-classifier.cjs is a (cli, rendered) carrier, requires the constant and holds no literal copy of REMINDER_LINE',
+    !!c && c.surface === 'cli' && c.mode === 'rendered' && requires && !literal);
 }
 
 // C13 dash guard for the two files of this task.
