@@ -66,9 +66,9 @@ function check(name, cond, detail) { if (cond) pass(name); else failLine(name, d
 
 // The KNOWN table. Every KNOWN leg has closes_in (a plan) or route (a line). The gap behind each one is the O1 gap
 // named in its why.
+// 369.6-11 Task 1 (2026-10-30): KNOWN moved to required: D7b (the trace section says on request only) and D7c (the consult is silent,
+// no permission line); closed by 369.6-11 Task 1.
 const KNOWN = {
-  D7b: { closes_in: '369.6-11', why: 'the Thinking Trace runs in Blend and Insight mode without being asked (O1 gap 2, D-36, R-16)' },
-  D7c: { closes_in: '369.6-11', why: 'the consult offer names the Brain and asks permission: "Brain has a chain ... Pull it in?" (O1 gap 4, D-38, R-17)' },
   D7d: { closes_in: '369.6-11', why: 'the Provoked mode pitches a command every 3 to 5 turns (O1 gap 5, D-39, R-18)' },
   D7e: { closes_in: '369.6-11', why: 'two supersession examples name an edge type or a tool (O1 gap 11, D-37)' },
   D7f: { closes_in: '369.6-11', why: 'the room-proactive "No ceremony" line cites a rule that has no text (O1 gap 3, D-37)' },
@@ -246,14 +246,11 @@ leg('D7e', 'the supersession examples speak the insight with no edge type and no
 // D7h frozen entries, one per hit at this commit (filled below from --list-d7h and reviewed by hand).
 const D7H_ENTRIES = [
   { hash: 'bdb01c98659f9387', file: 'agents/larry-extended.md', line: 91, route: 'reviewed, not changed: the Decision Gates section is byte-frozen by D-09 (V9); the line orders a tool call, it is not speech', text: 'At a genuine, unanswered fork relevant to the conversation, fire the AskUserQuestion tool ' },
-  { hash: '60355ce2ad1dd2ca', file: 'skills/larry-personality/SKILL.md', line: 110, closes_in: '369.6-11', text: '1. **GUIDED default.** Reaching surfaces evidence; it never decides for the navigator. Eve' },
-  { hash: 'bcf172b760a210ee', file: 'skills/larry-personality/SKILL.md', line: 111, closes_in: '369.6-11', text: '- **PROACTIVE Brain push (SENS-03, brain_consult).** When SENS-03 fires (a framework is na' },
-  { hash: '2977a3951cdbb1b7', file: 'skills/larry-personality/SKILL.md', line: 134, closes_in: '369.6-11', text: '7e. **HSI and whitespace are two framings of one reach, both render labels.** Whitespace i' },
-  { hash: 'b0ad7dddddfb85f8', file: 'skills/larry-personality/SKILL.md', line: 158, closes_in: '369.6-11', text: 'Offer the quick pass first. Offer the research deep dive only when the navigator wants sou' },
-  { hash: '94daab015b23e23e', file: 'skills/larry-personality/SKILL.md', line: 160, closes_in: '369.6-11', text: '**How it surfaces.** SENS-09 (the diffusion/adoption sensor) fires the `brain_consult` rea' },
-  { hash: '00832a5d81350de2', file: 'skills/larry-personality/SKILL.md', line: 190, closes_in: '369.6-11', text: '**Offered when genuinely relevant, never forced.** Larry\'s Action Footer / closing line SH' },
-  { hash: 'c7d85304f877ed0b', file: 'skills/larry-personality/SKILL.md', line: 352, closes_in: '369.6-11', text: 'When the conversation itself has produced something worth keeping - a sharpened problem de' },
-  { hash: 'f46bd1f384511bfc', file: 'skills/larry-personality/SKILL.md', line: 459, closes_in: '369.6-11', text: 'of these shapes fires the clause: the `brain_ask` tool\'s own description now says its' },
+  { hash: '60355ce2ad1dd2ca', file: 'skills/larry-personality/SKILL.md', line: 110, route: 'reviewed, not changed: the line orders a tool call (the gate card answer), it is not speech', text: '1. **GUIDED default.** Reaching surfaces evidence; it never decides for the navigator. Eve' },
+  { hash: '1e38fb9cec37acb8', file: 'skills/larry-personality/SKILL.md', line: 160, route: 'reviewed, not changed: resolver text for the Dominant Design row; the command is late-bound and shown only as the step to run', text: '**How it surfaces.** SENS-09 (the diffusion/adoption sensor) fires the `brain_consult` rea' },
+  { hash: 'aaddd9a318468258', file: 'skills/larry-personality/SKILL.md', line: 190, route: 'reviewed: the line names the stance step only when the navigator is mid-decision (R-18), never on a timer', text: '**Offered when genuinely relevant, never forced.** Larry\'s Action Footer / closing line SH' },
+  { hash: 'c7d85304f877ed0b', file: 'skills/larry-personality/SKILL.md', line: 352, route: 'reviewed, not changed: the line orders a tool call parameter, it is not speech', text: 'When the conversation itself has produced something worth keeping - a sharpened problem de' },
+  { hash: 'f46bd1f384511bfc', file: 'skills/larry-personality/SKILL.md', line: 459, route: 'reviewed, not changed: the line describes the wire description of a tool, it is not speech', text: 'of these shapes fires the clause: the `brain_ask` tool\'s own description now says its' },
   { hash: '238f1ad117854c96', file: 'skills/larry-personality/SKILL.md', line: 657, closes_in: '369.6-11', text: '4. When a context_block reach carries signal `room_delta` (SENS-21), Larry says once and p' },
   { hash: '995ad9d995746757', file: 'skills/larry-personality/SKILL.md', line: 658, closes_in: '369.6-11', text: '5. `/mos:auto-explore` is a fallback everywhere Larry mentions it, on Desktop, Cowork or t' },
   { hash: 'd362f28573689447', file: 'skills/larry-personality/mode-engine.md', line: 162, route: 'a seed (mode-engine.md names Brain tools; the file is outside every persona plan)', text: '1. **Gap-informed shifts:** When `brain_gap_assess` shows heavy conceptual gaps (missing p' },

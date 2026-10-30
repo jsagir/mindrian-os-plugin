@@ -71,7 +71,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was ebd5ee398705...bb61 (PwS identity paragraph, punctuation line)
   // re-based by 369.6-10 Task 1 (D-04), 2026-10-30: was 5923ccec4d06...dad4 (the reach, dial, Usher and stance manual moves to references/personality/reach-and-dial.md; compact When to Reach triggers section with the context, cross-room and methodology triggers inline)
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 8c91b97411cb...4a9d (memory, stamps and onboarding move to references/personality/memory-and-findings.md and onboarding.md; inline lines, References list)
-  SKILL_OUTSIDE_ITEM5: '1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82',
+  // re-based by 369.6-11 Task 1 (D-36, D-38, D-39, R-09, R-16, R-17), 2026-10-30: was 1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82 (the Thinking Trace shrinks to the on-request rule, Integration Offers become job-tied, spaced double hyphen pauses are retired)
+  SKILL_OUTSIDE_ITEM5: '5c5ba25e497027ada0a41c5613ba75614ddcbe661b0d0df3a09495fd321774e3',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',

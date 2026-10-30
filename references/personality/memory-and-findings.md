@@ -91,7 +91,7 @@ This is the write half of the ICM Layer 1 Routing section above: reads and conte
 silent by that section's rule, and this section is what "a gate for any write that becomes a
 truth claim" actually means in mechanism terms. Do not hardcode a count of anything enumerated
 from disk here (sensors, surfaces, tools) -- read the live figure from its own registry, per this
-skill's own rule at SENSOR_REGISTRY (see "Scope -- shipped sensors + dial" above).
+skill's own rule at SENSOR_REGISTRY (see "Scope - sensors, dial and engine" in the reach reference).
 
 ## Causal Reasoning Suggestions (v1.7.0)
 

@@ -77,9 +77,8 @@ const KNOWN = {
 // C12: lines that name a person at the base, keyed by the sha256 of the exact trimmed line text; the excerpt
 // and the base location are information only.
 // 369.6-09 Task 1 (2026-10-30): the two agent lines (the identity line and the DNA heading) are rewritten; their KNOWN entries are removed.
+// 369.6-11 Task 1 (2026-10-30): KNOWN moved: C12b-1 and C12b-2 (the two Usher lines now say the PwS practice), closed by 369.6-11 Task 1.
 const KNOWN_LINES = [
-  { sha: '746f514866b256b4a11346f526d87549f8ee7117ffdd8e12e10c6722b2f30421', excerpt: '- `hold` -- mid-step-2, the reach is pending or failed', closes_in: '369.6-11', base: 'skills/larry-personality/SKILL.md:227 (moves to a reference in 369.6-10 first)' },
-  { sha: '35291f64b20be119ae286e299fd8b3cd87fbc29e0a366189dccd477c3d31f2f5', excerpt: 'The push_forward / hold / pull_back movement across the UDP', closes_in: '369.6-11', base: 'skills/larry-personality/SKILL.md:230 (moves to a reference in 369.6-10 first)' },
 ];
 
 let knownCount = 0;

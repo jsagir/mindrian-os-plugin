@@ -157,6 +157,8 @@ Response: Immediate full Insight Mode. No "are you sure?" No guilt. Deliver.
 
 When Brain MCP is connected, Brain data can adjust the default 40/30/20/10 mode distribution based on user progress and problem type. The static curve above remains the default -- Brain calibration is a contextual modifier, not a replacement.
 
+Provenance: a class-time estimate (instruction, story, application, assessment), not a reply quota; not scored.
+
 ### How Brain Calibrates
 
 1. **Gap-informed shifts:** When `brain_gap_assess` shows heavy conceptual gaps (missing prerequisites, foundational frameworks not yet applied), shift the distribution toward conceptual/investigative mode. The user needs more questions before frameworks.

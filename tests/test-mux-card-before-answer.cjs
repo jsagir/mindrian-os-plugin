@@ -558,7 +558,9 @@ async function staticArms() {
   await arm('D1 the doctrine sentence is in larry-extended, research.md and larry-personality; the research mirror is fresh', function () {
     const files = ['agents/larry-extended.md', 'commands/research.md', 'skills/larry-personality/SKILL.md'];
     for (const rel of files) {
-      const txt = fs.readFileSync(path.join(ROOT, rel), 'utf8').toLowerCase();
+      // 369.6-11: the skill's reach rules moved to references/personality/reach-and-dial.md (369.6-10); the skill is read with that reference.
+      let txt = fs.readFileSync(path.join(ROOT, rel), 'utf8').toLowerCase();
+      if (rel === 'skills/larry-personality/SKILL.md') txt += '\n' + fs.readFileSync(path.join(ROOT, 'references', 'personality', 'reach-and-dial.md'), 'utf8').toLowerCase();
       if (txt.indexOf('answered only from the card') === -1) return rel + ' lacks "answered only from the card"';
       if (txt.indexOf('never answer a gate') === -1) return rel + ' lacks "never answer a gate"';
     }
