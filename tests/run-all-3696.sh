@@ -133,24 +133,26 @@ export MINDRIAN_ROOMS_ROOT="$SUITE_TMP/rooms-root"
 mkdir -p "$MINDRIAN_ROOMS_HOME" "$MINDRIAN_ROOMS_ROOT"
 export MINDRIAN_SKIP_LIVE_CLAUDE=1
 
-# --- 1. Guarded legs, one run_if per planned test file (the label names the plan that lands it) ---
-run_if "3696: measurement script and snapshots (369.6-01)"          tests/test-3696-measure-voice.cjs            node tests/test-3696-measure-voice.cjs
-run_if "3696: reply checks and labelled corpus (369.6-01)"          tests/test-3696-reply-checks.cjs             node tests/test-3696-reply-checks.cjs
-run_if "3696: isolation (369.6-02)"                                 tests/test-3696-isolation.cjs                node tests/test-3696-isolation.cjs
-run_if "3696: rubric eval (369.6-02)"                               tests/test-3696-rubric-eval.cjs              node tests/test-3696-rubric-eval.cjs
-run_if "3696: identity parity (369.6-04)"                           tests/test-3696-identity-parity.cjs          node tests/test-3696-identity-parity.cjs
-run_if "3696: persona drift (369.6-04)"                             tests/test-3696-persona-drift.cjs            node tests/test-3696-persona-drift.cjs
-run_if "3696: holds-by lines (369.6-05)"                            tests/test-3696-holds-by.cjs                 node tests/test-3696-holds-by.cjs
-run_if "3696: voice-first budget (369.6-08)"                        tests/test-3696-voice-first-budget.cjs       node tests/test-3696-voice-first-budget.cjs
-run_if "3696: skill budget (369.6-09)"                              tests/test-3696-skill-budget.cjs             node tests/test-3696-skill-budget.cjs
-run_if "3696: doctrine presence (369.6-10)"                         tests/test-3696-doctrine-presence.cjs        node tests/test-3696-doctrine-presence.cjs
-run_if "3696: rubric and glyph consistency (369.6-06)"              tests/test-3696-rubric-glyph-consistency.cjs node tests/test-3696-rubric-glyph-consistency.cjs
-run_if "3696: mod voice (369.6-11)"                                 tests/test-3696-mod-voice.cjs                node tests/test-3696-mod-voice.cjs
-run_if "3696: one next move (369.6-11)"                             tests/test-3696-one-next-move.cjs            node tests/test-3696-one-next-move.cjs
-run_if "3696: operation doctrine (369.6-03)"                        tests/test-3696-operation-doctrine.cjs       node tests/test-3696-operation-doctrine.cjs
-run_if "3696: operation probe (369.6-03)"                           tests/test-3696-operation-probe.cjs          node tests/test-3696-operation-probe.cjs
-run_if "3696: voice log denominator (369.6-06)"                     tests/test-3696-voice-log-denominator.cjs    node tests/test-3696-voice-log-denominator.cjs
-run_if "3696: voice reminder (369.6-06)"                            tests/test-3696-voice-reminder.cjs           node tests/test-3696-voice-reminder.cjs
+# --- 1. Phase legs, one plain run leg per landed test file (the label names the plan that lands it) ---
+# 369.6-13 (2026-10-30): every planned leg landed, so every former run_if leg is a plain run leg. A missing file now
+# fails the leg instead of reporting SKIPPED.
+run "3696: measurement script and snapshots (369.6-01)" node tests/test-3696-measure-voice.cjs
+run "3696: reply checks and labelled corpus (369.6-01)" node tests/test-3696-reply-checks.cjs
+run "3696: isolation (369.6-02)" node tests/test-3696-isolation.cjs
+run "3696: rubric eval (369.6-02)" node tests/test-3696-rubric-eval.cjs
+run "3696: identity parity (369.6-04)" node tests/test-3696-identity-parity.cjs
+run "3696: persona drift (369.6-04)" node tests/test-3696-persona-drift.cjs
+run "3696: holds-by lines (369.6-05)" node tests/test-3696-holds-by.cjs
+run "3696: voice-first budget (369.6-08)" node tests/test-3696-voice-first-budget.cjs
+run "3696: skill budget (369.6-09)" node tests/test-3696-skill-budget.cjs
+run "3696: doctrine presence (369.6-10)" node tests/test-3696-doctrine-presence.cjs
+run "3696: rubric and glyph consistency (369.6-06)" node tests/test-3696-rubric-glyph-consistency.cjs
+run "3696: mod voice (369.6-11)" node tests/test-3696-mod-voice.cjs
+run "3696: one next move (369.6-11)" node tests/test-3696-one-next-move.cjs
+run "3696: operation doctrine (369.6-03)" node tests/test-3696-operation-doctrine.cjs
+run "3696: operation probe (369.6-03)" node tests/test-3696-operation-probe.cjs
+run "3696: voice log denominator (369.6-06)" node tests/test-3696-voice-log-denominator.cjs
+run "3696: voice reminder (369.6-06)" node tests/test-3696-voice-reminder.cjs
 
 # --- 2. The exact failing-leg comparison, written in this plan ---
 run "3696: known-set helper and aggregator comparison (369.6-01)"   node tests/test-3696-known-set.cjs
@@ -243,7 +245,8 @@ run "tests/test-360-snapshot-replay.cjs" node tests/test-360-snapshot-replay.cjs
 run "tests/test-360-tripwire.cjs" node tests/test-360-tripwire.cjs
 run_baseline "tests/test-369-launch-surface.cjs" node tests/test-369-launch-surface.cjs
 run "tests/test-36925-injection.cjs" node tests/test-36925-injection.cjs
-run_baseline "tests/test-36925-naming.cjs" node tests/test-36925-naming.cjs
+# 2026-10-30 (369.6-13): the N6 leg healed (the persona base pin was re-based by plans 07 to 11 under the two-window rule), so this is a plain run leg and its baseline entry is removed.
+run "tests/test-36925-naming.cjs" node tests/test-36925-naming.cjs
 run "tests/test-36925-readiness-gate.cjs" node tests/test-36925-readiness-gate.cjs
 run "tests/test-380-build.cjs" node tests/test-380-build.cjs
 run "tests/test-380-theo-faces.cjs" node tests/test-380-theo-faces.cjs

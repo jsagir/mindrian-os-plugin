@@ -1,6 +1,6 @@
 {
   "recorded_at": "e90ab96bb (plan 369.6-01 base: dispatch HEAD 540f7e286 plus the 369.6-01 measurement and reply-check files)",
-  "note": "Exact failing-leg set and exit code of every persona-reader test that failed at the plan base, recorded with the tree clean, MINDRIAN_SKIP_LIVE_CLAUDE=1 and a fresh temporary rooms home. Never widen an entry by hand: a later plan whose change alters the text of a recorded leg without adding a leg re-records that entry in a reviewed diff with a dated note naming the old and new lines and the reason; a new leg is a new failure (D-19). Legs are normalized (temporary paths, ISO timestamps, millisecond durations and pids become fixed tokens).",
+  "note": "Exact failing-leg set and exit code of every persona-reader test that failed at the plan base, recorded with the tree clean, MINDRIAN_SKIP_LIVE_CLAUDE=1 and a fresh temporary rooms home. Never widen an entry by hand: a later plan whose change alters the text of a recorded leg without adding a leg re-records that entry in a reviewed diff with a dated note naming the old and new lines and the reason; a new leg is a new failure (D-19). Legs are normalized (temporary paths, ISO timestamps, millisecond durations and pids become fixed tokens). 2026-10-30 (369.6-13): entry tests/test-36925-naming.cjs removed, the N6 leg healed and the test runs as a plain leg.",
   "entries": {
     "lib/memory/body-shape-coverage.test.cjs": {
       "command": "node lib/memory/body-shape-coverage.test.cjs",
@@ -182,14 +182,6 @@
       "failing_legs": [
         "FAIL arm 4: the Part 8 BOUNDARIES paragraph is untouched",
         "FAIL arm 6b: the 267 registration, 270 budget and 276 honesty suites exit 0"
-      ]
-    },
-    "tests/test-36925-naming.cjs": {
-      "command": "node tests/test-36925-naming.cjs",
-      "exit_code": 1,
-      "fail_pattern": "^\\s*(FAIL|not ok)\\b",
-      "failing_legs": [
-        "FAIL: N6 agents/larry-extended.md and skills/larry-personality/SKILL.md are byte-identical to the phase base f06c4ef78^ :: git diff --quiet exit 1"
       ]
     },
     "tests/test-check-render-coverage.cjs": {

@@ -17,7 +17,8 @@
  *   K10 bash tests/run-all-3696.sh --self-test exits 0: the aggregator's own run_baseline counts a known leg
  *       as KNOWN and the same leg plus one extra failing leg as FAILED
  *   K11 the recorded baseline: every entry has an exit code and a non-empty failing_legs list; every label is a file
- *   K12 the aggregator names at least 17 run_if legs and has no run_known leg
+ *   K12 the aggregator names at least 17 plain run legs for the phase test files (369.6-13: every planned leg landed, so the run_if
+ *       legs are plain run legs) and has no run_known leg
  *   K13 no em dash or en dash in this file, the helper or the aggregator
  *
  * Hermetic: HOME, MINDRIAN_HOME, MINDRIAN_ROOMS_HOME, MINDRIAN_ROOMS_ROOT and CLAUDE_CONFIG_DIR are mkdtemp
@@ -125,13 +126,13 @@ check('K11d the three pre-existing reds named by the plan are in the baseline', 
 
 // K12
 const aggText = fs.readFileSync(AGG, 'utf8');
-const runIfCount = (aggText.match(/^run_if "/gm) || []).length;
-check('K12 the aggregator names at least 17 run_if legs', runIfCount >= 17, String(runIfCount));
+const phaseLegCount = (aggText.match(/^run "[^"]*" +node tests\/test-3696-[a-z-]+\.cjs$/gm) || []).length;
+check('K12 the aggregator names at least 17 plain run legs for the phase test files, and no run_if leg is left', phaseLegCount >= 17 && !/^run_if "/m.test(aggText), String(phaseLegCount));
 check('K12b the aggregator has no run_known leg', !/run_known/.test(aggText));
 const planned = ['measure-voice', 'reply-checks', 'isolation', 'rubric-eval', 'identity-parity', 'persona-drift', 'holds-by', 'voice-first-budget',
   'skill-budget', 'doctrine-presence', 'rubric-glyph-consistency', 'mod-voice', 'one-next-move', 'operation-doctrine', 'operation-probe',
   'voice-log-denominator', 'voice-reminder'];
-check('K12c every planned 3696 test file is named by a run_if leg',
+check('K12c every planned 3696 test file is named by a run leg',
   planned.every(function (p) { return aggText.indexOf('tests/test-3696-' + p + '.cjs') !== -1; }));
 
 // K13
