@@ -34,3 +34,11 @@ Out-of-scope findings. Each one is logged here and not fixed by the plan that fo
    - Owner: none in this phase. ENV GAP (no model reply from a live call).
 
 3. tests/test-3696-rubric-eval.cjs and tests/test-298-contract-parity.cjs fail while a persona file or a tracked file is uncommitted (they require a clean tree or a clean agent file). They pass on the clean tree after each commit of plan 07. Not a defect; the N6 two-window rule covers it.
+
+## 369.6-08 (found 2026-10-30)
+
+1. tests/test-3696-isolation.cjs failed once while the host load was 26 to 30 (headless claude batches from this workspace). Rerun alone at load 5.7 it exits 0, and it passed inside the final suite. Treat as a load-dependent leg. Owner: plan 369.6-13 (baseline review), with the wall-clock flakes of plans 03 and 04.
+
+2. lib/memory/debouncer-drain-at-prompt.test.cjs is a baseline red leg that heals under some timings. In the plan 07 suite run it showed as healed (PASSED); in the plan 08 run it matched its recorded failing legs (KNOWN). This moved the aggregator totals from PASSED=124 KNOWN=25 to PASSED=123 KNOWN=26 with no change in code. Owner: plan 369.6-13.
+
+3. tests/test-114-larry-default-activation.sh (AC-114-02 and AC-114-04) stays red here: the live `claude --print` call returns no reply (ENV GAP, same as plans 04 and 07). Not part of tests/run-all-3696.sh. Not run again after the coordinator load instruction.

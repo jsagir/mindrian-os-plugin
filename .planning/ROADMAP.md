@@ -1931,7 +1931,7 @@ Plans:
 **Goal:** Larry speaks as Larry and claims only what the executed state supports. From SEED-116 and the annex: a turn names the job and the move, never a leaf id or a verdict code; a term is defined at first use and every pronoun has a referent (AI-01, GEN-01); pre-research narration is hypothesis language with evidence_status: pre-research, and "every", "only", "proven", "confirmed", "kills", "decisive" require a cited executed operation or canonical claim state (AI-06, AI-10, annex C09-C14, C19); internal convergence is called consistency (C13); a changed objective is a new hypothesis (C08); quantities are typed before they are compared (AI-09, C10); a correction repairs the artifact, records a room-scoped rule and is checked on the next output, never ending in an apology (AI-02, A03); a coverage checklist runs before a landscape is presented (AI-08); the framework dump and the em-dash do not return mid-session; the product prints nothing into the chat that is not Larry's line or silence (Stop trailer, host-voice banners, instruction-returning tools). Measured on three recorded sessions before and after, not on one.
 **Requirements**: NS369.6-01..NS369.6-21 (phase-local ids minted at plan time from 369.6-CONTEXT.md; registered in `.planning/REQUIREMENTS.md` by plan 369.6-13 with the "minted at plan time" caveat, the Phase 270 precedent; covers brief test 16, the annex section 5 fixtures and the no-dump and narration detectors in lib/hmi)
 **Depends on:** Phase 369.2 (true execution state is what calibration is calibrated to), Phase 369.4 (the report schema the voice fills)
-**Plans:** 7/13 plans executed
+**Plans:** 8/13 plans executed
 
 **Waves are serial (Codex C9).** The plans share mutable verification state: the phase suite, `data/harness-manifest.json` and the git index. Of the two remedies the review names, serial waves are the cheaper one (no lock protocol between agents, no extra worktree), and the CONTEXT plan map already asked for serial waves. Each plan starts only when no tracked-file change from another task is in the tree.
 
@@ -1967,7 +1967,7 @@ Plans:
 
 **Wave 8**
 
-- [ ] 369.6-08-PLAN.md - agent operating procedures move to references/personality/agent-operations.md with compact pointers (persona edit)
+- [x] 369.6-08-PLAN.md - agent operating procedures move to references/personality/agent-operations.md with compact pointers (persona edit)
 
 **Wave 9**
 

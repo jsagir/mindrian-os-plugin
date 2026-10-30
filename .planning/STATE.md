@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 369.6-07-PLAN.md: PwS identity on every carrier from one source, the book punctuation, optional openers, destijl carve-out; AFTER live legs NOT RUN (no credential), operation half NOT MEASURED; full suite PASSED=124 FAILED=0 EXIT 0 for plans 05, 06, 07"
-last_updated: "2026-10-30T05:02:53.876Z"
+stopped_at: "Completed 369.6-08-PLAN.md: operating procedures moved to references/personality/agent-operations.md, agent body 11366 B; AFTER live legs NOT RUN (no credential), operation half NOT MEASURED; suite PASSED=123 FAILED=0 SKIPPED=1 KNOWN=26"
+last_updated: "2026-10-30T07:16:58.537Z"
 last_activity: "2026-10-29 -- Completed quick task 261029-sof: scripts/session-start resolves its three temp paths under TMPDIR (369.6 isolation gap 2); wave 3 of 369.6 next"
 progress:
   total_phases: 144
   completed_phases: 34
   total_plans: 670
-  completed_plans: 556
+  completed_plans: 557
   percent: 24
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 369.6 (The Larry contract: voice and calibration (execution-truth program)) - EXECUTING
-Plan: 8 of 13
+Plan: 9 of 13
 Status: Ready to execute
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
@@ -7429,6 +7429,7 @@ Progress: [██████████] 98%
 | Phase 369.6 P04 | 23min | 2 tasks | 8 files |
 | Phase 369.6 P06 | 35min | 2 tasks | 10 files |
 | Phase 369.6 P07 | unrecorded | 3 tasks | 18 files |
+| Phase 369.6 P08 | not captured | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -9177,6 +9178,7 @@ Progress: [██████████] 98%
 - [Phase 369.6]: Plan 02: Jev sees only runs whose provenance is re-derived before the payload exists (import reconstruction or a sealed cell 1 run), through jevVoice with its own ceiling; the section ledger stays byte-unchanged (holds by code: tests/test-3696-rubric-eval.cjs E3, E4)
 - [Phase 369.6-03]: identity constant spells PwS; five sentence carriers are KNOWN legs closing in 369.6-07; drift resolver also reads data/brain-surface-contract.json
 - [Phase 369.6]: 369.6-06: denominator row voice-turn-evaluated plus template_version on every voice-style row; dump and narration detectors in shadow mode; voice-backend-noun-free reuses the Stop observer and stays declared
+- [Phase ?]: 369.6-08: operating procedures live in references/personality/agent-operations.md; agent body 11366 B; V3 to V6 and V8 budget legs required
 
 ### Pending Todos
 
@@ -9386,8 +9388,8 @@ Progress: [██████████] 98%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-30T05:02:53.794Z
-Stopped at: Completed 369.6-07-PLAN.md: PwS identity on every carrier from one source, the book punctuation, optional openers, destijl carve-out; AFTER live legs NOT RUN (no credential), operation half NOT MEASURED; full suite PASSED=124 FAILED=0 EXIT 0 for plans 05, 06, 07
+Last session: 2026-10-30T07:16:58.327Z
+Stopped at: Completed 369.6-08-PLAN.md: operating procedures moved to references/personality/agent-operations.md, agent body 11366 B; AFTER live legs NOT RUN (no credential), operation half NOT MEASURED; suite PASSED=123 FAILED=0 SKIPPED=1 KNOWN=26
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
