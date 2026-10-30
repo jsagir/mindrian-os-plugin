@@ -5,20 +5,26 @@
  * Quick 261029-u8x -- a room folder name must never reach node as program text.
  * RCA: .planning/debug/compute-team-analyze-room-python-date-fallback-injection.md
  *
- * scripts/analyze-room formats each cross-reference edge with a small
+ * scripts/analyze-room formatted each cross-reference edge with a small
  * node -e program (visual-ops formatEdge). The old program text held the
  * section and target folder names, so a folder name that closes the
  * JavaScript string ran its own code. The bash half had 2 such sites
  * (INFORMS and CONTRADICTS). The bash 3.2 python half had 2 twins.
  *
+ * Phase 381 plan 381-09 removed the bash body and the python half after the
+ * recorded zero-diff run; scripts/analyze-room now execs lib/core/room-render.cjs,
+ * which calls formatEdge in process. Legs A to D still run the whole entry
+ * point. The python-half leg E read the bash 3.2 heredoc and is retired with
+ * it; leg F is re-pinned to the absence of every program-text site.
+ *
  * Legs:
- *   A. bash half, INFORMS: payload folder name, no marker, composed EDGE line;
- *   B. bash half, CONTRADICTS: payload folder name, no marker, composed EDGE line;
- *   C. bash half, normal pair parity: EDGE line for two normal sections;
- *   D. bash half, leading-dash folder name keeps a composed EDGE line;
- *   E. python half (the bash 3.2 heredoc run under python3): no marker,
- *      composed EDGE line;
- *   F. source pins: no program text interpolation, process.argv[3] 4 times.
+ *   A. INFORMS: payload folder name, no marker, composed EDGE line;
+ *   B. CONTRADICTS: payload folder name, no marker, composed EDGE line;
+ *   C. normal pair parity: EDGE line for two normal sections;
+ *   D. leading-dash folder name keeps a composed EDGE line;
+ *   F. source pins (re-pinned by 381-09): no node -e, no python3, no PYEOF
+ *      heredoc and no formatEdge program text in the entry point; one exec
+ *      line for the node renderer.
  *
  * Plain node:assert/strict, zero deps, mkdtemp only. Exit 0 pass, 1 fail.
  * Hyphens only (no em-dash or en-dash).
@@ -56,13 +62,9 @@ function mkTmp(label) {
 function assertUnderTmp(p) {
   assert.ok(p.startsWith(os.tmpdir()), 'room path must live under os.tmpdir(): ' + p);
 }
-function hasPython() {
-  return spawnSync('python3', ['--version'], { encoding: 'utf8' }).status === 0;
-}
 
 const MARK_INFORMS = 'mos-edge-informs-proof';
 const MARK_CONTRA = 'mos-edge-contradicts-proof';
-const MARK_PY = 'mos-edge-py-proof';
 
 // A folder name that closes the JavaScript string and runs a command.
 function payloadName(marker) {
@@ -85,7 +87,7 @@ function runBash(room, cwd) {
 }
 
 // ---------------------------------------------------------------------------
-// bash half
+// whole entry point (the node renderer since plan 381-09)
 // ---------------------------------------------------------------------------
 function buildBashRoom(base, extra) {
   const room = path.join(base, 'room');
@@ -105,7 +107,7 @@ const bashBase = mkTmp('bash');
 const bashRoom = buildBashRoom(bashBase);
 const bashRun = runBash(bashRoom, bashBase);
 
-leg('A. bash half INFORMS: folder name creates no marker; EDGE line carries formatEdge of the raw name', () => {
+leg('A. entry point INFORMS: folder name creates no marker; EDGE line carries formatEdge of the raw name', () => {
   assert.equal(bashRun.status, 0, 'analyze-room rc: ' + bashRun.stderr);
   assert.equal(fs.existsSync(path.join(bashBase, MARK_INFORMS)), false, 'marker file exists: node ran a folder name');
   assert.ok(
@@ -114,7 +116,7 @@ leg('A. bash half INFORMS: folder name creates no marker; EDGE line carries form
   );
 });
 
-leg('B. bash half CONTRADICTS: folder name creates no marker; EDGE line carries formatEdge of the raw name', () => {
+leg('B. entry point CONTRADICTS: folder name creates no marker; EDGE line carries formatEdge of the raw name', () => {
   assert.equal(fs.existsSync(path.join(bashBase, MARK_CONTRA)), false, 'marker file exists: node ran a folder name');
   assert.ok(
     bashRun.stdout.includes(composedEdge('market-analysis', payloadName(MARK_CONTRA), 'CONTRADICTS')),
@@ -122,14 +124,14 @@ leg('B. bash half CONTRADICTS: folder name creates no marker; EDGE line carries 
   );
 });
 
-leg('C. bash half normal pair: INFORMS EDGE line equals the composed string', () => {
+leg('C. entry point normal pair: INFORMS EDGE line equals the composed string', () => {
   assert.ok(
     bashRun.stdout.includes(composedEdge('problem-definition', 'market-analysis', 'INFORMS')),
     'composed normal INFORMS EDGE line missing'
   );
 });
 
-leg('D. bash half leading-dash folder name: no marker and a composed EDGE line', () => {
+leg('D. entry point leading-dash folder name: no marker and a composed EDGE line', () => {
   const base = mkTmp('dash');
   const dashName = '-e-proof';
   const room = path.join(base, 'room');
@@ -145,46 +147,16 @@ leg('D. bash half leading-dash folder name: no marker and a composed EDGE line',
 });
 
 // ---------------------------------------------------------------------------
-// python half (bash 3.2 heredoc)
+// F. source pins (re-pinned by plan 381-09)
 // ---------------------------------------------------------------------------
-function extractHeredoc() {
-  const lines = fs.readFileSync(SCRIPT, 'utf8').split('\n');
-  const start = lines.findIndex((l) => l.endsWith("<< 'PYEOF'"));
-  assert.ok(start >= 0, 'heredoc start not found');
-  const end = lines.findIndex((l, i) => i > start && l === 'PYEOF');
-  assert.ok(end > start, 'heredoc end not found');
-  return lines.slice(start + 1, end).join('\n') + '\n';
-}
-
-leg('E. python half: folder name creates no marker; EDGE line carries formatEdge of the raw name', () => {
-  if (!hasPython()) { console.log('    skip - python3 absent'); return; }
-  const base = mkTmp('py');
-  const cwd = path.join(base, 'py', 'scripts');
-  fs.mkdirSync(cwd, { recursive: true });
-  fs.mkdirSync(path.join(base, 'py', 'lib', 'core'), { recursive: true });
-  fs.copyFileSync(VISUAL_OPS, path.join(base, 'py', 'lib', 'core', 'visual-ops.cjs'));
-  const room = path.join(base, 'room');
-  assertUnderTmp(room);
-  const name = payloadName(MARK_PY);
-  write(path.join(room, 'problem-definition', 'p.md'), '# P\n[[' + name + ']]\n');
-  write(path.join(room, name, 'a.md'), '# A\n');
-  const r = spawnSync('python3', ['-', room], { cwd, input: extractHeredoc(), encoding: 'utf8', timeout: 60000 });
-  assert.equal(r.status, 0, 'python half rc: ' + r.stderr);
-  assert.equal(fs.existsSync(path.join(cwd, MARK_PY)), false, 'marker file exists: node ran a folder name');
-  assert.ok(
-    r.stdout.includes(composedEdge('problem-definition', name, 'INFORMS')),
-    'composed EDGE line missing from the python half'
-  );
-});
-
-// ---------------------------------------------------------------------------
-// F. source pins
-// ---------------------------------------------------------------------------
-leg('F. source pins: no section or target in node program text; process.argv[3] 4 times', () => {
+leg('F. source pins: no node -e, no python3, no heredoc and no formatEdge program text; one exec line', () => {
   const src = fs.readFileSync(SCRIPT, 'utf8');
-  assert.equal(src.includes("formatEdge('$section'"), false, "formatEdge('$section' must be gone");
-  assert.equal(src.includes("formatEdge('{section}'"), false, "formatEdge('{section}' must be gone");
-  assert.equal(src.split('process.argv[3]').length - 1, 4, 'process.argv[3] must appear 4 times');
+  assert.equal(src.includes('node -e'), false, 'node -e must be gone');
+  assert.equal(src.includes('python3'), false, 'python3 must be gone');
+  assert.equal(src.includes('PYEOF'), false, 'the python heredoc must be gone');
+  assert.equal(src.includes('formatEdge('), false, 'no formatEdge program text in the entry point');
+  const exec = 'NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" analyze "$@"';
+  assert.equal(src.split('\n').filter((l) => l === exec).length, 1, 'exactly one exec line');
 });
 
 for (const d of tmpRoots) {

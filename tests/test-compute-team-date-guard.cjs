@@ -5,24 +5,27 @@
  * Quick 261029-u8x -- a room date must never reach python3 as program text.
  * RCA: .planning/debug/compute-team-analyze-room-python-date-fallback-injection.md
  *
- * scripts/compute-team and scripts/analyze-room each carry the function
- * portable_date_to_epoch. When GNU date -d and BSD date -j both fail, the old
+ * scripts/compute-team and scripts/analyze-room each carried the function
+ * portable_date_to_epoch. When GNU date -d and BSD date -j both failed, the old
  * last link pasted the frontmatter date into python3 -c program text. A crafted
  * last_active (team profile) or last_updated (funding STATUS.md) ran code.
  *
+ * Phase 381 plan 381-09 removed the bash bodies (and with them the function
+ * and every python3 link) after the recorded zero-diff run; both scripts now
+ * exec lib/core/room-render.cjs. The function-level legs A, B and C of quick
+ * 261029-u8x read the function from the script and are retired with it. The
+ * OLD oracle (git archive of BASE_SHA, tests/helpers/oracle-381.cjs) still
+ * carries the guarded function, and the hostile room of tests/test-381-parity.cjs
+ * proves NEW equal to it byte for byte.
+ *
  * Legs:
- *   A. function level, crafted value: stdout 0, no marker (both scripts);
- *   B. function level, shapes that GNU date accepts (plain date, ISO
- *      timestamp, trailing space, CR): the epoch equals date -d (no change);
- *   C. forced python3 fallback (a stub date that exits 1 first on PATH):
- *      2026-01-15 and 2026-1-5 keep their epochs, the ISO timestamp gives 0,
- *      the crafted value gives 0 and no marker;
  *   D. compute-team whole script: crafted last_active, no marker, output equal
  *      to the not-a-date run; trend legs for 4 date shapes;
  *   E. analyze-room whole script: crafted last_updated, no marker, stdout
  *      equal to the not-a-date run; a valid date gives FUND_STALE;
- *   F. source pins: the guarded argv python3 link, the two date links
- *      unchanged, no program text interpolation.
+ *   F. source pins (re-pinned by 381-09): no portable_date_to_epoch, no
+ *      python3, no strptime and no date -d in either entry point; each one
+ *      execs the node renderer.
  *
  * Plain node:assert/strict, zero deps, mkdtemp only. Exit 0 pass, 1 fail.
  * Hyphens only (no em-dash or en-dash).
@@ -70,41 +73,6 @@ const TEAM_PAYLOAD = "'+str(__import__('os').system('touch " + TEAM_MARKER + "')
 // backslashes. Backslash-escaped quotes survive xargs as plain quotes.
 const FUND_PAYLOAD_RAW = "\\'+str(__import__(\\'os\\').system(\\'touch " + FUND_MARKER + "\\'))+\\'";
 
-function extractFunction(scriptPath) {
-  const lines = fs.readFileSync(scriptPath, 'utf8').split('\n');
-  const start = lines.findIndex((l) => l === 'portable_date_to_epoch() {');
-  assert.ok(start >= 0, 'portable_date_to_epoch not found in ' + scriptPath);
-  let end = -1;
-  for (let i = start + 1; i < lines.length; i += 1) {
-    if (lines[i] === '}') { end = i; break; }
-  }
-  assert.ok(end > start, 'function end not found in ' + scriptPath);
-  return lines.slice(start, end + 1).join('\n');
-}
-
-function callFn(scriptName, value, opts) {
-  const o = opts || {};
-  const cwd = mkTmp('fn');
-  const fn = extractFunction(SCRIPTS[scriptName]);
-  const env = Object.assign({}, process.env);
-  if (o.stubDir) env.PATH = o.stubDir + path.delimiter + process.env.PATH;
-  const r = spawnSync('bash', ['-c', fn + '\nportable_date_to_epoch "$1"', 'bash', value], {
-    cwd, env, encoding: 'utf8', timeout: 60000,
-  });
-  return { stdout: r.stdout, stderr: r.stderr, status: r.status, cwd };
-}
-
-function dateEpoch(str) {
-  const r = spawnSync('date', ['-d', str, '+%s'], { encoding: 'utf8' });
-  assert.equal(r.status, 0, 'date -d failed for ' + JSON.stringify(str));
-  return r.stdout;
-}
-
-function hasPython() {
-  const r = spawnSync('python3', ['--version'], { encoding: 'utf8' });
-  return r.status === 0;
-}
-
 function localDate(offsetDays) {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
@@ -113,64 +81,6 @@ function localDate(offsetDays) {
 }
 
 const NAMES = Object.keys(SCRIPTS);
-
-// ---------------------------------------------------------------------------
-// A. function level, crafted value
-// ---------------------------------------------------------------------------
-for (const name of NAMES) {
-  leg('A. ' + name + ': crafted value gives 0 and creates no marker (function level)', () => {
-    const r = callFn(name, TEAM_PAYLOAD);
-    assert.equal(fs.existsSync(path.join(r.cwd, TEAM_MARKER)), false, 'marker file exists: python3 ran room text');
-    assert.equal(r.stdout, '0\n');
-  });
-}
-
-// ---------------------------------------------------------------------------
-// B. function level, shapes GNU date accepts: epoch equals date -d
-// ---------------------------------------------------------------------------
-const SHAPES = [
-  ['plain date', '2026-01-15'],
-  ['ISO timestamp', '2026-10-01T12:00:00Z'],
-  ['trailing space', '2026-10-01 '],
-  ['CR line ending', '2026-10-01\r'],
-];
-for (const name of NAMES) {
-  for (const [label, value] of SHAPES) {
-    leg('B. ' + name + ': ' + label + ' keeps its date -d epoch (one line)', () => {
-      const want = dateEpoch(value);
-      const r = callFn(name, value);
-      assert.equal(r.stdout, want);
-    });
-  }
-}
-
-// ---------------------------------------------------------------------------
-// C. forced python3 fallback (stub date exits 1)
-// ---------------------------------------------------------------------------
-const stubDir = mkTmp('stub');
-fs.writeFileSync(path.join(stubDir, 'date'), '#!/bin/sh\nexit 1\n', { mode: 0o755 });
-const WANT_0115 = dateEpoch('2026-01-15');
-const WANT_0105 = dateEpoch('2026-01-05');
-for (const name of NAMES) {
-  leg('C. ' + name + ': forced python3: 2026-01-15 keeps its epoch', () => {
-    if (!hasPython()) { console.log('    skip - python3 absent'); return; }
-    assert.equal(callFn(name, '2026-01-15', { stubDir }).stdout, WANT_0115);
-  });
-  leg('C. ' + name + ': forced python3: 2026-1-5 keeps its epoch', () => {
-    if (!hasPython()) { console.log('    skip - python3 absent'); return; }
-    assert.equal(callFn(name, '2026-1-5', { stubDir }).stdout, WANT_0105);
-  });
-  leg('C. ' + name + ': forced python3: ISO timestamp gives 0', () => {
-    if (!hasPython()) { console.log('    skip - python3 absent'); return; }
-    assert.equal(callFn(name, '2026-10-01T12:00:00Z', { stubDir }).stdout, '0\n');
-  });
-  leg('C. ' + name + ': forced python3: crafted value gives 0 and creates no marker', () => {
-    if (!hasPython()) { console.log('    skip - python3 absent'); return; }
-    const r = callFn(name, TEAM_PAYLOAD, { stubDir });
-    assert.equal(fs.existsSync(path.join(r.cwd, TEAM_MARKER)), false, 'marker file exists: python3 ran room text');
-    assert.equal(r.stdout, '0\n');
-  });
-}
 
 // ---------------------------------------------------------------------------
 // D. compute-team whole script
@@ -278,29 +188,19 @@ leg('E. analyze-room: a valid last_updated 30 days ago gives FUND_STALE', () => 
 });
 
 // ---------------------------------------------------------------------------
-// F. source pins (includes(), not a regex)
+// F. source pins (re-pinned by plan 381-09; includes(), not a regex)
 // ---------------------------------------------------------------------------
-const C2_LINE =
-  '    || { [[ "$datestr" =~ ^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$ ]] && python3 -c \'import sys; from datetime import datetime; print(int(datetime.strptime(sys.argv[1], "%Y-%m-%d").timestamp()))\' "$datestr" 2>/dev/null; } \\';
-const DATE_D_LINK = '  date -d "$datestr" +%s 2>/dev/null \\';
-const DATE_J_LINK = '    || date -j -f "%Y-%m-%d" "$datestr" +%s 2>/dev/null \\';
-function countOf(hay, needle) {
-  return hay.split(needle).length - 1;
-}
+const MODES = { 'compute-team': 'team', 'analyze-room': 'analyze' };
 for (const name of NAMES) {
-  leg('F. ' + name + ': source pins for the guarded argv python3 link', () => {
+  leg('F. ' + name + ': no date helper and no python3 link remain; the entry point execs the node renderer', () => {
     const src = fs.readFileSync(SCRIPTS[name], 'utf8');
-    assert.equal(countOf(src, C2_LINE), 1, 'C-2 python3 link line must appear once');
-    assert.equal(countOf(src, 'strptime(sys.argv[1]'), 1, 'strptime(sys.argv[1] must appear once');
-    assert.equal(countOf(src, DATE_D_LINK), 1, 'date -d link must be unchanged');
-    assert.equal(countOf(src, DATE_J_LINK), 1, 'date -j -f link must be unchanged');
-    assert.equal(src.includes("strptime('$datestr'"), false, 'no datestr in python program text');
-    const fn = extractFunction(SCRIPTS[name]);
-    const lines = fn.split('\n');
-    assert.equal(lines[1], '  local datestr="$1"');
-    assert.equal(lines[2], DATE_D_LINK, 'the line after local datestr must be the date -d link');
-    assert.ok(fn.indexOf(C2_LINE) > fn.indexOf(DATE_J_LINK), 'guard must sit after the date -j -f link');
-    assert.ok(fn.includes('    || echo "0"'), 'echo 0 tail must stay');
+    assert.equal(src.includes('portable_date_to_epoch'), false, 'portable_date_to_epoch must be gone');
+    assert.equal(src.includes('python3'), false, 'python3 must be gone');
+    assert.equal(src.includes('strptime'), false, 'strptime must be gone');
+    assert.equal(src.includes('date -d'), false, 'date -d must be gone');
+    assert.equal(src.includes('node -e'), false, 'node -e must be gone');
+    const exec = 'NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" ' + MODES[name] + ' "$@"';
+    assert.equal(src.split('\n').filter((l) => l === exec).length, 1, 'exactly one exec line for ' + name);
   });
 }
 
