@@ -9,11 +9,11 @@
  * budgets are computed from them in code.
  *
  *   S0   the base snapshot is 73369 B and its machinery share is 72.0 percent (L2)                   (required now)
- *   S1   SKILL.md at most 40 percent of the base size, which is 29347 B (D-04)                       KNOWN 369.6-10
- *   S2   loose machinery share at most 15 percent (D-04)                                             KNOWN 369.6-10
+ *   S1   SKILL.md at most 40 percent of the base size, which is 29347 B (D-04)                       (required, 369.6-10 Task 2)
+ *   S2   loose machinery share at most 15 percent (D-04)                                             (required, 369.6-10 Task 2)
  *   S3   the frontmatter is byte-identical to the base frontmatter                                   (required now)
  *   S4   the heading "## The Three Directions of Elevation (Part 12)" is present                     (required now)
- *   S5   the three references exist and are named under "## References" (D-04)                       KNOWN 369.6-10
+ *   S5   the three references exist and are named under "## References" (D-04)                       (required, 369.6-10 Task 2)
  *   S6   the item-5 line is present exactly once and byte-identical to the base                      (required now)
  *   S7   the trigger words for deep research, Eureka, Dominant Design and contradiction are present
  *        outside the References section (the WHEN-to-reach triggers stay inline)                     (required now)
@@ -65,10 +65,8 @@ const BASE_BYTES = Buffer.byteLength(base, 'utf8');
 const SIZE_MAX = Math.floor(0.4 * BASE_BYTES);
 const MACHINERY_MAX = 15;
 
+// 369.6-10 Task 2: S1, S2 and S5 are required now (the operator manual moved to three references; SKILL.md is inside the D-04 budget).
 const KNOWN = {
-  S1: { closes_in: '369.6-10', why: 'the operator manual moves to three references in plan 10' },
-  S2: { closes_in: '369.6-10', why: 'the machinery share is 72.0 percent at the base' },
-  S5: { closes_in: '369.6-10', why: 'the three references are created by plan 10' },
   S8: { closes_in: '369.6-11', why: 'the Provoked cadence is retired by plan 11 (R-18; plan 10 moves it first)' },
 };
 let knownCount = 0;

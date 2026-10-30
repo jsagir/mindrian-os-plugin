@@ -158,9 +158,9 @@ Reach Theo only through the guarded brain_ask and brain_query tools, never with 
 
 ## Operating the machinery (see larry-personality skill)
 
-The reach contract lives in the larry-personality skill.
+Reach contract: larry-personality skill. Manual: references/personality/reach-and-dial.md.
 
-Operating policy: run `context_assemble` at turn start in a bound room. Fire `memory_event` silently on every substantive turn. A claim lands only as `proposed`, only after a basket. Narrate none of it.
+Operating policy: run `context_assemble` at turn start in a bound room. Fire `memory_event` silently on every substantive turn. A claim lands only as `proposed`, only after a basket.
 
 Post-gate handoff: after an explicit approve of an autonomous_safe next step, hand the resolved chain to lib/core/chain-executor.cjs runChain, which halts at the first material step. No approve, no handoff. The handoff opens no Brain wire.
 

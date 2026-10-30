@@ -28,6 +28,11 @@ console.log('test-348-doctrine-present');
 
 assert.ok(fs.existsSync(SKILL_PATH), 'skills/larry-personality/SKILL.md must exist');
 const doc = fs.readFileSync(SKILL_PATH, 'utf8');
+// 369.6-10 (D-04): the supersession doctrine moved line for line to references/personality/memory-and-findings.md. `doc` stays the
+// skill (frontmatter, em-dash and corpus-claim checks, the inline rule); `memDoc` is the new home the doctrine checks read.
+const MEM_PATH = path.join(REPO, 'references', 'personality', 'memory-and-findings.md');
+assert.ok(fs.existsSync(MEM_PATH), 'references/personality/memory-and-findings.md must exist');
+const memDoc = fs.readFileSync(MEM_PATH, 'utf8');
 
 // ---------------------------------------------------------------------------
 // The frontmatter snapshot: byte-unchanged. No layer:, no hitl_shape, no new
@@ -84,36 +89,32 @@ ok('frontmatter carries no layer: key and no hitl_shape key', function () {
 
 const HEADING = '### Superseded is not deleted';
 const PREV = '### When memory is real';
-const NEXT = '### Honest about thin grounding';
+// 369.6-10: in the reference the section that follows Superseded is "## Memory channels and the write policy" (the old neighbour
+// "### Honest about thin grounding" stayed in the skill).
+const NEXT = '## Memory channels and the write policy';
 
-ok('heading "### Superseded is not deleted" exists exactly once', function () {
-  const matches = doc.match(/^### Superseded is not deleted$/gm) || [];
+ok('heading "### Superseded is not deleted" exists exactly once, in memory-and-findings.md and not in the skill', function () {
+  const matches = memDoc.match(/^### Superseded is not deleted$/gm) || [];
   assert.equal(matches.length, 1, 'expected exactly one "### Superseded is not deleted" heading');
+  assert.equal((doc.match(/^### Superseded is not deleted$/gm) || []).length, 0, 'the skill keeps one inline rule, not the section');
 });
 
-ok('placed strictly between "### When memory is real" and "### Honest about thin grounding", by byte offset', function () {
-  const a = doc.indexOf(PREV);
-  const b = doc.indexOf(HEADING);
-  const c = doc.indexOf(NEXT);
+ok('placed strictly between "### When memory is real" and "## Memory channels and the write policy", by byte offset', function () {
+  const a = memDoc.indexOf(PREV);
+  const b = memDoc.indexOf(HEADING);
+  const c = memDoc.indexOf(NEXT);
   assert.ok(a !== -1, PREV + ' must exist');
   assert.ok(b !== -1, HEADING + ' must exist');
   assert.ok(c !== -1, NEXT + ' must exist');
-  assert.ok(a < b && b < c, 'expected offsets in order: When memory is real < Superseded is not deleted < Honest about thin grounding, got ' + a + ' / ' + b + ' / ' + c);
+  assert.ok(a < b && b < c, 'expected offsets in order: When memory is real < Superseded is not deleted < Memory channels, got ' + a + ' / ' + b + ' / ' + c);
 });
 
-ok('nearest preceding "## " heading is "## Honesty about memory"', function () {
-  const b = doc.indexOf(HEADING);
-  const h2re = /^## .+$/gm;
-  let match;
-  let nearest = null;
-  let nearestOffset = -1;
-  while ((match = h2re.exec(doc)) !== null) {
-    if (match.index < b && match.index > nearestOffset) {
-      nearestOffset = match.index;
-      nearest = match[0];
-    }
-  }
-  assert.equal(nearest, '## Honesty about memory', 'nearest preceding ## heading must be "## Honesty about memory", got: ' + nearest);
+ok('the skill keeps "## Honesty about memory" with the inline supersession rule and the pointer to the reference', function () {
+  const h = doc.indexOf('## Honesty about memory');
+  const rule = doc.indexOf('A superseded claim is closed, not deleted');
+  const ptr = doc.indexOf('references/personality/memory-and-findings.md');
+  assert.ok(h !== -1 && rule > h && ptr > h, 'expected the inline rule and the pointer under "## Honesty about memory", got ' + h + ' / ' + rule + ' / ' + ptr);
+  assert.ok(doc.indexOf('### Honest about thin grounding') > h, 'the skill keeps "### Honest about thin grounding" under the same heading');
 });
 
 // ---------------------------------------------------------------------------
@@ -128,7 +129,7 @@ function extractSubsection(fullText, headingLiteral, nextHeadingLiteral) {
   return fullText.slice(start, end);
 }
 
-const subsection = extractSubsection(doc, HEADING, NEXT);
+const subsection = extractSubsection(memDoc, HEADING, NEXT);
 
 ok('subsection contains the actionable tokens: superseded, include_superseded, SUPERSEDES, contradiction_check', function () {
   const tokens = ['superseded', 'include_superseded', 'SUPERSEDES', 'contradiction_check'];
@@ -172,7 +173,7 @@ ok('no line in the file claims a live corpus entry for Zep, Graphiti or bi-tempo
   const negationPhrases = ['no entry', 'carries no', 'does not carry', 'never', 'not to a live', 'not a corpus', 'zero entries', 'not sourced to'];
   const corpusClaimRe = /corpus (carries|has|contains|includes)/i;
 
-  const lines = doc.split('\n');
+  const lines = (doc + '\n' + memDoc).split('\n'); // 369.6-10: the skill and the reference that holds the moved doctrine
   let offending = null;
   for (const line of lines) {
     const hasName = corpusNames.some(function (name) { return line.indexOf(name) !== -1; });
@@ -191,6 +192,7 @@ ok('no line in the file claims a live corpus entry for Zep, Graphiti or bi-tempo
 
 ok('contains zero em-dashes', function () {
   assert.equal(doc.indexOf(String.fromCharCode(8212)), -1, 'skills/larry-personality/SKILL.md must contain zero em-dashes');
+  assert.equal(memDoc.indexOf(String.fromCharCode(8212)), -1, 'references/personality/memory-and-findings.md must contain zero em-dashes');
 });
 
 console.log(n + ' assertions passed');

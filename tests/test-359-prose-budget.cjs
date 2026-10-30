@@ -62,14 +62,16 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-08 Task 2 (D-03), 2026-10-30: was 84d312bd715d...9d27 (Persona-Aware Turn 1, Canonical role mapping, Dual-Path Detection and Why this exists move to references/personality/agent-operations.md; two compact turn-1 rules)
   // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
   // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
-  LARRY_OUTSIDE_GATES: '2b3475665589e4757cf60152e7bee43457ae476c42cd40e458e5a51620485931',
+  // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
+  LARRY_OUTSIDE_GATES: '5389514d2b3b933c4c7535f8fccee7012cd678bbb956fcf1a716496263a5f4cd',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was ebd5ee398705...bb61 (PwS identity paragraph, punctuation line)
   // re-based by 369.6-10 Task 1 (D-04), 2026-10-30: was 5923ccec4d06...dad4 (the reach, dial, Usher and stance manual moves to references/personality/reach-and-dial.md; compact When to Reach triggers section with the context, cross-room and methodology triggers inline)
-  SKILL_OUTSIDE_ITEM5: '8c91b97411cb1270af95895118272aa5c1b53bfa0c3f774d1b93e5fe64104a9d',
+  // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 8c91b97411cb...4a9d (memory, stamps and onboarding move to references/personality/memory-and-findings.md and onboarding.md; inline lines, References list)
+  SKILL_OUTSIDE_ITEM5: '1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',

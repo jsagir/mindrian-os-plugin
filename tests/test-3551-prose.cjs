@@ -52,7 +52,9 @@ const FRAMING_IDS = directionConvention.FRAMING_IDS;
 const FRAMING_PHRASES = directionConvention.FRAMING_PHRASES;
 
 const PROSE_DIR = path.join(REPO, 'tests', 'fixtures', '3551', 'prose');
-const SKILL_PATH = path.join(REPO, 'skills', 'larry-personality', 'SKILL.md');
+// 369.6-10 (D-04): the Cross-connection stamps and Ambient findings sections moved line for line to references/personality/memory-and-findings.md;
+// the checks below read that new home (the variable keeps its name, skillRaw).
+const SKILL_PATH = path.join(REPO, 'references', 'personality', 'memory-and-findings.md');
 const AUTO_EXPLORE_PATH = path.join(REPO, 'commands', 'auto-explore.md');
 
 const PRODUCER_COMMAND_PATHS = [
