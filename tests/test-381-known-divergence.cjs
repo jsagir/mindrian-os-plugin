@@ -53,6 +53,20 @@
  *                                  node:sqlite ExperimentalWarning of the predicate chain off
  *                                  stderr.
  *
+ * Review fix HI-01 (381-REVIEW.md) appends the symlink-target legs:
+ *   symlink-target (team, analyze)  a room file that is a symbolic link to a file outside the
+ *                                  room. OLD wrote through the link and changed the outside file.
+ *                                  A link that stays inside the room is still written at its real
+ *                                  path (the edge room alias.md of the parity gate).
+ *                                  NEW refuses: the outside file stays byte-unchanged, stderr
+ *                                  holds one line "<script>: skipped writing <relative path>: it
+ *                                  is a symbolic link" (relative path only), and the exit code is
+ *                                  0. Cases: team/TEAM-STATE.md as a link (compute-team), a
+ *                                  planted PROFILE.md.tmp link (compute-team: NEW writes through a
+ *                                  unique temp name, so the planted link is never used and no
+ *                                  line is printed), a section .md as a link (analyze-room, the
+ *                                  wikilink sweep). Every scratch room is built under os.tmpdir().
+ *
  * Plain node:assert/strict, zero deps. Every script runs on a fresh cp -a copy under os.tmpdir().
  * Exit 0 pass, 1 fail. A missing precondition prints a SKIP line. Hyphens only.
  */
@@ -285,6 +299,88 @@ function main() {
     assert.ok(n.stdout.includes('# Data Room State'), 'NEW printed the STATE.md text');
     assert.equal(n.stderr, '', 'NEW stderr is empty: ' + JSON.stringify(n.stderr.slice(0, 200)));
     assert.deepEqual(n.cwdFiles, [], 'no file appears in the run cwd');
+  });
+
+  // ---------------------------------------------------------------------------------------------
+  // symlink-target legs (review fix HI-01). OLD wrote through each link; NEW refuses.
+  // ---------------------------------------------------------------------------------------------
+  const symlinksOk = (() => {
+    const probe = oracle.mkTmp('symlink-probe');
+    try {
+      fs.symlinkSync(path.join(probe, 'nowhere'), path.join(probe, 'link'));
+      return true;
+    } catch (_e) {
+      return false;
+    }
+  })();
+  const OUTSIDE_BYTES = '# outside file\n\nThe [[market-analysis]] notes name Person One here.\n';
+  // A scratch room plus an outside directory, both under one os.tmpdir() base.
+  const symlinkRoom = (label) => {
+    const base = oracle.mkTmp('symlink-' + label);
+    const room = path.join(base, 'src-room');
+    const outside = path.join(base, 'outside');
+    fs.mkdirSync(outside, { recursive: true });
+    const put = (rel, text) => {
+      fs.mkdirSync(path.dirname(path.join(room, rel)), { recursive: true });
+      fs.writeFileSync(path.join(room, rel), text);
+    };
+    put('problem-definition/first-problem.md', '---\ntype: decision\nspeaker: Person One\ndate: 2026-01-02\n---\n# The first problem\n\nPerson One wrote this. See [[market-analysis]].\n');
+    put('market-analysis/size.md', '---\ntype: insight\n---\n# Size\n\nSmall.\n');
+    put('team/members/person-one/PROFILE.md', '---\nname: Person One\nprimary_role: founder\nstatus: active\n---\n# Person One\n\n## Contributions\n\n[No contributions found yet]\n\n## Notes\n\nNone.\n');
+    return { base, room, outside };
+  };
+  const plant = (fx, rel, outsideName) => {
+    const target = path.join(fx.outside, outsideName);
+    fs.writeFileSync(target, OUTSIDE_BYTES);
+    fs.symlinkSync(target, path.join(fx.room, rel));
+    return target;
+  };
+  const stderrLines = (r) => r.stderr.split('\n').filter((l) => l !== '');
+
+  leg('symlink-target (team): a TEAM-STATE.md link is not written through; one stderr line; exit 0', () => {
+    if (!symlinksOk) { console.log('    SKIP symlinks unsupported'); return; }
+    const fx = symlinkRoom('team-state');
+    const victim = plant(fx, 'team/TEAM-STATE.md', 'victim.txt');
+    const dst = path.join(fx.base, 'new-room');
+    const n = runOn(ROOT, fx.room, dst, 'compute-team');
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.equal(fs.readFileSync(victim, 'utf8'), OUTSIDE_BYTES, 'the outside file is byte-unchanged');
+    assert.ok(fs.lstatSync(path.join(dst, 'team', 'TEAM-STATE.md')).isSymbolicLink(), 'TEAM-STATE.md is still the link');
+    assert.deepEqual(stderrLines(n), ['compute-team: skipped writing team/TEAM-STATE.md: it is a symbolic link'], 'stderr: ' + JSON.stringify(n.stderr));
+    assert.ok(!n.stderr.includes(fx.base), 'stderr holds no absolute path');
+    const profile = fs.readFileSync(path.join(dst, 'team', 'members', 'person-one', 'PROFILE.md'), 'utf8');
+    assert.ok(profile.includes('| Date | Section | Type | Artifact |'), 'NEW still rewrote the profile after the skip');
+  });
+
+  leg('symlink-target (team): a planted PROFILE.md.tmp link is never used; PROFILE.md stays a regular file', () => {
+    if (!symlinksOk) { console.log('    SKIP symlinks unsupported'); return; }
+    const fx = symlinkRoom('profile-tmp');
+    const victim = plant(fx, 'team/members/person-one/PROFILE.md.tmp', 'victim3.txt');
+    const dst = path.join(fx.base, 'new-room');
+    const n = runOn(ROOT, fx.room, dst, 'compute-team');
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.equal(fs.readFileSync(victim, 'utf8'), OUTSIDE_BYTES, 'the outside file is byte-unchanged');
+    const prof = path.join(dst, 'team', 'members', 'person-one', 'PROFILE.md');
+    assert.ok(fs.lstatSync(prof).isFile(), 'PROFILE.md is a regular file, not a link');
+    assert.ok(fs.readFileSync(prof, 'utf8').includes('| Date | Section | Type | Artifact |'), 'NEW rewrote the profile');
+    assert.deepEqual(stderrLines(n), [], 'stderr: ' + JSON.stringify(n.stderr));
+    const left = fs.readdirSync(path.dirname(prof)).filter((f) => f.startsWith('PROFILE.md.tmp.'));
+    assert.deepEqual(left, [], 'no unique temp file is left behind');
+  });
+
+  leg('symlink-target (analyze): the wikilink sweep does not write through a section .md link; one stderr line; exit 0', () => {
+    if (!symlinksOk) { console.log('    SKIP symlinks unsupported'); return; }
+    const fx = symlinkRoom('sweep');
+    const victim = plant(fx, 'problem-definition/link.md', 'victim4.md');
+    const dst = path.join(fx.base, 'new-room');
+    const n = runOn(ROOT, fx.room, dst, 'analyze-room');
+    assert.equal(n.status, 0, 'NEW exit code');
+    assert.equal(fs.readFileSync(victim, 'utf8'), OUTSIDE_BYTES, 'the outside file is byte-unchanged');
+    assert.ok(fs.lstatSync(path.join(dst, 'problem-definition', 'link.md')).isSymbolicLink(), 'link.md is still the link');
+    assert.deepEqual(stderrLines(n), ['analyze-room: skipped writing problem-definition/link.md: it is a symbolic link'], 'stderr: ' + JSON.stringify(n.stderr));
+    assert.ok(!n.stderr.includes(fx.base), 'stderr holds no absolute path');
+    const own = fs.readFileSync(path.join(dst, 'problem-definition', 'first-problem.md'), 'utf8');
+    assert.ok(own.includes('[[team/members/person-one/PROFILE.md|Person One]]'), 'the regular source file is still swept');
   });
 
   return failures === 0 ? 0 : 1;
