@@ -378,21 +378,26 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}/.mindrian" 
   " 2>/dev/null || echo 0)
 
   # 2. Recompile ROOM.md references for every top-level section in parallel.
-  # Each recompile has its own 400ms timeout; the outer wait caps total at
-  # ~800ms wall-clock even for 20-section rooms. mtime-conflict skips are
-  # expected (recompiler exits 0 with stderr warning in that case).
+  # Each recompile has its own 0.4 s timeout. Quick 261030-8vd: the hook waits
+  # only on the recompile PIDs. The old wait also listed the 1 s watcher job,
+  # so every stop waited the full second. mtime-conflict skips are expected
+  # (recompiler exits 0 with stderr warning in that case).
+  RECOMPILE_PIDS=()
   for SECTION_DIR in "${ROOM_DIR}"/*/; do
     [ -d "$SECTION_DIR" ] || continue
     [ -f "${SECTION_DIR}ROOM.md" ] || continue
     ( timeout 0.4 node "${SCRIPT_DIR}/recompile-room-references.cjs" "${SECTION_DIR%/}" >/dev/null 2>&1 || true ) &
+    RECOMPILE_PIDS+=("$!")
   done
-  # Wait at most ~1s for recompiles to finish, then move on. Background
-  # recompiles that exceed the budget are orphaned -- they finish when they
-  # finish but the hook does not wait on them.
-  ( sleep 1 && kill $(jobs -p) 2>/dev/null || true ) &
-  WAIT_KILL_PID=$!
-  wait $(jobs -p) 2>/dev/null || true
-  kill "$WAIT_KILL_PID" 2>/dev/null || true
+  # The watcher kills recompiles still alive after 1 s. Its output goes to
+  # /dev/null, so its orphaned sleep cannot hold the hook stdout open. Bash 3.2
+  # safe: indexed array, no wait -n; the +set test is safe under set -u.
+  if [ -n "${RECOMPILE_PIDS[0]+set}" ]; then
+    ( sleep 1; kill "${RECOMPILE_PIDS[@]}" 2>/dev/null || true ) >/dev/null 2>&1 &
+    WAIT_KILL_PID=$!
+    wait "${RECOMPILE_PIDS[@]}" 2>/dev/null || true
+    kill "$WAIT_KILL_PID" 2>/dev/null || true
+  fi
 
   # 3-5. Walk sections, readTriple per section, write snapshot + stale JSON.
   # Single Node invocation amortizes cold-start cost. Atomic tmp+rename
