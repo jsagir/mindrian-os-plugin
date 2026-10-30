@@ -42,3 +42,10 @@ Out-of-scope findings. Each one is logged here and not fixed by the plan that fo
 2. lib/memory/debouncer-drain-at-prompt.test.cjs is a baseline red leg that heals under some timings. In the plan 07 suite run it showed as healed (PASSED); in the plan 08 run it matched its recorded failing legs (KNOWN). This moved the aggregator totals from PASSED=124 KNOWN=25 to PASSED=123 KNOWN=26 with no change in code. Owner: plan 369.6-13.
 
 3. tests/test-114-larry-default-activation.sh (AC-114-02 and AC-114-04) stays red here: the live `claude --print` call returns no reply (ENV GAP, same as plans 04 and 07). Not part of tests/run-all-3696.sh. Not run again after the coordinator load instruction.
+
+## 369.6-10 (found 2026-10-30)
+
+1. lib/core/verb-reach-affinity.cjs (comment, line 90) and lib/core/stance-state.cjs (header comment, lines 3 to 15) name skills/larry-personality/SKILL.md as the home of the Capability Dial table, the Reach ids list and the stance doctrine. Plan 10 moved those sections line for line to references/personality/reach-and-dial.md. The comments are not in the plan's files_modified list and the file bound stops any extra path, so they were not edited.
+   - Owner: plan 369.6-13 (baseline review) or a /gsd-quick. The change is two comment edits, no code.
+
+2. The moved text keeps its spaced double hyphen pauses (150 hits in total across SKILL.md and the three references, the same count as the SKILL.md base). Owner: plan 369.6-11 (it rewrites the moved lines in their new home); the findDashes pause count is the check.
