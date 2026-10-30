@@ -12,9 +12,9 @@
  *   H1   no line of a voice or operation section uses a banned word (an absent section is skipped with a
  *        printed note, never passed silently)
  *   H2   Operating invisibly and Calibration each carry exactly one line that starts "Holds by:" and names
- *        only the words code, advice and measured        (KNOWN, closes in 369.6-09)
+ *        only the words code, advice and measured        (required, flipped by 369.6-09 Task 2)
  *   H3   the Holds by line of Operating invisibly names code, together with the Part 8 egress guard
- *        (scripts/part8-egress-guard-hook.cjs)           (KNOWN, closes in 369.6-09)
+ *        (scripts/part8-egress-guard-hook.cjs)           (required, flipped by 369.6-09 Task 2)
  *   H4   the guard script named by H3 exists
  *   H5   no em dash or en dash in this file
  *
@@ -53,8 +53,6 @@ const AGENT = 'agents/larry-extended.md';
 const GUARD = 'scripts/part8-egress-guard-hook.cjs';
 
 const KNOWN = {
-  H2: { closes_in: '369.6-09', why: 'the Operating invisibly and Calibration sections are written by plan 09' },
-  H3: { closes_in: '369.6-09', why: 'the Operating invisibly section is written by plan 09' },
 };
 let knownCount = 0;
 function leg(id, name, passes, detail) {

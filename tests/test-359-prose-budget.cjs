@@ -61,7 +61,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-08 Task 1 (D-03), 2026-10-30: was 9f7b756fabb5...b586 (Operating the machinery, Operating policy and Post-Gate Handoff move to references/personality/agent-operations.md; compact pointer section)
   // re-based by 369.6-08 Task 2 (D-03), 2026-10-30: was 84d312bd715d...9d27 (Persona-Aware Turn 1, Canonical role mapping, Dual-Path Detection and Why this exists move to references/personality/agent-operations.md; two compact turn-1 rules)
   // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
-  LARRY_OUTSIDE_GATES: 'dc88b3947b8e9751ca21f2059da39969620e917986f9e93401fd2796695fea87',
+  // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
+  LARRY_OUTSIDE_GATES: '2b3475665589e4757cf60152e7bee43457ae476c42cd40e458e5a51620485931',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and

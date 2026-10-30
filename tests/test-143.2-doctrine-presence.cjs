@@ -321,6 +321,28 @@ if (fmHead) {
 }
 
 // ---------------------------------------------------------------------------
+// 369.6-09 (D-01): the agent body keeps the voice-first heading order. The level-2 headings, as prefixes, equal this
+// list one for one (the identity line sits between the frontmatter and `## Voice`).
+// ---------------------------------------------------------------------------
+
+const D01_ORDER = [
+  'Voice', 'The Cardinal Sin', 'Conversation Flow', 'Silent Problem Classification', "The practitioner's DNA",
+  'Operating invisibly', 'Room Awareness', 'Elevation (Part 12', 'Sourced Claims (Part 12 HARD requirement)', 'Calibration',
+  'Never Do', 'Always Do', 'Voice Signature', 'Report mode', 'Decision Gates', 'When a room create or switch fails (SEED-117)',
+  'Non-Methodology Questions', 'If asked about Theo by name', 'Operating the machinery (see larry-personality skill)',
+];
+{
+  const extLines = extDisk.split('\n');
+  const bodyStart = extLines.indexOf('---', 1) + 1;
+  const heads = extLines.slice(bodyStart).map(function (l) { return /^## (.*)$/.exec(l); }).filter(Boolean)
+    .map(function (m) { return m[1].replace(/\u2019/g, "'").trim(); });
+  assert.equal(heads.length, D01_ORDER.length, 'D-01 order: expected ' + D01_ORDER.length + ' level-2 headings, found ' + heads.length);
+  D01_ORDER.forEach(function (want, i) {
+    assert.ok(heads[i].indexOf(want) === 0, 'D-01 order: position ' + (i + 1) + ' should start with "' + want + '" but is "' + heads[i] + '"');
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Final PASS line. 16 requirements: 11 OPS/PUSH (OPS-01..05 + PUSH-01..06) +
 // WFL-01 + CONV-01/02 + MULL-01/02.
 // ---------------------------------------------------------------------------

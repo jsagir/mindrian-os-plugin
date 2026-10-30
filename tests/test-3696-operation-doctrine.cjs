@@ -13,9 +13,9 @@
  * skills/larry-personality/mode-engine.md, voice-dna.md, RUNTIME_INSTRUCTIONS (the MCP wire),
  * output-styles/destijl.md, skills/room-proactive/SKILL.md and skills/room-passive/SKILL.md.
  *
- * Legs required now: D1 D2 D4 D5 D6 D9 D-POSTURE D7g D7a (D7a flipped by 369.6-07 Task 2: destijl.md carve-out).
+ * Legs required now: D1 D2 D4 D5 D6 D9 D-POSTURE D7g D7a (D7a flipped by 369.6-07 Task 2: destijl.md carve-out), D13 D14 (369.6-09 Task 1), D3 D8 D10 D11 D12 (369.6-09 Task 2).
  * Legs KNOWN (the gap exists at this commit; the closing plan or the route is printed):
- *   D3 D8 D10 D11 D12 D13 D14 D7b D7c D7d D7e D7f, every D7h entry, RT1 to RT5.
+ *   D7b D7c D7d D7e D7f, every D7h entry, RT1 to RT5.
  * D7h scans for imperative lines that tell Larry to say or name a command or a tool id to the navigator. Every hit at
  * this commit is a frozen entry keyed by the sha256 of its normalised text (file and line are information only, so a
  * line-for-line move does not reopen an entry). A new hit fails.
@@ -67,11 +67,6 @@ function check(name, cond, detail) { if (cond) pass(name); else failLine(name, d
 // The KNOWN table. Every KNOWN leg has closes_in (a plan) or route (a line). The gap behind each one is the O1 gap
 // named in its why.
 const KNOWN = {
-  D3: { closes_in: '369.6-09', why: 'no instruction to read what the room holds before answering a venture question (O1 gap 8)' },
-  D8: { closes_in: '369.6-09', why: 'no "## Operating invisibly" section with the never-say and allowed lists (O1 gap 3)' },
-  D10: { closes_in: '369.6-09', why: 'voice-dna carries no compact operation rule for the MCP prompt path (D-29, D-40)' },
-  D11: { closes_in: '369.6-09', why: 'no failure and refusal rule that keeps error codes, guard names and argument names out of speech' },
-  D12: { closes_in: '369.6-09', why: 'no knowledge-first stance: the room is not the default source of a venture answer (O1 gap 8)' },
   D7b: { closes_in: '369.6-11', why: 'the Thinking Trace runs in Blend and Insight mode without being asked (O1 gap 2, D-36, R-16)' },
   D7c: { closes_in: '369.6-11', why: 'the consult offer names the Brain and asks permission: "Brain has a chain ... Pull it in?" (O1 gap 4, D-38, R-17)' },
   D7d: { closes_in: '369.6-11', why: 'the Provoked mode pitches a command every 3 to 5 turns (O1 gap 5, D-39, R-18)' },

@@ -20,7 +20,7 @@
  *                        not show that the panel selects them.
  *   M3  contract line    the agent body carries the one-next-move contract line, the sentence plan 369.6-09 writes into
  *                        "Operating invisibly": it holds both "same engine call" and "side panel".
- *                        (KNOWN, closes in 369.6-09)
+ *                        (required, flipped by 369.6-09 Task 2)
  *   M4  selection        the panel's own cue-word pick for the fixture's user text (classify of advice.ts, then the first
  *                        command the mod's TERM_COMMANDS holds for that framework) is printed as MATCH or MISMATCH
  *                        against the engine's command. The label is "pending integration". M4 never fails. The panel's
@@ -77,7 +77,6 @@ const { importModModule } = require('./helpers/mod-ts-import-3696.cjs');
 
 const AGENT = 'agents/larry-extended.md';
 const KNOWN = {
-  M3: { closes_in: '369.6-09', why: 'the one-next-move contract line is written into Operating invisibly by plan 09' },
 };
 function leg(id, name, passes, detail) {
   const k = KNOWN[id];
