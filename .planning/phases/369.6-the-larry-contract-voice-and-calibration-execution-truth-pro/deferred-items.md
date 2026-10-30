@@ -49,3 +49,8 @@ Out-of-scope findings. Each one is logged here and not fixed by the plan that fo
    - Owner: plan 369.6-13 (baseline review) or a /gsd-quick. The change is two comment edits, no code.
 
 2. The moved text keeps its spaced double hyphen pauses (150 hits in total across SKILL.md and the three references, the same count as the SKILL.md base). Owner: plan 369.6-11 (it rewrites the moved lines in their new home); the findDashes pause count is the check.
+
+## 369.6-12 (found 2026-10-30)
+
+1. Seven tests that reference the classifier exit 1 on a clean detached checkout of dispatch HEAD d8efac4ee and on this branch with the same failure text, so plan 12 did not cause them: tests/test-127.3-sibling-sweep.sh (registry-resolution pattern outside the chokepoint), tests/test-158-reach-presentation-counter.cjs and tests/test-159-integration-2turn-suppress.cjs (presentation and reject counts are 0, not 3), tests/test-252-guard-census.cjs (unclassified guard files), tests/test-check-render-coverage.cjs, tests/test-meter-gate-reach.cjs and tests/test-render-registry-build.cjs.
+   - Owner: plan 369.6-13 (baseline review), or a /gsd-quick per test family. Not in tests/run-all-3696.sh unless the baseline file names them.
