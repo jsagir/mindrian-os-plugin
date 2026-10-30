@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 'use strict';
+// 261030-a2s win 2: per-user Node compile cache, see lib/core/hook-compile-cache.cjs.
+if (require.main === module) {
+  try { require('../lib/core/hook-compile-cache.cjs').enableHookCompileCache(); } catch (_e) { /* the cache stays off */ }
+}
 
 /**
  * Phase 83-07: Mid-session intent classifier (Tier 2).
