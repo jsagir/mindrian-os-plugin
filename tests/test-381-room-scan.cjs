@@ -12,7 +12,9 @@
  *
  * Legs:
  *   pool       results land at the item index whatever the completion order
- *   fan-out    scanRoom on 200 section files: observed in-flight maximum is between 2 and 32
+ *   fan-out    scanRoom on 200 section files: observed in-flight maximum is between 2 and 32;
+ *              renderState (the shipped compute-state renderer) on 120 sections: at most 32
+ *              (review fix ME-02)
  *   order      random 0-5 ms delays: two runs are deep-equal and every list is byte-ordered
  *   glob       globDirs and globFiles vs the bash globs with [ -d ] and [ -f ]
  *   find       findDepth1 and findByName vs find | sort (start with and without a trailing slash,
@@ -281,6 +283,40 @@ leg('fan-out: 200 section files never exceed 32 operations in flight', async () 
   assert.ok(observed > 1, 'no concurrency observed');
   assert.ok(observed <= scan.FAN_OUT, 'in flight ' + observed + ' exceeds ' + scan.FAN_OUT);
   assert.ok(observed >= 2 && observed <= 32);
+});
+// Review fix ME-02: the fan-out limit holds for the shipped state renderer, not only for scanRoom.
+leg('fan-out (state renderer): renderState on 120 sections never exceeds 32 operations in flight', async () => {
+  const base = sub('fan-state');
+  const room = path.join(base, 'room');
+  for (let s = 0; s < 120; s += 1) {
+    const sec = path.join(room, 'sec-' + String(s).padStart(3, '0'));
+    for (let f = 0; f < 4; f += 1) put(path.join(sec, 'f' + f + '.md'), '# f' + f + '\n');
+    put(path.join(sec, 'ROOM.md'), '# room\n');
+  }
+  const home = path.join(base, 'home');
+  fs.mkdirSync(home, { recursive: true });
+  const saved = { HOME: process.env.HOME, MINDRIAN_ROOMS_HOME: process.env.MINDRIAN_ROOMS_HOME };
+  process.env.HOME = home;
+  process.env.MINDRIAN_ROOMS_HOME = home;
+  const state = require('../lib/core/room-render-state.cjs');
+  resetHook();
+  hook.delay = () => 1;
+  let res;
+  try {
+    res = await state.renderState([room], { now: () => new Date(Date.UTC(2026, 0, 2)) });
+  } finally {
+    Object.keys(saved).forEach((k) => {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    });
+  }
+  const observed = hook.max;
+  console.log('    renderState observed maximum in-flight fs.promises operations: ' + observed + ' (' + hook.calls + ' calls)');
+  resetHook();
+  assert.equal(res.code, 0, 'renderState exit code');
+  assert.ok(res.stdout.includes('# Data Room State'), 'renderState printed the STATE.md text');
+  assert.ok(observed > 1, 'no concurrency observed');
+  assert.ok(observed <= scan.FAN_OUT, 'in flight ' + observed + ' exceeds ' + scan.FAN_OUT);
 });
 leg('order: random delays give deep-equal models and byte-ordered lists', async () => {
   const base = sub('order');
