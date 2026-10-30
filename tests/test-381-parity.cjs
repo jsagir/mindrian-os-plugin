@@ -18,7 +18,9 @@
  *   --determinism      OLD vs OLD only
  *   --new-tree <dir>   NEW runs the scripts of <dir>
  *   --direct           NEW runs node lib/core/room-render.cjs <mode> (SKIP when it is absent)
- *   --legacy-switch    NEW is the HEAD scripts with MINDRIAN_LEGACY_COMPUTE=1
+ *   --legacy-switch    NEW is the HEAD scripts with MINDRIAN_LEGACY_COMPUTE=1; prints
+ *                      "SKIP legacy bodies removed (381-09)" and exits 0 when scripts/compute-team
+ *                      no longer reads MINDRIAN_LEGACY_COMPUTE (plan 381-09 removed the bodies)
  *   --only a[,b]       compute-team | compute-state | analyze-room
  *   --room <path>      an extra source room (repeatable), copied read-only
  *   --fixtures-only    only the repository fixture rooms
@@ -219,6 +221,10 @@ function main() {
 
   if (opts.direct && !fs.existsSync(path.join(newTree, 'lib', 'core', 'room-render.cjs'))) {
     say('SKIP direct: lib/core/room-render.cjs absent');
+    return 0;
+  }
+  if (opts.legacy && !fs.readFileSync(path.join(newTree, 'scripts', 'compute-team'), 'utf8').includes('MINDRIAN_LEGACY_COMPUTE')) {
+    say('SKIP legacy bodies removed (381-09)');
     return 0;
   }
 

@@ -17,9 +17,10 @@
  *                                  as a literal string. This is the same class as the ruling 2
  *                                  injection cases (program text built from data), here with a
  *                                  path instead of a frontmatter value.
- *   macos-python-path (compute-team)  source-level: the wrapper header runs the node renderer
- *                                  before the bash 3.2 python fallback, so macOS gets the Linux
- *                                  bytes instead of the python bytes.
+ *   macos-python-path (compute-team)  source-level: the wrapper runs only the node renderer.
+ *                                  Plan 381-09 removed the bash 3.2 python fallback, so the
+ *                                  wrapper holds no BASH_VERSINFO and no python3, and macOS bash
+ *                                  3.2 gets the Linux bytes instead of the python bytes.
  *
  * Not divergences any more: the python date fallback injection and the node -e section-name
  * injection (python-date-injection, node-e-section-name). After quick 261029-u8x the OLD oracle is
@@ -41,9 +42,9 @@
  * parity cases in the hostile room (tests/test-381-parity.cjs), not legs here.
  *
  * Plan 381-07 appends the compute-state legs:
- *   macos-python-path (compute-state)  source-level plus behaviour: the wrapper exec line comes
- *                                  before "set -euo pipefail" and before the python3 registry
- *                                  heredoc. NEW reads the registry in node, so a host without
+ *   macos-python-path (compute-state)  source-level plus behaviour: the wrapper holds the exec
+ *                                  line and no BASH_VERSINFO and no python3 (plan 381-09 removed
+ *                                  the python3 registry heredoc). NEW reads the registry in node, so a host without
  *                                  python3 now prints the current_room line; OLD printed no
  *                                  current_room line there (the heredoc failed under || true).
  *                                  This is the ruling 2 python-path class.
@@ -153,13 +154,13 @@ function main() {
       (o.stderr ? ', stderr: ' + JSON.stringify(o.stderr.split('\n')[0]) : ''));
   });
 
-  leg('macos-python-path (compute-team): the node exec line precedes the first BASH_VERSINFO line', () => {
-    const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-team'), 'utf8').split('\n');
-    const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" team "$@"'));
-    const versLine = lines.findIndex((l) => l.includes('BASH_VERSINFO'));
-    assert.ok(execLine >= 0, 'the exec line exists');
-    assert.ok(versLine >= 0, 'the BASH_VERSINFO line exists');
-    assert.ok(execLine < versLine, 'exec line ' + (execLine + 1) + ' comes before BASH_VERSINFO line ' + (versLine + 1));
+  leg('macos-python-path (compute-team): the wrapper holds the node exec line and no BASH_VERSINFO and no python3 (381-09)', () => {
+    const text = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-team'), 'utf8');
+    const lines = text.split('\n');
+    const execLines = lines.filter((l) => l.startsWith('NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" team "$@"'));
+    assert.equal(execLines.length, 1, 'exactly one exec line');
+    assert.equal(text.includes('BASH_VERSINFO'), false, 'no BASH_VERSINFO in the wrapper');
+    assert.equal(text.includes('python3'), false, 'no python3 in the wrapper');
   });
 
   // ---------------------------------------------------------------------------------------------
@@ -217,28 +218,25 @@ function main() {
     console.log('    OLD exit ' + olds[0].status + ', CONTRADICT lines: ' + JSON.stringify(contradictLines(olds[0].stdout)));
   });
 
-  leg('macos-python-path (analyze-room): the node exec line precedes the first BASH_VERSINFO line', () => {
-    const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'analyze-room'), 'utf8').split('\n');
-    const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" analyze "$@"'));
-    const versLine = lines.findIndex((l) => l.includes('BASH_VERSINFO'));
-    assert.ok(execLine >= 0, 'the exec line exists');
-    assert.ok(versLine >= 0, 'the BASH_VERSINFO line exists');
-    assert.ok(execLine < versLine, 'exec line ' + (execLine + 1) + ' comes before BASH_VERSINFO line ' + (versLine + 1));
+  leg('macos-python-path (analyze-room): the wrapper holds the node exec line and no BASH_VERSINFO and no python3 (381-09)', () => {
+    const text = fs.readFileSync(path.join(ROOT, 'scripts', 'analyze-room'), 'utf8');
+    const lines = text.split('\n');
+    const execLines = lines.filter((l) => l.startsWith('NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" analyze "$@"'));
+    assert.equal(execLines.length, 1, 'exactly one exec line');
+    assert.equal(text.includes('BASH_VERSINFO'), false, 'no BASH_VERSINFO in the wrapper');
+    assert.equal(text.includes('python3'), false, 'no python3 in the wrapper');
   });
 
   // ---------------------------------------------------------------------------------------------
   // compute-state legs (plan 381-07)
   // ---------------------------------------------------------------------------------------------
-  leg('macos-python-path (compute-state): the exec line precedes set -euo pipefail and the python3 heredoc; NEW needs no python3 for current_room', () => {
-    const lines = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-state'), 'utf8').split('\n');
-    const execLine = lines.findIndex((l) => l.includes('exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" state "$@"'));
-    const setLine = lines.findIndex((l) => l === 'set -euo pipefail');
-    const pyLine = lines.findIndex((l) => l.includes('python3 - <<'));
-    assert.ok(execLine >= 0, 'the exec line exists');
-    assert.ok(setLine >= 0, 'the set -euo pipefail line exists');
-    assert.ok(pyLine >= 0, 'the python3 registry heredoc line exists');
-    assert.ok(execLine < setLine, 'exec line ' + (execLine + 1) + ' comes before set line ' + (setLine + 1));
-    assert.ok(execLine < pyLine, 'exec line ' + (execLine + 1) + ' comes before python3 line ' + (pyLine + 1));
+  leg('macos-python-path (compute-state): the wrapper holds the node exec line and no BASH_VERSINFO and no python3 (381-09); NEW needs no python3 for current_room', () => {
+    const text = fs.readFileSync(path.join(ROOT, 'scripts', 'compute-state'), 'utf8');
+    const lines = text.split('\n');
+    const execLines = lines.filter((l) => l.startsWith('NODE_NO_WARNINGS=1 exec node "${SCRIPT_DIR}/../lib/core/room-render.cjs" state "$@"'));
+    assert.equal(execLines.length, 1, 'exactly one exec line');
+    assert.equal(text.includes('BASH_VERSINFO'), false, 'no BASH_VERSINFO in the wrapper');
+    assert.equal(text.includes('python3'), false, 'no python3 in the wrapper');
 
     // A PATH without python3: a bin dir of symlinks to the tools the scripts use, plus node.
     const bin = oracle.mkTmp('nopy-bin');
