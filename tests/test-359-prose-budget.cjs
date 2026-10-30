@@ -63,8 +63,8 @@ const FROZEN_SHA = Object.freeze({
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
   SKILL_OUTSIDE_ITEM5: 'ebd5ee398705825a07a0589c190f8f3658d6a0c080a8b70d05176c61aef2bb61',
-  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines; any later edit of session-start moves this pin again)
-  SESSION_START_OUTSIDE_DOCTRINE: '932a68acbcdad5b43bff71b9852485d4770645befcfe3ced253cb9a0fd6767e7',
+  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then by quick 261030-c94 for the 3 lines of the Node 22.18.0 preflight floor; any later edit of session-start moves this pin again)
+  SESSION_START_OUTSIDE_DOCTRINE: '89c7c323a5e064c227cc08fdb9563fda80b9951ea3c8970b4595b67eda59af9a',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   MCP_PERSONA: '2f3c40f2ed1ccf01ae28c012d4cfb7d48e852eda445f79644852584335b0588c',
   MCP_THEO: '8f096d7ddf4380c99aa57645ce8101065a89affef58f83b67f7895f6d067851f',
