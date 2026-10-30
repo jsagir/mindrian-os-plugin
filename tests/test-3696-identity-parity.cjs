@@ -69,14 +69,11 @@ function read(rel) { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); }
 function sha(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('hex'); }
 
 // ---- KNOWN table -----------------------------------------------------------------------------------------
+// 369.6-07 Task 1 (2026-10-30): KNOWN moved to required: C1 to C4 (the carriers now carry the PwS sentence) and C9
+// (loadLarryContext concatenates voice-dna.md, so the voice-dna edit makes it pass). C5, C8, C10 close in Task 2.
 const KNOWN = {
-  C1: { closes_in: '369.6-07', why: 'the agent still says the old spelling of PwS' },
-  C2: { closes_in: '369.6-07', why: 'SKILL.md still says the old spelling of PwS' },
-  C3: { closes_in: '369.6-07', why: 'session-start still says the old spelling of PwS' },
-  C4: { closes_in: '369.6-07', why: 'voice-dna still says the old spelling of PwS' },
   C5: { closes_in: '369.6-07', why: 'the served string still says the old spelling of PwS' },
   C8: { closes_in: '369.6-07', why: 'runtime-instructions.cjs does not render from the constant yet' },
-  C9: { closes_in: '369.6-07', why: 'loadLarryContext concatenates voice-dna.md; the voice-dna edit of 369.6-07 Task 1 makes it pass' },
   C10: { closes_in: '369.6-07', why: 'the face tagline still says the old spelling of PwS' },
 };
 

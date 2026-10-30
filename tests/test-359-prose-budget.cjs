@@ -57,14 +57,17 @@ const MCP_BUDGET = 2000;
 const MCP_HOST_CAP = 2048;
 const FROZEN_SHA = Object.freeze({
   // larry-extended.md with the `## Decision Gates` span removed
-  LARRY_OUTSIDE_GATES: '49b2e143e5a233cd387479a1679423959c7c604587ddbbd9672caa76c7c240ad',
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 49b2e143e5a2...c240ad (PwS identity, no spaced double hyphen, optional openers)
+  LARRY_OUTSIDE_GATES: 'f7856dc7e3cdd25a6ec9e9c12b865244ed6dd0628e6c40c4d5131e1f3dfe313c',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
-  SKILL_OUTSIDE_ITEM5: 'ebd5ee398705825a07a0589c190f8f3658d6a0c080a8b70d05176c61aef2bb61',
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was ebd5ee398705...bb61 (PwS identity paragraph, punctuation line)
+  SKILL_OUTSIDE_ITEM5: '5923ccec4d06b58dccf6ae06b48265b3ad9fc75e9c70e308f07ef79a1f75dad4',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
-  SESSION_START_OUTSIDE_DOCTRINE: '5be7b46dc897b0eab227f2e09713b71f5e0b44c44316ff451051148ecaef2670',
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
+  SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   MCP_PERSONA: '2f3c40f2ed1ccf01ae28c012d4cfb7d48e852eda445f79644852584335b0588c',
   MCP_THEO: '8f096d7ddf4380c99aa57645ce8101065a89affef58f83b67f7895f6d067851f',
