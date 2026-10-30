@@ -70,11 +70,8 @@ function sha(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('h
 
 // ---- KNOWN table -----------------------------------------------------------------------------------------
 // 369.6-07 Task 1 (2026-10-30): KNOWN moved to required: C1 to C4 (the carriers now carry the PwS sentence) and C9
-// (loadLarryContext concatenates voice-dna.md, so the voice-dna edit makes it pass). C5, C8, C10 close in Task 2.
+// (loadLarryContext concatenates voice-dna.md, so the voice-dna edit makes it pass). C5, C8 and C10 moved to required in 369.6-07 Task 2 (the wire renders the constant, the face tagline spells PwS).
 const KNOWN = {
-  C5: { closes_in: '369.6-07', why: 'the served string still says the old spelling of PwS' },
-  C8: { closes_in: '369.6-07', why: 'runtime-instructions.cjs does not render from the constant yet' },
-  C10: { closes_in: '369.6-07', why: 'the face tagline still says the old spelling of PwS' },
 };
 
 // C12: lines that name a person at the base, keyed by the sha256 of the exact trimmed line text; the excerpt

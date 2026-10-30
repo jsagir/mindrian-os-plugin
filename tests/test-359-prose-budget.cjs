@@ -69,7 +69,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
-  MCP_PERSONA: '2f3c40f2ed1ccf01ae28c012d4cfb7d48e852eda445f79644852584335b0588c',
+  // re-based by 369.6-07 (D-05), 2026-10-30: was 2f3c40f2ed1c...588c (the persona line spells PwS; the length stays 2000 bytes)
+  MCP_PERSONA: 'd609af7d3f764a49b47d3d170db0af2ddbde72e7ea6965c798c06cc91689dba9',
   MCP_THEO: '8f096d7ddf4380c99aa57645ce8101065a89affef58f83b67f7895f6d067851f',
   MCP_BOUNDARIES: 'b78f40ed0046a6c724a7fe35f7ae13b00925b5d86b4ea5a62822a7384cf78b95',
 });

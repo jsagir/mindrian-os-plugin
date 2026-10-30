@@ -64,7 +64,7 @@
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "87c22d9d9d5149ed5d61dce4d91c07536e98df7262e0c2780b73e245ed495621"
+      "digest": "03e78db7054a09e79f1aa588cd01683697be9d9a698ee2b7c163264cafac4d6a"
     }
   ],
   "fixture_ref": {
