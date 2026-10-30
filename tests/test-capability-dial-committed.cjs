@@ -35,10 +35,13 @@ function gitShowHead(relPath) {
 
 // ---- Committed SKILL.md doctrine (LARRY-01, DRSCH) ----
 const skillCommitted = gitShowHead('skills/larry-personality/SKILL.md');
+// 369.6-10 (D-04): the Capability Dial table and the Reach rules moved line for line to references/personality/reach-and-dial.md.
+// The skill keeps the frontmatter and the inline triggers; the dial doctrine reads from the reference.
+const reachCommitted = gitShowHead('references/personality/reach-and-dial.md');
 
 assert.ok(
-  skillCommitted.indexOf('Capability Dial') !== -1,
-  'LARRY-01: HEAD:skills/larry-personality/SKILL.md must contain "Capability Dial" (RED until the doctrine is committed)'
+  reachCommitted.indexOf('Capability Dial') !== -1,
+  'LARRY-01: HEAD:references/personality/reach-and-dial.md must contain "Capability Dial" (RED until the doctrine is committed)'
 );
 
 // Frontmatter canon_parts declaration (D-04c). Match the four parts in order.
@@ -50,13 +53,13 @@ assert.match(
 
 // DRSCH doctrine: the deep-research 5th reach row + Reach rule 6 are present.
 assert.ok(
-  /deep research/i.test(skillCommitted),
-  'DRSCH: committed SKILL.md must carry the deep-research reach row'
+  /deep research/i.test(reachCommitted),
+  'DRSCH: committed reach-and-dial.md must carry the deep-research reach row'
 );
 assert.match(
-  skillCommitted,
+  reachCommitted,
   /^6\.\s/m,
-  'DRSCH: committed SKILL.md Reach rules must include rule 6 (deep research is plan-gated)'
+  'DRSCH: committed reach-and-dial.md Reach rules must include rule 6 (deep research is plan-gated)'
 );
 
 // ---- Version lockstep (LARRY-02), derived from the source of truth so it never goes stale ----

@@ -41,7 +41,15 @@ function readFile(relPath) {
 // appears in any mustNotContain[] (false-clean-illusion mitigation).
 // ---------------------------------------------------------------------------
 
-const LARRY = 'skills/larry-personality/SKILL.md';
+const LARRY_SKILL = 'skills/larry-personality/SKILL.md';
+// 369.6-10: the larry-personality operator manual moved to three references (D-04). The presence rows below read
+// the skill plus the references it names; every token and every row is kept.
+const LARRY_REFS = [
+  'references/personality/reach-and-dial.md',
+  'references/personality/memory-and-findings.md',
+  'references/personality/onboarding.md',
+];
+const LARRY = 'skills/larry-personality/SKILL.md+refs';
 const PWS = 'skills/pws-methodology/SKILL.md';
 const UI = 'skills/ui-system/SKILL.md';
 const EXT = 'agents/larry-extended.md';
@@ -170,7 +178,15 @@ const PRESENCE = [
 // Cache file reads so each file is read once.
 const fileCache = {};
 function getFile(rel) {
-  if (!(rel in fileCache)) fileCache[rel] = readFile(rel);
+  if (!(rel in fileCache)) {
+    if (rel === LARRY) {
+      fileCache[rel] = [LARRY_SKILL].concat(LARRY_REFS).filter(function (r) {
+        return fs.existsSync(path.join(REPO_ROOT, r));
+      }).map(readFile).join('\n');
+    } else {
+      fileCache[rel] = readFile(rel);
+    }
+  }
   return fileCache[rel];
 }
 
@@ -245,7 +261,7 @@ assert.ok(
 
 const EM_DASH = String.fromCharCode(0x2014); // U+2014 em-dash
 const EN_DASH = String.fromCharCode(0x2013); // U+2013 en-dash
-const EM_DASH_SURFACES = [LARRY, PWS, UI, EXT, CONV, SCAFFOLD, MULL_SKILL];
+const EM_DASH_SURFACES = [LARRY_SKILL, PWS, UI, EXT, CONV, SCAFFOLD, MULL_SKILL];
 
 for (const rel of EM_DASH_SURFACES) {
   const body = getFile(rel);

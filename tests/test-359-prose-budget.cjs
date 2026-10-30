@@ -68,7 +68,8 @@ const FROZEN_SHA = Object.freeze({
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was ebd5ee398705...bb61 (PwS identity paragraph, punctuation line)
-  SKILL_OUTSIDE_ITEM5: '5923ccec4d06b58dccf6ae06b48265b3ad9fc75e9c70e308f07ef79a1f75dad4',
+  // re-based by 369.6-10 Task 1 (D-04), 2026-10-30: was 5923ccec4d06...dad4 (the reach, dial, Usher and stance manual moves to references/personality/reach-and-dial.md; compact When to Reach triggers section with the context, cross-room and methodology triggers inline)
+  SKILL_OUTSIDE_ITEM5: '8c91b97411cb1270af95895118272aa5c1b53bfa0c3f774d1b93e5fe64104a9d',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',

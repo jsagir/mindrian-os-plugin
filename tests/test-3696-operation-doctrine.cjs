@@ -110,6 +110,10 @@ const REF_FILES = fs.readdirSync(path.join(ROOT, 'references', 'personality')).f
 const REFS = {};
 REF_FILES.forEach(function (f) { REFS[f] = bodyOf(readRel('references/personality/' + f)); });
 const DNA = REFS['voice-dna.md'] || '';
+// 369.6-10 (D-04): the skill's operator manual moved line for line to three references. The legs that read the moved doctrine
+// read SKILL_HOME, the skill plus those references, so a move alone closes no KNOWN leg and weakens no leg. Plan 369.6-11
+// rewords the lines in their new home.
+const SKILL_HOME = [SKILL, REFS['reach-and-dial.md'] || '', REFS['memory-and-findings.md'] || '', REFS['onboarding.md'] || ''].join('\n');
 const CLI = [AGENT, SKILL, MODE].concat(REF_FILES.map(function (f) { return REFS[f]; })).join('\n');
 const WIRE = RUNTIME_INSTRUCTIONS;
 const ALL_TEXT = CLI + '\n' + WIRE + '\n' + ROOM_PRO + '\n' + ROOM_PAS;
@@ -141,8 +145,8 @@ leg('D3', 'a room read before a room answer is instructed',
   /before (you )?(answer|answering|reply|replying)[^.\n]*\b(room|venture)\b/i.test(CLI) || /\b(room|venture)\b[^.\n]*before (you )?(answer|answering|reply|replying)/i.test(CLI));
 
 check('D4 research and Eureka reach through the engine, and a material step waits at a gate',
-  /suggest_next|composeWorkflow|command-resolver/.test(CLI) && /Reach rules/.test(SKILL) && /Deep Research Escalation/.test(SKILL) &&
-  /(HALTS|halts) at the (FIRST|first) material/.test(AGENT) && /Decision Gate/.test(SKILL) && /suggest_next/.test(WIRE) && /chain_run pauses material work/.test(WIRE),
+  /suggest_next|composeWorkflow|command-resolver/.test(CLI) && /Reach rules/.test(SKILL_HOME) && /Deep Research Escalation/.test(SKILL_HOME) &&
+  /(HALTS|halts) at the (FIRST|first) material/.test(AGENT) && /Decision Gate/.test(SKILL_HOME) && /suggest_next/.test(WIRE) && /chain_run pauses material work/.test(WIRE),
   'engine ' + /suggest_next|composeWorkflow/.test(CLI));
 
 check('D5 Theo is reached only through the guarded brain tools and never with room content, on the CLI text and on the wire',
@@ -205,13 +209,13 @@ leg('D7a', 'destijl Zone 1 and Zone 4 do not govern Larry\'s conversational turn
 }
 
 leg('D7c', 'no consult offer names the Brain or asks permission for a lookup',
-  !/Brain has a chain/.test(SKILL) && !/Pull it in\?/.test(SKILL));
+  !/Brain has a chain/.test(SKILL_HOME) && !/Pull it in\?/.test(SKILL_HOME));
 
 leg('D7d', 'no every-3-to-5-turns command pitching',
-  !/Every 3-5 turns/i.test(SKILL + AGENT + ROOM_PAS) && !/Mode 2: Provoked/.test(SKILL));
+  !/Every 3-5 turns/i.test(SKILL_HOME + AGENT + ROOM_PAS) && !/Mode 2: Provoked/.test(SKILL_HOME));
 
 leg('D7e', 'the supersession examples speak the insight with no edge type and no tool name',
-  !/SUPERSEDES edge links the two/.test(SKILL) && !/I am running contradiction_check/.test(SKILL));
+  !/SUPERSEDES edge links the two/.test(SKILL_HOME) && !/I am running contradiction_check/.test(SKILL_HOME));
 
 {
   // The room-proactive line cites a standing rule by quoted phrase. It must exist as text somewhere else.
@@ -232,7 +236,7 @@ leg('D7e', 'the supersession examples speak the insight with no edge type and no
     { id: 'verified_header', text: 'Checked: {tier}. The methodology graph links them in {hop words}: {path text}.' },
     { id: 'unverified_header', text: 'Not verified: {reason phrase}.' },
   ]);
-  const skillFlat = norm(SKILL);
+  const skillFlat = norm(SKILL_HOME);
   const missing = STAMP_ALLOWLIST.filter(function (a) { return skillFlat.indexOf(norm(a.text)) === -1; }).map(function (a) { return a.id; });
   check('D7g the verbatim stamp sentences of lib/core/verification-stamp-format.cjs are an allowlisted exception, recorded and present (' + STAMP_ALLOWLIST.length + ' sentences)',
     missing.length === 0 && uncheckedText.length > 10, 'missing ' + missing.join(','));

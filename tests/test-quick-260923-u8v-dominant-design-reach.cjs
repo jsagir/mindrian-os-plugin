@@ -56,7 +56,9 @@ function check(name, fn) {
 // Group A -- SKILL.md doctrine section (read the WORKING TREE file, not HEAD)
 // ---------------------------------------------------------------------------
 
-const SKILL_PATH = path.join(REPO_ROOT, 'skills', 'larry-personality', 'SKILL.md');
+// 369.6-10 (D-04): the Dominant Design section moved line for line to references/personality/reach-and-dial.md, in the same order
+// (after Reach rules, before Operating the components). The trigger line stays in the skill.
+const SKILL_PATH = path.join(REPO_ROOT, 'references', 'personality', 'reach-and-dial.md');
 const HEADING = '### When to reach for Dominant Design (/mos:dominant-designs)';
 const OPERATING_HEADING = '## Operating the components (ICM Layer 1 Routing)';
 const REACH_RULES_HEADING = '### Reach rules';

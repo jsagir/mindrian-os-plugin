@@ -246,7 +246,10 @@ check('Test 5: runChain is the shared loop runner the larry seam hands the gate-
 // ---------------------------------------------------------------------------
 check('Test 6: both larry docs name chain-executor/runChain AND the safe-halt rule is preserved verbatim', () => {
   const extended = fs.readFileSync(path.join(REPO_ROOT, 'agents', 'larry-extended.md'), 'utf8');
-  const skill = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'larry-personality', 'SKILL.md'), 'utf8');
+  // 369.6-10 (D-04): the reach rules (auto-sequence, safe halt, one reach per beat) moved line for line to the reach reference;
+  // the skill text and that reference are read together. No assertion is dropped.
+  const skill = fs.readFileSync(path.join(REPO_ROOT, 'skills', 'larry-personality', 'SKILL.md'), 'utf8') + '\n' +
+    fs.readFileSync(path.join(REPO_ROOT, 'references', 'personality', 'reach-and-dial.md'), 'utf8');
 
   assert.ok(extended.indexOf('chain-executor') !== -1, 'larry-extended.md names chain-executor (the runtime)');
   assert.ok(extended.indexOf('runChain') !== -1, 'larry-extended.md names runChain (the handoff target)');
@@ -256,9 +259,9 @@ check('Test 6: both larry docs name chain-executor/runChain AND the safe-halt ru
   assert.ok(ops.indexOf('runChain') !== -1, 'agent-operations.md names runChain (the handoff target)');
   assert.ok(/HALTS at the first material/.test(ops), 'agent-operations.md keeps the halt at the first material step');
   assert.ok(extended.indexOf('agent-operations.md') !== -1, 'larry-extended.md points to agent-operations.md');
-  assert.ok(skill.indexOf('chain-executor') !== -1, 'SKILL.md names chain-executor (the runtime)');
-  assert.ok(skill.indexOf('runChain') !== -1, 'SKILL.md names runChain (the handoff target)');
-  assert.ok(skill.indexOf('auto-sequence') !== -1, 'SKILL.md documents the auto-sequence branch');
+  assert.ok(skill.indexOf('chain-executor') !== -1, 'SKILL.md or reach-and-dial.md names chain-executor (the runtime)');
+  assert.ok(skill.indexOf('runChain') !== -1, 'SKILL.md or reach-and-dial.md names runChain (the handoff target)');
+  assert.ok(skill.indexOf('auto-sequence') !== -1, 'SKILL.md or reach-and-dial.md documents the auto-sequence branch');
 
   // The safe-halt rule preserved VERBATIM (byte-intact governing rule, D-166-05).
   assert.ok(skill.indexOf('ends in a Decision Gate, not a verdict') !== -1,

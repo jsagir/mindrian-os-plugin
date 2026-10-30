@@ -33,7 +33,9 @@ function gitShowHead(relPath) {
   }
 }
 
-const src = gitShowHead('skills/larry-personality/SKILL.md');
+// 369.6-10 (D-04): the Capability Dial section and its machine-readable reach ids block moved line for line to
+// references/personality/reach-and-dial.md. The exactly-6 assertion reads the committed text in its new home.
+const src = gitShowHead('references/personality/reach-and-dial.md');
 
 // Restrict the search to the Capability Dial section so posture ids (a different
 // snake_case family in the Hierarchical Navigator section) do not pollute the set.

@@ -233,6 +233,10 @@ function loadSources() {
   return SOURCES;
 }
 
+// 369.6-10 (D-04): the skill and the three references its operator manual moved to.
+const MOVED_HOME = Object.freeze(['skills/larry-personality/SKILL.md', 'references/personality/reach-and-dial.md',
+  'references/personality/memory-and-findings.md', 'references/personality/onboarding.md']);
+
 const NORM = function (s) { return String(s).replace(/\u2019/g, "'").toLowerCase().trim(); };
 
 function headingMatches(list, wanted) {
@@ -319,7 +323,15 @@ function resolveReference(hit, sources) {
       let list;
       if (hit.target === 'agent') list = S.headings['agents/larry-extended.md'];
       else if (hit.target === 'skill') list = S.headings['skills/larry-personality/SKILL.md'];
-      else if (hit.target === 'self') list = S.headings[hit.file] || [];
+      else if (hit.target === 'self') {
+        // 369.6-10 (D-04): the skill's operator manual moved line for line into three references, so an "above" or "below" cite
+        // between those moved sections can cross a file. A cite made inside the skill or one of the three references resolves in
+        // any of the four; every other file still resolves in itself only.
+        list = S.headings[hit.file] || [];
+        if (MOVED_HOME.indexOf(hit.file) !== -1) {
+          list = MOVED_HOME.reduce(function (acc, k) { return acc.concat(S.headings[k] || []); }, []);
+        }
+      }
       else list = Object.keys(S.headings).reduce(function (acc, k) { return acc.concat(S.headings[k]); }, []);
       return headingMatches(list, t) ? { ok: true, reason: 'heading found' } : { ok: false, reason: 'no heading starts with "' + t + '" (' + (hit.target || 'any') + ')' };
     }

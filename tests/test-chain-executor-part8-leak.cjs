@@ -53,6 +53,8 @@ const SURFACES = [
   'agents/larry-extended.md',
   // 369.6-08 (D-03): the operating procedures moved here from the agent body; same scan, nothing leaves it.
   'references/personality/agent-operations.md',
+  // 369.6-10 (D-04): the skill's reach and dial manual moved here line for line; same scan, nothing leaves it.
+  'references/personality/reach-and-dial.md',
   'skills/larry-personality/SKILL.md',
 ];
 
@@ -91,7 +93,7 @@ const BRAIN_CLIENT = /brain-client|brainClient|brain_client/;
 // tool CALL or a brain-write helper in the doc body is the breach). Prose like
 // "Brain push" / "Brain consult" is allowed (it is the OFFER, not the call).
 const LARRY_BRAIN_FETCH = /mcp__brain_[a-z]+\(|fetch[\s]*\(|writeBrain|sendToBrain|ingestToBrain/;
-const LARRY_SURFACES = new Set(['agents/larry-extended.md', 'references/personality/agent-operations.md', 'skills/larry-personality/SKILL.md']);
+const LARRY_SURFACES = new Set(['agents/larry-extended.md', 'references/personality/agent-operations.md', 'references/personality/reach-and-dial.md', 'skills/larry-personality/SKILL.md']);
 
 // Strip comment lines so a doc-comment naming a forbidden token cannot
 // self-invalidate the count. For .cjs we strip //, *, /* leading lines; for .md
