@@ -904,6 +904,16 @@ running, so the NEXT real call benefits from it regardless.
 export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
 ```
 
+## Room Summary Renderers (Phase 381, room-local, zero egress)
+
+The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room files itself, inside that one process, and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path, and after plan 381-09 the node renderer is the only path. Nothing here reaches the network or the Brain (Canon Part 8).
+
+### MINDRIAN_LEGACY_COMPUTE (retired)
+
+**What:** Retired. This variable no longer has any effect. Plan 381-09 removed the old bash bodies of `scripts/compute-team`, `scripts/analyze-room` and `scripts/compute-state` after the recorded zero-diff run (old and new output byte for byte the same on every gate room and on a copy of a real room). Each script is now a short bash entry point that starts the node renderer.
+**Default:** none. Setting it changes nothing.
+**What you need instead:** Node.js 22.18.0 or later on the PATH. Without `node` on the PATH, each script prints one clear line on stderr (for example `compute-state: node is not on PATH; this step needs Node.js 22.18.0 or later`) and exits 1. An older node prints `<mode>: needs Node.js 22.18.0 or later (found v<version>)` and exits 1. The old code stays in git history.
+
 ## Usage in settings.json
 
 These can be documented in settings.json for team awareness:

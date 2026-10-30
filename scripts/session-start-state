@@ -113,6 +113,13 @@ do_analyze() {
     reason="missing-or-empty"
   elif [ "${SCRIPT_DIR}/analyze-room" -nt "$cache" ]; then
     reason="script"
+  # Phase 381 PERF381-06: analyze logic lives in lib/core; room-render.cjs, room-render-analyze.cjs or room-scan.cjs newer than the cache is a miss.
+  elif [ -f "${SCRIPT_DIR}/../lib/core/room-render.cjs" ] && [ "${SCRIPT_DIR}/../lib/core/room-render.cjs" -nt "$cache" ]; then
+    reason="renderer"
+  elif [ -f "${SCRIPT_DIR}/../lib/core/room-render-analyze.cjs" ] && [ "${SCRIPT_DIR}/../lib/core/room-render-analyze.cjs" -nt "$cache" ]; then
+    reason="renderer"
+  elif [ -f "${SCRIPT_DIR}/../lib/core/room-scan.cjs" ] && [ "${SCRIPT_DIR}/../lib/core/room-scan.cjs" -nt "$cache" ]; then
+    reason="renderer"
   elif [ "${ROOM_DIR}/STATE.md" -nt "$cache" ]; then
     reason="state"
   elif [ -n "$(find "$cache" -mmin +1440 -print -quit 2>/dev/null || true)" ]; then
