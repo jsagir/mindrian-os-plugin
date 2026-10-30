@@ -35,7 +35,7 @@ find_port() {
   local port="$1"
   local max="$2"
   while [ "$port" -le "$max" ]; do
-    if python3 -c "import socket; s=socket.socket(); s.bind(('',${port})); s.close()" 2>/dev/null; then
+    if python3 -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',${port})); s.close()" 2>/dev/null; then
       echo "$port"
       return 0
     fi
@@ -62,7 +62,8 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-python3 -m http.server "$PORT" --directory "$DASHBOARD_DIR" &>/dev/null &
+# Loopback only (quick 261030-et9, T6-03): without --bind, http.server listens on every network address.
+python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$DASHBOARD_DIR" &>/dev/null &
 SERVER_PID=$!
 
 # Brief pause to let server start
