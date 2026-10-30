@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 369.6-10-PLAN.md (full suite WAITING_FOR_RELEASE)
+stopped_at: Completed 369.6-11-PLAN.md (combined full suite for 09 to 11 pending); origin/main merged (beta.77, Phase 381); plan 12 next
 last_updated: "2026-10-30T08:36:51.145Z"
 last_activity: "2026-10-29 -- Completed quick task 261029-sof: scripts/session-start resolves its three temp paths under TMPDIR (369.6 isolation gap 2); wave 3 of 369.6 next"
 progress:
@@ -9389,12 +9389,13 @@ Progress: [██████████] 98%
 | 261029-qef | Hook timeouts in seconds with measured budgets and the Part 8 guard fail-closed (perf change B); 45 timeout lines converted, post-compact budget 120 s by orchestrator ruling; event medians unchanged within noise (Stop 5,351 to 5,952 ms) | 2026-10-29 | 93b3cdb78 | complete | [261029-qef-hook-timeouts-in-seconds-with-measured-b](./quick/261029-qef-hook-timeouts-in-seconds-with-measured-b/) |
 | 261029-s9x | Telemetry room-walk cache (perf change D): the Read/Grep/Glob telemetry hook exits before the walk on a zero-token result and otherwise uses a 10-minute room-local token estimate with a bounded async walk; Read event wall 373 ms to 36 ms, hook alone 399 ms to 28 ms (paired, load 1.0) | 2026-10-29 | 3cdf09add | complete | [261029-s9x-cache-the-telemetry-room-walk-so-read-gr](./quick/261029-s9x-cache-the-telemetry-room-walk-so-read-gr/) |
 | 261029-sc6 | B follow-ups: tri-polar hooks.json pin re-based (non-Stop leg a13ab61f1, timeout and onFailure ignored; test 8/1 to 24/0), 369 hook cold-start fixture regenerated to second budgets (0 breaches), 355.1 known signature 64/4 | 2026-10-29 | 25a7617bd | complete | [261029-sc6-b-follow-ups-re-base-test-3551-tri-polar](./quick/261029-sc6-b-follow-ups-re-base-test-3551-tri-polar/) |
+| 261029-u8x | Injection hotfix: a room file could run code through a date field or a folder name in compute-team and analyze-room; the python date fallback now guards its shape and takes the value as an argument, and the four analyze-room edge sites pass section and target as data after a separator; every input that gave an epoch before gives the same one (6 date shapes incl. ISO and CR, zero diff); runner Phase 363.1 PASS=10 to 12; not live until a release carries it | 2026-10-29 | d93706f69 | complete | [261029-u8x-injection-hotfix-stop-the-python-date-fa](./quick/261029-u8x-injection-hotfix-stop-the-python-date-fa/) |
 
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-10-30T08:36:46.043Z
-Stopped at: Completed 369.6-10-PLAN.md (full suite WAITING_FOR_RELEASE)
+Stopped at: Completed 369.6-11-PLAN.md (combined full suite for 09 to 11 pending); origin/main merged (beta.77, Phase 381); plan 12 next
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

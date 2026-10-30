@@ -17,8 +17,18 @@
  *   B. real content still climbs the stage ladder (Investment) and a section
  *      dir with a space in its name travels as quoted argv;
  *   C. timing: 14 sections finish well inside state-ops' 10s timeout;
- *   D. source pins: bash 3.2 safe, predicate CLI spawned at most twice, and
- *      never inside a per-file loop.
+ *   D. source pins, re-pinned by Phase 381 plan 381-09 (the bash body with
+ *      the predicate CLI lines was removed after the recorded zero-diff run;
+ *      the work runs in lib/core/room-render-state.cjs):
+ *      D1. scripts/compute-state stays bash 3.2 safe (no declare -A, mapfile
+ *          or readarray);
+ *      D2. lib/core/room-render-state.cjs requires scaffold-predicate.cjs
+ *          exactly once and calls listContentFiles; its code holds neither
+ *          --count-content nor --list-content (no predicate CLI spawn);
+ *      D3. no spawn call in lib/core/room-render-state.cjs names
+ *          scaffold-predicate (never per section or per file);
+ *      D4. lib/core/room-render-state.cjs keeps the degrade string
+ *          (T-363.1-17).
  *
  * Plain node:assert/strict, zero deps, mkdtemp only. Exit 0 pass, 1 fail.
  * Hyphens only (no em-dash or en-dash).
@@ -249,42 +259,60 @@ leg('C: 14 sections finish under 8000 ms (T-363.1-15)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Source pins.
+// Source pins (re-pinned by plan 381-09: the bash body of scripts/compute-state
+// with the predicate CLI lines was removed after the recorded zero-diff run, so
+// the pins now read lib/core/room-render-state.cjs, where the work runs).
 // ---------------------------------------------------------------------------
 const src = fs.readFileSync(SCRIPT, 'utf8');
+const RENDER_STATE = path.join(ROOT, 'lib', 'core', 'room-render-state.cjs');
+const renderSrc = fs.readFileSync(RENDER_STATE, 'utf8');
+// Code only: block comments and whole-line // comments are dropped, so prose
+// that names the old CLI flags does not count as a call site.
+const renderCode = renderSrc
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .split('\n')
+  .filter((l) => !/^\s*\/\//.test(l))
+  .join('\n');
+function countOf(hay, needle) {
+  return hay.split(needle).length - 1;
+}
 
-leg('D: bash 3.2 safe (no declare -A, no mapfile)', () => {
+leg('D1: scripts/compute-state is bash 3.2 safe (no declare -A, no mapfile, no readarray)', () => {
   assert.ok(!/declare -A/.test(src));
   assert.ok(!/\bmapfile\b|\breadarray\b/.test(src));
 });
 
-leg('D: the predicate CLI is spawned exactly once for counts and once for the list', () => {
-  const count = src.split('\n').filter((l) => /scaffold-predicate\.cjs" --count-content/.test(l));
-  const list = src.split('\n').filter((l) => /scaffold-predicate\.cjs" --list-content/.test(l));
-  assert.equal(count.length, 1, 'count spawns');
-  assert.equal(list.length, 1, 'list spawns');
-  assert.ok((src.match(/scaffold-predicate\.cjs/g) || []).length <= 5);
+leg('D2: room-render-state.cjs requires the predicate once, calls listContentFiles, spawns no predicate CLI', () => {
+  assert.equal(countOf(renderCode, "require('./scaffold-predicate.cjs')"), 1, 'scaffold-predicate.cjs require count in room-render-state.cjs');
+  assert.ok(countOf(renderCode, 'listContentFiles(') >= 1, 'listContentFiles call missing in room-render-state.cjs');
+  assert.equal(countOf(renderCode, '--count-content'), 0, '--count-content in room-render-state.cjs code');
+  assert.equal(countOf(renderCode, '--list-content'), 0, '--list-content in room-render-state.cjs code');
 });
 
-leg('D: neither predicate spawn sits inside a for/while over sections or files', () => {
-  const lines = src.split('\n');
-  for (const pat of [/--count-content/, /--list-content/]) {
-    const idx = lines.findIndex((l) => pat.test(l) && /node /.test(l));
-    assert.ok(idx > 0, 'spawn line present for ' + pat);
-    // Walk back to the previous blank line; a loop opener directly above the
-    // spawn in the same block would show as `for ...; do` / `while ... do`.
+leg('D3: no spawn call in room-render-state.cjs names scaffold-predicate', () => {
+  // The require is the only code reference to the predicate module.
+  assert.equal(countOf(renderCode, 'scaffold-predicate'), 1, 'scaffold-predicate code references');
+  const re = /\b(spawnSync|spawn|execFileSync|execFile|execSync|exec|fork)\s*\(/g;
+  let m;
+  let calls = 0;
+  while ((m = re.exec(renderCode)) !== null) {
+    calls += 1;
+    // Take the argument text up to the matching close parenthesis.
     let depth = 0;
-    for (let i = 0; i < idx; i += 1) {
-      const t = lines[i].trim();
-      if (/^(for|while|until)\b.*;\s*do$/.test(t)) depth += 1;
-      if (/^done\b/.test(t)) depth -= 1;
+    let end = renderCode.length;
+    for (let i = m.index + m[0].length - 1; i < renderCode.length; i += 1) {
+      const ch = renderCode[i];
+      if (ch === '(') depth += 1;
+      else if (ch === ')') { depth -= 1; if (depth === 0) { end = i; break; } }
     }
-    assert.equal(depth, 0, 'spawn for ' + pat + ' is inside a loop');
+    const args = renderCode.slice(m.index, end + 1);
+    assert.ok(!args.includes('scaffold-predicate'), m[1] + ' call names scaffold-predicate: ' + args.slice(0, 120));
   }
+  assert.ok(calls >= 1, 'the spawn scan found no call at all (scan broken?)');
 });
 
-leg('D: fallback path names the degrade on stderr (T-363.1-17)', () => {
-  assert.ok(src.includes('compute-state: scaffold predicate unavailable; entry counts include scaffold files'));
+leg('D4: room-render-state.cjs names the degrade on stderr (T-363.1-17)', () => {
+  assert.ok(renderSrc.includes('compute-state: scaffold predicate unavailable; entry counts include scaffold files'));
 });
 
 for (const d of tmpRoots) {

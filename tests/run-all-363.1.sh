@@ -36,6 +36,9 @@
 # vault-section-minto-generator tests, whose failure is the second-resolution
 # last_generated_at race): accepted either way, printed as FLAKY.
 #
+# HOTFIX LEGS (quick 261029-u8x): two named tests outside the glob prove that
+# room dates and folder names never reach python3 or node as program text.
+#
 # Bash 3.2 compatible: no associative arrays, no mapfile. Hyphens only.
 
 set -uo pipefail
@@ -94,6 +97,10 @@ fi
 echo "discovered $found test file(s)"
 echo ""
 
+# Quick 261029-u8x hotfix legs (names do not match the glob above).
+run "test-compute-team-date-guard.cjs" node tests/test-compute-team-date-guard.cjs
+run "test-analyze-room-edge-argv.cjs" node tests/test-analyze-room-edge-argv.cjs
+
 # ---------------------------------------------------------------------------
 # PART 8 SOURCE SWEEP (the run-all-270 forbidden-token regex)
 # ---------------------------------------------------------------------------
@@ -146,6 +153,10 @@ DASH_TARGETS=(
   "agents/research.md"
   "agents/opportunity-scanner.md"
   "tests/run-all-363.1.sh"
+  "tests/test-compute-team-date-guard.cjs"
+  "tests/test-analyze-room-edge-argv.cjs"
+  "scripts/compute-team"
+  "scripts/analyze-room"
 )
 for t in "${DISCOVERED_TEST_FILES[@]}"; do
   DASH_TARGETS+=("$t")

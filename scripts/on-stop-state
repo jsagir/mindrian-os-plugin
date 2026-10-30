@@ -18,7 +18,9 @@ SCRIPT_DIR="${2:-}"
 #   skip     nothing in the room changed since STATE.md was written (C-1)
 #   detached something changed: a detached child runs compute-state plus
 #            state-write.cjs under .mindrian/state-recompute.lock, and the
-#            hook returns without waiting (C-2)
+#            hook returns without waiting (C-2). A failed compute keeps a
+#            non-empty STATE.md and logs reason=compute-failed (review
+#            fix HI-02, Phase 381).
 #   locked   a live rebuild already holds the lock, so start nothing
 #   sync     STATE.md is missing or empty (DD-1), or the room has no
 #            .mindrian/ directory for the lock (DD-2): the legacy
@@ -116,9 +118,18 @@ fi
 }
 trap kqv_release EXIT
 [ -d "$1" ] || exit 0
-state_content=$("$2/compute-state" "$1" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
+kqv_ok=1
+state_content=$("$2/compute-state" "$1" 2>/dev/null) || kqv_ok=0
+[ -n "$state_content" ] || kqv_ok=0
+if [ "$kqv_ok" = "1" ]; then
 printf "%s\n" "$state_content" | node "$2/state-write.cjs" "$1" || true
 { printf "%s on-stop-state-bg done elapsed_s=%s\n" "$(date -u +%FT%TZ)" "$SECONDS" >> "$1/.mindrian/session-close.log"; } 2>/dev/null || true
+else
+if [ ! -s "$1/STATE.md" ]; then
+printf "%s\n" '# Data Room State\n\nError computing state.' | node "$2/state-write.cjs" "$1" || true
+fi
+{ printf "%s on-stop-state-bg failed reason=compute-failed elapsed_s=%s\n" "$(date -u +%FT%TZ)" "$SECONDS" >> "$1/.mindrian/session-close.log"; } 2>/dev/null || true
+fi
 KQV_CHILD
   # Fully detached: own session when setsid exists (nohup otherwise), no
   # std stream shared with the hook, and out of the job table so the
@@ -131,15 +142,31 @@ KQV_CHILD
   disown "$!" 2>/dev/null || true
   STATE_MODE="detached"
 elif [ "$STATE_MODE" = "sync" ]; then
-  # Legacy synchronous rebuild, unchanged from before quick 261029-kqv.
-  state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null || echo "# Data Room State\n\nError computing state.")
+  # Legacy synchronous rebuild (quick 261029-kqv), with the review fix HI-02 below.
+  STATE_OK=1
+  state_content=$("${SCRIPT_DIR}/compute-state" "$ROOM_DIR" 2>/dev/null) || STATE_OK=0
+  [ -n "$state_content" ] || STATE_OK=0
+  # Review fix HI-02 (Phase 381): compute-state exits 1 when node is missing or
+  # below its floor. A failed compute never replaces a non-empty STATE.md (the
+  # no-mindrian-dir case of this path); the error text is written only when
+  # STATE.md is missing or empty. The log line gets reason=compute-failed.
+  if [ "$STATE_OK" = "0" ]; then
+    STATE_REASON="${STATE_REASON} reason=compute-failed"
+    if [ -s "$STATE_FILE" ]; then
+      state_content=""
+    else
+      state_content='# Data Room State\n\nError computing state.'
+    fi
+  fi
   # Phase 240.1 Plan 03 (CTXL-01): route the persist through
   # scripts/state-write.cjs (which calls lib/core/state-version.cjs::persistState)
   # instead of a bare redirect, so the gsd_state_version/status stamp survives
   # regeneration at this hook-driven write site too. Never blocking: the
   # bridge always exits 0 and the advisory stderr line is intentionally left
   # un-redirected (not sent to /dev/null) so it stays visible.
-  printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" || true
+  if [ -n "$state_content" ]; then
+    printf '%s\n' "$state_content" | node "${SCRIPT_DIR}/state-write.cjs" "$ROOM_DIR" || true
+  fi
 fi
 
 # DD-5: one log line per run says which mode ran and why. Stdout stays

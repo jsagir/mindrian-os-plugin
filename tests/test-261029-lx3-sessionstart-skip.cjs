@@ -215,6 +215,17 @@ function writeGeneratedFiles(fx) {
   }
 }
 
+// Phase 381 PERF381-06: a warm cache, then lib/core/room-render-analyze.cjs beside the fake
+// scripts dir with an mtime of now minus 10 s (newer than the cache).
+function renderModuleNewer(fx) {
+  writeWarmCache(fx);
+  const core = path.join(fx.tmp, 'lib', 'core');
+  fs.mkdirSync(core, { recursive: true });
+  const mod = path.join(core, 'room-render-analyze.cjs');
+  fs.writeFileSync(mod, "'use strict';\n");
+  setMtime(mod, Date.now() - 10 * 1000);
+}
+
 // Plant a warm cache. Room files are 1 h old, the cache is 30 s old.
 function writeWarmCache(fx, body) {
   backdateRoom(fx);
@@ -513,6 +524,7 @@ async function main() {
       writeWarmCache(fx);
       setMtime(path.join(fx.fake, 'analyze-room'), Date.now() - 10 * 1000);
     }],
+    ['a renderer module newer than the cache (Phase 381, PERF381-06)', (fx) => renderModuleNewer(fx)],
   ];
   for (const [label, prep] of a3) {
     await checkAsync('A3 miss: ' + label + ' runs analyze-room (DD-4)', async () => {
@@ -525,6 +537,21 @@ async function main() {
       } finally { rmTree(fx.tmp); }
     });
   }
+
+  // Phase 381 PERF381-06 (Pitfall 8): the analyze logic lives in lib/core, so a renderer module
+  // newer than the cache is a miss with its own reason. The fixture scripts dir is
+  // fx.tmp/fake-scripts, so "${SCRIPT_DIR}/../lib/core/" is fx.tmp/lib/core/. A1 stays the guard
+  // that a fixture without ../lib still hits.
+  await checkAsync('A3 reason: a renderer module newer than the cache logs reason=renderer (Phase 381, PERF381-06)', async () => {
+    const fx = mkHelperFx();
+    try {
+      renderModuleNewer(fx);
+      runHelper(fx, 'analyze');
+      assert.strictEqual(countLines(fx.markerAr), 1, 'analyze-room did not run');
+      assert.ok(logText(fx).includes('analyze mode=miss reason=renderer'),
+        'log has no "analyze mode=miss reason=renderer": ' + logText(fx));
+    } finally { rmTree(fx.tmp); }
+  });
 
   await checkAsync('A4 no poison: a non-zero exit keeps the old cache byte-identical (C-2, DD-6)', async () => {
     const fx = mkHelperFx();

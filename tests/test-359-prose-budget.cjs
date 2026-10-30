@@ -75,7 +75,8 @@ const FROZEN_SHA = Object.freeze({
   SKILL_OUTSIDE_ITEM5: '5c5ba25e497027ada0a41c5613ba75614ddcbe661b0d0df3a09495fd321774e3',
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
-  SESSION_START_OUTSIDE_DOCTRINE: '9effc76ca95f68ac805dbf6b1e6c57d6577ebbc689c02f32fa84840f2d61ee5f',
+  // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30
+  SESSION_START_OUTSIDE_DOCTRINE: 'd4ea34b38889b7dc26e603f648a9b6f4d68278dc94b7342fde66dadce9cc93ed',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   // re-based by 369.6-07 (D-05), 2026-10-30: was 2f3c40f2ed1c...588c (the persona line spells PwS; the length stays 2000 bytes)
   MCP_PERSONA: 'd609af7d3f764a49b47d3d170db0af2ddbde72e7ea6965c798c06cc91689dba9',
