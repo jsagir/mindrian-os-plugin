@@ -906,7 +906,7 @@ export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
 
 ## Room Summary Renderers (Phase 381, room-local, zero egress)
 
-The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room once and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path, and after plan 381-09 the node renderer is the only path. Nothing here reaches the network or the Brain (Canon Part 8).
+The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room files itself, inside that one process, and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path, and after plan 381-09 the node renderer is the only path. Nothing here reaches the network or the Brain (Canon Part 8).
 
 ### MINDRIAN_LEGACY_COMPUTE (retired)
 
