@@ -906,18 +906,13 @@ export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
 
 ## Room Summary Renderers (Phase 381, room-local, zero egress)
 
-The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room once and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path. Nothing here reaches the network or the Brain (Canon Part 8).
+The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room once and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path, and after plan 381-09 the node renderer is the only path. Nothing here reaches the network or the Brain (Canon Part 8).
 
-### MINDRIAN_LEGACY_COMPUTE
+### MINDRIAN_LEGACY_COMPUTE (retired)
 
-**What:** Set it to `1` to run the old bash body of the room summary scripts instead of the node renderer. The bash body also runs when `node` is not on the PATH or when `lib/core/room-render.cjs` is missing.
-**Default:** unset (the node renderer runs).
-**Read:** by the bash wrapper header at the top of each script, on every run.
-**Why:** The switch is transitional. It keeps the old path one variable away while the parity gate (old and new output byte for byte the same) is recorded. Plan 381-09 removes it, together with the bash bodies, after the recorded zero-diff run.
-
-```bash
-export MINDRIAN_LEGACY_COMPUTE=1
-```
+**What:** Retired. This variable no longer has any effect. Plan 381-09 removed the old bash bodies of `scripts/compute-team`, `scripts/analyze-room` and `scripts/compute-state` after the recorded zero-diff run (old and new output byte for byte the same on every gate room and on a copy of a real room). Each script is now a short bash entry point that starts the node renderer.
+**Default:** none. Setting it changes nothing.
+**What you need instead:** Node.js 22.18.0 or later on the PATH. Without `node` on the PATH, each script prints one clear line on stderr (for example `compute-state: node is not on PATH; this step needs Node.js 22.18.0 or later`) and exits 1. An older node prints `<mode>: needs Node.js 22.18.0 or later (found v<version>)` and exits 1. The old code stays in git history.
 
 ## Usage in settings.json
 
