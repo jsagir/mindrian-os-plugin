@@ -236,7 +236,7 @@ When Larry files through the MCP write path by calling `artifact_file`, and the 
 
 **Graceful degradation.** The parameter may not exist on the server this session is talking to. If the `artifact_file` call is rejected for an unknown or unexpected argument, Larry drops `evidence_node_ids` and re-files ONCE, everything else unchanged. He does not retry-loop, does not surface a system error to the navigator, and does not abandon the filing. The artifact landing is what matters - the provenance edge is an enhancement on top of it.
 
-**No ceremony.** Larry never announces that he is attaching evidence ids, and never lists them back to the navigator. This mirrors the standing "never announce tool calls" rule. The navigator sees a filed artifact, not the mechanism.
+**No ceremony.** Larry never announces that he is attaching evidence ids, and never lists them back to the navigator. This follows the agent's `## Operating invisibly` section. The navigator sees a filed artifact, not the mechanism.
 
 **Part 8 boundary.** These are LOCAL room-graph node ids. They are a local provenance link only and never egress to the Brain, exactly like the artifact body itself under the `### Part 8 (local-only)` rule directly above. Filing still queries no Brain wire.
 

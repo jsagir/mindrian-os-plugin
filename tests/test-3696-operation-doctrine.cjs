@@ -14,8 +14,9 @@
  * output-styles/destijl.md, skills/room-proactive/SKILL.md and skills/room-passive/SKILL.md.
  *
  * Legs required now: D1 D2 D4 D5 D6 D9 D-POSTURE D7g D7a (D7a flipped by 369.6-07 Task 2: destijl.md carve-out), D13 D14 (369.6-09 Task 1), D3 D8 D10 D11 D12 (369.6-09 Task 2).
+ * Required by 369.6-11: D7b D7c (Task 1), D7d D7e D7f (Task 2).
  * Legs KNOWN (the gap exists at this commit; the closing plan or the route is printed):
- *   D7b D7c D7d D7e D7f, every D7h entry, RT1 to RT5.
+ *   every D7h entry, RT1 to RT5.
  * D7h scans for imperative lines that tell Larry to say or name a command or a tool id to the navigator. Every hit at
  * this commit is a frozen entry keyed by the sha256 of its normalised text (file and line are information only, so a
  * line-for-line move does not reopen an entry). A new hit fails.
@@ -66,12 +67,10 @@ function check(name, cond, detail) { if (cond) pass(name); else failLine(name, d
 
 // The KNOWN table. Every KNOWN leg has closes_in (a plan) or route (a line). The gap behind each one is the O1 gap
 // named in its why.
+// 369.6-11 Task 2 (2026-10-30): KNOWN moved to required: D7d (no cadence), D7e (plain supersession examples) and D7f (the No ceremony citation resolves); closed by 369.6-11 Task 2.
 // 369.6-11 Task 1 (2026-10-30): KNOWN moved to required: D7b (the trace section says on request only) and D7c (the consult is silent,
 // no permission line); closed by 369.6-11 Task 1.
 const KNOWN = {
-  D7d: { closes_in: '369.6-11', why: 'the Provoked mode pitches a command every 3 to 5 turns (O1 gap 5, D-39, R-18)' },
-  D7e: { closes_in: '369.6-11', why: 'two supersession examples name an edge type or a tool (O1 gap 11, D-37)' },
-  D7f: { closes_in: '369.6-11', why: 'the room-proactive "No ceremony" line cites a rule that has no text (O1 gap 3, D-37)' },
   RT1: { route: '369.7 (scope split: room facts supplied each turn by code)', why: 'no UserPromptSubmit hook calls context_assemble, suggest_next or logs the turn memory_event for Larry (O1 finding 4, gap 7)' },
   RT2: { route: 'a seed (Deferred Ideas: routing for the operations with no instruction today)', why: 'registered tools that no persona or wire text routes (O1 gap 6)' },
   RT3: { route: '369.3 (SW-15, REV-03)', why: 'MCP tools that return instructions instead of executing; the wire says "Instructions returned are not execution"' },
@@ -251,15 +250,12 @@ const D7H_ENTRIES = [
   { hash: 'aaddd9a318468258', file: 'skills/larry-personality/SKILL.md', line: 190, route: 'reviewed: the line names the stance step only when the navigator is mid-decision (R-18), never on a timer', text: '**Offered when genuinely relevant, never forced.** Larry\'s Action Footer / closing line SH' },
   { hash: 'c7d85304f877ed0b', file: 'skills/larry-personality/SKILL.md', line: 352, route: 'reviewed, not changed: the line orders a tool call parameter, it is not speech', text: 'When the conversation itself has produced something worth keeping - a sharpened problem de' },
   { hash: 'f46bd1f384511bfc', file: 'skills/larry-personality/SKILL.md', line: 459, route: 'reviewed, not changed: the line describes the wire description of a tool, it is not speech', text: 'of these shapes fires the clause: the `brain_ask` tool\'s own description now says its' },
-  { hash: '238f1ad117854c96', file: 'skills/larry-personality/SKILL.md', line: 657, closes_in: '369.6-11', text: '4. When a context_block reach carries signal `room_delta` (SENS-21), Larry says once and p' },
-  { hash: '995ad9d995746757', file: 'skills/larry-personality/SKILL.md', line: 658, closes_in: '369.6-11', text: '5. `/mos:auto-explore` is a fallback everywhere Larry mentions it, on Desktop, Cowork or t' },
+  { hash: '598b87de66f4aed8', file: 'skills/larry-personality/SKILL.md', line: 657, route: 'reviewed: the line names the one manual recovery step the navigator must run, for one surface only (R-18)', text: '4. When a context_block reach carries signal `room_delta` (SENS-21), Larry says once and p' },
   { hash: 'd362f28573689447', file: 'skills/larry-personality/mode-engine.md', line: 162, route: 'a seed (mode-engine.md names Brain tools; the file is outside every persona plan)', text: '1. **Gap-informed shifts:** When `brain_gap_assess` shows heavy conceptual gaps (missing p' },
   { hash: '259ffdf49d55bd94', file: 'skills/larry-personality/mode-engine.md', line: 164, route: 'a seed (mode-engine.md names Brain tools; the file is outside every persona plan)', text: '2. **Pattern-informed shifts:** When `brain_find_patterns` shows the user\'s venture matche' },
   { hash: '54d8e7c586a8cf90', file: 'skills/larry-personality/mode-engine.md', line: 166, route: 'a seed (mode-engine.md names Brain tools; the file is outside every persona plan)', text: '3. **Stage-informed shifts:** When `brain_framework_chain` shows the user has applied many' },
-  { hash: '863c1d1022e92ef2', file: 'skills/room-proactive/SKILL.md', line: 233, closes_in: '369.6-11', text: '**Where the ids come from.** Name the real sources by registered tool name: a prior `room_' },
-  { hash: '78ac5065fb96aee7', file: 'skills/room-proactive/SKILL.md', line: 237, closes_in: '369.6-11', text: '**Graceful degradation.** The parameter may not exist on the server this session is talkin' },
-  { hash: 'b184e0b85519ab66', file: 'skills/room-passive/SKILL.md', line: 145, closes_in: '369.6-11', text: 'For ad-hoc meeting mentions, suggest `/mos:file-meeting` for structured filing.' },
-  { hash: '4e604b2cd83562b9', file: 'skills/room-passive/SKILL.md', line: 174, closes_in: '369.6-11', text: 'When room has 2+ sections with content, mention wiki once per session after filing, analyz' },
+  { hash: '863c1d1022e92ef2', file: 'skills/room-proactive/SKILL.md', line: 233, route: 'reviewed, not changed: the line orders where to take evidence ids for a tool call, it is not speech', text: '**Where the ids come from.** Name the real sources by registered tool name: a prior `room_' },
+  { hash: '78ac5065fb96aee7', file: 'skills/room-proactive/SKILL.md', line: 237, route: 'reviewed, not changed: the line orders how to retry a tool call, it is not speech', text: '**Graceful degradation.** The parameter may not exist on the server this session is talkin' },
 ];
 
 // ---- D7h: imperative lines that tell Larry to say a command or a tool id to the navigator ------------------------

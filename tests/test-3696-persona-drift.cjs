@@ -266,12 +266,9 @@ const NON_TOOL_FROZEN_COUNT = 53;
 // ---- KNOWN table: every name unresolved at the base (plan 369.6-03), keyed by kind and name --------------------
 // closes_in: the plan that rewrites that text. route: a runtime fact or a file outside this phase, routed to a quick task.
 // base: the file and line at the base, information only.
+// 369.6-11 Task 2 (2026-10-30): KNOWN moved to required, closed by 369.6-11 Task 2: command|command and command|reason (the Provoked formula and table are retired),
+// rule|never announce tool calls (the No ceremony line cites the agent's Operating invisibly section), and the owner-home research path (the example is reworded).
 const KNOWN = Object.freeze({
-  'command|command': { closes_in: '369.6-11', base: 'SKILL.md:541', why: 'a placeholder in the Provoked formula; the cadence is retired by plan 11 (plan 10 moves it first)' },
-  'command|reason': { closes_in: '369.6-11', base: 'SKILL.md:559', why: 'no commands/reason.md; the Provoked table is retired by plan 11' },
-  'rule|never announce tool calls': { closes_in: '369.6-11', base: 'room-proactive/SKILL.md:239', why: 'D-37: the No ceremony line points at Operating invisibly' },
-  'path|~/MindrianRooms/rethinking-mindrianos/research/2026-09-14-mindrianos-classification-and-zep-graphiti-supersession-gap.md': {
-    closes_in: '369.6-11', base: 'SKILL.md:448', why: 'a path in the owner home inside a supersession example; plan 11 rewrites the examples (D-37)' },
   'path|~/.mindrian/stance-state.json': { route: 'runtime path in the user home; the repo tree cannot resolve it; typed runtime-path form via /gsd-quick', base: 'SKILL.md:181' },
   'path|~/MindrianRooms/.rooms/registry.json': { route: 'runtime path in the user home; typed runtime-path form via /gsd-quick', base: 'room-proactive/SKILL.md:37' },
   'path|/.mindrian/last-cascade.json': { route: 'runtime path under a room folder (<roomDir> placeholder); typed runtime-path form via /gsd-quick', base: 'room-proactive/SKILL.md:47' },

@@ -17,7 +17,7 @@
  *   S6   the item-5 line is present exactly once and byte-identical to the base                      (required now)
  *   S7   the trigger words for deep research, Eureka, Dominant Design and contradiction are present
  *        outside the References section (the WHEN-to-reach triggers stay inline)                     (required now)
- *   S8   no Provoked every-3-to-5-turns cadence in SKILL.md or references/personality/onboarding.md  KNOWN 369.6-11
+ *   S8   no Provoked every-3-to-5-turns cadence in SKILL.md or references/personality/onboarding.md  (required since 369.6-11 Task 2)
  *   S9   no em dash or en dash in this file
  *
  * Printed on every run: SKILL.md bytes and the loose voice, brand, machinery and operation shares.
@@ -66,8 +66,8 @@ const SIZE_MAX = Math.floor(0.4 * BASE_BYTES);
 const MACHINERY_MAX = 15;
 
 // 369.6-10 Task 2: S1, S2 and S5 are required now (the operator manual moved to three references; SKILL.md is inside the D-04 budget).
+// 369.6-11 Task 2 (2026-10-30): S8 is required now (the Provoked cadence is retired from onboarding.md), closed by 369.6-11 Task 2.
 const KNOWN = {
-  S8: { closes_in: '369.6-11', why: 'the Provoked cadence is retired by plan 11 (R-18; plan 10 moves it first)' },
 };
 let knownCount = 0;
 function leg(id, name, passes, detail) {

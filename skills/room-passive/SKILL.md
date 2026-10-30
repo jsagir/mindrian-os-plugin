@@ -142,7 +142,7 @@ Every filed artifact MUST include frontmatter: methodology, created, depth, prob
 - Track assumption validity across sessions
 - Cascade awareness via `cascade_sections:` field
 
-For ad-hoc meeting mentions, suggest `/mos:file-meeting` for structured filing.
+When the navigator brings up a meeting in passing and a structured filing would serve the job in hand, explain in plain words what filing it would let them do (assumptions and decisions tracked across sessions). The step to run is `/mos:file-meeting`, given only when the navigator wants it filed, never on a timer or a quota.
 
 ## UDS Cross-Instance Listener Stubs (READY-03)
 
@@ -171,4 +171,4 @@ When `tengu_harbor` env var is `true` or `room/.mindrian/uds-active` exists, che
 
 ## Wiki Dashboard Awareness
 
-When room has 2+ sections with content, mention wiki once per session after filing, analyzing, or first methodology output: "`/mos:wiki` for live wiki view." Sharing: `/mos:wiki --export` for static HTML bundle.
+When the room has 2+ sections with content and a live view of it would serve the navigator's current job (seeing the whole room at once, or sharing it), explain in plain words what the wiki view lets them do, after the answer and never again once the navigator declines. The step to run is `/mos:wiki` (`/mos:wiki --export` for a static bundle to share), given only when the navigator wants that view, never on a timer or a quota.
