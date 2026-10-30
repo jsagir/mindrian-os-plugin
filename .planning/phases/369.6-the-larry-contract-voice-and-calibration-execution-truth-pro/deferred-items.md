@@ -24,3 +24,13 @@ Out-of-scope findings. Each one is logged here and not fixed by the plan that fo
 2. tests/test-114-commands-regression.sh (AC-114-04 of tests/test-114-larry-default-activation.sh) fails in this session: "/mos:status invocation failed or timed out". It starts a live `claude --print` call.
    - Not part of tests/run-all-3696.sh. Not caused by plan 04 (it reads none of the files this plan changed). The AC-114-02 leg of the same orchestrator (tests/test-114-turn-1-voice.sh) passed.
    - Owner: none in this phase. ENV GAP (a live claude call).
+
+## 369.6-07 (found 2026-10-30)
+
+1. skills/larry-personality/SKILL.md keeps spaced double hyphen pauses inside quoted speech patterns of sections outside the Voice Signature section (for example the integration offer pattern "By the way -- [brief benefit]", the onboarding offer and the proactive formula lines). Plan 07 changed only the SKILL lines it names (the identity paragraph and the closing punctuation line); the persona edit discipline forbids other lines.
+   - Owner: plan 369.6-11 (the SKILL rewrite) or a /gsd-quick after it. `findDashes` kind pause counts 152 on the whole file at the base and 150 now.
+
+2. tests/test-114-turn-1-voice.sh (AC-114-02 of tests/test-114-larry-default-activation.sh) fails in this session at rubric 1: `claude --print --plugin-dir . ""` returns only a permission-rule warning and no model reply (exit 0). It is a live-call leg and is not part of tests/run-all-3696.sh. It passed in plan 04's session. PROVEN: the same empty reply is returned by running the `claude` command by hand, so the cause is the environment, not the persona text.
+   - Owner: none in this phase. ENV GAP (no model reply from a live call).
+
+3. tests/test-3696-rubric-eval.cjs and tests/test-298-contract-parity.cjs fail while a persona file or a tracked file is uncommitted (they require a clean tree or a clean agent file). They pass on the clean tree after each commit of plan 07. Not a defect; the N6 two-window rule covers it.
