@@ -250,6 +250,12 @@ check('Test 6: both larry docs name chain-executor/runChain AND the safe-halt ru
 
   assert.ok(extended.indexOf('chain-executor') !== -1, 'larry-extended.md names chain-executor (the runtime)');
   assert.ok(extended.indexOf('runChain') !== -1, 'larry-extended.md names runChain (the handoff target)');
+  // 369.6-08 (D-03): the full handoff procedure moved to the operations reference; it names the runtime and the halt there.
+  const ops = fs.readFileSync(path.join(REPO_ROOT, 'references', 'personality', 'agent-operations.md'), 'utf8');
+  assert.ok(ops.indexOf('chain-executor') !== -1, 'agent-operations.md names chain-executor (the runtime)');
+  assert.ok(ops.indexOf('runChain') !== -1, 'agent-operations.md names runChain (the handoff target)');
+  assert.ok(/HALTS at the first material/.test(ops), 'agent-operations.md keeps the halt at the first material step');
+  assert.ok(extended.indexOf('agent-operations.md') !== -1, 'larry-extended.md points to agent-operations.md');
   assert.ok(skill.indexOf('chain-executor') !== -1, 'SKILL.md names chain-executor (the runtime)');
   assert.ok(skill.indexOf('runChain') !== -1, 'SKILL.md names runChain (the handoff target)');
   assert.ok(skill.indexOf('auto-sequence') !== -1, 'SKILL.md documents the auto-sequence branch');

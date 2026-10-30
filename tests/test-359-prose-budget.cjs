@@ -58,7 +58,8 @@ const MCP_HOST_CAP = 2048;
 const FROZEN_SHA = Object.freeze({
   // larry-extended.md with the `## Decision Gates` span removed
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 49b2e143e5a2...c240ad (PwS identity, no spaced double hyphen, optional openers); re-based again in the follow-up commit (the Never Do parenthetical pauses): was f7856dc7e3cd...e313c
-  LARRY_OUTSIDE_GATES: '9f7b756fabb58aa909017cf23ad102d8ec2b328b2f6700190f5d1654fa05b586',
+  // re-based by 369.6-08 Task 1 (D-03), 2026-10-30: was 9f7b756fabb5...b586 (Operating the machinery, Operating policy and Post-Gate Handoff move to references/personality/agent-operations.md; compact pointer section)
+  LARRY_OUTSIDE_GATES: '84d312bd715d6291e48dbe0f1dbd3e204b354719c887f200885d765b682a9d27',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
@@ -95,10 +96,14 @@ function check(label, fn) {
 const larryLines = read('agents/larry-extended.md').split('\n');
 const gStart = larryLines.findIndex((l) => /^## Decision Gates/.test(l));
 const gEnd = larryLines.findIndex((l) => /^## The Cardinal Sin/.test(l));
-const hStart = larryLines.findIndex((l) => /^## Post-Gate Handoff/.test(l));
+// 369.6-08 (D-03): the Post-Gate Handoff section moved line for line to references/personality/agent-operations.md.
+const opsLines = read('references/personality/agent-operations.md').split('\n');
+const hStart = opsLines.findIndex((l) => /^## Post-Gate Handoff/.test(l));
+const hNext = hStart >= 0 ? opsLines.findIndex((l, i) => i > hStart && /^## /.test(l)) : -1;
+const hEnd = hNext === -1 ? opsLines.length : hNext;
 const LARRY_SPAN = gStart >= 0 && gEnd > gStart ? larryLines.slice(gStart, gEnd).join('\n') + '\n' : '';
 const LARRY_OUTSIDE = larryLines.slice(0, gStart).concat(larryLines.slice(gEnd)).join('\n');
-const HANDOFF_SPAN = hStart >= 0 && hStart < gStart ? larryLines.slice(hStart, gStart).join('\n') + '\n' : '';
+const HANDOFF_SPAN = hStart >= 0 ? opsLines.slice(hStart, hEnd).join('\n') + '\n' : '';
 
 const skillLines = read('skills/larry-personality/SKILL.md').split('\n');
 const ITEM5_PREFIX = '5. Never hand-draw the dial glyphs';

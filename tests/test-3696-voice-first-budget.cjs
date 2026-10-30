@@ -83,7 +83,6 @@ const KNOWN = {
   V3: { closes_in: '369.6-09', why: 'the body is 19619 B at the base; plans 08 and 09 cut it' },
   V4: { closes_in: '369.6-09', why: 'the strict core share is 12.5 percent at the base' },
   V5: { closes_in: '369.6-09', why: 'the machinery share is 58.0 percent at the base' },
-  V6: { closes_in: '369.6-08', why: 'agent-operations.md is created by plan 08' },
   V8: { closes_in: '369.6-08', why: 'the operating sections move in plan 08' },
 };
 let knownCount = 0;

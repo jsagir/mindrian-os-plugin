@@ -5,7 +5,8 @@
  * skills/larry-personality/SKILL.md WITHOUT editing them, and proves the
  * handoff seam still passes with and without a ledger.
  *
- * D-12: the contract in agents/larry-extended.md ("## Post-Gate Handoff")
+ * D-12: the contract ("## Post-Gate Handoff", moved by 369.6-08 from
+ * agents/larry-extended.md to references/personality/agent-operations.md)
  * holds unchanged: runChain halts at the first material step. 356 only
  * makes more steps count as irreversible, and therefore as material.
  * Nothing in larry-extended.md or the larry-personality SKILL may redefine
@@ -34,6 +35,7 @@ const cp = require('node:child_process');
 
 const REPO = path.join(__dirname, '..');
 const LARRY_EXTENDED = path.join(REPO, 'agents', 'larry-extended.md');
+const OPS_REF = path.join(REPO, 'references', 'personality', 'agent-operations.md');
 const LARRY_SKILL = path.join(REPO, 'skills', 'larry-personality', 'SKILL.md');
 const PRELOAD = path.join(REPO, 'tests', 'fixtures', '356-no-network-preload.cjs');
 const HANDOFF_SEAM_TEST = path.join(REPO, 'tests', 'test-larry-handoff-seam.cjs');
@@ -67,12 +69,17 @@ function extractPostGateHandoff(text) {
 
 function leg1() {
   console.log('--- leg 1: Post-Gate Handoff section extraction ---');
-  const text = fs.readFileSync(LARRY_EXTENDED, 'utf8');
+  // 369.6-08 (D-03): the full contract lives in the operations reference; the agent keeps a compact rule.
+  const text = fs.readFileSync(OPS_REF, 'utf8');
   const section = extractPostGateHandoff(text);
-  check('agents/larry-extended.md has a "## Post-Gate Handoff" heading', section !== null);
+  check('references/personality/agent-operations.md has a "## Post-Gate Handoff" heading', section !== null);
   if (section === null) return false;
   check('the Post-Gate Handoff section matches /halts at the first material/i', /halts at the first material/i.test(section));
   check('the Post-Gate Handoff section contains "runChain"', section.indexOf('runChain') !== -1);
+  const agent = fs.readFileSync(LARRY_EXTENDED, 'utf8');
+  check('the agent compact rule names runChain, no approve no handoff, and agent-operations.md',
+    agent.indexOf('runChain') !== -1 && /No approve, no handoff/.test(agent) && agent.indexOf('agent-operations.md') !== -1);
+  check('the agent no longer holds a "## Post-Gate Handoff" heading (it moved, D-03)', extractPostGateHandoff(agent) === null);
   return true;
 }
 
@@ -87,7 +94,7 @@ const REDEFINE_IRREVERSIBLE_RE = /\birreversible\b[^.\n]{0,20}\b(means|is define
 function leg2() {
   console.log('--- leg 2: no redefinition of material as irreversible (D-12) ---');
   let clean = true;
-  for (const filePath of [LARRY_EXTENDED, LARRY_SKILL]) {
+  for (const filePath of [LARRY_EXTENDED, LARRY_SKILL, OPS_REF]) {
     const rel = path.relative(REPO, filePath);
     const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
     lines.forEach((line, idx) => {
@@ -98,7 +105,7 @@ function leg2() {
       }
     });
   }
-  check('no line in larry-extended.md or larry-personality SKILL.md redefines material as irreversible', clean);
+  check('no line in larry-extended.md, agent-operations.md or larry-personality SKILL.md redefines material as irreversible', clean);
   return clean;
 }
 

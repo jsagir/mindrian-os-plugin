@@ -195,9 +195,10 @@ leg('D14', 'the closing rule: end on the step the engine surfaced, at most one q
   /(engine|suggest_next|chain_resolve)[^.\n]*(surfaced|returned)[^.\n]*(step|move)/i.test(CLI) && /at most one question/i.test(CLI));
 
 // ---- D-POSTURE: the posture ladder is the cited source of what may run unattended after the gate -----------------
+// 369.6-08 (D-03): the Post-Gate Handoff section moved to references/personality/agent-operations.md; read it there.
 check('D-POSTURE the post-gate handoff cites postureForCommand and lib/core/recipe-maps.cjs exports it',
-  /postureForCommand/.test(sectionOf(AGENT, '## Post-Gate Handoff')) && typeof recipeMaps.postureForCommand === 'function' &&
-  /autonomous_safe/.test(sectionOf(AGENT, '## Post-Gate Handoff')));
+  /postureForCommand/.test(sectionOf(REFS['agent-operations.md'] || '', '## Post-Gate Handoff')) && typeof recipeMaps.postureForCommand === 'function' &&
+  /autonomous_safe/.test(sectionOf(REFS['agent-operations.md'] || '', '## Post-Gate Handoff')));
 
 // ---- D7a to D7g: the O1 contradictions ----------------------------------------------------------------------------
 leg('D7a', 'destijl Zone 1 and Zone 4 do not govern Larry\'s conversational turns (body shape methodology)',
