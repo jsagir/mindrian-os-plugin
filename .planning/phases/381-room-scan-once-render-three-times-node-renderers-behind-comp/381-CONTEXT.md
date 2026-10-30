@@ -12,7 +12,7 @@ Out of scope: `intent-classifier` (finding 4, a separate quick), `query-efficien
 
 ## Measured baseline (source: /home/jsagi/.mindrian/perf-audit-2026-10-29/perf-audit-baseline.md, read-only copy; harness beside it)
 
-Dev tree beta.76, hooks started in parallel as Claude Code does, cwd = the navigator's real room `/mnt/c/Users/jsagi/MindrianRooms/israel-frontier-criticality/translational-capital-lab` (338 files) on a Windows drive under WSL, median of 3:
+Dev tree beta.76, hooks started in parallel as Claude Code does, cwd = the navigator's real room `<ROOM>` (338 files) on a Windows drive under WSL, median of 3:
 
 | Event | Wall | Slowest hook |
 |---|---|---|
