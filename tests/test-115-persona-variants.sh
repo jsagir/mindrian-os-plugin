@@ -84,18 +84,30 @@ ALIAS_OK=$(node -e "
 " 2>&1) || fail "Test 4: 6-key aliasing check failed: $ALIAS_OK"
 pass "Test 4: 6 keys (researcher_ind, founder_grant, operator, mentor, domain_expert, student) aliased to default"
 
-# ----- Test 5: agent body has Persona-Aware Turn 1 section + role_blend lookup doc -----
-grep -qF "## Persona-Aware Turn 1 (Phase 115)" agents/larry-extended.md \
-  || fail "Test 5: Persona-Aware Turn 1 section missing"
+# ----- Test 5: the agent carries the compact turn-1 rule; the full procedure lives in the operations reference -----
+# 369.6-08 (D-03): the Persona-Aware Turn 1 section moved line for line to references/personality/agent-operations.md.
+# The agent keeps a compact rule with the role_blend line and the dual-path detector name; the reference keeps the full procedure.
+OPS_REF="references/personality/agent-operations.md"
+[ -f "$OPS_REF" ] || fail "Test 5: $OPS_REF missing"
+grep -qF "agent-operations.md" agents/larry-extended.md \
+  || fail "Test 5: agent body does not point to the operations reference"
+grep -qF "## Persona-Aware Turn 1 (Phase 115)" "$OPS_REF" \
+  || fail "Test 5: Persona-Aware Turn 1 section missing from the operations reference"
 grep -qF "role_blend" agents/larry-extended.md \
-  || fail "Test 5: role_blend reading instruction missing"
-grep -qF "Cold-start branch" agents/larry-extended.md \
-  || fail "Test 5: cold-start branch instruction missing (Pitfall 2)"
+  || fail "Test 5: role_blend reading instruction missing in the agent body"
+grep -qF "role_blend" "$OPS_REF" \
+  || fail "Test 5: role_blend reading procedure missing in the operations reference"
+grep -qF "Cold-start branch" "$OPS_REF" \
+  || fail "Test 5: cold-start branch instruction missing in the operations reference (Pitfall 2)"
+grep -qF "cold start" agents/larry-extended.md \
+  || fail "Test 5: cold-start fallback missing in the agent compact rule"
 grep -qF "lib/core/dual-path-detector.cjs" agents/larry-extended.md \
   || fail "Test 5: dual-path-detector reference missing in agent body"
-grep -qF "lib/core/shallow-doc-parser.cjs" agents/larry-extended.md \
-  || fail "Test 5: shallow-doc-parser reference missing in agent body"
-pass "Test 5: agent body documents role_blend lookup + cold-start fallback + 115-02 artifact references"
+grep -qF "lib/core/dual-path-detector.cjs" "$OPS_REF" \
+  || fail "Test 5: dual-path-detector reference missing in the operations reference"
+grep -qF "lib/core/shallow-doc-parser.cjs" "$OPS_REF" \
+  || fail "Test 5: shallow-doc-parser reference missing in the operations reference"
+pass "Test 5: agent body holds the compact turn-1 rule; the operations reference holds role_blend lookup + cold-start fallback + 115-02 artifact references"
 
 # ----- Test 6: Phase 114 baseline preserved (skills, model, color) -----
 BASELINE_OK=$(node -e "

@@ -11,12 +11,12 @@
  *   V0   the base snapshot measures as the L2 research says: body 19619 B  (required now)
  *   V1   the only non-blank line between the frontmatter and "## Voice" is the identity line (R-09)   KNOWN 369.6-09
  *   V2   the level-2 headings equal the D-01 order, one for one                                      KNOWN 369.6-09
- *   V3   body at most 65 percent of the base body, which is 12752 B (D-02)                           KNOWN 369.6-09
- *   V4   strict core voice share at least 20 percent (D-02)                                          KNOWN 369.6-09
- *   V5   loose machinery share at most 30 percent, the operation class apart (D-02)                  KNOWN 369.6-09
- *   V6   the body names references/personality/agent-operations.md and the file exists (D-03)       KNOWN 369.6-08
+ *   V3   body at most 65 percent of the base body, which is 12752 B (D-02)                           required (flipped by 369.6-08 Task 2)
+ *   V4   strict core voice share at least 20 percent (D-02)                                          required (flipped by 369.6-08 Task 2)
+ *   V5   loose machinery share at most 30 percent, the operation class apart (D-02)                  required (flipped by 369.6-08 Task 2)
+ *   V6   the body names references/personality/agent-operations.md and the file exists (D-03)       required (flipped by 369.6-08 Task 1)
  *   V7   the frontmatter is byte-identical to the base frontmatter                                   (required now)
- *   V8   none of the D-03 sections remains in the body                                               KNOWN 369.6-08
+ *   V8   none of the D-03 sections remains in the body                                               required (flipped by 369.6-08 Task 2)
  *   V9   the Decision Gates section text is byte-identical to the base (D-09)                        (required now)
  *   V10  no em dash or en dash in this file
  *
@@ -80,10 +80,6 @@ const MOVED_HEADINGS = ['Operating policy', 'Post-Gate Handoff', 'Persona-Aware 
 const KNOWN = {
   V1: { closes_in: '369.6-09', why: 'the identity line and the voice-first order are written by plan 09' },
   V2: { closes_in: '369.6-09', why: 'the D-01 order is written by plan 09' },
-  V3: { closes_in: '369.6-09', why: 'the body is 19619 B at the base; plans 08 and 09 cut it' },
-  V4: { closes_in: '369.6-09', why: 'the strict core share is 12.5 percent at the base' },
-  V5: { closes_in: '369.6-09', why: 'the machinery share is 58.0 percent at the base' },
-  V8: { closes_in: '369.6-08', why: 'the operating sections move in plan 08' },
 };
 let knownCount = 0;
 function leg(id, name, passes, detail) {

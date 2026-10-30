@@ -59,7 +59,8 @@ const FROZEN_SHA = Object.freeze({
   // larry-extended.md with the `## Decision Gates` span removed
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 49b2e143e5a2...c240ad (PwS identity, no spaced double hyphen, optional openers); re-based again in the follow-up commit (the Never Do parenthetical pauses): was f7856dc7e3cd...e313c
   // re-based by 369.6-08 Task 1 (D-03), 2026-10-30: was 9f7b756fabb5...b586 (Operating the machinery, Operating policy and Post-Gate Handoff move to references/personality/agent-operations.md; compact pointer section)
-  LARRY_OUTSIDE_GATES: '84d312bd715d6291e48dbe0f1dbd3e204b354719c887f200885d765b682a9d27',
+  // re-based by 369.6-08 Task 2 (D-03), 2026-10-30: was 84d312bd715d...9d27 (Persona-Aware Turn 1, Canonical role mapping, Dual-Path Detection and Why this exists move to references/personality/agent-operations.md; two compact turn-1 rules)
+  LARRY_OUTSIDE_GATES: 'b70e5d592167778c56bd3d9e074b6e08ed73db54bd7b3c0201735390fe6d2b38',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and

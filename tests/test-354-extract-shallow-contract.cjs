@@ -210,13 +210,24 @@ async function main() {
     await server.close();
 
     const agentProse = fs.readFileSync(path.join(REPO, 'agents', 'larry-extended.md'), 'utf8');
+    // 369.6-08 (D-03): the dual-path filing procedure moved to the operations reference; read both.
+    const opsProse = fs.readFileSync(path.join(REPO, 'references', 'personality', 'agent-operations.md'), 'utf8');
 
     check("agents/larry-extended.md no longer claims the parser writes 3-5 nodes", () => {
       assert.ok(!agentProse.includes('The parser writes 3-5 nodes'), 'agent prose must not contain "The parser writes 3-5 nodes"');
     });
 
+    check("references/personality/agent-operations.md no longer claims the parser writes 3-5 nodes", () => {
+      assert.ok(!opsProse.includes('The parser writes 3-5 nodes'), 'operations reference must not contain "The parser writes 3-5 nodes"');
+    });
+
     check('agents/larry-extended.md names claim_write as the persistence step', () => {
       assert.ok(agentProse.includes('claim_write'), 'agent prose must mention claim_write');
+    });
+
+    check('references/personality/agent-operations.md names claim_write as the persistence step and extract_shallow as a pure parse', () => {
+      assert.ok(opsProse.includes('claim_write'), 'operations reference must mention claim_write');
+      assert.ok(opsProse.includes('extract_shallow') && /writes nothing/.test(opsProse), 'operations reference must keep extract_shallow as a pure parse that writes nothing');
     });
 
     cleanup();
