@@ -54,3 +54,7 @@ Out-of-scope findings. Each one is logged here and not fixed by the plan that fo
 
 1. Seven tests that reference the classifier exit 1 on a clean detached checkout of dispatch HEAD d8efac4ee and on this branch with the same failure text, so plan 12 did not cause them: tests/test-127.3-sibling-sweep.sh (registry-resolution pattern outside the chokepoint), tests/test-158-reach-presentation-counter.cjs and tests/test-159-integration-2turn-suppress.cjs (presentation and reject counts are 0, not 3), tests/test-252-guard-census.cjs (unclassified guard files), tests/test-check-render-coverage.cjs, tests/test-meter-gate-reach.cjs and tests/test-render-registry-build.cjs.
    - Owner: plan 369.6-13 (baseline review), or a /gsd-quick per test family. Not in tests/run-all-3696.sh unless the baseline file names them.
+
+## 369.6-13 follow-up (found 2026-11-03)
+
+1. tests/test-3696-isolation.cjs failed once in the final suite on 60a126278 (PASSED=124 FAILED=1 KNOWN=25), 70/0 alone. ROOT CAUSE (proven): a live Claude statusline rewrites the gitignored room/.mindrian/statusline-cache.json about every 7 s in any open session whose room is this checkout, and filesNewerThan counted it. FIXED by quick 261103-vdn (skip that one exact path; tests/test-3696-isolation-cache-skip.cjs pins it). The isolation test and the suite are NOT re-run yet; record the real result from one clean single run once load1 is below 6.
