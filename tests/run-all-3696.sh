@@ -139,6 +139,7 @@ export MINDRIAN_SKIP_LIVE_CLAUDE=1
 run "3696: measurement script and snapshots (369.6-01)" node tests/test-3696-measure-voice.cjs
 run "3696: reply checks and labelled corpus (369.6-01)" node tests/test-3696-reply-checks.cjs
 run "3696: isolation (369.6-02)" node tests/test-3696-isolation.cjs
+run "3696: isolation cache skip (quick 261103-vdn)" node tests/test-3696-isolation-cache-skip.cjs
 run "3696: rubric eval (369.6-02)" node tests/test-3696-rubric-eval.cjs
 run "3696: identity parity (369.6-04)" node tests/test-3696-identity-parity.cjs
 run "3696: persona drift (369.6-04)" node tests/test-3696-persona-drift.cjs

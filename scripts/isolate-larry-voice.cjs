@@ -328,9 +328,16 @@ function sameSnapshot(a, b) {
   return ka.length === kb.length && ka.every(function (k, i) { return k === kb[i] && a[k] === b[k]; });
 }
 
+// The one runtime file a live Claude statusline rewrites on a timer (about every 7 s) in any open
+// session whose room is this checkout (quick 261103-vdn). It is gitignored and written by no hook
+// this guard contains, so a hit on it says nothing about isolation. Exactly this path is skipped,
+// relative to the root passed in; any other file, including a sibling in room/.mindrian/, still counts.
+const STATUSLINE_CACHE_REL = path.join('room', '.mindrian', 'statusline-cache.json');
+
 // files under root (outside .git) newer than the marker file; uses find(1) on the repo root only
 function filesNewerThan(root, markerFile) {
-  const r = spawnSync('find', [root, '-path', path.join(root, '.git'), '-prune', '-o', '-newer', markerFile, '-type', 'f', '-print'], { encoding: 'utf8', timeout: 120000 });
+  const skip = path.join(root, STATUSLINE_CACHE_REL).replace(/[\\*?[\]]/g, '\\$&'); // find -path takes a glob
+  const r = spawnSync('find', [root, '-path', path.join(root, '.git'), '-prune', '-o', '-newer', markerFile, '-type', 'f', '!', '-path', skip, '-print'], { encoding: 'utf8', timeout: 120000 });
   if (r.status !== 0) throw fail('find_failed', String(r.stderr || '').slice(0, 200));
   return r.stdout.split('\n').filter(Boolean);
 }
