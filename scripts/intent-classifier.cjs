@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 'use strict';
+// 261030-a2s win 2: per-user Node compile cache, see lib/core/hook-compile-cache.cjs.
+if (require.main === module) {
+  try { require('../lib/core/hook-compile-cache.cjs').enableHookCompileCache(); } catch (_e) { /* the cache stays off */ }
+}
 
 /**
  * Phase 83-07: Mid-session intent classifier (Tier 2).
@@ -25,6 +29,17 @@
  *     sealed names are already surfaced by the 83-03 SEALED ROOMS block
  *     so this is not a new leak vector.
  */
+
+// 261030-a2s win 1: the Phase 88-05 MINTO drain runs here, before every other
+// statement and before stdin is read (scripts/minto-drain-on-prompt.cjs), so one
+// node start does both jobs in the same order: the drain first, then the
+// classifier. The wrapper exports MOS_MINTO_DRAIN_ROOM only for a room with a
+// .mindrian folder; it is deleted here so no child inherits it.
+if (require.main === module && typeof process.env.MOS_MINTO_DRAIN_ROOM === 'string' && process.env.MOS_MINTO_DRAIN_ROOM) {
+  const mintoDrainRoom = process.env.MOS_MINTO_DRAIN_ROOM;
+  delete process.env.MOS_MINTO_DRAIN_ROOM;
+  try { require('./minto-drain-on-prompt.cjs').drainOnPrompt(mintoDrainRoom); } catch (_e) { /* soft-fail */ }
+}
 
 const fs = require('node:fs');
 const path = require('node:path');
