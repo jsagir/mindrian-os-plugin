@@ -165,6 +165,8 @@ function sideEnv(kase, ctx) {
     MINTO_FROZEN_DATE: FROZEN_DATE,
     MINTO_FROZEN_TIMESTAMP: FROZEN_TS,
     XDG_CACHE_HOME: ctx.xdg,
+    // 369.6-12 adds a voice reminder line on purpose; switch it off so OLD and NEW compare the a2s change only.
+    MINDRIAN_VOICE_REMINDER: '0',
   });
   Object.keys(ctx.extraEnv || {}).forEach((k) => { env[k] = ctx.extraEnv[k]; });
   return env;
