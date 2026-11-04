@@ -97,7 +97,7 @@ run_known_if() {
 # --- (1) Phase 380 tests (each created by its own plan) -----------------------
 run_strict    "380 engine tests (34 original, claude plugin test)" node tests/test-380-engine-tests.cjs
 run_if        "380 wall (root manifests untouched, one pinned devDependency)" tests/test-380-wall.cjs            node tests/test-380-wall.cjs
-run_if        "380 typecheck"                                      tests/test-380-typecheck.cjs                  node tests/test-380-typecheck.cjs
+run_strict_if "380 typecheck"                                      tests/test-380-typecheck.cjs                  node tests/test-380-typecheck.cjs
 run_if        "380 egress (Canon Part 8, own words)"               tests/test-380-egress.cjs                     node tests/test-380-egress.cjs
 run_if        "380 budget (probe, polling, hook cost)"             tests/test-380-budget.cjs                     node tests/test-380-budget.cjs
 run_if        "380 copy (plain-English words)"                     tests/test-380-copy.cjs                       node tests/test-380-copy.cjs

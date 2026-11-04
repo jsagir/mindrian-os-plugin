@@ -190,6 +190,40 @@ say('W8 the environment-gap result exists and the aggregator maps it to FAILED')
   }
 }
 
+// ---- W9 ------------------------------------------------------------------------------------
+say('W9 a missing TypeScript compiler fails the typecheck leg (negative control, quick 261103-vi0)');
+{
+  const text = read('tests/run-all-380.sh');
+  check(/^run_strict_if\s+"380 typecheck"\s+tests\/test-380-typecheck\.cjs\s+node tests\/test-380-typecheck\.cjs\s*$/m.test(text), 'W9 the typecheck leg runs with run_strict_if, not run_if');
+  check(!/^run_if\s+"380 typecheck"/m.test(text), 'W9 no lenient run_if line for the typecheck leg remains');
+
+  // Run the real wrapper on a copy with no node_modules anywhere: it must exit 77, and the real
+  // run_strict_if must turn that 77 into one FAILED and no SKIPPED.
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'w9-typecheck-'));
+  try {
+    const skipNm = (src) => !src.split(path.sep).includes('node_modules');
+    for (const rel of ['ui/mos-face', 'tools/ts-check']) {
+      if (fs.existsSync(path.join(REPO, rel))) fs.cpSync(path.join(REPO, rel), path.join(scratch, rel), { recursive: true, filter: skipNm });
+    }
+    fs.mkdirSync(path.join(scratch, 'tests'), { recursive: true });
+    fs.copyFileSync(path.join(REPO, 'tests/test-380-typecheck.cjs'), path.join(scratch, 'tests/test-380-typecheck.cjs'));
+    const w = spawnSync('node', ['tests/test-380-typecheck.cjs'], { cwd: scratch, encoding: 'utf8', timeout: 60000 });
+    check(w.status === 77, 'with no TypeScript installed the wrapper exits 77 (got ' + w.status + ')', String(w.stdout || '') + String(w.stderr || ''));
+    const m = /^run_strict_if\(\) \{\n[\s\S]*?\n\}\n/m.exec(text);
+    check(!!m, 'W9 run_strict_if is defined in the aggregator');
+    if (m) {
+      const script = ['cd "' + scratch + '"', 'PASS=0; FAIL=0; SKIP=0; KNOWN=0', m[0],
+        'run_strict_if "380 typecheck" tests/test-380-typecheck.cjs node tests/test-380-typecheck.cjs',
+        'echo "COUNTS PASS=$PASS FAIL=$FAIL SKIP=$SKIP"'].join('\n');
+      const b = spawnSync('bash', ['-c', script], { encoding: 'utf8', timeout: 60000 });
+      const out = String(b.stdout || '');
+      check(/COUNTS PASS=0 FAIL=1 SKIP=0/.test(out), 'W9 a missing compiler counts as one FAILED and no SKIPPED', out);
+    }
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
 say('');
 say('test-380-gate-wiring: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
 process.exit(failed > 0 ? 1 : 0);
