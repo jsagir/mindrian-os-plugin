@@ -35,6 +35,10 @@ The pre-commit hook refused merge 4: data/harness-manifest.json was stale. Merge
 1. test-353-doctor-section-ruling (merge 3): main retired the doctor module install-incomplete in commit 85b5072f7 (341-09). The section branch test expected 30 modules. The merged registry holds 29, which is correct. Fix in 4e108c65d: line 222 now expects 29. data/doctor-modules.json untouched.
 2. test-261030-a2s-classifier-parity (merge 4): commit cd1106dd3 (369.6-12) adds a voice reminder line to the classifier output on purpose. 14 of 16 cases differed. Fix in 3824dedb6: the parity env of both sides sets MINDRIAN_VOICE_REMINDER=0 (the off switch in lib/hmi/larry-identity.cjs line 102). No other change. test-3696-voice-reminder still passes (34), so the line stays on by default.
 
+## Census test fix (after merge 4)
+
+Commit 6f6a8a35c35f78cb11e39d854c316341629a53cc changes lib/memory/minto-debounce-consumer-census.test.cjs Test 1 only. Quick 261030-a2s moved the drain code from the bash wrapper scripts/intent-classifier into scripts/minto-drain-on-prompt.cjs, so the old structural assertion was stale. Test 1 now asserts that scripts/post-write (extensionless) is discovered, that the census classifies scripts/minto-drain-on-prompt.cjs as drain-and-act, and that scripts/intent-classifier.cjs requires it. Results: census 5/5, minto-debouncer 12/12, minto-migration-v88 6/0, minto-schema-v88 7/0, a2s parity 16 cases 0 diffs, a2s compile-cache 11/0. Product files untouched.
+
 ## Pre-existing failure (needs its own quick)
 
 lib/memory/userpromptsubmit-integration.test.cjs Test 8 ("tier_0 fallback leaves Phase 83 intent classifier path intact", assertion "Phase 83 warning header present", line 533) fails on 822646d5c, before the 369.6 merge, so the 369.6 merge did not cause it. Test 3 of the same file is load sensitive (failed in some runs, passed in others).
