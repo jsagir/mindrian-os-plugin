@@ -219,7 +219,7 @@ const doctorModules = require(path.join(REPO, 'data', 'doctor-modules.json'));
 const row = doctorModules.modules.find((m) => m.id === 'section-ruling');
 check('registry row exists', !!row);
 check('registry row carries exactly 7 keys, no auto_heal', !!row && Object.keys(row).length === 7 && !('auto_heal' in row));
-check('registry has 30 modules total (28 plus mcp-write-path, quick 261026-s8c, and graph-doctor, quick 261009-4h4)', doctorModules.modules.length === 30);
+check('registry has 29 modules total (30 minus install-incomplete, retired by 341-09)', doctorModules.modules.length === 29);
 check('D6: registry description names section-jobs.json', !!row && typeof row.description === 'string' && row.description.indexOf('section-jobs.json') !== -1);
 check('runner path exists on disk', !!row && fs.existsSync(path.join(REPO, row.runner)));
 
