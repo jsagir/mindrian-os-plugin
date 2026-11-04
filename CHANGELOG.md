@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.76 (in progress)
+## [2.0.0-beta.77] - 2026-11-04
 
 ### Added
 - **/mos:scientific-roadmap: unlock the HOW when the WHAT is known.** The command walks Theo's Scientific Roadmapping steps when you know what you want but not how to get there. It runs the entry check first. While Theo's steps are still empty, it says "Theo has not authored this step yet" and offers /mos:research instead of improvising. Once the steps are authored, it ranks the limits you assumed and hands them to /mos:research as falsifiable hypotheses on the existing research planner. Desktop and Cowork reach it through the methodology tool; filing research-plan/PLAN.md runs in Claude Code. Not live until a release carries it.
