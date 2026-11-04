@@ -1,28 +1,43 @@
 # Quick 261104-fva Summary
 
 Start SHA: a3a293c93d6b22bef1ecd24eb6566fe33007753f
-Final tip of integration/release-next: 4e108c65d4a5b05c1602b02eae775ffe47bd6cbf
+Final tip of integration/release-next at the time of the last executor commit: 3824dedb6ab2934702b009ae82c09ee3e9340503 (the commit of this SUMMARY update comes after it)
 
-## Commits
+## Commits (first-parent order)
 
 | Commit | SHA | Tree | Parents |
 |--------|-----|------|---------|
 | Merge 1 vi0 | 86275459b12c714a4cdeeaa4de0dde9c8e17c0d1 | d444acbe3ba9e9a0f4b69d04903b02fefdd2c8b7 | a3a293c93, 11ad37af7 |
 | Merge 2 a2s | 428b969b0b2c88075aa3079c9968ab0893d2cdf8 | 42d056f382773fae3493c61bf4db91c0992f6e36 | 86275459b, 233361b79 |
 | Merge 3 section | 4c75a0d598bcc1f89ae71f6648d07d9bcac4f864 | c6d02fb2dc0cf4363bc373c36e2a0636714aeac7 | 428b969b0, 88aa00e04 |
-| Test fix (follow-up) | 4e108c65d4a5b05c1602b02eae775ffe47bd6cbf | not recorded | 4c75a0d59 |
+| Test fix 353 | 4e108c65d4a5b05c1602b02eae775ffe47bd6cbf | not recorded | 4c75a0d59 |
+| PLAN and SUMMARY | 822646d5c7f35e9dbf2fd29f06573b9ffd9d5033 | not recorded | 4e108c65d |
+| Merge 4 phase 369.6 | bf915cfd3226b771e659fc6295731f539b67722c | 2fc2b4fb6d2a469bf225c299c4d92cc93d0fd87c | 822646d5c, dd2d89996 |
+| Test fix a2s parity | 3824dedb6ab2934702b009ae82c09ee3e9340503 | not recorded | bf915cfd3 |
 
-All 3 merge trees match the plan. The follow-up commit changes 1 line in tests/test-353-doctor-section-ruling.cjs.
+Merges 1 to 3 match the predicted trees of the plan. Merge 4 tree differs from the predicted 83eee2aa60859bd24df5f131c64dd6d103f4c02b by exactly one line, see "Manifest regeneration".
 
-## Conflict notes (merge 3)
+## Conflict notes
 
+Merge 3:
 - CHANGELOG.md: kept the integration side. Blob c2b1672275872f39f9cddbe9676b78c5493f873a. All 5 branch bullets are present exactly once. No entry lost, none added.
 - .planning/STATE.md: kept both sides. The 261028-gmg row stands before the six 261029 rows. Blob c4e7e42be810b4f82ec030ed68a4d02b00e0277e. 1 line added, 0 deleted.
-- Only these 2 paths conflicted. No conflict marker and no dash added.
+- Only these 2 paths conflicted.
 
-## Root cause of the one test failure (PROVEN by the main session)
+Merge 4 (phase 369.6, tip dd2d89996, 87 commits over the integration tip): no conflict.
 
-Main retired the doctor module install-incomplete (class H) in commit 85b5072f7 (341-09), after the merge base. The section branch was written before that commit and its test expected 30 modules. The merged registry holds 29, which is correct. The expectation was stale. Fix: line 222 of tests/test-353-doctor-section-ruling.cjs changed from `=== 30` to `=== 29` with the check text "registry has 29 modules total (30 minus install-incomplete, retired by 341-09)". data/doctor-modules.json was not touched.
+## Manifest regeneration (merge 4)
+
+The pre-commit hook refused merge 4: data/harness-manifest.json was stale. Merge 3 changed lib/core/navigation-engine.cjs after the 369.6 branch had generated the manifest. With main session approval, the executor ran `node scripts/build-harness-manifest.cjs`. Only one line changed: the digest of the decide_engine surface, from b8541649c79cf32501d5373fe84a3a08004072d1fb0b8dd4c2a3ac7dd40371d1 to 1b3a9f596507a237c4c7d981a21ae0c82ac9b34fed2a7e2bc60a3cfa19b08431. No surface entry was added or removed. `--check` then reported OK. The merge 4 tree is 2fc2b4fb6d2a469bf225c299c4d92cc93d0fd87c (the plan predicted 83eee2aa60859bd24df5f131c64dd6d103f4c02b before the regeneration). The hook passed without --no-verify.
+
+## Root causes of test failures
+
+1. test-353-doctor-section-ruling (merge 3): main retired the doctor module install-incomplete in commit 85b5072f7 (341-09). The section branch test expected 30 modules. The merged registry holds 29, which is correct. Fix in 4e108c65d: line 222 now expects 29. data/doctor-modules.json untouched.
+2. test-261030-a2s-classifier-parity (merge 4): commit cd1106dd3 (369.6-12) adds a voice reminder line to the classifier output on purpose. 14 of 16 cases differed. Fix in 3824dedb6: the parity env of both sides sets MINDRIAN_VOICE_REMINDER=0 (the off switch in lib/hmi/larry-identity.cjs line 102). No other change. test-3696-voice-reminder still passes (34), so the line stays on by default.
+
+## Pre-existing failure (needs its own quick)
+
+lib/memory/userpromptsubmit-integration.test.cjs Test 8 ("tier_0 fallback leaves Phase 83 intent classifier path intact", assertion "Phase 83 warning header present", line 533) fails on 822646d5c, before the 369.6 merge, so the 369.6 merge did not cause it. Test 3 of the same file is load sensitive (failed in some runs, passed in others).
 
 ## Test results
 
@@ -32,22 +47,42 @@ Main retired the doctor module install-incomplete (class H) in commit 85b5072f7 
 | Merge 2 | test-261030-a2s-classifier-parity | 16 | 0 | 0 | 0 |
 | Merge 2 | test-261030-a2s-compile-cache | 11 | 0 | 0 | 0 |
 | Merge 3 | test-353-room-section-jobs | 77 | 0 | 0 | 0 |
-| Merge 3 | test-353-doctor-section-ruling | 48 | 1 | 0 | 1 (stale count) |
+| Merge 3 | test-353-doctor-section-ruling | 48 | 1 | 0 | 1 (stale count, fixed) |
 | Merge 3 | test-doctor-mcp-write-path | 27 | 0 | 0 | 0 |
 | Merge 3 | test-261030-a2s-classifier-parity | 16 | 0 | 0 | 0 |
 | Merge 3 | test-261030-a2s-compile-cache | 11 | 0 | 0 | 0 |
 | Merge 3 | test-380-gate-wiring | 37 | 0 | 1 | 0 |
-| After fix | test-353-doctor-section-ruling | 49 | 0 | 0 | 0 |
+| After fix 353 | test-353-doctor-section-ruling | 49 | 0 | 0 | 0 |
+| Merge 4 | test-3696-isolation | 70 | 0 | 0 | 0 |
+| Merge 4 | test-3696-isolation-cache-skip | 9 | 0 | 0 | 0 |
+| Merge 4 | test-3696-doctrine-presence | 23 | 0 | 0 | 0 |
+| Merge 4 | test-3696-holds-by | 16 | 0 | 0 | 0 |
+| Merge 4 | test-3696-identity-parity | 28 | 0 | 0 | 0 |
+| Merge 4 | test-3696-voice-reminder | 34 | 0 | 0 | 0 |
+| Merge 4 | test-261030-a2s-compile-cache | 11 | 0 | 0 | 0 |
+| Merge 4 | test-380-gate-wiring | 37 | 0 | 1 | 0 |
+| Merge 4 | test-353-doctor-section-ruling | 49 | 0 | 0 | 0 |
+| Merge 4 | test-359-prose-budget | 18 | 0 | 0 | 0 |
+| Merge 4 | test-261030-a2s-classifier-parity | 2 | 14 | 0 | 1 (voice line, fixed) |
+| Merge 4 | userpromptsubmit-integration | 14 | 1 | 0 | 1 (Test 8, pre-existing) |
+| After fix a2s | test-261030-a2s-classifier-parity | 16 | 0 | 0 | 0 |
+| After fix a2s | test-3696-voice-reminder | 34 | 0 | 0 | 0 |
+
+## Final tree checks (at 3824dedb6)
+
+- Tracked tree clean.
+- Files changed a3a293c93..3824dedb6: 214.
+- CHANGELOG.md: 0 conflict markers; 0 added lines with an em or en dash across a3a293c93..HEAD.
+- Message files msg3 to msg6 and the log were removed from the task directory.
 
 ## Notes
 
 - No brand rule applies; no design decision made.
-- Untracked files in the worktree: only the files in this task directory (PLAN, SUMMARY, msg3.txt, msg4.txt, t353.log). The orchestrator may delete msg3.txt, msg4.txt and t353.log before committing PLAN and SUMMARY.
-- Tracked tree is clean after the last commit.
+- Nothing was pushed, tagged or released. No stash, no reset, no --no-verify.
 
 STATUS: DONE
-CHANGED: 4 commits listed above.
-VERIFIED: trees and parents of the 3 merges match the plan. All targeted tests pass after the fix.
-UNVERIFIED: no full suite run (not allowed in this plan). The main session runs it on the tip.
-RISKS: the follow-up commit edits a test file by hand, as the main session approved.
-NEXT: The main session reviews the commits ahead of origin, commits PLAN and SUMMARY, and runs the heavy suite on the tip.
+CHANGED: 7 commits listed above; the two test edits were approved by the main session.
+VERIFIED: all targeted tests pass except userpromptsubmit-integration Test 8 (pre-existing).
+UNVERIFIED: no full suite run (not allowed in this plan).
+RISKS: userpromptsubmit-integration Test 8 fails on the tip; the hook-time warnings about HITL shape declarations (skills/vault, skills/visualize) are advisory and came from the 369.6 side.
+NEXT: The main session reviews the commits ahead of origin, then runs the heavy suite on the tip.
