@@ -20,6 +20,7 @@
 #   test-353-reach-hitrate.cjs        Plan 03 (not yet authored)
 #   test-353-grader-agreement.cjs     Plan 03 (not yet authored)
 #   test-353-tripwires.cjs            Plan 03 (not yet authored)
+#   test-353-room-section-jobs.cjs    quick 261028-gmg (room section-job declarations)
 #
 # Modeled on tests/run-all-345.sh (the run/run_if/counter shape, the guarded
 # per-planned-test-file idiom, the targeted em-dash guard).
@@ -30,6 +31,7 @@
 # targeted glob both pick up a landed file automatically. If a later plan
 # believes it needs a new leg, that is a signal to re-open this file
 # deliberately, not to silently patch around it.
+# Re-opened deliberately by quick 261028-gmg (2026-10-28): one run_if leg for test-353-room-section-jobs.cjs.
 #
 # House rule: hyphens only, no em-dashes, no emoji.
 
@@ -68,6 +70,9 @@ PHASE_353_SURFACES=(
   "lib/core/room-skeleton-scaffold.cjs"
   "lib/core/frontmatter-schemas.cjs"
   "lib/core/doctor/room-map-module.cjs"
+  "lib/core/doctor/section-ruling-module.cjs"
+  "lib/core/navigation-engine.cjs"
+  "lib/core/feyminto/next-move.cjs"
   "data/doctor-modules.json"
   "lib/core/navigation/room-birth.cjs"
   "lib/core/navigation/room-context.cjs"
@@ -96,6 +101,7 @@ run_if "353: anchor edge (plan 02)"                tests/test-353-anchor-edge.cj
 run_if "353: filing gate (plan 02)"                tests/test-353-filing-gate.cjs          node tests/test-353-filing-gate.cjs
 run_if "353: decide budget (plan 02)"              tests/test-353-decide-budget.cjs        node tests/test-353-decide-budget.cjs
 run_if "353: doctor section-ruling (plan 02)"      tests/test-353-doctor-section-ruling.cjs node tests/test-353-doctor-section-ruling.cjs
+run_if "353: room section-job declarations (quick 261028-gmg)" tests/test-353-room-section-jobs.cjs node tests/test-353-room-section-jobs.cjs
 run_if "353: release wiring (plan 02)"             tests/test-353-release-wiring.cjs       node tests/test-353-release-wiring.cjs
 run_if "353: reach hitrate (plan 03)"              tests/test-353-reach-hitrate.cjs        node tests/test-353-reach-hitrate.cjs
 run_if "353: grader agreement (plan 03)"           tests/test-353-grader-agreement.cjs     node tests/test-353-grader-agreement.cjs
