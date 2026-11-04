@@ -9,6 +9,7 @@
 'use strict';
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
@@ -55,7 +56,24 @@ const declared = declaredTests(MOD);
 const total = Object.values(declared).reduce((a, b) => a + b, 0);
 const panelCount = declared['panel.test.tsx'];
 
-const run = spawnSync('claude', ['plugin', 'test', '.'], {
+// The claude binary runs each test file in its own child process. Uncapped, the children make their
+// own load and the 5000 ms test timeouts fire: 34 fails on this tip and 99 on main uncapped, 0 fails
+// at 4 cores (two runs). So on Linux, with taskset on PATH, cap the engine to min(4, cores) cores.
+// MOS_ENGINE_TEST_CPUS overrides: a positive integer, or "all" for no cap.
+function engineCommand() {
+  const plain = ['claude', ['plugin', 'test', '.']];
+  const want = process.env.MOS_ENGINE_TEST_CPUS;
+  if (want === 'all') return plain;
+  const avail = typeof os.availableParallelism === 'function' ? os.availableParallelism() : 1;
+  const n = /^[1-9][0-9]*$/.test(want || '') ? Math.min(Number(want), avail) : Math.min(4, avail);
+  if (process.platform === 'linux' && n >= 1 && onPath('taskset')) {
+    return ['taskset', ['-c', '0-' + (n - 1), 'claude', 'plugin', 'test', '.']];
+  }
+  return plain;
+}
+const engine = engineCommand();
+
+const run = spawnSync(engine[0], engine[1], {
   cwd: MOD,
   encoding: 'utf8',
   timeout: TIMEOUT_MS,

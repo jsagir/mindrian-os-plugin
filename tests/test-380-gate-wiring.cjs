@@ -224,6 +224,24 @@ say('W9 a missing TypeScript compiler fails the typecheck leg (negative control,
   }
 }
 
+// ---- W10 -----------------------------------------------------------------------------------
+say('W10 the engine-test wrapper caps `claude plugin test` to 4 cores on Linux (uncapped it times out on its own load)');
+{
+  const wrapperCapped = (t) =>
+    /process\.platform === 'linux'/.test(t) &&
+    /onPath\('taskset'\)/.test(t) &&
+    /'taskset', \['-c', '0-'/.test(t) &&
+    /Math\.min\(4, avail\)/.test(t) &&
+    /MOS_ENGINE_TEST_CPUS/.test(t) &&
+    /spawnSync\(engine\[0\], engine\[1\]/.test(t);
+  const text = read('tests/test-380-engine-tests.cjs');
+  check(wrapperCapped(text), 'W10 the wrapper spawns the engine through taskset, guarded by linux and which taskset, capped at min(4, cores), with the MOS_ENGINE_TEST_CPUS override');
+  check(!/spawnSync\('claude', \['plugin', 'test'/.test(text), 'W10 no direct uncapped spawn of claude plugin test remains');
+  // Negative control: the pre-fix wrapper text (a direct spawn of claude) must fail the same predicate.
+  const oldText = "const run = spawnSync('claude', ['plugin', 'test', '.'], {\n  cwd: MOD,\n  encoding: 'utf8',\n";
+  check(!wrapperCapped(oldText), 'W10 negative control: the old direct-spawn wrapper text fails the cap check');
+}
+
 say('');
 say('test-380-gate-wiring: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
 process.exit(failed > 0 ? 1 : 0);
