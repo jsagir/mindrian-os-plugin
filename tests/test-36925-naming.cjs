@@ -33,6 +33,7 @@ const ROOT = path.resolve(__dirname, '..');
 const H = require('./helpers/isolated-home-36925.cjs');
 
 const BASE_SHA = 'f06c4ef78^';
+const PHASE_CLOSE_SHA = '3678b9326'; // the 369.25 close commit (369.6-07)
 const PHASE0_REFERRERS = { MINTO: 128, FEYNMAN: 23, BRAIN: 64 };
 
 let passed = 0;
@@ -127,10 +128,15 @@ async function main() {
 
   // ---- N6 ---------------------------------------------------------------------------------------------------------
   {
-    const r = spawnSync('git', ['diff', '--quiet', BASE_SHA, '--', 'agents/larry-extended.md', 'skills/larry-personality/SKILL.md'], { cwd: ROOT, encoding: 'utf8' });
+    // 369.6-07 (2026-10-30): the first check compares the 369.25 base with the 369.25 close commit, not the working tree.
+    // The working tree moved on by design (369.6 owns these files); what 369.25 itself must not have touched stays pinned.
+    const r = spawnSync('git', ['diff', '--quiet', BASE_SHA, PHASE_CLOSE_SHA, '--', 'agents/larry-extended.md', 'skills/larry-personality/SKILL.md'], { cwd: ROOT, encoding: 'utf8' });
     check('N6 agents/larry-extended.md and skills/larry-personality/SKILL.md are byte-identical to the phase base ' + BASE_SHA, r.status === 0, 'git diff --quiet exit ' + r.status + ' ' + String(r.stderr || '').slice(0, 120));
     const dirty = spawnSync('git', ['status', '--porcelain', '--', 'agents/larry-extended.md', 'skills/larry-personality/SKILL.md'], { cwd: ROOT, encoding: 'utf8' });
     check('N6 and the working tree copies carry no uncommitted edit', String(dirty.stdout || '').trim() === '', dirty.stdout);
+    // Added by 369.6-07: the historical comparison above only means something if the 369.25 close commit is in this history.
+    const anc = spawnSync('git', ['merge-base', '--is-ancestor', PHASE_CLOSE_SHA, 'HEAD'], { cwd: ROOT, encoding: 'utf8' });
+    check('N6 the 369.25 close commit ' + PHASE_CLOSE_SHA + ' is an ancestor of HEAD (added by 369.6-07)', anc.status === 0, 'git merge-base --is-ancestor exit ' + anc.status);
   }
 
   // ---- N7 referrer counts -----------------------------------------------------------------------------------------

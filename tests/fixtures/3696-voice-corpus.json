@@ -1,0 +1,2460 @@
+{
+ "note": "Labelled corpus for lib/hmi/larry-reply-checks.cjs (plan 369.6-01 Task 2). kind original = a verbatim sample, never normalized, checked by source_sha256; kind normalized = a rewritten twin that names its original; kind invented = new text for a check. Dash characters and other non-ASCII characters are JSON escapes, so the file holds no literal dash byte while the parsed text equals the source. expect maps a check name (an optional #suffix distinguishes a second call) to { ok, kinds, value, fields, args }.",
+ "rows": [
+  {
+   "id": "plurai-02-1",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 1 (label compliant)",
+   "source_sha256": "9cb1753a5bff3674c1c493d51d52cd4194c32e40b971c7f019efdd73fafec688",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "You're treating this as a marketing problem. What if it's actually a distribution problem? What's the smallest test that would tell you which?",
+   "expect": {
+    "countSentences": {
+     "value": 3
+    },
+    "countQuestions": {
+     "value": 2,
+     "ok": false
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-2",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 2 (label compliant)",
+   "source_sha256": "00c8e6a4f7e66cb441d26db8b2c85ba2490b3a5d5bfebcb17558d845e55d465c",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "Very simply: you've given me a solution looking for a problem. What pain were you feeling the day you thought of this?",
+   "expect": {
+    "countSentences": {
+     "value": 2
+    },
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 1,
+      "trailing_questions": 1
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-3",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 3 (label compliant)",
+   "source_sha256": "b4f91f02bc96786c04cd369dcd4d4edc39c16397e464b3018dc81e3fb346e3f3",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "That's not a problem, that's a category. Which slice of it actually keeps you up at night?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": false,
+     "kinds": [
+      "opening_pronoun"
+     ]
+    },
+    "findDashes": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-4",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 4 (label violation)",
+   "source_sha256": "a6ebc1719febbf623db3a97d946787f6606bc3212839f73259145d275b1d62f8",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "Great question! Here is the full Lean Canvas you should fill out: 1. Problem 2. Solution 3. Key Metrics 4. Unique Value Proposition 5. Unfair Advantage 6. Channels 7. Customer Segments 8. Cost Structure 9. Revenue Streams.",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": false,
+     "kinds": [
+      "banned_phrase"
+     ]
+    },
+    "findDashes": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-5",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 5 (label violation)",
+   "source_sha256": "8ace8c699553f69280bf3e577914937ad8839d7ce670505ebae8a2c19060caee",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "This is an ill-defined problem, Category 2 in the PWS matrix. Let me walk you through all six thinking hats one by one.",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    },
+    "findOpeningPronoun": {
+     "ok": false,
+     "kinds": [
+      "opening_pronoun"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-6",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 6 (label violation)",
+   "source_sha256": "1cbfd778d20db4caa6238a4ed8b6d99fceb4ebf4debb3676521cdaf039f3f989",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "Your idea is strong \u2014 but the market is weak \u2014 so you should probably reconsider the whole thing.",
+   "expect": {
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "em"
+     ]
+    },
+    "countQuestions": {
+     "value": 0,
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "plurai-02-7",
+   "kind": "original",
+   "source": "plurai-02",
+   "source_ref": "evals/plurai/02-larry-pedagogy-voice.csv row 7 (label violation)",
+   "source_sha256": "ca9781e18923aacf37e1b7b24279748dc448a84ba8b751ae59da5952f156d57e",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "",
+   "text": "Absolutely! I'd be happy to help. Here are 12 strategies for growth hacking your startup today.",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": false,
+     "kinds": [
+      "banned_phrase"
+     ]
+    },
+    "findUnsourcedNumber": {
+     "ok": false,
+     "kinds": [
+      "unsourced_number"
+     ]
+    },
+    "countSentences": {
+     "value": 3
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "probe-A",
+   "kind": "original",
+   "source": "P-probe-replies",
+   "source_ref": "research/P-probe-replies.md Probe A (J: R2 0, R8 1)",
+   "source_sha256": "7dec30e687c860492573e87729c601a5f3e4612b669c96c1db853f6773e27eda",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "hi. i'm a postdoc and my lab found a material that stays stable at weird humidity. i think it could be a product but i have no idea where to even start. what should i do?",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PWS thinking partner, powered by Claude. Congratulations on the material. Here's the catch -- \"I found a material\" is not a product. It's a capability, and a capability looking for a problem is the most common way lab discoveries die.\n\nThink about it like this: nobody buys \"stable at weird humidity.\" Somebody buys relief from a problem that humidity keeps causing them. So flip the direction. Don't ask \"what can this become?\" Ask \"who is losing money, time, or safety right now because things break, drift, or fail when humidity swings?\"\n\nSo here's my question. When you say \"weird humidity,\" what does the material do that the existing alternatives can't -- and who have you seen, even once, who would care?",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findApologyClose": {
+     "ok": true
+    },
+    "findIdLeak": {
+     "ok": true
+    },
+    "findToolOutputShape": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    },
+    "findCorpusAbsence": {
+     "ok": true
+    },
+    "findConsistencyAsSupport": {
+     "ok": true
+    },
+    "countSentences": {
+     "value": 11,
+     "j_hand_count": 11
+    },
+    "countSentences#skip": {
+     "args": {
+      "skipIdentityLine": true
+     },
+     "value": 10
+    },
+    "countQuestions": {
+     "value": 2,
+     "ok": false
+    },
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    },
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "too_many_questions"
+     ]
+    },
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "pause"
+     ]
+    },
+    "detectFrameworkDump": {
+     "ok": true
+    },
+    "findUnbackedStrongWords": {
+     "ok": false,
+     "kinds": [
+      "unbacked_strong_word"
+     ]
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "compound_closing_question"
+     ],
+     "fields": {
+      "last_question_count": 2,
+      "trailing_questions": 1,
+      "ends_on_next_step": false,
+      "uses_your_call": false
+     }
+    },
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "probe-B",
+   "kind": "original",
+   "source": "P-probe-replies",
+   "source_ref": "research/P-probe-replies.md Probe B (J: R8 0, R14 0)",
+   "source_sha256": "fc60184a39b631b7668144820506fc0ab30944e8945e0014df850c14d57168c6",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "hi. i'm a postdoc and my lab found a material that stays stable at weird humidity. i think it could be a product but i have no idea where to even start. what should i do?",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PWS thinking partner, powered by Claude. Congratulations on the finding. Before you think about where to start, one thing.\n\nYou've given me a material. But a material isn't a product. Nobody buys \"stable at weird humidity\" -- they buy the end of a problem that humidity is causing them. That's the shift: you're not looking for what to build with this material, you're looking for who is losing money, product, or sleep because everything else falls apart in those conditions.\n\nSo start there. Where might \"weird humidity\" be someone's daily headache? Packaging, electronics, construction, storage, medical devices, agriculture could all be candidates. These are guesses, and I'm not claiming any of them is a real problem.\n\nWhat's the \"weird\" in your case? Is it very high humidity, very low, or swings between the two? And do you know yet what the material is stable *at* that others aren't?",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findApologyClose": {
+     "ok": true
+    },
+    "findIdLeak": {
+     "ok": true
+    },
+    "findToolOutputShape": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    },
+    "findCorpusAbsence": {
+     "ok": true
+    },
+    "findConsistencyAsSupport": {
+     "ok": true
+    },
+    "countSentences": {
+     "value": 14,
+     "j_hand_count": 14
+    },
+    "countQuestions": {
+     "value": 4,
+     "ok": false
+    },
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    },
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "too_many_questions"
+     ]
+    },
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "pause"
+     ]
+    },
+    "detectFrameworkDump": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "stacked_closing_questions"
+     ],
+     "fields": {
+      "last_question_count": 1,
+      "trailing_questions": 3,
+      "ends_on_next_step": false,
+      "uses_your_call": false
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "probe-C",
+   "kind": "original",
+   "source": "P-probe-replies",
+   "source_ref": "research/P-probe-replies.md Probe C (J: R5 0, R8 0)",
+   "source_sha256": "ea4554101b3b581d0e03cac667a965d1ddb5fcc7199494e2d4b9c9ef6ae75548",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "My market is universities, I'm already sure. Just list me the frameworks I should run to validate it, I don't want a lecture.",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PWS thinking partner, powered by Claude. You asked for the list, so here it is, in the order I'd run it:\n\n1. **Challenge Assumptions** - stress-test the \"I'm sure\" first. Certainty is the thing to test.\n2. **User Needs** (jobs-to-be-done lens) - what job does a university hire you for, and who does the hiring?\n3. **Validate** - checks the claim against real evidence, not belief.\n4. **Lean Canvas** - after the first three, to see whether the customer, problem and channel hold together.\n\nOne reframe, since you asked for no lecture: \"universities\" is a category, not a customer. A provost, a department head and a procurement office buy for different reasons. You might be sure about the category and still have no idea who signs.\n\nWhich person inside a university pays you, and have you heard that from them directly?",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findApologyClose": {
+     "ok": true
+    },
+    "findIdLeak": {
+     "ok": true
+    },
+    "findToolOutputShape": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    },
+    "findCorpusAbsence": {
+     "ok": true
+    },
+    "findConsistencyAsSupport": {
+     "ok": true
+    },
+    "countSentences": {
+     "value": 10,
+     "j_hand_count": 12
+    },
+    "countQuestions": {
+     "value": 4,
+     "ok": false
+    },
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    },
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "too_many_questions"
+     ]
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "detectFrameworkDump": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "compound_closing_question"
+     ],
+     "fields": {
+      "last_question_count": 2,
+      "trailing_questions": 1,
+      "ends_on_next_step": false,
+      "uses_your_call": false
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "probe-D",
+   "kind": "original",
+   "source": "P-probe-replies",
+   "source_ref": "research/P-probe-replies.md Probe D (J: R2 0, R8 2, R14 2)",
+   "source_sha256": "427f43e5398a859e5e4cef12980f20cb2512fb8d5f54191e8b5336cd84612db8",
+   "surface": "cli",
+   "turn_index": 3,
+   "user_text": "bottom line - grants or investors first?",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PWS thinking partner, powered by Claude. Bottom line: grants first, and use the corporate partner to make them stronger.\n\nYou're framing this as grants versus investors, but you have three funding paths, and the corporate partner is the one that changes the others. Investors will ask what proof you have that the material works outside your lab. Humidity stability is your edge, so a partner testing it on their own use case is that proof. A grant reviewer reads the same evidence as credibility, and it lets you ask for more.\n\nSo the order I'd suggest:\n- Apply to the two grants now. They give non-dilutive money while you build the proof.\n- Open the corporate partner talks at the same time, aiming at a pilot or a letter of support. That one document helps both applications.\n- Take investor meetings last, once you can show outside validation.\n\nI have no source for the two programs' decision dates, so this is a first cut, not a verdict. Grant timing is the one thing that could flip it. If neither program pays out before your 8 months run short, investors move up.\n\nWhat are the decision dates on the two grants?",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findApologyClose": {
+     "ok": true
+    },
+    "findIdLeak": {
+     "ok": true
+    },
+    "findToolOutputShape": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    },
+    "findCorpusAbsence": {
+     "ok": true
+    },
+    "findConsistencyAsSupport": {
+     "ok": true
+    },
+    "countSentences": {
+     "value": 14,
+     "j_hand_count": 16
+    },
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "repeated_identity",
+      "spelling_pws_caps"
+     ]
+    },
+    "checkFirstReply": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "detectFrameworkDump": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 1,
+      "trailing_questions": 1,
+      "ends_on_next_step": false,
+      "uses_your_call": false
+     }
+    },
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null,
+   "prior_user_text": "the navigator earlier described the humidity-stable material, said two grant programs and one corporate partner are possible and that the team has 8 months of funding left."
+  },
+  {
+   "id": "sample-E",
+   "kind": "original",
+   "source": "P-probe-replies",
+   "source_ref": "research/P-probe-replies.md Sample E (J: R3 0, R4 0, R11 0)",
+   "source_sha256": "e0a86d44f4da7628ad44ccc6b08ee0394909f277a3f017ba89c8cd75c296a036",
+   "surface": "cli",
+   "turn_index": 5,
+   "user_text": "a navigator asked what the Larry research found so far while ten agents were running.",
+   "text": "\ud83d\udfe6 **Larry | MindrianOS**\n\nL1 (the operational inventory) is back. L2 and L3 are still running. I can settle one of its open questions from my own session context.\n\n**Larry is wired.**\n- The agent, skill, output style and hook config all parse.\n- Every script named in the hooks exists, and no file path in the persona text is dead. Tool names in the persona match the registered tools.\n- The plugin setting makes `larry-extended` the default agent.\n- The repo (HEAD `ddf79f26d`, version beta.76) and the beta.75 cache differ only by one rule added on 28 October, \"Your call: A | B | What if C\", plus a hooks status message.\n\n**The weak points are in the layering, not in the persona files.**\n1. **Injection happens once.** The Larry identity goes in at session start only (`scripts/session-start`, lines 367 to 373). There is no per-turn reinforcement of the voice, only the navigation blocks.\n2. **Voice enforcement is log-only,** as L4 found. The log has 284 glyph misses and 235 hyphen misses, the last glyph miss on 29 October at beta.75. It holds no hit rate, so nothing can compute one.\n3. **Rules that fight each other, with no rule for which wins:** (three bullets on output style, powered by Claude, and the dial).\n4. **Duplicate persona definitions exist.** (user-level symlinks and synced copies).\n\n**What this session received (my own context, so PROVEN).** The `mos:destijl` output style is active here, even though a user setting names a different output style. (more text)",
+   "expect": {
+    "countSentences": {
+     "value": 16
+    },
+    "countQuestions": {
+     "value": 0,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findUnbackedStrongWords": {
+     "ok": false,
+     "kinds": [
+      "unbacked_strong_word"
+     ]
+    },
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "hook_word",
+      "id",
+      "path"
+     ]
+    },
+    "findIdLeak": {
+     "ok": false,
+     "kinds": [
+      "leaf_id"
+     ]
+    },
+    "findUnsourcedNumber": {
+     "ok": false,
+     "kinds": [
+      "unsourced_number"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "l3-ex1-first",
+   "kind": "original",
+   "source": "L3-model-exchange",
+   "source_ref": "research/L3-lawrence-rubric.md Model exchanges 1",
+   "source_sha256": "54d14b23dc2f3944471e4285534b2b7b84c9c744ed5c618f0421aa9415c9b137",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "I want to do something about the future of food.",
+   "text": "\ud83d\udfe6 **Larry | MindrianOS** I'm Larry, MindrianOS's PWS thinking partner. What decision is stuck?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    },
+    "findDashes": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "l3-ex1-second",
+   "kind": "original",
+   "source": "L3-model-exchange",
+   "source_ref": "research/L3-lawrence-rubric.md Model exchanges 1",
+   "source_sha256": "12b0e58e208dfb3701bacae98faf85dae6a8a915b4d44f533b0a669f444ac09f",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "I just feel there is a big opportunity and I do not know where to start.",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS** \"The future of food\" is not a problem. It is a neighborhood with a lot of different streets in it. Very simply, nobody can start in a neighborhood; you start on one street. So here is a test: pick one person you have actually watched struggle with food, a farmer, a cook, a patient, anyone. What did they do that surprised you?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "checkFirstReply": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "l3-ex2",
+   "kind": "original",
+   "source": "L3-model-exchange",
+   "source_ref": "research/L3-lawrence-rubric.md Model exchanges 2",
+   "source_sha256": "2f906ea9ee33e0c5fbc9b4a2d61b3f7abcaf2c3038c7cafd4083021bdea06069",
+   "surface": "cli",
+   "turn_index": 3,
+   "user_text": "Our clinic loses most new nurses inside their first year. I think we need a better onboarding app.",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS** You've given me a solution. What's the problem? An app fixes confusion. It does nothing for a nurse who leaves because of the schedule, the manager or the patient load. Same symptom, three different problems, three different fixes.\n\nHere is the test I would run before anyone writes code: ask the last three nurses who left what was the moment they decided. If the answers are about not knowing how things work, your app idea might be right. If not, it might be the wrong tool for the right worry. I'm guessing; they will tell you.",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "l3-ex3",
+   "kind": "original",
+   "source": "L3-model-exchange",
+   "source_ref": "research/L3-lawrence-rubric.md Model exchanges 3",
+   "source_sha256": "1033427fc489ca23c3ce71345efe5c83ac4ba777ec9127c54a19c8b53bd4a0a2",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "I have two suppliers. A is cheaper and ships slower; B costs more and ships in time for my launch. Just tell me which.",
+   "text": "\u2b1c **Larry | MindrianOS** B. Your launch date is a hard constraint and the price gap is a soft one. A cheaper supplier that misses the launch costs you more than the gap.\n\nOne warning: confirm B's ship date in writing before you commit. That is the assumption the whole choice leans on. If B cannot put the date in writing, come back and we will look at A with a plan for the delay.",
+   "expect": {
+    "countQuestions": {
+     "value": 0,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 0,
+      "trailing_questions": 0
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "l3-ex1-first-pws",
+   "kind": "normalized",
+   "source": "L3-model-exchange",
+   "source_ref": "normalized twin of l3-ex1-first",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "I want to do something about the future of food.",
+   "text": "\ud83d\udfe6 **Larry | MindrianOS** I'm Larry, MindrianOS's PwS thinking partner. What decision is stuck?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "checkFirstReply": {
+     "ok": true
+    }
+   },
+   "normalized_from": "l3-ex1-first",
+   "normalization": "D-23 PwS spelling"
+  },
+  {
+   "id": "l3-ex1-second-pws",
+   "kind": "normalized",
+   "source": "L3-model-exchange",
+   "source_ref": "normalized twin of l3-ex1-second",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "I just feel there is a big opportunity and I do not know where to start.",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS** \"The future of food\" is not a problem. It is a neighborhood with a lot of different streets in it. Very simply, nobody can start in a neighborhood; you start on one street. So here is a test: pick one person you have actually watched struggle with food, a farmer, a cook, a patient, anyone. What did they do that surprised you?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "checkFirstReply": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    }
+   },
+   "normalized_from": "l3-ex1-second",
+   "normalization": "D-23 PwS spelling (no change needed: the text holds no all-capitals spelling)"
+  },
+  {
+   "id": "l3-ex2-pws",
+   "kind": "normalized",
+   "source": "L3-model-exchange",
+   "source_ref": "normalized twin of l3-ex2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 3,
+   "user_text": "Our clinic loses most new nurses inside their first year. I think we need a better onboarding app.",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS** You've given me a solution. What's the problem? An app fixes confusion. It does nothing for a nurse who leaves because of the schedule, the manager or the patient load. Same symptom, three different problems, three different fixes.\n\nHere is the test I would run before anyone writes code: ask the last three nurses who left what was the moment they decided. If the answers are about not knowing how things work, your app idea might be right. If not, it might be the wrong tool for the right worry. I'm guessing; they will tell you.",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": "l3-ex2",
+   "normalization": "D-23 PwS spelling (no change needed: the text holds no all-capitals spelling)"
+  },
+  {
+   "id": "l3-ex3-pws",
+   "kind": "normalized",
+   "source": "L3-model-exchange",
+   "source_ref": "normalized twin of l3-ex3",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 2,
+   "user_text": "I have two suppliers. A is cheaper and ships slower; B costs more and ships in time for my launch. Just tell me which.",
+   "text": "\u2b1c **Larry | MindrianOS** B. Your launch date is a hard constraint and the price gap is a soft one. A cheaper supplier that misses the launch costs you more than the gap.\n\nOne warning: confirm B's ship date in writing before you commit. That is the assumption the whole choice leans on. If B cannot put the date in writing, come back and we will look at A with a plan for the delay.",
+   "expect": {
+    "countQuestions": {
+     "value": 0,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 0,
+      "trailing_questions": 0
+     }
+    }
+   },
+   "normalized_from": "l3-ex3",
+   "normalization": "D-23 PwS spelling (no change needed: the text holds no all-capitals spelling)"
+  },
+  {
+   "id": "inv-exemplar-first",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "my lab found a material that holds at odd humidity, where do I start?",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PwS thinking partner, powered by Claude. You told me the lab found a material that holds at odd humidity. A material is a capability, not a product yet. Who loses money today because things break when humidity swings?",
+   "expect": {
+    "countSentences": {
+     "value": 4
+    },
+    "countSentences#skip": {
+     "args": {
+      "skipIdentityLine": true
+     },
+     "value": 3
+    },
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    },
+    "checkIdentityLine": {
+     "ok": true
+    },
+    "checkFirstReply": {
+     "ok": true
+    },
+    "findBannedPhrases": {
+     "ok": true
+    },
+    "findDashes": {
+     "ok": true
+    },
+    "detectFrameworkDump": {
+     "ok": true
+    },
+    "findOpeningPronoun": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    },
+    "findToolOutputShape": {
+     "ok": true
+    },
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 1,
+      "trailing_questions": 1
+     }
+    },
+    "findIdLeak": {
+     "ok": true
+    },
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-len-short",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Pick one person who struggled with it. Ask what they did last time. Write down the first thing that surprised you.",
+   "expect": {
+    "countSentences": {
+     "value": 3,
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-len-list",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Here is the order I would run it in:\n1. Name the customer.\n2. Name the job.\n3. Test the job with three people.\n4. Write down what surprised you.",
+   "expect": {
+    "countSentences": {
+     "value": 5,
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-len-long",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "One. Two. Three. Four. Five. Six. Seven. Eight. Nine. Ten.",
+   "expect": {
+    "countSentences": {
+     "value": 10,
+     "ok": false
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-q-compound",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "What does it do, and who would care?",
+   "expect": {
+    "countQuestions": {
+     "value": 2,
+     "ok": false
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-q-quoted",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Ask your first customer \"what do you do today when this breaks?\" before you build anything.",
+   "expect": {
+    "countQuestions": {
+     "value": 0,
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-q-single",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "What is the job the customer hires this for?",
+   "expect": {
+    "countQuestions": {
+     "value": 1,
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-cli-turn1",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I\u2019m Larry, MindrianOS\u2019s PwS thinking partner, powered by Claude. What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-cli-straight",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I'm Larry, MindrianOS's PwS thinking partner, powered by Claude. What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-mcp-clause",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "mcp",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I'm Larry, MindrianOS's PwS thinking partner, powered by Claude. What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "model_clause_host_neutral"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-mcp-neutral",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "mcp",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I'm Larry, MindrianOS's PwS thinking partner. What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-later-repeat",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 4,
+   "user_text": "",
+   "text": "I'm Larry, MindrianOS's PwS thinking partner, powered by Claude. Here is the next step.",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "repeated_identity"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-later-clean",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 4,
+   "user_text": "",
+   "text": "Here is the next step. Call the three people who left.",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-caps",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "mcp",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I'm Larry, MindrianOS's PWS thinking partner. What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "spelling_pws_caps"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-id-missing",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "What are you working on?",
+   "expect": {
+    "checkIdentityLine": {
+     "ok": false,
+     "kinds": [
+      "missing_identity"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-first-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "\ud83d\udfe6 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PwS thinking partner, powered by Claude. Congratulations on the finding. Who loses money today because of it?",
+   "expect": {
+    "checkFirstReply": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-first-noglyph",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "**Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PwS thinking partner, powered by Claude. Who loses money today because of it?",
+   "expect": {
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "glyph_missing"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-first-nolabel",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "\ud83d\udfe5 I'm Larry, MindrianOS's PwS thinking partner, powered by Claude. Who loses money today because of it?",
+   "expect": {
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "label_missing"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-first-twoacks",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nCongratulations on the finding. Thanks for the clear brief. Who loses money today?",
+   "expect": {
+    "checkFirstReply": {
+     "ok": false,
+     "kinds": [
+      "multiple_acknowledgments"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-banned-hit",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Great question. It's important to note that the market is large.",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": false,
+     "kinds": [
+      "banned_phrase"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-banned-clean",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The market is large. Say which part of it you have watched struggle.",
+   "expect": {
+    "findBannedPhrases": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dash-em",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The idea is strong \u2014 but the market is thin.",
+   "expect": {
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "em"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dash-en",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Pick a range of 3\u20135 people.",
+   "expect": {
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "en"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dash-pause",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Here is the catch -- nobody buys the material.",
+   "expect": {
+    "findDashes": {
+     "ok": false,
+     "kinds": [
+      "pause"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dash-hyphen-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Here is the catch - a single spaced hyphen is not a pause. Use a well-known test.",
+   "expect": {
+    "findDashes": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dash-stamp-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Checked: strong. The methodology graph links them in one step: Lean Canvas -- Reverse Salient -- Hooked Model.\nDirection: no wording signal measured.\nNobody has judged the citation yet; this is the path alone.",
+   "expect": {
+    "findDashes": {
+     "ok": true
+    },
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dump-names",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "I have an idea for a pet product.",
+   "text": "You could run Jobs to Be Done, Six Hats and Lean Canvas on this. Each one gives a different view of the problem.",
+   "expect": {
+    "detectFrameworkDump": {
+     "ok": false,
+     "kinds": [
+      "framework_names"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dump-asked",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "Which frameworks should I run on my pet product idea?",
+   "text": "You could run Jobs to Be Done, Six Hats and Lean Canvas on this. Each one gives a different view of the problem.",
+   "expect": {
+    "detectFrameworkDump": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dump-commands",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "What should I do next?",
+   "text": "Try /mos:challenge-assumptions, /mos:validate and /mos:lean-canvas in that order.",
+   "expect": {
+    "detectFrameworkDump": {
+     "ok": false,
+     "kinds": [
+      "mos_commands"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-dump-one",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "What should I do next?",
+   "text": "One lens fits here: Jobs to Be Done, because the buyer already hires something for this.",
+   "expect": {
+    "detectFrameworkDump": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-strong-kills",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "This kills the idea.",
+   "expect": {
+    "findUnbackedStrongWords": {
+     "ok": false,
+     "kinds": [
+      "unbacked_strong_word"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-strong-common",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "This is the most common failure in the field.",
+   "expect": {
+    "findUnbackedStrongWords": {
+     "ok": false,
+     "kinds": [
+      "unbacked_strong_word"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-strong-backed",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Only the two executed queries returned records, and both are cited above.",
+   "expect": {
+    "findUnbackedStrongWords": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-strong-claim-state",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The claim is marked confirmed in your room.",
+   "expect": {
+    "findUnbackedStrongWords": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-strong-none",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The two executed queries returned no records.",
+   "expect": {
+    "findUnbackedStrongWords": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-absence-hit",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "No research exists on this.",
+   "expect": {
+    "findCorpusAbsence": {
+     "ok": false,
+     "kinds": [
+      "corpus_absence"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-absence-novel",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "This idea is completely novel.",
+   "expect": {
+    "findCorpusAbsence": {
+     "ok": false,
+     "kinds": [
+      "corpus_absence"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-absence-scoped",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The two executed queries returned no records, so I cannot say what the wider literature holds.",
+   "expect": {
+    "findCorpusAbsence": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-consistency-hit",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Three independent analyses confirm it.",
+   "expect": {
+    "findConsistencyAsSupport": {
+     "ok": false,
+     "kinds": [
+      "consistency_as_support"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-consistency-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The three analyses agree, which is internal consistency, because they share the same inputs.",
+   "expect": {
+    "findConsistencyAsSupport": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-apology-close",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "I renamed the term and fixed the section. Sorry for the confusion.",
+   "expect": {
+    "findApologyClose": {
+     "ok": false,
+     "kinds": [
+      "apology_close"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-apology-early",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Sorry about that. I renamed the term and fixed the section.",
+   "expect": {
+    "findApologyClose": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-idleak-run",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The run rp-2026-10-04-32664e65 left L7 and lane B untouched.",
+   "expect": {
+    "findIdLeak": {
+     "ok": false,
+     "kinds": [
+      "lane_letter",
+      "leaf_id",
+      "run_id"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-idleak-shape",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The plan came back as shape F.8 with the verdict term_not_composed.",
+   "expect": {
+    "findIdLeak": {
+     "ok": false,
+     "kinds": [
+      "shape_code",
+      "verdict_code"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-idleak-clean",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The two walls this plan exists to test were not searched.",
+   "expect": {
+    "findIdLeak": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-undef-hit",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The matrix shows where you stand. Look at the top row.",
+   "expect": {
+    "findUndefinedFirstUse": {
+     "ok": false,
+     "kinds": [
+      "undefined_first_use"
+     ],
+     "args": {
+      "terms": [
+       "matrix"
+      ]
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-undef-defined",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The matrix is a grid that shows where you stand. Look at the top row.",
+   "expect": {
+    "findUndefinedFirstUse": {
+     "ok": true,
+     "args": {
+      "terms": [
+       "matrix"
+      ]
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-undef-absent",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Look at the top row.",
+   "expect": {
+    "findUndefinedFirstUse": {
+     "ok": true,
+     "args": {
+      "terms": [
+       "matrix"
+      ]
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-pron-hit",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "It is a good start. Name the customer next.",
+   "expect": {
+    "findOpeningPronoun": {
+     "ok": false,
+     "kinds": [
+      "opening_pronoun"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-pron-label",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nThis is a good start. Name the customer next.",
+   "expect": {
+    "findOpeningPronoun": {
+     "ok": false,
+     "kinds": [
+      "opening_pronoun"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-pron-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Your lab found a material that holds at odd humidity. Name the customer next.",
+   "expect": {
+    "findOpeningPronoun": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-pron-after-identity",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "\ud83d\udfe5 **Larry | MindrianOS**\n\nI'm Larry, MindrianOS's PwS thinking partner, powered by Claude. Your lab found a material. Name the customer next.",
+   "expect": {
+    "findOpeningPronoun": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-tool",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "what do I have on pricing?",
+   "text": "I queried the graph with graph_query and found two notes.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "narrated_call",
+      "tool_id"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-db",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "what do I have on pricing?",
+   "text": "I checked room.db for your pricing notes.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "database_word"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-guard",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "file this note please",
+   "text": "The egress guard refused the step with error code EGRESS_BLOCKED.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "error_code",
+      "guard_word"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-brain",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "what next?",
+   "text": "I asked the Brain for a chain and it returned one.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "backend_noun"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-theo-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "what next?",
+   "text": "Theo suggests a Jobs to be Done pass here, because your note describes a buyer who already hires something for this.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-plain-ok",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "what do I have on pricing?",
+   "text": "I looked at what you filed under pricing. Two notes bear on this, and they disagree about the price.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-asked-name",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "is my data stored in SQLite?",
+   "text": "The pricing notes sit in a SQLite file inside your room folder.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-asked-how",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "how do you know what is in my room?",
+   "text": "I read the room first, then answer from what it holds. The tool is graph_query, and it only reads.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-refusal-bad",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "file this note please",
+   "text": "I could not file that. The egress guard returned error code EGRESS_BLOCKED for the step.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "error_code",
+      "guard_word"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-refusal-plain",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "file this note please",
+   "text": "I could not file that note right now. Your note is safe in the room. Ask me again in a minute, or tell me what to change.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-stamp-mixed",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "does this hold?",
+   "text": "Checked: strong. The methodology graph links them in one step: Lean Canvas -- Reverse Salient -- Hooked Model.\nI also ran graph_query for the room.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "tool_id"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-narr-tier0",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "why is the answer thin?",
+   "text": "You are in Tier 0 right now, so I have less to go on.",
+   "expect": {
+    "findMachineryNarration": {
+     "ok": false,
+     "kinds": [
+      "tier"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-shape-json",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Here is what came back: {\"results\": [{\"id\": \"n1\", \"score\": 0.82}]}",
+   "expect": {
+    "findToolOutputShape": {
+     "ok": false,
+     "kinds": [
+      "json_object"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-shape-ids",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The closest notes are:\n- 3f2a9c1b: 0.82\n- 7c1e44aa: 0.77\n- 91d0b2ce: 0.61",
+   "expect": {
+    "findToolOutputShape": {
+     "ok": false,
+     "kinds": [
+      "id_or_score_list"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-shape-fenced",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Result:\n```json\n{\"nodes\": 12}\n```\nThat is the output.",
+   "expect": {
+    "findToolOutputShape": {
+     "ok": false,
+     "kinds": [
+      "fenced_tool_result",
+      "json_object"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-shape-plain",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Two of your notes disagree about the price. Settle which one is current before you pitch.",
+   "expect": {
+    "findToolOutputShape": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-step-q",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Start with the three people who left. Which of them will talk to you?",
+   "expect": {
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 1,
+      "trailing_questions": 1,
+      "ends_on_next_step": true,
+      "uses_your_call": false
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-step",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Call the three people who left this week.",
+   "expect": {
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "last_question_count": 0,
+      "trailing_questions": 0,
+      "ends_on_next_step": true,
+      "uses_your_call": false
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-compound",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "What is the job, and who hires it?",
+   "expect": {
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "compound_closing_question"
+     ],
+     "fields": {
+      "last_question_count": 2
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-stack",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Who is the buyer? What do they do today? Why would they switch?",
+   "expect": {
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "stacked_closing_questions"
+     ],
+     "fields": {
+      "trailing_questions": 3
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-menu",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Pick one: type 1, 2, 3 for the path you want.",
+   "expect": {
+    "findClosingShape": {
+     "ok": false,
+     "kinds": [
+      "prose_menu"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-close-yourcall",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "Both paths are open. Your call: grants first | investors first | What if the partner pays first?",
+   "expect": {
+    "findClosingShape": {
+     "ok": true,
+     "fields": {
+      "uses_your_call": true
+     }
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-num-bare",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "About 40 percent of grants are funded.",
+   "expect": {
+    "findUnsourcedNumber": {
+     "ok": false,
+     "kinds": [
+      "unsourced_number"
+     ]
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-num-sourced",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "According to the funder's own report, 40 percent of applications are funded.",
+   "expect": {
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-num-user",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "we have 8 months of funding left",
+   "text": "You have 8 months of funding, so the order matters.",
+   "expect": {
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  },
+  {
+   "id": "inv-num-none",
+   "kind": "invented",
+   "source": "invented",
+   "source_ref": "plan 369.6-01 Task 2",
+   "source_sha256": "",
+   "surface": "cli",
+   "turn_index": 1,
+   "user_text": "",
+   "text": "The order matters. Apply to the grants first.",
+   "expect": {
+    "findUnsourcedNumber": {
+     "ok": true
+    }
+   },
+   "normalized_from": null,
+   "normalization": null
+  }
+ ]
+}

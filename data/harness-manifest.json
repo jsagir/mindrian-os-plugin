@@ -32,7 +32,7 @@
     {
       "role": "decide_engine",
       "path": "lib/core/navigation-engine.cjs",
-      "digest": "b8541649c79cf32501d5373fe84a3a08004072d1fb0b8dd4c2a3ac7dd40371d1"
+      "digest": "1b3a9f596507a237c4c7d981a21ae0c82ac9b34fed2a7e2bc60a3cfa19b08431"
     },
     {
       "role": "cockpit",
@@ -47,24 +47,24 @@
   ],
   "policies": {
     "path": "data/harness-policies",
-    "digest": "ea2f3bf3fc4e421074b552e8881031c28017f5d03d3d01b53b7a2acffdda2f57",
-    "count": 17
+    "digest": "a236b379f510ddf8ca6df72eb9c5682d5d830a30932843082029d004dae60a04",
+    "count": 18
   },
   "larry_surfaces": [
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "6331867a1ff81844b5b92fe98dd9e4a6f0a90f47641944489311ce1b2202138d"
+      "digest": "9ca5be0e170615e0f8ae6bef8afa03579056d04bba951b04c8b185d0ba523fa5"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "d49bd44e1fa96a2fe151d6a789fc0df7e668bff089c7a19d1107692c372e9ee3"
+      "digest": "907d45b0b9254f2636fc284a3b3b5ba3a6ad77820dc854c6ca93b627f6844c65"
     },
     {
       "role": "desktop_cowork_wire",
       "path": "lib/mcp/runtime-instructions.cjs",
-      "digest": "87c22d9d9d5149ed5d61dce4d91c07536e98df7262e0c2780b73e245ed495621"
+      "digest": "03e78db7054a09e79f1aa588cd01683697be9d9a698ee2b7c163264cafac4d6a"
     }
   ],
   "fixture_ref": {

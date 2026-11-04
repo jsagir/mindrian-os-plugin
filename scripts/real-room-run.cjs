@@ -1033,4 +1033,10 @@ async function main(argv) {
   }
 }
 
-main(process.argv.slice(2)).then(function (code) { process.exitCode = code; });
+// Plan 369.6-02: the eval births its scratch room through buildRoom in a child process
+// (buildRoom sets process.env.MINDRIAN_ROOMS_HOME). Requiring this file must not run main.
+if (require.main === module) {
+  main(process.argv.slice(2)).then(function (code) { process.exitCode = code; });
+}
+
+module.exports = { buildRoom };

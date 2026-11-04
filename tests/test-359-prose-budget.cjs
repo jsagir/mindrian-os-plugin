@@ -57,16 +57,29 @@ const MCP_BUDGET = 2000;
 const MCP_HOST_CAP = 2048;
 const FROZEN_SHA = Object.freeze({
   // larry-extended.md with the `## Decision Gates` span removed
-  LARRY_OUTSIDE_GATES: '49b2e143e5a233cd387479a1679423959c7c604587ddbbd9672caa76c7c240ad',
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 49b2e143e5a2...c240ad (PwS identity, no spaced double hyphen, optional openers); re-based again in the follow-up commit (the Never Do parenthetical pauses): was f7856dc7e3cd...e313c
+  // re-based by 369.6-08 Task 1 (D-03), 2026-10-30: was 9f7b756fabb5...b586 (Operating the machinery, Operating policy and Post-Gate Handoff move to references/personality/agent-operations.md; compact pointer section)
+  // re-based by 369.6-08 Task 2 (D-03), 2026-10-30: was 84d312bd715d...9d27 (Persona-Aware Turn 1, Canonical role mapping, Dual-Path Detection and Why this exists move to references/personality/agent-operations.md; two compact turn-1 rules)
+  // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
+  // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
+  // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
+  LARRY_OUTSIDE_GATES: '5389514d2b3b933c4c7535f8fccee7012cd678bbb956fcf1a716496263a5f4cd',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
   // every other line are byte-untouched)
-  SKILL_OUTSIDE_ITEM5: 'ebd5ee398705825a07a0589c190f8f3658d6a0c080a8b70d05176c61aef2bb61',
-  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then by quick 261030-c94 for the 3 lines of the Node 22.18.0 preflight floor; any later edit of session-start moves this pin again)
-  SESSION_START_OUTSIDE_DOCTRINE: '89c7c323a5e064c227cc08fdb9563fda80b9951ea3c8970b4595b67eda59af9a',
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was ebd5ee398705...bb61 (PwS identity paragraph, punctuation line)
+  // re-based by 369.6-10 Task 1 (D-04), 2026-10-30: was 5923ccec4d06...dad4 (the reach, dial, Usher and stance manual moves to references/personality/reach-and-dial.md; compact When to Reach triggers section with the context, cross-room and methodology triggers inline)
+  // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 8c91b97411cb...4a9d (memory, stamps and onboarding move to references/personality/memory-and-findings.md and onboarding.md; inline lines, References list)
+  // re-based by 369.6-11 Task 1 (D-36, D-38, D-39, R-09, R-16, R-17), 2026-10-30: was 1c4a980e2b8200d57b696d9d2ca3c5fb5ed9247b758f2945bd9ee3f87df70f82 (the Thinking Trace shrinks to the on-request rule, Integration Offers become job-tied, spaced double hyphen pauses are retired)
+  SKILL_OUTSIDE_ITEM5: '5c5ba25e497027ada0a41c5613ba75614ddcbe661b0d0df3a09495fd321774e3',
+  // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
+  // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
+  // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30
+  SESSION_START_OUTSIDE_DOCTRINE: 'd4ea34b38889b7dc26e603f648a9b6f4d68278dc94b7342fde66dadce9cc93ed',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
-  MCP_PERSONA: '2f3c40f2ed1ccf01ae28c012d4cfb7d48e852eda445f79644852584335b0588c',
+  // re-based by 369.6-07 (D-05), 2026-10-30: was 2f3c40f2ed1c...588c (the persona line spells PwS; the length stays 2000 bytes)
+  MCP_PERSONA: 'd609af7d3f764a49b47d3d170db0af2ddbde72e7ea6965c798c06cc91689dba9',
   MCP_THEO: '8f096d7ddf4380c99aa57645ce8101065a89affef58f83b67f7895f6d067851f',
   MCP_BOUNDARIES: 'b78f40ed0046a6c724a7fe35f7ae13b00925b5d86b4ea5a62822a7384cf78b95',
 });
@@ -90,11 +103,17 @@ function check(label, fn) {
 // ---- Surface extraction ----------------------------------------------------
 const larryLines = read('agents/larry-extended.md').split('\n');
 const gStart = larryLines.findIndex((l) => /^## Decision Gates/.test(l));
-const gEnd = larryLines.findIndex((l) => /^## The Cardinal Sin/.test(l));
-const hStart = larryLines.findIndex((l) => /^## Post-Gate Handoff/.test(l));
+// 369.6-09 (D-01): in the voice-first order the Decision Gates section is no longer followed by The Cardinal Sin, so the span
+// is section-bounded: from `## Decision Gates` to the line before the next level-2 heading. The span bytes are unchanged.
+const gEnd = gStart >= 0 ? larryLines.findIndex((l, i) => i > gStart && /^## /.test(l)) : -1;
+// 369.6-08 (D-03): the Post-Gate Handoff section moved line for line to references/personality/agent-operations.md.
+const opsLines = read('references/personality/agent-operations.md').split('\n');
+const hStart = opsLines.findIndex((l) => /^## Post-Gate Handoff/.test(l));
+const hNext = hStart >= 0 ? opsLines.findIndex((l, i) => i > hStart && /^## /.test(l)) : -1;
+const hEnd = hNext === -1 ? opsLines.length : hNext;
 const LARRY_SPAN = gStart >= 0 && gEnd > gStart ? larryLines.slice(gStart, gEnd).join('\n') + '\n' : '';
 const LARRY_OUTSIDE = larryLines.slice(0, gStart).concat(larryLines.slice(gEnd)).join('\n');
-const HANDOFF_SPAN = hStart >= 0 && hStart < gStart ? larryLines.slice(hStart, gStart).join('\n') + '\n' : '';
+const HANDOFF_SPAN = hStart >= 0 ? opsLines.slice(hStart, hEnd).join('\n') + '\n' : '';
 
 const skillLines = read('skills/larry-personality/SKILL.md').split('\n');
 const ITEM5_PREFIX = '5. Never hand-draw the dial glyphs';
@@ -180,7 +199,8 @@ check('B5: 357 pinned phrases in larry-extended and the gate-native-fire window'
   assert.equal(full.split('## Decision Gates').length - 1, 1, '## Decision Gates must appear once');
   assert.ok(full.includes('no card, no picture (SEED-021)'));
   assert.ok(full.includes('AskUserQuestion'));
-  assert.ok(/End with a question or next step[\s\S]{0,120}AskUserQuestion card/i.test(full));
+  // 369.6-09 (D-08, R-21): the closing rule is reworded; the gate question IS the card.
+  assert.ok(/never invent the next move[\s\S]{0,240}AskUserQuestion card/i.test(full));
 });
 check('B5: SKILL item 5 is one line with its prefix and its SEED-021 clause', () => {
   assert.equal(item5.length, 1, 'exactly one item-5 line');

@@ -165,7 +165,7 @@ function registeredRoomNames(reg) {
 //   3. quoted name      '"Beta"' / '"Curriculum Redesign"' -> name OR slug
 //   4. fall through     -> existing similarity heuristic (unchanged)
 //
-// First match wins. Lawrence Aronhime's 2026-04-28 callouts 1, 2, 4 are
+// First match wins. The 2026-04-28 reviewer callouts 1, 2, 4 are
 // fenced by this layer. Callout 3 ("the curriculum room", natural
 // language) is known-deferred to v1.11.3.
 const strictModeMod = require(
@@ -3639,10 +3639,27 @@ module.exports = {
   buildStrategyProposedPayload: buildStrategyProposedPayload,
 };
 
+// 369.6-12 (D-16, D-34, R-06): the static per-turn voice and operation line. One line from the one constant
+// in lib/hmi/larry-identity.cjs, written once per turn right after main() and before any GRAPH FINDINGS or
+// NAVIGATION DECISION block, so a JSON envelope that main() wrote stays the first bytes of stdout and the
+// suppress-when-unchanged marker cannot remove the line. No room content, no user text, no Brain call.
+// MINDRIAN_VOICE_REMINDER=0 turns it off. Fail-silent: the hook must never break a prompt.
+function emitVoiceReminder() {
+  try {
+    const identity = require(path.join(__dirname, '..', 'lib', 'hmi', 'larry-identity.cjs'));
+    if (identity.shouldEmitVoiceReminder(STDIN_MESSAGE, process.env)) {
+      process.stdout.write(identity.REMINDER_LINE + '\n');
+    }
+  } catch (_) {
+    // Fail-silent.
+  }
+}
+
 if (require.main === module) {
 try {
   const injectionStart = Date.now();
   const code = main();
+  emitVoiceReminder();
   if (injectionEnabled()) {
     try {
       injectGraphFindings(injectionStart);

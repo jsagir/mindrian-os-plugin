@@ -1,0 +1,1122 @@
+{
+  "version": 1,
+  "label": "research-p",
+  "replies_sha256": "417b5e2f81199c4ceb29f43050d92e76bef5bbbab465af72343c76d14a5a33d1",
+  "judge_requested": "auto",
+  "scored_at": "2026-10-29T18:07:19.230Z",
+  "judge_per_item": {
+    "R1": {
+      "code": 5
+    },
+    "R2": {
+      "code": 5
+    },
+    "R3": {
+      "code": 4
+    },
+    "R4": {
+      "code": 4
+    },
+    "R5": {
+      "jev": 4,
+      "code": 1
+    },
+    "R6": {
+      "jev": 4
+    },
+    "R7": {
+      "jev": 5
+    },
+    "R9": {
+      "jev": 4
+    },
+    "R13": {
+      "jev": 5
+    },
+    "R8": {
+      "code": 5
+    },
+    "R10": {
+      "code": 5
+    },
+    "R11": {
+      "jev": 4
+    },
+    "R12": {
+      "code": 5
+    },
+    "R14": {
+      "jev": 3,
+      "code": 2
+    },
+    "R15": {
+      "code": 5
+    },
+    "OP1": {
+      "code": 5
+    }
+  },
+  "jev_refusals": [],
+  "entries": [
+    {
+      "probe": "A",
+      "cell": "1",
+      "sample": 1,
+      "items": {
+        "R1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "glyph and label"
+        },
+        "R2": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "spelling_pws_caps"
+        },
+        "R3": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "10 sentences"
+        },
+        "R4": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "prose only"
+        },
+        "R5": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 2,
+          "confidence": 0.93,
+          "detail": "no framework name"
+        },
+        "R6": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.94,
+          "detail": "judge item, no judge ran"
+        },
+        "R7": {
+          "value": null,
+          "status": "abstained",
+          "judge": "jev",
+          "scorer": "judge",
+          "detail": "below_confidence_floor",
+          "confidence": 0.37
+        },
+        "R9": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.7,
+          "detail": "judge item, no judge ran"
+        },
+        "R13": {
+          "value": null,
+          "status": "abstained",
+          "judge": "jev",
+          "scorer": "judge",
+          "detail": "below_confidence_floor",
+          "confidence": 0.11
+        },
+        "R8": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "2 questions"
+        },
+        "R10": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no unsourced figure"
+        },
+        "R11": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.59,
+          "detail": "code half is a ceiling only; the judge decides demand and human signal"
+        },
+        "R12": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "dash or pause, short sentence"
+        },
+        "R14": {
+          "value": 1,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 1,
+          "confidence": 0.9,
+          "detail": "compound closing question"
+        },
+        "R15": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration",
+          "ceiling": 2,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "OP1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration"
+        },
+        "OP2": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP5": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        }
+      },
+      "total": {
+        "value": null,
+        "status": "abstained",
+        "partial_sum": 20,
+        "missing": [
+          "R7",
+          "R13"
+        ],
+        "applicable_items": 15,
+        "judge": null
+      },
+      "gates": {
+        "R1": "pass",
+        "R10": "pass",
+        "R15": "pass",
+        "OP1": "pass"
+      },
+      "vibe_core_sum": 9,
+      "applicable": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "OP1"
+      ],
+      "not_applicable": {
+        "OP2": "na_operation_on_voice_cell",
+        "OP3": "na_operation_on_voice_cell",
+        "OP4": "na_operation_on_voice_cell",
+        "OP5": "na_operation_on_voice_cell"
+      },
+      "judge_reasons": []
+    },
+    {
+      "probe": "B",
+      "cell": "1",
+      "sample": 1,
+      "items": {
+        "R1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "glyph and label"
+        },
+        "R2": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "spelling_pws_caps"
+        },
+        "R3": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "13 sentences"
+        },
+        "R4": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "prose only"
+        },
+        "R5": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 2,
+          "confidence": 0.94,
+          "detail": "no framework name"
+        },
+        "R6": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.94,
+          "detail": "judge item, no judge ran"
+        },
+        "R7": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.55,
+          "detail": "judge item, no judge ran"
+        },
+        "R9": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.9,
+          "detail": "judge item, no judge ran"
+        },
+        "R13": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.56,
+          "detail": "judge item, no judge ran"
+        },
+        "R8": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "4 questions"
+        },
+        "R10": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no unsourced figure"
+        },
+        "R11": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.61,
+          "detail": "code half is a ceiling only; the judge decides demand and human signal"
+        },
+        "R12": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "dash or pause, short sentence"
+        },
+        "R14": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "stacked_closing_questions",
+          "ceiling": 0,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "R15": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration",
+          "ceiling": 2,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "OP1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration"
+        },
+        "OP2": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP5": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        }
+      },
+      "total": {
+        "value": 23,
+        "status": "scored",
+        "max": 30,
+        "judge": "code+jev",
+        "applicable_items": 15
+      },
+      "gates": {
+        "R1": "pass",
+        "R10": "pass",
+        "R15": "pass",
+        "OP1": "pass"
+      },
+      "vibe_core_sum": 11,
+      "applicable": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "OP1"
+      ],
+      "not_applicable": {
+        "OP2": "na_operation_on_voice_cell",
+        "OP3": "na_operation_on_voice_cell",
+        "OP4": "na_operation_on_voice_cell",
+        "OP5": "na_operation_on_voice_cell"
+      },
+      "judge_reasons": []
+    },
+    {
+      "probe": "C",
+      "cell": "1",
+      "sample": 1,
+      "items": {
+        "R1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "glyph and label"
+        },
+        "R2": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "spelling_pws_caps"
+        },
+        "R3": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "9 sentences, a list or plan was asked for"
+        },
+        "R4": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "a requested list or plan is exempt"
+        },
+        "R5": {
+          "value": 1,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 1,
+          "code_value": 1,
+          "confidence": 0.61,
+          "detail": "asked for a list, 2 names"
+        },
+        "R6": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.93,
+          "detail": "judge item, no judge ran"
+        },
+        "R7": {
+          "value": null,
+          "status": "abstained",
+          "judge": "jev",
+          "scorer": "judge",
+          "detail": "below_confidence_floor",
+          "confidence": 0.07
+        },
+        "R9": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.95,
+          "detail": "judge item, no judge ran"
+        },
+        "R13": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.91,
+          "detail": "judge item, no judge ran"
+        },
+        "R8": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "4 questions"
+        },
+        "R10": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no unsourced figure"
+        },
+        "R11": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.85,
+          "detail": "code half is a ceiling only; the judge decides demand and human signal"
+        },
+        "R12": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no dash, short sentence"
+        },
+        "R14": {
+          "value": 1,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 1,
+          "confidence": 0.77,
+          "detail": "compound closing question"
+        },
+        "R15": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration",
+          "ceiling": 2,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "OP1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration"
+        },
+        "OP2": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP5": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        }
+      },
+      "total": {
+        "value": null,
+        "status": "abstained",
+        "partial_sum": 23,
+        "missing": [
+          "R7"
+        ],
+        "applicable_items": 15,
+        "judge": null
+      },
+      "gates": {
+        "R1": "pass",
+        "R10": "pass",
+        "R15": "pass",
+        "OP1": "pass"
+      },
+      "vibe_core_sum": 9,
+      "applicable": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "OP1"
+      ],
+      "not_applicable": {
+        "OP2": "na_operation_on_voice_cell",
+        "OP3": "na_operation_on_voice_cell",
+        "OP4": "na_operation_on_voice_cell",
+        "OP5": "na_operation_on_voice_cell"
+      },
+      "judge_reasons": []
+    },
+    {
+      "probe": "D",
+      "cell": "1",
+      "sample": 1,
+      "items": {
+        "R1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "glyph and label"
+        },
+        "R2": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "repeated_identity,spelling_pws_caps"
+        },
+        "R3": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "13 sentences"
+        },
+        "R4": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "one list or bold header"
+        },
+        "R5": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 2,
+          "confidence": 0.97,
+          "detail": "no framework name"
+        },
+        "R6": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.9,
+          "detail": "judge item, no judge ran"
+        },
+        "R7": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.73,
+          "detail": "judge item, no judge ran"
+        },
+        "R9": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.95,
+          "detail": "judge item, no judge ran"
+        },
+        "R13": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.79,
+          "detail": "judge item, no judge ran"
+        },
+        "R8": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "1 questions"
+        },
+        "R10": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no unsourced figure"
+        },
+        "R11": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.83,
+          "detail": "code half is a ceiling only; the judge decides demand and human signal"
+        },
+        "R12": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no dash, short sentence"
+        },
+        "R14": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "both",
+          "judge_value": 2,
+          "code_value": 2,
+          "confidence": 0.93,
+          "detail": "one closing question"
+        },
+        "R15": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration",
+          "ceiling": 2,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "OP1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no machinery narration"
+        },
+        "OP2": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP5": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        }
+      },
+      "total": {
+        "value": 26,
+        "status": "scored",
+        "max": 30,
+        "judge": "code+jev",
+        "applicable_items": 15
+      },
+      "gates": {
+        "R1": "pass",
+        "R10": "pass",
+        "R15": "pass",
+        "OP1": "pass"
+      },
+      "vibe_core_sum": 12,
+      "applicable": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "OP1"
+      ],
+      "not_applicable": {
+        "OP2": "na_operation_on_voice_cell",
+        "OP3": "na_operation_on_voice_cell",
+        "OP4": "na_operation_on_voice_cell",
+        "OP5": "na_operation_on_voice_cell"
+      },
+      "judge_reasons": []
+    },
+    {
+      "probe": "E",
+      "cell": "1",
+      "sample": 1,
+      "items": {
+        "R1": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "glyph and label"
+        },
+        "R2": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "identity line fits"
+        },
+        "R3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_report_mode",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "R4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_report_mode",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "R5": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "no framework name",
+          "ceiling": 2,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "R6": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_report_mode",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "R7": {
+          "value": 2,
+          "status": "scored",
+          "judge": "jev",
+          "scorer": "judge",
+          "judge_value": 2,
+          "code_value": null,
+          "confidence": 0.53,
+          "detail": "judge item, no judge ran"
+        },
+        "R9": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_report_mode",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "R13": {
+          "value": null,
+          "status": "abstained",
+          "judge": "jev",
+          "scorer": "judge",
+          "detail": "below_confidence_floor",
+          "confidence": 0.31
+        },
+        "R8": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "0 questions"
+        },
+        "R10": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "unsourced figure"
+        },
+        "R11": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_report_mode",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "R12": {
+          "value": 2,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "code",
+          "detail": "no dash, short sentence"
+        },
+        "R14": {
+          "value": 1,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "Your call on a turn that is not a genuine fork",
+          "ceiling": 1,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "R15": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "machinery: hook,script path,leaf id",
+          "ceiling": 0,
+          "note": "judge jev abstained: below_confidence_floor"
+        },
+        "OP1": {
+          "value": 0,
+          "status": "scored",
+          "judge": "code",
+          "scorer": "both",
+          "detail": "machinery: hook,script path,leaf id"
+        },
+        "OP2": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP3": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP4": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        },
+        "OP5": {
+          "value": null,
+          "status": "not_applicable",
+          "rule": "na_operation_on_voice_cell",
+          "judge": null,
+          "scorer": "rule",
+          "detail": ""
+        }
+      },
+      "total": {
+        "value": null,
+        "status": "abstained",
+        "partial_sum": 13,
+        "missing": [
+          "R13"
+        ],
+        "applicable_items": 10,
+        "judge": null
+      },
+      "gates": {
+        "R1": "pass",
+        "R10": "fail",
+        "R15": "fail",
+        "OP1": "fail"
+      },
+      "vibe_core_sum": 6,
+      "applicable": [
+        "R1",
+        "R2",
+        "R5",
+        "R7",
+        "R8",
+        "R10",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "OP1"
+      ],
+      "not_applicable": {
+        "R3": "na_report_mode",
+        "R4": "na_report_mode",
+        "R6": "na_report_mode",
+        "R9": "na_report_mode",
+        "R11": "na_report_mode",
+        "OP2": "na_operation_on_voice_cell",
+        "OP3": "na_operation_on_voice_cell",
+        "OP4": "na_operation_on_voice_cell",
+        "OP5": "na_operation_on_voice_cell"
+      },
+      "judge_reasons": []
+    }
+  ]
+}

@@ -262,12 +262,13 @@ function main() {
   });
 
   // -------------------------------------------------------------------------
-  // Assertion 5: ghost accounting. Exactly the three named policies have a
+  // Assertion 5: ghost accounting. Exactly the two named policies have a
   // null runner, and each carries a notes string explaining why.
   // -------------------------------------------------------------------------
-  record('assertion 5: exactly three named policies have a null runner, each with a notes explanation', () => {
+  record('assertion 5: exactly two named policies have a null runner, each with a notes explanation', () => {
     // contract-parity-larry left the ghost set in quick 261012-vtx (it now spawns the generator); gate-arbitration-decision joined in 346-03.
-    const expectedGhosts = new Set(['voice-backend-noun-free', 'memory-write-policy', 'gate-arbitration-decision']);
+    // 369.6-06: voice-backend-noun-free left the ghost set when its scanner landed (findMachineryNarration, wired into scripts/check-voice-style.cjs).
+    const expectedGhosts = new Set(['memory-write-policy', 'gate-arbitration-decision']);
     const actualGhosts = new Set();
     for (const file of policyFiles) {
       const policy = loadPolicy(file);
@@ -276,7 +277,7 @@ function main() {
         assertOk(typeof policy.notes === 'string' && policy.notes.trim().length > 0, file + ': a null-runner policy must carry a non-empty notes explanation');
       }
     }
-    assertEqual(actualGhosts.size, 3, 'expected exactly three null-runner policies, found ' + actualGhosts.size);
+    assertEqual(actualGhosts.size, 2, 'expected exactly two null-runner policies, found ' + actualGhosts.size);
     for (const id of expectedGhosts) {
       assertOk(actualGhosts.has(id), 'expected ' + id + ' to have a null runner');
     }
@@ -308,7 +309,10 @@ function main() {
   record('assertion 7: memory-write-policy channel/verb identifiers all appear in SKILL.md; basket_fires_at >= 2', () => {
     const policy = loadPolicy('memory-write-policy.json');
     assertOk(Number.isFinite(policy.basket_fires_at) && policy.basket_fires_at >= 2, 'basket_fires_at must be >= 2');
-    const skill = fs.readFileSync(SKILL_PATH, 'utf8');
+    // 369.6-10 (D-04): the memory channels and the write policy moved line for line to references/personality/memory-and-findings.md;
+    // the identifiers are read from the skill plus that reference.
+    const skill = fs.readFileSync(SKILL_PATH, 'utf8') + '\n' +
+      fs.readFileSync(path.join(REPO_ROOT, 'references', 'personality', 'memory-and-findings.md'), 'utf8');
 
     // The channel VALUES are short prose sentences naming identifiers inline
     // (e.g. "the room graph, reached only through lib/core/navigation.cjs");

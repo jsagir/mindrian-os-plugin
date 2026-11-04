@@ -1,0 +1,49 @@
+{
+  "note": "A registered path or field is skipped by every prose-rule sweep of this phase by exact name, is never normalized, and changes only through a reviewed diff that names the reason. Task 2 of plan 369.6-01 adds the corpus field rule; plan 369.6-02 added the research import path and the glob for model replies.",
+  "paths": [
+    {
+      "path": "tests/fixtures/3696-persona-h/larry-extended.md",
+      "source": "d6a2fdbaa:agents/larry-extended.md",
+      "sha256": "6331867a1ff81844b5b92fe98dd9e4a6f0a90f47641944489311ce1b2202138d",
+      "reason": "verbatim measurement baseline; the historical text keeps its pauses and spellings"
+    },
+    {
+      "path": "tests/fixtures/3696-persona-h/SKILL.md",
+      "source": "d6a2fdbaa:skills/larry-personality/SKILL.md",
+      "sha256": "d49bd44e1fa96a2fe151d6a789fc0df7e668bff089c7a19d1107692c372e9ee3",
+      "reason": "verbatim measurement baseline; the historical text keeps its pauses and spellings"
+    },
+    {
+      "path": "tests/fixtures/3696-persona-h/voice-dna.md",
+      "source": "d6a2fdbaa:references/personality/voice-dna.md",
+      "sha256": "e854840b8f42a6973b6ace01d0e7e447df97e63850a6215d8fdfef40088d6a16",
+      "reason": "verbatim measurement baseline; the historical text keeps its pauses and spellings"
+    },
+    {
+      "path": "tests/fixtures/3696-persona-a/larry-extended.md",
+      "source": "9235c9f1a:agents/larry-extended.md",
+      "sha256": "dbc6d755f9aec50b9671f7af7dcd522ef7fb4205ba37dd2dc326ce227d14b7de",
+      "reason": "verbatim measurement baseline; the historical text keeps its pauses and spellings"
+    },
+    {
+      "path": "evals/larry-voice/runs/research-p/replies.json",
+      "source": "derived-from 9c39a5f29e45fa6cb2937fc656cdce3c1c7d0e6e:.planning/phases/369.6-the-larry-contract-voice-and-calibration-execution-truth-pro/research/P-probe-replies.md (research file sha256 2f7075b0dab6c496423575aefc53595f18fae24d0083c5777a122038c056b6fd)",
+      "sha256": "417b5e2f81199c4ceb29f43050d92e76bef5bbbab465af72343c76d14a5a33d1",
+      "reason": "verbatim research replies parsed from the pinned research file; model output, never normalized"
+    }
+  ],
+  "fields": [
+    {
+      "path": "tests/fixtures/3696-voice-corpus.json",
+      "rows_of_kind": "original",
+      "field": "text",
+      "reason": "verbatim samples; checked by source_sha256; never normalized"
+    }
+  ],
+  "globs": [
+    {
+      "glob": "evals/larry-voice/runs/*/replies.json",
+      "reason": "model output measured by the Larry eval; written once, mode 0444, never edited"
+    }
+  ]
+}

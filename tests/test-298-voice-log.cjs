@@ -119,7 +119,11 @@ function main() {
       .readFileSync(LOG_PATH, 'utf8')
       .split('\n')
       .filter((l) => l.trim())
-      .map((l) => JSON.parse(l));
+      .map((l) => JSON.parse(l))
+      // 369.6-06: the denominator rows (voice-turn-evaluated) are counts of evaluated turns, not
+      // violations; these cases count violation rows, so the denominator is filtered out here.
+      // The denominator itself is proved in tests/test-3696-voice-log-denominator.cjs.
+      .filter((r) => r.policy_id !== 'voice-turn-evaluated');
   }
 
   function runHook(stdinPayload) {

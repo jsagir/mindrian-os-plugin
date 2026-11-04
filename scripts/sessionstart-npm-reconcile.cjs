@@ -18,6 +18,16 @@
  * No Brain calls, no external search calls, no user data, no remote requests
  * of any kind. Pure CJS, node built-ins only.
  *
+ * Operator switch (quick 261029-nhu): MINDRIAN_NPM_RECONCILE_SKIP=1 makes the
+ * hook print the normal {continue:true} envelope and exit 0 before it resolves
+ * the plugin root, reads any file, loads the install modules, or starts npm.
+ * Unset, or any other value, keeps the reconcile unchanged. The switch only
+ * removes work and adds no network surface. It is the sibling of
+ * MINDRIAN_DERIVE_SKIP in scripts/gsd-graph-derive-drain.cjs. Use it for a
+ * session that must not write under the plugin root, for example the isolated
+ * eval session of Phase 369.6. With the switch on, missing dependencies stay
+ * missing until a session starts without it. Documented in docs/ENV-TUNING.md.
+ *
  * Three-surface awareness: SessionStart hooks fire on Claude Code CLI. On
  * Desktop and Cowork the plugin's node_modules are managed by the host's
  * plugin install mechanism; this hook is harmless there (it either finds the
@@ -28,6 +38,13 @@ process.on('uncaughtException', () => {
   try { process.stdout.write(JSON.stringify({ continue: true })); } catch (e) { /* swallow */ }
   process.exit(0);
 });
+
+// Operator switch of quick 261029-nhu: MINDRIAN_NPM_RECONCILE_SKIP=1 ends the hook here, before
+// the root resolution below reads the filesystem (sameDirectory calls fs.realpathSync in every
+// live session) and before any install module loads or npm starts. The handler above is already
+// armed, so a throw still prints the envelope. emit is a hoisted function declaration and
+// touches only stdout and process.exit. Sibling of MINDRIAN_DERIVE_SKIP.
+if (process.env.MINDRIAN_NPM_RECONCILE_SKIP === '1') return emit();
 
 const fs = require('node:fs');
 const path = require('node:path');

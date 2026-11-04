@@ -39,7 +39,9 @@ function gitShowHead(relPath) {
   }
 }
 
-const src = gitShowHead('skills/larry-personality/SKILL.md');
+// 369.6-10 (D-04): the Hierarchical Navigator (Usher division) section moved line for line to
+// references/personality/reach-and-dial.md. The exactly-3 assertion and both quotes read the committed text in its new home.
+const src = gitShowHead('references/personality/reach-and-dial.md');
 
 // Anchor on the SECTION HEADING (a "## " line that names the Hierarchical
 // Navigator), not the first bare phrase occurrence -- the phrase also appears as
@@ -49,7 +51,7 @@ const navHeadingMatch = src.match(/^##[^\n]*Hierarchical Navigator[^\n]*$/m);
 const navStart = navHeadingMatch ? navHeadingMatch.index : -1;
 assert.ok(
   navStart !== -1,
-  'LARRY-04: committed SKILL.md must contain a "## ... Hierarchical Navigator" section heading (RED until it lands)'
+  'LARRY-04: committed reach-and-dial.md must contain a "## ... Hierarchical Navigator" section heading (RED until it lands)'
 );
 // Bound the section to its heading through the next "## " top-level heading,
 // mirroring the reach-id test's dial-to-nav slice. Without the end bound,

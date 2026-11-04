@@ -38,7 +38,11 @@ function check(cond, msg) {
   }
 }
 
-const src = fs.readFileSync(SKILL_PATH, 'utf8');
+// 369.6-10 (D-04): the stance doctrine and the Usher headings moved line for line to references/personality/reach-and-dial.md.
+// `src` reads that new home; `skillSrc` keeps the headings that stayed in the skill. No assertion is dropped.
+const REACH_REF_PATH = path.join(REPO_ROOT, 'references', 'personality', 'reach-and-dial.md');
+const skillSrc = fs.readFileSync(SKILL_PATH, 'utf8');
+const src = fs.readFileSync(REACH_REF_PATH, 'utf8');
 
 // Locate the new stance-toggle section by heading. It must sit BETWEEN "When to Reach" and
 // "Larry as Hierarchical Navigator" (a pure insertion).
@@ -75,8 +79,8 @@ check(/genuinely mid-decision|mid-decision about conversational mode|NOT a defau
 check(/\/mos:stance/.test(sectionText), 'stance section names the /mos:stance affordance');
 
 // (e) pre-existing headings still present byte-for-byte (pure addition).
-check(src.indexOf('## The Two Modes') !== -1, 'pre-existing "## The Two Modes" heading preserved');
-check(src.indexOf('## The Dial Curve') !== -1, 'pre-existing "## The Dial Curve" heading preserved');
+check(skillSrc.indexOf('## The Two Modes') !== -1, 'pre-existing "## The Two Modes" heading preserved');
+check(skillSrc.indexOf('## The Dial Curve') !== -1, 'pre-existing "## The Dial Curve" heading preserved');
 check(src.indexOf('## Larry as Hierarchical Navigator -- The Usher Division') !== -1, 'pre-existing Hierarchical Navigator heading preserved byte-for-byte');
 check(src.indexOf('## When to Reach -- The Capability Dial') !== -1, 'pre-existing Capability Dial heading preserved byte-for-byte');
 

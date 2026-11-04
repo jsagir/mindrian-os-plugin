@@ -1929,13 +1929,65 @@ Plans:
 ### Phase 369.6: The Larry contract: voice and calibration (execution-truth program, AI behavior after the harness supplies true state) (INSERTED)
 
 **Goal:** Larry speaks as Larry and claims only what the executed state supports. From SEED-116 and the annex: a turn names the job and the move, never a leaf id or a verdict code; a term is defined at first use and every pronoun has a referent (AI-01, GEN-01); pre-research narration is hypothesis language with evidence_status: pre-research, and "every", "only", "proven", "confirmed", "kills", "decisive" require a cited executed operation or canonical claim state (AI-06, AI-10, annex C09-C14, C19); internal convergence is called consistency (C13); a changed objective is a new hypothesis (C08); quantities are typed before they are compared (AI-09, C10); a correction repairs the artifact, records a room-scoped rule and is checked on the next output, never ending in an apology (AI-02, A03); a coverage checklist runs before a landscape is presented (AI-08); the framework dump and the em-dash do not return mid-session; the product prints nothing into the chat that is not Larry's line or silence (Stop trailer, host-voice banners, instruction-returning tools). Measured on three recorded sessions before and after, not on one.
-**Requirements**: TBD (brief test 16 and annex section 5 fixtures; the no-dump and glyph detectors in lib/hmi)
+**Requirements**: NS369.6-01..NS369.6-21 (phase-local ids minted at plan time from 369.6-CONTEXT.md; registered in `.planning/REQUIREMENTS.md` by plan 369.6-13 with the "minted at plan time" caveat, the Phase 270 precedent; covers brief test 16, the annex section 5 fixtures and the no-dump and narration detectors in lib/hmi)
 **Depends on:** Phase 369.2 (true execution state is what calibration is calibrated to), Phase 369.4 (the report schema the voice fills)
-**Plans:** 0 plans
+**Plans:** 12/13 plans executed
+
+**Waves are serial (Codex C9).** The plans share mutable verification state: the phase suite, `data/harness-manifest.json` and the git index. Of the two remedies the review names, serial waves are the cheaper one (no lock protocol between agents, no extra worktree), and the CONTEXT plan map already asked for serial waves. Each plan starts only when no tracked-file change from another task is in the tree.
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 369.6 to break down)
+**Wave 1**
+
+- [x] 369.6-01-PLAN.md - measurement script (L2 and L5 rules ported, section bytes), pure reply checks with a labelled corpus (original samples verbatim), the phase suite with an exact failing-leg baseline and its self-test, the immutable-source register, the BEFORE record
+
+**Wave 2**
+
+- [x] 369.6-02-PLAN.md - the rubric with the owner rulings, the operation block OP1 to OP5, the cells (rung 1 is the P method; shipped cells beside rungs 2 and 3), the comparison contract with an incomplete outcome, the isolation contract for every eval child, the Jev provenance gate, the eval runner
+
+**Wave 3**
+
+- [x] 369.6-03-PLAN.md - the identity constant, carrier parity with the mod label pin, the drift test with an explicit reference grammar, the holds-by test, the agent and skill budget tests, the KNOWN transition rule and the VERSION rule
+
+**Wave 4**
+
+- [x] 369.6-04-PLAN.md - doctrine presence, the 114 rubric fixed against the glyph, the panel thought pool through the shared checks, the one-next-move fixture (formatter leg; selection parity reported as pending integration)
+
+**Wave 5**
+
+- [x] 369.6-05-PLAN.md - the operation doctrine check, the isolated scratch-room operational probe (fence before execution, call-to-result evidence, approval order), the voice and operation BEFORE (fence hook, Codex-reviewed)
+
+**Wave 6**
+
+- [x] 369.6-06-PLAN.md - the voice-log denominator and template version, the shadow dump and narration detectors, doctor rates (Stop hook, Codex-reviewed)
+
+**Wave 7**
+
+- [x] 369.6-07-PLAN.md - one PwS identity sentence from one source on every carrier, the book punctuation rule, optional openers, the destijl carve-out (persona edit)
+
+**Wave 8**
+
+- [x] 369.6-08-PLAN.md - agent operating procedures move to references/personality/agent-operations.md with compact pointers (persona edit)
+
+**Wave 9**
+
+- [x] 369.6-09-PLAN.md - voice-first agent body: practitioner identity, Operating invisibly, Calibration, the closing rule, report mode, Theo as a named partner (persona edit)
+
+**Wave 10**
+
+- [x] 369.6-10-PLAN.md - the skill operator manual moves to three references; triggers stay inline (persona edit)
+
+**Wave 11**
+
+- [x] 369.6-11-PLAN.md - the skill stops teaching visible machinery: trace on request, silent Theo consult, no command cadence, plain examples (persona edit)
+
+**Wave 12**
+
+- [x] 369.6-12-PLAN.md - one static voice and operation line per CLI turn with an off switch (hook, Codex-reviewed)
+
+**Wave 13**
+
+- [ ] 369.6-13-PLAN.md - the close: final suite, BEFORE-to-final per cell with each comparison outcome, requirement rows, CHANGELOG naming changed instructions, the 369.7 split record, owner review (checkpoint)
 
 ### Phase 370: Review contract for /mos:grade and /mos:deep-grade: fixed student-facing shape, no internal names, a denylist lint that fails the output (promotes SEED-102)
 

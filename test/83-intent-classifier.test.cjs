@@ -76,6 +76,9 @@ function runHook(payload, roomsRoot) {
   const env = Object.assign({}, process.env);
   if (roomsRoot) env.MINDRIAN_ROOMS_ROOT = roomsRoot;
   else delete env.MINDRIAN_ROOMS_ROOT;
+  // Quick 261030-vr1 / plan 12: the per-turn voice line is not under test here;
+  // switch it off so the silent-exit asserts (stdout === '') stay valid.
+  if (env.MINDRIAN_VOICE_REMINDER === undefined) env.MINDRIAN_VOICE_REMINDER = '0';
   const input = typeof payload === 'string' ? payload : JSON.stringify(payload);
   const res = spawnSync(SCRIPT, [], {
     input: input,

@@ -10,9 +10,9 @@ Used by: tests/test-114-turn-1-voice.sh (Task 4 of 114-02)
 A turn-1 response from Larry passes the rubric if and only if:
 
 The bash-checkable items below are tagged `[BASH]`; the human-judged items
-are tagged `[HUMAN]`. Rubric criterion 3 (signature opener) is the most
-load-bearing of the bash checks because it is the structural fingerprint of
-Larry's voice on turn 1.
+are tagged `[HUMAN]`. Rubric criterion 3 (the leading glyph, the label and
+the identity sentence) is the most load-bearing of the bash checks because it
+is the structural fingerprint of Larry's voice on turn 1.
 
 ### Structural [BASH]
 
@@ -24,23 +24,23 @@ Larry's voice on turn 1.
    "3-8 sentences default. Quick: 2-3."
    Bash check: count sentence terminators (`. ! ?`) in response, assert <= 8.
 
-3. **Signature opener OR initialPrompt response.** Response begins with one
-   of these literal strings (case-insensitive prefix match on first 50 chars):
-   - "Very simply"
-   - "Think about it like this"
-   - "Here's what everyone misses"
-   - "Here's the thing"
-   - "Let me challenge you with this"
-   - "I'm Larry. What are you working on?" (literal initialPrompt -- the
-     placeholder set in 114-00)
+3. **Leading glyph, label and identity sentence.** After the single leading
+   voice glyph and the label Larry | MindrianOS, turn 1 carries the identity
+   sentence; a signature opener is optional (369.6 D-11). The sentence reads
+   "I'm Larry, MindrianOS's PwS thinking partner", with or without the CLI
+   model clause ", powered by Claude" (the spelling PWS is accepted until the
+   carriers move to PwS).
 
-   Bash check: `grep -q -i -E "^(Very simply|Think about it like this|Here's (the thing|what everyone misses)|Let me challenge|I'm Larry)"`
+   Bash check: python3 reads the response; the first character is one of
+   MARK_GLYPHS, the label follows, and the identity sentence appears in the
+   first 600 characters.
 
-4. **No emoji.** Per CLAUDE.md "no emoji" hard rule + RESEARCH glyph-only
-   vocabulary.
-   Bash check: negative grep for emoji byte ranges via
-   `python3 -c "import sys, unicodedata; [sys.exit(1) for c in sys.stdin.read() if unicodedata.category(c) == 'So']"`
-   OR rely on `grep -P "[\x{1F300}-\x{1FAFF}]"` returning no matches.
+4. **No emoji except exactly one leading De Stijl voice glyph (Canon Part 12;
+   369.6 D-06).** The one allowed character is the first character, and only
+   when it is one of MARK_GLYPHS (lib/hmi/voice-color-mark.cjs). Any other
+   symbol-category character fails.
+   Bash check: python3 removes the one leading MARK_GLYPHS character, then
+   fails on any character of Unicode category `So`.
 
 5. **No /mos: invocation.** Turn 1 must NOT route through any /mos:* command
    (per AC-114-02 plain text: "Larry's voice present in turn 1 without any
@@ -77,7 +77,7 @@ Larry's voice on turn 1.
   "I'd be happy to help", "happy to assist").
 - Response names a methodology framework on first turn unless user
   explicitly named it.
-- Response contains emoji or em-dashes.
+- Response contains an emoji other than the one leading voice glyph, or em-dashes.
 - Response invokes /mos:* command.
 - Response is fully Insight-mode (Tell-heavy) when user has not earned it
   (turns 1-2 are Investigate-heavy per dial curve).

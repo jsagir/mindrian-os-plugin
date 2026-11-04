@@ -92,7 +92,7 @@ async function wireViews() {
       assert.ok(markup.indexOf('id="mindrian-identity"') < markup.indexOf('id="app"'),
         name + ' keeps identity outside replaced content');
       assert.match(html, /Larry \| MindrianOS/);
-      assert.match(html, /PWS thinking partner/);
+      assert.match(html, /PwS thinking partner/);
       const domains = resource._meta.ui.csp.resourceDomains;
       assert.ok(domains.includes('https://cdn.jsdelivr.net'));
       assert.ok(domains.includes('https://fonts.googleapis.com'));
@@ -220,7 +220,7 @@ async function browserChecks(records, faces) {
     assert.ok(measurement.outside);
     assert.equal(measurement.statusRole, 'status');
     assert.match(measurement.label, /Larry \| MindrianOS/);
-    assert.match(measurement.label, /PWS thinking partner/);
+    assert.match(measurement.label, /PwS thinking partner/);
     assert.equal(measurement.animations, 0, 'canonical identity has no animation under reduced motion');
     assert.deepEqual(measurement.clippedControls, [], 'action controls fit the frame');
     await frame.locator('body').screenshot({ path: path.join(screenshots, name + '-' + width + '.png') });

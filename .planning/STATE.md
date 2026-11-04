@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator"
-last_updated: "2026-10-29T20:30:38.346Z"
-last_activity: 2026-10-30 -- Phase 381 complete in worktree workspace/phase-381 (9 plans, review fixes applied, push gate pending)
+stopped_at: Plan 369.6-13 Task 1 complete (final suite PASSED=123 FAILED=3 KNOWN=24 with causes explained, gates, Close, 21 requirement rows, CHANGELOG); Task 2 owner checkpoint PENDING; phase 369.6 NOT complete; live runs NOT RUN (no credential)
+last_updated: "2026-10-30T16:30:00.000Z"
+last_activity: "2026-10-30 -- Plan 369.6-13 Task 1 done (hand-edited, no state.* writer); owner checkpoint pending"
 progress:
   total_phases: 144
-  completed_phases: 65
-  total_plans: 733
-  completed_plans: 737
-  percent: 99
+  completed_phases: 34
+  total_plans: 670
+  completed_plans: 561
+  percent: 24
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -5378,7 +5378,7 @@ Phase 162 (graph-spine-single-authority-viz) was found partially executed: W1-W3
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** Convert uncertainty to manageable risk -- every framework interaction produces bankable opportunities, every session starts with persona-aware routing
-**Current focus:** Phase 381 complete (perf change C) in worktree workspace/phase-381, unpushed; next: intent-classifier quick (perf finding 4) off the pushed tip
+**Current focus:** Phase 369.6 — The Larry contract: voice and calibration (execution-truth program)
 
 <!-- NOTE (274-01 execute-plan, 2026-09-01, EIGHTEENTH+ occurrence of the
      documented state.*-clobber bug, same class as the SEVENTEENTH documented
@@ -5423,9 +5423,9 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 379.1 (Graph derive drain and scout runaway CPU: embed once, bound the pairs, cap the workers (beta.73 blocker)) - EXECUTING (started 2026-10-21)
-Plan: 9 of 9 (all nine plans complete; phase verification re-run and the human-read real-room receipt are next)
-Status: 379.1-07, 08, 09 landed (gap closure for the drain peak RSS: probe, human decision a-batch batch 8, DEFAULT_BATCH 32 to 8; two consecutive ok full live legs, drain peak 776.9 and 780.2 MB against the 1,024 MB limit, clock and CPU limits unchanged; commits 80cebe56e, 1a555b714, bfaf48137, c1c20cad4, 6c00d9cc4, eb14fa171; no receipt, no release, no push). Earlier: 379.1-06 landed (see below)
+Phase: 369.6 (The Larry contract: voice and calibration (execution-truth program)) - EXECUTING
+Plan: 13 of 13
+Status: Task 1 complete; Task 2 (owner checkpoint) pending; phase not complete
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
 Phase 289 planned 2026-10-03 (463559e1f, jsagi-85): 9 plans, 4 waves, 22 tasks; 369 waves 10-14 unblocked once 289 lands (peekGate, consume-after-checks, rendered.contract.recommended, 289-CLI-CARD-RULING.md).
@@ -5994,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-10-28
+Last activity: 2026-10-29 -- Completed quick task 261029-sof: scripts/session-start resolves its three temp paths under TMPDIR (369.6 isolation gap 2); wave 3 of 369.6 next
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -7423,6 +7423,17 @@ Progress: [██████████] 98%
 | Phase 379.1 P07 | 40min | 2 tasks | 5 files |
 | Phase 379.1 P08 | 15min | 2 tasks | 3 files |
 | Phase 379.1 P09 | 45min | 2 tasks | 9 files |
+| Phase 369.6 P01 | 58min | 3 tasks | 16 files |
+| Phase 369.6 P02 | 78min | 3 tasks | 16 files |
+| Phase 369.6 P03 | 40min | 3 tasks | 6 files |
+| Phase 369.6 P04 | 23min | 2 tasks | 8 files |
+| Phase 369.6 P06 | 35min | 2 tasks | 10 files |
+| Phase 369.6 P07 | unrecorded | 3 tasks | 18 files |
+| Phase 369.6 P08 | not captured | 3 tasks | 13 files |
+| Phase 369.6 P09 | not captured | 3 tasks | 14 files |
+| Phase 369.6 P10 | not captured | 3 tasks | 27 files |
+| Phase 369.6 P11 | not captured | 3 tasks | 16 files |
+| Phase 369.6 P12 | not captured | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -9164,6 +9175,16 @@ Progress: [██████████] 98%
 - [Phase 379.1]: GATE PASSED: the seeded randomized truncated SVD ships behind the auto rule (min side above 300); jacobi path unchanged for small matrices; the scout cap stays Jacobi-derived this phase — 272 gate: spearman 0.9965, avgDelta 0.0050, maxDelta 0.0210, 0 sign flips; 2105x2000 at k=80 in 968 ms; deterministic
 - [Phase 379.1-05]: Scout artifact cap stays 400 (Jacobi-derived probe value) although the randomized solver shipped; the cap rise is a Plan 06 seed - jacobi_ms_n400 = 50663 ms; D-379.1-14
 - [Phase 379.1-06]: The large room leg never starts the drain child without a local model (inconclusive, never a download); the gate refuses inconclusive; the limits stay at 300000 ms, 600000 ms, 1024 MB - the first live full leg breached on drain peak RSS (1837 MB); recorded in deferred-items.md and not hidden by a raised limit
+- [Phase 369.6]: Plan 01: the failing-leg comparison counts legs as a multiset with the exit code, so a new failing leg beside a known red fails the suite (holds by code: tests/test-3696-known-set.cjs K2 and K8) - Codex C5: a signature substring hides a new failure
+- [Phase 369.6]: Plan 01: section bytes use the loose counting rule with an intro entry so budget plans can project a section allocation before editing (holds by code: tests/test-3696-measure-voice.cjs M6) - Codex C10
+- [Phase 369.6]: Plan 02: the reconcile gap is closed on this branch by quick 261029-nhu and PROVEN at run time (proveReconcileSwitch, sha256 7a1746f7); a second blocker, literal /tmp paths in scripts/session-start (lines 413, 1332, 1829), keeps the session-start capture and the plugin-loading live legs refused until a quick task fixes it (holds by code: tests/test-3696-isolation.cjs B4e, B5, B8)
+- [Phase 369.6]: Plan 02: R5, R14 and R15 are code-authoritative (a judge may lower a value, never raise it); a comparison across judges is INCOMPLETE, never a regression, gates included (holds by code: tests/test-3696-rubric-eval.cjs E5k0, E5l, E5l1)
+- [Phase 369.6]: Plan 02: Jev sees only runs whose provenance is re-derived before the payload exists (import reconstruction or a sealed cell 1 run), through jevVoice with its own ceiling; the section ledger stays byte-unchanged (holds by code: tests/test-3696-rubric-eval.cjs E3, E4)
+- [Phase 369.6-03]: identity constant spells PwS; five sentence carriers are KNOWN legs closing in 369.6-07; drift resolver also reads data/brain-surface-contract.json
+- [Phase 369.6]: 369.6-06: denominator row voice-turn-evaluated plus template_version on every voice-style row; dump and narration detectors in shadow mode; voice-backend-noun-free reuses the Stop observer and stays declared
+- [Phase ?]: 369.6-08: operating procedures live in references/personality/agent-operations.md; agent body 11366 B; V3 to V6 and V8 budget legs required
+- [Phase 369.6]: 369.6-09: Operating invisibly Holds by line names code first with the Part 8 guard script path (H3 form); agent body 12737 B of 12752 B
+- [Phase 369.6-10]: Readers of moved skill doctrine read SKILL_HOME (skill plus three references) so a move closes no KNOWN leg; every WHEN-to-reach trigger stays inline
 
 ### Pending Todos
 
@@ -9191,7 +9212,11 @@ Progress: [██████████] 98%
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |
+| 261103-vdn | 369.6 isolation guard skips only room/.mindrian/statusline-cache.json (live statusline rewrote it every ~7s and tripped B4d/B5f in the suite); pinned by tests/test-3696-isolation-cache-skip.cjs | 2026-11-03 | efdfad669 | complete | [261103-vdn-369-6-isolation-guard-skip-statusline-ca](./quick/261103-vdn-369-6-isolation-guard-skip-statusline-ca/) |
+| 261029-nhu | MINDRIAN_NPM_RECONCILE_SKIP=1 turns off the SessionStart npm reconcile (off switch for the 369.6 isolation canary; Codex round 1 BLOCK on a real-root stat probe, round 2 APPROVE) | 2026-10-29 | 58a997ca8 | complete | [261029-nhu-reconcile-hook-off-switch-mindrian-npm-r](./quick/261029-nhu-reconcile-hook-off-switch-mindrian-npm-r/) |
 |---|-------------|------|--------|--------|-----------|
+| 261029-sof | scripts/session-start resolves its three temp paths (update-check cache, context-state bridge, sealed-room mktemp fallback) under TMPDIR with /tmp as the default, so the 369.6 eval isolation canary holds (gap 2 of the reconcile RCA); evidence table in scripts/isolate-larry-voice.cjs and the context-engine doc line updated; 7 isolation legs B8d to B8j added (RED 63/7, GREEN 70/0); 6 session-start regression suites green; the no-TMPDIR path is byte-identical. Recorded, not fixed: mindrian-context-state has had no writer since 256560658 (pre-existing). RCA resolved + knowledge-base block | 2026-10-29 | dfbadf150, dcd0218df | Complete | [261029-sof-session-start-tmpdir-for-the-mindrian-up](./quick/261029-sof-session-start-tmpdir-for-the-mindrian-up/) |
+| 261029-sob | Re-pinned test-359 leg B5 (session-start outside the doctrine line) to the sha after quick 261029-sof; only the 3 TMPDIR lines differ from the old pin base 8b9690def; test-359 18/0, isolation 70/0 | 2026-10-29 | 40e4d4b4b | Complete | [261029-sob-repin-test-359-b5](./quick/261029-sob-repin-test-359-b5/) |
 | 261013-60k | registry drift check accepts a retired command through an explicit deprecation entry (found by the beta.67 cut's suite gate; the check's own message promised the entry and nothing had built it, because /mos:query was the first command ever removed): data/command-deprecations.json (new, hand-maintained; the /mos:query entry: retired_in 2.0.0-beta.67, replaced_by /mos:graph, navigator 2026-10-12, quick 261012-v17); the check prints INFO: REMOVED with a deprecation entry and exits 0, still fails an unrecorded removal, fails a stale or malformed entry, accepts nothing when the file is absent; test-341-registry-drift 7 -> 15 arms; run-all-366 71/1 -> 72/0; run-harness registry-drift pass; doctor --acceptance 24/24. | 2026-10-13 | 47e8a5164, bdf54bcd9 | Verified (orchestrator re-ran the check and the test) | [261013-60k-registry-drift-check-accepts-a-retired-c](./quick/261013-60k-registry-drift-check-accepts-a-retired-c/) |
 | 261012-v17 | retire the deprecated /mos:query alias (sweep search-surface-qa-sweep-20261012 item 7b; removal was scheduled for v1.14.0; navigator 2026-10-12): commands/query.md and skills/query deleted; 7 registries regenerated by their own scripts (command-registry, connector-coverage-ledger, brain-orchestration-projection, orchestration-command-ledger, render-coverage-registry, harness-manifest last, the UI mod asset copy); 14 hand edits (help-groups, out-of-spine allowlist, section-command-relevance, layer and hitl-shape backfills, jev answer key, 341 drift fixture, two test lists, soft-alias-runner comment, build-jtbd-nudges menu now /mos:graph, Shape D example now /mos:wiki in ui-system and destijl, CHANGELOG Removed); gates all OK, shape surfaces 53 -> 51 with 0 new, commands 114 -> 113, doctor --acceptance 24/24 identical point set, help shows no query line. Follow-ups at the next cut: Theo re-emit, refresh-framework-names --live, marketplace catalog and mos-desktop; website lifecycle emails still say /mos:query (mindrian-website quick); registry-drift --check exits 1 against the beta.65 tag until the next tag; pre-existing doctor-deprecation-surface T4 reads --json through a pipe that truncates at 143 KB. Not pushed, not released. | 2026-10-13 | 29f8b57b1 | Verified (orchestrator re-ran 4 gates and the help grep) | [261012-v17-retire-the-deprecated-mos-query-alias-pa](./quick/261012-v17-retire-the-deprecated-mos-query-alias-pa/) |
 | 261012-vtx | harness contract-parity-larry declares the current THEO clause, the manifest is regenerated, and the blocking policy really blocks (found by the 7b planner 2026-10-12): the contract's runner was null, so run-harness classed it a ghost and doctor --acceptance read 24/24 while build-harness-manifest --check exited 1 (CONTRACT plus 3 STALE Larry digests, since 3b918036f shortened the wire sentence without regenerating); now the policy runs scripts/build-harness-manifest.cjs --check (same pattern as registry-drift), the pre-commit trigger covers the 3 Larry surfaces in both twin hooks (CHECK 9 added), the manifest is regenerated; proofs in scratch clones: broken contract -> run-harness fail, acceptance 22/24 naming the policy; hook refuses an edited larry-extended.md with harness-manifest drift; real repo after: --check OK, run-harness 10 pass 0 fail 3 ghost, doctor --acceptance 24/24, run-all-298 9/0. Follow-up: 4 runtime surfaces still outside the pre-commit trigger. Not pushed, not released. | 2026-10-13 | 62ea8f584, a9b838170, 0d5117d7e | Verified (orchestrator re-ran the check, run-harness and two tests) | [261012-vtx-harness-contract-parity-larry-declares-t](./quick/261012-vtx-harness-contract-parity-larry-declares-t/) |
@@ -9368,12 +9393,13 @@ Progress: [██████████] 98%
 | 261029-s9x | Telemetry room-walk cache (perf change D): the Read/Grep/Glob telemetry hook exits before the walk on a zero-token result and otherwise uses a 10-minute room-local token estimate with a bounded async walk; Read event wall 373 ms to 36 ms, hook alone 399 ms to 28 ms (paired, load 1.0) | 2026-10-29 | 3cdf09add | complete | [261029-s9x-cache-the-telemetry-room-walk-so-read-gr](./quick/261029-s9x-cache-the-telemetry-room-walk-so-read-gr/) |
 | 261029-sc6 | B follow-ups: tri-polar hooks.json pin re-based (non-Stop leg a13ab61f1, timeout and onFailure ignored; test 8/1 to 24/0), 369 hook cold-start fixture regenerated to second budgets (0 breaches), 355.1 known signature 64/4 | 2026-10-29 | 25a7617bd | complete | [261029-sc6-b-follow-ups-re-base-test-3551-tri-polar](./quick/261029-sc6-b-follow-ups-re-base-test-3551-tri-polar/) |
 | 261029-u8x | Injection hotfix: a room file could run code through a date field or a folder name in compute-team and analyze-room; the python date fallback now guards its shape and takes the value as an argument, and the four analyze-room edge sites pass section and target as data after a separator; every input that gave an epoch before gives the same one (6 date shapes incl. ISO and CR, zero diff); runner Phase 363.1 PASS=10 to 12; not live until a release carries it | 2026-10-29 | d93706f69 | complete | [261029-u8x-injection-hotfix-stop-the-python-date-fa](./quick/261029-u8x-injection-hotfix-stop-the-python-date-fa/) |
+| 261030-vr1 | userpromptsubmit-integration test: runHook switches the voice reminder off for byte-stability, Test 4 passes MINDRIAN_VOICE_REMINDER=0, new Test 4b pins the reminder-ON contract (engine throw prints exactly the one voice line), same switch in test/83 runHook; 14/15, only baseline Test 8 fails | 2026-10-30 | a5e418aac | complete | [261030-vr1-voice-reminder-byte-stability](./quick/261030-vr1-voice-reminder-byte-stability/) |
 
 ## Session Continuity
 
-Last activity: 2026-10-30 - Completed Phase 381 (one-pass room summary: compute-team, analyze-room and compute-state run as node renderers behind the unchanged bash entry points; parity 0 diffs on 24 gate rooms and a real-room copy; measured on a real room: new session start 26943 ms to 7775 ms, summary script 7977 ms to 1341 ms, room analysis 22734 ms to 1231 ms; independent review 0 critical, 2 high fixed; owner approved the legacy removal at the checkpoint; open: x86 hash-order test on the release machine). Before it: Completed quick task 261029-u8x (injection hotfix in the worktree workspace/phase-381; Phase 381 planned, 9 plans verified, execution next). Before it: Completed quick task 261029-sc6 (B follow-ups; hook chain B, D, sc6 closed, Phase 381 unblocked). Before it: 261029-s9x: telemetry room-walk cache (perf change D; Read event 373 ms to 36 ms; R-1 extractor shape mismatch filed as a follow-up candidate). Before it: 261029-qef: hook timeouts in seconds with measured budgets, Part 8 guard fail-closed (perf change B; 5 commits; medians unchanged within noise; finding 5 opened: post-compact hook 24 to 39 s against its 2 s target). Earlier same day: 261029-lx3 (SessionStart reuse, doctor throttle; 23,407 ms to 11,520 ms) and 261029-kqv (Stop hook skip of compute-state on an unchanged room, detached rebuild under a lock; 15,754 ms to 4,764 ms). Perf chain split: C (Phase 381) and finding 4 with session jsagi-68; D next here. Earlier: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-10-29T00:23:10.287Z
-Stopped at: Completed 341-10 (partial: legacy halves kept, cold install WAIVED not observed); 359 R9 PASS; 373 and 314 closed; 371 closed by waiver; skill audit done, fixes await go; push held by navigator
+Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
+Last session: 2026-10-30T16:30:00.000Z
+Stopped at: Plan 369.6-13 Task 1 complete (final suite PASSED=123 FAILED=3 KNOWN=24 with causes explained, gates, Close, 21 requirement rows, CHANGELOG); Task 2 owner checkpoint PENDING; phase 369.6 NOT complete; live runs NOT RUN (no credential)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`
