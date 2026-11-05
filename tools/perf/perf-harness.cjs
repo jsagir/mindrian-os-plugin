@@ -3,7 +3,8 @@
 /*
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
- * Phase 382 plan 01: the performance measurement harness.
+ * Phase 384 plan 01: the performance measurement harness (carried over from the Phase 382 branch,
+ * commit 5850f067e, and reviewed; see the harness-review file of the phase).
  *
  * One command measures every hook event (as Claude Code runs it: all matching hooks of one
  * event start together, the event time is the time until the last blocking hook exits), both
@@ -15,7 +16,8 @@
  *   targets
  *   run --tree <dir> [--tree-b <dir> --out-b <file>] --room fixture|copy [--source <dir>] --runs N
  *       [--cpus N|all] [--targets all|id,id] [--set <label>] [--label <name>] [--label-b <name>]
- *       [--scratch <dir>] [--count-pass] --out <file>
+ *       [--scratch <dir>] [--count-pass] [--base-sha <40 hex>] --out <file>
+ *   (test-only, need MOS_PERF_SELFTEST=1: --allow-short, --skip-gates)
  *   compare <a.json> <b.json> [--out <file>]
  *   spread --fixture <a> <b> [--fixture-rerun <a> <b>] --copy <a> <b> [--copy-rerun <a> <b>] --out <file>
  *   verify-results <dir>
@@ -39,9 +41,13 @@ const hookLib = require(path.join(REPO, 'scripts', 'measure-hook-cold-start.cjs'
 const { assertSafeTarget } = require(path.join(REPO, 'tests', 'fixtures', 'room-381', 'build-fixture.cjs'));
 const { copyRoom } = require(path.join(REPO, 'tests', 'helpers', 'oracle-381.cjs'));
 
-const SCHEMA = 'mos.perf-382/1';
-const COUNTS_SCHEMA = 'mos.perf-382-counts/1';
-const BASE_SHA_382 = '788d63b0e1b3a262ed5c9221dfd8cc7d49ecafa1';
+const SCHEMA = 'mos.perf-384/1';
+const COUNTS_SCHEMA = 'mos.perf-384-counts/1';
+const SPREAD_SCHEMA = 'mos.perf-384-spread/1';
+const ISOLATION_SCHEMA = 'mos.perf-384-isolation/1';
+const BENCH_NAME = 'mos-384-bench';
+const GATE_POLL_MS = 5000;
+const GATE_MAX_MS = 300000;
 const PRELOAD = path.join(__dirname, 'count-modules-preload.cjs');
 const MIN_RUNS = 7;
 const QUIET_LOAD1 = 2;
@@ -158,6 +164,78 @@ function listCmdlines() {
 function suiteGuard(cmdlines) {
   const lines = cmdlines || listCmdlines();
   return lines.some((l) => l.indexOf('tests/run-all-') !== -1) ? 'busy' : 'ok';
+}
+
+// The per-target gate: load1 below 2 and no tests/run-all- process. Polls every pollMs up to maxMs.
+// ok false carries the reason (load or suite) of the last poll; the caller marks the target noisy and runs it anyway.
+async function gateBeforeTarget(opts) {
+  const o = Object.assign({ readLoad: readLoad1, listCmdlines: listCmdlines, sleep: sleepMs, pollMs: GATE_POLL_MS, maxMs: GATE_MAX_MS }, opts || {});
+  let waited = 0;
+  for (;;) {
+    const load = o.readLoad();
+    const suite = suiteGuard(o.listCmdlines()) === 'busy';
+    const loud = quietState(load) !== 'quiet';
+    if (!loud && !suite) return { ok: true, load1: load, waited_ms: waited };
+    if (waited >= o.maxMs) return { ok: false, load1: load, waited_ms: waited, reason: suite ? 'suite' : 'load' };
+    await o.sleep(o.pollMs);
+    waited += o.pollMs;
+  }
+}
+
+// classifyRun: failed for exit 126, exit 127, a signal nobody sent on purpose, or a spawn failure;
+// timeout for a run the harness killed at its limit; ok otherwise (a hook may exit 1 or 2 on purpose).
+// A kill after the reply of an MCP server (replied and SIGKILL, no timeout) is the harness stopping it: ok.
+function classifyRun(r) {
+  if (r.timedOut) return 'timeout';
+  if (r.signal) return r.replied && r.signal === 'SIGKILL' ? 'ok' : 'failed';
+  if (r.status === null || r.status === undefined) return 'failed';
+  if (r.status === 126 || r.status === 127) return 'failed';
+  return 'ok';
+}
+
+function defaultLockFile(env) {
+  const e = env || process.env;
+  return e.MOS_PERF_LOCK_FILE || path.join(e.HOME || os.homedir(), '.cache', 'mos-perf-384.lock');
+}
+
+// requireLock: true when the lock file is flock-held by this process or by one of its ancestors.
+// /proc/locks shows `FLOCK ADVISORY WRITE <pid> <major>:<minor>:<inode> 0 EOF`; flock(1) is the parent of its command.
+function requireLock(opts) {
+  const o = Object.assign({
+    lockFile: defaultLockFile(),
+    pid: process.pid,
+    readLocks: () => fs.readFileSync('/proc/locks', 'utf8'),
+    readPpid: (p) => {
+      const stat = fs.readFileSync('/proc/' + p + '/stat', 'utf8');
+      return Number(stat.slice(stat.lastIndexOf(')') + 2).split(' ')[1]) || 0;
+    },
+    statIno: (f) => String(fs.statSync(f, { bigint: true }).ino),
+  }, opts || {});
+  let ino;
+  let text;
+  try { ino = String(o.statIno(o.lockFile)); text = o.readLocks(); } catch (_e) { return false; }
+  const chain = new Set();
+  let p = o.pid;
+  for (let i = 0; p > 0 && i < 64; i += 1) {
+    chain.add(String(p));
+    try { p = o.readPpid(p); } catch (_e) { break; }
+  }
+  for (const line of String(text).split('\n')) {
+    const tok = line.trim().split(/\s+/);
+    if (tok.indexOf('FLOCK') === -1 || tok.indexOf('->') !== -1) continue; // a line with -> is a waiter, not the holder
+    const k = tok.findIndex((t) => /^[0-9a-fA-F]+:[0-9a-fA-F]+:[0-9]+$/.test(t));
+    if (k < 1) continue;
+    if (tok[k].split(':')[2] === ino && chain.has(tok[k - 1])) return true;
+  }
+  return false;
+}
+
+// The base sha of a tree: the flag value, else HEAD of the tree directory, else the text unknown.
+function baseShaOf(tree, flag) {
+  if (flag) return flag;
+  const r = cp.spawnSync('git', ['-C', tree, 'rev-parse', 'HEAD'], { encoding: 'utf8' });
+  const sha = r.status === 0 ? r.stdout.trim() : '';
+  return /^[0-9a-f]{40}$/.test(sha) ? sha : 'unknown';
 }
 
 // A B, B A, A B, B A ... : alternating pairs, so a drift in host speed hits both trees alike.
@@ -398,7 +476,7 @@ async function runEventOnce(def, ctx, opts) {
   }
   const artifact = ctx.touchTarget || path.join(roomDir, 'STATE.md');
   const payload = hookLib.payloadFor(def.event, { cwd: roomDir, transcript: ctx.sandbox.transcript }, null);
-  payload.session_id = 'sess-382-measure';
+  payload.session_id = 'sess-384-measure';
   if (shape) {
     payload.tool_name = shape.tool;
     payload.tool_input = shape.input(artifact);
@@ -417,7 +495,9 @@ async function runEventOnce(def, ctx, opts) {
   const blocking = results.filter((r) => !r.job.entry.async);
   const asyncs = results.filter((r) => r.job.entry.async);
   const wall = blocking.length ? Math.max.apply(null, blocking.map((r) => r.exit_ms)) : null;
+  const classes = results.map(classifyRun);
   const sample = {
+    run_class: classes.indexOf('failed') !== -1 ? 'failed' : (classes.indexOf('timeout') !== -1 ? 'timeout' : 'ok'),
     wall_ms: wall,
     cpu_ms: blocking.every((r) => r.usage) ? blocking.reduce((a, r) => a + r.usage.cpu_ms, 0) : null,
     rss_mb: blocking.every((r) => r.usage) && blocking.length ? Math.max.apply(null, blocking.map((r) => r.usage.rss_mb)) : null,
@@ -441,7 +521,7 @@ async function runCommandOnce(def, ctx) {
   const env = ctx.env();
   const cwd = def.cwdTree ? ctx.tree : ctx.roomDir;
   if (def.kind === 'mcp') {
-    const req = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'perf-382', version: '1' } } }) + '\n';
+    const req = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'perf-384', version: '1' } } }) + '\n';
     let buf = '';
     const r = await runChild(ctx, {
       argv: [process.execPath, path.join(ctx.tree, 'scripts', def.script)],
@@ -461,11 +541,11 @@ async function runCommandOnce(def, ctx) {
       },
     });
     await settle(r.pid, null, 10000);
-    return { wall_ms: r.wall_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [r.replied && r.signal === "SIGKILL" && !r.timedOut ? "stopped_after_reply" : exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: 0 };
+    return { run_class: !r.replied && !r.timedOut ? 'failed' : classifyRun(r), wall_ms: r.wall_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [r.replied && r.signal === "SIGKILL" && !r.timedOut ? "stopped_after_reply" : exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: 0 };
   }
   const r = await runChild(ctx, { argv: def.argv(ctx.tree, ctx.roomDir), cwd, env, stdin: undefined, timeoutMs: def.timeoutMs || 300000 });
   const s = await settle(r.pid, null, 30000);
-  return { wall_ms: r.exit_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: s.ms };
+  return { run_class: classifyRun(r), wall_ms: r.exit_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: s.ms };
 }
 
 function runOnce(def, ctx, opts) {
@@ -475,8 +555,10 @@ function runOnce(def, ctx, opts) {
 // ---------------------------------------------------------------------------
 // measuring one target over N runs (single tree, or two trees interleaved)
 // ---------------------------------------------------------------------------
-async function measureTarget(def, ctxs, runs) {
-  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, skipped: new Map(), asyncs: new Map(), hooks: 0, blocking: 0, load1_start: readLoad1(), touch: !!ctxs[0].touchTarget }));
+async function measureTarget(def, ctxs, runs, gateOpts) {
+  // the gate runs before the first run of each target; a gate that times out marks the target noisy and the target runs anyway
+  const gate = gateOpts && gateOpts.skip ? { ok: true, load1: readLoad1(), waited_ms: 0 } : await gateBeforeTarget(gateOpts);
+  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget }));
   if (def.kind === 'event' && def.change === 'unchanged') {
     for (const c of ctxs) { await runEventOnce(def, c, { noTouch: true }); await sleepMs(1100); }
   }
@@ -485,16 +567,19 @@ async function measureTarget(def, ctxs, runs) {
     const i = lab === 'A' ? 0 : 1;
     const s = await runOnce(def, ctxs[i], {});
     const a = acc[i];
+    s.exits.forEach((x) => a.exits.add(x));
+    a.timedOut += s.timed_out;
+    a.hooks = s.hook_count;
+    a.blocking = s.blocking_count;
+    s.skipped.forEach((k) => a.skipped.set(k.hook, k.reason));
+    // a failed or timed-out run never enters a statistic
+    if (s.run_class === 'failed') { a.failed += 1; continue; }
+    if (s.run_class === 'timeout') continue;
     if (s.wall_ms !== null) a.wall.push(s.wall_ms);
     if (s.cpu_ms !== null) a.cpu.push(s.cpu_ms);
     if (s.rss_mb !== null) a.rss.push(s.rss_mb);
     a.bg.push(s.background_ms);
-    s.exits.forEach((x) => a.exits.add(x));
-    a.timedOut += s.timed_out;
-    s.skipped.forEach((k) => a.skipped.set(k.hook, k.reason));
     s.async_hooks.forEach((h) => { const l = a.asyncs.get(h.id) || []; l.push(h.wall_ms); a.asyncs.set(h.id, l); });
-    a.hooks = s.hook_count;
-    a.blocking = s.blocking_count;
   }
   return acc.map((a) => ({
     id: def.id,
@@ -505,6 +590,7 @@ async function measureTarget(def, ctxs, runs) {
     rss_mb: statsSummary(a.rss),
     exits: [...a.exits].sort((x, y) => String(x).localeCompare(String(y))),
     timed_out: a.timedOut,
+    failed_runs: a.failed,
     not_measured: [...a.skipped].map(([hook, reason]) => ({ hook, reason })),
     async_hooks: [...a.asyncs].map(([id, l]) => ({ id, wall_ms: statsSummary(l).median })),
     hook_count: a.hooks,
@@ -512,6 +598,8 @@ async function measureTarget(def, ctxs, runs) {
     touch_applied: def.change === 'changed' ? a.touch : null,
     load1_start: a.load1_start,
     load1_end: readLoad1(),
+    gate_waited_ms: a.gate_waited_ms,
+    noisy: a.noisy,
   }));
 }
 
@@ -539,9 +627,9 @@ async function countTarget(def, ctx) {
 function benchDir(source, scratch) {
   if (source && source.startsWith('/mnt/')) {
     const m = source.match(/^\/mnt\/c\/Users\/([^/]+)\//);
-    if (m) return path.join('/mnt/c/Users', m[1], 'AppData/Local/Temp/mos-382-bench');
+    if (m) return path.join('/mnt/c/Users', m[1], 'AppData/Local/Temp/' + BENCH_NAME);
   }
-  return path.join(scratch, 'mos-382-bench');
+  return path.join(scratch, BENCH_NAME);
 }
 
 function stripRemotes(roomDir) {
@@ -580,24 +668,26 @@ function writeCopyRegistry(roomsHome, roomDir) {
   }));
 }
 
-function buildFixtureRoom(tree, sandbox) {
+function slugSha(sha) { return /^[0-9a-f]{40}$/.test(sha) ? sha : '0'.repeat(40); }
+
+function buildFixtureRoom(tree, sandbox, baseSha) {
   const seed = path.join(tree, 'tests', 'fixtures', 'release-room');
   const code = 'const m = require(process.argv[1]); m.buildRoom({}, process.argv[2], process.argv[3], process.argv[4]).then((r) => { process.stdout.write(JSON.stringify({ roomDir: r.roomDir }) + "\\n"); process.exit(0); }, (e) => { process.stderr.write(String(e && e.message) + "\\n"); process.exit(1); });';
   const env = scrubbedEnv(Object.assign({}, process.env, { HOME: sandbox.home, USERPROFILE: sandbox.home, TMPDIR: sandbox.tmp, MINDRIAN_BRAIN_URL: 'http://127.0.0.1:9', MINDRIAN_ROOMS_HOME: sandbox.roomsHome }));
-  const r = cp.spawnSync(process.execPath, ['-e', code, path.join(tree, 'scripts', 'real-room-run.cjs'), BASE_SHA_382, seed, sandbox.roomsHome], { cwd: tree, env, encoding: 'utf8', timeout: 300000 });
+  const r = cp.spawnSync(process.execPath, ['-e', code, path.join(tree, 'scripts', 'real-room-run.cjs'), slugSha(baseSha), seed, sandbox.roomsHome], { cwd: tree, env, encoding: 'utf8', timeout: 300000 });
   if (r.status !== 0) throw new Error('fixture room build failed: ' + String(r.stderr || '').slice(0, 300));
   const line = r.stdout.trim().split('\n').pop();
   return JSON.parse(line).roomDir;
 }
 
 function prepareRoom(kind, o) {
-  const sandbox = hookLib.makeSandbox('mos-382-run-');
+  const sandbox = hookLib.makeSandbox('mos-384-run-');
   let roomDir = sandbox.roomDir;
   let sourceRoom = null;
   let benchRoot = null;
   let removedRemotes = 0;
   if (kind === 'fixture') {
-    roomDir = buildFixtureRoom(o.trees[0], sandbox);
+    roomDir = buildFixtureRoom(o.trees[0], sandbox, o.baseSha || 'unknown');
   } else if (kind === 'copy') {
     sourceRoom = path.resolve(o.source);
     benchRoot = benchDir(sourceRoom, o.scratch);
@@ -645,7 +735,7 @@ function machineRecord(o) {
     fs_type: o.fsType,
     head_sha: headSha(),
     tree_label: o.label,
-    base_sha: BASE_SHA_382,
+    base_sha: o.baseSha,
     started_at: o.startedAt,
     ended_at: o.endedAt,
     load1_start: o.load1Start,
@@ -688,15 +778,18 @@ function parseFlags(argv, spec) {
 async function cmdRun(argv) {
   let f;
   try {
-    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool' });
+    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool', 'skip-gates': 'bool', 'base-sha': 1 });
   } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
+  const selftest = process.env.MOS_PERF_SELFTEST === '1';
+  if ((f['allow-short'] || f['skip-gates']) && !selftest) { process.stderr.write('--allow-short and --skip-gates are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
+  if (f['base-sha'] !== undefined && !/^[0-9a-f]{40}$/.test(f['base-sha'])) { process.stderr.write('--base-sha needs 40 lowercase hex digits\n'); return 2; }
   const runs = parseInt(f.runs, 10);
   if (!f.tree || !f.out || !['fixture', 'copy', 'synthetic'].includes(f.room) || !Number.isInteger(runs) || runs < 1) {
     process.stderr.write('usage: run --tree <dir> --room fixture|copy [--source <dir>] --runs N --out <file> (see tools/perf/README.md)\n');
     return 2;
   }
   if (f.room === 'synthetic' && !f['allow-short']) { process.stderr.write('--room synthetic is test-only and needs --allow-short\n'); return 2; }
-  if (f.room === 'copy' && !f.source && !process.env.MOS_REAL_ROOM_382) { process.stderr.write('--room copy needs --source <dir> (or MOS_REAL_ROOM_382)\n'); return 2; }
+  if (f.room === 'copy' && !f.source && !process.env.MOS_REAL_ROOM_384) { process.stderr.write('--room copy needs --source <dir> (or MOS_REAL_ROOM_384)\n'); return 2; }
   if (runs < MIN_RUNS && !f['allow-short']) { process.stderr.write('at least ' + MIN_RUNS + ' runs are required (R4); got ' + runs + '\n'); return 2; }
   if (f['tree-b'] && !f['out-b']) { process.stderr.write('--tree-b needs --out-b\n'); return 2; }
   const trees = [path.resolve(f.tree)].concat(f['tree-b'] ? [path.resolve(f['tree-b'])] : []);
@@ -713,17 +806,24 @@ async function cmdRun(argv) {
   const scratch = path.resolve(f.scratch || os.tmpdir());
   process.env.TMPDIR = scratch;
 
-  // gates R3 and R2 (skipped only by the test-only --allow-short)
-  if (!f['allow-short']) {
+  // R1: the 384 lock must be held by this process or an ancestor (the self-test skips the check unless MOS_PERF_LOCK_CHECK=force)
+  if (!selftest || process.env.MOS_PERF_LOCK_CHECK === 'force') {
+    if (!requireLock({ lockFile: defaultLockFile() })) { process.stderr.write('lock not held: run under flock -w 7200 "$HOME/.cache/mos-perf-384.lock" (see tools/perf/README.md)\n'); return 1; }
+  }
+
+  // gates R3 and R2 (skipped only by the test-only --allow-short and --skip-gates)
+  const skipGates = !!(f['allow-short'] || f['skip-gates']);
+  if (!skipGates) {
     if (suiteGuard() === 'busy') { process.stderr.write('host busy: a tests/run-all- process is running\n'); return 75; }
     const q = await waitQuiet();
     if (!q.ok) { process.stderr.write('host not quiet: load1 ' + q.load1 + ' after ' + q.waited_ms + ' ms\n'); return 75; }
   }
-  const load1Start = readLoad1();
   const startedAt = new Date().toISOString();
-  const source = f.room === 'copy' ? path.resolve(f.source || process.env.MOS_REAL_ROOM_382) : null;
+  const source = f.room === 'copy' ? path.resolve(f.source || process.env.MOS_REAL_ROOM_384) : null;
   const srcBefore = source ? manifest(source) : null;
-  const prep = prepareRoom(f.room, { trees: trees, source, scratch });
+  const baseShas = trees.map((t) => baseShaOf(t, f['base-sha']));
+  const prep = prepareRoom(f.room, { trees: trees, source, scratch, baseSha: baseShas[0] });
+  const load1Start = readLoad1(); // read after the room is ready: a copy over a slow mount can take minutes
   const labels = [f.label || path.basename(trees[0])].concat(trees[1] ? [f['label-b'] || path.basename(trees[1])] : []);
   const ctxs = trees.map((t, i) => makeCtx(i === 0 ? 'A' : 'B', t, prep, cpus, hasTaskset));
   const roomKind = f.room === 'fixture' ? 'fixture-room' : (f.room === 'copy' ? 'real-copy' : 'synthetic-room');
@@ -741,7 +841,7 @@ async function cmdRun(argv) {
       for (const d of defs) countsOut.push(await countTarget(d, ctxs[0]));
     } else {
       for (const d of defs) {
-        const rs = await measureTarget(d, ctxs, runs);
+        const rs = await measureTarget(d, ctxs, runs, { skip: skipGates });
         rs.forEach((r, i) => perTree[i].push(r));
         process.stderr.write('[perf-harness] ' + d.id + ' median ' + rs[0].wall_ms.median + ' ms (n ' + rs[0].n + ')\n');
       }
@@ -766,7 +866,7 @@ async function cmdRun(argv) {
     if (countsOut) {
       writeResult(f.out, {
         schema: COUNTS_SCHEMA,
-        machine: machineRecord({ cpus, fsType: room.fs_type, label: labels[0], startedAt, endedAt, load1Start, load1End }),
+        machine: machineRecord({ cpus, fsType: room.fs_type, label: labels[0], baseSha: baseShas[0], startedAt, endedAt, load1Start, load1End }),
         room, set: f.set || null, tree_label: labels[0], cpus, load1_start: load1Start, load1_end: load1End, started_at: startedAt, ended_at: endedAt,
         targets: countsOut,
       }, guardCtx);
@@ -774,7 +874,7 @@ async function cmdRun(argv) {
       outs.forEach((file, i) => {
         writeResult(file, {
           schema: SCHEMA,
-          machine: machineRecord({ cpus, fsType: room.fs_type, label: labels[i], startedAt, endedAt, load1Start, load1End }),
+          machine: machineRecord({ cpus, fsType: room.fs_type, label: labels[i], baseSha: baseShas[i], startedAt, endedAt, load1Start, load1End }),
           room, set: f.set || null, tree_label: labels[i], cpus, runs, load1_start: load1Start, load1_end: load1End, started_at: startedAt, ended_at: endedAt,
           isolation: i === 0 ? isolation : undefined,
           targets: perTree[i],
@@ -820,7 +920,7 @@ function cmdSpread(argv) {
   let f;
   try { f = parseFlags(argv, { fixture: 2, 'fixture-rerun': 2, copy: 2, 'copy-rerun': 2, out: 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
   if (!f.fixture || !f.copy || !f.out) { process.stderr.write('usage: spread --fixture <a> <b> --copy <a> <b> [--fixture-rerun <a> <b>] [--copy-rerun <a> <b>] --out <file>\n'); return 2; }
-  const out = { schema: 'mos.perf-382-spread/1', rule: 'spread_pct = |m1 - m2| / ((m1 + m2) / 2) x 100 on the median wall time; above 10 percent the target is re-measured at n = 15 and the new spread replaces it; still above 10 percent it is unstable', rooms: {} };
+  const out = { schema: SPREAD_SCHEMA, rule: 'spread_pct = |m1 - m2| / ((m1 + m2) / 2) x 100 on the median wall time; above 10 percent the target is re-measured at n = 15 and the new spread replaces it; still above 10 percent it is unstable', rooms: {} };
   for (const [key, label] of [['fixture', 'fixture-room'], ['copy', 'real-copy']]) {
     const base = pairLines(readResult(f[key][0]), readResult(f[key][1]));
     const rerun = f[key + '-rerun'] ? new Map(pairLines(readResult(f[key + '-rerun'][0]), readResult(f[key + '-rerun'][1])).map((r) => [r.id, r])) : new Map();
@@ -844,6 +944,7 @@ function cmdVerify(argv) {
   for (const name of fs.readdirSync(dir).filter((n) => n.endsWith('.json')).sort()) {
     let j;
     try { j = readResult(path.join(dir, name)); } catch (_e) { fail(name, 'not valid JSON'); continue; }
+    if (j && typeof j.schema === 'string' && /^mos\.perf-/.test(j.schema) && ![SCHEMA, COUNTS_SCHEMA, SPREAD_SCHEMA, ISOLATION_SCHEMA].includes(j.schema)) { fail(name, 'unknown or old schema ' + j.schema); continue; }
     if (!j || (j.schema !== SCHEMA && j.schema !== COUNTS_SCHEMA)) continue;
     const m = j.machine || {};
     for (const k of MACHINE_FIELDS) if (m[k] === undefined || m[k] === null) fail(name, 'missing machine field ' + k);
@@ -852,6 +953,10 @@ function cmdVerify(argv) {
       if (!Array.isArray(j.targets) || !j.targets.length) fail(name, 'no targets');
       for (const t of j.targets || []) {
         if (!(t.n >= MIN_RUNS)) fail(name, 'target ' + t.id + ' has n ' + t.n + ' (needs ' + MIN_RUNS + ' or more)');
+        if (t.noisy === true) fail(name, 'target ' + t.id + ' ran on a busy host (noisy)');
+        if (t.failed_runs > 0) fail(name, 'target ' + t.id + ' has ' + t.failed_runs + ' failed run(s)');
+        if (t.timed_out > 0 && t.blocking) fail(name, 'target ' + t.id + ' has ' + t.timed_out + ' timed-out run(s) on a blocking target');
+        if (typeof t.load1_start === 'number' && t.load1_start >= QUIET_LOAD1) fail(name, 'target ' + t.id + ' load1_start ' + t.load1_start + ' is not below ' + QUIET_LOAD1);
       }
     }
     const text = fs.readFileSync(path.join(dir, name), 'utf8');
@@ -873,7 +978,7 @@ function cmdIsolation(argv) {
     const j = readResult(path.join(dir, name));
     if (j.isolation) { files[name.replace(/\.json$/, '')] = j.isolation; worst = Math.max(worst, j.isolation.exit_code || 0); }
   }
-  fs.writeFileSync(f.out, JSON.stringify({ schema: 'mos.perf-382-isolation/1', harness_exit_code: worst, sets: files }, null, 2) + '\n');
+  fs.writeFileSync(f.out, JSON.stringify({ schema: ISOLATION_SCHEMA, harness_exit_code: worst, sets: files }, null, 2) + '\n');
   return 0;
 }
 
@@ -881,7 +986,7 @@ function cmdCleanBench(argv) {
   let f;
   try { f = parseFlags(argv, { source: 1, scratch: 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
   const root = benchDir(f.source ? path.resolve(f.source) : null, path.resolve(f.scratch || os.tmpdir()));
-  if (path.basename(root) !== 'mos-382-bench') return 2;
+  if (path.basename(root) !== BENCH_NAME) return 2;
   fs.rmSync(root, { recursive: true, force: true });
   return 0;
 }
@@ -908,7 +1013,8 @@ if (require.main === module) {
 }
 
 module.exports = {
-  SCHEMA, COUNTS_SCHEMA, BASE_SHA_382, TARGETS, MACHINE_FIELDS,
+  SCHEMA, COUNTS_SCHEMA, SPREAD_SCHEMA, ISOLATION_SCHEMA, TARGETS, MACHINE_FIELDS,
+  gateBeforeTarget, classifyRun, requireLock, defaultLockFile, baseShaOf, benchDir,
   statsSummary, spreadPct, quietState, waitQuiet, suiteGuard, interleaveOrder, part8Violations, guardedCopy,
   findTouchTarget, pairLines, main,
 };
