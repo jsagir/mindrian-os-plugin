@@ -3960,7 +3960,7 @@ Plans:
 **Requirements**: QA383-01, QA383-02, QA383-03, QA383-04, QA383-05, QA383-06, QA383-07, QA383-08, QA383-09, QA383-10 (defined in 383-PRD.md, one per finding)
 **Depends on:** Phase 381
 **Numbering:** 383 was chosen by hand. `phase add` would pick 382, and 382 belongs to the speed pass on another branch. Do not renumber, and do not reuse 382 here.
-**Plans:** 7/11 plans executed
+**Plans:** 8/11 plans executed
 
 Planned waves (to be split into plans):
 
@@ -3994,7 +3994,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 383-08-PLAN.md - unsourced-number sweep over static Larry lines (QA383-08)
+- [x] 383-08-PLAN.md - unsourced-number sweep over static Larry lines (QA383-08)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
