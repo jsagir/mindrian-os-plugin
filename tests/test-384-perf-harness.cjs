@@ -338,7 +338,9 @@ function afterGate() {
     failed += 1;
     process.stdout.write('  FAIL unexpected error :: ' + String(e && e.stack || e) + '\n');
   }
-  partW().catch((e) => { failed += 1; process.stdout.write('  FAIL unexpected error in part W :: ' + String(e && e.stack || e) + '\n'); }).then(finish);
+  partW().catch((e) => { failed += 1; process.stdout.write('  FAIL unexpected error in part W :: ' + String(e && e.stack || e) + '\n'); })
+    .then(partQ).catch((e) => { failed += 1; process.stdout.write('  FAIL unexpected error in part Q :: ' + String(e && e.stack || e) + '\n'); })
+    .then(finish);
 }
 
 // ---------------------------------------------------------------------------
@@ -651,6 +653,153 @@ function partA() {
   const x11 = run(['run', '--tree', REPO, '--room', 'copy', '--source', path.join(TMP, 'does-not-exist'), '--allow-short', '--runs', '1', '--targets', 'floor:node', '--scratch', x11s, '--out', path.join(TMP, 'x11.json')]);
   const left = fs.readdirSync(x11s).filter((n) => /^mos-384-run-/.test(n));
   check('X11 a run that throws leaves no mos-384-run- sandbox in the scratch folder', x11.status !== 0 && left.length === 0, x11.status + ' left ' + left.length);
+}
+
+// ---------------------------------------------------------------------------
+// Plan 384-03 Task 1: checks QR1 to QR6 (quiet-room, room picker, resolveSource, merge). Synthetic folders only.
+// ---------------------------------------------------------------------------
+async function partQ() {
+  const kids = [];
+  const startKid = (code, cwd) => { const k = spawn(process.execPath, ['-e', code], { cwd: cwd || TMP, stdio: 'ignore' }); kids.push(k); return k; };
+  const nap = (ms) => new Promise((r) => setTimeout(r, ms));
+  const mk = (name, nfiles) => {
+    const d = path.join(TMP, name);
+    fs.mkdirSync(d, { recursive: true });
+    for (let i = 0; i < (nfiles === undefined ? 2 : nfiles); i += 1) fs.writeFileSync(path.join(d, 'f' + i + '.md'), 'x\n');
+    return d;
+  };
+  const writeReg = (name, rooms) => {
+    const f = path.join(TMP, name);
+    const map = {};
+    Object.keys(rooms).forEach((k) => { map[k] = { path: rooms[k], status: 'active' }; });
+    fs.writeFileSync(f, JSON.stringify({ version: 1, rooms: map }));
+    return f;
+  };
+  const exported = ['quietRoom', 'pickRoom', 'resolveSource', 'mergeResults'];
+  check('QR0 the library exports quietRoom, pickRoom, resolveSource and mergeResults', exported.every((n) => typeof H[n] === 'function'), exported.filter((n) => typeof H[n] !== 'function').join(','));
+  if (!exported.every((n) => typeof H[n] === 'function')) return;
+  try {
+    // QR1: holders and changed paths
+    const holdDir = mk('qr-hold', 2);
+    startKid('setTimeout(() => {}, 30000)', holdDir);
+    await nap(500);
+    const q1a = await H.quietRoom(holdDir, { idleMs: 200 });
+    check('QR1 a child with the folder as cwd gives holders of 1 or more and quiet false', q1a.quiet === false && q1a.holders >= 1, JSON.stringify(q1a));
+    const quietDir = mk('qr-quiet', 3);
+    const q1b = await H.quietRoom(quietDir, { idleMs: 300 });
+    check('QR1 an untouched folder is quiet with holders 0 and changed_paths 0', q1b.quiet === true && q1b.holders === 0 && q1b.changed_paths === 0, JSON.stringify(q1b));
+    const touchDir = mk('qr-touch', 2);
+    const pTouch = H.quietRoom(touchDir, { idleMs: 1500 });
+    startKid('setTimeout(() => require("fs").writeFileSync(process.argv[1], "late"), 300)'.replace('process.argv[1]', JSON.stringify(path.join(touchDir, 'new.md'))));
+    const q1c = await pTouch;
+    check('QR1 a file made inside the window gives changed_paths of 1 or more and quiet false', q1c.quiet === false && q1c.changed_paths >= 1, JSON.stringify(q1c));
+
+    // QR2: the CLI prints counts only
+    const c2a = run(['quiet-room', '--source', quietDir, '--idle-ms', '300']);
+    check('QR2 quiet-room on a quiet folder prints holders=0 changed_paths=0 and exits 0', c2a.status === 0 && String(c2a.stdout).trim() === 'holders=0 changed_paths=0', c2a.status + ' ' + c2a.stdout);
+    const c2b = run(['quiet-room', '--source', holdDir, '--idle-ms', '200']);
+    check('QR2 quiet-room on a folder with a holder exits 75 and prints holders of 1 or more', c2b.status === 75 && /^holders=[1-9][0-9]* changed_paths=0$/.test(String(c2b.stdout).trim()), c2b.status + ' ' + c2b.stdout);
+    check('QR2 quiet-room prints no path (stdout and stderr)', ![c2a, c2b].some((r) => String(r.stdout + r.stderr).indexOf('qr-quiet') !== -1 || String(r.stdout + r.stderr).indexOf('qr-hold') !== -1));
+    check('QR2 quiet-room without --source or with a missing folder exits 2', run(['quiet-room']).status === 2 && run(['quiet-room', '--source', path.join(TMP, 'qr-nope')]).status === 2);
+
+    // QR3 and QR4: the picker
+    const rHold = mk('pk-room-holder', 2);
+    startKid('setTimeout(() => {}, 30000)', rHold);
+    const rChange = mk('pk-room-change', 2);
+    startKid('setInterval(() => require("fs").writeFileSync(' + JSON.stringify(path.join(rChange, 'f0.md')) + ', String(Date.now())), 100)');
+    const rQuiet = mk('pk-room-quiet', 3);
+    await nap(500);
+    const reg1 = writeReg('reg1.json', { 'a-holder': rHold, 'b-change': rChange, 'c-quiet': rQuiet, 'd-mount': '/mnt/c/nope-384-synthetic', 'e-gone': path.join(TMP, 'pk-nope') });
+    const savePick = path.join(TMP, 'picked.txt');
+    const p1 = run(['pick-room', '--class', 'local', '--idle-ms', '1200', '--save', savePick], { env: { MOS_PERF_REGISTRY: reg1 } });
+    check('QR4 pick-room picks the quiet room and prints one line of class, file count and file system type', p1.status === 0 && /^picked class=local file_count=3 fs_type=\S+$/.test(String(p1.stdout).trim()), p1.status + ' ' + p1.stdout + ' ' + String(p1.stderr).slice(0, 200));
+    check('QR4 --save writes the chosen path with mode 600', fs.existsSync(savePick) && fs.readFileSync(savePick, 'utf8').trim() === rQuiet && (fs.statSync(savePick).mode & 0o777) === 0o600, fs.existsSync(savePick) ? (fs.statSync(savePick).mode & 0o777).toString(8) : 'no file');
+    const outAll = String(p1.stdout) + String(p1.stderr);
+    check('QR4 stdout and stderr hold none of the room paths or folder names', ['pk-room-holder', 'pk-room-change', 'pk-room-quiet', TMP].every((s) => outAll.indexOf(s) === -1), outAll.slice(0, 200));
+    const reg2 = writeReg('reg2.json', { 'a-holder': rHold });
+    const p2 = run(['pick-room', '--class', 'local', '--idle-ms', '300'], { env: { MOS_PERF_REGISTRY: reg2 } });
+    check('QR4 no quiet room prints the picked none line and exits 75', p2.status === 75 && String(p2.stdout).trim() === 'picked none class=local candidates=1 quiet=0', p2.status + ' ' + p2.stdout);
+    const p3 = run(['pick-room', '--class', 'mount', '--idle-ms', '300'], { env: { MOS_PERF_REGISTRY: reg2 } });
+    check('QR4 a class with no candidate prints candidates=0 and exits 75', p3.status === 75 && String(p3.stdout).trim() === 'picked none class=mount candidates=0 quiet=0', p3.status + ' ' + p3.stdout);
+    check('QR4 a bad --class exits 2 and an unreadable registry exits 2', run(['pick-room', '--class', 'cloud'], { env: { MOS_PERF_REGISTRY: reg2 } }).status === 2 && run(['pick-room', '--class', 'local'], { env: { MOS_PERF_REGISTRY: path.join(TMP, 'no-registry.json') } }).status === 2);
+    check('QR4 --save inside the repository is refused (exit 2)', run(['pick-room', '--class', 'local', '--idle-ms', '300', '--save', path.join(REPO, 'qr-should-not-exist.txt')], { env: { MOS_PERF_REGISTRY: reg1 } }).status === 2 && !fs.existsSync(path.join(REPO, 'qr-should-not-exist.txt')));
+    // QR3: the median room, the file cap, the candidate cap, the mount class by path prefix
+    const m1 = mk('pk-m1', 1);
+    const m3 = mk('pk-m3', 3);
+    const m5 = mk('pk-m5', 5);
+    const reg3 = writeReg('reg3.json', { 'k1': m1, 'k2': m3, 'k3': m5 });
+    const pm = await H.pickRoom({ registryFile: reg3, cls: 'local', idleMs: 200 });
+    check('QR3 pickRoom returns the quiet room with the median file count (3 of 1, 3, 5)', pm && pm.path === m3 && pm.file_count === 3 && pm.quiet === 3 && pm.candidates === 3, JSON.stringify(pm));
+    const pf = await H.pickRoom({ registryFile: reg3, cls: 'local', idleMs: 200, maxFiles: 4 });
+    check('QR3 a room above the file cap is skipped (quiet 2, the 5-file room is not picked)', pf && pf.quiet === 2 && pf.path !== m5, JSON.stringify(pf));
+    const pc = await H.pickRoom({ registryFile: reg3, cls: 'local', idleMs: 200, maxCandidates: 2 });
+    check('QR3 maxCandidates limits the candidates per class (2)', pc && pc.candidates === 2, JSON.stringify(pc));
+    const pmount = await H.pickRoom({ registryFile: reg1, cls: 'mount', idleMs: 200 });
+    check('QR3 a /mnt/<letter>/ path is class mount (one candidate, none quiet because it does not exist)', pmount && pmount.path === null && pmount.candidates === 0, JSON.stringify(pmount));
+    const t0 = Date.now();
+    const bigReg = {};
+    for (let i = 0; i < 12; i += 1) bigReg['r' + String(i).padStart(2, '0')] = mk('pk-big' + i, 2);
+    await H.pickRoom({ registryFile: writeReg('reg4.json', bigReg), cls: 'local', idleMs: 1000 });
+    check('QR3 twelve candidates share one idle window (under 6 s for a 1 s window)', Date.now() - t0 < 6000, String(Date.now() - t0));
+
+    // QR5: resolveSource and the run flags
+    const srcA = mk('rs-a', 2);
+    const srcB = mk('rs-b', 4);
+    const fileB = path.join(TMP, 'rs-b.txt');
+    fs.writeFileSync(fileB, srcB + '\n');
+    check('QR5 the variable MOS_REAL_ROOM_384 wins over --source', (await H.resolveSource({ source: srcA, env: { MOS_REAL_ROOM_384: srcB } })) === srcB);
+    check('QR5 --source wins over --source-file', (await H.resolveSource({ source: srcA, sourceFile: fileB, env: {} })) === srcA);
+    check('QR5 --source-file reads the path from the file', (await H.resolveSource({ sourceFile: fileB, env: {} })) === srcB);
+    const regPick = writeReg('reg5.json', { only: srcB });
+    check('QR5 --pick chooses a quiet registry room of the class', (await H.resolveSource({ pick: 'local', registryFile: regPick, idleMs: 200, env: {} })) === srcB);
+    check('QR5 nothing named gives null', (await H.resolveSource({ env: {} })) === null);
+    const rsScratch = path.join(TMP, 'rs-scratch');
+    fs.mkdirSync(rsScratch, { recursive: true });
+    const runCopy = (extra, env) => run(['run', '--tree', REPO, '--room', 'copy', '--allow-short', '--runs', '1', '--targets', 'floor:node', '--scratch', rsScratch, '--out', path.join(TMP, 'rs-out.json')].concat(extra), { env: env || {}, unset: ['MOS_REAL_ROOM_384'] });
+    const rf = runCopy(['--source-file', fileB]);
+    check('QR5 run --room copy --source-file uses the named room (4 files) and prints no path', rf.status === 0 && (readJson(path.join(TMP, 'rs-out.json')) || { room: {} }).room.file_count === 4 && String(rf.stdout + rf.stderr).indexOf('rs-b') === -1, rf.status + ' ' + String(rf.stderr).slice(0, 200));
+    const rp = runCopy(['--pick', 'local', '--idle-ms', '300'], { MOS_PERF_REGISTRY: regPick });
+    check('QR5 run --room copy --pick uses the picked room and prints no path', rp.status === 0 && (readJson(path.join(TMP, 'rs-out.json')) || { room: {} }).room.file_count === 4 && String(rp.stdout + rp.stderr).indexOf('rs-b') === -1, rp.status + ' ' + String(rp.stderr).slice(0, 200));
+    const rn = runCopy(['--pick', 'local', '--idle-ms', '300'], { MOS_PERF_REGISTRY: reg2 });
+    check('QR5 run --pick with no quiet room exits 75', rn.status === 75, rn.status + ' ' + String(rn.stderr).slice(0, 200));
+    check('QR5 run --room copy with no source form exits 2', runCopy([]).status === 2);
+    check('QR5 run --pick with a bad class exits 2', runCopy(['--pick', 'cloud']).status === 2);
+
+    // QR6: merge
+    const md = path.join(TMP, 'qr6');
+    fs.mkdirSync(md, { recursive: true });
+    const t = (id) => { const r = validResult(); r.targets[0].id = id; return r; };
+    fs.writeFileSync(path.join(md, 't1.json'), JSON.stringify(t('x')));
+    fs.writeFileSync(path.join(md, 't2.json'), JSON.stringify(t('y')));
+    fs.writeFileSync(path.join(md, 't3.json'), JSON.stringify(t('x')));
+    const outDir = path.join(TMP, 'qr6out');
+    fs.mkdirSync(outDir, { recursive: true });
+    const mg = run(['merge', path.join(md, 't1.json'), path.join(md, 't2.json'), '--out', path.join(outDir, 'merged.json')]);
+    const merged = readJson(path.join(outDir, 'merged.json'));
+    check('QR6 two timing files merge into one file with both targets and the machine of the first', mg.status === 0 && !!merged && merged.schema === H.SCHEMA && merged.targets.map((x) => x.id).join(',') === 'x,y' && merged.machine.tree_label === 'a', mg.status + ' ' + String(mg.stderr).slice(0, 200));
+    check('QR6 verify-results accepts the merged timing file', run(['verify-results', outDir]).status === 0);
+    check('QR6 a duplicate target id exits 2', run(['merge', path.join(md, 't1.json'), path.join(md, 't3.json'), '--out', path.join(outDir, 'dup.json')]).status === 2 && !fs.existsSync(path.join(outDir, 'dup.json')));
+    fs.writeFileSync(path.join(md, 'c1.json'), JSON.stringify(validCounts(0)));
+    fs.writeFileSync(path.join(md, 'c2.json'), JSON.stringify(validCounts(0)));
+    check('QR6 a mixed pair (timing and counts) exits 2', run(['merge', path.join(md, 't1.json'), path.join(md, 'c1.json'), '--out', path.join(outDir, 'mix.json')]).status === 2 && !fs.existsSync(path.join(outDir, 'mix.json')));
+    const rk = t('z');
+    rk.room.kind = 'real-copy';
+    fs.writeFileSync(path.join(md, 't4.json'), JSON.stringify(rk));
+    check('QR6 two timing files of different room kinds exit 2', run(['merge', path.join(md, 't1.json'), path.join(md, 't4.json'), '--out', path.join(outDir, 'kind.json')]).status === 2);
+    const outDir2 = path.join(TMP, 'qr6out2');
+    fs.mkdirSync(outDir2, { recursive: true });
+    const mc = run(['merge', path.join(md, 'c1.json'), path.join(md, 'c2.json'), '--out', path.join(outDir2, 'mergedc.json')]);
+    const mcj = readJson(path.join(outDir2, 'mergedc.json'));
+    check('QR6 two counts files merge into one section per input file (c1 and c2)', mc.status === 0 && !!mcj && mcj.schema === H.COUNTS_SCHEMA && Object.keys(mcj.sections || {}).join(',') === 'c1,c2', mc.status + ' ' + (mcj ? Object.keys(mcj.sections || {}).join(',') : 'no file'));
+    check('QR6 verify-results accepts the merged counts file', run(['verify-results', outDir2]).status === 0);
+    const hm = t('w');
+    hm.targets[0].id = '/home/someone/room';
+    fs.writeFileSync(path.join(md, 't5.json'), JSON.stringify(hm));
+    check('QR6 the Part 8 scan stops a merge that holds a home path (exit 1, no output file)', run(['merge', path.join(md, 't1.json'), path.join(md, 't5.json'), '--out', path.join(outDir, 'p8.json')]).status === 1 && !fs.existsSync(path.join(outDir, 'p8.json')));
+    check('QR6 merge with one input or no --out exits 2', run(['merge', path.join(md, 't1.json'), '--out', path.join(outDir, 'one.json')]).status === 2 && run(['merge', path.join(md, 't1.json'), path.join(md, 't2.json')]).status === 2);
+  } finally {
+    kids.forEach((k) => { try { k.kill('SIGKILL'); } catch (_e) { /* gone */ } });
+  }
 }
 
 let a5seq = 0;

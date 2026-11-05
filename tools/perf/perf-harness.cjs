@@ -14,7 +14,7 @@
  *
  * Subcommands:
  *   targets
- *   run --tree <dir> [--tree-b <dir> --out-b <file>] --room fixture|copy [--source <dir>] --runs N
+ *   run --tree <dir> [--tree-b <dir> --out-b <file>] --room fixture|copy [--source <dir> | --source-file <file> | --pick local|mount [--idle-ms N]] --runs N
  *       [--cpus N|all] [--targets all|id,id] [--set <label>] [--label <name>] [--label-b <name>]
  *       [--scratch <dir>] [--count-pass] [--restore per-target|per-set] [--base-sha <40 hex>] --out <file>
  *   (test-only, need MOS_PERF_SELFTEST=1: --allow-short, --skip-gates, --settle-ms)
@@ -23,8 +23,11 @@
  *   verify-results <dir>
  *   summarize-isolation <dir> --out <file>
  *   clean-bench (--source <dir> | --all) [--scratch <dir>]
+ *   quiet-room --source <dir> [--idle-ms N]
+ *   pick-room --class local|mount [--idle-ms N] [--save <file>]
+ *   merge <a.json> <b.json> ... --out <file>
  *
- * Exit codes: 0 ok, 1 rule breach, 2 usage, 3 isolation breach, 75 host busy.
+ * Exit codes: 0 ok, 1 rule breach, 2 usage, 3 isolation breach, 75 host or source room busy.
  * Canon Part 7: the hook parsing, payloads, sandbox, env and percentile come from
  * scripts/measure-hook-cold-start.cjs; the copy guard and copy come from the 381 test helpers.
  * Canon Part 8: result files hold numbers, booleans, target ids, enum strings and the labels
@@ -356,6 +359,169 @@ function findTouchTarget(roomDir) {
     return path.join(roomDir, s, files[0].name);
   }
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// source room selection (plan 384-03): quiet-room preflight, room picker, resolveSource, merge
+// Canon Part 8 (T-384-11 to T-384-14): these functions read a room and never write in it. The CLI prints counts
+// only. A room path lives in memory, and in the private --save file when the caller asks for one.
+// ---------------------------------------------------------------------------
+const MOUNT_FS = ['9p', 'v9fs', 'drvfs', 'cifs', 'nfs', 'fuseblk'];
+const PICK_MAX_FILES = 20000;
+const PICK_MAX_CANDIDATES = 12;
+const PICK_IDLE_MS = 5000;
+
+function dflt(v, d) { return v === undefined || v === null ? d : v; }
+
+// A walk that stops once it has passed maxFiles files: over is true then. No ignore list.
+function manifestLimited(root, maxFiles) {
+  const files = [];
+  let over = false;
+  (function walk(dir) {
+    if (over) return;
+    let ents;
+    try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch (_e) { return; }
+    for (const e of ents) {
+      if (over) return;
+      const f = path.join(dir, e.name);
+      if (e.isDirectory()) walk(f);
+      else { files.push(f); if (files.length > maxFiles) { over = true; return; } }
+    }
+  })(root);
+  const m = new Map();
+  if (!over) for (const f of files) { try { const st = fs.lstatSync(f); m.set(path.relative(root, f), st.size + ':' + st.mtimeMs); } catch (_e) { /* gone */ } }
+  return { manifest: m, over };
+}
+
+// One scan of /proc for all dirs: the pids (same user, not the caller) that have a dir as cwd or hold an open
+// file descriptor under it. Returns one Set of pids per dir. Reads only (readlink, stat).
+function holderSets(dirs) {
+  const sets = dirs.map(() => new Set());
+  const uid = typeof process.getuid === 'function' ? process.getuid() : -1;
+  let pids = [];
+  try { pids = fs.readdirSync('/proc').filter((d) => /^[0-9]+$/.test(d) && Number(d) !== process.pid); } catch (_e) { return sets; }
+  const under = (p, d) => p === d || p.startsWith(d + '/');
+  for (const pid of pids) {
+    try { if (uid >= 0 && fs.statSync('/proc/' + pid).uid !== uid) continue; } catch (_e) { continue; }
+    const links = [];
+    try { links.push(fs.readlinkSync('/proc/' + pid + '/cwd')); } catch (_e) { /* not readable */ }
+    let fds = [];
+    try { fds = fs.readdirSync('/proc/' + pid + '/fd'); } catch (_e) { /* not readable */ }
+    for (const fd of fds) { try { links.push(fs.readlinkSync('/proc/' + pid + '/fd/' + fd)); } catch (_e) { /* closed */ } }
+    dirs.forEach((d, i) => { if (links.some((l) => under(l, d))) sets[i].add(pid); });
+  }
+  return sets;
+}
+
+// The idle window is shared: every dir is read first, then one wait, then every dir is read again.
+async function quietRooms(dirs, opts) {
+  const idleMs = dflt(opts && opts.idleMs, PICK_IDLE_MS);
+  const maxFiles = dflt(opts && opts.maxFiles, Infinity);
+  if (!dirs.length) return [];
+  const real = dirs.map((d) => fs.realpathSync(d));
+  const before = real.map((d) => manifestLimited(d, maxFiles));
+  const h1 = holderSets(real);
+  await sleepMs(idleMs);
+  const after = real.map((d, i) => (before[i].over ? null : manifestLimited(d, maxFiles)));
+  const h2 = holderSets(real);
+  return real.map((d, i) => {
+    const holders = new Set([...h1[i], ...h2[i]]).size;
+    const over = before[i].over || (after[i] && after[i].over);
+    const changed = over ? 0 : changedPaths(before[i].manifest, after[i].manifest).size;
+    return { quiet: !over && holders === 0 && changed === 0, holders, changed_paths: changed, file_count: over ? null : after[i].manifest.size, over_limit: !!over };
+  });
+}
+
+async function quietRoom(dir, opts) {
+  return (await quietRooms([dir], opts))[0];
+}
+
+function defaultRegistryFile(env) {
+  const e = env || process.env;
+  return e.MOS_PERF_REGISTRY || path.join(e.HOME || os.homedir(), 'MindrianRooms', '.rooms', 'registry.json');
+}
+
+function roomClass(p, fst) {
+  return /^\/mnt\/[a-zA-Z]\//.test(p) || MOUNT_FS.includes(fst) ? 'mount' : 'local';
+}
+
+// pickRoom: at most maxCandidates existing rooms of the class, in sorted key order; the quiet ones; the one with the
+// median file count (the lower middle for an even count). The result carries the path for the caller; the CLI never prints it.
+async function pickRoom(opts) {
+  const o = opts || {};
+  const cls = dflt(o.cls, 'local');
+  const max = dflt(o.maxCandidates, PICK_MAX_CANDIDATES);
+  const reg = JSON.parse(fs.readFileSync(dflt(o.registryFile, defaultRegistryFile()), 'utf8'));
+  const rooms = reg && reg.rooms && typeof reg.rooms === 'object' ? reg.rooms : {};
+  const cands = [];
+  for (const key of Object.keys(rooms).sort()) {
+    if (cands.length >= max) break;
+    const e = rooms[key] || {};
+    const p = e.path || e.abs_path;
+    if (typeof p !== 'string' || !path.isAbsolute(p)) continue;
+    try { if (!fs.statSync(p).isDirectory()) continue; } catch (_e) { continue; }
+    const fst = fsType(p);
+    if (roomClass(p, fst) !== cls) continue;
+    cands.push({ dir: path.resolve(p), fs_type: fst });
+  }
+  const res = await quietRooms(cands.map((c) => c.dir), { idleMs: dflt(o.idleMs, PICK_IDLE_MS), maxFiles: dflt(o.maxFiles, PICK_MAX_FILES) });
+  const quiet = cands.map((c, i) => Object.assign({}, c, res[i])).filter((x) => x.quiet).sort((a, b) => a.file_count - b.file_count);
+  const out = { path: null, cls, candidates: cands.length, quiet: quiet.length, file_count: null, fs_type: null };
+  if (quiet.length) {
+    const pick = quiet[Math.floor((quiet.length - 1) / 2)];
+    Object.assign(out, { path: pick.dir, file_count: pick.file_count, fs_type: pick.fs_type });
+  }
+  return out;
+}
+
+// One way to name a source room for every runner. Order: MOS_REAL_ROOM_384, --source, --source-file, --pick.
+// Returns a path, or null when nothing is named or --pick finds no quiet room.
+async function resolveSource(opts) {
+  const o = opts || {};
+  const env = o.env || process.env;
+  if (env.MOS_REAL_ROOM_384) return path.resolve(env.MOS_REAL_ROOM_384);
+  if (o.source) return path.resolve(o.source);
+  if (o.sourceFile) {
+    const t = fs.readFileSync(o.sourceFile, 'utf8').split('\n')[0].trim();
+    if (!t) throw new Error('source file is empty');
+    return path.resolve(t);
+  }
+  if (o.pick) return (await pickRoom({ cls: o.pick, registryFile: dflt(o.registryFile, defaultRegistryFile(env)), idleMs: o.idleMs, maxFiles: o.maxFiles })).path;
+  return null;
+}
+
+// mergeResults: inputs are [{ name, json }]. A thrown error carries exitCode 2 (usage or a rule of the merge).
+function mergeResults(inputs) {
+  const bad = (m) => Object.assign(new Error(m), { exitCode: 2 });
+  if (!Array.isArray(inputs) || inputs.length < 2) throw bad('merge needs two or more input files');
+  const schemas = new Set(inputs.map((i) => i.json && i.json.schema));
+  if (schemas.size !== 1) throw bad('mixed schemas');
+  const schema = [...schemas][0];
+  const first = inputs[0].json;
+  if (schema === SCHEMA) {
+    if (new Set(inputs.map((i) => i.json.room && i.json.room.kind)).size !== 1) throw bad('room kinds differ');
+    const seen = new Set();
+    const targets = [];
+    for (const i of inputs) {
+      for (const t of i.json.targets || []) {
+        if (seen.has(t.id)) throw bad('duplicate target id ' + t.id);
+        seen.add(t.id);
+        targets.push(t);
+      }
+    }
+    return Object.assign({}, first, { targets });
+  }
+  if (schema === COUNTS_SCHEMA) {
+    const sections = {};
+    for (const i of inputs) {
+      if (Object.prototype.hasOwnProperty.call(sections, i.name)) throw bad('duplicate section name ' + i.name);
+      const rest = Object.assign({}, i.json);
+      delete rest.machine;
+      sections[i.name] = rest;
+    }
+    return { schema: COUNTS_SCHEMA, machine: first.machine, room: first.room, sections };
+  }
+  throw bad('unsupported schema ' + schema);
 }
 
 function scrubbedEnv(base) {
@@ -1025,7 +1191,7 @@ async function cmdRun(argv) {
 async function cmdRunInner(argv) {
   let f;
   try {
-    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool', 'skip-gates': 'bool', 'base-sha': 1, restore: 1, 'settle-ms': 1 });
+    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool', 'skip-gates': 'bool', 'base-sha': 1, restore: 1, 'settle-ms': 1, 'source-file': 1, pick: 1, 'idle-ms': 1 });
   } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
   const selftest = process.env.MOS_PERF_SELFTEST === '1';
   if ((f['allow-short'] || f['skip-gates'] || f['settle-ms'] !== undefined) && !selftest) { process.stderr.write('--allow-short, --skip-gates and --settle-ms are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
@@ -1036,11 +1202,14 @@ async function cmdRunInner(argv) {
   if (f['base-sha'] !== undefined && !/^[0-9a-f]{40}$/.test(f['base-sha'])) { process.stderr.write('--base-sha needs 40 lowercase hex digits\n'); return 2; }
   const runs = parseInt(f.runs, 10);
   if (!f.tree || !f.out || !['fixture', 'copy', 'synthetic'].includes(f.room) || !Number.isInteger(runs) || runs < 1) {
-    process.stderr.write('usage: run --tree <dir> --room fixture|copy [--source <dir>] --runs N --out <file> (see tools/perf/README.md)\n');
+    process.stderr.write('usage: run --tree <dir> --room fixture|copy [--source <dir> | --source-file <file> | --pick local|mount] --runs N --out <file> (see tools/perf/README.md)\n');
     return 2;
   }
   if (f.room === 'synthetic' && !f['allow-short']) { process.stderr.write('--room synthetic is test-only and needs --allow-short\n'); return 2; }
-  if (f.room === 'copy' && !f.source && !process.env.MOS_REAL_ROOM_384) { process.stderr.write('--room copy needs --source <dir> (or MOS_REAL_ROOM_384)\n'); return 2; }
+  if (f.pick !== undefined && !['local', 'mount'].includes(f.pick)) { process.stderr.write('--pick must be local or mount\n'); return 2; }
+  const idleMs = f['idle-ms'] === undefined ? undefined : parseInt(f['idle-ms'], 10);
+  if (idleMs !== undefined && !(idleMs >= 1)) { process.stderr.write('--idle-ms must be a positive integer\n'); return 2; }
+  if (f.room === 'copy' && !f.source && !f['source-file'] && !f.pick && !process.env.MOS_REAL_ROOM_384) { process.stderr.write('--room copy needs --source <dir>, --source-file <file>, --pick local|mount or MOS_REAL_ROOM_384\n'); return 2; }
   if (runs < MIN_RUNS && !f['allow-short']) { process.stderr.write('at least ' + MIN_RUNS + ' runs are required (R4); got ' + runs + '\n'); return 2; }
   if (f['tree-b'] && !f['out-b']) { process.stderr.write('--tree-b needs --out-b\n'); return 2; }
   const trees = [path.resolve(f.tree)].concat(f['tree-b'] ? [path.resolve(f['tree-b'])] : []);
@@ -1070,7 +1239,12 @@ async function cmdRunInner(argv) {
     if (!q.ok) { process.stderr.write('host not quiet: load1 ' + q.load1 + ' after ' + q.waited_ms + ' ms\n'); return 75; }
   }
   const startedAt = new Date().toISOString();
-  const source = f.room === 'copy' ? path.resolve(f.source || process.env.MOS_REAL_ROOM_384) : null;
+  let source = null;
+  if (f.room === 'copy') {
+    // plan 384-03: one way to name the source room; no message below prints the path
+    try { source = await resolveSource({ source: f.source, sourceFile: f['source-file'], pick: f.pick, idleMs }); } catch (_e) { process.stderr.write('could not read the source room named by --source-file\n'); return 2; }
+    if (!source) { process.stderr.write('source room busy: --pick found no quiet ' + f.pick + ' room\n'); return 75; }
+  }
   const srcBefore = source ? manifest(source) : null;
   const baseShas = trees.map((t) => baseShaOf(t, f['base-sha']));
   const prep = prepareRoom(f.room, { trees: trees, source, scratch, baseSha: baseShas[0] });
@@ -1270,6 +1444,61 @@ function cmdCleanBench(argv) {
   return 0;
 }
 
+// quiet-room --source <dir> [--idle-ms N]: prints counts only; exit 0 quiet, 75 not quiet, 2 usage
+async function cmdQuietRoom(argv) {
+  let f;
+  try { f = parseFlags(argv, { source: 1, 'idle-ms': 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
+  const idleMs = f['idle-ms'] === undefined ? PICK_IDLE_MS : parseInt(f['idle-ms'], 10);
+  if (!f.source || !(idleMs >= 1)) { process.stderr.write('usage: quiet-room --source <dir> [--idle-ms N]\n'); return 2; }
+  let isDir = false;
+  try { isDir = fs.statSync(f.source).isDirectory(); } catch (_e) { isDir = false; }
+  if (!isDir) { process.stderr.write('the source is not a folder\n'); return 2; }
+  const r = await quietRoom(f.source, { idleMs });
+  process.stdout.write('holders=' + r.holders + ' changed_paths=' + r.changed_paths + '\n');
+  return r.quiet ? 0 : 75;
+}
+
+// pick-room --class local|mount [--idle-ms N] [--save <file>]: one line, no path. The saved file (mode 0600) is the only place the path goes.
+async function cmdPickRoom(argv) {
+  let f;
+  try { f = parseFlags(argv, { class: 1, 'idle-ms': 1, save: 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
+  const idleMs = f['idle-ms'] === undefined ? PICK_IDLE_MS : parseInt(f['idle-ms'], 10);
+  if (!['local', 'mount'].includes(f.class) || !(idleMs >= 1)) { process.stderr.write('usage: pick-room --class local|mount [--idle-ms N] [--save <file>]\n'); return 2; }
+  // the saved file holds a real room path: it must not sit inside this repository (T-384-12)
+  if (f.save && (path.resolve(f.save) + path.sep).startsWith(REPO + path.sep)) { process.stderr.write('--save must be outside the repository (use the scratch folder)\n'); return 2; }
+  let r;
+  try { r = await pickRoom({ cls: f.class, idleMs, registryFile: defaultRegistryFile() }); } catch (_e) { process.stderr.write('the room registry could not be read\n'); return 2; }
+  if (!r.path) {
+    process.stdout.write('picked none class=' + r.cls + ' candidates=' + r.candidates + ' quiet=0\n');
+    return 75;
+  }
+  if (f.save) {
+    fs.writeFileSync(f.save, r.path + '\n', { mode: 0o600 });
+    fs.chmodSync(f.save, 0o600);
+  }
+  process.stdout.write('picked class=' + r.cls + ' file_count=' + r.file_count + ' fs_type=' + r.fs_type + '\n');
+  return 0;
+}
+
+// merge <a.json> <b.json> ... --out <file>: exit 2 for usage, mixed schemas, a duplicate id; 1 for a Part 8 hit
+function cmdMerge(argv) {
+  let f;
+  try { f = parseFlags(argv, { out: 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
+  if (!f.out || !f._ || f._.length < 2) { process.stderr.write('usage: merge <a.json> <b.json> ... --out <file>\n'); return 2; }
+  const inputs = [];
+  for (const file of f._) {
+    try { inputs.push({ name: path.basename(file, path.extname(file)), json: readResult(file) }); } catch (_e) { process.stderr.write(path.basename(file) + ': not valid JSON\n'); return 2; }
+  }
+  let merged;
+  try { merged = mergeResults(inputs); } catch (e) { process.stderr.write('merge: ' + e.message + '\n'); return e.exitCode || 1; }
+  const text = JSON.stringify(merged, null, 2) + '\n';
+  const bad = part8Violations(text, { home: os.homedir(), sourceRoom: null, scratch: null });
+  if (bad.length) { process.stderr.write('Part 8 scan failed: ' + bad.join(',') + '\n'); return 1; }
+  fs.mkdirSync(path.dirname(path.resolve(f.out)), { recursive: true });
+  fs.writeFileSync(f.out, text);
+  return 0;
+}
+
 async function main(argv) {
   const sub = argv[0];
   const rest = argv.slice(1);
@@ -1281,8 +1510,11 @@ async function main(argv) {
     case 'verify-results': return cmdVerify(rest);
     case 'summarize-isolation': return cmdIsolation(rest);
     case 'clean-bench': return cmdCleanBench(rest);
+    case 'quiet-room': return cmdQuietRoom(rest);
+    case 'pick-room': return cmdPickRoom(rest);
+    case 'merge': return cmdMerge(rest);
     default:
-      process.stderr.write('usage: perf-harness.cjs targets | run | compare | spread | verify-results | summarize-isolation | clean-bench (see tools/perf/README.md)\n');
+      process.stderr.write('usage: perf-harness.cjs targets | run | compare | spread | verify-results | summarize-isolation | clean-bench | quiet-room | pick-room | merge (see tools/perf/README.md)\n');
       return 2;
   }
 }
@@ -1300,4 +1532,6 @@ module.exports = {
   SHAPES, EVENT_TARGETS, targetDef, classOfPath, classCounts,
   prepareRoom, restoreCopy, makeCtx, runChild, wrapArgv, runEventOnce, runCommandOnce, measureTarget,
   selectHooks, buildEventPayload, makeTranscript, manifest, changedPaths, writeResult, readLoad1, fsType, machineRecord,
+  // plan 384-03: source room selection
+  quietRoom, pickRoom, resolveSource, mergeResults, defaultRegistryFile,
 };
