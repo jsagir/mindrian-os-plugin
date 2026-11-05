@@ -3953,3 +3953,18 @@ Plans:
 - [x] 381-07-PLAN.md - compute-state renderer (two-phase read, team in process, meetings script once, predicate and visual-ops in process); wrapper; stop-gate-handler through persistState; parity and timing
 - [x] 381-08-PLAN.md - 381-PARITY.md with five zero-diff runs and the full suite; after numbers with the same protocol; CHANGELOG entries with measured numbers only
 - [x] 381-09-PLAN.md - Human checkpoint on 381-PARITY.md; remove the legacy bash bodies; re-pin test-363.1 leg D; ENV-TUNING retirement line; research mirror entry; follow-ups
+
+### Phase 383: Beta.77 QA fixes: Windows room birth, skill routing, gate honesty, voice
+
+**Goal:** Fix the ten findings from the owner's beta.77 QA report, worst first, each one reproduced before it is fixed. Every finding is "reported, not yet reproduced" until a wave reproduces it. P0: room creation fails on Windows (bash resolves to the WSL launcher, python3 to the Store stub; bash call sites at lib/core/navigation/room-birth.cjs lines 1439 and 1447, lib/core/room-auto-create.cjs line 240, lib/core/graph-backfill.cjs line 446; open SEED-142). P1: no /mos command fired in 19 turns, and no context_assemble or memory_event. P2: the card shows before the environment check, no card at a real fork, a raw error shown to a beginner. P3: card copy in the third person, one unsourced number, over-long replies, a folder written without a card.
+**Requirements**: QA383-01 to QA383-10 (defined in 383-PRD.md, one per finding)
+**Depends on:** Phase 381
+**Numbering:** 383 was chosen by hand. `phase add` would pick 382, and 382 belongs to the speed pass on another branch. Do not renumber, and do not reuse 382 here.
+**Plans:** 0 plans (not planned yet; next is /gsd-plan-phase 383)
+
+Planned waves (to be split into plans):
+
+- Wave 1: Windows resolution (QA383-01) and the preview check (QA383-04), so no card is shown for a create that cannot run
+- Wave 2: why no skills fired (QA383-02, QA383-03), diagnosis first, fix second
+- Wave 3: card, voice and write fixes (QA383-05 to QA383-10)
+- Wave 4: retest on the owner's Windows machine (human checkpoint; closes QA383-01 and SEED-142 only on a signed receipt)
