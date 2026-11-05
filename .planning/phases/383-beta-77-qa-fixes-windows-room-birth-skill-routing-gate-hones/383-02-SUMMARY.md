@@ -96,7 +96,7 @@ Several hits are figures that are not claims (the HTTP status 401, step markers 
 
 **1. [Rule 1 - Bug] Dash characters written into a regex literal**
 - **Found during:** Task 2 verification (the aggregator dash fence reported `FORBIDDEN dash` in tests/test-383-sourced-number.cjs)
-- **Issue:** The `–—` escapes in the DASH_RE literal were written to disk as the two real characters.
+- **Issue:** The unicode escapes for the two dash characters in the DASH_RE literal were written to disk as the two real characters.
 - **Fix:** DASH_RE now builds from `String.fromCharCode(0x2013)` and `String.fromCharCode(0x2014)`. The fence passed after the fix.
 - **Files modified:** tests/test-383-sourced-number.cjs (fixed before the Task 2 commit)
 
