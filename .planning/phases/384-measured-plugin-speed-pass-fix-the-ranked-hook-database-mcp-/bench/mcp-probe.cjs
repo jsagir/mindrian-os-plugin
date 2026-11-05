@@ -13,6 +13,8 @@
  *            floor:node target beside them; a count run (untimed, probe preload) adds tools, eureka tools, modules.
  *            With --exec-check: one count-only run per repeat with the exec counter, a block list of npm and npx and
  *            a stub npm and npx first on PATH (schema mos.perf-384-counts/1). No real npm or npx runs.
+ *            With --tree-b <dir> [--label-b name] (os server only): the same measure on two plugin trees, interleaved
+ *            A B, B A, A B, with a derived per-pair difference.
  *   profile  CPU profile through initialize and tools/list, n runs; milliseconds and shares by group
  *   idle     watches (inotify), idle RSS and idle CPU of 1 or more MCP processes over rooms homes of R rooms, with a
  *            bare node control (--rooms 1,10,58 --procs 1,3 --window-ms 10000)
@@ -361,6 +363,7 @@ async function opensPerCall(o, calls) {
   const rows = [];
   try {
     await handshake(srv, { timeoutMs: 60000 });
+    for (const p of o.prelude || []) await srv.request('tools/call', { name: p.name, arguments: p.args || {} }, 60000);
     await sleepMs(o.settleMs === undefined ? 500 : o.settleMs);
     let snaps = 0;
     for (const c of calls) {
@@ -452,7 +455,7 @@ async function execCheck(o) {
 // session: lock, gates, room, context
 // ---------------------------------------------------------------------------
 const USAGE = {
-  start: 'usage: start --tree <dir> --out <file> [--server os|brain|both] [--exec-check [--counter <exec-counter.so>]] [--room fixture|copy] [--source <dir> | --source-file <file>] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
+  start: 'usage: start --tree <dir> --out <file> [--server os|brain|both] [--tree-b <dir> [--label-b name]] [--exec-check [--counter <exec-counter.so>]] [--room fixture|copy] [--source <dir> | --source-file <file>] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   profile: 'usage: profile --tree <dir> --out <file> [--server os|brain|both] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   idle: 'usage: idle --tree <dir> --out <file> [--rooms 1,10,58] [--procs 1,3] [--window-ms 10000] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   block: 'usage: block --tree <dir> --out <file> [--tool stop_gate_check] [--ping-delay-ms 20] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
@@ -460,7 +463,7 @@ const USAGE = {
 };
 const FLAGS = {
   tree: 1, out: 1, server: 1, 'exec-check': 'bool', counter: 1, room: 1, source: 1, 'source-file': 1, runs: 1, repeats: 1, set: 1, label: 1,
-  'base-sha': 1, scratch: 1, rooms: 1, procs: 1, 'window-ms': 1, tool: 1, tools: 1, 'ping-delay-ms': 1, 'skip-gates': 'bool', 'allow-short': 'bool',
+  'tree-b': 1, 'label-b': 1, 'base-sha': 1, scratch: 1, rooms: 1, procs: 1, 'window-ms': 1, tool: 1, tools: 1, 'ping-delay-ms': 1, 'write-path': 1, 'skip-gates': 'bool', 'allow-short': 'bool',
 };
 
 function parseFlags(argv) {
@@ -527,8 +530,13 @@ async function openSession(f, kind) {
   const m = workBefore || H.manifest(prep.roomDir);
   let bytes = 0;
   for (const v of m.values()) bytes += Number(String(v).split(':')[0]) || 0;
+  const wp = f['write-path'] === undefined ? 'off' : f['write-path'];
+  if (wp !== 'on' && wp !== 'off') throw fail('--write-path must be on or off');
   const S = {
     f, runs, tree, ctx, prep, kind: room, scratch, cpus, hasTaskset, baseSha, skipGates, source, srcBefore, workBefore, startedAt,
+    // write path: off is the default (MINDRIAN_MCP_FIRST unset: write tools refuse). on sets MINDRIAN_MCP_FIRST=cli and binds the room first.
+    writePath: wp === 'on',
+    roomSlug: room === 'fixture' ? path.basename(prep.roomDir) : 'bench-room',
     label: f.label || path.basename(tree),
     load1Start: H.readLoad1(),
     room: { kind: room === 'fixture' ? 'fixture-room' : 'real-copy', file_count: m.size, byte_total: bytes, fs_type: H.fsType(prep.roomDir) },
@@ -578,7 +586,13 @@ function writeOut(S, schema, body) {
   return obj.isolation.exit_code;
 }
 
-function serverEnv(S, extra) { return S.ctx.env(Object.assign({ MOS_PERF_RUN_ID: newRunId() }, extra || {})); }
+function serverEnv(S, extra) {
+  return S.ctx.env(Object.assign({ MOS_PERF_RUN_ID: newRunId() }, S.writePath ? { MINDRIAN_MCP_FIRST: 'cli' } : {}, extra || {}));
+}
+// calls made after the handshake and before any measured call: with the write path on, bind the room
+function preludeOf(S) {
+  return S.writePath ? [{ name: 'room_bind', args: { room: S.roomSlug } }] : [];
+}
 function serverScript(S, key) { return path.join(S.tree, 'scripts', SERVER_SCRIPTS[key]); }
 function serverKeys(f) {
   const s = f.server || 'both';
@@ -629,24 +643,31 @@ function derivedTarget(id, diffs, gate, how, extra) {
 }
 
 // stop a timing-run server and count what stays alive
-async function endRun(srv, runId) {
+// After the kill of the server group, a process that carries the run marker is background work that left the group
+// (setsid, a double fork). It is given settleMs (default 15 s) to end by itself; srv.background_ms is the time that it
+// lived after the kill (0 when none). Only a process that outlives the limit is a survivor and is killed.
+async function endRun(srv, runId, settleMs) {
   await srv.stop('SIGKILL', 4000);
+  const t0 = Date.now();
   await sleepMs(30);
   let left = markedPids(runId);
-  if (left.length) {
-    await sleepMs(300);
+  const hadBackground = left.length > 0;
+  const limit = settleMs === undefined ? 15000 : settleMs;
+  while (left.length && Date.now() - t0 < limit) {
+    await sleepMs(100);
     left = markedPids(runId);
-    left.forEach((p) => { try { process.kill(p, 'SIGKILL'); } catch (_e) { /* gone */ } });
   }
+  srv.background_ms = hadBackground ? Date.now() - t0 : 0;
+  left.forEach((p) => { try { process.kill(p, 'SIGKILL'); } catch (_e) { /* gone */ } });
   return left.length;
 }
 
 // ---------------------------------------------------------------------------
 // start
 // ---------------------------------------------------------------------------
-async function startSample(S, key) {
+async function startSample(S, key, scriptOverride) {
   const runId = newRunId();
-  const srv = spawnServer({ script: serverScript(S, key), cwd: S.ctx.roomDir, env: S.ctx.env({ MOS_PERF_RUN_ID: runId }), cpus: S.cpus, hasTaskset: S.hasTaskset });
+  const srv = spawnServer({ script: scriptOverride || serverScript(S, key), cwd: S.ctx.roomDir, env: S.ctx.env({ MOS_PERF_RUN_ID: runId }), cpus: S.cpus, hasTaskset: S.hasTaskset });
   let hs = null;
   try { hs = await handshake(srv, { timeoutMs: 60000, onReply: (_stage, s) => readProc(s.pid) }); } catch (_e) { hs = null; }
   const left = await endRun(srv, runId);
@@ -672,8 +693,53 @@ async function countRun(S, key, dir) {
   return Object.assign({ server: key, replied: !!hs, modules: fin ? fin.modules : null, tool_files_in_folder: toolFiles }, hs ? toolCounts(hs.tools) : {});
 }
 
+// start with two trees, interleaved A B, B A, A B ...: the same room, the same server, two plugin trees
+async function cmdStartAB(f) {
+  const S = await openSession(f, 'start');
+  try {
+    if (f.server !== undefined && f.server !== 'os') throw fail('--tree-b supports --server os only');
+    const treeB = path.resolve(f['tree-b']);
+    const scriptB = path.join(treeB, 'scripts', SERVER_SCRIPTS.os);
+    if (!fs.existsSync(scriptB)) throw fail('--tree-b is not a plugin tree');
+    const labelB = f['label-b'] || path.basename(treeB);
+    const gate = await S.gate();
+    const sides = { A: { script: serverScript(S, 'os'), tag: 'mcp:os', label: S.label }, B: { script: scriptB, tag: 'mcp:os-b', label: labelB } };
+    const acc = {};
+    for (const k of Object.keys(sides)) {
+      acc[k] = { init: newAcc(sides[k].tag + ':initialize', { tree_label: sides[k].label }), list: newAcc(sides[k].tag + ':tools-list', { tree_label: sides[k].label }) };
+    }
+    const dInit = [];
+    const dList = [];
+    for (let i = 0; i < S.runs; i += 1) {
+      const got = {};
+      for (const side of (i % 2 === 0 ? ['A', 'B'] : ['B', 'A'])) {
+        const s = await startSample(S, 'os', sides[side].script);
+        const a = acc[side];
+        a.init.survivors += s.survivors; a.list.survivors += s.survivors;
+        if (s.run_class === 'failed') { a.init.failed += 1; a.list.failed += 1; continue; }
+        a.init.exits.add(0); a.list.exits.add(0);
+        a.init.wall.push(s.init_ms); a.list.wall.push(s.list_ms);
+        if (s.init_proc) { a.init.cpu.push(s.init_proc.cpu_ms); a.init.rss.push(s.init_proc.hwm_mb); }
+        if (s.list_proc) { a.list.cpu.push(s.list_proc.cpu_ms); a.list.rss.push(s.list_proc.hwm_mb); }
+        a.init.bg.push(0); a.list.bg.push(0);
+        a.init.extra.tools = s.counts.tools; a.list.extra.tools = s.counts.tools;
+        a.init.extra.eureka_tools = s.counts.eureka_tools; a.list.extra.eureka_tools = s.counts.eureka_tools;
+        got[side] = s;
+      }
+      if (got.A && got.B) { dInit.push(got.A.init_ms - got.B.init_ms); dList.push(got.A.list_ms - got.B.list_ms); }
+    }
+    const targets = [toTarget(acc.A.init, gate), toTarget(acc.A.list, gate), toTarget(acc.B.init, gate), toTarget(acc.B.list, gate),
+      derivedTarget('mcp:os:initialize:a-minus-b', dInit, gate, 'per-pair initialize time of tree A minus tree B'),
+      derivedTarget('mcp:os:tools-list:a-minus-b', dList, gate, 'per-pair tools/list time of tree A minus tree B')];
+    const code = writeOut(S, H.SCHEMA, { compare: { a: S.label, b: labelB }, targets });
+    log('start A/B: ' + targets.map((t) => t.id + ' ' + t.wall_ms.median + ' ms (n ' + t.n + ')').join('; '));
+    return code;
+  } finally { S.cleanup(); }
+}
+
 async function cmdStart(f) {
   if (f['exec-check']) return cmdExecCheck(f);
+  if (f['tree-b']) return cmdStartAB(f);
   const S = await openSession(f, 'start');
   try {
     const keys = serverKeys(f);
@@ -1017,6 +1083,7 @@ const SAFE_CALLS = {
   stop_gate_check: { tool: 'stop_gate_check', args: () => ({ session_id: 'perf384-session' }) },
   artifact_file: { tool: 'artifact_file', write: true, args: (u) => ({ section: 'problem-definition', filename: 'perf384-' + u + '.md', content: '# perf384 synthetic note\n\nsynthetic text for a timing run.\n' }) },
   memory_event: { tool: 'memory_event', write: true, args: (u) => ({ label: 'perf384-synthetic', dedupe_key: 'perf384-' + u }) },
+  'room_graph:graph-rebuild': { tool: 'room_graph', write: true, args: () => ({ command: 'graph-rebuild' }) },
   'room_content:file-opportunity': { tool: 'room_content', write: true, cascade: true, args: (u) => ({ command: 'file-opportunity', section: JSON.stringify({ title: 'perf384 synthetic opportunity ' + u, program: 'perf384', funder: 'perf384', amount: 1000, deadline: '2030-01-01' }) }) },
 };
 const DEFAULT_OPEN_TOOLS = ['room_list', 'room_state', 'suggest_next', 'room_startup', 'artifact_file', 'memory_event'];
@@ -1039,7 +1106,7 @@ async function cmdOpens(f) {
       const logFile = path.join(S.prep.sandbox.tmp, 'opens-' + r + '.log');
       const calls = [];
       plan.forEach((n) => { for (let k = 1; k <= 2; k += 1) calls.push({ name: SAFE_CALLS[n].tool, label: n + '#' + k, args: SAFE_CALLS[n].args('r' + r + 'c' + k + '-' + n.replace(/[^a-z]/g, '')) }); });
-      const rows = await opensPerCall({ script: serverScript(S, 'os'), cwd: S.ctx.roomDir, env: S.ctx.env({ MOS_PERF_RUN_ID: newRunId() }), cpus: S.cpus, hasTaskset: S.hasTaskset, logFile, cats: probeCats(S) }, calls);
+      const rows = await opensPerCall({ script: serverScript(S, 'os'), cwd: S.ctx.roomDir, env: serverEnv(S), cpus: S.cpus, hasTaskset: S.hasTaskset, logFile, cats: probeCats(S), prelude: preludeOf(S) }, calls);
       rows.forEach((row) => {
         const [n, k] = row.label.split('#');
         if (!row.measured) { perTool[n]['call' + k].push(null); return; }
@@ -1069,7 +1136,7 @@ async function cmdOpens(f) {
       });
       opens.push({ tool: n, writes_to_room: !!SAFE_CALLS[n].write, reaches_cascade: !!SAFE_CALLS[n].cascade, first_call: summ(c1), second_call: summ(c2) });
     }
-    const code = writeOut(S, H.COUNTS_SCHEMA, { repeats: S.runs, opens, not_measured });
+    const code = writeOut(S, H.COUNTS_SCHEMA, { repeats: S.runs, write_path: S.writePath ? 'on (MINDRIAN_MCP_FIRST=cli, room bound first)' : 'off (default: MINDRIAN_MCP_FIRST unset)', opens, not_measured });
     log('opens: ' + opens.map((o) => o.tool + ' ' + o.first_call.opens_server.join('/')).join('; '));
     return code;
   } finally { S.cleanup(); }
@@ -1096,11 +1163,12 @@ async function cmdBlock(f) {
     let seq = 0;
     const one = async (variant) => {
       const runId = newRunId();
-      const srv = spawnServer({ script: serverScript(S, 'os'), cwd: S.ctx.roomDir, env: S.ctx.env({ MOS_PERF_RUN_ID: runId }), cpus: S.cpus, hasTaskset: S.hasTaskset });
+      const srv = spawnServer({ script: serverScript(S, 'os'), cwd: S.ctx.roomDir, env: serverEnv(S, { MOS_PERF_RUN_ID: runId }), cpus: S.cpus, hasTaskset: S.hasTaskset });
       let out = null;
       let left = 0;
       try {
         await handshake(srv, { timeoutMs: 60000 });
+        for (const p of preludeOf(S)) await srv.request('tools/call', { name: p.name, arguments: p.args }, 60000);
         await sleepMs(1500);
         if (variant === 'idle') out = { ping_ms: await idlePing(srv, 5) };
         else {
@@ -1108,17 +1176,17 @@ async function cmdBlock(f) {
           out = await blockProbe(srv, { tool: spec.tool, args: spec.args('m' + (seq += 1)), pingDelayMs: delay });
         }
       } catch (_e) { out = null; } finally { left = await endRun(srv, runId); }
-      return { out, left };
+      return { out, left, bg: srv.background_ms || 0 };
     };
     const order = ['idle', 'cold', 'warm'];
     const errors = { cold: 0, warm: 0 };
     for (let i = 0; i < S.runs; i += 1) {
       for (const v of rotated(order, i)) {
-        const { out, left } = await one(v);
+        const { out, left, bg } = await one(v);
         if (v === 'idle') {
           idleAcc.survivors += left;
           if (!out) { idleAcc.failed += 1; continue; }
-          idleAcc.exits.add(0); idleAcc.wall.push(out.ping_ms); idleAcc.bg.push(0);
+          idleAcc.exits.add(0); idleAcc.wall.push(out.ping_ms); idleAcc.bg.push(bg);
         } else {
           const a = accs[v];
           a.ping.survivors += left; a.tool.survivors += left;
@@ -1126,7 +1194,7 @@ async function cmdBlock(f) {
           if (out.tool_error) errors[v] += 1;
           a.ping.exits.add(0); a.tool.exits.add(0);
           a.ping.wall.push(out.ping_ms); a.tool.wall.push(out.tool_ms);
-          a.ping.bg.push(0); a.tool.bg.push(0);
+          a.ping.bg.push(bg); a.tool.bg.push(bg);
         }
       }
     }
@@ -1137,7 +1205,7 @@ async function cmdBlock(f) {
       tp.tool_error_runs = errors[v]; tt.tool_error_runs = errors[v];
       targets.push(tp, tt);
     });
-    const code = writeOut(S, H.SCHEMA, { block: { tool: spec.tool, writes_to_room: !!spec.write, reaches_cascade: !!spec.cascade, ping_delay_ms: delay, meaning: 'ping rows: wall_ms is the time from the ping send to its reply; tool rows: the time from the call send to its reply' }, targets });
+    const code = writeOut(S, H.SCHEMA, { block: { write_path: S.writePath ? 'on (MINDRIAN_MCP_FIRST=cli, room bound first)' : 'off (default: MINDRIAN_MCP_FIRST unset)', tool: spec.tool, writes_to_room: !!spec.write, reaches_cascade: !!spec.cascade, ping_delay_ms: delay, meaning: 'ping rows: wall_ms is the time from the ping send to its reply; tool rows: the time from the call send to its reply' }, targets });
     log('block ' + toolKey + ': ' + targets.map((t) => t.id + ' ' + t.wall_ms.median).join('; '));
     return code;
   } finally { S.cleanup(); }

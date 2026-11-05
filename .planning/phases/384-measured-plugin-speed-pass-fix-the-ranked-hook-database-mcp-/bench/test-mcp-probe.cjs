@@ -55,6 +55,7 @@ const FAKE = [
   "  if (m.method === 'tools/call') {",
   "    const n = m.params.name;",
   "    if (n === 'stop_gate_check') cp.execFileSync('sleep', ['0.3']);",
+  "    if (n === 'stop_gate_check' && process.env.FAKE_BG) cp.spawn('sleep', ['1'], { detached: true, stdio: 'ignore' }).unref();",
   // test-only: the module name is joined at run time so the substrate scan, which guards product code, does not read this synthetic server as a room.db access
   "    if (n === 'memory_event') { const D = require('node:' + 'sqlite').DatabaseSync; new D(':memory:'); new D(':memory:'); }",
   "    if (n === 'room_state') cp.execFileSync(process.execPath, ['-e', \"new (require('node:' + 'sqlite').DatabaseSync)(':memory:')\"], { stdio: 'ignore' });",
@@ -253,6 +254,15 @@ async function main() {
     check('M10 no output holds a path (scratch, source, home)', text.length > 0 && text.indexOf(scratch) === -1 && text.indexOf(source) === -1 && text.indexOf(os.homedir()) === -1);
     check('M10 copy mode left the source folder unchanged and the isolation exit code is 0', !!oj && oj.isolation.exit_code === 0 && oj.isolation.source_changed_paths === 0, oj ? JSON.stringify(oj.isolation) : '');
 
+    const wpDir = tmp('out-wp');
+    fs.mkdirSync(wpDir, { recursive: true });
+    const wpFile = path.join(wpDir, 'opens-wp.json');
+    const r1b = cli(['opens', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', wpFile, '--repeats', '3', '--tools', 'memory_event', '--write-path', 'on', '--scratch', scratch, '--skip-gates', '--label', 'synthetic']);
+    const wj = fs.existsSync(wpFile) ? readJson(wpFile) : null;
+    check('M8 --write-path on is recorded in the result and the count still holds (2)', r1b.status === 0 && !!wj && /^on/.test(wj.write_path) && wj.opens[0].first_call.opens_server.join() === '2,2,2' && /^off/.test(oj.write_path), r1b.stderr + (wj ? wj.write_path : ''));
+    const badWp = cli(['opens', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', tmp('w.json'), '--write-path', 'maybe', '--scratch', scratch, '--skip-gates']);
+    check('M8 --write-path with another value exits 2', badWp.status === 2, badWp.status + ' ' + badWp.stderr);
+
     const startDir = tmp('out-start');
     fs.mkdirSync(startDir, { recursive: true });
     const startFile = path.join(startDir, 'start.json');
@@ -271,6 +281,17 @@ async function main() {
     const noLock = cp.spawnSync(process.execPath, [PROBE_PATH, 'opens', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', tmp('z.json')], { encoding: 'utf8', env: Object.assign({}, process.env, { MOS_PERF_LOCK_FILE: tmp('no-such-lock') }), cwd: scratch });
     check('M8 a run without the lock exits 1', noLock.status === 1 && /lock not held/.test(noLock.stderr), noLock.status + ' ' + noLock.stderr);
 
+    // two trees, interleaved
+    const treeB = tmp('tree-b');
+    writeFile(path.join(treeB, 'scripts', 'mindrian-mcp-server.cjs'), FAKE);
+    const abFile = path.join(outDir, 'ab.json');
+    const r6 = cli(['start', '--tree', tree, '--tree-b', treeB, '--label-b', 'tree-b-label', '--room', 'copy', '--source-file', sourceFile, '--out', abFile, '--runs', '4', '--server', 'os', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'tree-a-label']);
+    const aj = fs.existsSync(abFile) ? readJson(abFile) : null;
+    const ids = aj ? aj.targets.map((t) => t.id).join() : '';
+    check('M8 start --tree-b: targets for both trees and a per-pair difference, n = 4 each, labels kept', r6.status === 0 && !!aj && /mcp:os:initialize/.test(ids) && /mcp:os-b:initialize/.test(ids) && /mcp:os:initialize:a-minus-b/.test(ids) && aj.targets.every((t) => t.n === 4) && aj.compare.a === 'tree-a-label' && aj.compare.b === 'tree-b-label', r6.stderr + ids);
+    const abBad = cli(['start', '--tree', tree, '--tree-b', tmp('no-such-tree'), '--room', 'copy', '--source-file', sourceFile, '--out', tmp('ab2.json'), '--runs', '4', '--server', 'os', '--scratch', scratch, '--skip-gates', '--allow-short']);
+    check('M8 start --tree-b with a folder that is not a plugin tree exits 2', abBad.status === 2, abBad.status + ' ' + abBad.stderr);
+
     // block and idle, small
     const blockFile = path.join(outDir, 'block.json');
     const r3 = cli(['block', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', blockFile, '--tool', 'stop_gate_check', '--runs', '2', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'synthetic']);
@@ -278,7 +299,13 @@ async function main() {
     const cold = bj && bj.targets.find((t) => t.id === 'mcp:block:stop_gate_check:cold:ping');
     const base = bj && bj.targets.find((t) => t.id === 'mcp:block:idle-ping');
     check('M8 block: the ping during the synthetic slow tool is above 250 ms and the idle ping is below 100 ms', r3.status === 0 && !!cold && !!base && cold.wall_ms.median >= 250 && base.wall_ms.median < 100, r3.stderr + (cold ? cold.wall_ms.median : ''));
-    // stop_gate_check is not in the safe table with a write flag, so no write is made; the table entry exists
+    // a call that leaves detached background work: it is waited for, its time is on file, and it is not a survivor
+    const bgFile = path.join(outDir, 'block-bg.json');
+    const r3b = cli(['block', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', bgFile, '--tool', 'stop_gate_check', '--runs', '2', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'synthetic'], { FAKE_BG: '1' });
+    const gj = fs.existsSync(bgFile) ? readJson(bgFile) : null;
+    const gcold = gj && gj.targets.find((t) => t.id === 'mcp:block:stop_gate_check:cold:ping');
+    check('M8 block: detached background work after the reply is waited for (background_ms of 500 or more), survivors 0', r3b.status === 0 && !!gcold && gcold.background_ms >= 500 && gcold.survivors_left === 0 && gcold.failed_runs === 0, r3b.stderr + (gcold ? JSON.stringify([gcold.background_ms, gcold.survivors_left]) : ''));
+    check('M8 block: with no background work background_ms is 0', !!cold && cold.background_ms === 0, cold ? cold.background_ms : '');
     const idleFile = path.join(outDir, 'idle.json');
     const r4 = cli(['idle', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', idleFile, '--rooms', '1,2', '--procs', '1,2', '--window-ms', '300', '--runs', '1', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'synthetic'], { FAKE_WATCH: '1' });
     const ij = fs.existsSync(idleFile) ? readJson(idleFile) : null;
