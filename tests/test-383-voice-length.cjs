@@ -16,6 +16,7 @@
  *   V5  a synthetic 12-sentence reply with user text `just tell me everything about the grant`: ok, exempt
  *   V6  scanTurn appends one voice-length row for probe-D and none for probe-C; no reply text in the row (RED)
  *   V7  data/harness-policies/voice-length.json declares the policy (RED)
+ *   V8  review IN-06: a request phrasing exempts; the phrase "in full swing" does not
  *
  * V2 to V5 wait for V1 (they print FAIL with the same cause when the function is missing).
  * Hermetic: HOME, MINDRIAN_HOME and the rooms variables are mkdtemp dirs before any repo require.
@@ -148,5 +149,21 @@ legWithFn('V5 a 12-sentence reply is exempt when the navigator asked for everyth
   if (!Array.isArray(j.pinned_by) || j.pinned_by.indexOf('tests/test-383-voice-length.cjs') === -1) faults.push('pinned_by lacks tests/test-383-voice-length.cjs');
   if (faults.length === 0) R.pass('V7 voice-length policy is declared'); else R.fail('V7 voice-length policy is declared', faults.join('; '));
 })();
+
+// ---- V8
+legWithFn('V8 review IN-06: a request phrasing exempts, "in full swing" does not', function () {
+  const text = Array.from({ length: 12 }, function (_x, i) { return 'Point ' + (i + 1) + ' covers one part of the grant.'; }).join(' ');
+  const faults = [];
+  const yes = ['please explain it in full', 'answer in detail', 'describe this in detail', 'tell me in full'];
+  const no = ['the launch is in full swing', 'we are in full agreement', 'the details are in detail.md'];
+  yes.forEach(function (u) {
+    if (checks.checkReplyLength(text, { userText: u }).fields.exempt !== true) faults.push('"' + u + '" should be exempt');
+  });
+  no.forEach(function (u) {
+    if (checks.checkReplyLength(text, { userText: u }).fields.exempt !== false) faults.push('"' + u + '" should not be exempt');
+  });
+  if (faults.length === 0) R.pass('V8 review IN-06: a request phrasing exempts, "in full swing" does not');
+  else R.fail('V8 review IN-06: a request phrasing exempts, "in full swing" does not', faults.join('; '));
+});
 
 R.done();
