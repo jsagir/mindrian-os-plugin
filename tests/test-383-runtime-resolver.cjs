@@ -26,6 +26,7 @@
  *   R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forward slashes only
  *   R16 review WR-02: a failed resolution is cached for a short window, refresh re-probes, the window ends
  *   R17 review IN-01: timeout, spawn_error and exit_nonzero results carry plain and tried too
+ *   R18 review IN-02: win32 MINDRIAN_BASH as a bare name is resolved on PATH, then probed
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs before any repo require. No network.
  * House rule: hyphens only.
@@ -391,6 +392,20 @@ leg('R17 review IN-01: timeout, spawn_error and exit_nonzero results carry plain
     eq(r.plain, '', c[0] + ' plain');
     ok(Array.isArray(r.tried) && r.tried.length === 1, c[0] + ' tried: ' + JSON.stringify(r.tried));
   }
+});
+
+leg('R18 review IN-02: win32 MINDRIAN_BASH as a bare name is resolved on PATH, then probed', function () {
+  const resolve = need('resolveRoomRuntime');
+  const spawnSync = fakeSpawn(merge(
+    { 'where mybash': out('D:\\tools\\mybash.exe\r\n') },
+    bashRows('D:/tools/mybash.exe', 'msys'),
+    pyRows('python3', [], '3.12.3', 'C:\\Python312\\python.exe')));
+  const r = resolve({ platform: 'win32', env: winEnv({ MINDRIAN_BASH: 'mybash' }), spawnSync: spawnSync, existsSync: fakeExists([]) });
+  eq(r.ok, true, 'ok: ' + JSON.stringify(r.tried));
+  eq(r.bash && r.bash.path, 'D:/tools/mybash.exe', 'bash.path');
+  const miss = resolve({ platform: 'win32', env: winEnv({ MINDRIAN_BASH: 'nobash' }), spawnSync: fakeSpawn(pyRows('python3', [], '3.12.3', 'C:\\P\\python.exe')), existsSync: fakeExists([]) });
+  const rec = find(miss.tried, 'bash', /^nobash$/);
+  ok(rec && rec.result === 'not_found', 'an unresolved bare name is recorded as not_found: ' + JSON.stringify(miss.tried));
 });
 
 for (const l of legs) {
