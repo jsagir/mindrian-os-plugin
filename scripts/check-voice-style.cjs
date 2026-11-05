@@ -45,7 +45,7 @@
  * term classes only. The punctuation pause (a spaced double hyphen) has no live rule here; it is
  * measured offline by findDashes (plan 369.6-01).
  *
- * Phase 383-07 (QA383-09) adds a fourth shadow rule, policy_id 'voice-length', through checkReplyLength of the
+ * Phase 383-07 (QA383-09) adds Rule 5 in scanTurn (the third shadow rule), policy_id 'voice-length', through checkReplyLength of the
  * same module: a default reply over 8 sentences is logged as a count (sentences and the limit), never blocked.
  * A reply to an explicit request for a list, a plan or the full answer is exempt. The rule is 3 to 8 sentences by
  * default, longer only when asked (references/personality/voice-dna.md; agents/larry-extended.md line 41). The row
