@@ -63,8 +63,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
   // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
-  // re-based by 383-05 (QA383-03, D-row C6 and C7), 2026-11-05: was 5389514d2b3b...f4cd (two sentences added as a new line after the Operating policy line, which stays byte-identical; the Decision Gates span is unchanged)
-  LARRY_OUTSIDE_GATES: 'e7cf5c64b273790b5367ea798ca798bb864b69e312129a9a0abe16fd05bb6311',
+  // re-based by 383-05 (QA383-03, D-row C6 and C7), 2026-11-05: was 5389514d2b3b...f4cd (two sentences added to the second Operating invisibly bullet, paid for by two cuts of duplicate text (the gate-card clause of the first bullet, and the voice modulation line, which references/personality/voice-dna.md keeps) so the 65 percent body budget of test-3696-voice-first-budget holds; the Operating policy line and the Decision Gates span are unchanged)
+  LARRY_OUTSIDE_GATES: 'c2adef6ed9bc287503b16dc405f0c8d8a83f25079353daecd268d411d43accc8',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
