@@ -7658,6 +7658,8 @@ Progress: [██████████] 98%
 
 ### Roadmap Evolution
 
+- Phase 384 added (2026-11-05): measured plugin speed pass on the ten ranked findings of the 2026-11-05 read-only runtime audit (five reviewers, all hypotheses until measured). Supersedes the paused Phase 382 plan; the 382 harness and the `doctor --all` timer fix stay on branch `workspace/perf-optimize` and are carried over by review, not by merge of that branch. Measure first, before and after numbers only.
+
 - Phase 383 added (2026-11-05, numbered by hand because `phase add` would pick 382 and 382 belongs to the speed pass on another branch): beta.77 QA fixes, ten findings from the owner's QA report (Windows room birth P0, skill routing P1, gate honesty P2, voice P3). Depends on Phase 381. Every finding is "reported, not yet reproduced". Not planned yet; next is /gsd-plan-phase 383.
 
 - Phase 379.1 inserted after 379 (2026-10-21, URGENT): graph derive drain and scout runaway CPU fix, defects D1 to D6 of the 2026-10-21 incident report (all plugin side; the mindrian-eureka Python repo is not in the path). beta.73 blocker. Phase 380 depends on it. Next: /gsd-plan-phase 379.1 after the debug session drain-and-scout-runaway-cpu-wsl-windows reports.

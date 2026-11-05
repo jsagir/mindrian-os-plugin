@@ -3968,3 +3968,14 @@ Planned waves (to be split into plans):
 - Wave 2: why no skills fired (QA383-02, QA383-03), diagnosis first, fix second
 - Wave 3: card, voice and write fixes (QA383-05 to QA383-10)
 - Wave 4: retest on the owner's Windows machine (human checkpoint; closes QA383-01 and SEED-142 only on a signed receipt)
+
+### Phase 384: Measured plugin speed pass: fix the ranked hook, database, MCP start-up and Stop findings, measure first
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 383
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 384 to break down)
