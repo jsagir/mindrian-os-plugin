@@ -273,6 +273,15 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/room-runtime-module.cjs",
       "description": "Names the bash and the Python that room creation would use (probe by running; the WSL launcher and the Microsoft Store placeholder are rejected), their versions, every candidate tried, and on Windows the shell hooks/run-hook.cmd would pick. Check-only, LOCAL, no fix (Phase 383, SEED-142 direction 4, D-07)."
+    },
+    {
+      "id": "doubled-room-trees",
+      "introduced_version": "2.0.0-beta.78",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/doubled-room-trees-module.cjs",
+      "description": "Lists the folders that older room births wrote by mistake under the rooms home (a copy of the room path inside the rooms home holding only unchanged seed files ROOM.md, STATE.md, USER.md), with a digest. Check-only in the engine: deletion runs only through --clean-doubled-rooms=<digest> after the navigator approves the F.0 card (Phase 383, D-02, SEED-117)."
     }
   ]
 }

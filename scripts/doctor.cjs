@@ -266,6 +266,11 @@ function parseArgs(argv) {
     // against the ten ICM invariants (lib/core/doctor/icm-walk-module.cjs). It writes nothing, fixes
     // nothing, and exits 0 once it has printed its report.
     icmWalk: false,
+    // Phase 383 plan 10 (D-02): --clean-doubled-rooms=<digest> is a SIBLING flag (like --icm-walk), NOT a class
+    // flag, deliberately NOT in the --all block and never reached by --fix. It carries the listing digest the
+    // navigator approved on the F.0 card; lib/core/doctor/doubled-room-trees-module.cjs clean() deletes nothing
+    // unless the digest equals the current listing.
+    cleanDoubledRooms: null,
     roomDir: null,
   };
   for (const arg of argv) {
@@ -305,6 +310,7 @@ function parseArgs(argv) {
     // parseArgs default comment above.
     else if (arg === '--reset-install-id') flags.resetInstallId = true;
     else if (arg === '--icm-walk') flags.icmWalk = true;
+    else if (arg.startsWith('--clean-doubled-rooms=')) flags.cleanDoubledRooms = arg.slice('--clean-doubled-rooms='.length);
     else if (arg.startsWith('--room=')) flags.roomDir = arg.slice('--room='.length);
     else if (arg === '--dogfood-acceptance') flags.dogfoodAcceptance = true;
     else if (arg === '--claims') flags.claims = true;
@@ -526,6 +532,9 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
                            host-side core bug. stdout only; --json for the machine shape.
                            Exit 0 whenever the report assembles (even offline); non-zero
                            only if the assembler itself throws. NOT in --all.
+  --clean-doubled-rooms=<digest>  delete the doubled-path folders of the doubled-room-trees row; only
+                           after the navigator approved the F.0 card for that listing digest. Sibling
+                           mode: never reached by --fix or --all. Exit 0 on success, 1 on a mismatch.
   --reset-install-id       (Quick task 260911-iko) rotates the opaque per-install bucket
                            key the plugin sends to Theo as the x-theo-install-id header.
                            Mints a fresh id, replaces the state-dir file, prints exactly
@@ -3482,6 +3491,39 @@ function main() {
     }
     console.log(flags.json ? JSON.stringify(report, null, 2) : icmWalk.renderText(report).replace(/\n$/, ''));
     process.exitCode = 0;
+    return;
+  }
+
+  // Phase 383 plan 10 (D-02): --clean-doubled-rooms=<digest> dispatch. A sibling mode like --icm-walk, placed
+  // before the class-flag block so --fix and --all can never reach it. Exit 0 when the delete is ok (or there
+  // is nothing to remove), exit 1 on a digest mismatch or a folder that could not be removed. The reason is
+  // printed in three plain lines (what happened, why, what to do).
+  if (flags.cleanDoubledRooms !== null) {
+    const doubled = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'doubled-room-trees-module.cjs'));
+    const { listRoomRoots } = require(path.join(__dirname, '..', 'lib', 'core', 'icm-forest.cjs'));
+    let res;
+    try {
+      res = doubled.clean({ home: listRoomRoots().home, digest: flags.cleanDoubledRooms });
+    } catch (e) {
+      res = { ok: false, reason: 'error', removed: [], kept: [], detail: String((e && e.message) || e).slice(0, 160) };
+    }
+    if (flags.json) {
+      console.log(JSON.stringify(res, null, 2));
+    } else if (res.ok) {
+      console.log('Removed ' + res.removed.length + ' doubled-path folder(s) from the rooms home.');
+      res.removed.forEach(function (r) { console.log('  removed: ' + r); });
+      (res.kept || []).forEach(function (k) { console.log('  kept: ' + k.path + ' (' + k.reason + ')'); });
+    } else if (res.reason === 'digest_mismatch') {
+      console.log('Nothing was deleted.');
+      console.log('The digest you gave does not match the current list of doubled-path folders.');
+      console.log('Run /mos:doctor to see the current list and digest, then approve that list.');
+    } else {
+      console.log('Nothing more was deleted.');
+      console.log('Reason: ' + (res.detail || res.reason || 'a folder could not be removed') + '.');
+      (res.kept || []).forEach(function (k) { console.log('  kept: ' + k.path + ' (' + k.reason + ')'); });
+      console.log('Run /mos:doctor to see what is left.');
+    }
+    process.exitCode = res.ok ? 0 : 1;
     return;
   }
 
