@@ -5,7 +5,9 @@
  * Phase 384 plan 01: self-test of tools/perf/perf-harness.cjs and tools/perf/phase-guard.cjs.
  * Checks H1 to H11 (carried over from the 382 self-test and adapted to the 384 names) and B1 to B8
  * (names, per-target gate, per-target fields, failed-run rule, verify-results schemas, test-only
- * flags, lock check, phase-guard). Node built-ins only. Exit 1 on any failed check.
+ * flags, lock check, phase-guard). Plan 384-02 adds A1 to A5 and X11 (run mechanics: the run marker and kill
+ * hygiene, the count pass, restore per target, the source-keyed bench folder, the changed-path proof, sandbox
+ * cleanup on error). Node built-ins only. Exit 1 on any failed check.
  * Measurements are never taken here: the run checks use a synthetic room and a small tree,
  * with MOS_PERF_SELFTEST=1 (the variable that unlocks the test-only flags --allow-short and --skip-gates).
  * Hyphens only.
@@ -13,7 +15,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawnSync, spawn } = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
 const HARNESS = path.join(REPO, 'tools', 'perf', 'perf-harness.cjs');
@@ -326,6 +328,8 @@ function afterGate() {
     check('B8 an untagged commit without the trailer that touches lib/y passes', gcase(['lib/y'], 'fix: probe', false).status === 0);
     check('B8 phase-guard without an argument exits 2', spawnSync(process.execPath, [GUARD], { encoding: 'utf8' }).status === 2);
 
+    partA();
+
     // the target list
     check('targets: at least 28 ids', H.TARGETS.length >= 28, String(H.TARGETS.length));
     const tl = run(['targets']);
@@ -335,6 +339,182 @@ function afterGate() {
     process.stdout.write('  FAIL unexpected error :: ' + String(e && e.stack || e) + '\n');
   }
   finish();
+}
+
+// ---------------------------------------------------------------------------
+// Plan 384-02 Task 1: checks A1 to A5 (run mechanics) and X11 (sandbox cleanup on error)
+// ---------------------------------------------------------------------------
+function procIds() { try { return fs.readdirSync('/proc').filter((d) => /^[0-9]+$/.test(d)); } catch (_e) { return []; } }
+function markerProcCount() {
+  let n = 0;
+  for (const p of procIds()) {
+    try { if (fs.readFileSync('/proc/' + p + '/environ', 'latin1').indexOf('MOS_PERF_RUN_ID=') !== -1) n += 1; } catch (_e) { /* gone or not ours */ }
+  }
+  return n;
+}
+function cmdlineAlive(text) {
+  for (const p of procIds()) {
+    if (p === String(process.pid)) continue;
+    try { if (fs.readFileSync('/proc/' + p + '/cmdline', 'latin1').split('\0').join(' ').indexOf(text) !== -1) return true; } catch (_e) { /* gone */ }
+  }
+  return false;
+}
+function pidRunning(pid) {
+  try {
+    const stat = fs.readFileSync('/proc/' + pid + '/stat', 'utf8');
+    return stat.slice(stat.lastIndexOf(')') + 2, stat.lastIndexOf(')') + 3) !== 'Z';
+  } catch (_e) { return false; }
+}
+function readJson(f) { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_e) { return null; } }
+function tgt(r, id) { return r && Array.isArray(r.targets) ? r.targets.find((x) => x.id === id) : undefined; }
+
+function partA() {
+  const base = ['--room', 'synthetic', '--allow-short'];
+
+  // A1: marker, escaped background work
+  const idLog = path.join(TMP, 'runids.log');
+  const a1Tree = hookTree(path.join(TMP, 'a1tree'), {
+    SessionEnd: [{ hooks: [{ type: 'command', command: 'printf "%s\\n" "$MOS_PERF_RUN_ID" >> ' + idLog + '; setsid sleep 1.2 &', timeout: 5 }] }],
+    PreCompact: [{ hooks: [{ type: 'command', command: 'sleep 0.1', timeout: 5 }] }],
+  });
+  const a1Out = path.join(TMP, 'a1.json');
+  const a1 = run(['run', '--tree', a1Tree].concat(base, ['--runs', '3', '--targets', 'event:SessionEnd,event:PreCompact', '--out', a1Out]));
+  const a1r = readJson(a1Out);
+  const ids = fs.existsSync(idLog) ? fs.readFileSync(idLog, 'utf8').split('\n').filter(Boolean) : [];
+  check('A1 every run gives the hook a non-empty MOS_PERF_RUN_ID and the values differ', a1.status === 0 && ids.length === 3 && new Set(ids).size === 3, a1.status + ' ' + JSON.stringify(ids) + ' ' + String(a1.stderr).slice(0, 200));
+  const a1e = tgt(a1r, 'event:SessionEnd');
+  const a1n = tgt(a1r, 'event:PreCompact');
+  check('A1 a setsid background sleep gives background_ms of 1000 or more', !!a1e && a1e.background_ms >= 1000, a1e ? String(a1e.background_ms) : 'no target');
+  check('A1 a setsid background sleep gives escaped_max of 1 or more', !!a1e && a1e.escaped_max >= 1, a1e ? String(a1e.escaped_max) : 'no target');
+  check('A1 a hook without background work gives escaped_max 0', !!a1n && a1n.escaped_max === 0, a1n ? String(a1n.escaped_max) : 'no target');
+
+  // A1: kill hygiene (T-384-06)
+  const bystander = spawn('sleep', ['30.7'], { stdio: 'ignore' });
+  const a1kTree = hookTree(path.join(TMP, 'a1ktree'), { SessionEnd: [{ hooks: [{ type: 'command', command: 'setsid sleep 30.5 &', timeout: 5 }] }] });
+  const a1kOut = path.join(TMP, 'a1k.json');
+  const a1k = run(['run', '--tree', a1kTree].concat(base, ['--runs', '1', '--settle-ms', '1000', '--targets', 'event:SessionEnd', '--out', a1kOut]));
+  const a1kr = readJson(a1kOut);
+  const a1kt = tgt(a1kr, 'event:SessionEnd');
+  check('A1 a survivor after the settle limit gives a failed run with survivors_left 1', a1k.status === 0 && !!a1kt && a1kt.failed_runs === 1 && a1kt.n === 0 && a1kt.survivors_left === 1, a1k.status + ' ' + JSON.stringify(a1kt && [a1kt.failed_runs, a1kt.n, a1kt.survivors_left]) + ' ' + String(a1k.stderr).slice(0, 200));
+  check('A1 no process with the run marker is left after the run', markerProcCount() === 0, String(markerProcCount()));
+  check('A1 the marked survivor (sleep 30.5) is dead', !cmdlineAlive('sleep 30.5'));
+  check('A1 a bystander sleep without the marker is still alive', pidRunning(bystander.pid) && cmdlineAlive('sleep 30.7'));
+  try { bystander.kill('SIGKILL'); } catch (_e) { /* gone */ }
+
+  // A2: the count pass stops an MCP server with SIGTERM first
+  const a2Tree = path.join(TMP, 'a2tree');
+  fs.mkdirSync(path.join(a2Tree, 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(a2Tree, 'scripts', 'mindrian-mcp-server.cjs'),
+    "process.stdin.on('data', (d) => { if (String(d).indexOf('initialize') !== -1) process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: 1, result: {} }) + '\\n'); });\n" +
+    "process.stdin.on('end', () => {});\nsetTimeout(() => {}, 60000);\n");
+  const a2Out = path.join(TMP, 'a2.json');
+  const a2 = run(['run', '--tree', a2Tree].concat(base, ['--runs', '1', '--count-pass', '--targets', 'mcp:mindrian-os', '--out', a2Out]));
+  const a2t = tgt(readJson(a2Out), 'mcp:mindrian-os');
+  check('A2 a count pass of a stopped MCP server reports node_starts of 1 or more', a2.status === 0 && !!a2t && a2t.node_starts >= 1, a2.status + ' ' + JSON.stringify(a2t) + ' ' + String(a2.stderr).slice(0, 200));
+  check('A2 the fake server is not left running', !cmdlineAlive(path.join(a2Tree, 'scripts', 'mindrian-mcp-server.cjs')));
+
+  // A3: restore per target
+  const a3Src = path.join(TMP, 'a3src');
+  fs.mkdirSync(a3Src, { recursive: true });
+  fs.writeFileSync(path.join(a3Src, 'appended.txt'), 'a\nb\n');
+  fs.writeFileSync(path.join(a3Src, 'STATE.md'), '# synthetic\n');
+  const a3Log = path.join(TMP, 'a3.log');
+  const a3cmd = 'n=$(wc -l < "$PWD/appended.txt"); echo $((n)) >> ' + a3Log + '; echo more >> "$PWD/appended.txt"';
+  const a3Tree = hookTree(path.join(TMP, 'a3tree'), {
+    SessionEnd: [{ hooks: [{ type: 'command', command: a3cmd, timeout: 5 }] }],
+    PreCompact: [{ hooks: [{ type: 'command', command: a3cmd, timeout: 5 }] }],
+  });
+  function a3run(mode) {
+    const scratch = path.join(TMP, 'a3s-' + mode);
+    fs.mkdirSync(scratch, { recursive: true });
+    try { fs.rmSync(a3Log, { force: true }); } catch (_e) { /* none */ }
+    const r = run(['run', '--tree', a3Tree, '--room', 'copy', '--source', a3Src, '--allow-short', '--runs', '1', '--restore', mode, '--targets', 'event:SessionEnd,event:PreCompact', '--scratch', scratch, '--out', path.join(TMP, 'a3-' + mode + '.json')]);
+    const counts = fs.existsSync(a3Log) ? fs.readFileSync(a3Log, 'utf8').split('\n').filter(Boolean) : [];
+    return { r, counts };
+  }
+  const a3t = a3run('per-target');
+  check('A3 with per-target every hook sees the snapshot line count (2, 2)', a3t.r.status === 0 && a3t.counts.join(',') === '2,2', a3t.r.status + ' ' + a3t.counts.join(',') + ' ' + String(a3t.r.stderr).slice(0, 200));
+  check('A3 the restore time per target is printed to stderr as a number', /restore [0-9]+(\.[0-9]+)? ms/.test(String(a3t.r.stderr)), String(a3t.r.stderr).slice(0, 300));
+  const a3s = a3run('per-set');
+  check('A3 with per-set the counts grow (2, 3)', a3s.r.status === 0 && a3s.counts.join(',') === '2,3', a3s.r.status + ' ' + a3s.counts.join(',') + ' ' + String(a3s.r.stderr).slice(0, 200));
+  check('A3 a bad --restore value exits 2', run(['run', '--tree', a3Tree, '--room', 'copy', '--source', a3Src, '--allow-short', '--runs', '1', '--restore', 'often', '--out', path.join(TMP, 'a3x.json')]).status === 2);
+
+  // A4: the bench folder is keyed by the source
+  const a4s = path.join(TMP, 'a4scratch');
+  fs.mkdirSync(a4s, { recursive: true });
+  const srcA = path.join(TMP, 'a4srcA');
+  const srcB = path.join(TMP, 'a4srcB');
+  fs.mkdirSync(srcA, { recursive: true });
+  fs.mkdirSync(srcB, { recursive: true });
+  ['one.md', 'two.md'].forEach((n) => fs.writeFileSync(path.join(srcA, n), 'a\n'));
+  ['one.md', 'two.md', 'three.md', 'four.md'].forEach((n) => fs.writeFileSync(path.join(srcB, n), 'b\n'));
+  const a4run = (src, out) => run(['run', '--tree', REPO, '--room', 'copy', '--source', src, '--allow-short', '--runs', '1', '--targets', 'floor:node', '--scratch', a4s, '--out', out]);
+  const a4a = a4run(srcA, path.join(TMP, 'a4a.json'));
+  const a4b = a4run(srcB, path.join(TMP, 'a4b.json'));
+  const a4ra = readJson(path.join(TMP, 'a4a.json'));
+  const a4rb = readJson(path.join(TMP, 'a4b.json'));
+  check('A4 the first run holds the file count of source A (2)', a4a.status === 0 && !!a4ra && a4ra.room.file_count === 2, a4a.status + ' ' + (a4ra ? a4ra.room.file_count : 'no file') + ' ' + String(a4a.stderr).slice(0, 200));
+  check('A4 the second run holds the file count of source B (4), not a reused snapshot', a4b.status === 0 && !!a4rb && a4rb.room.file_count === 4, a4b.status + ' ' + (a4rb ? a4rb.room.file_count : 'no file') + ' ' + String(a4b.stderr).slice(0, 200));
+  const benchBase = path.join(a4s, 'mos-384-bench');
+  const keysBefore = fs.existsSync(benchBase) ? fs.readdirSync(benchBase) : [];
+  check('A4 the bench folder holds one key folder per source (2)', keysBefore.length === 2 && keysBefore.every((k) => /^[0-9a-f]{8}$/.test(k)), keysBefore.join(','));
+  const cleanA = run(['clean-bench', '--source', srcA, '--scratch', a4s]);
+  const keysAfter = fs.existsSync(benchBase) ? fs.readdirSync(benchBase) : [];
+  check('A4 clean-bench --source removes only that source folder', cleanA.status === 0 && keysAfter.length === 1 && keysBefore.includes(keysAfter[0]), cleanA.status + ' ' + keysAfter.join(','));
+  check('A4 clean-bench without --source and without --all exits 2', run(['clean-bench', '--scratch', a4s]).status === 2);
+  const cleanAll = run(['clean-bench', '--all', '--scratch', a4s]);
+  check('A4 clean-bench --all removes the whole mos-384-bench folder', cleanAll.status === 0 && !fs.existsSync(benchBase));
+
+  // A5: the changed path is proved from the state log of the room
+  const stopSync = hookTree(path.join(TMP, 'a5sync'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=sync reason=changed\\n" now >> .mindrian/session-close.log', timeout: 5 }] }] });
+  const stopSkip = hookTree(path.join(TMP, 'a5skip'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=skip reason=unchanged\\n" now >> .mindrian/session-close.log', timeout: 5 }] }] });
+  const startCompute = hookTree(path.join(TMP, 'a5start'), { SessionStart: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s state mode=compute reason=changed\\n" now >> .mindrian/session-start-state.log', timeout: 5 }] }] });
+  const noLog = hookTree(path.join(TMP, 'a5none'), { Stop: [{ hooks: [{ type: 'command', command: 'true', timeout: 5 }] }] });
+  const a5 = (tree, id, out) => { const r = run(['run', '--tree', tree].concat(base, ['--runs', '2', '--targets', id, '--out', out])); return { r, t: tgt(readJson(out), id) }; };
+  const a5sync = a5(stopSync, 'event:Stop:changed', path.join(TMP, 'a5sync.json'));
+  check('A5 a Stop hook that logs mode=sync proves the changed path (changed_taken_runs = n)', a5sync.r.status === 0 && !!a5sync.t && a5sync.t.n === 2 && a5sync.t.changed_taken_runs === 2, a5sync.r.status + ' ' + JSON.stringify(a5sync.t && [a5sync.t.n, a5sync.t.changed_taken_runs]) + ' ' + String(a5sync.r.stderr).slice(0, 200));
+  const a5skip = a5(stopSkip, 'event:Stop:unchanged', path.join(TMP, 'a5skip.json'));
+  check('A5 a Stop hook that logs mode=skip gives changed_taken_runs 0', a5skip.r.status === 0 && !!a5skip.t && a5skip.t.n === 2 && a5skip.t.changed_taken_runs === 0 && a5skip.t.changed_unknown_runs === 0, a5skip.r.status + ' ' + JSON.stringify(a5skip.t && [a5skip.t.n, a5skip.t.changed_taken_runs, a5skip.t.changed_unknown_runs]));
+  const a5start = a5(startCompute, 'event:SessionStart:changed', path.join(TMP, 'a5start.json'));
+  check('A5 a SessionStart hook that logs state mode=compute proves the changed path', a5start.r.status === 0 && !!a5start.t && a5start.t.changed_taken_runs === 2, a5start.r.status + ' ' + JSON.stringify(a5start.t && a5start.t.changed_taken_runs));
+  const a5none = a5(noLog, 'event:Stop:changed', path.join(TMP, 'a5none.json'));
+  check('A5 a hook that writes no state line gives unknown runs (null), not false', a5none.r.status === 0 && !!a5none.t && a5none.t.changed_taken_runs === 0 && a5none.t.changed_unknown_runs === 2, a5none.r.status + ' ' + JSON.stringify(a5none.t && [a5none.t.changed_taken_runs, a5none.t.changed_unknown_runs]));
+  const a5text = fs.readFileSync(path.join(TMP, 'a5sync.json'), 'utf8');
+  check('A5 the result holds no state-log text', !/on-stop-state|reason=changed/.test(a5text));
+
+  // A5: verify-results rules
+  const changedT = (mut) => badDir5('a5v-' + (a5seq += 1), (r) => { r.targets[0].id = 'event:Stop:changed'; r.targets[0].changed_taken_runs = 7; r.targets[0].changed_unknown_runs = 0; mut(r.targets[0]); });
+  const vr5 = (d) => run(['verify-results', d]);
+  check('A5 verify-results: a :changed target with changed_taken_runs = n exits 0', vr5(changedT(() => {})).status === 0);
+  check('A5 verify-results: a :changed target with changed_taken_runs below n exits 1', vr5(changedT((t) => { t.changed_taken_runs = 6; })).status === 1);
+  check('A5 verify-results: an :unchanged target with changed_taken_runs above 0 exits 1', vr5(changedT((t) => { t.id = 'event:SessionStart:unchanged'; t.changed_taken_runs = 1; })).status === 1);
+  check('A5 verify-results: an :unchanged target with changed_taken_runs 0 exits 0', vr5(changedT((t) => { t.id = 'event:Stop:unchanged:tx4m'; t.changed_taken_runs = 0; })).status === 0);
+  const unk = vr5(changedT((t) => { t.changed_taken_runs = 0; t.changed_unknown_runs = 7; }));
+  check('A5 verify-results: all runs unknown (null) is a warning, exit 0', unk.status === 0 && /warning/.test(String(unk.stderr)), unk.status + ' ' + String(unk.stderr).slice(0, 200));
+  check('A5 verify-results: a :changed target without the field exits 1', vr5(changedT((t) => { delete t.changed_taken_runs; delete t.changed_unknown_runs; })).status === 1);
+
+  // X11: no sandbox is left when the run throws
+  const x11s = path.join(TMP, 'x11scratch');
+  fs.mkdirSync(x11s, { recursive: true });
+  const x11 = run(['run', '--tree', REPO, '--room', 'copy', '--source', path.join(TMP, 'does-not-exist'), '--allow-short', '--runs', '1', '--targets', 'floor:node', '--scratch', x11s, '--out', path.join(TMP, 'x11.json')]);
+  const left = fs.readdirSync(x11s).filter((n) => /^mos-384-run-/.test(n));
+  check('X11 a run that throws leaves no mos-384-run- sandbox in the scratch folder', x11.status !== 0 && left.length === 0, x11.status + ' left ' + left.length);
+}
+
+let a5seq = 0;
+function badDir5(name, mutate) {
+  const d = path.join(TMP, name);
+  fs.mkdirSync(d);
+  const machine = {
+    cores: 12, node: 'v22.0.0', platform: 'linux', arch: 'x64', kernel: 'k', cpu_cap: 4, fs_type: 'ext2/ext3',
+    head_sha: 'abc', tree_label: 'a', base_sha: 'b'.repeat(40), started_at: '2026-01-01T00:00:00.000Z',
+    ended_at: '2026-01-01T00:01:00.000Z', load1_start: 0.5, load1_end: 0.6,
+  };
+  const r = validResult();
+  r.machine = machine;
+  mutate(r);
+  fs.writeFileSync(path.join(d, 'set1.json'), JSON.stringify(r));
+  return d;
 }
 
 function treeDirForB6() { return path.join(TMP, 'tree'); }

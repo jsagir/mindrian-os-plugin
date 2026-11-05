@@ -16,13 +16,13 @@
  *   targets
  *   run --tree <dir> [--tree-b <dir> --out-b <file>] --room fixture|copy [--source <dir>] --runs N
  *       [--cpus N|all] [--targets all|id,id] [--set <label>] [--label <name>] [--label-b <name>]
- *       [--scratch <dir>] [--count-pass] [--base-sha <40 hex>] --out <file>
- *   (test-only, need MOS_PERF_SELFTEST=1: --allow-short, --skip-gates)
+ *       [--scratch <dir>] [--count-pass] [--restore per-target|per-set] [--base-sha <40 hex>] --out <file>
+ *   (test-only, need MOS_PERF_SELFTEST=1: --allow-short, --skip-gates, --settle-ms)
  *   compare <a.json> <b.json> [--out <file>]
  *   spread --fixture <a> <b> [--fixture-rerun <a> <b>] --copy <a> <b> [--copy-rerun <a> <b>] --out <file>
  *   verify-results <dir>
  *   summarize-isolation <dir> --out <file>
- *   clean-bench --source <dir> [--scratch <dir>]
+ *   clean-bench (--source <dir> | --all) [--scratch <dir>]
  *
  * Exit codes: 0 ok, 1 rule breach, 2 usage, 3 isolation breach, 75 host busy.
  * Canon Part 7: the hook parsing, payloads, sandbox, env and percentile come from
@@ -35,6 +35,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const cp = require('node:child_process');
+const crypto = require('node:crypto');
 
 const REPO = path.resolve(__dirname, '..', '..');
 const hookLib = require(path.join(REPO, 'scripts', 'measure-hook-cold-start.cjs'));
@@ -450,13 +451,107 @@ function runChild(ctx, spec) {
   });
 }
 
-async function settle(pid, roomDir, maxMs) {
+// Every child of one run carries MOS_PERF_RUN_ID with a value that is new for each run. A process that
+// leaves its process group (setsid, a double fork) still carries the value, so settle can find it.
+let runSeq = 0;
+function newRunId() {
+  runSeq += 1;
+  return 'mos384-' + process.pid + '-' + Date.now().toString(36) + '-' + runSeq;
+}
+
+// The live processes of this user that carry the run marker: [{ pid, pgid }]. Only counts and ids leave
+// this function; the environ text is matched and dropped (T-384-07). A process can exit while it is read.
+function markedProcs(runId) {
+  const out = [];
+  if (!runId) return out;
+  const needle = 'MOS_PERF_RUN_ID=' + runId;
+  let ids = [];
+  try { ids = fs.readdirSync('/proc').filter((d) => /^[0-9]+$/.test(d)); } catch (_e) { return out; }
+  for (const d of ids) {
+    if (Number(d) === process.pid) continue;
+    let env;
+    try { env = fs.readFileSync('/proc/' + d + '/environ', 'latin1'); } catch (_e) { continue; }
+    if (env.indexOf(needle) === -1 || env.split('\0').indexOf(needle) === -1) continue;
+    try {
+      const stat = fs.readFileSync('/proc/' + d + '/stat', 'utf8');
+      const rest = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
+      if (rest[0] === 'Z') continue;
+      out.push({ pid: Number(d), pgid: Number(rest[2]) });
+    } catch (_e) { /* gone */ }
+  }
+  return out;
+}
+
+// Wait until every hook group is gone, no process with the run marker is left and the state lock is gone,
+// up to maxMs. At the limit the survivors are killed: the hook groups (this run spawned them) and the
+// processes that carry this run's marker, and nothing else. Returns { ms, killed, escaped_max, survivors_left }.
+async function settle(pids, roomDir, maxMs, runId) {
+  const list = [].concat(pids).filter((p) => p !== undefined && p !== null);
+  const groups = new Set(list.map(String));
   const t0 = Date.now();
   const lock = roomDir ? path.join(roomDir, '.mindrian', 'state-recompute.lock') : null;
-  while (Date.now() - t0 < maxMs && (groupAlive(pid) || (lock && fs.existsSync(lock)))) await sleepMs(200);
-  const stuck = groupAlive(pid);
-  if (stuck) killGroup(pid);
-  return { ms: Date.now() - t0, killed: stuck };
+  let escapedMax = 0;
+  let marked = [];
+  for (;;) {
+    marked = markedProcs(runId);
+    escapedMax = Math.max(escapedMax, marked.filter((m) => !groups.has(String(m.pgid))).length);
+    const alive = list.some(groupAlive) || marked.length > 0 || (lock && fs.existsSync(lock));
+    if (!alive || Date.now() - t0 >= maxMs) break;
+    await sleepMs(200);
+  }
+  const ms = Date.now() - t0;
+  const stuckGroups = list.filter(groupAlive);
+  let survivors = marked.length;
+  if (!survivors && stuckGroups.length) survivors = stuckGroups.length;
+  const killed = survivors > 0;
+  if (killed) {
+    stuckGroups.forEach(killGroup);
+    marked.forEach((m) => { try { process.kill(m.pid, 'SIGKILL'); } catch (_e) { /* gone */ } });
+    for (let i = 0; i < 10 && markedProcs(runId).length; i += 1) await sleepMs(50);
+  }
+  return { ms, killed, escaped_max: escapedMax, survivors_left: survivors };
+}
+
+// The state log of the room that proves a :changed or :unchanged target ran its changed path (finding X10).
+// Stop writes `on-stop-state mode=<skip|sync|...>` (scripts/on-stop-state); the SessionStart state step
+// writes `state mode=<reuse|compute> reason=...` (scripts/session-start-state).
+const STATE_LOGS = {
+  Stop: { file: path.join('.mindrian', 'session-close.log'), re: /(?:^|\s)on-stop-state mode=(\S+)/, taken: (m) => m !== 'skip' },
+  SessionStart: { file: path.join('.mindrian', 'session-start-state.log'), re: /(?:^|\s)state mode=(\S+)/, taken: (m) => m === 'compute' },
+};
+
+function stateLogOffset(event, roomDir) {
+  const s = STATE_LOGS[event];
+  if (!s) return 0;
+  try { return fs.statSync(path.join(roomDir, s.file)).size; } catch (_e) { return 0; }
+}
+
+// true when a new line shows the changed path, false when new lines show only the skip or reuse path, null
+// when no new line of the expected form exists. Only the boolean leaves this function.
+function readChangedPathTaken(event, roomDir, offset) {
+  const s = STATE_LOGS[event];
+  if (!s) return null;
+  let text = '';
+  try {
+    const f = path.join(roomDir, s.file);
+    const size = fs.statSync(f).size;
+    const from = Math.min(offset, size);
+    const fd = fs.openSync(f, 'r');
+    try {
+      const buf = Buffer.alloc(size - from);
+      fs.readSync(fd, buf, 0, buf.length, from);
+      text = buf.toString('utf8');
+    } finally { fs.closeSync(fd); }
+  } catch (_e) { return null; }
+  let seen = false;
+  let taken = false;
+  for (const line of text.split('\n')) {
+    const m = line.match(s.re);
+    if (!m) continue;
+    seen = true;
+    if (s.taken(m[1])) taken = true;
+  }
+  return seen ? taken : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -483,7 +578,9 @@ async function runEventOnce(def, ctx, opts) {
     if (def.event === 'PostToolUse') payload.tool_response = shape.response(artifact);
   }
   const stdin = JSON.stringify(payload);
-  const env = ctx.env(o.extraEnv);
+  const runId = newRunId();
+  const env = ctx.env(Object.assign({ MOS_PERF_RUN_ID: runId }, o.extraEnv));
+  const logOffset = def.change ? stateLogOffset(def.event, roomDir) : 0;
   const skipped = [];
   const jobs = [];
   for (const e of entries) {
@@ -496,6 +593,9 @@ async function runEventOnce(def, ctx, opts) {
   const asyncs = results.filter((r) => r.job.entry.async);
   const wall = blocking.length ? Math.max.apply(null, blocking.map((r) => r.exit_ms)) : null;
   const classes = results.map(classifyRun);
+  const s = await settle(results.map((r) => r.pid), roomDir, o.settleMs || 120000, runId);
+  // a survivor after the settle limit makes the run failed: it never enters a statistic
+  if (s.survivors_left > 0) classes.push('failed');
   const sample = {
     run_class: classes.indexOf('failed') !== -1 ? 'failed' : (classes.indexOf('timeout') !== -1 ? 'timeout' : 'ok'),
     wall_ms: wall,
@@ -508,17 +608,18 @@ async function runEventOnce(def, ctx, opts) {
     hook_count: jobs.length,
     blocking_count: blocking.length,
   };
-  let bg = 0;
-  for (const r of results) {
-    const s = await settle(r.pid, roomDir, o.settleMs || 120000);
-    bg = Math.max(bg, s.ms);
-  }
-  sample.background_ms = bg;
+  sample.background_ms = s.ms;
+  sample.escaped_max = s.escaped_max;
+  sample.survivors_left = s.survivors_left;
+  // read after the settle: the state step of a hook can write its line in the background
+  if (def.change) sample.changed_path_taken = readChangedPathTaken(def.event, roomDir, logOffset);
   return sample;
 }
 
-async function runCommandOnce(def, ctx) {
-  const env = ctx.env();
+async function runCommandOnce(def, ctx, opts) {
+  const o = opts || {};
+  const runId = newRunId();
+  const env = ctx.env({ MOS_PERF_RUN_ID: runId });
   const cwd = def.cwdTree ? ctx.tree : ctx.roomDir;
   if (def.kind === 'mcp') {
     const req = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'perf-384', version: '1' } } }) + '\n';
@@ -533,48 +634,57 @@ async function runCommandOnce(def, ctx) {
           try {
             const j = JSON.parse(line);
             if (j && j.id === 1 && (j.result || j.error)) {
-              return { wall_ms: ms, finish: (child) => { try { child.stdin.end(); } catch (_e) { /* closed */ } setTimeout(() => killGroup(child.pid), 1500).unref(); } };
+              // the count pass asks the server to stop (SIGTERM, the preload then writes its line and exits 0) and kills it after 1500 ms
+              return { wall_ms: ms, finish: (child) => {
+                try { child.stdin.end(); } catch (_e) { /* closed */ }
+                if (ctx.countMode) { try { process.kill(-child.pid, 'SIGTERM'); } catch (_e) { /* gone */ } }
+                setTimeout(() => killGroup(child.pid), 1500).unref();
+              } };
             }
           } catch (_e) { /* partial line */ }
         }
         return null;
       },
     });
-    await settle(r.pid, null, 10000);
-    return { run_class: !r.replied && !r.timedOut ? 'failed' : classifyRun(r), wall_ms: r.wall_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [r.replied && r.signal === "SIGKILL" && !r.timedOut ? "stopped_after_reply" : exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: 0 };
+    const sm = await settle(r.pid, null, o.settleMs || 10000, runId);
+    return { run_class: sm.survivors_left > 0 ? 'failed' : (!r.replied && !r.timedOut ? 'failed' : classifyRun(r)), wall_ms: r.wall_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [r.replied && r.signal === "SIGKILL" && !r.timedOut ? "stopped_after_reply" : exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: 0, escaped_max: sm.escaped_max, survivors_left: sm.survivors_left };
   }
   const r = await runChild(ctx, { argv: def.argv(ctx.tree, ctx.roomDir), cwd, env, stdin: undefined, timeoutMs: def.timeoutMs || 300000 });
-  const s = await settle(r.pid, null, 30000);
-  return { run_class: classifyRun(r), wall_ms: r.exit_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: s.ms };
+  const s = await settle(r.pid, null, o.settleMs || 30000, runId);
+  return { run_class: s.survivors_left > 0 ? 'failed' : classifyRun(r), wall_ms: r.exit_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null, rss_mb: r.usage ? r.usage.rss_mb : null, exits: [exitCode(r)], timed_out: r.timedOut ? 1 : 0, async_hooks: [], skipped: [], hook_count: 1, blocking_count: 1, background_ms: s.ms, escaped_max: s.escaped_max, survivors_left: s.survivors_left };
 }
 
 function runOnce(def, ctx, opts) {
-  return def.kind === 'event' ? runEventOnce(def, ctx, opts) : runCommandOnce(def, ctx);
+  return def.kind === 'event' ? runEventOnce(def, ctx, opts) : runCommandOnce(def, ctx, opts);
 }
 
 // ---------------------------------------------------------------------------
 // measuring one target over N runs (single tree, or two trees interleaved)
 // ---------------------------------------------------------------------------
-async function measureTarget(def, ctxs, runs, gateOpts) {
+async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
+  const ro = runOpts || {};
   // the gate runs before the first run of each target; a gate that times out marks the target noisy and the target runs anyway
   const gate = gateOpts && gateOpts.skip ? { ok: true, load1: readLoad1(), waited_ms: 0 } : await gateBeforeTarget(gateOpts);
-  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget }));
+  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget, escaped: 0, survivors: 0, taken: 0, unknown: 0 }));
   if (def.kind === 'event' && def.change === 'unchanged') {
-    for (const c of ctxs) { await runEventOnce(def, c, { noTouch: true }); await sleepMs(1100); }
+    for (const c of ctxs) { await runEventOnce(def, c, { noTouch: true, settleMs: ro.settleMs }); await sleepMs(1100); }
   }
   const order = ctxs.length === 2 ? interleaveOrder(runs) : new Array(runs).fill('A');
   for (const lab of order) {
     const i = lab === 'A' ? 0 : 1;
-    const s = await runOnce(def, ctxs[i], {});
+    const s = await runOnce(def, ctxs[i], { settleMs: ro.settleMs });
     const a = acc[i];
     s.exits.forEach((x) => a.exits.add(x));
     a.timedOut += s.timed_out;
     a.hooks = s.hook_count;
     a.blocking = s.blocking_count;
     s.skipped.forEach((k) => a.skipped.set(k.hook, k.reason));
+    a.escaped = Math.max(a.escaped, s.escaped_max || 0);
+    a.survivors += s.survivors_left || 0;
     // a failed or timed-out run never enters a statistic
     if (s.run_class === 'failed') { a.failed += 1; continue; }
     if (s.run_class === 'timeout') continue;
+    if (def.change) { if (s.changed_path_taken === true) a.taken += 1; else if (s.changed_path_taken === null || s.changed_path_taken === undefined) a.unknown += 1; }
     if (s.wall_ms !== null) a.wall.push(s.wall_ms);
     if (s.cpu_ms !== null) a.cpu.push(s.cpu_ms);
     if (s.rss_mb !== null) a.rss.push(s.rss_mb);
@@ -595,6 +705,10 @@ async function measureTarget(def, ctxs, runs, gateOpts) {
     async_hooks: [...a.asyncs].map(([id, l]) => ({ id, wall_ms: statsSummary(l).median })),
     hook_count: a.hooks,
     background_ms: statsSummary(a.bg).median,
+    escaped_max: a.escaped,
+    survivors_left: a.survivors,
+    changed_taken_runs: def.change ? a.taken : undefined,
+    changed_unknown_runs: def.change ? a.unknown : undefined,
     touch_applied: def.change === 'changed' ? a.touch : null,
     load1_start: a.load1_start,
     load1_end: readLoad1(),
@@ -607,7 +721,7 @@ async function measureTarget(def, ctxs, runs, gateOpts) {
 async function countTarget(def, ctx) {
   const log = path.join(ctx.sandbox.tmp, 'count-' + (timeSeq += 1) + '.log');
   const extraEnv = { NODE_OPTIONS: ((process.env.NODE_OPTIONS || '') + ' --require ' + PRELOAD).trim(), MOS_PERF_COUNT_LOG: log };
-  const c2 = Object.assign({}, ctx, { env: (x) => ctx.env(Object.assign({}, extraEnv, x || {})) });
+  const c2 = Object.assign({}, ctx, { countMode: true, env: (x) => ctx.env(Object.assign({}, extraEnv, x || {})) });
   if (def.kind === 'event' && def.change === 'unchanged') await runEventOnce(def, c2, { noTouch: true });
   await runOnce(def, c2, { extraEnv });
   let lines = [];
@@ -624,12 +738,23 @@ async function countTarget(def, ctx) {
 // ---------------------------------------------------------------------------
 // room and sandbox preparation
 // ---------------------------------------------------------------------------
-function benchDir(source, scratch) {
+// The bench folder of one source: mos-384-bench/<first 8 hex of sha1 of the resolved source path>/ (finding X9:
+// a snapshot of one source room is never reused for another). With no source it is the folder that holds all keys.
+function benchBase(source, scratch) {
   if (source && source.startsWith('/mnt/')) {
     const m = source.match(/^\/mnt\/c\/Users\/([^/]+)\//);
     if (m) return path.join('/mnt/c/Users', m[1], 'AppData/Local/Temp/' + BENCH_NAME);
   }
   return path.join(scratch, BENCH_NAME);
+}
+
+function benchKey(source) {
+  return crypto.createHash('sha1').update(path.resolve(source)).digest('hex').slice(0, 8);
+}
+
+function benchDir(source, scratch) {
+  const base = benchBase(source, scratch);
+  return source ? path.join(base, benchKey(source)) : base;
 }
 
 function stripRemotes(roomDir) {
@@ -642,12 +767,15 @@ function stripRemotes(roomDir) {
 
 // Bring the working copy back to the snapshot state. A first restore is a full copy; later ones fix only the
 // files whose size or mtime differ, because a full copy of a room over 9p takes minutes.
-function restoreCopy(snap, work) {
-  if (!fs.existsSync(work)) { guardedCopy(snap, work); return; }
+// Returns the Set of relative paths that differed from the snapshot (the isolation check counts them as changed
+// in the copy). wantManifest is the manifest of the snapshot when the caller holds it (the snapshot never changes).
+function restoreCopy(snap, work, wantManifest) {
+  const fixed = new Set();
+  if (!fs.existsSync(work)) { guardedCopy(snap, work); return fixed; }
   assertSafeTarget(work);
-  const want = manifest(snap);
+  const want = wantManifest || manifest(snap);
   const have = manifest(work);
-  for (const rel of have.keys()) if (!want.has(rel)) fs.rmSync(path.join(work, rel), { force: true });
+  for (const rel of have.keys()) if (!want.has(rel)) { fs.rmSync(path.join(work, rel), { force: true }); fixed.add(rel); }
   for (const [rel, v] of want) {
     if (have.get(rel) === v) continue;
     const dst = path.join(work, rel);
@@ -655,7 +783,9 @@ function restoreCopy(snap, work) {
     fs.rmSync(dst, { force: true });
     const r = cp.spawnSync('cp', ['-a', path.join(snap, rel), dst], { encoding: 'utf8' });
     if (r.status !== 0) throw new Error('restore failed for one file');
+    fixed.add(rel);
   }
+  return fixed;
 }
 
 function writeCopyRegistry(roomsHome, roomDir) {
@@ -686,23 +816,33 @@ function prepareRoom(kind, o) {
   let sourceRoom = null;
   let benchRoot = null;
   let removedRemotes = 0;
-  if (kind === 'fixture') {
-    roomDir = buildFixtureRoom(o.trees[0], sandbox, o.baseSha || 'unknown');
-  } else if (kind === 'copy') {
-    sourceRoom = path.resolve(o.source);
-    benchRoot = benchDir(sourceRoom, o.scratch);
-    assertSafeTarget(benchRoot);
-    const snap = path.join(benchRoot, 'room-snapshot');
-    const work = path.join(benchRoot, 'room');
-    if (!fs.existsSync(snap)) {
-      guardedCopy(sourceRoom, snap);
-      removedRemotes = stripRemotes(snap);
+  let snap = null;
+  let madeSnap = false;
+  try {
+    if (kind === 'fixture') {
+      roomDir = buildFixtureRoom(o.trees[0], sandbox, o.baseSha || 'unknown');
+    } else if (kind === 'copy') {
+      sourceRoom = path.resolve(o.source);
+      benchRoot = benchDir(sourceRoom, o.scratch);
+      assertSafeTarget(benchRoot);
+      snap = path.join(benchRoot, 'room-snapshot');
+      const work = path.join(benchRoot, 'room');
+      if (!fs.existsSync(snap)) {
+        madeSnap = true;
+        guardedCopy(sourceRoom, snap);
+        removedRemotes = stripRemotes(snap);
+        madeSnap = false;
+      }
+      restoreCopy(snap, work);
+      roomDir = work;
+      writeCopyRegistry(sandbox.roomsHome, roomDir);
     }
-    restoreCopy(snap, work);
-    roomDir = work;
-    writeCopyRegistry(sandbox.roomsHome, roomDir);
+  } catch (e) {
+    sandbox.cleanup(); // X11: a failed preparation leaves no sandbox in the scratch folder
+    if (madeSnap && snap) fs.rmSync(snap, { recursive: true, force: true }); // a half-made snapshot is never reused
+    throw e;
   }
-  return { sandbox, roomDir, sourceRoom, benchRoot, removedRemotes };
+  return { sandbox, roomDir, sourceRoom, benchRoot, snap, removedRemotes };
 }
 
 function makeCtx(label, tree, prep, cpus, hasTaskset) {
@@ -775,13 +915,25 @@ function parseFlags(argv, spec) {
   return o;
 }
 
+// X11: the sandbox and the room copy of a run are removed on every exit path, also when a step throws.
+let activeSandbox = null;
 async function cmdRun(argv) {
+  try { return await cmdRunInner(argv); } finally {
+    if (activeSandbox) { activeSandbox.cleanup(); activeSandbox = null; }
+  }
+}
+
+async function cmdRunInner(argv) {
   let f;
   try {
-    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool', 'skip-gates': 'bool', 'base-sha': 1 });
+    f = parseFlags(argv, { tree: 1, 'tree-b': 1, 'out-b': 1, room: 1, source: 1, runs: 1, cpus: 1, targets: 1, set: 1, label: 1, 'label-b': 1, scratch: 1, 'count-pass': 'bool', out: 1, 'allow-short': 'bool', 'skip-gates': 'bool', 'base-sha': 1, restore: 1, 'settle-ms': 1 });
   } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
   const selftest = process.env.MOS_PERF_SELFTEST === '1';
-  if ((f['allow-short'] || f['skip-gates']) && !selftest) { process.stderr.write('--allow-short and --skip-gates are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
+  if ((f['allow-short'] || f['skip-gates'] || f['settle-ms'] !== undefined) && !selftest) { process.stderr.write('--allow-short, --skip-gates and --settle-ms are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
+  const restoreMode = f.restore === undefined ? 'per-target' : f.restore;
+  if (!['per-target', 'per-set'].includes(restoreMode)) { process.stderr.write('--restore must be per-target or per-set\n'); return 2; }
+  const settleMs = f['settle-ms'] === undefined ? undefined : parseInt(f['settle-ms'], 10);
+  if (settleMs !== undefined && !(settleMs >= 1)) { process.stderr.write('--settle-ms must be a positive integer\n'); return 2; }
   if (f['base-sha'] !== undefined && !/^[0-9a-f]{40}$/.test(f['base-sha'])) { process.stderr.write('--base-sha needs 40 lowercase hex digits\n'); return 2; }
   const runs = parseInt(f.runs, 10);
   if (!f.tree || !f.out || !['fixture', 'copy', 'synthetic'].includes(f.room) || !Number.isInteger(runs) || runs < 1) {
@@ -823,6 +975,7 @@ async function cmdRun(argv) {
   const srcBefore = source ? manifest(source) : null;
   const baseShas = trees.map((t) => baseShaOf(t, f['base-sha']));
   const prep = prepareRoom(f.room, { trees: trees, source, scratch, baseSha: baseShas[0] });
+  activeSandbox = prep.sandbox;
   const load1Start = readLoad1(); // read after the room is ready: a copy over a slow mount can take minutes
   const labels = [f.label || path.basename(trees[0])].concat(trees[1] ? [f['label-b'] || path.basename(trees[1])] : []);
   const ctxs = trees.map((t, i) => makeCtx(i === 0 ? 'A' : 'B', t, prep, cpus, hasTaskset));
@@ -835,19 +988,26 @@ async function cmdRun(argv) {
   const perTree = trees.map(() => []);
   let countsOut = null;
   let code = 0;
-  try {
-    if (f['count-pass']) {
-      countsOut = [];
-      for (const d of defs) countsOut.push(await countTarget(d, ctxs[0]));
-    } else {
-      for (const d of defs) {
-        const rs = await measureTarget(d, ctxs, runs, { skip: skipGates });
-        rs.forEach((r, i) => perTree[i].push(r));
-        process.stderr.write('[perf-harness] ' + d.id + ' median ' + rs[0].wall_ms.median + ' ms (n ' + rs[0].n + ')\n');
-      }
+  // X8: with --restore per-target (default) the working copy returns to the snapshot before every target after the
+  // first. The paths the restore had to fix are the paths the hooks changed; they join the isolation union.
+  const restoreBefore = (d, index) => {
+    if (!prep.snap || restoreMode !== 'per-target' || index === 0) return;
+    if (!prep.snapManifest) prep.snapManifest = manifest(prep.snap);
+    const t0 = Date.now();
+    restoreCopy(prep.snap, prep.roomDir, prep.snapManifest).forEach((p) => touchedUnion.add(p));
+    process.stderr.write('[perf-harness] restore ' + (Date.now() - t0) + ' ms before ' + d.id + '\n');
+  };
+  if (f['count-pass']) {
+    countsOut = [];
+    for (let k = 0; k < defs.length; k += 1) { restoreBefore(defs[k], k); countsOut.push(await countTarget(defs[k], ctxs[0])); }
+  } else {
+    for (let k = 0; k < defs.length; k += 1) {
+      const d = defs[k];
+      restoreBefore(d, k);
+      const rs = await measureTarget(d, ctxs, runs, { skip: skipGates }, { settleMs });
+      rs.forEach((r, i) => perTree[i].push(r));
+      process.stderr.write('[perf-harness] ' + d.id + ' median ' + rs[0].wall_ms.median + ' ms (n ' + rs[0].n + ')\n');
     }
-  } finally {
-    // nothing to release here; the sandbox is removed below
   }
   const endedAt = new Date().toISOString();
   const load1End = readLoad1();
@@ -957,6 +1117,19 @@ function cmdVerify(argv) {
         if (t.failed_runs > 0) fail(name, 'target ' + t.id + ' has ' + t.failed_runs + ' failed run(s)');
         if (t.timed_out > 0 && t.blocking) fail(name, 'target ' + t.id + ' has ' + t.timed_out + ' timed-out run(s) on a blocking target');
         if (typeof t.load1_start === 'number' && t.load1_start >= QUIET_LOAD1) fail(name, 'target ' + t.id + ' load1_start ' + t.load1_start + ' is not below ' + QUIET_LOAD1);
+        if (t.survivors_left > 0) fail(name, 'target ' + t.id + ' left ' + t.survivors_left + ' survivor process(es) after the settle limit');
+        // X10: a :changed target must have taken the changed path in every run, an :unchanged target in none
+        const isChanged = /:changed(:|$)/.test(String(t.id));
+        const isUnchanged = /:unchanged(:|$)/.test(String(t.id));
+        if (isChanged || isUnchanged) {
+          if (typeof t.changed_taken_runs !== 'number') fail(name, 'target ' + t.id + ' has no changed_taken_runs');
+          else {
+            const unknown = typeof t.changed_unknown_runs === 'number' ? t.changed_unknown_runs : 0;
+            if (unknown > 0) process.stderr.write(name + ': warning: target ' + t.id + ' has ' + unknown + ' run(s) with no state-log line (changed path not proved)\n');
+            if (isChanged && t.changed_taken_runs < t.n - unknown) fail(name, 'target ' + t.id + ' took the changed path in ' + t.changed_taken_runs + ' of ' + (t.n - unknown) + ' known run(s)');
+            if (isUnchanged && t.changed_taken_runs > 0) fail(name, 'target ' + t.id + ' took the changed path in ' + t.changed_taken_runs + ' run(s) but is an :unchanged target');
+          }
+        }
       }
     }
     const text = fs.readFileSync(path.join(dir, name), 'utf8');
@@ -984,9 +1157,14 @@ function cmdIsolation(argv) {
 
 function cmdCleanBench(argv) {
   let f;
-  try { f = parseFlags(argv, { source: 1, scratch: 1 }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
-  const root = benchDir(f.source ? path.resolve(f.source) : null, path.resolve(f.scratch || os.tmpdir()));
-  if (path.basename(root) !== BENCH_NAME) return 2;
+  try { f = parseFlags(argv, { source: 1, scratch: 1, all: 'bool' }); } catch (e) { process.stderr.write(e.message + '\n'); return 2; }
+  if (!f.source && !f.all) { process.stderr.write('usage: clean-bench (--source <dir> | --all) [--scratch <dir>]\n'); return 2; }
+  const scratch = path.resolve(f.scratch || os.tmpdir());
+  const source = f.source ? path.resolve(f.source) : null;
+  // --all removes the whole mos-384-bench folder; --source removes only the key folder of that source
+  const root = f.all ? benchBase(source, scratch) : benchDir(source, scratch);
+  const okName = f.all ? path.basename(root) === BENCH_NAME : (path.basename(path.dirname(root)) === BENCH_NAME && /^[0-9a-f]{8}$/.test(path.basename(root)));
+  if (!okName) return 2;
   fs.rmSync(root, { recursive: true, force: true });
   return 0;
 }
