@@ -93,12 +93,20 @@ say('W3 RULE 10 carries the face panel bullet');
 // ---- W4 ------------------------------------------------------------------------------------
 say('W4 the changelog has the line');
 {
+  // The panel line sits under [Unreleased] until a cut renames that heading to the released
+  // version (release.sh Step 6), after which it sits under the newest released section. Both
+  // homes are valid: read [Unreleased] first, then the section right below it (2026-11-05,
+  // the legs went RED at the beta.77 cut and stayed RED on main; this keeps the cut honest
+  // without pinning a version string).
   const log = read('CHANGELOG.md');
   const start = log.indexOf('## [Unreleased]');
   const next = log.indexOf('\n## [', start + 5);
-  const section = start >= 0 ? log.slice(start, next > start ? next : undefined) : '';
-  const line = section.split('\n').find((l) => /face panel/i.test(l)) || '';
-  check(line !== '', 'the Unreleased section holds a line about the face panel');
+  const unreleased = start >= 0 ? log.slice(start, next > start ? next : undefined) : '';
+  const afterNext = next > start ? log.indexOf('\n## [', next + 5) : -1;
+  const latestReleased = next > start ? log.slice(next, afterNext > next ? afterNext : undefined) : '';
+  const findPanel = (s) => s.split('\n').find((l) => /face panel/i.test(l)) || '';
+  const line = findPanel(unreleased) || findPanel(latestReleased);
+  check(line !== '', 'the Unreleased section or the latest released section holds a line about the face panel');
   check(/Claude Code terminal/.test(line), 'it says the panel is for the Claude Code terminal');
   check(/Theo/.test(line) && !/\b(Larry|Brain|MCP|ICM)\b/.test(line), 'Theo is the only name in it');
   check(/framework name/.test(line) && /problem type/.test(line) && /short excerpt/.test(line), 'it says what is sent: the framework name, the problem type and an optional short excerpt');
