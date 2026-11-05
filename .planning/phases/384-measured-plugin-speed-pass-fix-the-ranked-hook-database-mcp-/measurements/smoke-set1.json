@@ -1,0 +1,527 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "b9cb54273c3c85f978b1d67d1c5c7535f6d5a289",
+    "tree_label": "pinned-db2ea3b05",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T08:04:52.475Z",
+    "ended_at": "2026-11-05T08:08:03.242Z",
+    "load1_start": 1.22,
+    "load1_end": 1.78
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-db2ea3b05",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.22,
+  "load1_end": 1.78,
+  "started_at": "2026-11-05T08:04:52.475Z",
+  "ended_at": "2026-11-05T08:08:03.242Z",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "floor:node",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 21.7,
+        "p95": 22.3,
+        "min": 20.7,
+        "max": 22.6
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 10,
+        "min": 0,
+        "max": 20
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 4,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.22,
+      "load1_end": 1.22,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:UserPromptSubmit",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 110.9,
+        "p95": 116.6,
+        "min": 103.6,
+        "max": 117.8
+      },
+      "cpu_ms": {
+        "median": 230,
+        "p95": 260,
+        "min": 220,
+        "max": 270
+      },
+      "rss_mb": {
+        "median": 59.5,
+        "p95": 60.1,
+        "min": 58.5,
+        "max": 60.6
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 5,
+      "per_hook": [
+        {
+          "id": "scripts/admin-command-gate.cjs",
+          "async": false,
+          "wall_ms": 41.6,
+          "cpu_ms": 10
+        },
+        {
+          "id": "hooks/run-hook.cmd intent-classifier",
+          "async": false,
+          "wall_ms": 106.3,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/mva-detect.cjs",
+          "async": false,
+          "wall_ms": 63.2,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/first-install-router.cjs",
+          "async": false,
+          "wall_ms": 63.4,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/brain-derivation-drain.cjs",
+          "async": false,
+          "wall_ms": 108.2,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 61.7,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/jtbd-update.cjs userprompt",
+          "async": false,
+          "wall_ms": 57.7,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/auto-explore-drain.cjs",
+          "async": false,
+          "wall_ms": 58.9,
+          "cpu_ms": 20
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.22,
+      "load1_end": 1.22,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PostToolUse:Read",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 34,
+        "p95": 35.3,
+        "min": 29,
+        "max": 39.5
+      },
+      "cpu_ms": {
+        "median": 30,
+        "p95": 40,
+        "min": 20,
+        "max": 40
+      },
+      "rss_mb": {
+        "median": 44.7,
+        "p95": 44.8,
+        "min": 44.7,
+        "max": 44.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 2,
+      "background_ms": 4,
+      "per_hook": [
+        {
+          "id": "scripts/query-efficiency-telemetry.cjs",
+          "async": false,
+          "wall_ms": 32.1,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 30.5,
+          "cpu_ms": 20
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.22,
+      "load1_end": 1.22,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:unchanged:tx4m",
+      "warmup_runs": 6,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1109.9,
+        "p95": 1166.6,
+        "min": 1031,
+        "max": 1167.5
+      },
+      "cpu_ms": {
+        "median": 1420,
+        "p95": 1470,
+        "min": 1390,
+        "max": 1510
+      },
+      "rss_mb": {
+        "median": 79.4,
+        "p95": 79.5,
+        "min": 78.7,
+        "max": 79.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 119.3
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 416,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 1109.9,
+          "cpu_ms": 1130
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 69.8,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 64.2,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 182.7,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 55.2,
+          "cpu_ms": 10
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 103.3,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 105.9,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 119.3,
+          "cpu_ms": 70
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 0,
+      "changed_unknown_runs": 0,
+      "touch_applied": null,
+      "load1_start": 1.22,
+      "load1_end": 1.88,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:changed:tx4m",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1145.9,
+        "p95": 1176.4,
+        "min": 1043.4,
+        "max": 1211.7
+      },
+      "cpu_ms": {
+        "median": 1420,
+        "p95": 1540,
+        "min": 1360,
+        "max": 1540
+      },
+      "rss_mb": {
+        "median": 79.4,
+        "p95": 79.9,
+        "min": 78.7,
+        "max": 80
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 125.7
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 221,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 1145.9,
+          "cpu_ms": 1120
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 72.9,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 59,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 184.4,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 52.4,
+          "cpu_ms": 10
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 91.4,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 122.4,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 125.7,
+          "cpu_ms": 70
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 7,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 1.88,
+      "load1_end": 1.91,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SessionStart:compact",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2618.7,
+        "p95": 3096.2,
+        "min": 2475.2,
+        "max": 3610.8
+      },
+      "cpu_ms": {
+        "median": 2620,
+        "p95": 2780,
+        "min": 2560,
+        "max": 2940
+      },
+      "rss_mb": {
+        "median": 79.4,
+        "p95": 79.6,
+        "min": 78.9,
+        "max": 79.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14990,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 79.3,
+          "cpu_ms": 20
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 2618.7,
+          "cpu_ms": 2100
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 242.9,
+          "cpu_ms": 170
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 162.5,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 175.2,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 105.7,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 154.8,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 206.5,
+          "cpu_ms": 90
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.59,
+      "load1_end": 1.78,
+      "gate_waited_ms": 20000,
+      "noisy": false
+    }
+  ]
+}

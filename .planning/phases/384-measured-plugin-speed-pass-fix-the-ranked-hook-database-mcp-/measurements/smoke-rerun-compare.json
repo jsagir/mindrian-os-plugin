@@ -1,0 +1,13 @@
+{
+  "rows": [
+    {
+      "id": "floor:node",
+      "median_a": 22.2,
+      "median_b": 21.8,
+      "spread_pct": 1.8,
+      "n_a": 15,
+      "n_b": 15
+    }
+  ],
+  "max_spread_pct": 1.8
+}

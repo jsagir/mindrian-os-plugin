@@ -1,0 +1,53 @@
+{
+  "rows": [
+    {
+      "id": "floor:node",
+      "median_a": 21.7,
+      "median_b": 24.1,
+      "spread_pct": 10.5,
+      "n_a": 7,
+      "n_b": 7
+    },
+    {
+      "id": "event:UserPromptSubmit",
+      "median_a": 110.9,
+      "median_b": 115.6,
+      "spread_pct": 4.2,
+      "n_a": 7,
+      "n_b": 7
+    },
+    {
+      "id": "event:PostToolUse:Read",
+      "median_a": 34,
+      "median_b": 31.1,
+      "spread_pct": 8.9,
+      "n_a": 7,
+      "n_b": 7
+    },
+    {
+      "id": "event:Stop:unchanged:tx4m",
+      "median_a": 1109.9,
+      "median_b": 1125,
+      "spread_pct": 1.4,
+      "n_a": 7,
+      "n_b": 7
+    },
+    {
+      "id": "event:Stop:changed:tx4m",
+      "median_a": 1145.9,
+      "median_b": 1099.8,
+      "spread_pct": 4.1,
+      "n_a": 7,
+      "n_b": 7
+    },
+    {
+      "id": "event:SessionStart:compact",
+      "median_a": 2618.7,
+      "median_b": 2635.1,
+      "spread_pct": 0.6,
+      "n_a": 7,
+      "n_b": 7
+    }
+  ],
+  "max_spread_pct": 10.5
+}
