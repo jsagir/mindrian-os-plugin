@@ -1,0 +1,240 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "f35690889166cab9c22318b235ffe33b25731a1d",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:03:35.731Z",
+    "ended_at": "2026-11-05T19:03:38.098Z",
+    "load1_start": 0.37,
+    "load1_end": 0.37
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "count",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.37,
+  "load1_end": 0.37,
+  "started_at": "2026-11-05T19:03:35.731Z",
+  "ended_at": "2026-11-05T19:03:38.098Z",
+  "task": "t02",
+  "registry_shapes": {
+    "real": {
+      "has_active_room_key": false,
+      "active_is_string": true,
+      "rooms_is_array": false
+    },
+    "guard_passing": {
+      "has_active_room_key": true,
+      "active_is_string": true,
+      "rooms_is_array": true
+    }
+  },
+  "path_taken": {
+    "ups": {
+      "real_shape": {
+        "mindrian_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "room_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      },
+      "guard_passing": {
+        "mindrian_fs_calls": [
+          1,
+          1,
+          1
+        ],
+        "room_fs_calls": [
+          1,
+          1,
+          1
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      }
+    },
+    "stop": {
+      "real_shape": {
+        "mindrian_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "room_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      },
+      "guard_passing": {
+        "mindrian_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "room_fs_calls": [
+          1,
+          1,
+          1
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      }
+    },
+    "post-read": {
+      "real_shape": {
+        "mindrian_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "room_fs_calls": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      },
+      "guard_passing": {
+        "mindrian_fs_calls": [
+          1,
+          1,
+          1
+        ],
+        "room_fs_calls": [
+          1,
+          1,
+          1
+        ],
+        "sqlite_constructed": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      }
+    }
+  },
+  "modules": {
+    "ups": {
+      "real_shape": [
+        3,
+        3,
+        3
+      ],
+      "guard_passing": [
+        3,
+        3,
+        3
+      ]
+    },
+    "stop": {
+      "real_shape": [
+        3,
+        3,
+        3
+      ],
+      "guard_passing": [
+        3,
+        3,
+        3
+      ]
+    },
+    "post-read": {
+      "real_shape": [
+        3,
+        3,
+        3
+      ],
+      "guard_passing": [
+        3,
+        3,
+        3
+      ]
+    }
+  },
+  "node_starts": {
+    "ups": {
+      "real_shape": [
+        1,
+        1,
+        1
+      ],
+      "guard_passing": [
+        1,
+        1,
+        1
+      ]
+    },
+    "stop": {
+      "real_shape": [
+        1,
+        1,
+        1
+      ],
+      "guard_passing": [
+        1,
+        1,
+        1
+      ]
+    },
+    "post-read": {
+      "real_shape": [
+        1,
+        1,
+        1
+      ],
+      "guard_passing": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "repeats": 3,
+  "repeats_agree": true
+}
