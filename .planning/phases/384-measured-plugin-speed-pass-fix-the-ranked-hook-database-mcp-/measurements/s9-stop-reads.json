@@ -1,0 +1,566 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "7673ed4d115e5477d5080072ea6e0933f4ff917e",
+    "tree_label": "pinned-db2ea3b05",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T10:33:12.732Z",
+    "ended_at": "2026-11-05T10:33:47.274Z",
+    "load1_start": 1.85,
+    "load1_end": 1.51
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-db2ea3b05",
+  "cpus": 4,
+  "runs": 3,
+  "load1_start": 1.85,
+  "load1_end": 1.51,
+  "started_at": "2026-11-05T10:33:12.732Z",
+  "ended_at": "2026-11-05T10:33:47.274Z",
+  "sections": {
+    "section_dirs": 14,
+    "sections_with_room_md": 14
+  },
+  "transcript_bytes": 4194304,
+  "stop": {
+    "unchanged": {
+      "repeats": 3,
+      "repeats_agree": false,
+      "transcript_reads_agree": true,
+      "run_classes": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "changed_path_taken_runs": 0,
+      "load1_start": 1.85,
+      "by_script": [
+        {
+          "script": "ambient-stop.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 174
+        },
+        {
+          "script": "check-card-fire.cjs",
+          "processes": 1,
+          "transcript_reads": 1,
+          "transcript_stats": 1,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "check-voice-style.cjs",
+          "processes": 1,
+          "transcript_reads": 1,
+          "transcript_stats": 1,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 9
+        },
+        {
+          "script": "doctor.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 53
+        },
+        {
+          "script": "eval",
+          "processes": 9,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 136,
+          "room_file_reads_per_process": [
+            135,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "room_stats": 122,
+          "room_readdirs": 12,
+          "sqlite_constructed": 22,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 66,
+          "modules_sum": 293
+        },
+        {
+          "script": "feynman-minto-guardian.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 68,
+          "room_file_reads_per_process": [
+            68
+          ],
+          "room_stats": 70,
+          "room_readdirs": 4,
+          "sqlite_constructed": 1,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 4,
+          "modules_sum": 183
+        },
+        {
+          "script": "gsd-graph-derive-sweep.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 1,
+          "room_file_reads_per_process": [
+            1
+          ],
+          "room_stats": 1,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 3
+        },
+        {
+          "script": "hmi-compliance-poll.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "jtbd-update.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "memory-lifecycle.cjs",
+          "processes": 2,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0,
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 1,
+          "sqlite_exec": 20,
+          "sqlite_prepare": 16,
+          "modules_sum": 15
+        },
+        {
+          "script": "operator-update.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 3
+        },
+        {
+          "script": "recompile-room-references.cjs",
+          "processes": 14,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 153,
+          "room_file_reads_per_process": [
+            15,
+            14,
+            13,
+            13,
+            12,
+            12,
+            11,
+            11,
+            11,
+            10,
+            10,
+            9,
+            7,
+            5
+          ],
+          "room_stats": 63,
+          "room_readdirs": 14,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 28
+        },
+        {
+          "script": "user-archetype.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 5,
+          "room_file_reads_per_process": [
+            5
+          ],
+          "room_stats": 0,
+          "room_readdirs": 1,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 2
+        }
+      ]
+    },
+    "changed": {
+      "repeats": 3,
+      "repeats_agree": false,
+      "transcript_reads_agree": true,
+      "run_classes": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "changed_path_taken_runs": 3,
+      "load1_start": 1.65,
+      "by_script": [
+        {
+          "script": "ambient-stop.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 174
+        },
+        {
+          "script": "check-card-fire.cjs",
+          "processes": 1,
+          "transcript_reads": 1,
+          "transcript_stats": 1,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "check-voice-style.cjs",
+          "processes": 1,
+          "transcript_reads": 1,
+          "transcript_stats": 1,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 9
+        },
+        {
+          "script": "doctor.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 53
+        },
+        {
+          "script": "eval",
+          "processes": 9,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 136,
+          "room_file_reads_per_process": [
+            135,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "room_stats": 122,
+          "room_readdirs": 12,
+          "sqlite_constructed": 22,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 66,
+          "modules_sum": 293
+        },
+        {
+          "script": "feynman-minto-guardian.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 68,
+          "room_file_reads_per_process": [
+            68
+          ],
+          "room_stats": 70,
+          "room_readdirs": 4,
+          "sqlite_constructed": 1,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 4,
+          "modules_sum": 183
+        },
+        {
+          "script": "gsd-graph-derive-sweep.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 1,
+          "room_file_reads_per_process": [
+            1
+          ],
+          "room_stats": 1,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 3
+        },
+        {
+          "script": "hmi-compliance-poll.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "jtbd-update.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 8
+        },
+        {
+          "script": "memory-lifecycle.cjs",
+          "processes": 2,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0,
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 1,
+          "sqlite_exec": 20,
+          "sqlite_prepare": 16,
+          "modules_sum": 15
+        },
+        {
+          "script": "operator-update.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 0,
+          "room_file_reads_per_process": [
+            0
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 3
+        },
+        {
+          "script": "recompile-room-references.cjs",
+          "processes": 14,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 139,
+          "room_file_reads_per_process": [
+            13,
+            13,
+            12,
+            12,
+            12,
+            11,
+            11,
+            10,
+            10,
+            10,
+            10,
+            8,
+            6,
+            1
+          ],
+          "room_stats": 62,
+          "room_readdirs": 13,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 28
+        },
+        {
+          "script": "room-render.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 22,
+          "room_file_reads_per_process": [
+            22
+          ],
+          "room_stats": 27,
+          "room_readdirs": 28,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 178
+        },
+        {
+          "script": "state-write.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 1,
+          "room_file_reads_per_process": [
+            1
+          ],
+          "room_stats": 0,
+          "room_readdirs": 0,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 2
+        },
+        {
+          "script": "user-archetype.cjs",
+          "processes": 1,
+          "transcript_reads": 0,
+          "transcript_stats": 0,
+          "room_file_reads": 5,
+          "room_file_reads_per_process": [
+            5
+          ],
+          "room_stats": 0,
+          "room_readdirs": 1,
+          "sqlite_constructed": 0,
+          "sqlite_exec": 0,
+          "sqlite_prepare": 0,
+          "modules_sum": 2
+        }
+      ]
+    }
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

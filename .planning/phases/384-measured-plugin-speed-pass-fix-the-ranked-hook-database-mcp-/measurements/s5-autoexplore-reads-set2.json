@@ -1,0 +1,225 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "7673ed4d115e5477d5080072ea6e0933f4ff917e",
+    "tree_label": "pinned-db2ea3b05",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T10:32:59.072Z",
+    "ended_at": "2026-11-05T10:33:04.379Z",
+    "load1_start": 1.9,
+    "load1_end": 1.83
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "pinned-db2ea3b05",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.9,
+  "load1_end": 1.83,
+  "started_at": "2026-11-05T10:32:59.072Z",
+  "ended_at": "2026-11-05T10:33:04.379Z",
+  "autoexplore": {
+    "finding_files": null,
+    "finding_file_counts": [
+      0,
+      10,
+      100
+    ],
+    "synthetic_findings": true,
+    "fixture_files_removed_first": 0,
+    "files_in_copy_before": null
+  },
+  "reads": [
+    {
+      "id": "script:autoexplore:f0",
+      "finding_files": 0,
+      "variant": "none",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 1,
+          "readdirSync": 1
+        },
+        "room": {},
+        "lib_reads": 4,
+        "scripts_reads": 1,
+        "sqlite_constructed": 0,
+        "modules_loaded": 5,
+        "surfaced_ledger_rows": 0
+      }
+    },
+    {
+      "id": "script:autoexplore:f10:open",
+      "finding_files": 10,
+      "variant": "open",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 12,
+          "readFileSync": 10,
+          "readdirSync": 1,
+          "statSync": 11
+        },
+        "room": {},
+        "lib_reads": 136,
+        "scripts_reads": 1,
+        "sqlite_constructed": 2,
+        "modules_loaded": 182,
+        "surfaced_ledger_rows": 1
+      }
+    },
+    {
+      "id": "script:autoexplore:f10:held",
+      "finding_files": 10,
+      "variant": "held",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 11,
+          "readFileSync": 20,
+          "readdirSync": 1,
+          "statSync": 10
+        },
+        "room": {},
+        "lib_reads": 4,
+        "scripts_reads": 1,
+        "sqlite_constructed": 0,
+        "modules_loaded": 5,
+        "surfaced_ledger_rows": 0
+      }
+    },
+    {
+      "id": "script:autoexplore:f10:done",
+      "finding_files": 10,
+      "variant": "done",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 11,
+          "readFileSync": 10,
+          "readdirSync": 1,
+          "statSync": 10
+        },
+        "room": {},
+        "lib_reads": 4,
+        "scripts_reads": 1,
+        "sqlite_constructed": 0,
+        "modules_loaded": 5,
+        "surfaced_ledger_rows": 10
+      }
+    },
+    {
+      "id": "script:autoexplore:f100:open",
+      "finding_files": 100,
+      "variant": "open",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 102,
+          "readFileSync": 100,
+          "readdirSync": 1,
+          "statSync": 101
+        },
+        "room": {},
+        "lib_reads": 136,
+        "scripts_reads": 1,
+        "sqlite_constructed": 2,
+        "modules_loaded": 182,
+        "surfaced_ledger_rows": 1
+      }
+    },
+    {
+      "id": "script:autoexplore:f100:held",
+      "finding_files": 100,
+      "variant": "held",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 101,
+          "readFileSync": 200,
+          "readdirSync": 1,
+          "statSync": 100
+        },
+        "room": {},
+        "lib_reads": 4,
+        "scripts_reads": 1,
+        "sqlite_constructed": 0,
+        "modules_loaded": 5,
+        "surfaced_ledger_rows": 0
+      }
+    },
+    {
+      "id": "script:autoexplore:f100:done",
+      "finding_files": 100,
+      "variant": "done",
+      "repeats": 2,
+      "repeats_agree": true,
+      "result": {
+        "run_class": "ok",
+        "processes": 1,
+        "mindrian": {
+          "existsSync": 101,
+          "readFileSync": 100,
+          "readdirSync": 1,
+          "statSync": 100
+        },
+        "room": {},
+        "lib_reads": 4,
+        "scripts_reads": 1,
+        "sqlite_constructed": 0,
+        "modules_loaded": 5,
+        "surfaced_ledger_rows": 100
+      }
+    }
+  ],
+  "slopes": [
+    {
+      "variant": "open",
+      "from_files": 0,
+      "to_files": 100,
+      "readFileSync_per_finding_file": 1
+    },
+    {
+      "variant": "held",
+      "from_files": 0,
+      "to_files": 100,
+      "readFileSync_per_finding_file": 2
+    },
+    {
+      "variant": "done",
+      "from_files": 0,
+      "to_files": 100,
+      "readFileSync_per_finding_file": 1
+    }
+  ]
+}
