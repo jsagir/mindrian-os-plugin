@@ -3957,10 +3957,10 @@ Plans:
 ### Phase 383: Beta.77 QA fixes: Windows room birth, skill routing, gate honesty, voice
 
 **Goal:** Fix the ten findings from the owner's beta.77 QA report, worst first, each one reproduced before it is fixed. Every finding is "reported, not yet reproduced" until a wave reproduces it. P0: room creation fails on Windows (bash resolves to the WSL launcher, python3 to the Store stub; bash call sites at lib/core/navigation/room-birth.cjs lines 1439 and 1447, lib/core/room-auto-create.cjs line 240, lib/core/graph-backfill.cjs line 446; open SEED-142). P1: no /mos command fired in 19 turns, and no context_assemble or memory_event. P2: the card shows before the environment check, no card at a real fork, a raw error shown to a beginner. P3: card copy in the third person, one unsourced number, over-long replies, a folder written without a card.
-**Requirements**: QA383-01 to QA383-10 (defined in 383-PRD.md, one per finding)
+**Requirements**: QA383-01, QA383-02, QA383-03, QA383-04, QA383-05, QA383-06, QA383-07, QA383-08, QA383-09, QA383-10 (defined in 383-PRD.md, one per finding)
 **Depends on:** Phase 381
 **Numbering:** 383 was chosen by hand. `phase add` would pick 382, and 382 belongs to the speed pass on another branch. Do not renumber, and do not reuse 382 here.
-**Plans:** 0 plans (not planned yet; next is /gsd-plan-phase 383)
+**Plans:** 11 plans (GSD waves 0 to 9; PRD waves 0 to 4 in each plan's `prd_wave`)
 
 Planned waves (to be split into plans):
 
@@ -3968,6 +3968,19 @@ Planned waves (to be split into plans):
 - Wave 2: why no skills fired (QA383-02, QA383-03), diagnosis first, fix second
 - Wave 3: card, voice and write fixes (QA383-05 to QA383-10)
 - Wave 4: retest on the owner's Windows machine (human checkpoint; closes QA383-01 and SEED-142 only on a signed receipt)
+
+Plans:
+- [ ] 383-01-PLAN.md - Wave 0 tests, part A: aggregator, shared helper, resolver, registry, spawn chokepoint, preview check, no-write-before-gate (RED first)
+- [ ] 383-02-PLAN.md - Wave 0 tests, part B: routing, card fork, plain failure, card copy, sourced number, voice length (RED first)
+- [ ] 383-03-PLAN.md - resolveRoomRuntime and spawnRoomRegistry in lib/core/platform.cjs; room-registry PY by running and the absolute RPATH fix (QA383-01, QA383-10)
+- [ ] 383-04-PLAN.md - six spawn sites on the helper; environment check before the card, before birthRoom and in room-auto-create; CLI pre-card check (QA383-01, QA383-04)
+- [ ] 383-05-PLAN.md - routing diagnosis with evidence, then Mode 1 text and no-room memory doctrine (QA383-02, QA383-03)
+- [ ] 383-06-PLAN.md - plain three-line failures with the verbatim line kept; Your call rule for prose forks; card copy rule (QA383-05, QA383-06, QA383-07)
+- [ ] 383-07-PLAN.md - third-person card lint and mode card fix; reply length shadow row and declared policy (QA383-07, QA383-09)
+- [ ] 383-08-PLAN.md - unsourced-number sweep over static Larry lines (QA383-08)
+- [ ] 383-09-PLAN.md - doctor room-runtime row with the Windows hook shell; D-07 seed (QA383-01, QA383-03)
+- [ ] 383-10-PLAN.md - doctor doubled-room-trees row and the F.0-gated, digest-bound delete; phase gates (QA383-10)
+- [ ] 383-11-PLAN.md - human checkpoint: Windows retest receipt, approved deletion on the real machine, the QA session number (QA383-01, QA383-08)
 
 ### Phase 384: Measured plugin speed pass: fix the ranked hook, database, MCP start-up and Stop findings, measure first
 
