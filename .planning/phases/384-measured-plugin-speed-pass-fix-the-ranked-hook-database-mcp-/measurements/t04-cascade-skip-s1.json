@@ -1,0 +1,364 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "400550e094c13ab15a62ce3171219eb70c8eab56",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:23:52.270Z",
+    "ended_at": "2026-11-05T19:25:05.597Z",
+    "load1_start": 1.81,
+    "load1_end": 1.83
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 1.81,
+  "load1_end": 1.83,
+  "started_at": "2026-11-05T19:23:52.270Z",
+  "ended_at": "2026-11-05T19:25:05.597Z",
+  "task": "t04",
+  "layout_default": {
+    "has_room_segment": false,
+    "has_rooms_segment": false
+  },
+  "layout_rooms": {
+    "has_room_segment": false,
+    "has_rooms_segment": true
+  },
+  "layout_default_room_folder": {
+    "has_room_segment": false,
+    "has_rooms_segment": false
+  },
+  "layout_copy_work_folder_shape": {
+    "has_room_segment": true,
+    "has_rooms_segment": false
+  },
+  "targets": [
+    {
+      "id": "t04:floor-node",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 22.5,
+        "p95": 39,
+        "min": 19.6,
+        "max": 49.5
+      },
+      "wall_ms_fine": {
+        "median": 22.453,
+        "p95": 38.994,
+        "min": 19.644,
+        "max": 49.536
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 20,
+        "min": 10,
+        "max": 40
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t04:cascade-cli:default",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 81.6,
+        "p95": 87.5,
+        "min": 78.2,
+        "max": 141.3
+      },
+      "wall_ms_fine": {
+        "median": 81.597,
+        "p95": 87.532,
+        "min": 78.2,
+        "max": 141.306
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 90,
+        "min": 70,
+        "max": 140
+      },
+      "rss_mb": {
+        "median": 60.9,
+        "p95": 61.7,
+        "min": 60.1,
+        "max": 62.1
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t04:module-load",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 53.1,
+        "p95": 55.9,
+        "min": 52.3,
+        "max": 56
+      },
+      "wall_ms_fine": {
+        "median": 53.124,
+        "p95": 55.924,
+        "min": 52.277,
+        "max": 55.978
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 80,
+        "min": 70,
+        "max": 90
+      },
+      "rss_mb": {
+        "median": 61.3,
+        "p95": 61.7,
+        "min": 60.5,
+        "max": 61.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t04:write:default",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 197.8,
+        "p95": 899.7,
+        "min": 161.3,
+        "max": 994.6
+      },
+      "wall_ms_fine": {
+        "median": 197.793,
+        "p95": 899.671,
+        "min": 161.322,
+        "max": 994.596
+      },
+      "cpu_ms": {
+        "median": 370,
+        "p95": 450,
+        "min": 340,
+        "max": 480
+      },
+      "rss_mb": {
+        "median": 65.9,
+        "p95": 66.3,
+        "min": 64.1,
+        "max": 66.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t04:write:rooms",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 3249.9,
+        "p95": 3420.8,
+        "min": 3158.5,
+        "max": 3536.7
+      },
+      "wall_ms_fine": {
+        "median": 3249.939,
+        "p95": 3420.792,
+        "min": 3158.488,
+        "max": 3536.703
+      },
+      "cpu_ms": {
+        "median": 4980,
+        "p95": 5140,
+        "min": 4890,
+        "max": 5140
+      },
+      "rss_mb": {
+        "median": 102.3,
+        "p95": 104.1,
+        "min": 81.3,
+        "max": 105.1
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t04:d:cli-minus-floor",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 59.4,
+        "p95": 63,
+        "min": 43.6,
+        "max": 91.8
+      },
+      "wall_ms_fine": {
+        "median": 59.435,
+        "p95": 63.036,
+        "min": 43.592,
+        "max": 91.77
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round cascade CLI call on the default layout minus the bare node wall"
+    },
+    {
+      "id": "t04:d:write-rooms-minus-default",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2995.2,
+        "p95": 3236,
+        "min": 2300.8,
+        "max": 3352.6
+      },
+      "wall_ms_fine": {
+        "median": 2995.232,
+        "p95": 3236.035,
+        "min": 2300.775,
+        "max": 3352.63
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.81,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the harness layout minus the Write event on the default layout"
+    }
+  ]
+}

@@ -194,3 +194,67 @@ T04-b is R2 with X = the cascade CLI call on the default layout and Y = the bare
 T04-c is R2 with X = the PostToolUse Write event on the harness layout and Y = the same event on the default layout (what the cascade adds to a write where it runs).
 T04-d is R1-style counts with no pass or fail: node starts and modules loaded for the Write event and for SubagentStop with 5 files, on both layouts, shown side by side for plan 384-09. SubagentStop is counted only and is not timed here.
 The real default-layout behaviour of a user room is not read here (Part 8).
+
+Results. One counts file (3 repeats), two timing sets (n = 15 each), two fixture rooms built by the product builder of the pinned export: a default-layout room (a rooms folder with the product default name under the sandbox home, no /room/ and no /rooms/ segment in the room folder or the artifact path) and a harness-layout room (its path holds /rooms/). The default-layout builder refused to return a room with such a segment (it did not trip).
+
+Deviation from the written method, found in the first count run and applied to both layouts. The file that findTouchTarget returns for the harness fixture is the section identity file ROOM.md, and the cascade skips it with the reason "ROOM.md is not an artifact" (3 of 3 repeats, table T04-1). A control that runs on that file is not a control. All T04 runs therefore use the first artifact file of each room (depth first, byte order, identity files excluded), the same kind of file in both rooms.
+
+Premise gate (R5): passed. skipped is true in 3 of 3 repeats on the default layout, with the reason "filePath not inside a room directory". The cascade ran on the harness layout (skipped true in 0 of 3 repeats), so the control holds.
+
+Readings.
+T04-a reads PASS (R1).
+T04-b reads PASS: a skipped cascade call is 59.4 and 59.3 ms above the bare node start (floor medians 22.5 and 22.2 ms). The module load of intelligence-cascade.cjs is 0.898 of that difference (DERIVED, no rule).
+T04-c reads PASS: the PostToolUse Write event is 2995.2 and 2987.4 ms above the default layout on the harness layout (medians 3249.9 and 3231.0 ms against 197.8 and 214.1 ms). The default-layout Write event has a high p95 in set 1 (899.7 ms) next to its median.
+T04-d (counts, no pass or fail): the default layout counts are exact (Write: 8 node starts, 565 modules; SubagentStop with 5 files: 21 node starts, 2093 modules). The harness layout counts differ between repeats, so by R1 they read NOT RESOLVED and are shown as min to max: Write 13 node starts, 1042 to 1139 modules; SubagentStop with 5 files 44 to 46 node starts, 4305 to 4749 modules. No survivor was left after the settle in any run.
+The real default-layout behaviour of a user room is not read here (Part 8).
+
+Table T04-1: layout booleans and the confirm gate (counts)
+
+| Quantity | value | Basis |
+| --- | --- | --- |
+| default layout artifact path: holds /room/ and holds /rooms/ | false and false | DIRECT |
+| default layout room folder: holds /room/ and holds /rooms/ | false and false | DIRECT |
+| harness layout artifact path: holds /room/ and holds /rooms/ | false and true | DIRECT |
+| constructed path shaped like the work folder of a real-room copy: holds /room/ and holds /rooms/ | true and false | DIRECT |
+| cascade skipped true on the default layout (repeats with skipped true of 3) | 3 | DIRECT |
+| skip reason observed on the default layout | filePath not inside a room directory | DIRECT |
+| cascade skipped true on the harness layout (repeats with skipped true of 3) | 0 | DIRECT |
+| the artifact that findTouchTarget returns for the harness fixture is the identity file ROOM.md | true | DIRECT |
+| cascade skipped true on that file (repeats with skipped true of 3) and the reason | 3, ROOM.md is not an artifact | DIRECT |
+| premise failed | false | DIRECT |
+
+Table T04-2: every target (n per set, median, p95, two sets, spread)
+
+| Target | n per set | set 1 median ms | set 1 p95 ms | set 2 median ms | set 2 p95 ms | spread percent | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| t04:floor-node | 15 and 15 | 22.453 | 38.994 | 22.211 | 31.29 | 1.1 | DIRECT |
+| t04:cascade-cli:default | 15 and 15 | 81.597 | 87.532 | 81.8 | 83.819 | 0.2 | DIRECT |
+| t04:module-load | 15 and 15 | 53.124 | 55.924 | 53.874 | 55.172 | 1.4 | DIRECT |
+| t04:write:default | 15 and 15 | 197.793 | 899.671 | 214.106 | 477.553 | 7.9 | DIRECT |
+| t04:write:rooms | 15 and 15 | 3249.939 | 3420.792 | 3231.002 | 3356.348 | 0.6 | DIRECT |
+| t04:d:cli-minus-floor | 15 and 15 | 59.435 | 63.036 | 59.295 | 61.639 | 0.2 | DERIVED |
+| t04:d:write-rooms-minus-default | 15 and 15 | 2995.232 | 3236.035 | 2987.405 | 3154.682 | 0.3 | DERIVED |
+
+Table T04-3: pair readings by R2
+
+| Pair | d(1) ms | d(2) ms | noise ms | 2 x noise ms | reading | meets floor | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| T04-b: cascade CLI call on the default layout above the floor | 59.435 | 59.295 | 0.445 | 0.89 | PASS | pending Q5b | DERIVED |
+| T04-c: Write event on the harness layout above the default layout | 2995.232 | 2987.405 | 35.25 | 70.5 | PASS | pending Q5b | DERIVED |
+
+Table T04-3b: share of module load in a skipped cascade call (set 1, no rule)
+
+| Quantity | value | Basis |
+| --- | --- | --- |
+| module-load median divided by (cascade CLI median on the default layout minus floor median) | 0.898 | DERIVED |
+
+Table T04-4: node starts and modules per event, default layout next to harness layout (3 repeats)
+
+| Event | Layout | node starts | modules total | survivors left | repeats agree | Basis |
+| --- | --- | --- | --- | --- | --- | --- |
+| PostToolUse Write | default layout | 8 8 8 | 565 565 565 | 0 0 0 | true | DIRECT |
+| PostToolUse Write | harness layout | 13 13 13 | 1139 1042 1139 | 0 0 0 | false | DIRECT |
+| SubagentStop with 5 files | default layout | 21 21 21 | 2093 2093 2093 | 0 0 0 | true | DIRECT |
+| SubagentStop with 5 files | harness layout | 46 44 46 | 4749 4305 4657 | 0 0 0 | false | DIRECT |
+
+Observation, not fixed here: a path that holds neither /room/ nor /rooms/ makes the cascade skip (table T04-1), and the cost of that skipped call is the 59 ms of table T04-3, mostly module load. The harness fixture path holds /rooms/, and the work folder of a real-room copy ends in a folder named room (a string test on a constructed path, table T04-1; the copies of plan 384-08 are not re-read here). The artifact that findTouchTarget picks in the harness fixture is the identity file ROOM.md, which the cascade skips with its own reason, so a Write event on that file did not run the cascade (table T04-1). Plan 384-09 should read the S2 and S4 fixture numbers with this in view; the earlier result files are not re-read here.

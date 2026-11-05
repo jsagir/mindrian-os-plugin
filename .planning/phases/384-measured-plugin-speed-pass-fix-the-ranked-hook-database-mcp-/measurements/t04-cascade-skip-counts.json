@@ -1,0 +1,151 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "400550e094c13ab15a62ce3171219eb70c8eab56",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:21:08.150Z",
+    "ended_at": "2026-11-05T19:23:22.120Z",
+    "load1_start": 1.85,
+    "load1_end": 3.28
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "count",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 1.85,
+  "load1_end": 3.28,
+  "started_at": "2026-11-05T19:21:08.150Z",
+  "ended_at": "2026-11-05T19:23:22.120Z",
+  "task": "t04",
+  "premise_failed": false,
+  "cascade_skip": {
+    "default_layout": {
+      "repeats": 3,
+      "skipped_true": 3,
+      "skip_reason": "filePath not inside a room directory",
+      "repeats_agree": true
+    },
+    "rooms_layout": {
+      "repeats": 3,
+      "skipped_true": 0,
+      "skip_reason": "none",
+      "repeats_agree": true
+    }
+  },
+  "touch_target_check": {
+    "harness_find_touch_target_is_identity_file": true,
+    "cascade_skipped_true": 3,
+    "repeats": 3,
+    "skip_reason": "ROOM.md is not an artifact"
+  },
+  "events": {
+    "write": {
+      "default": {
+        "node_starts": [
+          8,
+          8,
+          8
+        ],
+        "modules": [
+          565,
+          565,
+          565
+        ],
+        "survivors_left": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      },
+      "rooms": {
+        "node_starts": [
+          13,
+          13,
+          13
+        ],
+        "modules": [
+          1139,
+          1042,
+          1139
+        ],
+        "survivors_left": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": false
+      }
+    },
+    "subagent_files5": {
+      "default": {
+        "node_starts": [
+          21,
+          21,
+          21
+        ],
+        "modules": [
+          2093,
+          2093,
+          2093
+        ],
+        "survivors_left": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": true
+      },
+      "rooms": {
+        "node_starts": [
+          46,
+          44,
+          46
+        ],
+        "modules": [
+          4749,
+          4305,
+          4657
+        ],
+        "survivors_left": [
+          0,
+          0,
+          0
+        ],
+        "repeats_agree": false
+      }
+    }
+  },
+  "repeats": 3,
+  "repeats_agree": false,
+  "layout_default": {
+    "has_room_segment": false,
+    "has_rooms_segment": false
+  },
+  "layout_rooms": {
+    "has_room_segment": false,
+    "has_rooms_segment": true
+  },
+  "layout_default_room_folder": {
+    "has_room_segment": false,
+    "has_rooms_segment": false
+  },
+  "layout_copy_work_folder_shape": {
+    "has_room_segment": true,
+    "has_rooms_segment": false
+  }
+}

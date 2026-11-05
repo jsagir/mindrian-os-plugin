@@ -246,6 +246,66 @@ const LINE = "const timelineRunner = require('./feynman/timeline-runner.cjs');";
   check('B10 the T03 report holds no path', hasBadPath(rLow.stdout).length === 0);
 }
 
+// ---- B11: the layout test (task 3) ----
+{
+  const ROOMS_NAME = ['Mindrian', 'Rooms'].join('');
+  const mk = (...parts) => SLASH + parts.join(SLASH);
+  const def = bench.layoutOf(mk('sandbox', 'home', ROOMS_NAME, 'slug', 'section', 'a.md'));
+  check('B11 a default-layout path (the product rooms folder name) gives false and false', def.has_room_segment === false && def.has_rooms_segment === false, JSON.stringify(def));
+  const rs = bench.layoutOf(mk('sandbox', 'rooms', 'slug', 'section', 'a.md'));
+  check('B11 a path with /rooms/ gives true for rooms', rs.has_rooms_segment === true && rs.has_room_segment === false, JSON.stringify(rs));
+  const rm = bench.layoutOf(mk('sandbox', 'room', 'section', 'a.md'));
+  check('B11 a path with /room/ gives true for room', rm.has_room_segment === true && rm.has_rooms_segment === false, JSON.stringify(rm));
+  const cp1 = bench.layoutOf(mk('scratch', 'bench-folder', '0a1b2c3d', 'room', 'section', 'a.md'));
+  check('B11 a path shaped like the work folder of a real-room copy gives true for room', cp1.has_room_segment === true, JSON.stringify(cp1));
+}
+
+// ---- B12: the premise gate ----
+{
+  const stub = (obj) => ({ argv: [process.execPath, '-e', 'console.log(JSON.stringify(' + JSON.stringify(obj) + '))'] });
+  const ok = bench.cascadeSkipCheck(stub({ skipped: true, skipReason: 'filePath not inside a room directory', leak: SLASH + 'home' + SLASH + 'x' }));
+  check('B12 a stub that prints skipped true gives pass and keeps only skipped and skipReason', ok.result === 'pass' && ok.skipped === true && typeof ok.skipReason === 'string' && Object.keys(ok).sort().join(',') === 'result,skipReason,skipped', JSON.stringify(ok));
+  const no = bench.cascadeSkipCheck(stub({ skipped: false }));
+  check('B12 a stub that prints skipped false gives fail', no.result === 'fail' && no.skipped === false, JSON.stringify(no));
+  const failEnv = Object.assign({}, runnerEnv, { MOS_T04_TEST_GATE: 'fail' });
+  const g = run(['t04', '--mode', 'time', '--tree', REPO, '--out', path.join(TMP, 't04-gate.json'), '--runs', '7', '--skip-gates', '--scratch', TMP], failEnv, 900000);
+  check('B12 t04 --mode time exits 1 with the words premise failed when the gate fails', g.status === 1 && /premise failed/.test(g.stderr), 'status ' + g.status + ' ' + g.stderr.slice(0, 200));
+  check('B12 no timing file is written when the gate fails', !fs.existsSync(path.join(TMP, 't04-gate.json')));
+}
+
+// ---- B13: the default layout builder refuses a room segment ----
+{
+  let t1 = false; try { bench.assertDefaultLayout(SLASH + 'x' + SLASH + 'rooms' + SLASH + 'r', SLASH + 'x' + SLASH + 'rooms' + SLASH + 'r' + SLASH + 's' + SLASH + 'a.md'); } catch (_e) { t1 = true; }
+  check('B13 a room folder or artifact path with /rooms/ is refused', t1);
+  let t2 = false; try { bench.assertDefaultLayout(SLASH + 'x' + SLASH + 'room' + SLASH + 's' + SLASH + 'a.md', SLASH + 'x' + SLASH + 'r' + SLASH + 'a.md'); } catch (_e) { t2 = true; }
+  check('B13 a room folder path with /room/ is refused', t2);
+  let ok = true; try { bench.assertDefaultLayout(SLASH + 'x' + SLASH + ['Mindrian', 'Rooms'].join('') + SLASH + 'r', SLASH + 'x' + SLASH + ['Mindrian', 'Rooms'].join('') + SLASH + 'r' + SLASH + 's' + SLASH + 'a.md'); } catch (_e) { ok = false; }
+  check('B13 a default-layout room and artifact are accepted', ok);
+}
+
+// ---- B14: no path in the counts file and the report rows ----
+{
+  const counts = { schema: 'mos.perf-384-counts/1', task: 't04', layout_default: { has_room_segment: false, has_rooms_segment: false }, layout_rooms: { has_room_segment: false, has_rooms_segment: true }, cascade_skip: { default_layout: { repeats: 3, skipped_true: 3, skip_reason: 'filePath not inside a room directory' }, rooms_layout: { repeats: 3, skipped_true: 0, skip_reason: 'none' } }, events: { write: { default: { node_starts: [5, 5, 5], modules: [10, 10, 10], survivors_left: [0, 0, 0] }, rooms: { node_starts: [9, 9, 9], modules: [90, 90, 90], survivors_left: [0, 0, 0] } }, subagent_files5: { default: { node_starts: [20, 20, 20], modules: [300, 300, 300], survivors_left: [0, 0, 0] }, rooms: { node_starts: [20, 20, 20], modules: [300, 300, 300], survivors_left: [0, 0, 0] } } }, repeats: 3, repeats_agree: true, premise_failed: false };
+  check('B14 a synthetic counts object holds no path', bench.pathViolations(JSON.stringify(counts)).length === 0);
+  check('B14 pathViolations finds a path prefix', bench.pathViolations(JSON.stringify({ a: SLASH + 'home' + SLASH + 'x' })).length > 0);
+  const ids = ['t04:floor-node', 't04:cascade-cli:default', 't04:module-load', 't04:write:default', 't04:write:rooms', 't04:d:cli-minus-floor', 't04:d:write-rooms-minus-default'];
+  const spec = { 't04:floor-node': 23, 't04:cascade-cli:default': 60, 't04:module-load': 30, 't04:write:default': 200, 't04:write:rooms': 400, 't04:d:cli-minus-floor': 37, 't04:d:write-rooms-minus-default': 200 };
+  const s1 = writeSynth('t04-s1.json', synthSet(spec));
+  const s2 = writeSynth('t04-s2.json', synthSet(spec));
+  const cf = writeSynth('t04-counts.json', counts);
+  const r = run(['report', '--task', 't04', '--s1', s1, '--s2', s2, '--counts', cf, '--readings-out', path.join(TMP, 'readings-t04.json')]);
+  check('B14 report --task t04 exits 0', r.status === 0, r.stderr.slice(0, 200));
+  const lastCell = (l) => l.replace(/\|\s*$/, '').split('|').pop().trim();
+  const rows = String(r.stdout).split('\n').filter((l) => l.startsWith('|') && !/^\|[\s:|-]+$/.test(l));
+  check('B14 every T04 report row ends with a Basis cell', rows.length > 0 && rows.every((l) => lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l))), rows.filter((l) => !(lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l)))).slice(0, 2).join(' / '));
+  const pr = rows.filter((l) => /pending Q5b/.test(l));
+  check('B14 the two pair rows read PASS for the synthetic files', pr.filter((l) => /\bPASS\b/.test(l)).length >= 2, pr.join(' / ').slice(0, 300));
+  const rd = readJson(path.join(TMP, 'readings-t04.json')) || {};
+  check('B14 the readings file holds t04-a PASS, t04-b, t04-c and t04-d', rd['t04-a'] && rd['t04-a'].reading === 'PASS' && rd['t04-b'] && rd['t04-c'] && rd['t04-d'], JSON.stringify(rd).slice(0, 300));
+  check('B14 the T04 report holds no path', hasBadPath(r.stdout).length === 0);
+  void ids;
+}
+
 cleanup();
 if (failed) {
   process.stdout.write('t02-t05-bench: ' + failed + ' FAILED\n');

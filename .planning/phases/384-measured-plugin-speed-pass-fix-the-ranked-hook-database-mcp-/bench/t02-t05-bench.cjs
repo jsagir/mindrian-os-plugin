@@ -31,6 +31,7 @@ const H = require(path.join(REPO, 'tools', 'perf', 'perf-harness.cjs'));
 const hookLib = require(path.join(REPO, 'scripts', 'measure-hook-cold-start.cjs'));
 const COUNT_PRELOAD = path.join(REPO, 'tools', 'perf', 'count-modules-preload.cjs');
 const PROBE = path.join(__dirname, 'probe-preload.cjs');
+const { prepModifiedFiles, eligibleMd } = require(path.join(__dirname, 'process-census.cjs'));
 const MIN_RUNS = 7;
 const PLUGIN_ROOT_VAR = '${CLAUDE_PLUGIN_ROOT}';
 
@@ -717,6 +718,227 @@ async function cmdT03Time(f) {
   } finally { S.cleanup(); }
 }
 
+// ---------------------------------------------------------------------------
+// T04: cascade skip on a default-layout fixture room
+// ---------------------------------------------------------------------------
+const DEFAULT_ROOMS_NAME = ['Mindrian', 'Rooms'].join('');
+const SL = String.fromCharCode(47);
+const PATH_NEEDLES = [SL + 'home' + SL, SL + 'mnt' + SL + 'c' + SL, SL + 'tm' + 'p' + SL, DEFAULT_ROOMS_NAME];
+
+// The two string tests of lib/core/intelligence-cascade.cjs (isRoomFile): a path is a room file only if it holds one of them.
+function layoutOf(p) {
+  const s = String(p);
+  return { has_room_segment: s.indexOf(SL + 'room' + SL) !== -1, has_rooms_segment: s.indexOf(SL + 'rooms' + SL) !== -1 };
+}
+
+// The default-layout builder returns a room only when neither the room folder nor the artifact path has such a segment.
+function assertDefaultLayout(roomDir, artifactPath) {
+  for (const p of [String(roomDir) + SL, String(artifactPath)]) {
+    const l = layoutOf(p);
+    if (l.has_room_segment || l.has_rooms_segment) throw new Error('refused: the path holds a room or rooms segment');
+  }
+}
+
+function pathViolations(text) {
+  return PATH_NEEDLES.filter((n) => String(text).indexOf(n) !== -1);
+}
+
+// Runs a command that prints one JSON line; keeps only the boolean skipped and a short reason string (never the rest).
+function cascadeSkipCheck(spec) {
+  const r = cp.spawnSync(spec.argv[0], spec.argv.slice(1), { env: spec.env || process.env, cwd: spec.cwd, encoding: 'utf8', timeout: spec.timeoutMs || 180000, maxBuffer: 64 * 1024 * 1024 });
+  const out = String(r.stdout || '').trim().split('\n').filter(Boolean);
+  let j = null;
+  for (let i = out.length - 1; i >= 0 && j === null; i -= 1) { try { j = JSON.parse(out[i]); } catch (_e) { j = null; } }
+  if (!j || typeof j !== 'object') return { result: 'fail', skipped: null, skipReason: 'unparsed' };
+  const skipped = j.skipped === true;
+  const reason = typeof j.skipReason === 'string' && /^[A-Za-z0-9 .,_-]{1,80}$/.test(j.skipReason) ? j.skipReason : 'none';
+  return { result: skipped ? 'pass' : 'fail', skipped, skipReason: reason };
+}
+
+// The artifact of the T04 runs: the first artifact file of the room (depth first, byte order) that is not one of the
+// identity files. findTouchTarget returns a file at depth 1 of a section, and in these rooms that is the identity file
+// of the section, which the cascade skips as not an artifact (found in the first count run of this plan).
+function pickArtifact(roomDir) {
+  const l = eligibleMd(roomDir);
+  return l.length ? l[0] : null;
+}
+
+function scrubEnv(base) {
+  const env = Object.assign({}, base);
+  for (const k of Object.keys(env)) if (/(KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)/i.test(k) || /^(THEO|BRAIN|SUPABASE)/i.test(k)) delete env[k];
+  return env;
+}
+
+// The default-layout room: built by the product builder (scripts/real-room-run.cjs buildRoom), in a rooms folder with the
+// product default name under the sandbox home. Returns a prep object for makeCtx.
+function buildDefaultPrep(tree, baseSha) {
+  const sb = hookLib.makeSandbox('mos-384-run-');
+  try {
+    const roomsHome = path.join(sb.home, DEFAULT_ROOMS_NAME);
+    fs.mkdirSync(roomsHome, { recursive: true });
+    const seed = path.join(tree, 'tests', 'fixtures', 'release-room');
+    const code = 'const m = require(process.argv[1]); m.buildRoom({}, process.argv[2], process.argv[3], process.argv[4]).then((r) => { process.stdout.write(JSON.stringify({ roomDir: r.roomDir }) + "\\n"); process.exit(0); }, (e) => { process.stderr.write(String(e && e.message) + "\\n"); process.exit(1); });';
+    const env = scrubEnv(Object.assign({}, process.env, { HOME: sb.home, USERPROFILE: sb.home, TMPDIR: sb.tmp, MINDRIAN_BRAIN_URL: 'http://127.0.0.1:9', MINDRIAN_ROOMS_HOME: roomsHome }));
+    const sha = /^[0-9a-f]{40}$/.test(baseSha) ? baseSha : '0'.repeat(40);
+    const r = cp.spawnSync(process.execPath, ['-e', code, path.join(tree, 'scripts', 'real-room-run.cjs'), sha, seed, roomsHome], { cwd: tree, env, encoding: 'utf8', timeout: 300000 });
+    if (r.status !== 0) throw new Error('default-layout room build failed');
+    const roomDir = JSON.parse(r.stdout.trim().split('\n').pop()).roomDir;
+    const artifact = pickArtifact(roomDir);
+    if (!artifact) throw new Error('the default-layout room has no artifact');
+    assertDefaultLayout(roomDir, artifact);
+    return { sandbox: Object.assign({}, sb, { roomsHome, roomDir }), roomDir, sourceRoom: null, benchRoot: null, snap: null, removedRemotes: 0 };
+  } catch (e) { sb.cleanup(); throw e; }
+}
+
+function t04Setup(f) {
+  return setup(f, 'fixture').then((S) => {
+    try {
+      const prepD = buildDefaultPrep(S.tree, S.baseSha);
+      const ctxD = H.makeCtx('D', S.tree, prepD, S.cpus, S.hasTaskset);
+      const origTouchR = S.ctx.touchTarget;
+      ctxD.touchTarget = pickArtifact(prepD.roomDir);
+      S.ctx.touchTarget = pickArtifact(S.prep.roomDir);
+      if (!ctxD.touchTarget || !S.ctx.touchTarget) throw new Error('a room has no artifact file');
+      return Object.assign(S, {
+        prepD, ctxD, ctxR: S.ctx, origTouchR,
+        cleanup() { try { S.prep.sandbox.cleanup(); } catch (_e) { /* best effort */ } try { prepD.sandbox.cleanup(); } catch (_e) { /* best effort */ } },
+      });
+    } catch (e) { S.cleanup(); throw e; }
+  });
+}
+
+function cascadeSpec(ctx, tree) {
+  return { argv: [process.execPath, path.join(tree, 'scripts', 'mindrian-tools.cjs'), 'cascade', ctx.roomDir, ctx.touchTarget, '--raw'], env: ctx.env({}), cwd: ctx.roomDir, timeoutMs: 180000 };
+}
+
+// The confirm gate: the cascade as post-write runs it, 3 repeats per layout. Only skipped and the reason are kept.
+function confirmGate(S, repeats) {
+  const forceFail = process.env.MOS_PERF_SELFTEST === '1' && process.env.MOS_T04_TEST_GATE === 'fail';
+  const one = (ctx, stubFalse) => {
+    const res = [];
+    for (let k = 0; k < repeats; k += 1) {
+      const spec = stubFalse ? { argv: [process.execPath, '-e', 'console.log(JSON.stringify({ skipped: false }))'] } : cascadeSpec(ctx, S.tree);
+      res.push(cascadeSkipCheck(spec));
+    }
+    return { repeats, skipped_true: res.filter((x) => x.skipped === true).length, skip_reason: res[0].skipReason, repeats_agree: allEqual(res.map((x) => [x.skipped, x.skipReason])) };
+  };
+  return { default_layout: one(S.ctxD, forceFail), rooms_layout: one(S.ctxR, false) };
+}
+
+function t04Layouts(S) {
+  const art = (c) => c.touchTarget;
+  const copyShape = layoutOf(SL + path.join('scratch', 'bench-folder', '0a1b2c3d', 'room', 'section', 'a.md'));
+  return {
+    layout_default: layoutOf(art(S.ctxD)),
+    layout_rooms: layoutOf(art(S.ctxR)),
+    layout_default_room_folder: layoutOf(S.ctxD.roomDir + SL),
+    layout_copy_work_folder_shape: copyShape,
+  };
+}
+
+async function runCountedEvent(S, ctx, defId, withFiles, k, tag) {
+  const def = H.targetDef(defId);
+  if (!S.skipGates) await H.gateBeforeTarget({ maxMs: 900000 });
+  const cl = path.join(ctx.sandbox.tmp, 't04-count-' + tag + '-' + k + '.log');
+  fs.rmSync(cl, { force: true });
+  let made = [];
+  const s = await H.runEventOnce(def, ctx, { extraEnv: countEnv(cl), settleMs: 120000, beforeRun: withFiles ? () => { made = prepModifiedFiles(ctx.roomDir, 5); } : undefined });
+  for (const m of made) { try { fs.rmSync(m, { force: true }); } catch (_e) { /* gone */ } }
+  const lines = readLines(cl);
+  return { starts: lines.length, modules: lines.reduce((a, l) => a + l.modules, 0), survivors: s.survivors_left || 0, run_class: s.run_class };
+}
+
+async function cmdT04Count(f) {
+  const repeats = parseInt(f.repeats || '3', 10);
+  const S = await t04Setup(f);
+  try {
+    const layouts = t04Layouts(S);
+    assertDefaultLayout(S.ctxD.roomDir, S.ctxD.touchTarget);
+    const gate = confirmGate(S, repeats);
+    const premiseFailed = gate.default_layout.skipped_true !== repeats;
+    if (premiseFailed) {
+      writeOut(S, f.out, H.COUNTS_SCHEMA, Object.assign({ task: 't04', premise_failed: true, cascade_skip: { default_layout: gate.default_layout, rooms_layout: gate.rooms_layout }, repeats, repeats_agree: false }, layouts));
+      log('t04 premise failed: skipped is not true on the default layout in ' + repeats + ' of ' + repeats + ' repeats');
+      return 0;
+    }
+    // The path that findTouchTarget returns for the harness fixture (the artifact of the earlier fixture runs of this phase):
+    // the cascade is run on it 3 times, and only skipped and the reason are kept (counts and a constant string).
+    const tt = { harness_find_touch_target_is_identity_file: S.origTouchR ? path.basename(S.origTouchR) === 'ROOM.md' : null, cascade_skipped_true: 0, repeats, skip_reason: 'none' };
+    if (S.origTouchR) {
+      for (let k = 0; k < repeats; k += 1) {
+        const c = cascadeSkipCheck(cascadeSpec(Object.assign({}, S.ctxR, { touchTarget: S.origTouchR }), S.tree));
+        if (c.skipped === true) tt.cascade_skipped_true += 1;
+        tt.skip_reason = c.skipReason;
+      }
+    }
+    await S.gate();
+    const events = { write: {}, subagent_files5: {} };
+    let agreeAll = true;
+    for (const [evKey, defId, withFiles] of [['write', 'event:PostToolUse:Write', false], ['subagent_files5', 'event:SubagentStop', true]]) {
+      for (const [lay, ctx] of [['default', S.ctxD], ['rooms', S.ctxR]]) {
+        // one untimed run first: a first run of a new room can differ from the steady runs
+        await runCountedEvent(S, ctx, defId, withFiles, 99, evKey + '-' + lay + '-warm');
+        const starts = []; const mods = []; const surv = [];
+        for (let k = 0; k < repeats; k += 1) {
+          const c = await runCountedEvent(S, ctx, defId, withFiles, k, evKey + '-' + lay);
+          starts.push(c.starts); mods.push(c.modules); surv.push(c.survivors);
+        }
+        events[evKey][lay] = { node_starts: starts, modules: mods, survivors_left: surv, repeats_agree: allEqual(starts) && allEqual(mods) };
+        agreeAll = agreeAll && events[evKey][lay].repeats_agree;
+      }
+    }
+    writeOut(S, f.out, H.COUNTS_SCHEMA, Object.assign({ task: 't04', premise_failed: false, cascade_skip: gate, touch_target_check: tt, events, repeats, repeats_agree: agreeAll }, layouts));
+    log('t04 counts written, repeats agree ' + agreeAll);
+    return 0;
+  } finally { S.cleanup(); }
+}
+
+async function cmdT04Time(f) {
+  const S = await t04Setup(f);
+  try {
+    const layouts = t04Layouts(S);
+    assertDefaultLayout(S.ctxD.roomDir, S.ctxD.touchTarget);
+    const gateRes = confirmGate(S, 3);
+    if (gateRes.default_layout.skipped_true !== 3) throw new Error('premise failed: skipped is not true on the default layout');
+    const floor = Object.assign({}, H.targetDef('floor:node'), { id: 't04:floor-node' });
+    const cliDef = { id: 't04:cascade-cli:default', kind: 'cmd', argv: () => cascadeSpec(S.ctxD, S.tree).argv, timeoutMs: 180000 };
+    const cascadeMod = path.join(S.tree, 'lib', 'core', 'intelligence-cascade.cjs');
+    const loadCode = HR + 'require(process.argv[1]); const t1 = process.hrtime.bigint(); process.stdout.write(JSON.stringify({ ms: Number(t1 - t0) / 1e6 }) + "\\n");';
+    const writeDef = H.targetDef('event:PostToolUse:Write');
+    const items = {
+      floor: () => H.runCommandOnce(floor, S.ctxD, { settleMs: 30000 }),
+      cli: () => H.runCommandOnce(cliDef, S.ctxD, { settleMs: 30000 }),
+      load: () => selfTimed(S.ctxD, loadCode, [cascadeMod], 'ms'),
+      writeD: () => H.runEventOnce(writeDef, S.ctxD, { settleMs: 120000 }),
+      writeR: () => H.runEventOnce(writeDef, S.ctxR, { settleMs: 120000 }),
+    };
+    for (const k of Object.keys(items)) await items[k](); // untimed warm-up of every command
+    const gate = await S.gate();
+    const ids = { floor: 't04:floor-node', cli: 't04:cascade-cli:default', load: 't04:module-load', writeD: 't04:write:default', writeR: 't04:write:rooms' };
+    const accs = {};
+    Object.keys(ids).forEach((k) => { accs[k] = newAcc(ids[k]); });
+    const dCli = [];
+    const dWrite = [];
+    for (let i = 0; i < S.runs; i += 1) {
+      const got = {};
+      const order = rotated(['floor', 'cli', 'load', 'write'], i);
+      for (const it of order) {
+        const keys = it === 'write' ? (i % 2 === 0 ? ['writeD', 'writeR'] : ['writeR', 'writeD']) : [it];
+        for (const k of keys) { const s = await items[k](); if (addSample(accs[k], s)) got[k] = s.wall_ms; }
+      }
+      if (got.cli !== undefined && got.floor !== undefined) dCli.push(got.cli - got.floor);
+      if (got.writeR !== undefined && got.writeD !== undefined) dWrite.push(got.writeR - got.writeD);
+    }
+    const targets = ['floor', 'cli', 'load', 'writeD', 'writeR'].map((k) => toTarget(accs[k], gate));
+    targets.push(derivedTarget('t04:d:cli-minus-floor', dCli, gate, 'per-round cascade CLI call on the default layout minus the bare node wall'));
+    targets.push(derivedTarget('t04:d:write-rooms-minus-default', dWrite, gate, 'per-round Write event on the harness layout minus the Write event on the default layout'));
+    writeOut(S, f.out, H.SCHEMA, Object.assign({ task: 't04' }, layouts, { targets }));
+    const t = (id) => targets.find((x) => x.id === id).wall_ms_fine.median;
+    log('t04 floor ' + t('t04:floor-node') + ' ms, cli default ' + t('t04:cascade-cli:default') + ' ms, write default ' + t('t04:write:default') + ' ms, write rooms ' + t('t04:write:rooms') + ' ms');
+    return 0;
+  } finally { S.cleanup(); }
+}
+
 // @@TASKS@@
 
 // ---------------------------------------------------------------------------
@@ -730,6 +952,10 @@ const PAIRS = {
     { key: 't02-b:ups', label: 'T02-b ups: guard-passing call above product-shape call', x: 't02:ups:guard-passing', y: 't02:ups:real-shape', d: 't02:d:guard-minus-real:ups' },
     { key: 't02-b:stop', label: 'T02-b stop: guard-passing call above product-shape call', x: 't02:stop:guard-passing', y: 't02:stop:real-shape', d: 't02:d:guard-minus-real:stop' },
     { key: 't02-b:post-read', label: 'T02-b post-read: guard-passing call above product-shape call', x: 't02:post-read:guard-passing', y: 't02:post-read:real-shape', d: 't02:d:guard-minus-real:post-read' },
+  ],
+  t04: [
+    { key: 't04-b', label: 'T04-b: cascade CLI call on the default layout above the floor', x: 't04:cascade-cli:default', y: 't04:floor-node', d: 't04:d:cli-minus-floor' },
+    { key: 't04-c', label: 'T04-c: Write event on the harness layout above the default layout', x: 't04:write:rooms', y: 't04:write:default', d: 't04:d:write-rooms-minus-default' },
   ],
   t03: T03_NAMES.map((nm) => ({ key: 't03:' + nm, label: 'T03 ' + nm + ': tree A above tree B', name: nm, x: 't03:' + nm + ':a', y: 't03:' + nm + ':b', d: 't03:d:' + nm })),
 };
@@ -871,7 +1097,58 @@ function t03Report(s1, s2, counts) {
   return { lines, readings };
 }
 
-const REPORTERS = { t02: t02Report, t03: t03Report };
+function t04Report(s1, s2, counts) {
+  const lines = [];
+  const readings = {};
+  if (counts) {
+    const cs = counts.cascade_skip || {};
+    const d = cs.default_layout || {};
+    const r = cs.rooms_layout || {};
+    lines.push('', 'Table T04-1: layout booleans and the confirm gate (counts)', '', row(['Quantity', 'value', 'Basis']), row(['---', '---', '---']));
+    const lb = (k, o) => lines.push(row([k, String((o || {}).has_room_segment) + ' and ' + String((o || {}).has_rooms_segment), 'DIRECT']));
+    lb('default layout artifact path: holds /room/ and holds /rooms/', counts.layout_default);
+    lb('default layout room folder: holds /room/ and holds /rooms/', counts.layout_default_room_folder);
+    lb('harness layout artifact path: holds /room/ and holds /rooms/', counts.layout_rooms);
+    lb('constructed path shaped like the work folder of a real-room copy: holds /room/ and holds /rooms/', counts.layout_copy_work_folder_shape);
+    lines.push(row(['cascade skipped true on the default layout (repeats with skipped true of ' + d.repeats + ')', String(d.skipped_true), 'DIRECT']));
+    lines.push(row(['skip reason observed on the default layout', String(d.skip_reason), 'DIRECT']));
+    lines.push(row(['cascade skipped true on the harness layout (repeats with skipped true of ' + r.repeats + ')', String(r.skipped_true), 'DIRECT']));
+    const ttc = counts.touch_target_check;
+    if (ttc) {
+      lines.push(row(['the artifact that findTouchTarget returns for the harness fixture is the identity file ROOM.md', String(ttc.harness_find_touch_target_is_identity_file), 'DIRECT']));
+      lines.push(row(['cascade skipped true on that file (repeats with skipped true of ' + ttc.repeats + ') and the reason', String(ttc.cascade_skipped_true) + ', ' + String(ttc.skip_reason), 'DIRECT']));
+    }
+    lines.push(row(['premise failed', String(counts.premise_failed === true), 'DIRECT']));
+    const a = d.skipped_true === d.repeats && r.skipped_true === 0 ? 'PASS' : (d.skipped_true !== d.repeats ? 'PREMISE FAILED' : 'FAIL');
+    readings['t04-a'] = { reading: a, evidence: 't04-cascade-skip-counts.json' };
+  }
+  lines.push(...targetTable(s1, s2, 'Table T04-2: every target (n per set, median, p95, two sets, spread)'));
+  const pr = pairReadings(s1, s2, PAIRS.t04);
+  lines.push(...pairTable(pr, 'Table T04-3: pair readings by R2'));
+  pr.forEach((p) => { readings[p.key] = { reading: p.reading, evidence: 't04-cascade-skip-s1.json' }; });
+  const ml = wallOf(tgt(s1, 't04:module-load'));
+  const cli = wallOf(tgt(s1, 't04:cascade-cli:default'));
+  const fl = wallOf(tgt(s1, 't04:floor-node'));
+  const share = ml && cli && fl && cli.median - fl.median > 0 ? ml.median / (cli.median - fl.median) : null;
+  lines.push('', 'Table T04-3b: share of module load in a skipped cascade call (set 1, no rule)', '', row(['Quantity', 'value', 'Basis']), row(['---', '---', '---']));
+  lines.push(row(['module-load median divided by (cascade CLI median on the default layout minus floor median)', fmt(share), share === null ? 'NOT MEASURED' : 'DERIVED']));
+  if (counts && counts.events) {
+    lines.push('', 'Table T04-4: node starts and modules per event, default layout next to harness layout (3 repeats)', '', row(['Event', 'Layout', 'node starts', 'modules total', 'survivors left', 'repeats agree', 'Basis']), row(['---', '---', '---', '---', '---', '---', '---']));
+    let agree = true;
+    for (const [k, label] of [['write', 'PostToolUse Write'], ['subagent_files5', 'SubagentStop with 5 files']]) {
+      for (const [lay, name] of [['default', 'default layout'], ['rooms', 'harness layout']]) {
+        const e = ((counts.events || {})[k] || {})[lay];
+        if (!e) continue;
+        agree = agree && e.repeats_agree === true;
+        lines.push(row([label, name, e.node_starts.join(' '), e.modules.join(' '), e.survivors_left.join(' '), String(e.repeats_agree), 'DIRECT']));
+      }
+    }
+    readings['t04-d'] = { reading: agree ? 'counts only, no pass or fail' : 'NOT RESOLVED', evidence: 't04-cascade-skip-counts.json' };
+  }
+  return { lines, readings };
+}
+
+const REPORTERS = { t02: t02Report, t03: t03Report, t04: t04Report };
 
 function cmdReport(f) {
   if (!f.task || !REPORTERS[f.task]) { process.stderr.write(USAGE.report + '\n'); return 2; }
@@ -962,10 +1239,12 @@ const COMMANDS = {
   't03:make-b': cmdT03MakeB,
   't03:time': cmdT03Time,
   't03:count': cmdT03Count,
+  't04:time': cmdT04Time,
+  't04:count': cmdT04Count,
 };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), () => { process.stderr.write('t02-t05-bench failed\n'); process.exit(1); });
 }
 
-module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches };
+module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches, layoutOf, assertDefaultLayout, cascadeSkipCheck, pathViolations };
