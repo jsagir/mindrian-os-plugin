@@ -1410,4 +1410,4 @@ if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), () => { process.stderr.write('t02-t05-bench failed\n'); process.exit(1); });
 }
 
-module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches, layoutOf, assertDefaultLayout, cascadeSkipCheck, pathViolations, shareReading, pollStatusOf, checkKeyCount };
+module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches, layoutOf, assertDefaultLayout, cascadeSkipCheck, pathViolations, shareReading, pollStatusOf, checkKeyCount, setup, t04Setup, pickArtifact, cascadeSpec, newAcc, addSample, toTarget, derivedTarget, writeOut, rotated, countEnv, readLines, allEqual, row, fmt, wallOf, tgt, spreadOf, targetTable, pairTable };
