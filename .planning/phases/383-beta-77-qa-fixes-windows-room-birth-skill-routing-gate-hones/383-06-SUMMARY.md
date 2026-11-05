@@ -99,7 +99,7 @@ check-card-fire.cjs unchanged: F1 to F3 green at HEAD.
 - `node tests/test-card-fire-relevance-gate.cjs`: 6 passed, 5 failed, the baseline.
 - Gates, all exit 0: build-connector-registry --check, build-orchestration-projection --check, check-render-coverage, build-harness-manifest --check, build-skill-mirrors --check (112 mirrors).
 - `grep -cP "[\x{2013}\x{2014}]"` prints 0 for every file this plan edited, and for the added CHANGELOG line.
-- run-all-3696.sh: see the report; its result is recorded there.
+- `bash tests/run-all-3696.sh`: `Phase 369.6 verification: PASSED=126 FAILED=0 SKIPPED=0 KNOWN=25`.
 
 ## Known Stubs
 
