@@ -420,8 +420,13 @@ async function cmdAutoexplore(f) {
       if (F === 0) groups.push({ F, mode: 'open', id: 'script:autoexplore:f0' });
       else { groups.push({ F, mode: 'open', id: 'script:autoexplore:f' + F + ':open' }); groups.push({ F, mode: 'held', id: 'script:autoexplore:f' + F + ':held' }); }
     }
+    // The open path (the script surfaces a finding) writes one new auto-explore-<hash>.json per run. Those files and
+    // the synthetic ones are removed before every run, so each run starts with exactly F finding files (found in the first sanity run).
+    const initialNames = new Set(fs.readdirSync(mind).filter((n) => n.startsWith('auto-explore-') && n.endsWith('.json')));
     const removeSynthetic = () => {
-      for (const n of fs.readdirSync(mind)) if (n.startsWith(FIND_PREFIX)) fs.rmSync(path.join(mind, n), { force: true });
+      for (const n of fs.readdirSync(mind)) {
+        if (n.startsWith('auto-explore-') && n.endsWith('.json') && !initialNames.has(n)) fs.rmSync(path.join(mind, n), { force: true });
+      }
     };
     // apply one group: the finding files, the ambient ledger that holds them (held) or not (open), an empty explored-materials ledger
     const apply = (g) => {
@@ -638,8 +643,10 @@ const FILE_READ_FNS = ['readFileSync', 'readFile', 'promises.readFile'];
 function aggregate(lines) {
   const by = new Map();
   for (const l of lines) {
-    const e = by.get(l.argv1) || { script: l.argv1, processes: 0, modules: 0, fs: new Map(), sqlite_constructed: 0, sqlite_exec: 0, sqlite_prepare: 0 };
+    const e = by.get(l.argv1) || { script: l.argv1, processes: 0, modules: 0, fs: new Map(), sqlite_constructed: 0, sqlite_exec: 0, sqlite_prepare: 0, perProc: [] };
     e.processes += 1;
+    // the room file reads of this one process (room and .mindrian folders), so a walk over the sections shows as one large number
+    e.perProc.push((l.fs || []).filter((r) => (r.cat === 'room' || r.cat === 'mindrian') && FILE_READ_FNS.indexOf(r.fn) !== -1).reduce((a, r) => a + r.count, 0));
     e.modules += l.modules;
     e.sqlite_constructed += l.sqlite.constructed;
     e.sqlite_exec += l.sqlite.exec;
@@ -655,6 +662,7 @@ function aggregate(lines) {
       transcript_reads: get('transcript', TX_FNS),
       transcript_stats: get('transcript', ['statSync', 'lstatSync', 'stat']),
       room_file_reads: get('room', FILE_READ_FNS) + get('mindrian', FILE_READ_FNS),
+      room_file_reads_per_process: e.perProc.slice().sort((a, b) => b - a).slice(0, 30),
       room_stats: get('room', ['statSync', 'lstatSync', 'stat']) + get('mindrian', ['statSync', 'lstatSync', 'stat']),
       room_readdirs: get('room', ['readdirSync', 'readdir']) + get('mindrian', ['readdirSync', 'readdir']),
       sqlite_constructed: e.sqlite_constructed,

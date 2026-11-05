@@ -425,7 +425,7 @@ function cpuCount(list) {
 
 // The census process runs under taskset -c 0-3 so that every hook it starts inherits the cap (the hooks are not wrapped,
 // so that no wrapper program is counted). When the process is not capped, it starts itself again under taskset.
-function ensurePinned(argv) {
+function ensurePinned() {
   if (process.env.MOS_PERF_SELFTEST === '1' || process.env.MOS_CENSUS_PINNED === '1' || os.platform() !== 'linux') return null;
   if (cp.spawnSync('taskset', ['--version'], { stdio: 'ignore' }).status !== 0) return null;
   const avail = typeof os.availableParallelism === 'function' ? os.availableParallelism() : os.cpus().length;
@@ -433,7 +433,7 @@ function ensurePinned(argv) {
   let allowed = 999;
   try { allowed = cpuCount((fs.readFileSync('/proc/self/status', 'utf8').match(/Cpus_allowed_list:\s*(\S+)/) || [])[1] || ''); } catch (_e) { allowed = 999; }
   if (allowed <= cpus) return null;
-  const r = cp.spawnSync('taskset', ['-c', '0-' + (cpus - 1), process.execPath, __filename].concat(argv), { stdio: 'inherit', env: Object.assign({}, process.env, { MOS_CENSUS_PINNED: '1' }) });
+  const r = cp.spawnSync('taskset', ['-c', '0-' + (cpus - 1), process.execPath, __filename].concat(process.argv.slice(2)), { stdio: 'inherit', env: Object.assign({}, process.env, { MOS_CENSUS_PINNED: '1' }) });
   return r.status === null ? 1 : r.status;
 }
 
