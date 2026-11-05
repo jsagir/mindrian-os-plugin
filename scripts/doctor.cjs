@@ -535,6 +535,8 @@ Environment readiness probes (Phase 127.2 Plan 03 -- separate from class flags):
   --clean-doubled-rooms=<digest>  delete the doubled-path folders of the doubled-room-trees row; only
                            after the navigator approved the F.0 card for that listing digest. Sibling
                            mode: never reached by --fix or --all. Exit 0 on success, 1 on a mismatch.
+                           The digest comes from the listing the navigator just approved; it is the
+                           consent token, and the F.0 card is fired by the session, not by this flag.
   --reset-install-id       (Quick task 260911-iko) rotates the opaque per-install bucket
                            key the plugin sends to Theo as the x-theo-install-id header.
                            Mints a fresh id, replaces the state-dir file, prints exactly
