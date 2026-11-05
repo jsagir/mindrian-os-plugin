@@ -181,3 +181,16 @@ Table T03-4: pair readings by R3 (the count gate first, then R2)
 | T03 onstop: tree A above tree B | 521 | 380 | 5.68 | 8.623 | 34.494 | 68.988 | lower in all repeats | FAIL | pending Q5b | DERIVED |
 | T03 drain: tree A above tree B | 169 | 167 | -2.536 | -1.937 | 4.417 | 8.834 | lower in all repeats | FAIL | pending Q5b | DERIVED |
 | T03 load: tree A above tree B | 167 | 3 | 48.184 | 49.123 | 0.919 | 1.838 | lower in all repeats | PASS | pending Q5b | DERIVED |
+
+## T04
+
+Cascade skip on a default-layout fixture room.
+
+Hypothesis H-T04. On a default-layout room the path of every artifact holds neither /room/ nor /rooms/, so runCascade returns skipped true with the reason `filePath not inside a room directory` and does no cascade work. The post-write hook still starts one node process that loads intelligence-cascade.cjs and its requires to get that result. The harness fixture path holds /rooms/, so the cascade runs in the earlier fixture measurements of this phase, and the work folder of a real-room copy ends in /room/ (string test only here). The default layout is a rooms folder with the product default name under a sandbox home, with no /room/ and no /rooms/ segment.
+
+Reading rules.
+T04-a is R1: skipped is true in 3 of 3 repeats on the default layout, and false in 3 of 3 on the harness layout (control). A skipped value that is not true in 3 of 3 repeats on the default layout is the premise gate of R5 (PREMISE FAILED, and nothing is timed).
+T04-b is R2 with X = the cascade CLI call on the default layout and Y = the bare floor (what a skipped call costs).
+T04-c is R2 with X = the PostToolUse Write event on the harness layout and Y = the same event on the default layout (what the cascade adds to a write where it runs).
+T04-d is R1-style counts with no pass or fail: node starts and modules loaded for the Write event and for SubagentStop with 5 files, on both layouts, shown side by side for plan 384-09. SubagentStop is counted only and is not timed here.
+The real default-layout behaviour of a user room is not read here (Part 8).
