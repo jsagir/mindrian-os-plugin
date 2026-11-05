@@ -40,6 +40,7 @@ const POLL_MS = 10;
 const WAIT_LIMIT_MS = 120000;
 const MIN_RUNS = 7;
 const WARMUP_MAX = 6;
+const GATE_MAX_MS_WALLS = 900000;
 const TOP_PROGRAMS = 12;
 const SESSION_START_RANGES = '402-409,417,489-494,570-572,772-774,1562-1790';
 
@@ -171,9 +172,25 @@ function scanMarked(runId, neg) {
 // Poll for the processes that outlive the hooks. t0 is the clock time when the last blocking hook returned.
 // Returns { tail_ms, survivors, survivor_cpu_ms, killed }. A survivor that is still alive at the limit is killed,
 // and only a process that carries this run's marker is killed (threat T-384-18).
+// The program name of a live process (comm) and, for node, bash, sh and dash, the base name of the script (argv[1]).
+// Nothing else of the command line is read out (Canon Part 8).
+function describeProc(pid) {
+  let program = '?';
+  let script = '-';
+  try { program = fs.readFileSync('/proc/' + pid + '/comm', 'utf8').trim().replace(/\s/g, '_') || '?'; } catch (_e) { return { program, script }; }
+  if (program === 'node' || program === 'bash' || program === 'sh' || program === 'dash') {
+    try {
+      const args = fs.readFileSync('/proc/' + pid + '/cmdline', 'latin1').split('\0');
+      if (args[1] && args[1][0] !== '-') script = path.basename(args[1]).replace(/\s/g, '_');
+    } catch (_e) { /* gone */ }
+  }
+  return { program, script };
+}
+
 async function watchSurvivors(runId, t0, limitMs) {
   const neg = new Set();
   const seen = new Map();
+  const descs = new Map();
   let lastSeen = null;
   let killed = 0;
   for (;;) {
@@ -184,6 +201,7 @@ async function watchSurvivors(runId, t0, limitMs) {
       for (const l of live) {
         const prev = seen.get(l.pid);
         seen.set(l.pid, Math.max(prev || 0, l.cpu_ms));
+        if (!descs.has(l.pid)) descs.set(l.pid, describeProc(l.pid));
       }
     }
     if (!live.length) break;
@@ -196,7 +214,11 @@ async function watchSurvivors(runId, t0, limitMs) {
   }
   let cpu = 0;
   for (const v of seen.values()) cpu += v;
-  return { tail_ms: lastSeen === null ? 0 : Math.max(0, lastSeen - t0), survivors: seen.size, survivor_cpu_ms: cpu, killed };
+  const progs = new Map();
+  for (const d of descs.values()) { const k = d.program + ' ' + d.script; progs.set(k, (progs.get(k) || 0) + 1); }
+  const programs = [...progs].map(([k, count]) => { const [program, script] = k.split(' '); return { program, script, count }; })
+    .sort((a, b) => b.count - a.count || a.program.localeCompare(b.program) || a.script.localeCompare(b.script)).slice(0, 8);
+  return { tail_ms: lastSeen === null ? 0 : Math.max(0, lastSeen - t0), survivors: seen.size, survivor_cpu_ms: cpu, killed, programs };
 }
 
 // ---------------------------------------------------------------------------
@@ -339,7 +361,7 @@ async function censusOnce(def, ctx, o) {
   const parsed = parseExecLog(text);
   removeFiles(made);
   return {
-    parsed, tail_ms: w.tail_ms, survivors: w.survivors, survivor_cpu_ms: w.survivor_cpu_ms, killed: w.killed,
+    parsed, tail_ms: w.tail_ms, survivors: w.survivors, survivor_cpu_ms: w.survivor_cpu_ms, killed: w.killed, programs: w.programs,
     hooks: { matched: sel.entries.length, blocking: blocking.length, async: res.length - blocking.length, skipped: sel.skipped.length },
     changed: def.change ? changedPathTaken(def.event, ctx.roomDir, offset) : undefined,
     exits_failed: res.filter((r) => r.signal || r.status === null || r.status === 126 || r.status === 127).length,
@@ -374,7 +396,8 @@ function summarizeEvent(key, def, reps, load) {
     tail_ms_max: r1(Math.max.apply(null, reps.map((r) => r.tail_ms))),
     survivors: median(reps.map((r) => r.survivors)),
     survivor_cpu_ms: r1(median(reps.map((r) => r.survivor_cpu_ms))),
-    survivor_cpu_note: 'lower bound: CPU time of each surviving process at its last poll, summed',
+    survivor_cpu_note: 'lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one',
+    survivor_programs: chosen.programs,
     killed_survivors: reps.reduce((a, r) => a + r.killed, 0),
     blocked_calls: reps.reduce((a, r) => a + r.parsed.blocked, 0),
     carry_over_calls: Math.max.apply(null, reps.map((r) => r.parsed.injected)),
@@ -493,9 +516,11 @@ async function openSession(f) {
     if (!sess.snapManifest) sess.snapManifest = H.manifest(prep.snap);
     H.restoreCopy(prep.snap, prep.roomDir, sess.snapManifest).forEach((p) => sess.touchedUnion.add(p));
   };
-  sess.gate = async () => {
+  // maxMs: how long the gate waits for a quiet host. A SubagentStop run with 20 files leaves a high load average
+  // behind (about 150 s to fall below 2), so walls-subagent asks for a longer limit than the default of 300 s.
+  sess.gate = async (maxMs) => {
     if (skipGates) return { ok: true, load1: H.readLoad1(), waited_ms: 0 };
-    return H.gateBeforeTarget({});
+    return H.gateBeforeTarget(maxMs ? { maxMs } : {});
   };
   return sess;
 }
@@ -757,7 +782,7 @@ async function cmdWallsSubagent(argv) {
       const order = sizes.map((_n, i) => sizes[(i + r) % sizes.length]);
       for (const n of order) {
         const a = acc.get(n);
-        const g = await sess.gate();
+        const g = await sess.gate(GATE_MAX_MS_WALLS);
         if (a.load1Start === null) { a.load1Start = g.load1; a.gateWaited = g.waited_ms; a.noisy = !g.ok; } else if (!g.ok) a.noisy = true;
         if (sess.prep.snap && r === 0) sess.restore();
         await runSize(n, true);
@@ -793,6 +818,7 @@ async function cmdWallsSubagent(argv) {
         find_count: ev.find_count,
         survivor_cpu_ms: ev.survivor_cpu_ms,
         survivor_cpu_note: ev.survivor_cpu_note,
+        survivor_programs: ev.survivor_programs,
         count_tail_ms: ev.tail_ms,
         load1_start: a.load1Start,
         load1_end: H.readLoad1(),
