@@ -109,3 +109,11 @@ Table T02-3c: T02-c reading by R1 (threshold claim at UserPromptSubmit)
 | product shape is exactly 0, guard-passing is above 0 | 0 0 0 | 1 1 1 | PASS | pending Q5b | DIRECT |
 
 Observation, not fixed here: the check at scripts/operator-update.cjs line 106 needs rooms to be an array, and the registry that the product writes holds rooms as an object (table T02-3a: rooms_is_array false, has_active_room_key false). On that registry the script returns at once at all three events and reads no room state (table T02-3c). Whether that early return is intended is not read here.
+
+## T03
+
+Lazy require of the timeline runner in folder-memory (before and after, scratch copy only).
+
+Hypothesis H-T03. The require at lib/core/folder-memory.cjs line 268 (and its async twin at lib/core/folder-memory-async.cjs line 220) loads timeline-runner.cjs, timeline-renderer.cjs and navigation.cjs with their dependencies whenever folder-memory is loaded, but the file uses the runner only inside extractFeynmanBody and its async twin. If the require is made lazy, three frequent processes load fewer modules and take less time: the statusline process (scripts/context-monitor, line 21), the node -e snapshot of the on-stop hook (line 414) and the Brain drain hook on an empty queue (line 176). The drain also loads navigation.cjs itself after folder-memory, so the module count of the drain may not change.
+
+Reading rule. R3 for each of the four pairs (statusline, on-stop, drain, cold load of folder-memory.cjs), with the DIRECT module counts as the gate. The edit is made only in a scratch copy of the pinned export (tree B); tree A is the untouched pinned export. The edit is a measurement tool and is not a proposal. The two trees must return equal results in the equivalence check (R5) before any other T03 step.
