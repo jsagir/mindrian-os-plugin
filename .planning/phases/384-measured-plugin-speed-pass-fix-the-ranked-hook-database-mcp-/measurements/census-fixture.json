@@ -1,0 +1,1357 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "72b0eed8bbc16001592bc9bd11f3b05695a8d5f1",
+    "tree_label": "pinned-db2ea3b05",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T10:33:47.390Z",
+    "ended_at": "2026-11-05T10:46:42.111Z",
+    "load1_start": 1.47,
+    "load1_end": 21.84
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": null,
+  "tree_label": "pinned-db2ea3b05",
+  "cpus": 4,
+  "repeats": 3,
+  "note": "untimed counting pass: exec calls of the descendants of each hook shell, counted by bench/exec-counter.c; the wall times come from separate runs",
+  "events": [
+    {
+      "key": "SessionStart:startup:unchanged",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 1
+      },
+      "exec_total": {
+        "min": 99,
+        "median": 99,
+        "max": 99
+      },
+      "exec_per_repeat": [
+        99,
+        99,
+        99
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 44
+        },
+        {
+          "program": "env",
+          "count": 11
+        },
+        {
+          "program": "bash",
+          "count": 8
+        },
+        {
+          "program": "cat",
+          "count": 4
+        },
+        {
+          "program": "dirname",
+          "count": 4
+        },
+        {
+          "program": "date",
+          "count": 3
+        },
+        {
+          "program": "find",
+          "count": 3
+        },
+        {
+          "program": "python3",
+          "count": 3
+        },
+        {
+          "program": "sed",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "head",
+          "count": 2
+        },
+        {
+          "program": "tr",
+          "count": 2
+        }
+      ],
+      "node_starts": 44,
+      "bash_starts": 8,
+      "find_count": 3,
+      "tail_ms": 14870,
+      "tail_ms_max": 14877,
+      "survivors": 2,
+      "survivor_cpu_ms": 150,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "session-start",
+          "count": 1
+        },
+        {
+          "program": "node",
+          "script": "brain-prewarm.cjs",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 1.47,
+      "load1_end": 0.17,
+      "noisy": false,
+      "changed_taken_runs": 3,
+      "changed_unknown_runs": 0
+    },
+    {
+      "key": "SessionStart:startup:changed",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 1
+      },
+      "exec_total": {
+        "min": 103,
+        "median": 103,
+        "max": 103
+      },
+      "exec_per_repeat": [
+        103,
+        103,
+        103
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 45
+        },
+        {
+          "program": "env",
+          "count": 11
+        },
+        {
+          "program": "bash",
+          "count": 9
+        },
+        {
+          "program": "dirname",
+          "count": 5
+        },
+        {
+          "program": "cat",
+          "count": 3
+        },
+        {
+          "program": "date",
+          "count": 3
+        },
+        {
+          "program": "find",
+          "count": 3
+        },
+        {
+          "program": "python3",
+          "count": 3
+        },
+        {
+          "program": "sed",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "head",
+          "count": 2
+        },
+        {
+          "program": "tr",
+          "count": 2
+        }
+      ],
+      "node_starts": 45,
+      "bash_starts": 9,
+      "find_count": 3,
+      "tail_ms": 14872,
+      "tail_ms_max": 14879,
+      "survivors": 2,
+      "survivor_cpu_ms": 150,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "session-start",
+          "count": 1
+        },
+        {
+          "program": "node",
+          "script": "brain-prewarm.cjs",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.17,
+      "load1_end": 0.44,
+      "noisy": false,
+      "changed_taken_runs": 3,
+      "changed_unknown_runs": 0
+    },
+    {
+      "key": "SessionStart:compact",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 1
+      },
+      "exec_total": {
+        "min": 99,
+        "median": 99,
+        "max": 99
+      },
+      "exec_per_repeat": [
+        99,
+        99,
+        99
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 44
+        },
+        {
+          "program": "env",
+          "count": 11
+        },
+        {
+          "program": "bash",
+          "count": 8
+        },
+        {
+          "program": "cat",
+          "count": 4
+        },
+        {
+          "program": "dirname",
+          "count": 4
+        },
+        {
+          "program": "date",
+          "count": 3
+        },
+        {
+          "program": "find",
+          "count": 3
+        },
+        {
+          "program": "python3",
+          "count": 3
+        },
+        {
+          "program": "sed",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "head",
+          "count": 2
+        },
+        {
+          "program": "tr",
+          "count": 2
+        }
+      ],
+      "node_starts": 44,
+      "bash_starts": 8,
+      "find_count": 3,
+      "tail_ms": 14872,
+      "tail_ms_max": 14876,
+      "survivors": 2,
+      "survivor_cpu_ms": 170,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "session-start",
+          "count": 1
+        },
+        {
+          "program": "node",
+          "script": "brain-prewarm.cjs",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.44,
+      "load1_end": 0.37,
+      "noisy": false
+    },
+    {
+      "key": "UserPromptSubmit",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 18,
+        "median": 19,
+        "max": 31
+      },
+      "exec_per_repeat": [
+        31,
+        18,
+        19
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 13
+        },
+        {
+          "program": "bash",
+          "count": 2
+        },
+        {
+          "program": "dirname",
+          "count": 2
+        },
+        {
+          "program": "python3",
+          "count": 1
+        },
+        {
+          "program": "resolve-room",
+          "count": 1
+        }
+      ],
+      "node_starts": 13,
+      "bash_starts": 2,
+      "find_count": 0,
+      "tail_ms": 178,
+      "tail_ms_max": 407,
+      "survivors": 5,
+      "survivor_cpu_ms": 800,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "node",
+          "script": "brain-derivation-drain.cjs",
+          "count": 5
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.37,
+      "load1_end": 0.74,
+      "noisy": false
+    },
+    {
+      "key": "Stop:unchanged:tx4m",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 7,
+        "async": 1,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 101,
+        "median": 101,
+        "max": 101
+      },
+      "exec_per_repeat": [
+        101,
+        101,
+        101
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 36
+        },
+        {
+          "program": "basename",
+          "count": 15
+        },
+        {
+          "program": "timeout",
+          "count": 15
+        },
+        {
+          "program": "bash",
+          "count": 4
+        },
+        {
+          "program": "date",
+          "count": 4
+        },
+        {
+          "program": "find",
+          "count": 4
+        },
+        {
+          "program": "dirname",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 3
+        },
+        {
+          "program": "head",
+          "count": 3
+        },
+        {
+          "program": "tr",
+          "count": 3
+        },
+        {
+          "program": "cat",
+          "count": 2
+        },
+        {
+          "program": "sed",
+          "count": 2
+        }
+      ],
+      "node_starts": 36,
+      "bash_starts": 4,
+      "find_count": 4,
+      "tail_ms": 182,
+      "tail_ms_max": 196,
+      "survivors": 1,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "sleep",
+          "script": "-",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.74,
+      "load1_end": 0.53,
+      "noisy": false,
+      "changed_taken_runs": 0,
+      "changed_unknown_runs": 0
+    },
+    {
+      "key": "Stop:changed:tx4m",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 7,
+        "async": 1,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 110,
+        "median": 110,
+        "max": 110
+      },
+      "exec_per_repeat": [
+        110,
+        110,
+        110
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 38
+        },
+        {
+          "program": "basename",
+          "count": 15
+        },
+        {
+          "program": "timeout",
+          "count": 15
+        },
+        {
+          "program": "bash",
+          "count": 6
+        },
+        {
+          "program": "date",
+          "count": 5
+        },
+        {
+          "program": "dirname",
+          "count": 4
+        },
+        {
+          "program": "find",
+          "count": 4
+        },
+        {
+          "program": "grep",
+          "count": 3
+        },
+        {
+          "program": "head",
+          "count": 3
+        },
+        {
+          "program": "tr",
+          "count": 3
+        },
+        {
+          "program": "cat",
+          "count": 2
+        },
+        {
+          "program": "sed",
+          "count": 2
+        }
+      ],
+      "node_starts": 38,
+      "bash_starts": 6,
+      "find_count": 4,
+      "tail_ms": 187,
+      "tail_ms_max": 187,
+      "survivors": 1,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "sleep",
+          "script": "-",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.53,
+      "load1_end": 0.57,
+      "noisy": false,
+      "changed_taken_runs": 3,
+      "changed_unknown_runs": 0
+    },
+    {
+      "key": "PostToolUse:Write",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 36,
+        "median": 36,
+        "max": 44
+      },
+      "exec_per_repeat": [
+        44,
+        36,
+        36
+      ],
+      "exec_by_program": [
+        {
+          "program": "dirname",
+          "count": 9
+        },
+        {
+          "program": "node",
+          "count": 9
+        },
+        {
+          "program": "jq",
+          "count": 4
+        },
+        {
+          "program": "bash",
+          "count": 3
+        },
+        {
+          "program": "basename",
+          "count": 2
+        },
+        {
+          "program": "cat",
+          "count": 1
+        },
+        {
+          "program": "date",
+          "count": 1
+        },
+        {
+          "program": "git",
+          "count": 1
+        },
+        {
+          "program": "mkdir",
+          "count": 1
+        },
+        {
+          "program": "mktemp",
+          "count": 1
+        },
+        {
+          "program": "mv",
+          "count": 1
+        },
+        {
+          "program": "python3",
+          "count": 1
+        }
+      ],
+      "node_starts": 9,
+      "bash_starts": 3,
+      "find_count": 0,
+      "tail_ms": 0,
+      "tail_ms_max": 35,
+      "survivors": 0,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.57,
+      "load1_end": 0.57,
+      "noisy": false
+    },
+    {
+      "key": "PostToolUse:Read",
+      "repeats": 3,
+      "hooks": {
+        "matched": 2,
+        "blocking": 2,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 2,
+        "median": 2,
+        "max": 2
+      },
+      "exec_per_repeat": [
+        2,
+        2,
+        2
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 2
+        }
+      ],
+      "node_starts": 2,
+      "bash_starts": 0,
+      "find_count": 0,
+      "tail_ms": 0,
+      "tail_ms_max": 0,
+      "survivors": 0,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.57,
+      "load1_end": 0.57,
+      "noisy": false
+    },
+    {
+      "key": "TaskCompleted",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 77,
+        "median": 77,
+        "max": 77
+      },
+      "exec_per_repeat": [
+        77,
+        77,
+        77
+      ],
+      "exec_by_program": [
+        {
+          "program": "find",
+          "count": 15
+        },
+        {
+          "program": "tr",
+          "count": 15
+        },
+        {
+          "program": "wc",
+          "count": 15
+        },
+        {
+          "program": "basename",
+          "count": 14
+        },
+        {
+          "program": "bash",
+          "count": 4
+        },
+        {
+          "program": "dirname",
+          "count": 4
+        },
+        {
+          "program": "node",
+          "count": 2
+        },
+        {
+          "program": "compute-state",
+          "count": 1
+        },
+        {
+          "program": "date",
+          "count": 1
+        },
+        {
+          "program": "grep",
+          "count": 1
+        },
+        {
+          "program": "head",
+          "count": 1
+        },
+        {
+          "program": "jq",
+          "count": 1
+        }
+      ],
+      "node_starts": 2,
+      "bash_starts": 4,
+      "find_count": 15,
+      "tail_ms": 0,
+      "tail_ms_max": 0,
+      "survivors": 0,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.57,
+      "load1_end": 0.52,
+      "noisy": false
+    },
+    {
+      "key": "PreCompact",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 27,
+        "median": 27,
+        "max": 27
+      },
+      "exec_per_repeat": [
+        27,
+        27,
+        27
+      ],
+      "exec_by_program": [
+        {
+          "program": "cat",
+          "count": 3
+        },
+        {
+          "program": "head",
+          "count": 3
+        },
+        {
+          "program": "node",
+          "count": 3
+        },
+        {
+          "program": "bash",
+          "count": 2
+        },
+        {
+          "program": "dirname",
+          "count": 2
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "sed",
+          "count": 2
+        },
+        {
+          "program": "basename",
+          "count": 1
+        },
+        {
+          "program": "cut",
+          "count": 1
+        },
+        {
+          "program": "date",
+          "count": 1
+        },
+        {
+          "program": "find",
+          "count": 1
+        },
+        {
+          "program": "jq",
+          "count": 1
+        }
+      ],
+      "node_starts": 3,
+      "bash_starts": 2,
+      "find_count": 1,
+      "tail_ms": 0,
+      "tail_ms_max": 0,
+      "survivors": 0,
+      "survivor_cpu_ms": 0,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.52,
+      "load1_end": 0.52,
+      "noisy": false
+    },
+    {
+      "key": "PostCompact",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 36,
+        "median": 93,
+        "max": 95
+      },
+      "exec_per_repeat": [
+        36,
+        95,
+        93
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 35
+        },
+        {
+          "program": "env",
+          "count": 11
+        },
+        {
+          "program": "bash",
+          "count": 8
+        },
+        {
+          "program": "find",
+          "count": 5
+        },
+        {
+          "program": "cat",
+          "count": 4
+        },
+        {
+          "program": "dirname",
+          "count": 4
+        },
+        {
+          "program": "date",
+          "count": 3
+        },
+        {
+          "program": "python3",
+          "count": 3
+        },
+        {
+          "program": "sed",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "head",
+          "count": 2
+        },
+        {
+          "program": "mkdir",
+          "count": 2
+        }
+      ],
+      "node_starts": 35,
+      "bash_starts": 8,
+      "find_count": 5,
+      "tail_ms": 14864,
+      "tail_ms_max": 14871,
+      "survivors": 2,
+      "survivor_cpu_ms": 150,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "session-start",
+          "count": 1
+        },
+        {
+          "program": "node",
+          "script": "brain-prewarm.cjs",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.52,
+      "load1_end": 0.42,
+      "noisy": false
+    },
+    {
+      "key": "SubagentStop:files1",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 3192,
+        "median": 5502,
+        "max": 5502
+      },
+      "exec_per_repeat": [
+        3192,
+        5502,
+        5502
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 3018
+        },
+        {
+          "program": "sed",
+          "count": 786
+        },
+        {
+          "program": "tr",
+          "count": 529
+        },
+        {
+          "program": "head",
+          "count": 513
+        },
+        {
+          "program": "basename",
+          "count": 321
+        },
+        {
+          "program": "sort",
+          "count": 166
+        },
+        {
+          "program": "cut",
+          "count": 60
+        },
+        {
+          "program": "find",
+          "count": 33
+        },
+        {
+          "program": "dirname",
+          "count": 16
+        },
+        {
+          "program": "wc",
+          "count": 13
+        },
+        {
+          "program": "bash",
+          "count": 12
+        },
+        {
+          "program": "node",
+          "count": 9
+        }
+      ],
+      "node_starts": 9,
+      "bash_starts": 12,
+      "find_count": 33,
+      "tail_ms": 7210,
+      "tail_ms_max": 7314,
+      "survivors": 581,
+      "survivor_cpu_ms": 2200,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 301
+        },
+        {
+          "program": "grep",
+          "script": "-",
+          "count": 134
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 44
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 39
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 39
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 22
+        },
+        {
+          "program": "basename",
+          "script": "-",
+          "count": 12
+        },
+        {
+          "program": "?",
+          "script": "-",
+          "count": 10
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.42,
+      "load1_end": 0.74,
+      "noisy": false
+    },
+    {
+      "key": "SubagentStop:files5",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 21602,
+        "median": 22159,
+        "max": 22971
+      },
+      "exec_per_repeat": [
+        21602,
+        22971,
+        22159
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 12594
+        },
+        {
+          "program": "sed",
+          "count": 3150
+        },
+        {
+          "program": "tr",
+          "count": 2572
+        },
+        {
+          "program": "head",
+          "count": 2548
+        },
+        {
+          "program": "basename",
+          "count": 837
+        },
+        {
+          "program": "find",
+          "count": 91
+        },
+        {
+          "program": "dirname",
+          "count": 70
+        },
+        {
+          "program": "sort",
+          "count": 66
+        },
+        {
+          "program": "cut",
+          "count": 60
+        },
+        {
+          "program": "node",
+          "count": 45
+        },
+        {
+          "program": "bash",
+          "count": 44
+        },
+        {
+          "program": "jq",
+          "count": 26
+        }
+      ],
+      "node_starts": 45,
+      "bash_starts": 44,
+      "find_count": 91,
+      "tail_ms": 11586,
+      "tail_ms_max": 11830,
+      "survivors": 4428,
+      "survivor_cpu_ms": 8930,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 2193
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 505
+        },
+        {
+          "program": "?",
+          "script": "-",
+          "count": 450
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 378
+        },
+        {
+          "program": "grep",
+          "script": "-",
+          "count": 278
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 257
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 228
+        },
+        {
+          "program": "bash",
+          "script": "post-write",
+          "count": 39
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.74,
+      "load1_end": 5.2,
+      "noisy": false
+    },
+    {
+      "key": "SubagentStop:files20",
+      "repeats": 3,
+      "hooks": {
+        "matched": 1,
+        "blocking": 1,
+        "async": 0,
+        "skipped": 0
+      },
+      "exec_total": {
+        "min": 20842,
+        "median": 21226,
+        "max": 24690
+      },
+      "exec_per_repeat": [
+        24690,
+        21226,
+        20842
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 4940
+        },
+        {
+          "program": "sed",
+          "count": 4934
+        },
+        {
+          "program": "tr",
+          "count": 4144
+        },
+        {
+          "program": "head",
+          "count": 4045
+        },
+        {
+          "program": "basename",
+          "count": 1714
+        },
+        {
+          "program": "find",
+          "count": 317
+        },
+        {
+          "program": "dirname",
+          "count": 242
+        },
+        {
+          "program": "sort",
+          "count": 217
+        },
+        {
+          "program": "node",
+          "count": 162
+        },
+        {
+          "program": "bash",
+          "count": 144
+        },
+        {
+          "program": "jq",
+          "count": 101
+        },
+        {
+          "program": "cut",
+          "count": 60
+        }
+      ],
+      "node_starts": 162,
+      "bash_starts": 144,
+      "find_count": 317,
+      "tail_ms": 15826,
+      "tail_ms_max": 19672,
+      "survivors": 4321,
+      "survivor_cpu_ms": 20940,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 1257
+        },
+        {
+          "program": "?",
+          "script": "-",
+          "count": 1152
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 400
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 197
+        },
+        {
+          "program": "bash",
+          "script": "post-write",
+          "count": 129
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 90
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 82
+        },
+        {
+          "program": "bash",
+          "script": "classify-insight",
+          "count": 41
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 1.87,
+      "load1_end": 21.84,
+      "noisy": false
+    }
+  ]
+}

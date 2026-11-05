@@ -1,0 +1,37 @@
+{
+  "schema": "mos.perf-384-spread/1",
+  "rule": "spread_pct = |m1 - m2| / ((m1 + m2) / 2) x 100 on the median wall time; above 10 percent the target is re-measured at n = 15 in both sets and the new spread replaces it; still above 10 percent it is unstable",
+  "tree_label": "pinned-db2ea3b05",
+  "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+  "sets": "census-walls-fixture-s1.json and census-walls-fixture-s2.json (n = 7); census-walls-fixture-s1-rerun.json and census-walls-fixture-s2-rerun.json (n = 15)",
+  "not_measured": [
+    {
+      "id": "event:SessionStart:unchanged",
+      "reason": "the state step takes the compute path in every start of the fixture room (log reason registry in 8 of 8 probe starts), so the target never reaches the unchanged path and verify-results would reject it; the census file census-fixture.json still counts the processes of this start"
+    }
+  ],
+  "rooms": {
+    "fixture-room": {
+      "max_spread_pct": 8.4,
+      "target_count": 14,
+      "unstable_count": 0,
+      "targets": [
+        { "id": "floor:node", "median_set1": 21.6, "median_set2": 21.2, "spread_pct": 1.9, "n_used": 7, "first_pass_spread_pct": 1.9, "remeasured": false, "unstable": false },
+        { "id": "event:SessionStart:changed", "median_set1": 2764.3, "median_set2": 2733.5, "spread_pct": 1.1, "n_used": 15, "first_pass_spread_pct": 47.6, "first_pass_medians": [4421.5, 2720.3], "remeasured": true, "unstable": false },
+        { "id": "event:SessionStart:compact", "median_set1": 2685.1, "median_set2": 2635.7, "spread_pct": 1.9, "n_used": 15, "first_pass_spread_pct": 52.9, "first_pass_medians": [4623.5, 2688.3], "remeasured": true, "unstable": false },
+        { "id": "event:UserPromptSubmit", "median_set1": 108.6, "median_set2": 109.1, "spread_pct": 0.5, "n_used": 7, "first_pass_spread_pct": 0.5, "remeasured": false, "unstable": false },
+        { "id": "event:Stop:changed", "median_set1": 1227.1, "median_set2": 1205.7, "spread_pct": 1.8, "n_used": 15, "first_pass_spread_pct": 10.5, "first_pass_medians": [1143.9, 1270.3], "remeasured": true, "unstable": false },
+        { "id": "event:Stop:unchanged", "median_set1": 1147.8, "median_set2": 1248.2, "spread_pct": 8.4, "n_used": 7, "first_pass_spread_pct": 8.4, "remeasured": false, "unstable": false },
+        { "id": "event:Stop:changed:tx4m", "median_set1": 1241.5, "median_set2": 1344.2, "spread_pct": 7.9, "n_used": 7, "first_pass_spread_pct": 7.9, "remeasured": false, "unstable": false },
+        { "id": "event:Stop:unchanged:tx4m", "median_set1": 1244.1, "median_set2": 1224.1, "spread_pct": 1.6, "n_used": 7, "first_pass_spread_pct": 1.6, "remeasured": false, "unstable": false },
+        { "id": "event:PostToolUse:Write", "median_set1": 200, "median_set2": 210, "spread_pct": 4.9, "n_used": 15, "first_pass_spread_pct": 76.7, "first_pass_medians": [898.5, 400.5], "remeasured": true, "unstable": false },
+        { "id": "event:PostToolUse:Read", "median_set1": 32.9, "median_set2": 34, "spread_pct": 3.3, "n_used": 7, "first_pass_spread_pct": 3.3, "remeasured": false, "unstable": false },
+        { "id": "event:TaskCompleted", "median_set1": 205.8, "median_set2": 197.7, "spread_pct": 4, "n_used": 7, "first_pass_spread_pct": 4, "remeasured": false, "unstable": false },
+        { "id": "event:PreCompact", "median_set1": 220.9, "median_set2": 214.8, "spread_pct": 2.8, "n_used": 7, "first_pass_spread_pct": 2.8, "remeasured": false, "unstable": false },
+        { "id": "event:PostCompact", "median_set1": 2613.5, "median_set2": 2506.8, "spread_pct": 4.2, "n_used": 15, "first_pass_spread_pct": 20.2, "first_pass_medians": [3264.6, 2666.5], "remeasured": true, "unstable": false },
+        { "id": "event:SubagentStop", "median_set1": 254.9, "median_set2": 269.3, "spread_pct": 5.5, "n_used": 7, "first_pass_spread_pct": 5.5, "remeasured": false, "unstable": false }
+      ]
+    }
+  },
+  "note": "Five targets had a first-pass spread above 10 percent. In four of them the first set (s1) was the slower one, with a start load1 of 1.7 (below the 2 line); the summed hook CPU time of the two SessionStart targets was within 7 percent between the sets, which points to waiting and not to more work; the cause is not isolated (UNVERIFIED). The n = 15 sets ran later and agree within 5 percent. The first-pass medians are kept in first_pass_medians."
+}

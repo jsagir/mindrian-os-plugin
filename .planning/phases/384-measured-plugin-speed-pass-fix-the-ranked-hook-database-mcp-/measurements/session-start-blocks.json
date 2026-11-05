@@ -1,0 +1,114 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "181bdc54a192f080fe25d9408269f8218a7a95af",
+    "tree_label": "pinned-db2ea3b05",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T09:49:25.382Z",
+    "ended_at": "2026-11-05T09:50:02.091Z",
+    "load1_start": 1.24,
+    "load1_end": 1.19
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": null,
+  "tree_label": "pinned-db2ea3b05",
+  "diagnostic": true,
+  "note": "one traced pass (bash -x): the trace slows the script, so the shares are relative and the milliseconds are not a baseline. Time of a line is the time to the next trace line, so background jobs and command substitutions blur the shares. No command text is stored.",
+  "script": "session-start",
+  "trace_entries": 316,
+  "total_ms": 2449.1,
+  "state_step": "compute",
+  "ranges": [
+    {
+      "range": "402-409",
+      "ms": 171.5,
+      "share_pct": 7,
+      "traced_lines": 16
+    },
+    {
+      "range": "417",
+      "ms": 0,
+      "share_pct": 0,
+      "traced_lines": 0
+    },
+    {
+      "range": "489-494",
+      "ms": 0,
+      "share_pct": 0,
+      "traced_lines": 0
+    },
+    {
+      "range": "570-572",
+      "ms": 0,
+      "share_pct": 0,
+      "traced_lines": 0
+    },
+    {
+      "range": "772-774",
+      "ms": 0,
+      "share_pct": 0,
+      "traced_lines": 0
+    },
+    {
+      "range": "1562-1790",
+      "ms": 932.7,
+      "share_pct": 38.1,
+      "traced_lines": 4
+    }
+  ],
+  "top_lines": [
+    {
+      "line": "session-start:1727",
+      "ms": 350
+    },
+    {
+      "line": "session-start:1611",
+      "ms": 259.5
+    },
+    {
+      "line": "session-start:1562",
+      "ms": 240.4
+    },
+    {
+      "line": "session-start:1042",
+      "ms": 159.6
+    },
+    {
+      "line": "session-start:1262",
+      "ms": 122.4
+    },
+    {
+      "line": "session-start:437",
+      "ms": 93.9
+    },
+    {
+      "line": "session-start:130",
+      "ms": 83.1
+    },
+    {
+      "line": "session-start:1661",
+      "ms": 82.8
+    },
+    {
+      "line": "session-start:1947",
+      "ms": 79
+    },
+    {
+      "line": "session-start:1435",
+      "ms": 76.9
+    }
+  ],
+  "background_tail_ms": 14864
+}
