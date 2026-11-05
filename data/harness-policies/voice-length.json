@@ -1,0 +1,13 @@
+{
+  "id": "voice-length",
+  "kind": "voice",
+  "runner": "scripts/check-voice-style.cjs",
+  "args": [],
+  "rung": "declared",
+  "evidence_log": "$MINDRIAN_HOME/voice-style.jsonl",
+  "promotion_rule": { "window_runs": 100, "max_false_positive_rate": 0.1, "min_true_positives": 50 },
+  "owner": "voice",
+  "pinned_by": ["tests/test-383-voice-length.cjs"],
+  "applies_to": ["stop-hook"],
+  "notes": "Larry's default reply is 3 to 8 sentences, longer only when asked (references/personality/voice-dna.md, agents/larry-extended.md line 41). The beta.77 QA report saw replies of 15 to 25 sentences. The Stop observer logs one row per over-length, non-exempt turn through checkReplyLength in lib/hmi/larry-reply-checks.cjs, in shadow mode only; the row holds the sentence count and the limit, never reply text. A reply to an explicit request for a list, a plan or the full answer is exempt. Measured on the 98-row voice corpus at plan time: 9 rows exceed 8 sentences. The rung stays declared: promotion is a human edit after a reviewed window of evidence. This reuses the existing voice observer instead of minting a second one (Canon Part 7)."
+}

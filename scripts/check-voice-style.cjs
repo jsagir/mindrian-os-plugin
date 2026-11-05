@@ -45,6 +45,12 @@
  * term classes only. The punctuation pause (a spaced double hyphen) has no live rule here; it is
  * measured offline by findDashes (plan 369.6-01).
  *
+ * Phase 383-07 (QA383-09) adds a fourth shadow rule, policy_id 'voice-length', through checkReplyLength of the
+ * same module: a default reply over 8 sentences is logged as a count (sentences and the limit), never blocked.
+ * A reply to an explicit request for a list, a plan or the full answer is exempt. The rule is 3 to 8 sentences by
+ * default, longer only when asked (references/personality/voice-dna.md; agents/larry-extended.md line 41). The row
+ * holds counts only, no reply text and no user text. Evaluate, log, never block.
+ *
  * Canon Part 8 (Graph Boundary): LOCAL ONLY. This hook reads a local
  * transcript file (via lib/hmi/turn-text.cjs, the ONE transcript reader --
  * never a second copy) and writes a local JSONL row (via
@@ -210,6 +216,21 @@ function scanTurn(text, sessionId, appendRow, userText) {
       });
     }
   } catch (_e4) {
+    /* shadow detector fault: the rule simply does not fire */
+  }
+
+  // Rule 5 (383-07, shadow): reply length. checkReplyLength is reused from the reply checks. Counts only.
+  try {
+    const { checkReplyLength } = require('../lib/hmi/larry-reply-checks.cjs');
+    const v = checkReplyLength(text, { userText: userTextSafe });
+    if (v && v.ok === false) {
+      appendRow({
+        policy_id: 'voice-length',
+        detail: 'sentences=' + v.fields.sentences + ', limit=' + v.fields.limit,
+        session_id: sessionId,
+      });
+    }
+  } catch (_e5) {
     /* shadow detector fault: the rule simply does not fire */
   }
 }
