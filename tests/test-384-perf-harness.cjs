@@ -338,7 +338,159 @@ function afterGate() {
     failed += 1;
     process.stdout.write('  FAIL unexpected error :: ' + String(e && e.stack || e) + '\n');
   }
-  finish();
+  partW().catch((e) => { failed += 1; process.stdout.write('  FAIL unexpected error in part W :: ' + String(e && e.stack || e) + '\n'); }).then(finish);
+}
+
+// ---------------------------------------------------------------------------
+// Plan 384-02 Task 2: checks W1 to W6 (transcript fixture, SessionStart compact, class counts, per-hook results, library surface)
+// ---------------------------------------------------------------------------
+async function partW() {
+  const base = ['--room', 'synthetic', '--allow-short'];
+
+  // W1: the synthetic transcript is accepted by the real parser
+  check('W1 makeTranscript is exported', typeof H.makeTranscript === 'function');
+  if (typeof H.makeTranscript === 'function') {
+    const tf = path.join(TMP, 'w1-transcript.jsonl');
+    H.makeTranscript(tf, 4194304);
+    const size = fs.statSync(tf).size;
+    check('W1 the transcript is 4194304 bytes or more', size >= 4194304, String(size));
+    const lines = fs.readFileSync(tf, 'utf8').split('\n').filter(Boolean);
+    let allParse = true;
+    const roles = [];
+    for (const l of lines) { try { const o = JSON.parse(l); roles.push((o.message && o.message.role) || o.type); } catch (_e) { allParse = false; break; } }
+    check('W1 every line parses as JSON', allParse && lines.length > 100);
+    check('W1 the records alternate user and assistant turns', allParse && roles.every((r, i) => r === (i % 2 === 0 ? 'user' : 'assistant')), roles.slice(0, 4).join(','));
+    const turn = require(path.join(REPO, 'lib', 'hmi', 'turn-text.cjs')).readTurnText(tf);
+    check('W1 the real parser readTurnText returns a non-empty output_text', typeof turn.output_text === 'string' && turn.output_text.length > 0, JSON.stringify(Object.keys(turn)));
+    check('W1 the real parser sees a user turn before the last assistant turn', turn.preceding_user_text.length > 0);
+    const small = path.join(TMP, 'w1-small.jsonl');
+    H.makeTranscript(small, 1000);
+    check('W1 a small transcript is 1000 bytes or more and ends on an assistant turn', fs.statSync(small).size >= 1000 && JSON.parse(fs.readFileSync(small, 'utf8').trim().split('\n').pop()).message.role === 'assistant');
+  }
+
+  // W2: targets
+  const tl = run(['targets']).stdout.split('\n').filter(Boolean);
+  check('W2 targets lists event:Stop:changed:tx4m, event:Stop:unchanged:tx4m and event:SessionStart:compact', ['event:Stop:changed:tx4m', 'event:Stop:unchanged:tx4m', 'event:SessionStart:compact'].every((t) => tl.includes(t)), tl.filter((t) => /Stop|compact/.test(t)).join(','));
+  check('W2 the existing Stop and SessionStart targets keep their ids', ['event:Stop:changed', 'event:Stop:unchanged', 'event:SessionStart:changed', 'event:SessionStart:unchanged'].every((t) => tl.includes(t)));
+
+  // W3: payloads
+  check('W3 buildEventPayload is exported', typeof H.buildEventPayload === 'function');
+  if (typeof H.buildEventPayload === 'function') {
+    const fakeCtx = { roomDir: path.join(TMP, 'w3room'), touchTarget: null, sandbox: { transcript: '/plain/empty.jsonl' }, getTranscript: () => '/big/tx4m.jsonl' };
+    const defOf = (id) => ({ id, kind: 'event', event: id.split(':')[1], shape: null, change: null });
+    const comp = H.buildEventPayload(Object.assign(defOf('event:SessionStart:compact'), { source: 'compact' }), fakeCtx);
+    check('W3 SessionStart compact sends source = compact', comp.source === 'compact', JSON.stringify(comp));
+    const startup = H.buildEventPayload(defOf('event:SessionStart:changed'), fakeCtx);
+    check('W3 the other SessionStart targets send source = startup', startup.source === 'startup', JSON.stringify(startup));
+    const tx = H.buildEventPayload(Object.assign(defOf('event:Stop:changed:tx4m'), { transcript: 'tx4m' }), fakeCtx);
+    check('W3 a tx4m target sends the generated transcript_path', tx.transcript_path === '/big/tx4m.jsonl', tx.transcript_path);
+    const plain = H.buildEventPayload(defOf('event:Stop:changed'), fakeCtx);
+    check('W3 the plain Stop target keeps the empty transcript', plain.transcript_path === '/plain/empty.jsonl', plain.transcript_path);
+    check('W3 the payload carries the stable session id sess-384-measure', plain.session_id === 'sess-384-measure');
+  }
+
+  // W2/W3 end to end: the hooks see the source field and the transcript size
+  const w2Log = path.join(TMP, 'w2.log');
+  const logCmd = 'in=$(cat); src=$(printf %s "$in" | sed -n \'s/.*"source":"\\([^"]*\\)".*/\\1/p\'); tp=$(printf %s "$in" | sed -n \'s/.*"transcript_path":"\\([^"]*\\)".*/\\1/p\'); sz=0; [ -f "$tp" ] && sz=$(wc -c < "$tp"); echo "src=$src size=$((sz))" >> "$MOS_T_LOG"';
+  const w2Tree = hookTree(path.join(TMP, 'w2tree'), {
+    Stop: [{ hooks: [{ type: 'command', command: logCmd, timeout: 5 }] }],
+    SessionStart: [{ hooks: [{ type: 'command', command: logCmd, timeout: 5 }] }],
+  });
+  // hook commands name no path: the result holds the command text as the hook id and the Part 8 scan blocks paths
+  const w2run = (id, out) => run(['run', '--tree', w2Tree].concat(base, ['--runs', '1', '--targets', id, '--out', out]), { env: { MOS_T_LOG: w2Log } });
+  const lastLog = () => (fs.existsSync(w2Log) ? fs.readFileSync(w2Log, 'utf8').split('\n').filter(Boolean) : []);
+  fs.rmSync(w2Log, { force: true });
+  const rc = w2run('event:SessionStart:compact', path.join(TMP, 'w2c.json'));
+  check('W2 a run of event:SessionStart:compact sends source = compact to the hook', rc.status === 0 && lastLog().length >= 1 && lastLog().every((l) => /^src=compact /.test(l)), rc.status + ' ' + lastLog().join('|') + ' ' + String(rc.stderr).slice(0, 200));
+  fs.rmSync(w2Log, { force: true });
+  const rs = w2run('event:SessionStart:unchanged', path.join(TMP, 'w2s.json'));
+  check('W3 a run of event:SessionStart:unchanged sends source = startup', rs.status === 0 && lastLog().length >= 1 && lastLog().every((l) => /^src=startup /.test(l)), rs.status + ' ' + lastLog().join('|'));
+  fs.rmSync(w2Log, { force: true });
+  const rt = w2run('event:Stop:unchanged:tx4m', path.join(TMP, 'w2t.json'));
+  const bigSizes = lastLog().map((l) => Number((l.match(/size=(\d+)/) || [])[1]));
+  check('W2 a run of event:Stop:unchanged:tx4m hands the hook a transcript of 4194304 bytes or more', rt.status === 0 && bigSizes.length >= 1 && bigSizes.every((n) => n >= 4194304), rt.status + ' ' + bigSizes.join(',') + ' ' + String(rt.stderr).slice(0, 200));
+  fs.rmSync(w2Log, { force: true });
+  const rp = w2run('event:Stop:unchanged', path.join(TMP, 'w2p.json'));
+  const plainSizes = lastLog().map((l) => Number((l.match(/size=(\d+)/) || [])[1]));
+  check('W2 a run of event:Stop:unchanged hands the hook an empty transcript', rp.status === 0 && plainSizes.length >= 1 && plainSizes.every((n) => n === 0), rp.status + ' ' + plainSizes.join(','));
+
+  // W4: isolation counts by class (the exit rule stays strict)
+  const w4Src = path.join(TMP, 'w4src');
+  fs.mkdirSync(w4Src, { recursive: true });
+  fs.writeFileSync(path.join(w4Src, 'STATE.md'), '# synthetic\n');
+  const w4Tree = hookTree(path.join(TMP, 'w4tree'), {
+    SessionEnd: [{ hooks: [{ type: 'command', command: 'echo x >> "$PWD/x.db-shm"; echo y >> "$MOS_T_SRC/x.db-shm"', timeout: 5 }] }],
+  });
+  const w4Out = path.join(TMP, 'w4.json');
+  const w4Scratch = path.join(TMP, 'w4scratch');
+  fs.mkdirSync(w4Scratch, { recursive: true });
+  const w4 = run(['run', '--tree', w4Tree, '--room', 'copy', '--source', w4Src, '--allow-short', '--runs', '1', '--targets', 'event:SessionEnd', '--scratch', w4Scratch, '--out', w4Out], { env: { MOS_T_SRC: w4Src } });
+  const w4r = readJson(w4Out);
+  const iso = w4r && w4r.isolation;
+  const classKeys = (o) => !!o && ['shm', 'wal', 'db', 'other'].every((k) => Number.isInteger(o[k]));
+  check('W4 a shm file changed in both the copy and the source exits 3', w4.status === 3, w4.status + ' ' + String(w4.stderr).slice(0, 200));
+  check('W4 intersect_by_class.shm is 1 and the other classes are 0', !!iso && classKeys(iso.intersect_by_class) && iso.intersect_by_class.shm === 1 && iso.intersect_by_class.wal === 0 && iso.intersect_by_class.db === 0 && iso.intersect_by_class.other === 0, JSON.stringify(iso));
+  check('W4 source_changed_by_class and copy_changed_by_class hold the four integer keys', !!iso && classKeys(iso.source_changed_by_class) && classKeys(iso.copy_changed_by_class) && iso.source_changed_by_class.shm === 1 && iso.copy_changed_by_class.shm === 1, JSON.stringify(iso));
+  check('W4 the old isolation fields and exit_code 3 are unchanged', !!iso && iso.intersect_paths === 1 && iso.exit_code === 3 && iso.source_changed_paths === 1 && iso.copy_changed_paths === 1, JSON.stringify(iso));
+  check('W4 the isolation block holds no path and no file name, and the result holds no source or scratch path', !!w4r && !/x\.db-shm|db-shm|w4src|w4scratch|\//.test(JSON.stringify(iso)) && !/w4src|w4scratch/.test(fs.readFileSync(w4Out, 'utf8')));
+  check('W4 the class comes from the file name only (wal, db, other, shm)', typeof H.classOfPath === 'function' && H.classOfPath('a/room.db-wal') === 'wal' && H.classOfPath('room.db') === 'db' && H.classOfPath('a/b/room.db-shm') === 'shm' && H.classOfPath('a/notes.md') === 'other');
+
+  // W5: the library surface
+  const names = ['prepareRoom', 'restoreCopy', 'makeCtx', 'runChild', 'wrapArgv', 'runEventOnce', 'runCommandOnce', 'measureTarget', 'selectHooks', 'buildEventPayload', 'makeTranscript', 'manifest', 'changedPaths', 'writeResult', 'readLoad1', 'fsType', 'benchDir', 'gateBeforeTarget', 'requireLock', 'statsSummary', 'machineRecord'];
+  const missing = names.filter((n) => typeof H[n] !== 'function');
+  check('W5 all 21 library functions are exported', missing.length === 0, missing.join(','));
+  check('W5 SHAPES, EVENT_TARGETS and TARGETS are exported', !!H.SHAPES && typeof H.SHAPES === 'object' && Array.isArray(H.EVENT_TARGETS) && Array.isArray(H.TARGETS));
+  if (typeof H.selectHooks === 'function') {
+    const hooks = [
+      { event: 'SessionStart', matcher: 'startup', command: 'a' },
+      { event: 'SessionStart', matcher: 'compact', command: 'b' },
+      { event: 'PreToolUse', matcher: 'Write|Edit', command: 'c' },
+      { event: 'SessionStart', matcher: null, command: 'node ${CLAUDE_PLUGIN_ROOT}/scripts/sessionstart-npm-reconcile.cjs' },
+    ];
+    const sel = H.selectHooks({ hooks }, { id: 'event:SessionStart:compact', kind: 'event', event: 'SessionStart', shape: null, change: null, source: 'compact' });
+    check('W5 selectHooks gives the matching entries for source compact', sel.entries.map((e) => e.command).join(',') === 'b', sel.entries.map((e) => e.command).join(','));
+    check('W5 selectHooks lists the network-capable hook as skipped with a reason', sel.skipped.length === 1 && sel.skipped[0].reason === 'network_capable', JSON.stringify(sel.skipped));
+    const pre = H.selectHooks({ hooks }, { id: 'event:PreToolUse:Write', kind: 'event', event: 'PreToolUse', shape: 'Write', change: null });
+    check('W5 selectHooks matches the tool shape (Write matches Write|Edit)', pre.entries.map((e) => e.command).join(',') === 'c' && pre.skipped.length === 0);
+  }
+  if (typeof H.runEventOnce === 'function' && typeof H.prepareRoom === 'function' && typeof H.makeCtx === 'function') {
+    const stdinFile = path.join(TMP, 'w5-stdin.json');
+    const w5Tree = hookTree(path.join(TMP, 'w5tree'), { SessionEnd: [{ hooks: [{ type: 'command', command: 'cat > ' + stdinFile, timeout: 5 }] }] });
+    const prep = H.prepareRoom('synthetic', { trees: [w5Tree], scratch: TMP, baseSha: 'unknown' });
+    try {
+      const ctx = H.makeCtx('A', w5Tree, prep, 4, false);
+      let calls = 0;
+      let seen = null;
+      const sample = await H.runEventOnce({ id: 'event:SessionEnd', kind: 'event', event: 'SessionEnd', shape: null, change: null }, ctx, {
+        beforeRun: (c) => { calls += 1; seen = c; c.sandbox.transcript = '/changed/by/beforeRun.jsonl'; },
+      });
+      let payload = null;
+      try { payload = JSON.parse(fs.readFileSync(stdinFile, 'utf8')); } catch (_e) { payload = null; }
+      check('W5 runEventOnce calls opts.beforeRun(ctx) once per run', calls === 1 && seen === ctx, String(calls));
+      check('W5 beforeRun runs before the payload is built', !!payload && payload.transcript_path === '/changed/by/beforeRun.jsonl', payload ? payload.transcript_path : 'no payload');
+      check('W5 runEventOnce returns a sample with a wall time', sample && typeof sample.wall_ms === 'number' && sample.run_class === 'ok');
+    } finally { prep.sandbox.cleanup(); }
+  }
+
+  // W6: per-hook wall and CPU
+  const w6Tree = hookTree(path.join(TMP, 'w6tree'), { SessionEnd: [{ hooks: [
+    { type: 'command', command: 'sleep 0.2', timeout: 5 },
+    { type: 'command', command: 'sleep 0.1', timeout: 5 },
+  ] }] });
+  const w6Out = path.join(TMP, 'w6.json');
+  const w6 = run(['run', '--tree', w6Tree].concat(base, ['--runs', '3', '--targets', 'event:SessionEnd', '--out', w6Out]));
+  const w6t = tgt(readJson(w6Out), 'event:SessionEnd');
+  const ph = w6t && w6t.per_hook;
+  check('W6 the event result holds one per_hook entry per hook', w6.status === 0 && Array.isArray(ph) && ph.length === 2, w6.status + ' ' + JSON.stringify(ph));
+  if (Array.isArray(ph) && ph.length === 2) {
+    check('W6 per_hook ids are the command texts', ph[0].id === 'sleep 0.2' && ph[1].id === 'sleep 0.1', ph.map((p) => p.id).join(','));
+    check('W6 per_hook entries hold async, wall_ms and cpu_ms', ph.every((p) => p.async === false && typeof p.wall_ms === 'number' && (p.cpu_ms === null || typeof p.cpu_ms === 'number')), JSON.stringify(ph));
+    check('W6 per_hook wall medians are near 200 and 100 ms', ph[0].wall_ms >= 180 && ph[0].wall_ms < 320 && ph[1].wall_ms >= 90 && ph[1].wall_ms < 220, ph.map((p) => p.wall_ms).join(','));
+    check('W6 the event wall median is near the larger hook (the long pole)', Math.abs(w6t.wall_ms.median - Math.max(ph[0].wall_ms, ph[1].wall_ms)) < 60, w6t.wall_ms.median + ' vs ' + ph.map((p) => p.wall_ms).join(','));
+  }
+  const w6c = run(['run', '--tree', REPO, '--room', 'synthetic', '--allow-short', '--runs', '1', '--targets', 'floor:node', '--out', path.join(TMP, 'w6c.json')]);
+  const w6ct = tgt(readJson(path.join(TMP, 'w6c.json')), 'floor:node');
+  check('W6 a command target holds no per_hook list', w6c.status === 0 && !!w6ct && w6ct.per_hook === undefined, w6c.status + ' ' + String(w6c.stderr).slice(0, 200));
 }
 
 // ---------------------------------------------------------------------------
@@ -374,11 +526,11 @@ function partA() {
   // A1: marker, escaped background work
   const idLog = path.join(TMP, 'runids.log');
   const a1Tree = hookTree(path.join(TMP, 'a1tree'), {
-    SessionEnd: [{ hooks: [{ type: 'command', command: 'printf "%s\\n" "$MOS_PERF_RUN_ID" >> ' + idLog + '; setsid sleep 1.2 &', timeout: 5 }] }],
+    SessionEnd: [{ hooks: [{ type: 'command', command: 'printf "%s\\n" "$MOS_PERF_RUN_ID" >> "$MOS_T_LOG"; setsid sleep 1.2 &', timeout: 5 }] }],
     PreCompact: [{ hooks: [{ type: 'command', command: 'sleep 0.1', timeout: 5 }] }],
   });
   const a1Out = path.join(TMP, 'a1.json');
-  const a1 = run(['run', '--tree', a1Tree].concat(base, ['--runs', '3', '--targets', 'event:SessionEnd,event:PreCompact', '--out', a1Out]));
+  const a1 = run(['run', '--tree', a1Tree].concat(base, ['--runs', '3', '--targets', 'event:SessionEnd,event:PreCompact', '--out', a1Out]), { env: { MOS_T_LOG: idLog } });
   const a1r = readJson(a1Out);
   const ids = fs.existsSync(idLog) ? fs.readFileSync(idLog, 'utf8').split('\n').filter(Boolean) : [];
   check('A1 every run gives the hook a non-empty MOS_PERF_RUN_ID and the values differ', a1.status === 0 && ids.length === 3 && new Set(ids).size === 3, a1.status + ' ' + JSON.stringify(ids) + ' ' + String(a1.stderr).slice(0, 200));
@@ -419,7 +571,7 @@ function partA() {
   fs.writeFileSync(path.join(a3Src, 'appended.txt'), 'a\nb\n');
   fs.writeFileSync(path.join(a3Src, 'STATE.md'), '# synthetic\n');
   const a3Log = path.join(TMP, 'a3.log');
-  const a3cmd = 'n=$(wc -l < "$PWD/appended.txt"); echo $((n)) >> ' + a3Log + '; echo more >> "$PWD/appended.txt"';
+  const a3cmd = 'n=$(wc -l < "$PWD/appended.txt"); echo $((n)) >> "$MOS_T_LOG"; echo more >> "$PWD/appended.txt"';
   const a3Tree = hookTree(path.join(TMP, 'a3tree'), {
     SessionEnd: [{ hooks: [{ type: 'command', command: a3cmd, timeout: 5 }] }],
     PreCompact: [{ hooks: [{ type: 'command', command: a3cmd, timeout: 5 }] }],
@@ -428,7 +580,7 @@ function partA() {
     const scratch = path.join(TMP, 'a3s-' + mode);
     fs.mkdirSync(scratch, { recursive: true });
     try { fs.rmSync(a3Log, { force: true }); } catch (_e) { /* none */ }
-    const r = run(['run', '--tree', a3Tree, '--room', 'copy', '--source', a3Src, '--allow-short', '--runs', '1', '--restore', mode, '--targets', 'event:SessionEnd,event:PreCompact', '--scratch', scratch, '--out', path.join(TMP, 'a3-' + mode + '.json')]);
+    const r = run(['run', '--tree', a3Tree, '--room', 'copy', '--source', a3Src, '--allow-short', '--runs', '1', '--restore', mode, '--targets', 'event:SessionEnd,event:PreCompact', '--scratch', scratch, '--out', path.join(TMP, 'a3-' + mode + '.json')], { env: { MOS_T_LOG: a3Log } });
     const counts = fs.existsSync(a3Log) ? fs.readFileSync(a3Log, 'utf8').split('\n').filter(Boolean) : [];
     return { r, counts };
   }
@@ -466,11 +618,11 @@ function partA() {
   check('A4 clean-bench --all removes the whole mos-384-bench folder', cleanAll.status === 0 && !fs.existsSync(benchBase));
 
   // A5: the changed path is proved from the state log of the room
-  const stopSync = hookTree(path.join(TMP, 'a5sync'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=sync reason=changed\\n" now >> .mindrian/session-close.log', timeout: 5 }] }] });
+  const stopSync = hookTree(path.join(TMP, 'a5sync'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=sync reason=%s\\n" "$(date +%s)" "$MOS_T_MARK" >> .mindrian/session-close.log', timeout: 5 }] }] });
   const stopSkip = hookTree(path.join(TMP, 'a5skip'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=skip reason=unchanged\\n" now >> .mindrian/session-close.log', timeout: 5 }] }] });
   const startCompute = hookTree(path.join(TMP, 'a5start'), { SessionStart: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s state mode=compute reason=changed\\n" now >> .mindrian/session-start-state.log', timeout: 5 }] }] });
   const noLog = hookTree(path.join(TMP, 'a5none'), { Stop: [{ hooks: [{ type: 'command', command: 'true', timeout: 5 }] }] });
-  const a5 = (tree, id, out) => { const r = run(['run', '--tree', tree].concat(base, ['--runs', '2', '--targets', id, '--out', out])); return { r, t: tgt(readJson(out), id) }; };
+  const a5 = (tree, id, out) => { const r = run(['run', '--tree', tree].concat(base, ['--runs', '2', '--targets', id, '--out', out]), { env: { MOS_T_MARK: 'zz-token-9137' } }); return { r, t: tgt(readJson(out), id) }; };
   const a5sync = a5(stopSync, 'event:Stop:changed', path.join(TMP, 'a5sync.json'));
   check('A5 a Stop hook that logs mode=sync proves the changed path (changed_taken_runs = n)', a5sync.r.status === 0 && !!a5sync.t && a5sync.t.n === 2 && a5sync.t.changed_taken_runs === 2, a5sync.r.status + ' ' + JSON.stringify(a5sync.t && [a5sync.t.n, a5sync.t.changed_taken_runs]) + ' ' + String(a5sync.r.stderr).slice(0, 200));
   const a5skip = a5(stopSkip, 'event:Stop:unchanged', path.join(TMP, 'a5skip.json'));
@@ -480,7 +632,7 @@ function partA() {
   const a5none = a5(noLog, 'event:Stop:changed', path.join(TMP, 'a5none.json'));
   check('A5 a hook that writes no state line gives unknown runs (null), not false', a5none.r.status === 0 && !!a5none.t && a5none.t.changed_taken_runs === 0 && a5none.t.changed_unknown_runs === 2, a5none.r.status + ' ' + JSON.stringify(a5none.t && [a5none.t.changed_taken_runs, a5none.t.changed_unknown_runs]));
   const a5text = fs.readFileSync(path.join(TMP, 'a5sync.json'), 'utf8');
-  check('A5 the result holds no state-log text', !/on-stop-state|reason=changed/.test(a5text));
+  check('A5 the result holds no state-log text (no run-time token, no timestamped line)', !/zz-token-9137/.test(a5text) && !/[0-9]{10} on-stop-state/.test(a5text));
 
   // A5: verify-results rules
   const changedT = (mut) => badDir5('a5v-' + (a5seq += 1), (r) => { r.targets[0].id = 'event:Stop:changed'; r.targets[0].changed_taken_runs = 7; r.targets[0].changed_unknown_runs = 0; mut(r.targets[0]); });

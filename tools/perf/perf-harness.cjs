@@ -88,7 +88,14 @@ const EVENT_TARGETS = [
   ['event:CwdChanged', 'CwdChanged', null, null],
   ['event:SubagentStop', 'SubagentStop', null, null],
   ['event:TaskCompleted', 'TaskCompleted', null, null],
+  // plan 384-02: a Stop with a 4 MiB transcript (above the 2 MiB tail cap of lib/hmi/turn-text.cjs, so the tail branch runs)
+  // and a SessionStart with source = compact. The fifth element is merged into the target definition.
+  ['event:Stop:changed:tx4m', 'Stop', null, 'changed', { transcript: 'tx4m' }],
+  ['event:Stop:unchanged:tx4m', 'Stop', null, 'unchanged', { transcript: 'tx4m' }],
+  ['event:SessionStart:compact', 'SessionStart', null, null, { source: 'compact' }],
 ];
+
+const TRANSCRIPT_4M = 4194304;
 
 const COMMAND_TARGETS = {
   'mcp:mindrian-os': { kind: 'mcp', script: 'mindrian-mcp-server.cjs' },
@@ -106,7 +113,7 @@ const TARGETS = EVENT_TARGETS.map((e) => e[0]).concat(Object.keys(COMMAND_TARGET
 
 function targetDef(id) {
   const ev = EVENT_TARGETS.find((e) => e[0] === id);
-  if (ev) return { id, kind: 'event', event: ev[1], shape: ev[2], change: ev[3] };
+  if (ev) return Object.assign({ id, kind: 'event', event: ev[1], shape: ev[2], change: ev[3] }, ev[4] || {});
   if (COMMAND_TARGETS[id]) return Object.assign({ id }, COMMAND_TARGETS[id]);
   return null;
 }
@@ -318,7 +325,22 @@ function changedPaths(before, after) {
   return out;
 }
 
-const IGNORED_ARTIFACTS = /^(STATE\.md|STATE\.md\.tmp\..*|FEYNMAN\.md|MINTO\.md|BRIEF\.md|MEETINGS-INTELLIGENCE\.md|action-items\.md)$/;
+// The class of a changed path, from the file name only: shm, wal, db or other. Counts by class carry no path (T-384-09).
+function classOfPath(rel) {
+  const n = path.basename(String(rel));
+  if (/-shm$/.test(n)) return 'shm';
+  if (/-wal$/.test(n)) return 'wal';
+  if (/\.db$/.test(n)) return 'db';
+  return 'other';
+}
+
+function classCounts(paths) {
+  const c = { shm: 0, wal: 0, db: 0, other: 0 };
+  for (const p of paths) c[classOfPath(p)] += 1;
+  return c;
+}
+
+const IGNORED_ARTIFACTS =/^(STATE\.md|STATE\.md\.tmp\..*|FEYNMAN\.md|MINTO\.md|BRIEF\.md|MEETINGS-INTELLIGENCE\.md|action-items\.md)$/;
 
 // The artifact a TOUCH changes: the newest .md at depth 1 of the first section, in byte order, that the
 // room-changed check does not ignore (381-MEASUREMENTS.md notes 1 and 2). Null when the room has none.
@@ -559,32 +581,91 @@ function readChangedPathTaken(event, roomDir, offset) {
 // ---------------------------------------------------------------------------
 function exitCode(r) { return r.signal ? 'signal:' + r.signal : r.status; }
 
-async function runEventOnce(def, ctx, opts) {
-  const o = opts || {};
-  const roomDir = ctx.roomDir;
+// A JSONL transcript of `bytes` bytes or more for the Stop targets. The record shape follows what
+// lib/hmi/turn-text.cjs readTurnText parses: {type, message: {role, content}}, user content a string,
+// assistant content an array of text blocks. Fixed filler words only, no room text (T-384-08). The records
+// alternate user and assistant and the file ends on an assistant turn, so the tail read finds one.
+const FILLER_WORDS = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu'];
+
+function fillerText(k) {
+  const w = [];
+  for (let i = 0; i < 24; i += 1) w.push(FILLER_WORDS[(k + i) % FILLER_WORDS.length]);
+  return w.join(' ');
+}
+
+function makeTranscript(file, bytes) {
+  fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
+  const fd = fs.openSync(file, 'w');
+  let total = 0;
+  let count = 0;
+  try {
+    let batch = [];
+    let batchBytes = 0;
+    while (total < bytes || count % 2 === 1) {
+      const text = fillerText(count);
+      const rec = count % 2 === 0
+        ? { type: 'user', message: { role: 'user', content: text } }
+        : { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text }] } };
+      const line = JSON.stringify(rec) + '\n';
+      batch.push(line);
+      batchBytes += Buffer.byteLength(line);
+      total += Buffer.byteLength(line);
+      count += 1;
+      if (batchBytes >= 1048576) { fs.writeSync(fd, batch.join('')); batch = []; batchBytes = 0; }
+    }
+    if (batch.length) fs.writeSync(fd, batch.join(''));
+  } finally { fs.closeSync(fd); }
+  return { bytes: total, records: count };
+}
+
+// The hook entries that match the event and the tool shape (the SessionStart matcher value is the source), and the
+// network-capable hooks that the harness skips, with the reason.
+function selectHooks(ctx, def) {
   const shape = def.shape ? SHAPES[def.shape] : null;
-  const tool = def.event === 'SessionStart' ? 'startup' : (shape ? shape.tool : null);
-  const entries = ctx.hooks.filter((e) => e.event === def.event && matches(e.matcher, tool));
-  if (def.change === 'changed' && !o.noTouch) {
-    await sleepMs(1100);
-    if (ctx.touchTarget) { const now = new Date(); fs.utimesSync(ctx.touchTarget, now, now); }
+  const tool = def.event === 'SessionStart' ? (def.source || 'startup') : (shape ? shape.tool : null);
+  const entries = [];
+  const skipped = [];
+  for (const e of ctx.hooks) {
+    if (e.event !== def.event || !matches(e.matcher, tool)) continue;
+    if (hookLib.isNetworkCapable(e)) { skipped.push({ hook: hookId(e.command), reason: 'network_capable' }); continue; }
+    entries.push(e);
   }
-  const artifact = ctx.touchTarget || path.join(roomDir, 'STATE.md');
-  const payload = hookLib.payloadFor(def.event, { cwd: roomDir, transcript: ctx.sandbox.transcript }, null);
+  return { entries, skipped };
+}
+
+// The stdin object of one hook call. tx4m targets get the generated 4 MiB transcript; SessionStart sends
+// source = startup, or the source of the target (compact).
+function buildEventPayload(def, ctx) {
+  const shape = def.shape ? SHAPES[def.shape] : null;
+  const transcript = def.transcript === 'tx4m' ? ctx.getTranscript('tx4m') : ctx.sandbox.transcript;
+  const artifact = ctx.touchTarget || path.join(ctx.roomDir, 'STATE.md');
+  const payload = hookLib.payloadFor(def.event, { cwd: ctx.roomDir, transcript }, null);
   payload.session_id = 'sess-384-measure';
+  if (def.event === 'SessionStart') payload.source = def.source || 'startup';
   if (shape) {
     payload.tool_name = shape.tool;
     payload.tool_input = shape.input(artifact);
     if (def.event === 'PostToolUse') payload.tool_response = shape.response(artifact);
   }
-  const stdin = JSON.stringify(payload);
+  return payload;
+}
+
+async function runEventOnce(def, ctx, opts) {
+  const o = opts || {};
+  const roomDir = ctx.roomDir;
+  const sel = selectHooks(ctx, def);
+  const skipped = sel.skipped;
+  if (def.change === 'changed' && !o.noTouch) {
+    await sleepMs(1100);
+    if (ctx.touchTarget) { const now = new Date(); fs.utimesSync(ctx.touchTarget, now, now); }
+  }
+  if (typeof o.beforeRun === 'function') o.beforeRun(ctx); // once per run: after the touch, before the payload is built
+  const stdin = JSON.stringify(buildEventPayload(def, ctx));
   const runId = newRunId();
   const env = ctx.env(Object.assign({ MOS_PERF_RUN_ID: runId }, o.extraEnv));
   const logOffset = def.change ? stateLogOffset(def.event, roomDir) : 0;
-  const skipped = [];
   const jobs = [];
-  for (const e of entries) {
-    if (hookLib.isNetworkCapable(e)) { skipped.push({ hook: hookId(e.command), reason: 'network_capable' }); continue; }
+  for (const e of sel.entries) {
     const command = e.command.split('${CLAUDE_PLUGIN_ROOT}').join(ctx.tree);
     jobs.push({ entry: e, id: hookId(e.command), promise: runChild(ctx, { argv: ['bash', '-c', command], cwd: roomDir, env, stdin, timeoutMs: (e.timeout_ms || 60000) + 1000 }) });
   }
@@ -604,6 +685,8 @@ async function runEventOnce(def, ctx, opts) {
     exits: results.map(exitCode),
     timed_out: results.filter((r) => r.timedOut).length,
     async_hooks: asyncs.map((r) => ({ id: r.job.id, wall_ms: r.exit_ms })),
+    // every hook of the event with its own wall and CPU, so the long pole of the event is on file (W6)
+    hooks: results.map((r) => ({ id: r.job.id, async: !!r.job.entry.async, wall_ms: r.exit_ms, cpu_ms: r.usage ? r.usage.cpu_ms : null })),
     skipped,
     hook_count: jobs.length,
     blocking_count: blocking.length,
@@ -665,7 +748,7 @@ async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
   const ro = runOpts || {};
   // the gate runs before the first run of each target; a gate that times out marks the target noisy and the target runs anyway
   const gate = gateOpts && gateOpts.skip ? { ok: true, load1: readLoad1(), waited_ms: 0 } : await gateBeforeTarget(gateOpts);
-  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget, escaped: 0, survivors: 0, taken: 0, unknown: 0 }));
+  const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), perHook: [], hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget, escaped: 0, survivors: 0, taken: 0, unknown: 0 }));
   if (def.kind === 'event' && def.change === 'unchanged') {
     for (const c of ctxs) { await runEventOnce(def, c, { noTouch: true, settleMs: ro.settleMs }); await sleepMs(1100); }
   }
@@ -690,6 +773,11 @@ async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
     if (s.rss_mb !== null) a.rss.push(s.rss_mb);
     a.bg.push(s.background_ms);
     s.async_hooks.forEach((h) => { const l = a.asyncs.get(h.id) || []; l.push(h.wall_ms); a.asyncs.set(h.id, l); });
+    (s.hooks || []).forEach((h, k) => {
+      const p = a.perHook[k] || (a.perHook[k] = { id: h.id, async: h.async, wall: [], cpu: [] });
+      p.wall.push(h.wall_ms);
+      if (h.cpu_ms !== null) p.cpu.push(h.cpu_ms);
+    });
   }
   return acc.map((a) => ({
     id: def.id,
@@ -705,6 +793,7 @@ async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
     async_hooks: [...a.asyncs].map(([id, l]) => ({ id, wall_ms: statsSummary(l).median })),
     hook_count: a.hooks,
     background_ms: statsSummary(a.bg).median,
+    per_hook: def.kind === 'event' ? a.perHook.map((p) => ({ id: p.id, async: p.async, wall_ms: statsSummary(p.wall).median, cpu_ms: statsSummary(p.cpu).median })) : undefined,
     escaped_max: a.escaped,
     survivors_left: a.survivors,
     changed_taken_runs: def.change ? a.taken : undefined,
@@ -848,8 +937,18 @@ function prepareRoom(kind, o) {
 function makeCtx(label, tree, prep, cpus, hasTaskset) {
   const hooksFile = path.join(tree, 'hooks', 'hooks.json');
   const sb = Object.assign({}, prep.sandbox, { cwd: prep.roomDir, roomDir: prep.roomDir });
+  const transcripts = {};
   return {
     label, tree, cpus, hasTaskset, sandbox: prep.sandbox, roomDir: prep.roomDir,
+    // the 4 MiB transcript is generated once per context, on first use, inside the sandbox (removed with it)
+    getTranscript: (kind) => {
+      if (!transcripts[kind]) {
+        const f = path.join(prep.sandbox.root, 'transcript-' + kind + '.jsonl');
+        makeTranscript(f, TRANSCRIPT_4M);
+        transcripts[kind] = f;
+      }
+      return transcripts[kind];
+    },
     hooks: fs.existsSync(hooksFile) ? hookLib.parseHookCommands(hooksFile) : [],
     touchTarget: findTouchTarget(prep.roomDir),
     env: (extra) => scrubbedEnv(hookLib.hookEnv(sb, tree, Object.assign({ MINDRIAN_ROOMS_ROOT: prep.sandbox.roomsHome, MINDRIAN_ROOM: prep.roomDir }, extra || {}))),
@@ -1012,12 +1111,14 @@ async function cmdRunInner(argv) {
   const endedAt = new Date().toISOString();
   const load1End = readLoad1();
   if (workBefore) changedPaths(workBefore, manifest(prep.roomDir)).forEach((p) => touchedUnion.add(p));
-  let isolation = { source_changed_paths: 0, copy_changed_paths: touchedUnion.size, intersect_paths: 0, exit_code: 0 };
+  let isolation = { source_changed_paths: 0, copy_changed_paths: touchedUnion.size, intersect_paths: 0, exit_code: 0, source_changed_by_class: classCounts([]), copy_changed_by_class: classCounts(touchedUnion), intersect_by_class: classCounts([]) };
   if (source) {
     const srcChanged = changedPaths(srcBefore, manifest(source));
-    let inter = 0;
-    for (const p of srcChanged) if (touchedUnion.has(p)) inter += 1;
-    isolation = { source_changed_paths: srcChanged.size, copy_changed_paths: touchedUnion.size, intersect_paths: inter, exit_code: inter > 0 ? 3 : 0 };
+    const both = [];
+    for (const p of srcChanged) if (touchedUnion.has(p)) both.push(p);
+    const inter = both.length;
+    // the exit rule is strict and unchanged (owner question Q1 is open): any path in both is a breach. The class counts only describe the breach.
+    isolation = { source_changed_paths: srcChanged.size, copy_changed_paths: touchedUnion.size, intersect_paths: inter, exit_code: inter > 0 ? 3 : 0, source_changed_by_class: classCounts(srcChanged), copy_changed_by_class: classCounts(touchedUnion), intersect_by_class: classCounts(both) };
     if (inter > 0) code = 3;
   }
   const guardCtx = { home: os.homedir(), sourceRoom: source, scratch };
@@ -1195,4 +1296,8 @@ module.exports = {
   gateBeforeTarget, classifyRun, requireLock, defaultLockFile, baseShaOf, benchDir,
   statsSummary, spreadPct, quietState, waitQuiet, suiteGuard, interleaveOrder, part8Violations, guardedCopy,
   findTouchTarget, pairLines, main,
+  // the library surface that the phase bench scripts reuse (plan 384-02)
+  SHAPES, EVENT_TARGETS, targetDef, classOfPath, classCounts,
+  prepareRoom, restoreCopy, makeCtx, runChild, wrapArgv, runEventOnce, runCommandOnce, measureTarget,
+  selectHooks, buildEventPayload, makeTranscript, manifest, changedPaths, writeResult, readLoad1, fsType, machineRecord,
 };
