@@ -1,0 +1,117 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T11:36:28.117Z",
+    "ended_at": "2026-11-05T11:36:41.780Z",
+    "load1_start": 1.8,
+    "load1_end": 1.91
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": null,
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 3,
+  "load1_start": 1.8,
+  "load1_end": 1.91,
+  "started_at": "2026-11-05T11:36:28.117Z",
+  "ended_at": "2026-11-05T11:36:41.780Z",
+  "exec_check": {
+    "os": {
+      "repeats": 3,
+      "replied_runs": 3,
+      "stub_calls": [
+        0,
+        0,
+        0
+      ],
+      "blocked_execs": [
+        0,
+        0,
+        0
+      ],
+      "npm_execs_counted": [
+        0,
+        0,
+        0
+      ],
+      "exec_total": [
+        1,
+        1,
+        1
+      ],
+      "node_starts": [
+        1,
+        1,
+        1
+      ],
+      "bash_starts": [
+        0,
+        0,
+        0
+      ],
+      "by_program": {
+        "node": 1
+      },
+      "npm_attempted": false
+    },
+    "brain": {
+      "repeats": 3,
+      "replied_runs": 3,
+      "stub_calls": [
+        0,
+        0,
+        0
+      ],
+      "blocked_execs": [
+        0,
+        0,
+        0
+      ],
+      "npm_execs_counted": [
+        0,
+        0,
+        0
+      ],
+      "exec_total": [
+        1,
+        1,
+        1
+      ],
+      "node_starts": [
+        1,
+        1,
+        1
+      ],
+      "bash_starts": [
+        0,
+        0,
+        0
+      ],
+      "by_program": {
+        "node": 1
+      },
+      "npm_attempted": false
+    }
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

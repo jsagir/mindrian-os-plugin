@@ -1,0 +1,614 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T13:35:45.101Z",
+    "ended_at": "2026-11-05T13:36:07.172Z",
+    "load1_start": 0.41,
+    "load1_end": 0.62
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 3,
+  "load1_start": 0.41,
+  "load1_end": 0.62,
+  "started_at": "2026-11-05T13:35:45.101Z",
+  "ended_at": "2026-11-05T13:36:07.172Z",
+  "repeats": 3,
+  "write_path": "on (MINDRIAN_MCP_FIRST=cli, room bound first)",
+  "opens": [
+    {
+      "tool": "room_startup",
+      "writes_to_room": false,
+      "reaches_cascade": false,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          4,
+          4,
+          4
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          42,
+          42,
+          42
+        ],
+        "sqlite_prepare_server": [
+          63,
+          67,
+          70
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          2,
+          2,
+          2
+        ],
+        "lib_reads": [
+          2,
+          2,
+          2
+        ],
+        "room_reads": [
+          1,
+          1,
+          1
+        ],
+        "tool_ms_median": 179.7
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          22,
+          22,
+          22
+        ],
+        "sqlite_prepare_server": [
+          45,
+          49,
+          52
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          1,
+          1,
+          1
+        ],
+        "tool_ms_median": 75.7
+      }
+    },
+    {
+      "tool": "artifact_file",
+      "writes_to_room": true,
+      "reaches_cascade": false,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          20,
+          20,
+          20
+        ],
+        "sqlite_prepare_server": [
+          27,
+          27,
+          27
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          1,
+          1,
+          1
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          3,
+          3,
+          3
+        ],
+        "tool_ms_median": 87.5
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          20,
+          20,
+          20
+        ],
+        "sqlite_prepare_server": [
+          27,
+          27,
+          27
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          3,
+          3,
+          3
+        ],
+        "tool_ms_median": 96.1
+      }
+    },
+    {
+      "tool": "memory_event",
+      "writes_to_room": true,
+      "reaches_cascade": false,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          20,
+          20,
+          20
+        ],
+        "sqlite_prepare_server": [
+          21,
+          21,
+          21
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          0,
+          0,
+          0
+        ],
+        "tool_ms_median": 82.9
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          20,
+          20,
+          20
+        ],
+        "sqlite_prepare_server": [
+          21,
+          21,
+          21
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          0,
+          0,
+          0
+        ],
+        "tool_ms_median": 91.9
+      }
+    },
+    {
+      "tool": "room_graph:graph-rebuild",
+      "writes_to_room": true,
+      "reaches_cascade": false,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          2,
+          2,
+          2
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          4,
+          4,
+          4
+        ],
+        "sqlite_prepare_server": [
+          160,
+          170,
+          180
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          3,
+          3,
+          3
+        ],
+        "lib_reads": [
+          3,
+          3,
+          3
+        ],
+        "room_reads": [
+          32,
+          34,
+          36
+        ],
+        "tool_ms_median": 128.8
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          1,
+          1,
+          1
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          3,
+          3,
+          3
+        ],
+        "sqlite_prepare_server": [
+          160,
+          170,
+          180
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          32,
+          34,
+          36
+        ],
+        "tool_ms_median": 137.6
+      }
+    },
+    {
+      "tool": "room_content:file-opportunity",
+      "writes_to_room": true,
+      "reaches_cascade": true,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 3,
+        "opens_server": [
+          0,
+          0,
+          0
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_prepare_server": [
+          0,
+          0,
+          0
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          0,
+          0,
+          0
+        ],
+        "tool_ms_median": 4.5
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 3,
+        "opens_server": [
+          0,
+          0,
+          0
+        ],
+        "opens_children": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_exec_server": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_prepare_server": [
+          0,
+          0,
+          0
+        ],
+        "child_node_processes": [
+          0,
+          0,
+          0
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          0,
+          0,
+          0
+        ],
+        "tool_ms_median": 2.6
+      }
+    },
+    {
+      "tool": "stop_gate_check",
+      "writes_to_room": false,
+      "reaches_cascade": false,
+      "first_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          1,
+          1,
+          1
+        ],
+        "opens_children": [
+          1,
+          1,
+          1
+        ],
+        "sqlite_exec_server": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_prepare_server": [
+          4,
+          4,
+          4
+        ],
+        "child_node_processes": [
+          3,
+          3,
+          3
+        ],
+        "modules_added": [
+          7,
+          7,
+          7
+        ],
+        "lib_reads": [
+          4,
+          4,
+          4
+        ],
+        "room_reads": [
+          124,
+          112,
+          116
+        ],
+        "tool_ms_median": 1033.7
+      },
+      "second_call": {
+        "measured_repeats": 3,
+        "tool_error_repeats": 0,
+        "opens_server": [
+          1,
+          1,
+          1
+        ],
+        "opens_children": [
+          1,
+          1,
+          1
+        ],
+        "sqlite_exec_server": [
+          0,
+          0,
+          0
+        ],
+        "sqlite_prepare_server": [
+          4,
+          4,
+          4
+        ],
+        "child_node_processes": [
+          3,
+          3,
+          3
+        ],
+        "modules_added": [
+          0,
+          0,
+          0
+        ],
+        "lib_reads": [
+          0,
+          0,
+          0
+        ],
+        "room_reads": [
+          107,
+          111,
+          115
+        ],
+        "tool_ms_median": 946.8
+      }
+    }
+  ],
+  "not_measured": [],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

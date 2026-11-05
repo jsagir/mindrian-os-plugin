@@ -1,0 +1,289 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "base-all-tool-files",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T13:57:33.206Z",
+    "ended_at": "2026-11-05T13:57:59.173Z",
+    "load1_start": 0.68,
+    "load1_end": 0.97
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "base-all-tool-files",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.68,
+  "load1_end": 0.97,
+  "started_at": "2026-11-05T13:57:33.206Z",
+  "ended_at": "2026-11-05T13:57:59.173Z",
+  "compare": {
+    "a": "base-all-tool-files",
+    "b": "no-eureka-tool-files"
+  },
+  "targets": [
+    {
+      "id": "mcp:os:initialize",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 762.3,
+        "p95": 937.5,
+        "min": 610.1,
+        "max": 966.7
+      },
+      "cpu_ms": {
+        "median": 900,
+        "p95": 1090,
+        "min": 730,
+        "max": 1130
+      },
+      "rss_mb": {
+        "median": 104.7,
+        "p95": 105.8,
+        "min": 103.9,
+        "max": 106.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "base-all-tool-files",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os:tools-list",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 801.2,
+        "p95": 966.2,
+        "min": 639.9,
+        "max": 1004.2
+      },
+      "cpu_ms": {
+        "median": 980,
+        "p95": 1150,
+        "min": 770,
+        "max": 1200
+      },
+      "rss_mb": {
+        "median": 112.3,
+        "p95": 113.8,
+        "min": 111.1,
+        "max": 114
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "base-all-tool-files",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os-b:initialize",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 639,
+        "p95": 869.7,
+        "min": 449.5,
+        "max": 902.2
+      },
+      "cpu_ms": {
+        "median": 820,
+        "p95": 1020,
+        "min": 530,
+        "max": 1030
+      },
+      "rss_mb": {
+        "median": 100.6,
+        "p95": 101.9,
+        "min": 96.9,
+        "max": 102.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "no-eureka-tool-files",
+      "tools": 49,
+      "eureka_tools": 1
+    },
+    {
+      "id": "mcp:os-b:tools-list",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 664.4,
+        "p95": 883.5,
+        "min": 460.8,
+        "max": 916.3
+      },
+      "cpu_ms": {
+        "median": 860,
+        "p95": 1040,
+        "min": 550,
+        "max": 1050
+      },
+      "rss_mb": {
+        "median": 100.8,
+        "p95": 102.5,
+        "min": 96.9,
+        "max": 103.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "no-eureka-tool-files",
+      "tools": 49,
+      "eureka_tools": 1
+    },
+    {
+      "id": "mcp:os:initialize:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 137.7,
+        "p95": 287.3,
+        "min": -186.1,
+        "max": 329.9
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair initialize time of tree A minus tree B"
+    },
+    {
+      "id": "mcp:os:tools-list:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 150.1,
+        "p95": 302.4,
+        "min": -173.7,
+        "max": 339.8
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.68,
+      "load1_end": 0.97,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair tools/list time of tree A minus tree B"
+    }
+  ],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

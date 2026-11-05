@@ -1,0 +1,268 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T11:37:26.976Z",
+    "ended_at": "2026-11-05T11:37:35.972Z",
+    "load1_start": 1.36,
+    "load1_end": 1.38
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.36,
+  "load1_end": 1.38,
+  "started_at": "2026-11-05T11:37:26.976Z",
+  "ended_at": "2026-11-05T11:37:35.972Z",
+  "profile": {
+    "os": {
+      "runs": 7,
+      "failed_runs": 0,
+      "active_ms": {
+        "median": 623,
+        "p95": 699.1,
+        "min": 551.5,
+        "max": 734.9
+      },
+      "total_ms": {
+        "median": 623,
+        "p95": 699.4,
+        "min": 551.5,
+        "max": 734.9
+      },
+      "median_ms_by_group": {
+        "tools": 1.7,
+        "eureka-tools": 1.9,
+        "other-mcp": 6.7,
+        "core": 10.8,
+        "sdk-client": 12,
+        "sdk-other": 33.3,
+        "zod": 102.4,
+        "chokidar": 2.7,
+        "node-builtins": 366.3,
+        "other": 29.2,
+        "runtime": 50.7,
+        "idle": 0
+      },
+      "median_share_percent_by_group": {
+        "tools": 0.3,
+        "eureka-tools": 0.3,
+        "other-mcp": 1.1,
+        "core": 1.8,
+        "sdk-client": 1.9,
+        "sdk-other": 5.3,
+        "zod": 17.6,
+        "chokidar": 0.5,
+        "node-builtins": 57.8,
+        "other": 4.7,
+        "runtime": 8.2
+      },
+      "modules_loaded": {
+        "median": 735,
+        "p95": 735,
+        "min": 735,
+        "max": 735
+      },
+      "top_files": [
+        {
+          "file": "node:internal/modules/cjs/loader",
+          "group": "node-builtins",
+          "median_ms": 212.4,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "zod",
+          "group": "zod",
+          "median_ms": 102.4,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "(native)",
+          "group": "node-builtins",
+          "median_ms": 51.6,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "@modelcontextprotocol/server",
+          "group": "sdk-other",
+          "median_ms": 28.8,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:fs",
+          "group": "node-builtins",
+          "median_ms": 26.5,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:internal/bootstrap/realm",
+          "group": "node-builtins",
+          "median_ms": 24.1,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "chrono-node",
+          "group": "other",
+          "median_ms": 13.4,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:path",
+          "group": "node-builtins",
+          "median_ms": 12.7,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "@modelcontextprotocol/client",
+          "group": "sdk-client",
+          "median_ms": 12,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:internal/modules/package_json_reader",
+          "group": "node-builtins",
+          "median_ms": 5.1,
+          "runs_in_top10": 4
+        }
+      ],
+      "note": "The CPU profiler and the probe preload slow the run: use the shares, not the milliseconds, as a cost of start-up."
+    },
+    "brain": {
+      "runs": 7,
+      "failed_runs": 0,
+      "active_ms": {
+        "median": 328.1,
+        "p95": 351.3,
+        "min": 320.5,
+        "max": 351.7
+      },
+      "total_ms": {
+        "median": 329,
+        "p95": 352.1,
+        "min": 321,
+        "max": 352.4
+      },
+      "median_ms_by_group": {
+        "tools": 0,
+        "eureka-tools": 0,
+        "other-mcp": 0,
+        "core": 6.9,
+        "sdk-client": 0,
+        "sdk-other": 23.3,
+        "zod": 47.1,
+        "chokidar": 0,
+        "node-builtins": 205.4,
+        "other": 6.7,
+        "runtime": 37.4,
+        "idle": 0.9
+      },
+      "median_share_percent_by_group": {
+        "tools": 0,
+        "eureka-tools": 0,
+        "other-mcp": 0,
+        "core": 2.1,
+        "sdk-client": 0,
+        "sdk-other": 7.2,
+        "zod": 14,
+        "chokidar": 0,
+        "node-builtins": 62.4,
+        "other": 1.9,
+        "runtime": 11.5
+      },
+      "modules_loaded": {
+        "median": 290,
+        "p95": 290,
+        "min": 290,
+        "max": 290
+      },
+      "top_files": [
+        {
+          "file": "node:internal/modules/cjs/loader",
+          "group": "node-builtins",
+          "median_ms": 86.5,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "zod",
+          "group": "zod",
+          "median_ms": 47.1,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:internal/bootstrap/realm",
+          "group": "node-builtins",
+          "median_ms": 42.8,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "(native)",
+          "group": "node-builtins",
+          "median_ms": 22.8,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "@modelcontextprotocol/server",
+          "group": "sdk-other",
+          "median_ms": 19.5,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:internal/deps/undici/undici",
+          "group": "node-builtins",
+          "median_ms": 13.9,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:fs",
+          "group": "node-builtins",
+          "median_ms": 12.5,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:path",
+          "group": "node-builtins",
+          "median_ms": 5.2,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "@modelcontextprotocol/core",
+          "group": "sdk-other",
+          "median_ms": 4.7,
+          "runs_in_top10": 7
+        },
+        {
+          "file": "node:internal/modules/esm/resolve",
+          "group": "node-builtins",
+          "median_ms": 0,
+          "runs_in_top10": 3
+        }
+      ],
+      "note": "The CPU profiler and the probe preload slow the run: use the shares, not the milliseconds, as a cost of start-up."
+    }
+  },
+  "profile_failed_runs": 0,
+  "gate_load1": 1.36,
+  "profile_runs": 7,
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

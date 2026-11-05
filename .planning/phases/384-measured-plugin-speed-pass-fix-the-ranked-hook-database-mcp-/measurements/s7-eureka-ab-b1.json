@@ -1,0 +1,169 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "tree-noeureka",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T13:55:19.669Z",
+    "ended_at": "2026-11-05T13:55:29.371Z",
+    "load1_start": 1.9,
+    "load1_end": 1.91
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "b1",
+  "tree_label": "tree-noeureka",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.9,
+  "load1_end": 1.91,
+  "started_at": "2026-11-05T13:55:19.669Z",
+  "ended_at": "2026-11-05T13:55:29.371Z",
+  "counts": {
+    "os": {
+      "server": "os",
+      "replied": true,
+      "modules": 695,
+      "tool_files_in_folder": 21,
+      "tools": 49,
+      "eureka_tools": 1
+    }
+  },
+  "targets": [
+    {
+      "id": "mcp:os:initialize",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 644.9,
+        "p95": 894,
+        "min": 433.5,
+        "max": 907.2
+      },
+      "cpu_ms": {
+        "median": 740,
+        "p95": 1040,
+        "min": 550,
+        "max": 1100
+      },
+      "rss_mb": {
+        "median": 99.7,
+        "p95": 101.2,
+        "min": 98.8,
+        "max": 101.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.9,
+      "load1_end": 1.91,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 49,
+      "eureka_tools": 1
+    },
+    {
+      "id": "mcp:os:tools-list",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 665.3,
+        "p95": 920.7,
+        "min": 450.9,
+        "max": 934.1
+      },
+      "cpu_ms": {
+        "median": 770,
+        "p95": 1060,
+        "min": 580,
+        "max": 1160
+      },
+      "rss_mb": {
+        "median": 99.8,
+        "p95": 101.2,
+        "min": 98.8,
+        "max": 101.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.9,
+      "load1_end": 1.91,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 49,
+      "eureka_tools": 1
+    },
+    {
+      "id": "floor:node",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 46.9,
+        "p95": 52.3,
+        "min": 31.7,
+        "max": 79.7
+      },
+      "cpu_ms": {
+        "median": 30,
+        "p95": 40,
+        "min": 20,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.9,
+      "load1_end": 1.91,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

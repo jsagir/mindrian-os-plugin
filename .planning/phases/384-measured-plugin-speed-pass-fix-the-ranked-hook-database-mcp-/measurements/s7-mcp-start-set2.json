@@ -1,0 +1,337 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ff8afd625398c91e792c70a7b2db1f26d263012b",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T11:37:04.686Z",
+    "ended_at": "2026-11-05T11:37:14.818Z",
+    "load1_start": 1.71,
+    "load1_end": 1.65
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.71,
+  "load1_end": 1.65,
+  "started_at": "2026-11-05T11:37:04.686Z",
+  "ended_at": "2026-11-05T11:37:14.818Z",
+  "counts": {
+    "os": {
+      "server": "os",
+      "replied": true,
+      "modules": 735,
+      "tool_files_in_folder": 37,
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    "brain": {
+      "server": "brain",
+      "replied": true,
+      "modules": 290,
+      "tool_files_in_folder": 37,
+      "tools": 6,
+      "eureka_tools": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "mcp:os:initialize",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 562.5,
+        "p95": 629.5,
+        "min": 481.6,
+        "max": 811.6
+      },
+      "cpu_ms": {
+        "median": 670,
+        "p95": 740,
+        "min": 590,
+        "max": 940
+      },
+      "rss_mb": {
+        "median": 105,
+        "p95": 105.8,
+        "min": 103.6,
+        "max": 106
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os:tools-list",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 592,
+        "p95": 655.2,
+        "min": 508.1,
+        "max": 859.5
+      },
+      "cpu_ms": {
+        "median": 730,
+        "p95": 790,
+        "min": 640,
+        "max": 1020
+      },
+      "rss_mb": {
+        "median": 111.9,
+        "p95": 112.7,
+        "min": 110.3,
+        "max": 113.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:brain:initialize",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 295.6,
+        "p95": 339.9,
+        "min": 273.3,
+        "max": 395.5
+      },
+      "cpu_ms": {
+        "median": 320,
+        "p95": 370,
+        "min": 300,
+        "max": 440
+      },
+      "rss_mb": {
+        "median": 88.6,
+        "p95": 88.7,
+        "min": 88.1,
+        "max": 89
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 6,
+      "eureka_tools": 0
+    },
+    {
+      "id": "mcp:brain:tools-list",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 304,
+        "p95": 348.3,
+        "min": 288.1,
+        "max": 401.9
+      },
+      "cpu_ms": {
+        "median": 350,
+        "p95": 400,
+        "min": 330,
+        "max": 470
+      },
+      "rss_mb": {
+        "median": 89.1,
+        "p95": 89.3,
+        "min": 88.6,
+        "max": 89.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 6,
+      "eureka_tools": 0
+    },
+    {
+      "id": "floor:node",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 47.7,
+        "p95": 69.2,
+        "min": 31,
+        "max": 70.3
+      },
+      "cpu_ms": {
+        "median": 30,
+        "p95": 50,
+        "min": 20,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "mcp:series-os-plus-brain:initialize",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 903.4,
+        "p95": 934.3,
+        "min": 770.8,
+        "max": 1097.3
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round sum of the os and brain initialize times"
+    },
+    {
+      "id": "mcp:series-os-plus-brain:tools-list",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 942.6,
+        "p95": 970,
+        "min": 808.3,
+        "max": 1154.1
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.71,
+      "load1_end": 1.65,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round sum of the os and brain tools/list times"
+    }
+  ],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}
