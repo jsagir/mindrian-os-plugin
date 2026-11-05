@@ -84,6 +84,26 @@ const CHILD_CODE = [
   'process.stdout.write(JSON.stringify({ ok: ok, total_ms: total, per_open_ms: total / n }) + "\\n");',
 ].join('\n');
 
+// The tally child: counts the exec and prepare calls of one open by the leading keyword of the SQL text. Only the
+// keyword is counted; no SQL text is written. The module name is joined at run time (see CHILD_CODE).
+const KINDS_CODE = [
+  'const path = require("node:path");',
+  'const sq = require(["node", "sqlite"].join(":"));',
+  'const tree = process.argv[1], room = process.argv[2];',
+  'const proto = sq.DatabaseSync.prototype;',
+  'const oe = proto.exec, op = proto.prepare;',
+  'let ex = {}, pr = {};',
+  'const kw = (s) => { const m = /^\\s*(?:--[^\\n]*\\n\\s*)*([A-Za-z]+)/.exec(String(s)); return m ? m[1].toUpperCase() : "OTHER"; };',
+  'let on = false;',
+  'proto.exec = function (s) { if (on) { const k = kw(s); ex[k] = (ex[k] || 0) + 1; } return oe.call(this, s); };',
+  'proto.prepare = function (s) { if (on) { const k = kw(s); pr[k] = (pr[k] || 0) + 1; } return op.call(this, s); };',
+  'const rdb = require(path.join(tree, "lib", "core", "room-db.cjs"));',
+  'on = true;',
+  'const d = rdb.openRoomDb(room); rdb.closeRoomDb(d);',
+  'on = false;',
+  'process.stdout.write(JSON.stringify({ ok: 1, exec_by_keyword: ex, prepare_by_keyword: pr }) + "\\n");',
+].join('\n');
+
 // A is the open of the product, B is the bare open. A round runs open, bare, open-audit-off, or the reverse, so the
 // relative order of A and B alternates: A B, B A, A B, ...
 function roundOrder(round) { return round % 2 === 0 ? ['open', 'bare', 'off'] : ['off', 'bare', 'open']; }
@@ -166,12 +186,23 @@ function addSample(acc, s) {
   return true;
 }
 
+// The harness rounds a statistic to 0.1 ms. A bare open takes 0.03 to 0.3 ms, so the same statistic is also written
+// with 3 decimals (wall_ms_fine). Same rules: median is the middle sample, p95 is the sample at floor(0.95 x (n - 1)).
+function fineStats(samples) {
+  const s = samples.filter((x) => typeof x === 'number' && Number.isFinite(x)).sort((a, b) => a - b);
+  if (!s.length) return { median: null, p95: null, min: null, max: null };
+  const r3 = (x) => Math.round(x * 1000) / 1000;
+  const mid = s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+  return { median: r3(mid), p95: r3(s[Math.floor(0.95 * (s.length - 1))]), min: r3(s[0]), max: r3(s[s.length - 1]) };
+}
+
 function toTarget(acc, gate) {
   return Object.assign({
     id: acc.id,
     n: acc.wall.length,
     blocking: true,
     wall_ms: H.statsSummary(acc.wall),
+    wall_ms_fine: fineStats(acc.wall),
     cpu_ms: H.statsSummary(acc.cpu),
     rss_mb: H.statsSummary(acc.rss),
     exits: [...acc.exits].sort((a, b) => String(a).localeCompare(String(b))),
@@ -343,6 +374,20 @@ async function cmdRun(f) {
       bare: await summarize('bare', () => countOnce('bare', 1)),
       loop_5: await summarize('loop5', () => countOnce('open', 5)),
     };
+    // the statement kinds of one open, by leading keyword (no SQL text); run apart from the timing runs
+    const kindsOnce = async (roomArg) => {
+      let out = '';
+      const r = await H.runChild(ctx, {
+        argv: [process.execPath, '-e', KINDS_CODE, S.tree, roomArg],
+        cwd: ctx.roomDir, env: ctx.env({}), timeoutMs: 120000,
+        onStdout: (chunk) => { out += chunk; return null; },
+      });
+      try { const j = JSON.parse(out.split('\n')[0]); return r.status === 0 && j.ok === 1 ? { exec_by_keyword: j.exec_by_keyword, prepare_by_keyword: j.prepare_by_keyword } : null; } catch (_e) { return null; }
+    };
+    openCounts.statement_kinds = {
+      existing_db: await kindsOnce(room),
+      new_db: await kindsOnce(fs.mkdtempSync(path.join(S.prep.sandbox.tmp, 'fresh-'))),
+    };
     openCounts.exec_per_open_existing = openCounts.existing_db.exec[0];
     openCounts.prepare_per_open_existing = openCounts.existing_db.prepare[0];
     openCounts.exec_per_open_loop = openCounts.loop_5.exec[0] / 5;
@@ -459,4 +504,4 @@ if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), () => { process.stderr.write('db-open-bench failed\n'); process.exit(1); });
 }
 
-module.exports = { main, CHILD_CODE, roundOrder, pairOrders, aggregate };
+module.exports = { main, CHILD_CODE, KINDS_CODE, roundOrder, pairOrders, aggregate };

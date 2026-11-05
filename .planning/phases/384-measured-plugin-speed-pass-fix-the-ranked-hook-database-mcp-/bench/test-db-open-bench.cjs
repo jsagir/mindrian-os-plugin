@@ -99,6 +99,10 @@ const oc = rj && rj.open_counts;
 check('D1 counting run: constructed of 1 or more, exec calls above 0 on an open of an existing database', !!oc && oc.existing_db && Math.min.apply(null, oc.existing_db.constructed) >= 1 && Math.min.apply(null, oc.existing_db.exec) > 0 && Math.min.apply(null, oc.existing_db.prepare) >= 0, oc ? JSON.stringify(oc.existing_db) : 'no counts');
 check('D1 counting run: a bare open has constructed 1 and 0 exec calls', !!oc && oc.bare && oc.bare.constructed.every((x) => x === 1) && oc.bare.exec.every((x) => x === 0), oc ? JSON.stringify(oc.bare) : 'no counts');
 check('D1 counting run: a new database costs at least as many exec calls as an existing one', !!oc && oc.new_db && Math.min.apply(null, oc.new_db.exec) >= Math.max.apply(null, oc.existing_db.exec), oc ? JSON.stringify([oc.new_db, oc.existing_db]) : '');
+const sk = oc && oc.statement_kinds && oc.statement_kinds.existing_db;
+const sumKinds = (o) => Object.keys(o || {}).reduce((a, k) => a + o[k], 0);
+check('D1 statement kinds: the tally of one open adds up to the counted exec and prepare calls and holds no SQL text', !!sk && sumKinds(sk.exec_by_keyword) === oc.existing_db.exec[0] && sumKinds(sk.prepare_by_keyword) === oc.existing_db.prepare[0] && Object.keys(sk.exec_by_keyword).every((k) => /^[A-Z]+$/.test(k)), sk ? JSON.stringify(sk) : 'no tally');
+check('D1 targets carry a 3-decimal statistic (wall_ms_fine) and bare is above 0 in it', !!rj && need.every((id) => { const t = byId(rj, id); return t && t.wall_ms_fine && t.wall_ms_fine.median > 0; }), rj ? JSON.stringify(byId(rj, 'db:warm:bare')) : '');
 if (rj) {
   const v = verify(runOut, 'run.json');
   check('D3 verify-results accepts the timing file with n of 7', v.status === 0, String(v.stderr).slice(0, 300));
