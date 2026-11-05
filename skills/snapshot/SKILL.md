@@ -148,7 +148,7 @@ When the user runs `/mos:snapshot`:
    ```
 
 4. **Report the result:**
-   > "Your Data Room export package is ready. `room/exports/index.html` is the lobby (3 doors), `room/exports/hub.html` is the museum (everything). Send the lobby to people -- it's what you show first. Deploy the whole `exports/` folder to Vercel and visitors land on the lobby by default."
+   > "Your Data Room export package is ready. `room/exports/index.html` is the lobby, `room/exports/hub.html` is the museum (everything). Send the lobby to people -- it's what you show first. Deploy the whole `exports/` folder to Vercel and visitors land on the lobby by default."
 
 5. **If some sections are empty**, mention them, but note the lobby handles it gracefully:
    > "Some sections are empty ({list}), but the lobby detected {N} deliverables and filled the doors. Starter invitation cards fill any remaining slots."

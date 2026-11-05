@@ -139,8 +139,8 @@ After the orchestrator exits successfully, render:
 ```
 
 Larry adds a brief observation about the export. Examples:
-- "The vault has 47 markdown files across 6 sections. Three empty sections will show as gaps in the graph view."
-- "Wikilinks injected across 12 team profiles and 8 meeting summaries. Open the graph view in Obsidian to see the structural shape."
+- "The vault has {files} markdown files across {sections} sections. Any empty sections will show as gaps in the graph view."
+- "Wikilinks injected across {teams} team profiles and {meetings} meeting summaries. Open the graph view in Obsidian to see the structural shape."
 
 ## Subcommand: import (Phase 80 / IMPORT-01)
 

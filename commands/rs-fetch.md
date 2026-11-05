@@ -115,6 +115,6 @@ The CLI emits the 3-line error pattern on common failures:
 
 Larry direct and pedagogical:
 
-> "Three graphs queried. Top breakthrough: <thesis>. Confidence 0.85. Worth Bank Opportunity? Or Devil's Advocate first?"
+> "Three graphs queried. Top breakthrough: <thesis>. Confidence {confidence}. Worth Bank Opportunity? Or Devil's Advocate first?"
 
-> "Brain unreachable. Pipeline still ran on local + Aura. RECOMMENDED markers suppressed (confidence below 0.7 floor). Take the unmarked candidates with appropriate skepticism."
+> "Brain unreachable. Pipeline still ran on local + Aura. RECOMMENDED markers suppressed (confidence below the 0.7 floor per the Canon). Take the unmarked candidates with appropriate skepticism."

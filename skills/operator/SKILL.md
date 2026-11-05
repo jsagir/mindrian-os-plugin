@@ -159,7 +159,7 @@ Phase 88.2 (`uiux-selector-block`) will replace the marker block with the canoni
 
 When Larry surfaces the output conversationally:
 
-- "You're currently in BUILD_ROOM. Filing is live; every response ends with the 4-zone footer."
+- "You're currently in BUILD_ROOM. Filing is live; every response ends with the zone footer."
 - "Want to override? `/mos:operator set <op>` lets you pick from the five canonical operators."
 - "If the operator looks wrong, `/mos:doctor --ui-compliance` will tell you whether the renderer is honoring it correctly."
 

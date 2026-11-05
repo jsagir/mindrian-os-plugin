@@ -109,7 +109,7 @@ const urgent = deadlines.filter(p => p.status === 'URGENT');
 ```
 
 If overdue or urgent predictions exist, surface them via resource notification:
-> "You have N overdue predictions and M predictions due within 3 days."
+> "You have N overdue predictions and M predictions due soon."
 
 ### Output
 

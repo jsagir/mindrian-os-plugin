@@ -149,4 +149,4 @@ A roadmap step that asserts a venture truth lands `review_status: proposed` (Par
 
 ## When complete
 
-Confirm the banked opportunities and the cascade edges with the navigator. If the conversation reveals a far-horizon consequence worth a full scenario expansion, suggest the futures chain: "The 50yr extreme you reached can open as a Futures Wheel. Want to explore that next?"
+Confirm the banked opportunities and the cascade edges with the navigator. If the conversation reveals a far-horizon consequence worth a full scenario expansion, suggest the futures chain: "The long-horizon extreme you reached can open as a Futures Wheel. Want to explore that next?"

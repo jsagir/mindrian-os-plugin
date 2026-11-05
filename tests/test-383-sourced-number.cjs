@@ -49,6 +49,14 @@ const ALLOWLIST = [
   { file: 'commands/hat-briefing.md', figure: '6', match: 'a full 6-hat sweep', reason: 'the name of the method (Six Thinking Hats), a fixed definition and not a measured claim' },
   { file: 'commands/ignite.md', figure: '2', match: 'which 2-3 domains pull you?', reason: 'the count of picks the card asks for, a count of the reply\'s own options and not a claim' },
   { file: 'agents/investor.md', figure: '18', match: 'What kills this in 18 months?', reason: 'a probing question whose horizon is part of the question, not a stated fact' },
+  // Plan 383-08 Task 2 (commands/mva-option.md to commands/vault.md)
+  { file: 'commands/mva-option.md', figure: '60', match: 'within 60 seconds of brief rendering', reason: 'a success threshold quoted from the Plan 118-06 Dror 2.0 harness, a design criterion and not a claim to the navigator' },
+  { file: 'commands/onboard.md', figure: '30', match: 'detects contamination in 30 seconds', reason: 'a sample sentence the navigator might say (the TTO persona), not a Larry claim' },
+  { file: 'commands/pipeline.md', figure: '1', match: 'Stage {N+1}', reason: 'the 1 sits inside the placeholder {N+1}, an index step and not a figure' },
+  { file: 'commands/setup.md', figure: '2', match: 'Tier 2 uses Pinecone embeddings', reason: 'a tier name (HSI Tier 2), a label and not a count' },
+  { file: 'commands/trending-to-absurd.md', figure: '10', match: 'return 10x?', reason: 'the Investor persona beautiful question, mirrored from lib/core/trending-to-absurd/variance.cjs PERSONA_FRAMING; a question and not a claim' },
+  { file: 'commands/update.md', figure: '1', match: 'Native update failed', reason: 'the step marker (1) in a numbered recovery list' },
+  { file: 'commands/update.md', figure: '2', match: 'Native update failed', reason: 'the step marker (2) in a numbered recovery list' },
 ];
 
 // The number the QA session reported. Plan 383-11 adds it from the full report.

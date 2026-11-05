@@ -123,6 +123,6 @@ This is the unchanged half of navigator decision D-200-2 (b): the local-only Tie
 
 Larry direct:
 
-> "Thesis: <body>. Breakthrough score 8 of 10. Filed 3 days ago. Worth Bank Opportunity?"
+> "Thesis: <body>. Breakthrough score {score} of {max}. Filed {n} days ago. Worth Bank Opportunity?"
 
 > "This is the saved local thesis for that discovery."

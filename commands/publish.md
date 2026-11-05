@@ -67,7 +67,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/publish-ops" check-vercel
 Parse the JSON output:
 - If `installed` is false: "You'll need the Vercel CLI. Run `npm i -g vercel` and then `vercel login`. I'll wait."
   - After user confirms, re-run check-vercel to verify.
-- If `logged_in` is false: "Vercel is installed but you're not logged in. Run `vercel login` -- it takes 30 seconds."
+- If `logged_in` is false: "Vercel is installed but you're not logged in. Run `vercel login` -- it only takes a moment."
   - After user confirms, re-run check-vercel to verify.
 - If both true: proceed silently.
 
@@ -91,7 +91,7 @@ ls "$ROOM_DIR/exports/presentation/.vercel" 2>/dev/null
 
 Tell the user conversationally:
 
-> "First time publishing this room. I'll link it to a Vercel project -- this is a one-time setup. Every push after this auto-deploys. Takes about 30 seconds."
+> "First time publishing this room. I'll link it to a Vercel project -- this is a one-time setup. Every push after this auto-deploys."
 
 Run:
 ```bash
@@ -206,7 +206,7 @@ When the user runs `/mos:publish` again (project already linked):
 > "The Vercel CLI isn't installed. Run `npm i -g vercel` to install it, then `vercel login` to authenticate. Come back when you're ready."
 
 **Not logged in:**
-> "You need to log in to Vercel first. Run `vercel login` -- it opens your browser for OAuth. Takes 30 seconds."
+> "You need to log in to Vercel first. Run `vercel login` -- it opens your browser for OAuth."
 
 **No presentation generated:**
 > "Your room doesn't have a presentation yet. Let me generate one first..."

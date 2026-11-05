@@ -567,7 +567,7 @@ The router forwards to scripts/vault-export-orchestrator.cjs with `--in-place`, 
 ```
 
 Larry adds a brief observation about what changed. Example:
-- "Wikilinks injected across 14 team references and 9 section cross-links. Your room graph just gained structure."
+- "Wikilinks injected across {teams} team references and {sections} section cross-links. Your room graph just gained structure."
 
 ## Subcommand: export
 

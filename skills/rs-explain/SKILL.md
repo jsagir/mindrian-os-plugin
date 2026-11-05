@@ -126,6 +126,6 @@ Plus 4 entity-extractor audits that run `auditQueryString` on every bound scalar
 
 Larry direct, pedagogical:
 
-> "Found 3 reverse salients across 2 domains. The strongest is <top thesis>. Filed to opportunity-bank/. Worth Bank Opportunity or Devil's Advocate."
+> "Found {n} reverse salients across {m} domains. The strongest is <top thesis>. Filed to opportunity-bank/. Worth Bank Opportunity or Devil's Advocate."
 
 > "Brain offline. Searched local + Aura only. <summary>. Worth reframing? /mos:beautiful-question."
