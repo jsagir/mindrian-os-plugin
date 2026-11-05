@@ -23,6 +23,7 @@
  *   R12 spawnRoomRegistry with a not-ok runtime spawns nothing
  *   R13 spawnRoomRegistry on win32 passes forward-slash paths, MINDRIAN_PYTHON, no shell
  *   R14 CLI: room-runtime exits 1 with the plain text when nothing works
+ *   R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forward slashes only
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs before any repo require. No network.
  * House rule: hyphens only.
@@ -315,6 +316,26 @@ leg('R14 CLI: room-runtime exits 1 with the plain text when nothing works', func
   const r = cp.spawnSync(process.execPath, [PLATFORM_PATH, 'room-runtime', '--json'], { env: env, cwd: ROOT, encoding: 'utf8', timeout: 30000 });
   eq(r.status, 1, 'exit code');
   ok(String(r.stderr).indexOf('Room creation cannot start on this computer yet.') !== -1, 'stderr: ' + JSON.stringify(String(r.stderr).slice(0, 200)));
+});
+
+leg('R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forward slashes only', function () {
+  const spawnRoomRegistry = need('spawnRoomRegistry');
+  const seen = [];
+  const spawnSync = function (cmd, argv, options) { seen.push({ cmd: cmd, argv: argv, options: options }); return out('{}'); };
+  const runtime = {
+    ok: true,
+    bash: { path: BASH_WIN, ostype: 'msys' },
+    python: { path: 'C:/Python312/python.exe', cmd: 'python3', pre: [], version: '3.12', version_line: 'Python 3.12.1' },
+    tried: [],
+  };
+  spawnRoomRegistry(['\\\\srv\\share\\rooms', 'create', 'x', '\\\\srv\\share\\rooms\\x'], {
+    roomsHome: '\\\\srv\\share\\rooms', cwd: ROOT, timeout: 1000, env: {}, runtime: runtime, spawnSync: spawnSync,
+    platform: 'win32', script: 'C:\\repo\\scripts\\room-registry',
+  });
+  eq(seen.length, 1, 'spawn count');
+  eq(JSON.stringify(seen[0].argv), JSON.stringify(['C:/repo/scripts/room-registry', '//srv/share/rooms', 'create', 'x', '//srv/share/rooms/x']), 'argv');
+  eq(seen[0].options.env.MINDRIAN_ROOMS_HOME, '//srv/share/rooms', 'MINDRIAN_ROOMS_HOME');
+  eq(need('toBashPath')('\\\\srv\\share\\rooms'), '//srv/share/rooms', 'toBashPath of a UNC path');
 });
 
 for (const l of legs) {
