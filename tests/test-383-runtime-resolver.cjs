@@ -25,6 +25,7 @@
  *   R14 CLI: room-runtime exits 1 with the plain text when nothing works
  *   R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forward slashes only
  *   R16 review WR-02: a failed resolution is cached for a short window, refresh re-probes, the window ends
+ *   R17 review IN-01: timeout, spawn_error and exit_nonzero results carry plain and tried too
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs before any repo require. No network.
  * House rule: hyphens only.
@@ -367,6 +368,29 @@ leg('R16 review WR-02: a failed resolution is cached for a short window, refresh
     const h = resolve({ now: t0 });
     ok(g !== h, '__resetForTests clears the failure cache');
   } finally { process.env.PATH = saved; }
+});
+
+leg('R17 review IN-01: timeout, spawn_error and exit_nonzero results carry plain and tried too', function () {
+  const spawnRoomRegistry = need('spawnRoomRegistry');
+  const tried = [{ kind: 'bash', cmd: 'bash', result: 'ok', detail: 'linux-gnu' }];
+  const runtime = {
+    ok: true,
+    bash: { path: 'bash', ostype: 'linux-gnu' },
+    python: { path: 'python3', cmd: 'python3', pre: [], version: '3.12', version_line: 'Python 3.12.1' },
+    tried: tried,
+  };
+  const cases = [
+    ['timeout', function () { return { error: { code: 'ETIMEDOUT' }, status: null, stdout: '', stderr: '' }; }],
+    ['spawn_error', function () { return { error: { code: 'EACCES', message: 'denied' }, status: null, stdout: '', stderr: '' }; }],
+    ['exit_nonzero', function () { return out('', 3, 'boom'); }],
+  ];
+  for (const c of cases) {
+    const r = spawnRoomRegistry(['list'], { roomsHome: hermetic.roomsHome, runtime: runtime, spawnSync: c[1], platform: 'linux' });
+    eq(r.reason, c[0], 'reason');
+    eq(r.ok, false, c[0] + ' ok');
+    eq(r.plain, '', c[0] + ' plain');
+    ok(Array.isArray(r.tried) && r.tried.length === 1, c[0] + ' tried: ' + JSON.stringify(r.tried));
+  }
 });
 
 for (const l of legs) {
