@@ -5176,3 +5176,14 @@ The ROADMAP line for Phase 369.6 read `TBD`. These 21 ids were minted at plan ti
 - [x] **NS369.6-19**: A holds-by test refuses persona prose that calls itself a guarantee, an enforcement or a safeguard. Holds by: code. Plan 03, 05. Proof: `tests/test-3696-holds-by.cjs` PASS 16.
 - [ ] **NS369.6-20**: The mod relationship holds: the panel's thought pool passes the shared reply checks; the label regex equals the constant; a one-next-move fixture exists. Holds by: code. Plan 03, 04, 11. Proof: OPEN. Proven by code: the label regex equals the constant, the panel thought lines run through the shared checks (`tests/test-3696-mod-voice.cjs` PASS 144), and the one-next-move fixture exists. Pending integration: 6 thought lines are KNOWN exceptions and the selection parity report M4 shows MISMATCH (R-23, D-47; a quick task or 369.7).
 - [x] **NS369.6-21**: Every CONTEXT decision and every SUMMARY line about a persona edit carries its holds-by class. Holds by: measured (review). Plan 05 to 12. Proof: `tests/test-3696-holds-by.cjs` PASS 16; a holds-by table in each persona-edit SUMMARY (plans 07 to 12); the review in Close part g.
+
+### Phase 384 - Measured plugin speed pass (PERF384, minted at plan time 2026-11-05)
+
+Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-fix-the-ranked-hook-database-mcp-/. Status: pending. PRD Waves 2 to 4 (the fixes) are not yet planned and carry no ID here.
+
+- [ ] **PERF384-01**: The timing harness (tools/perf) is on main, reviewed by a second reader, and measures with a quiet-host gate, a flock, n of 7 or more, median and p95, interleaved A/B and a spread stated in percent. Plans 384-01 to 384-03.
+- [ ] **PERF384-02**: The process census: for each hook event the number of processes started, the wall time and the background time after return are measured (findings S1, S2, S4). Plan 384-04.
+- [ ] **PERF384-03**: The script-level costs of the prompt and Stop paths are measured: the Brain and auto-explore drains, the ledger read at 100, 1,000 and 10,000 rows, and the transcript tail read (findings S5, S6, S9). Plan 384-05.
+- [ ] **PERF384-04**: The MCP and database costs are measured: server start and CPU profile, file watchers at 1, 10 and 58 rooms, the room database open against a bare open, opens per tool call and per SessionStart, and event-loop blocking (findings S3, S7, S8, S10). Plans 384-06 and 384-07.
+- [ ] **PERF384-05**: The room-dependent costs are measured on one quiet real-room copy per room class (local and mount), or marked NOT MEASURED with the reason; owner question Q1 is asked at most once. Plan 384-08.
+- [ ] **PERF384-06**: 384-RANKING.md gives each finding S1 to S10 one verdict by a fixed rule with a DIRECT or DERIVED basis, proposes the five to fix, lists the owner questions, and stops for the owner. Plan 384-09.

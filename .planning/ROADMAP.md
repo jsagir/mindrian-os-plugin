@@ -4010,11 +4010,46 @@ Plans:
 
 ### Phase 384: Measured plugin speed pass: fix the ranked hook, database, MCP start-up and Stop findings, measure first
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Measure first, then fix the top five. PRD Wave 1 (measure; plans 384-01 to 384-09) builds a trusted timing harness, counts the processes each hook event starts, times the prompt and Stop scripts, the MCP start, the room database open and the MCP event loop, measures one quiet real-room copy per room class, and ends in 384-RANKING.md: ten findings (S1 to S10 of 384-PRD.md) with measured medians and p95, a fixed verdict rule, the five proposed, and a stop for the owner. PRD Waves 2 to 4 (fix the top five by measured cost, the rest of the top ten, close with CHANGELOG and the push-gate review) are NOT YET PLANNED; they are planned after the owner reads the ranking.
+**Requirements**: PERF384-01, PERF384-02, PERF384-03, PERF384-04, PERF384-05, PERF384-06 (defined in .planning/REQUIREMENTS.md and the plan objectives: harness; process census S1 S2 S4; script costs S5 S6 S9; MCP and database S3 S7 S8 S10; real-room copies; ranking)
 **Depends on:** Phase 383
-**Plans:** 0 plans
+**Plans:** 0/9 plans executed
+
+Plans run one after the other (one quiet host, one lock); the execution wave number equals the plan number.
 
 Plans:
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 384 to break down)
+- [ ] 384-01-PLAN.md - carry tools/perf onto main, review it as a second reader, fix gates, lock check, failed-run rule and result schemas, add phase-guard (PERF384-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 384-02-PLAN.md - harness run mechanics (escaped background work, count pass, restore per target, changed-path proof) and features (4 MiB transcript, SessionStart compact, per-hook results, exports) (PERF384-01)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 384-03-PLAN.md - quiet-room preflight, room picker, merge, README, fixture smoke sets with spread, Wave 1 scope list (PERF384-01)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 384-04-PLAN.md - process census per hook event with a calibrated exec counter, event walls, SessionStart block trace, SubagentStop 1/5/20 files (S1, S2, S4; PERF384-02)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 384-05-PLAN.md - probe preload and script costs: Brain and auto-explore drains, ledger scaling, transcript read and Stop reads (S5, S6, S9; PERF384-03)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 384-06-PLAN.md - MCP probe: start with a stubbed-npm exec check, CPU profile, watcher scaling at 1/10/58 rooms, opens per tool call, event-loop block (S7, S10, S8, S3 per tool; PERF384-04)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 384-07-PLAN.md - database open bench: openRoomDb against a bare DatabaseSync, setup-chain statement counts, opens per SessionStart (S3; PERF384-04)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
+- [ ] 384-08-PLAN.md - real-room copies, one quiet room per class (local, mount): the single stop for owner question Q1, census and walls, script costs, MCP and database (PERF384-05)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 384-09-PLAN.md - frequency counts, doctor --all on main, 384-RANKING.md with a checker, and the owner checkpoint (PERF384-06)
