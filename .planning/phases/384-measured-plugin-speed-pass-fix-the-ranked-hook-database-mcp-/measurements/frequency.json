@@ -1,0 +1,40 @@
+{
+  "schema": "mos.freq-384/1",
+  "basis": "ASSUMED model",
+  "sessions": 0,
+  "privacy": "counts only: no text, no file name, no path",
+  "totals": {
+    "prompts": 0,
+    "tool_use": {
+      "write_edit": 0,
+      "read_grep_glob": 0,
+      "bash": 0,
+      "task": 0,
+      "slash_command": 0,
+      "brain": 0,
+      "gate_answer": 0,
+      "other": 0
+    },
+    "record_types": {}
+  },
+  "model": {
+    "marker": "ASSUMED",
+    "note": "Every value in this model is ASSUMED. It is not a measurement and is never ranked as one.",
+    "session_start_per_session": 1,
+    "prompts_per_session": 30,
+    "stop_per_session": 30,
+    "stop_note": "The Stop count is derived: one Stop per prompt.",
+    "read_grep_glob_per_session": 60,
+    "write_edit_per_session": 20,
+    "bash_per_session": 40,
+    "slash_commands_per_session": 2,
+    "brain_tool_calls_per_session": 5,
+    "gate_answer_per_session": 1,
+    "compaction_per_session": 1,
+    "session_end_per_session": 1,
+    "subagent_stop_per_session": 5,
+    "task_completed_per_session": 1,
+    "cwd_changed_per_session": 1,
+    "mcp_server_starts_per_session": 1
+  }
+}
