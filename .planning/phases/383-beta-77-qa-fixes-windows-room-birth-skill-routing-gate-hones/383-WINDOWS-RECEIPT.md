@@ -115,12 +115,16 @@ Machine id for approval: `windows-qa`. Count: [ ]. Tops: [ ]. Digest: [ ].
 One line per approval, written by the owner after the F.0 card. The digest must equal the digest printed in Part A (or the QA machine listing).
 
 ```
-approved-delete linux 677711508073        [ ] approve / [ ] reject / [ ] defer
-approved-delete windows-dev 3ba9221b0a9e  [ ] approve / [ ] reject / [ ] defer
+approved-delete linux 677711508073        [x] approve (owner, F.0 card, 2026-11-05) / [ ] reject / [ ] defer
+approved-delete windows-dev 3ba9221b0a9e  [x] approve (owner, F.0 card, 2026-11-05) / [ ] reject / [ ] defer
 approved-delete windows-qa <digest>       [ ] approve / [ ] reject / [ ] defer
 ```
 
-Removed lists (filled after each repair ran): [ ]
+Removed lists (filled after each repair ran):
+
+- linux, 2026-11-05, `node scripts/doctor.cjs --clean-doubled-rooms=677711508073` at repo HEAD after the v2.0.0-beta.79 cut: the listing was re-run read-only right before the card and the digest was unchanged; 8 removed (home/jsagi/MindrianRooms/aion-eureka-synergy, air-temp-map, axiom, egain-des-liquid-conductor, google-verifiable-quantum-circuit-compilation, haim-battlefield-intake, iris-lev-joint-venture, orly-abramovitz); 78 kept; the row now reads `ok | no doubled-path folders under the rooms home`.
+- windows-dev, 2026-11-05, the module run under Windows `node.exe` v22.23.1 from a temporary copy of `lib/`, `data/` and the `gray-matter` package closure (copy deleted after the run): re-listed first, digest still `3ba9221b0a9e`; `clean({ home, digest })` removed 2 (C/Users/jsagi/MindrianRooms/hebrew-output-validator, C/Users/jsagi/MindrianRooms/rdf); 2 kept (carmon-cohen-renewal with edited files; the mnt/c/... entry with no matching room); after: 0 leaves. The literal-backslash `C:\Users\...\carmon-cohen-renewal` entry is outside every digest and was not touched.
+- windows-qa: not listed yet (owner, step 11 of Part B).
 
 ## Part E. Sign-off
 
