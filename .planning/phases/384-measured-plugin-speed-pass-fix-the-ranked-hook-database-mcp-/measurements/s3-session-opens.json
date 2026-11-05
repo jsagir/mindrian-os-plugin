@@ -1,0 +1,222 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "388b676ce6298f127aa5815a8bbdedc80f97ce7d",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T14:50:00.856Z",
+    "ended_at": "2026-11-05T14:53:19.688Z",
+    "load1_start": 0.51,
+    "load1_end": 0.48
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 3,
+  "load1_start": 0.51,
+  "load1_end": 0.48,
+  "started_at": "2026-11-05T14:50:00.856Z",
+  "ended_at": "2026-11-05T14:53:19.688Z",
+  "session": {
+    "variant": "unchanged",
+    "event": "SessionStart startup",
+    "repeats": 3,
+    "run_classes": [
+      "ok",
+      "ok",
+      "ok"
+    ],
+    "changed_path_taken_runs": 3,
+    "room_db_present_before_warmup": true,
+    "room_db_bytes": 462848,
+    "load1_start": 0.51,
+    "opens_per_repeat": [
+      12,
+      12,
+      12
+    ],
+    "exec_per_repeat": [
+      83,
+      83,
+      83
+    ],
+    "prepare_per_repeat": [
+      269,
+      269,
+      269
+    ],
+    "node_processes_per_repeat": [
+      44,
+      44,
+      44
+    ],
+    "repeats_agree": true,
+    "opens_total": 12,
+    "exec_total": 83,
+    "prepare_total": 269,
+    "scripts_with_opens": [
+      "agentshield-sessionstart-scan.cjs",
+      "check-pending-ambiguous.cjs",
+      "check-pending-breakthrough.cjs",
+      "eval",
+      "feynman-minto-guardian.cjs",
+      "memory-lifecycle.cjs",
+      "sessionstart-coordinator.cjs",
+      "sync-rooms-graph"
+    ],
+    "by_script": [
+      {
+        "script": "agentshield-sessionstart-scan.cjs",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 20,
+        "sqlite_prepare": 16
+      },
+      {
+        "script": "brain-prewarm.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "check-pending-ambiguous.cjs",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 20,
+        "sqlite_prepare": 16
+      },
+      {
+        "script": "check-pending-breakthrough.cjs",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 20,
+        "sqlite_prepare": 24
+      },
+      {
+        "script": "dogfood-derive.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "dogfood-emit.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "eval",
+        "processes": 24,
+        "sqlite_constructed": 5,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 183
+      },
+      {
+        "script": "feynman-minto-guardian.cjs",
+        "processes": 2,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 4
+      },
+      {
+        "script": "gsd-graph-derive-drain.cjs",
+        "processes": 2,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "mcp-profiles.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "memory-lifecycle.cjs",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 20,
+        "sqlite_prepare": 18
+      },
+      {
+        "script": "mindrian-tools.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "room-render.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "session-context-envelope.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "sessionstart-coordinator.cjs",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 2
+      },
+      {
+        "script": "sessionstart-post-update-preflight.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "sessionstart-reference-now-seed.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      },
+      {
+        "script": "sync-rooms-graph",
+        "processes": 1,
+        "sqlite_constructed": 1,
+        "sqlite_exec": 3,
+        "sqlite_prepare": 6
+      },
+      {
+        "script": "user-archetype.cjs",
+        "processes": 1,
+        "sqlite_constructed": 0,
+        "sqlite_exec": 0,
+        "sqlite_prepare": 0
+      }
+    ]
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

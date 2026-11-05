@@ -1,0 +1,638 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "388b676ce6298f127aa5815a8bbdedc80f97ce7d",
+    "tree_label": "pinned-base",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T14:49:06.455Z",
+    "ended_at": "2026-11-05T14:49:15.560Z",
+    "load1_start": 0.8,
+    "load1_end": 0.82
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-base",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 0.8,
+  "load1_end": 0.82,
+  "started_at": "2026-11-05T14:49:06.455Z",
+  "ended_at": "2026-11-05T14:49:15.560Z",
+  "room_db": {
+    "present_before_run": true,
+    "bytes": 266240
+  },
+  "warm_opens_per_child": 100,
+  "interleave": {
+    "cold": [
+      "AB",
+      "BA",
+      "AB",
+      "BA",
+      "AB",
+      "BA",
+      "AB"
+    ],
+    "warm": [
+      "AB",
+      "BA",
+      "AB",
+      "BA",
+      "AB",
+      "BA",
+      "AB"
+    ]
+  },
+  "open_counts": {
+    "note": "counts per process; existing_db and new_db are one open each; bare is one bare open; loop_5 is five opens in one process",
+    "existing_db": {
+      "repeats": 3,
+      "constructed": [
+        1,
+        1,
+        1
+      ],
+      "exec": [
+        20,
+        20,
+        20
+      ],
+      "prepare": [
+        15,
+        15,
+        15
+      ],
+      "agree": true,
+      "all_ok": true
+    },
+    "new_db": {
+      "repeats": 3,
+      "constructed": [
+        1,
+        1,
+        1
+      ],
+      "exec": [
+        84,
+        84,
+        84
+      ],
+      "prepare": [
+        32,
+        32,
+        32
+      ],
+      "agree": true,
+      "all_ok": true
+    },
+    "bare": {
+      "repeats": 3,
+      "constructed": [
+        1,
+        1,
+        1
+      ],
+      "exec": [
+        0,
+        0,
+        0
+      ],
+      "prepare": [
+        0,
+        0,
+        0
+      ],
+      "agree": true,
+      "all_ok": true
+    },
+    "loop_5": {
+      "repeats": 3,
+      "constructed": [
+        5,
+        5,
+        5
+      ],
+      "exec": [
+        100,
+        100,
+        100
+      ],
+      "prepare": [
+        75,
+        75,
+        75
+      ],
+      "agree": true,
+      "all_ok": true
+    },
+    "statement_kinds": {
+      "existing_db": {
+        "exec_by_keyword": {
+          "PRAGMA": 3,
+          "CREATE": 14,
+          "BEGIN": 1,
+          "INSERT": 1,
+          "COMMIT": 1
+        },
+        "prepare_by_keyword": {
+          "SELECT": 15
+        }
+      },
+      "new_db": {
+        "exec_by_keyword": {
+          "PRAGMA": 5,
+          "CREATE": 28,
+          "BEGIN": 6,
+          "ALTER": 22,
+          "UPDATE": 13,
+          "DROP": 2,
+          "INSERT": 2,
+          "COMMIT": 6
+        },
+        "prepare_by_keyword": {
+          "SELECT": 17,
+          "PRAGMA": 6,
+          "INSERT": 9
+        }
+      }
+    },
+    "exec_per_open_existing": 20,
+    "prepare_per_open_existing": 15,
+    "exec_per_open_loop": 20,
+    "prepare_per_open_loop": 15
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  },
+  "targets": [
+    {
+      "id": "db:cold:open",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 6.2,
+        "p95": 8.5,
+        "min": 4.7,
+        "max": 12.7
+      },
+      "wall_ms_fine": {
+        "median": 6.157,
+        "p95": 8.498,
+        "min": 4.672,
+        "max": 12.671
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 140,
+        "min": 50,
+        "max": 140
+      },
+      "rss_mb": {
+        "median": 54.8,
+        "p95": 54.9,
+        "min": 54.7,
+        "max": 54.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.3,
+        "p95": 0.3,
+        "min": 0.2,
+        "max": 0.4
+      },
+      "wall_ms_fine": {
+        "median": 0.259,
+        "p95": 0.308,
+        "min": 0.208,
+        "max": 0.437
+      },
+      "cpu_ms": {
+        "median": 60,
+        "p95": 110,
+        "min": 40,
+        "max": 210
+      },
+      "rss_mb": {
+        "median": 47.6,
+        "p95": 47.7,
+        "min": 47.6,
+        "max": 47.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:open-audit-off",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4,
+        "p95": 4.5,
+        "min": 2.8,
+        "max": 16
+      },
+      "wall_ms_fine": {
+        "median": 3.981,
+        "p95": 4.536,
+        "min": 2.778,
+        "max": 16.002
+      },
+      "cpu_ms": {
+        "median": 60,
+        "p95": 80,
+        "min": 50,
+        "max": 270
+      },
+      "rss_mb": {
+        "median": 54.6,
+        "p95": 54.7,
+        "min": 54.3,
+        "max": 54.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:open-minus-bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5.9,
+        "p95": 8.1,
+        "min": 4.4,
+        "max": 12.4
+      },
+      "wall_ms_fine": {
+        "median": 5.923,
+        "p95": 8.061,
+        "min": 4.364,
+        "max": 12.413
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus bare wall (DERIVED)"
+    },
+    {
+      "id": "db:cold:audit-cost",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1.9,
+        "p95": 2.3,
+        "min": -7.5,
+        "max": 9.7
+      },
+      "wall_ms_fine": {
+        "median": 1.903,
+        "p95": 2.307,
+        "min": -7.504,
+        "max": 9.748
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus open wall with the bypass audit off (DERIVED)"
+    },
+    {
+      "id": "db:warm:open",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1,
+        "p95": 1.2,
+        "min": 0.8,
+        "max": 3.2
+      },
+      "wall_ms_fine": {
+        "median": 1.043,
+        "p95": 1.202,
+        "min": 0.837,
+        "max": 3.155
+      },
+      "cpu_ms": {
+        "median": 160,
+        "p95": 190,
+        "min": 130,
+        "max": 470
+      },
+      "rss_mb": {
+        "median": 56.3,
+        "p95": 56.4,
+        "min": 56.2,
+        "max": 56.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.82,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0,
+        "p95": 0.1,
+        "min": 0,
+        "max": 0.1
+      },
+      "wall_ms_fine": {
+        "median": 0.046,
+        "p95": 0.053,
+        "min": 0.031,
+        "max": 0.072
+      },
+      "cpu_ms": {
+        "median": 60,
+        "p95": 70,
+        "min": 40,
+        "max": 70
+      },
+      "rss_mb": {
+        "median": 47.7,
+        "p95": 47.7,
+        "min": 47.6,
+        "max": 47.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.82,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:open-audit-off",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.8,
+        "p95": 1.1,
+        "min": 0.8,
+        "max": 1.4
+      },
+      "wall_ms_fine": {
+        "median": 0.815,
+        "p95": 1.052,
+        "min": 0.797,
+        "max": 1.362
+      },
+      "cpu_ms": {
+        "median": 130,
+        "p95": 160,
+        "min": 130,
+        "max": 210
+      },
+      "rss_mb": {
+        "median": 55.8,
+        "p95": 56.2,
+        "min": 55.7,
+        "max": 56.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.82,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:open-minus-bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1,
+        "p95": 1.2,
+        "min": 0.8,
+        "max": 3.1
+      },
+      "wall_ms_fine": {
+        "median": 1.012,
+        "p95": 1.154,
+        "min": 0.765,
+        "max": 3.109
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.82,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus bare wall (DERIVED)"
+    },
+    {
+      "id": "db:warm:audit-cost",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.2,
+        "p95": 0.2,
+        "min": -0.5,
+        "max": 2.4
+      },
+      "wall_ms_fine": {
+        "median": 0.155,
+        "p95": 0.228,
+        "min": -0.524,
+        "max": 2.358
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.8,
+      "load1_end": 0.82,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus open wall with the bypass audit off (DERIVED)"
+    }
+  ]
+}
