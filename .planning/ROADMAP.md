@@ -4056,22 +4056,22 @@ Plans:
 
 ### Phase 385: Behaviour-preserving cleanup: remove what does nothing (auditor Phase A)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Remove what does nothing, with the same outputs: dead modules with a caller proof, the flexsearch dependency, tracked bytecode files, and no-op hook entries. Redundant systems (kuzu, lazygraph, neo4j, pinecone, memgraph, chokidar) and test-only modules get a proof and an owner ruling first; nothing is deleted without it. Eureka is never touched. Source: auditor findings (hypotheses), PRD in this directory.
+**Requirements**: CLEAN385-01 to CLEAN385-06
 **Depends on:** Phase 384
-**Plans:** 0 plans
+**Plans:** 12 plans (planned 2026-11-05, checker PASS, not executed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 385 to break down)
+- [ ] 385-01 to 385-12 (waves 1 to 4; plan 12 is an owner decision point). See the PLAN files in this directory.
 
 ### Phase 386: Audit bug fixes, Part 8 egress risks first (B1-B16)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Fix the audit bugs B1 to B16, Part 8 egress risks first (wiki BYOAPI proxy, brain_write of room-derived text, the Semantic Scholar path). Each fix: root-cause file first, failing test, fix at the origin, fixture rooms only. Owner decisions are asked as gates. Source: auditor findings (hypotheses; inferred ones are reproduced first), PRD in this directory.
+**Requirements**: B1 to B16 and S2 (finding IDs, see 386-PRD.md)
 **Depends on:** Phase 385
-**Plans:** 0 plans
+**Plans:** 21 plans (planned 2026-11-05, checker PASS, not executed)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 386 to break down)
+- [ ] 386-01 to 386-21 (waves 1 to 4; plans 02, 03, 07, 20 stop for an owner decision). See the PLAN files in this directory.

@@ -5187,3 +5187,12 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [ ] **PERF384-04**: The MCP and database costs are measured: server start and CPU profile, file watchers at 1, 10 and 58 rooms, the room database open against a bare open, opens per tool call and per SessionStart, and event-loop blocking (findings S3, S7, S8, S10). Plans 384-06 and 384-07.
 - [ ] **PERF384-05**: The room-dependent costs are measured on one quiet real-room copy per room class (local and mount), or marked NOT MEASURED with the reason; owner question Q1 is asked at most once. Plan 384-08.
 - [ ] **PERF384-06**: 384-RANKING.md gives each finding S1 to S10 one verdict by a fixed rule with a DIRECT or DERIVED basis, proposes the five to fix, lists the owner questions, and stops for the owner. Plan 384-09.
+
+### Phase 385 - Behaviour-preserving cleanup (CLEAN385, minted at plan time 2026-11-05)
+
+- [ ] **CLEAN385-01**: Dead modules with no caller are removed after a caller proof; outputs stay the same.
+- [ ] **CLEAN385-02**: The flexsearch dependency is removed from package.json and the lock files.
+- [ ] **CLEAN385-03**: Tracked `__pycache__` files are untracked.
+- [ ] **CLEAN385-04**: No-op hook entries are unwired or narrowed, with a census of hook commands before and after.
+- [ ] **CLEAN385-05**: Each redundant system (kuzu, lazygraph, neo4j, pinecone, memgraph, chokidar) gets a no-caller proof and an owner ruling before any removal. Eureka is never removed.
+- [ ] **CLEAN385-06**: Test-only modules get an owner ruling and are not deleted without it.
