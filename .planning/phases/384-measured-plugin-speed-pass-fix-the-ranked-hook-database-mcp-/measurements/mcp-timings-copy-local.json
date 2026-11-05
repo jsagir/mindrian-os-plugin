@@ -1,0 +1,821 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "f2c7505e01967ce0a4c43fee6f5b9adea4390217",
+    "tree_label": "main",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T18:44:51.657Z",
+    "ended_at": "2026-11-05T18:44:57.149Z",
+    "load1_start": 0.19,
+    "load1_end": 0.33
+  },
+  "room": {
+    "kind": "real-copy",
+    "file_count": 221,
+    "byte_total": 13728700,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "main",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 0.19,
+  "load1_end": 0.33,
+  "started_at": "2026-11-05T18:44:51.657Z",
+  "ended_at": "2026-11-05T18:44:57.149Z",
+  "counts": {
+    "os": {
+      "server": "os",
+      "replied": true,
+      "modules": 735,
+      "tool_files_in_folder": 37,
+      "tools": 72,
+      "eureka_tools": 24
+    }
+  },
+  "targets": [
+    {
+      "id": "mcp:os:initialize",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 568.8,
+        "p95": 588.5,
+        "min": 501.2,
+        "max": 602
+      },
+      "cpu_ms": {
+        "median": 690,
+        "p95": 700,
+        "min": 610,
+        "max": 720
+      },
+      "rss_mb": {
+        "median": 104.3,
+        "p95": 105.1,
+        "min": 103.2,
+        "max": 105.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.19,
+      "load1_end": 0.33,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os:tools-list",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 597.3,
+        "p95": 627.6,
+        "min": 527.3,
+        "max": 633.7
+      },
+      "cpu_ms": {
+        "median": 740,
+        "p95": 760,
+        "min": 670,
+        "max": 770
+      },
+      "rss_mb": {
+        "median": 111.7,
+        "p95": 112.5,
+        "min": 109.7,
+        "max": 114.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.19,
+      "load1_end": 0.33,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "floor:node",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 38.8,
+        "p95": 47.4,
+        "min": 29.3,
+        "max": 57.5
+      },
+      "cpu_ms": {
+        "median": 20,
+        "p95": 40,
+        "min": 20,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.19,
+      "load1_end": 0.33,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "mcp:block:idle-ping",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.9,
+        "p95": 1.3,
+        "min": 0.6,
+        "max": 1.3
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.33,
+      "load1_end": 0.56,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:ping",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 837.4,
+        "p95": 931.4,
+        "min": 761.7,
+        "max": 1098.4
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.33,
+      "load1_end": 0.56,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:tool",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 856.2,
+        "p95": 950.6,
+        "min": 781.5,
+        "max": 1117.6
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.33,
+      "load1_end": 0.56,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:ping",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 797.1,
+        "p95": 956.9,
+        "min": 733.1,
+        "max": 1545.7
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.33,
+      "load1_end": 0.56,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:tool",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 805.7,
+        "p95": 976.1,
+        "min": 752.8,
+        "max": 1565
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.33,
+      "load1_end": 0.56,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tool_error_runs": 0
+    },
+    {
+      "id": "db:cold:open",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4.8,
+        "p95": 5.4,
+        "min": 4.3,
+        "max": 6.1
+      },
+      "wall_ms_fine": {
+        "median": 4.78,
+        "p95": 5.397,
+        "min": 4.297,
+        "max": 6.088
+      },
+      "cpu_ms": {
+        "median": 60,
+        "p95": 60,
+        "min": 50,
+        "max": 90
+      },
+      "rss_mb": {
+        "median": 54,
+        "p95": 54,
+        "min": 54,
+        "max": 54
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.2,
+        "p95": 0.3,
+        "min": 0.2,
+        "max": 0.5
+      },
+      "wall_ms_fine": {
+        "median": 0.227,
+        "p95": 0.277,
+        "min": 0.171,
+        "max": 0.465
+      },
+      "cpu_ms": {
+        "median": 40,
+        "p95": 50,
+        "min": 40,
+        "max": 80
+      },
+      "rss_mb": {
+        "median": 47.7,
+        "p95": 47.7,
+        "min": 47.6,
+        "max": 47.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:open-audit-off",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 3.4,
+        "p95": 3.5,
+        "min": 2.4,
+        "max": 4.1
+      },
+      "wall_ms_fine": {
+        "median": 3.363,
+        "p95": 3.518,
+        "min": 2.449,
+        "max": 4.129
+      },
+      "cpu_ms": {
+        "median": 50,
+        "p95": 60,
+        "min": 40,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 49.2,
+        "p95": 49.2,
+        "min": 49.2,
+        "max": 49.2
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 1
+    },
+    {
+      "id": "db:cold:open-minus-bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4.5,
+        "p95": 5.2,
+        "min": 4.1,
+        "max": 5.9
+      },
+      "wall_ms_fine": {
+        "median": 4.503,
+        "p95": 5.156,
+        "min": 4.07,
+        "max": 5.867
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus bare wall (DERIVED)"
+    },
+    {
+      "id": "db:cold:audit-cost",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2.1,
+        "p95": 2.6,
+        "min": 0.2,
+        "max": 2.9
+      },
+      "wall_ms_fine": {
+        "median": 2.135,
+        "p95": 2.57,
+        "min": 0.168,
+        "max": 2.907
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus open wall with the bypass audit off (DERIVED)"
+    },
+    {
+      "id": "db:warm:open",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1.1,
+        "p95": 1.5,
+        "min": 0.9,
+        "max": 1.5
+      },
+      "wall_ms_fine": {
+        "median": 1.126,
+        "p95": 1.498,
+        "min": 0.931,
+        "max": 1.544
+      },
+      "cpu_ms": {
+        "median": 160,
+        "p95": 200,
+        "min": 140,
+        "max": 200
+      },
+      "rss_mb": {
+        "median": 56.3,
+        "p95": 56.5,
+        "min": 56.3,
+        "max": 56.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0,
+        "p95": 0,
+        "min": 0,
+        "max": 0
+      },
+      "wall_ms_fine": {
+        "median": 0.03,
+        "p95": 0.039,
+        "min": 0.029,
+        "max": 0.043
+      },
+      "cpu_ms": {
+        "median": 50,
+        "p95": 60,
+        "min": 40,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 47.7,
+        "p95": 47.7,
+        "min": 47.6,
+        "max": 47.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:open-audit-off",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1.2,
+        "p95": 1.3,
+        "min": 0.9,
+        "max": 2.2
+      },
+      "wall_ms_fine": {
+        "median": 1.237,
+        "p95": 1.342,
+        "min": 0.878,
+        "max": 2.153
+      },
+      "cpu_ms": {
+        "median": 180,
+        "p95": 190,
+        "min": 130,
+        "max": 260
+      },
+      "rss_mb": {
+        "median": 56.4,
+        "p95": 56.5,
+        "min": 56.2,
+        "max": 56.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "opens_per_sample": 100
+    },
+    {
+      "id": "db:warm:open-minus-bare",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1.1,
+        "p95": 1.5,
+        "min": 0.9,
+        "max": 1.5
+      },
+      "wall_ms_fine": {
+        "median": 1.096,
+        "p95": 1.469,
+        "min": 0.901,
+        "max": 1.513
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus bare wall (DERIVED)"
+    },
+    {
+      "id": "db:warm:audit-cost",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.1,
+        "p95": 0.2,
+        "min": -1,
+        "max": 0.2
+      },
+      "wall_ms_fine": {
+        "median": 0.088,
+        "p95": 0.192,
+        "min": -1.027,
+        "max": 0.203
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.5,
+      "load1_end": 0.5,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round open wall minus open wall with the bypass audit off (DERIVED)"
+    }
+  ],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

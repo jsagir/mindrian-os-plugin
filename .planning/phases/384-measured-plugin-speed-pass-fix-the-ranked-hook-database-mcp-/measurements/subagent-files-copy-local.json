@@ -1,0 +1,479 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "b8976c8a8163a91faf255cf2ae9c7ba72c0f27d8",
+    "tree_label": "tree",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T16:31:43.496Z",
+    "ended_at": "2026-11-05T17:02:56.661Z",
+    "load1_start": 1.89,
+    "load1_end": 23.24
+  },
+  "room": {
+    "kind": "real-copy",
+    "file_count": 221,
+    "byte_total": 13728700,
+    "fs_type": "ext2/ext3"
+  },
+  "set": null,
+  "tree_label": "tree",
+  "cpus": 4,
+  "runs": 7,
+  "note": "SubagentStop at several modified-file counts. Wall, CPU and background time come from timed runs without the counter (the order of the sizes rotates each round). Process counts and survivor CPU come from a separate counting pass with the exec counter; survivor CPU is a lower bound.",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 174,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 1,
+      "wal": 1,
+      "db": 2,
+      "other": 170
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "event:SubagentStop:files1",
+      "files": 1,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 301.6,
+        "p95": 459.2,
+        "min": 233.5,
+        "max": 494.3
+      },
+      "cpu_ms": {
+        "median": 340,
+        "p95": 550,
+        "min": 270,
+        "max": 560
+      },
+      "rss_mb": {
+        "median": 9.9,
+        "p95": 9.9,
+        "min": 9.9,
+        "max": 9.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "hook_count": 1,
+      "background_ms": 12377,
+      "background_ms_p95": 12635,
+      "escaped_max": 1,
+      "survivors_left": 0,
+      "exec_total": 3378,
+      "exec_min_max": [
+        3378,
+        4171
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 1860
+        },
+        {
+          "program": "sed",
+          "count": 443
+        },
+        {
+          "program": "tr",
+          "count": 297
+        },
+        {
+          "program": "head",
+          "count": 280
+        },
+        {
+          "program": "basename",
+          "count": 209
+        },
+        {
+          "program": "sort",
+          "count": 114
+        },
+        {
+          "program": "cut",
+          "count": 60
+        },
+        {
+          "program": "find",
+          "count": 32
+        },
+        {
+          "program": "dirname",
+          "count": 17
+        },
+        {
+          "program": "bash",
+          "count": 13
+        },
+        {
+          "program": "wc",
+          "count": 13
+        },
+        {
+          "program": "node",
+          "count": 12
+        }
+      ],
+      "node_starts": 12,
+      "bash_starts": 15,
+      "find_count": 32,
+      "survivor_cpu_ms": 4370,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 326
+        },
+        {
+          "program": "grep",
+          "script": "-",
+          "count": 182
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 48
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 44
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 37
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 34
+        },
+        {
+          "program": "sort",
+          "script": "-",
+          "count": 24
+        },
+        {
+          "program": "basename",
+          "script": "-",
+          "count": 19
+        }
+      ],
+      "count_tail_ms": 11177,
+      "load1_start": 1.97,
+      "load1_end": 23.24,
+      "gate_waited_ms": 115000,
+      "noisy": false
+    },
+    {
+      "id": "event:SubagentStop:files5",
+      "files": 5,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 337.4,
+        "p95": 468.6,
+        "min": 247.7,
+        "max": 531.7
+      },
+      "cpu_ms": {
+        "median": 370,
+        "p95": 480,
+        "min": 270,
+        "max": 600
+      },
+      "rss_mb": {
+        "median": 9.9,
+        "p95": 9.9,
+        "min": 9.9,
+        "max": 9.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "hook_count": 1,
+      "background_ms": 13362,
+      "background_ms_p95": 13984,
+      "escaped_max": 5,
+      "survivors_left": 0,
+      "exec_total": 16475,
+      "exec_min_max": [
+        16274,
+        16508
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 9284
+        },
+        {
+          "program": "sed",
+          "count": 2201
+        },
+        {
+          "program": "tr",
+          "count": 1469
+        },
+        {
+          "program": "head",
+          "count": 1392
+        },
+        {
+          "program": "basename",
+          "count": 1031
+        },
+        {
+          "program": "sort",
+          "count": 555
+        },
+        {
+          "program": "find",
+          "count": 143
+        },
+        {
+          "program": "dirname",
+          "count": 73
+        },
+        {
+          "program": "cut",
+          "count": 60
+        },
+        {
+          "program": "node",
+          "count": 58
+        },
+        {
+          "program": "wc",
+          "count": 52
+        },
+        {
+          "program": "bash",
+          "count": 49
+        }
+      ],
+      "node_starts": 58,
+      "bash_starts": 59,
+      "find_count": 143,
+      "survivor_cpu_ms": 12790,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 1778
+        },
+        {
+          "program": "?",
+          "script": "-",
+          "count": 394
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 366
+        },
+        {
+          "program": "grep",
+          "script": "-",
+          "count": 316
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 269
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 268
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 183
+        },
+        {
+          "program": "sort",
+          "script": "-",
+          "count": 74
+        }
+      ],
+      "count_tail_ms": 12430,
+      "load1_start": 1.96,
+      "load1_end": 23.24,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SubagentStop:files20",
+      "files": 20,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 487.6,
+        "p95": 656.3,
+        "min": 381.4,
+        "max": 771.8
+      },
+      "cpu_ms": {
+        "median": 440,
+        "p95": 600,
+        "min": 280,
+        "max": 730
+      },
+      "rss_mb": {
+        "median": 9.9,
+        "p95": 9.9,
+        "min": 9.9,
+        "max": 9.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "hook_count": 1,
+      "background_ms": 23002,
+      "background_ms_p95": 23583,
+      "escaped_max": 20,
+      "survivors_left": 0,
+      "exec_total": 16637,
+      "exec_min_max": [
+        16341,
+        21015
+      ],
+      "exec_by_program": [
+        {
+          "program": "grep",
+          "count": 3806
+        },
+        {
+          "program": "sed",
+          "count": 3801
+        },
+        {
+          "program": "tr",
+          "count": 3208
+        },
+        {
+          "program": "head",
+          "count": 3105
+        },
+        {
+          "program": "basename",
+          "count": 1315
+        },
+        {
+          "program": "dirname",
+          "count": 258
+        },
+        {
+          "program": "node",
+          "count": 223
+        },
+        {
+          "program": "find",
+          "count": 206
+        },
+        {
+          "program": "bash",
+          "count": 164
+        },
+        {
+          "program": "sort",
+          "count": 140
+        },
+        {
+          "program": "jq",
+          "count": 101
+        },
+        {
+          "program": "cut",
+          "count": 60
+        }
+      ],
+      "node_starts": 223,
+      "bash_starts": 200,
+      "find_count": 206,
+      "survivor_cpu_ms": 32230,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "build-graph",
+          "count": 1120
+        },
+        {
+          "program": "?",
+          "script": "-",
+          "count": 923
+        },
+        {
+          "program": "head",
+          "script": "-",
+          "count": 311
+        },
+        {
+          "program": "tr",
+          "script": "-",
+          "count": 168
+        },
+        {
+          "program": "bash",
+          "script": "post-write",
+          "count": 107
+        },
+        {
+          "program": "sed",
+          "script": "-",
+          "count": 87
+        },
+        {
+          "program": "bash",
+          "script": "-",
+          "count": 77
+        },
+        {
+          "program": "bash",
+          "script": "resolve-room",
+          "count": 40
+        }
+      ],
+      "count_tail_ms": 19655,
+      "load1_start": 1.95,
+      "load1_end": 23.24,
+      "gate_waited_ms": 45000,
+      "noisy": false
+    }
+  ]
+}

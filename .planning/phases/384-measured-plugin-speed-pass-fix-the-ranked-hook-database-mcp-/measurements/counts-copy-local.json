@@ -1,0 +1,3067 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "b8976c8a8163a91faf255cf2ae9c7ba72c0f27d8",
+    "tree_label": "tree",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T14:58:39.345Z",
+    "ended_at": "2026-11-05T16:28:57.770Z",
+    "load1_start": 0.76,
+    "load1_end": 23.57
+  },
+  "room": {
+    "kind": "real-copy",
+    "file_count": 221,
+    "byte_total": 13728700,
+    "fs_type": "ext2/ext3"
+  },
+  "sections": {
+    "census-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": null,
+      "tree_label": "tree",
+      "cpus": 4,
+      "repeats": 3,
+      "note": "untimed counting pass: exec calls of the descendants of each hook shell, counted by bench/exec-counter.c; the wall times come from separate runs",
+      "events": [
+        {
+          "key": "SessionStart:startup:unchanged",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 8,
+            "async": 0,
+            "skipped": 1
+          },
+          "exec_total": {
+            "min": 92,
+            "median": 92,
+            "max": 92
+          },
+          "exec_per_repeat": [
+            92,
+            92,
+            92
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 44
+            },
+            {
+              "program": "env",
+              "count": 11
+            },
+            {
+              "program": "bash",
+              "count": 8
+            },
+            {
+              "program": "cat",
+              "count": 4
+            },
+            {
+              "program": "dirname",
+              "count": 4
+            },
+            {
+              "program": "date",
+              "count": 3
+            },
+            {
+              "program": "find",
+              "count": 3
+            },
+            {
+              "program": "python3",
+              "count": 3
+            },
+            {
+              "program": "basename",
+              "count": 1
+            },
+            {
+              "program": "build-jtbd-nudges",
+              "count": 1
+            },
+            {
+              "program": "compute-state",
+              "count": 1
+            },
+            {
+              "program": "git",
+              "count": 1
+            }
+          ],
+          "node_starts": 44,
+          "bash_starts": 8,
+          "find_count": 3,
+          "tail_ms": 14796,
+          "tail_ms_max": 14803,
+          "survivors": 2,
+          "survivor_cpu_ms": 250,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "session-start",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "brain-prewarm.cjs",
+              "count": 1
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.76,
+          "load1_end": 0.66,
+          "noisy": false,
+          "changed_taken_runs": 3,
+          "changed_unknown_runs": 0
+        },
+        {
+          "key": "SessionStart:startup:changed",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 8,
+            "async": 0,
+            "skipped": 1
+          },
+          "exec_total": {
+            "min": 94,
+            "median": 94,
+            "max": 94
+          },
+          "exec_per_repeat": [
+            94,
+            94,
+            94
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 45
+            },
+            {
+              "program": "env",
+              "count": 11
+            },
+            {
+              "program": "bash",
+              "count": 9
+            },
+            {
+              "program": "dirname",
+              "count": 5
+            },
+            {
+              "program": "cat",
+              "count": 3
+            },
+            {
+              "program": "date",
+              "count": 3
+            },
+            {
+              "program": "python3",
+              "count": 3
+            },
+            {
+              "program": "analyze-room",
+              "count": 1
+            },
+            {
+              "program": "basename",
+              "count": 1
+            },
+            {
+              "program": "build-jtbd-nudges",
+              "count": 1
+            },
+            {
+              "program": "compute-state",
+              "count": 1
+            },
+            {
+              "program": "find",
+              "count": 1
+            }
+          ],
+          "node_starts": 45,
+          "bash_starts": 9,
+          "find_count": 1,
+          "tail_ms": 14800,
+          "tail_ms_max": 15191,
+          "survivors": 2,
+          "survivor_cpu_ms": 240,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "session-start",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "brain-prewarm.cjs",
+              "count": 1
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.66,
+          "load1_end": 0.97,
+          "noisy": false,
+          "changed_taken_runs": 3,
+          "changed_unknown_runs": 0
+        },
+        {
+          "key": "SessionStart:compact",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 8,
+            "async": 0,
+            "skipped": 1
+          },
+          "exec_total": {
+            "min": 94,
+            "median": 95,
+            "max": 95
+          },
+          "exec_per_repeat": [
+            95,
+            95,
+            94
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 45
+            },
+            {
+              "program": "env",
+              "count": 11
+            },
+            {
+              "program": "bash",
+              "count": 9
+            },
+            {
+              "program": "dirname",
+              "count": 5
+            },
+            {
+              "program": "cat",
+              "count": 3
+            },
+            {
+              "program": "date",
+              "count": 3
+            },
+            {
+              "program": "python3",
+              "count": 3
+            },
+            {
+              "program": "sleep",
+              "count": 2
+            },
+            {
+              "program": "analyze-room",
+              "count": 1
+            },
+            {
+              "program": "basename",
+              "count": 1
+            },
+            {
+              "program": "build-jtbd-nudges",
+              "count": 1
+            },
+            {
+              "program": "compute-state",
+              "count": 1
+            }
+          ],
+          "node_starts": 45,
+          "bash_starts": 9,
+          "find_count": 1,
+          "tail_ms": 14804,
+          "tail_ms_max": 14807,
+          "survivors": 2,
+          "survivor_cpu_ms": 260,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "session-start",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "brain-prewarm.cjs",
+              "count": 1
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.97,
+          "load1_end": 0.76,
+          "noisy": false
+        },
+        {
+          "key": "UserPromptSubmit",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 8,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 14,
+            "median": 14,
+            "max": 17
+          },
+          "exec_per_repeat": [
+            17,
+            14,
+            14
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 8
+            },
+            {
+              "program": "bash",
+              "count": 2
+            },
+            {
+              "program": "dirname",
+              "count": 2
+            },
+            {
+              "program": "python3",
+              "count": 1
+            },
+            {
+              "program": "resolve-room",
+              "count": 1
+            }
+          ],
+          "node_starts": 8,
+          "bash_starts": 2,
+          "find_count": 0,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.76,
+          "load1_end": 0.76,
+          "noisy": false
+        },
+        {
+          "key": "Stop:unchanged:tx4m",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 7,
+            "async": 1,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 101,
+            "median": 101,
+            "max": 101
+          },
+          "exec_per_repeat": [
+            101,
+            101,
+            101
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 35
+            },
+            {
+              "program": "basename",
+              "count": 16
+            },
+            {
+              "program": "timeout",
+              "count": 15
+            },
+            {
+              "program": "bash",
+              "count": 4
+            },
+            {
+              "program": "date",
+              "count": 4
+            },
+            {
+              "program": "find",
+              "count": 4
+            },
+            {
+              "program": "dirname",
+              "count": 3
+            },
+            {
+              "program": "grep",
+              "count": 3
+            },
+            {
+              "program": "head",
+              "count": 3
+            },
+            {
+              "program": "tr",
+              "count": 3
+            },
+            {
+              "program": "cat",
+              "count": 2
+            },
+            {
+              "program": "sed",
+              "count": 2
+            }
+          ],
+          "node_starts": 35,
+          "bash_starts": 4,
+          "find_count": 4,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.76,
+          "load1_end": 0.95,
+          "noisy": false,
+          "changed_taken_runs": 0,
+          "changed_unknown_runs": 0
+        },
+        {
+          "key": "Stop:changed:tx4m",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 7,
+            "async": 1,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 111,
+            "median": 111,
+            "max": 111
+          },
+          "exec_per_repeat": [
+            111,
+            111,
+            111
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 38
+            },
+            {
+              "program": "basename",
+              "count": 16
+            },
+            {
+              "program": "timeout",
+              "count": 15
+            },
+            {
+              "program": "bash",
+              "count": 7
+            },
+            {
+              "program": "date",
+              "count": 5
+            },
+            {
+              "program": "dirname",
+              "count": 4
+            },
+            {
+              "program": "grep",
+              "count": 3
+            },
+            {
+              "program": "head",
+              "count": 3
+            },
+            {
+              "program": "tr",
+              "count": 3
+            },
+            {
+              "program": "cat",
+              "count": 2
+            },
+            {
+              "program": "find",
+              "count": 2
+            },
+            {
+              "program": "python3",
+              "count": 2
+            }
+          ],
+          "node_starts": 38,
+          "bash_starts": 7,
+          "find_count": 2,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 0.95,
+          "load1_end": 1.52,
+          "noisy": false,
+          "changed_taken_runs": 3,
+          "changed_unknown_runs": 0
+        },
+        {
+          "key": "PostToolUse:Write",
+          "repeats": 3,
+          "hooks": {
+            "matched": 8,
+            "blocking": 8,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 49,
+            "median": 49,
+            "max": 49
+          },
+          "exec_per_repeat": [
+            49,
+            49,
+            49
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 12
+            },
+            {
+              "program": "dirname",
+              "count": 9
+            },
+            {
+              "program": "python3",
+              "count": 6
+            },
+            {
+              "program": "sh",
+              "count": 5
+            },
+            {
+              "program": "jq",
+              "count": 4
+            },
+            {
+              "program": "bash",
+              "count": 3
+            },
+            {
+              "program": "basename",
+              "count": 2
+            },
+            {
+              "program": "cat",
+              "count": 1
+            },
+            {
+              "program": "date",
+              "count": 1
+            },
+            {
+              "program": "git",
+              "count": 1
+            },
+            {
+              "program": "mkdir",
+              "count": 1
+            },
+            {
+              "program": "mktemp",
+              "count": 1
+            }
+          ],
+          "node_starts": 12,
+          "bash_starts": 8,
+          "find_count": 0,
+          "tail_ms": 176,
+          "tail_ms_max": 552,
+          "survivors": 6,
+          "survivor_cpu_ms": 280,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "sh",
+              "script": "-",
+              "count": 2
+            },
+            {
+              "program": "node",
+              "script": "auto-explore-fire.cjs",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "discovery-cycle.cjs",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "whitespace-to-brain.cjs",
+              "count": 1
+            },
+            {
+              "program": "python3",
+              "script": "-",
+              "count": 1
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.52,
+          "load1_end": 1.52,
+          "noisy": false
+        },
+        {
+          "key": "PostToolUse:Read",
+          "repeats": 3,
+          "hooks": {
+            "matched": 2,
+            "blocking": 2,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 2,
+            "median": 2,
+            "max": 2
+          },
+          "exec_per_repeat": [
+            2,
+            2,
+            2
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 2
+            }
+          ],
+          "node_starts": 2,
+          "bash_starts": 0,
+          "find_count": 0,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.52,
+          "load1_end": 1.52,
+          "noisy": false
+        },
+        {
+          "key": "TaskCompleted",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 81,
+            "median": 81,
+            "max": 81
+          },
+          "exec_per_repeat": [
+            81,
+            81,
+            81
+          ],
+          "exec_by_program": [
+            {
+              "program": "find",
+              "count": 16
+            },
+            {
+              "program": "tr",
+              "count": 16
+            },
+            {
+              "program": "wc",
+              "count": 16
+            },
+            {
+              "program": "basename",
+              "count": 15
+            },
+            {
+              "program": "bash",
+              "count": 4
+            },
+            {
+              "program": "dirname",
+              "count": 4
+            },
+            {
+              "program": "node",
+              "count": 2
+            },
+            {
+              "program": "compute-state",
+              "count": 1
+            },
+            {
+              "program": "date",
+              "count": 1
+            },
+            {
+              "program": "grep",
+              "count": 1
+            },
+            {
+              "program": "head",
+              "count": 1
+            },
+            {
+              "program": "jq",
+              "count": 1
+            }
+          ],
+          "node_starts": 2,
+          "bash_starts": 4,
+          "find_count": 16,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.52,
+          "load1_end": 1.4,
+          "noisy": false
+        },
+        {
+          "key": "PreCompact",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 27,
+            "median": 27,
+            "max": 27
+          },
+          "exec_per_repeat": [
+            27,
+            27,
+            27
+          ],
+          "exec_by_program": [
+            {
+              "program": "cat",
+              "count": 3
+            },
+            {
+              "program": "head",
+              "count": 3
+            },
+            {
+              "program": "node",
+              "count": 3
+            },
+            {
+              "program": "bash",
+              "count": 2
+            },
+            {
+              "program": "dirname",
+              "count": 2
+            },
+            {
+              "program": "grep",
+              "count": 2
+            },
+            {
+              "program": "sed",
+              "count": 2
+            },
+            {
+              "program": "basename",
+              "count": 1
+            },
+            {
+              "program": "cut",
+              "count": 1
+            },
+            {
+              "program": "date",
+              "count": 1
+            },
+            {
+              "program": "find",
+              "count": 1
+            },
+            {
+              "program": "jq",
+              "count": 1
+            }
+          ],
+          "node_starts": 3,
+          "bash_starts": 2,
+          "find_count": 1,
+          "tail_ms": 0,
+          "tail_ms_max": 0,
+          "survivors": 0,
+          "survivor_cpu_ms": 0,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.4,
+          "load1_end": 1.4,
+          "noisy": false
+        },
+        {
+          "key": "PostCompact",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 37,
+            "median": 89,
+            "max": 89
+          },
+          "exec_per_repeat": [
+            37,
+            89,
+            89
+          ],
+          "exec_by_program": [
+            {
+              "program": "node",
+              "count": 37
+            },
+            {
+              "program": "env",
+              "count": 11
+            },
+            {
+              "program": "bash",
+              "count": 10
+            },
+            {
+              "program": "dirname",
+              "count": 6
+            },
+            {
+              "program": "cat",
+              "count": 3
+            },
+            {
+              "program": "date",
+              "count": 3
+            },
+            {
+              "program": "python3",
+              "count": 3
+            },
+            {
+              "program": "mkdir",
+              "count": 2
+            },
+            {
+              "program": "analyze-room",
+              "count": 1
+            },
+            {
+              "program": "basename",
+              "count": 1
+            },
+            {
+              "program": "build-jtbd-nudges",
+              "count": 1
+            },
+            {
+              "program": "compute-state",
+              "count": 1
+            }
+          ],
+          "node_starts": 37,
+          "bash_starts": 10,
+          "find_count": 1,
+          "tail_ms": 14822,
+          "tail_ms_max": 1213682,
+          "survivors": 2,
+          "survivor_cpu_ms": 250,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "session-start",
+              "count": 1
+            },
+            {
+              "program": "node",
+              "script": "brain-prewarm.cjs",
+              "count": 1
+            }
+          ],
+          "killed_survivors": 2,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.4,
+          "load1_end": 1.26,
+          "noisy": false
+        },
+        {
+          "key": "SubagentStop:files1",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 3378,
+            "median": 3378,
+            "max": 3378
+          },
+          "exec_per_repeat": [
+            3378,
+            3378,
+            3378
+          ],
+          "exec_by_program": [
+            {
+              "program": "grep",
+              "count": 1860
+            },
+            {
+              "program": "sed",
+              "count": 443
+            },
+            {
+              "program": "tr",
+              "count": 297
+            },
+            {
+              "program": "head",
+              "count": 280
+            },
+            {
+              "program": "basename",
+              "count": 209
+            },
+            {
+              "program": "sort",
+              "count": 114
+            },
+            {
+              "program": "cut",
+              "count": 60
+            },
+            {
+              "program": "find",
+              "count": 32
+            },
+            {
+              "program": "dirname",
+              "count": 17
+            },
+            {
+              "program": "bash",
+              "count": 13
+            },
+            {
+              "program": "wc",
+              "count": 13
+            },
+            {
+              "program": "node",
+              "count": 12
+            }
+          ],
+          "node_starts": 12,
+          "bash_starts": 15,
+          "find_count": 32,
+          "tail_ms": 8012,
+          "tail_ms_max": 9055,
+          "survivors": 617,
+          "survivor_cpu_ms": 3030,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "build-graph",
+              "count": 181
+            },
+            {
+              "program": "grep",
+              "script": "-",
+              "count": 74
+            },
+            {
+              "program": "head",
+              "script": "-",
+              "count": 19
+            },
+            {
+              "program": "sed",
+              "script": "-",
+              "count": 18
+            },
+            {
+              "program": "tr",
+              "script": "-",
+              "count": 18
+            },
+            {
+              "program": "bash",
+              "script": "-",
+              "count": 14
+            },
+            {
+              "program": "basename",
+              "script": "-",
+              "count": 9
+            },
+            {
+              "program": "sort",
+              "script": "-",
+              "count": 8
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.26,
+          "load1_end": 1.97,
+          "noisy": false
+        },
+        {
+          "key": "SubagentStop:files5",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 11331,
+            "median": 11589,
+            "max": 12546
+          },
+          "exec_per_repeat": [
+            12546,
+            11589,
+            11331
+          ],
+          "exec_by_program": [
+            {
+              "program": "grep",
+              "count": 6070
+            },
+            {
+              "program": "sed",
+              "count": 1700
+            },
+            {
+              "program": "tr",
+              "count": 1413
+            },
+            {
+              "program": "head",
+              "count": 1384
+            },
+            {
+              "program": "basename",
+              "count": 538
+            },
+            {
+              "program": "find",
+              "count": 86
+            },
+            {
+              "program": "dirname",
+              "count": 73
+            },
+            {
+              "program": "sort",
+              "count": 66
+            },
+            {
+              "program": "cut",
+              "count": 60
+            },
+            {
+              "program": "node",
+              "count": 58
+            },
+            {
+              "program": "bash",
+              "count": 49
+            },
+            {
+              "program": "jq",
+              "count": 26
+            }
+          ],
+          "node_starts": 58,
+          "bash_starts": 59,
+          "find_count": 86,
+          "tail_ms": 13180,
+          "tail_ms_max": 13200,
+          "survivors": 4586,
+          "survivor_cpu_ms": 13530,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "build-graph",
+              "count": 2041
+            },
+            {
+              "program": "grep",
+              "script": "-",
+              "count": 642
+            },
+            {
+              "program": "head",
+              "script": "-",
+              "count": 524
+            },
+            {
+              "program": "tr",
+              "script": "-",
+              "count": 444
+            },
+            {
+              "program": "sed",
+              "script": "-",
+              "count": 386
+            },
+            {
+              "program": "?",
+              "script": "-",
+              "count": 300
+            },
+            {
+              "program": "bash",
+              "script": "-",
+              "count": 118
+            },
+            {
+              "program": "basename",
+              "script": "-",
+              "count": 49
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.97,
+          "load1_end": 6.26,
+          "noisy": false
+        },
+        {
+          "key": "SubagentStop:files20",
+          "repeats": 3,
+          "hooks": {
+            "matched": 1,
+            "blocking": 1,
+            "async": 0,
+            "skipped": 0
+          },
+          "exec_total": {
+            "min": 14941,
+            "median": 15737,
+            "max": 16506
+          },
+          "exec_per_repeat": [
+            15737,
+            14941,
+            16506
+          ],
+          "exec_by_program": [
+            {
+              "program": "grep",
+              "count": 3582
+            },
+            {
+              "program": "sed",
+              "count": 3577
+            },
+            {
+              "program": "tr",
+              "count": 3026
+            },
+            {
+              "program": "head",
+              "count": 2921
+            },
+            {
+              "program": "basename",
+              "count": 1249
+            },
+            {
+              "program": "dirname",
+              "count": 258
+            },
+            {
+              "program": "node",
+              "count": 223
+            },
+            {
+              "program": "find",
+              "count": 195
+            },
+            {
+              "program": "bash",
+              "count": 164
+            },
+            {
+              "program": "sort",
+              "count": 131
+            },
+            {
+              "program": "jq",
+              "count": 101
+            },
+            {
+              "program": "cut",
+              "count": 60
+            }
+          ],
+          "node_starts": 223,
+          "bash_starts": 200,
+          "find_count": 195,
+          "tail_ms": 23288,
+          "tail_ms_max": 23335,
+          "survivors": 3451,
+          "survivor_cpu_ms": 37930,
+          "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+          "survivor_programs": [
+            {
+              "program": "bash",
+              "script": "build-graph",
+              "count": 1259
+            },
+            {
+              "program": "?",
+              "script": "-",
+              "count": 785
+            },
+            {
+              "program": "head",
+              "script": "-",
+              "count": 316
+            },
+            {
+              "program": "tr",
+              "script": "-",
+              "count": 205
+            },
+            {
+              "program": "sed",
+              "script": "-",
+              "count": 128
+            },
+            {
+              "program": "bash",
+              "script": "post-write",
+              "count": 126
+            },
+            {
+              "program": "bash",
+              "script": "-",
+              "count": 105
+            },
+            {
+              "program": "grep",
+              "script": "-",
+              "count": 48
+            }
+          ],
+          "killed_survivors": 0,
+          "blocked_calls": 0,
+          "carry_over_calls": 0,
+          "failed_hook_runs": 0,
+          "load1_start": 1.84,
+          "load1_end": 23.57,
+          "noisy": false
+        }
+      ],
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 223,
+        "intersect_paths": 0,
+        "exit_code": 0,
+        "source_changed_by_class": {
+          "shm": 0,
+          "wal": 0,
+          "db": 0,
+          "other": 0
+        },
+        "copy_changed_by_class": {
+          "shm": 1,
+          "wal": 1,
+          "db": 2,
+          "other": 219
+        },
+        "intersect_by_class": {
+          "shm": 0,
+          "wal": 0,
+          "db": 0,
+          "other": 0
+        }
+      }
+    },
+    "s5-autoexplore-reads-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 7,
+      "load1_start": 0.79,
+      "load1_end": 0.79,
+      "started_at": "2026-11-05T18:41:28.072Z",
+      "ended_at": "2026-11-05T18:41:28.920Z",
+      "autoexplore": {
+        "finding_files": 0,
+        "finding_file_counts": [
+          0
+        ],
+        "synthetic_findings": false,
+        "fixture_files_removed_first": 0,
+        "files_in_copy_before": 0
+      },
+      "reads": [
+        {
+          "id": "script:autoexplore:f0",
+          "finding_files": 0,
+          "variant": "none",
+          "repeats": 2,
+          "repeats_agree": true,
+          "result": {
+            "run_class": "ok",
+            "processes": 1,
+            "mindrian": {
+              "existsSync": 1,
+              "readdirSync": 1
+            },
+            "room": {},
+            "lib_reads": 4,
+            "scripts_reads": 1,
+            "sqlite_constructed": 0,
+            "modules_loaded": 5,
+            "surfaced_ledger_rows": 0
+          }
+        }
+      ],
+      "slopes": []
+    },
+    "s9-stop-reads-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 3,
+      "load1_start": 1.99,
+      "load1_end": 2.07,
+      "started_at": "2026-11-05T18:41:29.091Z",
+      "ended_at": "2026-11-05T18:41:57.614Z",
+      "sections": {
+        "section_dirs": 15,
+        "sections_with_room_md": 14
+      },
+      "transcript_bytes": 4194304,
+      "stop": {
+        "unchanged": {
+          "repeats": 3,
+          "repeats_agree": false,
+          "transcript_reads_agree": true,
+          "run_classes": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "changed_path_taken_runs": 0,
+          "load1_start": 1.99,
+          "by_script": [
+            {
+              "script": "ambient-stop.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 3,
+              "room_file_reads_per_process": [
+                3
+              ],
+              "room_stats": 1,
+              "room_readdirs": 0,
+              "sqlite_constructed": 1,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 4,
+              "modules_sum": 173
+            },
+            {
+              "script": "check-card-fire.cjs",
+              "processes": 1,
+              "transcript_reads": 1,
+              "transcript_stats": 1,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "check-voice-style.cjs",
+              "processes": 1,
+              "transcript_reads": 1,
+              "transcript_stats": 1,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 9
+            },
+            {
+              "script": "doctor.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 53
+            },
+            {
+              "script": "eval",
+              "processes": 9,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 187,
+              "room_file_reads_per_process": [
+                184,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "room_stats": 196,
+              "room_readdirs": 23,
+              "sqlite_constructed": 24,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 138,
+              "modules_sum": 296
+            },
+            {
+              "script": "feynman-minto-guardian.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 98,
+              "room_file_reads_per_process": [
+                98
+              ],
+              "room_stats": 101,
+              "room_readdirs": 9,
+              "sqlite_constructed": 1,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 3,
+              "modules_sum": 183
+            },
+            {
+              "script": "gsd-graph-derive-sweep.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 1,
+              "room_file_reads_per_process": [
+                1
+              ],
+              "room_stats": 1,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 3
+            },
+            {
+              "script": "hmi-compliance-poll.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "jtbd-update.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "memory-lifecycle.cjs",
+              "processes": 2,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0,
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 4
+            },
+            {
+              "script": "operator-update.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 3
+            },
+            {
+              "script": "recompile-room-references.cjs",
+              "processes": 14,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 202,
+              "room_file_reads_per_process": [
+                25,
+                20,
+                18,
+                18,
+                15,
+                15,
+                14,
+                14,
+                13,
+                12,
+                10,
+                10,
+                10,
+                8
+              ],
+              "room_stats": 85,
+              "room_readdirs": 14,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 28
+            },
+            {
+              "script": "user-archetype.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 5,
+              "room_file_reads_per_process": [
+                5
+              ],
+              "room_stats": 0,
+              "room_readdirs": 1,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 2
+            }
+          ]
+        },
+        "changed": {
+          "repeats": 3,
+          "repeats_agree": false,
+          "transcript_reads_agree": true,
+          "run_classes": [
+            "ok",
+            "ok",
+            "ok"
+          ],
+          "changed_path_taken_runs": 3,
+          "load1_start": 1.99,
+          "by_script": [
+            {
+              "script": "ambient-stop.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 3,
+              "room_file_reads_per_process": [
+                3
+              ],
+              "room_stats": 1,
+              "room_readdirs": 0,
+              "sqlite_constructed": 1,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 4,
+              "modules_sum": 173
+            },
+            {
+              "script": "check-card-fire.cjs",
+              "processes": 1,
+              "transcript_reads": 1,
+              "transcript_stats": 1,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "check-voice-style.cjs",
+              "processes": 1,
+              "transcript_reads": 1,
+              "transcript_stats": 1,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 9
+            },
+            {
+              "script": "doctor.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 53
+            },
+            {
+              "script": "eval",
+              "processes": 9,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 187,
+              "room_file_reads_per_process": [
+                184,
+                2,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "room_stats": 196,
+              "room_readdirs": 23,
+              "sqlite_constructed": 24,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 138,
+              "modules_sum": 296
+            },
+            {
+              "script": "feynman-minto-guardian.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 98,
+              "room_file_reads_per_process": [
+                98
+              ],
+              "room_stats": 101,
+              "room_readdirs": 9,
+              "sqlite_constructed": 1,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 3,
+              "modules_sum": 183
+            },
+            {
+              "script": "gsd-graph-derive-sweep.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 1,
+              "room_file_reads_per_process": [
+                1
+              ],
+              "room_stats": 1,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 3
+            },
+            {
+              "script": "hmi-compliance-poll.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "jtbd-update.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 8
+            },
+            {
+              "script": "memory-lifecycle.cjs",
+              "processes": 2,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0,
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 4
+            },
+            {
+              "script": "operator-update.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 0,
+              "room_file_reads_per_process": [
+                0
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 3
+            },
+            {
+              "script": "recompile-room-references.cjs",
+              "processes": 14,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 186,
+              "room_file_reads_per_process": [
+                24,
+                19,
+                18,
+                16,
+                16,
+                16,
+                15,
+                14,
+                13,
+                10,
+                10,
+                9,
+                5,
+                1
+              ],
+              "room_stats": 84,
+              "room_readdirs": 13,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 28
+            },
+            {
+              "script": "room-render.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 49,
+              "room_file_reads_per_process": [
+                49
+              ],
+              "room_stats": 27,
+              "room_readdirs": 30,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 178
+            },
+            {
+              "script": "state-write.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 1,
+              "room_file_reads_per_process": [
+                1
+              ],
+              "room_stats": 0,
+              "room_readdirs": 0,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 2
+            },
+            {
+              "script": "user-archetype.cjs",
+              "processes": 1,
+              "transcript_reads": 0,
+              "transcript_stats": 0,
+              "room_file_reads": 5,
+              "room_file_reads_per_process": [
+                5
+              ],
+              "room_stats": 0,
+              "room_readdirs": 1,
+              "sqlite_constructed": 0,
+              "sqlite_exec": 0,
+              "sqlite_prepare": 0,
+              "modules_sum": 2
+            }
+          ]
+        }
+      },
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 29,
+        "intersect_paths": 0,
+        "exit_code": 0
+      }
+    },
+    "s7-exec-check-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 3,
+      "load1_start": 1.91,
+      "load1_end": 1.76,
+      "started_at": "2026-11-05T18:41:57.794Z",
+      "ended_at": "2026-11-05T18:42:10.206Z",
+      "exec_check": {
+        "os": {
+          "repeats": 3,
+          "replied_runs": 3,
+          "stub_calls": [
+            0,
+            0,
+            0
+          ],
+          "blocked_execs": [
+            0,
+            0,
+            0
+          ],
+          "npm_execs_counted": [
+            0,
+            0,
+            0
+          ],
+          "exec_total": [
+            1,
+            1,
+            1
+          ],
+          "node_starts": [
+            1,
+            1,
+            1
+          ],
+          "bash_starts": [
+            0,
+            0,
+            0
+          ],
+          "by_program": {
+            "node": 1
+          },
+          "npm_attempted": false
+        }
+      },
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 1,
+        "intersect_paths": 0,
+        "exit_code": 0
+      }
+    },
+    "s3-tool-opens-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 3,
+      "load1_start": 0.56,
+      "load1_end": 0.5,
+      "started_at": "2026-11-05T18:46:05.037Z",
+      "ended_at": "2026-11-05T18:46:15.723Z",
+      "repeats": 3,
+      "write_path": "off (default: MINDRIAN_MCP_FIRST unset)",
+      "opens": [
+        {
+          "tool": "room_list",
+          "writes_to_room": false,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 26.4
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 2.6
+          }
+        },
+        {
+          "tool": "room_state",
+          "writes_to_room": false,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              2,
+              2,
+              2
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              5,
+              5,
+              5
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              3,
+              3,
+              3
+            ],
+            "lib_reads": [
+              2,
+              2,
+              2
+            ],
+            "room_reads": [
+              1,
+              1,
+              1
+            ],
+            "tool_ms_median": 9.5
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              2,
+              2,
+              2
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              5,
+              5,
+              5
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              1,
+              1,
+              1
+            ],
+            "tool_ms_median": 4.2
+          }
+        },
+        {
+          "tool": "suggest_next",
+          "writes_to_room": false,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              1,
+              1,
+              1
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              1,
+              1,
+              1
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 6
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 0,
+            "opens_server": [
+              1,
+              1,
+              1
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              1,
+              1,
+              1
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 3.6
+          }
+        },
+        {
+          "tool": "room_startup",
+          "writes_to_room": false,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 3
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 1.6
+          }
+        },
+        {
+          "tool": "artifact_file",
+          "writes_to_room": true,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 3.8
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 1.9
+          }
+        },
+        {
+          "tool": "memory_event",
+          "writes_to_room": true,
+          "reaches_cascade": false,
+          "first_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 2.3
+          },
+          "second_call": {
+            "measured_repeats": 3,
+            "tool_error_repeats": 3,
+            "opens_server": [
+              0,
+              0,
+              0
+            ],
+            "opens_children": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_exec_server": [
+              0,
+              0,
+              0
+            ],
+            "sqlite_prepare_server": [
+              0,
+              0,
+              0
+            ],
+            "child_node_processes": [
+              0,
+              0,
+              0
+            ],
+            "modules_added": [
+              0,
+              0,
+              0
+            ],
+            "lib_reads": [
+              0,
+              0,
+              0
+            ],
+            "room_reads": [
+              0,
+              0,
+              0
+            ],
+            "tool_ms_median": 1
+          }
+        }
+      ],
+      "not_measured": [],
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 1,
+        "intersect_paths": 0,
+        "exit_code": 0
+      }
+    },
+    "s3-session-opens-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 3,
+      "load1_start": 0.64,
+      "load1_end": 1.8,
+      "started_at": "2026-11-05T18:46:22.786Z",
+      "ended_at": "2026-11-05T18:49:56.379Z",
+      "session": {
+        "variant": "unchanged",
+        "event": "SessionStart startup",
+        "repeats": 3,
+        "run_classes": [
+          "ok",
+          "ok",
+          "ok"
+        ],
+        "changed_path_taken_runs": 3,
+        "room_db_present_before_warmup": true,
+        "room_db_bytes": 6184960,
+        "load1_start": 0.64,
+        "opens_per_repeat": [
+          9,
+          9,
+          9
+        ],
+        "exec_per_repeat": [
+          23,
+          23,
+          23
+        ],
+        "prepare_per_repeat": [
+          268,
+          268,
+          268
+        ],
+        "node_processes_per_repeat": [
+          44,
+          44,
+          44
+        ],
+        "repeats_agree": true,
+        "opens_total": 9,
+        "exec_total": 23,
+        "prepare_total": 268,
+        "scripts_with_opens": [
+          "agentshield-sessionstart-scan.cjs",
+          "eval",
+          "feynman-minto-guardian.cjs",
+          "sessionstart-coordinator.cjs",
+          "sync-rooms-graph"
+        ],
+        "by_script": [
+          {
+            "script": "agentshield-sessionstart-scan.cjs",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 20,
+            "sqlite_prepare": 16
+          },
+          {
+            "script": "brain-prewarm.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "check-pending-ambiguous.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "check-pending-breakthrough.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "dogfood-derive.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "dogfood-emit.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "eval",
+            "processes": 24,
+            "sqlite_constructed": 5,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 242
+          },
+          {
+            "script": "feynman-minto-guardian.cjs",
+            "processes": 2,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 3
+          },
+          {
+            "script": "gsd-graph-derive-drain.cjs",
+            "processes": 2,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "mcp-profiles.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "memory-lifecycle.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "mindrian-tools.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "room-render.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "session-context-envelope.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sessionstart-coordinator.cjs",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 1
+          },
+          {
+            "script": "sessionstart-post-update-preflight.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sessionstart-reference-now-seed.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sync-rooms-graph",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 3,
+            "sqlite_prepare": 6
+          },
+          {
+            "script": "user-archetype.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          }
+        ]
+      },
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 20,
+        "intersect_paths": 0,
+        "exit_code": 0
+      }
+    },
+    "s3-session-opens-changed-local": {
+      "schema": "mos.perf-384-counts/1",
+      "room": {
+        "kind": "real-copy",
+        "file_count": 221,
+        "byte_total": 13728700,
+        "fs_type": "ext2/ext3"
+      },
+      "set": "s1",
+      "tree_label": "main",
+      "cpus": 4,
+      "runs": 3,
+      "load1_start": 1.83,
+      "load1_end": 0.82,
+      "started_at": "2026-11-05T18:51:34.152Z",
+      "ended_at": "2026-11-05T18:53:10.564Z",
+      "session": {
+        "variant": "changed",
+        "event": "SessionStart startup",
+        "repeats": 3,
+        "run_classes": [
+          "ok",
+          "ok",
+          "ok"
+        ],
+        "changed_path_taken_runs": 3,
+        "room_db_present_before_warmup": true,
+        "room_db_bytes": 6057984,
+        "load1_start": 1.83,
+        "opens_per_repeat": [
+          9,
+          9,
+          9
+        ],
+        "exec_per_repeat": [
+          23,
+          23,
+          23
+        ],
+        "prepare_per_repeat": [
+          266,
+          268,
+          266
+        ],
+        "node_processes_per_repeat": [
+          45,
+          45,
+          45
+        ],
+        "repeats_agree": true,
+        "opens_total": 9,
+        "exec_total": 23,
+        "prepare_total": 266,
+        "scripts_with_opens": [
+          "agentshield-sessionstart-scan.cjs",
+          "eval",
+          "feynman-minto-guardian.cjs",
+          "sessionstart-coordinator.cjs",
+          "sync-rooms-graph"
+        ],
+        "by_script": [
+          {
+            "script": "agentshield-sessionstart-scan.cjs",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 20,
+            "sqlite_prepare": 16
+          },
+          {
+            "script": "brain-prewarm.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "check-pending-ambiguous.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "check-pending-breakthrough.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "dogfood-derive.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "dogfood-emit.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "eval",
+            "processes": 24,
+            "sqlite_constructed": 5,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 240
+          },
+          {
+            "script": "feynman-minto-guardian.cjs",
+            "processes": 2,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 3
+          },
+          {
+            "script": "gsd-graph-derive-drain.cjs",
+            "processes": 2,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "mcp-profiles.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "memory-lifecycle.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "mindrian-tools.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "room-render.cjs",
+            "processes": 2,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "session-context-envelope.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sessionstart-coordinator.cjs",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 1
+          },
+          {
+            "script": "sessionstart-post-update-preflight.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sessionstart-reference-now-seed.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          },
+          {
+            "script": "sync-rooms-graph",
+            "processes": 1,
+            "sqlite_constructed": 1,
+            "sqlite_exec": 3,
+            "sqlite_prepare": 6
+          },
+          {
+            "script": "user-archetype.cjs",
+            "processes": 1,
+            "sqlite_constructed": 0,
+            "sqlite_exec": 0,
+            "sqlite_prepare": 0
+          }
+        ]
+      },
+      "isolation": {
+        "source_changed_paths": 0,
+        "copy_changed_paths": 21,
+        "intersect_paths": 0,
+        "exit_code": 0
+      }
+    }
+  }
+}

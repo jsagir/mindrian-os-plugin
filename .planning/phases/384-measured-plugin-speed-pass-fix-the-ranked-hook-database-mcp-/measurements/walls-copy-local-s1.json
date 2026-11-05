@@ -1,0 +1,1093 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "b8976c8a8163a91faf255cf2ae9c7ba72c0f27d8",
+    "tree_label": "main",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T17:33:46.647Z",
+    "ended_at": "2026-11-05T17:43:20.430Z",
+    "load1_start": 0.14,
+    "load1_end": 0.77
+  },
+  "room": {
+    "kind": "real-copy",
+    "file_count": 221,
+    "byte_total": 13728700,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "main",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 0.14,
+  "load1_end": 0.77,
+  "started_at": "2026-11-05T17:33:46.647Z",
+  "ended_at": "2026-11-05T17:43:20.430Z",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 70,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 1,
+      "wal": 1,
+      "db": 1,
+      "other": 67
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "event:SessionStart:changed",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5079.8,
+        "p95": 6038.7,
+        "min": 4685,
+        "max": 12031.1
+      },
+      "cpu_ms": {
+        "median": 5340,
+        "p95": 6100,
+        "min": 4750,
+        "max": 6260
+      },
+      "rss_mb": {
+        "median": 79.8,
+        "p95": 80.2,
+        "min": 79.1,
+        "max": 111.6
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14887,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 176.6,
+          "cpu_ms": 80
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 5024,
+          "cpu_ms": 4430
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 358.5,
+          "cpu_ms": 270
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 259.4,
+          "cpu_ms": 140
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 130.3,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 130.6,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 237.4,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 298.4,
+          "cpu_ms": 140
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 7,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.14,
+      "load1_end": 0.49,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SessionStart:compact",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5107.8,
+        "p95": 5295.4,
+        "min": 4823.9,
+        "max": 6149.4
+      },
+      "cpu_ms": {
+        "median": 5380,
+        "p95": 5510,
+        "min": 4920,
+        "max": 6420
+      },
+      "rss_mb": {
+        "median": 79.7,
+        "p95": 80.1,
+        "min": 78.9,
+        "max": 80.2
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14922,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 147,
+          "cpu_ms": 80
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 5107.8,
+          "cpu_ms": 4660
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 370.5,
+          "cpu_ms": 240
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 227.1,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 142.7,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 146.3,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 215.5,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 313.7,
+          "cpu_ms": 140
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.49,
+      "load1_end": 0.58,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:UserPromptSubmit",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 421,
+        "p95": 463.8,
+        "min": 358.3,
+        "max": 470.5
+      },
+      "cpu_ms": {
+        "median": 580,
+        "p95": 630,
+        "min": 430,
+        "max": 680
+      },
+      "rss_mb": {
+        "median": 73.3,
+        "p95": 73.4,
+        "min": 72.1,
+        "max": 73.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 6,
+      "per_hook": [
+        {
+          "id": "scripts/admin-command-gate.cjs",
+          "async": false,
+          "wall_ms": 69.6,
+          "cpu_ms": 30
+        },
+        {
+          "id": "hooks/run-hook.cmd intent-classifier",
+          "async": false,
+          "wall_ms": 421,
+          "cpu_ms": 300
+        },
+        {
+          "id": "scripts/mva-detect.cjs",
+          "async": false,
+          "wall_ms": 100.8,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/first-install-router.cjs",
+          "async": false,
+          "wall_ms": 140.5,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/brain-derivation-drain.cjs",
+          "async": false,
+          "wall_ms": 98.2,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 88.5,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/jtbd-update.cjs userprompt",
+          "async": false,
+          "wall_ms": 90.4,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-drain.cjs",
+          "async": false,
+          "wall_ms": 85.5,
+          "cpu_ms": 30
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.58,
+      "load1_end": 0.58,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:changed",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1877.6,
+        "p95": 1891.1,
+        "min": 1601.9,
+        "max": 2006
+      },
+      "cpu_ms": {
+        "median": 2550,
+        "p95": 2650,
+        "min": 2190,
+        "max": 2710
+      },
+      "rss_mb": {
+        "median": 79.5,
+        "p95": 80.3,
+        "min": 79.2,
+        "max": 80.6
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 196.3
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 1877.6,
+          "cpu_ms": 2020
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 161.5,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 149.6,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 304.5,
+          "cpu_ms": 200
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 134.2,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 156.9,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 124,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 196.3,
+          "cpu_ms": 120
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 7,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.58,
+      "load1_end": 1.38,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:unchanged",
+      "warmup_runs": 2,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1920.8,
+        "p95": 2009.9,
+        "min": 1507.2,
+        "max": 2098.5
+      },
+      "cpu_ms": {
+        "median": 2530,
+        "p95": 2610,
+        "min": 2150,
+        "max": 2680
+      },
+      "rss_mb": {
+        "median": 79.6,
+        "p95": 79.7,
+        "min": 78.9,
+        "max": 80
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 157.6
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 6,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 1920.8,
+          "cpu_ms": 2150
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 106.1,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 107.2,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 239.2,
+          "cpu_ms": 190
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 87.6,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 105,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 81.5,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 157.6,
+          "cpu_ms": 100
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 0,
+      "changed_unknown_runs": 0,
+      "touch_applied": null,
+      "load1_start": 1.38,
+      "load1_end": 1.41,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:changed:tx4m",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 1890.9,
+        "p95": 2049.1,
+        "min": 1470.5,
+        "max": 2160.9
+      },
+      "cpu_ms": {
+        "median": 2740,
+        "p95": 2850,
+        "min": 2130,
+        "max": 2970
+      },
+      "rss_mb": {
+        "median": 79.9,
+        "p95": 79.9,
+        "min": 79.2,
+        "max": 80
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 215.1
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 1890.9,
+          "cpu_ms": 2160
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 165,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 141.8,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 314,
+          "cpu_ms": 210
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 147.4,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 210.1,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 190.4,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 215.1,
+          "cpu_ms": 110
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 7,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 1.41,
+      "load1_end": 2.63,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:Stop:unchanged:tx4m",
+      "warmup_runs": 2,
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2030.1,
+        "p95": 2084.8,
+        "min": 1843.5,
+        "max": 2103.1
+      },
+      "cpu_ms": {
+        "median": 2760,
+        "p95": 2850,
+        "min": 2720,
+        "max": 2870
+      },
+      "rss_mb": {
+        "median": 79.6,
+        "p95": 80,
+        "min": 79.2,
+        "max": 80.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "wall_ms": 195.7
+        }
+      ],
+      "hook_count": 8,
+      "background_ms": 13,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-stop",
+          "async": false,
+          "wall_ms": 2030.1,
+          "cpu_ms": 2200
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 143.8,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/jtbd-update.cjs stop",
+          "async": false,
+          "wall_ms": 156.8,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/hmi-compliance-poll.cjs --hook",
+          "async": false,
+          "wall_ms": 302.1,
+          "cpu_ms": 200
+        },
+        {
+          "id": "scripts/gsd-graph-derive-sweep.cjs",
+          "async": false,
+          "wall_ms": 108.9,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/check-card-fire.cjs",
+          "async": false,
+          "wall_ms": 190.1,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-voice-style.cjs",
+          "async": false,
+          "wall_ms": 194.2,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/ambient-stop.cjs --stop",
+          "async": true,
+          "wall_ms": 195.7,
+          "cpu_ms": 120
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 0,
+      "changed_unknown_runs": 0,
+      "touch_applied": null,
+      "load1_start": 1.86,
+      "load1_end": 1.98,
+      "gate_waited_ms": 55000,
+      "noisy": false
+    },
+    {
+      "id": "event:PostToolUse:Write",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 545.2,
+        "p95": 869.2,
+        "min": 264.8,
+        "max": 888.2
+      },
+      "cpu_ms": {
+        "median": 780,
+        "p95": 890,
+        "min": 610,
+        "max": 1030
+      },
+      "rss_mb": {
+        "median": 67.2,
+        "p95": 67.3,
+        "min": 66.5,
+        "max": 67.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 329.4,
+          "cpu_ms": 260
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 164.4,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 124,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 91.1,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 231.4,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 111.8,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 545.2,
+          "cpu_ms": 190
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 104.2,
+          "cpu_ms": 40
+        }
+      ],
+      "escaped_max": 5,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.98,
+      "load1_end": 1.99,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PostToolUse:Read",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 80.3,
+        "p95": 85.1,
+        "min": 51.5,
+        "max": 119.8
+      },
+      "cpu_ms": {
+        "median": 120,
+        "p95": 130,
+        "min": 60,
+        "max": 180
+      },
+      "rss_mb": {
+        "median": 44.7,
+        "p95": 44.7,
+        "min": 44.6,
+        "max": 44.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 2,
+      "background_ms": 7,
+      "per_hook": [
+        {
+          "id": "scripts/query-efficiency-telemetry.cjs",
+          "async": false,
+          "wall_ms": 80.3,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/operator-update.cjs",
+          "async": false,
+          "wall_ms": 72.4,
+          "cpu_ms": 60
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.99,
+      "load1_end": 1.99,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SubagentStop",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 365.6,
+        "p95": 377.2,
+        "min": 270.2,
+        "max": 499.6
+      },
+      "cpu_ms": {
+        "median": 430,
+        "p95": 450,
+        "min": 320,
+        "max": 580
+      },
+      "rss_mb": {
+        "median": 9.9,
+        "p95": 9.9,
+        "min": 9.9,
+        "max": 9.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-agent-complete",
+          "async": false,
+          "wall_ms": 365.6,
+          "cpu_ms": 430
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.99,
+      "load1_end": 1.99,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:TaskCompleted",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 529.6,
+        "p95": 698.8,
+        "min": 336.4,
+        "max": 724.5
+      },
+      "cpu_ms": {
+        "median": 620,
+        "p95": 830,
+        "min": 390,
+        "max": 850
+      },
+      "rss_mb": {
+        "median": 64.1,
+        "p95": 64.2,
+        "min": 63.9,
+        "max": 64.6
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 5,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd on-task-complete",
+          "async": false,
+          "wall_ms": 529.6,
+          "cpu_ms": 620
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.99,
+      "load1_end": 1.91,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PreCompact",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 573.9,
+        "p95": 623,
+        "min": 353.5,
+        "max": 673.4
+      },
+      "cpu_ms": {
+        "median": 600,
+        "p95": 680,
+        "min": 380,
+        "max": 720
+      },
+      "rss_mb": {
+        "median": 64.1,
+        "p95": 64.5,
+        "min": 63.7,
+        "max": 64.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd pre-compact",
+          "async": false,
+          "wall_ms": 573.9,
+          "cpu_ms": 600
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.91,
+      "load1_end": 1.83,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PostCompact",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5208.9,
+        "p95": 5686.3,
+        "min": 301.8,
+        "max": 5687.9
+      },
+      "cpu_ms": {
+        "median": 4530,
+        "p95": 4850,
+        "min": 320,
+        "max": 5030
+      },
+      "rss_mb": {
+        "median": 67.4,
+        "p95": 67.6,
+        "min": 61.4,
+        "max": 67.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 14880,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-compact",
+          "async": false,
+          "wall_ms": 5208.9,
+          "cpu_ms": 4530
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.83,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "floor:node",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 77.8,
+        "p95": 94.8,
+        "min": 41.3,
+        "max": 101.8
+      },
+      "cpu_ms": {
+        "median": 50,
+        "p95": 80,
+        "min": 20,
+        "max": 80
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 9,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.77,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}

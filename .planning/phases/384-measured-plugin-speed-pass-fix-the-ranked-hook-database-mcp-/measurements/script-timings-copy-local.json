@@ -1,0 +1,440 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "f2c7505e01967ce0a4c43fee6f5b9adea4390217",
+    "tree_label": "main",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T18:41:18.829Z",
+    "ended_at": "2026-11-05T18:41:27.962Z",
+    "load1_start": 0.49,
+    "load1_end": 0.79
+  },
+  "room": {
+    "kind": "real-copy",
+    "file_count": 221,
+    "byte_total": 13728700,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "main",
+  "cpus": 4,
+  "runs": 20,
+  "load1_start": 0.49,
+  "load1_end": 0.79,
+  "started_at": "2026-11-05T18:41:18.829Z",
+  "ended_at": "2026-11-05T18:41:27.962Z",
+  "drain_empty": {
+    "count_run_class": "ok",
+    "queue_file_present": true,
+    "script_processes": 1,
+    "modules_loaded": 2,
+    "lib_file_reads": 1,
+    "sqlite_constructed": 0
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  },
+  "targets": [
+    {
+      "id": "script:drain-empty:hook",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 33.6,
+        "p95": 69.7,
+        "min": 26.4,
+        "max": 71.7
+      },
+      "cpu_ms": {
+        "median": 20,
+        "p95": 50,
+        "min": 10,
+        "max": 50
+      },
+      "rss_mb": {
+        "median": 43.9,
+        "p95": 43.9,
+        "min": 43.9,
+        "max": 44
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 3.5,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.49,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:drain-empty:floor-node",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 25.1,
+        "p95": 41.1,
+        "min": 21.6,
+        "max": 85.9
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 30,
+        "min": 10,
+        "max": 60
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 3.5,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.49,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:drain-empty:floor-bash-node",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 26.8,
+        "p95": 48,
+        "min": 21.7,
+        "max": 59.3
+      },
+      "cpu_ms": {
+        "median": 15,
+        "p95": 40,
+        "min": 10,
+        "max": 50
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 4,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.49,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:drain-empty:hook-minus-floor-node",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 8,
+        "p95": 29.2,
+        "min": -47.4,
+        "max": 38.8
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.49,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair hook wall minus bare node wall"
+    },
+    {
+      "id": "script:drain-empty:hook-minus-floor-bash-node",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 7.3,
+        "p95": 21.6,
+        "min": -16,
+        "max": 34.2
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.49,
+      "load1_end": 0.77,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair hook wall minus bash-wrapped node wall"
+    },
+    {
+      "id": "script:module-load:folder-memory",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 55,
+        "p95": 125.7,
+        "min": 48.5,
+        "max": 145.5
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 180,
+        "min": 70,
+        "max": 220
+      },
+      "rss_mb": {
+        "median": 61.1,
+        "p95": 61.4,
+        "min": 59.9,
+        "max": 61.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.77,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:module-load:brain-client",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 7.8,
+        "p95": 15.4,
+        "min": 6.7,
+        "max": 16.9
+      },
+      "cpu_ms": {
+        "median": 20,
+        "p95": 50,
+        "min": 10,
+        "max": 50
+      },
+      "rss_mb": {
+        "median": 45.1,
+        "p95": 45.1,
+        "min": 45.1,
+        "max": 45.1
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.77,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:module-load:navigation",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 52.6,
+        "p95": 89.1,
+        "min": 47.4,
+        "max": 96.3
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 140,
+        "min": 70,
+        "max": 140
+      },
+      "rss_mb": {
+        "median": 61,
+        "p95": 61.3,
+        "min": 60.5,
+        "max": 61.4
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.77,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "script:module-load:sequence-total",
+      "n": 20,
+      "blocking": true,
+      "wall_ms": {
+        "median": 53.7,
+        "p95": 89.8,
+        "min": 49,
+        "max": 102.7
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 140,
+        "min": 70,
+        "max": 140
+      },
+      "rss_mb": {
+        "median": 61.2,
+        "p95": 61.6,
+        "min": 60.4,
+        "max": 61.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.77,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "parts_median_ms": {
+        "folder-memory": 53,
+        "brain-client": 0,
+        "navigation": 0
+      }
+    },
+    {
+      "id": "script:autoexplore:f0",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 67.2,
+        "p95": 84.1,
+        "min": 43.9,
+        "max": 93.1
+      },
+      "cpu_ms": {
+        "median": 50,
+        "p95": 70,
+        "min": 30,
+        "max": 70
+      },
+      "rss_mb": {
+        "median": 44.2,
+        "p95": 44.2,
+        "min": 44.2,
+        "max": 44.2
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 6,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.79,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "finding_files": 0,
+      "variant": "none"
+    }
+  ]
+}
