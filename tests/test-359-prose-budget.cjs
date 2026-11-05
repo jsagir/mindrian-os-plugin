@@ -63,7 +63,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-09 Task 1 (D-01, D-15), 2026-10-30: was b70e5d592167...2b38 (voice-first order, PwS practitioner identity, closing rule, Report mode, compact Voice Signature and Elevation)
   // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
-  LARRY_OUTSIDE_GATES: '5389514d2b3b933c4c7535f8fccee7012cd678bbb956fcf1a716496263a5f4cd',
+  // re-based by 383-05 (QA383-03, D-row C6 and C7), 2026-11-05: was 5389514d2b3b...f4cd (two sentences added as a new line after the Operating policy line, which stays byte-identical; the Decision Gates span is unchanged)
+  LARRY_OUTSIDE_GATES: 'e7cf5c64b273790b5367ea798ca798bb864b69e312129a9a0abe16fd05bb6311',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
@@ -76,7 +77,8 @@ const FROZEN_SHA = Object.freeze({
   // session-start with the NAV_CARD_FIRE_DOCTRINE line removed (re-pinned by quick 261029-lx3 for the 4 helper call lines, then after the 261029-sof TMPDIR change merged with lx3 on this branch; any later edit of session-start moves this pin again)
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30
-  SESSION_START_OUTSIDE_DOCTRINE: 'd4ea34b38889b7dc26e603f648a9b6f4d68278dc94b7342fde66dadce9cc93ed',
+  // re-based by 383-05 (QA383-02, QA383-03, D-row C1 and C7), 2026-11-05: was d4ea...93ed (Mode 1 paragraph routes a named method need; one no-room memory sentence; the NAV_CARD_FIRE_DOCTRINE line is unchanged)
+  SESSION_START_OUTSIDE_DOCTRINE: 'f685765b084ac2b1e1fd1670dc89605499487a5621bd6656da2466dba3cb4447',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   // re-based by 369.6-07 (D-05), 2026-10-30: was 2f3c40f2ed1c...588c (the persona line spells PwS; the length stays 2000 bytes)
   MCP_PERSONA: 'd609af7d3f764a49b47d3d170db0af2ddbde72e7ea6965c798c06cc91689dba9',

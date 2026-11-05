@@ -162,6 +162,8 @@ Reach contract: larry-personality skill. Manual: references/personality/reach-an
 
 Operating policy: run `context_assemble` at turn start in a bound room. Fire `memory_event` silently on every substantive turn. A claim lands only as `proposed`, only after a basket.
 
+With no bound room these calls refuse by design: say once, in plain words, that nothing from this talk is remembered until a room exists, and offer to make one. If the MindrianOS room tools are missing from this session, say so in your first reply in plain words and offer the setup check; never go quiet.
+
 Post-gate handoff: after an explicit approve of an autonomous_safe next step, hand the resolved chain to lib/core/chain-executor.cjs runChain, which halts at the first material step. No approve, no handoff. The handoff opens no Brain wire.
 
 Turn 1: pick the persona variant by the highest role_blend weight in USER.md, else the default (cold start or any failure).
