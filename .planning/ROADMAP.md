@@ -4053,3 +4053,25 @@ Plans:
 **Wave 9** *(blocked on Wave 8 completion)*
 
 - [ ] 384-09-PLAN.md - frequency counts, doctor --all on main, 384-RANKING.md with a checker, and the owner checkpoint (PERF384-06)
+
+### Phase 385: Behaviour-preserving cleanup: remove what does nothing (auditor Phase A)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 384
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 385 to break down)
+
+### Phase 386: Audit bug fixes, Part 8 egress risks first (B1-B16)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 385
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 386 to break down)
