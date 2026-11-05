@@ -17,6 +17,7 @@ Verbatim extraction from the owner session transcript. All text below was pasted
 | D5 | Auditor review of the auditor definition (L6/L7, verification step, pycache, confirmed facts) | Review of definition |
 | D6 | Auditor R1 update: Eureka reachability gap, kuzu-class redundancy verdicts, duplicate code inside Eureka | R1 update, Eureka gap |
 | E | Auditor question list (16 questions) for the owner, pre-findings | Auditor question list |
+| F | Auditor egress audit, final message (Part 8 guard, four stacked problems, Phase 386 ordering note) | Auditor egress audit, final message |
 
 Versions: each text appears once in the transcript; no duplicate versions found, except D3 (superseded by its own correction in D4) and R1 report updates (D6 replaces the first R1 report, which was not pasted in full by the owner; only D4 quotes its verdicts).
 Redaction (Canon Part 8): one room path pattern replaced with <room> in item B (T04). Wrapper tags `<pasted_content>` removed. Owner prefix "WHAT QUESTION DO I NEED TO ANSWER ?" removed from D5 (owner words, not auditor text). The first words of C1 start with `'d` because the transcript card answer cut them; kept as is.
@@ -634,4 +635,49 @@ Risk of change
 16. Is there test coverage that would catch a regression if two hooks were combined or a SessionStart step were deferred?
 
 If you only have time for three, ask 6, 2 and 3. Their answers will decide which of the audit's findings are worth measuring first.
+~~~~
+
+## F. Auditor egress audit, final message
+
+Source: pasted by owner, auditor text, not owner authority
+
+~~~~text
+All five egress auditors finished, and none failed. Reading their results. I'll re-check the most important claims myself: re-run the key probe cases on the real classifier and re-open the main lines. [tool activity omitted]
+
+I've finished the Part 8 egress audit, and the report is in egress-audit-report.md. All five auditors finished. I re-ran the key cases on the repo's real classifier myself: in a sandbox, with no network, no room content and only fake secrets. The repo is still unchanged.
+
+Your team's diagnosis is right on both counts, but it isn't one blunt classifier. It's four problems stacked:
+
+One set of rules does two jobs. The checks that look for room words (the lexicon, the capital-letter name rule, "my/our" phrasing) are also the only thing catching secrets. They catch a key only by accident: when its body is upper case, or when it looks like a name. So each fix for over-blocking quietly reopens a leak, and the other way round.
+"Ambiguous" means different things at each layer. A tool with no "this is safe" rule falls to ambiguous. On the plugin's own Brain server, the hook and callTool both send it. On other Brain connectors the hook blocks it. That's why lookups die on one route while room text leaves on another.
+The guard fails open. If it throws or fails to load, the hook exits 0 and callTool sends anyway. It loads 127 modules plus an npm package, so there's plenty to fail.
+Tests count "not allow" as safe, even though ambiguous calls get sent. The release gate even requires the two known leaks to stay allowed.
+
+What kills Theo and context lookups (confirmed on the real classifier):
+
+Typed Theo tools have no "safe" rule: normalize_framework_name, discover_structure, search, askOp and others. On a direct connector they're blocked whatever you write; rewording can't help. This is the root cause of the PENDING pws-brain-mcp debug file.
+The name rule is a capital-letter test. It blocks authors (Christensen), companies, months, places, and the plugin's own nouns (Larry, Data Room). The lower-case version of the same question passes.
+Ordinary business words are on the deny list: runway, ARR, standup, "meeting with", "80 percent", and a list of city names. "My team..." questions and an unreadable room.db block almost everything, and the unreadable-database result is cached until the files change.
+Online research: I found no content over-blocking on the web research lines, because since 2026-10-05 they only check credentials. If online research is failing, look at the research grant step, not the guard.
+
+What can leave:
+
+New: adding a job key to a brain_ask or brain_query payload flips a block to allow. Every content rule is skipped. The plugin's own Brain server should reject the extra key; other connectors and in-process callers aren't covered.
+brain_write (B2) passes both layers on the plugin's own server. An automatic chain sends room-derived whitespace data to Theo after a room write, at most once a day. Theo has no write path and refuses it, but only after the data has already left.
+No rule for keys or spelled money. A lower-case sk- key, "two million dollars", "750k" and "40%" all pass. On brain_write and packets, 21 of 22 key shapes pass. The web-line check catches only 2 of 22. Splitting words with a newline also beats the deny list for non-question tools.
+Paths with no check at all: Semantic Scholar: room titles and the room name. grants.gov: problem-statement words. research-speaker: meeting participants' names go to Google before the user is asked. WebSearch, WebFetch and Tavily: no hook inspects them.
+
+Your items 3-6:
+Item 3, a check that never runs: onFailure:block in hooks.json never engages, because the script swallows errors and exits 0.
+Item 4, a test that can't fail: 8 test files assert only "not allow", and one test asserts that a canary reaches the wire.
+Item 5, the refusal repeating the flagged word: that holds; refusals name the kind and the count, never the word.
+Item 6, a fix on main isn't live: add a check against the released version, because every install keeps the current guard, including the daily write, until users pick up a release.
+
+Root causes for the two PENDING debug files are in section 6, ready to paste.
+
+Two things for Phase 386:
+Order matters for step 4. Add the "this is safe" rules for the typed Theo tools first, then make "ambiguous" a block. The other way round kills the whitespace baseline, framework chains and the framework-name refresh: the next over-block.
+Step 3 needs a ruling first. Since the 2026-10-05 navigator ruling, the web research lines send room words on purpose (only credentials are checked). That contradicts your Part 8 statement. Until the owner decides, moving Semantic Scholar "behind the chokepoint" adds a grant and a credential check, not content protection.
+
+Not covered: The hook itself, the test suites and the fetchers weren't run. How a user-registered "mindrian-brain" connector is named is inferred, not verified. Whether other connectors reject the extra job key is unknown. Bound-room probes used synthetic rooms only.
 ~~~~
