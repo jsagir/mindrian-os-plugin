@@ -797,6 +797,19 @@ async function partQ() {
     fs.writeFileSync(path.join(md, 't5.json'), JSON.stringify(hm));
     check('QR6 the Part 8 scan stops a merge that holds a home path (exit 1, no output file)', run(['merge', path.join(md, 't1.json'), path.join(md, 't5.json'), '--out', path.join(outDir, 'p8.json')]).status === 1 && !fs.existsSync(path.join(outDir, 'p8.json')));
     check('QR6 merge with one input or no --out exits 2', run(['merge', path.join(md, 't1.json'), '--out', path.join(outDir, 'one.json')]).status === 2 && run(['merge', path.join(md, 't1.json'), path.join(md, 't2.json')]).status === 2);
+
+    // WU: an :unchanged target warms up until a run takes the skip path (found in the fixture-room smoke sets of plan 384-03)
+    const wuCmd = 'mkdir -p .mindrian; n=$(cat "$MOS_T_CNT" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "$MOS_T_CNT"; if [ $n -le 3 ]; then m=detached; else m=skip; fi; printf "%s on-stop-state mode=%s reason=x\\n" now $m >> .mindrian/session-close.log';
+    const wuTree = hookTree(path.join(TMP, 'wutree'), { Stop: [{ hooks: [{ type: 'command', command: wuCmd, timeout: 5 }] }] });
+    const wuOut = path.join(TMP, 'wu.json');
+    const wuRun = run(['run', '--tree', wuTree, '--room', 'synthetic', '--allow-short', '--runs', '2', '--targets', 'event:Stop:unchanged', '--out', wuOut], { env: { MOS_T_CNT: path.join(TMP, 'wu.count') } });
+    const wuT = tgt(readJson(wuOut), 'event:Stop:unchanged');
+    check('WU the warm-up repeats until a run takes the skip path (4 warm-ups, then 2 skip runs)', wuRun.status === 0 && !!wuT && wuT.warmup_runs === 4 && wuT.n === 2 && wuT.changed_taken_runs === 0, wuRun.status + ' ' + JSON.stringify(wuT && [wuT.warmup_runs, wuT.n, wuT.changed_taken_runs]) + ' ' + String(wuRun.stderr).slice(0, 200));
+    const wuNever = hookTree(path.join(TMP, 'wunever'), { Stop: [{ hooks: [{ type: 'command', command: 'mkdir -p .mindrian; printf "%s on-stop-state mode=sync reason=x\\n" now >> .mindrian/session-close.log', timeout: 5 }] }] });
+    const wuOut2 = path.join(TMP, 'wu2.json');
+    run(['run', '--tree', wuNever, '--room', 'synthetic', '--allow-short', '--runs', '1', '--targets', 'event:Stop:unchanged', '--out', wuOut2]);
+    const wuT2 = tgt(readJson(wuOut2), 'event:Stop:unchanged');
+    check('WU a target that never reaches the skip path stops after 6 warm-ups and still shows the changed path in its runs', !!wuT2 && wuT2.warmup_runs === 6 && wuT2.changed_taken_runs === 1, JSON.stringify(wuT2 && [wuT2.warmup_runs, wuT2.changed_taken_runs]));
   } finally {
     kids.forEach((k) => { try { k.kill('SIGKILL'); } catch (_e) { /* gone */ } });
   }

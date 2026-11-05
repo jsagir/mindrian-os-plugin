@@ -54,6 +54,7 @@ const GATE_POLL_MS = 5000;
 const GATE_MAX_MS = 300000;
 const PRELOAD = path.join(__dirname, 'count-modules-preload.cjs');
 const MIN_RUNS = 7;
+const WARMUP_MAX = 6;
 const QUIET_LOAD1 = 2;
 const MACHINE_FIELDS = ['cores', 'node', 'platform', 'arch', 'kernel', 'cpu_cap', 'fs_type', 'head_sha', 'tree_label',
   'base_sha', 'started_at', 'ended_at', 'load1_start', 'load1_end'];
@@ -915,8 +916,20 @@ async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
   // the gate runs before the first run of each target; a gate that times out marks the target noisy and the target runs anyway
   const gate = gateOpts && gateOpts.skip ? { ok: true, load1: readLoad1(), waited_ms: 0 } : await gateBeforeTarget(gateOpts);
   const acc = ctxs.map(() => ({ wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, skipped: new Map(), asyncs: new Map(), perHook: [], hooks: 0, blocking: 0, load1_start: gate.load1, gate_waited_ms: gate.waited_ms, noisy: !gate.ok, touch: !!ctxs[0].touchTarget, escaped: 0, survivors: 0, taken: 0, unknown: 0 }));
+  // plan 384-03: one warm-up is not enough to reach the unchanged state (a detached state rebuild of the first Stop
+  // leaves the next one still "newer"; seen on the fixture room: 3 warm-ups). Warm up until a run takes the skip path
+  // (changed_path_taken not true), at most WARMUP_MAX times. The proof is not weaker: a run that still takes the
+  // changed path after the warm-ups is counted in changed_taken_runs and verify-results rejects the file.
+  const warmups = ctxs.map(() => 0);
   if (def.kind === 'event' && def.change === 'unchanged') {
-    for (const c of ctxs) { await runEventOnce(def, c, { noTouch: true, settleMs: ro.settleMs }); await sleepMs(1100); }
+    for (let ci = 0; ci < ctxs.length; ci += 1) {
+      for (let k = 0; k < WARMUP_MAX; k += 1) {
+        const w = await runEventOnce(def, ctxs[ci], { noTouch: true, settleMs: ro.settleMs });
+        warmups[ci] += 1;
+        await sleepMs(1100);
+        if (w.changed_path_taken !== true) break;
+      }
+    }
   }
   const order = ctxs.length === 2 ? interleaveOrder(runs) : new Array(runs).fill('A');
   for (const lab of order) {
@@ -945,8 +958,9 @@ async function measureTarget(def, ctxs, runs, gateOpts, runOpts) {
       if (h.cpu_ms !== null) p.cpu.push(h.cpu_ms);
     });
   }
-  return acc.map((a) => ({
+  return acc.map((a, ai) => ({
     id: def.id,
+    warmup_runs: def.change === 'unchanged' ? warmups[ai] : undefined,
     n: a.wall.length,
     blocking: a.blocking > 0,
     wall_ms: statsSummary(a.wall),
