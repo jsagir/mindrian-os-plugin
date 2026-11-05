@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Fixed
+- **Creating a room on Windows now works from the approval card, and a machine that cannot create a room says so before the card (beta.77 QA report, Phase 383).** On Windows, room creation used to start whatever `bash` and `python3` the machine found first. That could be the WSL launcher or the Microsoft Store placeholder, neither of which runs the room registry, so you approved a room and then it failed. Now room creation runs Git Bash and a Python 3.9 or newer that it has run once to prove it works. When the machine has neither, the approval card does not appear. One plain message names the missing piece and the fix, and no folder is written. If a machine stops being ready between the card and your answer, the answer is refused with the same message and nothing is created. Creating a room with a full Windows path also no longer builds a second copy of that path inside the rooms folder. We measured this on the dev machine, not on the QA laptop: with Git Bash and Python 3.13 on Windows, a create made the room and wrote no `C:` entry. The Linux checks pass (`test-383-runtime-resolver` 15 of 15, `test-383-registry-interpreter` 6 of 6, `test-383-registry-abs-rpath` 5 of 5, `test-383-spawn-chokepoint` 14 of 14, `test-383-preview-env-check` 7 of 7). The QA laptop run is still open. Not live until a release carries it.
+
 ## [2.0.0-beta.77] - 2026-11-04
 
 ### Added
