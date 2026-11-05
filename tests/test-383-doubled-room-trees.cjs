@@ -21,6 +21,7 @@
  *   T16 a changed listing changes the digest, so a stale digest deletes nothing
  *   T17 review WR-03: a cap hit sets truncated, the digest differs from a complete listing, check() says partial
  *   T18 review WR-03: the walk order is sorted, so the same tree gives the same listing and digest
+ *   T19 review WR-04: a parent replaced by a symlink after the listing is refused, nothing outside the home is removed
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs. No network. House rule: hyphens only.
  */
@@ -328,6 +329,41 @@ leg('T18 review WR-03: the walk order is sorted, the same tree gives the same li
   let capTwo;
   try { capTwo = mod.listDoubledTrees(h.roomsHome, Object.assign({ maxEntries: 3 }, opts)); } finally { fs.readdirSync = orig; }
   eq(JSON.stringify(capTwo.leaves), JSON.stringify(capOne.leaves), 'capped leaves under a reversed readdir order');
+});
+
+leg('T19 review WR-04: a parent replaced by a symlink after the listing is refused', function () {
+  const f = fixture('t19');
+  const digest = mod.listingDigest(mod.listDoubledTrees(f.h.roomsHome));
+  const elsewhere = H.mkTmp('t19-outside');
+  const moved = path.join(elsewhere, 'moved');
+  const topDir = path.join(f.h.roomsHome, f.topName);
+  const res = mod.clean({
+    home: f.h.roomsHome, digest: digest,
+    // Between the listing and the delete the top folder becomes a symlink to a copy outside the home.
+    beforeDelete: function () {
+      fs.renameSync(topDir, moved);
+      fs.symlinkSync(moved, topDir);
+    },
+  });
+  eq(res.removed.length, 0, 'removed through a symlinked parent');
+  eq(res.ok, false, 'ok');
+  ok(res.kept.some(function (k) { return k.reason === 'changed since the listing'; }), 'skip reason: ' + JSON.stringify(res.kept));
+  ok(fs.existsSync(path.join(moved, f.doubledRel.split('/').slice(1).join('/'), 'ROOM.md')), 'the folder outside the home was touched');
+  ok(fs.lstatSync(topDir).isSymbolicLink(), 'the symlink was removed');
+  // pruneParents does not remove through a symlink either: the symlink itself stays
+  // and an intermediate parent swapped for a symlink is refused the same way
+  const g = fixture('t19b');
+  const dg = mod.listingDigest(mod.listDoubledTrees(g.h.roomsHome));
+  const parts = g.doubledRel.split('/');
+  const mid = path.join(g.h.roomsHome, ...parts.slice(0, 2));
+  const outside = H.mkTmp('t19b-outside');
+  const movedMid = path.join(outside, 'mid');
+  const r2 = mod.clean({
+    home: g.h.roomsHome, digest: dg,
+    beforeDelete: function () { fs.renameSync(mid, movedMid); fs.symlinkSync(movedMid, mid); },
+  });
+  eq(r2.removed.length, 0, 'removed through a symlinked intermediate parent');
+  ok(fs.existsSync(path.join(movedMid, ...parts.slice(2), 'ROOM.md')), 'intermediate target touched');
 });
 
 rep.done();
