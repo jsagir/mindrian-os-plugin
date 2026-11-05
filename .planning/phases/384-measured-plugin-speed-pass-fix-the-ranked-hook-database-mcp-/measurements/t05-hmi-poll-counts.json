@@ -1,0 +1,55 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "5cac7f30c0a56d9d048712c557ec3f27d5a61066",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:30:22.158Z",
+    "ended_at": "2026-11-05T19:30:23.579Z",
+    "load1_start": 0.99,
+    "load1_end": 0.99
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "count",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.99,
+  "load1_end": 0.99,
+  "started_at": "2026-11-05T19:30:22.158Z",
+  "ended_at": "2026-11-05T19:30:23.579Z",
+  "task": "t05",
+  "premise_failed": false,
+  "poll_status": "ok",
+  "doctor_exit_code": 0,
+  "doctor_checks_keys": 1,
+  "node_starts_hook": 2,
+  "node_starts_repeats": [
+    2,
+    2,
+    2
+  ],
+  "modules_total": [
+    61,
+    61,
+    61
+  ],
+  "modules_by_script": {
+    "doctor.cjs": 53,
+    "hmi-compliance-poll.cjs": 8
+  },
+  "repeats": 3,
+  "repeats_agree": true
+}

@@ -1,0 +1,262 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "5cac7f30c0a56d9d048712c557ec3f27d5a61066",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:30:28.719Z",
+    "ended_at": "2026-11-05T19:30:33.434Z",
+    "load1_start": 0.91,
+    "load1_end": 0.91
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.91,
+  "load1_end": 0.91,
+  "started_at": "2026-11-05T19:30:28.719Z",
+  "ended_at": "2026-11-05T19:30:33.434Z",
+  "task": "t05",
+  "poll_status": "ok",
+  "targets": [
+    {
+      "id": "t05:floor-node",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 21.7,
+        "p95": 24.2,
+        "min": 20.3,
+        "max": 25.5
+      },
+      "wall_ms_fine": {
+        "median": 21.691,
+        "p95": 24.221,
+        "min": 20.296,
+        "max": 25.523
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 10,
+        "min": 0,
+        "max": 10
+      },
+      "rss_mb": {
+        "median": 41.9,
+        "p95": 41.9,
+        "min": 41.9,
+        "max": 41.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.91,
+      "load1_end": 0.91,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t05:hook",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 119.5,
+        "p95": 122.7,
+        "min": 116.2,
+        "max": 128.1
+      },
+      "wall_ms_fine": {
+        "median": 119.456,
+        "p95": 122.746,
+        "min": 116.186,
+        "max": 128.139
+      },
+      "cpu_ms": {
+        "median": 120,
+        "p95": 130,
+        "min": 120,
+        "max": 130
+      },
+      "rss_mb": {
+        "median": 57.4,
+        "p95": 59,
+        "min": 56.3,
+        "max": 59.2
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.91,
+      "load1_end": 0.91,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "rounds_dropped": 0
+    },
+    {
+      "id": "t05:doctor-alone",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 73.1,
+        "p95": 75.6,
+        "min": 71.4,
+        "max": 78.7
+      },
+      "wall_ms_fine": {
+        "median": 73.115,
+        "p95": 75.632,
+        "min": 71.372,
+        "max": 78.718
+      },
+      "cpu_ms": {
+        "median": 80,
+        "p95": 80,
+        "min": 70,
+        "max": 80
+      },
+      "rss_mb": {
+        "median": 57.6,
+        "p95": 59.3,
+        "min": 56.4,
+        "max": 59.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.91,
+      "load1_end": 0.91,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "t05:d:hook-minus-doctor",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 46,
+        "p95": 50,
+        "min": 39.7,
+        "max": 55.8
+      },
+      "wall_ms_fine": {
+        "median": 46.028,
+        "p95": 49.969,
+        "min": 39.721,
+        "max": 55.777
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.91,
+      "load1_end": 0.91,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round hook wall minus doctor-alone wall"
+    },
+    {
+      "id": "t05:d:doctor-share",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.6,
+        "p95": 0.6,
+        "min": 0.6,
+        "max": 0.7
+      },
+      "wall_ms_fine": {
+        "median": 0.612,
+        "p95": 0.638,
+        "min": 0.565,
+        "max": 0.665
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.91,
+      "load1_end": 0.91,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round doctor-alone wall divided by hook wall (a ratio)"
+    }
+  ]
+}

@@ -269,3 +269,83 @@ Reading rules.
 T05-a is R4 for the pair X = the hook and Y = doctor alone. Also reported with no rule: the median of doctor alone divided by 5000 (DERIVED), and the hook median as the cost added to every Stop.
 T05-b is R1 on counts: the hook starts 2 node processes (the hook script and the doctor script), the doctor JSON holds 1 key under checks, and the poll status word is ok.
 The poll status word ok proves that the doctor spawn ran. If the status word is not ok, the premise gate of R5 stops the task (PREMISE FAILED) and nothing is timed. A timing round whose hook run did not write the status word ok does not count.
+
+Results. One counts file (3 repeats), two timing sets (n = 15 each, no round dropped), fixture room with an active room, pinned export. The row t05:d:doctor-share in table T05-1 is a ratio and has no unit.
+
+Premise gate (R5): passed. The poll status word is ok, so the doctor spawn ran. Doctor alone exits 0 and its JSON holds 1 key under checks. The hook starts 2 node processes (hmi-compliance-poll.cjs with 8 modules and doctor.cjs with 53 modules) in 3 of 3 repeats.
+
+Readings.
+T05-a reads PASS (R4). The hook is 46.0 and 47.0 ms above doctor alone (medians 119.5 and 121.4 ms against 73.1 and 74.7 ms; 2 x noise 7.0 ms). Doctor alone is 0.612 and 0.615 of the hook (above 0.5 in both sets). The doctor median divided by 5000 is 0.015 in both sets. The hook median is the cost this hook adds to a Stop, next to a bare node start of 21.7 and 22.5 ms.
+T05-b reads PASS (R1): 2 node starts, 1 key under checks, status ok.
+
+Table T05-1: every target (n per set, median, p95, two sets, spread)
+
+| Target | n per set | set 1 median ms | set 1 p95 ms | set 2 median ms | set 2 p95 ms | spread percent | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| t05:floor-node | 15 and 15 | 21.691 | 24.221 | 22.537 | 23.956 | 3.8 | DIRECT |
+| t05:hook | 15 and 15 | 119.456 | 122.746 | 121.434 | 123.742 | 1.6 | DIRECT |
+| t05:doctor-alone | 15 and 15 | 73.115 | 75.632 | 74.653 | 79.007 | 2.1 | DIRECT |
+| t05:d:hook-minus-doctor | 15 and 15 | 46.028 | 49.969 | 47.015 | 49.713 | 2.1 | DERIVED |
+| t05:d:doctor-share | 15 and 15 | 0.612 | 0.638 | 0.613 | 0.649 | 0.2 | DERIVED |
+
+Table T05-2: the pair by R2 and the share by R4
+
+| Pair | d(1) ms | d(2) ms | noise ms | 2 x noise ms | R2 reading | doctor share set 1 | doctor share set 2 | reading by R4 | doctor median divided by 5000, set 1 | doctor median divided by 5000, set 2 | meets floor | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T05-a: hook above doctor alone | 46.028 | 47.015 | 3.516 | 7.032 | PASS | 0.612 | 0.615 | PASS | 0.015 | 0.015 | pending Q5b | DERIVED |
+
+Table T05-3: counts (3 repeats)
+
+| Quantity | value | Basis |
+| --- | --- | --- |
+| poll status word | ok | DIRECT |
+| keys under checks in the doctor JSON | 1 | DIRECT |
+| doctor exit code | 0 | DIRECT |
+| node starts of the hook, per repeat | 2 2 2 | DIRECT |
+| modules loaded, per repeat | 61 61 61 | DIRECT |
+| modules by script base name (first repeat) | doctor.cjs:53, hmi-compliance-poll.cjs:8 | DIRECT |
+| repeats agree | true | DIRECT |
+| T05-b by R1: 2 node starts, 1 key under checks, status ok | PASS | DIRECT |
+
+## Reading summary
+
+One row for each hypothesis. The evidence file named in a row is the file of set 1 (or the counts file); a pair reading uses set 1 and set 2 of the same task. The reading of T04-d is NOT RESOLVED because the counts of the harness layout differ between repeats (R1); it carries no pass or fail by its own rule.
+
+| Hypothesis | Rule | Reading | Evidence file | meets floor | Basis |
+| --- | --- | --- | --- | --- | --- |
+| T02-a (UserPromptSubmit): the call on the product-shape registry is above the bare node start | R2 | PASS | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-a (Stop): the call on the product-shape registry is above the bare node start | R2 | PASS | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-a (PostToolUse Read): the call on the product-shape registry is above the bare node start | R2 | PASS | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-b (UserPromptSubmit): the guard-passing registry adds work above the early return | R2 | FAIL | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-b (Stop): the guard-passing registry adds work above the early return | R2 | FAIL | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-b (PostToolUse Read): the guard-passing registry adds work above the early return | R2 | FAIL | t02-operator-update-s1.json | pending Q5b | DERIVED |
+| T02-c: no room state is read on the product-shape registry and some is read on the guard-passing registry | R1 (threshold) | PASS | t02-operator-update-counts.json | pending Q5b | DIRECT |
+| T03 statusline: the lazy require lowers modules and time | R3 | PASS | t03-lazy-require-counts.json and t03-lazy-require-s1.json | pending Q5b | DERIVED |
+| T03 on-stop snapshot: the lazy require lowers modules and time | R3 | FAIL | t03-lazy-require-counts.json and t03-lazy-require-s1.json | pending Q5b | DERIVED |
+| T03 Brain drain on an empty queue: the lazy require lowers modules and time | R3 | FAIL | t03-lazy-require-counts.json and t03-lazy-require-s1.json | pending Q5b | DERIVED |
+| T03 cold load of folder-memory: the lazy require lowers modules and time | R3 | PASS | t03-lazy-require-counts.json and t03-lazy-require-s1.json | pending Q5b | DERIVED |
+| T04-a: the cascade is skipped on the default layout and runs on the harness layout | R1 | PASS | t04-cascade-skip-counts.json | pending Q5b | DIRECT |
+| T04-b: a skipped cascade call costs more than the bare node start | R2 | PASS | t04-cascade-skip-s1.json | pending Q5b | DERIVED |
+| T04-c: the Write event on the harness layout costs more than on the default layout | R2 | PASS | t04-cascade-skip-s1.json | pending Q5b | DERIVED |
+| T04-d: node starts and modules for Write and SubagentStop (5 files) on both layouts | counts, no pass or fail | NOT RESOLVED | t04-cascade-skip-counts.json | pending Q5b | DIRECT |
+| T05-a: the hook costs more than doctor alone and doctor is the larger part | R4 | PASS | t05-hmi-poll-s1.json | pending Q5b | DERIVED |
+| T05-b: the hook starts 2 node processes, doctor holds 1 key under checks, the status word is ok | R1 | PASS | t05-hmi-poll-counts.json | pending Q5b | DIRECT |
+
+No reading in this file confirms or refutes an S finding.
+
+Plan 384-09 applies its own rule. It must list 384-10 in depends_on (and move to wave 10) and read measurements/t02-t05-costs.md.
+
+## Observations, not fixed here
+
+1. Registry shape at scripts/operator-update.cjs line 106. The check needs rooms to be an array, and the registry that the product writes holds rooms as an object (table T02-3a). The script returns at once at all three events on that registry and reads no room state (table T02-3c).
+2. Cascade skip. A path that holds neither /room/ nor /rooms/ makes the cascade skip (table T04-1), at the cost of about 59 ms per call, mostly module load (table T04-3). The harness fixture path holds /rooms/. The work folder of a real-room copy is a folder named room (string test on a constructed path). The artifact that findTouchTarget returns for the harness fixture is the identity file ROOM.md, which the cascade skips with its own reason, so a Write event on that file did not run the cascade. Plan 384-09 should read the S2 and S4 fixture numbers of plans 384-04 and 384-05, and the copy numbers of plan 384-08, with this in view. The earlier result files are not re-read here.
+3. Equal timeouts of the poll. The hook entry in hooks.json has timeout 5 (read as seconds) and shellDoctor in scripts/hmi-compliance-poll.cjs has a spawn timeout of 5000 ms. On this fixture doctor alone takes about 73 to 75 ms, far from both limits. The behaviour on a larger room or a slow disk is not read here.
+
+## Not measured
+
+Every reading row has the cell meets floor with the value pending Q5b: the smallest difference that matters to a person is an owner question.
+Real default-layout behaviour of a user room: not read, by Canon Part 8 (fixture rooms only).
+SubagentStop wall time: counted only. Its background load is large, so no wall time is taken here (counts of T04-d).
+Counts of the harness layout in T04-d (Write and SubagentStop with 5 files): measured, but the repeats differ, so by R1 they read NOT RESOLVED and the min to max values are shown.
+Native Windows and Desktop or Cowork surfaces: not measured. Hooks, the statusline and doctor run on the Claude Code CLI surface; counts transfer to other platforms and times do not.
+Real-room copies: not used in this plan.

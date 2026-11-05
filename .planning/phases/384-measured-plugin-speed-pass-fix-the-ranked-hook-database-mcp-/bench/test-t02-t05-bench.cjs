@@ -306,6 +306,60 @@ const LINE = "const timelineRunner = require('./feynman/timeline-runner.cjs');";
   void ids;
 }
 
+// ---- B15: the share rule (task 4, R4) ----
+{
+  const s = bench.shareReading;
+  check('B15 shareReading(PASS, 0.8, 0.7) is PASS', s('PASS', 0.8, 0.7) === 'PASS');
+  check('B15 shareReading(PASS, 0.4, 0.7) is FAIL', s('PASS', 0.4, 0.7) === 'FAIL');
+  check('B15 shareReading(NOT RESOLVED, 0.8, 0.8) is NOT RESOLVED', s('NOT RESOLVED', 0.8, 0.8) === 'NOT RESOLVED');
+  check('B15 shareReading(FAIL, 0.9, 0.9) is FAIL', s('FAIL', 0.9, 0.9) === 'FAIL');
+}
+
+// ---- B16: the status gate ----
+{
+  check('B16 pollStatusOf of a text with status ok gives ok', bench.pollStatusOf(JSON.stringify({ schema_version: 1, status: 'ok', tier: 1 })) === 'ok');
+  const withPath = bench.pollStatusOf(JSON.stringify({ status: 'doctor-error', error: SLASH + 'home' + SLASH + 'x' + SLASH + 'doctor failed' }));
+  check('B16 pollStatusOf of a doctor-error text with an error field that holds a path gives only doctor-error', withPath === 'doctor-error' && typeof withPath === 'string' && hasBadPath(JSON.stringify(withPath)).length === 0, JSON.stringify(withPath));
+  check('B16 pollStatusOf of a text that is not JSON gives unknown', bench.pollStatusOf('not json') === 'unknown');
+}
+
+// ---- B17: the doctor check count ----
+{
+  check('B17 checkKeyCount of a text with one key under checks is 1', bench.checkKeyCount(JSON.stringify({ checks: { 'ui-compliance': { ok: true } } })) === 1);
+  check('B17 checkKeyCount of a text without a checks object is 0', bench.checkKeyCount(JSON.stringify({ other: 1 })) === 0);
+}
+
+// ---- B18: the T05 report rows and the summary rows ----
+{
+  const counts = { schema: 'mos.perf-384-counts/1', task: 't05', premise_failed: false, poll_status: 'ok', doctor_exit_code: 0, doctor_checks_keys: 1, node_starts_hook: 2, node_starts_repeats: [2, 2, 2], modules_total: [300, 300, 300], modules_by_script: { 'hmi-compliance-poll.cjs': 100, 'doctor.cjs': 200 }, repeats: 3, repeats_agree: true };
+  const spec = { 't05:floor-node': 23, 't05:hook': 160, 't05:doctor-alone': 120, 't05:d:hook-minus-doctor': 40, 't05:d:doctor-share': 0.75 };
+  const s1 = writeSynth('t05-s1.json', synthSet(spec));
+  const s2 = writeSynth('t05-s2.json', synthSet(spec));
+  const cf = writeSynth('t05-counts.json', counts);
+  const r = run(['report', '--task', 't05', '--s1', s1, '--s2', s2, '--counts', cf, '--readings-out', path.join(TMP, 'readings-t05.json')]);
+  check('B18 report --task t05 exits 0', r.status === 0, r.stderr.slice(0, 200));
+  const lastCell = (l) => l.replace(/\|\s*$/, '').split('|').pop().trim();
+  const rows = String(r.stdout).split('\n').filter((l) => l.startsWith('|') && !/^\|[\s:|-]+$/.test(l));
+  check('B18 every T05 report row ends with a Basis cell', rows.length > 0 && rows.every((l) => lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l))), rows.filter((l) => !(lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l)))).slice(0, 2).join(' / '));
+  const rd = readJson(path.join(TMP, 'readings-t05.json')) || {};
+  check('B18 the T05 readings are PASS for the synthetic files (t05-a by R4, t05-b by R1)', rd['t05-a'] && rd['t05-a'].reading === 'PASS' && rd['t05-b'] && rd['t05-b'].reading === 'PASS', JSON.stringify(rd));
+  check('B18 the T05 pair row holds pending Q5b and the doctor median divided by 5000', rows.some((l) => /pending Q5b/.test(l) && /0\.024/.test(l)), rows.filter((l) => /pending Q5b/.test(l)).join(' / ').slice(0, 300));
+  check('B18 the T05 report holds no path', hasBadPath(r.stdout).length === 0);
+
+  const readings = {};
+  for (const s of bench.SUMMARY_ROWS) readings[s.key] = { reading: 'PASS', evidence: 'synthetic.json' };
+  const rf = writeSynth('readings-all.json', readings);
+  const a = run(['reading-rows', '--task', 'all', '--readings', rf]);
+  const arows = String(a.stdout).split('\n').filter((l) => l.startsWith('|') && !/^\|[\s:|-]+$/.test(l));
+  const data = arows.filter((l) => !/^\| Hypothesis /.test(l));
+  check('B18 reading-rows --task all prints one row per hypothesis', a.status === 0 && data.length === bench.SUMMARY_ROWS.length && bench.SUMMARY_ROWS.length === 17, String(data.length));
+  check('B18 every summary row has a Basis cell last and the cell pending Q5b', data.every((l) => /pending Q5b/.test(l) && /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l))));
+  check('B18 the summary header ends with Basis', arows.length > 0 && lastCell(arows[0]) === 'Basis');
+  const missing = run(['reading-rows', '--task', 'all', '--readings', writeSynth('readings-none.json', {})]);
+  const mrows = String(missing.stdout).split('\n').filter((l) => l.startsWith('|') && !/^\|[\s:|-]+$/.test(l) && !/^\| Hypothesis /.test(l));
+  check('B18 a hypothesis without a reading is NOT MEASURED', mrows.length === 17 && mrows.every((l) => /NOT MEASURED/.test(l)));
+}
+
 cleanup();
 if (failed) {
   process.stdout.write('t02-t05-bench: ' + failed + ' FAILED\n');

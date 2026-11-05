@@ -939,7 +939,133 @@ async function cmdT04Time(f) {
   } finally { S.cleanup(); }
 }
 
-// @@TASKS@@
+// ---------------------------------------------------------------------------
+// T05: hmi-compliance-poll --hook against doctor --ui-compliance alone
+// ---------------------------------------------------------------------------
+
+// R4: PASS only when the R2 reading is PASS and both shares are above 0.5; FAIL when R2 is FAIL or a share is 0.5 or below.
+function shareReading(r2Reading, share1, share2) {
+  if (r2Reading === 'FAIL' || !(share1 > 0.5) || !(share2 > 0.5)) return 'FAIL';
+  if (r2Reading === 'PASS') return 'PASS';
+  return 'NOT RESOLVED';
+}
+
+// The status word of the side-channel file of the poll, and nothing else (no error text, no path).
+function pollStatusOf(sideChannelText) {
+  let j = null;
+  try { j = JSON.parse(String(sideChannelText)); } catch (_e) { return 'unknown'; }
+  const s = j && typeof j.status === 'string' ? j.status : '';
+  return /^[a-z0-9-]{1,40}$/.test(s) ? s : 'unknown';
+}
+
+// The number of keys under checks in the JSON of doctor.
+function checkKeyCount(doctorJsonText) {
+  try {
+    const j = JSON.parse(String(doctorJsonText));
+    return j && j.checks && typeof j.checks === 'object' ? Object.keys(j.checks).length : 0;
+  } catch (_e) { return 0; }
+}
+
+function readPollStatus(roomDir) {
+  try { return pollStatusOf(fs.readFileSync(path.join(roomDir, '.mindrian', 'last-hmi-poll.json'), 'utf8')); } catch (_e) { return 'missing'; }
+}
+
+function t05Commands(S) {
+  const ctx = S.ctx;
+  const he = hookEntry(ctx, 'event:Stop:unchanged', 'hmi-compliance-poll.cjs');
+  const stopFile = path.join(S.prep.sandbox.tmp, 'payload-t05-stop.json');
+  fs.writeFileSync(stopFile, JSON.stringify(H.buildEventPayload(he.def, ctx)));
+  const hookDef = cmdDefOf('t05:hook', he.command, he.timeoutMs);
+  const cxHook = ctxWith(ctx, { MOS_PAYLOAD_FILE: stopFile });
+  const doctorArgv = [process.execPath, path.join(S.tree, 'scripts', 'doctor.cjs'), '--ui-compliance', '--json'];
+  const doctorDef = { id: 't05:doctor-alone', kind: 'cmd', argv: () => doctorArgv, timeoutMs: 60000 };
+  const floor = Object.assign({}, H.targetDef('floor:node'), { id: 't05:floor-node' });
+  return { hookDef, cxHook, doctorDef, doctorArgv, floor };
+}
+
+// The premise gate (R5): one run of the hook, then the status word of the side-channel file, and one run of doctor alone.
+async function t05Premise(S, cmds) {
+  fs.rmSync(path.join(S.prep.roomDir, '.mindrian', 'last-hmi-poll.json'), { force: true });
+  await H.runCommandOnce(cmds.hookDef, cmds.cxHook, { settleMs: 30000 });
+  const status = readPollStatus(S.prep.roomDir);
+  const d = cp.spawnSync(cmds.doctorArgv[0], cmds.doctorArgv.slice(1), { env: S.ctx.env({}), cwd: S.prep.roomDir, encoding: 'utf8', timeout: 60000, maxBuffer: 64 * 1024 * 1024 });
+  return { status, doctor_exit_code: d.status, doctor_checks_keys: checkKeyCount(d.stdout) };
+}
+
+async function cmdT05Count(f) {
+  const repeats = parseInt(f.repeats || '3', 10);
+  const S = await setup(f, 'fixture');
+  try {
+    const cmds = t05Commands(S);
+    const pre = await t05Premise(S, cmds);
+    if (pre.status !== 'ok') {
+      writeOut(S, f.out, H.COUNTS_SCHEMA, { task: 't05', premise_failed: true, poll_status: pre.status, doctor_exit_code: pre.doctor_exit_code, doctor_checks_keys: pre.doctor_checks_keys, repeats: 0, repeats_agree: false });
+      log('t05 premise failed: poll status word is ' + pre.status);
+      return 0;
+    }
+    await S.gate();
+    const starts = [];
+    const modsTotal = [];
+    const byAll = [];
+    for (let k = 0; k < repeats; k += 1) {
+      const cl = path.join(S.prep.sandbox.tmp, 't05-count-' + k + '.log');
+      fs.rmSync(cl, { force: true });
+      await H.runCommandOnce(cmds.hookDef, ctxWith(cmds.cxHook, countEnv(cl)), { settleMs: 30000 });
+      const lines = readLines(cl);
+      starts.push(lines.length);
+      modsTotal.push(lines.reduce((a, l) => a + l.modules, 0));
+      const m = {};
+      for (const l of lines) m[nameOfScript(l.argv1)] = (m[nameOfScript(l.argv1)] || 0) + l.modules;
+      byAll.push(m);
+    }
+    const agree = allEqual(starts) && allEqual(modsTotal) && allEqual(byAll);
+    writeOut(S, f.out, H.COUNTS_SCHEMA, { task: 't05', premise_failed: false, poll_status: pre.status, doctor_exit_code: pre.doctor_exit_code, doctor_checks_keys: pre.doctor_checks_keys, node_starts_hook: starts[0], node_starts_repeats: starts, modules_total: modsTotal, modules_by_script: byAll[0], repeats, repeats_agree: agree });
+    log('t05 counts written, node starts ' + starts.join(' ') + ', status ' + pre.status);
+    return 0;
+  } finally { S.cleanup(); }
+}
+
+async function cmdT05Time(f) {
+  const S = await setup(f, 'fixture');
+  try {
+    const cmds = t05Commands(S);
+    const pre = await t05Premise(S, cmds);
+    if (pre.status !== 'ok') throw new Error('premise failed: the poll status word is ' + pre.status);
+    const items = {
+      floor: () => H.runCommandOnce(cmds.floor, S.ctx, { settleMs: 30000 }),
+      hook: () => H.runCommandOnce(cmds.hookDef, cmds.cxHook, { settleMs: 30000 }),
+      doctor: () => H.runCommandOnce(cmds.doctorDef, S.ctx, { settleMs: 30000 }),
+    };
+    for (const k of Object.keys(items)) await items[k](); // untimed warm-up of each command
+    const gate = await S.gate();
+    const ids = { floor: 't05:floor-node', hook: 't05:hook', doctor: 't05:doctor-alone' };
+    const accs = {};
+    Object.keys(ids).forEach((k) => { accs[k] = newAcc(ids[k]); });
+    accs.hook.extra.rounds_dropped = 0;
+    const diff = [];
+    const share = [];
+    for (let i = 0; i < S.runs; i += 1) {
+      const got = {};
+      let dropped = false;
+      const rr = {};
+      for (const k of rotated(['floor', 'hook', 'doctor'], i)) {
+        if (k === 'hook') fs.rmSync(path.join(S.prep.roomDir, '.mindrian', 'last-hmi-poll.json'), { force: true });
+        rr[k] = await items[k]();
+        if (k === 'hook' && readPollStatus(S.prep.roomDir) !== 'ok') dropped = true; // a round whose hook run did not write status ok does not count
+      }
+      if (dropped) { accs.hook.extra.rounds_dropped += 1; continue; }
+      for (const k of Object.keys(ids)) if (addSample(accs[k], rr[k])) got[k] = rr[k].wall_ms;
+      if (got.hook !== undefined && got.doctor !== undefined) { diff.push(got.hook - got.doctor); share.push(got.doctor / got.hook); }
+    }
+    const targets = ['floor', 'hook', 'doctor'].map((k) => toTarget(accs[k], gate));
+    targets.push(derivedTarget('t05:d:hook-minus-doctor', diff, gate, 'per-round hook wall minus doctor-alone wall'));
+    targets.push(derivedTarget('t05:d:doctor-share', share, gate, 'per-round doctor-alone wall divided by hook wall (a ratio)'));
+    writeOut(S, f.out, H.SCHEMA, { task: 't05', poll_status: pre.status, targets });
+    const t = (id) => targets.find((x) => x.id === id).wall_ms_fine.median;
+    log('t05 floor ' + t('t05:floor-node') + ' ms, hook ' + t('t05:hook') + ' ms, doctor alone ' + t('t05:doctor-alone') + ' ms');
+    return 0;
+  } finally { S.cleanup(); }
+}
 
 // ---------------------------------------------------------------------------
 // report: Markdown rows with a Basis cell last (R6)
@@ -956,6 +1082,9 @@ const PAIRS = {
   t04: [
     { key: 't04-b', label: 'T04-b: cascade CLI call on the default layout above the floor', x: 't04:cascade-cli:default', y: 't04:floor-node', d: 't04:d:cli-minus-floor' },
     { key: 't04-c', label: 'T04-c: Write event on the harness layout above the default layout', x: 't04:write:rooms', y: 't04:write:default', d: 't04:d:write-rooms-minus-default' },
+  ],
+  t05: [
+    { key: 't05-a', label: 'T05-a: hook above doctor alone', x: 't05:hook', y: 't05:doctor-alone', d: 't05:d:hook-minus-doctor' },
   ],
   t03: T03_NAMES.map((nm) => ({ key: 't03:' + nm, label: 'T03 ' + nm + ': tree A above tree B', name: nm, x: 't03:' + nm + ':a', y: 't03:' + nm + ':b', d: 't03:d:' + nm })),
 };
@@ -1148,7 +1277,39 @@ function t04Report(s1, s2, counts) {
   return { lines, readings };
 }
 
-const REPORTERS = { t02: t02Report, t03: t03Report, t04: t04Report };
+function t05Report(s1, s2, counts) {
+  const lines = [];
+  const readings = {};
+  lines.push(...targetTable(s1, s2, 'Table T05-1: every target (n per set, median, p95, two sets, spread)'));
+  const pr = pairReadings(s1, s2, PAIRS.t05)[0];
+  const med = (f, id) => { const w = wallOf(tgt(f, id)); return w ? w.median : null; };
+  const sh = (f) => { const d = med(f, 't05:doctor-alone'); const h = med(f, 't05:hook'); return d !== null && h ? d / h : null; };
+  const share1 = sh(s1);
+  const share2 = sh(s2);
+  const r4 = pr.reading === 'NOT MEASURED' || share1 === null || share2 === null ? 'NOT MEASURED' : shareReading(pr.reading, share1, share2);
+  const d5k = (f) => { const d = med(f, 't05:doctor-alone'); return d === null ? null : d / 5000; };
+  lines.push('', 'Table T05-2: the pair by R2 and the share by R4', '', row(['Pair', 'd(1) ms', 'd(2) ms', 'noise ms', '2 x noise ms', 'R2 reading', 'doctor share set 1', 'doctor share set 2', 'reading by R4', 'doctor median divided by 5000, set 1', 'doctor median divided by 5000, set 2', 'meets floor', 'Basis']), row(['---', '---', '---', '---', '---', '---', '---', '---', '---', '---', '---', '---', '---']));
+  lines.push(row([pr.label, fmt(pr.d1), fmt(pr.d2), fmt(pr.noise), pr.noise === null ? 'NOT MEASURED' : fmt(2 * pr.noise), pr.reading, fmt(share1), fmt(share2), r4, fmt(d5k(s1)), fmt(d5k(s2)), 'pending Q5b', 'DERIVED']));
+  readings['t05-a'] = { reading: r4, evidence: 't05-hmi-poll-s1.json' };
+  if (counts) {
+    lines.push('', 'Table T05-3: counts (3 repeats)', '', row(['Quantity', 'value', 'Basis']), row(['---', '---', '---']));
+    lines.push(row(['poll status word', String(counts.poll_status), 'DIRECT']));
+    lines.push(row(['keys under checks in the doctor JSON', String(counts.doctor_checks_keys), 'DIRECT']));
+    lines.push(row(['doctor exit code', String(counts.doctor_exit_code), 'DIRECT']));
+    lines.push(row(['node starts of the hook, per repeat', (counts.node_starts_repeats || [counts.node_starts_hook]).join(' '), 'DIRECT']));
+    lines.push(row(['modules loaded, per repeat', (counts.modules_total || []).join(' '), 'DIRECT']));
+    lines.push(row(['modules by script base name (first repeat)', Object.keys(counts.modules_by_script || {}).sort().map((k) => k + ':' + counts.modules_by_script[k]).join(', '), 'DIRECT']));
+    lines.push(row(['repeats agree', String(counts.repeats_agree), 'DIRECT']));
+    const starts = counts.node_starts_repeats || [counts.node_starts_hook];
+    const claim = starts.every((v) => v === 2) && counts.doctor_checks_keys === 1 && counts.poll_status === 'ok';
+    const b = claim ? 'PASS' : (!counts.repeats_agree ? 'NOT RESOLVED' : 'FAIL');
+    readings['t05-b'] = { reading: b, evidence: 't05-hmi-poll-counts.json' };
+    lines.push(row(['T05-b by R1: 2 node starts, 1 key under checks, status ok', b, 'DIRECT']));
+  }
+  return { lines, readings };
+}
+
+const REPORTERS = { t02: t02Report, t03: t03Report, t04: t04Report, t05: t05Report };
 
 function cmdReport(f) {
   if (!f.task || !REPORTERS[f.task]) { process.stderr.write(USAGE.report + '\n'); return 2; }
@@ -1241,10 +1402,12 @@ const COMMANDS = {
   't03:count': cmdT03Count,
   't04:time': cmdT04Time,
   't04:count': cmdT04Count,
+  't05:time': cmdT05Time,
+  't05:count': cmdT05Count,
 };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), () => { process.stderr.write('t02-t05-bench failed\n'); process.exit(1); });
 }
 
-module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches, layoutOf, assertDefaultLayout, cascadeSkipCheck, pathViolations };
+module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches, layoutOf, assertDefaultLayout, cascadeSkipCheck, pathViolations, shareReading, pollStatusOf, checkKeyCount };
