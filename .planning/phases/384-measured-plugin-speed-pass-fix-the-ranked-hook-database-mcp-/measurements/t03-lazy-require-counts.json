@@ -1,0 +1,199 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "59d71e96038a58a9fff80dde2d453b7eeec5b1c1",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T19:09:19.946Z",
+    "ended_at": "2026-11-05T19:09:53.332Z",
+    "load1_start": 1.67,
+    "load1_end": 1.56
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "count",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 1.67,
+  "load1_end": 1.56,
+  "started_at": "2026-11-05T19:09:19.946Z",
+  "ended_at": "2026-11-05T19:09:53.332Z",
+  "task": "t03",
+  "premise_failed": false,
+  "edit": {
+    "files_changed": 2,
+    "lines_changed": {
+      "folder-memory": 1,
+      "folder-memory-async": 1
+    }
+  },
+  "equivalence": {
+    "sections": 14,
+    "mismatches_sync": 0,
+    "mismatches_async": 0,
+    "feynman_nonempty_sections": 12
+  },
+  "modules": {
+    "statusline": {
+      "a": [
+        182,
+        182,
+        182
+      ],
+      "b": [
+        18,
+        18,
+        18
+      ]
+    },
+    "onstop": {
+      "a": [
+        521,
+        521,
+        521
+      ],
+      "b": [
+        380,
+        380,
+        380
+      ]
+    },
+    "drain": {
+      "a": [
+        169,
+        169,
+        169
+      ],
+      "b": [
+        167,
+        167,
+        167
+      ]
+    },
+    "load": {
+      "a": [
+        167,
+        167,
+        167
+      ],
+      "b": [
+        3,
+        3,
+        3
+      ]
+    }
+  },
+  "modules_by_script": {
+    "statusline": {
+      "a": {
+        "context-monitor": 182
+      },
+      "b": {
+        "context-monitor": 18
+      }
+    },
+    "onstop": {
+      "a": {
+        "eval": 293,
+        "user-archetype.cjs": 2,
+        "memory-lifecycle.cjs": 15,
+        "recompile-room-references.cjs": 28,
+        "feynman-minto-guardian.cjs": 183
+      },
+      "b": {
+        "eval": 293,
+        "user-archetype.cjs": 2,
+        "memory-lifecycle.cjs": 15,
+        "recompile-room-references.cjs": 28,
+        "feynman-minto-guardian.cjs": 42
+      }
+    },
+    "drain": {
+      "a": {
+        "brain-derivation-drain.cjs": 169
+      },
+      "b": {
+        "brain-derivation-drain.cjs": 167
+      }
+    },
+    "load": {
+      "a": {
+        "folder-memory.cjs": 167
+      },
+      "b": {
+        "folder-memory.cjs": 3
+      }
+    }
+  },
+  "node_starts": {
+    "statusline": {
+      "a": [
+        1,
+        1,
+        1
+      ],
+      "b": [
+        1,
+        1,
+        1
+      ]
+    },
+    "onstop": {
+      "a": [
+        27,
+        27,
+        27
+      ],
+      "b": [
+        27,
+        27,
+        27
+      ]
+    },
+    "drain": {
+      "a": [
+        1,
+        1,
+        1
+      ],
+      "b": [
+        1,
+        1,
+        1
+      ]
+    },
+    "load": {
+      "a": [
+        1,
+        1,
+        1
+      ],
+      "b": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "stdout_bytes": {
+    "statusline": {
+      "a": 116,
+      "b": 116
+    }
+  },
+  "queue_present": false,
+  "repeats": 3,
+  "repeats_agree": true
+}

@@ -149,6 +149,103 @@ const t02count = path.join(T2, 't02-count.json');
   check('B6 the report output holds no banned word', !/\b(faster|saves|gain|speedup)\b/i.test(r.stdout));
 }
 
+// ---- helpers for the report checks (synthetic result files) ----
+function synthTarget(id, med, extra) {
+  return Object.assign({ id, n: 15, wall_ms: { median: med, p95: med + 1, min: med - 1, max: med + 2 }, wall_ms_fine: { median: med, p95: med + 1, min: med - 1, max: med + 2 } }, extra || {});
+}
+function synthSet(spec) {
+  return { schema: 'mos.perf-384/1', targets: Object.keys(spec).map((id) => synthTarget(id, spec[id], /:d:/.test(id) ? { derived: true } : {})) };
+}
+function writeSynth(name, obj) { const f = path.join(TMP, name); fs.writeFileSync(f, JSON.stringify(obj)); return f; }
+
+// ---- B7: the lazy edit text (task 2) ----
+const LINE = "const timelineRunner = require('./feynman/timeline-runner.cjs');";
+{
+  const orig = ['// head', 'const fs = require(\'node:fs\');', '', LINE, 'function a(x) {', '  const p = timelineRunner.parseFrontmatter(x);', '  return timelineRunner.bodyOutsideSentinels(p.body);', '}', ''].join('\n');
+  const out = bench.makeLazyText(orig);
+  const oL = orig.split('\n');
+  const nL = out.split('\n');
+  const changed = nL.filter((l, i) => oL[i] !== l).length + Math.abs(nL.length - oL.length);
+  check('B7 makeLazyText leaves no line that starts with the eager require', !nL.some((l) => l.startsWith('const timelineRunner = require(')));
+  const reqLines = nL.filter((l) => l.indexOf("require('./feynman/timeline-runner.cjs')") !== -1);
+  check('B7 the runner require appears only inside the new object (one line that opens the object)', reqLines.length === 1 && reqLines[0].startsWith('const timelineRunner = {'), String(reqLines.length));
+  check('B7 the new object has the methods parseFrontmatter and bodyOutsideSentinels', /parseFrontmatter\s*:/.test(reqLines[0]) && /bodyOutsideSentinels\s*:/.test(reqLines[0]));
+  check('B7 every other line is unchanged (one line changed)', changed === 1, String(changed));
+  // the new text runs: a stand-in module is loaded on the first call only
+  const stand = path.join(TMP, 'lazycheck');
+  fs.mkdirSync(path.join(stand, 'feynman'), { recursive: true });
+  fs.writeFileSync(path.join(stand, 'feynman', 'timeline-runner.cjs'), 'global.__loaded = (global.__loaded || 0) + 1; module.exports = { parseFrontmatter: (x) => ({ body: x }), bodyOutsideSentinels: (x) => x + "!" };\n');
+  fs.writeFileSync(path.join(stand, 'user.cjs'), out.replace(/function a\(x\)/, 'function a(x)') + '\nmodule.exports = { a, loaded: () => global.__loaded || 0 };\n');
+  const rr = spawnSync(process.execPath, ['-e', 'const u = require(process.argv[1]); const before = u.loaded(); const v = u.a("q"); process.stdout.write(JSON.stringify({ before, after: u.loaded(), v }));', path.join(stand, 'user.cjs')], { encoding: 'utf8' });
+  let o = null;
+  try { o = JSON.parse(rr.stdout); } catch (_e) { o = null; }
+  check('B7 the edited text loads the runner on the first call and not at load', !!o && o.before === 0 && o.after === 1 && o.v === 'q!', rr.stdout + rr.stderr.slice(0, 200));
+  let t1 = false; try { bench.makeLazyText('const x = 1;\n'); } catch (_e) { t1 = true; }
+  check('B7 a text without the line throws', t1);
+  let t2 = false; try { bench.makeLazyText(LINE + '\n' + LINE + '\n'); } catch (_e) { t2 = true; }
+  check('B7 a text with the line twice throws', t2);
+  let t3 = false; try { bench.makeLazyText(LINE + '\nfoo(timelineRunner.render(1));\n'); } catch (_e) { t3 = true; }
+  check('B7 a text that calls a third method of timelineRunner throws', t3);
+}
+
+// ---- B8: the scratch guard ----
+{
+  const scratch = path.join(TMP, 'scratch-guard');
+  fs.mkdirSync(scratch, { recursive: true });
+  let ok1 = true; try { bench.assertInsideScratch(path.join(scratch, 'tree-b', 'x.cjs'), scratch); } catch (_e) { ok1 = false; }
+  check('B8 a path inside the scratch folder is accepted', ok1);
+  let t2 = false; try { bench.assertInsideScratch(path.join(TMP, 'elsewhere', 'x.cjs'), scratch); } catch (_e) { t2 = true; }
+  check('B8 a path outside the scratch folder throws', t2);
+  let t3 = false; try { bench.assertInsideScratch(path.join(REPO, 'lib', 'core', 'folder-memory.cjs'), REPO); } catch (_e) { t3 = true; }
+  check('B8 a path inside the repo throws, even when the repo is named as the scratch folder', t3);
+}
+
+// ---- B9: the equivalence compare ----
+{
+  check('B9 countMismatches of equal lists is 0', bench.countMismatches(['a', 'b', 'c'], ['a', 'b', 'c']) === 0);
+  check('B9 countMismatches with one differing entry is 1', bench.countMismatches(['a', 'b', 'c'], ['a', 'x', 'c']) === 1);
+  check('B9 countMismatches with a length that differs by one is 1 or more', bench.countMismatches(['a', 'b'], ['a', 'b', 'c']) >= 1);
+}
+
+// ---- B10: make-b and the pair rows of the T03 report ----
+{
+  const sc = path.join(TMP, 'scratch-mkb');
+  const tb = path.join(sc, 'tree-b');
+  fs.mkdirSync(path.join(tb, 'lib', 'core'), { recursive: true });
+  for (const n of ['folder-memory.cjs', 'folder-memory-async.cjs']) fs.writeFileSync(path.join(tb, 'lib', 'core', n), '// head\n' + LINE + '\nfunction f(s) { return timelineRunner.parseFrontmatter(s); }\n');
+  const mk = run(['t03', 'make-b', '--tree-b', tb, '--scratch', sc]);
+  check('B10 t03 make-b edits the two files in the scratch copy', mk.status === 0 && fs.readFileSync(path.join(tb, 'lib', 'core', 'folder-memory.cjs'), 'utf8').indexOf('const timelineRunner = {') !== -1 && fs.readFileSync(path.join(tb, 'lib', 'core', 'folder-memory-async.cjs'), 'utf8').indexOf('const timelineRunner = {') !== -1, mk.stderr.slice(0, 200));
+  let sum = null; try { sum = JSON.parse(mk.stdout); } catch (_e) { sum = null; }
+  check('B10 t03 make-b prints the line counts only', !!sum && sum.files_changed === 2 && hasBadPath(mk.stdout).length === 0, mk.stdout.slice(0, 200));
+  const bad = run(['t03', 'make-b', '--tree-b', tb, '--scratch', path.join(TMP, 'other-scratch')]);
+  check('B10 t03 make-b refuses a tree-b outside the scratch folder', bad.status !== 0);
+
+  const ids = ['t03:statusline:a', 't03:statusline:b', 't03:onstop:a', 't03:onstop:b', 't03:drain:a', 't03:drain:b', 't03:load:a', 't03:load:b', 't03:d:statusline', 't03:d:onstop', 't03:d:drain', 't03:d:load'];
+  const spec = {};
+  for (const id of ids) spec[id] = /:a$/.test(id) ? 100 : (/:b$/.test(id) ? 90 : 10);
+  const s1 = writeSynth('t03-s1.json', synthSet(spec));
+  const s2 = writeSynth('t03-s2.json', synthSet(spec));
+  const mkCounts = (a, b) => {
+    const m = {}; const ns = {};
+    for (const t of ['statusline', 'onstop', 'drain', 'load']) { m[t] = { a: [a, a, a], b: [b, b, b] }; ns[t] = { a: [1, 1, 1], b: [1, 1, 1] }; }
+    return { schema: 'mos.perf-384-counts/1', task: 't03', edit: { files_changed: 2, lines_changed: { 'folder-memory': 1, 'folder-memory-async': 1 } }, equivalence: { sections: 3, mismatches_sync: 0, mismatches_async: 0, feynman_nonempty_sections: 1 }, modules: m, modules_by_script: {}, node_starts: ns, stdout_bytes: { statusline: { a: 5, b: 5 } }, repeats: 3, repeats_agree: true };
+  };
+  const cEq = writeSynth('t03-counts-eq.json', mkCounts(30, 30));
+  const cLow = writeSynth('t03-counts-low.json', mkCounts(30, 20));
+  const rEq = run(['report', '--task', 't03', '--s1', s1, '--s2', s2, '--counts', cEq, '--readings-out', path.join(TMP, 'readings-t03-eq.json')]);
+  const pairs = (txt) => String(txt).split('\n').filter((l) => l.startsWith('|') && /pending Q5b/.test(l));
+  const eqRows = pairs(rEq.stdout);
+  check('B10 report t03 with equal counts reads FAIL for each of the four pairs', rEq.status === 0 && eqRows.length === 4 && eqRows.every((l) => /\bFAIL\b/.test(l)), String(eqRows.length) + ' ' + rEq.stderr.slice(0, 200));
+  const rLow = run(['report', '--task', 't03', '--s1', s1, '--s2', s2, '--counts', cLow, '--readings-out', path.join(TMP, 'readings-t03-low.json')]);
+  const lowRows = pairs(rLow.stdout);
+  check('B10 report t03 with lower counts in B gives the R2 reading of the timing files (PASS for the synthetic files)', rLow.status === 0 && lowRows.length === 4 && lowRows.every((l) => /\bPASS\b/.test(l)), lowRows.join(' / ').slice(0, 300));
+  check('B10 the T03 pair rows show the module counts of both trees', lowRows.every((l) => /\b30\b/.test(l) && /\b20\b/.test(l)));
+  const lastCell = (l) => l.replace(/\|\s*$/, '').split('|').pop().trim();
+  const allRows = String(rLow.stdout).split('\n').filter((l) => l.startsWith('|') && !/^\|[\s:|-]+$/.test(l));
+  check('B10 every T03 report row ends with a Basis cell', allRows.every((l) => lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l))), allRows.filter((l) => !(lastCell(l) === 'Basis' || /^(DIRECT|DERIVED|NOT MEASURED)\b/.test(lastCell(l)))).slice(0, 2).join(' / '));
+  check('B10 the T03 report holds no path', hasBadPath(rLow.stdout).length === 0);
+}
+
 cleanup();
 if (failed) {
   process.stdout.write('t02-t05-bench: ' + failed + ' FAILED\n');

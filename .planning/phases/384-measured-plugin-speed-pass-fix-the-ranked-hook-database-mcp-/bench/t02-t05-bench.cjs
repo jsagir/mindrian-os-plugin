@@ -437,6 +437,286 @@ async function cmdT02Count(f) {
   } finally { S.cleanup(); }
 }
 
+// ---------------------------------------------------------------------------
+// T03: lazy require of the timeline runner (the edit exists only in a scratch copy of the pinned export)
+// ---------------------------------------------------------------------------
+const EAGER_LINE = "const timelineRunner = require('./feynman/timeline-runner.cjs');";
+const LAZY_LINE = "const timelineRunner = { parseFrontmatter: function () { const m = require('./feynman/timeline-runner.cjs'); return m.parseFrontmatter.apply(m, arguments); }, bodyOutsideSentinels: function () { const m = require('./feynman/timeline-runner.cjs'); return m.bodyOutsideSentinels.apply(m, arguments); } };";
+const T03_FILES = ['folder-memory.cjs', 'folder-memory-async.cjs'];
+const T03_NAMES = ['statusline', 'onstop', 'drain', 'load'];
+
+// The one eager require line becomes one line that holds an object with the two methods the files call.
+function makeLazyText(text) {
+  const lines = String(text).split('\n');
+  const idx = [];
+  lines.forEach((l, i) => { if (l.trim() === EAGER_LINE) idx.push(i); });
+  if (idx.length !== 1) throw new Error('expected exactly one eager require line, found ' + idx.length);
+  const rest = lines.filter((_l, i) => i !== idx[0]).join('\n');
+  const re = /timelineRunner\.([A-Za-z0-9_]+)/g;
+  let m;
+  while ((m = re.exec(rest)) !== null) {
+    if (m[1] !== 'parseFrontmatter' && m[1] !== 'bodyOutsideSentinels') throw new Error('a third method of timelineRunner is used: ' + m[1]);
+  }
+  lines[idx[0]] = LAZY_LINE;
+  return lines.join('\n');
+}
+
+function insideOf(p, root) { return p === root || p.startsWith(root + path.sep); }
+
+// The edit function refuses any path outside the scratch folder and any path inside the repo.
+function assertInsideScratch(file, scratch) {
+  const f = path.resolve(file);
+  const s = path.resolve(scratch);
+  if (!insideOf(f, s)) throw new Error('refused: the file is outside the scratch folder');
+  if (insideOf(f, REPO)) throw new Error('refused: the file is inside the repo');
+}
+
+function countMismatches(a, b) {
+  const n = Math.max(a.length, b.length);
+  let c = 0;
+  for (let i = 0; i < n; i += 1) if (a[i] === undefined || b[i] === undefined || a[i] !== b[i]) c += 1;
+  return c;
+}
+
+function linesChanged(a, b) {
+  const x = String(a).split('\n');
+  const y = String(b).split('\n');
+  const n = Math.max(x.length, y.length);
+  let c = 0;
+  for (let i = 0; i < n; i += 1) if (x[i] !== y[i]) c += 1;
+  return c;
+}
+
+async function cmdT03MakeB(f) {
+  if (!f['tree-b'] || !f.scratch) throw usageError(USAGE.t03);
+  const treeB = path.resolve(f['tree-b']);
+  const out = { files_changed: 0, lines_changed: {} };
+  for (const n of T03_FILES) {
+    const file = path.join(treeB, 'lib', 'core', n);
+    assertInsideScratch(file, f.scratch);
+    const before = fs.readFileSync(file, 'utf8');
+    const after = makeLazyText(before);
+    fs.writeFileSync(file, after);
+    out.files_changed += 1;
+    out.lines_changed[n.replace(/\.cjs$/, '')] = linesChanged(before, after);
+  }
+  process.stdout.write(JSON.stringify(out) + '\n');
+  return 0;
+}
+
+const FEYNMAN_FIXED = ['---', 'key: value', '---', 'Body line of the equivalence check.', '<!-- TIMELINE_AUTO_START -->', '## Timeline (auto)', '- one fixed entry', '<!-- TIMELINE_AUTO_END -->', ''].join('\n');
+const EQUIV_CODE = 'const path = require("path"); const fs = require("fs"); const crypto = require("crypto");'
+  + ' (async () => { const root = process.argv[1]; const room = process.argv[2];'
+  + ' const fm = require(path.join(root, "lib", "core", "folder-memory.cjs")); const fa = require(path.join(root, "lib", "core", "folder-memory-async.cjs"));'
+  + ' const dirs = fs.readdirSync(room, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== ".").map((d) => d.name).sort();'
+  + ' const sha = (o) => crypto.createHash("sha1").update(JSON.stringify(o)).digest("hex"); const sync = []; const asy = []; let nonempty = 0;'
+  + ' for (const d of dirs) { const sp = path.join(room, d); const a = fm.readQuintuple(sp); sync.push(sha(a)); if (a && typeof a.feynman === "string" && a.feynman.length > 0) nonempty += 1; const b = await fa.readQuintuple(sp); asy.push(sha(b)); }'
+  + ' process.stdout.write(JSON.stringify({ sections: dirs.length, sync, async: asy, feynman_nonempty: nonempty }) + "\\n"); })().catch(() => process.exit(1));';
+
+// The equivalence gate (R5): the two trees return equal results on every section of a scratch copy of the fixture room,
+// one section holds a FEYNMAN.md with a sentinel pair, so the lazy path is used.
+function equivalence(S, treeA, treeB) {
+  const copy = path.join(S.prep.sandbox.tmp, 'equiv-room');
+  fs.rmSync(copy, { recursive: true, force: true });
+  fs.cpSync(S.prep.roomDir, copy, { recursive: true, filter: (src) => ['.mindrian', '.git'].indexOf(path.basename(src)) === -1 });
+  const sections = fs.readdirSync(copy, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== '.').map((d) => d.name).sort();
+  if (!sections.length) throw new Error('the fixture room has no section folder');
+  fs.writeFileSync(path.join(copy, sections[0], 'FEYNMAN.md'), FEYNMAN_FIXED);
+  const runIn = (tree) => {
+    const r = cp.spawnSync(process.execPath, ['-e', EQUIV_CODE, tree, copy], { encoding: 'utf8', env: S.ctx.env({}), cwd: copy, timeout: 120000 });
+    if (r.status !== 0) throw new Error('equivalence child failed');
+    return JSON.parse(r.stdout.trim().split('\n').pop());
+  };
+  const a = runIn(treeA);
+  const b = runIn(treeB);
+  fs.rmSync(copy, { recursive: true, force: true });
+  return { sections: a.sections, mismatches_sync: countMismatches(a.sync, b.sync), mismatches_async: countMismatches(a.async, b.async), feynman_nonempty_sections: Math.min(a.feynman_nonempty, b.feynman_nonempty) };
+}
+
+function lineMultisetChanged(a, b) {
+  const m = new Map();
+  for (const l of String(a).split('\n')) m.set(l, (m.get(l) || 0) + 1);
+  let c = 0;
+  for (const l of String(b).split('\n')) { const k = m.get(l) || 0; if (k > 0) m.set(l, k - 1); else c += 1; }
+  return c;
+}
+
+function editSummary(treeA, treeB) {
+  const out = { files_changed: 0, lines_changed: {} };
+  for (const n of T03_FILES) {
+    const a = fs.readFileSync(path.join(treeA, 'lib', 'core', n), 'utf8');
+    const b = fs.readFileSync(path.join(treeB, 'lib', 'core', n), 'utf8');
+    if (a !== b) { out.files_changed += 1; out.lines_changed[n.replace(/\.cjs$/, '')] = lineMultisetChanged(a, b); }
+  }
+  return out;
+}
+
+// the four T03 processes of one tree, each as a function that returns one sample
+function t03Side(S, ctx, payloads) {
+  const node = process.execPath;
+  const slCmd = 'node "' + path.join(ctx.tree, 'scripts', 'context-monitor') + '"';
+  const cxSl = ctxWith(ctx, { MOS_PAYLOAD_FILE: payloads.statusline, MINDRIAN_OS_ROOT: ctx.tree });
+  const slDef = cmdDefOf('t03:statusline', slCmd);
+  const os_ = hookEntryRe(ctx, 'event:Stop:unchanged', /run-hook\.cmd" on-stop\s*$/);
+  const osDef = cmdDefOf('t03:onstop', os_.command, os_.timeoutMs);
+  const cxOs = ctxWith(ctx, { MOS_PAYLOAD_FILE: payloads.stop });
+  const dr = hookEntry(ctx, 'event:UserPromptSubmit', 'brain-derivation-drain.cjs');
+  const drDef = cmdDefOf('t03:drain', dr.command, dr.timeoutMs);
+  const cxDr = ctxWith(ctx, { MOS_PAYLOAD_FILE: payloads.ups });
+  const fmPath = path.join(ctx.tree, 'lib', 'core', 'folder-memory.cjs');
+  const loadCode = HR + 'require(process.argv[1]); const t1 = process.hrtime.bigint(); process.stdout.write(JSON.stringify({ ms: Number(t1 - t0) / 1e6 }) + "\\n");';
+  const loadCountDef = { id: 't03:load', kind: 'cmd', argv: () => [node, '-e', 'require(process.argv[1])', fmPath], timeoutMs: 60000 };
+  return {
+    defs: { statusline: [slDef, cxSl], onstop: [osDef, cxOs], drain: [drDef, cxDr], load: [loadCountDef, ctx] },
+    time: {
+      statusline: () => H.runCommandOnce(slDef, cxSl, { settleMs: 30000 }),
+      onstop: () => H.runCommandOnce(osDef, cxOs, { settleMs: 30000 }),
+      drain: () => H.runCommandOnce(drDef, cxDr, { settleMs: 30000 }),
+      load: () => selfTimed(ctx, loadCode, [fmPath], 'ms'),
+    },
+    slCommand: [slCmd, cxSl],
+  };
+}
+
+function hookEntryRe(ctx, defId, re) {
+  const def = H.targetDef(defId);
+  const sel = H.selectHooks(ctx, def);
+  const e = sel.entries.find((h) => re.test(h.command));
+  if (!e) throw Object.assign(new Error('hook not found in hooks.json: ' + String(re)), { exitCode: 1 });
+  return { def, command: e.command.split(PLUGIN_ROOT_VAR).join(ctx.tree), timeoutMs: (e.timeout_ms || 60000) + 1000 };
+}
+
+function t03Payloads(S) {
+  const dir = S.prep.sandbox.tmp;
+  const files = { statusline: path.join(dir, 'payload-t03-statusline.json'), stop: path.join(dir, 'payload-t03-stop.json'), ups: path.join(dir, 'payload-t03-ups.json') };
+  fs.writeFileSync(files.statusline, JSON.stringify({ model: { display_name: 'bench' }, workspace: { current_dir: S.prep.roomDir }, context_window: { used_percentage: 20, remaining_percentage: 80 }, session_id: 'sess-384-measure' }));
+  fs.writeFileSync(files.stop, JSON.stringify(H.buildEventPayload(H.targetDef('event:Stop:unchanged'), S.ctx)));
+  fs.writeFileSync(files.ups, JSON.stringify(H.buildEventPayload(H.targetDef('event:UserPromptSubmit'), S.ctx)));
+  return files;
+}
+
+function nameOfScript(a) { return a === '' || a === undefined ? 'eval' : a; }
+
+async function steadyStop(ctx) {
+  const def = H.targetDef('event:Stop:unchanged');
+  for (let k = 0; k < 6; k += 1) {
+    const w = await H.runEventOnce(def, ctx, { noTouch: true, settleMs: 120000 });
+    await sleepMs(1100);
+    if (w.changed_path_taken !== true) break;
+  }
+}
+
+function t03Open(f) {
+  if (!f['tree-b']) throw usageError('--tree-b is required');
+  const treeB = path.resolve(f['tree-b']);
+  if (!fs.existsSync(path.join(treeB, 'hooks', 'hooks.json'))) throw usageError('tree-b is not a plugin tree');
+  return treeB;
+}
+
+async function cmdT03Count(f) {
+  const treeB = t03Open(f);
+  const repeats = parseInt(f.repeats || '3', 10);
+  const S = await setup(f, 'fixture');
+  try {
+    const ctxA = S.ctx;
+    const ctxB = H.makeCtx('B', treeB, S.prep, S.cpus, S.hasTaskset);
+    const edit = editSummary(S.tree, treeB);
+    const equiv = equivalence(S, S.tree, treeB);
+    const premise = equiv.mismatches_sync > 0 || equiv.mismatches_async > 0 || edit.files_changed !== 2;
+    if (premise) {
+      writeOut(S, f.out, H.COUNTS_SCHEMA, { task: 't03', premise_failed: true, premise_reason: 'the edit changes the result or the trees do not differ in two files', edit, equivalence: equiv, repeats: 0, repeats_agree: false });
+      log('t03 premise failed: NOT MEASURED');
+      return 0;
+    }
+    const payloads = t03Payloads(S);
+    const sides = { a: t03Side(S, ctxA, payloads), b: t03Side(S, ctxB, payloads) };
+    await steadyStop(ctxA);
+    await steadyStop(ctxB);
+    for (const side of ['a', 'b']) for (const nm of T03_NAMES) await sides[side].time[nm]();
+    await S.gate();
+    const modules = {};
+    const by = {};
+    const starts = {};
+    let agreeAll = true;
+    for (const nm of T03_NAMES) {
+      modules[nm] = {}; by[nm] = {}; starts[nm] = {};
+      for (const side of ['a', 'b']) {
+        const totals = [];
+        const ns = [];
+        let byFirst = null;
+        const byAll = [];
+        for (let k = 0; k < repeats; k += 1) {
+          const cl = path.join(S.prep.sandbox.tmp, 't03-count-' + nm + '-' + side + '-' + k + '.log');
+          fs.rmSync(cl, { force: true });
+          const [def, cx] = sides[side].defs[nm];
+          await H.runCommandOnce(def, ctxWith(cx, countEnv(cl)), { settleMs: 60000 });
+          const lines = readLines(cl);
+          totals.push(lines.reduce((a, l) => a + l.modules, 0));
+          ns.push(lines.length);
+          const m = {};
+          for (const l of lines) m[nameOfScript(l.argv1)] = (m[nameOfScript(l.argv1)] || 0) + l.modules;
+          byAll.push(m);
+          if (byFirst === null) byFirst = m;
+        }
+        modules[nm][side] = totals;
+        starts[nm][side] = ns;
+        by[nm][side] = byFirst;
+        agreeAll = agreeAll && allEqual(totals) && allEqual(ns) && allEqual(byAll);
+      }
+    }
+    // the statusline must have rendered: bytes written to stdout (a number only)
+    const bytes = {};
+    for (const side of ['a', 'b']) {
+      const [cmd, cx] = sides[side].slCommand;
+      const r = cp.spawnSync('bash', ['-c', cmd + ' < "$MOS_PAYLOAD_FILE"'], { env: cx.env({}), cwd: S.prep.roomDir, encoding: 'utf8', timeout: 60000 });
+      bytes[side] = r.status === 0 ? Buffer.byteLength(String(r.stdout || '')) : null;
+    }
+    const queuePresent = fs.existsSync(path.join(S.prep.roomDir, '.mindrian', 'brain-derivation-queue.json'));
+    writeOut(S, f.out, H.COUNTS_SCHEMA, { task: 't03', premise_failed: false, edit, equivalence: equiv, modules, modules_by_script: by, node_starts: starts, stdout_bytes: { statusline: bytes }, queue_present: queuePresent, repeats, repeats_agree: agreeAll });
+    log('t03 counts written, repeats agree ' + agreeAll);
+    return 0;
+  } finally { S.cleanup(); }
+}
+
+async function cmdT03Time(f) {
+  const treeB = t03Open(f);
+  const S = await setup(f, 'fixture');
+  try {
+    const ctxA = S.ctx;
+    const ctxB = H.makeCtx('B', treeB, S.prep, S.cpus, S.hasTaskset);
+    const equiv = equivalence(S, S.tree, treeB);
+    if (equiv.mismatches_sync > 0 || equiv.mismatches_async > 0) throw new Error('premise failed: the two trees return different results');
+    const payloads = t03Payloads(S);
+    const sides = { a: t03Side(S, ctxA, payloads), b: t03Side(S, ctxB, payloads) };
+    await steadyStop(ctxA);
+    await steadyStop(ctxB);
+    for (const side of ['a', 'b']) for (const nm of T03_NAMES) await sides[side].time[nm](); // untimed warm-up of every command in each tree
+    const gate = await S.gate();
+    const accs = {};
+    for (const nm of T03_NAMES) for (const side of ['a', 'b']) accs[nm + ':' + side] = newAcc('t03:' + nm + ':' + side);
+    const diffs = {};
+    T03_NAMES.forEach((nm) => { diffs[nm] = []; });
+    for (let i = 0; i < S.runs; i += 1) {
+      for (const nm of rotated(T03_NAMES, i)) {
+        const order = i % 2 === 0 ? ['a', 'b'] : ['b', 'a'];
+        const got = {};
+        for (const side of order) {
+          const s = await sides[side].time[nm]();
+          if (addSample(accs[nm + ':' + side], s)) got[side] = s.wall_ms;
+        }
+        if (got.a !== undefined && got.b !== undefined) diffs[nm].push(got.a - got.b);
+      }
+    }
+    const targets = [];
+    for (const nm of T03_NAMES) for (const side of ['a', 'b']) targets.push(toTarget(accs[nm + ':' + side], gate));
+    for (const nm of T03_NAMES) targets.push(derivedTarget('t03:d:' + nm, diffs[nm], gate, 'per-round wall in tree A minus wall in tree B'));
+    writeOut(S, f.out, H.SCHEMA, { task: 't03', targets });
+    const t = (id) => targets.find((x) => x.id === id).wall_ms_fine.median;
+    log('t03 statusline a ' + t('t03:statusline:a') + ' b ' + t('t03:statusline:b') + ' ms; onstop a ' + t('t03:onstop:a') + ' b ' + t('t03:onstop:b') + ' ms');
+    return 0;
+  } finally { S.cleanup(); }
+}
+
 // @@TASKS@@
 
 // ---------------------------------------------------------------------------
@@ -451,6 +731,7 @@ const PAIRS = {
     { key: 't02-b:stop', label: 'T02-b stop: guard-passing call above product-shape call', x: 't02:stop:guard-passing', y: 't02:stop:real-shape', d: 't02:d:guard-minus-real:stop' },
     { key: 't02-b:post-read', label: 'T02-b post-read: guard-passing call above product-shape call', x: 't02:post-read:guard-passing', y: 't02:post-read:real-shape', d: 't02:d:guard-minus-real:post-read' },
   ],
+  t03: T03_NAMES.map((nm) => ({ key: 't03:' + nm, label: 'T03 ' + nm + ': tree A above tree B', name: nm, x: 't03:' + nm + ':a', y: 't03:' + nm + ':b', d: 't03:d:' + nm })),
 };
 
 function tgt(file, id) { return (file.targets || []).find((t) => t.id === id) || null; }
@@ -543,7 +824,54 @@ function t02Report(s1, s2, counts) {
   return { lines, readings };
 }
 
-const REPORTERS = { t02: t02Report };
+function spanOf(v) { const a = (v || []).filter((x) => typeof x === 'number'); if (!a.length) return 'NOT MEASURED'; const lo = Math.min.apply(null, a); const hi = Math.max.apply(null, a); return lo === hi ? String(lo) : lo + ' to ' + hi; }
+
+function t03Report(s1, s2, counts) {
+  const lines = [];
+  const readings = {};
+  if (counts) {
+    const e = counts.edit || {};
+    const q = counts.equivalence || {};
+    lines.push('', 'Table T03-1: edit summary and equivalence check (scratch copy, tree B)', '', row(['Quantity', 'value', 'Basis']), row(['---', '---', '---']));
+    lines.push(row(['files changed in tree B', String(e.files_changed), 'DIRECT']));
+    for (const k of Object.keys(e.lines_changed || {})) lines.push(row(['lines changed in ' + k, String(e.lines_changed[k]), 'DIRECT']));
+    lines.push(row(['sections compared', String(q.sections), 'DIRECT']));
+    lines.push(row(['mismatches, sync readQuintuple', String(q.mismatches_sync), 'DIRECT']));
+    lines.push(row(['mismatches, async readQuintuple', String(q.mismatches_async), 'DIRECT']));
+    lines.push(row(['sections where the lazy path was used (FEYNMAN body not empty)', String(q.feynman_nonempty_sections), 'DIRECT']));
+    const sb = (counts.stdout_bytes || {}).statusline;
+    if (sb) lines.push(row(['statusline stdout bytes, tree A and tree B', String(sb.a) + ' and ' + String(sb.b), 'DIRECT']));
+    lines.push('', 'Table T03-2: DIRECT module counts and node starts per process and tree (3 repeats)', '', row(['Target', 'Tree', 'node starts', 'modules total', 'modules by script (first repeat)', 'Basis']), row(['---', '---', '---', '---', '---', '---']));
+    for (const nm of T03_NAMES) {
+      for (const side of ['a', 'b']) {
+        const m = ((counts.modules || {})[nm] || {})[side];
+        const n = ((counts.node_starts || {})[nm] || {})[side];
+        const by = (((counts.modules_by_script || {})[nm] || {})[side]) || {};
+        lines.push(row([nm, side === 'a' ? 'A (pinned export)' : 'B (lazy edit)', (n || []).join(' '), (m || []).join(' '), Object.keys(by).sort().map((k) => k + ':' + by[k]).join(', '), 'DIRECT']));
+      }
+    }
+    lines.push(row(['repeats agree', '', '', '', String(counts.repeats_agree), 'DIRECT']));
+  }
+  lines.push(...targetTable(s1, s2, 'Table T03-3: every target (n per set, median, p95, two sets, spread)'));
+  const pr = pairReadings(s1, s2, PAIRS.t03);
+  lines.push('', 'Table T03-4: pair readings by R3 (the count gate first, then R2)', '', row(['Pair', 'modules A', 'modules B', 'd(1) ms', 'd(2) ms', 'noise ms', '2 x noise ms', 'count gate', 'reading', 'meets floor', 'Basis']), row(['---', '---', '---', '---', '---', '---', '---', '---', '---', '---', '---']));
+  for (const r of pr) {
+    const a = counts && counts.modules && counts.modules[r.name] ? counts.modules[r.name].a : null;
+    const b = counts && counts.modules && counts.modules[r.name] ? counts.modules[r.name].b : null;
+    let gate = 'NOT MEASURED';
+    let rd = 'NOT MEASURED';
+    if (a && b) {
+      if (!allEqual(a) || !allEqual(b)) { gate = 'repeats differ'; rd = 'NOT RESOLVED'; }
+      else if (b[0] < a[0]) { gate = 'lower in all repeats'; rd = r.reading; }
+      else { gate = 'equal or higher'; rd = 'FAIL'; }
+    }
+    readings[r.key] = { reading: rd, evidence: 't03-lazy-require-counts.json and t03-lazy-require-s1.json' };
+    lines.push(row([r.label, a ? spanOf(a) : 'NOT MEASURED', b ? spanOf(b) : 'NOT MEASURED', fmt(r.d1), fmt(r.d2), fmt(r.noise), r.noise === null ? 'NOT MEASURED' : fmt(2 * r.noise), gate, rd, 'pending Q5b', 'DERIVED']));
+  }
+  return { lines, readings };
+}
+
+const REPORTERS = { t02: t02Report, t03: t03Report };
 
 function cmdReport(f) {
   if (!f.task || !REPORTERS[f.task]) { process.stderr.write(USAGE.report + '\n'); return 2; }
@@ -614,7 +942,7 @@ async function main(argv) {
   if (sub === 'report') return cmdReport(f);
   if (sub === 'reading-rows') return cmdReadingRows(f);
   const makeB = sub === 't03' && f._[0] === 'make-b';
-  if (!f.tree || (!makeB && !f.out)) { process.stderr.write(USAGE[sub] + '\n'); return 2; }
+  if (makeB ? (!f['tree-b'] || !f.scratch) : (!f.tree || !f.out)) { process.stderr.write(USAGE[sub] + '\n'); return 2; }
   if ((f['skip-gates'] || f['allow-short']) && process.env.MOS_PERF_SELFTEST !== '1') { process.stderr.write('--skip-gates and --allow-short are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
   if (f.mode !== undefined && f.mode !== 'time' && f.mode !== 'count') { process.stderr.write('--mode accepts time or count only\n'); return 2; }
   if (f.runs === undefined) f.runs = '15';
@@ -631,10 +959,13 @@ async function main(argv) {
 const COMMANDS = {
   't02:time': cmdT02Time,
   't02:count': cmdT02Count,
+  't03:make-b': cmdT03MakeB,
+  't03:time': cmdT03Time,
+  't03:count': cmdT03Count,
 };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => process.exit(code), () => { process.stderr.write('t02-t05-bench failed\n'); process.exit(1); });
 }
 
-module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS };
+module.exports = { main, reading, shapeOf, guardPassingRegistry, fineStats, pairReadings, PAIRS, SUMMARY_ROWS, makeLazyText, assertInsideScratch, countMismatches };

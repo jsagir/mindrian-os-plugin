@@ -117,3 +117,67 @@ Lazy require of the timeline runner in folder-memory (before and after, scratch 
 Hypothesis H-T03. The require at lib/core/folder-memory.cjs line 268 (and its async twin at lib/core/folder-memory-async.cjs line 220) loads timeline-runner.cjs, timeline-renderer.cjs and navigation.cjs with their dependencies whenever folder-memory is loaded, but the file uses the runner only inside extractFeynmanBody and its async twin. If the require is made lazy, three frequent processes load fewer modules and take less time: the statusline process (scripts/context-monitor, line 21), the node -e snapshot of the on-stop hook (line 414) and the Brain drain hook on an empty queue (line 176). The drain also loads navigation.cjs itself after folder-memory, so the module count of the drain may not change.
 
 Reading rule. R3 for each of the four pairs (statusline, on-stop, drain, cold load of folder-memory.cjs), with the DIRECT module counts as the gate. The edit is made only in a scratch copy of the pinned export (tree B); tree A is the untouched pinned export. The edit is a measurement tool and is not a proposal. The two trees must return equal results in the equivalence check (R5) before any other T03 step.
+
+Results. One counts file (3 repeats, all agree), two timing sets (n = 15 each) in one shared fixture room with two contexts: tree A is the pinned export and tree B is a scratch copy with the one-line lazy edit in each of the two files. The edit is a measurement tool and is not a proposal. The two repo files have no change from this plan.
+
+Equivalence gate (R5): passed. 14 sections, 0 mismatches for the sync readQuintuple, 0 for the async one, and 12 sections used the lazy path (FEYNMAN body not empty).
+
+Readings (R3).
+Statusline reads PASS: modules 182 in tree A and 18 in tree B in all 3 repeats; d(1) 40.6 and d(2) 39.0 ms against 2 x noise 1.6 ms.
+Cold load of folder-memory reads PASS: modules 167 and 3; d(1) 48.2 and d(2) 49.1 ms against 2 x noise 1.8 ms.
+On-stop reads FAIL: the module total is lower (521 and 380, node starts 27 in both trees), but d(1) 5.7 and d(2) 8.6 ms are inside 2 x noise 69.0 ms. The whole hook takes about 1.08 s and its per-round wall varies widely (p95 above 1.1 s in set 1 and above 1.4 s in set 2). The snapshot step (node -e) loads 293 modules in both trees; the lower total comes from feynman-minto-guardian.cjs (183 modules in tree A and 42 in tree B).
+Drain on an empty queue reads FAIL: modules 169 and 167 (lower by 2), d(1) minus 2.5 and d(2) minus 1.9 ms against 2 x noise 8.8 ms. The drain loads navigation.cjs itself after folder-memory, as the hypothesis said.
+For the load target the label in the count log is the module base name (folder-memory.cjs); for node -e processes the label is eval. The queue file of the drain was absent.
+
+Table T03-1: edit summary and equivalence check (scratch copy, tree B)
+
+| Quantity | value | Basis |
+| --- | --- | --- |
+| files changed in tree B | 2 | DIRECT |
+| lines changed in folder-memory | 1 | DIRECT |
+| lines changed in folder-memory-async | 1 | DIRECT |
+| sections compared | 14 | DIRECT |
+| mismatches, sync readQuintuple | 0 | DIRECT |
+| mismatches, async readQuintuple | 0 | DIRECT |
+| sections where the lazy path was used (FEYNMAN body not empty) | 12 | DIRECT |
+| statusline stdout bytes, tree A and tree B | 116 and 116 | DIRECT |
+
+Table T03-2: DIRECT module counts and node starts per process and tree (3 repeats)
+
+| Target | Tree | node starts | modules total | modules by script (first repeat) | Basis |
+| --- | --- | --- | --- | --- | --- |
+| statusline | A (pinned export) | 1 1 1 | 182 182 182 | context-monitor:182 | DIRECT |
+| statusline | B (lazy edit) | 1 1 1 | 18 18 18 | context-monitor:18 | DIRECT |
+| onstop | A (pinned export) | 27 27 27 | 521 521 521 | eval:293, feynman-minto-guardian.cjs:183, memory-lifecycle.cjs:15, recompile-room-references.cjs:28, user-archetype.cjs:2 | DIRECT |
+| onstop | B (lazy edit) | 27 27 27 | 380 380 380 | eval:293, feynman-minto-guardian.cjs:42, memory-lifecycle.cjs:15, recompile-room-references.cjs:28, user-archetype.cjs:2 | DIRECT |
+| drain | A (pinned export) | 1 1 1 | 169 169 169 | brain-derivation-drain.cjs:169 | DIRECT |
+| drain | B (lazy edit) | 1 1 1 | 167 167 167 | brain-derivation-drain.cjs:167 | DIRECT |
+| load | A (pinned export) | 1 1 1 | 167 167 167 | folder-memory.cjs:167 | DIRECT |
+| load | B (lazy edit) | 1 1 1 | 3 3 3 | folder-memory.cjs:3 | DIRECT |
+| repeats agree |  |  |  | true | DIRECT |
+
+Table T03-3: every target (n per set, median, p95, two sets, spread)
+
+| Target | n per set | set 1 median ms | set 1 p95 ms | set 2 median ms | set 2 p95 ms | spread percent | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| t03:statusline:a | 15 and 15 | 84.442 | 90.119 | 84.287 | 103.777 | 0.2 | DIRECT |
+| t03:statusline:b | 15 and 15 | 44.832 | 47.372 | 45.459 | 52.91 | 1.4 | DIRECT |
+| t03:onstop:a | 15 and 15 | 1079.453 | 1158.46 | 1093.264 | 1419.676 | 1.3 | DIRECT |
+| t03:onstop:b | 15 and 15 | 1063.419 | 1146.685 | 1084.102 | 1616.37 | 1.9 | DIRECT |
+| t03:drain:a | 15 and 15 | 75.377 | 133.914 | 75.745 | 123.364 | 0.5 | DIRECT |
+| t03:drain:b | 15 and 15 | 79.698 | 131.554 | 83.747 | 116.003 | 5 | DIRECT |
+| t03:load:a | 15 and 15 | 49.508 | 53.096 | 50.351 | 58.613 | 1.7 | DIRECT |
+| t03:load:b | 15 and 15 | 1.316 | 2.186 | 1.392 | 2.891 | 5.6 | DIRECT |
+| t03:d:statusline | 15 and 15 | 40.558 | 44.925 | 39.005 | 59.272 | 3.9 | DERIVED |
+| t03:d:onstop | 15 and 15 | 5.68 | 102.777 | 8.623 | 85.26 | 41.2 | DERIVED |
+| t03:d:drain | 15 and 15 | -2.536 | 61.118 | -1.937 | 48.96 | 26.8 | DERIVED |
+| t03:d:load | 15 and 15 | 48.184 | 51.894 | 49.123 | 57.4 | 1.9 | DERIVED |
+
+Table T03-4: pair readings by R3 (the count gate first, then R2)
+
+| Pair | modules A | modules B | d(1) ms | d(2) ms | noise ms | 2 x noise ms | count gate | reading | meets floor | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T03 statusline: tree A above tree B | 182 | 18 | 40.558 | 39.005 | 0.782 | 1.564 | lower in all repeats | PASS | pending Q5b | DERIVED |
+| T03 onstop: tree A above tree B | 521 | 380 | 5.68 | 8.623 | 34.494 | 68.988 | lower in all repeats | FAIL | pending Q5b | DERIVED |
+| T03 drain: tree A above tree B | 169 | 167 | -2.536 | -1.937 | 4.417 | 8.834 | lower in all repeats | FAIL | pending Q5b | DERIVED |
+| T03 load: tree A above tree B | 167 | 3 | 48.184 | 49.123 | 0.919 | 1.838 | lower in all repeats | PASS | pending Q5b | DERIVED |
