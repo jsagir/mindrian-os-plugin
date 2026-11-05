@@ -258,3 +258,14 @@ Table T04-4: node starts and modules per event, default layout next to harness l
 | SubagentStop with 5 files | harness layout | 46 44 46 | 4749 4305 4657 | 0 0 0 | false | DIRECT |
 
 Observation, not fixed here: a path that holds neither /room/ nor /rooms/ makes the cascade skip (table T04-1), and the cost of that skipped call is the 59 ms of table T04-3, mostly module load. The harness fixture path holds /rooms/, and the work folder of a real-room copy ends in a folder named room (a string test on a constructed path, table T04-1; the copies of plan 384-08 are not re-read here). The artifact that findTouchTarget picks in the harness fixture is the identity file ROOM.md, which the cascade skips with its own reason, so a Write event on that file did not run the cascade (table T04-1). Plan 384-09 should read the S2 and S4 fixture numbers with this in view; the earlier result files are not re-read here.
+
+## T05
+
+HMI compliance poll hook against doctor --ui-compliance alone.
+
+Hypothesis H-T05. On every Stop, scripts/hmi-compliance-poll.cjs --hook starts a second node process that runs scripts/doctor.cjs --ui-compliance --json (a scan of command and script surfaces) with a 5000 ms spawn timeout, the same number as the Stop hook timeout of 5 in hooks.json. So the wall time of the hook is the wall time of the doctor run plus a fixed overhead, and the doctor run is the larger part.
+
+Reading rules.
+T05-a is R4 for the pair X = the hook and Y = doctor alone. Also reported with no rule: the median of doctor alone divided by 5000 (DERIVED), and the hook median as the cost added to every Stop.
+T05-b is R1 on counts: the hook starts 2 node processes (the hook script and the doctor script), the doctor JSON holds 1 key under checks, and the poll status word is ok.
+The poll status word ok proves that the doctor spawn ran. If the status word is not ok, the premise gate of R5 stops the task (PREMISE FAILED) and nothing is timed. A timing round whose hook run did not write the status word ok does not count.
