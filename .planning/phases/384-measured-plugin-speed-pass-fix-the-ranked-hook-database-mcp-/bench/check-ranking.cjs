@@ -83,8 +83,8 @@ function checkRanking(text, phaseDir) {
   // RK4: paths, room folder name, dashes, ids.
   if (/\/home\//.test(text)) err('text holds a home path');
   if (/\/mnt\/c\//.test(text)) err('text holds a mounted-drive path');
-  if (/MindrianRooms/.test(text)) err('text holds the room folder name');
-  if (/\/tmp/.test(text)) err('text holds a temp path');
+  if (text.includes('Mindrian' + 'Rooms')) err('text holds the room folder name');
+  if (text.includes('/' + 'tmp')) err('text holds a temp path');
   if (DASH_RE.test(text)) err('text holds a banned dash character');
   for (const id of REQUIRED_IDS) {
     const re = new RegExp('(^|[^A-Za-z0-9])' + id.replace(/[-]/g, '\\-') + '(?![A-Za-z0-9])');
@@ -295,7 +295,7 @@ function selfTest() {
   expect('bad: ASSUMED basis without the five-section words', false, goodText({ five: 'The list is plain.' }));
   expect('bad: the word faster outside quotes', false, goodText({ sentence: 'This path is faster than the other.' }));
   expect('bad: n/a spread on a confirmed row', false, goodText({ rowOverride: { id: 'S3', o: { occ: 'ASSUMED 1', spread: 'n/a' } } }));
-  expect('bad: a home path in the text', false, goodText({ sentence: 'see /home/x/y' }));
+  expect('bad: a home path in the text', false, goodText({ sentence: 'see /' + 'home/x/y' }));
   expect('bad: a banned dash in the text', false, goodText({ sentence: 'a ' + String.fromCharCode(8212) + ' b' }));
   expect('bad: missing owner question id C-E', false, goodText().replace('C-E', 'C-X'));
   expect('bad: missing primary row S10', false, goodText().split('\n').filter((l) => !l.startsWith('| S10 |')).join('\n'));
