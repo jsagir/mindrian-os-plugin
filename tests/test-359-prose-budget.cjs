@@ -79,7 +79,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-07 (D-05, D-07, D-11), 2026-10-30: was 5be7b46dc897...2670 (the identity rule line spells PwS)
   // re-based at the origin/main merge (beta.77: c94 preflight floor lines, phase 381) on 2026-10-30
   // re-based by 383-05 (QA383-02, QA383-03, D-row C1 and C7), 2026-11-05: was d4ea...93ed (Mode 1 paragraph routes a named method need; one no-room memory sentence; the NAV_CARD_FIRE_DOCTRINE line is unchanged)
-  SESSION_START_OUTSIDE_DOCTRINE: 'f685765b084ac2b1e1fd1670dc89605499487a5621bd6656da2466dba3cb4447',
+  // re-based by 383-07 (QA383-07, D-row C2), 2026-11-05: was f685765b084a...4447 (the MODE_MENU and the cold-start line say "when the reply is talk instead of a pick" instead of "if the navigator starts talking instead of picking"; the NAV_CARD_FIRE_DOCTRINE line is unchanged)
+  SESSION_START_OUTSIDE_DOCTRINE: 'c7a69e82ab284554e42fa0b7e3697ead9345ec3a4c2122b7d08c5c2358ecdbf4',
   // MCP persona line, THEO line and BOUNDARIES line (never trimmed)
   // re-based by 369.6-07 (D-05), 2026-10-30: was 2f3c40f2ed1c...588c (the persona line spells PwS; the length stays 2000 bytes)
   MCP_PERSONA: 'd609af7d3f764a49b47d3d170db0af2ddbde72e7ea6965c798c06cc91689dba9',
