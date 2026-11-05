@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.78 (in progress)
+## [2.0.0-beta.79] - 2026-11-05
 
 ### Added
 - **Larry's reply length is now measured at the end of every turn (beta.77 QA report, Phase 383).** Larry's rule stays the same: 3 to 8 sentences by default, longer when you ask for a list, a plan or the full answer. The beta.77 QA report saw replies of 15 to 25 sentences, so the length is now written to the local voice log as two counts (sentences and the limit, never the text), and nothing is blocked. In our 98 example replies, 9 are over 8 sentences. The mode card at the start of a session also speaks to you now, not about the navigator. Not live until a release carries it.
