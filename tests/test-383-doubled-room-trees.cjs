@@ -19,6 +19,8 @@
  *   T14 the registry entry exists, is check-only, flag null
  *   T15 an edited folder next to a removable one survives clean()
  *   T16 a changed listing changes the digest, so a stale digest deletes nothing
+ *   T17 review WR-03: a cap hit sets truncated, the digest differs from a complete listing, check() says partial
+ *   T18 review WR-03: the walk order is sorted, so the same tree gives the same listing and digest
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs. No network. House rule: hyphens only.
  */
@@ -278,6 +280,54 @@ leg('T16 a changed listing changes the digest: a stale digest deletes nothing', 
   const res = mod.clean({ home: f.h.roomsHome, digest: stale });
   eq(res.reason, 'digest_mismatch', 'reason');
   ok(fs.existsSync(f.doubled), 'stale digest deleted a folder');
+});
+
+leg('T17 review WR-03: a cap hit sets truncated, the digest differs, check() says partial', function () {
+  const f = fixture('t17');
+  const full = mod.listDoubledTrees(f.h.roomsHome);
+  eq(full.truncated, false, 'complete listing is not truncated');
+  const capped = mod.listDoubledTrees(f.h.roomsHome, { maxEntries: 1 });
+  eq(capped.truncated, true, 'entry cap sets truncated');
+  ok(mod.listingDigest(capped) !== mod.listingDigest(full), 'a partial digest equals the complete digest');
+  // a digest approved for the complete list does not delete from a partial one
+  const res = mod.clean({ home: f.h.roomsHome, digest: mod.listingDigest(full), listOpts: { maxEntries: 1 } });
+  ok(res.ok === false || res.removed.length === 0, 'a complete-list digest removed from a partial list');
+  ok(fs.existsSync(f.doubled), 'folder removed under a partial list');
+  // depth cap: a tree deeper than 16 levels under a non-room top folder
+  const h = H.hermeticEnv('t17d');
+  const deep = path.join(h.roomsHome, 'top', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 'a11', 'a12', 'a13', 'a14', 'a15', 'a16', 'a17');
+  fs.mkdirSync(deep, { recursive: true });
+  const r = withHome(h.roomsHome, function () { return mod.check({}); });
+  eq(r.status, 'warn', 'status of a partial listing with no leaves');
+  ok(/partial listing/.test(r.detail), 'the row says partial: ' + r.detail);
+  // with leaves and a cap hit the row also says partial (default caps cannot trip here, so shape-check the source text)
+  const src = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'doctor', 'doubled-room-trees-module.cjs'), 'utf8');
+  ok(src.indexOf("(listing.truncated ? ' (' + partialNote + ')' : '')") !== -1, 'leaf row carries the partial note');
+});
+
+leg('T18 review WR-03: the walk order is sorted, the same tree gives the same listing', function () {
+  const h = H.hermeticEnv('t18');
+  seed(path.join(h.roomsHome, 'axiom'), 'axiom');
+  fs.writeFileSync(path.join(h.roomsHome, 'axiom', '.room-root'), '');
+  const orig = fs.readdirSync;
+  const reversed = function (d, o) {
+    const r = orig.call(fs, d, o);
+    return Array.isArray(r) ? r.slice().reverse() : r;
+  };
+  for (const n of ['a', 'b', 'c']) seed(path.join(h.roomsHome, 'x', n, 'axiom'), 'axiom');
+  const opts = { isDir: function () { return true; }, exists: function () { return true; } };
+  const one = mod.listDoubledTrees(h.roomsHome, opts);
+  fs.readdirSync = reversed;
+  let two;
+  try { two = mod.listDoubledTrees(h.roomsHome, opts); } finally { fs.readdirSync = orig; }
+  eq(JSON.stringify(two.leaves), JSON.stringify(one.leaves), 'leaves under a reversed readdir order');
+  eq(mod.listingDigest(two), mod.listingDigest(one), 'digest under a reversed readdir order');
+  // the entry cap keeps the same survivors whatever the readdir order
+  const capOne = mod.listDoubledTrees(h.roomsHome, Object.assign({ maxEntries: 3 }, opts));
+  fs.readdirSync = reversed;
+  let capTwo;
+  try { capTwo = mod.listDoubledTrees(h.roomsHome, Object.assign({ maxEntries: 3 }, opts)); } finally { fs.readdirSync = orig; }
+  eq(JSON.stringify(capTwo.leaves), JSON.stringify(capOne.leaves), 'capped leaves under a reversed readdir order');
 });
 
 rep.done();
