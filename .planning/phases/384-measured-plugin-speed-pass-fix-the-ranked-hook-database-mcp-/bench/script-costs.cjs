@@ -424,7 +424,15 @@ async function cmdAutoexplore(f) {
     const groups = [];
     for (const F of sizes) {
       if (F === 0) groups.push({ F, mode: 'open', id: 'script:autoexplore:f0' });
-      else { groups.push({ F, mode: 'open', id: 'script:autoexplore:f' + F + ':open' }); groups.push({ F, mode: 'held', id: 'script:autoexplore:f' + F + ':held' }); }
+      else {
+        // open: a finding is pending, the script surfaces it (the whole path). held: the ambient ledger holds every
+        // finding, so each file is read and skipped (the pure scan). done: the explored-materials ledger says every
+        // finding was answered, so each file is read and parsed and the script emits nothing (the steady state of a
+        // room whose finding files stay on disk after the person answered).
+        groups.push({ F, mode: 'open', id: 'script:autoexplore:f' + F + ':open' });
+        groups.push({ F, mode: 'held', id: 'script:autoexplore:f' + F + ':held' });
+        groups.push({ F, mode: 'done', id: 'script:autoexplore:f' + F + ':done' });
+      }
     }
     // The open path (the script surfaces a finding) writes one new auto-explore-<hash>.json per run. Those files and
     // the synthetic ones are removed before every run, so each run starts with exactly F finding files (found in the first sanity run).
@@ -443,16 +451,24 @@ async function cmdAutoexplore(f) {
           fs.writeFileSync(path.join(mind, FIND_PREFIX + k + '.json'), JSON.stringify(rec));
         }
       }
-      if (g.mode === 'held') {
-        const ids = [];
+      const ids = [];
+      if (g.mode === 'held' || g.mode === 'done') {
         for (const n of fs.readdirSync(mind)) {
           if (!n.startsWith('auto-explore-') || !n.endsWith('.json') || n.indexOf('.tmp.') !== -1) continue;
           try { const j = JSON.parse(fs.readFileSync(path.join(mind, n), 'utf8')); if (j && typeof j.material_id === 'string') ids.push(j.material_id); } catch (_e) { /* skip */ }
         }
-        fs.writeFileSync(ambientFile, JSON.stringify({ stamped_materials: ids }));
-      } else if (origAmbient !== null) fs.writeFileSync(ambientFile, origAmbient);
+      }
+      if (g.mode === 'held') fs.writeFileSync(ambientFile, JSON.stringify({ stamped_materials: ids }));
+      else if (origAmbient !== null) fs.writeFileSync(ambientFile, origAmbient);
       else fs.rmSync(ambientFile, { force: true });
       fs.rmSync(homeLedger, { recursive: true, force: true });
+      if (g.mode === 'done') {
+        // one answered row per finding in the explored-materials ledger of this room slug (sandbox HOME)
+        fs.mkdirSync(homeLedger, { recursive: true });
+        const now = Date.now();
+        const rows = ids.map((id) => JSON.stringify({ material_id: id, file_path_sha256: '0'.repeat(64), relative_file_path: '', mtime_seconds: 0, fired_at: now, state: 'completed', finding_count: 1, surfaced: true, user_response: 'SKIP', responded_at: now, suppress_reason: null, in_flight_since: null }));
+        fs.writeFileSync(path.join(homeLedger, encodeURIComponent(path.basename(room)) + '.jsonl'), rows.join('\n') + (rows.length ? '\n' : ''));
+      }
     };
     const restoreAll = () => {
       removeSynthetic();
@@ -491,7 +507,7 @@ async function cmdAutoexplore(f) {
     restoreAll();
     // reads per finding file: (reads at F minus reads at the smallest F) divided by the difference in files, per variant
     const slopes = [];
-    for (const variant of ['open', 'held']) {
+    for (const variant of ['open', 'held', 'done']) {
       const pts = reads.filter((r) => r.variant === variant || (r.variant === 'none' && r.finding_files === 0));
       if (pts.length < 2) continue;
       pts.sort((a, b) => a.finding_files - b.finding_files);
