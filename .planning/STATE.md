@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
-status: executing
+status: completed
 stopped_at: Plan 369.6-13 Task 1 complete (final suite PASSED=123 FAILED=3 KNOWN=24 with causes explained, gates, Close, 21 requirement rows, CHANGELOG); Task 2 owner checkpoint PENDING; phase 369.6 NOT complete; live runs NOT RUN (no credential)
-last_updated: "2026-10-30T16:30:00.000Z"
-last_activity: "2026-10-30 -- Plan 369.6-13 Task 1 done (hand-edited, no state.* writer); owner checkpoint pending"
+last_updated: "2026-11-05T04:44:00.295Z"
+last_activity: "2026-10-29 -- Completed quick task 261029-sof: scripts/session-start resolves its three temp paths under TMPDIR (369.6 isolation gap 2); wave 3 of 369.6 next"
 progress:
   total_phases: 144
   completed_phases: 34

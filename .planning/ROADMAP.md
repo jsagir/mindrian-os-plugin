@@ -3970,16 +3970,42 @@ Planned waves (to be split into plans):
 - Wave 4: retest on the owner's Windows machine (human checkpoint; closes QA383-01 and SEED-142 only on a signed receipt)
 
 Plans:
+**Wave 1**
+
 - [ ] 383-01-PLAN.md - Wave 0 tests, part A: aggregator, shared helper, resolver, registry, spawn chokepoint, preview check, no-write-before-gate (RED first)
 - [ ] 383-02-PLAN.md - Wave 0 tests, part B: routing, card fork, plain failure, card copy, sourced number, voice length (RED first)
 - [ ] 383-03-PLAN.md - resolveRoomRuntime and spawnRoomRegistry in lib/core/platform.cjs; room-registry PY by running and the absolute RPATH fix (QA383-01, QA383-10)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 383-04-PLAN.md - six spawn sites on the helper; environment check before the card, before birthRoom and in room-auto-create; CLI pre-card check (QA383-01, QA383-04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 383-05-PLAN.md - routing diagnosis with evidence, then Mode 1 text and no-room memory doctrine (QA383-02, QA383-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 383-06-PLAN.md - plain three-line failures with the verbatim line kept; Your call rule for prose forks; card copy rule (QA383-05, QA383-06, QA383-07)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 383-07-PLAN.md - third-person card lint and mode card fix; reply length shadow row and declared policy (QA383-07, QA383-09)
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 383-08-PLAN.md - unsourced-number sweep over static Larry lines (QA383-08)
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 383-09-PLAN.md - doctor room-runtime row with the Windows hook shell; D-07 seed (QA383-01, QA383-03)
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 383-10-PLAN.md - doctor doubled-room-trees row and the F.0-gated, digest-bound delete; phase gates (QA383-10)
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
 - [ ] 383-11-PLAN.md - human checkpoint: Windows retest receipt, approved deletion on the real machine, the QA session number (QA383-01, QA383-08)
 
 ### Phase 384: Measured plugin speed pass: fix the ranked hook, database, MCP start-up and Stop findings, measure first
