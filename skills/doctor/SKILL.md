@@ -147,7 +147,7 @@ These siblings own their own exit contracts and are not part of the class-flag d
 The `doubled-room-trees` row lists folders that older room creation wrote by mistake inside the rooms home. Nothing is deleted by a plain `/mos:doctor` run, by `--all` or by `--fix`: the delete is the separate flag `--clean-doubled-rooms=<digest>`, and it runs only after the navigator approves.
 1. Run `/mos:doctor` and read the `doubled-room-trees` row: the folder count, the top folders and the digest.
 2. Fire the F.0 card with the AskUserQuestion tool: Approve, Reject or Defer. The card shows the top folders, the folder count and the digest, and says that only unchanged starter files are removed. Do not run the delete before the answer.
-3. Only on Approve run `node scripts/doctor.cjs --clean-doubled-rooms=<digest>`, with the digest from that same listing. On Reject or Defer, change nothing.
+3. Only on Approve run `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/doctor.cjs" --clean-doubled-rooms=<digest>`, with the digest from that same listing. On Reject or Defer, change nothing.
 4. A changed listing changes the digest, so an old approval deletes nothing: the command prints that nothing was deleted and exits 1. Run `/mos:doctor` again and ask again.
 5. A folder with a file you changed, an extra file, or no matching real room is never deleted and is named in the output. The command never follows a link and never deletes a folder that is not empty after its own starter files are gone.
 
