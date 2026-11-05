@@ -17,13 +17,14 @@
  *   R6  python below 3.9 is below_floor
  *   R7  every not-ok plain text has 3 lines (what, Why, Fix) and no path
  *   R8  POSIX: bash and python3 are accepted by name, no sys.executable probe
- *   R9  memo: only an ok default call is cached; refresh re-probes
+ *   R9  memo: an ok default call is cached; refresh re-probes; a failure is dropped when PATH changes
  *   R10 the platform banner path does not call the resolver
  *   R11 toBashPath
  *   R12 spawnRoomRegistry with a not-ok runtime spawns nothing
  *   R13 spawnRoomRegistry on win32 passes forward-slash paths, MINDRIAN_PYTHON, no shell
  *   R14 CLI: room-runtime exits 1 with the plain text when nothing works
  *   R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forward slashes only
+ *   R16 review WR-02: a failed resolution is cached for a short window, refresh re-probes, the window ends
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs before any repo require. No network.
  * House rule: hyphens only.
@@ -238,7 +239,7 @@ leg('R8 POSIX: bash and python3 are accepted by name, no sys.executable probe', 
   eq(spawnSync.calls.filter(function (k) { return /sys\.executable/.test(k); }).length, 0, 'sys.executable probes on POSIX');
 });
 
-leg('R9 memo: only an ok default call is cached; refresh re-probes; a failure is never cached', function () {
+leg('R9 memo: an ok default call is cached; refresh re-probes; a failure is dropped when PATH changes', function () {
   const resolve = need('resolveRoomRuntime');
   resetPlatform();
   const saved = process.env.PATH;
@@ -336,6 +337,36 @@ leg('R15 review WR-01: a UNC rooms home and a UNC room dir reach bash with forwa
   eq(JSON.stringify(seen[0].argv), JSON.stringify(['C:/repo/scripts/room-registry', '//srv/share/rooms', 'create', 'x', '//srv/share/rooms/x']), 'argv');
   eq(seen[0].options.env.MINDRIAN_ROOMS_HOME, '//srv/share/rooms', 'MINDRIAN_ROOMS_HOME');
   eq(need('toBashPath')('\\\\srv\\share\\rooms'), '//srv/share/rooms', 'toBashPath of a UNC path');
+});
+
+leg('R16 review WR-02: a failed resolution is cached for a short window, refresh re-probes, the window ends', function () {
+  const resolve = need('resolveRoomRuntime');
+  resetPlatform();
+  const saved = process.env.PATH;
+  const emptyDir = H.mkTmp('negcache');
+  try {
+    process.env.PATH = emptyDir;
+    const t0 = 1000000;
+    const a = resolve({ now: t0 });
+    eq(a.ok, false, 'first call on an empty PATH is not ok');
+    const b = resolve({ now: t0 + platform.NEGATIVE_CACHE_MS - 1 });
+    ok(a === b, 'a retry inside the window returns the cached failure');
+    const c = resolve({ now: t0 + 1, refresh: true });
+    ok(c !== a, 'refresh: true probes again');
+    const d = resolve({ now: t0 + 2 });
+    ok(d === c, 'the refreshed failure is the one cached now');
+    const e = resolve({ now: t0 + 1 + platform.NEGATIVE_CACHE_MS + 1 });
+    ok(e !== c, 'after the window a new probe runs');
+    process.env.PATH = emptyDir + path.delimiter + emptyDir;
+    const f = resolve({ now: t0 + 1 + platform.NEGATIVE_CACHE_MS + 2 });
+    ok(f !== e, 'a changed PATH drops the cached failure');
+    eq(platform.PROBE_TIMEOUT_MS, 2000, 'per-candidate probe timeout');
+    resetPlatform();
+    const g = resolve({ now: t0 });
+    resetPlatform();
+    const h = resolve({ now: t0 });
+    ok(g !== h, '__resetForTests clears the failure cache');
+  } finally { process.env.PATH = saved; }
 });
 
 for (const l of legs) {
