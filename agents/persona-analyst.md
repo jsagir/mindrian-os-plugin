@@ -91,7 +91,7 @@ Activate this agent when the user says any of:
 ### Before Invocation
 
 1. Always check if personas exist first by running `persona list` on the room
-2. If no personas found, suggest: "Your room doesn't have personas yet. Want me to generate them? This requires 2+ populated sections."
+2. If no personas found, suggest: "Your room doesn't have personas yet. Want me to generate them? This requires populated sections to draw from."
 3. If personas are stale (room content has changed significantly since generation), mention: "Your personas were generated on [date]. Your room has changed since then. Want me to regenerate?"
 
 ### Single Persona Invocation

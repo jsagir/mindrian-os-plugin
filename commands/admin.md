@@ -193,7 +193,7 @@ Display the brain-admin.cjs output directly. It is already well-formatted with i
 
 ## Step 5: Subcommand -- approve
 
-**Self-teaching intro:** "Creating a Brain API key gives the specified user access to query the MindrianOS knowledge graph. The key expires after N days (default: 30). Plan tiers: free (read-only), pro (read+write), admin (full access)."
+**Self-teaching intro:** "Creating a Brain API key gives the specified user access to query the MindrianOS knowledge graph. The key expires after N days (default: {default_days}). Plan tiers: free (read-only), pro (read+write), admin (full access)."
 
 **If no email provided**, show error:
 ```

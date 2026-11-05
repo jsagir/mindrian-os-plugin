@@ -38,8 +38,18 @@ const ROOT = path.resolve(__dirname, '..');
 const R = H.reporter('test-383-sourced-number');
 const { findUnsourcedNumber } = require(path.join(ROOT, 'lib', 'hmi', 'larry-reply-checks.cjs'));
 
-// Entries { file, figure, reason }. A later plan adds one only for a figure that is not a claim.
-const ALLOWLIST = [];
+// Entries { file, figure, match, reason }. An entry is only for a figure that is not a claim, or a string that a
+// named test or file pins. `match` is a substring of the swept string, so one entry never covers a second sentence
+// in the same file that holds the same figure.
+const ALLOWLIST = [
+  // Plan 383-08 Task 1 (agents/ and commands/admin.md to commands/jtbd.md)
+  { file: 'commands/admin.md', figure: '401', match: 'The user will get a 401 error', reason: 'an HTTP status code, not a claim about the room' },
+  { file: 'commands/graph.md', figure: '3', match: 'What topics appear in 3 or more sections?', reason: 'an example question the navigator may ask; the threshold is the question itself, not a Larry claim' },
+  { file: 'commands/graph.md', figure: '3', match: 'What topics appear in 3+ sections?', reason: 'an example question pattern the navigator may ask; the threshold is part of the question, not a Larry claim' },
+  { file: 'commands/hat-briefing.md', figure: '6', match: 'a full 6-hat sweep', reason: 'the name of the method (Six Thinking Hats), a fixed definition and not a measured claim' },
+  { file: 'commands/ignite.md', figure: '2', match: 'which 2-3 domains pull you?', reason: 'the count of picks the card asks for, a count of the reply\'s own options and not a claim' },
+  { file: 'agents/investor.md', figure: '18', match: 'What kills this in 18 months?', reason: 'a probing question whose horizon is part of the question, not a stated fact' },
+];
 
 // The number the QA session reported. Plan 383-11 adds it from the full report.
 const SESSION_STRING = null;
@@ -117,7 +127,7 @@ for (const s of swept) {
 }
 
 function allowlisted(h) {
-  return ALLOWLIST.some(function (a) { return a.file === h.file && a.figure === h.figure; });
+  return ALLOWLIST.some(function (a) { return a.file === h.file && a.figure === h.figure && h.text.indexOf(a.match) !== -1; });
 }
 const open = hits.filter(function (h) { return !allowlisted(h); });
 const allowCount = hits.length - open.length;
@@ -134,7 +144,8 @@ else R.fail('U1 no unsourced figure outside the allowlist', open.length + ' hit(
   const faults = [];
   ALLOWLIST.forEach(function (a, i) {
     if (!a || typeof a.reason !== 'string' || !a.reason.trim()) faults.push('entry ' + i + ' has no reason');
-    if (!hits.some(function (h) { return a && h.file === a.file && h.figure === a.figure; })) {
+    if (!a || typeof a.match !== 'string' || !a.match) faults.push('entry ' + i + ' has no match substring');
+    if (!hits.some(function (h) { return a && h.file === a.file && h.figure === a.figure && h.text.indexOf(a.match) !== -1; })) {
       faults.push('entry ' + i + ' (' + (a && a.file) + ' ' + (a && a.figure) + ') matches no live hit');
     }
   });

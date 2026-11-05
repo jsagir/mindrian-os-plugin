@@ -83,7 +83,7 @@ If the user specifically requests `dashboard`:
    ```
 
 3. **Report the result:**
-   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- Cytoscape visualization with graph intelligence. Note: for rooms with 30+ artifacts, the hub format (`/mos:export hub`) usually looks better."
+   > "Your knowledge graph dashboard is at `room/data-room-dashboard.html`. Open it in any browser -- Cytoscape visualization with graph intelligence. Note: for large rooms, the hub format (`/mos:export hub`) usually looks better."
 
 ## Generate the PDF
 
@@ -118,7 +118,7 @@ If the profile looks sparse, suggest:
 ## Surface Behavior
 
 - **CLI:** The render-pdf script runs directly, generates the PDF, and opens it automatically with the system viewer.
-- **Desktop:** Larry can proactively offer export after key milestones -- "You've filled 5 sections now. Want me to generate a thesis draft so you can see how it's shaping up?"
+- **Desktop:** Larry can proactively offer export after key milestones -- "You've filled {n} sections now. Want me to generate a thesis draft so you can see how it's shaping up?"
 - **Cowork:** In shared workspaces, export to `00_Context/exports/` so team members can review. Mention: "I put the export in the shared context folder so your team can see it."
 
 ## Error Handling

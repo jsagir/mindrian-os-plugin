@@ -277,7 +277,7 @@ For each identified speaker, check `room/team/` profiles:
 - **Partial match** (similar name in existing profile): Present for confirmation
   - Example: "This sounds like Lawrence -- mentor from team directory. Confirm?"
 - **Unknown** (no match in team directory): Infer role from content
-  - Example: "Speaker 2 discussed financials and seems senior -- could this be your advisor?"
+  - Example: "{speaker} discussed financials and seems senior -- could this be your advisor?"
 
 ### Present Smart Hybrid Table
 
@@ -316,7 +316,7 @@ Do not surface routine or weak emotions. Only notable emotional signals that pro
 ### Transcript size probe
 
 Before Step 3 begins, count words and speaker turns in the transcript. State both numbers to
-the navigator in one line, for example: "3,400 words, 62 turns -- extracting now."
+the navigator in one line, for example: "{words} words, {turns} turns -- extracting now."
 
 **Under 12,000 words:** proceed. Say nothing beyond the one line above.
 
@@ -1157,7 +1157,7 @@ After the within-meeting cross-relationship scan, perform cross-meeting pattern 
 1. Extract key topics from the current meeting's metadata (topics inferred from filed segments)
 2. Grep `topics:` across all `room/meetings/*/metadata.yaml` files
 3. Any topic in 3+ meetings (including this one) = convergence signal
-4. Surface each: "Market validation has been raised in 4 of your last 6 meetings. This is becoming a central theme."
+4. Surface each: "Market validation has been raised in {k} of your last {n} meetings. This is becoming a central theme."
 
 #### Contradiction Detection
 1. Pre-filter prior meetings that share topics/speakers with current meeting (via metadata.yaml grep)

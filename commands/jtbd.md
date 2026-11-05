@@ -245,9 +245,9 @@ Per Phase 95.1-04 D-19 deferral pattern, the F.1 picker renders as a STRUCTURAL 
 
 When Larry surfaces the output conversationally:
 
-- "You're on `find-bottleneck`. The classifier saw `rs-fetch` in your last turn plus you're in METHODOLOGY operator -- 0.82 confidence."
+- "You're on `find-bottleneck`. The classifier saw `rs-fetch` in your last turn plus you're in METHODOLOGY operator -- {confidence} confidence."
 - "Want to override? `/mos:jtbd set <id>` lets you pick from the 12 first-class jobs."
-- "If the JTBD looks wrong, `/mos:jtbd list` shows all 13 with one-liners; `/mos:jtbd clear` returns to null."
+- "If the JTBD looks wrong, `/mos:jtbd list` shows every JTBD with one-liners; `/mos:jtbd clear` returns to null."
 
 NEVER:
 - Apologize for the JTBD inference being what it is. The state is the truth; the classifier is heuristic and the user can always override.

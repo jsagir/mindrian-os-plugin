@@ -184,7 +184,7 @@ Three-line pattern. Specific failures:
 ## Cross-Surface Adaptation
 
 - **CLI** -- Full power. Scripts invoked via Bash. 80-column terminal output. The Shape E table is rendered with the 12-glyph vocabulary.
-- **Desktop** -- Larry narrates conversationally in prose. Example: "Very simply, the room is consolidating (CD = -0.71), two-thirds mapped (coverage 0.667), low diversity (novelty 0.083), moderate recent surprise (max 0.312)." Numbers shown as markdown bullets, no tree chars per ui-system Section 9.
+- **Desktop** -- Larry narrates conversationally in prose. Example: "Very simply, the room is consolidating (CD = {cd}), mostly mapped (coverage {coverage}), low diversity (novelty {novelty}), moderate recent surprise (max {max_surprise})." Numbers shown as markdown bullets, no tree chars per ui-system Section 9.
 - **Cowork** -- Same as CLI. The four metrics are shared via `00_Context/` for team visibility. The intelligence strip becomes a shared "room health" snapshot.
 
 ## Canon References

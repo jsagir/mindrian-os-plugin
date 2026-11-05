@@ -101,7 +101,7 @@ Combine pattern matches and semantic results. Present:
 ### 5. Privacy Rules
 
 **CRITICAL:** Do NOT expose individual student names, personal data, or identifiable project details. All findings must be presented as aggregate patterns:
-- "3 of 5 similar projects..." not "Sarah's project..."
+- "{k} of {n} similar projects..." not "Sarah's project..."
 - "Projects in the healthcare domain..." not "[specific project name]..."
 - Grade distributions and percentiles are fine. Individual grades tied to names are not.
 
