@@ -3521,6 +3521,7 @@ function main() {
       console.log('Run /mos:doctor to see the current list and digest, then approve that list.');
     } else {
       console.log('Nothing more was deleted.');
+      (res.removed || []).forEach(function (r) { console.log('  already removed: ' + r); });
       console.log('Reason: ' + (res.detail || res.reason || 'a folder could not be removed') + '.');
       (res.kept || []).forEach(function (k) { console.log('  kept: ' + k.path + ' (' + k.reason + ')'); });
       console.log('Run /mos:doctor to see what is left.');

@@ -22,6 +22,7 @@
  *   T17 review WR-03: a cap hit sets truncated, the digest differs from a complete listing, check() says partial
  *   T18 review WR-03: the walk order is sorted, so the same tree gives the same listing and digest
  *   T19 review WR-04: a parent replaced by a symlink after the listing is refused, nothing outside the home is removed
+ *   T20 review IN-04: a partial clean failure over the CLI prints the folders already removed
  *
  * Hermetic: HOME and the rooms vars are mkdtemp dirs. No network. House rule: hyphens only.
  */
@@ -64,7 +65,10 @@ function runCli(args, env) {
   });
 }
 function leg(label, fn) {
-  try { fn(); rep.pass(label); } catch (e) { rep.fail(label, e && e.message); }
+  try { fn(); rep.pass(label); } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (/^PENDING /.test(msg)) rep.pending(label, msg.slice('PENDING '.length)); else rep.fail(label, msg);
+  }
 }
 function eq(a, b, what) {
   if (a !== b) throw new Error((what || 'value') + ': expected ' + JSON.stringify(b) + ' got ' + JSON.stringify(a));
@@ -364,6 +368,24 @@ leg('T19 review WR-04: a parent replaced by a symlink after the listing is refus
   });
   eq(r2.removed.length, 0, 'removed through a symlinked intermediate parent');
   ok(fs.existsSync(path.join(movedMid, ...parts.slice(2), 'ROOM.md')), 'intermediate target touched');
+});
+
+leg('T20 review IN-04: a partial clean failure over the CLI prints the folders already removed', function () {
+  if (typeof process.getuid === 'function' && process.getuid() === 0) throw new Error('PENDING root ignores directory permissions');
+  const f = fixture('t20');
+  // a second real room and its doubled copy; the copy sorts after axiom and is made read-only
+  seed(path.join(f.h.roomsHome, 'beta'), 'beta');
+  fs.writeFileSync(path.join(f.h.roomsHome, 'beta', '.room-root'), '');
+  const betaDoubled = path.join(path.dirname(f.doubled), 'beta');
+  seed(betaDoubled, 'beta');
+  const digest = mod.listingDigest(mod.listDoubledTrees(f.h.roomsHome));
+  fs.chmodSync(betaDoubled, 0o555);
+  let res;
+  try { res = runCli(['--clean-doubled-rooms=' + digest], f.h.env); } finally { fs.chmodSync(betaDoubled, 0o755); }
+  eq(res.status, 1, 'exit code: ' + res.stdout + res.stderr);
+  ok(/Nothing more was deleted\./.test(res.stdout), 'first line: ' + res.stdout);
+  ok(res.stdout.indexOf('already removed: ' + f.doubledRel) !== -1, 'removed list is printed: ' + res.stdout);
+  ok(!fs.existsSync(f.doubled), 'axiom copy removed');
 });
 
 rep.done();
