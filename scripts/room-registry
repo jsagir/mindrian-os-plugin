@@ -37,23 +37,91 @@ REGISTRY_FILE="${REGISTRY_DIR}/registry.json"
 SUBCMD="${1:-}"
 shift 2>/dev/null || true
 
-# Quick 261005-l9o (SEED-117, SW-20): the registry is written by embedded Python.
-# A machine with no python3 on PATH used to die inside the first stanza with a
-# bare "command not found" that the caller then swallowed; name the cause and the
-# way out instead, so the line a tester pastes into a bug report is actionable.
-# Every subcommand needs python3, so this runs before any of them.
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "room-registry: python3 not found on PATH (the room registry needs python3 until the Node rewrite lands; on Windows install Python 3 or run inside WSL)" >&2
-  exit 127
+# Quick 261005-l9o (SEED-117, SW-20) and Phase 383 (QA383-01): the registry is written
+# by embedded Python, and the interpreter is resolved by RUNNING it, never by name.
+# On Windows the name python3 can be the Microsoft Store stub: it is on PATH, it
+# answers with exit 9009, and `command -v python3` still succeeds. So each
+# candidate is asked for its version: MINDRIAN_PYTHON (the Node resolver hands it
+# down), python3, python, then py -3. The first one that is Python 3.9 or newer
+# becomes PY. When none works, the line below names every candidate that was
+# tried and the way out. Every subcommand needs PY, so this runs before any of them.
+_RR_PY_TRIED=""
+_RR_PY_RESULT=""
+
+# Ask one candidate for its version. Sets _RR_PY_RESULT to one word or phrase:
+# ok, not found, Microsoft Store stub, failed (exit N), no version, below 3.9 (...).
+_rr_py_try() {
+  local out rc maj min
+  _RR_PY_RESULT=""
+  if ! command -v "$1" >/dev/null 2>&1; then
+    _RR_PY_RESULT="not found"
+    return 0
+  fi
+  out=$("$@" --version 2>&1) && rc=0 || rc=$?
+  if [ "$rc" -eq 127 ]; then
+    _RR_PY_RESULT="not found"
+  elif [ "$rc" -eq 9009 ] || printf '%s' "$out" | grep -qE 'Microsoft Store|was not found'; then
+    _RR_PY_RESULT="Microsoft Store stub"
+  elif [ "$rc" -ne 0 ]; then
+    _RR_PY_RESULT="failed (exit ${rc})"
+  elif [[ "$out" =~ Python[[:space:]]+([0-9]+)\.([0-9]+) ]]; then
+    maj="${BASH_REMATCH[1]}"
+    min="${BASH_REMATCH[2]}"
+    if [ "$maj" -lt 3 ] || { [ "$maj" -eq 3 ] && [ "$min" -lt 9 ]; }; then
+      _RR_PY_RESULT="below 3.9 (${maj}.${min})"
+    else
+      _RR_PY_RESULT="ok"
+    fi
+  else
+    _RR_PY_RESULT="no version"
+  fi
+  return 0
+}
+
+# Try one candidate, record it in the tried list, succeed only when it is ok.
+_rr_py_pick() {
+  local label="$1"
+  shift
+  _rr_py_try "$@"
+  if [ -n "$_RR_PY_TRIED" ]; then
+    _RR_PY_TRIED="${_RR_PY_TRIED}; "
+  fi
+  _RR_PY_TRIED="${_RR_PY_TRIED}${label}: ${_RR_PY_RESULT}"
+  [ "$_RR_PY_RESULT" = "ok" ]
+}
+
+PY=""
+if [ -n "${MINDRIAN_PYTHON:-}" ] && _rr_py_pick "MINDRIAN_PYTHON" "$MINDRIAN_PYTHON"; then
+  PY="$MINDRIAN_PYTHON"
+elif _rr_py_pick "python3" python3; then
+  PY="python3"
+elif _rr_py_pick "python" python; then
+  PY="python"
+else
+  # py -3 is the Windows launcher: resolve it to one real executable first.
+  _rr_pyexe=""
+  if command -v py >/dev/null 2>&1; then
+    _rr_pyexe=$(py -3 -c 'import sys;print(sys.executable)' 2>/dev/null | head -n 1 | tr -d '\r') || _rr_pyexe=""
+    _rr_pyexe="${_rr_pyexe//\\//}"
+  fi
+  if [ -n "$_rr_pyexe" ] && _rr_py_pick "py -3" "$_rr_pyexe"; then
+    PY="$_rr_pyexe"
+  else
+    if [ -z "$_rr_pyexe" ]; then
+      _RR_PY_TRIED="${_RR_PY_TRIED}; py -3: not found"
+    fi
+    echo "room-registry: no working Python 3.9 or newer found; tried: ${_RR_PY_TRIED}" >&2
+    exit 127
+  fi
 fi
 
-# On a failure path only, say which python3 ran. The Python traceback alone does not
+# On a failure path only, say which Python ran. The Python traceback alone does not
 # carry the interpreter version, and the version is what separates "stock macOS 3.9"
 # from "a bug on every Python". A clean exit prints nothing.
 _rr_exit_note() {
   local rc=$?
   if [ "$rc" -ne 0 ]; then
-    echo "room-registry: exited ${rc}; python3 is $(python3 --version 2>&1 | head -n 1)" >&2
+    echo "room-registry: exited ${rc}; python is $("$PY" --version 2>&1 | head -n 1) (${PY})" >&2
   fi
 }
 trap _rr_exit_note EXIT
@@ -165,7 +233,7 @@ _registry_leak_guard() {
     return 0
   fi
   local rc=0
-  python3 -c "
+  "$PY" -c "
 import os, sys, tempfile
 def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
@@ -301,7 +369,7 @@ _write_current_room() {
   local roomdir="${1:-}"
   local slug="${2:-}"
   [ -z "$roomdir" ] && return 0
-  python3 - "$roomdir" "$slug" <<'PY_EOF' 2>/dev/null || true
+  "$PY" - "$roomdir" "$slug" <<'PY_EOF' 2>/dev/null || true
 import sys, os, re
 
 def is_current_room_key(line):
@@ -382,8 +450,30 @@ case "$SUBCMD" in
     # create makes no registry dir, no registry file, no ROOMS_HOME/<abs path>
     # nesting, and no session-binding or graph-sync side effect downstream.
     _registry_leak_guard "$RPATH" || exit 3
+    # Phase 383 (QA383-01, QA383-10, SEED-117): decide where the room lives BEFORE any
+    # write. RPATH is ABSOLUTE from birthRoom STEP 4 (a POSIX /path or a Windows
+    # C:/path or C:\\path) and RELATIVE from /mos:rooms new Step 4. An absolute path
+    # is the room dir as given; ROOMS_HOME is never prefixed to it, because that
+    # prefix built a second full copy of the path under the rooms home. A drive-letter
+    # path only means something in Git Bash on Windows; anywhere else it would become
+    # a folder named C: in the current directory, so refuse it before anything is made.
+    case "$RPATH" in
+      [A-Za-z]:[\\/]*)
+        case "${OSTYPE:-}" in
+          msys*|cygwin*) ROOMDIR="$RPATH" ;;
+          *)
+            echo "[MindrianOS] Cannot create room -- a Windows drive path was given on a non-Windows shell." >&2
+            echo "  Why: ${RPATH} only means a folder in Git Bash on Windows" >&2
+            echo "  Fix: Give a full path that starts with / or a path relative to the rooms folder" >&2
+            exit 1
+            ;;
+        esac
+        ;;
+      /*) ROOMDIR="$RPATH" ;;
+      *) ROOMDIR="${ROOMS_HOME}/${RPATH}" ;;
+    esac
     ensure_registry
-    python3 -c "
+    "$PY" -c "
 import json, os, sys, datetime
 # Phase 127.2 Plan 04 Instance #4: normalize Git Bash POSIX paths (/c/Users/...)
 # to native Windows form (C:\\Users\\...) so Python open() resolves them on
@@ -428,24 +518,16 @@ with open(tmp, 'w') as f:
 os.replace(tmp, reg_file)
 print(json.dumps(reg['rooms'][name], indent=2))
 " "$REGISTRY_FILE" "$NAME" "$RPATH" "$VNAME" "$VSTAGE" "$_OWNER_SID" "$_OWNER_PID"
-    # Create the room directory under ROOMS_HOME
-    mkdir -p "${ROOMS_HOME}/${RPATH}"
+    mkdir -p "$ROOMDIR"
     # Phase 127.3 Plan 04: seed downstream-pipeline files on room creation
     # (USER.md + STATE.md + ROOM.md + .mindrian/) via the shared helper.
     # Closes the intent_persona=all-null + JTBD-state-never-created symptoms.
     # Idempotent via `if [ ! -f ]` guards inside the helper -- re-running
     # `create` on an existing room preserves user-edited content.
-    ROOMDIR="${ROOMS_HOME}/${RPATH}"
     _seed_room_bootstrap
-    # Quick 260723-ad9: wire the canonical current_room WRITE half. Resolve the
-    # REAL room dir (RPATH is ABSOLUTE from birthRoom STEP 4, RELATIVE from
-    # /mos:rooms new Step 4) WITHOUT reusing the ${ROOMS_HOME}/${RPATH} concat
-    # that doubles an absolute path. Covers both room-creation paths.
-    case "$RPATH" in
-      /*) REAL_ROOMDIR="$RPATH" ;;
-      *)  REAL_ROOMDIR="${ROOMS_HOME}/${RPATH}" ;;
-    esac
-    _write_current_room "${REAL_ROOMDIR}" "${NAME}"
+    # Quick 260723-ad9: wire the canonical current_room WRITE half into the
+    # room's own STATE.md, using the same ROOMDIR for both creation paths.
+    _write_current_room "${ROOMDIR}" "${NAME}"
     # Fire-and-forget local SQLite graph sync (D-16: never blocks). The Brain half
     # was removed 2026-09-10 as a Canon Part 8 breach (quick task 260910-h32).
     node "${SCRIPT_DIR}/sync-rooms-graph" "$ROOMS_HOME" >/dev/null 2>&1 &
@@ -465,7 +547,7 @@ print(json.dumps(reg['rooms'][name], indent=2))
       echo "  Fix: Run /mos:new-project to create your first room" >&2
       echo "{}" ; exit 1
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -509,7 +591,7 @@ else:
     if [ ! -f "$REGISTRY_FILE" ]; then
       echo "[]" ; exit 0
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -574,7 +656,7 @@ print(json.dumps(result, indent=2))
     case "$FIELD" in
       path|abs_path) _registry_leak_guard "$VALUE" || exit 3 ;;
     esac
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -613,7 +695,7 @@ print(json.dumps(reg['rooms'][name], indent=2))
       echo "  Fix: Run /mos:new-project to create your first room" >&2
       exit 1
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys, datetime
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -649,7 +731,7 @@ print(name)
     # read/list/bootstrap-missing stanzas use. The resolver is a follow-on read;
     # the primary stdout contract of set-active (the bare `$NAME` line above,
     # consumed by commands/rooms.md) is unchanged.
-    RESOLVED_DIR=$(python3 -c "
+    RESOLVED_DIR=$("$PY" -c "
 import json, os, sys
 def normwin(p):
     if sys.platform == 'win32' and len(p) >= 3 and p[0] == '/' and p[2] == '/':
@@ -692,7 +774,7 @@ print(abs_path)
       echo "  Fix: Run /mos:new-project to create your first room" >&2
       exit 1
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -726,7 +808,7 @@ print('archived')
     if [ ! -f "$REGISTRY_FILE" ]; then
       echo ""; exit 0
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -757,7 +839,7 @@ print(reg.get('active', ''))
       echo "  Fix: Run /mos:new-project to create your first room" >&2
       exit 1
     fi
-    python3 -c "
+    "$PY" -c "
 import json, os, sys
 # Phase 127.2 Plan 04 Instance #4: see scripts/room-registry create stanza.
 def normwin(p):
@@ -812,7 +894,7 @@ print(json.dumps(reg['rooms'][name], indent=2))
     # On registry parse error / unexpected shape, emit zero lines and exit 0
     # (graceful degradation; sentinel still gets touched below so we don't
     # retry forever on a broken registry).
-    ROOM_LINES=$(ROOMS_HOME="${ROOMS_HOME}" python3 - <<'PY_EOF'
+    ROOM_LINES=$(ROOMS_HOME="${ROOMS_HOME}" "$PY" - <<'PY_EOF'
 import json, os, sys
 home = os.environ.get('ROOMS_HOME', '')
 reg_path = os.path.join(home, '.rooms', 'registry.json')
