@@ -109,7 +109,13 @@ async function setup(f, kind) {
   return {
     f, runs, tree, ctx, prep, kind, scratch, cpus, baseSha, label, startedAt, load1Start, room, source, srcBefore, workBefore, skipGates,
     touched: new Set(),
-    async gate() { return skipGates ? { ok: true, load1: H.readLoad1(), waited_ms: 0 } : H.gateBeforeTarget({ maxMs: 900000 }); },
+    // The gate runs at the start of each measurement block. The load1 of the first block is the load1 at the start of
+    // the measurement (the room build before it can raise the load for a short time, so it is not the start value).
+    async gate() {
+      const g = skipGates ? { ok: true, load1: H.readLoad1(), waited_ms: 0 } : await H.gateBeforeTarget({ maxMs: 900000 });
+      if (!this.gated) { this.gated = true; this.load1Start = g.load1; }
+      return g;
+    },
     cleanup() { try { prep.sandbox.cleanup(); } catch (_e) { /* best effort */ } },
   };
 }
