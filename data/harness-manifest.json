@@ -54,7 +54,7 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "01bf4802a917e1636aaa755b889c610d9a3dd9cf716b861c41cd1bada303c5de"
+      "digest": "c59f3ca507f14ac05fcd6c40286bd8a5185c914adf7022520cee2d289d3cbeea"
     },
     {
       "role": "personality_skill",

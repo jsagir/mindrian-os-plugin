@@ -239,7 +239,7 @@ bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 The registry create command automatically sets the new room as active and parks the previous one.
 
-> **If a room create or switch fails (SEED-117).** Report the failure line verbatim (it now carries the Python error and the Python version), file a bug seed with the version and machine, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
+> **If a room create or switch fails (SEED-117).** Give the navigator the plain three-line message the failure carries (what failed, why, one fix), never the raw error or a file path. Put the verbatim failure line (it carries the Python error and the Python version), the plugin version and the machine into the bug seed and the log, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
 
 **Update INDEX.md:** After registration, refresh the routing index:
 
@@ -307,7 +307,7 @@ bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 This parks the previous active room and sets the new one as active.
 
-> **If a room create or switch fails (SEED-117).** Report the failure line verbatim (it now carries the Python error and the Python version), file a bug seed with the version and machine, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
+> **If a room create or switch fails (SEED-117).** Give the navigator the plain three-line message the failure carries (what failed, why, one fix), never the raw error or a file path. Put the verbatim failure line (it carries the Python error and the Python version), the plugin version and the machine into the bug seed and the log, and stop. Never hand-build a room: do not write the registry by hand, do not create directories and scaffold files yourself, and do not initialise `room.db` outside the birth chokepoint. A room built around a failed create has skipped the wiring the chokepoint guarantees, and every later write to it is unsafe.
 
 ### Step 4: Report Success
 

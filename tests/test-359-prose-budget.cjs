@@ -64,7 +64,8 @@ const FROZEN_SHA = Object.freeze({
   // re-based by 369.6-09 Task 2 (D-13, D-29), 2026-10-30: was dc88b3947b8e...fea87 (Operating invisibly and Calibration added; the Decision Gates span is unchanged)
   // re-based by 369.6-10 Task 2 (D-04), 2026-10-30: was 2b3475665589...5931 (the Operating the machinery pointer names references/personality/reach-and-dial.md; one duplicate sentence leaves the Operating policy line)
   // re-based by 383-05 (QA383-03, D-row C6 and C7), 2026-11-05: was 5389514d2b3b...f4cd (two sentences added to the second Operating invisibly bullet, paid for by two cuts of duplicate text (the gate-card clause of the first bullet, and the voice modulation line, which references/personality/voice-dna.md keeps) so the 65 percent body budget of test-3696-voice-first-budget holds; the Operating policy line and the Decision Gates span are unchanged)
-  LARRY_OUTSIDE_GATES: 'c2adef6ed9bc287503b16dc405f0c8d8a83f25079353daecd268d411d43accc8',
+  // re-based by 383-06 (QA383-05, QA383-06, QA383-07), 2026-11-05: was c2adef6ed9bc...accc8 (the Your call line says a fork that ends in prose, a card copy line follows it, the SEED-117 sentence puts the plain three-line message first and the verbatim line into the bug seed and the log; two cuts pay for it (the cost-list examples of the Sourced Claims sentence, the rationale sentence of the failed-create section); the Decision Gates span is unchanged)
+  LARRY_OUTSIDE_GATES: 'a21e7ddaa96685c5dd1aa61a6a6415bda67db2147c76390147e31d55ea2a2c86',
   // `## Post-Gate Handoff` section (up to `## Decision Gates`)
   POST_GATE_HANDOFF: '476d0b526bcac7f212abe7f8bdb52d7a7a0909a096c1f20dd5d0df4fa61d653c',
   // SKILL.md with the item-5 line removed (the Voice Signature residual and
