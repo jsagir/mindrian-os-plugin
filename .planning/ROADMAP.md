@@ -4075,3 +4075,25 @@ Plans:
 Plans:
 
 - [ ] 386-01 to 386-21 (waves 1 to 4; plans 02, 03, 07, 20 stop for an owner decision). See the PLAN files in this directory.
+
+### Phase 387: Eureka reachable on a normal install
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 386
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 387 to break down)
+
+### Phase 388: Ship less: keep tests and dead weight out of the install
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 387
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 388 to break down)
