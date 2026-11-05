@@ -158,6 +158,14 @@ Proceed directly to the B2 blueprint gate below; the resolved `blueprintFamily` 
 the B2 display ("Section set" field) and into the `birthRoom` call so `scaffoldRoomSkeleton`
 consumes it from `data/room-blueprints.json`.
 
+**Before the gate: check that this computer can create a room.** The B2 card promises a folder. Do not show it for a create that cannot run here. Run the check that `platform.cjs room-runtime` provides:
+
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/platform.cjs" room-runtime
+```
+
+When it exits non-zero, show its stderr text to the navigator as written (three plain lines: what is missing, why, and the fix) and stop. Do not fire the B2 card and do not create any folder. When it exits 0, go on to the gate.
+
 <!-- B2 GATE -- birth - ROOM BLUEPRINT - decision gate -->
 <!-- BIRTH-FLOW-BRIEF.md Section 2 + Canon Part 9 (promotion moment) + Canon Part 3 (F.0) -->
 <!-- SEED-022: human approval BEFORE mkdir. Nothing is created until B2 Approve. -->
