@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 383-02-PLAN.md (Wave 0 routing, gate and voice RED tests; HEAD table in 383-02-SUMMARY.md); next 383-03
-last_updated: "2026-11-05T08:08:45.386Z"
+last_updated: "2026-11-05T08:26:22.199Z"
 last_activity: 2026-11-05
 progress:
   total_phases: 147
   completed_phases: 36
   total_plans: 699
-  completed_plans: 582
+  completed_plans: 584
   percent: 24
 ---
 
@@ -5424,7 +5424,7 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 ## Current Position
 
 Phase: 383 (Beta.77 QA fixes: Windows room birth, skill routing, gate honesty, voice) — EXECUTING
-Plan: 10 of 11
+Plan: 11 of 11
 Status: Ready to execute
 Previously (Phase 369 position, preserved 2026-10-21 when the 379.1 state writer replaced these three lines): Phase: 369 (ui-shell-an-agent-native-app-over-the-mindrianos-mcp-server) - EXECUTING (started 2026-10-02, jsagi-be); Plan: 26 of 32 complete (01-25 and 32); Phase 289 landed 9/9 on 2026-10-04 (jsagi-70), so 26-31 are unblocked and 26 is next; Status: 17 SUMMARYs landed, all --only commits, no state.* writer run (hand-edited frontmatter and this block only; peers jsagi-85 on 289 planning, jsagi-65 on 364). Navigator rulings so far: session indicator signed "Q1 A, Q2 B, Q3 B, Q4 A" (369-SESSION-INDICATOR-DESIGN.md); A1 adapter = room-proposal (369-ADAPTER-RULING.md); SEED-113 seeded (sidebar + chat via headless claude -p, for after 369). Pre-existing red not caused by 369: test-198-local-only on lib/mcp/tools/sensors.cjs comments (brain-client.cjs token); deferred to a /gsd-quick. Shared finding for plan 18/20/28: UI-SPEC check C2 (zero rxdb.info / cdn.jsdelivr in built assets) cannot pass for any chassis bundling RxDB; the strings are inert error-doc links from ui/shared.
 Chassis (D-07, 2026-10-03): navigator ruled "workroom (Recommended)"; 369-BAKEOFF-DECISION.md: Winner workroom, Build tool Next, Shell server Next standalone under ui/shell/ with the RULE 8 condition NOT yet met (1,028-file traced node_modules must be eliminated or the form goes back to the navigator), CSP nonce-or-hash needed (neither candidate renders under the contract CSP as built), transplants: agent-native pool-bind openRoom (reconnect) and its Nitro footprint as RULE 8 input. Measured: workroom 6 of 9, agent-native 2 (reconnect 315 ms vs not recovered; 192 vs 1,262 output files), equal 1. Quick 261003-438 cleared the test-198 red (sensors.cjs comments); run-all-369 37/0/19.
@@ -9417,7 +9417,7 @@ Progress: [████████░░] 83%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-05T08:08:40.740Z
+Last session: 2026-11-05T08:26:22.083Z
 Stopped at: Completed 383-02-PLAN.md (Wave 0 routing, gate and voice RED tests; HEAD table in 383-02-SUMMARY.md); next 383-03
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair

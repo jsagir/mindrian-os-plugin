@@ -3960,7 +3960,7 @@ Plans:
 **Requirements**: QA383-01, QA383-02, QA383-03, QA383-04, QA383-05, QA383-06, QA383-07, QA383-08, QA383-09, QA383-10 (defined in 383-PRD.md, one per finding)
 **Depends on:** Phase 381
 **Numbering:** 383 was chosen by hand. `phase add` would pick 382, and 382 belongs to the speed pass on another branch. Do not renumber, and do not reuse 382 here.
-**Plans:** 9/11 plans executed
+**Plans:** 10/11 plans executed
 
 Planned waves (to be split into plans):
 
@@ -4002,7 +4002,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 383-10-PLAN.md - doctor doubled-room-trees row and the F.0-gated, digest-bound delete; phase gates (QA383-10)
+- [x] 383-10-PLAN.md - doctor doubled-room-trees row and the F.0-gated, digest-bound delete; phase gates (QA383-10)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
