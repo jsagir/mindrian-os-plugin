@@ -138,6 +138,8 @@ function shimPath(spec) {
       fs.symlinkSync(real, file);
     } else if (kind === 'store-stub') {
       writeStub(file, 'echo "Python was not found; run without arguments to install from the Microsoft Store" >&2\nexit 9009\n');
+    } else if (kind === 'fail') {
+      writeStub(file, 'exit 1\n');
     } else if (kind === 'boom') {
       writeStub(file, 'if [ "$1" = "--version" ]; then echo "Python 9.9.9"; exit 0; fi\necho boom >&2\nexit 1\n');
     } else if (/^version:/.test(String(kind))) {

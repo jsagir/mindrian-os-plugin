@@ -14,6 +14,7 @@
  *   I4  python3 is 3.8.10, python is real: create exits 0; with python removed it exits 127 (below 3.9)
  *   I5  python3 answers the version and then fails: the child text reaches stderr (guard leg)
  *   I6  static: no bare python3 -c or python3 - invocation is left, and "$PY" is used
+ *   I7  review IN-03: py exists but py -3 fails, the tried list says "found but failed", not "not found"
  *
  * Hermetic: every run has its own HOME and rooms home under mkdtemp. No network.
  * House rule: hyphens only.
@@ -95,6 +96,17 @@ leg('I6 static: no bare python3 -c or python3 - invocation is left, and "$PY" is
   const uses = text.split('"$PY"').length - 1;
   ok(bare.length === 0, bare.length + ' bare python3 invocation line(s), first: ' + (bare[0] || '').trim().slice(0, 100));
   ok(uses >= 12, '"$PY" appears ' + uses + ' time(s), want at least 12');
+});
+
+leg('I7 review IN-03: py exists but py -3 fails: the tried list says "py -3: found but failed"', true, function () {
+  const h = H.hermeticEnv('i7');
+  const r = run(h, H.shimPath({ python3: 'store-stub', py: 'fail' }), null, createArgs(h, 'probe-i7'));
+  const err = String(r.stderr || '');
+  ok(r.status === 127, 'exit code ' + r.status + ' (want 127): ' + tail(r));
+  ok(/py -3: found but failed/.test(err), 'stderr: ' + err.slice(-300));
+  const h2 = H.hermeticEnv('i7b');
+  const r2 = run(h2, H.shimPath({ python3: 'store-stub' }), null, createArgs(h2, 'probe-i7b'));
+  ok(/py -3: not found/.test(String(r2.stderr || '')), 'no py at all still says not found: ' + String(r2.stderr || '').slice(-300));
 });
 
 let skipAll = null;

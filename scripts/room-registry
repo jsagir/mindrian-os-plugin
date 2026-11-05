@@ -100,7 +100,9 @@ elif _rr_py_pick "python" python; then
 else
   # py -3 is the Windows launcher: resolve it to one real executable first.
   _rr_pyexe=""
+  _rr_py_present=0
   if command -v py >/dev/null 2>&1; then
+    _rr_py_present=1
     _rr_pyexe=$(py -3 -c 'import sys;print(sys.executable)' 2>/dev/null | head -n 1 | tr -d '\r') || _rr_pyexe=""
     _rr_pyexe="${_rr_pyexe//\\//}"
   fi
@@ -108,7 +110,11 @@ else
     PY="$_rr_pyexe"
   else
     if [ -z "$_rr_pyexe" ]; then
-      _RR_PY_TRIED="${_RR_PY_TRIED}; py -3: not found"
+      if [ "$_rr_py_present" = "1" ]; then
+        _RR_PY_TRIED="${_RR_PY_TRIED}; py -3: found but failed"
+      else
+        _RR_PY_TRIED="${_RR_PY_TRIED}; py -3: not found"
+      fi
     fi
     echo "room-registry: no working Python 3.9 or newer found; tried: ${_RR_PY_TRIED}" >&2
     exit 127
