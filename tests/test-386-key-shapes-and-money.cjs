@@ -97,7 +97,13 @@ const names = Object.keys(shapes);
   const b = g.classify({ question: 'explain ' + shapes.akia + ' in swot analysis' }, { toolName: ASK, roomDir: null });
   ok('K7b the upper-case key id is block', b.verdict === 'block', b.verdict + '/' + b.class);
   const c = g.classify({ question: 'benchmarks for $750K saas' }, { toolName: ASK, roomDir: null });
-  ok('K7c a currency magnitude is block', c.verdict === 'block', c.verdict + '/' + c.class);
+  // Plan 386-33 (owner acknowledgement 2026-11-06, X8): a clear sprout that holds a
+  // currency magnitude is allow now (a short keyword query may leave the room);
+  // the same magnitude in an edge is answered sprouts_required. Verdict flip is
+  // owner-approved (the money figure sprout X8 is in owner_ack_ids).
+  ok('K7c a currency magnitude in a sprout is allow (owner-acknowledged X8)', c.verdict === 'allow', c.verdict + '/' + c.class);
+  const c2 = g.classify({ question: 'what benchmarks apply when the pilot budget is $750K and the team wants a saas rollout plan' }, { toolName: ASK, roomDir: null });
+  ok('K7c2 a currency magnitude in an edge is sprouts_required', c2.verdict === 'block' && c2.class === 'sprouts_required', c2.verdict + '/' + c2.class);
 })();
 
 // K9: pin that passes today (owner principle): a short keyword query that holds

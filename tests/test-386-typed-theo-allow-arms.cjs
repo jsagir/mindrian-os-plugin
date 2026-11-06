@@ -86,11 +86,13 @@ ok('TA10 search decides a sprout, an edge and a body as brain_ask does', parityB
 })();
 (function () {
   const r = v({ query: body, topK: 5 }, 'search');
-  ok('TB4 search with a clear body is block room_content', r.verdict === 'block' && r.class === 'room_content', r.verdict + '/' + r.class);
+  // Plan 386-33: the class of a body refusal is sprouts_required now (verdict unchanged).
+  ok('TB4 search with a clear body is block sprouts_required', r.verdict === 'block' && r.class === 'sprouts_required', r.verdict + '/' + r.class);
 })();
 (function () {
   const r = v({ query: edge, topK: 5 }, 'search');
-  ok('TB5 search with a first-person edge is block room_content', r.verdict === 'block' && r.class === 'room_content', r.verdict + '/' + r.class);
+  // Plan 386-33: the class of an edge refusal is sprouts_required now (verdict unchanged).
+  ok('TB5 search with a first-person edge is block sprouts_required', r.verdict === 'block' && r.class === 'sprouts_required', r.verdict + '/' + r.class);
 })();
 (function () {
   const r = v({ from: 'Disruption', to: 'Innovation' }, 'find_connections');

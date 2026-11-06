@@ -273,6 +273,17 @@ function verdict(q, roomDir) {
   lexMod._resetLexiconCache();
   return guard.classify({ question: q }, { toolName: 'brain_ask', roomDir: roomDir });
 }
+// Plan 386-33 (option-e, owner principle 2026-11-06): the proper-name rule stays
+// on for an edge or a body, where a failure is answered with the class
+// sprouts_required (token_class edge_rule), but a clear sprout (a short keyword
+// query) skips it, so a short question that names an author or a company passes.
+// The legs that probe the name rule therefore probe it on an EDGE: the same
+// question with a neutral suffix that lifts it above the sprout limit (12 words)
+// and changes neither the name position nor the head nouns.
+const EDGE_SUFFIX = ' while the group reviews results across the next two quarters of the pilot work';
+function asEdge(q) {
+  return q.replace(/[?.!]+$/, '') + EDGE_SUFFIX + '?';
+}
 function describe(v) {
   return 'verdict=' + (v && v.verdict) + ' class=' + (v && v.class) + ' token_class=' + (v && v.token_class);
 }
@@ -364,32 +375,37 @@ function main() {
       });
       ok(bad.length === 0, bad.length + ' blocked: ' + bad.join('; '));
     });
-    leg('C2 [' + r.label + ']: an unrecorded two-word human name still blocks as room_content/name', function () {
+    leg('C2 [' + r.label + ']: an unrecorded two-word human name in an edge is refused by the name rule (sprouts_required/edge_rule); the short sprout form passes (plan 386-33)', function () {
       const bad = [];
       HUMAN_NAMES.forEach(function (p) {
-        const v = verdict(p.q, r.dir);
-        if (!(isBlock(v) && v.class === 'room_content' && v.token_class === 'name')) bad.push(p.id + ' ' + describe(v));
+        const e = verdict(asEdge(p.q), r.dir);
+        if (!(isBlock(e) && e.class === 'sprouts_required' && e.token_class === 'edge_rule')) bad.push(p.id + ' edge ' + describe(e));
+        const sp = verdict(p.q, r.dir);
+        if (isBlock(sp)) bad.push(p.id + ' sprout ' + describe(sp));
       });
-      ok(bad.length === 0, bad.length + ' of ' + HUMAN_NAMES.length + ' not blocked as name: ' + bad.join('; '));
+      ok(bad.length === 0, bad.length + ' of ' + HUMAN_NAMES.length + ' wrong: ' + bad.join('; '));
     });
   });
 
-  leg('C3: the CLI hook blocks a human name (exit 2) and names the class, not the token', function () {
-    const h = spawnHook(HUMAN_NAMES[0].q, roomDir);
+  leg('C3: the CLI hook refuses a human name in an edge (exit 2, the outcome sprouts_required) and never echoes the token', function () {
+    const h = spawnHook(asEdge(HUMAN_NAMES[0].q), roomDir);
     ok(h.status === 2, 'hook exit ' + h.status);
-    ok(/room_content/.test(h.stderr) && /name/.test(h.stderr), 'stderr lacks the class: ' + h.stderr.trim().slice(0, 160));
+    ok(/sprouts_required/.test(h.stderr), 'stderr lacks the class: ' + h.stderr.trim().slice(0, 160));
     ok(!/Marrowby|Pell/.test(h.stderr), 'stderr echoes the name');
+    const sp = spawnHook(HUMAN_NAMES[0].q, roomDir);
+    ok(sp.status === 0, 'the short sprout form must pass the hook, exit ' + sp.status);
   });
 
   // ---- GROUP N1, N2, N3 (rule R of quick 261019-91i) ----
+  // Plan 386-33: the name rule's refusal of an edge is class sprouts_required.
   function blocksAsName(v) {
-    return isBlock(v) && v.class === 'room_content' && v.token_class === 'name';
+    return isBlock(v) && v.class === 'sprouts_required' && v.token_class === 'edge_rule';
   }
   rooms.forEach(function (r) {
     leg('N1 [' + r.label + ']: a name beside a lowercase or non-final new noun blocks as room_content/name', function () {
       const bad = [];
       NARROWED_BLOCKS.forEach(function (p) {
-        const v = verdict(p.q, r.dir);
+        const v = verdict(asEdge(p.q), r.dir);
         if (!blocksAsName(v)) bad.push(p.id + ' (' + p.reason + ') ' + describe(v));
       });
       ok(bad.length === 0, bad.length + ' of ' + NARROWED_BLOCKS.length + ' not blocked as name: ' + bad.join('; '));
@@ -399,7 +415,7 @@ function main() {
     leg('N2 [' + r.label + ']: the new nouns exempt nothing before the name, after a tool name, in lowercase after the name, or across a function word', function () {
       const bad = [];
       POSITION_PROBES.forEach(function (p) {
-        const v = verdict(p.q, r.dir);
+        const v = verdict(asEdge(p.q), r.dir);
         if (!blocksAsName(v)) bad.push(p.id + ' (' + p.reason + ') ' + describe(v));
       });
       ok(bad.length === 0, bad.length + ' of ' + POSITION_PROBES.length + ' not blocked as name: ' + bad.join('; '));
@@ -409,7 +425,7 @@ function main() {
     leg('N3 [' + r.label + ']: the 14 original head nouns keep the verdicts of commit 99bbbaa66', function () {
       const bad = [];
       PRE_EXISTING_NOUNS.forEach(function (p) {
-        const v = verdict(p.q, r.dir);
+        const v = verdict(asEdge(p.q), r.dir);
         const good = p.expect === 'allow' ? !isBlock(v) : blocksAsName(v);
         if (!good) bad.push('expected ' + p.expect + ' :: ' + p.q + ' :: ' + describe(v));
       });

@@ -2,8 +2,8 @@
   "schema": 1,
   "stamped": {
     "date": "2026-11-06",
-    "head": "ec8a7a4ae",
-    "reason": "plan 386-31: credential shapes"
+    "head": "1563ef983",
+    "reason": "plan 386-33: context-based outcomes and narrowed sprout rules; accepted plain sprout negative X8 (owner_ack_ids)"
   },
   "rooms": [
     "gate-lexgen",
@@ -26,13 +26,21 @@
     ]
   },
   "ext": {
-    "blocked_no_room": 37,
+    "blocked_no_room": 8,
     "induced_total": 0,
     "induced_by_class": {}
   },
   "negatives": {
     "evaluations": 70,
-    "leaks": []
+    "leaks": [
+      "gate-claims:X8",
+      "gate-empty:X8",
+      "gate-lexgen:X8",
+      "gate-noise:X8",
+      "gate-scaffold:X8",
+      "gate-segment:X8",
+      "none:X8"
+    ]
   },
   "retention": {
     "claim": {
@@ -79,5 +87,8 @@
       "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money",
       "fixed_on": null
     }
+  ],
+  "accepted_sprout_negatives": [
+    "X8"
   ]
 }

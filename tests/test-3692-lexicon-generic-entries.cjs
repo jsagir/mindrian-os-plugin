@@ -112,17 +112,22 @@ function buildPositives() {
 const POSITIVES = buildPositives();
 
 // 10 strings that MUST be refused. Invented names, ids and keys only.
+// Plan 386-33 (option-e): the classes flipped in place. An edge or a body that
+// fails a prose rule, and a sprout with a private-claim marker, are block with the
+// class sprouts_required; a credential or an identifier keeps its own block class
+// (X4 is content_set since plan 386-31). X8 is a plain money sprout the owner
+// acknowledged (plan 386-32 RCA owner_ack_ids): allow.
 const NEGATIVES = [
-  { id: 'X1', cls: 'content_set', q: 'Orla Venn said her company reached $4.2M revenue last quarter, which framework fits?' },
-  { id: 'X2', cls: 'room_content', tc: 'private_context', q: 'our startup pivoted to selling to hospitals, which framework fits that move' },
+  { id: 'X1', cls: 'sprouts_required', tc: 'edge_rule', q: 'Orla Venn said her company reached $4.2M revenue last quarter, which framework fits?' },
+  { id: 'X2', cls: 'sprouts_required', tc: 'edge_rule', q: 'our startup pivoted to selling to hospitals, which framework fits that move' },
   { id: 'X3', cls: 'content_set', q: 'which framework should orla.venn@fennickrobotics.example use for pricing' },
-  { id: 'X4', cls: 'room_content', tc: 'identifier', q: 'explain the lean canvas AKIAIOSFODNN7EXAMPLE framework' },
-  { id: 'X5', cls: 'content_set', q: 'Fennick Robotics plans to sell the Thessaly gripper to Harbor Quill Partners after the Tuesday pilot' },
+  { id: 'X4', cls: 'content_set', q: 'explain the lean canvas AKIAIOSFODNN7EXAMPLE framework' },
+  { id: 'X5', cls: 'sprouts_required', tc: 'edge_rule', q: 'Fennick Robotics plans to sell the Thessaly gripper to Harbor Quill Partners after the Tuesday pilot' },
   { id: 'X6', cls: 'room_content', tc: 'identifier', q: 'what framework applies to artifact MOS2026X7 in the pricing section' },
-  { id: 'X7', cls: 'room_content', tc: 'private_context', q: 'this is confidential: which framework tests the riskiest assumption' },
-  { id: 'X8', cls: 'content_set', q: 'which framework helps when the budget is $750K' },
-  { id: 'X9', cls: 'content_set', q: 'on 14 March 2026 Fennick Robotics Ltd signed the term sheet, which framework fits' },
-  { id: 'X10', cls: 'room_content', tc: 'private_context', q: 'which framework fits my customers and my pricing' },
+  { id: 'X7', cls: 'sprouts_required', tc: 'private_marker', q: 'this is confidential: which framework tests the riskiest assumption' },
+  { id: 'X8', allow: true, q: 'which framework helps when the budget is $750K' },
+  { id: 'X9', cls: 'sprouts_required', tc: 'edge_rule', q: 'on 14 March 2026 Fennick Robotics Ltd signed the term sheet, which framework fits' },
+  { id: 'X10', cls: 'sprouts_required', tc: 'private_marker', q: 'which framework fits my customers and my pricing' },
 ];
 
 // Retention: real room content must still block.
@@ -318,13 +323,13 @@ function main() {
     ok(!isBlock(none), 'no room bound: ' + describe(none));
   });
 
-  leg('L6: the 10 negatives block with the room bound and with no room bound', function () {
+  leg('L6: the 9 refused negatives block with their class and the accepted X8 allows, with the room bound and with no room bound', function () {
     const bad = [];
     [roomDir, null].forEach(function (rd) {
       NEGATIVES.forEach(function (n) {
         const v = verdict(n.q, rd);
-        const good = isBlock(v) && v.class === n.cls && (!n.tc || v.token_class === n.tc);
-        if (!good) bad.push((rd ? 'bound ' : 'unbound ') + n.id + ' expected ' + n.cls + (n.tc ? '/' + n.tc : '') + ', got ' + describe(v));
+        const good = n.allow ? !isBlock(v) : (isBlock(v) && v.class === n.cls && (!n.tc || v.token_class === n.tc));
+        if (!good) bad.push((rd ? 'bound ' : 'unbound ') + n.id + ' expected ' + (n.allow ? 'allow' : n.cls + (n.tc ? '/' + n.tc : '')) + ', got ' + describe(v));
       });
     });
     ok(bad.length === 0, bad.join('; '));

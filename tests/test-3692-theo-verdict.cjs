@@ -74,7 +74,9 @@ const PHASE0 = Object.freeze([
   { p: 'Which framework fits a wicked problem?', v: 'allow', c: 'typed_question' },
   { p: "MATCH (f:Framework) WHERE f.name CONTAINS 'Minto' RETURN f.name", v: 'allow', c: 'generic_question' },
   { p: 'MATCH (n) RETURN labels(n) AS labels, count(*) AS c', v: 'allow', c: 'generic_question' },
-  { p: 'How do I price my product for Tel Aviv customers?', v: 'block', c: 'content_set' },
+  // Plan 386-33: a short question with a my possessive is a private-claim sprout; it is
+  // block with the class sprouts_required (the verdict is unchanged).
+  { p: 'How do I price my product for Tel Aviv customers?', v: 'block', c: 'sprouts_required' },
   { p: 'Which chain of frameworks follows discovery stage for an ill-defined problem?', v: 'allow', c: 'typed_question' },
   { p: 'How do I decide which customer segment to pursue first, using the framework approach?', v: 'allow', c: 'generic_question' },
   { p: "MATCH (n) WHERE n.text CONTAINS 'customer segment' RETURN n", v: 'allow', c: 'generic_question' },
@@ -284,7 +286,7 @@ async function main() {
     ok(Array.isArray(guard.TOKEN_CLASSES) && guard.TOKEN_CLASSES.length === 9, 'TOKEN_CLASSES must hold 9 entries');
   });
 
-  await leg('V1b: the 10 Phase 0 prompts give 9 allow (2 typed_question, 7 generic_question) and 1 block content_set', async function () {
+  await leg('V1b: the 10 Phase 0 prompts give 9 allow (2 typed_question, 7 generic_question) and 1 block sprouts_required', async function () {
     bind(null);
     let allow = 0; let typed = 0; let generic = 0;
     PHASE0.forEach(function (row) {
@@ -310,7 +312,9 @@ async function main() {
     bind(null);
     PRIVATE_CORPUS.forEach(function (row) {
       const v = tv(row.text, 'question', 'brain_ask', null);
-      ok(v.verdict === 'block' && (v.class === 'content_set' || v.class === 'room_content'),
+      // Plan 386-33: a canary that is an edge, a body or a private-claim sprout is
+      // answered sprouts_required (still a block).
+      ok(v.verdict === 'block' && (v.class === 'content_set' || v.class === 'room_content' || v.class === 'sprouts_required'),
         'canary "' + row.marker + '" gave ' + v.verdict + '/' + v.class);
     });
   });
@@ -330,10 +334,16 @@ async function main() {
     ok(open.verdict === 'allow', 'unbound: ' + JSON.stringify(open));
   });
 
-  await leg('V1g: a bound room with a corrupt room.db blocks room_check_unavailable (fail closed)', async function () {
+  await leg('V1g: a bound room with a corrupt room.db: a clear sprout is allowed (room_check_skipped), an edge or a body is sprouts_required/room_check_unavailable', async function () {
+    // Plan 386-33 (owner acknowledgement 2026-11-06, owner_ack_unreadable_db_lexicon):
+    // "Short sprouts go, credentials still block". The lexicon cannot be read, so a
+    // clear sprout with no other hit proceeds; a plain edge or body cannot be proven
+    // without the lexicon and is answered with the split outcome.
     bind(corruptRoom);
     const v = tv('How do I decide which customer segment to pursue first?', 'question', 'brain_ask', corruptRoom);
-    ok(v.verdict === 'block' && v.class === 'room_check_unavailable', JSON.stringify(v));
+    ok(v.verdict === 'allow' && v.class === 'room_check_skipped', JSON.stringify(v));
+    const edge = tv('How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?', 'question', 'brain_ask', corruptRoom);
+    ok(edge.verdict === 'block' && edge.class === 'sprouts_required' && edge.token_class === 'room_check_unavailable', JSON.stringify(edge));
   });
 
   // ======================================================================
@@ -448,15 +458,25 @@ async function main() {
     }
   });
 
-  await leg('V2e: a bound room with a corrupt room.db blocks every verb and the hook (room_check_unavailable)', async function () {
+  await leg('V2e: a bound room with a corrupt room.db blocks an edge on every verb and the hook (sprouts_required/room_check_unavailable); a clear sprout proceeds (plan 386-33)', async function () {
     bind(corruptRoom);
-    const row = await driveRow('How do I decide which customer segment to pursue first?', corruptRoom);
+    const edgeText = 'How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?';
+    const row = await driveRow(edgeText, corruptRoom);
     ok(!disagrees(row) && dispositions(row)[0] === 'blocked', JSON.stringify(dispositions(row)));
     VERBS.forEach(function (verb) {
       const r = row.perVerb[verb].result;
       refusals.push(JSON.stringify(r));
-      ok(r && r.error === 'egress_blocked' && r.egress_class === 'room_check_unavailable', verb + ': ' + JSON.stringify(r));
+      // The cypher key (the query verb) keeps the legacy path of plan 386-26: no
+      // shape rule, so the unreadable room blocks it as before.
+      const want = verb === 'query' ? 'room_check_unavailable' : 'sprouts_required';
+      ok(r && r.error === 'egress_blocked' && r.egress_class === want, verb + ': ' + JSON.stringify(r));
+      if (verb !== 'query') ok(r.token_class === 'room_check_unavailable', verb + ' token_class: ' + JSON.stringify(r));
     });
+    const sprout = await driveRow('How do I decide which customer segment to pursue first?', corruptRoom);
+    // ask, search and their hooks proceed (clear sprout, owner-acknowledged); the query
+    // verb carries the string as cypher and keeps the legacy block.
+    ok(sprout.perVerb.ask.disposition === 'proceed' && sprout.perVerb.search.disposition === 'proceed', 'sprout ask/search: ' + JSON.stringify(dispositions(sprout)));
+    ok(sprout.hook[0] === 'proceed' && sprout.hook[1] === 'proceed', 'sprout hook ask/search: ' + JSON.stringify(sprout.hook));
     bind(null);
   });
 

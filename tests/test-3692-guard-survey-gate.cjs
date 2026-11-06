@@ -35,6 +35,9 @@
  * Flags:
  *   --baseline <path>          baseline file (default tests/fixtures/3692/guard-survey-baseline.json)
  *   --stamp --reason <text>    rewrite the baseline (refuses a hard-rule failure)
+ *   --accept <ids>             with --stamp: the owner-acknowledged plain sprout
+ *                              negatives (plan 386-33), written as
+ *                              accepted_sprout_negatives
  *
  * Exit codes: 0 pass, 1 fail, 2 usage error. There is no exit 77 (DS-5): a
  * skip in the release suite is a silent pass.
@@ -343,8 +346,18 @@ function compare(measured, baseline) {
   counter('ext.blocked_no_room', bExt.blocked_no_room, measured.ext.blocked_no_room);
 
   // negatives
+  // Plan 386-33: accepted_sprout_negatives is the owner-acknowledged set of plain
+  // sprouts that leave as written (plan 386-32 RCA, owner_ack_ids). A leak of an
+  // accepted id is not a hard failure; a leak of any other id is, as before. An
+  // accepted id that is refused reads IMPROVED. An absent field is an empty set.
+  const accepted = Array.isArray(b.accepted_sprout_negatives) ? b.accepted_sprout_negatives : [];
+  const hardLeaks = measured.negatives.leaks.filter(function (l) { return accepted.indexOf(l.split(':').pop()) < 0; });
   row('negatives.leaks', (b.negatives && b.negatives.leaks) || [], measured.negatives.leaks,
-    measured.negatives.leaks.length > 0 ? 'FAIL' : 'OK', measured.negatives.leaks.length > 0);
+    hardLeaks.length > 0 ? 'FAIL' : 'OK', hardLeaks.length > 0);
+  accepted.forEach(function (id) {
+    const leaking = measured.negatives.leaks.some(function (l) { return l.split(':').pop() === id; });
+    if (!leaking) row('negatives.accepted.' + id, 'accepted', 'refused', 'IMPROVED', false);
+  });
 
   // retention
   const bRet = b.retention || {};
@@ -434,7 +447,7 @@ function makeBaseline(measured, prev, meta, leakSessions) {
       fixed_on: fixedOn,
     };
   });
-  return {
+  const out = {
     schema: 1,
     stamped: { date: date, head: meta.head, reason: meta.reason },
     rooms: meta.rooms,
@@ -446,6 +459,12 @@ function makeBaseline(measured, prev, meta, leakSessions) {
     must_refuse: measured.must_refuse,
     known_leaks: leaks,
   };
+  // Plan 386-33: written only through --stamp --accept, with exactly the
+  // acknowledged ids. An absent field counts as an empty set.
+  if (Array.isArray(meta.accepted) && meta.accepted.length > 0) {
+    out.accepted_sprout_negatives = meta.accepted.slice().sort();
+  }
+  return out;
 }
 
 // ---- legs -----------------------------------------------------------------
@@ -545,6 +564,24 @@ function legSelfCheck() {
     if (r.hard && canStamp(m, b)) problems.push('regression "' + r.n + '" can be stamped');
     if (!r.hard && !canStamp(m, b)) problems.push('soft regression "' + r.n + '" cannot be stamped');
   });
+  // Plan 386-33: the acceptance mutations. An accepted id that leaks reads OK;
+  // a non-accepted id that leaks reads FAIL (hard).
+  (function acceptanceChecks() {
+    const bAcc = clone(b0);
+    bAcc.accepted_sprout_negatives = ['X8'];
+    const mOk = clone(m0);
+    mOk.negatives.leaks = ['none:X8', 'gate-empty:X8'];
+    const cOk = compare(mOk, bAcc);
+    if (cOk.fail) problems.push('an accepted id that leaks gave FAIL');
+    const mBad = clone(m0);
+    mBad.negatives.leaks = ['none:X8', 'none:X1'];
+    const cBad = compare(mBad, bAcc);
+    if (!cBad.fail) problems.push('a non-accepted id that leaks did not give FAIL');
+    if (canStamp(mBad, bAcc)) problems.push('a non-accepted id that leaks can be stamped');
+    const mRef = clone(m0);
+    const cRef = compare(mRef, bAcc);
+    if (cRef.fail || !cRef.improved) problems.push('an accepted id that is refused gave no IMPROVED row');
+  }());
   const improvements = [
     { n: 'gate-segment pair removed', f: function (m) { m.pos26.induced = []; } },
     { n: 'ext.blocked_no_room minus 1', f: function (m) { m.ext.blocked_no_room -= 1; } },
@@ -600,11 +637,11 @@ function legHook() {
 
 // ---- main -----------------------------------------------------------------
 function usage() {
-  console.log('usage: node tests/test-3692-guard-survey-gate.cjs [--baseline <path>] [--stamp --reason <text>]');
+  console.log('usage: node tests/test-3692-guard-survey-gate.cjs [--baseline <path>] [--stamp --reason <text> [--accept <ids>]]');
 }
 
 function parseArgs(argv) {
-  const out = { baseline: DEFAULT_BASELINE, stamp: false, reason: null, bad: false };
+  const out = { baseline: DEFAULT_BASELINE, stamp: false, reason: null, accept: [], bad: false };
   for (let i = 0; i < argv.length; i += 1) {
     switch (argv[i]) {
       case '--baseline':
@@ -614,6 +651,11 @@ function parseArgs(argv) {
         break;
       case '--stamp':
         out.stamp = true;
+        break;
+      case '--accept':
+        out.accept = (argv[i + 1] || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+        if (!argv[i + 1]) out.bad = true;
+        i += 1;
         break;
       case '--reason':
         out.reason = argv[i + 1] || null;
@@ -625,6 +667,7 @@ function parseArgs(argv) {
     }
   }
   if (out.stamp && !out.reason) out.bad = true;
+  if (!out.stamp && out.accept.length > 0) out.bad = true;
   if (!out.stamp && out.reason) out.bad = true;
   return out;
 }
@@ -646,7 +689,12 @@ function readBaselineOrNull(p) {
 function doStamp(args) {
   const prev = readBaselineOrNull(args.baseline);
   const measured = measure();
-  const before = compare(measured, prev);
+  // Plan 386-33: the accepted ids come from --accept (the owner-acknowledged
+  // plain sprouts). The stamp compares with them in place and writes exactly them.
+  const prevForCompare = args.accept.length > 0
+    ? Object.assign({}, prev || {}, { accepted_sprout_negatives: args.accept })
+    : prev;
+  const before = compare(measured, prevForCompare);
   console.log('--- stamp: old baseline against the measurement');
   printRows(before.rows);
   if (before.hardFailures.length > 0) {
@@ -664,6 +712,7 @@ function doStamp(args) {
     head: gitHead(),
     reason: args.reason,
     rooms: require(HELPER).GATE_ROOMS,
+    accepted: args.accept,
   }, sessions);
   fs.writeFileSync(args.baseline, JSON.stringify(next, null, 2) + '\n', 'utf8');
   console.log('--- stamp: new baseline against the measurement');

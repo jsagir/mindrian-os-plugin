@@ -479,10 +479,27 @@ function claimD() {
     );
 
     const s = guard.classify({ query: str }, { toolName: PLUGIN_SCOPED_SEARCH });
-    ok(
-      s.verdict === 'block' && s.class === 'content_set',
-      'CANON PART 8 BREACH on brain_search (' + label + '): expected block/content_set, got ' + JSON.stringify(s)
-    );
+    if (label === 'funding round') {
+      // Plan 386-33 (owner principle 2026-11-06): the bare keyword Series A in a
+      // search sprout is an ordinary short keyword query and may leave the room.
+      // The Cypher key (above) keeps the full default-deny list.
+      ok(
+        s.verdict === 'allow',
+        'brain_search (' + label + '): a clear sprout is allow (plan 386-33), got ' + JSON.stringify(s)
+      );
+    } else if (label === 'email address' || label === 'email PLUS methodology vocabulary') {
+      ok(
+        s.verdict === 'block' && s.class === 'content_set',
+        'CANON PART 8 BREACH on brain_search (' + label + '): expected block/content_set, got ' + JSON.stringify(s)
+      );
+    } else {
+      // A sprout with a my or our marker: block with the class sprouts_required
+      // (verdict unchanged, class flipped by plan 386-33).
+      ok(
+        s.verdict === 'block' && s.class === 'sprouts_required',
+        'CANON PART 8 BREACH on brain_search (' + label + '): expected block/sprouts_required, got ' + JSON.stringify(s)
+      );
+    }
   }
 
   // The boundary itself: step 1 is the scan that holds the line, and it holds
