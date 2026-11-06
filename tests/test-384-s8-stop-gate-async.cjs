@@ -247,6 +247,130 @@ async function groupParity() {
   ok('M2 helper calls in closeOutRoom run in the fixed order', inOrder);
 }
 
+// ---------------------------------------------------------------------------
+// Mechanism group
+// ---------------------------------------------------------------------------
+function makeStubs(dir, programs) {
+  fs.mkdirSync(dir, { recursive: true });
+  for (const name of Object.keys(programs)) {
+    const p = path.join(dir, name);
+    fs.writeFileSync(p, '#!/bin/sh\n' + programs[name] + '\n');
+    fs.chmodSync(p, 0o755);
+  }
+}
+
+// A stub node that acts only for scripts/memory-lifecycle.cjs; every other call
+// (for example the node calls inside scripts/compute-state) runs the real node.
+function nodeStub(onLifecycle) {
+  return 'case "$1" in\n  *memory-lifecycle.cjs)\n' + onLifecycle + '\n  ;;\nesac\nexec "' + process.execPath + '" "$@"';
+}
+
+async function withPath(stubDir, fn) {
+  const saved = process.env.PATH;
+  process.env.PATH = stubDir + path.delimiter + saved;
+  try {
+    return await fn();
+  } finally {
+    process.env.PATH = saved;
+  }
+}
+
+async function timed(fn) {
+  const t0 = process.hrtime.bigint();
+  const value = await fn();
+  return { ms: Number(process.hrtime.bigint() - t0) / 1e6, value: value };
+}
+
+async function groupMechanism() {
+  console.log('--- mechanism group ---');
+
+  // M1: event-loop gap with two stubs that sleep 0.5 s each.
+  {
+    const dir = path.join(TMP, 'stubs-m1');
+    makeStubs(dir, { bash: 'sleep 0.5', node: 'sleep 0.5' });
+    const room = buildFixtureRoom('s8-m1');
+    await closeOut(room.roomDir, 'sess-m1-warm'); // warm the modules with the real programs
+    let maxGap = 0;
+    await withPath(dir, async () => {
+      let lastTick = Date.now();
+      const iv = setInterval(() => {
+        const now = Date.now();
+        if (now - lastTick > maxGap) maxGap = now - lastTick;
+        lastTick = now;
+      }, 10);
+      lastTick = Date.now();
+      try {
+        await closeOut(room.roomDir, 'sess-m1');
+        // Let one timer tick run, so a blocked loop records its gap.
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      } finally {
+        clearInterval(iv);
+      }
+    });
+    ok('M1 largest event-loop gap during the close-out is below 400 ms', maxGap < 400, 'gap ' + maxGap + ' ms');
+  }
+
+  // M3: ceilings and soft fail.
+  {
+    const room = buildFixtureRoom('s8-m3');
+    await closeOut(room.roomDir, 'sess-m3-warm');
+    const fast = path.join(TMP, 'stubs-m3-fast');
+    makeStubs(fast, { node: nodeStub('exit 0') });
+    const slow = path.join(TMP, 'stubs-m3-slow');
+    makeStubs(slow, { node: nodeStub('exec sleep 3') });
+    const base = await withPath(fast, () => timed(() => closeOut(room.roomDir, 'sess-m3-a')));
+    const long = await withPath(slow, () => timed(() => closeOut(room.roomDir, 'sess-m3-b')));
+    const extra = long.ms - base.ms;
+    ok('M3 memory-lifecycle step stops at its 2000 ms ceiling (extra time 1700 to 2500 ms)',
+      extra > 1700 && extra < 2500, 'extra ' + Math.round(extra) + ' ms');
+
+    const slowBash = path.join(TMP, 'stubs-m3-bash-slow');
+    makeStubs(slowBash, { bash: 'exec sleep 3' });
+    const longBash = await withPath(slowBash, () => timed(() => closeOut(room.roomDir, 'sess-m3-c')));
+    const extraBash = longBash.ms - base.ms;
+    ok('M3 STATE.md step stops at its 2000 ms ceiling (extra time 1700 to 2500 ms)',
+      extraBash > 1700 && extraBash < 2500, 'extra ' + Math.round(extraBash) + ' ms');
+
+    // A child that exits 1: the STATE.md step returns false, STATE.md stays as it was, nothing throws.
+    const failing = path.join(TMP, 'stubs-m3-fail');
+    makeStubs(failing, { bash: 'exit 1' });
+    const room2 = buildFixtureRoom('s8-m3b');
+    const stateBefore = fs.readFileSync(path.join(room2.roomDir, 'STATE.md'), 'utf8');
+    let threw = false;
+    let res = null;
+    try {
+      res = await withPath(failing, () => closeOut(room2.roomDir, 'sess-m3-d'));
+    } catch (_e) {
+      threw = true;
+    }
+    const stateAfter = fs.readFileSync(path.join(room2.roomDir, 'STATE.md'), 'utf8');
+    ok('M3 a failing bash child gives a soft fail: no throw, STATE.md not written, result shape kept',
+      !threw && stateAfter === stateBefore && res && res.room_dir === room2.roomDir
+        && Object.keys(res).sort().join(',') === 'guardian_sm,minto_pending,room_dir,sections,stale');
+  }
+
+  // M4: two close-outs of one room do not overlap.
+  {
+    const log = path.join(TMP, 'm4.log');
+    fs.writeFileSync(log, '');
+    const dir = path.join(TMP, 'stubs-m4');
+    makeStubs(dir, {
+      node: nodeStub('echo start >> "' + log + '"\nsleep 0.3\necho end >> "' + log + '"\nexit 0'),
+    });
+    const room = buildFixtureRoom('s8-m4');
+    await closeOut(room.roomDir, 'sess-m4-warm');
+    fs.writeFileSync(log, '');
+    await withPath(dir, async () => {
+      const a = closeOut(room.roomDir, 'sess-m4-a');
+      const b = closeOut(room.roomDir, 'sess-m4-b');
+      await Promise.all([a, b]);
+    });
+    const lines = fs.readFileSync(log, 'utf8').split('\n').filter(Boolean);
+    ok('M4 two close-outs of one room run start, end, start, end',
+      lines.join(',') === 'start,end,start,end', lines.join(','));
+  }
+}
+
 async function main() {
   const group = process.argv[2] || 'all';
   if (group !== 'all' && group !== 'parity' && group !== 'mechanism') {
@@ -255,6 +379,7 @@ async function main() {
   }
   try {
     if (group === 'all' || group === 'parity') await groupParity();
+    if (group === 'all' || group === 'mechanism') await groupMechanism();
   } finally {
     for (const r of rooms) { try { r.cleanup(); } catch (_e) { /* best effort */ } }
   }
