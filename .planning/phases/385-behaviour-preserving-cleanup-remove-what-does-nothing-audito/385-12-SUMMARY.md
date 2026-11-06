@@ -44,3 +44,7 @@ Returned to the main session:
 ## Deviations
 
 None. No removal plan and no draft plan was written.
+
+## Checkpoint answered (2026-11-06)
+
+The owner answered the checkpoint with card answers, relayed by the main session. Plan 385-12 is complete. The rulings are recorded in section 14 of 385-PROOF.md. R1 becomes plan 385-13, R2 becomes plan 385-14, R6 step 1 becomes plan 385-15. R3 to R5 and R7 to R10: keep, delete nothing. R6 steps 2 and 3 wait for their own proof and the owner's separate word. Plan 385-11 (no telemetry rebuild) stands.

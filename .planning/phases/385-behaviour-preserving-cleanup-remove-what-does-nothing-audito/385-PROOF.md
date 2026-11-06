@@ -187,3 +187,20 @@ Other differences from the plan text: the operator-update line numbers in hooks.
 ## 13. NOT YET PLANNED
 
 No removal and no draft plan is written here. An item the owner approves from this table becomes a plan after the answer, by a new run of /gsd-plan-phase 385, one finding per plan, in the shape of plans 385-08 to 385-11 (RED test first, caller proof re-run, one commit with an explicit path list and the staged-set guard, a revert note, and a SUMMARY).
+
+## 14. Owner rulings (2026-11-06)
+
+The owner answered the checkpoint with card answers, relayed by the main session on 2026-11-06. The answers are quoted from the relay. They are decisions, not recommendations.
+
+| Item | Owner ruling | Plan |
+|------|--------------|------|
+| R1 | Unwire the per-turn doctor poll Stop hook. The script stays. | 385-13 |
+| R2 | Unwire the operator-update PostToolUse and UserPromptSubmit entries. The script stays. The operator-update feature stays off (also decided in 386-07). | 385-14 |
+| R3, R4, R5, R7, R8, R9, R10 | Keep everything and delete nothing (kuzu, LazyGraph, Neo4j, Memgraph, chokidar, test-only modules). | none |
+| R6 | Pinecone, step 1 ONLY now: remove lib/core/pinecone-inference.cjs and edit the pinned tests and exemption lines that section 7 lists (delete tests/272-pinecone-inference.test.cjs, the exemption lines of tests/run-all-272.sh, line 37 of tests/run-all-296.sh, assertions P3 and P5 of tests/296-pinecone-residue.sh, and the docstring in lib/core/rs_cache.py line 16). Steps 2 and 3 wait for their own proof and the owner's separate word, because Eureka scoring uses rs-pinecone-bridge. | 385-15 |
+| Telemetry | No telemetry rebuild. Plan 385-11 (unwire the SlashCommand telemetry hook) stands. | 385-11 |
+
+Notes:
+- The owner statement of 2026-11-06 "we are not useing pinecone in the mos build" overrides Phase 296 decision D-06 for the dead module in R6 step 1 only. It does not approve R6 step 2 or step 3.
+- Plans 385-13, 385-14 and 385-15 are written. They edit hooks/hooks.json, tests/test-385-hook-unwire.cjs and tests/test-261029-qef-hook-timeouts.cjs (13 and 14) or the Pinecone test lines (15), and they run after plans 385-08 to 385-11 and in this order.
+- Section 13 above stays as written for the history of this plan. Its "NOT YET PLANNED" text is now true only for R6 step 2 (the migration list for rs-pinecone-bridge) and R6 step 3 (the remaining Pinecone surfaces). Each needs its own proof and the owner's separate word. R3 to R5 and R7 to R10 have no follow-on plan by ruling.
