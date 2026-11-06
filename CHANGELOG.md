@@ -2,6 +2,7 @@
 
 ### Added
 - 
+- **Eureka now tells you what it needs (Phase 387).** `/mos:eureka` runs with no engine. The engine tools answer "not set up", "set up", or "set up but not ready", and say which package group, model folder or Node.js version is missing, with one fix line. `/mos:eureka enable engine` saves the folder of an engine you already have, checks it, and runs the one package step only after you approve a card. Every engine run starts offline, and the plugin never lets it install anything by itself. `/mos:doctor` shows one readiness line. The check that the real engine sends nothing out is still open; it needs a test that you run yourself.
 
 ## [2.0.0-beta.79] - 2026-11-05
 
