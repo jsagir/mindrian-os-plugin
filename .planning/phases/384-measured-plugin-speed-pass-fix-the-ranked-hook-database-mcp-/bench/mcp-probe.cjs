@@ -18,7 +18,11 @@
  *   profile  CPU profile through initialize and tools/list, n runs; milliseconds and shares by group
  *   idle     watches (inotify), idle RSS and idle CPU of 1 or more MCP processes over rooms homes of R rooms, with a
  *            bare node control (--rooms 1,10,58 --procs 1,3 --window-ms 10000)
- *   block    the time that a tool call blocks the event loop: a ping is sent --ping-delay-ms after the call
+ *   block    the time that a tool call blocks the event loop: a ping is sent --ping-delay-ms after the call.
+ *            With --tree-b <dir> [--label-b name]: the same measure on two plugin trees against the same room,
+ *            interleaved (round i runs tree A then tree B when i is even, B then A when i is odd, for each variant).
+ *            The B rows use the prefix mcp:block-b: and each idle, ping and tool row has a derived row with the A id
+ *            plus :a-minus-b (per-pair A minus B, so a positive value means tree B is faster).
  *   opens    room database opens (and sqlite exec and prepare counts, modules added, lib reads) per tool call, by tool name
  *
  * Timing results use the schema mos.perf-384/1 (target ids start with mcp:). Count-only results use
@@ -458,7 +462,7 @@ const USAGE = {
   start: 'usage: start --tree <dir> --out <file> [--server os|brain|both] [--tree-b <dir> [--label-b name]] [--exec-check [--counter <exec-counter.so>]] [--room fixture|copy] [--source <dir> | --source-file <file>] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   profile: 'usage: profile --tree <dir> --out <file> [--server os|brain|both] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   idle: 'usage: idle --tree <dir> --out <file> [--rooms 1,10,58] [--procs 1,3] [--window-ms 10000] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
-  block: 'usage: block --tree <dir> --out <file> [--tool stop_gate_check] [--ping-delay-ms 20] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
+  block: 'usage: block --tree <dir> --out <file> [--tree-b <dir> [--label-b name]] [--tool stop_gate_check] [--ping-delay-ms 20] [--room fixture|copy] [--runs N (default 7)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   opens: 'usage: opens --tree <dir> --out <file> [--tools a,b,c] [--repeats N (default 3)] [--room fixture|copy] [--source-file <file>] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
 };
 const FLAGS = {
@@ -586,8 +590,8 @@ function writeOut(S, schema, body) {
   return obj.isolation.exit_code;
 }
 
-function serverEnv(S, extra) {
-  return S.ctx.env(Object.assign({ MOS_PERF_RUN_ID: newRunId() }, S.writePath ? { MINDRIAN_MCP_FIRST: 'cli' } : {}, extra || {}));
+function serverEnv(S, extra, ctx) {
+  return (ctx || S.ctx).env(Object.assign({ MOS_PERF_RUN_ID: newRunId() }, S.writePath ? { MINDRIAN_MCP_FIRST: 'cli' } : {}, extra || {}));
 }
 // calls made after the handshake and before any measured call: with the write path on, bind the room
 function preludeOf(S) {
@@ -1153,17 +1157,34 @@ async function cmdBlock(f) {
     if (!spec) throw fail('no safe argument set for tool ' + toolKey);
     const delay = parseInt(f['ping-delay-ms'] || '20', 10);
     if (!Number.isInteger(delay) || delay < 0) throw fail('--ping-delay-ms must be a non-negative integer');
+    // tree B (optional): the same room and session, a second plugin tree, run in the same rounds as tree A
+    const sides = [{ key: 'A', prefix: 'mcp:block:', script: serverScript(S, 'os'), ctx: S.ctx }];
+    let labelB = null;
+    if (f['tree-b']) {
+      const treeB = path.resolve(f['tree-b']);
+      const scriptB = path.join(treeB, 'scripts', SERVER_SCRIPTS.os);
+      if (!fs.existsSync(scriptB)) throw fail('--tree-b is not a plugin tree');
+      labelB = f['label-b'] || path.basename(treeB);
+      sides.push({ key: 'B', prefix: 'mcp:block-b:', script: scriptB, ctx: H.makeCtx('B', treeB, S.prep, S.cpus, S.hasTaskset) });
+    }
+    const two = sides.length === 2;
     const gate = await S.gate();
-    const idleAcc = newAcc('mcp:block:idle-ping');
     const variants = ['cold', 'warm'];
-    const accs = {};
-    variants.forEach((v) => {
-      accs[v] = { ping: newAcc('mcp:block:' + toolKey + ':' + v + ':ping', { ping_delay_ms: delay }), tool: newAcc('mcp:block:' + toolKey + ':' + v + ':tool', { ping_delay_ms: delay }) };
+    const tl = (side) => (two ? { tree_label: side.key === 'A' ? S.label : labelB } : {});
+    const A = {};
+    sides.forEach((side) => {
+      A[side.key] = { idle: newAcc(side.prefix + 'idle-ping', tl(side)), v: {} };
+      variants.forEach((v) => {
+        A[side.key].v[v] = {
+          ping: newAcc(side.prefix + toolKey + ':' + v + ':ping', Object.assign({ ping_delay_ms: delay }, tl(side))),
+          tool: newAcc(side.prefix + toolKey + ':' + v + ':tool', Object.assign({ ping_delay_ms: delay }, tl(side))),
+        };
+      });
     });
     let seq = 0;
-    const one = async (variant) => {
+    const one = async (variant, side) => {
       const runId = newRunId();
-      const srv = spawnServer({ script: serverScript(S, 'os'), cwd: S.ctx.roomDir, env: serverEnv(S, { MOS_PERF_RUN_ID: runId }), cpus: S.cpus, hasTaskset: S.hasTaskset });
+      const srv = spawnServer({ script: side.script, cwd: S.ctx.roomDir, env: serverEnv(S, { MOS_PERF_RUN_ID: runId }, side.ctx), cpus: S.cpus, hasTaskset: S.hasTaskset });
       let out = null;
       let left = 0;
       try {
@@ -1179,33 +1200,63 @@ async function cmdBlock(f) {
       return { out, left, bg: srv.background_ms || 0 };
     };
     const order = ['idle', 'cold', 'warm'];
-    const errors = { cold: 0, warm: 0 };
+    const errors = {};
+    sides.forEach((side) => { errors[side.key] = { cold: 0, warm: 0 }; });
+    // per-pair differences (tree A minus tree B) of the same variant in the same round
+    const diffs = { idle: [], 'cold:ping': [], 'cold:tool': [], 'warm:ping': [], 'warm:tool': [] };
     for (let i = 0; i < S.runs; i += 1) {
       for (const v of rotated(order, i)) {
-        const { out, left, bg } = await one(v);
-        if (v === 'idle') {
-          idleAcc.survivors += left;
-          if (!out) { idleAcc.failed += 1; continue; }
-          idleAcc.exits.add(0); idleAcc.wall.push(out.ping_ms); idleAcc.bg.push(bg);
-        } else {
-          const a = accs[v];
-          a.ping.survivors += left; a.tool.survivors += left;
-          if (!out) { a.ping.failed += 1; a.tool.failed += 1; continue; }
-          if (out.tool_error) errors[v] += 1;
-          a.ping.exits.add(0); a.tool.exits.add(0);
-          a.ping.wall.push(out.ping_ms); a.tool.wall.push(out.tool_ms);
-          a.ping.bg.push(bg); a.tool.bg.push(bg);
+        const got = {};
+        // tree A first in even rounds, tree B first in odd rounds
+        const sideOrder = two && i % 2 === 1 ? [sides[1], sides[0]] : sides;
+        for (const side of sideOrder) {
+          const { out, left, bg } = await one(v, side);
+          const acc = A[side.key];
+          if (v === 'idle') {
+            acc.idle.survivors += left;
+            if (!out) { acc.idle.failed += 1; continue; }
+            acc.idle.exits.add(0); acc.idle.wall.push(out.ping_ms); acc.idle.bg.push(bg);
+            got[side.key] = out;
+          } else {
+            const a = acc.v[v];
+            a.ping.survivors += left; a.tool.survivors += left;
+            if (!out) { a.ping.failed += 1; a.tool.failed += 1; continue; }
+            if (out.tool_error) errors[side.key][v] += 1;
+            a.ping.exits.add(0); a.tool.exits.add(0);
+            a.ping.wall.push(out.ping_ms); a.tool.wall.push(out.tool_ms);
+            a.ping.bg.push(bg); a.tool.bg.push(bg);
+            got[side.key] = out;
+          }
+        }
+        if (two && got.A && got.B) {
+          if (v === 'idle') diffs.idle.push(got.A.ping_ms - got.B.ping_ms);
+          else { diffs[v + ':ping'].push(got.A.ping_ms - got.B.ping_ms); diffs[v + ':tool'].push(got.A.tool_ms - got.B.tool_ms); }
         }
       }
     }
-    const targets = [toTarget(idleAcc, gate)];
-    variants.forEach((v) => {
-      const tp = toTarget(accs[v].ping, gate);
-      const tt = toTarget(accs[v].tool, gate);
-      tp.tool_error_runs = errors[v]; tt.tool_error_runs = errors[v];
-      targets.push(tp, tt);
-    });
-    const code = writeOut(S, H.SCHEMA, { block: { write_path: S.writePath ? 'on (MINDRIAN_MCP_FIRST=cli, room bound first)' : 'off (default: MINDRIAN_MCP_FIRST unset)', tool: spec.tool, writes_to_room: !!spec.write, reaches_cascade: !!spec.cascade, ping_delay_ms: delay, meaning: 'ping rows: wall_ms is the time from the ping send to its reply; tool rows: the time from the call send to its reply' }, targets });
+    const rowsOf = (side) => {
+      const out = [toTarget(A[side.key].idle, gate)];
+      variants.forEach((v) => {
+        const tp = toTarget(A[side.key].v[v].ping, gate);
+        const tt = toTarget(A[side.key].v[v].tool, gate);
+        tp.tool_error_runs = errors[side.key][v]; tt.tool_error_runs = errors[side.key][v];
+        out.push(tp, tt);
+      });
+      return out;
+    };
+    let targets = rowsOf(sides[0]);
+    if (two) {
+      targets = targets.concat(rowsOf(sides[1]));
+      const how = (what) => 'per-pair ' + what + ' of tree A minus tree B, same variant, same round';
+      targets.push(derivedTarget(sides[0].prefix + 'idle-ping:a-minus-b', diffs.idle, gate, how('idle ping time')));
+      variants.forEach((v) => {
+        targets.push(derivedTarget(sides[0].prefix + toolKey + ':' + v + ':ping:a-minus-b', diffs[v + ':ping'], gate, how('ping time during the tool')));
+        targets.push(derivedTarget(sides[0].prefix + toolKey + ':' + v + ':tool:a-minus-b', diffs[v + ':tool'], gate, how('tool reply time')));
+      });
+    }
+    const body = { block: { write_path: S.writePath ? 'on (MINDRIAN_MCP_FIRST=cli, room bound first)' : 'off (default: MINDRIAN_MCP_FIRST unset)', tool: spec.tool, writes_to_room: !!spec.write, reaches_cascade: !!spec.cascade, ping_delay_ms: delay, meaning: 'ping rows: wall_ms is the time from the ping send to its reply; tool rows: the time from the call send to its reply' }, targets };
+    if (two) body.compare = { a: S.label, b: labelB };
+    const code = writeOut(S, H.SCHEMA, body);
     log('block ' + toolKey + ': ' + targets.map((t) => t.id + ' ' + t.wall_ms.median).join('; '));
     return code;
   } finally { S.cleanup(); }
