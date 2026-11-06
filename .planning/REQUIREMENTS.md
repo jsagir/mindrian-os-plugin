@@ -5187,6 +5187,15 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [ ] **PERF384-04**: The MCP and database costs are measured: server start and CPU profile, file watchers at 1, 10 and 58 rooms, the room database open against a bare open, opens per tool call and per SessionStart, and event-loop blocking (findings S3, S7, S8, S10). Plans 384-06 and 384-07.
 - [ ] **PERF384-05**: The room-dependent costs are measured on one quiet real-room copy per room class (local and mount), or marked NOT MEASURED with the reason; owner question Q1 is asked at most once. Plan 384-08.
 - [ ] **PERF384-06**: 384-RANKING.md gives each finding S1 to S10 one verdict by a fixed rule with a DIRECT or DERIVED basis, proposes the five to fix, lists the owner questions, and stops for the owner. Plan 384-09.
+- [ ] **PERF384-F01**: Shared A/B tooling for the fixes (ab-verdict with the keep rule at the 50 ms floor, pin-tree, tree-b modes). Plan 384-12.
+- [ ] **PERF384-F02**: S8 - the Stop gate close-out stops blocking the MCP event loop, same step order and ceilings. Plan 384-13.
+- [ ] **PERF384-F03**: S1 - fewer node starts at SessionStart, outputs byte-identical. Plan 384-14.
+- [ ] **PERF384-F04**: S7 - MCP start loads fewer modules before first use, tools/list unchanged. Plan 384-15.
+- [ ] **PERF384-F05**: S4 - SubagentStop caps the files in flight. Plan 384-16.
+- [ ] **PERF384-F06**: The 15 s prewarm timer is cleared (port of commit fb295a541), with a measured before and after. Plan 384-17.
+- [ ] **PERF384-F07**: Commit 23ab77410 lands only with a parity test on tools/perf, after an owner checkpoint. Plan 384-18.
+- [ ] **PERF384-F08**: The doctor-all point names a timeout and fails on an unreadable result; the drift count stays deferred (owner split, 2026-11-06). Plan 384-19.
+- [ ] **PERF384-F09**: S2 - the Write path: root cause of the cascade path rule, an owner decision, then the chosen fix with a measured A/B. Plan 384-20.
 
 ### Phase 385 - Behaviour-preserving cleanup (CLEAN385, minted at plan time 2026-11-05)
 

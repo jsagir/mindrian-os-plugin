@@ -4012,8 +4012,9 @@ Plans:
 
 **Goal:** Measure first, then fix the top five. PRD Wave 1 (measure; plans 384-01 to 384-09) builds a trusted timing harness, counts the processes each hook event starts, times the prompt and Stop scripts, the MCP start, the room database open and the MCP event loop, measures one quiet real-room copy per room class, and ends in 384-RANKING.md: ten findings (S1 to S10 of 384-PRD.md) with measured medians and p95, a fixed verdict rule, the five proposed, and a stop for the owner. PRD Waves 2 to 4 (fix the top five by measured cost, the rest of the top ten, close with CHANGELOG and the push-gate review) are NOT YET PLANNED; they are planned after the owner reads the ranking.
 **Requirements**: PERF384-01, PERF384-02, PERF384-03, PERF384-04, PERF384-05, PERF384-06 (defined in .planning/REQUIREMENTS.md and the plan objectives: harness; process census S1 S2 S4; script costs S5 S6 S9; MCP and database S3 S7 S8 S10; real-room copies; ranking)
+**Wave 1 status (2026-11-06):** plans 384-01 to 384-11 are executed and checked (the ranking 384-RANKING.md is written; owner decisions are in 384-OWNER-DECISIONS.md). **Wave 2 (fixes, owner-approved: S1, S8, S7, S4, plus the prewarm timer, the 23ab77410 port, the split doctor gate and the S2 Write path):** plans 384-12 to 384-20 are planned and checked, serial waves 12 to 20, one lock, not executed. Requirements PERF384-F01 to PERF384-F09.
 **Depends on:** Phase 383
-**Plans:** 0/9 plans executed
+**Plans:** 11/20 plans executed
 
 Plans run one after the other (one quiet host, one lock); the execution wave number equals the plan number.
 
