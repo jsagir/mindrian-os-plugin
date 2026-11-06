@@ -52,7 +52,7 @@ These are your primary reference. Use brain_ask for framework-chain and framewor
 For every question:
 
 1. **Pattern Match** -- Determine which named pattern(s) from query-patterns.md match the question
-2. **Execute** -- Call `mcp__mindrian-brain__brain_ask` with a natural-language question carrying only generic framework handles and problem-type enums (Canon Part 8: no user content)
+2. **Execute** -- Call `mcp__mindrian-brain__brain_ask` with a natural-language question carrying only generic framework handles and problem-type enums (Canon Part 8: no user content). A Brain call carries sprouts and never a body: a framework name, a problem type or a few keywords, at most 12 words. If a call comes back refused with `sprouts_required`, do not retry with the same text. Return that the caller must split the text first: type each claim (fact, causal, heuristic, anomaly_cue, mental_model or assumption), keep the room claims local with `claim_write`, then call again with the sprouts only (route `sprout_call`).
 3. **Read** -- Parse `next_gate.options[].framework` for ranked recommendations; `directive.guided.framework` for the anchor framework
 4. **Enrich** -- If results need semantic context, use `mcp__mindrian-brain__brain_search` (fallback: `mcp__pinecone-brain__search-records`; if Pinecone returns RESOURCE_EXHAUSTED, skip semantic search) for fuzzy matching
 5. **Synthesize** -- Convert results into natural language insight with specific evidence

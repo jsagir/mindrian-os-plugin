@@ -11,6 +11,14 @@ Agents and skills read this file on demand. To execute a pattern:
    ranked chain and `directive.guided.framework` for the matched anchor. No Cypher needed.
 3. For `brain_search_semantic`, call `mcp__mindrian-brain__brain_search`
    (or `mcp__pinecone-brain__search-records` as fallback).
+4. A Brain call carries sprouts and never a body. A sprout is a framework name, a problem type
+   or a few keywords, at most 12 words, with no names, numbers, places, quotes or room terms.
+   When a long text or a private claim needs the Brain, break it into claims (fact, causal,
+   heuristic, anomaly_cue, mental_model or assumption), keep the room claims in the room as
+   proposed claims with `claim_write`, call the Brain with the sprouts only (route `sprout_call`),
+   never copy a run of four words from a claim into a sprout, and build the answer locally from
+   the Brain reply and the local claims. If a call comes back refused with `sprouts_required`,
+   do exactly that, then call again. Never retry with the same text and never paste claims into a call.
 
 Never expose raw results to users -- synthesize into insights.
 

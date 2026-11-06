@@ -183,7 +183,7 @@ Delegate to `agents/brain-query.md` for: 2+ graph hops, explicit connection expl
 
 ## Primary Tool: brain_ask
 
-Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, handles fallback. Only use `brain_query` (raw Cypher) for specific complex queries.
+Always use `brain_ask` first -- natural language, auto-routes Pinecone/Neo4j, handles fallback. Only use `brain_query` (raw Cypher) for specific complex queries. A call carries sprouts and never a body; if it comes back refused with `sprouts_required`, split the text into typed claims, keep them in the room with `claim_write`, and call again with the sprouts only.
 
 ## Tool Names
 
