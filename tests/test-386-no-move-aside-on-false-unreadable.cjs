@@ -239,7 +239,10 @@ async function main() {
       if (r.cause !== k) bad.push(k + ' cause ' + r.cause);
       const msg = typeof gateMod.notRecoveredMessage === 'function' ? String(gateMod.notRecoveredMessage(r)) : '(no notRecoveredMessage export)';
       if (!(/try again/i.test(msg) && /nothing was moved/i.test(msg))) bad.push(k + ' message ' + msg);
-      if (!staysPut(dir, before)) bad.push(k + ' file moved');
+      // The backfill goes on after a failed recovery and may open the file again (a real open can rewrite a
+      // fake -wal), so this arm checks the room.db bytes and the absence of any moved file.
+      const dbNow = path.join(dir, '.mindrian', 'room.db');
+      if (!(fs.existsSync(dbNow) && sha(dbNow) === before && movedNames(dir).length === 0)) bad.push(k + ' file moved');
     }
     ok('MA8 an approved recovery on busy, io and cannot_open does not recover, moves nothing and names the person action', bad.length === 0, bad.join('; '));
   }
