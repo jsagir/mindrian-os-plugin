@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: fixing
 kind: rca
 trigger: "wiki-server-shadowed-byoapi-chat-proxy-latent-part8-egress"
 issue_id: "B1"
@@ -8,7 +8,7 @@ surfaces: [cli]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-11-06T07:14:20Z
-updated: 2026-11-06T07:14:20Z
+updated: 2026-11-06T07:40:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -135,8 +135,11 @@ started: the BYOAPI handler dates from the first wiki server. The stub handler w
 
 ## Resolution
 
-root_cause: confirmed (see Technical Root Cause). Fix not started.
-fix: not started
-verification: not run
-files_changed: []
-commits: []
+root_cause: the superseded BYOAPI proxy handler stayed in lib/wiki/wiki-server.cjs after the stub handler replaced it, and only registration order blocked the egress. The pdf route sat after the wildcard artifact route, so the wildcard matched first.
+fix: deleted the second POST /api/chat handler. Registered GET /wiki/:section/pdf (handler servePdf, a hoisted function declaration that keeps the original body) before GET /wiki/:section/*rest. servePdf calls next() when a page with id <section>/pdf exists. /api/briefing is unchanged.
+verification: node tests/test-386-wiki-no-byoapi-proxy.cjs (RED at 794c02fa7: arms (a) and (c) failed; GREEN at 89fac7b2b: 4 of 4 arms pass); node tests/test-232-wiki-server.cjs 8 of 8; node tests/test-261030-fbl-wiki-host-guard.cjs ALL PASS; node tests/test-visible-room-leak.cjs 14 of 14; bash tests/run-all-386.sh PASS=1 FAIL=0; bash tests/run-all-196.sh Passed 6 Failed 0 on 3 runs (1 earlier run reported Failed 1 and was not reproduced, see the plan summary); node tests/test-3692-guard-survey-gate.cjs PASS 5 FAIL 0. Surfaces: cli verified. desktop and cowork verified by construction (the wiki server has no surface-specific code). Linux only.
+files_changed:
+  - lib/wiki/wiki-server.cjs (deleted the BYOAPI handler, moved the pdf route before the wildcard, added the next() fall-through)
+  - tests/test-386-wiki-no-byoapi-proxy.cjs (new)
+  - tests/run-all-386.sh (new)
+commits: c283c5093 (RCA), 794c02fa7 (RED test), 89fac7b2b (fix)
