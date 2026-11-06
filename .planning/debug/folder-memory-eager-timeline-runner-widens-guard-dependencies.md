@@ -94,6 +94,16 @@ navigation_in_cache_guard_before: yes
 navigation_in_cache_statusline_before: yes
 hook_loads_timeline_runner: yes
 
+After the change (same method, fresh processes, 3 repeats each, equal in all 3, measured at HEAD with the fix in the working tree):
+
+modules_guard_after: 10
+modules_hook_after: 173
+modules_statusline_after: 18
+navigation_in_cache_guard_after: no
+navigation_in_cache_statusline_after: no
+
+The guard (172 to 10) and the statusline (182 to 18) reproduce the audit target for the guard (172 to 10) and match the Phase 384 scratch figure for the statusline (182 to 18); the audit statusline target was 181 to 17, so the measured figures are one higher at both ends. The hook count falls from 175 to 173 and the runner is out of its require.cache (hook_loads_timeline_runner was yes before, no after). Navigation is still loaded in the hook process: navigation_loaded_by_hook: scripts/part8-egress-guard-hook.cjs (the hook requires lib/core/navigation.cjs itself at run time; PROVEN with a Module._load probe). This plan does not change the hook. This is hardening and no time gain is claimed.
+
 Equivalence fixture set (FEYNMAN.md variants in a synthetic section folder): absent, empty file, body only, frontmatter plus body, with the sentinel-bounded Timeline (auto) block excised, CRLF line ends.
 
 Tests that cover folder-memory today (found by grep): lib/memory/folder-memory-quadruple.test.cjs (17 of 17), tests/test-150-feynman-readback.cjs, tests/test-195-drift-kind.cjs, tests/test-195-xroom-relevance.cjs, tests/test-232-room-home.cjs, tests/test-245-drain-budget.cjs, tests/test-241-guardian-tripolar-parity.cjs, tests/test-386-dial-memory-stale.cjs and others. extractFeynmanBody is not exported, so the new test reaches it through readQuintuple for the sync and the async twin.
@@ -139,8 +149,11 @@ Tests that cover folder-memory today (found by grep): lib/memory/folder-memory-q
 ## Resolution
 
 root_cause: The timeline runner is required at module load in both folder-memory twins although only extractFeynmanBody uses it, and its load pulls navigation and many modules into the guard, hook and statusline processes.
-fix: pending until Task 3.
-verification: pending until Task 3.
+fix: the require of ./feynman/timeline-runner.cjs moved from the top of lib/core/folder-memory.cjs and lib/core/folder-memory-async.cjs to the first statement of the existing try block in extractFeynmanBody and extractFeynmanBodyAsync. A load failure takes the existing raw-buffer fallback. Nothing else changed.
+verification: node tests/test-386-folder-memory-lazy-timeline.cjs passes LZ1 to LZ6 (RED before: LZ1, LZ2, LZ4, LZ5 and LZ6 failed, LZ3 passed). Equivalence: 0 mismatches over 6 variants, sync and async. Fresh-process counts: guard 172 to 10, hook 175 to 173, statusline 182 to 18; navigation and the runner are out of require.cache for the guard and the statusline. lib/memory/folder-memory-quadruple.test.cjs 17 of 17; test-150-feynman-readback, test-195-drift-kind, test-195-xroom-relevance, test-232-room-home, test-241-guardian-tripolar-parity, test-245-drain-budget, test-386-dial-memory-stale, test-reverse-salient-agent and the two lib/memory brain-derivation tests exit 0. bash tests/run-all-196.sh 7 passed, 0 failed. node tests/test-3692-guard-survey-gate.cjs GATE PASS, MEASURED_SHA256 1b2fc844...dd00 (unchanged). bash tests/run-all-386.sh all PASSED. Known reds not caused by this plan: test-252-guard-census census.1 and census.5b (same as before the change).
 files_changed:
+  - lib/core/folder-memory.cjs (require moved into extractFeynmanBody)
+  - lib/core/folder-memory-async.cjs (require moved into extractFeynmanBodyAsync)
+  - tests/test-386-folder-memory-lazy-timeline.cjs (new)
   - .planning/debug/folder-memory-eager-timeline-runner-widens-guard-dependencies.md (new)
-commits: pending
+commits: see git log for 386-35 (RCA, RED, fix)
