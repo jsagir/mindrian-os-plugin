@@ -1,0 +1,463 @@
+path	class	verdict	flags	evidence-count	first-evidence
+data/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/arbitration-rule-catalogue.json	T7	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-346.sh:46
+data/capability-map-registry.json	T7	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-127-03-no-em-dashes.sh:42
+data/connector-out-of-spine-allowlist.json	T7	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-1441.sh:109
+data/flagship-floor-set.json	T7	UNCERTAIN	DEV-ONLY	1	E1 scripts/check-flagship-floor.cjs:74 (a kept dev gate reads this file; removing it makes that gate exit 2 if a user runs it)
+data/grant-rubric-fixtures/early-stage-pre-seed.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/early-stage-round-a.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/early-stage-seed.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/hybrid-seed-incentive.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/rd-fund.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/regional-innovation-incubators.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/grant-rubric-fixtures/technology-incubators.json	T7	UNCERTAIN	-	3	E4 lib/core/eureka/grade-grant.cjs:123
+data/harness-fixtures/converged-room/.context/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/.intelligence/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/.snapshots/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/MINTO.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	189	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/STATE.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	475	E3 scripts/memory-artifact-graph-hook.cjs:62 | pinned-by tests/test-369-installed-layout.cjs,tests/test-369-ui-dist-fresh.cjs
+data/harness-fixtures/converged-room/USER.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	61	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/assets/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/business-model/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/business-model/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/competitive-analysis/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/competitive-analysis/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/financial-model/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/financial-model/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/funding/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/funding/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/legal-ip/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/legal-ip/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/market-analysis/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/market-analysis/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/opportunity-bank/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/opportunity-bank/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/problem-definition/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/problem-definition/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	329	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/references/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/references/SECTION-SCHEMA.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	1	E3 lib/core/room-skeleton-scaffold.cjs:57
+data/harness-fixtures/converged-room/references/SUB-SCHEMAS.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	1	E3 lib/core/room-skeleton-scaffold.cjs:57
+data/harness-fixtures/converged-room/solution-design/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/solution-design/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	330	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/strategy/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/strategy/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/team-execution/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-fixtures/converged-room/team-execution/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-fixtures/converged-room/team/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+data/harness-policies/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+data/harness-policies/eureka-optin-once.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-arbitration-decision.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-graph-derive-health.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-layer-declaration.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-shape-declaration.json	T7	UNCERTAIN	DATA-CITED-NOT-CHECKED	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-tool-honesty.json	T7	UNCERTAIN	-	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/gate-worktree-hygiene.json	T7	UNCERTAIN	-	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/registry-drift.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/release-payload-ceiling.json	T7	UNCERTAIN	DEV-ONLY,PAYLOAD-PINNED	1	E4 scripts/run-harness.cjs:201 | pinned-by tests/test-341-payload-ceiling.cjs,tests/test-369.1-sharp-out.cjs
+data/harness-policies/session-start-verification.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-backend-noun-free.json	T7	UNCERTAIN	DEV-ONLY,DATA-CITED-NOT-CHECKED	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-fork-as-card.json	T7	UNCERTAIN	-	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-glyph-present.json	T7	UNCERTAIN	-	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-hyphens-only.json	T7	UNCERTAIN	-	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-length.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/harness-policies/voice-no-framework-dump.json	T7	UNCERTAIN	DEV-ONLY	1	E4 scripts/run-harness.cjs:201
+data/hitl-shape-declaration-fixtures/invalid-bad-shape.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/invalid-missing-why.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/invalid-ranker-contradiction.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/invalid-skill-gap.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/valid-multi-stage.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/valid-single-shape.json	T8	RULED-KEEP	-	0	-
+data/hitl-shape-declaration-fixtures/valid-skill-exempt.json	T8	RULED-KEEP	-	0	-
+data/hitl-stages-fixtures/bono.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/pipeline-1.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/pipeline-2.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/pipeline-3.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/rs-convergence.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/rs-family.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/rs-reverse-salient.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+data/hitl-stages-fixtures/trending-to-absurd.json	T7	UNCERTAIN	-	1	E4 scripts/check-hitl-stages.cjs:171
+lib/__init__.py	T7	UNCERTAIN	-	1	E1 lib/core/rs_hybrid.py:81 (python imports lib.core.*; the package marker is not needed under Python 3 namespace rules but python children are not traced)
+lib/__pycache__/__init__.cpython-312.pyc	T4	SAFE	-	0	-
+lib/agents/mva/test-all-six-agents.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-118.sh:31
+lib/brain/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/conversation/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/conversation/operator-epistemic-cap.test.cjs	T1	SAFE	-	0	-
+lib/conversation/operator.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:41
+lib/core/__init__.py	T7	UNCERTAIN	-	1	E1 lib/core/rs_hybrid.py:81 (python imports lib.core.*; the package marker is not needed under Python 3 namespace rules but python children are not traced)
+lib/core/__nav-stub.cjs	T8	RULED-KEEP	DEV-ONLY	0	DEV-ONLY tests/test-379.1.1-integrity-generated-targets.cjs:8
+lib/core/__pycache__/__init__.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_cache.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_corpus.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_corpus_exclude.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_hybrid.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_math.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/__pycache__/rs_rooms.cpython-312.pyc	T4	SAFE	-	0	-
+lib/core/behavioral/observation-schema.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-bch-01-ownership.cjs:26
+lib/core/breakthrough/canary.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/detectors.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/ethics-fence.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/resurfacing.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/review-queue.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/scanner-d17-d18.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/scanner.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-breakthrough-d18-ethics-fence.cjs:126
+lib/core/breakthrough/schema.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-121-00-scaffold.sh:91
+lib/core/breakthrough/scoring.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/verb-dispatch.test.cjs	T1	SAFE	-	0	-
+lib/core/breakthrough/voice-scaffold.test.cjs	T1	SAFE	-	0	-
+lib/core/coverage-monitor.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-coverage-rollup.cjs:26
+lib/core/cross-room-triggers.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-195-triggers.cjs:24
+lib/core/directive-envelope.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-127.sh:13
+lib/core/doctor/class-m-brain-smoke.test.cjs	T1	UNCERTAIN	DEV-ONLY	4	E4 lib/core/doctor/class-m-brain-smoke.cjs:350
+lib/core/dual-path-detector.test.cjs	T1	SAFE	-	0	-
+lib/core/eureka/lateral-engine-adapter.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-213-touchpoints.cjs:38
+lib/core/expert-genesis.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-203-genesis-fanout.cjs:5
+lib/core/feynman/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/core/futures/subsystem-render.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-156.sh:83
+lib/core/hsi-to-graph.test.cjs	T1	SAFE	-	0	-
+lib/core/ignite-branch-gate.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-204-ignite-branch-gate.cjs:16
+lib/core/larry-thinness-acknowledgment.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-02-scaffold.sh:56
+lib/core/llm-name-suggester.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-01-scaffold.sh:70
+lib/core/mcp-dep-heal.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-266.sh:32
+lib/core/memory/governance-candidate-raiser.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-189-f8-governance-gate.cjs:32
+lib/core/memory/governance-candidate.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/core/metrics/larryreach-loop-health.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-larryreach-loop-health.cjs:3
+lib/core/migration-snapshot.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-127.sh:15
+lib/core/migrations/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/core/migrations/phase-160-nodes-bitemporal.test.cjs	T1	SAFE	-	0	-
+lib/core/mindrian-brain-shim.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-127.sh:12
+lib/core/mullins-scaffold.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-1432.sh:21
+lib/core/mva-agent-contract.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:27
+lib/core/mva-budget.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:28
+lib/core/mva-classifier.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:24
+lib/core/mva-deck-builder.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:39
+lib/core/mva-detect.smoke.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:25
+lib/core/mva-dispatcher.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:29
+lib/core/mva-option-router.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:42
+lib/core/mva-orchestrator.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:35
+lib/core/mva-progressive-renderer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:33
+lib/core/mva-rule-linter.test.cjs	T1	SAFE	DEV-ONLY,DATA-CITED-NOT-CHECKED	0	DEV-ONLY tests/run-all-118.sh:44
+lib/core/mva-telemetry.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:34
+lib/core/mva-vercel-deploy.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:38
+lib/core/navigation/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+lib/core/navigation/engine-projection.test.cjs	T1	SAFE	-	0	-
+lib/core/navigation/insights-stale.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-348.sh:74
+lib/core/navigation/memory-cortex-packet.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/claim-harness/claim-c4.cjs:41
+lib/core/node-insert-epistemic.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-348.sh:75
+lib/core/node-insert-overrides.test.cjs	T1	SAFE	-	0	-
+lib/core/npm-cli-resolve.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-369.1.sh:86
+lib/core/npm-install-lock.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-266.sh:31
+lib/core/part8-egress-guard.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/365-regression-base.json:19
+lib/core/part8-egress-ontology.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-196.sh:65
+lib/core/planning/artifact-brain-packet.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-149-brain-egress.cjs:21
+lib/core/recovery/controller.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-221-controller-fences.cjs:9
+lib/core/refusal-messaging.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-127.sh:17
+lib/core/research-cache.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.5.sh:8
+lib/core/research-corpus.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.5.sh:7
+lib/core/research-planner/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+lib/core/resolve-vercel-key.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-118.sh:37
+lib/core/room-auto-create.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-00-scaffold.sh:57
+lib/core/room-discard-cascade.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-01-scaffold.sh:73
+lib/core/room-name-validator.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-01-scaffold.sh:73
+lib/core/room-naming-selector.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-01-scaffold.sh:73
+lib/core/room-skeleton-scaffold.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-275.sh:73
+lib/core/rs-expert-brain-projection.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-252.sh:109
+lib/core/seam-liveness.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-235.sh:39
+lib/core/security/agentshield-adapters.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-199.sh:82
+lib/core/security/agentshield-scanner.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-199.sh:72
+lib/core/semantic-index/CONTEXT.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED,PAYLOAD-PINNED	43	E5 scripts/doctor.cjs:483 | pinned-by scripts/release.sh
+lib/core/shallow-doc-parser.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-379.1.1-integrity-generated-targets.cjs:8
+lib/core/synthetic-expert-behavior-gate.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-203.sh:53
+lib/core/synthetic-expert-construction-gate.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-203.sh:51
+lib/core/telemetry/schema.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.sh:24
+lib/core/telemetry/validator.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.sh:25
+lib/core/telemetry/writer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.sh:26
+lib/core/temporal/date-sync-gate.test.cjs	T1	SAFE	-	0	-
+lib/core/temporal/dual-stamp.test.cjs	T1	SAFE	-	0	-
+lib/core/temporal/point-in-time.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-348.sh:72
+lib/core/temporal/recency-decay.test.cjs	T1	SAFE	-	0	-
+lib/core/temporal/reference-now.test.cjs	T1	SAFE	-	0	-
+lib/core/temporal/resolve-relative-time.test.cjs	T1	SAFE	-	0	-
+lib/core/temporal/supersession.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-348.sh:71
+lib/core/tone-filter.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-205-decision-axes.cjs:29
+lib/core/venture-shape-nudge.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-119-00-scaffold.sh:50
+lib/hmi/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/hmi/f3-depth-capture-cli.cjs	T8	RULED-KEEP	-	0	-
+lib/hmi/f4-scope-capture-cli.cjs	T8	RULED-KEEP	-	0	-
+lib/hmi/f8-capture.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:81
+lib/hmi/f9-ordered-capture-cli.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/hmi/hats-persona-cache.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-148.sh:136
+lib/hmi/selector-dispatcher.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:115
+lib/hmi/shape-f3-parity.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:103
+lib/hmi/shape-f4-parity.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:107
+lib/hmi/shape-f7-breakthrough-renderer.test.cjs	T1	SAFE	-	0	-
+lib/hmi/shape-f8-renderer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:77
+lib/hmi/shape-f9-renderer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:92
+lib/import/PRECONDITIONS.md	T5	NEEDED	DEV-ONLY,PAYLOAD-PINNED	5	E1 scripts/vault-import.cjs:304 | pinned-by scripts/release-lib/build-desktop-artifact.cjs,tests/test-369.1-bin-relocation.cjs,tests/test-369.1-desktop-artifact.cjs
+lib/import/branding.test.cjs	T1	SAFE	-	0	-
+lib/import/classifications-sync.test.cjs	T1	SAFE	-	0	-
+lib/import/enricher.test.cjs	T1	SAFE	-	0	-
+lib/import/integration.test.cjs	T1	SAFE	-	0	-
+lib/import/manifest.test.cjs	T1	SAFE	-	0	-
+lib/import/meeting-detector.test.cjs	T1	SAFE	-	0	-
+lib/import/person-detector.test.cjs	T1	SAFE	-	0	-
+lib/import/report.test.cjs	T1	SAFE	-	0	-
+lib/import/router.test.cjs	T1	SAFE	-	0	-
+lib/import/run-all-tests.cjs	T2	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/import/smoke-test.test.cjs	T1	SAFE	-	0	-
+lib/import/undo.test.cjs	T1	SAFE	-	0	-
+lib/import/vault-scanner.test.cjs	T1	SAFE	-	0	-
+lib/mcp/app-html/mindrian-platform.html	T7	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-369-canon-scope-docs.cjs:34
+lib/mcp/assets/DM-SANS-OFL.txt	T7	NEEDED	DEV-ONLY	1	E3 lib/mcp/room-assets.cjs:9 (the fonts it serves are covered by this licence or provenance text; ship them together)
+lib/mcp/assets/FIGTREE-OFL.txt	T7	NEEDED	DEV-ONLY	1	E3 lib/mcp/room-assets.cjs:9 (the fonts it serves are covered by this licence or provenance text; ship them together)
+lib/mcp/assets/FONT-SOURCES.md	T5	NEEDED	-	1	E3 lib/mcp/room-assets.cjs:9 (the fonts it serves are covered by this licence or provenance text; ship them together)
+lib/mcp/assets/dm-sans-latin-400-700.woff2	T7	NEEDED	-	1	E3 lib/mcp/room-assets.cjs:9
+lib/mcp/assets/figtree-latin-400-900.woff2	T7	NEEDED	-	1	E3 lib/mcp/room-assets.cjs:9
+lib/mcp/no-instructions.test.cjs	T1	UNCERTAIN	DEV-ONLY,DATA-CITED-NOT-CHECKED	1	E4 lib/mcp/daemon-lifecycle.cjs:304
+lib/memory/aaak-compress.test.cjs	T1	SAFE	-	0	-
+lib/memory/async-artifact-auto-commit.test.cjs	T1	SAFE	-	0	-
+lib/memory/bearer-token.test.cjs	T1	SAFE	-	0	-
+lib/memory/body-shape-coverage.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:5
+lib/memory/brain-cache-lru.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-client-query-shape.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-339-theo-ask-compose.cjs:13
+lib/memory/brain-cypher-chain-slice.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:6
+lib/memory/brain-derivation-graceful-degradation.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-derivation-queue.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-3696.sh:165
+lib/memory/brain-derivation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:121
+lib/memory/brain-derive-command.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-derive-curation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:31
+lib/memory/brain-md-invariants-validator.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-md-schema.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-md-staleness.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-245-nudge-bound.cjs:154
+lib/memory/brain-server-resolution.test.cjs	T1	SAFE	-	0	-
+lib/memory/brain-suggestion-template.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:16
+lib/memory/chain-recommender-canonical.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:16
+lib/memory/chain-recommender.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-122.sh:6
+lib/memory/chat-context.test.cjs	T1	SAFE	-	0	-
+lib/memory/command-registry.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-command-registry.cjs:9
+lib/memory/connector-registry.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-connector-registry.cjs:8
+lib/memory/correlation-label-index.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:12
+lib/memory/correlation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:8
+lib/memory/cross-room-aggregator.test.cjs	T1	SAFE	-	0	-
+lib/memory/curation-132-03-dedup-held-rename.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-132.sh:35
+lib/memory/curation-132-05-pseudonymize.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-132.sh:36
+lib/memory/curation-batch.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-132.sh:7
+lib/memory/dashboard-server.test.cjs	T1	SAFE	-	0	-
+lib/memory/debouncer-drain-at-prompt.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:15
+lib/memory/decision-capture.test.cjs	T1	SAFE	-	0	-
+lib/memory/doctor-deprecation-surface.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:13
+lib/memory/dual-graph-health.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:26
+lib/memory/explain-decision-command.test.cjs	T1	SAFE	-	0	-
+lib/memory/explain-decision-footer.test.cjs	T1	SAFE	-	0	-
+lib/memory/f-selector-ranker.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:9
+lib/memory/feynman-minto-guardian.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-241.sh:42
+lib/memory/feynman-minto-invariants.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-241.sh:43
+lib/memory/feynman-prompts-drift.test.cjs	T1	NEEDED	DEV-ONLY	4	E1 skills/mos-reason/SKILL.md:197
+lib/memory/feynman-prompts.test.cjs	T1	SAFE	-	0	-
+lib/memory/first-touch-version.test.cjs	T1	SAFE	-	0	-
+lib/memory/folder-memory-quadruple.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:119
+lib/memory/folder-memory.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-363.1.sh:337
+lib/memory/framework-chain-composer.test.cjs	T1	SAFE	-	0	-
+lib/memory/frontmatter-schema-validator.test.cjs	T1	SAFE	-	0	-
+lib/memory/guardian-onstop-reaches-user.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-241.sh:39
+lib/memory/heal-command.test.cjs	T1	SAFE	-	0	-
+lib/memory/help-coverage.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:9
+lib/memory/help-renderer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:8
+lib/memory/huji-run-one-async-parity.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-229.sh:129
+lib/memory/hypergraph-event-schema.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-132.sh:13
+lib/memory/index-artifact-transaction.test.cjs	T1	SAFE	-	0	-
+lib/memory/lazygraph-rs-discoveries-view.test.cjs	T1	SAFE	-	0	-
+lib/memory/local-chain-recommender.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:19
+lib/memory/mcp-input-validation.test.cjs	T1	SAFE	-	0	-
+lib/memory/mcp-server-brain-deps.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:24
+lib/memory/mcp-stack-fallback.test.cjs	T1	SAFE	-	0	-
+lib/memory/minto-debounce-consumer-census.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-241.sh:40
+lib/memory/minto-debouncer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:122
+lib/memory/minto-migration-v88.test.cjs	T1	SAFE	-	0	-
+lib/memory/minto-schema-v88.test.cjs	T1	SAFE	-	0	-
+lib/memory/mos-status-renderer.test.cjs	T1	SAFE	-	0	-
+lib/memory/narrative-schema.test.cjs	T1	SAFE	-	0	-
+lib/memory/nav-dial.test.cjs	T1	SAFE	-	0	-
+lib/memory/navigation-engine-core.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:27
+lib/memory/navigation-engine-offer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-135.sh:7
+lib/memory/navigation-hook-resolver.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-122.sh:7
+lib/memory/navigation-invariants.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-3696.sh:170
+lib/memory/navigation-projections.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:5
+lib/memory/navigation-write-edge.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:4
+lib/memory/offer-closer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-135.sh:9
+lib/memory/offer-presenter.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:32
+lib/memory/on-stop-snapshot.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:123
+lib/memory/orchestration-projection.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-orchestration-projection.cjs:6
+lib/memory/packet-chain-hint.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:7
+lib/memory/packet-schema-validation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:8
+lib/memory/palette-consistency.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:5
+lib/memory/per-command-jtbd-derivation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-104.1.sh:10
+lib/memory/per-command-teaching.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-104.1.sh:8
+lib/memory/post-compact-reinjection.test.cjs	T1	NEEDED	DEV-ONLY	1	E3 scripts/post-compact:300
+lib/memory/post-write-triple.test.cjs	T1	SAFE	-	0	-
+lib/memory/pre-compact-snapshot.test.cjs	T1	SAFE	-	0	-
+lib/memory/precommit-real-commit.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-241.sh:41
+lib/memory/problem-type-router.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:41
+lib/memory/query-efficiency-telemetry.test.cjs	T1	SAFE	-	0	-
+lib/memory/recompile-room-references.test.cjs	T1	SAFE	-	0	-
+lib/memory/record-decision-dual-write.test.cjs	T1	SAFE	-	0	-
+lib/memory/render-v2-disposition.test.cjs	T1	SAFE	-	0	-
+lib/memory/room-classifier-strict-mode.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/ups-harness-360/pre-phase.json:231
+lib/memory/room-minto-hook.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-235.sh:31
+lib/memory/rs-discovery-engine.test.cjs	T1	SAFE	-	0	-
+lib/memory/run-feynman-tests.cjs	T2	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-122.sh:11
+lib/memory/security-trifecta.test.cjs	T1	SAFE	-	0	-
+lib/memory/selector-alias-map.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:15
+lib/memory/selector-decisions.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:10
+lib/memory/selector-miss.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-125.sh:11
+lib/memory/session-start-brain-staleness.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:51
+lib/memory/session-start-triple-injection.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:59
+lib/memory/sessionstart-coordinator.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:4
+lib/memory/sessionstart-minto-banner.test.cjs	T1	SAFE	-	0	-
+lib/memory/skill-activation-router.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-144.sh:15
+lib/memory/skill-vs-code-drift.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-larry-voice-mark-182.cjs:16
+lib/memory/soft-alias.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:11
+lib/memory/spine-events-correlation.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-130.7.sh:23
+lib/memory/stale-copy-scanner.test.cjs	T1	SAFE	-	0	-
+lib/memory/stamp-artifact-write.test.cjs	T1	SAFE	-	0	-
+lib/memory/state-aware-router.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:12
+lib/memory/statusline-active-room-write.test.cjs	T1	SAFE	-	0	-
+lib/memory/statusline-active-room.test.cjs	T1	SAFE	-	0	-
+lib/memory/statusline-minto-segment.test.cjs	T1	SAFE	-	0	-
+lib/memory/statusline-two-row.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:6
+lib/memory/suggest-next-workflow.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-122.sh:8
+lib/memory/sync-async-entry-points.test.cjs	T1	SAFE	-	0	-
+lib/memory/terminal-capability.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-121.5.sh:7
+lib/memory/test-bridge-writer-enhanced.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-brain-substrate-shape.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-brain-substrate.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-breakthrough-scorer.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-canon-violations.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-chain-feeder-core.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-chain-feeder-skill-spawn.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-commercial-assessor.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-differential-scorer.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-discovery-engine.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-366.sh:165
+lib/memory/test-rs-domain-analyzer.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-egress-primitives.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-expert-mapper.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-explain-command.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-fetcher-academic.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-3692.sh:128
+lib/memory/test-rs-fetcher-experts.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-fetcher-industry.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-3692.sh:155
+lib/memory/test-rs-fetcher-patents.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-3692.sh:129
+lib/memory/test-rs-innovation-classifier.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-355.sh:318
+lib/memory/test-rs-mind-map.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-neo4j-writer.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-nl-to-query.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-pinecone-bridge.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-preprocessor.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-query-matrix.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-query-to-text.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/test-rs-sqlite-mirror.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-236.sh:83
+lib/memory/test-rs-thesis-generator.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs
+lib/memory/triple-context-formatter.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-36925.sh:120
+lib/memory/user-md-persona.test.cjs	T1	SAFE	-	0	-
+lib/memory/userpromptsubmit-integration.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/fixtures/3696-known-failures.json:67
+lib/memory/validators/README.md	T5	NEEDED	DEV-ONLY,PAYLOAD-PINNED	5	E1 package.json:39 | pinned-by tests/test-369.1-desktop-artifact.cjs,tests/test-369.1-review-fixes.cjs,tests/test-380-build.cjs
+lib/memory/validators/room-identity-invariants.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-36925-feyminto-identity.cjs:6
+lib/memory/vault-section-minto-generator-atomic.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-363.1.sh:336
+lib/memory/workflow-layer-e2e.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-122.sh:9
+lib/memory/write-lock-atomic.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/helpers/write-lock-holder-354.cjs:9
+lib/quickview/server.cjs	T7	UNCERTAIN	DEV-ONLY,PAYLOAD-PINNED	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-354.sh:117 | pinned-by tests/test-369-ui-dist-fresh.cjs
+lib/render/JTBD-PALETTES.md	T5	NEEDED	DEV-ONLY	5	E1 skills/ui-system/SKILL.md:394
+lib/render/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/render/render-v2.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/test-render-v2-provenance.cjs:34
+lib/state/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/statusline/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/vault/wikilink-builder.test.cjs	T1	SAFE	-	0	-
+lib/workflow/ROOM.md	T5	NEEDED	DEV-ONLY,DATA-CITED-NOT-CHECKED	328	E3 scripts/memory-artifact-graph-hook.cjs:62
+lib/workflow/command-resolver.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-122.sh:10
+lib/workflow/cross-room-umbilical-closer.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-195-f8-umbilical.cjs:36
+lib/workflow/f3-depth-consumer.cjs	T8	RULED-KEEP	-	0	-
+lib/workflow/f4-scope-consumer.cjs	T8	RULED-KEEP	-	0	-
+lib/workflow/f8-consumer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:85
+lib/workflow/f9-consumer.test.cjs	T1	SAFE	DEV-ONLY	0	DEV-ONLY tests/run-all-188.sh:96
+lib/workflow/memory-cascade-f9-adapter.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-189-cascade-f9.cjs:28
+lib/workflow/memory-governance-closer.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/test-189-f8-governance-gate.cjs:33
+lib/workflow/reconcile-f9-adapter.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs | was: DEV-ONLY tests/run-all-194.sh:130
+scripts/189-plurai-gate-check.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/198-plurai-gate-check.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-198.sh:195
+scripts/198-rollback-rehearsal.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/83-scope-injection.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-195.sh:124
+scripts/PYTHON_GATES.md	T5	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/__pycache__/compute-hsi.cpython-312.pyc	T4	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/__pycache__/rs-engine.cpython-312.pyc	T4	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/apply-teaching-content.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/audit-active-phase-resolver.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/audit-body-shape-coverage.cjs	T8	RULED-KEEP	DEV-ONLY	0	DEV-ONLY tests/test-364-command-contract.cjs:165
+scripts/backfill-hitl-shape.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-190.sh:55
+scripts/backfill-layer.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-344.sh:51
+scripts/backup-modifications	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-books.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-final.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-problemtype.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-supplement.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-targeted.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize-v194.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/brain-normalize.cypher	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/build-dist-bundles.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-339.sh:75
+scripts/build-framework-command-ledger.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/fixtures/framework-command-ledger-jev-fixture.json:2
+scripts/build-research-shape-ledger.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-363.sh:100
+scripts/cache-hitrate-report.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-251.sh:116
+scripts/capture-355-theo-responses.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-355.sh:231
+scripts/check-flagship-floor.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-259.sh:103
+scripts/check-floor-ledger.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-355.sh:221
+scripts/check-graph-derive-health.cjs	T6	NEEDED	DEV-ONLY	1	E6 scripts/run-harness.cjs:188 (via data/harness-policies/gate-graph-derive-health.json)
+scripts/check-pending-breakthrough.test.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/check-release-payload-ceiling.cjs	T6	NEEDED	DEV-ONLY,PAYLOAD-PINNED	1	E6 scripts/run-harness.cjs:188 (via data/harness-policies/release-payload-ceiling.json) | pinned-by tests/test-341-payload-ceiling.cjs,tests/test-369-ui-dist-fresh.cjs,tests/test-369.1-review-fixes.cjs
+scripts/check-research-isomorphism.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-131-isomorphism.cjs:25
+scripts/check-shape-declaration.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-190.sh:64
+scripts/coherence-smoke-test.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-187.sh:27
+scripts/collect-cold-install-evidence.cjs	T6	UNCERTAIN	DEV-ONLY,PAYLOAD-PINNED	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-369-installed-layout.cjs:44 | pinned-by tests/test-369-installed-layout.cjs
+scripts/cross-room-detect.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-phase-27-room-structure.sh:116
+scripts/ctxl-eval.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-240.1-ctxl-eval-gate.cjs:3
+scripts/dogfood-bridge/append-to-queue.sh	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/test-dogfood-path-filter.cjs:20
+scripts/dogfood-bridge/path-filter.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by check-render-coverage.cjs+doctor.cjs | was: DEV-ONLY tests/test-dogfood-path-filter.cjs:19
+scripts/empathy-observation-emit.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-121-03-empathy-observation.cjs:9
+scripts/eval-larry-voice.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-3696-operation-probe.cjs:57
+scripts/export-pinecone-embeddings.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/extract-dogfood-stop-events.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-357.sh:86
+scripts/fork359-permission-probe.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-359.sh:98
+scripts/forward-fork-scenarios-359.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-359.sh:97
+scripts/generate-chat-embed.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-355-direction-readers.cjs:22
+scripts/generate-presentation.test.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/huji-pin-smoketest.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/huji-run-one-async.cjs	T8	RULED-KEEP	DEV-ONLY	0	DEV-ONLY tests/run-all-229.sh:123
+scripts/isolate-larry-voice.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-3696-isolation-cache-skip.cjs:6
+scripts/jev-voice-transport.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-3696-rubric-eval.cjs:59
+scripts/judge-355-usefulness.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/helpers/jev-gold-card-leg.cjs:18
+scripts/label-355-gold.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/fixtures/366-spike/bar.json:22
+scripts/lib/__pycache__/ensure_ml_deps.cpython-312.pyc	T4	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/load-embeddings-into-neo4j.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/fixtures/127.1/index-config.fixture.json:4
+scripts/measure-355-hit-rate.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/fixtures/355-rooms/hit-rate-record.json:3
+scripts/measure-hook-cold-start.cjs	T6	UNCERTAIN	DEV-ONLY,PAYLOAD-PINNED	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-369.sh:144 | pinned-by tests/test-369-installed-layout.cjs
+scripts/measure-larry-voice.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-3696-measure-voice.cjs:52
+scripts/measure-relevance-signals-362.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-362.sh:61
+scripts/migrate-brain-mcp-from-http-to-stdio.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-127.sh:14
+scripts/migrate-room-sections-v275.cjs	T6	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-275-section-schema.cjs:41
+scripts/migrate-telemetry-v1.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-121.sh:27
+scripts/oplog-larry-voice.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-3696-operation-probe.cjs:55
+scripts/power-demo-prompt.md	T5	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/test-btm-theo-is-the-brain.cjs:51
+scripts/reassign-primary.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-194-local-only.test.cjs:33
+scripts/release-cut-listener.cjs	T7	UNCERTAIN	DEV-ONLY,PAYLOAD-PINNED	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-349.sh:118 | pinned-by scripts/release.sh
+scripts/replay-card-fire.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-357.sh:84
+scripts/skillopt-codereview.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-230.sh:99
+scripts/skillopt-eval.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-230.sh:111
+scripts/skillopt-genqueries.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-230.sh:69
+scripts/skillopt-merge.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-230.sh:105
+scripts/spike-366-prepare.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/test-366-spike-harness.cjs:53
+scripts/spike-366.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/run-all-366.sh:182
+scripts/sweep-skill-descriptions.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/telemetry-command-invocation.cjs	T7	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs | was: DEV-ONLY tests/fixtures/369/hook-cold-start-baseline.json:635
+scripts/test-fresh-install.md	T5	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/v182-brain-optimize.cypher	T7	NEEDED	-	1	E1 references/brain/graph-architecture.md:24
+scripts/validate-model-profiles	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/vault-integration-test.cjs	T7	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs+check-render-coverage.cjs
+scripts/vault-regenerate-all.test.cjs	T1	UNCERTAIN	-	1	E5 TRACE doctor:acceptance by doctor.cjs
+scripts/vault-section-minto-generator.integration.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-363.1.sh:225
+scripts/vault-section-minto-generator.test.cjs	T1	UNCERTAIN	DEV-ONLY	1	E5 TRACE doctor:acceptance by doctor.cjs | was: DEV-ONLY tests/run-all-363.1.sh:222
