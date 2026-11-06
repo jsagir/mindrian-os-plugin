@@ -150,3 +150,17 @@ fix: none applied. Awaiting the owner decision (repair now, or unwire through Ph
 verification: see Evidence (all rows PROVEN on fixtures).
 files_changed: none
 commits: see git log of this file
+
+## Owner decision
+
+decision: unwire
+
+- Date: 2026-11-06
+- Choice: leave the operator state feature off. Do not repair the registry read. The answer reached this session through the coordinating session, relayed from the owner's answer card.
+- Reason: repair would turn on room.db writes and change the JUST_TALK silence rule input, the packet operator field and the status line on every real install, for a feature that has been silent since Phase 127.3.
+- Hand-off to Phase 385:
+  - Plan 385-08 unwires the Stop leg of the operator-update hook and keeps scripts/operator-update.cjs unchanged.
+  - The PostToolUse and UserPromptSubmit entries are item R2 of plan 385-12. The owner will rule on R2 together with this decision.
+  - The feature and the SessionStart BUILD_ROOM resume hint stay off. Both use the same dead private reader.
+  - A later plan may repair the read. That plan must add a keyed-shape fixture test (see Tests to Add or Update) and must record that it turns on operator transitions.
+- Effect on this phase: plan 386-08 ends as a recorded skip. No product file changes in plan 386-07 or 386-08.
