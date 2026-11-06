@@ -98,6 +98,14 @@ function main() {
     return emitContinue();
   }
 
+  // Phase 386-11 (B6): this hook only reads. The scanner opens the room through
+  // openRoomDb, which CREATES an absent room.db. A room with no database has
+  // nothing to scan, so stay silent (D-16) and create no file. Same guard as
+  // scripts/check-pending-ambiguous.cjs.
+  if (!fs.existsSync(path.join(activeRoomDir, '.mindrian', 'room.db'))) {
+    return emitContinue();
+  }
+
   let scanner;
   try {
     scanner = require(path.join(__dirname, '..', 'lib', 'core', 'breakthrough', 'scanner.cjs'));

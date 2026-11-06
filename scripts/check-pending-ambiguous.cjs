@@ -22,7 +22,10 @@
  *      lib/memory/pending-tension-store.cjs evaluateAndDecay 3-strikes): bump a
  *      surfacing_count integer inside each ambiguous claim's properties JSON;
  *      surfacing_count >= 3 flips disambiguation 'ambiguous' -> 'dismissed' so the
- *      same node never re-surfaces forever.
+ *      same node never re-surfaces forever. Phase 386-11 (B6): a strike counts
+ *      once per distinct SessionStart session_id (stored as the scalar
+ *      last_strike_session_id), so a compaction or clear inside one session adds
+ *      none. With no session_id the old per-run count applies.
  *   6. If the post-throttle queue is empty -> emit {continue:true} (D-16 silence).
  *   7. Else emit the canonical SessionStart envelope with additionalContext
  *      carrying COUNTS + node ids ONLY (no segment prose, Canon Part 8) and a
@@ -50,6 +53,29 @@ const os = require('node:os');
 // The 3-strikes throttle constant (mirrors pending-tension-store.cjs: surfacing
 // count >= 3 retires the item so a dismissal-canary item never nags forever).
 const THROTTLE_STRIKES = 3;
+
+// Longest session id stored in a claim (a scalar, never prose; Part 8 stays local).
+const MAX_SESSION_ID_LEN = 128;
+
+// Read the SessionStart JSON from stdin once and return the session_id as a
+// bounded string, or null. Never throws and never waits on a terminal: a TTY, an
+// empty pipe, a read fault or bad JSON all give null, which keeps the old
+// per-run count (Phase 386-11, B6).
+function readSessionId() {
+  try {
+    if (process.stdin && process.stdin.isTTY) return null;
+    const raw = fs.readFileSync(0, 'utf8');
+    if (!raw || !raw.trim()) return null;
+    const parsed = JSON.parse(raw);
+    const sid = parsed && parsed.session_id;
+    if (typeof sid !== 'string') return null;
+    const trimmed = sid.trim();
+    if (trimmed.length === 0 || trimmed.length > MAX_SESSION_ID_LEN) return null;
+    return trimmed;
+  } catch (_e) {
+    return null;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Canonical SessionStart envelope emission. The hook NEVER blocks; on any
@@ -117,8 +143,11 @@ const QUEUE_SQL =
 // 'dismissed' so the node leaves the active queue (dismissal-canary fix). The
 // update writes ONLY enum/scalar JSON props back into room.db (Part 8): no body
 // text, no prose, just the surfacing_count integer and the dismissed marker.
-// Returns the list of { id } still active AFTER the throttle pass.
-function throttleAndCollect(db) {
+// A strike is counted once per distinct session_id (Phase 386-11, B6): when a
+// claim's stored last_strike_session_id equals the current sessionId, the claim
+// gets no new strike and stays active. With no sessionId the old per-run count
+// applies. Returns the list of { id } still active AFTER the throttle pass.
+function throttleAndCollect(db, sessionId) {
   let rows = [];
   try {
     rows = db.prepare(QUEUE_SQL).all();
@@ -134,9 +163,15 @@ function throttleAndCollect(db) {
       continue; // unparseable props -- skip defensively, never crash
     }
     if (!props || typeof props !== 'object') continue;
+    if (sessionId && props.last_strike_session_id === sessionId) {
+      // Same session as the last strike (a compaction or a clear): no new strike.
+      stillActive.push({ id: row.id });
+      continue;
+    }
     const prevCount = Number.isInteger(props.surfacing_count) ? props.surfacing_count : 0;
     const nextCount = prevCount + 1;
     props.surfacing_count = nextCount;
+    if (sessionId) props.last_strike_session_id = sessionId;
     if (nextCount >= THROTTLE_STRIKES) {
       // 3-strikes: retire the node from the active queue.
       props.disambiguation = 'dismissed';
@@ -164,6 +199,7 @@ function throttleAndCollect(db) {
 }
 
 function main() {
+  const sessionId = readSessionId();
   const roomsHome = resolveRoomsHome();
   const activeRoomDir = readActiveRoomDir(roomsHome);
   if (!activeRoomDir) {
@@ -197,7 +233,7 @@ function main() {
 
   let active;
   try {
-    active = throttleAndCollect(db);
+    active = throttleAndCollect(db, sessionId);
   } catch (_e) {
     try { roomDb.closeRoomDb ? roomDb.closeRoomDb(db) : db.close(); } catch (_e2) {}
     return emitContinue();
