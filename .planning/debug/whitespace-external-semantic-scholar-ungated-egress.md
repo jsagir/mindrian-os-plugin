@@ -180,8 +180,8 @@ This is not a Brain-line change: Canon Part 8 keeps `auditQueryString` on the Br
 
 ## Resolution
 
-root_cause: confirmed by static read and reproduced on a fixture room on 2026-11-06 (see Technical Root Cause and Reproduction).
-fix: not started. Plan 386-05 implements the owner decision.
-verification: reproduction only (fetch count 4 on a cold cache, 0 on a warm cache); no fix to verify yet.
-files_changed: none
-commits: none
+root_cause: the 2026-10-05 gate (approval card, credential check, audit record) was never applied to scripts/query-semantic-scholar.cjs. The script sent room-derived queries with no list step, no token, no credential check and no audit call. Confirmed by static read and by a fixture-room reproduction on 2026-11-06.
+fix: option A. The script has --list-queries and --approve <token>. The token is the hash of the exact query list (lib/core/web-path-gate.cjs). Every query passes credentialCheck before any fetch (exit 3, no bytes echoed). Each request gets one audit record (provider semantic_scholar; outcome ok, empty_valid or failed). A cache hit sends nothing and needs no token. whitespace-command.cjs external prints the numbered list and the approval line, then sends only with the token. commands/whitespace.md has the approval step between marker comments, with no use of the word grant. No content scan was added.
+verification: node tests/test-386-semantic-scholar-approval.cjs arms S1 to S10 plus S7b pass (RED commit 66d2d3a14 failed S1 to S5, S7 to S10); bash tests/run-all-386.sh all pass; tests test-355-no-decimal, test-355-part8-egress, test-355-floor-sweep, test-355-producer-whitespace-hsi, test-355-stamp-coverage unchanged green; test-363-command-contract green after one in-place update of its P1 byte-preservation leg (the external section may gain the approval step and the token); build-connector-registry --check and check-render-coverage pass; check-shape-declaration advisory count unchanged at 51.
+files_changed: scripts/query-semantic-scholar.cjs, scripts/whitespace-command.cjs, commands/whitespace.md, skills/whitespace/SKILL.md (generated mirror), tests/test-386-semantic-scholar-approval.cjs, tests/test-363-command-contract.cjs
+commits: 66d2d3a14 (RED), 8d793693b (fix)
