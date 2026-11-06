@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "dial-memory-rewrite-marks-sections-stale"
 issue_id: "B8"
@@ -114,8 +114,11 @@ started: Phase 143.1-05 (the dial-memory runner, second FEYNMAN.md writer); the 
 
 ## Resolution
 
-root_cause: FEYNMAN.md (generated, auto-rewritten) is counted as a section artifact by the stale rule.
-fix: pending
-verification: pending
-files_changed: []
-commits: pending
+root_cause: FEYNMAN.md (generated, auto-rewritten by two writers) was counted as a section artifact by the stale rule, so each rewrite read as artifacts_newer_than_minto.
+fix: FEYNMAN.md added to the RESERVED set in the sync and async folder-memory readers. The fix site moved from dial-memory-runner.cjs (plan text) to the readers, because the timeline-runner is a second writer of the same file. A real artifact edit is still stale (D2).
+verification: node tests/test-386-dial-memory-stale.cjs (all arms ok), tests/test-dial-memory-runner.cjs, tests/test-dial-memory-renderer.cjs, lib/memory/folder-memory.test.cjs, lib/memory/folder-memory-quadruple.test.cjs, lib/memory/feynman-minto-guardian.test.cjs all exit 0.
+files_changed:
+  - lib/core/folder-memory.cjs (RESERVED gains FEYNMAN.md)
+  - lib/core/folder-memory-async.cjs (RESERVED gains FEYNMAN.md)
+  - tests/test-386-dial-memory-stale.cjs (new)
+commits: see git log for 386-12
