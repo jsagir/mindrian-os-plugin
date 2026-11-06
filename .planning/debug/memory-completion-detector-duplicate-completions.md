@@ -74,4 +74,4 @@ The detector is stateless between runs, and last-cascade.json is a single overwr
 
 ## Resolution
 
-PENDING until Task 3 commit.
+Fixed in plan 386-15. detectAndFire skips a record whose identity (timestamp|file_path) equals the scalar in <room>/.mindrian/last-cascade-counted, and writes that scalar after a completion. A skipped or failed record already fails the status gate. Limit: a second write of the same file in the same second shares the identity and counts once (the 8-key contract has no id key). Proof: tests W4 to W6. Not moved to resolved; plan 386-21 does that.

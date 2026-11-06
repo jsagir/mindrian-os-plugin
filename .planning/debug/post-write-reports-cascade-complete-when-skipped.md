@@ -77,4 +77,4 @@ The writer never reads the cascade result: the status is a literal, and the advi
 
 ## Resolution
 
-PENDING until Task 3 commit.
+Fixed in plan 386-15. scripts/post-write now has cascade_status_of (failed for an error key or non-JSON output, skipped when skipped is true, else complete); the writer takes the status, overwrites a stale record with failed for non-JSON output, and the advisory says skipped or failed. The 8-key side-channel contract is unchanged (no new key). Two older tests (test-cascade-side-channel, test-cascade-surface-e2e) had pinned the false complete status on default-layout fixtures and now expect skipped. Proof: tests/test-386-cascade-status-and-completion.cjs W1 to W3. Not moved to resolved; plan 386-21 does that.
