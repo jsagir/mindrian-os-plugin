@@ -4098,3 +4098,25 @@ Plans:
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 388 to break down)
+
+### Phase 389: Pyramid: seed and full (replaces the MVA family)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 388
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 389 to break down)
+
+### Phase 390: Recalibrate or cut stale surfaces (keep, recalibrate, cut table first)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 389
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 390 to break down)
