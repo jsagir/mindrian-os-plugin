@@ -1,0 +1,160 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "22fb807523a2e1ef6f1e841bb4d8591f4335a716",
+    "tree_label": "pinned-export-384",
+    "base_sha": "db2ea3b05bb70b55741bdeb40b545801b0c37cbe",
+    "started_at": "2026-11-05T23:54:47.175Z",
+    "ended_at": "2026-11-05T23:57:00.548Z",
+    "load1_start": 1.94,
+    "load1_end": 1.87
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415806,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "count",
+  "tree_label": "pinned-export-384",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 1.94,
+  "load1_end": 1.87,
+  "started_at": "2026-11-05T23:54:47.175Z",
+  "ended_at": "2026-11-05T23:57:00.548Z",
+  "task": "q7",
+  "identity_target_is_room_md": true,
+  "cascade_skip": {
+    "rooms_artifact": {
+      "repeats": 3,
+      "skipped_true": 0,
+      "skipped_false": 3,
+      "skip_reason": "none",
+      "repeats_agree": true
+    },
+    "rooms_identity": {
+      "repeats": 3,
+      "skipped_true": 3,
+      "skipped_false": 0,
+      "skip_reason": "ROOM.md is not an artifact",
+      "repeats_agree": true
+    },
+    "default_artifact": {
+      "repeats": 3,
+      "skipped_true": 3,
+      "skipped_false": 0,
+      "skip_reason": "filePath not inside a room directory",
+      "repeats_agree": true
+    },
+    "rooms_artifact_changed": {
+      "repeats": 3,
+      "skipped_true": 0,
+      "skipped_false": 3,
+      "skip_reason": "none",
+      "repeats_agree": true
+    }
+  },
+  "events": {
+    "rooms_artifact": {
+      "node_starts": [
+        13,
+        13,
+        13
+      ],
+      "modules": [
+        1139,
+        1042,
+        1139
+      ],
+      "survivors_left": [
+        0,
+        0,
+        0
+      ],
+      "repeats_agree": false
+    },
+    "rooms_artifact_changed": {
+      "node_starts": [
+        13,
+        13,
+        13
+      ],
+      "modules": [
+        1139,
+        1042,
+        1042
+      ],
+      "survivors_left": [
+        0,
+        0,
+        0
+      ],
+      "repeats_agree": false
+    },
+    "rooms_identity": {
+      "node_starts": [
+        9,
+        9,
+        9
+      ],
+      "modules": [
+        614,
+        614,
+        614
+      ],
+      "survivors_left": [
+        0,
+        0,
+        0
+      ],
+      "repeats_agree": true
+    },
+    "default_artifact": {
+      "node_starts": [
+        8,
+        8,
+        8
+      ],
+      "modules": [
+        565,
+        565,
+        565
+      ],
+      "survivors_left": [
+        0,
+        0,
+        0
+      ],
+      "repeats_agree": true
+    }
+  },
+  "layouts": {
+    "rooms_artifact": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "rooms_artifact_changed": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "rooms_identity": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "default_artifact": {
+      "has_room_segment": false,
+      "has_rooms_segment": false
+    }
+  },
+  "repeats": 3,
+  "premise_failed": false,
+  "premise_reasons": []
+}
