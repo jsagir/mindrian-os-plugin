@@ -205,7 +205,6 @@ just to a room registry cache.
 | `opportunity-extractor.cjs` | WRITE | Extracts opportunities |
 | `opportunity-ops.cjs` | WRITE | Opportunity CRUD |
 | `persona-ops.cjs` | WRITE | Persona artifact CRUD |
-| `platform-gates.cjs` | INFRA | Platform detection gates |
 | `platform.cjs` | INFRA | Platform/surface detect |
 | `proactive-intelligence.cjs` | BRIDGE | Proactive scan: reads Brain + writes room alerts |
 | `reasoning-ops.cjs` | WRITE | REASONING.md writes |
