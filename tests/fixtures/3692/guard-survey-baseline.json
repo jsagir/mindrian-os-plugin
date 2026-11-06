@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "stamped": {
-    "date": "2026-10-12",
-    "head": "46a87b29c",
-    "reason": "initial stamp after the S1 lexicon fix (quick 261012-sbz); GAP1 and GAP2 open"
+    "date": "2026-11-06",
+    "head": "ec8a7a4ae",
+    "reason": "plan 386-31: credential shapes"
   },
   "rooms": [
     "gate-lexgen",
@@ -14,10 +14,10 @@
     "gate-empty"
   ],
   "catalog": {
-    "B": 415,
-    "C": 96,
+    "B": 427,
+    "C": 97,
     "D": 11,
-    "total": 522
+    "total": 535
   },
   "pos26": {
     "blocked_no_room": 0,
@@ -67,10 +67,10 @@
   "known_leaks": [
     {
       "id": "GAP1",
-      "status": "open",
-      "allowed_in": 7,
+      "status": "fixed",
+      "allowed_in": 0,
       "debug_session": "part8-egress-guard-under-blocks-key-shape-and-spelled-money",
-      "fixed_on": null
+      "fixed_on": "2026-11-06"
     },
     {
       "id": "GAP2",

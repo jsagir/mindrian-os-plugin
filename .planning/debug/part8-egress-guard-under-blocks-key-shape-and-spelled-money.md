@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "part8-egress-guard-under-blocks-key-shape-and-spelled-money"
 issue_id: ""
@@ -117,8 +117,8 @@ GAP2 (spelled money) is a different matter. Money written without a currency sym
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: PENDING
-fix: none yet
-verification: none yet
-files_changed: none
-commits: none
+root_cause: "The Brain content scan (FORBIDDEN_PATTERNS) had no credential rule. Key shapes were caught only by accident (the upper-case identifier rule, the proper-name look): 12 of 14 fake shapes passed on brain_ask and brain_query. The web credential check had 2 rules and passed the same 12. Spelled money (GAP2) is ordinary keywords in a short query under the owner principle and is left to the decision of plan 386-32."
+fix: "Plan 386-31: frozen CREDENTIAL_SHAPES list in lib/core/cross-room-aggregator.cjs (12 shape rules), appended to FORBIDDEN_PATTERNS and exported; auditWebCredential in lib/core/rs-egress-prompts.cjs tests the same list (credentials only) and keeps its 2 rules and env-var check. No money, percent or k-suffix pattern added. Baseline stamped once with --stamp --reason after zero FAIL rows."
+verification: "tests/test-386-key-shapes-and-money.cjs RED (K1, K2, K6 fail) then GREEN (8 ok). Corpus gate before stamp: GATE PASS, 0 FAIL rows, ext.induced_total 0 (plan-start baseline 0), GAP1 allowed_in 7 to 0 (IMPROVED), GAP2 allowed_in 7 (open, unchanged). After stamp: GATE PASS, GAP1 fixed, GAP2 open. run-all-196, test-239 canary, test-223, test-355, test-3692-theo-verdict, job-key, typed-arms tests pass; run-all-386 22 of 22 PASSED."
+files_changed: [lib/core/cross-room-aggregator.cjs, lib/core/rs-egress-prompts.cjs, tests/test-386-key-shapes-and-money.cjs, tests/fixtures/3692/guard-survey-baseline.json, .planning/debug/part8-egress-guard-under-blocks-key-shape-and-spelled-money.md]
+commits: [4445e09d0 (RCA), b7fd80ea7 (RED test), fix commit in git log as fix(386-31)]
