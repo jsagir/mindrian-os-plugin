@@ -4,23 +4,23 @@ Scope: counts and bytes of what the npm package ships, a class for every shipped
 
 Marks: PROVEN means the command was run in this plan and the output was read. UNVERIFIED means it was not run. ASSUMED means it is a premise.
 
-Method note (PROVEN): the source is `npm pack --dry-run --json --ignore-scripts`, run with the npm CLI path from lib/core/npm-cli-resolve.cjs (the same spawn as scripts/check-release-payload-ceiling.cjs). It packs the work tree, not the git index. A peer session edits product files in this tree. At measurement time `git status` showed no shipped path as modified or untracked (line 2 of 388-pack-baseline.tsv: `dirty-shipped-paths=none`). HEAD moved while this plan ran (the planner saw c6c364eb3, the executor started at dd3616797). The figures here come from the HEAD in the generated block; they differ from the planner figures by the files that peers added since.
+Method note (PROVEN): the source is `npm pack --dry-run --json --ignore-scripts`, run with the npm CLI path from lib/core/npm-cli-resolve.cjs (the same spawn as scripts/check-release-payload-ceiling.cjs). It packs the work tree, not the git index. A peer session edits product files in this tree. At measurement time `git status` showed three shipped paths with uncommitted peer edits: lib/core/navigation/room-identity.cjs, lib/core/navigation/spine-events.cjs and lib/core/room-readiness.cjs (line 2 of 388-pack-baseline.tsv). Their bytes are in the figures; the drift against the clean tree is a few KB. HEAD moved while this plan ran (the planner saw c6c364eb3, the executor started at dd3616797). The figures here come from the HEAD in the generated block; they differ from the planner figures by the files that peers added since.
 
 ## Measured figures (generated)
 
-HEAD: 2d4c3947bc0963090a2c28e2c090cdcf1759093a
+HEAD: efab472631acda60b26667401ecdf223d8e2b93f
 version: 2.0.0-beta.80
 entryCount: 2416
-size: 14030456
-unpackedSize: 46263781
+size: 14033242
+unpackedSize: 46271498
 baseline-files: 2416
-baseline-bytes: 46263781
+baseline-bytes: 46271498
 
 ### Bytes and files per top folder
 | folder | files | bytes |
 |---|---|---|
-| lib | 1397 | 31274857 |
-| scripts | 392 | 7637408 |
+| lib | 1397 | 31282538 |
+| scripts | 392 | 7637444 |
 | skills | 139 | 1607506 |
 | data | 144 | 1235821 |
 | commands | 113 | 1234535 |
@@ -40,7 +40,7 @@ baseline-bytes: 46263781
 | folder | files | bytes |
 |---|---|---|
 | lib/ui-shell | 272 | 10612627 |
-| lib/core | 652 | 9632557 |
+| lib/core | 652 | 9640238 |
 | lib/wiki | 11 | 4941665 |
 | lib/memory | 172 | 2676533 |
 | lib/mcp | 91 | 1324234 |
@@ -70,7 +70,7 @@ baseline-bytes: 46263781
 ### Bytes and files per second level of scripts/
 | folder | files | bytes |
 |---|---|---|
-| scripts/(files) | 383 | 7438068 |
+| scripts/(files) | 383 | 7438104 |
 | scripts/__pycache__ | 2 | 119177 |
 | scripts/hooks | 3 | 65238 |
 | scripts/lib | 2 | 8794 |
@@ -79,15 +79,15 @@ baseline-bytes: 46263781
 ### Bytes and files per class
 | class | name | files | bytes | share of unpackedSize |
 |---|---|---|---|---|
-| T1 | test-file | 251 | 3310317 | 7.16% |
+| T1 | test-file | 251 | 3310317 | 7.15% |
 | T2 | test-runner | 2 | 158125 | 0.34% |
 | T3 | fixture | 0 | 0 | 0.00% |
 | T4 | bytecode-cache | 11 | 216053 | 0.47% |
 | T5 | doc-in-code | 54 | 202427 | 0.44% |
-| T6 | dev-tool-script | 20 | 471675 | 1.02% |
-| T7 | unreached-module | 143 | 1688159 | 3.65% |
+| T6 | dev-tool-script | 16 | 441123 | 0.95% |
+| T7 | unreached-module | 114 | 1404118 | 3.03% |
 | T8 | test-only-module | 14 | 41849 | 0.09% |
-| all | all candidates | 495 | 6088605 | 13.16% |
+| all | all candidates | 462 | 5774012 | 12.48% |
 
 ### Ten largest files of class T1 (test-file)
 | class | path | bytes |
@@ -196,7 +196,7 @@ The verdict line is the one that starts with `CLAIM-2.5MB-TESTS:` in the generat
 - Parts of the strict set (PROVEN, derived from 388-pack-baseline.tsv): files named `*.test.*` are 222 files and 2,742,221 bytes (212 files and 2,620,491 bytes in lib/, 10 files and 121,730 bytes in scripts/). Files named `test-*.(cjs|js|mjs|sh|py)` are 29 files and 568,096 bytes. The two test runners (T2) are 158,125 bytes (lib/memory/run-feynman-tests.cjs is 157,044 bytes). No `__tests__` folder and no fixtures folder ships (T3 is 0 files, because package.json `files` already excludes lib/import/test-fixtures).
 - Reading of the claim: the auditor figure "about 2.5 MB" is close to the `*.test.*` files alone (2.74 MB). It is not the same as the plan strict set (3.47 MB), which also counts the test-*.cjs helpers and the runners. The planner orientation figures (222 files and 2.74 MB for `*.test.*`, 29 files and 0.57 MB for test-*.cjs) are right: they are reproduced exactly above. The strict set is their sum plus the two runners.
 - Zero test files from the repo `tests/` folder ship. The repo `tests/` folder is 63,202,896 bytes in 2,812 files (PROVEN, `du -sb tests` and `find tests -type f`). No payload path starts with `tests/`, `docs/` or `.planning/` (PROVEN, counted from the baseline: 0, 0, 0). So the tests that ship are the test files that live inside lib/ and scripts/, next to the code they test.
-- Share: the strict set is 7.50 percent of the unpacked size. The packed (gzip) cost of these files is not measured per file (UNVERIFIED); the tarball is 14,030,456 bytes in total.
+- Share: the strict set is 7.50 percent of the unpacked size. The packed (gzip) cost of these files is not measured per file (UNVERIFIED); the tarball is 14,033,242 bytes in total.
 
 ## Stale rule
 
@@ -208,11 +208,11 @@ All figures here are from commands run in this plan, in a scratch folder under t
 
 | Step | Figure | Mark |
 |---|---|---|
-| `npm pack --ignore-scripts --pack-destination <scratch>` writes mindrian_os-cli-2.0.0-beta.80.tgz | 14,030,456 bytes, equal to the `size` field of the dry run | PROVEN |
+| `npm pack --ignore-scripts --pack-destination <scratch>` writes mindrian_os-cli-2.0.0-beta.80.tgz | 14,033,242 bytes, equal to the `size` field of the dry run | PROVEN |
 | Extract the tarball (tar -xzf): files in the extracted tree | 2,416 | PROVEN |
-| Extracted tree, `du -sb` | 46,263,781 bytes, equal to `unpackedSize` | PROVEN |
-| Extracted tree on disk with block rounding, `du -sk` | 51,624 KB | PROVEN |
-| Extracted tree by top folder (`du -sb`) | lib 31,274,857; scripts 7,637,408; skills 1,607,506; data 1,235,821; commands 1,234,535; assets 941,219; references 883,885; templates 373,492; agents 137,066 | PROVEN |
+| Extracted tree, `du -sb` | 46,271,498 bytes, equal to `unpackedSize` | PROVEN |
+| Extracted tree on disk with block rounding, `du -sk` | 51,632 KB | PROVEN |
+| Extracted tree by top folder (`du -sb`) | lib 31,282,538; scripts 7,637,444; skills 1,607,506; data 1,235,821; commands 1,234,535; assets 941,219; references 883,885; templates 373,492; agents 137,066 | PROVEN |
 | Install layout the loader builds | `<HOME>/.claude/plugins/cache/mindrian-marketplace/mos/<version>/` holds the extracted package; the loader then runs `npm ci --ignore-scripts` there from the shipped npm-shrinkwrap.json (RULE 8 of docs/RELEASE-CEREMONY-RULING-SYSTEM.md; tests/test-369-installed-layout.cjs reproduces it) | PROVEN by reading the rule and the test; the loader itself was not run |
 | Per machine `node_modules` tree from `npm ci` | not measured. ENV GAP: this plan ran under the rule "offline, no install from the registry", so no `npm ci` was run. The carried figure is "+460M" per machine from 369-BAKEOFF-DECISION.md (line 58 and RULE 8). It is carried, not re-measured | UNVERIFIED |
 | The repo `node_modules` folder (used by the linked layout in tests/helpers/eureka-installed-layout-387.cjs, which plan 388-02 reuses) | 451,017,136 bytes. It is the dev tree, not the loader tree, so it is not a proxy for the user install | PROVEN as a number, ASSUMED as irrelevant to the user |
@@ -229,7 +229,7 @@ These are built runtime assets. They are not test or doc weight. This phase does
 | lib/wiki/editor-dist | 2 | 4,802,390 (lib/wiki/editor-dist/wiki-editor.js is 4,576,832) | PROVEN |
 | assets/fonts | 3 | 893,468 | PROVEN |
 
-Together that is 16,279,464 bytes, 35.2 percent of the unpacked size. The test and dead-weight candidates in the next section total 6,088,605 bytes, 13.16 percent.
+Together that is 16,279,464 bytes, 35.2 percent of the unpacked size. The test and dead-weight candidates in the next section total 5,774,012 bytes, 12.48 percent.
 
 ## Candidate classes
 
@@ -240,13 +240,17 @@ The class table is in the generated block. Readings (each row must still be prov
 - T3 fixture: none ship.
 - T4 bytecode-cache, 11 files, 216,053 bytes: Python `__pycache__` .pyc files for Python 3.12. They are build side effects. Python rebuilds them when needed.
 - T5 doc-in-code, 54 files, 202,427 bytes: `.md` under lib/ (16 files, 67,557 bytes), scripts/ (3 files, 44,967 bytes) and data/ (35 files, 89,903 bytes). Some of these are read as prompts or templates at run time (for example data/harness-fixtures and scripts/power-demo-prompt.md); plan 388-02 must check each one.
-- T6 dev-tool-script, 20 files, 471,675 bytes: scripts named build-, check-, measure-, eval-, collect-, verify-, refresh-, migrate- or generate- that the coarse reach scan does not reach. A lower bound by construction.
-- T7 unreached-module, 143 files, 1,688,159 bytes: files in lib/, scripts/ or data/ that the coarse reach scan does not reach and that have no other class. A lower bound by construction. Many are scripts that only the dev-only release scripts (not shipped) or the user start by hand; plan 388-02 labels them.
+- T6 dev-tool-script, 16 files, 441,123 bytes: scripts named build-, check-, measure-, eval-, collect-, verify-, refresh-, migrate- or generate- that the coarse reach scan does not reach. A lower bound by construction.
+- T7 unreached-module, 114 files, 1,404,118 bytes: files in lib/, scripts/ or data/ that the coarse reach scan does not reach and that have no other class. A lower bound by construction. Many are scripts that only the dev-only release scripts (not shipped) or the user start by hand; plan 388-02 labels them.
 - T8 test-only-module, 14 files, 41,849 bytes: reached only from test files. These are "ruled keep" by the Phase 385 owner ruling R9 and R10 (385-PROOF.md section 14: keep all test-only modules, delete none). They are listed, not proposed for exclusion unless the owner rules otherwise.
 
 The reach scan is conservative: it counts a literal require or import, a path.join or path.resolve with literal segments, and any string literal that equals a payload path or a payload file name with its extension. A file name match counts as an edge. So a file can look "reached" because another file of the same name is cited. This makes T6 and T7 a lower bound and never a false claim of dead weight. T1 to T5 are classified by name and are candidates even when the scan reaches them; plan 388-02 decides.
 
 Protected: no row of 388-candidates.tsv starts with commands/, skills/, agents/, pipelines/, hooks/, bin/, .claude-plugin/ or output-styles/, equals a root of the scan, or equals evals/eureka/212-critic-baseline.json (checked by `388-measure.cjs check` and by the verify grep). The eureka critic baseline ships on purpose (quick 261106-eureka-critic-baseline-ships).
+
+## Correction made during plan 388-02 (reach scan blind spot)
+
+The first run of this plan (commit 50843e855) listed 495 candidates, 6,088,605 bytes (T6 20 files, T7 143 files). Plan 388-02 cross-checked its SAFE rows with a plain substring search and found a hole in the reach scan: the hook scripts in scripts/ have no file extension (for example scripts/on-stop, scripts/self-update, scripts/session-start-state; hooks/run-hook.cmd starts them by bare name). The scan neither read them nor matched their names, so everything they load looked unreached. The scan now reads extensionless text files, matches the 59 extensionless payload names as whole words, and knows the extension .template. Result: 33 files left the candidate list (T6 20 to 16, T7 143 to 114). The strict test set and the claim verdict do not change, because they are name based. 388-candidates.tsv, 388-pack-baseline.tsv and the generated block above were regenerated at the HEAD named in the generated block.
 
 ## Not measured
 

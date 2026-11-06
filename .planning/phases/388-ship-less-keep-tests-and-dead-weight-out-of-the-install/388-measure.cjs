@@ -91,7 +91,7 @@ function claimVerdict(bytes) {
 // ---------------------------------------------------------------- reach scan
 
 const EXT_TRIES = ['', '.cjs', '.js', '.mjs', '.ts', '.json', '/index.cjs', '/index.js', '/index.ts'];
-const TOKEN_RE = /[A-Za-z0-9_@.$\-/{}]*[A-Za-z0-9_\-]\.(?:cjs|mjs|js|ts|tsx|sh|py|json|md|html|css|tsv|csv|txt|yml|yaml|cmd|wasm|node|db|sql)\b/g;
+const TOKEN_RE = /[A-Za-z0-9_@.$\-/{}]*[A-Za-z0-9_\-]\.(?:cjs|mjs|js|ts|tsx|sh|py|json|md|html|css|tsv|csv|txt|yml|yaml|cmd|wasm|node|db|sql|template)\b/g;
 
 function buildIndex(paths) {
   const byPath = new Set(paths);
@@ -101,7 +101,20 @@ function buildIndex(paths) {
     if (!byBase.has(b)) byBase.set(b, []);
     byBase.get(b).push(p);
   }
-  return { byPath, byBase };
+  // extensionless files (the hook scripts under scripts/ have no extension): found as whole words
+  const bareNames = new Map();
+  for (const p of paths) {
+    const b = p.slice(p.lastIndexOf('/') + 1);
+    if (b.indexOf('.') !== -1 || b.length < 4 || isBuiltAsset(p) || p === 'LICENSE') continue;
+    if (!bareNames.has(b)) bareNames.set(b, []);
+    bareNames.get(b).push(p);
+  }
+  let bareRe = null;
+  if (bareNames.size) {
+    const alt = [...bareNames.keys()].sort((a, b) => b.length - a.length).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    bareRe = new RegExp('(?<![\\w.\\-])(?:' + alt + ')(?![\\w.\\-])', 'g');
+  }
+  return { byPath, byBase, bareNames, bareRe };
 }
 
 function tryExt(rel, idx, out) {
@@ -135,20 +148,34 @@ function resolveToken(tok, fromFile, idx, out) {
   for (const p of list) out.add(p);
 }
 
-function extractEdges(fromFile, text, idx) {
-  const out = new Set();
+// Detailed form (plan 388-02 reuses it): one record per hit with the character position and the evidence kind.
+// kind E1 = path with folder part or require specifier, E2 = path.join or path.resolve with literal segments,
+// E3 = bare file name with extension.
+function extractEdgesDetailed(fromFile, text, idx, tokRe) {
+  const hits = [];
   let m;
-  const toks = text.match(TOKEN_RE) || [];
-  for (const tok of toks) resolveToken(tok, fromFile, idx, out);
-  // require / import with a literal specifier
+  const TOK = new RegExp((tokRe || TOKEN_RE).source, 'g');
+  while ((m = TOK.exec(text))) {
+    const s = new Set();
+    resolveToken(m[0], fromFile, idx, s);
+    const kind = stripLead(m[0]).indexOf('/') === -1 ? 'E3' : 'E1';
+    for (const target of s) hits.push({ target, pos: m.index, kind, via: 'token' });
+  }
+  if (idx.bareRe) {
+    const BR = new RegExp(idx.bareRe.source, 'g');
+    while ((m = BR.exec(text))) {
+      for (const target of idx.bareNames.get(m[0]) || []) hits.push({ target, pos: m.index, kind: 'E3', via: 'token' });
+    }
+  }
   const reqRe = /(?:require|import)\s*\(?\s*['"`]([^'"`\n]+)['"`]|from\s+['"`]([^'"`\n]+)['"`]/g;
   while ((m = reqRe.exec(text))) {
     const spec = m[1] || m[2];
     if (!spec || !spec.startsWith('.')) continue;
     const rel = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), spec));
-    tryExt(rel, idx, out);
+    const s = new Set();
+    tryExt(rel, idx, s);
+    for (const target of s) hits.push({ target, pos: m.index, kind: 'E1', via: 'require' });
   }
-  // path.join / path.resolve with literal segments
   const joinRe = /path(?:\.posix)?\.(?:join|resolve)\s*\(([^()]*)\)/g;
   while ((m = joinRe.exec(text))) {
     const lits = [];
@@ -157,31 +184,43 @@ function extractEdges(fromFile, text, idx) {
     while ((l = litRe.exec(m[1]))) lits.push(l[1]);
     const segs = lits.filter((s) => s !== '' && s !== '/');
     if (!segs.length) continue;
+    const s = new Set();
     const rel = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), ...segs));
-    if (tryExt(rel, idx, out)) continue;
-    const bare = path.posix.normalize(segs.join('/')).replace(/^(\.\.\/)+/, '');
-    if (bare && bare !== '.') {
-      for (const e of EXT_TRIES) {
-        const cand = bare + e;
-        if (idx.byPath.has(cand)) out.add(cand);
-        const base = cand.slice(cand.lastIndexOf('/') + 1);
-        const list = idx.byBase.get(base);
-        if (list) for (const p of list) if (p === cand || p.endsWith('/' + cand)) out.add(p);
+    if (!tryExt(rel, idx, s)) {
+      const bare = path.posix.normalize(segs.join('/')).replace(/^(\.\.\/)+/, '');
+      if (bare && bare !== '.') {
+        for (const e of EXT_TRIES) {
+          const cand = bare + e;
+          if (idx.byPath.has(cand)) s.add(cand);
+          const base = cand.slice(cand.lastIndexOf('/') + 1);
+          const list = idx.byBase.get(base);
+          if (list) for (const p of list) if (p === cand || p.endsWith('/' + cand)) s.add(p);
+        }
       }
     }
+    for (const target of s) hits.push({ target, pos: m.index, kind: 'E2', via: 'join' });
   }
+  return hits;
+}
+
+function extractEdges(fromFile, text, idx) {
+  const out = new Set();
+  for (const h of extractEdgesDetailed(fromFile, text, idx)) out.add(h.target);
   return out;
 }
 
 function readText(root, rel) {
   const ext = path.extname(rel);
-  if (!TEXT_EXT.has(ext) && !rel.endsWith('run-hook.cmd')) return null;
+  const bare = path.posix.basename(rel).indexOf('.') === -1;
+  if (!TEXT_EXT.has(ext) && !rel.endsWith('run-hook.cmd') && !bare && ext !== '.template') return null;
   if (isBuiltAsset(rel)) return null;
   try {
     const abs = path.join(root, rel);
     const st = fs.statSync(abs);
     if (st.size > SCAN_CAP) return null;
-    return fs.readFileSync(abs, 'utf8');
+    const buf = fs.readFileSync(abs);
+    if (bare && buf.subarray(0, 4096).includes(0)) return null; // binary, not a script
+    return buf.toString('utf8');
   } catch (_) { return null; }
 }
 
@@ -571,5 +610,5 @@ function main() {
 if (require.main === module) main();
 module.exports = {
   analyze, classifyAll, nameClass, aggregate, claimVerdict, isProtected, isBuiltAsset, buildIndex,
-  extractEdges, readBaseline, readCandidates, npmPack, bodyLines, REPO, PHASE_DIR, CLASS_NAMES,
+  extractEdges, extractEdgesDetailed, resolveToken, stripLead, tryExt, readText, TOKEN_RE, CODE_EXT, PROTECTED_PREFIXES, BASELINE_PROTECTED_FILE, readBaseline, readCandidates, npmPack, bodyLines, REPO, PHASE_DIR, CLASS_NAMES,
 };

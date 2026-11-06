@@ -7,7 +7,7 @@ requires: []
 provides:
   - 388-MEASURE.md (headline numbers, per folder tables, class table, claim verdict)
   - 388-pack-baseline.tsv (before state, 2416 payload files with bytes)
-  - 388-candidates.tsv (495 candidate files in classes T1 to T8)
+  - 388-candidates.tsv (462 candidate files in classes T1 to T8)
   - 388-guard.cjs (scope guard for plans 388-02 to 388-04)
   - 388-measure.cjs (measure, check, drift, selftest)
 affects: [388-02, 388-03, 388-04]
@@ -28,16 +28,16 @@ completed: 2026-11-06
 
 # Phase 388 Plan 01: Measure the npm payload Summary
 
-One-line: the npm pack ships 2,416 files, 14,030,456 bytes packed and 46,263,781 bytes unpacked; the strict test set is 253 files and 3,468,442 bytes, so the auditor claim "about 2.5 MB of tests" is REFUTED-HIGHER under the plan rule (the `*.test.*` files alone are 2,742,221 bytes).
+One-line: the npm pack ships 2,416 files, 14,033,242 bytes packed and 46,271,498 bytes unpacked; the strict test set is 253 files and 3,468,442 bytes, so the auditor claim "about 2.5 MB of tests" is REFUTED-HIGHER under the plan rule (the `*.test.*` files alone are 2,742,221 bytes).
 
 ## Headline numbers (PROVEN)
 
-- entryCount 2416, size 14030456, unpackedSize 46263781, version 2.0.0-beta.80. Measured at HEAD 2d4c3947b; the payload was identical at e19197237 (drift run: 0 added, 0 removed, 0 changed). The planner saw 2415 entries at c6c364eb3; a peer commit added one script (41 KB).
+- entryCount 2416, size 14033242, unpackedSize 46271498, version 2.0.0-beta.80. Measured at HEAD efab47263 (three shipped files carry uncommitted peer edits, listed in the baseline file). The first run at 2d4c3947b gave 14,030,456 packed and 46,263,781 unpacked; the difference is peer edits. The planner saw 2415 entries at c6c364eb3; a peer commit added one script (41 KB).
 - CLAIM-2.5MB-TESTS: REFUTED-HIGHER 3468442 unpacked bytes (T1 251 files 3,310,317 bytes; T2 2 files 158,125; T3 0 files).
 - Repo `tests/` folder: 63,202,896 bytes, 2,812 files; none of it ships.
 - Built runtime assets that stay: lib/ui-shell/dist 10,583,606; lib/wiki/editor-dist 4,802,390; assets/fonts 893,468.
 
-## Candidate classes (495 files, 6,088,605 bytes, 13.16 percent of unpackedSize)
+## Candidate classes (462 files, 5,774,012 bytes, 12.48 percent of unpackedSize)
 
 | Class | Files | Bytes |
 |---|---|---|
@@ -46,8 +46,8 @@ One-line: the npm pack ships 2,416 files, 14,030,456 bytes packed and 46,263,781
 | T3 fixture | 0 | 0 |
 | T4 bytecode-cache | 11 | 216,053 |
 | T5 doc-in-code | 54 | 202,427 |
-| T6 dev-tool-script | 20 | 471,675 |
-| T7 unreached-module | 143 | 1,688,159 |
+| T6 dev-tool-script | 16 | 441,123 |
+| T7 unreached-module | 114 | 1,404,118 |
 | T8 test-only-module (ruled keep) | 14 | 41,849 |
 
 ## Task commits
@@ -60,6 +60,7 @@ Both tasks are committed in one commit (the plan commit instruction: one commit,
 2. No `npm ci` leg. The caller rule "offline, no install from the registry" overrides the optional leg of Task 2. The loader section marks the per machine tree ENV GAP, UNVERIFIED, and quotes the carried +460M.
 3. One `npm view` call (HTTP 404) probed registry reachability before this rule was applied to the ci leg. Nothing was installed.
 4. The planner HEAD c6c364eb3 and the start HEAD differ from the measurement HEAD because peers committed during the run; the payload drift check shows the payload was unchanged between the two measured HEADs.
+5. Correction during plan 388-02: the reach scan did not read extensionless hook scripts (scripts/on-stop and similar), so 33 files were listed as T6/T7 that those scripts load. Fixed in 388-measure.cjs, outputs regenerated (495 candidates became 462). See the correction section of 388-MEASURE.md. Follow-up commit: fix(388-01).
 
 ## Known Stubs
 

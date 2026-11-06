@@ -1,5 +1,5 @@
-# head=2d4c3947bc0963090a2c28e2c090cdcf1759093a version=2.0.0-beta.80 entryCount=2416 size=14030456 unpackedSize=46263781
-# dirty-shipped-paths=none
+# head=efab472631acda60b26667401ecdf223d8e2b93f version=2.0.0-beta.80 entryCount=2416 size=14033242 unpackedSize=46271498
+# dirty-shipped-paths=lib/core/navigation/room-identity.cjs,lib/core/navigation/spine-events.cjs,lib/core/room-readiness.cjs
 path	bytes
 .claude-plugin/plugin.json	728
 .mcp.json	336
@@ -519,7 +519,7 @@ lib/core/futures/orchestrator.cjs	59491
 lib/core/futures/subsystem-render.cjs	6271
 lib/core/gate-relevance.cjs	21458
 lib/core/git-ops.cjs	4647
-lib/core/graph-backfill.cjs	43623
+lib/core/graph-backfill.cjs	44156
 lib/core/graph-candidate-producer.cjs	10888
 lib/core/graph-derivation.cjs	25943
 lib/core/graph-derive-classifier.cjs	28759
@@ -667,7 +667,7 @@ lib/core/navigation/room-identity.cjs	25266
 lib/core/navigation/room-projection.cjs	32367
 lib/core/navigation/room-workday.cjs	6100
 lib/core/navigation/section-gate.cjs	7505
-lib/core/navigation/spine-events.cjs	26358
+lib/core/navigation/spine-events.cjs	27310
 lib/core/navigation/synthetic-expert.cjs	8993
 lib/core/navigation/transitions.cjs	18460
 lib/core/navigation/typed-claim.cjs	16020
@@ -793,7 +793,7 @@ lib/core/room-ops-shared.cjs	2079
 lib/core/room-ops-sync.cjs	2076
 lib/core/room-ops.cjs	1520
 lib/core/room-path-containment.cjs	7399
-lib/core/room-readiness.cjs	10304
+lib/core/room-readiness.cjs	16500
 lib/core/room-receipt-emit.cjs	2750
 lib/core/room-render-analyze.cjs	33958
 lib/core/room-render-state.cjs	26100
@@ -2160,7 +2160,7 @@ scripts/serve-dashboard-live	35966
 scripts/serve-presentation	2713
 scripts/serve-wiki	2414
 scripts/session-end-presence.cjs	3503
-scripts/session-start	116132
+scripts/session-start	116168
 scripts/session-start-state	7399
 scripts/session-verify-probe.cjs	11849
 scripts/sessionstart-coordinator.cjs	11466
