@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "room-section-table-lists-the-room-own-windows-path"
 issue_id: "B17"
@@ -132,9 +132,16 @@ red_arms: BR1,BR2,BR3,BR4
 
 ## Resolution
 
-root_cause: a Windows drive path string is treated as a relative name on POSIX, so openRoomDb creates a literal folder with that name in the working folder, and renderState and discoverSections list every folder without checking the name.
-fix: filled in Task 3.
-verification: filled in Task 3.
+root_cause: a Windows drive path string is treated as a relative name on POSIX, so openRoomDb creates a literal folder with that name (and a blank room.db) in the working folder, and renderState and discoverSections list every folder without checking the name.
+fix: lib/core/platform.cjs gains isWindowsDrivePath and windowsDrivePathToPosix (maps C:\a to /mnt/c/a when the folder exists, else null, win32 unchanged). openRoomDb, registryRoomPath and the CLAUDE_ACTIVE_ROOM branches of resolveActiveRoom and resolveActiveOwnership, and renderState use it, so an unreachable drive path creates nothing and resolves to nothing (openRoomDb throws code EROOMPATH). section-registry gains isPathLikeSectionName; discoverSections, renderState (rows and scan fallback) and the analyze discoverSections skip a path-like folder name.
+verification: node tests/test-386-section-table-no-path-rows.cjs RED at c6c364eb3 (BR1 to BR4 fail, BRP1 and BRP2 pass), GREEN after 2e37f4068 (all 10 arms ok). tests/run-all-196.sh 7 passed 0 failed. test-363.1-compute-state, test-nested-artifact-indexing, test-275-section-schema, test-visible-room-nested-scan, test-381-room-scan, test-270-tree-classification, test-353-room-map, test-381-spawn-budget and 17 resolver and platform tests: same result as before. Same red before and after: test-vi3-icm-walk (I8c), test-270-resource-session-room, test-tool-router-active-room-misroute (the last two confirmed red at HEAD before the fix on a clean archive copy).
 files_changed:
-  - filled in Task 3
-commits: filled in Task 3
+  - lib/core/platform.cjs (two helpers)
+  - lib/core/room-db.cjs (map or refuse a drive path at the top of openRoomDb; open mode unchanged)
+  - lib/core/resolve-active-room.cjs (registryRoomPath, resolveActiveRoom, resolveActiveOwnership)
+  - lib/core/section-registry.cjs (isPathLikeSectionName, discoverSections)
+  - lib/core/room-render-state.cjs (room argument mapping, row filter)
+  - lib/core/room-render-analyze.cjs (section list filter)
+  - tests/test-386-section-table-no-path-rows.cjs (new)
+commits: c6c364eb3 (RED), 2e37f4068 (fix)
+unverified: the real source of the Windows-style string in the owner's session (registry entry or environment value) was not read, by rule. The fix closes every reader and the writer on the code path, whatever the source is.
