@@ -100,6 +100,10 @@ function captureAll() {
 function fixtureEngine() {
   const dir = tmp('engine');
   fs.writeFileSync(path.join(dir, 'pyproject.toml'), '[project]\nname = "fixture-not-an-engine"\n');
+  // Plan 387-11: the route gate refuses a folder with no prepared environment (env_not_synced). The fixture
+  // holds an environment folder with a config file only (layout unreadable, so the gate does not refuse).
+  fs.mkdirSync(path.join(dir, '.venv'), { recursive: true });
+  fs.writeFileSync(path.join(dir, '.venv', 'pyvenv.cfg'), 'home = /synthetic\n');
   return dir;
 }
 
