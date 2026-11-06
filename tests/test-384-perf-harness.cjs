@@ -380,6 +380,38 @@ function afterGate() {
       process.stdout.write('  skip B9 real range (history not present)\n');
     }
 
+    // B10: Wave 2 fix plans (384-13 to 384-20) may touch product paths and tests/, never package files or hooks/hooks.json
+    const B10_TRAILER = '\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>';
+    const w2note = (r, sha) => r.notes.indexOf('wave 2 fix commit may touch product paths: ' + sha.slice(0, 9)) !== -1;
+    const b10a = gsynth(['lib/x'], 'fix(384-13): wave 2 fix' + B10_TRAILER);
+    const b10aR = PG.checkHistory(b10a.dir, b10a.baseSha, 'HEAD');
+    check('B10 a Wave 2 tag (384-13) with lib/x passes and prints the note', b10aR.violations.length === 0 && w2note(b10aR, b10a.sha), JSON.stringify(b10aR));
+    const b10b = gsynth(['lib/x', 'tests/test-384-s8.cjs', 'tests/fixtures/384-s8/golden.json', 'tests/other-test.cjs', 'tools/perf/p.txt', '.planning/phases/384-x/384-13-SUMMARY.md', '.planning/quick/y/PLAN.md'], 'test(384-20): wave 2 parity' + B10_TRAILER);
+    const b10bR = PG.checkHistory(b10b.dir, b10b.baseSha, 'HEAD');
+    check('B10 a Wave 2 tag (384-20) with product, tests/, fixtures, tool and planning markdown passes', b10bR.violations.length === 0, JSON.stringify(b10bR));
+    const b10c = gsynth(['lib/x', 'hooks/hooks.json'], 'fix(384-13): wave 2 fix' + B10_TRAILER);
+    check('B10 a Wave 2 tag with hooks/hooks.json fails rule a', ruleA(PG.checkHistory(b10c.dir, b10c.baseSha, 'HEAD')).length === 1);
+    const b10d = gsynth(['hooks/hooks.json'], 'fix(384-16): wave 2 fix' + B10_TRAILER);
+    check('B10 tag 384-16 with hooks/hooks.json (no other path) fails rule a', ruleA(PG.checkHistory(b10d.dir, b10d.baseSha, 'HEAD')).length === 1);
+    const b10e = gsynth(['lib/x', 'package.json'], 'fix(384-17): wave 2 fix' + B10_TRAILER);
+    check('B10 a Wave 2 tag with package.json fails rule a', ruleA(PG.checkHistory(b10e.dir, b10e.baseSha, 'HEAD')).length === 1);
+    const b10f = gsynth(['lib/x', 'npm-shrinkwrap.json'], 'fix(384-18): wave 2 fix' + B10_TRAILER);
+    check('B10 a Wave 2 tag with npm-shrinkwrap.json fails rule a', ruleA(PG.checkHistory(b10f.dir, b10f.baseSha, 'HEAD')).length === 1);
+    const b10g = gsynth(['lib/x', 'README.md'], 'fix(384-13): wave 2 fix' + B10_TRAILER);
+    check('B10 a Wave 2 tag with README.md (outside product and phase paths) fails rule a', ruleA(PG.checkHistory(b10g.dir, b10g.baseSha, 'HEAD')).length === 1);
+    const b10h = gsynth(['lib/x'], 'fix(384-05): wave 1 tag' + B10_TRAILER);
+    check('B10 tag 384-05 with lib/x still fails rule b', PG.checkHistory(b10h.dir, b10h.baseSha, 'HEAD').violations.some((v) => /rule b/.test(v)));
+    const b10i = gsynth(['lib/x'], 'fix(384-12): last Wave 1 tag' + B10_TRAILER);
+    check('B10 tag 384-12 with lib/x still fails rule b', PG.checkHistory(b10i.dir, b10i.baseSha, 'HEAD').violations.some((v) => /rule b/.test(v)));
+    const b10j = gsynth(['lib/x'], 'fix(384-21): not a Wave 2 plan' + B10_TRAILER);
+    check('B10 tag 384-21 with lib/x still fails rule b', PG.checkHistory(b10j.dir, b10j.baseSha, 'HEAD').violations.some((v) => /rule b/.test(v)));
+    const b10k = gsynth(['lib/x'], 'fix: untagged agent commit' + B10_TRAILER);
+    check('B10 an untagged agent commit with lib/x still fails rule c', PG.checkHistory(b10k.dir, b10k.baseSha, 'HEAD').violations.some((v) => /rule c/.test(v)));
+    const b10l = gsynth(['tools/perf/p.txt', 'tests/fixtures/384-s8/golden.json'], 'test(quick-261106): fixture under a phase fixture path');
+    check('B10 a non-Wave-2 commit with a tests/fixtures/384- path and a tool path passes rule a', PG.checkHistory(b10l.dir, b10l.baseSha, 'HEAD').violations.length === 0);
+    const b10m = gsynth(['tools/perf/p.txt', 'tests/fixtures/other/golden.json'], 'test(quick-261106): other fixture');
+    check('B10 a non-Wave-2 commit with a tool path and tests/fixtures/other still fails rule a', ruleA(PG.checkHistory(b10m.dir, b10m.baseSha, 'HEAD')).length === 1);
+
     partA();
 
     // the target list
