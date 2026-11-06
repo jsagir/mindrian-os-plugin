@@ -177,6 +177,53 @@ const timeFile = path.join(Q, 'time.json');
   check('B6 the timing file holds no path', hasBadPath(fs.readFileSync(timeFile, 'utf8')).length === 0, hasBadPath(fs.readFileSync(timeFile, 'utf8')).join(','));
 }
 
+// ---- QA: q7 --mode time --tree-b (plan 384-12 task 4) ----
+// Tree A is the live checkout. Tree B is an export of it (made by bench/pin-tree.cjs from HEAD) with `sleep 0.2` added at the top of
+// scripts/post-write, so that the Write event of tree B takes about 200 ms longer on every target.
+{
+  const treeB = path.join(TMP, 'tree-b');
+  const pin = spawnSync(process.execPath, [path.join(__dirname, 'pin-tree.cjs'), 'export', '--sha', 'HEAD', '--out', treeB, '--repo', REPO], { encoding: 'utf8' });
+  const pw = path.join(treeB, 'scripts', 'post-write');
+  let made = false;
+  if (pin.status === 0 && fs.existsSync(pw)) {
+    const lines = fs.readFileSync(pw, 'utf8').split('\n');
+    lines.splice(1, 0, 'sleep 0.2');
+    fs.writeFileSync(pw, lines.join('\n'));
+    made = true;
+  }
+  check('QA0 the export of HEAD with a sleep 0.2 line at the top of scripts/post-write is built', made && /^#!/.test(fs.readFileSync(pw, 'utf8')) && /^sleep 0.2$/m.test(fs.readFileSync(pw, 'utf8')), String(pin.stderr).slice(0, 200));
+  const abFile = path.join(Q, 'time-ab.json');
+  const cnt = run(['q7', '--mode', 'count', '--tree', REPO, '--tree-b', treeB, '--out', path.join(Q, 'count-ab.json'), '--skip-gates', '--scratch', TMP]);
+  check('QA1 --mode count with --tree-b exits 2 and writes no file', cnt.status === 2 && !fs.existsSync(path.join(Q, 'count-ab.json')), 'status ' + cnt.status + ' ' + String(cnt.stderr).slice(0, 200));
+  const bad = run(['q7', '--mode', 'time', '--runs', '4', '--tree', REPO, '--tree-b', path.join(TMP, 'no-such-tree'), '--out', path.join(Q, 'time-bad.json'), '--skip-gates', '--allow-short', '--scratch', TMP]);
+  check('QA1 --tree-b with a folder that is not a plugin tree exits 2', bad.status === 2 && !fs.existsSync(path.join(Q, 'time-bad.json')), 'status ' + bad.status + ' ' + String(bad.stderr).slice(0, 200));
+  for (const which of ['fail', 'fail-b']) {
+    const gf = path.join(Q, 'time-gate-' + which + '.json');
+    const g = run(['q7', '--mode', 'time', '--runs', '4', '--tree', REPO, '--tree-b', treeB, '--out', gf, '--skip-gates', '--allow-short', '--scratch', TMP], Object.assign({}, runnerEnv, { MOS_Q7_TEST_GATE: which }), 1800000);
+    check('QA2 the premise gate failing for ' + (which === 'fail' ? 'tree A' : 'tree B') + ' exits 1 with the words premise failed (and the words tree B for tree B) and writes no timing file', g.status === 1 && /premise failed/.test(g.stderr) && (which === 'fail' || /tree B/.test(g.stderr)) && !fs.existsSync(gf), 'status ' + g.status + ' ' + String(g.stderr).slice(0, 200));
+  }
+  if (made) {
+    const r = run(['q7', '--mode', 'time', '--runs', '4', '--tree', REPO, '--tree-b', treeB, '--label-b', 'sleep-label', '--label', 'live-label', '--out', abFile, '--set', 'ab', '--skip-gates', '--allow-short', '--scratch', TMP], runnerEnv, 2400000);
+    check('QA1 q7 --mode time --tree-b exits 0', r.status === 0, 'status ' + r.status + ' ' + String(r.stderr).slice(0, 300));
+    const j = readJson(abFile);
+    const idsA = ['q7:write:rooms:artifact', 'q7:write:rooms:artifact-changed', 'q7:write:rooms:identity', 'q7:write:default:artifact'];
+    const idsB = idsA.map((x) => x.replace(/^q7:/, 'q7b:'));
+    const idsD = idsA.map((x) => x + ':a-minus-b');
+    const got = j ? (j.targets || []).map((t) => t.id) : [];
+    check('QA3 the A rows keep the ids of today, the B rows use the prefix q7b: and each of the four targets has an :a-minus-b row', idsA.concat(idsB, idsD).every((i) => got.indexOf(i) !== -1), idsA.concat(idsB, idsD).filter((i) => got.indexOf(i) === -1).join(','));
+    check('QA3 the A derived rows of today are still there (q7:d:...)', ['q7:d:artifact-minus-identity', 'q7:d:changed-minus-identity', 'q7:d:changed-minus-artifact', 'q7:d:rooms-minus-default'].every((i) => got.indexOf(i) !== -1));
+    check('QA3 the result holds a compare key with both labels, and every row has n = 4 or counts its timed-out runs to 4', !!j && !!j.compare && j.compare.a === 'live-label' && j.compare.b === 'sleep-label' && (j.targets || []).every((t) => t.n + (t.timed_out || 0) >= 4), j ? JSON.stringify(j.compare) : '');
+    check('QA3 the a-minus-b rows are labelled DERIVED', !!j && (j.targets || []).filter((t) => /:a-minus-b$/.test(t.id)).every((t) => t.derived === true));
+    const tgt = (id) => (j ? (j.targets || []).find((t) => t.id === id) : null);
+    const dD = tgt('q7:write:default:artifact:a-minus-b');
+    const aD = tgt('q7:write:default:artifact');
+    const bD = tgt('q7b:write:default:artifact');
+    check('QA4 the a-minus-b row of the default-layout target has a median of minus 150 ms or less', !!dD && dD.wall_ms_fine.median <= -150, dD ? dD.wall_ms_fine.median : 'missing');
+    check('QA4 the B default-layout median is above the A median', !!aD && !!bD && bD.wall_ms_fine.median > aD.wall_ms_fine.median, aD && bD ? aD.wall_ms_fine.median + ' ' + bD.wall_ms_fine.median : 'missing');
+    check('QA4 the two-tree file holds no path', fs.existsSync(abFile) && hasBadPath(fs.readFileSync(abFile, 'utf8')).length === 0, fs.existsSync(abFile) ? hasBadPath(fs.readFileSync(abFile, 'utf8')).join(',') : 'no file');
+  }
+}
+
 // ---- B7: the premise stop ----
 {
   const failEnv = Object.assign({}, runnerEnv, { MOS_Q7_TEST_GATE: 'fail' });
