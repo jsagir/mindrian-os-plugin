@@ -616,16 +616,28 @@ async function runDiscovery(topic, opts) {
         (err && err.name === 'AuraUnreachableError') ||
         (m.neo4jWriter.AuraUnreachableError && err instanceof m.neo4jWriter.AuraUnreachableError) ||
         (neo4jWriter.AuraUnreachableError && err instanceof neo4jWriter.AuraUnreachableError);
-      if (!isAuraUnreachable) {
-        // Other errors (TypeError, ExternalEgressViolation) bubble up.
+      // B10 (Phase 386 plan 13): NEO4J_URI alone selects tier1, but no caller
+      // here builds a driver from it. The writer then throws a TypeError
+      // before it reaches Aura. With no driver in opts, that TypeError means
+      // "Aura is not usable", so it takes the same SQLite fallback.
+      const isNoDriver = !(opts.driver && typeof opts.driver.session === 'function') &&
+        err instanceof TypeError;
+      if (!isAuraUnreachable && !isNoDriver) {
+        // Other errors (ExternalEgressViolation, a TypeError with a driver) bubble up.
         throw err;
       }
-      // Aura unreachable -> Tier 0 fallback.
+      if (isNoDriver) {
+        process.stderr.write('rs-discovery: no Aura driver available; writing to the SQLite tier\n');
+      }
+      // Aura unreachable or not configured -> Tier 0 fallback.
       const fallback = await m.sqliteMirror.writeDiscovery(writerPayload, {
         roomDir: opts.room_dir || process.cwd(),
         context: opts.writer_context || {},
       });
-      written = Object.assign({}, fallback, { tier: 'tier0', fallback_reason: 'aura_unreachable' });
+      written = Object.assign({}, fallback, {
+        tier: 'tier0',
+        fallback_reason: isNoDriver ? 'no_aura_driver' : 'aura_unreachable',
+      });
     }
   } else {
     const result = await m.sqliteMirror.writeDiscovery(writerPayload, {
