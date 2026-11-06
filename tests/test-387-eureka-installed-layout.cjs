@@ -11,8 +11,8 @@
  *   I1  S1 tools/list holds the 24 names in EXPECT, for both client identities (the runtime count)
  *   I2  S1 unbound: every graph tool answers no_bound_room (the projection runs before the engine check)
  *   I3  S1 bound: engine tools answer engine_not_configured with the exact text; job tools answer
- *       job_session_not_found; eureka_graph_project answers ok; eureka_critic fails on the installed
- *       layout because evals/eureka/212-critic-baseline.json is not shipped (a NEW FAILURE, pinned as it is)
+ *       job_session_not_found; eureka_graph_project answers ok; eureka_critic answers a ruling with a
+ *       verdict on the installed layout, no engine needed (the baseline file ships since quick 261106)
  *   I4  S3 answers engine_checkout_unavailable; S4, S5 and S6 answer engine_unavailable with the exact text
  *   I5  S1 and S2 give the same tool list and the same refusals
  *   I6  the perspective call answers ok on the installed layout with no engine and no network attempt
@@ -73,8 +73,7 @@ const EXPECT = {
   distinct_total: 75,
   eureka_count: 24,
   other_serving: ['research_run', 'rs_experts_find', 'rs_thesis_read'],
-  // eureka_critic: a text-only error on the installed layout (the baseline file is not shipped).
-  critic_error_includes: ['ENOENT', '212-critic-baseline.json'],
+  // eureka_critic: answers a ruling on the installed layout since quick 261106 (the baseline file ships).
   rows: {
   S1: {
     eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
@@ -263,20 +262,18 @@ function compareScenario(scenario, expectedRows, only) {
   return problems;
 }
 
-// eureka_critic has two accepted states. Before the shipping fix it answers a text-only ENOENT error
-// (the baseline file evals/eureka/212-critic-baseline.json is not in the pack). After the fix (a
-// separate quick task, 261106) it answers a ruling JSON with a verdict. Both are accepted so this
-// pin does not depend on the order in which the two changes land; once the fix is committed, narrow
-// this to the answering state.
-function criticProblems(scenario, expect) {
+// eureka_critic answers a ruling JSON with a verdict on the installed layout. Quick 261106 (eureka
+// critic baseline ships) added evals/eureka/212-critic-baseline.json to the package.json "files"
+// list, so the pack carries the baseline and the tool no longer fails with ENOENT. The pin is
+// narrowed to the answering state: the old ENOENT error is now a failure.
+function criticProblems(scenario, _expect) {
   const problems = [];
   for (const call of scenario.calls.filter((c) => c.tool === 'eureka_critic')) {
     const text = String(call.text || '');
-    const broken = call.isError === true && expect.critic_error_includes.every((s) => text.includes(s));
     let answers = false;
     if (call.isError === false) { try { answers = typeof JSON.parse(text).verdict === 'string'; } catch (_e) { answers = false; } }
-    if (!broken && !answers) {
-      problems.push(scenario.id + ' eureka_critic: expected the ENOENT error or a ruling with a verdict, got ' + JSON.stringify([call.isError, text.slice(0, 120)]));
+    if (!answers) {
+      problems.push(scenario.id + ' eureka_critic: expected a ruling with a verdict (quick 261106), got ' + JSON.stringify([call.isError, text.slice(0, 120)]));
     }
   }
   return problems;

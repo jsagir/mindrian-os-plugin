@@ -35,6 +35,8 @@
     "references",
     "templates",
     "assets",
+    "evals/eureka/212-critic-baseline.json",
+    "!evals/eureka/README.md",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
