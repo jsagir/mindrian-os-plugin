@@ -313,7 +313,8 @@ function afterGate() {
     check('B8 a phase-path commit alone passes', gcase([PH], 'fix(384-01): probe', true).status === 0);
     check('B8 a phase-path commit that also touches hooks/x fails', gcase([PH, 'hooks/x'], 'fix(384-01): probe', true).status === 1);
     check('B8 a phase-path commit that also touches .planning/STATE.md passes', gcase([PH, '.planning/STATE.md'], 'docs(384-01): probe', true).status === 0);
-    check('B8 a phase-path commit that also touches .planning/other.md fails', gcase([PH, '.planning/other.md'], 'docs(384-01): probe', true).status === 1);
+    check('B8 a phase-path commit that also touches .planning/other.json fails', gcase([PH, '.planning/other.json'], 'docs(384-01): probe', true).status === 1);
+    check('B8 a phase-path commit that also touches .planning/other.md passes', gcase([PH, '.planning/other.md'], 'docs(384-01): probe', true).status === 0);
     check('B8 a fix(384-02) commit that touches lib/y fails', gcase(['lib/y'], 'fix(384-02): probe', true).status === 1);
     const p383 = gcase(['lib/y'], 'fix(383-01): probe', true);
     check('B8 a fix(383-01) commit with the trailer that touches lib/y passes with the note', p383.status === 0 && /peer commits touching product paths: 1/.test(p383.out), p383.status + ' ' + p383.out.slice(0, 200));
@@ -328,7 +329,7 @@ function afterGate() {
     check('B8 an untagged commit without the trailer that touches lib/y passes', gcase(['lib/y'], 'fix: probe', false).status === 0);
     check('B8 phase-guard without an argument exits 2', spawnSync(process.execPath, [GUARD], { encoding: 'utf8' }).status === 2);
 
-    // B9: the explicit exception list for known planning-only commits (rule a only)
+    // B9: rule a tolerates planning markdown outside the phase paths
     const PG = require(GUARD);
     function gsynth(files, subject) {
       seq += 1;
@@ -349,33 +350,32 @@ function afterGate() {
       g(['commit', '-q', '-m', subject]);
       return { dir, baseSha, sha: g(['rev-parse', 'HEAD']).stdout.trim() };
     }
-    const PLAN_MIX = ['.planning/phases/384-x/384-LEADS.md', '.planning/HANDOFF-x.md', '.planning/phases/390-y/390-PRD.md'];
-    check('B9 the exception list is exported and holds full 40-character shas', Array.isArray(PG.KNOWN_PLANNING_ONLY_COMMITS) && PG.KNOWN_PLANNING_ONLY_COMMITS.length >= 1 && PG.KNOWN_PLANNING_ONLY_COMMITS.every((s) => /^[0-9a-f]{40}$/.test(s)));
-    const b9a = gsynth(PLAN_MIX, 'docs: planning notes');
-    const b9aOff = PG.checkHistory(b9a.dir, b9a.baseSha, 'HEAD', []);
-    check('B9 a mixed planning commit that is not on the list fails rule a', b9aOff.violations.length === 1 && /rule a/.test(b9aOff.violations[0]), JSON.stringify(b9aOff.violations));
-    const b9aOn = PG.checkHistory(b9a.dir, b9a.baseSha, 'HEAD', [b9a.sha]);
-    check('B9 the same commit on the list passes rule a and prints the note', b9aOn.violations.length === 0 && b9aOn.notes.indexOf('known planning-only commit exempt from rule a: ' + b9a.sha.slice(0, 9)) !== -1, JSON.stringify(b9aOn));
-    const b9b = gsynth(PLAN_MIX.concat(['hooks/x']), 'docs: planning notes and a hook');
-    const b9bOn = PG.checkHistory(b9b.dir, b9b.baseSha, 'HEAD', [b9b.sha]);
-    check('B9 a listed commit that touches a product path is still a violation', b9bOn.violations.some((v) => /rule a/.test(v)) && b9bOn.notes.length === 0, JSON.stringify(b9bOn));
-    const b9c = gsynth(PLAN_MIX.concat(['.planning/other.json']), 'docs: planning notes and json');
-    const b9cOn = PG.checkHistory(b9c.dir, b9c.baseSha, 'HEAD', [b9c.sha]);
-    check('B9 a listed commit that touches a non-markdown .planning file is still a violation', b9cOn.violations.some((v) => /rule a/.test(v)) && b9cOn.notes.length === 0, JSON.stringify(b9cOn));
-    const b9d = gsynth(['tools/perf/guard-probe.txt', 'hooks/x'], 'docs: mixed');
-    const b9dOn = PG.checkHistory(b9d.dir, b9d.baseSha, 'HEAD', [b9a.sha]);
-    check('B9 a normal mixed commit still fails with a list that holds another sha', b9dOn.violations.some((v) => /rule a/.test(v)), JSON.stringify(b9dOn));
-    const b9e = gsynth(['tools/perf/guard-probe.txt', 'hooks/x'], 'fix(384-01): mixed');
-    const b9eOn = PG.checkHistory(b9e.dir, b9e.baseSha, 'HEAD', [b9e.sha]);
-    check('B9 a listed product commit with the phase tag still fails rule b', b9eOn.violations.some((v) => /rule b/.test(v)), JSON.stringify(b9eOn));
+    const PH_LEADS = '.planning/phases/384-x/384-LEADS.md';
+    const ruleA = (r) => r.violations.filter((v) => /rule a/.test(v));
+    const b9a = gsynth(['tools/perf/guard-probe.txt', '.planning/quick/x/PLAN.md'], 'docs: guard and a quick plan');
+    const b9aR = PG.checkHistory(b9a.dir, b9a.baseSha, 'HEAD');
+    check('B9 a phase path plus .planning/quick/x/PLAN.md passes rule a', ruleA(b9aR).length === 0 && b9aR.violations.length === 0, JSON.stringify(b9aR));
+    const b9b = gsynth([PH_LEADS, '.planning/HANDOFF-x.md', '.planning/phases/390-y/390-PRD.md'], 'docs: planning notes');
+    const b9bR = PG.checkHistory(b9b.dir, b9b.baseSha, 'HEAD');
+    check('B9 a 384 phase note plus other planning markdown files passes rule a', b9bR.violations.length === 0, JSON.stringify(b9bR));
+    const b9c = gsynth(['tools/perf/guard-probe.txt', '.planning/quick/x/data.json'], 'docs: guard and a json file');
+    check('B9 a phase path plus a .planning json file fails rule a', ruleA(PG.checkHistory(b9c.dir, b9c.baseSha, 'HEAD')).length === 1);
+    const b9d = gsynth(['tools/perf/guard-probe.txt', 'hooks/x'], 'docs: guard and a hook');
+    check('B9 a phase path plus hooks/x fails rule a', ruleA(PG.checkHistory(b9d.dir, b9d.baseSha, 'HEAD')).length === 1);
+    const b9e = gsynth(['tools/perf/guard-probe.txt', '.planning/quick/x/PLAN.md', 'hooks/x'], 'docs: guard, a plan and a hook');
+    check('B9 a phase path plus planning markdown plus hooks/x fails rule a', ruleA(PG.checkHistory(b9e.dir, b9e.baseSha, 'HEAD')).length === 1);
+    const b9f = gsynth(['tools/perf/guard-probe.txt', 'README.md'], 'docs: guard and a root markdown file');
+    check('B9 a phase path plus a markdown file outside .planning fails rule a', ruleA(PG.checkHistory(b9f.dir, b9f.baseSha, 'HEAD')).length === 1);
+    const b9g = gsynth(['hooks/x', '.planning/quick/x/PLAN.md'], 'fix(384-01): hook and a plan');
+    check('B9 the phase tag with hooks/x still fails rule b', PG.checkHistory(b9g.dir, b9g.baseSha, 'HEAD').violations.some((v) => /rule b/.test(v)));
+    check('B9 the old exception list is gone', PG.KNOWN_PLANNING_ONLY_COMMITS === undefined);
     // the real repository range (skipped when the history is not present, for example in a shallow clone)
     const REAL_BASE = 'db2ea3b05bb70b55741bdeb40b545801b0c37cbe';
-    const REAL_COMMIT = '5d58018aa02cc432235fe892745a66b2ab566744';
-    const haveReal = spawnSync('git', ['cat-file', '-e', REAL_BASE + '^{commit}'], { cwd: REPO }).status === 0 && spawnSync('git', ['cat-file', '-e', REAL_COMMIT + '^{commit}'], { cwd: REPO }).status === 0 && spawnSync('git', ['merge-base', '--is-ancestor', REAL_BASE, REAL_COMMIT], { cwd: REPO }).status === 0;
+    const haveReal = spawnSync('git', ['cat-file', '-e', REAL_BASE + '^{commit}'], { cwd: REPO }).status === 0 && spawnSync('git', ['merge-base', '--is-ancestor', REAL_BASE, 'HEAD'], { cwd: REPO }).status === 0;
     if (haveReal) {
-      const realRun = spawnSync(process.execPath, [GUARD, REAL_BASE, '--repo', REPO, '--head', REAL_COMMIT], { encoding: 'utf8' });
+      const realRun = spawnSync(process.execPath, [GUARD, REAL_BASE, '--repo', REPO], { encoding: 'utf8' });
       const realOut = String(realRun.stdout) + String(realRun.stderr);
-      check('B9 the real range up to the planning commit passes and prints the note', realRun.status === 0 && realOut.indexOf('known planning-only commit exempt from rule a: 5d58018aa') !== -1, realRun.status + ' ' + realOut.slice(0, 300));
+      check('B9 the real range base..HEAD passes', realRun.status === 0, realRun.status + ' ' + realOut.slice(0, 400));
     } else {
       process.stdout.write('  skip B9 real range (history not present)\n');
     }
