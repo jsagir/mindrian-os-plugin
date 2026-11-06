@@ -248,15 +248,12 @@ function test_08_hooks_json_registers_stop_entry() {
     });
   });
   if (!found) throw new Error('hooks.json Stop entries lack hmi-compliance-poll.cjs --hook');
-  // Phase 100/103 entries must still be present (byte-identical).
-  // Phase 385 plan 08 unwired the Phase 99 operator-update Stop entry (a constant no-op).
-  const jtbdEntry = stops.find(function (e) {
-    return e.hooks.some(function (h) { return h && h.command && h.command.indexOf('jtbd-update.cjs') >= 0; });
-  });
+  // The Phase 103 on-stop entry must still be present (byte-identical).
+  // Phase 385 plan 08 unwired the Phase 99 operator-update Stop entry and plan 09
+  // unwired the Phase 100 jtbd-update Stop entry (both always no-ops in a live session).
   const onStopEntry = stops.find(function (e) {
     return e.hooks.some(function (h) { return h && h.command && h.command.indexOf('on-stop') >= 0; });
   });
-  if (!jtbdEntry) throw new Error('Phase 100 jtbd-update.cjs Stop entry missing');
   if (!onStopEntry) throw new Error('Phase 103 on-stop run-hook.cmd entry missing');
 }
 

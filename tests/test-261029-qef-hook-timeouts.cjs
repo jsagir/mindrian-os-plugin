@@ -45,7 +45,10 @@ const BASE_SHA = 'a13ab61f1';
 // Stop entry, a constant no-op). P385 is the one record of each deliberate change
 // against the base commit. Plans 385-09, 385-10 and 385-11 add one item each.
 const P385 = {
-  removed: [{ event: 'Stop', sub: 'operator-update.cjs' }],
+  removed: [
+    { event: 'Stop', sub: 'operator-update.cjs' },
+    { event: 'Stop', sub: 'jtbd-update.cjs" stop' },
+  ],
   matcher: [],
 };
 const EXPECTED = 46 - P385.removed.length;
@@ -79,7 +82,6 @@ const TABLE = [
   ['PreCompact', 'run-hook.cmd" pre-compact', 6],
   ['PostCompact', 'run-hook.cmd" post-compact', 120],
   ['Stop', 'run-hook.cmd" on-stop', 20],
-  ['Stop', 'jtbd-update.cjs" stop', 5],
   ['Stop', 'hmi-compliance-poll.cjs', 5],
   ['Stop', 'gsd-graph-derive-sweep.cjs', 5],
   ['Stop', 'check-card-fire.cjs', 5],

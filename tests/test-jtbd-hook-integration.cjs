@@ -286,7 +286,7 @@ function cleanup(roomDir) {
 })();
 
 // =============================================================================
-// Class 9: hooks.json contains both userprompt + stop registrations
+// Class 9: hooks.json registers userprompt and no longer registers stop (Phase 385-09)
 // =============================================================================
 (function class9() {
   if (!fs.existsSync(HOOKS_JSON)) { fail('Class 9: hooks.json registration', 'hooks.json missing'); return; }
@@ -297,10 +297,12 @@ function cleanup(roomDir) {
   const upsStr = JSON.stringify(h.hooks && h.hooks.UserPromptSubmit || []);
   const stopStr = JSON.stringify(h.hooks && h.hooks.Stop || []);
   const upsHas = upsStr.indexOf('jtbd-update.cjs') !== -1 && upsStr.indexOf('userprompt') !== -1;
-  const stopHas = stopStr.indexOf('jtbd-update.cjs') !== -1 && stopStr.indexOf('stop') !== -1;
+  // Phase 385-09: the live Stop payload carries no reply text, so the Stop leg was
+  // always a no-op and its hooks.json entry was removed. The script keeps its stop path.
+  const stopHas = stopStr.indexOf('jtbd-update.cjs') !== -1;
   if (!upsHas) { fail('Class 9: hooks.json registration', 'UserPromptSubmit missing jtbd-update userprompt'); return; }
-  if (!stopHas) { fail('Class 9: hooks.json registration', 'Stop missing jtbd-update stop'); return; }
-  ok('Class 9: hooks.json registers both userprompt + stop');
+  if (stopHas) { fail('Class 9: hooks.json registration', 'Stop still registers jtbd-update (unwired by Phase 385-09)'); return; }
+  ok('Class 9: hooks.json registers userprompt and does not register stop');
 })();
 
 // =============================================================================

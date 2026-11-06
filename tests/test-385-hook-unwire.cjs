@@ -126,4 +126,81 @@ check('PostToolUse and UserPromptSubmit each keep exactly one operator-update.cj
   }
 });
 
+// ---- Plan 385-09: the jtbd-update Stop leg ----
+const JTBD_SCRIPT = path.join(ROOT, 'scripts', 'jtbd-update.cjs');
+
+function runJtbdStop(extraEnv, stdinObj) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-09-'));
+  try {
+    const roomsHome = path.join(tmp, 'rooms');
+    const room = path.join(tmp, 'room-r1');
+    fs.mkdirSync(roomsHome, { recursive: true });
+    fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+    fs.writeFileSync(path.join(room, '.room-root'), '');
+    fs.writeFileSync(path.join(room, 'STATE.md'),
+      '## Decisions\n' +
+      '- 2026-04-29 Run Methodology rs-fetch [methodology: /mos:rs-fetch]\n' +
+      '- 2026-04-28 Run Methodology rs-fetch [methodology: /mos:rs-fetch]\n');
+    fs.writeFileSync(path.join(room, '.mindrian', 'conversation-operator.json'), JSON.stringify({
+      schema_version: '1.0.0',
+      current: 'METHODOLOGY',
+      previous: 'JUST_TALK',
+      entered_at: new Date().toISOString(),
+      context: { active_room: 'test', active_section: null, methodology_in_flight: null, decision_gate_pending: null },
+      history: [],
+    }));
+    const env = Object.assign({}, process.env, {
+      MINDRIAN_ROOMS_HOME: roomsHome,
+      CLAUDE_ACTIVE_ROOM: room,
+      HOME: path.join(tmp, 'home'),
+    });
+    delete env.CLAUDE_LAST_RESPONSE;
+    delete env.CLAUDE_USER_MESSAGE;
+    Object.assign(env, extraEnv || {});
+    const before = listFiles(tmp);
+    const r = spawnSync(process.execPath, [JTBD_SCRIPT, 'stop'], {
+      input: JSON.stringify(stdinObj),
+      encoding: 'utf8',
+      env,
+    });
+    const after = listFiles(tmp);
+    return { r, before, after };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+const LIVE_STOP = {
+  hook_event_name: 'Stop',
+  session_id: 's1',
+  transcript_path: '/nonexistent',
+  stop_hook_active: false,
+  last_assistant_message: 'Larry: I will run /mos:rs-fetch now.',
+};
+
+check('jtbd-update stop with the live Stop payload gives no stdout and writes no file', () => {
+  const { r, before, after } = runJtbdStop({}, LIVE_STOP);
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.strictEqual(r.stdout, '', 'stdout ' + JSON.stringify(r.stdout));
+  assert.deepStrictEqual(after, before, 'the file list changed');
+});
+
+check('control: the same room does write state when the reply text reaches the script', () => {
+  const { r, before, after } = runJtbdStop(
+    { CLAUDE_LAST_RESPONSE: 'Larry: I will run /mos:rs-fetch to find the bottleneck.', CLAUDE_USER_MESSAGE: 'where is the bottleneck' },
+    LIVE_STOP);
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.notDeepStrictEqual(after, before, 'the control run wrote nothing, so the room did not resolve');
+});
+
+check('no command in the Stop array runs jtbd-update.cjs', () => {
+  const hits = commandsOf(loadHooks(), 'Stop').filter((c) => c.command.includes('jtbd-update.cjs'));
+  assert.strictEqual(hits.length, 0, hits.length + ' Stop command(s) still run jtbd-update.cjs');
+});
+
+check('UserPromptSubmit keeps exactly one jtbd-update.cjs userprompt command', () => {
+  const n = commandsOf(loadHooks(), 'UserPromptSubmit').filter((c) => c.command.includes('jtbd-update.cjs" userprompt')).length;
+  assert.strictEqual(n, 1, 'UserPromptSubmit has ' + n + ' jtbd-update.cjs userprompt commands');
+});
+
 process.exit(failed ? 1 : 0);
