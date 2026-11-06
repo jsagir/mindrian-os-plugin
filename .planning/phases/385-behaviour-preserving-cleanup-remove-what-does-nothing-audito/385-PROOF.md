@@ -15,7 +15,7 @@ Part 8: this file holds counts and file names only. No room content and no event
 | R3 | kuzu | Keep. No removal in Phase 385 | Nothing changes. A pipeline wording change can be a separate quick task. |
 | R4 | LazyGraph | Keep | Nothing changes. A rename is out of scope. |
 | R5 | Neo4j | Keep | Nothing changes. Bug B10 stays in Phase 386. |
-| R6 | Pinecone | Keep all of it in Phase 385 | Nothing changes. Any cleanup needs its own decision that overrides Phase 296 D-06. |
+| R6 | Pinecone | Not part of the build: remove in steps. Step 1 the dead module lib/core/pinecone-inference.cjs; step 2 a migration list for rs-pinecone-bridge before any other deletion; step 3 the remaining surfaces one by one; a separate quick task for scripts/consolidate-pinecone.py | Approval makes step 1 one plan (the owner statement of 2026-11-06 overrides D-06 for that module only). Steps 2 and 3 come back to the owner. |
 | R7 | Memgraph | Nothing to remove, already retired | Nothing changes. |
 | R8 | chokidar | Keep | Nothing changes. Any change belongs to the Phase 384 ranking (finding S10). |
 | R9 | test-only modules of lib/core | Keep all, delete none | Nothing changes. Each module is classified below so a per-module ruling can follow. |
@@ -76,12 +76,36 @@ Caution (PROVEN by reading the code): a repair of the registry shape turns on op
 
 ## 7. R6 Pinecone
 
-The auditor verdict "dead" conflicts with two facts:
-- Phase 296 decision D-06 (.planning/phases/296-*/296-CONTEXT.md) kept `PINECONE_API_KEY`, the `pinecone` package declaration for scripts/compute-hsi.py Tier 2, and lib/core/pinecone-inference.cjs (PROVEN, D-06 line found). `bash tests/296-pinecone-residue.sh` prints PASS (PROVEN): the kept surfaces are still present.
-- lib/core/rs-pinecone-bridge.cjs exports `cosineSimilarity`. Six production requirers (PROVEN): hsi-engine.cjs:99, hsi-lsa.cjs:122, rs-differential-scorer.cjs:94, rs-engine.cjs:57, semantic-index/embedding-spine.cjs:110, semantic-index/vector-store.cjs:60.
-- Other names (PROVEN): `embedArtifact` in lib/core/lazygraph-ops.cjs line 1019 (exported at line 1494; only a test calls it); `servers: ['mindrian', 'brain', 'pinecone']` in lib/core/mcp-profiles.cjs line 51; scripts/export-pinecone-embeddings.cjs (named only by scripts/load-embeddings-into-neo4j.cjs and fixtures).
-- `grep -ci pinecone package.json` prints 0 (PROVEN). mcp-server-brain/ lists the package in its own package.json (UNVERIFIED in this run, from the planner).
-- Recommended: keep all of it in Phase 385. Effect of approval: nothing changes. Any cleanup of the Pinecone name needs its own decision that overrides D-06 and a per-file proof first.
+Owner statement of 2026-11-06, typed on a card and relayed by the main session: "we are not useing pinecone in the mos build". Recommended ruling: Pinecone is not part of the MindrianOS build. Remove it in steps. Each step has its own proof and is its own owner step. The owner statement overrides Phase 296 decision D-06 for the dead module in step 1 ONLY. It does not by itself approve any other deletion. The broader removal stays an owner step-by-step ruling.
+
+Step 1, first: the dead module lib/core/pinecone-inference.cjs.
+- Proof file: .planning/debug/pinecone-inference-dead-or-live.md, verdict DEAD (PROVEN, file present, tracked by Phase 386-38).
+- `git grep -n -I -E "pinecone-inference|embedViaPineconeInference" -- . (excluding .planning, CHANGELOG.md, docs)` finds only the module itself, tests (tests/272-pinecone-inference.test.cjs, tests/296-pinecone-residue.sh, tests/run-all-272.sh, tests/run-all-296.sh) and two docstring comments (lib/core/rs_cache.py line 16 and its r-and-d copy). No runtime caller (PROVEN).
+- The module exports one function, `embedViaPineconeInference` (line 175), which posts input text to the Pinecone embed endpoint with only the content scan as a guard (PROVEN by the debug file, UNVERIFIED in this run beyond the export line).
+- A removal plan for step 1 touches: the module; tests/272-pinecone-inference.test.cjs; tests/run-all-272.sh (lines 30, 61, 161-171 and 203, the Part 8 exemption for this file); tests/run-all-296.sh line 37; assertions P3 and P5 of tests/296-pinecone-residue.sh and its header text (keep P1, P2 and P4 until step 3); the docstring comment in lib/core/rs_cache.py line 16 (PROVEN by the grep above).
+- Part 8 benefit: it removes the one third-party text sender that is guarded by a word list.
+- `bash tests/296-pinecone-residue.sh` prints PASS today (PROVEN): P3 and P5 still pin the module until the step 1 plan changes them.
+
+Step 2, a migration list before any deletion, for lib/core/rs-pinecone-bridge.cjs.
+- Since Phase 296-05 the file bridges to the per-room LOCAL signal cache (lib/core/rs_cache.py). It is not Pinecone-backed. Its header says the name stays because `cosineSimilarity` is shared (PROVEN, header lines 5 to 13).
+- It exports `queryPineconeWithVectors` and `cosineSimilarity` (PROVEN, module.exports at line 334).
+- `cosineSimilarity` is required by 6 production modules (PROVEN): hsi-engine, hsi-lsa, rs-engine, rs-differential-scorer, semantic-index/embedding-spine, semantic-index/vector-store.
+- `queryPineconeWithVectors` has one production caller, lib/core/rs-differential-scorer.cjs lines 271 and 275 (PROVEN).
+- The migration list must name, before any edit: (a) the new home of `cosineSimilarity` (no neutral cosine module exists; the other cosine code is cross-room-aggregator.cjs and hsi-lsa `cosineSimilarityMatrix`, so a small new pure module is the candidate, subject to Canon Part 7 review); (b) the new name and file of the local-cache query function; (c) the tests that change: tests/test-211-embedding-spine.cjs Test 4 (asserts the export is reference-equal to the bridge), tests/296-no-pinecone-internal.test.cjs lines 156-168 (exempts the require by name), lib/memory/test-rs-pinecone-bridge.cjs and its lines in lib/memory/run-feynman-tests.cjs, lib/memory/test-rs-differential-scorer.cjs lines 82-105 (a require.cache override of the bridge path) (PROVEN by git grep for the last two; UNVERIFIED for the line numbers of the first two, taken from the plan); (d) the Eureka check: lib/core/rs-differential-scorer.cjs serves the Eureka MEASURED legs. The owner rule is that Eureka is never touched, so any edit of that file needs the owner explicit word first. The r-and-d copies are out of scope.
+
+Step 3, the remaining surfaces, each with its own proof and its own owner step:
+- the Tier 2 PINECONE_API_KEY read in scripts/compute-hsi.py (line 379 imports the package) and the `pinecone>=5.0.0` line in requirements-hsi.txt (line 4). These are the D-06 surfaces, pinned by P1, P2 and P4 of tests/296-pinecone-residue.sh (PROVEN);
+- scripts/export-pinecone-embeddings.cjs (no production caller; fixtures under tests/fixtures/127.1) (PROVEN);
+- the `embedArtifact` function in lib/core/lazygraph-ops.cjs line 1019 (only tests/test-sqlite-ops.cjs lines 215 and 383 call it) (PROVEN);
+- the `pinecone` entry in the research profile of lib/core/mcp-profiles.cjs line 51 (scripts/session-start reads it, so it changes what a user sees) (PROVEN for line 51);
+- the Pinecone search fallback and its wording in lib/core/brain-client.cjs (16 case-insensitive mentions today, a Brain contract, needs its own check) (PROVEN for the count);
+- mcp-server-brain/ (its own package.json lists the Pinecone package; commands/admin.md calls brain-admin.cjs in it) (UNVERIFIED in this run);
+- the keys pinecone_vectors and pinecone_dim in data/corpus-stats-source.json and data/corpus-stats.generated.json (generated files) (PROVEN);
+- the root package.json has no Pinecone package (PROVEN, `grep -ci pinecone package.json` prints 0).
+
+Separate quick task, outside this phase table: scripts/consolidate-pinecone.py held a default value for PINECONE_API_KEY with the shape of a real key (tracked since 2026-03-25; see the Non-Code Follow-ups part of the debug file). At execution time, line 27 is 56 characters long, holds no key-shaped string, and the script prints an error when the variable is unset (PROVEN by a pattern count that printed 0 and by `git log`: commit a750bd94e "require PINECONE_API_KEY from the environment in consolidate-pinecone.py" is already in HEAD). So the default appears removed already. Rotation of the old key is UNVERIFIED and stays a human step. No key byte is copied into this file. Phase 385 does not edit the script.
+
+Effect of the answers: approve makes step 1 one plan in a new /gsd-plan-phase run (one finding, RED test first, in the shape of plans 385-03 to 385-07). Step 2 becomes a migration list that comes back to the owner before any plan. Step 3 items wait for their own rulings. If rejected: nothing changes, and Phase 296 D-06 stands.
 
 ## 8. R7 Memgraph
 
@@ -155,6 +179,8 @@ Scan result for scripts plus lib/hmi plus lib/workflow (PROVEN): 373 scanned, 9 
 | scripts, hmi, workflow test-only | 37 | 37 | equal |
 | check-* with no production caller | scan 4, auditor 15 | scan 4 | 15 not reproducible, the auditor method is unknown (UNVERIFIED) |
 | hooks.json command count | 46 | 45 | plan 385-08 removed the operator-update Stop entry (PROVEN by census) |
+
+R6 changed during this run: plan 385-12 was edited by commit b08daf773 (owner statement of 2026-11-06, Pinecone is not part of the build) after the first version of this file was written. Section 7 and the table row were rewritten to the stepwise path. scripts/consolidate-pinecone.py already lost its key-shaped default through commit a750bd94e (PROVEN).
 
 Other differences from the plan text: the operator-update line numbers in hooks.json moved from 342 and 418 to 333 and 409 because of the plan 385-08 edit (PROVEN). The `npm ci --dry-run` baseline for plan 385-02 was 10 added packages, not 147, because the local node_modules already exists (PROVEN).
 
