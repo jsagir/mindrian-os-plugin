@@ -29,7 +29,7 @@ const path = require('path');
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const parsed = { roomDir: null, maxPapers: 50, forceRefresh: false };
+  const parsed = { roomDir: null, maxPapers: 50, forceRefresh: false, listQueries: false, approve: null };
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--help' || args[i] === '-h') {
@@ -45,6 +45,12 @@ Arguments:
 Options:
   --max-papers N        Maximum papers to fetch (default: 50)
   --force-refresh       Ignore cache, fetch fresh results
+  --list-queries        Print the queries and the approval token as JSON.
+                        Sends nothing.
+  --approve TOKEN       Send the queries. TOKEN must be the token of the
+                        exact query list (phase 386 plan 05). Without a
+                        matching token nothing is sent. A cache hit needs
+                        no token.
   --help, -h            Show this help message
 
 Output:
@@ -59,6 +65,11 @@ API: Semantic Scholar (free, no authentication required)
       i++;
     } else if (args[i] === '--force-refresh') {
       parsed.forceRefresh = true;
+    } else if (args[i] === '--list-queries') {
+      parsed.listQueries = true;
+    } else if (args[i] === '--approve' && args[i + 1]) {
+      parsed.approve = args[i + 1];
+      i++;
     } else if (!args[i].startsWith('--') && !parsed.roomDir) {
       parsed.roomDir = args[i];
     }
@@ -350,9 +361,10 @@ async function searchPapers(query, limit = 10) {
  *
  * @param {string[]} queries - Array of query strings
  * @param {number} maxPapers - Total paper cap
+ * @param {function} [onSent] - called once after each request with (query, result)
  * @returns {Promise<{papers: object[], queries: Array<{query: string, status: string, papers_returned: number, http_status?: number}>}>}
  */
-async function fetchAllPapers(queries, maxPapers) {
+async function fetchAllPapers(queries, maxPapers, onSent) {
   const seen = new Set();
   const allPapers = [];
   const queryOutcomes = [];
@@ -365,6 +377,8 @@ async function fetchAllPapers(queries, maxPapers) {
 
     const result = await searchPapers(query, Math.min(perQueryLimit, 20));
     let papersReturnedThisQuery = 0;
+    // Phase 386 plan 05: one audit record per request that was made.
+    if (typeof onSent === 'function') onSent(query, result);
 
     for (const paper of result.papers) {
       if (!paper.paperId || seen.has(paper.paperId)) continue;
@@ -419,7 +433,7 @@ async function fetchAllPapers(queries, maxPapers) {
 // ---------------------------------------------------------------------------
 
 async function main() {
-  const { roomDir, maxPapers, forceRefresh } = parseArgs();
+  const { roomDir, maxPapers, forceRefresh, listQueries, approve } = parseArgs();
 
   // Validate room directory
   const resolvedRoom = path.resolve(roomDir);
@@ -434,6 +448,11 @@ async function main() {
 
   // Step 1: Check cache
   const cached = checkCache(cachePath, forceRefresh);
+  if (cached && listQueries) {
+    // A cache hit sends nothing and needs no approval.
+    console.log(JSON.stringify({ queries: cached.queries || [], token: null, cached: true }));
+    return;
+  }
   if (cached) {
     const papers = cached.papers || [];
     console.log(`Semantic Scholar: ${papers.length} papers from cache (TTL: 7 days)`);
@@ -483,13 +502,40 @@ async function main() {
 
   console.log(`  Generated ${queries.length} queries from room content`);
 
+  // Phase 386 plan 05 (owner decision 2026-11-06): approval card first, then a
+  // credential check, plus an audit record. No content scan. The shared gate
+  // is lib/core/web-path-gate.cjs.
+  const gate = require('../lib/core/web-path-gate.cjs');
+  const cred = gate.credentialCheck(queries, 'semantic_scholar');
+  if (!cred.ok) {
+    console.error(`Semantic Scholar: query ${cred.index + 1} holds a credential-shaped value (${cred.reason}). Nothing was sent.`);
+    process.exit(3);
+  }
+  const token = gate.approvalToken(queries);
+  const runId = 'semantic-scholar-' + Date.now().toString(36);
+  if (listQueries) {
+    console.log(JSON.stringify({ queries, token, cached: false }));
+    return;
+  }
+  if (!gate.checkApproval(queries, approve)) {
+    console.error('Semantic Scholar: approval is needed before anything is sent.');
+    console.error('  Run with --list-queries to see the exact queries and the approval token.');
+    console.error(`  Approval token for this list: ${token}`);
+    console.error('  Then run again with --approve <token>. Nothing was sent.');
+    process.exit(3);
+  }
+
   // Step 3: Query Semantic Scholar API
   console.log(`Fetching papers (max ${maxPapers})...`);
 
   let papers;
   let queryOutcomes;
   try {
-    const result = await fetchAllPapers(queries, maxPapers);
+    const result = await fetchAllPapers(queries, maxPapers, function (q, res) {
+      const outcome = res.status === 'ok' ? (res.papers.length > 0 ? 'ok' : 'empty_valid') : 'failed';
+      const rec = gate.recordSent(resolvedRoom, 'semantic_scholar', [q], { token, outcome, runId });
+      if (!rec.ok) console.error(`  Audit record not written (${rec.reason}).`);
+    });
     papers = result.papers;
     queryOutcomes = result.queries;
   } catch (e) {

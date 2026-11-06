@@ -245,6 +245,15 @@ leg('P1 byte preservation: every pre-phase section is identical (whitespace rout
         if (extras.length === 1) assert.ok(/research/.test(extras[0]), rel + ': the added line must mention research: ' + extras[0]);
         continue;
       }
+      if (c.name === 'whitespace' && heading === '## Subcommand: external') {
+        // Plan 386-05: the Semantic Scholar approval step sits between its own markers and the
+        // Step 1 command gains the approval token. Everything else stays byte for byte.
+        const stripped = curChunk
+          .replace(/<!-- approval-step-begin -->[\s\S]*?<!-- approval-step-end -->\n\n/, '')
+          .replace(' external --approve TOKEN', ' external');
+        assert.equal(stripped, baseChunk, rel + ': section changed: ' + heading);
+        continue;
+      }
       if (heading === lastBase && c.name !== 'whitespace') {
         assert.equal(curChunk.trimEnd(), baseChunk.trimEnd(), rel + ': section changed: ' + heading);
       } else {

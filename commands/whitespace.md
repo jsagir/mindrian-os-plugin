@@ -433,10 +433,27 @@ Every shown row also prints a verification stamp block, same shape as `map`'s, o
 
 **Body Shape:** E (Action Report)
 
-### Step 1: Run External Pipeline
+<!-- approval-step-begin -->
+### Step 0: Show the search list and wait for approval
+
+The external scan sends short keyword searches, built from the room's words, to Semantic Scholar. The navigator sees the exact list first.
+
+1. Run the dispatcher with no token. It prints the numbered search list and one approval line, and it sends nothing:
 
 ```bash
 node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR external
+```
+
+2. Show that list to the navigator through this command's existing gate card shape (F.8 as declared). Say that nothing leaves this machine until they approve. If the dispatcher printed no list (the cache answered, or the room has no words yet), go straight to Step 1.
+3. Run Step 1 again with the token from the approval line, only after the navigator approves: `external --approve <token>`. If the navigator changes or declines the list, send nothing. A changed list needs a new token.
+
+A search that holds a credential-shaped value is refused before anything is sent. Each search that is sent gets one line in the room's audit record.
+<!-- approval-step-end -->
+
+### Step 1: Run External Pipeline
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/whitespace-command.cjs" ROOM_DIR external --approve TOKEN
 ```
 
 If the scripts are not yet installed, the dispatcher shows:

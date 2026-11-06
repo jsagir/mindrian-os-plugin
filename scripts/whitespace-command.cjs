@@ -706,7 +706,7 @@ async function cmdScore(roomDir) {
 // Subcommand: external
 // ---------------------------------------------------------------------------
 
-function cmdExternal(roomDir) {
+function cmdExternal(roomDir, subArgs) {
   const scholarScript = path.join(SCRIPTS_DIR, 'query-semantic-scholar.cjs');
   const externalScript = path.join(SCRIPTS_DIR, 'compute-external-whitespace.py');
 
@@ -716,6 +716,40 @@ function cmdExternal(roomDir) {
       'Phase 66 Plan 02 scripts not installed yet',
       '/mos:whitespace external (available after Plan 02 deployment)');
     return;
+  }
+
+  // Phase 386 plan 05 (owner decision 2026-11-06): the navigator sees the exact
+  // query list first. Nothing is sent until a run carries the approval token of
+  // that list. A cache hit sends nothing and needs no approval.
+  const approveIdx = Array.isArray(subArgs) ? subArgs.indexOf('--approve') : -1;
+  const approveToken = approveIdx !== -1 && subArgs[approveIdx + 1] ? subArgs[approveIdx + 1] : null;
+  if (!approveToken) {
+    const listed = runScript(`node "${scholarScript}" "${roomDir}" --list-queries`);
+    if (listed && listed.error) {
+      printError('Search list could not be built',
+        'The query list was refused or could not be read. Nothing was sent.',
+        '/mos:whitespace external');
+      return;
+    }
+    let listing = null;
+    try {
+      const jsonLine = String(listed).split('\n').filter(l => l.trim().startsWith('{')).pop();
+      listing = JSON.parse(jsonLine);
+    } catch (_e) { listing = null; }
+    if (!listing) {
+      printError('Search list could not be read', 'The list step printed no list. Nothing was sent.', '/mos:whitespace external');
+      return;
+    }
+    const listedQueries = Array.isArray(listing.queries) ? listing.queries : [];
+    // Send nothing and ask nothing when the cache answers or the list is empty.
+    if (!listing.cached && listedQueries.length > 0) {
+      console.log(`${C.GRAY}Approval needed: these ${listedQueries.length} searches would go to Semantic Scholar.${C.RESET}`);
+      listedQueries.forEach((q, i) => console.log(`  ${i + 1}. ${q}`));
+      console.log('');
+      console.log('  Nothing leaves this machine until you approve this list.');
+      console.log(`  To approve, run: /mos:whitespace external --approve ${listing.token}`);
+      return;
+    }
   }
 
   // Pre-step (Phase 88.6-03): ensure Brain baseline exists so downstream
@@ -734,7 +768,14 @@ function cmdExternal(roomDir) {
   // not_attempted). This lets partial-result flows continue and surface
   // rate-limit warnings in Zone 3 rather than failing the whole pipeline.
   console.log(`${C.GRAY}Querying Semantic Scholar...${C.RESET}`);
-  const scholarResult = runScript(`node "${scholarScript}" "${roomDir}"`);
+  const approveArg = approveToken ? ` --approve "${approveToken}"` : '';
+  const scholarResult = runScript(`node "${scholarScript}" "${roomDir}"${approveArg}`);
+  if (scholarResult && scholarResult.error && /approval is needed|credential-shaped/.test(String(scholarResult.message))) {
+    printError('Search not approved',
+      'The approval token did not match the query list, or a query held a credential-shaped value. Nothing was sent.',
+      '/mos:whitespace external');
+    return;
+  }
   const papersPath = path.join(roomDir, '.mindrian', 'external-papers.json');
   const scholarFileExists = fileExists(papersPath);
   const scholarData = scholarFileExists ? readJSON(papersPath) : null;
@@ -999,7 +1040,7 @@ async function main() {
       await cmdScore(resolvedRoom);
       break;
     case 'external':
-      cmdExternal(resolvedRoom);
+      cmdExternal(resolvedRoom, subArgs);
       break;
     case 'discover':
       cmdDiscover(resolvedRoom);
