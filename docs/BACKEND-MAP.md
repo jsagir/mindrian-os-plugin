@@ -185,7 +185,6 @@ just to a room registry cache.
 | Module | Owner | Purpose |
 |--------|-------|---------|
 | `artifact-id.cjs` | INFRA | ID generator |
-| `asset-ops.cjs` | WRITE | Room asset CRUD |
 | `brain-client.cjs` | **READ** | **The** Brain MCP client (only one in repo) |
 | `daily-briefing.cjs` | BRIDGE | Reads Brain context, writes briefing to room |
 | `deep-links.cjs` | INFRA | URL helpers |
