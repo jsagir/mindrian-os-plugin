@@ -10,6 +10,10 @@
  *
  * Subcommands:
  *   q7 --mode time|count      the Write event on four targets (artifact, changed artifact, identity file, default layout)
+ *   q7 --mode time --tree-b <dir> [--label-b name]   the same four targets on two plugin trees against the same two rooms,
+ *       interleaved (tree A then tree B in even rounds, tree B then tree A in odd rounds). The B rows use the prefix q7b: in place of
+ *       q7:, and each target has a derived row with the A id plus :a-minus-b (per-round A minus B; positive means tree B is faster).
+ *       --mode count refuses --tree-b (exit 2). Test-only: MOS_Q7_TEST_GATE=fail-b fails the premise gate of tree B.
  *   report --s1 f --s2 f --counts f --measurements dir      Markdown tables Q7-1 to Q7-7
  *   freq-tables --freq f [--s1 f --s2 f --counts f]          Markdown tables Q8-1 to Q8-3
  *
@@ -61,12 +65,12 @@ const NAME_OF = {
 };
 
 const USAGE = {
-  q7: 'usage: q7 --tree <dir> --out <file> --mode time|count [--runs N (default 15)] [--repeats N (default 3)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
+  q7: 'usage: q7 --tree <dir> --out <file> --mode time|count [--tree-b <dir> [--label-b name] (time only)] [--runs N (default 15)] [--repeats N (default 3)] [--set s] [--label name] [--base-sha <40 hex>] [--scratch <dir>]',
   report: 'usage: report --counts <file> --measurements <dir> [--s1 <file> --s2 <file>] (the timing files are optional only when the counts file says premise_failed true)',
   'freq-tables': 'usage: freq-tables --freq <file> [--s1 <file> --s2 <file> --counts <file>]',
 };
 const FLAGS = {
-  tree: 1, out: 1, mode: 1, runs: 1, repeats: 1, set: 1, label: 1, 'base-sha': 1, scratch: 1,
+  tree: 1, 'tree-b': 1, 'label-b': 1, out: 1, mode: 1, runs: 1, repeats: 1, set: 1, label: 1, 'base-sha': 1, scratch: 1,
   s1: 1, s2: 1, counts: 1, measurements: 1, freq: 1,
   'skip-gates': 'bool', 'allow-short': 'bool',
 };
@@ -194,7 +198,12 @@ function cascadeChecks(S, tg, repeats, force) {
   };
 }
 
-function forceFail() { return process.env.MOS_PERF_SELFTEST === '1' && process.env.MOS_Q7_TEST_GATE === 'fail'; }
+// self-test only: MOS_Q7_TEST_GATE=fail forces the premise gate of tree A to fail, fail-b forces it for tree B
+function forceFail(side) {
+  if (process.env.MOS_PERF_SELFTEST !== '1') return false;
+  const g = process.env.MOS_Q7_TEST_GATE;
+  return side === 'B' ? g === 'fail-b' : g === 'fail';
+}
 
 async function countedEvent(S, t, tag, k) {
   const def = H.targetDef(WRITE_DEF_ID);
@@ -246,48 +255,74 @@ function perHookRows(hookMap) {
   return [...hookMap.entries()].map(([id, v]) => ({ id, async: v.async, wall_ms: T.fineStats(v.wall).median, cpu_ms: T.fineStats(v.cpu).median }));
 }
 
+// The view of a session for tree B: the same prepared rooms, the contexts of tree B, the tree path of tree B.
+function viewOfTreeB(S, treeB) {
+  const ctxR = H.makeCtx('B', treeB, S.prep, S.cpus, S.hasTaskset);
+  ctxR.touchTarget = S.ctxR.touchTarget;
+  const ctxD = H.makeCtx('B', treeB, S.prepD, S.cpus, S.hasTaskset);
+  ctxD.touchTarget = S.ctxD.touchTarget;
+  return Object.assign({}, S, { tree: treeB, ctx: ctxR, ctxR, ctxD });
+}
+
 async function cmdTime(f) {
   const S = await T.t04Setup(f);
   try {
-    const tg = q7Targets(S);
-    // premise gate part P-a again: refuse to time when it fails
-    const cs = { rooms_artifact: cascadeRepeats(S, tg.A.ctx, 3, forceFail()), rooms_identity: cascadeRepeats(S, tg.I.ctx, 3, false) };
-    const reasons = cascadeGate(cs);
-    if (reasons.length) throw new Error('premise failed: ' + reasons.join('; '));
+    const two = f['tree-b'] !== undefined;
+    const sides = [{ key: 'A', S, idOf: (id) => id, extra: {} }];
+    let labelB = null;
+    if (two) {
+      labelB = f['label-b'] || path.basename(path.resolve(f['tree-b']));
+      sides.push({ key: 'B', S: viewOfTreeB(S, path.resolve(f['tree-b'])), idOf: (id) => id.replace(/^q7:/, 'q7b:'), extra: {} });
+      sides[0].extra = { tree_label: S.label };
+      sides[1].extra = { tree_label: labelB };
+    }
+    sides.forEach((side) => { side.tg = q7Targets(side.S); });
+    // premise gate part P-a again, for each tree: refuse to time when it fails
+    for (const side of sides) {
+      const tg = side.tg;
+      const cs = { rooms_artifact: cascadeRepeats(side.S, tg.A.ctx, 3, forceFail(side.key)), rooms_identity: cascadeRepeats(side.S, tg.I.ctx, 3, false) };
+      const reasons = cascadeGate(cs);
+      if (reasons.length) throw new Error('premise failed' + (two ? ' (tree ' + side.key + ')' : '') + ': ' + reasons.join('; '));
+    }
     const def = H.targetDef(WRITE_DEF_ID);
     const runOne = (t) => H.runEventOnce(def, t.ctx, { settleMs: 120000, beforeRun: t.beforeRun });
     const order = ['A', 'A2', 'I', 'D'];
-    for (const k of order) await runOne(tg[k]); // one untimed warm-up per target
+    for (const k of order) for (const side of sides) await runOne(side.tg[k]); // one untimed warm-up per target and tree
     const gate = await S.gate();
-    const accs = {};
-    const hooks = {};
-    for (const k of order) { accs[k] = T.newAcc(tg[k].id); hooks[k] = new Map(); }
-    const diffs = { 'artifact-minus-identity': [], 'changed-minus-identity': [], 'changed-minus-artifact': [], 'rooms-minus-default': [] };
+    for (const side of sides) {
+      side.accs = {}; side.hooks = {};
+      for (const k of order) { side.accs[k] = T.newAcc(side.idOf(side.tg[k].id), side.extra); side.hooks[k] = new Map(); }
+      side.diffs = { 'artifact-minus-identity': [], 'changed-minus-identity': [], 'changed-minus-artifact': [], 'rooms-minus-default': [] };
+      side.got = {};
+    }
+    const pairs = { A: [], A2: [], I: [], D: [] }; // per-round [wall of tree A, wall of tree B] of the same target
     for (let i = 0; i < S.runs; i += 1) {
-      const got = {};
+      for (const side of sides) side.got = {};
       for (const k of T.rotated(order, i)) {
-        const s = await runOne(tg[k]);
-        if (T.addSample(accs[k], s)) {
-          got[k] = s.wall_ms;
-          for (const h of s.hooks || []) {
-            if (typeof h.cpu_ms !== 'number' || typeof h.wall_ms !== 'number') continue;
-            if (!hooks[k].has(h.id)) hooks[k].set(h.id, { async: !!h.async, wall: [], cpu: [] });
-            hooks[k].get(h.id).wall.push(h.wall_ms);
-            hooks[k].get(h.id).cpu.push(h.cpu_ms);
+        // tree A first in even rounds, tree B first in odd rounds
+        const sideOrder = two && i % 2 === 1 ? [sides[1], sides[0]] : sides;
+        for (const side of sideOrder) {
+          const s = await runOne(side.tg[k]);
+          if (T.addSample(side.accs[k], s)) {
+            side.got[k] = s.wall_ms;
+            for (const h of s.hooks || []) {
+              if (typeof h.cpu_ms !== 'number' || typeof h.wall_ms !== 'number') continue;
+              if (!side.hooks[k].has(h.id)) side.hooks[k].set(h.id, { async: !!h.async, wall: [], cpu: [] });
+              side.hooks[k].get(h.id).wall.push(h.wall_ms);
+              side.hooks[k].get(h.id).cpu.push(h.cpu_ms);
+            }
           }
         }
+        if (two && sides[0].got[k] !== undefined && sides[1].got[k] !== undefined) pairs[k].push(sides[0].got[k] - sides[1].got[k]);
       }
-      const d = (x, y, name) => { if (got[x] !== undefined && got[y] !== undefined) diffs[name].push(got[x] - got[y]); };
-      d('A', 'I', 'artifact-minus-identity');
-      d('A2', 'I', 'changed-minus-identity');
-      d('A2', 'A', 'changed-minus-artifact');
-      d('A', 'D', 'rooms-minus-default');
-    }
-    const targets = [];
-    for (const k of order) {
-      accs[k].extra.per_hook = perHookRows(hooks[k]);
-      accs[k].extra.rounds_ms = accs[k].wall.map(r3);
-      targets.push(T.toTarget(accs[k], gate));
+      for (const side of sides) {
+        const got = side.got;
+        const d = (x, y, name) => { if (got[x] !== undefined && got[y] !== undefined) side.diffs[name].push(got[x] - got[y]); };
+        d('A', 'I', 'artifact-minus-identity');
+        d('A2', 'I', 'changed-minus-identity');
+        d('A2', 'A', 'changed-minus-artifact');
+        d('A', 'D', 'rooms-minus-default');
+      }
     }
     const how = {
       'artifact-minus-identity': 'per-round Write event on the artifact minus the Write event on the identity file (harness layout)',
@@ -295,12 +330,26 @@ async function cmdTime(f) {
       'changed-minus-artifact': 'per-round Write event on the changed artifact minus the Write event on the artifact (harness layout)',
       'rooms-minus-default': 'per-round Write event on the artifact on the harness layout minus the Write event on the artifact on the default layout',
     };
-    for (const name of Object.keys(diffs)) targets.push(T.derivedTarget('q7:d:' + name, diffs[name], gate, how[name]));
+    const targets = [];
+    for (const side of sides) {
+      for (const k of order) {
+        side.accs[k].extra.per_hook = perHookRows(side.hooks[k]);
+        side.accs[k].extra.rounds_ms = side.accs[k].wall.map(r3);
+        targets.push(T.toTarget(side.accs[k], gate));
+      }
+      for (const name of Object.keys(side.diffs)) targets.push(T.derivedTarget(side.idOf('q7:d:' + name), side.diffs[name], gate, how[name]));
+    }
+    if (two) {
+      for (const k of order) targets.push(T.derivedTarget(TIME_IDS[k] + ':a-minus-b', pairs[k], gate, 'per-round Write event on tree A minus the Write event on tree B, same target (positive: tree B is faster)'));
+    }
     const layouts = {};
-    for (const k of order) layouts[KEY_OF[k]] = T.layoutOf(tg[k].file);
-    T.writeOut(S, f.out, H.SCHEMA, { task: 'q7', identity_target_is_room_md: path.basename(S.origTouchR) === 'ROOM.md', layouts, targets });
+    for (const k of order) layouts[KEY_OF[k]] = T.layoutOf(sides[0].tg[k].file);
+    const body = { task: 'q7', identity_target_is_room_md: path.basename(S.origTouchR) === 'ROOM.md', layouts, targets };
+    if (two) body.compare = { a: S.label, b: labelB };
+    T.writeOut(S, f.out, H.SCHEMA, body);
     const med = (id) => targets.find((x) => x.id === id).wall_ms_fine.median;
     log('q7 artifact ' + med(TIME_IDS.A) + ' ms, changed ' + med(TIME_IDS.A2) + ' ms, identity ' + med(TIME_IDS.I) + ' ms, default ' + med(TIME_IDS.D) + ' ms');
+    if (two) log('q7 tree B artifact ' + med(sides[1].idOf(TIME_IDS.A)) + ' ms, changed ' + med(sides[1].idOf(TIME_IDS.A2)) + ' ms, identity ' + med(sides[1].idOf(TIME_IDS.I)) + ' ms, default ' + med(sides[1].idOf(TIME_IDS.D)) + ' ms');
     return 0;
   } finally { S.cleanup(); }
 }
@@ -651,6 +700,10 @@ async function main(argv) {
   if (!f.tree || !f.out) { process.stderr.write(USAGE.q7 + '\n'); return 2; }
   if ((f['skip-gates'] || f['allow-short']) && process.env.MOS_PERF_SELFTEST !== '1') { process.stderr.write('--skip-gates and --allow-short are test-only flags and need MOS_PERF_SELFTEST=1\n'); return 2; }
   if (f.mode !== undefined && f.mode !== 'time' && f.mode !== 'count') { process.stderr.write('--mode accepts time or count only\n'); return 2; }
+  if (f['tree-b'] !== undefined) {
+    if (f.mode === 'count') { process.stderr.write('--tree-b works with --mode time only (counts are exact and need no second tree)\n'); return 2; }
+    if (!fs.existsSync(path.join(path.resolve(f['tree-b']), 'hooks', 'hooks.json'))) { process.stderr.write('--tree-b is not a plugin tree\n'); return 2; }
+  }
   if (f.runs === undefined) f.runs = '15';
   try {
     return await (f.mode === 'count' ? cmdCount(f) : cmdTime(f));
