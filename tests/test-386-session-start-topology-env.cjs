@@ -40,7 +40,8 @@ function extractProbeLine() {
   if (begin < 0) return null;
   for (let i = begin; i < lines.length; i++) {
     if (lines[i].includes('END install-state manifest reconcile')) break;
-    if (/^\s*_MOS_TOPOLOGY=\$\(node -e /.test(lines[i])) return lines[i].trim();
+    // Match the assignment whether the env prefix sits before or after node.
+    if (/^\s*_MOS_TOPOLOGY=\$\(.*node -e /.test(lines[i])) return lines[i].trim();
   }
   return null;
 }

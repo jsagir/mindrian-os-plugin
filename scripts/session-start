@@ -1515,7 +1515,7 @@ fi
 # Phase 108 schema-alias drift-guard pre-commit hook via scripts/install-pre-
 # commit.sh. Skipped entirely on a non-dev-clone box.
 if [ "$PLUGIN_VERSION" != "$LAST_VERSION" ] || [ -z "$LAST_VERSION" ]; then
-  _MOS_TOPOLOGY=$(node -e 'try { var r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot(); process.stdout.write(r.topology || "not-found"); } catch (_) { process.stdout.write("not-found"); }' PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT_FOR_NODE" 2>/dev/null)
+  _MOS_TOPOLOGY=$(PLUGIN_ROOT_FOR_RESOLVE="$PLUGIN_ROOT_FOR_NODE" node -e 'try { var r = require(process.env.PLUGIN_ROOT_FOR_RESOLVE + "/lib/core/active-plugin-root.cjs").resolveActivePluginRoot(); process.stdout.write(r.topology || "not-found"); } catch (_) { process.stdout.write("not-found"); }' 2>/dev/null)
   if [ "$_MOS_TOPOLOGY" = "dev-clone" ] && [ -x "$PLUGIN_ROOT/scripts/install-pre-commit.sh" ]; then
     # Idempotent: scripts/install-pre-commit.sh checks for the marker before
     # appending; a hook that already invokes check-schema-aliases.cjs is a no-op.
