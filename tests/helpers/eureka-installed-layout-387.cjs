@@ -326,6 +326,7 @@ async function callOne(conn, tool, bound, logPath, seen) {
   if (sc.engine_state !== undefined) row.engine_state = sc.engine_state;
   if (sc.cause !== undefined) row.cause = sc.cause;
   if (sc.fix !== undefined) row.fix = sc.fix;
+  if (sc.engine_start_line !== undefined) row.engine_start_line = sc.engine_start_line;
   // A tool that returns text only (no structuredContent): keep the first 300 characters.
   if (result && !result.structuredContent) row.text = textOf(result).slice(0, 300);
   if (thrown) row.thrown = String(thrown.message || thrown).slice(0, 300);
@@ -530,6 +531,8 @@ function scoutDirect(layout, world, built) {
   return {
     ok: result ? result.ok : null,
     reason: result ? result.reason : null,
+    cause: result && result.cause !== undefined ? result.cause : null,
+    engine_start_line: result && result.engine_start_line !== undefined ? result.engine_start_line : null,
     message: result ? result.message : (line || null),
     message_has_uv_line: !!(result && typeof result.message === 'string' && result.message.includes('No interpreter found')),
     uv_spawns: spawns,
@@ -615,6 +618,11 @@ async function buildReport(opts) {
   const fixtureEngine = path.join(tmp, 'fixture-engine-folder-387');
   for (const d of [home, roomsHome, cwd, tmpdir, fixtureEngine]) fs.mkdirSync(d, { recursive: true });
   fs.writeFileSync(path.join(fixtureEngine, 'pyproject.toml'), PYPROJECT_FIXTURE);
+  // Plan 387-11: a route gate refuses an engine folder with no prepared environment (env_not_synced) before
+  // the start. The fixture holds an environment folder with only a config file, so its layout is unreadable
+  // and the gate does not refuse; the scenarios then reach the start step they pin.
+  fs.mkdirSync(path.join(fixtureEngine, '.venv'), { recursive: true });
+  fs.writeFileSync(path.join(fixtureEngine, '.venv', 'pyvenv.cfg'), 'home = /synthetic\n');
   const world = { tmp, home, roomsHome, cwd, tmpdir, fixtureEngine };
   try {
     const layout = layOutInstalledCopy({ tmp, home, npmCi: o.npmCi === true });

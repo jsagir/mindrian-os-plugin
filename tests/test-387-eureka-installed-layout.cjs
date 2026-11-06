@@ -19,7 +19,7 @@
  *   I6  the perspective call answers ok on the installed layout with no engine and no network attempt
  *   I9  S7 (Plan 387-05): a saved setting and a minimal environment pass the gate, then fail at the missing uv
  *   I7  pin sensitivity: a deliberately wrong copy of EXPECT fails the same comparison
- *   I8  S6 argument and environment pin: a plain uv run on every spawning path
+ *   I8  S6 argument and environment pin (Plan 387-11: the uv error line is captured as engine_start_line): a plain uv run on every spawning path
  *
  * Exit: 0 all arms pass; 1 any FAIL; 77 ENV GAP (named reason) when the layout cannot be built.
  * No real engine is started, no uv sync, no network, no real room data. Hyphens only.
@@ -35,6 +35,11 @@ const MSG = {
 // EXPECT is the pinned state of Phase 387. Plans 387-05, 387-11 and 387-06 change behavior ON PURPOSE
 // (typed states, one text source, offline arguments). When one of them does, it must edit EXPECT in the
 // same commit; a changed cell that is not edited here is a regression.
+// Plan 387-11 changed S6 on purpose: the fake uv error line is now captured from the start phase, so every
+// spawning path answers cause python_missing with the cleaned first line as engine_start_line, and the
+// message is the fixed python_missing sentence (not the generic engine_start_failed text). The probe's
+// fixture engine folder also holds an environment folder (config file only), because the route gate refuses
+// a folder with no prepared environment before the start (env_not_synced).
 // Plan 387-05 changed it on purpose: the engine check now runs at the registerEurekaTool chokepoint, before
 // the room projection, and answers one of 3 typed states with a fix line (engine_state absent or broken).
 // Row shape: [reason, message, isError] or, for a typed engine refusal, [reason, message, isError, engine_state].
@@ -44,7 +49,7 @@ const M_ABSENT = 'The Eureka engine is not set up on this machine.' + TYPED_TAIL
 const S_PYPROJECT = 'The Eureka engine folder has no pyproject.toml, so it is not an engine checkout.';
 const M_PYPROJECT = S_PYPROJECT + TYPED_TAIL;
 const M_UV = 'The tool uv is not installed or is not on the PATH, so the engine cannot start.' + TYPED_TAIL;
-const M_START = 'The engine did not start.' + TYPED_TAIL;
+const M_PYTHON = 'No Python that meets the engine requirement was found.' + TYPED_TAIL;
 const JOB_TOOLS = ['eureka_capability_job_cancel', 'eureka_capability_job_result', 'eureka_capability_job_status'];
 const RUN_TOOLS = ['eureka_capability_run', 'eureka_capability_start'];
 
@@ -80,7 +85,7 @@ function buildRows(names) {
     S3: scenarioRows(names, { gated: ['engine_checkout_unavailable', M_PYPROJECT, 'broken'], job: [jobNotFound + ' ' + S_PYPROJECT, 'broken'] }),
     S4: scenarioRows(names, uvMissing),
     S5: scenarioRows(names, uvMissing),
-    S6: scenarioRows(names, { start: ['engine_unavailable', M_START, 'broken'], job: [jobNotFound, null] }),
+    S6: scenarioRows(names, { start: ['engine_unavailable', M_PYTHON, 'broken'], job: [jobNotFound, null] }),
     // S7: a saved setting and a minimal Desktop-shaped environment: the gate passes, then uv is missing.
     S7: scenarioRows(names, uvMissing),
   };
@@ -121,6 +126,8 @@ const EXPECT = {
   // S6 spawn pin: the exact uv argument list for each path, and UV_OFFLINE in the child.
   uv_args_generic: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', 'eureka-mcp'],
   uv_args_scout: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', '--extra', 'modern-encoder', 'eureka-mcp'],
+  s6_cause: 'python_missing',
+  s6_start_line: probe.UV_ERROR_LINE,
   forbidden_uv_flags: ['--no-sync', '--offline', '--frozen', '--locked', '--no-python-downloads'],
 };
 EXPECT.rows = buildRows(EXPECT.eureka_tools);
@@ -228,6 +235,18 @@ function armI4(report, expect) {
     if (engineCalls.length !== 19) problems.push(id + ': expected 19 engine refusals when bound, got ' + engineCalls.length);
     for (const c of engineCalls) if (c.reason !== want[id]) problems.push(id + ' ' + c.tool + ': reason ' + c.reason + ' expected ' + want[id]);
   }
+  // N10 (Plan 387-11): every spawning path of S6 answers the typed cause and the cleaned first start line.
+  const spawning = byId.S6.calls.filter((c) => c.bound && c.reason === 'engine_unavailable');
+  for (const c of spawning) {
+    if (c.cause !== expect.s6_cause) problems.push('S6 ' + c.tool + ': cause ' + c.cause + ' expected ' + expect.s6_cause);
+    if (c.engine_start_line !== expect.s6_start_line) problems.push('S6 ' + c.tool + ': engine_start_line ' + JSON.stringify(c.engine_start_line));
+    if (String(c.message).includes('Could not call the configured local Eureka MCP server')) problems.push('S6 ' + c.tool + ': the old generic message is back');
+  }
+  for (const id of ['S4', 'S5']) {
+    for (const c of byId[id].calls.filter((x) => x.bound && x.reason === 'engine_unavailable')) {
+      if (c.cause !== 'uv_missing') problems.push(id + ' ' + c.tool + ': cause ' + c.cause + ' expected uv_missing');
+    }
+  }
   return problems;
 }
 
@@ -286,8 +305,11 @@ function armI8(report, expect) {
     if (!isGraph && sp.UV_OFFLINE !== null) problems.push(c.tool + ': UV_OFFLINE should be unset on the generic path, got ' + sp.UV_OFFLINE);
     if (sp.env_keys.some((k) => k.startsWith('UV_') && k !== 'UV_OFFLINE')) problems.push(c.tool + ': a UV_ key other than UV_OFFLINE reached the child');
     if (sp.env_keys.includes('MINDRIAN_EUREKA_ROOT')) problems.push(c.tool + ': MINDRIAN_EUREKA_ROOT reached the child');
-    if (c.message_has_uv_line) problems.push(c.tool + ': the caller message holds the uv error line (expected it to be lost)');
-    if (c.server_stderr_has_uv_line !== true) problems.push(c.tool + ': the uv error line did not reach the server stderr');
+    // Plan 387-11: the line is captured from the start phase (stderr is piped), so it reaches the caller as
+    // engine_start_line and no longer reaches the server stderr. The message stays the fixed sentence.
+    if (c.message_has_uv_line) problems.push(c.tool + ': the message holds the uv error line (expected the fixed sentence)');
+    if (c.engine_start_line !== expect.s6_start_line) problems.push(c.tool + ': engine_start_line ' + JSON.stringify(c.engine_start_line));
+    if (c.server_stderr_has_uv_line !== false) problems.push(c.tool + ': the uv error line still reached the server stderr');
   }
   const scout = s6.scout_direct;
   if (!scout || !Array.isArray(scout.uv_spawns) || scout.uv_spawns.length !== 1) problems.push('scout path: expected 1 spawn');
@@ -298,6 +320,8 @@ function armI8(report, expect) {
     if (sp.UV_OFFLINE !== null) problems.push('scout UV_OFFLINE should be unset, got ' + sp.UV_OFFLINE);
     if (scout.message_has_uv_line) problems.push('scout message holds the uv error line');
     if (scout.reason !== 'engine_unavailable') problems.push('scout reason ' + scout.reason);
+    if (scout.cause !== expect.s6_cause) problems.push('scout cause ' + scout.cause + ' expected ' + expect.s6_cause);
+    if (scout.engine_start_line !== expect.s6_start_line) problems.push('scout engine_start_line ' + JSON.stringify(scout.engine_start_line));
   }
   return problems;
 }
@@ -328,7 +352,7 @@ async function main() {
     ['I9 S7 saved setting with no variable passes the gate, then fails at the missing uv', () => armI9(report, EXPECT)],
     ['I5 S1 and S2 are identical (no environment difference without the variable)', () => armI5(report)],
     ['I6 perspective answers ok on the installed layout with no engine and no network attempt', () => armI6(report, EXPECT)],
-    ['I8 S6 plain uv run on every spawning path, UV_OFFLINE on the graph path only, uv error line lost', () => armI8(report, EXPECT)],
+    ['I8 S6 plain uv run on every spawning path, UV_OFFLINE on the graph path only, uv error line captured as engine_start_line (N10)', () => armI8(report, EXPECT)],
   ];
   for (const [label, fn] of arms) {
     const problems = fn();
