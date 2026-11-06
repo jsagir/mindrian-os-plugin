@@ -127,8 +127,16 @@ files_to_touch: lib/core/navigation/room-identity.cjs, lib/core/room-readiness.c
 
 ## Resolution
 
-root_cause: filled at the fix commit.
-fix: filled at the fix commit.
-verification: filled at the fix commit.
-files_changed: filled at the fix commit.
-commits: filled at the fix commit.
+root_cause: the move-aside guard in repairRoomIdentity was the open error alone, and the readiness answer offered the same recovery card for every cause, so a false unreadable (busy, drive error, cannot open, script error) could rename a healthy room.db, -wal and -shm aside.
+fix: repairRoomIdentity gets the cause with causeOfError (required lazily) and moves the file only for not_a_database on a file that does not start with the 16 byte SQLite header (an unreadable header read counts as valid, so nothing moves). Every other case returns { ok: false, reason: room_db_unreadable, cause, detail } and moves nothing. readinessFor gives the remediation retry_or_check_drive for busy, io, cannot_open and other, with a plain line that says what the person does; resolveMcpWriteRoom mints no card for it and says "Do what the line above says, then retry. Nothing was moved." graph-backfill carries the cause into readiness; notRecoveredMessage (now exported) names the person action, or tells the person to copy a valid-header file aside by hand and ask for help. The card text and options for not_a_database are unchanged. lib/core/room-db.cjs is not edited.
+verification: node tests/test-386-no-move-aside-on-false-unreadable.cjs RED at the test commit (MA1 to MA4, MA6, MA7a, MA8 fail; MA5, MA7b, MA9 pass), GREEN after the fix (14 ok lines, all arms pass). Related tests equal their baseline: test-36925-readiness-gate, test-36925-rid-repair, test-386-room-db-unreadable-message, test-36925-never-ready, test-36925-negative-leg, test-36925-naming, test-36925-rid-binding, test-36925-feyminto-identity, test-36925-rft-binding, test-derive-backfill-acceptance, test-224-backfill-idempotent, test-248-room-bind-honest-return pass before and after; test-233-graph-heal-pipeline (G3 control) and test-237-approve-executes (mutation arm 7) fail before and after with identical lines. tests/run-all-196.sh 7 of 7.
+files_changed:
+  - lib/core/navigation/room-identity.cjs (cause and header guard)
+  - lib/core/room-readiness.cjs (retry_or_check_drive, plain lines with the person action)
+  - lib/core/graph-backfill.cjs (cause in readiness)
+  - lib/mcp/room-readiness-gate.cjs (not-recovered message by cause, export)
+  - lib/mcp/session-room.cjs (refusal message for the new remediation)
+  - tests/test-386-no-move-aside-on-false-unreadable.cjs (new)
+commits: RCA c11f3533e, RED 0744227d9, fix 545d5fe83
+unverified: no real Windows lock was used here (plan 386-45 proved the SQLite code 14 on a synthetic file); this plan uses error doubles. A malformed file with a valid SQLite header is left in place by design.
+risk_left: a real not-a-database file whose bytes start with the SQLite header (a partly torn file) is not recovered by the card any more; the person copies it aside by hand and asks for help.
