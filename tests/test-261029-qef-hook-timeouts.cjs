@@ -43,13 +43,15 @@ const BASE_SHA = 'a13ab61f1';
 
 // Phase 385 plan 08 removed one hooks.json entry on purpose (the operator-update
 // Stop entry, a constant no-op). P385 is the one record of each deliberate change
-// against the base commit. Plans 385-09, 385-10 and 385-11 add one item each.
+// against the base commit. Plans 385-09, 385-10, 385-11 and 385-13 add one item each.
 const P385 = {
   removed: [
     { event: 'Stop', sub: 'operator-update.cjs' },
     { event: 'Stop', sub: 'jtbd-update.cjs" stop' },
     // Plan 385-11: the SlashCommand telemetry hook (the host sets no CLAUDE_TOOL_COMMAND, so it always skipped).
     { event: 'PostToolUse', sub: 'telemetry-command-invocation.cjs' },
+    // Plan 385-13: the per-turn doctor poll Stop hook (owner ruling R1; its only effect was a side file no production code reads).
+    { event: 'Stop', sub: 'hmi-compliance-poll.cjs' },
   ],
   matcher: [
     // Plan 385-10: the query-efficiency hook no longer runs on Read (its Read result was always empty).
@@ -95,7 +97,6 @@ const TABLE = [
   ['PreCompact', 'run-hook.cmd" pre-compact', 6],
   ['PostCompact', 'run-hook.cmd" post-compact', 120],
   ['Stop', 'run-hook.cmd" on-stop', 20],
-  ['Stop', 'hmi-compliance-poll.cjs', 5],
   ['Stop', 'gsd-graph-derive-sweep.cjs', 5],
   ['Stop', 'check-card-fire.cjs', 5],
   ['Stop', 'check-voice-style.cjs', 5],

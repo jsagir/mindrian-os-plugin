@@ -14,8 +14,8 @@ const ROOT = path.resolve(__dirname, '..');
 const HOOKS_JSON = path.join(ROOT, 'hooks', 'hooks.json');
 const SCRIPT = path.join(ROOT, 'scripts', 'operator-update.cjs');
 
-function loadHooks() {
-  return JSON.parse(fs.readFileSync(HOOKS_JSON, 'utf8'));
+function loadHooks(file) {
+  return JSON.parse(fs.readFileSync(file || HOOKS_JSON, 'utf8'));
 }
 
 function commandsOf(doc, event) {
@@ -28,8 +28,8 @@ function commandsOf(doc, event) {
   return out;
 }
 
-function census() {
-  const doc = loadHooks();
+function census(file) {
+  const doc = loadHooks(file);
   const res = { total: 0 };
   for (const event of Object.keys(doc.hooks || {})) {
     const n = commandsOf(doc, event).length;
@@ -49,7 +49,10 @@ function census() {
 }
 
 if (process.argv.includes('--census')) {
-  console.log(JSON.stringify(census()));
+  // Optional next argument: a hooks.json file path (default hooks/hooks.json).
+  const ci = process.argv.indexOf('--census');
+  const fileArg = process.argv[ci + 1];
+  console.log(JSON.stringify(census(fileArg && !fileArg.startsWith('--') ? path.resolve(fileArg) : undefined)));
   process.exit(0);
 }
 
@@ -311,6 +314,57 @@ check('no PostToolUse command runs telemetry-command-invocation.cjs and no PostT
   assert.strictEqual(cmds.length, 0, cmds.length + ' PostToolUse command(s) still run telemetry-command-invocation.cjs');
   const groups = ((doc.hooks && doc.hooks.PostToolUse) || []).filter((g) => g.matcher === 'SlashCommand');
   assert.strictEqual(groups.length, 0, groups.length + ' PostToolUse group(s) still have the matcher SlashCommand');
+});
+
+// ---- Plan 385-13: the hmi-compliance-poll Stop hook ----
+const POLL_SCRIPT = path.join(ROOT, 'scripts', 'hmi-compliance-poll.cjs');
+
+function runPollStop() {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-13-'));
+  try {
+    const roomsHome = path.join(tmp, 'rooms');
+    const room = path.join(tmp, 'room-r1');
+    fs.mkdirSync(path.join(roomsHome, '.rooms'), { recursive: true });
+    fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+    fs.writeFileSync(path.join(room, '.room-root'), '');
+    fs.writeFileSync(path.join(roomsHome, '.rooms', 'registry.json'),
+      JSON.stringify({ version: 1, active: 'r1', rooms: { r1: { abs_path: room } } }));
+    const home = path.join(tmp, 'home');
+    fs.mkdirSync(home);
+    const r = spawnSync(process.execPath, [POLL_SCRIPT, '--hook'], {
+      input: JSON.stringify({ hook_event_name: 'Stop', session_id: 's1', stop_hook_active: false }),
+      encoding: 'utf8',
+      env: Object.assign({}, process.env, { MINDRIAN_ROOMS_HOME: roomsHome, HOME: home }),
+    });
+    const mindrianFiles = fs.readdirSync(path.join(room, '.mindrian')).sort();
+    return { r, mindrianFiles };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+check('hmi-compliance-poll --hook with a Stop payload gives the constant envelope and writes only last-hmi-poll.json', () => {
+  const { r, mindrianFiles } = runPollStop();
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.strictEqual(r.stdout, '{"continue":true,"suppressOutput":true}', 'stdout ' + r.stdout);
+  assert.deepStrictEqual(mindrianFiles, ['last-hmi-poll.json'], 'files under .mindrian: ' + mindrianFiles.join(', '));
+});
+
+check('no production file reads last-hmi-poll except hmi-compliance-poll.cjs and hmi-status-command.cjs', () => {
+  const r = spawnSync('git', ['grep', '-l', '-I', 'last-hmi-poll', '--', 'scripts', 'lib', 'hooks', 'commands', 'skills', 'agents'],
+    { cwd: ROOT, encoding: 'utf8' });
+  const files = r.stdout.split('\n').filter(Boolean)
+    .filter((f) => !/(^|\/)test-[^/]*$/.test(f) && !/\.test\.cjs$/.test(f))
+    .sort();
+  assert.deepStrictEqual(files, ['scripts/hmi-compliance-poll.cjs', 'scripts/hmi-status-command.cjs'], 'files: ' + files.join(', '));
+});
+
+check('no command in the Stop array runs hmi-compliance-poll.cjs and the run-hook.cmd on-stop entry stays', () => {
+  const cmds = commandsOf(loadHooks(), 'Stop');
+  const hits = cmds.filter((c) => c.command.includes('hmi-compliance-poll.cjs'));
+  assert.strictEqual(hits.length, 0, hits.length + ' Stop command(s) still run hmi-compliance-poll.cjs');
+  const onStop = cmds.filter((c) => c.command.includes('run-hook.cmd" on-stop'));
+  assert.strictEqual(onStop.length, 1, 'run-hook.cmd on-stop entries: ' + onStop.length);
 });
 
 process.exit(failed ? 1 : 0);

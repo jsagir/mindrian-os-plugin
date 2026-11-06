@@ -234,20 +234,19 @@ function test_07_envelope_schema_strict() {
   } finally { rmrf(env.tmp); }
 }
 
-function test_08_hooks_json_registers_stop_entry() {
+function test_08_hooks_json_has_no_poll_stop_entry() {
   const hooks = JSON.parse(fs.readFileSync(path.join(REPO, 'hooks', 'hooks.json'), 'utf8'));
   const stops = (hooks && hooks.hooks && Array.isArray(hooks.hooks.Stop)) ? hooks.hooks.Stop : [];
   if (stops.length === 0) throw new Error('hooks.json has no Stop entries');
-  // Find the hmi-compliance-poll entry
+  // Phase 385 plan 13 (owner ruling R1) unwired the hmi-compliance-poll Stop entry.
+  // The script and its --hook mode stay (tests 01-07 and 09 run it directly).
   const found = stops.find(function (entry) {
     if (!entry || !Array.isArray(entry.hooks)) return false;
     return entry.hooks.some(function (h) {
-      return h && typeof h.command === 'string'
-        && h.command.indexOf('hmi-compliance-poll.cjs') >= 0
-        && h.command.indexOf('--hook') >= 0;
+      return h && typeof h.command === 'string' && h.command.indexOf('hmi-compliance-poll.cjs') >= 0;
     });
   });
-  if (!found) throw new Error('hooks.json Stop entries lack hmi-compliance-poll.cjs --hook');
+  if (found) throw new Error('hooks.json Stop entries still run hmi-compliance-poll.cjs');
   // The Phase 103 on-stop entry must still be present (byte-identical).
   // Phase 385 plan 08 unwired the Phase 99 operator-update Stop entry and plan 09
   // unwired the Phase 100 jtbd-update Stop entry (both always no-ops in a live session).
@@ -289,7 +288,7 @@ const TESTS = [
   ['05 Malformed stdin survives', test_05_malformed_stdin_survives],
   ['06 Empty stdin survives', test_06_empty_stdin_survives],
   ['07 Envelope schema strict (BASH-95-01)', test_07_envelope_schema_strict],
-  ['08 hooks.json registers Stop entry (sibling to 99/100/103)', test_08_hooks_json_registers_stop_entry],
+  ['08 hooks.json has no poll Stop entry (unwired by Phase 385-13; on-stop stays)', test_08_hooks_json_has_no_poll_stop_entry],
   ['09 Latency budget (informational)', test_09_latency_budget],
 ];
 
