@@ -148,6 +148,15 @@ Phase 363 research left this path out (decision D-16). Pieces that exist at HEAD
 - **Option C: retire the `external` subcommand.**
   - Effect for the owner: the cross-domain literature view disappears. No room words reach a third party from this path.
 
+## Owner decision
+
+decision: option-a
+date: 2026-11-06
+
+The owner answered on a card and extended the 2026-10-05 ruling (web research lines send room words as written) to Semantic Scholar, grants.gov and research-speaker: an approval card first, then a credential check, plus the audit record, with no content scan.
+Plan 386-05 implements this for Semantic Scholar, plan 386-22 builds the audit record (`lib/core/web-path-gate.cjs`), plan 386-23 covers grants.gov and plan 386-24 covers research-speaker.
+This is not a Brain-line change: Canon Part 8 keeps `auditQueryString` on the Brain line, and this decision touches only the third-party web lines.
+
 ## Tests to Add or Update
 
 - Test 1 (option A):
