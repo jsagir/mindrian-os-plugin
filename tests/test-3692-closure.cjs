@@ -807,10 +807,19 @@ leg('D11', 'the three Theo probes: plain allows, the room term and the private s
     try { require(path.join(ROOT, 'lib', 'core', 'part8-room-lexicon.cjs'))._resetLexiconCache(); } catch (_e) { /* no cache to reset */ }
     const lines = [];
     for (const p of probes) {
-      const want = p.kind === 'plain_methodology' ? 'allow' : 'block';
-      const wantToken = p.kind === 'room_term' ? 'name' : (p.kind === 'private_sentence' ? 'private_context' : null);
+      // Plan 386-33 (owner principle and acknowledgement, 2026-11-06): a clear sprout
+      // that names a company or a person the room lexicon does not hold is an
+      // ordinary short keyword query and is allowed on ask, search and the hook; the
+      // same string on the cypher key (the query verb) keeps the old name rule. A
+      // private-claim statement (13 words, an edge) is block with the class
+      // sprouts_required on ask and search (edge_rule); the cypher key keeps room_content/private_context.
+      const want = (p.kind === 'plain_methodology' || p.kind === 'room_term') ? 'allow' : 'block';
       const seen = [];
       for (const verb of ['ask', 'search', 'query']) {
+        const cypherLegacy = verb === 'query';
+        const verbWant = p.kind === 'room_term' && cypherLegacy ? 'block' : want;
+        const wantClass = (p.kind === 'private_sentence' && !cypherLegacy) ? 'sprouts_required' : 'room_content';
+        const wantToken = p.kind === 'room_term' ? 'name' : (p.kind === 'private_sentence' ? (cypherLegacy ? 'private_context' : 'edge_rule') : null);
         capture.resetCaptured();
         let result;
         try { result = verb === 'ask' ? await brain.ask(p.prompt) : (verb === 'search' ? await brain.search(p.prompt) : await brain.query(p.prompt)); } catch (e) { result = { threw: String(e && e.message) }; }
@@ -819,13 +828,20 @@ leg('D11', 'the three Theo probes: plain allows, the room term and the private s
         const wireDisp = wire > 0 ? 'allow' : 'block';
         const hookDisp = hook.status === 2 ? 'block' : 'allow';
         seen.push(verb + ':' + wireDisp + '/' + hookDisp);
-        check(wireDisp === want && hookDisp === want, p.kind + ' on ' + verb + ': wire ' + wireDisp + ' (' + wire + ' captured), hook ' + hookDisp + ', expected ' + want + '; result ' + tail(JSON.stringify(result), 160));
-        if (want === 'block') {
-          check(result && result.error === 'egress_blocked' && result.egress_class === 'room_content' && result.token_class === wantToken, p.kind + ' on ' + verb + ' sentinel ' + tail(JSON.stringify(result), 200) + ', expected room_content/' + wantToken);
+        check(wireDisp === verbWant && hookDisp === verbWant, p.kind + ' on ' + verb + ': wire ' + wireDisp + ' (' + wire + ' captured), hook ' + hookDisp + ', expected ' + verbWant + '; result ' + tail(JSON.stringify(result), 160));
+        if (verbWant === 'block') {
+          check(result && result.error === 'egress_blocked' && result.egress_class === wantClass && result.token_class === wantToken, p.kind + ' on ' + verb + ' sentinel ' + tail(JSON.stringify(result), 200) + ', expected ' + wantClass + '/' + wantToken);
           check(wire === 0, p.kind + ' on ' + verb + ' put ' + wire + ' requests on the wire');
         }
       }
-      lines.push(p.kind + ' ' + want + (wantToken ? ' (' + wantToken + ')' : '') + ' [' + seen.join(' ') + ']');
+      if (p.kind === 'room_term') {
+        // The edge form of the same name is still refused (name rule, plan 386-33).
+        const edge = p.prompt.replace(/\?$/, '') + ' while the group reviews results across the next two quarters of the pilot work?';
+        capture.resetCaptured();
+        const er = await brain.ask(edge);
+        check(er && er.error === 'egress_blocked' && er.egress_class === 'sprouts_required' && capture.captured.length === 0, 'the edge form of the room_term probe must be sprouts_required with zero wire, got ' + tail(JSON.stringify(er), 200));
+      }
+      lines.push(p.kind + ' ' + want + ' [' + seen.join(' ') + ']');
     }
     check(stray === 0, stray + ' sockets reached something other than the capture server');
     process.stdout.write('  D11 measured: ' + lines.join(' | ') + '\n');

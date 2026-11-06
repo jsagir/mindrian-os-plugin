@@ -155,7 +155,10 @@ ok('(b) offer: text + full object classify clean; token-whitelist holds', functi
 
   // classify() the offer.text as if Brain-bound (free-form) -> not blocked.
   const vText = classify({ question: offer.text }, { toolName: 'brain_ask' });
-  assert.notStrictEqual(vText.verdict, 'block', 'offer text must not trip the content-set guard');
+  // Plan 386-33: the offer text is composed locally and never sent to the Brain. A
+  // multi-sentence text is a body and the guard answers it sprouts_required; what
+  // this test pins is that no content-set or room-content pattern fires on it.
+  assert.ok(vText.verdict !== 'block' || vText.class === 'sprouts_required', 'offer text must not trip the content-set guard, got ' + JSON.stringify(vText));
   // classify() the FULL offer object -> not blocked.
   const vObj = classify(offer, { toolName: 'brain_ask' });
   assert.notStrictEqual(vObj.verdict, 'block', 'full offer object must not trip the content-set guard');

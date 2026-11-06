@@ -84,7 +84,11 @@ const ALLOW_TEXT = 'What framework should I use for an ill-defined problem?';
 // refuses (room_content, token_class name). It replaces the old Arm 4 fixture
 // 'banana pancake recipe probe', which was ambiguous before the one-verdict
 // model and is now a plain question that proceeds.
-const VENTURE_TEXT = 'What should Quillow Systems do about the Vellichor Ledger rollout?';
+// Plan 386-33 (option-e): a short sprout that holds a proper name now passes (a
+// short keyword query may leave the room), so the fixture is an EDGE (the same
+// question with a neutral suffix, 19 words); the name rule refuses an edge with the
+// class sprouts_required, before the wire.
+const VENTURE_TEXT = 'What should Quillow Systems do about the Vellichor Ledger rollout while the group reviews results across the next two quarters of the pilot work?';
 
 // 369.2-08 (CODE-07, 2026-10-05): ROOT CAUSE of the old Arm 2 red ("a blocked
 // call must open no socket at all; captured: [{name: theo_health}]"). It was
@@ -396,7 +400,7 @@ async function main() {
       assert.strictEqual(formerlyAmbiguous.verdict, 'allow', 'the old ambiguous fixture must now classify allow, got: ' + JSON.stringify(formerlyAmbiguous));
       const venture = guard.classify({ question: VENTURE_TEXT }, { toolName: 'brain_ask' });
       assert.strictEqual(venture.verdict, 'block', 'the venture fixture must classify block, got: ' + JSON.stringify(venture));
-      assert.strictEqual(venture.class, 'room_content');
+      assert.strictEqual(venture.class, 'sprouts_required'); // plan 386-33: class flipped from room_content (verdict unchanged)
 
       resetCaptured();
       resetToolScript();

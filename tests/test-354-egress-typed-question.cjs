@@ -155,7 +155,9 @@ const GENERIC_CORPUS = buildGenericCorpus();
 function assertPrivateClass(obj, field) {
   const f = field === 'class' ? 'class' : 'egress_class';
   const cls = obj && obj[f];
-  assert.ok(cls === 'content_set' || cls === 'room_content', 'expected ' + f + ' content_set or room_content, got: ' + JSON.stringify(obj));
+  // Plan 386-33: a canary that is an edge, a body or a private-claim sprout is
+  // refused with the class sprouts_required (still a refusal, zero wire).
+  assert.ok(cls === 'content_set' || cls === 'room_content' || cls === 'sprouts_required', 'expected ' + f + ' content_set, room_content or sprouts_required, got: ' + JSON.stringify(obj));
   if (cls === 'room_content') {
     assert.ok(typeof obj.token_class === 'string' && obj.token_class.length > 0, 'room_content must name a token_class, got: ' + JSON.stringify(obj));
   }

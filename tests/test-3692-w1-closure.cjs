@@ -303,7 +303,9 @@ async function main() {
       capture.resetCaptured();
       const out = await brain.ask(THEO_QUESTION);
       check(out && out.error === 'egress_blocked', 'ask did not answer egress_blocked: ' + tail(JSON.stringify(out), 300));
-      check(out.egress_class === 'content_set', 'egress_class is ' + JSON.stringify(out.egress_class) + ', not content_set');
+      // Plan 386-33: 'my product' makes the question a private-claim sprout, so the
+      // class is sprouts_required now (still a refusal with zero wire).
+      check(out.egress_class === 'content_set' || out.egress_class === 'sprouts_required', 'egress_class is ' + JSON.stringify(out.egress_class) + ', not content_set or sprouts_required');
       check(capture.captured.length === 0, 'the wire saw ' + capture.captured.length + ' request(s): ' + tail(JSON.stringify(capture.captured), 300));
     } finally {
       await capture.stopCaptureServer(started.server);
