@@ -3,7 +3,7 @@ phase: 386-audit-bug-fixes-part-8-egress-risks-first-b1-b16
 plan: "02"
 subsystem: part8-egress-guard
 tags: [rca, part8, brain_write, B2, checkpoint]
-status: partial-awaiting-owner-decision
+status: complete
 requires: []
 provides:
   - RCA for B2 with disposition matrix (hook and callTool), caller chain and root cause
@@ -13,16 +13,17 @@ key-files:
     - .planning/debug/whitespace-to-brain-brain-write-room-derived-text-ambiguous-proceeds.md
   modified: []
 requirements: [B2]
-decisions: []
+decisions:
+  - "B2 owner decision 2026-11-06: option A (block every brain_write, send no room text, report blocked honestly). Plan 386-04 implements option A only."
 metrics:
-  tasks_done: 1
+  tasks_done: 2
   tasks_total: 2
   completed: 2026-11-06
 ---
 
 # Phase 386 Plan 02: B2 RCA and owner decision Summary
 
-Task 1 is done: the RCA proves on synthetic strings that `classify()` returns `ambiguous/unknown` for `brain_write`, `callTool` sends it, the hook allows it on the shim-backed scopes, and `whitespace-to-brain.cjs` counts a refused write as a success. Task 2 (owner decision A, B or C) is open. No Owner decision block exists yet.
+Task 1 is done: the RCA proves on synthetic strings that `classify()` returns `ambiguous/unknown` for `brain_write`, `callTool` sends it, the hook allows it on the shim-backed scopes, and `whitespace-to-brain.cjs` counts a refused write as a success. Task 2 is done: the owner chose option A on 2026-11-06 and the RCA holds an `## Owner decision` block with `decision: option-a`. Plan 386-04 implements option A only and needs no revision.
 
 ## What was proven (synthetic strings, fetch counter, 0 network calls)
 
@@ -50,8 +51,10 @@ None.
 
 ## Checkpoint
 
-Task 2 (checkpoint:decision, blocking) is not answered. Plan 386-04 must not run until the RCA holds an `## Owner decision` block.
+Task 2 (checkpoint:decision, blocking) was answered: option A. The Owner decision block is in the RCA, so plan 386-04 may run.
 
 ## Commits
 
 - acc4940bb: docs(386-02): RCA for B2 (RCA file only)
+- 42212a152: docs(386-02): partial summary
+- Owner decision commit: see git log for "docs(386-02): record owner decision option A"

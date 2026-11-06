@@ -176,7 +176,16 @@ Cross-checks to clear before the fix is called done (RCA gates): Part 8 (no user
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: Confirmed, see Technical Root Cause. The data claim of the auditor is PARTIAL (text is a Brain framework name in the shipped pipeline; room-derived values are density and rank numbers). The seam claim is CONFIRMED.
-fix: not started. Awaits the owner decision (option A, B or C).
+fix: not started. Owner decision recorded (option A). Plan 386-04 implements it.
 verification: reproduction ran on synthetic strings only, fetch replaced by a counter, 0 network calls. See Evidence.
 files_changed: none (this plan changes no product file)
 commits: see the 386-02 summary
+
+## Owner decision
+
+decision: option-a
+date: 2026-11-06
+reason: Option A is the smallest change that meets the PRD rule (a Brain write sits behind a closed gate and is never allowed on ambiguous), and it leaves the 2026-09-02 read-tool ruling and the 16 callTool wrappers untouched.
+scope: Plan 386-04 implements option A only: classify() blocks every brain_write payload with class write_blocked and no allow rule; scripts/whitespace-to-brain.cjs sends no hypothesis text and counts a blocked write as blocked, not as a success; scripts/discovery-cycle.cjs step 8 logs one honest line. Options B and C are not chosen. Plan 386-04 needs no revision.
+evidence_note: The data claim of B2 is PARTIAL (the shipped hypothesis text is the framework-name phrase from compute-whitespace-gaps.py, and the room-derived values are density and rank scores, not room titles). The seam defect is CONFIRMED. See Eliminated and Evidence E6, E7.
+recorded_by: plan 386-02 executor, from the owner answer relayed by the coordinator on 2026-11-06.
