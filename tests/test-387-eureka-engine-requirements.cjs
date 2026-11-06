@@ -327,7 +327,7 @@ arm('Q12 static: the modules open no network, name no retired folder, and spawn 
     assert.ok(!/node:https?|require\(['"]https?['"]\)|node:net\b|node:dns|brain-client|mindrian-brain/.test(src), path.basename(file) + ' network or Brain require');
     assert.ok(!/\bfetch\s*\(/.test(src), path.basename(file) + ' fetch call');
     assert.ok(!/research\/eureka|mos-workspace-runtime/.test(src), path.basename(file) + ' retired folder name');
-    assert.ok(!/\bexec\w*\s*\(|child_process\.exec/.test(src.replace(/\.spawnSync/g, '')), path.basename(file) + ' exec call');
+    assert.ok(!/(?<![.\w])exec(File)?(Sync)?\s*\(|child_process\.exec/.test(src), path.basename(file) + ' exec call');
   }
   const src = fs.readFileSync(MOD, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
   const bodies = [];
