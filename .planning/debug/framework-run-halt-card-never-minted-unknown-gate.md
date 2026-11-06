@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "framework-run-halt-card-never-minted-unknown-gate"
 issue_id: "B11"
@@ -125,9 +125,10 @@ Limits recorded: the entry carries no mintedRoomDir, so the room_switched check 
 
 ## Resolution
 
-root_cause: The framework_run halt path in lib/mcp/tools/sensors.cjs renders a gate and returns its id but never mints the id in lib/mcp/gate-ledger.cjs, so gate_answer answers unknown_gate.
-fix: pending
-verification: pending
+root_cause: The framework_run halt path in lib/mcp/tools/sensors.cjs rendered a gate and returned its id but never minted the id in lib/mcp/gate-ledger.cjs, so gate_answer answered unknown_gate.
+fix: After renderGate, the halt path mints the rendered card with gateLedger.mintGate (kind general, renderer from ledgerRenderer, approving ['approve'], session id). Skipped when the elicitation dialog was already answered inline. gate.cjs unchanged. The entry carries no mintedRoomDir (recorded limit above).
+verification: tests/test-386-framework-run-halt-gate-minted.cjs RED (H1, H2 and the anti-vacuity row failed; H3, H4 passed) then GREEN (all arms). tests/test-sensors-routing-fence.cjs, test-sensors-part8-sweep.cjs, test-198-contract-schema, test-198-chain-run-halt, test-198-local-only, test-238-one-ledger, test-238-chosen-validation, test-289-ledger-consume-after-checks, test-h27-gate-card-node-fields, test-254-composition-census, test-248 all exit 0. bash tests/run-all-386.sh: 13 pass, 0 fail. node scripts/check-shape-declaration.cjs --check exit 0. Two failures not caused by this change: tests/test-237-autonomy-parity.cjs Leg 5 (anchor drift in chain.cjs, a file this plan did not touch) and tests/test-252-guard-census.cjs census.5b (skills/rs-experts/SKILL.md canary).
 files_changed:
-  - pending
-commits: pending
+  - lib/mcp/tools/sensors.cjs (require gate-ledger, mint in the halt path)
+  - tests/test-386-framework-run-halt-gate-minted.cjs (new)
+commits: RED 72f73eb73; fix 46ba22f2c
