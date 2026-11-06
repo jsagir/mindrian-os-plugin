@@ -96,7 +96,7 @@ drvfs_repro: ran
 wal_on_drvfs: ok
 lock_on_drvfs: ok (WSL locks give the busy class; a Windows exclusive hold gives SQLITE_CANTOPEN, code 14)
 mode_change_needed: no
-files_to_touch: lib/core/room-readiness.cjs, lib/core/graph-backfill.cjs, lib/core/navigation/room-identity.cjs, scripts/session-start, tests/test-386-room-db-unreadable-message.cjs, .planning/debug/room-db-reported-unreadable-on-a-windows-drive-from-wsl.md
+files_to_touch: lib/core/room-readiness.cjs, lib/core/graph-backfill.cjs, lib/core/navigation/spine-events.cjs, scripts/session-start, tests/test-386-room-db-unreadable-message.cjs, .planning/debug/room-db-reported-unreadable-on-a-windows-drive-from-wsl.md
 
 ## Required Code Changes
 
@@ -107,7 +107,7 @@ files_to_touch: lib/core/room-readiness.cjs, lib/core/graph-backfill.cjs, lib/co
   - Location: lib/core/graph-backfill.cjs `_readinessStep` and scripts/session-start (the readiness line)
   - Required behavior: carry the cause in result.readiness and print the cause line, so the session-start line is honest.
 - Part 2: not needed. WAL works on the drive (wal_on_drvfs ok), so no journal or open mode change is made. See the Owner decision block.
-- Change 3 (found at commit time): the pre-commit chokepoint check refuses a direct node:sqlite require in lib/core/room-readiness.cjs. The one read-only probe lives in lib/core/navigation/room-identity.cjs as probeRoomDbReadOnly (an allowed navigation path). The file was added to files_to_touch after the hook refusal.
+- Change 3 (found at commit time): the pre-commit chokepoint check refuses a direct node:sqlite require in lib/core/room-readiness.cjs. The one read-only probe lives in lib/core/navigation/spine-events.cjs as probeRoomDbReadOnly, next to openRoomDbReadOnlyForCaller (an allowed navigation path; tests/test-36925-rid-repair.cjs M1 forbids node:sqlite in room-identity.cjs, so it is not there). The file was added to files_to_touch after the hook refusal.
 - Not changed: lib/core/room-db.cjs, the journal mode, the timeout, the migration chain.
 
 ## Tests to Add or Update
@@ -129,11 +129,11 @@ files_to_touch: lib/core/room-readiness.cjs, lib/core/graph-backfill.cjs, lib/co
 ## Resolution
 
 root_cause: every room.db read failure maps to one fixed "damaged" line; the real error is dropped (the read-only door returns null), and a Windows-side hold (SQLITE_CANTOPEN, code 14) is not classified at all.
-fix: lib/core/room-readiness.cjs gains causeOfError, unreadableCause and requirementFor. The reason stays room_db_unreadable; readinessFor adds a cause field (busy, io, cannot_open, not_a_database, other) and the requirement line names it in plain words. With a thrown error the SQLite code decides; with none (room-identity drops it) the module reads the 16 header bytes and then probes one read-only open through lib/core/navigation/room-identity.cjs probeRoomDbReadOnly. graph-backfill _readinessStep and scripts/session-start carry the cause to the session-start line. lib/core/room-db.cjs, the journal mode, the timeout and the migration chain are unchanged.
+fix: lib/core/room-readiness.cjs gains causeOfError, unreadableCause and requirementFor. The reason stays room_db_unreadable; readinessFor adds a cause field (busy, io, cannot_open, not_a_database, other) and the requirement line names it in plain words. With a thrown error the SQLite code decides; with none (room-identity drops it) the module reads the 16 header bytes and then probes one read-only open through lib/core/navigation/spine-events.cjs probeRoomDbReadOnly. graph-backfill _readinessStep and scripts/session-start carry the cause to the session-start line. lib/core/room-db.cjs, the journal mode, the timeout and the migration chain are unchanged.
 verification: node tests/test-386-room-db-unreadable-message.cjs RED at the test commit (RM1, RM2, RM3, RM5, RM6, RM8, RM9 fail; RM4 and RM7 pass), GREEN after the fix commit (9 of 9 ok). On a new scratch folder under /mnt/c (9p drvfs), a Windows process holding a synthetic room.db with no sharing now gives "room.db could not be opened: the path or the drive refused access, or another program holds the file (a Windows drive read from WSL)" instead of the damaged line. tests/run-all-196.sh 7 of 7. Related tests (17 naming room-readiness, graph-backfill or room-identity) equal their baseline. Same reds before and after: test-233-graph-heal-pipeline, run-all-383, run-all-224 (identical failing lines). test-muy-real-room-rule failed in the baseline run and passed after (not caused by this change).
 files_changed:
   - lib/core/room-readiness.cjs (cause machinery, readinessFor cause)
-  - lib/core/navigation/room-identity.cjs (probeRoomDbReadOnly)
+  - lib/core/navigation/spine-events.cjs (probeRoomDbReadOnly)
   - lib/core/graph-backfill.cjs (cause in readiness)
   - scripts/session-start (print requirementFor)
   - tests/test-386-room-db-unreadable-message.cjs (new)
