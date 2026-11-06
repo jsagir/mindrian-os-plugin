@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "graph-doctor-module-ctx-roomdir-never-set"
 issue_id: "B16"
@@ -128,9 +128,10 @@ Fix origin decision: engine. More than one module reads ctx.roomDir (2), so the 
 
 ## Resolution
 
-root_cause: The always-pass ctx in scripts/doctor.cjs has no roomDir field, so modules that read ctx.roomDir fall back to the working directory.
-fix: pending
-verification: pending
+root_cause: The always-pass ctx in scripts/doctor.cjs (function runAccumulativeEngine) had no roomDir field, so modules that read ctx.roomDir fell back to the working directory.
+fix: Added roomDir to that ctx object, taken from callerFlags.roomDir (null when absent). No module file changed.
+verification: tests/test-386-graph-doctor-room-ctx.cjs RED (G1 failed, G2 and G3 passed) then GREEN (all 3 arms pass). tests/graph-doctor/test-graph-doctor.cjs 6 pass. tests/test-3692-providers.cjs 46 pass. node --check scripts/doctor.cjs ok. doctor --acceptance with a temporary HOME: 25 points, same ok/not-ok per row before and after (19 pass, 6 fail on both; the 6 are install-state, deployment-surfaces, version-of-record-published, session-start-active-version, verify-release-clean-tree, activation-reached-the-wire, caused by the empty temporary HOME).
 files_changed:
-  - pending
-commits: pending
+  - scripts/doctor.cjs (ctx object carries roomDir)
+  - tests/test-386-graph-doctor-room-ctx.cjs (new)
+commits: RED 30a79afd7; fix 0b100bb0e
