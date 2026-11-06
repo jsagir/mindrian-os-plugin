@@ -19,7 +19,7 @@ const path = require('node:path');
 const cp = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
-const RCA = path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md');
+const RCA = (require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md')) ? path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-no-split-route-for-bodies-and-private-claims.md'));
 const CLAIM_TYPES = ['fact', 'causal', 'heuristic', 'anomaly_cue', 'mental_model', 'assumption'];
 const REF_PATH = 'references/brain/sprout-split-route.md';
 const RULE = /sprouts? and never a body/i;

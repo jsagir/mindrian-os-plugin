@@ -134,7 +134,7 @@ const ORDINARY = [
 
 // ID4: suffix_money stays allow (money is body-only), unless the RCA says it carries a credential.
 (function () {
-  const rca = fs.readFileSync(path.join(REPO, '.planning', 'debug', 'part8-always-block-misses-obfuscated-email-and-international-phone.md'), 'utf8');
+  const rca = fs.readFileSync((require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-always-block-misses-obfuscated-email-and-international-phone.md')) ? path.join(REPO, '.planning', 'debug', 'part8-always-block-misses-obfuscated-email-and-international-phone.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-always-block-misses-obfuscated-email-and-international-phone.md')), 'utf8');
   const m = /^carries_credential_suffix_money: (.+)$/m.exec(rca);
   const carries = m && /^yes/.test(m[1]);
   const v = classifyAs('brain_ask', probeText('suffix_money'));

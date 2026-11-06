@@ -42,8 +42,8 @@ const split = require(path.join(REPO, 'lib', 'core', 'part8-split-route.cjs'));
 const helper = require(path.join(__dirname, 'helpers', 'synthetic-room-db.cjs'));
 const corpus = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', '3692', 'guard-survey-corpus.json'), 'utf8'));
 
-const P32 = path.join(REPO, '.planning', 'debug', 'part8-over-blocks-ordinary-theo-and-context-questions.md');
-const P37 = path.join(REPO, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md');
+const P32 = (require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-over-blocks-ordinary-theo-and-context-questions.md')) ? path.join(REPO, '.planning', 'debug', 'part8-over-blocks-ordinary-theo-and-context-questions.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-over-blocks-ordinary-theo-and-context-questions.md'));
+const P37 = (require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md')) ? path.join(REPO, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-no-shape-test-for-sprouts-and-bodies.md'));
 const BASELINE = path.join(__dirname, 'fixtures', '3692', 'guard-survey-baseline.json');
 
 const SR = 'sprouts_required';

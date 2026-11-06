@@ -20,7 +20,7 @@ const path = require('node:path');
 
 const REPO = path.resolve(__dirname, '..');
 const MODULE_PATH = path.join(REPO, 'lib', 'core', 'part8-split-route.cjs');
-const RCA_PATH = path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md');
+const RCA_PATH = (require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md')) ? path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-no-split-route-for-bodies-and-private-claims.md'));
 
 // Isolation first: a temporary HOME, no bound room, a stub endpoint.
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'mos386-42-'));

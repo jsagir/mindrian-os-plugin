@@ -28,7 +28,7 @@ const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
 const MODULE_PATH = path.join(ROOT, 'lib', 'core', 'part8-sprout-shape.cjs');
-const RCA_PATH = path.join(ROOT, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md');
+const RCA_PATH = (require('node:fs').existsSync(path.join(ROOT, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md')) ? path.join(ROOT, '.planning', 'debug', 'part8-no-shape-test-for-sprouts-and-bodies.md') : path.join(ROOT, '.planning', 'debug', 'resolved', 'part8-no-shape-test-for-sprouts-and-bodies.md'));
 const CORPUS_PATH = path.join(__dirname, 'fixtures', '3692', 'guard-survey-corpus.json');
 
 let failures = 0;

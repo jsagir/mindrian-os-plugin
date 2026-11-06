@@ -28,7 +28,7 @@ const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 't386wh-'));
 const HOOK = path.join(REPO, 'scripts', 'web-credential-guard-hook.cjs');
 const HOOKS_JSON = path.join(REPO, 'hooks', 'hooks.json');
 const OUTAGE_MODULE = path.join(REPO, 'lib', 'core', 'part8-outage-log.cjs');
-const RCA_29 = path.join(REPO, '.planning', 'debug', 'part8-guard-fails-open-on-load-or-throw.md');
+const RCA_29 = (require('node:fs').existsSync(path.join(REPO, '.planning', 'debug', 'part8-guard-fails-open-on-load-or-throw.md')) ? path.join(REPO, '.planning', 'debug', 'part8-guard-fails-open-on-load-or-throw.md') : path.join(REPO, '.planning', 'debug', 'resolved', 'part8-guard-fails-open-on-load-or-throw.md'));
 
 // Fake credentials built at run time, so no secret-shaped literal sits in this file.
 const FAKE_CRED = ['sk', 'ant', 'api03', 'Zq8Lm2Vx9Rt4Wc7Bn5Yd1Hf3'].join('-');

@@ -35,7 +35,7 @@ const HOOK = path.join(ROOT, 'scripts', 'part8-egress-guard-hook.cjs');
 const STATUSLINE = path.join(ROOT, 'scripts', 'context-monitor');
 const COUNT_PRELOAD = path.join(ROOT, 'tools', 'perf', 'count-modules-preload.cjs');
 const ROOM_HELPER = path.join(__dirname, 'helpers', 'synthetic-room-db.cjs');
-const RCA_PATH = path.join(ROOT, '.planning', 'debug', 'folder-memory-eager-timeline-runner-widens-guard-dependencies.md');
+const RCA_PATH = (require('node:fs').existsSync(path.join(ROOT, '.planning', 'debug', 'folder-memory-eager-timeline-runner-widens-guard-dependencies.md')) ? path.join(ROOT, '.planning', 'debug', 'folder-memory-eager-timeline-runner-widens-guard-dependencies.md') : path.join(ROOT, '.planning', 'debug', 'resolved', 'folder-memory-eager-timeline-runner-widens-guard-dependencies.md'));
 
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'mos386-lz-'));
 const HOME = path.join(TMP, 'home');
