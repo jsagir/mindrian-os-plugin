@@ -13,7 +13,8 @@
  *
  * Signaling (clone of scripts/write-scope-check.cjs):
  *   exit 2 = BLOCK (harness cancels the outbound tool call), stderr carries why.
- *   exit 0 = ALLOW (proven MOVE-SET) OR fail-OPEN on any hook-INTERNAL error.
+ *   exit 0 = ALLOW (proven MOVE-SET), or no tool input to inspect (plan 386-30:
+ *            a hook-INTERNAL error after the input was read now exits 2).
  *
  * Quick task 260917-dgf (ambiguous-verdict disposition, trusted Brain scopes):
  * on a tool name `isBrainTool()` TRUSTS (plugin scope, project scope, the
@@ -46,10 +47,17 @@
  * justifies; `mcp__pws-brain-mcp__*` and `mcp__theo__*` return to exit 2 on
  * ambiguity.
  *
- * Fail posture (A3 accepted risk, matches write-scope-check):
- *   - fail-OPEN (exit 0) on a parse / resolution error -- a false block is worse
- *     than a false allow for a safety hook.
- *   - fail-CLOSED (exit 2) ONLY on a real content hit.
+ * Fail posture (plan 386-30, owner decision of plan 386-29, 2026-11-06; this
+ * REVERSES the earlier A3 accepted risk and threat T6 of Phase 239):
+ *   - fail-CLOSED (exit 2, reason guard_unavailable) when the sanitizer or the
+ *     guard cannot load, classify throws, the verdict is not an object, or the
+ *     hook fails after it read a Brain-shaped tool input. Each outage writes
+ *     one count-only line (lib/core/part8-outage-log.cjs). A provably empty
+ *     payload (a plain object with no keys) still proceeds, because zero bytes
+ *     cannot leak.
+ *   - fail-OPEN (exit 0) stays for empty or unparsable stdin and for a tool
+ *     name that is not Brain-shaped: there is no tool input to inspect.
+ *   - fail-CLOSED (exit 2) also on a real content hit.
  *   - As of 260917-ild: the hook no longer converts a proven-harmless
  *     ambiguity into a block on a SHIM-BACKED scope. It still does for every
  *     other Brain-shaped key, including the direct connector
@@ -150,6 +158,36 @@ function block(message) {
 }
 
 // ---------------------------------------------------------------------------
+// Plan 386-30 (E-FAIL, owner decision plan 386-29, 2026-11-06): the guard
+// cannot run. Record one count-only outage line (tool name class and failure
+// mode, never a payload byte), then block with the typed reason. A provably
+// empty payload (a plain object with no keys) carries zero bytes, so it
+// proceeds; the line is written for it too. The empty check does not depend on
+// the guard. The log module has Node built-ins only and is required lazily, so
+// a healthy run loads nothing new. A failing log write never changes the exit.
+// ---------------------------------------------------------------------------
+const OUTAGE_LOG_PATH = path.join(LIB_CORE, 'part8-outage-log.cjs');
+
+// Set once the tool input is read and the tool is Brain-shaped.
+let armed = null;
+
+function isProvablyEmptyPayload(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  if (Object.getPrototypeOf(value) !== Object.prototype) return false;
+  return Object.keys(value).length === 0;
+}
+
+function guardUnavailable(toolName, toolInput, mode) {
+  try {
+    require(OUTAGE_LOG_PATH).recordGuardOutage(typeof toolName === 'string' ? toolName : '', mode);
+  } catch (_) {
+    // A failing log never changes a verdict.
+  }
+  if (isProvablyEmptyPayload(toolInput)) return allow();
+  return block('Canon Part 8: the egress guard could not run (reason guard_unavailable). Nothing was sent.');
+}
+
+// ---------------------------------------------------------------------------
 // Brain availability -- test seam PART8_FORCE_BRAIN_AVAILABLE ('1' available,
 // '0' Brain-less) so the ambiguous branch is deterministically exercisable
 // without a live Brain wire. Absent the override, fall back to the real
@@ -230,9 +268,9 @@ function main() {
   // scope here means the payload gets INSPECTED by classify(), never that
   // the connector is TRUSTED: isBrainTool (the trust predicate) is
   // byte-unchanged, so no foreign key gains an allow it had not earned.
-  // The fail-OPEN posture on a failed require below is a deliberate accepted
-  // risk (A3 / threat T6) this phase does NOT flip -- the complementary
-  // fail-CLOSED belt lands in brain-client.cjs (sibling plan 239-05).
+  // The fail-OPEN posture on a failed require below was a deliberate accepted
+  // risk (A3 / threat T6). Plan 386-30 reversed it: a guard that cannot run now
+  // blocks with the typed reason guard_unavailable (see guardUnavailable()).
   //
   // Quick task 260917-dgf: `sanitizer` is hoisted to a function-scoped
   // variable (declared before this try) so it is still reachable further
@@ -240,17 +278,29 @@ function main() {
   // is consulted. The INSPECTION scope gate below (isBrainShapedTool) is
   // byte-unchanged.
   let sanitizer = null;
+  let brainShaped = false;
   try {
     sanitizer = require(SANITIZER_PATH);
-    if (!sanitizer.isBrainShapedTool(toolName)) return allow();
+    brainShaped = !!sanitizer.isBrainShapedTool(toolName);
   } catch (_) {
-    // If the sanitizer cannot load, fail-OPEN (hook-internal error, A3).
-    return allow();
+    // Plan 386-30: the sanitizer cannot load, so the hook cannot tell whether
+    // the tool is Brain-shaped. The hook matcher registers only Brain-shaped
+    // names, so fail CLOSED with the typed reason (a provably empty payload
+    // still proceeds).
+    return guardUnavailable(toolName, toolInput, 'sanitizer_load_failed');
   }
+  if (!brainShaped) return allow();
+  // From here a failure of the hook itself must block (uncaught handler below).
+  armed = { toolName: toolName, toolInput: toolInput };
 
   let verdictObj;
+  let guard;
   try {
-    const guard = require(GUARD_PATH);
+    guard = require(GUARD_PATH);
+  } catch (_) {
+    return guardUnavailable(toolName, toolInput, 'guard_load_failed');
+  }
+  try {
     // Phase 369.2 Plan 01 (CODE-07, J4): the hook asks the same Theo verdict
     // the in-process verbs ask. The bound room is resolved through the one
     // shared resolver (never the payload cwd directly) and its lexicon is
@@ -264,9 +314,11 @@ function main() {
     }
     verdictObj = guard.classify(toolInput, { toolName: toolName, roomDir: roomDir });
   } catch (_) {
-    return allow(); // fail-OPEN on any classify resolution error (A3).
+    return guardUnavailable(toolName, toolInput, 'classify_threw');
   }
-  if (!verdictObj || typeof verdictObj !== 'object') return allow();
+  if (!verdictObj || typeof verdictObj !== 'object') {
+    return guardUnavailable(toolName, toolInput, 'verdict_invalid');
+  }
 
   // Best-effort telemetry BEFORE the exit branch (process.exit terminates).
   bestEffortRecord(verdictObj, sessionId);
@@ -370,14 +422,25 @@ function main() {
   return allow();
 }
 
-// Fail-OPEN outer wrap + uncaughtException backstop (clone write-scope-check
-// :260-265). A false block is worse than a false allow for a safety hook.
+// Outer wrap + uncaughtException backstop. Plan 386-30: once the tool input is
+// read and the tool is Brain-shaped (`armed`), a failure of the hook itself
+// blocks with the typed reason. A failure before that point (nothing to
+// inspect) keeps exit 0.
+function failureExit() {
+  if (!armed) return process.exit(0);
+  try {
+    return guardUnavailable(armed.toolName, armed.toolInput, 'hook_uncaught');
+  } catch (_) {
+    return process.exit(2);
+  }
+}
+
 process.on('uncaughtException', function () {
-  process.exit(0);
+  failureExit();
 });
 
 try {
   main();
 } catch (_) {
-  process.exit(0);
+  failureExit();
 }

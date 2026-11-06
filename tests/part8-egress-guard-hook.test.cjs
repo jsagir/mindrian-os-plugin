@@ -17,7 +17,8 @@
 //     the guard stays Brain-specific, not a general MCP egress firewall)
 //   - verdict block (CONTENT-SET)    -> exit 2 + Part 8 stderr message (PB8-04)
 //   - clean MOVE-SET                 -> exit 0 (PB8-04)
-//   - malformed/garbage stdin        -> exit 0 fail-OPEN (A3 accepted risk)
+//   - malformed/garbage stdin        -> exit 0 (no tool input to inspect; plan 386-30
+//                                       kept this while a guard that cannot run now exits 2)
 //   - 369.2-07 (CODE-07, 2026-10-05): free-form strings are allow or block by content, never ambiguous.
 //     A plain methodology string is allow (exit 0 on every scope); a string
 //     with room content is block (exit 2 on every scope). Only a payload that
