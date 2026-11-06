@@ -58,9 +58,21 @@ Use `buildGrantQuery(roomDir)` to translate room context into structured API que
 
 If context is insufficient, explain to the user what's needed (see insufficient context handling in commands/opportunities.md).
 
+<!-- approval-step-begin -->
+### Step 2b: Show the exact searches and wait for approval
+
+The funding search sends short keyword searches, built from the room's words, to two public funding databases. The navigator sees the exact words first.
+
+1. Call `scanOpportunities(roomDir)` with no approval. It sends nothing. It returns `approval_required` with the exact search strings and a token.
+2. Show those strings to the navigator on your existing choice card. Say that nothing leaves this machine until they approve.
+3. Call `scanOpportunities(roomDir, { approval: token })` only after the navigator says yes. A changed string needs a new token.
+
+A search word that looks like a credential is refused before anything is sent (the result carries `refused`). Each search that is sent gets one line in the room's audit record. The scheduled scan does not send anything without an approval. It records a skip with the reason `approval_required`.
+<!-- approval-step-end -->
+
 ### Step 3: Search Grant APIs
 
-Call `scanOpportunities(roomDir)` which:
+Call `scanOpportunities(roomDir, { approval: token })` (after Step 2b) which:
 1. Searches Grants.gov API (POST to search2 endpoint)
 2. Searches Simpler Grants API (POST to search endpoint)
 3. Uses `Promise.allSettled` -- one API failure doesn't block the other

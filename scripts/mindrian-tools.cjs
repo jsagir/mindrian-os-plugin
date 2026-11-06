@@ -38,7 +38,8 @@ Commands:
   graph rebuild [roomDir]            Rebuild entire room graph from artifacts
   graph query [roomDir] "<sql>"      Execute SQL query against room graph
   graph stats [roomDir]              Show room graph node/edge statistics
-  opportunity scan [roomDir]     Context-driven grant discovery
+  opportunity scan [roomDir] [--approve TOKEN]
+                                  Context-driven funding search; lists the exact searches first, sends only with the token
   opportunity list [roomDir]     List filed opportunities
   opportunity file [roomDir] [dataJson]  File an opportunity
   funding list [roomDir]         List funding pipeline entries
@@ -206,7 +207,11 @@ async function main() {
     case 'opportunity': {
       switch (subcommand) {
         case 'scan': {
-          const result = await opportunityOps.scanOpportunities(roomDir);
+          // Phase 386 plan 23: the first call prints the exact searches and a token and sends nothing.
+          // A second call with --approve TOKEN sends them.
+          const approveIdx = argv.indexOf('--approve');
+          const approval = approveIdx !== -1 && argv[approveIdx + 1] ? argv[approveIdx + 1] : undefined;
+          const result = await opportunityOps.scanOpportunities(roomDir, { approval });
           output(result, raw, JSON.stringify(result, null, 2));
           break;
         }
