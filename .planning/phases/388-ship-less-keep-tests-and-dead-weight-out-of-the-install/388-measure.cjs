@@ -592,18 +592,204 @@ function selftest() {
   // test 4: claim verdict
   eq([claimVerdict(2500000), claimVerdict(2000000), claimVerdict(3000000), claimVerdict(1999999), claimVerdict(3000001)],
     ['CONFIRMED', 'CONFIRMED', 'CONFIRMED', 'REFUTED-LOWER', 'REFUTED-HIGHER'], 'test 4 verdicts');
+  selftestProbe(failures);
   if (failures.length) { for (const f of failures) console.error('FAIL ' + f); return 1; }
-  console.log('measure selftest: 4 tests passed; the mutation with a wrong expected value (1001) was caught');
+  console.log('measure selftest: 4 tests plus the probe and card cases passed; the mutation with a wrong expected value (1001) was caught');
   return 0;
+}
+
+// ---------------------------------------------------------------- plan 388-03: pattern probe and decision card check
+
+const crypto = require('node:crypto');
+
+function sha256(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
+function canonicalList(patterns) { return patterns.slice().sort().join('\n'); }
+
+// pure: judge a probe result. before and after are arrays of paths; safe and approved are Sets of paths.
+function judgeProbe(before, after, safe, approved, protectedSet) {
+  const a = new Set(after);
+  const b = new Set(before);
+  const removed = before.filter((p) => !a.has(p));
+  const added = after.filter((p) => !b.has(p));
+  const problems = [];
+  for (const p of removed) {
+    if (!safe.has(p) && !approved.has(p)) problems.push('removed but not a SAFE row or an owner-approved path: ' + p);
+    if (protectedSet.has(p) || isProtected(p)) problems.push('removed but protected: ' + p);
+  }
+  for (const p of added) problems.push('appeared after the patterns: ' + p);
+  for (const p of [...safe, ...approved]) if (a.has(p)) problems.push('listed for removal but still in the package: ' + p);
+  return { removed, added, problems };
+}
+
+function readSafeRows(file) {
+  const rows = fs.readFileSync(file, 'utf8').split('\n').slice(1).filter(Boolean).map((l) => l.split('\t'));
+  return { safe: new Set(rows.filter((r) => r[2] === 'SAFE').map((r) => r[0])), cls: Object.fromEntries(rows.map((r) => [r[0], r[1]])) };
+}
+
+function protectedFromRoots(files) {
+  // hook scripts and MCP server entries named in hooks.json and .mcp.json
+  const out = new Set();
+  const idx = buildIndex(files.map((f) => f.path));
+  for (const rel of ['hooks/hooks.json', '.mcp.json']) {
+    const text = readText(REPO, rel);
+    if (!text) continue;
+    for (const h of extractEdgesDetailed(rel, text, idx)) out.add(h.target);
+  }
+  return out;
+}
+
+function packList(dir, extraArgs) {
+  const { resolveNpmCli } = require(path.join(REPO, 'lib', 'core', 'npm-cli-resolve.cjs'));
+  const d = resolveNpmCli();
+  const r = spawnSync(d.command, d.baseArgs.concat(['pack', '--dry-run', '--json', '--ignore-scripts']).concat(extraArgs || []), { cwd: dir, encoding: 'utf8', timeout: 120000, input: '', shell: !!d.shell, maxBuffer: 256 * 1024 * 1024, env: Object.assign({}, process.env, { npm_config_update_notifier: 'false' }) });
+  if (r.error || r.status !== 0) throw new Error('npm pack failed in scratch: ' + (r.error ? r.error.message : (r.stderr || '').slice(0, 300)));
+  const e = JSON.parse(r.stdout)[0];
+  return { entryCount: e.entryCount, size: e.size, unpackedSize: e.unpackedSize, files: e.files.map((x) => ({ path: x.path, size: x.size })) };
+}
+
+function readPatterns(file) {
+  return fs.readFileSync(file, 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+}
+
+function cmdProbePatterns(argv) {
+  const get = (n) => { const i = argv.indexOf(n); return i === -1 ? null : argv[i + 1]; };
+  const safeFile = path.resolve(get('--safe'));
+  const patterns = readPatterns(path.resolve(get('--patterns')));
+  const outFile = path.resolve(get('--out'));
+  const approved = new Set((get('--approve') || '').split(',').filter(Boolean));
+  const { safe, cls } = readSafeRows(safeFile);
+  const scratch = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), 'mos388-probe-'));
+  let code = 0;
+  try {
+    const { resolveNpmCli } = require(path.join(REPO, 'lib', 'core', 'npm-cli-resolve.cjs'));
+    const d = resolveNpmCli();
+    const dest = path.join(scratch, 'pack');
+    fs.mkdirSync(dest);
+    const r = spawnSync(d.command, d.baseArgs.concat(['pack', '--ignore-scripts', '--pack-destination', dest, '--silent']), { cwd: REPO, encoding: 'utf8', timeout: 240000, shell: !!d.shell });
+    if (r.status !== 0) throw new Error('pack failed: ' + (r.stderr || '').slice(0, 300));
+    const tgz = fs.readdirSync(dest).filter((x) => x.endsWith('.tgz'))[0];
+    const ex = path.join(scratch, 'ex');
+    fs.mkdirSync(ex);
+    const tr = spawnSync('tar', ['-xzf', path.join(dest, tgz), '-C', ex]);
+    if (tr.status !== 0) throw new Error('tar failed');
+    const pkgDir = path.join(ex, 'package');
+    const pjPath = path.join(pkgDir, 'package.json');
+    const pj = JSON.parse(fs.readFileSync(pjPath, 'utf8'));
+    const origFiles = pj.files.slice();
+    const before = packList(pkgDir);
+    const withAll = (pats) => { pj.files = origFiles.concat(pats); fs.writeFileSync(pjPath, JSON.stringify(pj, null, 2)); };
+    withAll(patterns);
+    const after = packList(pkgDir);
+    const prot = protectedFromRoots(before.files);
+    const verdict = judgeProbe(before.files.map((x) => x.path), after.files.map((x) => x.path), safe, approved, prot);
+    const sizeOf = new Map(before.files.map((x) => [x.path, x.size]));
+    // which pattern removed each path: each pattern alone
+    const byPattern = {};
+    const owner = {};
+    for (const pat of patterns) {
+      withAll([pat]);
+      const one = packList(pkgDir);
+      const set = new Set(one.files.map((x) => x.path));
+      byPattern[pat] = before.files.filter((x) => !set.has(x.path)).map((x) => x.path);
+      for (const p of byPattern[pat]) if (!owner[p]) owner[p] = pat;
+    }
+    const lines = ['# before entryCount=' + before.entryCount + ' size=' + before.size + ' unpackedSize=' + before.unpackedSize,
+      '# after entryCount=' + after.entryCount + ' size=' + after.size + ' unpackedSize=' + after.unpackedSize,
+      '# head=' + gitHead(), 'path\tbytes\tclass\tpattern'];
+    for (const p of verdict.removed.slice().sort()) lines.push([p, sizeOf.get(p), cls[p] || (approved.has(p) ? 'OWNER' : '?'), owner[p] || '(combined only)'].join('\t'));
+    fs.writeFileSync(outFile, lines.join('\n') + '\n');
+    console.log('before: entryCount ' + before.entryCount + ', size ' + before.size + ', unpackedSize ' + before.unpackedSize);
+    console.log('after:  entryCount ' + after.entryCount + ', size ' + after.size + ', unpackedSize ' + after.unpackedSize);
+    console.log('removed ' + verdict.removed.length + ' paths, ' + verdict.removed.reduce((s, p) => s + sizeOf.get(p), 0) + ' unpacked bytes');
+    for (const pat of patterns) console.log('  ' + pat + ' -> ' + byPattern[pat].length);
+    for (const pr of verdict.problems) console.log('PROBLEM ' + pr);
+    if (verdict.problems.length) code = 1;
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+  if (code) process.exit(code);
+}
+
+// the decision card: pattern table, probe sums, answer block
+function parseCard(text) {
+  const rows = [];
+  for (const line of text.split('\n')) {
+    const m = /^\|\s*\x60(![^\x60]+)\x60\s*\|\s*([^|]*)\|\s*(\d+)\s*\|\s*(\d+)\s*\|/.exec(line);
+    if (m) rows.push({ pattern: m[1].split('\\|').join('|'), cls: m[2].trim(), files: Number(m[3]), bytes: Number(m[4]) });
+  }
+  const get = (k) => { const m = new RegExp('^' + k + ': (.*)$', 'm').exec(text); return m ? m[1].trim() : null; };
+  return { rows, sha: get('LIST-SHA256'), head: get('HEAD-AT-DECISION'), answer: get('OWNER-ANSWER'), before: get('BEFORE'), after: get('AFTER') };
+}
+
+function checkCard(text, probeText) {
+  const problems = [];
+  const card = parseCard(text);
+  if (!card.rows.length) problems.push('no pattern rows found in the card');
+  const sha = sha256(canonicalList(card.rows.map((r) => r.pattern)));
+  if (card.sha !== sha) problems.push('LIST-SHA256 in the card is ' + card.sha + ' but the pattern table hashes to ' + sha);
+  const probe = probeText.split('\n').filter(Boolean);
+  const headLines = probe.filter((l) => l.startsWith('#'));
+  const data = probe.filter((l) => !l.startsWith('#')).slice(1).map((l) => l.split('\t'));
+  const sums = {};
+  for (const [, bytes, , pat] of data) { sums[pat] = sums[pat] || { files: 0, bytes: 0 }; sums[pat].files += 1; sums[pat].bytes += Number(bytes); }
+  for (const r of card.rows) {
+    const s = sums[r.pattern] || { files: 0, bytes: 0 };
+    if (s.files !== r.files || s.bytes !== r.bytes) problems.push('row ' + r.pattern + ': card says ' + r.files + ' files ' + r.bytes + ' bytes, probe says ' + s.files + ' files ' + s.bytes + ' bytes');
+  }
+  for (const pat of Object.keys(sums)) if (!card.rows.some((r) => r.pattern === pat)) problems.push('probe path matched by a pattern that is not in the card: ' + pat);
+  const b = headLines.find((l) => l.startsWith('# before ')); const a = headLines.find((l) => l.startsWith('# after '));
+  if (!b || !a) problems.push('probe file has no before or after line');
+  else {
+    if (card.before !== b.slice(9)) problems.push('BEFORE line differs from the probe: ' + card.before + ' vs ' + b.slice(9));
+    if (card.after !== a.slice(8)) problems.push('AFTER line differs from the probe: ' + card.after + ' vs ' + a.slice(8));
+  }
+  return { problems, card };
+}
+
+function cmdCheckDecision(file) {
+  const p = path.resolve(file);
+  const probe = path.join(path.dirname(p), '388-pattern-probe.tsv');
+  const res = checkCard(fs.readFileSync(p, 'utf8'), fs.readFileSync(probe, 'utf8'));
+  for (const pr of res.problems) console.log('MISMATCH ' + pr);
+  if (res.problems.length) { console.log('check-decision: ' + res.problems.length + ' problem(s)'); process.exit(1); }
+  console.log('check-decision: card matches the probe (' + res.card.rows.length + ' patterns, hash ' + res.card.sha.slice(0, 12) + ', answer ' + res.card.answer + ')');
+}
+
+function selftestProbe(failures) {
+  const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) failures.push(m + ': got ' + JSON.stringify(a) + ' expected ' + JSON.stringify(b)); };
+  const before = ['lib/a.test.cjs', 'lib/b.cjs', 'lib/c.test.cjs', 'hooks/hooks.json', 'commands/x.md'];
+  const safe = new Set(['lib/a.test.cjs']);
+  eq(judgeProbe(before, ['lib/b.cjs', 'lib/c.test.cjs', 'hooks/hooks.json', 'commands/x.md'], safe, new Set(), new Set()).problems, [], 'probe ok case');
+  // exit 1 case 1: a non-SAFE file removed
+  eq(judgeProbe(before, ['lib/b.cjs', 'hooks/hooks.json', 'commands/x.md'], safe, new Set(), new Set()).problems.length, 1, 'probe non-SAFE removed');
+  // exit 1 case 2: a SAFE row still present
+  eq(judgeProbe(before, before, safe, new Set(), new Set()).problems.length, 1, 'probe SAFE still present');
+  // exit 1 case 3: a protected path removed (also listed as SAFE by mistake)
+  const bad = judgeProbe(before, ['lib/a.test.cjs', 'lib/b.cjs', 'lib/c.test.cjs'], new Set(['commands/x.md']), new Set(), new Set(['hooks/hooks.json']));
+  eq(bad.problems.filter((x) => /protected/.test(x)).length, 2, 'probe protected removed');
+  // owner approved extra path may be removed
+  eq(judgeProbe(before, ['lib/b.cjs', 'hooks/hooks.json', 'commands/x.md'], safe, new Set(['lib/c.test.cjs']), new Set()).problems, [], 'probe approved path');
+  // check-decision: good card, then one pattern edited
+  const patterns = ['!lib/*.test.cjs', '!data/x.json'];
+  const card = (pats, sha) => ['| \x60' + pats[0] + '\x60 | T1 | 2 | 30 | e | f |', '| \x60' + pats[1] + '\x60 | T7 | 1 | 5 | e | f |', 'BEFORE: entryCount=9 size=9 unpackedSize=9', 'AFTER: entryCount=6 size=6 unpackedSize=6', 'LIST-SHA256: ' + sha, 'HEAD-AT-DECISION: abc', 'OWNER-ANSWER: PENDING'].join('\n');
+  const probe = ['# before entryCount=9 size=9 unpackedSize=9', '# after entryCount=6 size=6 unpackedSize=6', '# head=abc', 'path\tbytes\tclass\tpattern', 'lib/a.test.cjs\t10\tT1\t!lib/*.test.cjs', 'lib/c.test.cjs\t20\tT1\t!lib/*.test.cjs', 'data/x.json\t5\tT7\t!data/x.json'].join('\n');
+  const good = card(patterns, sha256(canonicalList(patterns)));
+  eq(checkCard(good, probe).problems, [], 'check-decision good card');
+  const edited = card(['!lib/*.test.mjs', '!data/x.json'], sha256(canonicalList(patterns)));
+  eq(checkCard(edited, probe).problems.length > 0, true, 'check-decision edited pattern must fail');
+  const wrongSum = good.replace('| T1 | 2 | 30 |', '| T1 | 2 | 31 |');
+  eq(checkCard(wrongSum, probe).problems.length > 0, true, 'check-decision edited byte sum must fail');
 }
 
 function main() {
   const [cmd, arg] = process.argv.slice(2);
   if (cmd === 'selftest') process.exit(selftest());
+  if (cmd === 'probe-patterns') return cmdProbePatterns(process.argv.slice(3));
+  if (cmd === 'check-decision') return cmdCheckDecision(arg);
   if (cmd === 'measure') return cmdMeasure(path.resolve(arg || PHASE_DIR));
   if (cmd === 'check') return cmdCheck(path.resolve(arg));
   if (cmd === 'drift') return cmdDrift();
-  console.error('usage: 388-measure.cjs selftest | measure OUTDIR | check REPORT | drift');
+  console.error('usage: 388-measure.cjs selftest | measure OUTDIR | check REPORT | drift | probe-patterns --safe FILE --patterns FILE --out FILE [--approve P1,P2] | check-decision FILE');
   process.exit(2);
 }
 
