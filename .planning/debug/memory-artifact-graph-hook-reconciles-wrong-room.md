@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "memory-artifact-graph-hook-reconciles-wrong-room"
 issue_id: "B14"
@@ -113,7 +113,9 @@ started: Phase 150-03 (the hook was written as a twin of the planning hook with 
 ## Resolution
 
 root_cause: the hook gates on the basename only, then reconciles the room chosen by environment or registry, with no check that the written file lies inside it.
-fix: pending
-verification: pending
-files_changed: []
-commits: pending
+fix: scripts/memory-artifact-graph-hook.cjs gains isInsideRoom (realpath of the nearest existing ancestor on both sides, then a relative-path check). runHook returns before any room.db work when the file is outside the room. The twin gsd hook is unchanged (it resolves the room from the written file).
+verification: node tests/test-386-memory-artifact-hook-room-scope.cjs (M1 to M5 ok, M1 and M2 were RED). tests/test-150-memory-nodes.cjs and tests/test-261029-qef-hook-timeouts.cjs exit 0.
+files_changed:
+  - scripts/memory-artifact-graph-hook.cjs (isInsideRoom, realOrResolve, scope check)
+  - tests/test-386-memory-artifact-hook-room-scope.cjs (new)
+commits: see git log for 386-16
