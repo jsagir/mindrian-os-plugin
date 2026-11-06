@@ -92,7 +92,15 @@ Something feels off? Run `/mos:doctor`. From a normal terminal, `mindrian-os doc
 
 Most good opportunities sit between two fields that never talk to each other. `/mos:eureka` recalls pairs of ideas from different domains in your own room, plans the research for them, and files the pairs that survive your review as proposed opportunities. `/mos:eureka-portfolio` ranks the linked ideas in your room and tells you when the ranking moves.
 
-Be clear about what it needs. Eureka runs on an optional engine that is set up separately from the plugin, and the ranking uses an optional measuring tool on your machine (`/mos:eureka enable` installs it). On a bare install it tells you what is missing instead of guessing. It also needs a room with ideas from more than one area to work on.
+Be clear about what each part needs:
+
+- `/mos:eureka` works on a plain install. It needs no engine and no extra install. It needs a room with ideas from more than one area.
+- `/mos:eureka-portfolio` ranks your linked ideas with a measuring tool on your computer. `/mos:eureka enable` installs it (about 380 MB). Without it, the command tells you what is missing instead of guessing.
+- The Eureka engine tools are an advanced extra. The server lists 24 Eureka tools (the runtime count), and 22 of them need the engine. The engine is a separate folder that you already have. This plugin does not download or include the engine. `/mos:eureka enable engine --path` followed by your folder saves it.
+- Setup has three parts. First, the Python packages: run `/mos:eureka enable engine --sync` after you approve a card that lists every website it will contact. Second, a model folder that you place yourself (the engine never downloads one). Third, Node.js 22 or newer for some tools. The check also needs uv and Python 3.11 or newer.
+- After setup the plugin starts the engine offline, and it never lets the engine install anything by itself. It sees only the items you select, and your room text stays on your machine. A test of the engine itself, run by you, is still open.
+- If a tool needs a package group, a model or Node.js that you do not have, it says which, with one fix line. `/mos:doctor` shows one line named eureka-engine-readiness: not set up (fine), ready, or what is missing.
+- Claude Desktop on the same computer reads the saved setting. Where the setting is not found, the engine tools say the engine is not set up.
 
 ---
 
