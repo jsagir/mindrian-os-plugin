@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 # research-speaker -- Proactive web research on a newly identified meeting speaker
 #
-# Usage: research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--apply]
+# Usage: research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--list-queries] [--approve TOKEN] [--apply]
 # Example: research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring platform"
 #
 # Performs web research on a speaker in the context of the project/room.
 # Outputs research summary to stdout for user confirmation.
 # With --apply flag, updates the speaker's PROFILE.md with findings.
+#
+# Phase 386 plan 24 (owner decision 2026-11-06): nothing is sent until the user
+# approves the exact searches. --list-queries prints the 3 searches and the
+# approval token and sends nothing. A run sends only with --approve TOKEN, after
+# a credential check, and records each search in the room audit ledger. --apply
+# needs the same token. No content scan runs. The check and the record use
+# lib/core/web-path-gate.cjs (needs node; without node nothing is sent).
 #
 # Exit 0 on success (or research unavailable -- not fatal)
 # Exit 1 on failure (missing profile, invalid args)
@@ -19,7 +26,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 research-speaker -- Proactive web research on a newly identified meeting speaker
 
 USAGE:
-  research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--apply]
+  research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--list-queries] [--approve TOKEN] [--apply]
 
 ARGUMENTS:
   room_dir         Path to the room directory (e.g., room/)
@@ -28,14 +35,24 @@ ARGUMENTS:
   project-context  Brief project/venture description for search context
 
 OPTIONS:
-  --apply          Apply research findings to PROFILE.md (requires prior user confirmation)
+  --list-queries   Print the exact searches and the approval token. Sends nothing.
+  --approve TOKEN  Send the searches. TOKEN must be the token of the exact list.
+                   Without a matching token nothing is sent.
+  --apply          Apply research findings to PROFILE.md (requires prior user
+                   confirmation and the same --approve TOKEN)
 
 EXAMPLES:
   # Research and output findings for review
   research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring"
 
+  # Show the exact searches first (sends nothing)
+  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring" --list-queries
+
+  # Send them after the user approves
+  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring" --approve TOKEN
+
   # Apply confirmed findings to profile
-  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring" --apply
+  research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring" --approve TOKEN --apply
 
 OUTPUT:
   Without --apply: Prints research summary markdown to stdout
@@ -59,7 +76,22 @@ ROOM_DIR="$1"
 SPEAKER_SLUG="$2"
 DISPLAY_NAME="$3"
 PROJECT_CONTEXT="$4"
-APPLY_FLAG="${5:-}"
+APPLY_FLAG=""
+LIST_MODE=false
+APPROVE_TOKEN=""
+shift 4
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --apply) APPLY_FLAG="--apply" ;;
+    --list-queries) LIST_MODE=true ;;
+    --approve)
+      if [[ $# -ge 2 ]]; then APPROVE_TOKEN="$2"; shift; fi
+      ;;
+  esac
+  shift
+done
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GATE_CLI="${SCRIPT_DIR}/../lib/core/web-path-gate.cjs"
 
 # Validate room_dir exists
 if [[ ! -d "$ROOM_DIR" ]]; then
@@ -121,23 +153,64 @@ urlencode() {
     || echo "$string" | sed 's/ /+/g; s/"/%22/g'
 }
 
-# Construct search queries
-QUERY1=$(urlencode "\"${DISPLAY_NAME}\" ${VENTURE_DOMAIN:-${PROJECT_CONTEXT}}")
-QUERY2=$(urlencode "\"${DISPLAY_NAME}\" ${SPEAKER_ROLE} linkedin OR crunchbase OR twitter")
-QUERY3=$(urlencode "\"${DISPLAY_NAME}\" ${VENTURE_KEYWORDS}")
+# Construct the 3 search strings (a line break becomes a space, so one search is one line)
+RAW1=$(printf '%s' "\"${DISPLAY_NAME}\" ${VENTURE_DOMAIN:-${PROJECT_CONTEXT}}" | tr '\r\n' '  ')
+RAW2=$(printf '%s' "\"${DISPLAY_NAME}\" ${SPEAKER_ROLE} linkedin OR crunchbase OR twitter" | tr '\r\n' '  ')
+RAW3=$(printf '%s' "\"${DISPLAY_NAME}\" ${VENTURE_KEYWORDS}" | tr '\r\n' '  ')
+RS_STRINGS=("$RAW1" "$RAW2" "$RAW3")
+QUERY1=$(urlencode "$RAW1")
+QUERY2=$(urlencode "$RAW2")
+QUERY3=$(urlencode "$RAW3")
+
+# Phase 386 plan 24: ask before anything is sent (owner decision 2026-11-06).
+# Order: node check, credential check, list mode, token check. Only then curl.
+if ! command -v node >/dev/null 2>&1 || [[ ! -f "$GATE_CLI" ]]; then
+  echo "Research not sent: the approval check needs node and lib/core/web-path-gate.cjs. Nothing was sent."
+  exit 0
+fi
+if ! printf '%s\n' "${RS_STRINGS[@]}" | node "$GATE_CLI" credential --surface research_speaker >/dev/null 2>&1; then
+  echo "Research not sent: a search looks like it holds a credential. Nothing was sent."
+  exit 0
+fi
+EXPECTED_TOKEN=$(printf '%s\n' "${RS_STRINGS[@]}" | node "$GATE_CLI" token 2>/dev/null || echo "")
+if [[ -z "$EXPECTED_TOKEN" ]]; then
+  echo "Research not sent: the approval token could not be built. Nothing was sent."
+  exit 0
+fi
+if [[ "$LIST_MODE" == true ]]; then
+  echo "Searches that would be sent (3):"
+  i=1
+  for s in "${RS_STRINGS[@]}"; do
+    echo "${i}. ${s}"
+    i=$((i + 1))
+  done
+  echo "Approval token: ${EXPECTED_TOKEN}"
+  echo "Nothing was sent."
+  exit 0
+fi
+if [[ -z "$APPROVE_TOKEN" || "$APPROVE_TOKEN" != "$EXPECTED_TOKEN" ]]; then
+  echo "Approval is needed before research is sent. Run with --list-queries to see the exact searches and the token. Nothing was sent."
+  exit 0
+fi
 
 # Attempt web search using curl (Google search as fallback)
 SEARCH_RESULTS=""
 SEARCH_AVAILABLE=false
 
-# Try fetching search results
+# Try fetching search results; one audit record per search sent
+qi=0
 for query in "$QUERY1" "$QUERY2" "$QUERY3"; do
   result=$(curl -s -m 10 "https://www.google.com/search?q=${query}&num=5" \
     -H "User-Agent: Mozilla/5.0" 2>/dev/null || echo "")
+  outcome="failed"
   if [[ -n "$result" ]]; then
     SEARCH_AVAILABLE=true
     SEARCH_RESULTS="${SEARCH_RESULTS}${result}"
+    outcome="ok"
   fi
+  printf '%s\n' "${RS_STRINGS[$qi]}" | node "$GATE_CLI" record --room "$ROOM_DIR" --provider google_search --outcome "$outcome" >/dev/null 2>&1 \
+    || echo "Audit record not written for search $((qi + 1))." >&2
+  qi=$((qi + 1))
 done
 
 # Parse results (basic extraction)

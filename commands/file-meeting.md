@@ -1190,12 +1190,16 @@ After the entire 6-step pipeline is complete, check if any new speaker profiles 
 For each new speaker profile:
 
 1. Extract venture context from `room/STATE.md` (venture name, domain, stage) or use confirmed meeting context
-2. Run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>"`
-3. Present the research findings to the user:
+<!-- approval-step-begin -->
+2. Show the exact searches first. Run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --list-queries`. It prints the 3 searches and an approval token, and it sends nothing.
+3. Ask the user: "These 3 searches would go to Google, with {name} and the project words. Run them?" Nothing is sent before the user says yes. If the user declines, stop here and leave the profile with `research_status: pending`.
+4. After yes, run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --approve <token>`. A search that looks like it holds a credential is refused before it is sent, and each search that is sent gets one line in the room's audit record.
+<!-- approval-step-end -->
+5. Present the research findings to the user:
    > "Here's what I found about {name}. Want me to update their profile?"
-4. **User confirms** before any research content is written to PROFILE.md
-5. If confirmed, run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --apply`
-6. If declined: Leave profile with `research_status: pending` -- user can research later
+6. **User confirms** before any research content is written to PROFILE.md
+7. If confirmed, run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/research-speaker" <room_dir> <speaker-slug> <display-name> "<project-context>" --approve <token> --apply` (the same token as step 4)
+8. If declined: Leave profile with `research_status: pending` -- user can research later
 
 **Important:** Research runs AFTER the filing pipeline. Never block filing on external API calls. This follows Pitfall 7 from research: proactive research is valuable but must not interrupt the core workflow.
 

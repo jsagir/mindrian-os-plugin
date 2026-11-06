@@ -190,14 +190,19 @@ function headUntilApply(text) {
   assert.equal(lines.lastIndexOf(APPLY_MARKER), i, 'the --apply marker line must exist once');
   return lines.slice(0, i);
 }
-leg('A3. before the --apply block, the repo script differs from the OLD script only at line 120', () => {
+// Plan 386-24: the approval gate (list mode, token, credential check, audit record) was added
+// before the curl loop, so the whole head no longer matches the OLD script line for line. The
+// urlencode function itself must still differ from the OLD function in exactly one line (the
+// python3 line), so the compare is on the function text.
+leg('A3. the urlencode function differs from the OLD function in exactly one line (the python3 line)', () => {
   needOracle();
-  const o = headUntilApply(oldText());
-  const n = headUntilApply(newText());
-  assert.equal(n.length, o.length, 'line count before the --apply block');
+  headUntilApply(newText()); // the --apply marker line must still exist once
+  const o = extractUrlencode(oldText()).split('\n');
+  const n = extractUrlencode(newText()).split('\n');
+  assert.equal(n.length, o.length, 'line count of the urlencode function');
   const diff = [];
   for (let i = 0; i < o.length; i += 1) if (o[i] !== n[i]) diff.push(i + 1);
-  assert.deepEqual(diff, [120]);
+  assert.equal(diff.length, 1, 'differing lines in the function: ' + JSON.stringify(diff));
 });
 
 const PLAIN_INPUTS = [
@@ -294,7 +299,16 @@ function makeRoom(name) {
 function runScript(script, room, displayName, context) {
   const cwd = freshCwd();
   const { env, log } = makeEnv();
-  const r = spawnSync('bash', [script, room, 'test-speaker', displayName, context], { cwd, env, encoding: 'utf8' });
+  // Plan 386-24: the repo script sends only with the approval token of its own list. List first
+  // (0 curl calls), then run with --approve. The OLD script has no such step.
+  let extra = [];
+  if (script === NEW_SCRIPT) {
+    const l = spawnSync('bash', [script, room, 'test-speaker', displayName, context, '--list-queries'], { cwd, env, encoding: 'utf8' });
+    const m = /^Approval token: ([0-9a-f]+)$/m.exec(l.stdout || '');
+    assert.ok(m, 'list mode must print an approval token: ' + String(l.stdout) + String(l.stderr));
+    extra = ['--approve', m[1]];
+  }
+  const r = spawnSync('bash', [script, room, 'test-speaker', displayName, context].concat(extra), { cwd, env, encoding: 'utf8' });
   const logText = fs.readFileSync(log, 'utf8');
   return {
     status: r.status,

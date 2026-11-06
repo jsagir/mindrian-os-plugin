@@ -132,7 +132,16 @@ function runApply(script, profileText, context) {
     TZ: 'UTC',
     CURL_STUB_LOG: log,
   };
-  const r = spawnSync('bash', [script, room, 'test-speaker', 'Sample Speaker', context, '--apply'], { cwd, env });
+  // Plan 386-24: the repo script needs the approval token of its own list on --apply. List first
+  // (0 curl calls), then pass --approve. The OLD script has no such step.
+  let extra = [];
+  if (script === NEW_SCRIPT) {
+    const l = spawnSync('bash', [script, room, 'test-speaker', 'Sample Speaker', context, '--list-queries'], { cwd, env, encoding: 'utf8' });
+    const m = /^Approval token: ([0-9a-f]+)$/m.exec(l.stdout || '');
+    assert.ok(m, 'list mode must print an approval token: ' + String(l.stdout) + String(l.stderr));
+    extra = ['--approve', m[1]];
+  }
+  const r = spawnSync('bash', [script, room, 'test-speaker', 'Sample Speaker', context, '--apply'].concat(extra), { cwd, env });
   return {
     status: r.status,
     stdout: r.stdout,
