@@ -3,9 +3,14 @@
 // Counts events per session from Claude session record files. Node built-ins only.
 // It parses each line in memory and keeps counts only. It writes no text, no file name and no path.
 //
-// Usage: node frequency-count.cjs --out <file> [--projects-dir <dir>]
+// Usage: node frequency-count.cjs --out <file> [--projects-dir <dir>] [--all-projects]
 // Reads the .jsonl files that are direct children of the folders of <dir> whose name contains
 // the room folder marker. Writes one JSON file with counts. stdout holds the basis and the session count.
+//
+// Plan 384-11 (owner decision 8): with --all-projects the counter reads the direct .jsonl files of every folder
+// of <dir>. It keeps the record type, the tool group and one date (year, month, day, never a time of day) for each
+// file, and nothing else: no text, no file name, no folder name, no path. The file is labelled development sessions.
+// stdout then holds four constant lines: basis, sessions, scope and project_folders.
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -41,14 +46,16 @@ function isPrompt(rec) {
   return false;
 }
 
-function countFile(file) {
-  const out = { prompts: 0, tool_use: {}, record_types: {} };
+// strict = true (all-projects mode): a read error returns null, so the file is not a session.
+// strict = false (default mode, as in plan 384-09): a read error returns zeros.
+function countFile(file, strict) {
+  const out = { prompts: 0, tool_use: {}, record_types: {}, date: null };
   for (const g of TOOL_GROUPS) out.tool_use[g] = 0;
   let data;
   try {
     data = fs.readFileSync(file, 'utf8');
   } catch (e) {
-    return out;
+    return strict ? null : out;
   }
   const lines = data.split('\n');
   for (const ln of lines) {
@@ -60,6 +67,8 @@ function countFile(file) {
       continue;
     }
     if (!rec || typeof rec !== 'object') continue;
+    // The date: the first 10 characters of the first top-level timestamp that starts with YYYY-MM-DD.
+    if (out.date === null && typeof rec.timestamp === 'string' && /^\d{4}-\d{2}-\d{2}/.test(rec.timestamp)) out.date = rec.timestamp.slice(0, 10);
     const t = safeType(rec.type);
     out.record_types[t] = (out.record_types[t] || 0) + 1;
     if (isPrompt(rec)) out.prompts += 1;
@@ -89,16 +98,18 @@ function stat(a) {
   return { median: median(a), p95: p95(a) };
 }
 
-function listSessionFiles(projectsDir) {
+// Returns the session files and the number of folders that hold at least one of them. Names are never kept.
+function listSessionFiles(projectsDir, allProjects) {
   const files = [];
+  let folders = 0;
   let dirs = [];
   try {
     dirs = fs.readdirSync(projectsDir, { withFileTypes: true });
   } catch (e) {
-    return files;
+    return { files, folders };
   }
   for (const d of dirs) {
-    if (!d.isDirectory() || !d.name.includes(MARKER)) continue;
+    if (!d.isDirectory() || (!allProjects && !d.name.includes(MARKER))) continue;
     const base = path.join(projectsDir, d.name);
     let entries = [];
     try {
@@ -106,11 +117,39 @@ function listSessionFiles(projectsDir) {
     } catch (e) {
       continue;
     }
+    let here = 0;
     for (const e of entries) {
-      if (e.isFile() && e.name.endsWith('.jsonl')) files.push(path.join(base, e.name));
+      if (e.isFile() && e.name.endsWith('.jsonl')) {
+        files.push(path.join(base, e.name));
+        here += 1;
+      }
     }
+    if (here > 0) folders += 1;
   }
-  return files;
+  return { files, folders };
+}
+
+// The dates block: counts and dates only (year, month, day).
+function datesBlock(per) {
+  const days = new Set();
+  const months = {};
+  let without = 0;
+  let first = null;
+  let last = null;
+  for (const x of per) {
+    if (!x.date) {
+      without += 1;
+      continue;
+    }
+    days.add(x.date);
+    const m = x.date.slice(0, 7);
+    months[m] = (months[m] || 0) + 1;
+    if (first === null || x.date < first) first = x.date;
+    if (last === null || x.date > last) last = x.date;
+  }
+  const sorted = {};
+  for (const m of Object.keys(months).sort()) sorted[m] = months[m];
+  return { first, last, active_days: days.size, sessions_per_month: sorted, sessions_without_date: without };
 }
 
 // The assumed model of plan 384-09, used when fewer than 3 session files exist.
@@ -139,22 +178,31 @@ function assumedModel() {
 
 function main(argv) {
   let out = null;
+  let allProjects = false;
   let projectsDir = path.join(os.homedir(), '.claude', 'projects');
+  const usage = 'usage: frequency-count.cjs --out <file> [--projects-dir <dir>] [--all-projects]\n';
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === '--out') out = argv[(i += 1)];
     else if (argv[i] === '--projects-dir') projectsDir = argv[(i += 1)];
+    else if (argv[i] === '--all-projects') allProjects = true;
     else {
-      process.stderr.write('usage: frequency-count.cjs --out <file> [--projects-dir <dir>]\n');
+      process.stderr.write(usage);
       return 2;
     }
   }
   if (!out) {
-    process.stderr.write('usage: frequency-count.cjs --out <file> [--projects-dir <dir>]\n');
+    process.stderr.write(usage);
     return 2;
   }
 
-  const files = listSessionFiles(projectsDir);
-  const per = files.map(countFile);
+  const listed = listSessionFiles(projectsDir, allProjects);
+  let unreadable = 0;
+  const per = [];
+  for (const file of listed.files) {
+    const r = countFile(file, allProjects);
+    if (r === null) unreadable += 1;
+    else per.push(r);
+  }
   const n = per.length;
   const measured = n >= MIN_SESSIONS;
 
@@ -162,7 +210,7 @@ function main(argv) {
     schema: 'mos.freq-384/1',
     basis: measured ? 'measured from ' + n + ' session files' : 'ASSUMED model',
     sessions: n,
-    privacy: 'counts only: no text, no file name, no path',
+    privacy: allProjects ? 'counts and dates only: no text, no file name, no folder name, no path, no time of day' : 'counts only: no text, no file name, no path',
     totals: {
       prompts: per.reduce((s, x) => s + x.prompts, 0),
       tool_use: {},
@@ -189,8 +237,20 @@ function main(argv) {
     result.model = assumedModel();
   }
 
+  if (allProjects) {
+    result.scope = 'all project folders';
+    result.label = 'development sessions';
+    result.project_folders = listed.folders;
+    result.unreadable_files = unreadable;
+    result.dates = datesBlock(per);
+  }
+
   fs.writeFileSync(out, JSON.stringify(result, null, 2) + '\n');
-  process.stdout.write('basis: ' + result.basis + '\nsessions: ' + n + '\n');
+  if (allProjects) {
+    process.stdout.write('basis: ' + result.basis + '\nsessions: ' + n + '\nscope: ' + result.scope + '\nproject_folders: ' + result.project_folders + '\n');
+  } else {
+    process.stdout.write('basis: ' + result.basis + '\nsessions: ' + n + '\n');
+  }
   return 0;
 }
 
