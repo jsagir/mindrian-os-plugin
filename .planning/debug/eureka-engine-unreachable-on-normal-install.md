@@ -1,5 +1,6 @@
 ---
-status: investigating
+status: fixed
+leak_proof: OPEN until the owner runs tests/test-387-eureka-live-leak.cjs (Plan 387-10) and the result is pasted below.
 kind: rca
 trigger: "eureka-engine-unreachable-on-normal-install"
 issue_id: ""
@@ -8,7 +9,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [7, 8, 9]
 created: 2026-11-06T08:25:26Z
-updated: 2026-11-06T09:20:00Z
+updated: 2026-11-06
 ---
 
 ## Source-of-Truth Preamble
@@ -23,7 +24,7 @@ updated: 2026-11-06T09:20:00Z
 hypothesis: CONFIRMED with one change. The 22 engine tools refuse because nothing in the shipped files sets MINDRIAN_EUREKA_ROOT. Of the 2 tools that need no engine, only eureka_graph_project answers; eureka_critic fails on every install because its baseline file is not shipped.
 test: Run the real stdio server from an installed-layout copy with no engine present (done, linked layout, 6 scenarios, 2 client identities).
 expecting: (met) 24 eureka names; 19 engine_not_configured; 3 job_session_not_found; 1 ok.
-next_action: Plans 387-03 to 387-11 (owner decision first, plan 387-02). Raise the eureka_critic shipping defect with the owner of plan 387-05 or a quick task.
+next_action: The plugin-side fixes of plans 387-03 to 387-11 are done and tested (see Resolution). The proof against the real engine is OPEN: the owner runs tests/test-387-eureka-live-leak.cjs (Plan 387-10, runbook 387-LEAK-RUNBOOK.md) and pastes the result under Owner leak test result. The eureka_critic shipping defect was fixed by the peer quick 261106.
 
 ## Meta
 
@@ -456,13 +457,64 @@ Classification: the research planner perspective with no engine, and eureka_grap
 - Canon gates: Part 8 (no room text leaves: the perspective arm made 0 network attempts; the plugin side of the engine path is a gap, fixed by plan 387-06), Tri-Polar (the MCP server is one code path for CLI, Desktop and Cowork; tools/list is identical for both client identities; a real Desktop and a real Cowork run were not made), cross-platform (probe run on Linux only; the S2 launch uses `env -i`, which Windows lacks, so Windows is UNVERIFIED), no em dashes (checked), reuse before build (the probe reuses the pack and layout idea of `tests/test-369-installed-layout.cjs`, the session-binding approach of `tests/test-desktop-stdio-session-binding.cjs`, `tests/helpers/isolated-home-36925.cjs` and `tests/helpers/fixture-366.cjs`).
 - UNVERIFIED: the npm ci layout (no network allowed); the real engine behavior for uv sync, extras, model and Node; a real Desktop launch environment.
 
+## After table (Plan 387-08, same probe, same fixtures)
+
+Source: `.planning/phases/387-eureka-reachable-on-a-normal-install/387-08-OBSERVATIONS-AFTER.json` (probe at plugin 2.0.0-beta.80, linked layout, 7 scenarios, both client identities) next to `387-01-OBSERVATIONS.json`. Compared per tool and bound state on reason, engine_state, cause, fix and engine_start_line. S1 to S6 each list 48 calls (24 tools, unbound and bound); S7 is new.
+
+| Scenario | Before | After |
+|----------|--------|-------|
+| S1 and S2 (nothing set, full and Desktop-shaped environment) | 19 engine_not_configured with texts that name a variable; the 18 projection tools (eureka_graph_project included) answered no_bound_room first when unbound | 19 engine_not_configured, engine_state absent, with a fix line; the engine check runs before the room check, so unbound calls answer the engine state too; 3 job tools answer job_session_not_found with engine_state absent; eureka_graph_project ok; eureka_critic answers a ruling (peer quick 261106) |
+| S3 (folder without pyproject.toml) | 19 engine_checkout_unavailable, one generic text | 19 engine_checkout_unavailable, engine_state broken, cause pyproject_missing, fix line |
+| S4 and S5 (no uv, uv path missing) | 19 engine_unavailable, several different generic texts | 19 engine_unavailable, engine_state broken, cause uv_missing, fix line |
+| S6 (uv fails to start, fake uv) | 19 engine_unavailable, text "Connection closed", uv error line lost | 19 engine_unavailable, cause python_missing, the cleaned first start line as engine_start_line, fixed sentence |
+| S7 (new: saved setting, no variable, Desktop-shaped environment) | not present | the gate passes with no variable; calls fail at the missing uv with cause uv_missing (a simulation, not a real Desktop launch) |
+| uv arguments on the 4 spawning paths (S6 fake uv log) | plain `run --project ROOT --extra mcp-server ... eureka-mcp`; UV_OFFLINE 1 on the graph path only | `run --no-sync --offline --locked --no-python-downloads --project ROOT --extra ... eureka-mcp`; UV_OFFLINE, HF_HUB_OFFLINE and TRANSFORMERS_OFFLINE are 1 on all 4 paths |
+
+Cell counts, S1 to S6 against the before-state: S1 and S2 46 of 48 calls changed, S3 46, S4 and S5 and S6 23. Unchanged: the job tools' reason in S4 to S6 and the 24-name tool list (75 distinct tools in all scenarios). The 2 calls that changed only in isError are eureka_critic (error before, ruling after).
+
 ## Resolution
 
-root_cause: See Technical Root Cause (a) to (h). Diagnosis complete for the plugin side; engine-side claims stay UNVERIFIED.
-fix: none in this plan (reproduction and RCA only)
-verification: `node tests/test-387-eureka-installed-layout.cjs` (8 arms pass) and `bash tests/run-all-387.sh`
+root_cause: See Technical Root Cause (a) to (h). (a) to (g) were plugin-side and are fixed; (h) was fixed by the peer quick 261106. The engine-side claims stay UNVERIFIED.
+fix: |
+  Plan 387-03: one resolver (override variable, saved setting, default folder), 13 typed causes, the needs map and the uv argument builders.
+  Plan 387-09: /mos:eureka enable engine (check, path, forget, data, grant-gated sync, deep check).
+  Plan 387-05: the engine check at the registration chokepoint, before the room projection, with 3 typed states.
+  Plan 387-11: route needs (package group, model folder, Node.js) and typed start causes with the cleaned first start line.
+  Plan 387-04: command text for the enable flow on every surface.
+  Plan 387-07: the eureka-engine-readiness doctor point.
+  Plan 387-06: --no-sync --offline --locked --no-python-downloads in the uv arguments of all 4 spawning paths, the offline variables on all 4, UV_PROJECT_ENVIRONMENT in the runtime allowlist, the Part 8 proof with a fake engine.
+  Plan 387-10: the owner-run live leak test and its runbook.
+  Plan 387-08: README and engine guide wording, this after-table.
+verification: |
+  bash tests/run-all-387.sh passes (the live leak test shows SKIPPED, exit 77, opt-in absent). The 33 non-live Eureka tests pass. The egress test (22 arms) proves the plugin side of Part 8 with a fake engine. Registry and mirror checks pass. This is plugin-side verification only.
 files_changed:
-  - .planning/debug/eureka-engine-unreachable-on-normal-install.md (this file)
-  - .planning/phases/387-eureka-reachable-on-a-normal-install/387-01-OBSERVATIONS.json (measured report)
-  - tests/helpers/eureka-installed-layout-387.cjs, tests/test-387-eureka-installed-layout.cjs, tests/run-all-387.sh
-commits: see plan 387-01 SUMMARY
+  - lib/core/eureka/eureka-engine-resolver.cjs, eureka-engine-requirements.cjs, eureka-engine-enable.cjs
+  - lib/mcp/eureka-tool-contract.cjs, lib/mcp/tools/eureka-capability-run.cjs, eureka-capability-jobs.cjs, eureka-graph-analyze.cjs, eureka-graph-discovery-signals.cjs
+  - commands/eureka.md, skills/eureka/SKILL.md, lib/core/doctor/eureka-engine-readiness-module.cjs and data/doctor-modules.json (readiness point)
+  - README.md, docs/integrations/mindrian-eureka-engine.md
+  - tests/test-387-eureka-*.cjs, tests/test-341-eureka-no-brain-reach.cjs, tests/helpers/*387*, tests/fixtures/eureka-fake-engine-387/
+commits: |
+  387-03 18d15352b 79305241a 554660914 (summary d710ac24e)
+  387-09 a6777ae61 16b4bf2f8
+  387-05 c46efc0ed 2b83948cc
+  387-07 9e42b00f5 892ab2de4
+  387-04 5301209cc 1e49c5ac0
+  387-11 3f795388c 173a5b1e9 25838bb02 (summaries 9e0a0e8d4)
+  387-06 45553f2b2 e09eb5077 f31a42d57 (summary 1b919d711)
+  387-10 dcd9d5617 f11cdc06d ac8fa2d58 (summary 2fef6ed08)
+  387-08 e93dafbcc 19982095e, and the closing commits of this plan
+leak_proof: OPEN. The plugin side of Part 8 is proven with a fake engine. The proof against the real engine is not done.
+
+## Open items
+
+- The plugin side of Part 8 is proven with a fake engine (Plan 387-06: the engine gets the selected snapshot only, a clean environment, the engine folder as working folder, and the offline arguments on every start).
+- The proof against the real engine is NOT done: no non-local connect, writes only in its data and cache folders, a planted marker absent from `jobs.sqlite3` and `embeddings.sqlite3`, and the engine own no_network tests. It is the owner-run test `tests/test-387-eureka-live-leak.cjs` (runbook `.planning/phases/387-eureka-reachable-on-a-normal-install/387-LEAK-RUNBOOK.md`). The live arms are UNVERIFIED because the real engine was not run.
+- The effect of `--no-sync --offline --locked --no-python-downloads` inside the real engine project is NOT done. The flags parse together on uv 0.9.4 in an empty folder; no run in the real project was made.
+- The model and Node.js cells marked audit-hypothesis in the Plan 387-03 needs table are NOT confirmed.
+- A real Claude Desktop launched from a menu and a real Cowork session were not run. Scenarios S2 and S7 simulate a Desktop-shaped launch.
+
+## Owner leak test result
+
+status: not run
+
+Whoever records the owner result later replaces the line above with the pasted output, adds the plugin version and engine commit tested, sets `leak_proof: CLOSED` with the date, and only then moves this file to `.planning/debug/resolved/`.
