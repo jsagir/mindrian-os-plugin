@@ -50,6 +50,14 @@ Written by session jsagi-33 (plugin session) because its context was near full. 
 
 test-252-guard-census census.1 and 5b; check-pending-breakthrough Test 12; test-237-autonomy-parity Leg 5; test-connector-tier-d-hooks CHECK 4; test-connector-part8-boundary CHECK 2; run-all-179 leg 179-08; test-244-doctor-fts-health 7/4 (doctor acceptance takes about 68 s against a 60 s test timeout; predates the work); test-359-prose-budget; run-all-341 four release-step tripwires; run-all-366 leg 380 gate-wiring; run-all-178 five failures; run-all-272 leg 272-cache-probe.
 
+## Leads relayed by the owner's parallel session (hypotheses, read-only, not verified here)
+
+- Room.db for the owner's room is NOT damaged: opened read-only from WSL, 25 tables, 12 MB, WAL updated a minute earlier. The session-start "cannot be opened" was most likely a lock difference between WSL and the Windows drive at that moment. Plan 386-45 (B18) must test this cause first and keep the typed-cause fix; do not assume corruption. The room-path-as-a-section display bug is plan 386-44 (B17).
+- Hooks wired: about 40 to 41 (SessionStart 9, PostToolUse 9, UserPromptSubmit 7, Stop 5, PreToolUse 4, six other events 1 each). The 7 UserPromptSubmit hooks run on every message and were NOT timed by that session: time them in Phase 384 before trimming further.
+- Capability radar (`references/capability-radar`) was last fetched 2026-10-02 (35 days, Claude Code up to 2.1.287); ledger rows dormant and untriaged. Two rows matter: hooks can call an MCP tool directly (hook type `mcp_tool`, from Claude Code 2.1.118), which would remove the Node proxy behind "hook timed out" failures (a Phase 384 lever, unverified here); and the built-in `/ultrareview` may duplicate ours. The fetch writes to the tree, so run it deliberately (owner's word).
+- Usage counts (session logs, this machine, Claude Code only; Desktop, Cowork, testers and students not counted): 1572 files, 2026-04-07 to 2026-11-06; 25 of 113 commands run; only 34 distinct plugin MCP tools called (top: brain_ask 60, artifact_file 31, room_bind 27, brain_query 25). Weak evidence for Phase 390; never cut on this alone.
+- MVA facts for Phase 389 are in its PRD. Grade, deep-grade, grade-grant: KEEP (recorded in 390).
+
 ## Useful facts
 
 - Audit sources are filed verbatim in `.planning/audits/AUDITOR-FINDINGS-source.md` (sections A-H); checks in `EGRESS-CLAIMS-CHECK.md`, `AUDIT-2-DELTA.md`, `AUDIT-3-DELTA.md`, `EUREKA-ENGINE-FACTS.md`, `EUREKA-ENGINE-CROSSCHECK.md`.
