@@ -12,6 +12,7 @@
  *
  * Pitfall 6 gates (RESEARCH §8):
  *   - Requires cascade.cascade_status === 'completed' (Phase 95 contract)
+ *   - Counts each cascade record once (386-15: timestamp|file_path)
  *   - Requires within-session current.confidence >= 0.6
  *   - Manual `/mos:memory complete` is the user override for false negatives
  *
@@ -51,6 +52,16 @@ function detectAndFire(roomDir, roomSlug) {
     // accept "complete" or "completed" for forward compatibility.
     const statusOk = cascade.cascade_status === 'completed' || cascade.cascade_status === 'complete';
     if (!statusOk) return;
+
+    // Phase 386-15 (B7): count a cascade record once. last-cascade.json is a
+    // single file that survives every later write, so without an identity check
+    // each later PostToolUse would count the same record again. The identity is
+    // timestamp plus file_path (the 8-key side-channel contract has no id key).
+    const cascadeId = String(cascade.timestamp || '') + '|' + String(cascade.file_path || '');
+    const countedPath = path.join(roomDir, '.mindrian', 'last-cascade-counted');
+    try {
+      if (fs.readFileSync(countedPath, 'utf8').trim() === cascadeId) return;
+    } catch (_) { /* no stored identity yet */ }
 
     // 2. Read within-session JTBD (Phase 100).
     let cur = null;
@@ -124,6 +135,7 @@ function detectAndFire(roomDir, roomSlug) {
     //   - graph-edge intent line for Canon Part 4 (drained later)
     const acrossSession = require('../lib/hmi/across-session-memory.cjs');
     acrossSession.completeJtbd(roomSlug, cur.jtbd, matched, cascade.file_path || '');
+    try { fs.writeFileSync(countedPath, cascadeId + '\n'); } catch (_) { /* advisory marker */ }
 
     // Phase 144.1-06 RETRO-03 (audit item 66): fire SENS-06 (context_block /
     // jtbd-inference / pull_back) through the navigation chokepoint so the engine

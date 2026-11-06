@@ -75,6 +75,11 @@ const ALLOWED_TOP_LEVEL = new Set([
 const TRIGGER_PREFIXES = [
   'post-write: cascade complete ',
   'queued MINTO regen for ',
+  // Phase 386-15 (B7): an honest advisory for a cascade that did not run.
+  // The room-proactive skill keys off the first two prefixes only, so a
+  // skipped or failed cascade does not trigger it.
+  'post-write: cascade skipped for ',
+  'post-write: cascade failed for ',
 ];
 
 let passed = 0;
@@ -390,9 +395,11 @@ const POST_WRITE = path.join(REPO, 'scripts', 'post-write');
       );
     }
 
-    // cascade_status === "complete"
-    assert.equal(payload.cascade_status, 'complete',
-      label + ': cascade_status must be "complete"');
+    // Phase 386-15 (B7): the status is the real one. This fixture sits at a
+    // path without /room/ or /rooms/, where the cascade skips, so the honest
+    // status is "skipped" (it used to be written as "complete").
+    assert.equal(payload.cascade_status, 'skipped',
+      label + ': cascade_status must be "skipped" for a path outside a room dir');
 
     // ISO 8601 timestamp shape.
     const isoRe = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;

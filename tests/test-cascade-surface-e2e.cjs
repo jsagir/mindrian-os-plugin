@@ -215,8 +215,11 @@ function runBashHook(scriptPath, envelope, opts) {
       );
     }
 
-    assert.equal(payload.cascade_status, 'complete',
-      label + ': cascade_status must be "complete"');
+    // Phase 386-15 (B7): the status is the real one. The scratch copy sits at
+    // a path without /room/ or /rooms/, where the cascade skips, so the honest
+    // status is "skipped" (it used to be written as "complete").
+    assert.equal(payload.cascade_status, 'skipped',
+      label + ': cascade_status must be "skipped" for a path outside a room dir');
 
     ok(label);
   } catch (e) {

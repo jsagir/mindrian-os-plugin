@@ -84,6 +84,24 @@ emit_post_tool_use_envelope() {
   }'
 }
 
+# Phase 386-15 (B7): the real status of a cascade run, read from its output.
+#   failed   - the output has an error key, or it is not JSON at all
+#   skipped  - the cascade returned skipped true (path outside a room, etc.)
+#   complete - the cascade ran
+# Prints one word. Never fails.
+cascade_status_of() {
+  local out="$1"
+  local word
+  word=$(printf '%s' "$out" | jq -r 'if type != "object" then "failed"
+    elif has("error") then "failed"
+    elif .skipped == true then "skipped"
+    else "complete" end' 2>/dev/null) || word="failed"
+  case "$word" in
+    failed|skipped|complete) printf '%s' "$word" ;;
+    *) printf 'failed' ;;
+  esac
+}
+
 # Write cascade payload atomically to <roomDir>/.mindrian/last-cascade.json.
 # Soft-fail at every step: a permission error, missing jq, or torn temp file
 # MUST NOT break the post-write hook.
@@ -93,9 +111,16 @@ write_cascade_side_channel() {
   local section="$3"
   local cascade_output="$4"
   local session_id="$5"
+  local cascade_status="${6:-complete}"
 
   [ -z "$room_dir" ] && return 0
   [ -z "$cascade_output" ] && return 0
+
+  # Phase 386-15 (B7): output that is not JSON must still overwrite the old
+  # record (as failed), or a stale record from an earlier write stays in place.
+  if ! printf '%s' "$cascade_output" | jq -e 'type == "object"' >/dev/null 2>&1; then
+    cascade_output='{"error":"cascade output not parseable"}'
+  fi
 
   local side_dir="$room_dir/.mindrian"
   mkdir -p "$side_dir" 2>/dev/null || return 0
@@ -106,13 +131,14 @@ write_cascade_side_channel() {
     --arg fp "$file_path" \
     --arg sec "$section" \
     --arg sid "$session_id" \
+    --arg st "$cascade_status" \
     --argjson cascade "$cascade_output" \
     '{
       timestamp: $ts,
       file_path: $fp,
       section: $sec,
       session_id: (if $sid == "" then null else $sid end),
-      cascade_status: "complete",
+      cascade_status: $st,
       classification: ($cascade.classification // null),
       git_commit: ($cascade.gitCommit // null),
       graph_index: ($cascade.graphIndex // null),
@@ -262,7 +288,14 @@ if [ -n "$room_dir" ]; then
   # outside a room), fall back to a generic "cascade complete" line.
   SM_SECTION="${SECTION:-unknown}"
   SM_BASENAME="${BASENAME:-$(basename "$FILE_PATH" 2>/dev/null || echo unknown)}"
-  if [ "$SM_SECTION" = "unknown" ]; then
+  # Phase 386-15 (B7): the advisory states what happened. A skipped or failed
+  # cascade is not reported as complete or as a queued regen.
+  CASCADE_STATUS=$(cascade_status_of "$CASCADE_OUTPUT")
+  if [ "$CASCADE_STATUS" = "skipped" ]; then
+    SM_TEXT="post-write: cascade skipped for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
+  elif [ "$CASCADE_STATUS" = "failed" ]; then
+    SM_TEXT="post-write: cascade failed for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
+  elif [ "$SM_SECTION" = "unknown" ]; then
     SM_TEXT="post-write: cascade complete for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
   else
     SM_TEXT="queued MINTO regen for ${SM_SECTION}, recompiled references (${SM_BASENAME})"
@@ -272,7 +305,7 @@ if [ -n "$room_dir" ]; then
   # The full cascade payload (classification + gitCommit + graphIndex +
   # proactiveIntelligence) goes into <roomDir>/.mindrian/last-cascade.json.
   # Stdout is ONLY the schema-valid envelope advisory.
-  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT" "$SESSION_ID"
+  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT" "$SESSION_ID" "$CASCADE_STATUS"
   emit_post_tool_use_envelope "$SM_TEXT"
 fi
 
