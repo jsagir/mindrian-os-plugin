@@ -161,3 +161,20 @@ fix: none applied. Awaiting the owner decision.
 verification: see Evidence (all rows PROVEN with test doubles; the host honouring `onFailure` end to end is UNVERIFIED).
 files_changed: none
 commits: see git log of this file
+
+## Owner decision
+
+decision: option-a
+outage-count: yes
+
+- Date: 2026-11-06
+- Choice: fail closed in the hook, callTool and query() with the typed reason `guard_unavailable` (hook) and `egress_guard_unavailable` (belts). A provably empty payload still proceeds. Add a count-only local line for each outage: a timestamp, the tool name class and the failure mode. The line carries no content, no payload bytes and no tool arguments.
+- Reason: no silent allow is worth a short block during a rare outage, and the count line makes the real failure rate visible because no rate is measured today.
+- Hand-off to plan 386-30: implement option A and the outage count line (a small local file or event, count only). Add a test that the line carries no payload content (use a fake credential and a sprout as the payload and assert neither appears in the line).
+
+Probability evidence (the owner asked how likely a failure is; no rate is measured today):
+
+- Known causes: (1) a bad install or a half-finished update leaves a guard file missing or mismatched; (2) the guard load runs past the 5 s hook limit on a slow or loaded machine (the hook process loads 173 repo modules; the guard alone loads 10); (3) a future edit to the guard or its dependency chain introduces a load or classify bug.
+- None observed in the plan 386-29 session. Every failure here was produced with a test double.
+- One unexplained transient `room_check_unavailable` was seen in a hook test. The cause is not known and it is not shown to be a guard load failure (UNVERIFIED).
+- The unreadable owner room.db is a different path (a room check, not a guard load or classify failure). Plan 386-33 handles it.
