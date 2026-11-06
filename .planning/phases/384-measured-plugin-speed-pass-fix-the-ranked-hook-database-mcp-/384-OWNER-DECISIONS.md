@@ -17,7 +17,13 @@ Date: 2026-11-06. Given by the owner on the checkpoint card ("Approve all"), cov
 11. The stricter doctor-all gate (Q2, C-D) is decided after its diff is read in Wave 2 planning. Not decided here.
 12. Commit review before any push (C-E): review the commits ahead of origin by subject and file list. No push without a separate explicit go.
 
+## Later decisions (owner card answers)
+
+13. 2026-11-06, Q2 and C-D: SPLIT. Take now: name the doctor-all timeout, and fail the point on an unreadable result. Take later, after the registry entries with missing folders are cleaned up behind a gate card: the drift count. The 60 s limit stays.
+14. 2026-11-06, Phase 387 option A (Eureka): adopt an engine checkout the person already has, never fetch or ship it, check uv and Python without installing them, one optional setup step behind a card, then every engine run offline, all 23 tools stay listed with typed refusals. The licence of the engine repo stays an open owner item.
+15. 2026-11-06, Phase 386: the owner confirmed the PRD section "Accepted hardening and measurement status" (lazy folder-memory import as Part 8 hardening, S3 not measured, credential-only PreToolUse for WebSearch, WebFetch and Tavily). Also: extend the 2026-10-05 web-line ruling to Semantic Scholar, grants.gov and research-speaker (recorded in 386-PRD.md).
+
 ## Not decided
 
-- Q2 and C-D (stricter gate).
 - Pushing, tagging, releasing.
+- C-B: whether to land commit 23ab77410 (plan 384-18 stops at a checkpoint with numbers).
