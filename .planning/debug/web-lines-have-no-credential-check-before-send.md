@@ -156,8 +156,13 @@ Cold start: a fresh process that loads lib/core/web-path-gate.cjs and runs crede
 
 ## Resolution
 
-root_cause: The Part 8 hook matcher names only Brain tools; nothing inspects the web lines.
-fix: pending (Task 3).
-verification: pending (Task 3).
-files_changed: pending
-commits: pending
+root_cause: The Part 8 hook matcher names only Brain tools; nothing inspected the web lines, so a credential in a web search, fetch or Tavily call left unchecked.
+fix: scripts/web-credential-guard-hook.cjs walks every string of tool_input and runs credentialCheck of lib/core/web-path-gate.cjs only (no room-word scan). A hit exits 2 with reason credential_shaped and no key byte. Every outage branch (module load fails, credentialCheck throws, any other failure) writes one count-only line (class web) through recordGuardOutage and exits 2 with web_credential_check_unavailable (plan 386-29 option-a). hooks/hooks.json gets one PreToolUse group, timeout 5, matcher ^(?:WebSearch|WebFetch|mcp__(?:plugin_[a-z0-9_-]+_)?(?:tavily|tavily-mcp|claude_ai_Tavily)__.*)$. The qef timeout test got a P386 added record (EXPECTED relative: 46 - removed + added), a table row and a shape-comparison strip. The catalogue lists the hook as not a judgment rule.
+verification: PROVEN. node tests/test-386-web-credential-hook.cjs red at the RED commit (WH1 to WH10 all FAIL), green after the fix (10 of 10). Counts re-taken immediately before and after the edit and before the commit, no peer commit changed them: hook_count 43 -> 44, qef pinned (46 - 3) 43 -> 44, PreToolUse groups 3 -> 4. Readers after the change equal the baseline lines above: run-all-179 (only 179-08 ga4-card-fire-e2e), run-all-198 (none), test-346 (FAIL 12 for the same 2 older scripts, the new script is not listed), test-198-adapter-budget, minto-debounce-consumer-census, check-hook-schema-compatibility, test-261029-qef-hook-timeouts, test-369-hook-require-graph, test-quick-260911-juq all exit 0; the 3 generators --check exit 0; bash tests/run-all-386.sh PASS=27 FAIL=0. Network counter 0 in every hook run. Cold start of the hook after a payload with a string: 8 modules (the web-path-gate chain), counts only. The host honouring the new matcher end to end is UNVERIFIED (no live host run).
+files_changed:
+  - scripts/web-credential-guard-hook.cjs (new)
+  - hooks/hooks.json (one PreToolUse group)
+  - tests/test-261029-qef-hook-timeouts.cjs (P386, relative EXPECTED, table row, A1 strip)
+  - data/arbitration-rule-catalogue.json (not_a_judgment_rule entry)
+  - tests/test-386-web-credential-hook.cjs (new)
+commits: RCA commit, test RED (tests/test-386-web-credential-hook.cjs), 5445710e6 (feat)
