@@ -167,8 +167,11 @@ carrier_note: The sprouts travel as ordinary typed read calls (brain_ask and bra
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: every refusal is a plain block with no guide and no route (see Technical Root Cause).
-fix: pending (Task 3 of plan 386-42).
-verification: pending.
-files_changed: pending.
-commits: pending.
+root_cause: every refusal is a plain block with a reason and no guide and no route, and a body with no room word is not checked by shape at all (see Technical Root Cause).
+fix: lib/core/part8-split-route.cjs holds the typed outcome sprouts_required (route sprout_call, a 5 step split guide, a sentinel with error egress_blocked), the sprout validator (shape helper plus guard), the 4 word run check against the claims (class not_sprout), the local claim filer (writeClaimNode, all or nothing), the local assembler and runSplitRoute. The guard, the hook and the Brain client are unchanged; plans 386-27 and 386-33 make them answer with sproutsRequiredResult.
+verification: node tests/test-386-sprout-split-route.cjs prints ok for SR1 to SR8 and SR5b (the wire capture of SR5 holds no claim text and no run of 4 words of the paragraph; SR5b and SR6 show 0 claims filed and 0 fetch calls on a rejection). tests/run-all-386.sh with the prefix tests/test-386-sprout-split- reports PASSED. node tests/test-3692-guard-survey-gate.cjs prints GATE: PASS and the same MEASURED_SHA256 as before the change. bash tests/run-all-196.sh: 7 passed, 0 failed.
+files_changed:
+  - lib/core/part8-split-route.cjs (new)
+  - tests/test-386-sprout-split-route.cjs (new)
+  - .planning/debug/part8-no-split-route-for-bodies-and-private-claims.md (this file)
+commits: d1c5b4d0a (RCA), 8716bfa2f (RED test), e7dc09253 (module)
