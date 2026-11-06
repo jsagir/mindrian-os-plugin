@@ -3016,7 +3016,10 @@ function runAccumulativeEngine(flags) {
     // c. Build ctx. `checks` is the accumulating always-result map so a later
     //    module can read an earlier same-invocation result (Plan 06 reads
     //    ctx.checks['install-state']).
-    const ctx = { home, running, dryRun, fix: wantFix, flags: callerFlags, checks: alwaysChecks };
+    // Quick 386-18 (B16): roomDir carries the --room value so modules that read ctx.roomDir
+    // (graph-doctor, research-providers) see the requested room. null when no --room was given.
+    const roomDir = (typeof callerFlags.roomDir === 'string' && callerFlags.roomDir) ? callerFlags.roomDir : null;
+    const ctx = { home, running, dryRun, fix: wantFix, flags: callerFlags, checks: alwaysChecks, roomDir };
 
     // d. Resolve + run check() inside try/catch (soft-fail -> error row,
     //    self-DoS mitigation T-217-01).
