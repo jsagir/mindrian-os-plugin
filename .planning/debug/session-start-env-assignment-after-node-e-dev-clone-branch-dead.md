@@ -132,9 +132,10 @@ All other node -e blocks (scripts/session-start, scripts/on-stop, scripts/pre-co
 
 ## Resolution
 
-root_cause: see Technical Root Cause.
-fix: pending (set in Task 3).
-verification: pending (set in Task 3).
+root_cause: The `PLUGIN_ROOT_FOR_RESOLVE="..."` word followed the node -e program text, so bash passed it to node as an argument and not as an environment variable. The probe read undefined and always printed not-found.
+fix: Moved the assignment before the node command (prefix assignment) in the _MOS_TOPOLOGY line of the manifest reconcile block. One line changed. 2>/dev/null and the not-found fallback are kept. The extraction regex in the test was widened in the same commit to match the assignment with the prefix before node.
+verification: tests/test-386-session-start-topology-env.cjs T1 T2 T3 ok (RED showed T1 FAIL). The 5 session-start tests pass. bash -n scripts/session-start passes. bash tests/run-all-386.sh PASS=8 FAIL=0 at run time. The real scripts/session-start and scripts/install-pre-commit.sh were never run.
 files_changed:
-  - scripts/session-start
-commits: pending
+  - scripts/session-start (one line)
+  - tests/test-386-session-start-topology-env.cjs (extraction regex)
+commits: see the plan summary
