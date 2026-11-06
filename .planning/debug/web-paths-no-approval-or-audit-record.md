@@ -133,8 +133,12 @@ No reason was false. Option (c) stands.
 ## Resolution
 
 root_cause: The 2026-10-05 gate was built for the research planner web lines only. The 3 older paths have no shared approval, credential check or record, and the ledger refuses a provider that has no egress line.
-fix: pending until Task 3.
-verification: pending until Task 3.
+fix: added lib/core/web-path-gate.cjs (approvalToken, checkApproval, credentialCheck, recordSent, CLI token, credential and record) and added semantic_scholar, grants_gov and google_search to WEB_PROVIDERS in lib/core/research-planner/egress-policy.cjs (note text of data/egress-policy.json updated). The 3 older paths are not wired in this plan; plans 386-05, 386-23 and 386-24 call the module.
+verification: node tests/test-386-web-path-gate.cjs passes GW1 to GW7 (RED before, GREEN after). node tests/test-363-audit-ledger.cjs 5 of 5, test-366-egress-policy.cjs 24 of 24, test-3692-grant-card.cjs 9 of 9, test-366-gated-term-release.cjs 28 of 28, test-366-mcp-release-route.cjs 13 of 13, test-3692-judge-line.cjs 8 of 8, test-3692-web-lines.cjs 17 of 17, bash tests/run-all-386.sh all PASSED. Fetch counter 0. The ledger still refuses an unknown provider (egress_line_off) and a key-shaped line (key_shaped_value). Credential shapes refused by the shared check today: 2 of 10 (plan 386-31 widens them).
 files_changed:
+  - lib/core/web-path-gate.cjs (new)
+  - lib/core/research-planner/egress-policy.cjs (WEB_PROVIDERS and its comment)
+  - data/egress-policy.json (note text only)
+  - tests/test-386-web-path-gate.cjs (new)
   - .planning/debug/web-paths-no-approval-or-audit-record.md (new)
-commits: pending
+commits: 8c3a13c24 (RCA), 265bc2475 (RED), d6dbe9abe (GREEN)
