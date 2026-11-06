@@ -1,6 +1,6 @@
 {
   "schema": "mos.egress-policy/1",
-  "note": "Every non-web line the research planner can send anything out on. The web search lines (OpenAlex, Tavily, patents) are not policy lines (navigator ruling 2026-10-05): the one gate there is the run grant card showing the exact strings, and the audit ledger records every string. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
+  "note": "Every non-web line the research planner can send anything out on. The web search lines (OpenAlex, Tavily, patents) are not policy lines (navigator ruling 2026-10-05): the one gate there is the run grant card showing the exact strings, and the audit ledger records every string. The older web paths (Semantic Scholar, grants.gov, research-speaker) follow the same rule since the owner decision of 2026-11-06: an approval card, a credential check and the audit record. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
   "lines": {
     "vector_model_download": {
       "endpoint": "huggingface.co",
