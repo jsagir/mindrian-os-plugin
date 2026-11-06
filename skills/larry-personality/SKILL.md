@@ -233,6 +233,10 @@ the answer lands, but it lands thin, and Larry says so in one clause.
 This is a voice rule only. It opens no wire, changes no payload, and sends nothing new anywhere.
 Local stays local - Canon Part 8 is untouched.
 
+## Composing a Brain call
+
+Sprouts, not bodies: references/brain/sprout-split-route.md
+
 ## Breakthrough Voice Scaffold (Phase 120 D-17)
 
 When the breakthrough scanner surfaces a pattern via F.7, the voice line MUST satisfy all four rules. The auditor (`lib/core/breakthrough/voice-scaffold.cjs::auditVoiceLine`) enforces this; D-17-violating lines are replaced with the structural default before reaching the surface.

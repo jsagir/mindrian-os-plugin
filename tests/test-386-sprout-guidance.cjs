@@ -21,6 +21,7 @@ const cp = require('node:child_process');
 const REPO = path.resolve(__dirname, '..');
 const RCA = path.join(REPO, '.planning', 'debug', 'part8-no-split-route-for-bodies-and-private-claims.md');
 const CLAIM_TYPES = ['fact', 'causal', 'heuristic', 'anomaly_cue', 'mental_model', 'assumption'];
+const REF_PATH = 'references/brain/sprout-split-route.md';
 const RULE = /sprouts? and never a body/i;
 
 function read(rel) { return fs.readFileSync(path.join(REPO, rel), 'utf8'); }
@@ -47,13 +48,22 @@ const arms = [];
 function arm(label, fn) { arms.push({ label: label, fn: fn }); }
 
 arm('SG1', () => {
+  // The persona skill carries only a short pointer (the persona guard tests allow
+  // about 100 bytes of new machinery text and no new snake_case token). The full
+  // guidance lives in the reference file the pointer names.
   const route = routeName();
   const sec = slice(read('skills/larry-personality/SKILL.md'), /^##+ Composing a Brain call/, /^## /);
   check(sec.length > 0, 'no heading that starts "Composing a Brain call"');
-  ['sprouts_required', 'claim_write', route].forEach((w) => check(sec.indexOf(w) !== -1, 'section lacks ' + w));
-  CLAIM_TYPES.forEach((t) => check(sec.indexOf(t) !== -1, 'section lacks claim type ' + t));
-  check(/12 words/.test(sec), 'section lacks the 12 words limit');
-  check(RULE.test(sec), 'section lacks the rule "sprouts and never a body"');
+  const body = sec.split('\n').slice(1).join('\n').trim();
+  check(body.indexOf(REF_PATH) !== -1, 'pointer lacks the reference path ' + REF_PATH);
+  check(Buffer.byteLength(body, 'utf8') <= 110, 'pointer is at most 110 bytes, got ' + Buffer.byteLength(body, 'utf8'));
+  check(!/[a-z]+_[a-z]+/.test(body), 'pointer holds no snake_case token');
+  const ref = read(REF_PATH);
+  ['sprouts_required', 'claim_write', route].forEach((w) => check(ref.indexOf(w) !== -1, 'reference lacks ' + w));
+  CLAIM_TYPES.forEach((t) => check(ref.indexOf(t) !== -1, 'reference lacks claim type ' + t));
+  check(/12 words/.test(ref), 'reference lacks the 12 words limit');
+  check(RULE.test(ref), 'reference lacks the rule "sprouts and never a body"');
+  check(/run of four words/i.test(ref), 'reference lacks the four word run rule');
 });
 
 arm('SG2', () => {
