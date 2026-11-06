@@ -19,6 +19,7 @@ Verbatim extraction from the owner session transcript. All text below was pasted
 | E | Auditor question list (16 questions) for the owner, pre-findings | Auditor question list |
 | F | Auditor egress audit, final message (Part 8 guard, four stacked problems, Phase 386 ordering note) | Auditor egress audit, final message |
 | G | Second auditor handoff, older commit 72b0eed8 (packet bypass, brain_write ambiguity, wiki/entity/chat egress, over-blocking, fail-closed room check, 46-claim comparison) | Second auditor handoff (older commit 72b0eed8) |
+| H | Third external audit handoff, pinned baseline 72b0eed8 (lazy import, web credential hook, web-path ruling, Phase 387 fresh-install check, 75 tools / 24 Eureka names, audit limits) | Third external audit handoff (pinned baseline 72b0eed8) |
 
 Versions: each text appears once in the transcript; no duplicate versions found, except D3 (superseded by its own correction in D4) and R1 report updates (D6 replaces the first R1 report, which was not pasted in full by the owner; only D4 quotes its verdicts).
 Redaction (Canon Part 8): one room path pattern replaced with <room> in item B (T04). Wrapper tags `<pasted_content>` removed. Owner prefix "WHAT QUESTION DO I NEED TO ANSWER ?" removed from D5 (owner words, not auditor text). The first words of C1 start with `'d` because the transcript card answer cut them; kept as is.
@@ -697,4 +698,47 @@ Findings to prioritize:
 - Fail-closed room check: a malformed synthetic room DB blocked 534 of 535 extended queries as room_check_unavailable.
 Claim comparison: the claim-by-claim file covers all 46 IDs. Notable divergences: R-f is refuted because scripts/pycache is absent and untracked at this SHA; R-b and R-c are partly confirmed due remaining references; R-g's runtime counts were not executed; E-h measured 172 loaded repo modules and 56.63 ms for one cold guard load; E-k is partly contradicted, including the count of files matching the exact verdict assertion.
 The PENDING debug hypotheses are explained in the report: generic framework tools are ambiguous on the non-shim pws-brain-mcp scope, and case-sensitive identifier detection plus missing spelled-money patterns allow some inputs through. Packet sibling-field bypass is a broader issue.
+~~~~
+
+## H. Third external audit handoff (pinned baseline 72b0eed8)
+
+Source: pasted by owner, auditor text, not owner authority
+
+~~~~text
+# Main developer handoff
+
+The pinned-baseline audit is documented. Implement the accepted Phase 386 hardening, then complete the controlled Phase 387 fresh-install check.
+
+## Current state
+
+- Baseline: 72b0eed8bbc16001592bc9bd11f3b05695a8d5f1.
+- The audit bundle contains the blind report, 31 claim verdicts, and 15 synthetic classifier probes.
+- No pinned plugin source was changed. The Phase 386/387 planning updates are staged, not committed: the 386 PRD, plans 386-35 and 386-36, and the 387 PRD.
+- Fresh-install tools/list returned 75 total tools and 24 distinct eureka_* names. eureka_critic is registered outside the 16-file auto-discovery set and succeeds with synthetic input and no engine or room. The graph projector still needs a synthetic bound-room check.
+
+## Work to implement
+
+1. Phase 386-35: lazy import. Move the top-level timeline-runner.cjs require in lib/core/folder-memory.cjs into extractFeynmanBody() after a successful file read. Preserve parsing and fallback behavior. Count modules in fresh processes for scripts/context-monitor and lib/core/part8-egress-guard.cjs before and after. The in-memory audit simulation measured 181 to 17 modules for the statusline and 172 to 10 for the guard, with navigation absent after. Reproduce those counts during implementation. This belongs in Part 8 hardening even below the 50 ms speed floor because it reduces the shared fail-open dependency chain.
+2. Phase 386-31, then 386-36: credential checks. Plan 386-31 owns the shared credential-shape list and auditWebCredential. Plan 386-36 adds PreToolUse coverage for WebSearch, WebFetch, and mcp__tavily__.*. Use only the shared credential checker; block credential-shaped strings without echoing them; allow ordinary names, places, company terms, and room words.
+3. Keep the web-path ruling. Plans 386-22, 386-23, and 386-24 cover Semantic Scholar, grants.gov, and research-speaker. Each needs an approval card, credential check, and audit record, with no room-content scan. Research-speaker asks before sending. Keep this separate from the native-tool hook.
+4. Phase 387: fresh-install reachability. Set MINDRIAN_EUREKA_ROOT unset and ensure no Eureka checkout is discoverable. Count distinct names from runtime tools/list, use a scratch HOME, and record unbound results separately. Test room-dependent calls against a synthetic bound-room fixture so a missing room is not mistaken for a missing engine.
+
+## Verification
+
+- Plan 386-35: run node tests/test-386-folder-memory-lazy-navigation-load.cjs. Confirm navigation and timeline-runner are absent at startup for both entrypoints, while FEYNMAN parsing and the unreadable-file fallback remain unchanged.
+- Plan 386-36: run node tests/test-386-web-credential-guard-hook.cjs and parse hooks/hooks.json. Confirm all three tool families match, fake keys block, ordinary content passes, refusal output contains no key, and the network counter stays zero.
+- Follow the verification sections in plans 386-31, 386-22, 386-23, and 386-24, plus the egress suites required by 386-PRD.md. Use synthetic fixtures and fake secrets. Put no room content in tests, logs, or commits.
+- Phase 387 records the exact root, checkout, room-binding, HOME, and network conditions. Its current no-room runtime baseline is 75 tools total and 24 Eureka-prefixed names.
+
+> Non-negotiable: Web lines get credential checks only. Room words continue through the normal approval flow; credentials do not.
+
+## Keep, replace, defer
+
+- Keep: the lazy import as Phase 386 hardening; credential-only checks on native web tools; approval and audit records for the three older web paths; the Phase 387 fresh-install fixture conditions.
+- Replace: the old count of 23 Eureka tools with the measured runtime count of 24 at this baseline. The extra tool is eureka_critic.
+- Defer: S3 database lock contention and read-only database routing. S3 is not measured. BEGIN IMMEDIATE alone does not prove contention or impact; average open times do not close it.
+
+## Audit limits
+
+The original R1 report was absent from local files and Git objects. R-a through R-h are reconstructed from the available Eureka summary. The egress source has a-h claims, not the requested E-a through E-m labels, so that mapping is also an inferred crosswalk. The 15 probes match reported inputs and verdicts in the local egress check, but its original standalone fixture was unavailable. Keep these limits attached to later summaries.
 ~~~~
