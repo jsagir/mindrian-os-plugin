@@ -135,6 +135,8 @@ Check if Velma is configured:
 > - If no: "No problem. Paste the transcript text instead, or point me to a text file with `--file`."
 
 **If configured:**
+The audio file leaves your machine: scripts/transcribe-audio sends the whole file to Modulate (Velma) for transcription. Pasted text and text files are not sent to Modulate.
+
 Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/transcribe-audio" <path>` and use the output as the transcript. Note the source as `velma` (affects artifact frontmatter).
 
 Also capture the full JSON response (written to temp file via stderr) for emotion data parsing downstream.

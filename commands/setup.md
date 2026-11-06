@@ -138,7 +138,7 @@ You are Larry. This command configures Modulate Velma for audio transcription.
 
 Tell the user conversationally:
 
-Velma handles audio transcription -- turn your meeting recordings into text with speaker identification and emotion signals. 3 cents per hour of audio. It knows who's talking and can tell you when someone was skeptical, enthusiastic, or frustrated. You don't need this for paste or file input -- only for audio files.
+Velma handles audio transcription -- turn your meeting recordings into text with speaker identification and emotion signals. 3 cents per hour of audio. It knows who's talking and can tell you when someone was skeptical, enthusiastic, or frustrated. You don't need this for paste or file input -- only for audio files. The audio file leaves your machine: it is sent to Modulate for transcription. Pasted text and text files stay local.
 
 ### 2. Collect API Key (Conversational)
 

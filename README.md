@@ -115,6 +115,7 @@ This is the promise, and it is a rule in the project's constitution ([`docs/MIND
 - **Your room never goes to the Brain.** Your notes, decisions and meetings stay local.
 - **Only generic methodology crosses.** A framework name or a type of problem goes out. Methodology comes back.
 - **Search stays home.** The embeddings that power semantic search are made on your machine, with no network egress.
+- **Audio is the one thing you send on purpose.** If you transcribe a recording with /mos:file-meeting --audio, the audio file leaves your machine and goes to Modulate (Velma). It does not go to the Brain.
 - **The only per-install thing the Brain sees** is a random 32-character identifier, minted once and stored locally. It tells the Brain one install from another. It does not tell the Brain who you are. See [`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md).
 
 MindrianOS writes only to your rooms (default `~/MindrianRooms/`) and to session state (`./.mindrian/`).
