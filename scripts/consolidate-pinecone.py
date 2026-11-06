@@ -24,7 +24,10 @@ except ImportError:
     print("Error: pinecone package not installed. Run: pip install pinecone", file=sys.stderr)
     sys.exit(1)
 
-API_KEY = os.environ.get("PINECONE_API_KEY", "pcsk_2BdKp7_8ptiybKm28fyCqMowRVky4EUoFm4Tx9pwatf8E4zK3VhvqADaMMwoS1VSyTURha")
+API_KEY = os.environ.get("PINECONE_API_KEY", "").strip()
+if not API_KEY:
+    print("Error: PINECONE_API_KEY is not set. Export it in the environment before running this script.", file=sys.stderr)
+    sys.exit(2)
 TARGET_INDEX = "pws-brain"
 
 # Map source namespaces to target namespaces (flatten the mess)
