@@ -109,6 +109,11 @@ for (const c of CASES) {
   } else {
     ok(c.label + ': verdict is not allow', r && r.verdict !== 'allow', detail);
     ok(c.label + ': class is not known_tool_shape', r && r.class !== 'known_tool_shape', detail);
+    // Plan 386-34: the exact refusal. A refused step id is ambiguous with class
+    // unknown; a drift to block or to another class must fail (not-allow alone
+    // cannot tell block from ambiguous, and ambiguous is sent on some routes).
+    ok(c.label + ': verdict is exactly ambiguous', r && r.verdict === 'ambiguous', detail);
+    ok(c.label + ': class is exactly unknown', r && r.class === 'unknown', detail);
     ok(c.label + ': _proveKnownToolShape returns null', proof === null, JSON.stringify(proof));
   }
 }

@@ -111,6 +111,9 @@ function expectVerdict(payload, toolName, wantVerdict, wantClass, label) {
 function expectNotAllow(payload, toolName, label) {
   const r = verdictOf(payload, toolName);
   ok(r.verdict !== 'allow', label + ': must NOT be allow, got ' + JSON.stringify(r));
+  // Plan 386-34: the exact refusal of a shape the arm does not prove is
+  // ambiguous with class unknown; any other verdict or class is a regression.
+  ok(r.verdict === 'ambiguous' && r.class === 'unknown', label + ': must be exactly ambiguous/unknown, got ' + JSON.stringify(r));
   ok(
     r.class !== 'known_tool_shape',
     label + ': must NOT carry class known_tool_shape, got ' + JSON.stringify(r)

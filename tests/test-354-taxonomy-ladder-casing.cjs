@@ -226,6 +226,13 @@ async function main() {
       JSON.stringify(oldVerdict),
     oldVerdict.verdict !== 'allow'
   );
+  // Plan 386-34: the exact refusal (ambiguous/unknown), not only not-allow.
+  ok(
+    'T3',
+    "classify({rung: 'ill-defined'}, {toolName: 'taxonomy_ladder'}) is exactly ambiguous/unknown, got " +
+      JSON.stringify(oldVerdict),
+    oldVerdict.verdict === 'ambiguous' && oldVerdict.class === 'unknown'
+  );
 
   // -------------------------------------------------------------------------
   // T4: scope pin -- brain-client.cjs's own Theo alias table (recommendChain

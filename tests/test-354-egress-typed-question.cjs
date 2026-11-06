@@ -157,10 +157,12 @@ function assertPrivateClass(obj, field) {
   const cls = obj && obj[f];
   // Plan 386-33: a canary that is an edge, a body or a private-claim sprout is
   // refused with the class sprouts_required (still a refusal, zero wire).
-  assert.ok(cls === 'content_set' || cls === 'room_content' || cls === 'sprouts_required', 'expected ' + f + ' content_set, room_content or sprouts_required, got: ' + JSON.stringify(obj));
-  if (cls === 'room_content') {
-    assert.ok(typeof obj.token_class === 'string' && obj.token_class.length > 0, 'room_content must name a token_class, got: ' + JSON.stringify(obj));
-  }
+  // Plan 386-34: the exact class. The private sentences are edges and
+  // private-claim sprouts, so the class is sprouts_required (a body, an edge that
+  // fails a prose rule or a private-marker sprout); a bare content_set or
+  // room_content no longer passes, and neither does a non-block verdict word.
+  assert.strictEqual(cls, 'sprouts_required', 'expected ' + f + ' sprouts_required, got: ' + JSON.stringify(obj));
+  assert.ok(obj.token_class === 'edge_rule' || obj.token_class === 'private_marker' || obj.token_class === 'body_shape', 'sprouts_required must name a token_class, got: ' + JSON.stringify(obj));
 }
 
 let passed = 0;
@@ -246,6 +248,8 @@ async function main() {
   await check('Case C: classify(PRIVATE) never returns allow, class content_set or room_content', async () => {
     const verdict = guard.classify({ question: PRIVATE }, { toolName: 'brain_ask' });
     assert.notStrictEqual(verdict.verdict, 'allow', 'PRIVATE must not classify allow, got: ' + JSON.stringify(verdict));
+    // Plan 386-34: exactly block (not ambiguous, which is sent on some routes).
+    assert.strictEqual(verdict.verdict, 'block', 'PRIVATE must classify exactly block, got: ' + JSON.stringify(verdict));
     assertPrivateClass(verdict, 'class');
   });
 
@@ -262,6 +266,11 @@ async function main() {
       assert.ok(!capturedContains(entry.marker), 'marker "' + entry.marker + '" must never reach the capture server, captured: ' + JSON.stringify(captured));
       assert.strictEqual(captured.length, 0, 'zero tools/call requests expected for "' + entry.text + '", captured: ' + JSON.stringify(captured));
       assert.ok(result && typeof result === 'object' && result.error === 'egress_blocked', 'expected egress_blocked for "' + entry.text + '", got: ' + JSON.stringify(result));
+      // Plan 386-34: the exact verdict and class of every private sentence.
+      const exact = guard.classify({ question: entry.text }, { toolName: 'brain_ask' });
+      assert.strictEqual(exact.verdict, 'block', 'private sentence must classify exactly block, got: ' + JSON.stringify(exact));
+      assert.strictEqual(exact.class, 'sprouts_required', 'private sentence class must be sprouts_required, got: ' + JSON.stringify(exact));
+      assert.strictEqual(result.egress_class, 'sprouts_required', 'the sentinel class must be sprouts_required, got: ' + JSON.stringify(result));
     });
   }
 

@@ -143,6 +143,7 @@ async function main() {
 
     const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+    assert.strictEqual(verdict.class, 'unproven_packet', 'fixture class must be exactly unproven_packet, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const before = captured.length;
     const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
@@ -173,6 +174,7 @@ async function main() {
 
     const verdict = guard.classify({ question: BLOCK_TEXT }, { toolName: 'brain_ask' });
     assert.strictEqual(verdict.verdict, 'block', 'fixture payload must classify block before use on the wire');
+    assert.strictEqual(verdict.class, 'content_set', 'fixture class must be exactly content_set, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const result = await brain.ask(BLOCK_TEXT);
 
@@ -200,6 +202,7 @@ async function main() {
 
     const verdict = guard.classify({ question: ALLOW_TEXT }, { toolName: 'brain_ask' });
     assert.strictEqual(verdict.verdict, 'allow', 'fixture payload must classify allow before use on the wire');
+    assert.strictEqual(verdict.class, 'typed_question', 'fixture class must be exactly typed_question, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const result = await brain.ask(ALLOW_TEXT);
 
@@ -220,6 +223,7 @@ async function main() {
 
     const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+    assert.strictEqual(verdict.class, 'unproven_packet', 'fixture class must be exactly unproven_packet, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
 
@@ -237,6 +241,7 @@ async function main() {
 
     const verdict = guard.classify(CANARY_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+    assert.strictEqual(verdict.class, 'unproven_packet', 'fixture class must be exactly unproven_packet, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const result = await brain.callTool(PACKET_TOOL, CANARY_PACKET);
 
@@ -260,6 +265,7 @@ async function main() {
 
     const verdict = guard.classify(AMBIGUOUS_PACKET, { toolName: PACKET_TOOL });
     assert.strictEqual(verdict.verdict, 'ambiguous', 'fixture payload must classify ambiguous before use on the wire');
+    assert.strictEqual(verdict.class, 'unproven_packet', 'fixture class must be exactly unproven_packet, got ' + JSON.stringify(verdict)); // plan 386-34
 
     const result = await brain.callTool(PACKET_TOOL, AMBIGUOUS_PACKET);
 
@@ -287,6 +293,7 @@ async function main() {
 
     const verdict = guard.classify({ question: BLOCK_TEXT }, { toolName: 'brain_ask' });
     assert.strictEqual(verdict.verdict, 'block', 'fixture payload must classify block before use on the wire');
+    assert.strictEqual(verdict.class, 'content_set', 'fixture class must be exactly content_set, got ' + JSON.stringify(verdict)); // plan 386-34
 
     // Sub-case A: block payload, NO key set. Full ladder isolation (a fresh tmp
     // HOME and a temporary chdir) so no real key or .env can resolve; restored
@@ -343,6 +350,7 @@ async function main() {
 
       const verdict = guard.classify({ cypher: ALLOW_TEXT }, { toolName: 'brain_query' });
       assert.strictEqual(verdict.verdict, 'allow', 'fixture payload must classify allow before use on the wire');
+      assert.strictEqual(verdict.class, 'typed_question', 'fixture class must be exactly typed_question, got ' + JSON.stringify(verdict)); // plan 386-34
 
       const bareArrayBody =
         'data: ' +
@@ -395,15 +403,57 @@ async function main() {
   });
 
   // Arm 10 (369.2 CODE-07): no free-form string is ever ambiguous any more.
-  await record('Arm 10 (369.2 CODE-07): a free-form Theo string is allow or block, never ambiguous', async () => {
-    const rows = [AMBIGUOUS_TEXT, ALLOW_TEXT, BLOCK_TEXT, CANARY_TEXT];
+  // Plan 386-34: the exact verdict and class of every row (not only "not
+  // ambiguous"), so a block that becomes ambiguous, or an allow that changes
+  // class, fails.
+  await record('Arm 10 (369.2 CODE-07): a free-form Theo string is allow or block, never ambiguous; exact verdict and class per row', async () => {
+    const rows = [
+      [AMBIGUOUS_TEXT, 'allow', 'generic_question'],
+      [ALLOW_TEXT, 'allow', 'typed_question'],
+      [BLOCK_TEXT, 'block', 'content_set'],
+      [CANARY_TEXT, 'block', 'room_content'],
+    ];
     const tools = [['question', 'brain_ask'], ['query', 'brain_search'], ['cypher', 'brain_query']];
-    rows.forEach((text) => {
+    rows.forEach(([text, wantVerdict, wantClass]) => {
       tools.forEach(([key, tool]) => {
         const v = guard.classify({ [key]: text }, { toolName: tool });
         assert.notStrictEqual(v.verdict, 'ambiguous', 'free-form ' + tool + ' must be allow or block, got ' + JSON.stringify(v) + ' for ' + text);
+        assert.strictEqual(v.verdict, wantVerdict, 'free-form ' + tool + ' verdict must be exactly ' + wantVerdict + ', got ' + JSON.stringify(v) + ' for ' + text);
+        assert.strictEqual(v.class, wantClass, 'free-form ' + tool + ' class must be exactly ' + wantClass + ', got ' + JSON.stringify(v) + ' for ' + text);
       });
     });
+  });
+
+  // Arm 11 (plan 386-34, outcome of plan 386-27): the FINAL outcome of an ambiguous
+  // call. A body or an edge payload gets the typed result with the class
+  // sprouts_required, the route and the 5 line split guide, and 0 wire calls. A
+  // sprout-only payload proceeds with the egress_disclosure and a wire call.
+  await record('Arm 11 (plan 386-27 outcome): an ambiguous body or edge payload is answered sprouts_required with 0 wire; a sprout-only payload proceeds with the disclosure', async () => {
+    const brain = freshBrainClient(url);
+    const BODY = 'The pilot ran for three weeks. The team liked the interface a lot. The next step is a wider trial with more users.';
+    const bodyVerdict = guard.classify({ a: BODY }, { toolName: PACKET_TOOL });
+    assert.strictEqual(bodyVerdict.verdict, 'ambiguous', 'the body fixture must classify ambiguous, got ' + JSON.stringify(bodyVerdict));
+    assert.strictEqual(bodyVerdict.class, 'unknown', 'the body fixture class must be exactly unknown, got ' + JSON.stringify(bodyVerdict));
+    resetCaptured();
+    resetToolScript();
+    const blocked = await brain.callTool(PACKET_TOOL, { a: BODY });
+    assert.strictEqual(blocked.error, 'egress_blocked');
+    assert.strictEqual(blocked.egress_class, 'sprouts_required');
+    assert.strictEqual(blocked.outcome, 'sprouts_required');
+    assert.strictEqual(blocked.route, 'sprout_call');
+    assert.ok(Array.isArray(blocked.split_guide) && blocked.split_guide.length === 5, 'split_guide must hold 5 lines, got ' + JSON.stringify(blocked.split_guide));
+    assert.strictEqual(captured.length, 0, 'zero wire calls expected, captured: ' + JSON.stringify(captured));
+    assert.ok(JSON.stringify(blocked).indexOf('pilot ran') === -1, 'the result must not echo the payload');
+
+    const sproutVerdict = guard.classify({ a: 'swot analysis' }, { toolName: PACKET_TOOL });
+    assert.strictEqual(sproutVerdict.verdict, 'ambiguous');
+    assert.strictEqual(sproutVerdict.class, 'unknown');
+    resetCaptured();
+    resetToolScript();
+    const proceeded = await brain.callTool(PACKET_TOOL, { a: 'swot analysis' });
+    assert.ok(proceeded && proceeded.error === undefined, 'a sprout-only payload must not be refused, got ' + JSON.stringify(proceeded));
+    assert.ok(proceeded.egress_disclosure && proceeded.egress_disclosure.verdict === 'ambiguous' && proceeded.egress_disclosure.disposition === 'proceeded', 'the disclosure must be attached, got ' + JSON.stringify(proceeded));
+    assert.ok(captured.length > 0, 'a sprout-only payload must reach the wire');
   });
 
   await stopCaptureServer(server);
