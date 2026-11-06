@@ -18,6 +18,7 @@ Verbatim extraction from the owner session transcript. All text below was pasted
 | D6 | Auditor R1 update: Eureka reachability gap, kuzu-class redundancy verdicts, duplicate code inside Eureka | R1 update, Eureka gap |
 | E | Auditor question list (16 questions) for the owner, pre-findings | Auditor question list |
 | F | Auditor egress audit, final message (Part 8 guard, four stacked problems, Phase 386 ordering note) | Auditor egress audit, final message |
+| G | Second auditor handoff, older commit 72b0eed8 (packet bypass, brain_write ambiguity, wiki/entity/chat egress, over-blocking, fail-closed room check, 46-claim comparison) | Second auditor handoff (older commit 72b0eed8) |
 
 Versions: each text appears once in the transcript; no duplicate versions found, except D3 (superseded by its own correction in D4) and R1 report updates (D6 replaces the first R1 report, which was not pasted in full by the owner; only D4 quotes its verdicts).
 Redaction (Canon Part 8): one room path pattern replaced with <room> in item B (T04). Wrapper tags `<pasted_content>` removed. Owner prefix "WHAT QUESTION DO I NEED TO ANSWER ?" removed from D5 (owner words, not auditor text). The first words of C1 start with `'d` because the transcript card answer cut them; kept as is.
@@ -680,4 +681,20 @@ Order matters for step 4. Add the "this is safe" rules for the typed Theo tools 
 Step 3 needs a ruling first. Since the 2026-10-05 navigator ruling, the web research lines send room words on purpose (only credentials are checked). That contradicts your Part 8 statement. Until the owner decides, moving Semantic Scholar "behind the chokepoint" adds a grant and a credential check, not content protection.
 
 Not covered: The hook itself, the test suites and the fetchers weren't run. How a user-registered "mindrian-brain" connector is named is inferred, not verified. Whether other connectors reject the extra job key is unknown. Bound-room probes used synthetic rooms only.
+~~~~
+
+## G. Second auditor handoff (older commit 72b0eed8)
+
+Source: pasted by owner, auditor text, not owner authority
+
+~~~~text
+MindrianOS audit handoff. Audited a fresh clone at SHA 72b0eed8bbc16001592bc9bd11f3b05695a8d5f1 using Node v22.23.1. npm ci --ignore-scripts succeeded. No hooks, product scripts, fetchers, test suites, or live APIs were run. The probe corpus used invented fixtures only.
+Findings to prioritize:
+- Packet bypass: brain_ask and brain_query payloads that include job: "select_methodology" can carry arbitrary question or Cypher text and still classify as allow / move_set. Packet proof checks the job, summaries and handle fields, but not arbitrary sibling fields.
+- Ambiguous writes can pass: brain_write is not routed through theoVerdict. Its ambiguous result can proceed through the shim's PreToolUse handling and the callTool belt.
+- Additional room-data egress: the on-demand wiki briefing sends room-derived content to Anthropic when configured with a key, without a Part 8 room-content check. Entity classification and chat also send names, excerpts or conversation content to Anthropic without that shared check.
+- Over-blocking: 37 of 535 extended generic questions were blocked (36 as room_content/name, 1 as content_set) across brain_ask, brain_search and brain_query. This was the same with no room and a clean synthetic room.
+- Fail-closed room check: a malformed synthetic room DB blocked 534 of 535 extended queries as room_check_unavailable.
+Claim comparison: the claim-by-claim file covers all 46 IDs. Notable divergences: R-f is refuted because scripts/pycache is absent and untracked at this SHA; R-b and R-c are partly confirmed due remaining references; R-g's runtime counts were not executed; E-h measured 172 loaded repo modules and 56.63 ms for one cold guard load; E-k is partly contradicted, including the count of files matching the exact verdict assertion.
+The PENDING debug hypotheses are explained in the report: generic framework tools are ambiguous on the non-shim pws-brain-mcp scope, and case-sensitive identifier detection plus missing spelled-money patterns allow some inputs through. Packet sibling-field bypass is a broader issue.
 ~~~~
