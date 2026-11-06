@@ -88,4 +88,4 @@ Two hooks in 1 compaction each own a session-row writer, and nothing makes one d
 
 ## Resolution
 
-PENDING until Task 3 commit.
+Fixed in plan 386-10 (fix commit follows the RED test commit). cmdPostCompact in scripts/memory-lifecycle.cjs reuses the session the pointer names and writes only the marker fragment; it opens a row only when no usable pointer exists. scripts/post-compact prints {"continue":true} on the no-state and stale-state paths instead of exec-ing session-start. Proof: tests/test-386-post-compact-session-rows.cjs (C1 both hook orders, C2, C3). Not moved to resolved; plan 386-21 does that.

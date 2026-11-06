@@ -76,4 +76,4 @@ contribute() was written as a copy of main() but the steps were not carried over
 
 ## Resolution
 
-PENDING until Task 3 commit.
+Fixed in plan 386-10. contribute() now resolves the room first (resolveContributeRoom, built on lib/core/resolve-active-room.cjs), reads the side channel from that room, parses the stamp, and validates the stamp. Cross-room files are set aside with the cross-room-skip kind. Proof: tests/test-386-restore-post-compact-context.cjs (C4, C5, C6). Not moved to resolved; plan 386-21 does that.
