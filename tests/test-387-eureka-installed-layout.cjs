@@ -9,13 +9,15 @@
  *
  * Arms (each prints ok - or FAIL - with its label):
  *   I1  S1 tools/list holds the 24 names in EXPECT, for both client identities (the runtime count)
- *   I2  S1 unbound: every graph tool answers no_bound_room (the projection runs before the engine check)
- *   I3  S1 bound: engine tools answer engine_not_configured with the exact text; job tools answer
+ *   I2  S1 unbound: every engine tool answers engine_not_configured with engine_state absent (Plan 387-05: the
+ *       engine check runs before the room projection); eureka_graph_project answers no_bound_room
+ *   I3  S1 bound: engine tools answer the typed engine_not_configured refusal; job tools answer
  *       job_session_not_found; eureka_graph_project answers ok; eureka_critic answers a ruling with a
  *       verdict on the installed layout, no engine needed (the baseline file ships since quick 261106)
  *   I4  S3 answers engine_checkout_unavailable; S4, S5 and S6 answer engine_unavailable with the exact text
  *   I5  S1 and S2 give the same tool list and the same refusals
  *   I6  the perspective call answers ok on the installed layout with no engine and no network attempt
+ *   I9  S7 (Plan 387-05): a saved setting and a minimal environment pass the gate, then fail at the missing uv
  *   I7  pin sensitivity: a deliberately wrong copy of EXPECT fails the same comparison
  *   I8  S6 argument and environment pin: a plain uv run on every spawning path
  *
@@ -27,22 +29,63 @@ const probe = require('./helpers/eureka-installed-layout-387.cjs');
 
 const MSG = {
   JOB_NOT_FOUND: "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
-  NOT_CONFIGURED: "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool.",
   NO_BOUND_ROOM: "Bind the intended MindrianOS room before preparing an engine projection.",
-  NOT_CONFIGURED_SIGNALS: "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool.",
-  CHECKOUT_UNAVAILABLE: "The configured Mindrian Eureka checkout is unavailable.",
-  RUN_SPAWN_MISSING_BINARY: "Could not call the configured local Eureka MCP server: spawn <TMP>/no-such-uv-387 ENOENT",
-  START_UNAVAILABLE: "Could not start an asynchronous job in the configured local Eureka MCP server.",
-  UNAVAILABLE_SERVER: "Could not start or call the configured local Eureka MCP server.",
-  UNAVAILABLE_ENGINE: "Could not start or call the configured local Eureka engine.",
-  RUN_SPAWN_UV_ABSENT: "Could not call the configured local Eureka MCP server: spawn uv ENOENT",
-  RUN_CONNECTION_CLOSED: "Could not call the configured local Eureka MCP server: Connection closed",
 };
 
-// EXPECT is the measured before-state of Phase 387. Plans 387-05, 387-11 and 387-06 change
-// behavior ON PURPOSE (typed states, one text source, offline arguments). When one of them does,
-// it must edit EXPECT in the same commit; a changed cell that is not edited here is a regression.
-// Row shape: [reason, message, isError]. null reason and null message mean a result with no reason.
+// EXPECT is the pinned state of Phase 387. Plans 387-05, 387-11 and 387-06 change behavior ON PURPOSE
+// (typed states, one text source, offline arguments). When one of them does, it must edit EXPECT in the
+// same commit; a changed cell that is not edited here is a regression.
+// Plan 387-05 changed it on purpose: the engine check now runs at the registerEurekaTool chokepoint, before
+// the room projection, and answers one of 3 typed states with a fix line (engine_state absent or broken).
+// Row shape: [reason, message, isError] or, for a typed engine refusal, [reason, message, isError, engine_state].
+// null reason and null message mean a result with no reason.
+const TYPED_TAIL = ' The default /mos:eureka run needs no engine.';
+const M_ABSENT = 'The Eureka engine is not set up on this machine.' + TYPED_TAIL;
+const S_PYPROJECT = 'The Eureka engine folder has no pyproject.toml, so it is not an engine checkout.';
+const M_PYPROJECT = S_PYPROJECT + TYPED_TAIL;
+const M_UV = 'The tool uv is not installed or is not on the PATH, so the engine cannot start.' + TYPED_TAIL;
+const M_START = 'The engine did not start.' + TYPED_TAIL;
+const JOB_TOOLS = ['eureka_capability_job_cancel', 'eureka_capability_job_result', 'eureka_capability_job_status'];
+const RUN_TOOLS = ['eureka_capability_run', 'eureka_capability_start'];
+
+// spec: { gated: [reason, message, state] for every gated tool (unbound and bound), or
+//         start: [reason, message, state] for the engine start on a spawning tool,
+//         job: [message, state or null] for the three job tools }
+function scenarioRows(names, spec) {
+  const rows = {};
+  for (const n of names) {
+    if (n === 'eureka_critic') rows[n] = { u: [null, null, true], b: [null, null, true] };
+    else if (n === 'eureka_graph_project') rows[n] = { u: ['no_bound_room', MSG.NO_BOUND_ROOM, true], b: [null, null, false] };
+    else if (JOB_TOOLS.indexOf(n) !== -1) {
+      const row = ['job_session_not_found', spec.job[0], true].concat(spec.job[1] ? [spec.job[1]] : []);
+      rows[n] = { u: row, b: row };
+    } else if (spec.gated) {
+      const row = [spec.gated[0], spec.gated[1], true, spec.gated[2]];
+      rows[n] = { u: row, b: row };
+    } else {
+      const start = [spec.start[0], spec.start[1], true, spec.start[2]];
+      rows[n] = RUN_TOOLS.indexOf(n) !== -1 ? { u: start, b: start } : { u: ['no_bound_room', MSG.NO_BOUND_ROOM, true], b: start };
+    }
+  }
+  return rows;
+}
+
+function buildRows(names) {
+  const jobNotFound = MSG.JOB_NOT_FOUND;
+  const absent = { gated: ['engine_not_configured', M_ABSENT, 'absent'], job: [jobNotFound + ' The Eureka engine is not set up, so no job can start.', 'absent'] };
+  const uvMissing = { start: ['engine_unavailable', M_UV, 'broken'], job: [jobNotFound, null] };
+  return {
+    S1: scenarioRows(names, absent),
+    S2: scenarioRows(names, absent),
+    S3: scenarioRows(names, { gated: ['engine_checkout_unavailable', M_PYPROJECT, 'broken'], job: [jobNotFound + ' ' + S_PYPROJECT, 'broken'] }),
+    S4: scenarioRows(names, uvMissing),
+    S5: scenarioRows(names, uvMissing),
+    S6: scenarioRows(names, { start: ['engine_unavailable', M_START, 'broken'], job: [jobNotFound, null] }),
+    // S7: a saved setting and a minimal Desktop-shaped environment: the gate passes, then uv is missing.
+    S7: scenarioRows(names, uvMissing),
+  };
+}
+
 const EXPECT = {
   eureka_tools: [
     "eureka_capability_job_cancel",
@@ -74,177 +117,26 @@ const EXPECT = {
   eureka_count: 24,
   other_serving: ['research_run', 'rs_experts_find', 'rs_thesis_read'],
   // eureka_critic: answers a ruling on the installed layout since quick 261106 (the baseline file ships).
-  rows: {
-  S1: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_not_configured", MSG.NOT_CONFIGURED, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_capability_start: { u: ["engine_not_configured", MSG.NOT_CONFIGURED, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-  },
-  S2: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_not_configured", MSG.NOT_CONFIGURED, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_capability_start: { u: ["engine_not_configured", MSG.NOT_CONFIGURED, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED_SIGNALS, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_not_configured", MSG.NOT_CONFIGURED, true] },
-  },
-  S3: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_capability_start: { u: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_checkout_unavailable", MSG.CHECKOUT_UNAVAILABLE, true] },
-  },
-  S4: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_unavailable", MSG.RUN_SPAWN_MISSING_BINARY, true], b: ["engine_unavailable", MSG.RUN_SPAWN_MISSING_BINARY, true] },
-    eureka_capability_start: { u: ["engine_unavailable", MSG.START_UNAVAILABLE, true], b: ["engine_unavailable", MSG.START_UNAVAILABLE, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-  },
-  S5: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_unavailable", MSG.RUN_SPAWN_UV_ABSENT, true], b: ["engine_unavailable", MSG.RUN_SPAWN_UV_ABSENT, true] },
-    eureka_capability_start: { u: ["engine_unavailable", MSG.START_UNAVAILABLE, true], b: ["engine_unavailable", MSG.START_UNAVAILABLE, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-  },
-  S6: {
-    eureka_capability_job_cancel: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_result: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_job_status: { u: ["job_session_not_found", MSG.JOB_NOT_FOUND, true], b: ["job_session_not_found", MSG.JOB_NOT_FOUND, true] },
-    eureka_capability_run: { u: ["engine_unavailable", MSG.RUN_CONNECTION_CLOSED, true], b: ["engine_unavailable", MSG.RUN_CONNECTION_CLOSED, true] },
-    eureka_capability_start: { u: ["engine_unavailable", MSG.START_UNAVAILABLE, true], b: ["engine_unavailable", MSG.START_UNAVAILABLE, true] },
-    eureka_critic: { u: [null, null, true], b: [null, null, true] },
-    eureka_graph_analyze: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_assess_category_edge_patterns: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_backtest: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_compare_topics: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_find_community_bridge_pairs: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_network_holes: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_shared_neighbor_gaps: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_find_similar_unlinked_items: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_ENGINE, true] },
-    eureka_graph_genesis_plan: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_map_neighbourhoods: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_opportunity_scout: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_package_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_prepare_artifacts: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_project: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: [null, null, false] },
-    eureka_graph_propose_relationships: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_rank_paths: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_graph_score_surprise: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-    eureka_hsi_interpret_whitespace: { u: ["no_bound_room", MSG.NO_BOUND_ROOM, true], b: ["engine_unavailable", MSG.UNAVAILABLE_SERVER, true] },
-  },
-  },
   perspective: { ok: true, recalled_pairs: 2, network_attempts_total: 0, network_attempts_non_loopback: 0 },
   // S6 spawn pin: the exact uv argument list for each path, and UV_OFFLINE in the child.
   uv_args_generic: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', 'eureka-mcp'],
   uv_args_scout: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', '--extra', 'modern-encoder', 'eureka-mcp'],
   forbidden_uv_flags: ['--no-sync', '--offline', '--frozen', '--locked', '--no-python-downloads'],
 };
+EXPECT.rows = buildRows(EXPECT.eureka_tools);
 
 let passed = 0;
 let failed = 0;
 function ok(label, extra) { passed += 1; process.stdout.write('ok - ' + label + (extra ? ' (' + extra + ')' : '') + '\n'); }
 function bad(label, detail) { failed += 1; process.stdout.write('FAIL - ' + label + '\n'); if (detail) process.stdout.write('    ' + String(detail).split('\n').join('\n    ') + '\n'); }
 
-function cell(call) { return [call.reason, call.message, call.isError]; }
+// A pinned row has 3 cells, or 4 when it is a typed engine refusal (the 4th is engine_state). A 3-cell row
+// also fails when the call carries an engine_state, so a tool cannot start refusing without the pin changing.
+function cell(call, exp) {
+  const base = [call.reason, call.message, call.isError];
+  if ((exp && exp.length === 4) || call.engine_state !== undefined) base.push(call.engine_state);
+  return base;
+}
 function sameCell(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 
 // Compare the table of one scenario with an expected table. Returns mismatch lines.
@@ -255,8 +147,8 @@ function compareScenario(scenario, expectedRows, only) {
     const exp = expectedRows[call.tool] && expectedRows[call.tool][call.bound ? 'b' : 'u'];
     if (!exp) { problems.push(scenario.id + ' ' + call.tool + ': no expected row'); continue; }
     if (call.tool === 'eureka_critic') continue; // checked by its own text rule
-    if (!sameCell(cell(call), exp)) {
-      problems.push(scenario.id + ' ' + (call.bound ? 'bound' : 'unbound') + ' ' + call.tool + ': got ' + JSON.stringify(cell(call)) + ' expected ' + JSON.stringify(exp));
+    if (!sameCell(cell(call, exp), exp)) {
+      problems.push(scenario.id + ' ' + (call.bound ? 'bound' : 'unbound') + ' ' + call.tool + ': got ' + JSON.stringify(cell(call, exp)) + ' expected ' + JSON.stringify(exp));
     }
   }
   return problems;
@@ -298,9 +190,13 @@ function armI2(report, expect) {
   const s1 = report.scenarios[0];
   const graph = GRAPH_TOOLS(expect.rows);
   const problems = [];
+  // Plan 387-05: the engine check runs before the room projection, so an unbound graph tool answers the
+  // engine state, not no_bound_room. Only eureka_graph_project (no engine needed) still answers no_bound_room.
   for (const t of graph) {
     const call = s1.calls.find((c) => c.tool === t && !c.bound);
-    if (!call || call.reason !== 'no_bound_room') problems.push(t + ' unbound: expected no_bound_room, got ' + (call && call.reason));
+    const want = t === 'eureka_graph_project' ? 'no_bound_room' : 'engine_not_configured';
+    if (!call || call.reason !== want) problems.push(t + ' unbound: expected ' + want + ', got ' + (call && call.reason));
+    if (t !== 'eureka_graph_project' && call && call.engine_state !== 'absent') problems.push(t + ' unbound: engine_state ' + (call && call.engine_state) + ' expected absent');
   }
   if (graph.length !== 18) problems.push('expected 18 graph tools, found ' + graph.length);
   return problems.concat(compareScenario(s1, expect.rows.S1, (c) => !c.bound));
@@ -332,6 +228,21 @@ function armI4(report, expect) {
     if (engineCalls.length !== 19) problems.push(id + ': expected 19 engine refusals when bound, got ' + engineCalls.length);
     for (const c of engineCalls) if (c.reason !== want[id]) problems.push(id + ' ' + c.tool + ': reason ' + c.reason + ' expected ' + want[id]);
   }
+  return problems;
+}
+
+// S7 (Plan 387-05): a saved setting names the fixture engine folder, MINDRIAN_EUREKA_ROOT and
+// MINDRIAN_EUREKA_UV are unset, and the environment is the minimal Desktop-shaped one (no uv on PATH). The
+// gate passes (the saved setting works with no variable), then the start fails at the missing uv.
+// This is a simulation of a Desktop launch, not a real one.
+function armI9(report, expect) {
+  const s7 = report.scenarios.find((s) => s.id === 'S7');
+  if (!s7) return ['no S7 scenario in the report'];
+  const problems = compareScenario(s7, expect.rows.S7).concat(criticProblems(s7, expect));
+  const unbound = s7.calls.filter((c) => !c.bound && c.reason === 'no_bound_room' && c.tool !== 'eureka_graph_project');
+  if (unbound.length !== 17) problems.push('S7 unbound: expected 17 graph tools to answer no_bound_room (gate passed), got ' + unbound.length);
+  const uv = s7.calls.filter((c) => c.bound && c.reason === 'engine_unavailable' && c.engine_state === 'broken' && c.cause === 'uv_missing');
+  if (uv.length !== 19) problems.push('S7 bound: expected 19 engine_unavailable refusals with engine_state broken and cause uv_missing, got ' + uv.length);
   return problems;
 }
 
@@ -411,9 +322,10 @@ async function main() {
 
   const arms = [
     ['I1 tools/list holds the 24 runtime names for both client identities', () => armI1(report, EXPECT)],
-    ['I2 S1 unbound: graph tools answer no_bound_room first', () => armI2(report, EXPECT)],
-    ['I3 S1 bound: engine_not_configured x19, job_session_not_found x3, one ok, critic pinned', () => armI3(report, EXPECT)],
-    ['I4 S3 checkout unavailable; S4 S5 S6 engine_unavailable with exact text', () => armI4(report, EXPECT)],
+    ['I2 S1 unbound: engine tools answer the engine state before the room check', () => armI2(report, EXPECT)],
+    ['I3 S1 bound: typed engine_not_configured x19, job_session_not_found x3, one ok, critic pinned', () => armI3(report, EXPECT)],
+    ['I4 S3 checkout unavailable; S4 S5 S6 engine_unavailable with typed text', () => armI4(report, EXPECT)],
+    ['I9 S7 saved setting with no variable passes the gate, then fails at the missing uv', () => armI9(report, EXPECT)],
     ['I5 S1 and S2 are identical (no environment difference without the variable)', () => armI5(report)],
     ['I6 perspective answers ok on the installed layout with no engine and no network attempt', () => armI6(report, EXPECT)],
     ['I8 S6 plain uv run on every spawning path, UV_OFFLINE on the graph path only, uv error line lost', () => armI8(report, EXPECT)],

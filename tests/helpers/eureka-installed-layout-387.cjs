@@ -6,7 +6,7 @@
  * WHAT. Packs the repo (npm pack), lays the package out the way Claude Code runs it
  * (<HOME>/.claude/plugins/cache/mindrian-marketplace/mos/<version>/) inside a scratch HOME, starts
  * the REAL stdio MCP server from that layout, lists the tools, and calls every tool whose name
- * starts with eureka, under six engine states (S1 to S6). It records the exact reason code and the
+ * starts with eureka, under seven engine states (S1 to S7; S7 added by Plan 387-05). It records the exact reason code and the
  * exact refusal text of each call, unbound and bound to a synthetic fixture room.
  *
  * WHY. Every later plan in Phase 387 changes behavior that this probe measures first.
@@ -324,6 +324,8 @@ async function callOne(conn, tool, bound, logPath, seen) {
     message: sc.message === undefined ? null : sc.message,
   };
   if (sc.engine_state !== undefined) row.engine_state = sc.engine_state;
+  if (sc.cause !== undefined) row.cause = sc.cause;
+  if (sc.fix !== undefined) row.fix = sc.fix;
   // A tool that returns text only (no structuredContent): keep the first 300 characters.
   if (result && !result.structuredContent) row.text = textOf(result).slice(0, 300);
   if (thrown) row.thrown = String(thrown.message || thrown).slice(0, 300);
@@ -435,6 +437,21 @@ const SCENARIOS = [
       env.PATH = nodeFolder();
       assertNoUvOnPath(env.PATH);
       return { env, logPath: log };
+    },
+  },
+  {
+    id: 'S7', name: 'saved-setting-minimal-env',
+    env_summary: 'a saved engine setting (HOME/.mindrian/eureka-engine.json) names the fixture folder; MINDRIAN_EUREKA_ROOT and MINDRIAN_EUREKA_UV unset; env -i with the minimal Desktop-shaped variables of S2 and PATH holding only the node folder (no file named uv there); a simulation of a Desktop launch, not a real Desktop run',
+    build(world) {
+      const resolver = require(path.join(REPO, 'lib', 'core', 'eureka', 'eureka-engine-resolver.cjs'));
+      const saved = resolver.writePointer(world.fixtureEngine, { HOME: world.home });
+      if (!saved.ok) throw new Error('S7: the saved setting could not be written: ' + saved.error);
+      const env = {
+        HOME: world.home, USERPROFILE: world.home, MINDRIAN_ROOMS_HOME: world.roomsHome, TMPDIR: world.tmpdir,
+        PATH: nodeFolder(), MINDRIAN_TRANSPORT: 'stdio', MINDRIAN_BRAIN_URL: 'http://127.0.0.1:9',
+      };
+      assertNoUvOnPath(env.PATH);
+      return { env, cleanEnv: true };
     },
   },
 ];
