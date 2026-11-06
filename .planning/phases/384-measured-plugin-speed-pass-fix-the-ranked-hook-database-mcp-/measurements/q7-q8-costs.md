@@ -256,3 +256,100 @@ R7 Frequency reading (Q8). For each group, ratio = measured median per developme
 R8 Label (Q8). Every sentence about the count says development sessions: Claude Code sessions in all project folders on this host, mostly code work, direct session files only (subagent files are not counted). The write_edit count holds every Write, Edit, MultiEdit and NotebookEdit call in any project. It is an upper bound for Writes inside a room whose path holds /room/ or /rooms/. It is not the frequency of a plugin user.
 
 Method and privacy. One counting run of the counter of plan 384-09 (extended with the flag --all-projects) reads the direct session files of every project folder in memory. For each file it keeps the record type, the tool group and the date (year, month, day, never a time of day). It keeps no text, no file name, no folder name and no path. The date of a file is the first 10 characters of its first top-level timestamp that starts with YYYY-MM-DD. The active days are the distinct dates on which a counted session starts. The no-leak check of the counter is committed before the counter runs on the real folders.
+
+Results. One counting run. The counter read 194 direct session files (the count taken with find before the run, numbers only, was 150 project folders and 194 direct session files). 102 project folders hold at least one session file. 0 files were unreadable. The counter wrote stdout lines of constant words and numbers only. The result file holds counts and dates only (no folder name, no file name, no path, no user name, no time of day; checked by grep before the commit). All 194 development sessions have a date. The dates run from 2026-10-05 to 2026-11-05 (the oldest session file on this host is from 2026-10-05, so the count does not reach back further). Every sentence below is about development sessions (R8).
+
+Table Q8-1: counts and dates (development sessions: Claude Code sessions in all project folders on this host, mostly code work, direct session files only (subagent files are not counted))
+
+| Quantity | value | Basis |
+| --- | --- | --- |
+| label | development sessions | DIRECT |
+| scope | all project folders | DIRECT |
+| development sessions counted | 194 | DIRECT |
+| project folders with at least one session file | 102 | DIRECT |
+| unreadable session files (not counted) | 0 | DIRECT |
+| first date | 2026-10-05 | DIRECT |
+| last date | 2026-11-05 | DIRECT |
+| active days | 25 | DIRECT |
+| sessions without a date | 0 | DIRECT |
+| development sessions in 2026-10 | 184 | DIRECT |
+| development sessions in 2026-11 | 10 | DIRECT |
+| prompts in all development sessions | 7071 | DIRECT |
+| tool calls in group write_edit in all development sessions | 855 | DIRECT |
+| tool calls in group read_grep_glob in all development sessions | 741 | DIRECT |
+| tool calls in group bash in all development sessions | 8942 | DIRECT |
+| tool calls in group task in all development sessions | 1344 | DIRECT |
+| tool calls in group slash_command in all development sessions | 273 | DIRECT |
+| tool calls in group brain in all development sessions | 83 | DIRECT |
+| tool calls in group gate_answer in all development sessions | 2 | DIRECT |
+| tool calls in group other in all development sessions | 2867 | DIRECT |
+| prompts per development session: median and p95 | 2 and 167 | DIRECT |
+| write_edit per development session: median and p95 | 0 and 20 | DIRECT |
+| read_grep_glob per development session: median and p95 | 0 and 20 | DIRECT |
+| bash per development session: median and p95 | 0 and 222 | DIRECT |
+| slash_command per development session: median and p95 | 0 and 8 | DIRECT |
+| brain per development session: median and p95 | 0 and 0 | DIRECT |
+| gate_answer per development session: median and p95 | 0 and 0 | DIRECT |
+| task per development session: median and p95 | 0 and 45 | DIRECT |
+| other per development session: median and p95 | 0 and 71 | DIRECT |
+| Stop per development session: median (one Stop per prompt, so equal to the prompts median) | 2 | DERIVED |
+
+Table Q8-1b: mean per development session (the total of the group divided by the 194 development sessions, no rule)
+
+| Group | total | mean per development session | Basis |
+| --- | --- | --- | --- |
+| prompts | 7071 | 36.4 | DERIVED |
+| write_edit | 855 | 4.41 | DERIVED |
+| read_grep_glob | 741 | 3.82 | DERIVED |
+| bash | 8942 | 46.1 | DERIVED |
+
+Table Q8-2: measured median per development session against the ASSUMED value of plan 384-09 (R7; a ratio below 0.5 or above 2 is flagged; no pass or fail)
+
+| Group | measured median | ASSUMED value | ratio | flag | Basis |
+| --- | --- | --- | --- | --- | --- |
+| prompts | 2 | 30 | 0.067 | flag | DERIVED |
+| write_edit | 0 | 20 | 0 | flag | DERIVED |
+| read_grep_glob | 0 | 60 | 0 | flag | DERIVED |
+| bash | 0 | 40 | 0 | flag | DERIVED |
+| slash_command | 0 | 2 | 0 | flag | DERIVED |
+| brain | 0 | 5 | 0 | flag | DERIVED |
+| gate_answer | 0 | 1 | 0 | flag | DERIVED |
+
+Table Q8-3: S2 CPU per development session at the measured median and p95 of each group (an upper bound for a heavy session, not the p95 of the sum; the write_edit count is an upper bound for Writes inside a room whose path holds /room/ or /rooms/ because it holds every Write, Edit, MultiEdit and NotebookEdit call in any project, R8)
+
+| Statistic | Layout | Stop term ms (1500 x prompts) | UserPromptSubmit term ms (240 x prompts) | Read term ms (40 x read_grep_glob) | Sum of these three ms | Write term ms (Write CPU x write_edit) | S2 sum ms | Basis |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| median | harness layout (A) | 3000 | 480 | 0 | 3480 | 0 | 3480 | DERIVED |
+| median | default layout (D) | 3000 | 480 | 0 | 3480 | 0 | 3480 | DERIVED |
+| p95 | harness layout (A) | 250500 | 40080 | 800 | 291380 | 100300 | 391680 | DERIVED |
+| p95 | default layout (D) | 250500 | 40080 | 800 | 291380 | 7800 | 299180 | DERIVED |
+
+Readings.
+H-Q8, first part: the run found 194 session files, which is at least 100. The first part holds.
+H-Q8, second part: the measured median per development session is below the ASSUMED value in all three named groups (prompts 2 against 30, write_edit 0 against 20, read_grep_glob 0 against 60), and every group of Table Q8-2 is flagged (ratio below 0.5). The second part holds.
+The distribution is skewed. The median development session has 2 prompts, and the median of each of the groups write_edit, read_grep_glob, bash and slash_command is 0. The mean per development session is 36.4 prompts (close to the ASSUMED 30), 4.41 write_edit calls, 3.82 read_grep_glob calls and 46.1 bash calls, and the p95 is 167 prompts, 20 write_edit calls and 20 read_grep_glob calls. Compared with the ASSUMED values of plan 384-09: the ASSUMED 30 prompts is near the mean of prompts (36.4); the ASSUMED 20 write_edit calls equals the p95 (20) and is 4.5 times the mean (DERIVED: 20 divided by 4.41); the ASSUMED 60 read_grep_glob calls is 3 times the p95 (DERIVED: 60 divided by 20). None of the three ASSUMED values describes the typical (median) development session of this host. The bash group is the largest tool group (8942 calls against 855 and 741).
+Table Q8-3 shows both ends: the S2 CPU of the median development session is 3480 ms (Stop and UserPromptSubmit terms of 2 prompts), and the p95 value is 391680 ms on the harness layout and 299180 ms on the default layout. The p95 row adds the p95 of each group and is an upper bound for a heavy session, not the p95 of the sum. The write_edit count is an upper bound for Writes inside a room whose path holds /room/ or /rooms/ (R8).
+The measured frequency is a count of development sessions. It is not the frequency of a plugin user.
+
+## Reading summary
+
+| Hypothesis | Rule | Reading | Evidence | meets floor | Basis |
+| --- | --- | --- | --- | --- | --- |
+| H-Q7: a Write on an artifact of the harness layout runs the cascade and costs more node starts, modules, wall and CPU than a Write on the identity file ROOM.md; changed content adds no cost above 2 x noise; the default layout skips the cascade | R2, R3, R5 | Premise gate PASSED (P-a 3 of 3 on both files, P-b 13 against 9 starts and 1042 against 614 modules). Q7-a PASS, Q7-b PASS, Q7-c FAIL (the hypothesis says no cost above 2 x noise), Q7-d PASS. Write rows of plan 384-04 and the ranking numbers on them: LOWER BOUND. Rows independent of the Write file (S6 ledger, SubagentStop counts, state-write.cjs): NOT A LOWER BOUND. The identity and default layout targets have a spread above 10 percent and are kept with it | q7-write-cascade-counts.json, q7-write-cascade-s1.json, q7-write-cascade-s2.json | yes (cost per Write 3553.4 ms wall and 5015 ms CPU, above 50 ms) | DERIVED |
+| H-Q8: at least 100 session files, and the measured median differs from the ASSUMED value for at least one of prompts, write_edit and read_grep_glob | R7, R8 | 194 development sessions; the median is below the ASSUMED value in all three groups (ratios 0.067, 0, 0), all flagged; mean prompts 36.4 per development session | frequency-all-projects.json | not applicable (a count, not a cost) | DERIVED |
+
+No reading in this file marks an S finding confirmed or refuted. Plan 384-09 owns its verdict rule and applies its own rule to these results. This plan did not edit 384-RANKING.md; Wave 2 planning reads this file next to it.
+
+## Not measured
+
+- The local real-room copy and the mount class are not measured here, because owner decision 7 says fixture rooms only. A Write on the local copy (the work folder of a copy ends in /room/) is NOT MEASURED with the cascade running.
+- The plan 384-08 copy Write row stays UNVERIFIED for the cascade state: its result files do not record the touched file.
+- Whether a user room path holds /room/ or /rooms/ is not read (Canon Part 8). The numbers for the harness layout apply only to a room whose path holds one of the two; the numbers for the default layout apply to a path that holds neither.
+- Brain network time: every child ran with an unreachable loopback Brain URL, so no network wait is in any number.
+- Per-round summed hook CPU is not stored in the result files. The CPU readings of Q7 are differences of set medians (DERIVED), not R2 readings on per-round differences.
+- The identity file target and the default layout target have two groups of rounds (near 200 ms and between 700 and 1050 ms). No third timing set was taken, and the cause of the higher group is not investigated.
+- Larger rooms, larger artifact files and artifact types other than text files: only the small fixture artifacts were measured.
+- Native Windows, Claude Desktop and Cowork: this plan measures the Claude Code CLI on Linux. Counts transfer to other platforms and times do not.
+- Sessions of plugin users: the counted sessions are development sessions of this host, mostly code work.
+- Subagent session files: not counted (direct session files only).
+- The content of any session: the counter keeps the record type, the tool group and the date only.

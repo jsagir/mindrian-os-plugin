@@ -1,0 +1,226 @@
+{
+  "schema": "mos.freq-384/1",
+  "basis": "measured from 194 session files",
+  "sessions": 194,
+  "privacy": "counts and dates only: no text, no file name, no folder name, no path, no time of day",
+  "totals": {
+    "prompts": 7071,
+    "tool_use": {
+      "write_edit": 855,
+      "read_grep_glob": 741,
+      "bash": 8942,
+      "task": 1344,
+      "slash_command": 273,
+      "brain": 83,
+      "gate_answer": 2,
+      "other": 2867
+    },
+    "record_types": {
+      "last-prompt": 11530,
+      "agent-setting": 11287,
+      "mode": 11461,
+      "permission-mode": 11244,
+      "atis-latch": 11423,
+      "file-history-snapshot": 2077,
+      "queue-operation": 11166,
+      "attachment": 98291,
+      "user": 22172,
+      "assistant": 33899,
+      "system": 9853,
+      "cost-state": 161,
+      "api-request-shape": 227,
+      "api-request-blob": 11787,
+      "api-request": 12751,
+      "file-history-delta": 432,
+      "dev-mods": 178,
+      "tools-used": 396,
+      "frame-link": 1994,
+      "artifact-comment-monitor": 71,
+      "artifact-autoreact-ledger": 148,
+      "pr-link": 266,
+      "continued-in": 1,
+      "session-owner": 602,
+      "ai-title": 113,
+      "agent-name": 334,
+      "worktree-state": 12,
+      "relocated": 6,
+      "custom-title": 226
+    }
+  },
+  "per_session": {
+    "prompts": {
+      "median": 2,
+      "p95": 167
+    },
+    "tool_use": {
+      "write_edit": {
+        "median": 0,
+        "p95": 20
+      },
+      "read_grep_glob": {
+        "median": 0,
+        "p95": 20
+      },
+      "bash": {
+        "median": 0,
+        "p95": 222
+      },
+      "task": {
+        "median": 0,
+        "p95": 45
+      },
+      "slash_command": {
+        "median": 0,
+        "p95": 8
+      },
+      "brain": {
+        "median": 0,
+        "p95": 0
+      },
+      "gate_answer": {
+        "median": 0,
+        "p95": 0
+      },
+      "other": {
+        "median": 0,
+        "p95": 71
+      }
+    },
+    "record_types": {
+      "last-prompt": {
+        "median": 3,
+        "p95": 243
+      },
+      "agent-setting": {
+        "median": 3,
+        "p95": 243
+      },
+      "mode": {
+        "median": 2.5,
+        "p95": 243
+      },
+      "permission-mode": {
+        "median": 2,
+        "p95": 243
+      },
+      "atis-latch": {
+        "median": 3,
+        "p95": 243
+      },
+      "file-history-snapshot": {
+        "median": 1,
+        "p95": 50
+      },
+      "queue-operation": {
+        "median": 1,
+        "p95": 324
+      },
+      "attachment": {
+        "median": 34,
+        "p95": 2088
+      },
+      "user": {
+        "median": 2,
+        "p95": 516
+      },
+      "assistant": {
+        "median": 2,
+        "p95": 827
+      },
+      "system": {
+        "median": 2,
+        "p95": 236
+      },
+      "cost-state": {
+        "median": 1,
+        "p95": 1
+      },
+      "api-request-shape": {
+        "median": 0,
+        "p95": 6
+      },
+      "api-request-blob": {
+        "median": 0,
+        "p95": 314
+      },
+      "api-request": {
+        "median": 0,
+        "p95": 353
+      },
+      "file-history-delta": {
+        "median": 0,
+        "p95": 10
+      },
+      "dev-mods": {
+        "median": 0,
+        "p95": 0
+      },
+      "tools-used": {
+        "median": 0,
+        "p95": 14
+      },
+      "frame-link": {
+        "median": 0,
+        "p95": 1
+      },
+      "artifact-comment-monitor": {
+        "median": 0,
+        "p95": 1
+      },
+      "artifact-autoreact-ledger": {
+        "median": 0,
+        "p95": 2
+      },
+      "pr-link": {
+        "median": 0,
+        "p95": 0
+      },
+      "continued-in": {
+        "median": 0,
+        "p95": 0
+      },
+      "session-owner": {
+        "median": 0,
+        "p95": 0
+      },
+      "ai-title": {
+        "median": 0,
+        "p95": 0
+      },
+      "agent-name": {
+        "median": 0,
+        "p95": 0
+      },
+      "worktree-state": {
+        "median": 0,
+        "p95": 0
+      },
+      "relocated": {
+        "median": 0,
+        "p95": 0
+      },
+      "custom-title": {
+        "median": 0,
+        "p95": 0
+      }
+    }
+  },
+  "derived": {
+    "stop_per_session": "derived: one Stop per prompt",
+    "session_start_per_session": "derived: one SessionStart per session file"
+  },
+  "scope": "all project folders",
+  "label": "development sessions",
+  "project_folders": 102,
+  "unreadable_files": 0,
+  "dates": {
+    "first": "2026-10-05",
+    "last": "2026-11-05",
+    "active_days": 25,
+    "sessions_per_month": {
+      "2026-10": 184,
+      "2026-11": 10
+    },
+    "sessions_without_date": 0
+  }
+}
