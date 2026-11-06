@@ -271,6 +271,42 @@ function censusRun(treeDir, events, out, extra) {
   const wtext = fs.existsSync(out2) ? fs.readFileSync(out2, 'utf8') : '';
   check('K7 walls-subagent works in copy mode and writes a timing file with one target per size', w.status === 0 && !!wj && wj.schema === 'mos.perf-384/1' && wj.targets.length === 2 && wj.targets.every((t) => typeof t.n === 'number' && typeof t.exec_total === 'number' && 'survivor_cpu_ms' in t && t.wall_ms), w.stderr + wtext.slice(0, 300));
   check('K7 the walls file holds no path', wtext.length > 0 && wtext.indexOf(src) === -1 && !/\/home\/|\/tmp\/|\/mnt\/c\//.test(wtext));
+
+  // WA: walls-subagent with two trees, interleaved. Tree A starts 3 sleep processes in its SubagentStop hook, tree B starts 1.
+  {
+    const hookOf = (tag, sleeps) => 'sh -c \'echo ' + tag + ' >> "$MOS_ORDER_FILE"; ' + Array.from({ length: sleeps }, () => 'sleep 0.1 &').join(' ') + ' wait\'';
+    const wa = makeTree('tree-wa', { SubagentStop: [{ command: hookOf('a', 3) }] });
+    const wb = makeTree('tree-wb', { SubagentStop: [{ command: hookOf('b', 1) }] });
+    const orderFile = tmp('wa-order.txt');
+    const outAb = tmp('wa-ab.json');
+    const waEnv = Object.assign({}, selfEnv, { MOS_ORDER_FILE: orderFile });
+    const ab = run(['walls-subagent', '--tree', wa, '--tree-b', wb, '--label-b', 'b-label', '--files', '1,5', '--runs', '4', '--room', 'copy', '--source-file', srcFile, '--counter', so, '--scratch', scratch7, '--out', outAb, '--allow-short', '--skip-gates', '--label', 'a-label'], { env: waEnv });
+    let aj = null;
+    try { aj = readJson(outAb); } catch (_e) { aj = null; }
+    const order = fs.existsSync(orderFile) ? fs.readFileSync(orderFile, 'utf8').split('\n').filter(Boolean).join('') : '';
+    // 4 untimed runs (size 1: a b, size 5: a b), then 4 rounds of 2 sizes: A first in even rounds, B first in odd rounds
+    const expect = 'abab' + 'abab' + 'baba' + 'abab' + 'baba';
+    check('WA1 walls-subagent --tree-b exits 0 and the two trees alternate in every pair, A first in even rounds and B first in odd rounds', ab.status === 0 && order.indexOf(expect) === 0, ab.status + ' ' + ab.stderr + ' ' + order);
+    const badB = run(['walls-subagent', '--tree', wa, '--tree-b', tmp('no-such-tree'), '--files', '1', '--runs', '4', '--room', 'copy', '--source-file', srcFile, '--counter', so, '--scratch', scratch7, '--out', tmp('wa-bad.json'), '--allow-short', '--skip-gates']);
+    check('WA1 walls-subagent --tree-b with a folder that is not a plugin tree exits 2', badB.status === 2, badB.status + ' ' + badB.stderr);
+    const ids = aj ? aj.targets.map((t) => t.id) : [];
+    const T = (id) => (aj ? aj.targets.find((t) => t.id === id) : null);
+    check('WA2 the A targets keep the ids event:SubagentStop:files<N> and the B targets use event:SubagentStop-b:files<N>', ['event:SubagentStop:files1', 'event:SubagentStop:files5', 'event:SubagentStop-b:files1', 'event:SubagentStop-b:files5'].every((id) => ids.indexOf(id) >= 0) && ids.length === 4, ids.join());
+    const fields = ['background_ms', 'background_ms_p95', 'survivor_cpu_ms', 'exec_total', 'node_starts', 'bash_starts', 'find_count', 'load1_end', 'n'];
+    check('WA2 every B target holds the fields of a single-tree run, and the result has a compare key with both labels', !!aj && aj.targets.every((t) => fields.every((k) => k in t)) && !!aj.compare && aj.compare.a === 'a-label' && aj.compare.b === 'b-label', aj ? JSON.stringify(aj.compare) : '');
+    const a1 = T('event:SubagentStop:files1');
+    const b1 = T('event:SubagentStop-b:files1');
+    const a5 = T('event:SubagentStop:files5');
+    const b5 = T('event:SubagentStop-b:files5');
+    check('WA3 n is the same for both trees (4)', !!a1 && !!b1 && !!a5 && !!b5 && a1.n === 4 && b1.n === 4 && a5.n === 4 && b5.n === 4, [a1, b1, a5, b5].map((t) => t && t.n).join());
+    check('WA3 the B exec_total is lower than the A exec_total in the direction built into the trees (A starts 2 more processes)', !!a1 && !!b1 && !!a5 && !!b5 && b1.exec_total < a1.exec_total && b5.exec_total < a5.exec_total && a1.exec_total - b1.exec_total >= 2, [a1, b1, a5, b5].map((t) => t && t.exec_total).join());
+    const atext = fs.existsSync(outAb) ? fs.readFileSync(outAb, 'utf8') : '';
+    check('WA3 the two-tree file holds no path', atext.length > 0 && !/\/home\/|\/tmp\/|\/mnt\/c\//.test(atext) && atext.indexOf(src) === -1);
+    const abSingle = run(['walls-subagent', '--tree', wa, '--files', '1', '--runs', '2', '--room', 'copy', '--source-file', srcFile, '--counter', so, '--scratch', scratch7, '--out', tmp('wa-single.json'), '--allow-short', '--skip-gates'], { env: waEnv });
+    let sj2 = null;
+    try { sj2 = readJson(tmp('wa-single.json')); } catch (_e) { sj2 = null; }
+    check('WA2 without --tree-b the output is unchanged: one target id per size, no compare key', abSingle.status === 0 && !!sj2 && sj2.targets.length === 1 && sj2.targets[0].id === 'event:SubagentStop:files1' && !sj2.compare, abSingle.stderr);
+  }
   cp.spawnSync(process.execPath, [HARNESS, 'clean-bench', '--source', src, '--scratch', scratch7], { encoding: 'utf8' });
 }
 
