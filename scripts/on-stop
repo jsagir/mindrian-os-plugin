@@ -218,6 +218,25 @@ PROGRESSEOF
     SESSION_DATE=$(date -u +"%Y-%m-%d")
     SESSION_TIME=$(date -u +"%H:%M:%S")
 
+    # B13 (Phase 386 plan 14): "since last session" means the previous session,
+    # not the previous turn. last-session.md is rewritten every Stop, so a
+    # baseline stamp moves only when the Stop session_id changes (line 1 = the
+    # id, mtime = end of the previous session). No safe id keeps the old
+    # behavior. The id is file content only; no path or command uses it.
+    BASELINE_REF="${CONTEXT_DIR}/last-session.md"
+    KAIROS_SID=""
+    if [ -n "$HOOK_STDIN" ]; then
+      KAIROS_SID="$(printf '%s' "$HOOK_STDIN" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);process.stdout.write(typeof j.session_id==='string'?j.session_id:'')}catch(_){process.stdout.write('')}})" 2>/dev/null || true)"
+    fi
+    if printf '%s' "$KAIROS_SID" | grep -Eq '^[A-Za-z0-9._-]{1,128}$'; then
+      BASELINE_STAMP="${CONTEXT_DIR}/.session-baseline"
+      if [ "$(head -1 "$BASELINE_STAMP" 2>/dev/null || true)" != "$KAIROS_SID" ]; then
+        printf '%s\n' "$KAIROS_SID" > "$BASELINE_STAMP" 2>/dev/null || true
+        touch -r "${CONTEXT_DIR}/last-session.md" "$BASELINE_STAMP" 2>/dev/null || true
+      fi
+      if [ -f "$BASELINE_STAMP" ]; then BASELINE_REF="$BASELINE_STAMP"; fi
+    fi
+
     # Extract venture stage from STATE.md
     VENTURE_STAGE=$(grep -i "Stage:" "${ROOM_DIR}/STATE.md" 2>/dev/null | head -1 | sed 's/.*Stage:\s*//' | tr -d '\r' || echo "Unknown")
 
@@ -225,7 +244,7 @@ PROGRESSEOF
     ARTIFACT_COUNT=$(find "$ROOM_DIR" -name "*.md" \
       ! -name "STATE.md" ! -name "ROOM.md" ! -name "USER.md" \
       ! -path "*/.context/*" ! -path "*/.reasoning/*" \
-      -newer "${CONTEXT_DIR}/last-session.md" 2>/dev/null | wc -l || echo "0")
+      -newer "$BASELINE_REF" 2>/dev/null | wc -l || echo "0")
     ARTIFACT_COUNT=$(echo "$ARTIFACT_COUNT" | tr -d ' ')
 
     # Count signals from proactive intelligence
@@ -244,7 +263,7 @@ PROGRESSEOF
     LAST_METHODOLOGY=$(find "$ROOM_DIR" -name "*.md" \
       ! -name "STATE.md" ! -name "ROOM.md" ! -name "USER.md" \
       ! -path "*/.context/*" ! -path "*/.reasoning/*" \
-      -newer "${CONTEXT_DIR}/last-session.md" 2>/dev/null \
+      -newer "$BASELINE_REF" 2>/dev/null \
       | head -1 \
       | xargs grep -l "^methodology:" 2>/dev/null \
       | head -1 \
