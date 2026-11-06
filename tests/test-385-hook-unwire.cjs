@@ -265,4 +265,52 @@ check('the query-efficiency PostToolUse group has matcher Grep|Glob, timeout 3 a
   assert.strictEqual(groups[0].hooks[0].timeout, 3, 'timeout ' + groups[0].hooks[0].timeout);
 });
 
+// ---- Plan 385-11: the SlashCommand command-invocation telemetry hook ----
+const TCI_SCRIPT = path.join(ROOT, 'scripts', 'telemetry-command-invocation.cjs');
+
+function runTci(extraEnv) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-11-'));
+  try {
+    const home = path.join(tmp, 'home');
+    fs.mkdirSync(home, { recursive: true });
+    const env = Object.assign({}, process.env, { HOME: home });
+    for (const k of ['CLAUDE_TOOL_COMMAND', 'CLAUDE_TOOL_OUTCOME', 'CLAUDE_TOOL_DURATION_MS', 'CLAUDE_SESSION_ID']) delete env[k];
+    Object.assign(env, extraEnv || {});
+    const r = spawnSync(process.execPath, [TCI_SCRIPT], {
+      input: JSON.stringify({
+        hook_event_name: 'PostToolUse',
+        tool_name: 'SlashCommand',
+        tool_input: { command: '/mos:status' },
+        tool_response: { success: true },
+      }),
+      encoding: 'utf8',
+      env,
+    });
+    return { r, homeFiles: listFiles(home) };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+check('telemetry-command-invocation with the live payload and no CLAUDE_TOOL_COMMAND gives no stdout and writes no file', () => {
+  const { r, homeFiles } = runTci({});
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.strictEqual(r.stdout, '', 'stdout ' + JSON.stringify(r.stdout));
+  assert.deepStrictEqual(homeFiles, [], 'files under HOME: ' + homeFiles.join(', '));
+});
+
+check('control: telemetry-command-invocation with CLAUDE_TOOL_COMMAND=/mos:scout still writes a telemetry file', () => {
+  const { r, homeFiles } = runTci({ CLAUDE_TOOL_COMMAND: '/mos:scout' });
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.ok(homeFiles.some((f) => f.startsWith(path.join('.mindrian', 'telemetry'))), 'no file under .mindrian/telemetry: ' + homeFiles.join(', '));
+});
+
+check('no PostToolUse command runs telemetry-command-invocation.cjs and no PostToolUse group has the matcher SlashCommand', () => {
+  const doc = loadHooks();
+  const cmds = commandsOf(doc, 'PostToolUse').filter((c) => c.command.includes('telemetry-command-invocation.cjs'));
+  assert.strictEqual(cmds.length, 0, cmds.length + ' PostToolUse command(s) still run telemetry-command-invocation.cjs');
+  const groups = ((doc.hooks && doc.hooks.PostToolUse) || []).filter((g) => g.matcher === 'SlashCommand');
+  assert.strictEqual(groups.length, 0, groups.length + ' PostToolUse group(s) still have the matcher SlashCommand');
+});
+
 process.exit(failed ? 1 : 0);

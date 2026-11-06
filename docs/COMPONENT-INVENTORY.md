@@ -175,7 +175,7 @@
 - `memory-completion-detector.cjs` (PostToolUse) - detect memory-completion events
 - `query-efficiency-telemetry.cjs` (PostToolUse) - LOCAL query-efficiency telemetry
 - `brain-response-sanitize-hook.cjs` (PostToolUse) - Part-8 PII redaction on Brain egress
-- `telemetry-command-invocation.cjs` (PostToolUse) - LOCAL command-invocation telemetry
+- `telemetry-command-invocation.cjs` (script only, no hook entry since Phase 385) - LOCAL command-invocation telemetry
 - `hmi-compliance-poll.cjs` (Stop) - UI ruling-system compliance poll
 - `run-hook.cmd` - the dispatcher (see sub-hooks below)
 

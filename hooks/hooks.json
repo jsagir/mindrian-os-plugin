@@ -335,16 +335,6 @@
             "timeout": 5
           }
         ]
-      },
-      {
-        "matcher": "SlashCommand",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command-invocation.cjs\"",
-            "timeout": 5
-          }
-        ]
       }
     ],
     "UserPromptSubmit": [

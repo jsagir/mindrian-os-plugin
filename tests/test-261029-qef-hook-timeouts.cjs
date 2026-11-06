@@ -48,6 +48,8 @@ const P385 = {
   removed: [
     { event: 'Stop', sub: 'operator-update.cjs' },
     { event: 'Stop', sub: 'jtbd-update.cjs" stop' },
+    // Plan 385-11: the SlashCommand telemetry hook (the host sets no CLAUDE_TOOL_COMMAND, so it always skipped).
+    { event: 'PostToolUse', sub: 'telemetry-command-invocation.cjs' },
   ],
   matcher: [
     // Plan 385-10: the query-efficiency hook no longer runs on Read (its Read result was always empty).
@@ -104,7 +106,6 @@ const TABLE = [
   ['PostToolUse', 'query-efficiency-telemetry.cjs', 3],
   ['PostToolUse', 'operator-update.cjs', 5],
   ['PostToolUse', 'brain-response-sanitize-hook.cjs', 5],
-  ['PostToolUse', 'telemetry-command-invocation.cjs', 5],
   ['UserPromptSubmit', 'admin-command-gate.cjs', 3],
   ['UserPromptSubmit', 'run-hook.cmd" intent-classifier', 5],
   ['UserPromptSubmit', 'mva-detect.cjs', 3],

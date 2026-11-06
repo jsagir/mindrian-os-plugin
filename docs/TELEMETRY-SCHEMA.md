@@ -215,7 +215,7 @@ Each subsection documents when the event fires, the closed ALLOWED_FIELDS whitel
 
 ### 6.14 `command_invocation` (D-09 surface 3; PostToolUse broad sweep -- HIGH VOLUME)
 
-- When: at `scripts/telemetry-command-invocation.cjs` (PostToolUse hook registered with `matcher: "SlashCommand"`) for every `/mos:*` invocation.
+- When: at `scripts/telemetry-command-invocation.cjs` for every `/mos:*` invocation. The script exists, but its PostToolUse hook entry (matcher `SlashCommand`) was removed by Phase 385 plan 11 because the host sets no `CLAUDE_TOOL_COMMAND` variable, so the hook always skipped. No row of this type is written today. Re-wiring needs a new event wiring (the `UserPromptExpansion` event for typed commands and the `Skill` tool for model calls) and its own decision.
 - ALLOWED_FIELDS: `command, outcome, duration_ms, context_hash`
 - `outcome` enum: `success | error | aborted`. Hook coerces `cancelled` to `aborted`. Anything outside the closed set falls back to `success` (defensive).
 - HIGH VOLUME warning: this bucket samples 100% of `/mos:*` invocations. Consumers MUST filter by `event === 'command_invocation'` to either include or exclude it. **The type discriminator IS the drowning protection** -- a SEED-002 high-signal analysis filters this bucket OUT to keep the selector_pick / tension_engagement / breakthrough_dismissed stream intact. A tool-usage correlation study filters this bucket IN.

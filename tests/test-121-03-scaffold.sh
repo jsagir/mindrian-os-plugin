@@ -47,12 +47,14 @@ gate3_command_invocation_hook_exists() {
   echo "Gate 3 PASS: telemetry-command-invocation.cjs exists with command_invocation emit + /^/mos:/ filter"
 }
 
-# Gate 4: hooks/hooks.json contains telemetry-command-invocation AND is valid JSON.
+# Gate 4: hooks/hooks.json does NOT contain telemetry-command-invocation (Phase 385-11) AND is valid JSON.
 gate4_hooks_json_registered() {
   local hits
+  # Phase 385-11: the SlashCommand entry was removed on purpose (the host sets no
+  # CLAUDE_TOOL_COMMAND, so the hook always skipped). The script and the schema stay.
   hits=$(grep -c "telemetry-command-invocation" hooks/hooks.json || true)
-  if [ "$hits" -lt 1 ]; then
-    fail "Gate 4: hooks/hooks.json missing telemetry-command-invocation entry"
+  if [ "$hits" -ge 1 ]; then
+    fail "Gate 4: hooks/hooks.json still registers telemetry-command-invocation (unwired by Phase 385-11)"
   fi
   node -e "JSON.parse(require('node:fs').readFileSync('hooks/hooks.json','utf8'))" >/dev/null 2>&1 \
     || fail "Gate 4: hooks/hooks.json is not valid JSON"
@@ -62,7 +64,7 @@ gate4_hooks_json_registered() {
   if [ "$ss" != "4" ]; then
     fail "Gate 4: hooks.json SessionStart entries changed (expected 4, got $ss)"
   fi
-  echo "Gate 4 PASS: hooks/hooks.json registers telemetry-command-invocation + valid JSON + 4 SessionStart entries preserved"
+  echo "Gate 4 PASS: hooks/hooks.json does not register telemetry-command-invocation + valid JSON + 4 SessionStart entries preserved"
 }
 
 # Gate 5: drowning-protection fixture passes (the constitutional invariant).
