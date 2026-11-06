@@ -6,18 +6,18 @@
 # because the likelier failure here is an over-eager cleanup silently
 # breaking scripts/compute-hsi.py Tier 2, not a missed removal:
 #
-#   PRESENCE -- the two Pinecone surfaces 296-CONTEXT.md D-06 deliberately
-#     KEPT (requirements-hsi.txt's pinecone declaration, compute-hsi.py's
-#     Tier 2 PINECONE_API_KEY read, lib/core/pinecone-inference.cjs's
-#     api.pinecone.io egress) are still present and still load.
+#   PRESENCE -- the two Pinecone surfaces that stay (requirements-hsi.txt's
+#     pinecone declaration, compute-hsi.py's Tier 2 PINECONE_API_KEY read)
+#     are still present and still load. Assertions P3 and P5 (the removed
+#     Phase 272 inference module) were retired by Phase 385-15.
 #   ABSENCE -- the one Pinecone surface this phase RETIRED
 #     (lib/core/rs_cache.py's SDK calls, and the pinecone_id /
 #     eureka_vec-direct-read hazards named in 296-RESEARCH.md) is gone from
 #     every file plan 296-04/296-05 touched.
 #
 # Cited: 296-CONTEXT.md D-06 ("PINECONE_API_KEY and the pinecone package
-# stay -- still load-bearing for compute-hsi.py Tier 2 and
-# lib/core/pinecone-inference.cjs"). 296-RESEARCH.md Pitfall 4 ("pinecone
+# stay -- still load-bearing for compute-hsi.py Tier 2"; the second consumer
+# named there was removed by Phase 385-15). 296-RESEARCH.md Pitfall 4 ("pinecone
 # leaves requirements-hsi.txt; compute-hsi.py --tier 2 breaks; the failure
 # is SILENT because the import is try/except-guarded and the feature just
 # returns a degraded result... HSI scores that look plausible but changed
@@ -81,26 +81,11 @@ else
   fi
 fi
 
-# P3. lib/core/pinecone-inference.cjs exists and its non-comment source
-# still contains api.pinecone.io (Phase 272's audited /embed egress).
-F="lib/core/pinecone-inference.cjs"
-if [ ! -f "$F" ]; then
-  fail "P3" "$F" "file does not exist (Phase 272's deliberate, audited /embed module)"
-else
-  hits="$(strip_cjs < "$F" | grep -Ec 'api\.pinecone\.io' || true)"
-  if [ "$hits" -eq 0 ]; then
-    fail "P3" "$F" "zero occurrences of 'api.pinecone.io' in non-comment source"
-  fi
-fi
+# (P3 and P5 were retired by Phase 385-15: the module they pinned was removed.)
 
 # P4. compute-hsi.py must still load and run.
 if ! python3 scripts/compute-hsi.py --help >/dev/null 2>&1; then
   fail "P4" "scripts/compute-hsi.py" "'python3 scripts/compute-hsi.py --help' did not exit 0"
-fi
-
-# P5. pinecone-inference.cjs must still be requireable.
-if ! node -e "require('./lib/core/pinecone-inference.cjs')" >/dev/null 2>&1; then
-  fail "P5" "lib/core/pinecone-inference.cjs" "require() did not exit 0"
 fi
 
 # ---------------------------------------------------------------------------

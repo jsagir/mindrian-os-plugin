@@ -58,13 +58,9 @@
 # deliberately looser rule than the em-dash fence below; do not conflate the
 # two.
 #
-# PART 8 EXEMPTION: lib/core/pinecone-inference.cjs legitimately contains
-# fetch( and https://api.pinecone.io -- it is the D-01 /embed module, the one
-# deliberate, audited external-egress module this phase creates (Pinecone
-# hosted inference, gated by auditQueryString/auditQueryObject in
-# rs-egress-prompts.cjs). It is exempted BY NAME from the PART8_FORBIDDEN
-# grep below, but stays tracked in PART8_TARGETS and in the em-dash fence --
-# exempting it from the grep is not the same as dropping it from tracking.
+# NOTE (Phase 385-15): the Phase 272 hosted-inference /embed module was removed
+# (owner ruling R6 step 1, 2026-11-06). Its Part 8 exemption is gone with it, so
+# every target below is swept with the same forbidden-token grep.
 #
 # NO-EM-DASH FENCE: sweeps every file this phase touches for the forbidden
 # U+2014 glyph via its Unicode codepoint escape (grep -P '\x{2014}'). A
@@ -158,25 +154,10 @@ PART8_TARGETS=(
   "lib/core/hsi-lsa.cjs"
   "lib/core/hsi-spectral.cjs"
   "lib/core/hsi-engine.cjs"
-  "lib/core/pinecone-inference.cjs"
 )
 PART8_FORBIDDEN='brain-client|brain_query|pws-brain|fetch\(|https?://|node:https?|curl |wget '
 for t in "${PART8_TARGETS[@]}"; do
   f="$ROOT/$t"
-  # pinecone-inference.cjs is the ONE deliberate, audited external-egress
-  # module this phase creates (D-01's /embed call, gated by
-  # auditQueryString/auditQueryObject) -- exempt it BY NAME from the
-  # forbidden-token grep, but keep it in PART8_TARGETS so its existence is
-  # still tracked here and in the em-dash fence below.
-  if [ "$t" = "lib/core/pinecone-inference.cjs" ]; then
-    if [ -f "$f" ]; then
-      echo "    EXEMPT from Part 8 grep (documented, audited /embed egress, D-01): $t"
-    else
-      echo "    SKIPPED (not yet created, does not fail this leg): $t"
-      PART8_MISSING=$((PART8_MISSING+1))
-    fi
-    continue
-  fi
   if [ -f "$f" ]; then
     hits="$(grep -v '^\s*\(//\|\*\|/\*\)' "$f" | grep -Ec "$PART8_FORBIDDEN" || true)"
     if [ "$hits" -gt 0 ]; then
@@ -200,9 +181,7 @@ echo ""
 
 # ---------------------------------------------------------------------------
 # NO-EM-DASH FENCE (ported from tests/run-all-270.sh): every new file this
-# phase touches (including the exempted pinecone-inference.cjs -- exemption
-# is from the Part 8 grep only, not from this fence), plus this runner
-# itself and every discovered tests/272- file. Here a MISSING target DOES
+# phase touches, plus this runner itself and every discovered tests/272- file. Here a MISSING target DOES
 # count into EMDASH_MISSING and FAILS the fence unless TEST_272_ALLOW_MISSING=1
 # is set.
 # ---------------------------------------------------------------------------

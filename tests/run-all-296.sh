@@ -34,12 +34,13 @@
 # locked here as regression fences, not re-implemented.
 #
 # EXPLICITLY OUT OF SCOPE, must NOT be swept for removal by anything in this
-# phase: lib/core/pinecone-inference.cjs (Phase 272's deliberate, audited
-# Pinecone /embed inference module), scripts/compute-hsi.py Tier 2 (its own
-# independent PINECONE_API_KEY consumer), and PINECONE_API_KEY itself (still
-# load-bearing for both of the above after this phase lands, per
-# 296-RESEARCH.md's Runtime State Inventory / D-06). A future task that
-# removes either is a scope violation, not a cleanup.
+# phase: scripts/compute-hsi.py Tier 2 (its own independent PINECONE_API_KEY
+# consumer) and PINECONE_API_KEY itself (still load-bearing for that Tier 2
+# read, per 296-RESEARCH.md's Runtime State Inventory / D-06). Phase 385-15
+# removed lib/core/pinecone-inference.cjs under the owner statement of
+# 2026-11-06; compute-hsi.py Tier 2 and PINECONE_API_KEY stay until the owner
+# rules on step 3. A future task that removes either is a scope violation,
+# not a cleanup.
 #
 # DISCOVERY IS BY GLOB, node-arm suffix-scoped to *.test.cjs (NOT a bare
 # *.cjs glob): this phase's shared fixtures live under tests/fixtures/296/,
@@ -64,8 +65,8 @@
 # still imports the pinecone SDK, both in prose (its own header docstring
 # names the architecture) and in code (`from pinecone import Pinecone`). It
 # is exempted BY NAME from the PART8_FORBIDDEN grep below, mirroring the
-# identical precedent tests/run-all-272.sh set for lib/core/pinecone-
-# inference.cjs, but it stays tracked in PART8_TARGETS and in the em-dash
+# identical precedent tests/run-all-272.sh set (that exemption was removed by
+# Phase 385-15), but it stays tracked in PART8_TARGETS and in the em-dash
 # fence. The real enforcement gate for RSLOCAL-04 is tests/296-dim-
 # invariant.sh, which SKIPs honestly for this exact same reason today and
 # turns red-until-fixed once 296-04 lands. Exempting it from THIS sweep is

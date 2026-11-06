@@ -13,9 +13,9 @@ vector service.
 
 Retirement note: this file previously carried a remote-index integration
 (create/describe/upsert/search against a hosted vector service, gated on
-a hosted-service API key). Phase 272's own `lib/core/pinecone-inference.cjs`
-header explicitly deferred that surface's retirement to a follow-up phase.
-Phase 296 plan 04 is that follow-up phase. The removed symbols were the
+a hosted-service API key). Phase 296 plan 04 retired that surface. The
+Phase 272 hosted-inference module that once sat beside it was removed by
+Phase 385. The removed symbols were the
 client-handle constructor, the index-ensure/create routine, the
 namespace-vector-count helper, the raw text-query routine, and their
 supporting batch-size and ready-poll constants. None of them survive; see
