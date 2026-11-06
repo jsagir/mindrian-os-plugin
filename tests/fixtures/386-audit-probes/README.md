@@ -7,8 +7,7 @@ Files:
 - p-cases.json: 15 P cases (tool name and payload).
 - adversarial-cases.json: 23 adversarial cases (one text each).
 - corpora-cases.json: 656 corpus cases in 9 groups (extended 535, 354-generic 31, positives_26 26, compliant 16, violation 16, negatives 10, must_refuse 10, 354-private 10, known_leaks 2).
-- baseline-before.json: the verdict and class of every case, recorded before plans 386-25, 386-28 and 386-31 changed the guard.
-- baseline-head-matrix.json: the same matrix recorded from a later commit that already held those plans (see below).
+- baseline-before.json: the verdict and class of every case, recorded before plans 386-25, 386-28 and 386-31 changed the guard (guard_head f0df97036, guard_root_kind export).
 - ../../helpers/audit-probe-loader.cjs: the loader, the run-time key builder and the offline classifier.
 
 ## What the vetting found and changed
@@ -25,19 +24,20 @@ Files:
 
 - Hygiene test: node tests/test-386-audit-probe-fixtures.cjs
 - Load the cases: require the loader and call loadProbes(). Every string is resolved and every case has a key (P:id, ADV:id or C:id).
-- Record a matrix: node tests/helpers/audit-probe-loader.cjs --record out.json [--root folder] [--head sha] [--note text]. The command uses a temporary HOME and synthetic rooms. It counts network attempts and the count must stay 0.
+- Record a matrix: node tests/helpers/audit-probe-loader.cjs --record out.json [--guard-root folder --guard-head sha] [--note text]. The guard root is a git archive export; without it the guard of this repository is used. The command uses a temporary HOME and synthetic rooms. It counts network attempts and the count must stay 0.
 
 ## Two baselines, two commits
 
 baseline-before.json is the state before plans 386-25, 386-28 and 386-31. Those plans had already landed in HEAD when this plan ran, so the baseline was not recorded from HEAD. It was recorded from a git archive export of commit f0df97036, the planning-time commit. That commit is before plans 25, 28 and 31 and already holds the brain_write block of plan 386-04. Do not re-record baseline-before.json. Plan 386-40 compares against it.
 
-baseline-head-matrix.json is a second matrix from a git archive export of the HEAD of that day. It shows the state after plans 25, 28 and 31, so plan 386-40 can show before and after.
+A second matrix was recorded the same way from a git archive export of the HEAD of that day (commit 349b3275e). It shows the state after plans 25, 28 and 31, so plan 386-40 can show before and after. The matrix file is not committed. The lines head_matrix_head, head_matrix_changed and head_matrix_diff below summarise it.
 
 Both exports ran in a scratch folder with a throwaway HOME and rooms folder, no network, and node_modules linked from the repository.
 
 Readings that matter for plan 386-40 (verdict and class):
 
 - Before (f0df97036): P2 allow move_set, P4 allow move_set, P7 allow generic_question, P14 ambiguous unknown. The key-shaped cases secret_fake_credential, key_mixed and key_lower were allowed.
+- Class-only changes inside the diff line (block to block): P3, P8, key_upper and X4 move from room_content to content_set.
 - After (head matrix): P2 block content_set, P4 block room_content, P7 block content_set, P14 allow typed_read_shape. Those 3 key-shaped cases are blocked. Known leak GAP1 is blocked.
 - Unchanged in both: 37 extended questions are blocked (36 by the name rule, 1 by content_set), and P10 and P13 are blocked by content_set. Plans 386-28, 386-31 and 386-33 decide what happens to those.
 
@@ -55,5 +55,6 @@ extended_unsourced_reviewed: yes
 baseline_before_commit: f0df97036
 baseline_guard_head: f0df97036
 baseline_note: none (the counts equal the planning-time reference: P 5 allow, 1 ambiguous, 9 block; adversarial 9 allow, 14 block; corpora 573 allow, 83 block; extended 498 allow, 37 block)
-head_matrix_file: baseline-head-matrix.json
-head_matrix_commit: 349b3275e
+head_matrix_head: 349b3275e
+head_matrix_changed: 12
+head_matrix_diff: P:P2:allow>block, P:P3:block>block, P:P4:allow>block, P:P7:allow>block, P:P8:block>block, P:P14:ambiguous>allow, ADV:secret_fake_credential:allow>block, ADV:key_upper:block>block, ADV:key_mixed:allow>block, ADV:key_lower:allow>block, C:negatives:X4:block>block, C:known_leaks:GAP1:allow>block

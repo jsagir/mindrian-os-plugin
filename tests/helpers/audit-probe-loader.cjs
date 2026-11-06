@@ -17,10 +17,12 @@
  *
  * Command line:
  *   node tests/helpers/audit-probe-loader.cjs --record <file>
- *        [--root <dir>] [--head <sha>] [--note <text>]
- *   --root points at a folder that holds lib/core and tests/helpers (a git
- *   archive export); the default is this repository. --head overrides the
- *   guard_head written in the header (an export has no .git).
+ *        [--guard-root <dir> --guard-head <sha>] [--note <text>]
+ *   --guard-root points at a folder that holds lib/core and tests/helpers (a
+ *   git archive export); the default is this repository. With --guard-root,
+ *   --guard-head is required and is written as guard_head (an export has no
+ *   .git) and guard_root_kind is export; otherwise guard_root_kind is repo.
+ *   --root and --head are accepted as aliases.
  *
  * The guard and the synthetic room helper are required lazily, after the
  * caller has isolated HOME.
@@ -99,8 +101,10 @@ function blockNetwork() {
 }
 
 // roomFor(name) builds a synthetic room on first use. null for no room.
-function makeRooms(tempDir, opts) {
-  const root = (opts && opts.root) || REPO_ROOT;
+// guardRoot (a string) or { root } names the folder that holds
+// tests/helpers/synthetic-room-db.cjs; the default is this repository.
+function makeRooms(tempDir, guardRoot) {
+  const root = (typeof guardRoot === 'string' ? guardRoot : guardRoot && guardRoot.root) || REPO_ROOT;
   const built = {};
   let helper = null;
   return {
@@ -177,10 +181,16 @@ function argValue(args, flag) {
 function record(args) {
   const outFile = argValue(args, '--record');
   if (!outFile) {
-    console.error('usage: audit-probe-loader.cjs --record <file> [--root <dir>] [--head <sha>] [--note <text>]');
+    console.error('usage: audit-probe-loader.cjs --record <file> [--guard-root <dir> --guard-head <sha>] [--note <text>]');
     process.exit(2);
   }
-  const root = path.resolve(argValue(args, '--root') || REPO_ROOT);
+  const rootArg = argValue(args, '--guard-root') || argValue(args, '--root');
+  const headArg = argValue(args, '--guard-head') || argValue(args, '--head');
+  if (rootArg && !headArg) {
+    console.error('--guard-head is required when --guard-root is given');
+    process.exit(2);
+  }
+  const root = path.resolve(rootArg || REPO_ROOT);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos386-39-rec-'));
   const home = path.join(tmp, 'home');
   fs.mkdirSync(home, { recursive: true });
@@ -192,7 +202,7 @@ function record(args) {
   delete process.env.TAVILY_API_KEY;
   delete process.env.OPENALEX_API_KEY;
   const net = blockNetwork();
-  let head = argValue(args, '--head');
+  let head = headArg;
   if (!head) {
     const r = require('node:child_process').spawnSync('git', ['-C', root, 'rev-parse', '--short', 'HEAD'], { encoding: 'utf8' });
     head = r.status === 0 ? r.stdout.trim() : 'unknown';
@@ -200,12 +210,13 @@ function record(args) {
   try {
     const guard = require(path.join(root, 'lib', 'core', 'part8-egress-guard.cjs'));
     const lexMod = require(path.join(root, 'lib', 'core', 'part8-room-lexicon.cjs'));
-    const rooms = makeRooms(path.join(tmp, 'rooms'), { root: root });
+    const rooms = makeRooms(path.join(tmp, 'rooms'), root);
     const rows = classifyAll({ classify: guard.classify, roomFor: rooms.roomFor, reset: lexMod._resetLexiconCache });
     const doc = {
       schema: 1,
       recorded_at: new Date().toISOString(),
       guard_head: head,
+      guard_root_kind: rootArg ? 'export' : 'repo',
       network_calls: net.count(),
       note: argValue(args, '--note') || '',
       counts: countRows(rows),

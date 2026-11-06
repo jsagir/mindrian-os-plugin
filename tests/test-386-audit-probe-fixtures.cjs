@@ -14,7 +14,6 @@
  *   FX5  baseline-before.json header and one row per case
  *   FX6  README lines
  *   FX7  classifyAll is deterministic and makes no network call
- *   FX8  second matrix (current HEAD export) and its README lines
  *
  * Part 8: synthetic rooms only, temporary HOME, no network.
  * The patterns below detect key shapes. They are patterns, never a key.
@@ -196,6 +195,7 @@ function checkBaselineFile(name) {
     need(b[k] !== undefined, name + ' header field ' + k + ' missing');
   });
   need(b.network_calls === 0, name + ' network_calls is ' + b.network_calls);
+  need(b.guard_root_kind === 'export' || b.guard_root_kind === 'repo', name + ' guard_root_kind');
   need(Array.isArray(b.rows) && b.rows.length === 694, name + ' rows ' + (b.rows && b.rows.length));
   const seen = {};
   const tally = { total: 0, by_verdict: { allow: 0, ambiguous: 0, block: 0 }, by_set: {}, by_group: {} };
@@ -219,6 +219,8 @@ function checkBaselineFile(name) {
 
 arm('FX5 baseline-before.json header and rows', function () {
   const b = checkBaselineFile('baseline-before.json');
+  need(b.guard_head === 'f0df97036', 'guard_head is ' + b.guard_head);
+  need(b.guard_root_kind === 'export', 'guard_root_kind is ' + b.guard_root_kind);
   return 'head ' + b.guard_head;
 });
 
@@ -244,6 +246,10 @@ arm('FX6 README lines', function () {
   line(t, /^extended_unsourced_reviewed: yes$/m, 'extended_unsourced_reviewed');
   line(t, /^baseline_guard_head: [0-9a-f]{7,}$/m, 'baseline_guard_head');
   line(t, /^baseline_note: .+$/m, 'baseline_note');
+  line(t, /^baseline_before_commit: f0df97036$/m, 'baseline_before_commit');
+  line(t, /^head_matrix_head: [0-9a-f]{7,}$/m, 'head_matrix_head');
+  line(t, /^head_matrix_changed: \d+$/m, 'head_matrix_changed');
+  line(t, /^head_matrix_diff: .+$/m, 'head_matrix_diff');
   return 'ok';
 });
 
@@ -267,15 +273,6 @@ arm('FX7 classifyAll is deterministic with zero network calls', function () {
   need(net.count() === 0, 'network calls: ' + net.count());
   net.restore();
   return '694 rows twice';
-});
-
-arm('FX8 second matrix from the HEAD export and its README lines', function () {
-  const b = checkBaselineFile('baseline-head-matrix.json');
-  const t = readme();
-  line(t, /^baseline_before_commit: [0-9a-f]{7,}$/m, 'baseline_before_commit');
-  line(t, /^head_matrix_commit: [0-9a-f]{7,}$/m, 'head_matrix_commit');
-  line(t, /^head_matrix_file: baseline-head-matrix\.json$/m, 'head_matrix_file');
-  return 'head ' + b.guard_head;
 });
 
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }

@@ -1,7 +1,8 @@
 {
   "schema": 1,
-  "recorded_at": "2026-11-06T08:43:55.275Z",
+  "recorded_at": "2026-11-06T08:45:10.383Z",
   "guard_head": "f0df97036",
+  "guard_root_kind": "export",
   "network_calls": 0,
   "note": "git archive export of f0df97036, the planning-time commit before plans 386-25, 386-28 and 386-31",
   "counts": {
