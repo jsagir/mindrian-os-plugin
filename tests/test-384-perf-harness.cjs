@@ -328,6 +328,58 @@ function afterGate() {
     check('B8 an untagged commit without the trailer that touches lib/y passes', gcase(['lib/y'], 'fix: probe', false).status === 0);
     check('B8 phase-guard without an argument exits 2', spawnSync(process.execPath, [GUARD], { encoding: 'utf8' }).status === 2);
 
+    // B9: the explicit exception list for known planning-only commits (rule a only)
+    const PG = require(GUARD);
+    function gsynth(files, subject) {
+      seq += 1;
+      const dir = path.join(TMP, 'pg' + seq);
+      fs.mkdirSync(dir);
+      const env = Object.assign({}, process.env, { GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' });
+      const g = (args) => spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null'].concat(args), { cwd: dir, encoding: 'utf8', env });
+      g(['init', '-q']);
+      fs.writeFileSync(path.join(dir, 'README'), 'x\n');
+      g(['add', 'README']);
+      g(['commit', '-q', '-m', 'base']);
+      const baseSha = g(['rev-parse', 'HEAD']).stdout.trim();
+      for (const f of files) {
+        fs.mkdirSync(path.dirname(path.join(dir, f)), { recursive: true });
+        fs.writeFileSync(path.join(dir, f), 'y\n');
+        g(['add', '-f', '--', f]);
+      }
+      g(['commit', '-q', '-m', subject]);
+      return { dir, baseSha, sha: g(['rev-parse', 'HEAD']).stdout.trim() };
+    }
+    const PLAN_MIX = ['.planning/phases/384-x/384-LEADS.md', '.planning/HANDOFF-x.md', '.planning/phases/390-y/390-PRD.md'];
+    check('B9 the exception list is exported and holds full 40-character shas', Array.isArray(PG.KNOWN_PLANNING_ONLY_COMMITS) && PG.KNOWN_PLANNING_ONLY_COMMITS.length >= 1 && PG.KNOWN_PLANNING_ONLY_COMMITS.every((s) => /^[0-9a-f]{40}$/.test(s)));
+    const b9a = gsynth(PLAN_MIX, 'docs: planning notes');
+    const b9aOff = PG.checkHistory(b9a.dir, b9a.baseSha, 'HEAD', []);
+    check('B9 a mixed planning commit that is not on the list fails rule a', b9aOff.violations.length === 1 && /rule a/.test(b9aOff.violations[0]), JSON.stringify(b9aOff.violations));
+    const b9aOn = PG.checkHistory(b9a.dir, b9a.baseSha, 'HEAD', [b9a.sha]);
+    check('B9 the same commit on the list passes rule a and prints the note', b9aOn.violations.length === 0 && b9aOn.notes.indexOf('known planning-only commit exempt from rule a: ' + b9a.sha.slice(0, 9)) !== -1, JSON.stringify(b9aOn));
+    const b9b = gsynth(PLAN_MIX.concat(['hooks/x']), 'docs: planning notes and a hook');
+    const b9bOn = PG.checkHistory(b9b.dir, b9b.baseSha, 'HEAD', [b9b.sha]);
+    check('B9 a listed commit that touches a product path is still a violation', b9bOn.violations.some((v) => /rule a/.test(v)) && b9bOn.notes.length === 0, JSON.stringify(b9bOn));
+    const b9c = gsynth(PLAN_MIX.concat(['.planning/other.json']), 'docs: planning notes and json');
+    const b9cOn = PG.checkHistory(b9c.dir, b9c.baseSha, 'HEAD', [b9c.sha]);
+    check('B9 a listed commit that touches a non-markdown .planning file is still a violation', b9cOn.violations.some((v) => /rule a/.test(v)) && b9cOn.notes.length === 0, JSON.stringify(b9cOn));
+    const b9d = gsynth(['tools/perf/guard-probe.txt', 'hooks/x'], 'docs: mixed');
+    const b9dOn = PG.checkHistory(b9d.dir, b9d.baseSha, 'HEAD', [b9a.sha]);
+    check('B9 a normal mixed commit still fails with a list that holds another sha', b9dOn.violations.some((v) => /rule a/.test(v)), JSON.stringify(b9dOn));
+    const b9e = gsynth(['tools/perf/guard-probe.txt', 'hooks/x'], 'fix(384-01): mixed');
+    const b9eOn = PG.checkHistory(b9e.dir, b9e.baseSha, 'HEAD', [b9e.sha]);
+    check('B9 a listed product commit with the phase tag still fails rule b', b9eOn.violations.some((v) => /rule b/.test(v)), JSON.stringify(b9eOn));
+    // the real repository range (skipped when the history is not present, for example in a shallow clone)
+    const REAL_BASE = 'db2ea3b05bb70b55741bdeb40b545801b0c37cbe';
+    const REAL_COMMIT = '5d58018aa02cc432235fe892745a66b2ab566744';
+    const haveReal = spawnSync('git', ['cat-file', '-e', REAL_BASE + '^{commit}'], { cwd: REPO }).status === 0 && spawnSync('git', ['cat-file', '-e', REAL_COMMIT + '^{commit}'], { cwd: REPO }).status === 0 && spawnSync('git', ['merge-base', '--is-ancestor', REAL_BASE, REAL_COMMIT], { cwd: REPO }).status === 0;
+    if (haveReal) {
+      const realRun = spawnSync(process.execPath, [GUARD, REAL_BASE, '--repo', REPO, '--head', REAL_COMMIT], { encoding: 'utf8' });
+      const realOut = String(realRun.stdout) + String(realRun.stderr);
+      check('B9 the real range up to the planning commit passes and prints the note', realRun.status === 0 && realOut.indexOf('known planning-only commit exempt from rule a: 5d58018aa') !== -1, realRun.status + ' ' + realOut.slice(0, 300));
+    } else {
+      process.stdout.write('  skip B9 real range (history not present)\n');
+    }
+
     partA();
 
     // the target list
