@@ -552,10 +552,26 @@ async function cmdPostCompact(roomDir) {
 
   const handle = { db: openRoomDb(roomDir) };
   try {
-    const session = await memory.startSession(handle.db);
-    writePointer(roomDir, session.id, session.started_at);
+    // Phase 386-10 (B5): one compaction opens ONE session row. The SessionStart
+    // hook (matcher startup|clear|compact) already runs cmdSessionStart, which
+    // opens the row and writes the pointer. So the PostCompact hook reuses the
+    // session the pointer names and only writes the marker fragment. It opens a
+    // row itself only when no usable pointer exists. Safe in either hook order.
+    let sessionId = null;
+    const ptr = readPointer(roomDir);
+    if (ptr) {
+      try {
+        const row = handle.db.prepare('SELECT id FROM sessions WHERE id = ?').get(ptr.id);
+        if (row) sessionId = row.id;
+      } catch (_) { sessionId = null; }
+    }
+    if (sessionId === null) {
+      const session = await memory.startSession(handle.db);
+      writePointer(roomDir, session.id, session.started_at);
+      sessionId = session.id;
+    }
     await memory.addFragment(handle.db, {
-      session_id: session.id,
+      session_id: sessionId,
       role: 'post-compact',
       content: 'session resumed after auto-compact context discontinuity',
     });

@@ -51,6 +51,12 @@ emit_post_compact_envelope() {
   }'
 }
 
+# Phase 386-10 (B5): PostCompact envelope for the paths with nothing to restore.
+# Only keys that the event allows.
+emit_post_compact_continue() {
+  printf '{"continue":true}\n'
+}
+
 # Write the full restored context to <roomDir>/.mindrian/last-post-compact.md
 # atomically. Soft-fail at every step. Markdown plain-text (NOT JSON) since
 # the future consumer will inject the block as additionalContext or read it
@@ -98,15 +104,20 @@ mkdir -p "$SAVE_DIR"
 SAVE_FILE="$SAVE_DIR/pre-compact-state.json"
 
 if [ ! -f "$SAVE_FILE" ]; then
-  # No saved state -- fall back to fresh session-start behavior
-  exec bash "${SCRIPT_DIR}/session-start"
+  # No saved state. Phase 386-10 (B5): the SessionStart hook (matcher includes
+  # compact) already re-seeds the session, so emit a PostCompact-valid envelope
+  # and stop. Do not exec session-start: it prints a SessionStart envelope,
+  # which PostCompact does not accept, and it opens a second session row.
+  emit_post_compact_continue
+  exit 0
 fi
 
 # Check staleness (> 10 min = stale, probably from a previous session)
 SAVE_AGE=$(( $(date +%s) - $(portable_stat_mtime "$SAVE_FILE") ))
 if [ "$SAVE_AGE" -gt 600 ]; then
   rm -f "$SAVE_FILE"
-  exec bash "${SCRIPT_DIR}/session-start"
+  emit_post_compact_continue
+  exit 0
 fi
 
 # Extract saved context
@@ -329,12 +340,13 @@ escape_for_json() {
 
 escaped_context=$(escape_for_json "$context")
 
-# Phase 84-03: memory-lifecycle post-compact hook. Opens a NEW session row
-# (compact is a context discontinuity), overwrites the pointer file, and
-# writes a role='post-compact' marker fragment so the boundary is
-# discoverable in the fragments table. Graceful no-op when no active room.
-# Note: this path runs only when pre-compact-state.json exists; the
-# no-save-file branch execs session-start which has its own memory wiring.
+# Phase 84-03: memory-lifecycle post-compact hook. Writes a role='post-compact'
+# marker fragment so the boundary is discoverable in the fragments table.
+# Phase 386-10: it no longer opens its own session row (the SessionStart
+# compact hook does). Graceful no-op when no active room.
+# Note: this path runs only when pre-compact-state.json exists. Phase 386-10:
+# the subcommand reuses the session the SessionStart hook already opened, so
+# one compaction adds one row.
 if command -v node >/dev/null 2>&1 && [ -f "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" ]; then
   node "${PLUGIN_ROOT}/scripts/memory-lifecycle.cjs" post-compact >/dev/null 2>&1 || true
 fi

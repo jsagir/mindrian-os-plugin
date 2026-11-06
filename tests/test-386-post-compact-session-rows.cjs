@@ -108,6 +108,7 @@ function check(label, cond, detail) {
 // C1: SessionStart(compact) then PostCompact, and the reverse order.
 {
   const fx = mkFixture();
+  ml(fx, 'session-start'); // the original session, opened at startup
   const before = countRows(fx.room);
   ml(fx, 'session-start');
   ml(fx, 'post-compact');
@@ -115,6 +116,7 @@ function check(label, cond, detail) {
   check('C1 one compaction adds 1 row (SessionStart then PostCompact)', added === 1, 'added=' + added);
 
   const fx2 = mkFixture();
+  ml(fx2, 'session-start'); // the original session, opened at startup
   const before2 = countRows(fx2.room);
   ml(fx2, 'post-compact');
   ml(fx2, 'session-start');

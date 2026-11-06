@@ -265,20 +265,44 @@ if (require.main === module) {
 // forensicRename happens BEFORE composing the fragment so a subsequent retry
 // cannot re-inject the same context.
 
+// Phase 386-10 (B9): the coordinator resolves the room through the shared
+// resolver (lib/core/resolve-active-room.cjs), the one slug -> directory
+// derivation. last_opened comes from the legacy registry reader when it
+// names the same directory, so the D-04b freshness check keeps its signal.
+function resolveContributeRoom() {
+  let r = null;
+  try {
+    r = require(path.join(__dirname, '..', 'lib', 'core', 'resolve-active-room.cjs')).resolveActiveRoom();
+  } catch (_) { r = null; }
+  if (!r || !r.abs_path) return null;
+  let lastOpened = null;
+  try {
+    const g = getActiveRoom(process.cwd());
+    if (g && g.path && path.resolve(g.path) === path.resolve(r.abs_path)) lastOpened = g.last_opened || null;
+  } catch (_) { lastOpened = null; }
+  return { slug: r.slug, path: r.abs_path, last_opened: lastOpened };
+}
+
 function contribute() {
   let fi;
   try { fi = require('../lib/sessionstart/contributor-interface.cjs'); }
   catch (_) { return { has_payload: false }; }
   try {
-    let sc;
-    try { sc = readSideChannel(); } catch (_) { return fi.emptyFragment(); }
-    if (!sc || !sc.path) return fi.emptyFragment();
+    // Phase 386-10 (B9): follow the order main() uses. Resolve the room FIRST,
+    // read the side channel from THAT room, parse the stamp, then validate the
+    // stamp (not the file record) against the room.
     let activeRoom;
-    try { activeRoom = getActiveRoom(); } catch (_) { return fi.emptyFragment(); }
-    if (!activeRoom) return fi.emptyFragment();
+    try { activeRoom = resolveContributeRoom(); } catch (_) { return fi.emptyFragment(); }
+    if (!activeRoom || !activeRoom.path) return fi.emptyFragment();
+    let sc;
+    try { sc = readSideChannel(activeRoom.path); } catch (_) { return fi.emptyFragment(); }
+    if (!sc || !sc.path) return fi.emptyFragment();
+    let stamp;
+    try { stamp = parseStamp(sc.content); } catch (_) { return fi.emptyFragment(); }
+    if (!stamp) return fi.emptyFragment();
     try {
-      if (!validateRoomMatch(sc, activeRoom)) {
-        try { forensicRename(sc.path, 'stale'); } catch (_) {}
+      if (!validateRoomMatch(stamp, activeRoom)) {
+        try { forensicRename(sc.path, 'cross-room-skip'); } catch (_) {}
         return fi.emptyFragment();
       }
     } catch (_) { return fi.emptyFragment(); }
