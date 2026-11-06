@@ -43,6 +43,8 @@ const FAKE = [
   "const cp = require('node:child_process');",
   "const fs = require('node:fs');",
   "const mode = process.env.FAKE_MODE || '';",
+  // test-only order log: one line per server start, the name of the tree folder (no path)
+  "if (process.env.FAKE_ORDER_FILE) { try { fs.appendFileSync(process.env.FAKE_ORDER_FILE, require('node:path').basename(require('node:path').dirname(__dirname)) + '\\n'); } catch (e) { /* none */ } }",
   "if (mode === 'npm') { try { cp.execFileSync('npm', ['--version'], { stdio: 'ignore' }); } catch (e) { /* stub exits 1 */ } }",
   "if (mode === 'npmabs') { try { cp.execFileSync('/usr/bin/env', [process.env.FAKE_NPM_ABS, '--version'], { stdio: 'ignore' }); } catch (e) { /* blocked */ } }",
   "if (process.env.FAKE_WATCH) { try { fs.watch(process.env.MINDRIAN_ROOMS_HOME); } catch (e) { /* none */ } }",
@@ -306,6 +308,42 @@ async function main() {
     const gcold = gj && gj.targets.find((t) => t.id === 'mcp:block:stop_gate_check:cold:ping');
     check('M8 block: detached background work after the reply is waited for (background_ms of 500 or more), survivors 0', r3b.status === 0 && !!gcold && gcold.background_ms >= 500 && gcold.survivors_left === 0 && gcold.failed_runs === 0, r3b.stderr + (gcold ? JSON.stringify([gcold.background_ms, gcold.survivors_left]) : ''));
     check('M8 block: with no background work background_ms is 0', !!cold && cold.background_ms === 0, cold ? cold.background_ms : '');
+
+    // BA: block with two trees, interleaved. Tree A blocks 300 ms in execFileSync, tree B answers at once.
+    {
+      const treeFast = tmp('tree-fast');
+      writeFile(path.join(treeFast, 'hooks', 'hooks.json'), JSON.stringify({ hooks: { SessionEnd: [{ hooks: [{ type: 'command', command: 'true' }] }] } }));
+      writeFile(path.join(treeFast, 'scripts', 'mindrian-mcp-server.cjs'), FAKE.replace("if (n === 'stop_gate_check') cp.execFileSync('sleep', ['0.3']);", ''));
+      const orderFile = tmp('block-order.txt');
+      const baFile = path.join(outDir, 'block-ab.json');
+      const rBa = cli(['block', '--tree', tree, '--tree-b', treeFast, '--label-b', 'fast-label', '--room', 'copy', '--source-file', sourceFile, '--out', baFile, '--tool', 'stop_gate_check', '--runs', '4', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'slow-label'], { FAKE_ORDER_FILE: orderFile });
+      const baj = fs.existsSync(baFile) ? readJson(baFile) : null;
+      const baIds = baj ? baj.targets.map((t) => t.id) : [];
+      const T = (id) => (baj ? baj.targets.find((t) => t.id === id) : null);
+      const pre = 'mcp:block:stop_gate_check:';
+      const preB = 'mcp:block-b:stop_gate_check:';
+      const order = fs.existsSync(orderFile) ? fs.readFileSync(orderFile, 'utf8').split('\n').filter(Boolean) : [];
+      let orderOk = order.length === 24;
+      for (let k = 0; orderOk && k < 12; k += 1) {
+        const round = Math.floor(k / 3);
+        const first = round % 2 === 0 ? 'tree' : 'tree-fast';
+        if (order[2 * k] !== first || order[2 * k + 1] === first) orderOk = false;
+      }
+      check('BA1 block --tree-b exits 0 and runs both trees in every pair, tree A first in even rounds and tree B first in odd rounds', rBa.status === 0 && orderOk, rBa.status + ' ' + rBa.stderr + ' ' + order.join(','));
+      const badTreeB = cli(['block', '--tree', tree, '--tree-b', tmp('no-such-tree'), '--room', 'copy', '--source-file', sourceFile, '--out', tmp('ba-bad.json'), '--runs', '4', '--scratch', scratch, '--skip-gates', '--allow-short']);
+      check('BA1 block --tree-b with a folder that is not a plugin tree exits 2', badTreeB.status === 2, badTreeB.status + ' ' + badTreeB.stderr);
+      const idsA = ['mcp:block:idle-ping', pre + 'cold:ping', pre + 'cold:tool', pre + 'warm:ping', pre + 'warm:tool'];
+      const idsB = idsA.map((x) => x.replace('mcp:block:', 'mcp:block-b:'));
+      const idsD = [pre + 'cold:ping', pre + 'cold:tool', pre + 'warm:ping', pre + 'warm:tool'].map((x) => x + ':a-minus-b');
+      check('BA2 the A rows keep today ids, the B rows use the prefix mcp:block-b:, and each ping and tool row has an :a-minus-b row', !!baj && idsA.concat(idsB, idsD).every((id) => baIds.indexOf(id) >= 0), baIds.join());
+      check('BA2 the result holds a compare key with both labels and every row has n = 4', !!baj && !!baj.compare && baj.compare.a === 'slow-label' && baj.compare.b === 'fast-label' && baj.targets.every((t) => t.n === 4), baj ? JSON.stringify(baj.compare) : '');
+      check('BA2 block without --tree-b still has no B row and no compare key (earlier output unchanged)', !!bj && !bj.compare && !bj.targets.some((t) => /block-b|a-minus-b/.test(t.id)));
+      const cA = T(pre + 'cold:ping');
+      const cB = T(preB + 'cold:ping');
+      const cD = T(pre + 'cold:ping:a-minus-b');
+      check('BA3 the A cold ping median is 250 ms or more, the B cold ping median is below 100 ms', !!cA && !!cB && cA.wall_ms.median >= 250 && cB.wall_ms.median < 100, cA && cB ? cA.wall_ms.median + ' ' + cB.wall_ms.median : '');
+      check('BA3 the a-minus-b row of the cold ping has a median of 150 ms or more', !!cD && cD.wall_ms.median >= 150 && cD.derived === true, cD ? cD.wall_ms.median : '');
+    }
     const idleFile = path.join(outDir, 'idle.json');
     const r4 = cli(['idle', '--tree', tree, '--room', 'copy', '--source-file', sourceFile, '--out', idleFile, '--rooms', '1,2', '--procs', '1,2', '--window-ms', '300', '--runs', '1', '--scratch', scratch, '--skip-gates', '--allow-short', '--label', 'synthetic'], { FAKE_WATCH: '1' });
     const ij = fs.existsSync(idleFile) ? readJson(idleFile) : null;
