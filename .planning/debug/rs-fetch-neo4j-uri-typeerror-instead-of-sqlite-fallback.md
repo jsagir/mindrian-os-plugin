@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "rs-fetch-neo4j-uri-typeerror-instead-of-sqlite-fallback"
 issue_id: "B10"
@@ -108,8 +108,10 @@ started: Phase 89.5 (rs-fetch CLI never passes a driver; the tier rule reads the
 
 ## Resolution
 
-root_cause: tier1 is chosen from NEO4J_URI alone, but rs-fetch never builds a driver, so the Aura writer throws TypeError which is not in the fallback set.
-fix: pending
-verification: pending
-files_changed: []
-commits: pending
+root_cause: tier1 is chosen from NEO4J_URI alone, but rs-fetch never builds a driver, so the Aura writer throws TypeError which was not in the fallback set.
+fix: in the tier1 catch block of runDiscovery, a TypeError with no usable opts.driver now takes the SQLite fallback (fallback_reason no_aura_driver, one stderr notice). The writer is still called first, so the existing mocked-writer test keeps its contract. ExternalEgressViolation and any TypeError with a driver still bubble up. A pre-call guard was tried first and rejected: it broke lib/memory/test-rs-discovery-engine.cjs T2, which expects the writer to be attempted.
+verification: node tests/test-386-rs-fetch-neo4j-fallback.cjs (all arms ok). lib/memory/test-rs-discovery-engine.cjs rc 0, lib/memory/test-rs-explain-command.cjs rc 0. lib/memory/rs-discovery-engine.test.cjs fails at t2 (classification literal) both before and after, so that failure is pre-existing and unrelated.
+files_changed:
+  - scripts/rs-discovery-engine.cjs (tier1 catch block)
+  - tests/test-386-rs-fetch-neo4j-fallback.cjs (new)
+commits: see git log for 386-13
