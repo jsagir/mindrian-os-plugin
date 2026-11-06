@@ -3,7 +3,7 @@ name: eureka
 description: Surface cross-domain opportunity candidates from your room at portfolio scale
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Rank cross-domain opportunity pairs and surface the weak-signal tail."
-argument-hint: "[run|enable]"
+argument-hint: "[run|enable|enable engine]"
 body_shape: E (Action Report)
 layer: "loop"
 layer_why: "Ranks cross-domain pairs into fundable-opportunity flags in one analysis cycle to a stopping condition, the same shape as a methodology command."
@@ -14,10 +14,13 @@ hitl_stages:
   - stage: "quick policy grant"
     shapes: ["F.0"]
     mode: "gate"
+  - stage: "engine setup grant"
+    shapes: ["F.0"]
+    mode: "gate"
   - stage: "filing"
     shapes: ["F.8"]
     mode: "parallel"
-hitl_why: "The recalled cross-domain pairs become a research plan the navigator reviews on an F.6 card, the run fetches only under an F.0 grant, and supported pairs file as an any-order F.8 basket only on the navigator's yes."
+hitl_why: "The recalled cross-domain pairs become a research plan the navigator reviews on an F.6 card, the run fetches only under an F.0 grant, and supported pairs file as an any-order F.8 basket only on the navigator's yes. The one optional setup step that reaches package hosts runs only after the person approves a grant card."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 9, argued in full): first delivery at commands/eureka.md:216, the ranked cross-domain opportunity table with the weak-signal tail flagged, over the navigator's own room content.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "explore"]
@@ -69,6 +72,7 @@ Said plainly, because older text here claimed otherwise:
 
 - **Writes:** run files under the room's `.mindrian/` folder (the recall under `.mindrian/eureka-perspective/<tag>/`, the plan and run state under `.mindrian/research-runs/<run_id>/`). The room graph (`room.db`) changes only on the F.8 yes, when the picked pairs file as proposed candidate opportunities with DERIVED_FROM edges to both things.
 - **Leaves the machine:** only the audited research queries you approved on the search card, during `run-quick`. Recall, the Stage A gates and the plan are local. Room prose never rides argv (the planner refuses free text with exit 2).
+- **Engine setup (`enable engine`):** writes one small file, `~/.mindrian/eureka-engine.json`, that holds a folder path and a time. The optional `--sync` step is the only step that reaches the network. It reaches package hosts after a grant card, writes the `.venv` inside the engine folder, and nothing from the room goes with it. At run time the engine writes `jobs.sqlite3` under `~/.local/share/mindrian-eureka` and `embeddings.sqlite3` under `~/.cache/mindrian-eureka` even for a graph-only call; `/mos:eureka enable engine --data` lists them.
 
 ## Subcommand Routing
 
@@ -78,6 +82,7 @@ Parse the user's input after `/mos:eureka`. The primary job IS the run, so **no 
 |------------|-----------|---------|
 | `run` (default) | E (Action Report) | The perspective quick run: recall, Stage A, plan review, search approval, run, prose, F.8 filing |
 | `enable` | E (Action Report) | Install the local embedding stack the room's semantic index uses (one-time, about 380 MB); room-independent |
+| `enable engine` | E (Action Report) | Save, check or forget the folder of the Eureka engine that the engine tools use; room-independent |
 
 The standalone Eureka runner is retired (Phase 366): there is no other subcommand. An old `start`, `status`, `report` or `html` request runs the default quick run instead.
 
@@ -186,7 +191,77 @@ node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not foun
 
 Render ONE Shape E block per outcome: already installed, installed now, or the 3-line error quoting the reason (Fix: `/mos:eureka enable`). The same install is reachable through `/mos:doctor --fix eureka`. The quick run itself never needs it: recall reads the room graph and its ICM structure, with no embeddings.
 
+## Subcommand: enable engine
+
+The Eureka engine is a separate project (`mindrian-eureka`) behind the 22 `eureka_` engine tools. The quick run above and `research_run` with op `perspective_recall` need no engine. The plugin does not download or include the engine. This step only saves where it is, checks it, and can run its package setup after a grant. It is room-independent, so it skips the room check.
+
+Setup has three parts: (1) Python packages, which the optional sync gives; (2) a model folder you place yourself, because the engine never downloads one and a package sync gives no model weights; (3) Node.js 22 or newer, which some workers need. The plugin never downloads a model. The plugin never installs uv, Python or Node.js; it checks for them and says what is missing. After setup, every engine run is offline with no auto-sync: it passes `--no-sync`, `--offline` and `--locked`, so a partial setup becomes a typed answer and never a silent install.
+
+Where the engine is looked for, in order: the environment variable `MINDRIAN_EUREKA_ROOT`, then the saved setting `~/.mindrian/eureka-engine.json`, then the folder `~/.mindrian/eureka-engine`.
+
+Engine states:
+
+- **absent:** no folder is set. The engine tools answer `engine_not_configured`. This is not an error in `/mos:eureka`.
+- **present:** the folder is the engine and its checks pass. A present engine can still tell a route it needs more: `engine_extra_missing` (a package group; fix: the sync with that extra), `engine_model_missing` (a model folder you place) or `engine_node_missing` (Node.js 22 or newer).
+- **broken:** a folder is set but cannot run (missing folder, not the engine, no uv, no Python, no prepared environment, stale lock). The output names the cause and its fix.
+
+Steps. Each one calls the same command and Larry renders the result:
+
+1. Check the state (the default):
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --check
+   ```
+
+   Add `--deep` to run the engine's own health check offline and show its lines. It needs the encoder libraries.
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --check --deep
+   ```
+
+2. Save an engine folder you already have (an absolute path):
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --path /absolute/path/to/mindrian-eureka
+   ```
+
+3. Forget the setting. This removes the saved setting only; the `.venv` and the engine's data and cache folders stay:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --forget
+   ```
+
+4. List what the engine writes, with sizes. The command deletes nothing:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --data
+   ```
+
+5. Prepare the Python packages (the one step that reaches the network). Ask which groups the person wants: `modern-encoder`, `reference-encoder` or `hmm` (`mcp-server` is always included; `hmm` is built from source and needs a compiler). First run the sync with no approval flag. It prints the grant card JSON, exits 2 and runs nothing:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --sync --extras modern-encoder
+   ```
+
+   Show the hosts, that github.com is not contacted because Python downloads are off, what is built from source, every write, the command and the size note. Nothing from the room leaves the machine. Fire the F.0 card with AskUserQuestion (Approve setup, Stop without running). Only on a yes, run the same command with the approval flag:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/lib/core/eureka/eureka-engine-enable.cjs" --sync --extras modern-encoder --approved-via cli
+   ```
+
+   On a stop, run nothing and say so.
+
+Render ONE Shape E block per outcome: absent, present, or broken. For broken, name the cause from the command output and give its Fix line. A failed save uses the 3-line error pattern:
+
+```
+x Could not save the engine folder
+  Why: [reason from the command output]
+  Fix: /mos:eureka enable engine --path <folder>
+```
+
 ## Direct catalogued engine MCP (advanced)
+
+These tools answer with one typed state when the engine is absent or broken (reason, engine_state, cause, fix). A present engine can answer that one route needs more: `engine_extra_missing` (a package group, with the sync fix), `engine_model_missing` (a model folder you place) or `engine_node_missing` (Node.js 22 or newer). Engine absent is not an error in `/mos:eureka`.
 
 Use this only when the user or Theo's method selection calls for a specific Eureka capability beyond the normal `/mos:eureka` perspective workflow. First call `scout_capabilities`, then `scout_capability_contract` for the chosen stable ID. Invoke `eureka_capability_run` with that ID and an exact-schema request for synchronous routes. It can block until completion; for asynchronous routes, prefer `eureka_capability_start`, then poll with `eureka_capability_job_status`, retrieve with `eureka_capability_job_result`, or request cancellation with `eureka_capability_job_cancel`. Retained jobs exist only in the MindrianOS MCP process that started them, cannot resume after a host restart, expire after 30 minutes, and are capped at eight per process. Check readiness, output contract, and scope/snapshot lineage. Planned/blocked jobs are refused; the generic bridge does not project room data, so use a dedicated `eureka_graph_*` projection adapter or prepare authorized schema-shaped input first. Treat every output as analysis only, resolve references and counterevidence, and use MindrianOS review before filing.
 
@@ -194,7 +269,7 @@ Use this only when the user or Theo's method selection calls for a specific Eure
 
 Use a single catalogued engine directly when the user or Theo's method selection calls for it. This is independent of the default `/mos:eureka` perspective workflow; do not chain engines unless the investigation benefits from it.
 
-1. Confirm `MINDRIAN_EUREKA_ROOT` points to the local `mindrian-eureka` checkout and `uv` is available. The CLI only runs local code over the request file supplied to it.
+1. Run `/mos:eureka enable engine --check` and continue only when it reports the engine as set up. `uv` must be available. `MINDRIAN_EUREKA_ROOT`, when set, is an override of the saved setting (`~/.mindrian/eureka-engine.json`) and is for advanced use and tests. The saved setting is not exported to the shell, so the commands below use `$MINDRIAN_EUREKA_ROOT` as a variable you export yourself for a manual CLI run. The CLI only runs local code over the request file supplied to it.
 2. Discover jobs in a compact list and select by plain-language `name`, `jtbd`, readiness, and route. Narrow it by status or a case-insensitive search term, then inspect prerequisites and limitations on a selected contract before preparing input:
 
    ```bash
@@ -256,6 +331,8 @@ Common errors:
 - **Argv refused:** `x Planner refused the call / Why: free_text_argv_refused (room text never rides argv) / Fix: /mos:eureka`
 
 ## Cross-Surface Adaptation
+
+Engine states: the engine is separate from `/mos:eureka` and is absent, present or broken on every surface. CLI: run `/mos:eureka enable engine --check`, then `--path` or `--sync`. Desktop: the saved setting file is read from the same machine, so a setting saved from the CLI applies; an environment variable set in a shell is not seen by an app started from a menu. Cowork: it keeps its own home folder; where the saved setting is not found, the engine tools answer engine absent. A present engine can still answer `engine_extra_missing`, `engine_model_missing` or `engine_node_missing` for a route that needs more. `/mos:eureka` (CLI) and `research_run` with op `perspective_recall` (Desktop and Cowork) need no engine.
 
 - **CLI:** Full power. The perspective quick run drives the research planner via Bash.
 - **Desktop / Cowork:** call the `research_run` MCP tool with op `perspective_recall` and perspective `eureka` for the bound room, and answer each card with `gate_answer`. The MCP `intelligence eureka-run`, `eureka-status` and `eureka-report` commands answer with a pointer to `research_run` and run nothing. For a separately requested structural graph scan, call `eureka_graph_analyze` with only explicit node IDs already selected from the bound room. Use `eureka_graph_propose_relationships` when invoking the stable `graph.propose_relationships` capability identity; it returns the same kind of unevidenced leads under that distinct capability ID. For a structural analogy between two selected graph nodes, call `eureka_graph_map_neighbourhoods` with both focal IDs included in `node_ids`. For historical method validation, call `eureka_graph_backtest` with selected IDs that include dated relationships; an insufficient-data result is meaningful and must not be converted into a quality claim. For belief-change triage, call `eureka_graph_score_surprise` with selected claim IDs and the probabilities supplied by the authorized analysis; Eureka reads claim text from the graph and does not infer probabilities or truth. For corpus comparison, call `eureka_graph_compare_topics` with disjoint sets of selected IDs and preserve its corpus index-to-node mappings. For host-retrieved evidence paths, call `eureka_graph_rank_paths` with ordered node IDs and edge types; it verifies each path against the selected graph before ranking and never searches for paths. To package caller-proposed links, call `eureka_graph_package_relationships` with selected endpoint and Evidence node IDs plus rationale; the results remain pending for the normal review gate. For a local future-research plan, call `eureka_graph_genesis_plan` with selected node IDs and an objective; present its domains and queries as heuristic planning suggestions for Theo review, and do not execute searches without the normal MindrianOS research approval. For HSI zones, call `eureka_hsi_interpret_whitespace` with explicit IDs for every referenced Framework and room artifact; this adapter derives Wicked, Ill-Defined, Well-Defined, and Un-Defined mappings only from selected MindrianOS graph edges. For an end-to-end local graph opportunity scan, call `eureka_graph_opportunity_scout` with explicit node IDs and the investigation objective. It projects the bound room in MindrianOS, runs Eureka RS+HSI, and returns lineage-bound candidate pairs; it does not qualify or file them. For other text-engine preparation, call `eureka_graph_prepare_artifacts`; preserve its source refs and snapshot lineage when handing the bundle to a compatible engine. These tools invoke local Eureka methods over read-only projections. Present analysis only as unevidenced leads bound to their scope and snapshot, then trace promising pairs with `/mos:find-connections` before the existing review and filing gates. Never render a score or similarity number; when a pair carries no stamp, say exactly "Not yet checked; run the CLI to verify." (D-50).
