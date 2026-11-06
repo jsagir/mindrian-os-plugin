@@ -166,7 +166,7 @@
 - `check-pending-breakthrough.cjs` (SessionStart) - surface a pending breakthrough (SENS-07)
 - `mva-detect.cjs` (UserPromptSubmit) - classify a venture sentence -> MVA brief
 - `brain-derivation-drain.cjs` (UserPromptSubmit) - drain the BRAIN.md derivation queue
-- `operator-update.cjs` (UserPromptSubmit + Stop) - update the conversation operator state
+- `operator-update.cjs` (UserPromptSubmit + PostToolUse) - update the conversation operator state
 - `jtbd-update.cjs` (UserPromptSubmit + Stop) - update the active JTBD signal (SENS-05)
 - `auto-explore-drain.cjs` (UserPromptSubmit) - drain queued auto-explore (SENS-01)
 - `auto-explore-fingerprint.cjs` (PostToolUse) - first-material fingerprint -> auto-explore (SENS-01)

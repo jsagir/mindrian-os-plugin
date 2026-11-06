@@ -148,15 +148,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/operator-update.cjs\"",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/jtbd-update.cjs\" stop",
             "timeout": 5
           }

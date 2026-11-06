@@ -41,6 +41,15 @@ const ROOT = path.resolve(__dirname, '..');
 const HOOKS_JSON = path.join(ROOT, 'hooks', 'hooks.json');
 const BASE_SHA = 'a13ab61f1';
 
+// Phase 385 plan 08 removed one hooks.json entry on purpose (the operator-update
+// Stop entry, a constant no-op). P385 is the one record of each deliberate change
+// against the base commit. Plans 385-09, 385-10 and 385-11 add one item each.
+const P385 = {
+  removed: [{ event: 'Stop', sub: 'operator-update.cjs' }],
+  matcher: [],
+};
+const EXPECTED = 46 - P385.removed.length;
+
 let failed = 0;
 function check(name, fn) {
   try {
@@ -70,7 +79,6 @@ const TABLE = [
   ['PreCompact', 'run-hook.cmd" pre-compact', 6],
   ['PostCompact', 'run-hook.cmd" post-compact', 120],
   ['Stop', 'run-hook.cmd" on-stop', 20],
-  ['Stop', 'operator-update.cjs', 5],
   ['Stop', 'jtbd-update.cjs" stop', 5],
   ['Stop', 'hmi-compliance-poll.cjs', 5],
   ['Stop', 'gsd-graph-derive-sweep.cjs', 5],
@@ -138,12 +146,22 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
   const r = spawnSync('git', ['show', BASE_SHA + ':hooks/hooks.json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   if (r.error || r.status !== 0) return { skip: 'git unavailable' };
   const base = JSON.parse(r.stdout);
+  // Apply the deliberate Phase 385 changes (P385) to the base before the comparison.
+  for (const ev of Object.keys(base.hooks || {})) {
+    base.hooks[ev] = (base.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
+      P385.removed.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
+    for (const group of base.hooks[ev]) {
+      for (const m of P385.matcher) {
+        if (m.event === ev && group.matcher === m.from) group.matcher = m.to;
+      }
+    }
+  }
   must(JSON.stringify(stripKeys(doc)) === JSON.stringify(stripKeys(base)),
     'hooks.json differs from ' + BASE_SHA + ' in more than timeout and onFailure');
 });
 
 check('A2 every command hook timeout is an integer from 1 to 180', () => {
-  must(entries.length === 46, 'expected 46 command hooks, found ' + entries.length);
+  must(entries.length === EXPECTED, 'expected ' + EXPECTED + ' command hooks, found ' + entries.length);
   for (const e of entries) {
     const t = e.h.timeout;
     must(Number.isInteger(t) && t >= 1 && t <= 180, e.event + ' ' + e.h.command + ' has timeout ' + t);
@@ -162,7 +180,7 @@ check('A3 exactly three hooks above 100 s: npm reconcile 150, session-start 180,
 });
 
 check('A4 the DD-1 table matches every entry exactly once', () => {
-  must(TABLE.length === 46, 'table has ' + TABLE.length + ' rows');
+  must(TABLE.length === EXPECTED, 'table has ' + TABLE.length + ' rows');
   const used = new Set();
   for (const [event, sub, secs] of TABLE) {
     const hit = entries.filter((e) => e.event === event && e.h.command.indexOf(sub) !== -1);
@@ -193,7 +211,7 @@ const measure = require(path.join(ROOT, 'scripts', 'measure-hook-cold-start.cjs'
 
 check('A7 parseHookCommands reads the timeout as seconds', () => {
   const parsed = measure.parseHookCommands(HOOKS_JSON);
-  must(parsed.length === 46, 'parsed ' + parsed.length + ' entries');
+  must(parsed.length === EXPECTED, 'parsed ' + parsed.length + ' entries');
   for (const e of parsed) {
     must(e.timeout_ms === e.declared_timeout * 1000, e.command + ': timeout_ms ' + e.timeout_ms + ' for declared ' + e.declared_timeout);
     must(typeof e.timeout_unit_note === 'string' && e.timeout_unit_note.indexOf('read as seconds') !== -1, e.command + ': note ' + e.timeout_unit_note);
