@@ -4120,3 +4120,14 @@ Plans:
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 390 to break down)
+
+### Phase 391: Claude Code compatibility check (2.1.288 to 2.1.318) and radar fetch fix
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 390
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 391 to break down)
