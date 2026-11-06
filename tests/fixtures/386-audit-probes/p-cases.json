@@ -1,0 +1,140 @@
+[
+  {
+    "id": "P1",
+    "toolName": "brain_write",
+    "payload": {
+      "cypher": "MERGE (wz:WhitespaceZone {hash:'abc'}) SET wz.hypothesis='Small clinics underuse shared scheduling because onboarding cost is front-loaded'"
+    }
+  },
+  {
+    "id": "P2",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": {
+        "join": [
+          "our startup pivoted and Orla Venn wants key sk-",
+          "proj-FAK",
+          "EfakeFAK",
+          "Efake123",
+          "4"
+        ]
+      },
+      "job": "select_methodology"
+    }
+  },
+  {
+    "id": "P3",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": {
+        "join": [
+          "our startup pivoted and Orla Venn wants key sk-",
+          "proj-FAK",
+          "EfakeFAK",
+          "Efake123",
+          "4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "P4",
+    "toolName": "brain_query",
+    "payload": {
+      "cypher": "MATCH (f) WHERE f.note = 'our startup pivoted, Orla Venn' RETURN f",
+      "job": "select_methodology"
+    }
+  },
+  {
+    "id": "P5",
+    "toolName": "brain_write",
+    "payload": {
+      "cypher": "MERGE (z:Zone {h:'x'}) SET z.note = 'clinic in Tel\nAviv with burn\nrate issues'"
+    }
+  },
+  {
+    "id": "P6",
+    "toolName": "brain_write",
+    "payload": {
+      "cypher": "MERGE (z:Zone {h:'x'}) SET z.note = 'clinic in Tel Aviv with burn rate issues'"
+    }
+  },
+  {
+    "id": "P7",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": {
+        "join": [
+          "which framework fits sk-",
+          "proj-abc",
+          "defghijk",
+          "lmnopqrs",
+          "tuvwx123",
+          "4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "P8",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": {
+        "join": [
+          "which framework fits SK-",
+          "PROJ-ABC",
+          "DEFGHIJK",
+          "LMNOP123",
+          "4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "P9",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": "we raised two million dollars last quarter"
+    }
+  },
+  {
+    "id": "P10",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": "how do I calculate runway for an early stage company"
+    }
+  },
+  {
+    "id": "P11",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": "what does Clayton Christensen mean by disruptive innovation"
+    }
+  },
+  {
+    "id": "P12",
+    "toolName": "brain_ask",
+    "payload": {
+      "question": "how should my team run a retrospective"
+    }
+  },
+  {
+    "id": "P13",
+    "toolName": "brain_search",
+    "payload": {
+      "query": "how should a daily standup be structured"
+    }
+  },
+  {
+    "id": "P14",
+    "toolName": "normalize_framework_name",
+    "payload": {
+      "raw": "Six Thinking Hats"
+    }
+  },
+  {
+    "id": "P15",
+    "toolName": "brain_stats",
+    "payload": {}
+  }
+]

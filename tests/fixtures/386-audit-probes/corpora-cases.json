@@ -1,0 +1,3956 @@
+[
+  {
+    "id": "positives_26:N1",
+    "group": "positives_26",
+    "q": "which framework tests a business model's riskiest assumption first",
+    "room": null
+  },
+  {
+    "id": "positives_26:N2",
+    "group": "positives_26",
+    "q": "how does the lean canvas relate to the value proposition canvas",
+    "room": null
+  },
+  {
+    "id": "positives_26:N3",
+    "group": "positives_26",
+    "q": "what is the difference between an ill-defined and a wicked problem",
+    "room": null
+  },
+  {
+    "id": "positives_26:N4",
+    "group": "positives_26",
+    "q": "which framework comes after jobs to be done in the PWS sequence",
+    "room": null
+  },
+  {
+    "id": "positives_26:N5",
+    "group": "positives_26",
+    "q": "explain dominant design",
+    "room": null
+  },
+  {
+    "id": "positives_26:N6",
+    "group": "positives_26",
+    "q": "what does customer segment mean in the lean canvas",
+    "room": null
+  },
+  {
+    "id": "positives_26:D1",
+    "group": "positives_26",
+    "q": "explain Adoption-Capacity Theory",
+    "room": null
+  },
+  {
+    "id": "positives_26:D2",
+    "group": "positives_26",
+    "q": "when should I use Base-Rate-Check",
+    "room": null
+  },
+  {
+    "id": "positives_26:D3",
+    "group": "positives_26",
+    "q": "what is Business Model Canvas and how does it work",
+    "room": null
+  },
+  {
+    "id": "positives_26:D4",
+    "group": "positives_26",
+    "q": "which problem type fits Competitive Advantage",
+    "room": null
+  },
+  {
+    "id": "positives_26:D5",
+    "group": "positives_26",
+    "q": "explain Creative Destruction",
+    "room": null
+  },
+  {
+    "id": "positives_26:D6",
+    "group": "positives_26",
+    "q": "when should I use Deductive Relationship",
+    "room": null
+  },
+  {
+    "id": "positives_26:D7",
+    "group": "positives_26",
+    "q": "what is Domain Selection and how does it work",
+    "room": null
+  },
+  {
+    "id": "positives_26:D8",
+    "group": "positives_26",
+    "q": "which problem type fits Fishbone Diagrams",
+    "room": null
+  },
+  {
+    "id": "positives_26:D9",
+    "group": "positives_26",
+    "q": "explain Harnessing Trends Method",
+    "room": null
+  },
+  {
+    "id": "positives_26:D10",
+    "group": "positives_26",
+    "q": "when should I use Innovation Management Framework",
+    "room": null
+  },
+  {
+    "id": "positives_26:D11",
+    "group": "positives_26",
+    "q": "what is Knowns and Unknowns Matrix Framework and how does it work",
+    "room": null
+  },
+  {
+    "id": "positives_26:D12",
+    "group": "positives_26",
+    "q": "which problem type fits McKinsey Three Horizons",
+    "room": null
+  },
+  {
+    "id": "positives_26:D13",
+    "group": "positives_26",
+    "q": "explain OODA Loop",
+    "room": null
+  },
+  {
+    "id": "positives_26:D14",
+    "group": "positives_26",
+    "q": "when should I use Problem Taxonomy (Search Gradient)",
+    "room": null
+  },
+  {
+    "id": "positives_26:D15",
+    "group": "positives_26",
+    "q": "what is Real Options Reasoning and how does it work",
+    "room": null
+  },
+  {
+    "id": "positives_26:D16",
+    "group": "positives_26",
+    "q": "which problem type fits Scientific Method",
+    "room": null
+  },
+  {
+    "id": "positives_26:D17",
+    "group": "positives_26",
+    "q": "explain Stock and Flow Diagrams",
+    "room": null
+  },
+  {
+    "id": "positives_26:D18",
+    "group": "positives_26",
+    "q": "when should I use Technology Adoption Lifecycle",
+    "room": null
+  },
+  {
+    "id": "positives_26:D19",
+    "group": "positives_26",
+    "q": "what is The Three Box Solution and how does it work",
+    "room": null
+  },
+  {
+    "id": "positives_26:D20",
+    "group": "positives_26",
+    "q": "which problem type fits Truth-Seeking Groups / Decision Pods",
+    "room": null
+  },
+  {
+    "id": "negatives:X1",
+    "group": "negatives",
+    "q": "Orla Venn said her company reached $4.2M revenue last quarter, which framework fits?",
+    "room": null
+  },
+  {
+    "id": "negatives:X2",
+    "group": "negatives",
+    "q": "our startup pivoted to selling to hospitals, which framework fits that move",
+    "room": null
+  },
+  {
+    "id": "negatives:X3",
+    "group": "negatives",
+    "q": "which framework should orla.venn@fennickrobotics.example use for pricing",
+    "room": null
+  },
+  {
+    "id": "negatives:X4",
+    "group": "negatives",
+    "q": {
+      "join": [
+        "explain the lean canvas AKIA",
+        "IOSFODNN",
+        "7EXAMPLE",
+        " framework"
+      ]
+    },
+    "room": null
+  },
+  {
+    "id": "negatives:X5",
+    "group": "negatives",
+    "q": "Fennick Robotics plans to sell the Thessaly gripper to Harbor Quill Partners after the Tuesday pilot",
+    "room": null
+  },
+  {
+    "id": "negatives:X6",
+    "group": "negatives",
+    "q": "what framework applies to artifact MOS2026X7 in the pricing section",
+    "room": null
+  },
+  {
+    "id": "negatives:X7",
+    "group": "negatives",
+    "q": "this is confidential: which framework tests the riskiest assumption",
+    "room": null
+  },
+  {
+    "id": "negatives:X8",
+    "group": "negatives",
+    "q": "which framework helps when the budget is $750K",
+    "room": null
+  },
+  {
+    "id": "negatives:X9",
+    "group": "negatives",
+    "q": "on 14 March 2026 Fennick Robotics Ltd signed the term sheet, which framework fits",
+    "room": null
+  },
+  {
+    "id": "negatives:X10",
+    "group": "negatives",
+    "q": "which framework fits my customers and my pricing",
+    "room": null
+  },
+  {
+    "id": "known_leaks:GAP2",
+    "group": "known_leaks",
+    "q": "which framework helps when the budget is 750000 dollars",
+    "room": null
+  },
+  {
+    "id": "must_refuse:1",
+    "group": "must_refuse",
+    "q": "which framework fits Tamsin Rourke",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:2",
+    "group": "must_refuse",
+    "q": "which framework fits Quillfern Labs",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:3",
+    "group": "must_refuse",
+    "q": "which framework fits Brightmoor Kiln",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:4",
+    "group": "must_refuse",
+    "q": "which framework fits Veldmark",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:5",
+    "group": "must_refuse",
+    "q": "Larkspur depots cut chiller downtime by forty percent after the retrofit",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:6",
+    "group": "must_refuse",
+    "q": "How should I validate the solar cold locker with resellers?",
+    "room": "gate-lexgen"
+  },
+  {
+    "id": "must_refuse:7",
+    "group": "must_refuse",
+    "q": "which framework fits Orvash pilot debrief",
+    "room": "gate-scaffold"
+  },
+  {
+    "id": "must_refuse:8",
+    "group": "must_refuse",
+    "q": "which framework explains why Orvash kiosks lifted repeat orders in the Belnex pilot",
+    "room": "gate-claims"
+  },
+  {
+    "id": "must_refuse:9",
+    "group": "must_refuse",
+    "q": "Higher Nexmoor deposit fees cause fewer Brightspur returns within ninety days",
+    "room": "gate-claims"
+  },
+  {
+    "id": "must_refuse:10",
+    "group": "must_refuse",
+    "q": "what does customer segment mean in the lean canvas",
+    "room": "gate-segment"
+  },
+  {
+    "id": "known_leaks:GAP1",
+    "group": "known_leaks",
+    "q": {
+      "join": [
+        "explain the lean canvas sk-",
+        "ant-api0",
+        "3-AbCdEf",
+        "01234567",
+        "89AbCdEf",
+        "01234567",
+        "89",
+        " framework"
+      ]
+    },
+    "room": null
+  },
+  {
+    "id": "extended:B1",
+    "group": "extended",
+    "q": "explain 10-10-10 Decision Method",
+    "room": null
+  },
+  {
+    "id": "extended:B2",
+    "group": "extended",
+    "q": "explain 12 Leverage Points",
+    "room": null
+  },
+  {
+    "id": "extended:B3",
+    "group": "extended",
+    "q": "explain 5 Whys Technique",
+    "room": null
+  },
+  {
+    "id": "extended:B4",
+    "group": "extended",
+    "q": "explain 8-Step Model for Building a Breakthrough",
+    "room": null
+  },
+  {
+    "id": "extended:B5",
+    "group": "extended",
+    "q": "explain 80/20 Rule",
+    "room": null
+  },
+  {
+    "id": "extended:B6",
+    "group": "extended",
+    "q": "explain Abductive Reasoning",
+    "room": null
+  },
+  {
+    "id": "extended:B7",
+    "group": "extended",
+    "q": "explain ABET Accreditation Outcomes",
+    "room": null
+  },
+  {
+    "id": "extended:B8",
+    "group": "extended",
+    "q": "explain Ackoff Pyramid",
+    "room": null
+  },
+  {
+    "id": "extended:B9",
+    "group": "extended",
+    "q": "explain Adaptive Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B10",
+    "group": "extended",
+    "q": "explain Adaptive Role Assignment",
+    "room": null
+  },
+  {
+    "id": "extended:B11",
+    "group": "extended",
+    "q": "explain Adoption-Capacity Theory",
+    "room": null
+  },
+  {
+    "id": "extended:B12",
+    "group": "extended",
+    "q": "explain Advanced Discovery and Early Framing",
+    "room": null
+  },
+  {
+    "id": "extended:B13",
+    "group": "extended",
+    "q": "explain Adversarial Research Protocol",
+    "room": null
+  },
+  {
+    "id": "extended:B14",
+    "group": "extended",
+    "q": "explain Agent Refinement path",
+    "room": null
+  },
+  {
+    "id": "extended:B15",
+    "group": "extended",
+    "q": "explain Agile Development",
+    "room": null
+  },
+  {
+    "id": "extended:B16",
+    "group": "extended",
+    "q": "explain AGO Aims/Goals/Objectives",
+    "room": null
+  },
+  {
+    "id": "extended:B17",
+    "group": "extended",
+    "q": "explain AI-Powered Pattern Synthesis",
+    "room": null
+  },
+  {
+    "id": "extended:B18",
+    "group": "extended",
+    "q": "explain AIM Aims/Interests/Motives",
+    "room": null
+  },
+  {
+    "id": "extended:B19",
+    "group": "extended",
+    "q": "explain Alberto Savoia The Right It",
+    "room": null
+  },
+  {
+    "id": "extended:B20",
+    "group": "extended",
+    "q": "explain Algorithmic Generation of Reverse Salient Solutions",
+    "room": null
+  },
+  {
+    "id": "extended:B21",
+    "group": "extended",
+    "q": "explain Algorithmic-Audit",
+    "room": null
+  },
+  {
+    "id": "extended:B22",
+    "group": "extended",
+    "q": "explain Analogical Reasoning",
+    "room": null
+  },
+  {
+    "id": "extended:B23",
+    "group": "extended",
+    "q": "explain Analogies as discovery tool",
+    "room": null
+  },
+  {
+    "id": "extended:B24",
+    "group": "extended",
+    "q": "explain Ansoff Matrix",
+    "room": null
+  },
+  {
+    "id": "extended:B25",
+    "group": "extended",
+    "q": "explain Artefact-Activity Couple",
+    "room": null
+  },
+  {
+    "id": "extended:B26",
+    "group": "extended",
+    "q": "explain Ash Maurya Running Lean",
+    "room": null
+  },
+  {
+    "id": "extended:B27",
+    "group": "extended",
+    "q": "explain Assumption Challenging",
+    "room": null
+  },
+  {
+    "id": "extended:B28",
+    "group": "extended",
+    "q": "explain Authentic Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B29",
+    "group": "extended",
+    "q": "explain Avoiding Bad Data",
+    "room": null
+  },
+  {
+    "id": "extended:B30",
+    "group": "extended",
+    "q": "explain Babson Model (Magical Thinking)",
+    "room": null
+  },
+  {
+    "id": "extended:B31",
+    "group": "extended",
+    "q": "explain Base-Rate-Check",
+    "room": null
+  },
+  {
+    "id": "extended:B32",
+    "group": "extended",
+    "q": "explain Beachhead Strategy",
+    "room": null
+  },
+  {
+    "id": "extended:B33",
+    "group": "extended",
+    "q": "explain Beautiful Question",
+    "room": null
+  },
+  {
+    "id": "extended:B34",
+    "group": "extended",
+    "q": "explain Beautiful Question Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B35",
+    "group": "extended",
+    "q": "explain Beautiful Questions Bias Detection",
+    "room": null
+  },
+  {
+    "id": "extended:B36",
+    "group": "extended",
+    "q": "explain Beautiful-Questions technique",
+    "room": null
+  },
+  {
+    "id": "extended:B37",
+    "group": "extended",
+    "q": "explain Behavioral Economics",
+    "room": null
+  },
+  {
+    "id": "extended:B38",
+    "group": "extended",
+    "q": "explain BERT-based Semantic Similarity",
+    "room": null
+  },
+  {
+    "id": "extended:B39",
+    "group": "extended",
+    "q": "explain Bias Pattern Matching",
+    "room": null
+  },
+  {
+    "id": "extended:B40",
+    "group": "extended",
+    "q": "explain Biodesign",
+    "room": null
+  },
+  {
+    "id": "extended:B41",
+    "group": "extended",
+    "q": "explain Black Hat Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B42",
+    "group": "extended",
+    "q": "explain Black Hat Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B43",
+    "group": "extended",
+    "q": "explain Blind-Review",
+    "room": null
+  },
+  {
+    "id": "extended:B44",
+    "group": "extended",
+    "q": "explain Blue Hat Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B45",
+    "group": "extended",
+    "q": "explain BONO-Innovation Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B46",
+    "group": "extended",
+    "q": "explain Bootstrap Philosophy",
+    "room": null
+  },
+  {
+    "id": "extended:B47",
+    "group": "extended",
+    "q": "explain Bowling Alley Strategy",
+    "room": null
+  },
+  {
+    "id": "extended:B48",
+    "group": "extended",
+    "q": "explain Breakthrough Recognition System",
+    "room": null
+  },
+  {
+    "id": "extended:B49",
+    "group": "extended",
+    "q": "explain Brooks's Law",
+    "room": null
+  },
+  {
+    "id": "extended:B50",
+    "group": "extended",
+    "q": "explain Build-Measure-Learn Cycle",
+    "room": null
+  },
+  {
+    "id": "extended:B51",
+    "group": "extended",
+    "q": "explain Bulletproof Seven-Step Problem-Solving Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B52",
+    "group": "extended",
+    "q": "explain Business Communication Logic Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B53",
+    "group": "extended",
+    "q": "explain Business Model Canvas",
+    "room": null
+  },
+  {
+    "id": "extended:B54",
+    "group": "extended",
+    "q": "explain Business Model Generation",
+    "room": null
+  },
+  {
+    "id": "extended:B55",
+    "group": "extended",
+    "q": "explain CAF Consider All Factors",
+    "room": null
+  },
+  {
+    "id": "extended:B56",
+    "group": "extended",
+    "q": "explain Can we Win / Competitive Advantage Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B57",
+    "group": "extended",
+    "q": "explain Causal Loop Diagramming",
+    "room": null
+  },
+  {
+    "id": "extended:B58",
+    "group": "extended",
+    "q": "explain Causal Loop Diagrams",
+    "room": null
+  },
+  {
+    "id": "extended:B59",
+    "group": "extended",
+    "q": "explain Cause-Effect Clarity Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B60",
+    "group": "extended",
+    "q": "explain Challenge Plot Stories",
+    "room": null
+  },
+  {
+    "id": "extended:B61",
+    "group": "extended",
+    "q": "explain Challenging Orthodoxies",
+    "room": null
+  },
+  {
+    "id": "extended:B62",
+    "group": "extended",
+    "q": "explain Challenging Orthodoxies Method",
+    "room": null
+  },
+  {
+    "id": "extended:B63",
+    "group": "extended",
+    "q": "explain Changing Terms of Competition",
+    "room": null
+  },
+  {
+    "id": "extended:B64",
+    "group": "extended",
+    "q": "explain Chaotic Domain Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B65",
+    "group": "extended",
+    "q": "explain Christian Brose The Kill Chain",
+    "room": null
+  },
+  {
+    "id": "extended:B66",
+    "group": "extended",
+    "q": "explain CIAs approach to challenging analytical assumptions",
+    "room": null
+  },
+  {
+    "id": "extended:B67",
+    "group": "extended",
+    "q": "explain Clear Domain Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B68",
+    "group": "extended",
+    "q": "explain Cognitive Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B69",
+    "group": "extended",
+    "q": "explain Collaborative Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B70",
+    "group": "extended",
+    "q": "explain Commander's Intent",
+    "room": null
+  },
+  {
+    "id": "extended:B71",
+    "group": "extended",
+    "q": "explain Commitment and Advancement",
+    "room": null
+  },
+  {
+    "id": "extended:B72",
+    "group": "extended",
+    "q": "explain Communication for Leaders",
+    "room": null
+  },
+  {
+    "id": "extended:B73",
+    "group": "extended",
+    "q": "explain Competitive Advantage",
+    "room": null
+  },
+  {
+    "id": "extended:B74",
+    "group": "extended",
+    "q": "explain Competitive Landscape Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B75",
+    "group": "extended",
+    "q": "explain Complex Domain Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B76",
+    "group": "extended",
+    "q": "explain Complicated Domain Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B77",
+    "group": "extended",
+    "q": "explain Concept Extraction",
+    "room": null
+  },
+  {
+    "id": "extended:B78",
+    "group": "extended",
+    "q": "explain Conceptual Integrity Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B79",
+    "group": "extended",
+    "q": "explain Conflict Resolution Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B80",
+    "group": "extended",
+    "q": "explain Confused Domain Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B81",
+    "group": "extended",
+    "q": "explain Connection Plot Stories",
+    "room": null
+  },
+  {
+    "id": "extended:B82",
+    "group": "extended",
+    "q": "explain Consider-The-Opposite",
+    "room": null
+  },
+  {
+    "id": "extended:B83",
+    "group": "extended",
+    "q": "explain Constraint Removal",
+    "room": null
+  },
+  {
+    "id": "extended:B84",
+    "group": "extended",
+    "q": "explain Contemporary Practice",
+    "room": null
+  },
+  {
+    "id": "extended:B85",
+    "group": "extended",
+    "q": "explain Contextual Inquiry",
+    "room": null
+  },
+  {
+    "id": "extended:B86",
+    "group": "extended",
+    "q": "explain Continuous Discovery",
+    "room": null
+  },
+  {
+    "id": "extended:B87",
+    "group": "extended",
+    "q": "explain Controlled Chaos Introduction",
+    "room": null
+  },
+  {
+    "id": "extended:B88",
+    "group": "extended",
+    "q": "explain Core Technology Extension / Jobs-To-Be-Done",
+    "room": null
+  },
+  {
+    "id": "extended:B89",
+    "group": "extended",
+    "q": "explain Corporate Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B90",
+    "group": "extended",
+    "q": "explain Counterfactual Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B91",
+    "group": "extended",
+    "q": "explain Creative Cognition",
+    "room": null
+  },
+  {
+    "id": "extended:B92",
+    "group": "extended",
+    "q": "explain Creative Confidence",
+    "room": null
+  },
+  {
+    "id": "extended:B93",
+    "group": "extended",
+    "q": "explain Creative Destruction",
+    "room": null
+  },
+  {
+    "id": "extended:B94",
+    "group": "extended",
+    "q": "explain Creative Destruction and the Capitalist Engine",
+    "room": null
+  },
+  {
+    "id": "extended:B95",
+    "group": "extended",
+    "q": "explain Creative Disruption Toolkit",
+    "room": null
+  },
+  {
+    "id": "extended:B96",
+    "group": "extended",
+    "q": "explain Creative Ideation",
+    "room": null
+  },
+  {
+    "id": "extended:B97",
+    "group": "extended",
+    "q": "explain Creative Problem Solving",
+    "room": null
+  },
+  {
+    "id": "extended:B98",
+    "group": "extended",
+    "q": "explain Creativity Plot Stories",
+    "room": null
+  },
+  {
+    "id": "extended:B99",
+    "group": "extended",
+    "q": "explain Critical Systems Heuristics",
+    "room": null
+  },
+  {
+    "id": "extended:B100",
+    "group": "extended",
+    "q": "explain Cross Industry Pattern Transfer",
+    "room": null
+  },
+  {
+    "id": "extended:B101",
+    "group": "extended",
+    "q": "explain Cross-Cultural Logic Patterns",
+    "room": null
+  },
+  {
+    "id": "extended:B102",
+    "group": "extended",
+    "q": "explain Cross-Disciplinary Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B103",
+    "group": "extended",
+    "q": "explain Cross-Domain Synthesis",
+    "room": null
+  },
+  {
+    "id": "extended:B104",
+    "group": "extended",
+    "q": "explain Cross-Scenario Pattern Recognition",
+    "room": null
+  },
+  {
+    "id": "extended:B105",
+    "group": "extended",
+    "q": "explain Customer Development",
+    "room": null
+  },
+  {
+    "id": "extended:B106",
+    "group": "extended",
+    "q": "explain Customer Funded Business",
+    "room": null
+  },
+  {
+    "id": "extended:B107",
+    "group": "extended",
+    "q": "explain Cyclical Model of Technological Change",
+    "room": null
+  },
+  {
+    "id": "extended:B108",
+    "group": "extended",
+    "q": "explain Cynefin Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B109",
+    "group": "extended",
+    "q": "explain Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy",
+    "room": null
+  },
+  {
+    "id": "extended:B110",
+    "group": "extended",
+    "q": "explain Dailies",
+    "room": null
+  },
+  {
+    "id": "extended:B111",
+    "group": "extended",
+    "q": "explain DCF Discounted Cash Flow",
+    "room": null
+  },
+  {
+    "id": "extended:B112",
+    "group": "extended",
+    "q": "explain Decision Trees",
+    "room": null
+  },
+  {
+    "id": "extended:B113",
+    "group": "extended",
+    "q": "explain Decomplexifying",
+    "room": null
+  },
+  {
+    "id": "extended:B114",
+    "group": "extended",
+    "q": "explain Deductive Relationship",
+    "room": null
+  },
+  {
+    "id": "extended:B115",
+    "group": "extended",
+    "q": "explain Deep Complex Questions",
+    "room": null
+  },
+  {
+    "id": "extended:B116",
+    "group": "extended",
+    "q": "explain Defense Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B117",
+    "group": "extended",
+    "q": "explain Define the Focal Component (Level 1)",
+    "room": null
+  },
+  {
+    "id": "extended:B118",
+    "group": "extended",
+    "q": "explain Delphi Method",
+    "room": null
+  },
+  {
+    "id": "extended:B119",
+    "group": "extended",
+    "q": "explain Design Methods",
+    "room": null
+  },
+  {
+    "id": "extended:B120",
+    "group": "extended",
+    "q": "explain Design Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B121",
+    "group": "extended",
+    "q": "explain Design Thinking Process",
+    "room": null
+  },
+  {
+    "id": "extended:B122",
+    "group": "extended",
+    "q": "explain Devils Advocacy",
+    "room": null
+  },
+  {
+    "id": "extended:B123",
+    "group": "extended",
+    "q": "explain Differential Similarity Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B124",
+    "group": "extended",
+    "q": "explain Diffusion of Innovations (Rogers)",
+    "room": null
+  },
+  {
+    "id": "extended:B125",
+    "group": "extended",
+    "q": "explain Diffusion Theory",
+    "room": null
+  },
+  {
+    "id": "extended:B126",
+    "group": "extended",
+    "q": "explain Dilemmas in a General Theory of Planning",
+    "room": null
+  },
+  {
+    "id": "extended:B127",
+    "group": "extended",
+    "q": "explain Discovery-Driven Planning",
+    "room": null
+  },
+  {
+    "id": "extended:B128",
+    "group": "extended",
+    "q": "explain Disruptive Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B129",
+    "group": "extended",
+    "q": "explain Disruptive Innovation Analysis Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B130",
+    "group": "extended",
+    "q": "explain Distributed Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B131",
+    "group": "extended",
+    "q": "explain Diverge-Converge Model",
+    "room": null
+  },
+  {
+    "id": "extended:B132",
+    "group": "extended",
+    "q": "explain Domain and Trend Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B133",
+    "group": "extended",
+    "q": "explain Domain Classification Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B134",
+    "group": "extended",
+    "q": "explain Domain Selection",
+    "room": null
+  },
+  {
+    "id": "extended:B135",
+    "group": "extended",
+    "q": "explain Dominant Design",
+    "room": null
+  },
+  {
+    "id": "extended:B136",
+    "group": "extended",
+    "q": "explain Dominant Design Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B137",
+    "group": "extended",
+    "q": "explain Dual-Use Technology",
+    "room": null
+  },
+  {
+    "id": "extended:B138",
+    "group": "extended",
+    "q": "explain ECE",
+    "room": null
+  },
+  {
+    "id": "extended:B139",
+    "group": "extended",
+    "q": "explain Effectuation",
+    "room": null
+  },
+  {
+    "id": "extended:B140",
+    "group": "extended",
+    "q": "explain Emerging Technology Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B141",
+    "group": "extended",
+    "q": "explain Emotional Intelligence in Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B142",
+    "group": "extended",
+    "q": "explain Engineering Ethics in Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B143",
+    "group": "extended",
+    "q": "explain Entrepreneurial Alertness Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B144",
+    "group": "extended",
+    "q": "explain Entrepreneurial Method",
+    "room": null
+  },
+  {
+    "id": "extended:B145",
+    "group": "extended",
+    "q": "explain Entrepreneurial Opportunity Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B146",
+    "group": "extended",
+    "q": "explain Era of Ferment Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B147",
+    "group": "extended",
+    "q": "explain ESG Due Diligence Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B148",
+    "group": "extended",
+    "q": "explain ESG Materiality Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B149",
+    "group": "extended",
+    "q": "explain Evolution as adaptation model",
+    "room": null
+  },
+  {
+    "id": "extended:B150",
+    "group": "extended",
+    "q": "explain Extensive Searching",
+    "room": null
+  },
+  {
+    "id": "extended:B151",
+    "group": "extended",
+    "q": "explain Feedback Loop Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B152",
+    "group": "extended",
+    "q": "explain Feedback loops",
+    "room": null
+  },
+  {
+    "id": "extended:B153",
+    "group": "extended",
+    "q": "explain Financial Due Diligence Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B154",
+    "group": "extended",
+    "q": "explain First Who Then What",
+    "room": null
+  },
+  {
+    "id": "extended:B155",
+    "group": "extended",
+    "q": "explain Fishbone Diagrams",
+    "room": null
+  },
+  {
+    "id": "extended:B156",
+    "group": "extended",
+    "q": "explain Five Conditions of Collective Impact",
+    "room": null
+  },
+  {
+    "id": "extended:B157",
+    "group": "extended",
+    "q": "explain Five Practices of Effective Executives",
+    "room": null
+  },
+  {
+    "id": "extended:B158",
+    "group": "extended",
+    "q": "explain Five W's Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B159",
+    "group": "extended",
+    "q": "explain Five-Step Implementation Process",
+    "room": null
+  },
+  {
+    "id": "extended:B160",
+    "group": "extended",
+    "q": "explain Fogg Behavior Model",
+    "room": null
+  },
+  {
+    "id": "extended:B161",
+    "group": "extended",
+    "q": "explain Forecast Combination Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B162",
+    "group": "extended",
+    "q": "explain Four Actions Framework / Blue Ocean Strategy",
+    "room": null
+  },
+  {
+    "id": "extended:B163",
+    "group": "extended",
+    "q": "explain Four Lenses Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B164",
+    "group": "extended",
+    "q": "explain Four Lenses of Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B165",
+    "group": "extended",
+    "q": "explain Four-Box Business Model Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B166",
+    "group": "extended",
+    "q": "explain Framework for Question and Answer Clarification",
+    "room": null
+  },
+  {
+    "id": "extended:B167",
+    "group": "extended",
+    "q": "explain Futures Wheel",
+    "room": null
+  },
+  {
+    "id": "extended:B168",
+    "group": "extended",
+    "q": "explain gauge the trend's progression over different horizons",
+    "room": null
+  },
+  {
+    "id": "extended:B169",
+    "group": "extended",
+    "q": "explain George Church Regenesis",
+    "room": null
+  },
+  {
+    "id": "extended:B170",
+    "group": "extended",
+    "q": "explain Good Money vs Bad Money",
+    "room": null
+  },
+  {
+    "id": "extended:B171",
+    "group": "extended",
+    "q": "explain Graph-Based Logic Visualization",
+    "room": null
+  },
+  {
+    "id": "extended:B172",
+    "group": "extended",
+    "q": "explain Green Hat Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B173",
+    "group": "extended",
+    "q": "explain Guerrilla Tactics",
+    "room": null
+  },
+  {
+    "id": "extended:B174",
+    "group": "extended",
+    "q": "explain Guided Mastery",
+    "room": null
+  },
+  {
+    "id": "extended:B175",
+    "group": "extended",
+    "q": "explain Harnessing Trends Method",
+    "room": null
+  },
+  {
+    "id": "extended:B176",
+    "group": "extended",
+    "q": "explain Harnessing Trends Method / Four Lenses",
+    "room": null
+  },
+  {
+    "id": "extended:B177",
+    "group": "extended",
+    "q": "explain HEART Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B178",
+    "group": "extended",
+    "q": "explain Hedgehog Concept",
+    "room": null
+  },
+  {
+    "id": "extended:B179",
+    "group": "extended",
+    "q": "explain Herbert Simon The Sciences of the Artificial",
+    "room": null
+  },
+  {
+    "id": "extended:B180",
+    "group": "extended",
+    "q": "explain Hierarchy Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B181",
+    "group": "extended",
+    "q": "explain High-Performing Teams",
+    "room": null
+  },
+  {
+    "id": "extended:B182",
+    "group": "extended",
+    "q": "explain higher education transformation",
+    "room": null
+  },
+  {
+    "id": "extended:B183",
+    "group": "extended",
+    "q": "explain Hooked Model",
+    "room": null
+  },
+  {
+    "id": "extended:B184",
+    "group": "extended",
+    "q": "explain Hot Groups",
+    "room": null
+  },
+  {
+    "id": "extended:B185",
+    "group": "extended",
+    "q": "explain HSI Semantic Surprise Analysis Assistant",
+    "room": null
+  },
+  {
+    "id": "extended:B186",
+    "group": "extended",
+    "q": "explain Human-Centered Design",
+    "room": null
+  },
+  {
+    "id": "extended:B187",
+    "group": "extended",
+    "q": "explain Hypothesis-Driven Problem Solving",
+    "room": null
+  },
+  {
+    "id": "extended:B188",
+    "group": "extended",
+    "q": "explain I Like I Wish",
+    "room": null
+  },
+  {
+    "id": "extended:B189",
+    "group": "extended",
+    "q": "explain IBIS Issue-Based Information System",
+    "room": null
+  },
+  {
+    "id": "extended:B190",
+    "group": "extended",
+    "q": "explain Idealized Design",
+    "room": null
+  },
+  {
+    "id": "extended:B191",
+    "group": "extended",
+    "q": "explain IDEO Deep Dive / Structured Brainstorming Techniques",
+    "room": null
+  },
+  {
+    "id": "extended:B192",
+    "group": "extended",
+    "q": "explain Inductive Relationship",
+    "room": null
+  },
+  {
+    "id": "extended:B193",
+    "group": "extended",
+    "q": "explain Innovation Accounting",
+    "room": null
+  },
+  {
+    "id": "extended:B194",
+    "group": "extended",
+    "q": "explain Innovation Culture",
+    "room": null
+  },
+  {
+    "id": "extended:B195",
+    "group": "extended",
+    "q": "explain Innovation Finance",
+    "room": null
+  },
+  {
+    "id": "extended:B196",
+    "group": "extended",
+    "q": "explain Innovation Management Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B197",
+    "group": "extended",
+    "q": "explain Innovation Metrics",
+    "room": null
+  },
+  {
+    "id": "extended:B198",
+    "group": "extended",
+    "q": "explain Innovation of Meaning",
+    "room": null
+  },
+  {
+    "id": "extended:B199",
+    "group": "extended",
+    "q": "explain Innovation Portfolio Now/New/Next",
+    "room": null
+  },
+  {
+    "id": "extended:B200",
+    "group": "extended",
+    "q": "explain Innovation Process",
+    "room": null
+  },
+  {
+    "id": "extended:B201",
+    "group": "extended",
+    "q": "explain Insight Psychology",
+    "room": null
+  },
+  {
+    "id": "extended:B202",
+    "group": "extended",
+    "q": "explain Intensive Searching",
+    "room": null
+  },
+  {
+    "id": "extended:B203",
+    "group": "extended",
+    "q": "explain Interactive Planning",
+    "room": null
+  },
+  {
+    "id": "extended:B204",
+    "group": "extended",
+    "q": "explain Invention Disclosure Strategic Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B205",
+    "group": "extended",
+    "q": "explain IP Due Diligence Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B206",
+    "group": "extended",
+    "q": "explain Is it Real / Problem Validation Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B207",
+    "group": "extended",
+    "q": "explain Is it Worth It / Value Assessment Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B208",
+    "group": "extended",
+    "q": "explain Issue Trees",
+    "room": null
+  },
+  {
+    "id": "extended:B209",
+    "group": "extended",
+    "q": "explain Jobs to Be Done (JTBD)",
+    "room": null
+  },
+  {
+    "id": "extended:B210",
+    "group": "extended",
+    "q": "explain Jobs to Be Done / JTBD",
+    "room": null
+  },
+  {
+    "id": "extended:B211",
+    "group": "extended",
+    "q": "explain Jobs-to-be-Done for Business Models",
+    "room": null
+  },
+  {
+    "id": "extended:B212",
+    "group": "extended",
+    "q": "explain Jobs-to-be-Done Statements",
+    "room": null
+  },
+  {
+    "id": "extended:B213",
+    "group": "extended",
+    "q": "explain Johari Window",
+    "room": null
+  },
+  {
+    "id": "extended:B214",
+    "group": "extended",
+    "q": "explain Judgmental Bias Control System",
+    "room": null
+  },
+  {
+    "id": "extended:B215",
+    "group": "extended",
+    "q": "explain Klein's Five C's",
+    "room": null
+  },
+  {
+    "id": "extended:B216",
+    "group": "extended",
+    "q": "explain Klein's Triple Path Model",
+    "room": null
+  },
+  {
+    "id": "extended:B217",
+    "group": "extended",
+    "q": "explain Knowns and Unknowns Matrix",
+    "room": null
+  },
+  {
+    "id": "extended:B218",
+    "group": "extended",
+    "q": "explain Knowns and Unknowns Matrix Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B219",
+    "group": "extended",
+    "q": "explain Lateral Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B220",
+    "group": "extended",
+    "q": "explain Law of Diffusion of Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B221",
+    "group": "extended",
+    "q": "explain Lean Canvas",
+    "room": null
+  },
+  {
+    "id": "extended:B222",
+    "group": "extended",
+    "q": "explain Lean Principles",
+    "room": null
+  },
+  {
+    "id": "extended:B223",
+    "group": "extended",
+    "q": "explain Lean Startup",
+    "room": null
+  },
+  {
+    "id": "extended:B224",
+    "group": "extended",
+    "q": "explain Lean Startup (Build-Measure-Learn)",
+    "room": null
+  },
+  {
+    "id": "extended:B225",
+    "group": "extended",
+    "q": "explain Legal Due Diligence Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B226",
+    "group": "extended",
+    "q": "explain Level 5 Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B227",
+    "group": "extended",
+    "q": "explain Leveraging Resources Method",
+    "room": null
+  },
+  {
+    "id": "extended:B228",
+    "group": "extended",
+    "q": "explain Life Cycle Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B229",
+    "group": "extended",
+    "q": "explain Logic Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B230",
+    "group": "extended",
+    "q": "explain Macro Trends",
+    "room": null
+  },
+  {
+    "id": "extended:B231",
+    "group": "extended",
+    "q": "explain Macro Trends/Macro Trending",
+    "room": null
+  },
+  {
+    "id": "extended:B232",
+    "group": "extended",
+    "q": "explain Macro-Changes",
+    "room": null
+  },
+  {
+    "id": "extended:B233",
+    "group": "extended",
+    "q": "explain Management innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B234",
+    "group": "extended",
+    "q": "explain Mariana Mazzucato Mission Economy",
+    "room": null
+  },
+  {
+    "id": "extended:B235",
+    "group": "extended",
+    "q": "explain Market Dynamics",
+    "room": null
+  },
+  {
+    "id": "extended:B236",
+    "group": "extended",
+    "q": "explain Market Process Theory Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B237",
+    "group": "extended",
+    "q": "explain Master Calendar",
+    "room": null
+  },
+  {
+    "id": "extended:B238",
+    "group": "extended",
+    "q": "explain McKinsey Three Horizons",
+    "room": null
+  },
+  {
+    "id": "extended:B239",
+    "group": "extended",
+    "q": "explain MECE (Mutually Exclusive, Collectively Exhaustive)",
+    "room": null
+  },
+  {
+    "id": "extended:B240",
+    "group": "extended",
+    "q": "explain MECE Mutually Exclusive Collectively Exhaustive",
+    "room": null
+  },
+  {
+    "id": "extended:B241",
+    "group": "extended",
+    "q": "explain Megatrends",
+    "room": null
+  },
+  {
+    "id": "extended:B242",
+    "group": "extended",
+    "q": "explain Mental Time Travel",
+    "room": null
+  },
+  {
+    "id": "extended:B243",
+    "group": "extended",
+    "q": "explain Method Selection Charter",
+    "room": null
+  },
+  {
+    "id": "extended:B244",
+    "group": "extended",
+    "q": "explain Military Application",
+    "room": null
+  },
+  {
+    "id": "extended:B245",
+    "group": "extended",
+    "q": "explain Mind Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B246",
+    "group": "extended",
+    "q": "explain Mind Mapping Da Vinci Style",
+    "room": null
+  },
+  {
+    "id": "extended:B247",
+    "group": "extended",
+    "q": "explain Minimum Viable Product / MVP",
+    "room": null
+  },
+  {
+    "id": "extended:B248",
+    "group": "extended",
+    "q": "explain Mission Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B249",
+    "group": "extended",
+    "q": "explain Mullins Model for the Business Case / Mullins Model Validation",
+    "room": null
+  },
+  {
+    "id": "extended:B250",
+    "group": "extended",
+    "q": "explain Multi-Framework Integration",
+    "room": null
+  },
+  {
+    "id": "extended:B251",
+    "group": "extended",
+    "q": "explain National Academy of Engineering Grand Challenges",
+    "room": null
+  },
+  {
+    "id": "extended:B252",
+    "group": "extended",
+    "q": "explain Near-Term Trend Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B253",
+    "group": "extended",
+    "q": "explain Nested Hierarchies",
+    "room": null
+  },
+  {
+    "id": "extended:B254",
+    "group": "extended",
+    "q": "explain Nested Hierarchy Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B255",
+    "group": "extended",
+    "q": "explain Notes Day",
+    "room": null
+  },
+  {
+    "id": "extended:B256",
+    "group": "extended",
+    "q": "explain Now, New, Next",
+    "room": null
+  },
+  {
+    "id": "extended:B257",
+    "group": "extended",
+    "q": "explain OECD Oslo Manual",
+    "room": null
+  },
+  {
+    "id": "extended:B258",
+    "group": "extended",
+    "q": "explain OODA Loop",
+    "room": null
+  },
+  {
+    "id": "extended:B259",
+    "group": "extended",
+    "q": "explain Open Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B260",
+    "group": "extended",
+    "q": "explain Opportunity Bank Framework/Creation Process",
+    "room": null
+  },
+  {
+    "id": "extended:B261",
+    "group": "extended",
+    "q": "explain Opportunity Recognition as Pattern Recognition",
+    "room": null
+  },
+  {
+    "id": "extended:B262",
+    "group": "extended",
+    "q": "explain Opportunity Recognition Pattern Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B263",
+    "group": "extended",
+    "q": "explain Opportunity Scoring System",
+    "room": null
+  },
+  {
+    "id": "extended:B264",
+    "group": "extended",
+    "q": "explain Opportunity Windows",
+    "room": null
+  },
+  {
+    "id": "extended:B265",
+    "group": "extended",
+    "q": "explain Opposite Plan",
+    "room": null
+  },
+  {
+    "id": "extended:B266",
+    "group": "extended",
+    "q": "explain Oracle Foresight Engine",
+    "room": null
+  },
+  {
+    "id": "extended:B267",
+    "group": "extended",
+    "q": "explain Outcome Fielding Skill vs Luck",
+    "room": null
+  },
+  {
+    "id": "extended:B268",
+    "group": "extended",
+    "q": "explain Pain Points",
+    "room": null
+  },
+  {
+    "id": "extended:B269",
+    "group": "extended",
+    "q": "explain Pattern Matching System",
+    "room": null
+  },
+  {
+    "id": "extended:B270",
+    "group": "extended",
+    "q": "explain Pattern Recognition",
+    "room": null
+  },
+  {
+    "id": "extended:B271",
+    "group": "extended",
+    "q": "explain PEST Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B272",
+    "group": "extended",
+    "q": "explain Photonic Interconnect Multi-Agent System",
+    "room": null
+  },
+  {
+    "id": "extended:B273",
+    "group": "extended",
+    "q": "explain Pivot",
+    "room": null
+  },
+  {
+    "id": "extended:B274",
+    "group": "extended",
+    "q": "explain Platform Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B275",
+    "group": "extended",
+    "q": "explain Portfolio Approach",
+    "room": null
+  },
+  {
+    "id": "extended:B276",
+    "group": "extended",
+    "q": "explain Poverty",
+    "room": null
+  },
+  {
+    "id": "extended:B277",
+    "group": "extended",
+    "q": "explain Pre-mortem Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B278",
+    "group": "extended",
+    "q": "explain Problem Definition Transformation Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B279",
+    "group": "extended",
+    "q": "explain Problem Taxonomy (Search Gradient)",
+    "room": null
+  },
+  {
+    "id": "extended:B280",
+    "group": "extended",
+    "q": "explain Problem Theory",
+    "room": null
+  },
+  {
+    "id": "extended:B281",
+    "group": "extended",
+    "q": "explain Problem Typology Framework / The Taxonomy of Problems",
+    "room": null
+  },
+  {
+    "id": "extended:B282",
+    "group": "extended",
+    "q": "explain Problem Worth Solving methodology",
+    "room": null
+  },
+  {
+    "id": "extended:B283",
+    "group": "extended",
+    "q": "explain Process Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B284",
+    "group": "extended",
+    "q": "explain Psychological Safety",
+    "room": null
+  },
+  {
+    "id": "extended:B285",
+    "group": "extended",
+    "q": "explain PWS Applied Innovation Workshop Program",
+    "room": null
+  },
+  {
+    "id": "extended:B286",
+    "group": "extended",
+    "q": "explain PWS Methodology",
+    "room": null
+  },
+  {
+    "id": "extended:B287",
+    "group": "extended",
+    "q": "explain PWS Pitch-Craft Distillation",
+    "room": null
+  },
+  {
+    "id": "extended:B288",
+    "group": "extended",
+    "q": "explain PWS system",
+    "room": null
+  },
+  {
+    "id": "extended:B289",
+    "group": "extended",
+    "q": "explain PWS Triple Validation Compass",
+    "room": null
+  },
+  {
+    "id": "extended:B290",
+    "group": "extended",
+    "q": "explain PWS Value Proposition",
+    "room": null
+  },
+  {
+    "id": "extended:B291",
+    "group": "extended",
+    "q": "explain PWS Value Proposition Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B292",
+    "group": "extended",
+    "q": "explain PWS-Bias Devil's Advocate Agent",
+    "room": null
+  },
+  {
+    "id": "extended:B293",
+    "group": "extended",
+    "q": "explain PWS-JTBD Innovation Discovery Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B294",
+    "group": "extended",
+    "q": "explain PWS-Scenario Planning Integration Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B295",
+    "group": "extended",
+    "q": "explain Q and A Framework Core Expertise",
+    "room": null
+  },
+  {
+    "id": "extended:B296",
+    "group": "extended",
+    "q": "explain Questioning for Life",
+    "room": null
+  },
+  {
+    "id": "extended:B297",
+    "group": "extended",
+    "q": "explain Questioning in Business",
+    "room": null
+  },
+  {
+    "id": "extended:B298",
+    "group": "extended",
+    "q": "explain Rapid Prototyping",
+    "room": null
+  },
+  {
+    "id": "extended:B299",
+    "group": "extended",
+    "q": "explain Real Options Reasoning",
+    "room": null
+  },
+  {
+    "id": "extended:B300",
+    "group": "extended",
+    "q": "explain Red Hat Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B301",
+    "group": "extended",
+    "q": "explain Red Teaming",
+    "room": null
+  },
+  {
+    "id": "extended:B302",
+    "group": "extended",
+    "q": "explain Research Validation and Early Business Framing",
+    "room": null
+  },
+  {
+    "id": "extended:B303",
+    "group": "extended",
+    "q": "explain Research, Validation, and Early Business Framing",
+    "room": null
+  },
+  {
+    "id": "extended:B304",
+    "group": "extended",
+    "q": "explain Resource Constraints",
+    "room": null
+  },
+  {
+    "id": "extended:B305",
+    "group": "extended",
+    "q": "explain Resources Processes and Values / RPV Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B306",
+    "group": "extended",
+    "q": "explain Resulting",
+    "room": null
+  },
+  {
+    "id": "extended:B307",
+    "group": "extended",
+    "q": "explain Reverse Salient Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B308",
+    "group": "extended",
+    "q": "explain Reverse Salient Analysis / Reverse Salience",
+    "room": null
+  },
+  {
+    "id": "extended:B309",
+    "group": "extended",
+    "q": "explain Risk Assessment",
+    "room": null
+  },
+  {
+    "id": "extended:B310",
+    "group": "extended",
+    "q": "explain Root Cause Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B311",
+    "group": "extended",
+    "q": "explain Rubric for Grading Each Phase",
+    "room": null
+  },
+  {
+    "id": "extended:B312",
+    "group": "extended",
+    "q": "explain S-Curve Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B313",
+    "group": "extended",
+    "q": "explain Safe Fail Culture",
+    "room": null
+  },
+  {
+    "id": "extended:B314",
+    "group": "extended",
+    "q": "explain SAPPhIRE Model",
+    "room": null
+  },
+  {
+    "id": "extended:B315",
+    "group": "extended",
+    "q": "explain Scenario Analysis Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B316",
+    "group": "extended",
+    "q": "explain Scenario Logic",
+    "room": null
+  },
+  {
+    "id": "extended:B317",
+    "group": "extended",
+    "q": "explain Scenario Planning",
+    "room": null
+  },
+  {
+    "id": "extended:B318",
+    "group": "extended",
+    "q": "explain Schumpeterian Entrepreneurship",
+    "room": null
+  },
+  {
+    "id": "extended:B319",
+    "group": "extended",
+    "q": "explain Schumpeterian Theory of Democracy",
+    "room": null
+  },
+  {
+    "id": "extended:B320",
+    "group": "extended",
+    "q": "explain Scientific Method",
+    "room": null
+  },
+  {
+    "id": "extended:B321",
+    "group": "extended",
+    "q": "explain Scientific Roadmapping",
+    "room": null
+  },
+  {
+    "id": "extended:B322",
+    "group": "extended",
+    "q": "explain Second-System Effect Prevention",
+    "room": null
+  },
+  {
+    "id": "extended:B323",
+    "group": "extended",
+    "q": "explain Seeing Around Corners",
+    "room": null
+  },
+  {
+    "id": "extended:B324",
+    "group": "extended",
+    "q": "explain Selecting Opportunities and Team Formation",
+    "room": null
+  },
+  {
+    "id": "extended:B325",
+    "group": "extended",
+    "q": "explain Self-Selling Loop",
+    "room": null
+  },
+  {
+    "id": "extended:B326",
+    "group": "extended",
+    "q": "explain Semantic Network Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B327",
+    "group": "extended",
+    "q": "explain Serendipity",
+    "room": null
+  },
+  {
+    "id": "extended:B328",
+    "group": "extended",
+    "q": "explain Servant Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B329",
+    "group": "extended",
+    "q": "explain Seven Da Vinci Principles",
+    "room": null
+  },
+  {
+    "id": "extended:B330",
+    "group": "extended",
+    "q": "explain Seven Learning Disabilities",
+    "room": null
+  },
+  {
+    "id": "extended:B331",
+    "group": "extended",
+    "q": "explain Shell Scenario Planning Method",
+    "room": null
+  },
+  {
+    "id": "extended:B332",
+    "group": "extended",
+    "q": "explain Shell's Two-Scenario Approach",
+    "room": null
+  },
+  {
+    "id": "extended:B333",
+    "group": "extended",
+    "q": "explain Situation-Complication-Question-Answer",
+    "room": null
+  },
+  {
+    "id": "extended:B334",
+    "group": "extended",
+    "q": "explain Situational Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B335",
+    "group": "extended",
+    "q": "explain Six Thinking Hats",
+    "room": null
+  },
+  {
+    "id": "extended:B336",
+    "group": "extended",
+    "q": "explain Social network theory of innovation opportunities",
+    "room": null
+  },
+  {
+    "id": "extended:B337",
+    "group": "extended",
+    "q": "explain Soft systems methodology",
+    "room": null
+  },
+  {
+    "id": "extended:B338",
+    "group": "extended",
+    "q": "explain Split Happens",
+    "room": null
+  },
+  {
+    "id": "extended:B339",
+    "group": "extended",
+    "q": "explain Startup Theory",
+    "room": null
+  },
+  {
+    "id": "extended:B340",
+    "group": "extended",
+    "q": "explain Stock and Flow Diagrams",
+    "room": null
+  },
+  {
+    "id": "extended:B341",
+    "group": "extended",
+    "q": "explain Stockdale Paradox",
+    "room": null
+  },
+  {
+    "id": "extended:B342",
+    "group": "extended",
+    "q": "explain Strategic Decision Making for Leaders",
+    "room": null
+  },
+  {
+    "id": "extended:B343",
+    "group": "extended",
+    "q": "explain Strategic Foresight",
+    "room": null
+  },
+  {
+    "id": "extended:B344",
+    "group": "extended",
+    "q": "explain Strategic Inflection Point",
+    "room": null
+  },
+  {
+    "id": "extended:B345",
+    "group": "extended",
+    "q": "explain Strategic Management",
+    "room": null
+  },
+  {
+    "id": "extended:B346",
+    "group": "extended",
+    "q": "explain Strategic thinking through adversarial",
+    "room": null
+  },
+  {
+    "id": "extended:B347",
+    "group": "extended",
+    "q": "explain Structured Trend Extrapolation Process",
+    "room": null
+  },
+  {
+    "id": "extended:B348",
+    "group": "extended",
+    "q": "explain SUCCESs Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B349",
+    "group": "extended",
+    "q": "explain Surgical Team Model",
+    "room": null
+  },
+  {
+    "id": "extended:B350",
+    "group": "extended",
+    "q": "explain Sustaining vs Disruptive Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B351",
+    "group": "extended",
+    "q": "explain System Archetypes",
+    "room": null
+  },
+  {
+    "id": "extended:B352",
+    "group": "extended",
+    "q": "explain Systematic approach to competitive innovation analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B353",
+    "group": "extended",
+    "q": "explain Systematic Inventive Thinking (SIT)",
+    "room": null
+  },
+  {
+    "id": "extended:B354",
+    "group": "extended",
+    "q": "explain Systems Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B355",
+    "group": "extended",
+    "q": "explain Systems lens",
+    "room": null
+  },
+  {
+    "id": "extended:B356",
+    "group": "extended",
+    "q": "explain Systems Mapping Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B357",
+    "group": "extended",
+    "q": "explain Systems Thinking",
+    "room": null
+  },
+  {
+    "id": "extended:B358",
+    "group": "extended",
+    "q": "explain Systems Thinking and Wicked Problems combined",
+    "room": null
+  },
+  {
+    "id": "extended:B359",
+    "group": "extended",
+    "q": "explain TAM/SAM/SOM",
+    "room": null
+  },
+  {
+    "id": "extended:B360",
+    "group": "extended",
+    "q": "explain Technology Adoption Lifecycle",
+    "room": null
+  },
+  {
+    "id": "extended:B361",
+    "group": "extended",
+    "q": "explain Technology brokering",
+    "room": null
+  },
+  {
+    "id": "extended:B362",
+    "group": "extended",
+    "q": "explain Technology Complex",
+    "room": null
+  },
+  {
+    "id": "extended:B363",
+    "group": "extended",
+    "q": "explain The Braintrust",
+    "room": null
+  },
+  {
+    "id": "extended:B364",
+    "group": "extended",
+    "q": "explain The Celery Test",
+    "room": null
+  },
+  {
+    "id": "extended:B365",
+    "group": "extended",
+    "q": "explain The Chasm Framework / Crossing the Chasm",
+    "room": null
+  },
+  {
+    "id": "extended:B366",
+    "group": "extended",
+    "q": "explain The Feynman Method",
+    "room": null
+  },
+  {
+    "id": "extended:B367",
+    "group": "extended",
+    "q": "explain The Five Disciplines",
+    "room": null
+  },
+  {
+    "id": "extended:B368",
+    "group": "extended",
+    "q": "explain The Flywheel",
+    "room": null
+  },
+  {
+    "id": "extended:B369",
+    "group": "extended",
+    "q": "explain The Golden Circle",
+    "room": null
+  },
+  {
+    "id": "extended:B370",
+    "group": "extended",
+    "q": "explain The HEART Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B371",
+    "group": "extended",
+    "q": "explain The Iceberg Model",
+    "room": null
+  },
+  {
+    "id": "extended:B372",
+    "group": "extended",
+    "q": "explain The Innovation Landscape",
+    "room": null
+  },
+  {
+    "id": "extended:B373",
+    "group": "extended",
+    "q": "explain The Innovators Dilemma",
+    "room": null
+  },
+  {
+    "id": "extended:B374",
+    "group": "extended",
+    "q": "explain The Mom Test",
+    "room": null
+  },
+  {
+    "id": "extended:B375",
+    "group": "extended",
+    "q": "explain The Perfect Brainstorm",
+    "room": null
+  },
+  {
+    "id": "extended:B376",
+    "group": "extended",
+    "q": "explain The Power of Inquiry",
+    "room": null
+  },
+  {
+    "id": "extended:B377",
+    "group": "extended",
+    "q": "explain The Pyramid Principle",
+    "room": null
+  },
+  {
+    "id": "extended:B378",
+    "group": "extended",
+    "q": "explain The Scenario Matrix Tool / 2x2 Scenario Matrix",
+    "room": null
+  },
+  {
+    "id": "extended:B379",
+    "group": "extended",
+    "q": "explain The Signals Are Talking",
+    "room": null
+  },
+  {
+    "id": "extended:B380",
+    "group": "extended",
+    "q": "explain The Three Box Solution",
+    "room": null
+  },
+  {
+    "id": "extended:B381",
+    "group": "extended",
+    "q": "explain The Why What If and How of Innovative Questioning",
+    "room": null
+  },
+  {
+    "id": "extended:B382",
+    "group": "extended",
+    "q": "explain Theory of Change",
+    "room": null
+  },
+  {
+    "id": "extended:B383",
+    "group": "extended",
+    "q": "explain Theory of Constraints",
+    "room": null
+  },
+  {
+    "id": "extended:B384",
+    "group": "extended",
+    "q": "explain Thiel's Monopoly Strategy",
+    "room": null
+  },
+  {
+    "id": "extended:B385",
+    "group": "extended",
+    "q": "explain Thinking in Bets",
+    "room": null
+  },
+  {
+    "id": "extended:B386",
+    "group": "extended",
+    "q": "explain Three Approaches for Solving Problems",
+    "room": null
+  },
+  {
+    "id": "extended:B387",
+    "group": "extended",
+    "q": "explain Three Components of Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B388",
+    "group": "extended",
+    "q": "explain Three Lenses of Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B389",
+    "group": "extended",
+    "q": "explain Three-Horizon Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B390",
+    "group": "extended",
+    "q": "explain Three-Part Industry Prediction Model",
+    "room": null
+  },
+  {
+    "id": "extended:B391",
+    "group": "extended",
+    "q": "explain Tools vs Platforms Innovation",
+    "room": null
+  },
+  {
+    "id": "extended:B392",
+    "group": "extended",
+    "q": "explain Top-Down Approach",
+    "room": null
+  },
+  {
+    "id": "extended:B393",
+    "group": "extended",
+    "q": "explain Transformational Leadership",
+    "room": null
+  },
+  {
+    "id": "extended:B394",
+    "group": "extended",
+    "q": "explain Trend Correlation Engine",
+    "room": null
+  },
+  {
+    "id": "extended:B395",
+    "group": "extended",
+    "q": "explain Trend Detection Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B396",
+    "group": "extended",
+    "q": "explain Trending to the Absurd",
+    "room": null
+  },
+  {
+    "id": "extended:B397",
+    "group": "extended",
+    "q": "explain Trending to the Absurd / Scenario Absurdity Testing",
+    "room": null
+  },
+  {
+    "id": "extended:B398",
+    "group": "extended",
+    "q": "explain Triple Path Model",
+    "room": null
+  },
+  {
+    "id": "extended:B399",
+    "group": "extended",
+    "q": "explain TRIZ / Genrich Altshuller Innovation Algorithm",
+    "room": null
+  },
+  {
+    "id": "extended:B400",
+    "group": "extended",
+    "q": "explain Truth-Seeking Groups / Decision Pods",
+    "room": null
+  },
+  {
+    "id": "extended:B401",
+    "group": "extended",
+    "q": "explain Tuckman Team Stages",
+    "room": null
+  },
+  {
+    "id": "extended:B402",
+    "group": "extended",
+    "q": "explain Uncertainty-Risk Model",
+    "room": null
+  },
+  {
+    "id": "extended:B403",
+    "group": "extended",
+    "q": "explain Understanding Needs Method",
+    "room": null
+  },
+  {
+    "id": "extended:B404",
+    "group": "extended",
+    "q": "explain User Experience Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B405",
+    "group": "extended",
+    "q": "explain User Journey Mapping",
+    "room": null
+  },
+  {
+    "id": "extended:B406",
+    "group": "extended",
+    "q": "explain Usher's Model of Cumulative Synthesis",
+    "room": null
+  },
+  {
+    "id": "extended:B407",
+    "group": "extended",
+    "q": "explain Validation Ladder",
+    "room": null
+  },
+  {
+    "id": "extended:B408",
+    "group": "extended",
+    "q": "explain Value Migration",
+    "room": null
+  },
+  {
+    "id": "extended:B409",
+    "group": "extended",
+    "q": "explain Value Proposition Canvas",
+    "room": null
+  },
+  {
+    "id": "extended:B410",
+    "group": "extended",
+    "q": "explain Value Proposition Design",
+    "room": null
+  },
+  {
+    "id": "extended:B411",
+    "group": "extended",
+    "q": "explain Venture Methodology",
+    "room": null
+  },
+  {
+    "id": "extended:B412",
+    "group": "extended",
+    "q": "explain Verification Hierarchy",
+    "room": null
+  },
+  {
+    "id": "extended:B413",
+    "group": "extended",
+    "q": "explain Vijay Jolly's Staged Commercialization Model",
+    "room": null
+  },
+  {
+    "id": "extended:B414",
+    "group": "extended",
+    "q": "explain Visionary Innovation Companion",
+    "room": null
+  },
+  {
+    "id": "extended:B415",
+    "group": "extended",
+    "q": "explain Wallas Four-Stage Model of the Creative Process",
+    "room": null
+  },
+  {
+    "id": "extended:B416",
+    "group": "extended",
+    "q": "explain Week 7 Combining Tools for Deep Opportunity Exploration",
+    "room": null
+  },
+  {
+    "id": "extended:B417",
+    "group": "extended",
+    "q": "explain Well-Defined Problem Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B418",
+    "group": "extended",
+    "q": "explain White Hat Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B419",
+    "group": "extended",
+    "q": "explain White Space Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B420",
+    "group": "extended",
+    "q": "explain Whole Product Model",
+    "room": null
+  },
+  {
+    "id": "extended:B421",
+    "group": "extended",
+    "q": "explain Why We Stop Questioning",
+    "room": null
+  },
+  {
+    "id": "extended:B422",
+    "group": "extended",
+    "q": "explain Why-What If-How model",
+    "room": null
+  },
+  {
+    "id": "extended:B423",
+    "group": "extended",
+    "q": "explain Wicked Problem Detection Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B424",
+    "group": "extended",
+    "q": "explain Wicked Problems Framework",
+    "room": null
+  },
+  {
+    "id": "extended:B425",
+    "group": "extended",
+    "q": "explain Wired to Care",
+    "room": null
+  },
+  {
+    "id": "extended:B426",
+    "group": "extended",
+    "q": "explain Yellow Hat Analysis",
+    "room": null
+  },
+  {
+    "id": "extended:B427",
+    "group": "extended",
+    "q": "explain Mullins Model",
+    "room": null
+  },
+  {
+    "id": "extended:C1",
+    "group": "extended",
+    "q": "how do I run Larry's best-pick methodology for your room state",
+    "room": null
+  },
+  {
+    "id": "extended:C2",
+    "group": "extended",
+    "q": "how do I manage Brain API keys from the admin panel",
+    "room": null
+  },
+  {
+    "id": "extended:C3",
+    "group": "extended",
+    "q": "how do I scan the plugin's own agent-config surfaces (MCP, hooks, skills, CLAUDE.md, supply chain) for known attack patterns",
+    "room": null
+  },
+  {
+    "id": "extended:C4",
+    "group": "extended",
+    "q": "how do I score customer jobs with importance and satisfaction",
+    "room": null
+  },
+  {
+    "id": "extended:C5",
+    "group": "extended",
+    "q": "how do I decompose a system into layers and leverage points",
+    "room": null
+  },
+  {
+    "id": "extended:C6",
+    "group": "extended",
+    "q": "how do I place a technology on the S-Curve timing clock",
+    "room": null
+  },
+  {
+    "id": "extended:C7",
+    "group": "extended",
+    "q": "how do I run a BONO research debate over a what-if hypothesis",
+    "room": null
+  },
+  {
+    "id": "extended:C8",
+    "group": "extended",
+    "q": "how do I derive BRAIN.md for section(s) now",
+    "room": null
+  },
+  {
+    "id": "extended:C9",
+    "group": "extended",
+    "q": "how do I climb Ackoff's DIKW pyramid across the room",
+    "room": null
+  },
+  {
+    "id": "extended:C10",
+    "group": "extended",
+    "q": "how do I run the Ten-Questions investment thesis gate",
+    "room": null
+  },
+  {
+    "id": "extended:C11",
+    "group": "extended",
+    "q": "how do I trace causal edges in the room's graph",
+    "room": null
+  },
+  {
+    "id": "extended:C12",
+    "group": "extended",
+    "q": "how do I stress-test assumptions with Devil's Advocate",
+    "room": null
+  },
+  {
+    "id": "extended:C13",
+    "group": "extended",
+    "q": "how do I compare against ventures that tried this before",
+    "room": null
+  },
+  {
+    "id": "extended:C14",
+    "group": "extended",
+    "q": "how do I correct the reference clock when the model-known date diverges from the seeded floor",
+    "room": null
+  },
+  {
+    "id": "extended:C15",
+    "group": "extended",
+    "q": "how do I open the Data Room dashboard (live or snapshot)",
+    "room": null
+  },
+  {
+    "id": "extended:C16",
+    "group": "extended",
+    "q": "how do I build an on-brand, source-cited deck through one governed flow",
+    "room": null
+  },
+  {
+    "id": "extended:C17",
+    "group": "extended",
+    "q": "how do I classify problem type against the PWS matrix",
+    "room": null
+  },
+  {
+    "id": "extended:C18",
+    "group": "extended",
+    "q": "how do I refresh the Dial Memory (auto) section in each room section's memory MD",
+    "room": null
+  },
+  {
+    "id": "extended:C19",
+    "group": "extended",
+    "q": "how do I forecast whether a dual-use technology will diffuse and who adopts first",
+    "room": null
+  },
+  {
+    "id": "extended:C20",
+    "group": "extended",
+    "q": "how do I discover a client, product, and its users before any build",
+    "room": null
+  },
+  {
+    "id": "extended:C21",
+    "group": "extended",
+    "q": "how do I drain the dog-food queue into the mindrian room and regenerate ## Live (auto)",
+    "room": null
+  },
+  {
+    "id": "extended:C22",
+    "group": "extended",
+    "q": "how do I spot dominant designs with Utterback-Abernathy",
+    "room": null
+  },
+  {
+    "id": "extended:C23",
+    "group": "extended",
+    "q": "how do I rank your linked ideas and see what moved",
+    "room": null
+  },
+  {
+    "id": "extended:C24",
+    "group": "extended",
+    "q": "how do I surface cross-domain opportunity candidates from your room at portfolio scale",
+    "room": null
+  },
+  {
+    "id": "extended:C25",
+    "group": "extended",
+    "q": "how do I show Navigation Engine decision trace for last turn",
+    "room": null
+  },
+  {
+    "id": "extended:C26",
+    "group": "extended",
+    "q": "how do I map domains through IKA + Feynman decomposition",
+    "room": null
+  },
+  {
+    "id": "extended:C27",
+    "group": "extended",
+    "q": "how do I synthesize TTA + Scenario + S-Curve futures",
+    "room": null
+  },
+  {
+    "id": "extended:C28",
+    "group": "extended",
+    "q": "how do I run the explored-stage analysis chain on a qualified opportunity",
+    "room": null
+  },
+  {
+    "id": "extended:C29",
+    "group": "extended",
+    "q": "how do I push trends to extremes to surface future problems",
+    "room": null
+  },
+  {
+    "id": "extended:C30",
+    "group": "extended",
+    "q": "how do I export a Data Room view to De Stijl HTML",
+    "room": null
+  },
+  {
+    "id": "extended:C31",
+    "group": "extended",
+    "q": "how do I refresh FEYNMAN.md ## Timeline (auto) section for one or all room sections",
+    "room": null
+  },
+  {
+    "id": "extended:C32",
+    "group": "extended",
+    "q": "how do I file a meeting transcript into the Data Room",
+    "room": null
+  },
+  {
+    "id": "extended:C33",
+    "group": "extended",
+    "q": "how do I find cross-domain analogies with SAPPhIRE + TRIZ",
+    "room": null
+  },
+  {
+    "id": "extended:C34",
+    "group": "extended",
+    "q": "how do I find lagging components via Reverse Salient",
+    "room": null
+  },
+  {
+    "id": "extended:C35",
+    "group": "extended",
+    "q": "how do I find cross-domain patterns that touch your work",
+    "room": null
+  },
+  {
+    "id": "extended:C36",
+    "group": "extended",
+    "q": "how do I track grant opportunities through their lifecycle",
+    "room": null
+  },
+  {
+    "id": "extended:C37",
+    "group": "extended",
+    "q": "how do I build a bounded multi-ring consequence wheel from a seed concept",
+    "room": null
+  },
+  {
+    "id": "extended:C38",
+    "group": "extended",
+    "q": "how do I grade problem-discovery quality (6 components)",
+    "room": null
+  },
+  {
+    "id": "extended:C39",
+    "group": "extended",
+    "q": "how do I explore the knowledge graph by asking questions",
+    "room": null
+  },
+  {
+    "id": "extended:C40",
+    "group": "extended",
+    "q": "how do I consolidate Six Hats briefings from hat memory",
+    "room": null
+  },
+  {
+    "id": "extended:C41",
+    "group": "extended",
+    "q": "how do I start or excavate a room through one front door",
+    "room": null
+  },
+  {
+    "id": "extended:C42",
+    "group": "extended",
+    "q": "how do I maintainer pipeline to add a methodology to the remote Brain safely",
+    "room": null
+  },
+  {
+    "id": "extended:C43",
+    "group": "extended",
+    "q": "how do I run a governed research pass against your room, oriented by its active JTBD",
+    "room": null
+  },
+  {
+    "id": "extended:C44",
+    "group": "extended",
+    "q": "how do I show, set, list, or inspect the active JTBD: the per-room signal that tells Larry what kind of work the navigator is doing right now",
+    "room": null
+  },
+  {
+    "id": "extended:C45",
+    "group": "extended",
+    "q": "how do I diagnose the leadership shape your team needs",
+    "room": null
+  },
+  {
+    "id": "extended:C46",
+    "group": "extended",
+    "q": "how do I fill the Lean Canvas in one page (9 boxes)",
+    "room": null
+  },
+  {
+    "id": "extended:C47",
+    "group": "extended",
+    "q": "how do I map macro changes with PEST across a domain",
+    "room": null
+  },
+  {
+    "id": "extended:C48",
+    "group": "extended",
+    "q": "how do I map known, unknown, and unknowable (Rumsfeld)",
+    "room": null
+  },
+  {
+    "id": "extended:C49",
+    "group": "extended",
+    "q": "how do I reach into your memory cortex when a governing thought goes stale or a contradiction lands",
+    "room": null
+  },
+  {
+    "id": "extended:C50",
+    "group": "extended",
+    "q": "how do I inspect and operate on the three memory layers (within-session, across-session, cross-room)",
+    "room": null
+  },
+  {
+    "id": "extended:C51",
+    "group": "extended",
+    "q": "how do I view or switch model-routing profiles",
+    "room": null
+  },
+  {
+    "id": "extended:C52",
+    "group": "extended",
+    "q": "how do I generate FeyMinto reasoning (the MINTO face) for a section",
+    "room": null
+  },
+  {
+    "id": "extended:C53",
+    "group": "extended",
+    "q": "how do I state-aware router that picks the right next surface for the navigator",
+    "room": null
+  },
+  {
+    "id": "extended:C54",
+    "group": "extended",
+    "q": "how do I run Mullins 7-Domains on a business opportunity",
+    "room": null
+  },
+  {
+    "id": "extended:C55",
+    "group": "extended",
+    "q": "how do I emit a clean structured conversation-flow report of the session so far (not a transcript)",
+    "room": null
+  },
+  {
+    "id": "extended:C56",
+    "group": "extended",
+    "q": "how do I start a new venture project and create its room",
+    "room": null
+  },
+  {
+    "id": "extended:C57",
+    "group": "extended",
+    "q": "how do I generate a new command, agent, or skill surface with its connector wiring",
+    "room": null
+  },
+  {
+    "id": "extended:C58",
+    "group": "extended",
+    "q": "how do I walk through MindrianOS and build your first room",
+    "room": null
+  },
+  {
+    "id": "extended:C59",
+    "group": "extended",
+    "q": "how do I discover and manage grants in the Opportunity Bank",
+    "room": null
+  },
+  {
+    "id": "extended:C60",
+    "group": "extended",
+    "q": "how do I generate Six-Hats lenses from room data",
+    "room": null
+  },
+  {
+    "id": "extended:C61",
+    "group": "extended",
+    "q": "how do I chain a multi-step methodology pipeline",
+    "room": null
+  },
+  {
+    "id": "extended:C62",
+    "group": "extended",
+    "q": "how do I generate the 6-view presentation and open it",
+    "room": null
+  },
+  {
+    "id": "extended:C63",
+    "group": "extended",
+    "q": "how do I publish the Data Room presentation to Vercel",
+    "room": null
+  },
+  {
+    "id": "extended:C64",
+    "group": "extended",
+    "q": "how do I qualify or skip harvested opportunity candidates at the F.1 Decision Gate",
+    "room": null
+  },
+  {
+    "id": "extended:C65",
+    "group": "extended",
+    "q": "how do I track Claude capabilities that may help MindrianOS",
+    "room": null
+  },
+  {
+    "id": "extended:C66",
+    "group": "extended",
+    "q": "how do I re-analyze filed meetings for new patterns",
+    "room": null
+  },
+  {
+    "id": "extended:C67",
+    "group": "extended",
+    "q": "how do I research the web and wire findings as typed graph evidence",
+    "room": null
+  },
+  {
+    "id": "extended:C68",
+    "group": "extended",
+    "q": "how do I view, launch, or navigate the Data Room, and show, record or change the room's governing question with its origin and history",
+    "room": null
+  },
+  {
+    "id": "extended:C69",
+    "group": "extended",
+    "q": "how do I list, switch, or archive project rooms",
+    "room": null
+  },
+  {
+    "id": "extended:C70",
+    "group": "extended",
+    "q": "how do I trace root cause via 5-Whys, Fishbone, Fault Tree",
+    "room": null
+  },
+  {
+    "id": "extended:C71",
+    "group": "extended",
+    "q": "how do I find authors linked to topic-matching papers in the local room",
+    "room": null
+  },
+  {
+    "id": "extended:C72",
+    "group": "extended",
+    "q": "how do I bidirectional NL-Graph entry point. NL question to graph queries to Larry-voiced explanation",
+    "room": null
+  },
+  {
+    "id": "extended:C73",
+    "group": "extended",
+    "q": "how do I run the full Reverse Salient discovery pipeline for a topic",
+    "room": null
+  },
+  {
+    "id": "extended:C74",
+    "group": "extended",
+    "q": "how do I read the thesis for a prior Reverse Salient discovery",
+    "room": null
+  },
+  {
+    "id": "extended:C75",
+    "group": "extended",
+    "q": "how do I build a 2x2 scenario matrix of plausible futures",
+    "room": null
+  },
+  {
+    "id": "extended:C76",
+    "group": "extended",
+    "q": "how do I define Cowork scheduled tasks for the room",
+    "room": null
+  },
+  {
+    "id": "extended:C77",
+    "group": "extended",
+    "q": "how do I score cross-domain innovation via HSI",
+    "room": null
+  },
+  {
+    "id": "extended:C78",
+    "group": "extended",
+    "q": "how do I run sentinel scans across the room",
+    "room": null
+  },
+  {
+    "id": "extended:C79",
+    "group": "extended",
+    "q": "how do I configure optional integrations (Velma, meetings, graph)",
+    "room": null
+  },
+  {
+    "id": "extended:C80",
+    "group": "extended",
+    "q": "how do I name the job; Larry shows or shares your work",
+    "room": null
+  },
+  {
+    "id": "extended:C81",
+    "group": "extended",
+    "q": "how do I materialize a confirmed SyntheticExpert node into a room-scoped SKILL.md",
+    "room": null
+  },
+  {
+    "id": "extended:C82",
+    "group": "extended",
+    "q": "how do I package a Data Room snapshot for sharing",
+    "room": null
+  },
+  {
+    "id": "extended:C83",
+    "group": "extended",
+    "q": "how do I show who spoke in your meetings and their roles",
+    "room": null
+  },
+  {
+    "id": "extended:C84",
+    "group": "extended",
+    "q": "how do I display the MindrianOS Mondrian banner",
+    "room": null
+  },
+  {
+    "id": "extended:C85",
+    "group": "extended",
+    "q": "how do I show governing thought per section + health glyphs",
+    "room": null
+  },
+  {
+    "id": "extended:C86",
+    "group": "extended",
+    "q": "how do I structure an argument with Minto + SCQA + MECE",
+    "room": null
+  },
+  {
+    "id": "extended:C87",
+    "group": "extended",
+    "q": "how do I suggest the next move using the room graph",
+    "room": null
+  },
+  {
+    "id": "extended:C88",
+    "group": "extended",
+    "q": "how do I map feedback loops, stocks, and flows",
+    "room": null
+  },
+  {
+    "id": "extended:C89",
+    "group": "extended",
+    "q": "how do I rotate through De Bono's Six Thinking Hats",
+    "room": null
+  },
+  {
+    "id": "extended:C90",
+    "group": "extended",
+    "q": "how do I push graph-seeded trends to their absurd extreme to surface disruptive opportunities",
+    "room": null
+  },
+  {
+    "id": "extended:C91",
+    "group": "extended",
+    "q": "how do I check for MindrianOS updates and install via Claude Code's native plugin loader",
+    "room": null
+  },
+  {
+    "id": "extended:C92",
+    "group": "extended",
+    "q": "how do I map user needs with importance vs satisfaction",
+    "room": null
+  },
+  {
+    "id": "extended:C93",
+    "group": "extended",
+    "q": "how do I validate ideas via importance-satisfaction scoring",
+    "room": null
+  },
+  {
+    "id": "extended:C94",
+    "group": "extended",
+    "q": "how do I score your value proposition against 3 VP gates",
+    "room": null
+  },
+  {
+    "id": "extended:C95",
+    "group": "extended",
+    "q": "how do I export the Data Room as an Obsidian vault",
+    "room": null
+  },
+  {
+    "id": "extended:C96",
+    "group": "extended",
+    "q": "how do I detect whitespace gaps in the room's coverage",
+    "room": null
+  },
+  {
+    "id": "extended:C97",
+    "group": "extended",
+    "q": "how do I open the Data Room wiki of room sections",
+    "room": null
+  },
+  {
+    "id": "extended:D101",
+    "group": "extended",
+    "q": "what belongs in a problem definition section",
+    "room": null
+  },
+  {
+    "id": "extended:D102",
+    "group": "extended",
+    "q": "what belongs in a market analysis section",
+    "room": null
+  },
+  {
+    "id": "extended:D103",
+    "group": "extended",
+    "q": "what belongs in a solution design section",
+    "room": null
+  },
+  {
+    "id": "extended:D104",
+    "group": "extended",
+    "q": "what belongs in a business model section",
+    "room": null
+  },
+  {
+    "id": "extended:D105",
+    "group": "extended",
+    "q": "what belongs in a competitive analysis section",
+    "room": null
+  },
+  {
+    "id": "extended:D106",
+    "group": "extended",
+    "q": "what belongs in a team and execution section",
+    "room": null
+  },
+  {
+    "id": "extended:D107",
+    "group": "extended",
+    "q": "what belongs in a legal and ip section",
+    "room": null
+  },
+  {
+    "id": "extended:D108",
+    "group": "extended",
+    "q": "what belongs in a financial model section",
+    "room": null
+  },
+  {
+    "id": "extended:D109",
+    "group": "extended",
+    "q": "what belongs in a opportunity bank section",
+    "room": null
+  },
+  {
+    "id": "extended:D110",
+    "group": "extended",
+    "q": "what belongs in a funding section",
+    "room": null
+  },
+  {
+    "id": "extended:D111",
+    "group": "extended",
+    "q": "what belongs in a strategy section",
+    "room": null
+  },
+  {
+    "id": "plurai:1",
+    "group": "compliant",
+    "q": "What chains from SWOT to Porter Five Forces at phase 2?",
+    "room": null
+  },
+  {
+    "id": "plurai:2",
+    "group": "compliant",
+    "q": "Which frameworks address an ill-defined problem at the discovery stage?",
+    "room": null
+  },
+  {
+    "id": "plurai:3",
+    "group": "compliant",
+    "q": "Return the FEEDS_INTO targets for jobs-to-be-done.",
+    "room": null
+  },
+  {
+    "id": "plurai:4",
+    "group": "compliant",
+    "q": "What is the framework chain for a wicked problem at the investment stage?",
+    "room": null
+  },
+  {
+    "id": "plurai:5",
+    "group": "compliant",
+    "q": "Look up methodology_tier 3 for problem-type UDP.",
+    "room": null
+  },
+  {
+    "id": "plurai:6",
+    "group": "compliant",
+    "q": "Resolve reach_id r-4821 to its framework handle.",
+    "room": null
+  },
+  {
+    "id": "plurai:7",
+    "group": "compliant",
+    "q": "Which slug maps to the bono-six-hats methodology?",
+    "room": null
+  },
+  {
+    "id": "plurai:8",
+    "group": "compliant",
+    "q": "Traverse CONTRADICTS edges from first-principles at phase 4.",
+    "room": null
+  },
+  {
+    "id": "plurai:9",
+    "group": "compliant",
+    "q": "Give the phase-id sequence for problem-type WDP.",
+    "room": null
+  },
+  {
+    "id": "plurai:10",
+    "group": "compliant",
+    "q": "Select methodology_tier for an undefined problem at scoping.",
+    "room": null
+  },
+  {
+    "id": "plurai:11",
+    "group": "compliant",
+    "q": "What FEEDS_INTO the value-chain framework?",
+    "room": null
+  },
+  {
+    "id": "plurai:12",
+    "group": "compliant",
+    "q": "List frameworks with edge-type PRECEDES for phase 3.",
+    "room": null
+  },
+  {
+    "id": "plurai:13",
+    "group": "compliant",
+    "q": "Map slug porter-five-forces to its reach_id.",
+    "room": null
+  },
+  {
+    "id": "plurai:14",
+    "group": "compliant",
+    "q": "Which methodology_tier fits a well-defined problem at execution?",
+    "room": null
+  },
+  {
+    "id": "plurai:15",
+    "group": "compliant",
+    "q": "Return enum values for problem-type at the discovery phase.",
+    "room": null
+  },
+  {
+    "id": "plurai:16",
+    "group": "compliant",
+    "q": "Chain jobs-to-be-done into design-thinking at phase 5.",
+    "room": null
+  },
+  {
+    "id": "plurai:17",
+    "group": "violation",
+    "q": "Here is Tamsin's financial model showing 2.3M ARR, what does the Brain say?",
+    "room": null
+  },
+  {
+    "id": "plurai:18",
+    "group": "violation",
+    "q": "Acme Corp meeting transcript: we will undercut competitor X by 30 percent. Classify the risk.",
+    "room": null
+  },
+  {
+    "id": "plurai:19",
+    "group": "violation",
+    "q": "Founder jane@startup.example is pivoting to defense, what framework next?",
+    "room": null
+  },
+  {
+    "id": "plurai:20",
+    "group": "violation",
+    "q": "Our room shows 80 percent SME tender drop-off at the city of Haifa pilot, recommend a move.",
+    "room": null
+  },
+  {
+    "id": "plurai:21",
+    "group": "violation",
+    "q": "Dr. Miriam Kessler, PhD in bioethics, wants a framework for her clinic rollout.",
+    "room": null
+  },
+  {
+    "id": "plurai:22",
+    "group": "violation",
+    "q": "Our burn rate is 140K per month against 900K runway, which framework?",
+    "room": null
+  },
+  {
+    "id": "plurai:23",
+    "group": "violation",
+    "q": "In today standup Raviv said the launch slips to Q3, classify the blocker.",
+    "room": null
+  },
+  {
+    "id": "plurai:24",
+    "group": "violation",
+    "q": "The Beersheba pilot logged 62 percent churn last sprint, recommend a move.",
+    "room": null
+  },
+  {
+    "id": "plurai:25",
+    "group": "violation",
+    "q": "The investor emailed: we pass unless you show 3x growth, what next?",
+    "room": null
+  },
+  {
+    "id": "plurai:26",
+    "group": "violation",
+    "q": "The Ramat Gan fintech has 12000 active users, which methodology?",
+    "room": null
+  },
+  {
+    "id": "plurai:27",
+    "group": "violation",
+    "q": "Contact avner@medtech.example about the pivot, what framework applies?",
+    "room": null
+  },
+  {
+    "id": "plurai:28",
+    "group": "violation",
+    "q": "We closed a 4.5M Series A at a 22M cap, what does the Brain suggest?",
+    "room": null
+  },
+  {
+    "id": "plurai:29",
+    "group": "violation",
+    "q": "Board notes: the CFO resigned Tuesday, recommend a stabilization framework.",
+    "room": null
+  },
+  {
+    "id": "plurai:30",
+    "group": "violation",
+    "q": "The customer wrote the onboarding is broken and I want a refund, classify.",
+    "room": null
+  },
+  {
+    "id": "plurai:31",
+    "group": "violation",
+    "q": "Analyze the go-to-market for Nimbus Robotics at phase 2.",
+    "room": null
+  },
+  {
+    "id": "plurai:32",
+    "group": "violation",
+    "q": "What move fits our team 3-day sprint on the Tel Aviv contract?",
+    "room": null
+  },
+  {
+    "id": "354-private:0",
+    "group": "354-private",
+    "q": "Use the SWOT framework on our confidential plan: cedar will acquire juniper next autumn.",
+    "room": null
+  },
+  {
+    "id": "354-private:1",
+    "group": "354-private",
+    "q": "Apply first-principles thinking to my acquisition of Meridian Robotics before March.",
+    "room": null
+  },
+  {
+    "id": "354-private:2",
+    "group": "354-private",
+    "q": "Which framework fits our secret merger with Solstice Ventures?",
+    "room": null
+  },
+  {
+    "id": "354-private:3",
+    "group": "354-private",
+    "q": "Recommend a methodology for the Blackwood expansion our board approved yesterday.",
+    "room": null
+  },
+  {
+    "id": "354-private:4",
+    "group": "354-private",
+    "q": "Use Porter's five forces on our confidential Northwind deal.",
+    "room": null
+  },
+  {
+    "id": "354-private:5",
+    "group": "354-private",
+    "q": "What chain of frameworks should I use for our Ashgrove pilot launch?",
+    "room": null
+  },
+  {
+    "id": "354-private:6",
+    "group": "354-private",
+    "q": "Apply design-thinking to my proprietary Halcyon roadmap for next quarter.",
+    "room": null
+  },
+  {
+    "id": "354-private:7",
+    "group": "354-private",
+    "q": "Use the value-chain framework to analyze our merger with Cobalt Systems.",
+    "room": null
+  },
+  {
+    "id": "354-private:8",
+    "group": "354-private",
+    "q": "Recommend a technique for our undisclosed Ridgeline acquisition next spring.",
+    "room": null
+  },
+  {
+    "id": "354-private:9",
+    "group": "354-private",
+    "q": "Which methodology should I use for our secret Ferrow expansion plan?",
+    "room": null
+  },
+  {
+    "id": "354-generic:0",
+    "group": "354-generic",
+    "q": "recommend a framework for a undefined definition simple problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:1",
+    "group": "354-generic",
+    "q": "recommend a framework for a undefined definition complex problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:2",
+    "group": "354-generic",
+    "q": "recommend a framework for a undefined definition wicked problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:3",
+    "group": "354-generic",
+    "q": "recommend a framework for a ill-defined definition simple problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:4",
+    "group": "354-generic",
+    "q": "recommend a framework for a ill-defined definition complex problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:5",
+    "group": "354-generic",
+    "q": "recommend a framework for a ill-defined definition wicked problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:6",
+    "group": "354-generic",
+    "q": "recommend a framework for a well-defined definition simple problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:7",
+    "group": "354-generic",
+    "q": "recommend a framework for a well-defined definition complex problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:8",
+    "group": "354-generic",
+    "q": "recommend a framework for a well-defined definition wicked problem",
+    "room": null
+  },
+  {
+    "id": "354-generic:9",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a undefined problem at the discovery stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:10",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a undefined problem at the investment stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:11",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a undefined problem at the scoping stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:12",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a undefined problem at the execution stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:13",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a ill-defined problem at the discovery stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:14",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a ill-defined problem at the investment stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:15",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a ill-defined problem at the scoping stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:16",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a ill-defined problem at the execution stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:17",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a well-defined problem at the discovery stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:18",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a well-defined problem at the investment stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:19",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a well-defined problem at the scoping stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:20",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a well-defined problem at the execution stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:21",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a wicked problem at the discovery stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:22",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a wicked problem at the investment stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:23",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a wicked problem at the scoping stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:24",
+    "group": "354-generic",
+    "q": "what frameworks feed into the reverse salient framework for a wicked problem at the execution stage?",
+    "room": null
+  },
+  {
+    "id": "354-generic:25",
+    "group": "354-generic",
+    "q": "what frameworks chain from Design Thinking via FEEDS_INTO?",
+    "room": null
+  },
+  {
+    "id": "354-generic:26",
+    "group": "354-generic",
+    "q": "what frameworks chain from Adaptive Leadership via FEEDS_INTO?",
+    "room": null
+  },
+  {
+    "id": "354-generic:27",
+    "group": "354-generic",
+    "q": "what frameworks chain from Black Hat Analysis via FEEDS_INTO?",
+    "room": null
+  },
+  {
+    "id": "354-generic:28",
+    "group": "354-generic",
+    "q": "what methodology chain follows diagnose?",
+    "room": null
+  },
+  {
+    "id": "354-generic:29",
+    "group": "354-generic",
+    "q": "what methodology chain follows act?",
+    "room": null
+  },
+  {
+    "id": "354-generic:30",
+    "group": "354-generic",
+    "q": "what methodology chain follows research?",
+    "room": null
+  }
+]

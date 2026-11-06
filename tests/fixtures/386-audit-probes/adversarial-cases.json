@@ -1,0 +1,130 @@
+[
+  {
+    "id": "lower_money",
+    "text": "we raised two million dollars last quarter"
+  },
+  {
+    "id": "upper_money",
+    "text": "We Raised TWO MILLION DOLLARS Last Quarter"
+  },
+  {
+    "id": "mixed_money",
+    "text": "our funding is two Million Dollars this quarter"
+  },
+  {
+    "id": "dollar_fake",
+    "text": "we raised $125000 last quarter"
+  },
+  {
+    "id": "suffix_money",
+    "text": "monthly sales reached 250K last quarter"
+  },
+  {
+    "id": "email_plain",
+    "text": "contact orla.venn@fake-example.test for the strategy"
+  },
+  {
+    "id": "email_obfuscated_at",
+    "text": "contact orla.venn [at] fake-example [dot] test"
+  },
+  {
+    "id": "email_obfuscated_words",
+    "text": "orla at fake dot test"
+  },
+  {
+    "id": "phone_us",
+    "text": "call +1 (415) 555-0198 tomorrow"
+  },
+  {
+    "id": "phone_intl",
+    "text": "call +972 54 555 0198 tomorrow"
+  },
+  {
+    "id": "id_upper",
+    "text": "case ID AB12345X is confidential"
+  },
+  {
+    "id": "id_mixed",
+    "text": "case id Ab12345x is confidential"
+  },
+  {
+    "id": "id_lower",
+    "text": "case id ab12345x is confidential"
+  },
+  {
+    "id": "address_us",
+    "text": "strategy meeting at 17 Oak Street, Boston"
+  },
+  {
+    "id": "address_intl",
+    "text": "strategy meeting at 12 Jaffa Road, Jerusalem"
+  },
+  {
+    "id": "name",
+    "text": "recommend a framework for Tamsin Rourke's venture"
+  },
+  {
+    "id": "possessive",
+    "text": "our startup is pivoting to medical devices"
+  },
+  {
+    "id": "secret_fake_credential",
+    "text": {
+      "join": [
+        "use sk-",
+        "proj-FAK",
+        "EfakeFAK",
+        "Efake123",
+        "4",
+        " for our account"
+      ]
+    }
+  },
+  {
+    "id": "key_upper",
+    "text": {
+      "join": [
+        "key SK-",
+        "PROJ-FAK",
+        "EFAKEFAK",
+        "E1234567",
+        "890",
+        " appears in the notes"
+      ]
+    }
+  },
+  {
+    "id": "key_mixed",
+    "text": {
+      "join": [
+        "key sk-",
+        "proj-FAK",
+        "EfakeFAK",
+        "Efake123",
+        "4",
+        " appears in the notes"
+      ]
+    }
+  },
+  {
+    "id": "key_lower",
+    "text": {
+      "join": [
+        "key sk-",
+        "proj-fak",
+        "efakefak",
+        "e1234567",
+        "890",
+        " appears in the notes"
+      ]
+    }
+  },
+  {
+    "id": "spelled_amount",
+    "text": "our project budget was seven hundred fifty thousand dollars"
+  },
+  {
+    "id": "abbr_amount_lower",
+    "text": "our project budget was 750k dollars"
+  }
+]
