@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8]
 created: 2026-11-06T11:00:00Z
-updated: 2026-11-06T11:00:00Z
+updated: 2026-11-06T16:00:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -23,7 +23,7 @@ updated: 2026-11-06T11:00:00Z
 hypothesis: ordinary Theo and context questions are blocked by 3 causes: (1) the capital-letter name rule, (2) ordinary business words on the default-deny list, (3) the my or our rule and a sticky unreadable-database result.
 test: classify() on synthetic strings with no room bound, a per-pattern count over the corpora, a fixture room with an unreadable room.db, and the shape helper of plan 386-37 over the blocked questions, the negatives and the audit probe set.
 expecting: the name rule is the main over-block on the corpus; the deny list over-blocks ordinary words that the corpora hardly contain; the unreadable database is cached.
-next_action: owner decision on the exact rule changes (option-a, option-b or option-c). Plan 386-33 reads the Owner decision block.
+next_action: owner decision recorded 2026-11-06 (decision: option-e, context-based decomposition; see the Owner decision block). The owner must now acknowledge the residual exposure (Task 3 of plan 386-32). Plans 386-33 and 386-40 read the Owner acknowledgement block.
 
 ## Meta
 
@@ -148,7 +148,14 @@ The 10 negatives (id, shape, words, verdict today, synthetic string; the AWS-sty
 - X9 edge 14, block content_set: "on 14 March 2026 Fennick Robotics Ltd signed the term sheet, which framework fits"
 - X10 sprout 8, block room_content/private_context: "which framework fits my customers and my pricing" (would leave)
 
-Under the sprout rule X7, X8 and X10 leave the room. These are short private claims. The owner must see this before approving.
+Under the plain sprout rule alone X7, X8 and X10 would leave the room. Under option-e (the split route of plan 386-42) X7 and X10 hold a private-claim marker (a private word, a my or our possessive), so they are answered with sprouts_required: their claim stays local and only a generic sprout leaves. X8 holds no marker (a money figure in a short question), so it still leaves as written.
+
+negatives_sprout_split_ids: X7,X10
+residual_plain_sprout_ids: X8
+
+residual_unreadable_db_lexicon: yes
+
+Measured on a fixture room (gate-scaffold, uid 1000, so chmod 000 applies): with room.db readable, a sprout that holds a room term (kind room_file, 3 words) is blocked as room_content/room_file; with room.db unreadable, today the same sprout and a sprout with no room term are both blocked as room_check_unavailable (no question passes). Under the target design (table row R6) a sprout with no hit from the rules that need no database becomes allow with class room_check_skipped, so the sprout with the room term leaves the room as written, because the lexicon cannot be read. That is a new exposure created by the fix, and the owner must acknowledge it. Edges and bodies in that state get sprouts_required, not allow.
 
 The 37 extended questions that are blocked with no room bound (36 by the name rule, 1 by content_set): 29 are sprouts at 12 words and 8 are edges (C18, C21, C31, C42, C44, C64, C68, C91).
 
@@ -183,6 +190,10 @@ Each (key, synthetic string, verdict today):
 - C:354-private:8 "Recommend a technique for our undisclosed Ridgeline acquisition next spring." block room_content/name
 - C:354-private:9 "Which methodology should I use for our secret Ferrow expansion plan?" block room_content/name
 
+Marker split of the 16 (a plain regex on my, our, we, I and the private words confidential, secret, proprietary, undisclosed, private; plan 386-33 fixes the exact marker set): 12 hold a marker and would be answered with sprouts_required (C:plurai:22, C:plurai:25, C:plurai:32 and C:354-private:1 to 9); 4 hold no marker and would leave as written (C:plurai:24, C:plurai:26, C:plurai:29, C:plurai:31). The owner is shown all 16 because the marker set is not final until plan 386-33.
+
+probe_private_sprout_plain_ids: C:plurai:24,C:plurai:26,C:plurai:29,C:plurai:31
+
 Plan 386-40 requires that every private-claim sprout that leaves the room after plan 386-33 is one of these keys.
 
 ### Corpus gate and protective counter-examples (today, no room; all block)
@@ -206,21 +217,24 @@ Plan 386-40 requires that every private-claim sprout that leaves the room after 
 
 ## Required Code Changes
 
-<!-- Only after the owner decision. None in this plan. -->
+<!-- Only after the owner decision. None in this plan. Option-e target design (owner principle and owner direction of 2026-11-06). -->
 
-All rows are prose only. Rows marked in_option_b yes belong to option B. None deletes a pattern; each narrows one.
+All rows are prose only. Plan 386-33 builds the rows with needed_by_route yes. None deletes a pattern; each narrows one or routes it to the split outcome. The sprout/body shape test is classifyShape of lib/core/part8-sprout-shape.cjs (sprout up to 12 words, one sentence, no newline, no quote, no first-person statement). The sprout bypass and the narrowing live in `theoVerdict` (the Brain free-form line), never in the shared FORBIDDEN_PATTERNS, so the research-stack consumers keep the full list.
 
-| id | current rule | measured effect on the corpora | narrowed rule (prose, shape-bound) | protective counter-example that must still block | in_option_b |
+| id | current rule | measured effect on the corpora | narrowed rule or new outcome (prose, shape-bound) | protective counter-example that must still be refused (block or sprouts_required) | needed_by_route |
 |---|---|---|---|---|---|
-| R1 | theoVerdict steps 1 and 4 run the deny list, name rule, my or our and confidential rules on every string | 29 of the 37 blocked extended questions are sprouts; 16 probe private claims and X7, X8, X10 are sprouts and would leave | A clear sprout (classifyShape sprout, 12 words) skips: the name rule, deny words (runway, ARR, MRR, burn rate, Series, 3x growth, standup and the verbatim markers), the city gazetteer, money, percent and k-suffix forms, the venture proper-noun suffixes, my or our and confidential. Stays on for every shape: email address, SSN-like, phone-like, the 12 credential shapes, the unknown identifier rule, the room lexicon, and (main session choice beyond the plan text) name plus degree and quoted-person | X3 (email), X4 (key id), X6 (identifier), a room term in a sprout | yes |
-| R2 | any TitleCase non-initial word outside the exempt lists blocks | 36 of 535 extended questions; 8 of them are edges that carry only plugin nouns | For an edge or a body: exempt month and weekday names, and the TitleCase tokens of the shipped vocabulary (command registry names and descriptions, section labels, framework names), built at run time. Unknown names still block | two unknown names in an edge ("Thessaly Gripper", "Harbor Quill Partners", 17 words) | no |
-| R3 | 15 content patterns on every string | 12 of 12 ordinary questions block; 1 of 535 extended (C32, a sprout, freed by R1) | For an edge or a body, in theoVerdict only (never the shared list): runway, ARR, MRR, burn rate, Series A to E and 3x growth block only with a figure (digit, currency sign or magnitude letter) within 6 tokens; standup only with a verbatim verb (said, wrote, emailed, reported) within 6 tokens; meeting with only before a capitalised word. Money, percent, k-suffix, gazetteer and venture suffix stay for edge and body | the burn rate with 140K and a 900K runway (21 words) | no |
-| R4 | PRIVATE_POSSESSIVE blocks my or our plus a venture noun in any string | blocks "my team missed the launch" and X10; passes "my notes", "our method guide" | For an edge or a body: block only a first-person statement (classifyShape firstPersonStatement), not a question | X2 (statement, 12 words); the 36-word statement body | no |
-| R5 | an unreadable room.db blocks every free-form question | 3-word sprout blocked as room_check_unavailable | A sprout with no hit from the rules that need no database is allow, class room_check_skipped; an edge or a body is block room_check_unavailable. Cost: in this state a sprout that names a venture term leaves, because the lexicon cannot be read | edge with an unreadable room.db (blocks) | yes |
-| R6 | `loadRoomLexicon` caches `{ ok: false }` under the stat key | the failure survives a chmod restore (PROVEN) | A failed read is never cached; a successful read stays cached by stat key | after the restore the next call reads the database again | yes |
-| R7 | no shape test in the guard | sprout limit 12 vs 15 shown above | sprout_max_words stays 12 (recommended) | X1 and X9 stay edges and block | yes (inside R1) |
+| R1 | theoVerdict steps 1 and 4 run the deny list, the name rule, my or our and confidential on every string | 29 of the 37 blocked extended questions are sprouts; 16 probe private claims and X7, X8, X10 are sprouts | A clear sprout with no private-claim marker skips: the name rule, deny words (runway, ARR, MRR, burn rate, Series, 3x growth, standup and the verbatim markers), the city gazetteer, money, percent and k-suffix forms, the venture proper-noun suffixes. Stays on for every shape: email address, SSN-like, phone-like, the 12 credential shapes, the identifier rule, name plus degree, quoted-person, the room lexicon. sprout_max_words stays 12 (X1 and X9 stay edges at 13 and 14 words) | X3 (email), X4 (key id), X6 (identifier), a room term in a sprout: block with their own classes | yes |
+| R2 | PRIVATE_POSSESSIVE blocks my or our plus a venture noun; the confidential rule blocks private words; both in any string and with a plain block class | blocks X7, X10, "my team missed the launch"; passes "my notes", "our method guide" | A sprout that holds a private-claim marker (a my, our or we clause, a first-person statement, or a private word such as confidential, secret, proprietary, undisclosed) is answered sprouts_required (verdict block, no text echoed). The claim stays local; only a generic sprout leaves. A question that uses my or our with no venture noun and no private word stays allow | X7 and X10 and the 12 marker probe rows: sprouts_required, never allow | yes |
+| R3 | an edge or a body that fails a prose rule (the name rule, a deny word, a money figure, a first-person statement) gets a plain block class (room_content/name, content_set, room_content/private_context) | 36 of 535 extended questions by the name rule; 8 of them are edges that carry only plugin nouns | An edge or a body that fails a prose rule is answered sprouts_required instead of a plain class. An edge that passes every prose rule stays allow. Credentials, structured identifiers and room-lexicon terms keep their own block classes | two unknown names in a 17 word edge, the burn rate and runway edge (21 words), X1, X2, X5, X9, the 36 word statement body: sprouts_required | yes |
+| R4 | the name rule has no calendar, plugin-noun or shipped-vocabulary exemption | 8 of the 37 blocked extended questions are edges with only plugin nouns (C18, C21, C31, C42, C44, C64, C68, C91) | Optional narrowing for an edge or a body: exempt month and weekday names and the TitleCase tokens of the shipped vocabulary (command registry, section labels, framework names), built at run time. Not needed by the route: without it those 8 edges get the split guide instead of a block. | two unknown names in an edge still fail the name rule and get sprouts_required | no |
+| R5 | the money, percent and k-suffix forms and the city gazetteer block any shape | X8 and the 12 ordinary deny-list questions | Body-only rows: these forms count as a prose-rule failure for an edge or a body (sprouts_required), never for a sprout. The spelled-money forms of plan 386-31 are in the same rows. The k-suffix and bare magnitude forms follow the same rule | X1 (an edge with $4.2M), the spelled money edge (budget is seven hundred fifty thousand dollars): sprouts_required | yes |
+| R6 | an unreadable room.db blocks every free-form question (room_check_unavailable) | a 3 word sprout is blocked | A sprout with no hit from the rules that need no database is allow with class room_check_skipped. An edge or a body is answered sprouts_required (token_class room_check_unavailable, the reason says the room check could not run). Cost: in this state a sprout that holds a room-lexicon term leaves as written, because the lexicon cannot be read (residual_unreadable_db_lexicon: yes) | an edge with an unreadable room.db: sprouts_required, never allow | yes |
+| R7 | `loadRoomLexicon` caches `{ ok: false }` under the stat key mtime:size | the failure survives a chmod restore (PROVEN) | A failed read is never cached; a successful read stays cached by stat key | after the chmod restore the next call reads the database again and returns the room verdict | yes |
+| R8 | no shape test in the guard | sprout limit 12 vs 15 measured above | the guard calls classifyShape (plan 386-37); the limit stays 12 | X1 and X9 stay edges and are refused | yes (inside R1) |
 
-Not changed under any option: the 12 credential shapes, the email, SSN-like and phone-like patterns, the identifier rule, the room lexicon, the brain_write block (plan 386-04), plan 386-31 rules.
+Rows with needed_by_route yes are built by plan 386-33 (R1, R2, R3, R5, R6, R7, R8). R4 is not built unless the owner asks for it.
+
+Not changed under any row: the 12 credential shapes, the email, SSN-like and phone-like patterns, the identifier rule, the room lexicon (except the unreadable-database state in R6), the brain_write block (plan 386-04), the plan 386-31 rules, and the shared FORBIDDEN_PATTERNS list.
 
 ## Tests to Add or Update
 
@@ -229,8 +243,8 @@ Not changed under any option: the 12 credential shapes, the email, SSN-like and 
   - Location: a new tests/test-386-over-block-narrowing.cjs (plan 386-33)
   - Given: the sprout, edge and body strings above, the 10 negatives, the 16 probe keys, a fixture room with an unreadable room.db
   - When: classify runs with and without the room
-  - Then: the accepted sprout set (negatives_sprout_ids minus negatives_sprout_always_block_ids, plus the probe keys) is the only private-claim set that leaves; every edge and body counter-example blocks; the unreadable database follows R5 and R6
-- Test 2: tests/test-3692-guard-survey-gate.cjs baseline is re-stamped by plan 386-33 with the accepted ids.
+  - Then: the acknowledged set (residual_plain_sprout_ids, the probe_private_sprout_plain_ids and the unreadable-database sprout case) is the only private-claim set that leaves as written; every marker sprout, edge and body counter-example is answered sprouts_required; credentials, identifiers and room terms block; the unreadable database follows R6 and R7
+- Test 2: tests/test-3692-guard-survey-gate.cjs baseline is re-stamped by plan 386-33 with the acknowledged ids.
 - Test 3: tests/test-3692-lexicon-generic-entries.cjs arm L6 expects class room_content/identifier for X4; it now gets content_set (plan 386-31). Update that expectation in plan 386-33.
 
 ## Non-Code Follow-ups
@@ -243,8 +257,8 @@ Not changed under any option: the 12 credential shapes, the email, SSN-like and 
 
 ## Resolution
 
-root_cause: three causes. The name rule decides by spelling and has no calendar, plugin-noun or shape exemption. The shared deny list runs ordinary business words on every free-form string. The my or our rule ignores question versus statement, and a failed room database read is cached under a stat key that a chmod does not change.
-fix: none applied. Awaiting the owner decision.
+root_cause: three causes (the owner principle of 2026-11-06 says shape, not a word list, separates a sprout from a body). The name rule decides by spelling and has no calendar, plugin-noun or shape exemption. The shared deny list runs ordinary business words on every free-form string. The my or our rule ignores question versus statement, and a failed room database read is cached under a stat key that a chmod does not change.
+fix: none applied in this plan (diagnosis only). Option-e is recorded: plan 386-33 builds the rows with needed_by_route yes. The residual exposure is shown to the owner on the plan 386-32 checkpoint.
 verification: see Evidence (PROVEN with classify() and a fixture room; the full pass of the 8 edges after a vocabulary exemption is UNVERIFIED).
 files_changed: none
 commits: see git log of this file
