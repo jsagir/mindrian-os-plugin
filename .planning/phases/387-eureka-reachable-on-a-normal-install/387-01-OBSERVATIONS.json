@@ -1,0 +1,3645 @@
+{
+  "head_sha": "75c88cb2e15085986d7f67b7ad6f2a2a83563ed5",
+  "version": "2.0.0-beta.80",
+  "node_version": "v22.23.1",
+  "layout_mode": "linked",
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "unset-cli",
+      "env_summary": "MINDRIAN_EUREKA_ROOT unset; full process environment minus the removed keys; scratch HOME with no engine setting and no engine folder",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      },
+      "perspective": {
+        "ok": true,
+        "recalled_pairs": 2,
+        "reason": null,
+        "bound": true,
+        "counts": {
+          "things": 16,
+          "sections": 4,
+          "canon_resolved": 3,
+          "known_pairs": 4,
+          "shared_entity": 2,
+          "lexical": 0,
+          "icm_declared": 2,
+          "excluded_known": 7,
+          "candidates": 2
+        },
+        "top_length": 2,
+        "network_counter_positive_control": true,
+        "network_attempts_total": 0,
+        "network_attempts_non_loopback": 0,
+        "network_attempt_targets": [],
+        "server_stderr_connection_lines": []
+      }
+    },
+    {
+      "id": "S2",
+      "name": "unset-minimal-env",
+      "env_summary": "MINDRIAN_EUREKA_ROOT unset; env -i with only HOME, USERPROFILE, MINDRIAN_ROOMS_HOME, TMPDIR, PATH (node folder only) plus the harness keys MINDRIAN_TRANSPORT and MINDRIAN_BRAIN_URL; a simulation of a Desktop launch, not a real Desktop run",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_not_configured",
+          "message": "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool."
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      }
+    },
+    {
+      "id": "S3",
+      "name": "set-no-checkout",
+      "env_summary": "MINDRIAN_EUREKA_ROOT is an empty folder (no pyproject.toml)",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_checkout_unavailable",
+          "message": "The configured Mindrian Eureka checkout is unavailable."
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      }
+    },
+    {
+      "id": "S4",
+      "name": "set-fixture-uv-missing-binary",
+      "env_summary": "MINDRIAN_EUREKA_ROOT is a fixture folder with a two-line pyproject.toml; MINDRIAN_EUREKA_UV is a path that does not exist",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: spawn <TMP>/no-such-uv-387 ENOENT"
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: spawn <TMP>/no-such-uv-387 ENOENT"
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      }
+    },
+    {
+      "id": "S5",
+      "name": "set-fixture-uv-absent-from-path",
+      "env_summary": "same fixture folder; MINDRIAN_EUREKA_UV unset; PATH is the node folder only (no file named uv there)",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: spawn uv ENOENT"
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection."
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job."
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: spawn uv ENOENT"
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'"
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine."
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server."
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      }
+    },
+    {
+      "id": "S6",
+      "name": "set-fixture-uv-fails-with-stderr",
+      "env_summary": "same fixture folder; MINDRIAN_EUREKA_UV is a fake uv script that logs argv and environment keys, prints one uv-style error line to stderr and exits 2; PATH is the node folder only",
+      "tools_list": {
+        "claude-code": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        },
+        "claude-ai": {
+          "total": 75,
+          "distinct_total": 75,
+          "eureka_names": [
+            "eureka_capability_job_cancel",
+            "eureka_capability_job_result",
+            "eureka_capability_job_status",
+            "eureka_capability_run",
+            "eureka_capability_start",
+            "eureka_critic",
+            "eureka_graph_analyze",
+            "eureka_graph_assess_category_edge_patterns",
+            "eureka_graph_backtest",
+            "eureka_graph_compare_topics",
+            "eureka_graph_find_community_bridge_pairs",
+            "eureka_graph_find_network_holes",
+            "eureka_graph_find_shared_neighbor_gaps",
+            "eureka_graph_find_similar_unlinked_items",
+            "eureka_graph_genesis_plan",
+            "eureka_graph_map_neighbourhoods",
+            "eureka_graph_opportunity_scout",
+            "eureka_graph_package_relationships",
+            "eureka_graph_prepare_artifacts",
+            "eureka_graph_project",
+            "eureka_graph_propose_relationships",
+            "eureka_graph_rank_paths",
+            "eureka_graph_score_surprise",
+            "eureka_hsi_interpret_whitespace"
+          ],
+          "eureka_count": 24,
+          "other_serving": [
+            "research_run",
+            "rs_experts_find",
+            "rs_thesis_read"
+          ]
+        }
+      },
+      "calls": [
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: Connection closed",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "USER",
+                "USERPROFILE"
+              ],
+              "UV_OFFLINE": null,
+              "HF_HUB_OFFLINE": null,
+              "TRANSFORMERS_OFFLINE": null
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "USER",
+                "USERPROFILE"
+              ],
+              "UV_OFFLINE": null,
+              "HF_HUB_OFFLINE": null,
+              "TRANSFORMERS_OFFLINE": null
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": false,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": false,
+          "isError": true,
+          "ok": false,
+          "reason": "no_bound_room",
+          "message": "Bind the intended MindrianOS room before preparing an engine projection.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_job_cancel",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_job_result",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_job_status",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "job_session_not_found",
+          "message": "No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job.",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_run",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not call the configured local Eureka MCP server: Connection closed",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "USER",
+                "USERPROFILE"
+              ],
+              "UV_OFFLINE": null,
+              "HF_HUB_OFFLINE": null,
+              "TRANSFORMERS_OFFLINE": null
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_capability_start",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start an asynchronous job in the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "USER",
+                "USERPROFILE"
+              ],
+              "UV_OFFLINE": null,
+              "HF_HUB_OFFLINE": null,
+              "TRANSFORMERS_OFFLINE": null
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_critic",
+          "bound": true,
+          "isError": true,
+          "ok": null,
+          "reason": null,
+          "message": null,
+          "text": "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'",
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_analyze",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_assess_category_edge_patterns",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_backtest",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_compare_topics",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_community_bridge_pairs",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_network_holes",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_shared_neighbor_gaps",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_find_similar_unlinked_items",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka engine.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_genesis_plan",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_map_neighbourhoods",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_opportunity_scout",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_package_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_prepare_artifacts",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_project",
+          "bound": true,
+          "isError": false,
+          "ok": true,
+          "reason": null,
+          "message": null,
+          "uv_spawns": [],
+          "server_stderr_has_uv_line": false,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_propose_relationships",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_rank_paths",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_graph_score_surprise",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        },
+        {
+          "tool": "eureka_hsi_interpret_whitespace",
+          "bound": true,
+          "isError": true,
+          "ok": false,
+          "reason": "engine_unavailable",
+          "message": "Could not start or call the configured local Eureka MCP server.",
+          "uv_spawns": [
+            {
+              "argv": [
+                "run",
+                "--project",
+                "<TMP>/fixture-engine-folder-387",
+                "--extra",
+                "mcp-server",
+                "eureka-mcp"
+              ],
+              "cwd": "<TMP>/fixture-engine-folder-387",
+              "env_keys": [
+                "HF_HUB_OFFLINE",
+                "HOME",
+                "LANG",
+                "LOGNAME",
+                "PATH",
+                "SHELL",
+                "TERM",
+                "TMPDIR",
+                "TRANSFORMERS_OFFLINE",
+                "USER",
+                "USERPROFILE",
+                "UV_OFFLINE"
+              ],
+              "UV_OFFLINE": "1",
+              "HF_HUB_OFFLINE": "1",
+              "TRANSFORMERS_OFFLINE": "1"
+            }
+          ],
+          "server_stderr_has_uv_line": true,
+          "message_has_uv_line": false
+        }
+      ],
+      "room_bind": {
+        "ok": true,
+        "bound": true,
+        "effective": true,
+        "resolved_source": "session.primary"
+      },
+      "scout_direct": {
+        "ok": false,
+        "reason": "engine_unavailable",
+        "message": "Could not complete the local Eureka opportunity scout MCP session: Connection closed",
+        "message_has_uv_line": false,
+        "uv_spawns": [
+          {
+            "argv": [
+              "run",
+              "--project",
+              "<TMP>/fixture-engine-folder-387",
+              "--extra",
+              "mcp-server",
+              "--extra",
+              "modern-encoder",
+              "eureka-mcp"
+            ],
+            "cwd": "<TMP>/fixture-engine-folder-387",
+            "env_keys": [
+              "HOME",
+              "LANG",
+              "LOGNAME",
+              "PATH",
+              "SHELL",
+              "TERM",
+              "TMPDIR",
+              "USER",
+              "USERPROFILE"
+            ],
+            "UV_OFFLINE": null,
+            "HF_HUB_OFFLINE": null,
+            "TRANSFORMERS_OFFLINE": null
+          }
+        ]
+      }
+    }
+  ]
+}
