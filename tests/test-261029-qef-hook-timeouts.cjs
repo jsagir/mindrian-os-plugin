@@ -56,7 +56,15 @@ const P385 = {
     { event: 'PostToolUse', sub: 'query-efficiency-telemetry.cjs', to: 'Grep|Glob' },
   ],
 };
-const EXPECTED = 46 - P385.removed.length;
+// Plan 386-36: one PreToolUse entry was ADDED on purpose (the credential-only
+// hook for the web lines). P386 records it. EXPECTED stays relative: the base
+// count minus the removals plus the additions, never an absolute number.
+const P386 = {
+  added: [
+    { event: 'PreToolUse', sub: 'web-credential-guard-hook.cjs', timeout: 5 },
+  ],
+};
+const EXPECTED = 46 - P385.removed.length + P386.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -96,6 +104,7 @@ const TABLE = [
   ['PreToolUse', 'run-hook.cmd" write-scope-check', 3],
   ['PreToolUse', 'part8-egress-guard-hook.cjs', 5],
   ['PreToolUse', 'card-before-answer-hook.cjs', 3],
+  ['PreToolUse', 'web-credential-guard-hook.cjs', 5],
   ['PostToolUse', 'run-hook.cmd" post-write', 5],
   ['PostToolUse', 'frontmatter-schema-validator.cjs', 5],
   ['PostToolUse', 'async-artifact-auto-commit.cjs', 5],
@@ -164,7 +173,14 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
       }
     }
   }
-  must(JSON.stringify(stripKeys(doc)) === JSON.stringify(stripKeys(base)),
+  // Plan 386-36: take the deliberate additions (P386) out of the current document
+  // before the comparison, because the base commit does not hold them.
+  const current = JSON.parse(JSON.stringify(doc));
+  for (const ev of Object.keys(current.hooks || {})) {
+    current.hooks[ev] = (current.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
+      P386.added.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
+  }
+  must(JSON.stringify(stripKeys(current)) === JSON.stringify(stripKeys(base)),
     'hooks.json differs from ' + BASE_SHA + ' in more than timeout and onFailure');
 });
 

@@ -233,6 +233,16 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "^(?:WebSearch|WebFetch|mcp__(?:plugin_[a-z0-9_-]+_)?(?:tavily|tavily-mcp|claude_ai_Tavily)__.*)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/web-credential-guard-hook.cjs\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [

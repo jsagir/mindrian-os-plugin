@@ -20,7 +20,8 @@
       "gsd-graph-derive-sweep.cjs": "Drains the GSD graph-derivation queue in the background; bookkeeping over already-decided artifact writes, not a judgment over the current turn.",
       "brain-derivation-drain.cjs": "Drains queued Brain-derivation writes in the background; bookkeeping, not a live judgment call.",
       "auto-explore-drain.cjs": "Drains the auto-explore fingerprint queue in the background; bookkeeping over prior tool-use telemetry, not a judgment over the current turn.",
-      "run-hook.cmd on-stop": "The generic Stop-hook dispatcher for room-context persistence (session save state, room binding refresh); a routing indirection to per-room bookkeeping, not itself a rule that judges or blocks."
+      "run-hook.cmd on-stop": "The generic Stop-hook dispatcher for room-context persistence (session save state, room binding refresh); a routing indirection to per-room bookkeeping, not itself a rule that judges or blocks.",
+      "web-credential-guard-hook.cjs": "A credential-only PreToolUse check on the web lines (native WebSearch, WebFetch and the Tavily tools), plan 386-36. It matches credential shapes and nothing else, so it is a safeguard on what leaves, not an arbitration rule over Larry's conversational judgment."
     },
     "named_assumption": "The langtalks consult's own flag, quoted: the floor-versus-weighted-input classification is an engineering decision with no corpus backing, so every row below is arguable and each carries its own reason so the navigator can overrule it row by row."
   },
