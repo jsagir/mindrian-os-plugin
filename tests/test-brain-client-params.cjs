@@ -154,17 +154,18 @@ async function main() {
   });
 
   // ---- brain_write ----
-  await record('brain.write sends { cypher } not { query }', async () => {
+  // Plan 386-04 (B2, owner decision option A): the Part 8 guard blocks every
+  // brain_write payload (class write_blocked) before any wire call. So the
+  // { cypher } wire shape can no longer be observed here. The test now pins
+  // the refusal: the call returns egress_blocked and the capture server sees
+  // no request at all. The EXPECTED_SCHEMAS entry for brain_write stays as the
+  // schema of record for the day a positive allow rule for a write shape lands.
+  await record('brain.write is blocked by the Part 8 guard and sends nothing', async () => {
     captured.length = 0;
-    await brain.write('CREATE (n:Test {id: 1}) RETURN n');
-    const call = lastCall();
-    assert.equal(call.name, 'brain_write');
-    assertArgumentShape('brain_write', call.arguments);
-    assert.equal(call.arguments.cypher, 'CREATE (n:Test {id: 1}) RETURN n');
-    assert.ok(
-      !Object.prototype.hasOwnProperty.call(call.arguments, 'query'),
-      'FINDING I SIBLING REGRESSION: brain_write must NOT receive a `query` key'
-    );
+    const r = await brain.write('CREATE (n:Test {id: 1}) RETURN n');
+    assert.ok(r && r.error === 'egress_blocked', 'brain.write must return the egress_blocked sentinel');
+    assert.equal(r.egress_class, 'write_blocked');
+    assert.equal(captured.length, 0, 'a blocked brain_write must put no request on the wire');
   });
 
   // ---- brain_search ----

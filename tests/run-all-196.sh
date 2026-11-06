@@ -88,6 +88,16 @@ run_if "260917-dgf hook ambiguous disposition (trusted scope allows, untrusted b
   node tests/test-260917-dgf-part8-hook-disposition.cjs
 
 # ---------------------------------------------------------------------------
+# Plan 386-04 (finding B2, owner decision option A): every brain_write payload
+# is blocked at the guard (class write_blocked), the hook exits 2, callTool
+# returns egress_blocked with 0 fetch calls, and whitespace-to-brain sends no
+# hypothesis text and reports a blocked write as blocked. Fixture room only.
+# ---------------------------------------------------------------------------
+run_if "386-04 B2 brain_write blocked at the guard, hook and callTool" \
+  scripts/part8-egress-guard-hook.cjs \
+  node tests/test-386-b2-brain-write-blocked.cjs
+
+# ---------------------------------------------------------------------------
 # PB8-02: no private FORBIDDEN_PATTERNS copy. The classifier MUST import the
 # pattern set from rs-egress-prompts (re-exported byte-for-byte from
 # cross-room-aggregator); a private local copy silently drifts and defeats the

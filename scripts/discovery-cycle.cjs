@@ -443,11 +443,27 @@ async function runDiscoveryCycle(roomDir, options = {}) {
   // Step 8: Write validated whitespace to Brain (fire-and-forget, per D-03)
   if (!opts.dryRun) {
     try {
-      execSync(`node "${path.join(SCRIPTS_DIR, 'whitespace-to-brain.cjs')}" "${resolvedRoom}"`, {
-        stdio: opts.verbose ? 'inherit' : 'pipe',
+      const w2bOut = execSync(`node "${path.join(SCRIPTS_DIR, 'whitespace-to-brain.cjs')}" "${resolvedRoom}"`, {
+        // stdout is always captured so the summary can be read; verbose keeps stderr visible
+        stdio: opts.verbose ? ['ignore', 'pipe', 'inherit'] : 'pipe',
         timeout: 30000  // 30s timeout -- fire and forget
       });
-      if (opts.verbose) log('Brain write complete');
+      // Plan 386-04 (B2): the Part 8 guard blocks every Brain write. When the
+      // script summary shows blocked writes, say so in one honest line. A
+      // parse failure stays silent. This never throws.
+      let w2bBlocked = 0;
+      if (w2bOut) {
+        try {
+          const lines = String(w2bOut).trim().split('\n');
+          const parsed = JSON.parse(lines[lines.length - 1]);
+          if (parsed && typeof parsed.blocked === 'number') w2bBlocked = parsed.blocked;
+        } catch (_) { /* silent, as before */ }
+      }
+      if (w2bBlocked > 0) {
+        log('Brain write blocked by Part 8; nothing left the machine.');
+      } else if (opts.verbose) {
+        log('Brain write step finished');
+      }
     } catch (e) {
       if (opts.verbose) log('Brain write skipped: ' + (e.message || 'unknown error'));
       // Fire-and-forget: never block discovery cycle

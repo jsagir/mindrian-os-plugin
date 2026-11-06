@@ -15,16 +15,23 @@
  * Fire-and-forget: ALL brain.write() calls wrapped in try/catch.
  * Never throws. Always exits 0. Log errors to stderr but never block.
  *
+ * Plan 386-04 (finding B2): the Part 8 guard blocks every Brain write (class
+ * write_blocked), so a live run reports its writes as blocked and nothing
+ * leaves the machine. A blocked write is counted in `blocked`, never in
+ * zones_written, edges_created or errors. The code stays so a later positive
+ * allow rule for a proven write shape can enable it; until then the summary
+ * is honest.
+ *
  * Anonymization: NEVER stores room name, room path, or any room-identifying
- * data in the Brain. Only stores problem_type, framework_chain, density_score,
- * strategic_rank, hypothesis text.
+ * data in the Brain. Only problem_type, framework_chain, density_score and
+ * strategic_rank are in the Cypher. No hypothesis text is sent (B2).
  *
  * Usage:
  *   node scripts/whitespace-to-brain.cjs /path/to/room [--verbose] [--dry-run]
  *   node scripts/whitespace-to-brain.cjs --help
  *
  * Output:
- *   JSON summary to stdout: { zones_written, edges_created, aggregation_ran, errors }
+ *   JSON summary to stdout: { zones_written, edges_created, aggregation_ran, errors, blocked }
  *
  * Exit codes:
  *   0 - Always (fire-and-forget)
@@ -51,18 +58,36 @@ try {
 }
 
 /**
+ * Execute a Cypher write query via Brain API and say what happened.
+ * Never throws. Plan 386-04 (B2): the Part 8 guard blocks every Brain write,
+ * and a blocked write comes back as an object with error 'egress_blocked',
+ * not as null. That object is a refusal, never a success.
+ *
+ * @param {string} cypher
+ * @returns {Promise<'ok'|'blocked'|'failed'>}
+ */
+async function brainWriteOutcome(cypher) {
+  try {
+    const result = await brain.write(cypher);
+    if (result === null || result === undefined) return 'failed';
+    if (typeof result === 'object' && Object.prototype.hasOwnProperty.call(result, 'error')) {
+      return result.error === 'egress_blocked' ? 'blocked' : 'failed';
+    }
+    return 'ok';
+  } catch (_) {
+    return 'failed';
+  }
+}
+
+/**
  * Execute a Cypher write query via Brain API.
- * Returns true on success, false on failure. Never throws.
+ * Returns true only on a real write. A null result, a blocked write or any
+ * result with an own error property returns false. Never throws.
  * @param {string} cypher
  * @returns {Promise<boolean>}
  */
 async function brainWrite(cypher) {
-  try {
-    const result = await brain.write(cypher);
-    return result !== null;
-  } catch (_) {
-    return false;
-  }
+  return (await brainWriteOutcome(cypher)) === 'ok';
 }
 
 // ---------------------------------------------------------------------------
@@ -120,7 +145,8 @@ function filterValidatedZones(gaps) {
 
 /**
  * Build MERGE Cypher for a WhitespaceZone node.
- * Anonymized: no room name, no room path.
+ * Anonymized: no room name, no room path. Plan 386-04 (B2): no free text from
+ * the room folder either. The zone.hypothesis field is never put in the Cypher.
  *
  * @param {Object} zone - Validated zone object
  * @returns {string} Cypher MERGE query
@@ -136,7 +162,6 @@ function buildZoneNodeCypher(zone) {
 SET wz.problem_type = '${esc(zone.problem_type || 'Un-Defined')}',
     wz.density_score = ${parseFloat(zone.density_score || 0)},
     wz.strategic_rank = ${parseInt(zone.strategic_rank || 0, 10)},
-    wz.hypothesis = '${esc((zone.hypothesis || '').slice(0, 500))}',
     wz.updated_at = datetime()
 ON CREATE SET wz.created_at = datetime()`;
 }
@@ -196,7 +221,7 @@ SET tw.occurrences = occurrences,
  *
  * @param {string} roomDir - Absolute path to room directory
  * @param {Object} opts - Options { verbose, dryRun }
- * @returns {Promise<Object>} Summary { zones_written, edges_created, aggregation_ran, errors }
+ * @returns {Promise<Object>} Summary { zones_written, edges_created, aggregation_ran, errors, blocked }
  */
 async function main(roomDir, opts = {}) {
   const summary = {
@@ -204,6 +229,7 @@ async function main(roomDir, opts = {}) {
     edges_created: 0,
     aggregation_ran: false,
     errors: 0,
+    blocked: 0,
   };
 
   // 1. Read interpretation-results.json
@@ -254,10 +280,13 @@ async function main(roomDir, opts = {}) {
       process.stderr.write(`[dry-run] Zone node:\n${nodeCypher}\n\n`);
       summary.zones_written++;
     } else {
-      const ok = await brainWrite(nodeCypher);
-      if (ok) {
+      const outcome = await brainWriteOutcome(nodeCypher);
+      if (outcome === 'ok') {
         summary.zones_written++;
         if (opts.verbose) process.stderr.write(`Wrote zone: ${zone.problem_type} (density=${zone.density_score})\n`);
+      } else if (outcome === 'blocked') {
+        summary.blocked++;
+        if (opts.verbose) process.stderr.write('Zone write blocked by Part 8\n');
       } else {
         summary.errors++;
         if (opts.verbose) process.stderr.write(`Failed to write zone: ${zone.problem_type}\n`);
@@ -271,9 +300,12 @@ async function main(roomDir, opts = {}) {
         process.stderr.write(`[dry-run] Edge:\n${edgeCypher}\n\n`);
         summary.edges_created++;
       } else {
-        const ok = await brainWrite(edgeCypher);
-        if (ok) {
+        const outcome = await brainWriteOutcome(edgeCypher);
+        if (outcome === 'ok') {
           summary.edges_created++;
+        } else if (outcome === 'blocked') {
+          summary.blocked++;
+          if (opts.verbose) process.stderr.write('EXPLORED_BY edge write blocked by Part 8\n');
         } else {
           summary.errors++;
           if (opts.verbose) process.stderr.write(`Failed to write EXPLORED_BY edge\n`);
@@ -288,9 +320,12 @@ async function main(roomDir, opts = {}) {
     process.stderr.write(`[dry-run] Aggregation:\n${aggCypher}\n\n`);
     summary.aggregation_ran = true;
   } else {
-    const ok = await brainWrite(aggCypher);
-    summary.aggregation_ran = ok;
-    if (!ok) {
+    const outcome = await brainWriteOutcome(aggCypher);
+    summary.aggregation_ran = outcome === 'ok';
+    if (outcome === 'blocked') {
+      summary.blocked++;
+      if (opts.verbose) process.stderr.write('Aggregation query blocked by Part 8\n');
+    } else if (outcome !== 'ok') {
       summary.errors++;
       if (opts.verbose) process.stderr.write('Aggregation query failed\n');
     }
@@ -329,7 +364,9 @@ Writes to Brain (Neo4j):
   TYPICAL_WHITESPACE edges (ProblemType -> WhitespacePattern aggregation)
 
 Fire-and-forget: always exits 0, never blocks.
-Anonymized: no room name or path stored in Brain.
+Anonymized: no room name or path stored in Brain, and no hypothesis text sent.
+Part 8 (plan 386-04): the guard blocks every Brain write, so a live run reports
+the writes as blocked and nothing leaves the machine.
 
 Examples:
   node scripts/whitespace-to-brain.cjs ./room
@@ -376,6 +413,8 @@ if (require.main === module) {
 
 module.exports = {
   main,
+  brainWrite,
+  brainWriteOutcome,
   zoneHash,
   filterValidatedZones,
   buildZoneNodeCypher,

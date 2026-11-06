@@ -301,6 +301,11 @@ function main() {
         (verdictObj.token_class || 'none') + '). Blocked.'
       );
     }
+    if (klass === 'write_blocked') {
+      // Plan 386-04 (B2): a Brain write is blocked by tool name for every
+      // payload. The text names the rule only; it carries no payload bytes.
+      return block('Canon Part 8: Brain writes from this client are blocked (write_blocked).');
+    }
     return block(
       'Canon Part 8: outbound Brain payload carries CONTENT-SET (' + klass + '). Blocked. ' + reason
     );
