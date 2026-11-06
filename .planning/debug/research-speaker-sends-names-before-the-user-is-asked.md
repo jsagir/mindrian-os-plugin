@@ -91,8 +91,8 @@ The 2026-10-05 gate (an approval card first, a credential check, the audit recor
 
 ## Resolution
 
-root_cause: see Technical Root Cause.
-fix: not started.
-verification: reproduction only.
-files_changed: none
-commits: none
+root_cause: the 2026-10-05 gate (approval first, credential check, audit record) was never applied to scripts/research-speaker. The script had no list step, token check, credential check or audit call. The command text asked only before the PROFILE.md write, after the first send, and --apply repeated the send. Confirmed by static read and by a stub-curl reproduction (3 calls on a plain run, 3 more with --apply, name in 3 of 3 URLs, no audit file).
+fix: --list-queries prints the 3 searches and the approval token and sends nothing. A run sends only with --approve TOKEN (recomputed over the exact strings), after a credential check (refuse, nothing sent, no bytes echoed). Each search sent gets one audit record (provider google_search; outcome ok or failed) through the web-path-gate CLI. --apply needs the same token. Without node, nothing is sent. commands/file-meeting.md lists the searches, asks the user, then sends, and passes the token on --apply (marker comments, no use of the word grant). No content scan was added. Observation, not changed: with the token, --apply still repeats the 3 searches (each approved and recorded) although the apply branch does not use their results; dropping that repeat is a candidate follow-up.
+verification: node tests/test-386-research-speaker-approval.cjs arms RS1 to RS9 pass (RED commit failed all arms); bash tests/run-all-386.sh 23 of 23 pass; bash tests/run-all-eo7.sh 5 of 5 pass after in-place updates of the two research-speaker eo7 tests (the repo script runs with the approval token); test-265-file-meeting-gates, test-265-file-meeting-perspectives and test-speaker-id.sh pass; bash -n scripts/research-speaker ok; build-connector-registry --check and check-render-coverage pass.
+files_changed: scripts/research-speaker, commands/file-meeting.md, skills/file-meeting/SKILL.md (generated mirror), tests/test-386-research-speaker-approval.cjs, tests/test-261030-eo7-research-speaker-apply-context.cjs, tests/test-261030-eo7-research-speaker-urlencode.cjs
+commits: eb6fa300e (RCA), 87dafaa3f (RED), a0ad2fb19 (fix)
