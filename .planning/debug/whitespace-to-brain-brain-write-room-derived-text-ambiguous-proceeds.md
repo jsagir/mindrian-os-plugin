@@ -175,11 +175,46 @@ Cross-checks to clear before the fix is called done (RCA gates): Part 8 (no user
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: Confirmed, see Technical Root Cause. The data claim of the auditor is PARTIAL (text is a Brain framework name in the shipped pipeline; room-derived values are density and rank numbers). The seam claim is CONFIRMED.
-fix: not started. Owner decision recorded (option A). Plan 386-04 implements it.
-verification: reproduction ran on synthetic strings only, fetch replaced by a counter, 0 network calls. See Evidence.
-files_changed: none (this plan changes no product file)
-commits: see the 386-02 summary
+root_cause: Confirmed, see Technical Root Cause. classify() had no arm for brain_write, so a payload that cleared the deny-list fell to the terminal ambiguous/unknown, and callTool proceeds on ambiguous. The data claim of the auditor is PARTIAL (text is a Brain framework name in the shipped pipeline; room-derived values are density and rank numbers). The seam claim is CONFIRMED.
+fix: Implemented by plan 386-04, option A. (1) lib/core/part8-egress-guard.cjs: new private predicate _isBrainWriteTool(toolName) and one arm in classify() after step 1 and step 1b, before the packet check: verdict block, class write_blocked, a constant reason with no payload bytes, no allow rule. Step 1 is unchanged. (2) scripts/part8-egress-guard-hook.cjs: the block branch gives a distinct message for write_blocked. (3) scripts/whitespace-to-brain.cjs: the wz.hypothesis assignment is removed, brainWriteOutcome() separates ok, blocked and failed, a result with an own error property is never a success, and the summary has a new blocked field. (4) scripts/discovery-cycle.cjs step 8: captures the script stdout and logs one line when blocked is above 0. (5) tests/test-brain-client-params.cjs: the brain.write case now pins the refusal (egress_blocked, 0 requests on the wire) instead of the wire shape, because the guard now refuses before the wire.
+verification: (all on synthetic strings, fixture room, fake key, fetch replaced by a counter, 0 network calls)
+  - RED proof: tests/test-386-b2-brain-write-blocked.cjs at commit 38df8b772 failed exactly A1, A3, A4, A5, A6 (18 failing checks) and passed A2 and A7.
+  - GREEN proof: the same test passes all 7 arms after commit 4cb862239.
+  - bash tests/run-all-196.sh: 7 passed, 0 failed (baseline 6 passed, 0 failed; the 7th leg is the new 386-04 leg). One earlier run showed a transient room_check_unavailable in the 260917-dgf leg while peer processes ran in the same tree; the rerun and a direct run were green. UNVERIFIED root of that flake (not caused by this plan: the same test passed on a copy of HEAD with and without the 386-04 files).
+  - bash tests/run-all-245.sh: PASS=19 FAIL=0 (baseline PASS=19 FAIL=0).
+  - bash tests/run-all-3692.sh: PASSED=70 FAILED=3, all 3 unrelated to brain_write (see the list below); the corpus gate DELTA lines are identical before and after (pos26 blocked_no_room 0, ext blocked_no_room 37, negatives.leaks empty; the catalog NOTE line, baseline 522 vs measured 535, is the same in both runs), XFAIL for the 3 alias rows unchanged, and tests/fixtures/3692/guard-survey-baseline.json has an empty git diff.
+  - bash tests/run-all-252.sh: PASS=1 FAIL=1. The failure is tests/test-252-guard-census.cjs census.1 and census.5b, the same 2 failures as before this plan (PROVEN at the clean copy of the RED commit). No arm about whitespace-to-brain fails.
+  - bash tests/run-all-386.sh: PASS=12 FAIL=1. The 1 failure is tests/test-386-framework-run-halt-gate-minted.cjs, the RED test of plan 386-19 (a peer plan in progress). It is unrelated to this plan.
+  - node tests/test-quick-260910-h32-no-brain-write-from-scripts.cjs: pass. node tests/test-257-brain-tool-egress-invariant.cjs and test-257-shim-honest-refusal.cjs: pass. node tests/test-brain-client-params.cjs: pass after the update.
+  - scripts/check-pending-breakthrough.test.cjs: 4 pass, 1 fail (Test 12), the same known failure as before this plan.
+  - tests/test-257-strict-input-shapes.cjs Arm B fails (a theo_health call was captured). It fails at the clean copy of the RED commit too (PROVEN), so it predates this plan.
+  - The 3 failures of run-all-3692 that are not from this plan: (a) test-mux-card-before-answer S3 (gateLedger.mintGate renderer census, peer area); (b) test-muy-real-room-rule G4, G6 to G8, G11 to G15 (the real-room receipt is tied to the HEAD sha and HEAD moves as peer plans commit); (c) the no-new-dependency check (flexsearch removed by commit 45713ce56, plan 385-02). None of the 3 test files mention brain_write, whitespace-to-brain or write_blocked.
+files_changed: lib/core/part8-egress-guard.cjs, scripts/part8-egress-guard-hook.cjs, scripts/whitespace-to-brain.cjs, scripts/discovery-cycle.cjs, tests/run-all-196.sh, tests/test-brain-client-params.cjs, tests/test-386-b2-brain-write-blocked.cjs (new)
+commits: 38df8b772 (test, RED), 4cb862239 (fix, GREEN)
+
+### Final disposition matrix (brain_write, neutral synthetic Cypher, Brain available, after plan 386-04)
+
+| Scope (tool name prefix) | classify verdict | Hook exit | callTool disposition |
+|---|---|---|---|
+| `mcp__plugin_mos_mindrian-brain__brain_write` | block / write_blocked | 2 | block, egress_blocked sentinel, 0 fetch calls (same classify) |
+| `mcp__mindrian-brain__brain_write` | block / write_blocked | 2 | block, same |
+| `mcp__pws-brain-mcp__brain_write` | block / write_blocked | 2 | not on this path (direct connector); the hook blocks |
+| `mcp__theo__brain_write` | block / write_blocked | 2 | not on this path (raw Theo); the hook blocks |
+| bare `brain_write` (script path) | block / write_blocked | 0 (not Brain-shaped, the hook never runs for it) | block, egress_blocked sentinel, 0 fetch calls |
+
+Brain forced unavailable (PART8_FORCE_BRAIN_AVAILABLE=0): hook exit 2 on the 4 scoped rows, because a block verdict does not depend on Brain availability (PROVEN by the probe). The bare name still exits 0 in the hook, but callTool blocks it, and the script path only ever goes through callTool. whitespace-to-brain on a fixture room with a validated gap now makes 0 fetch calls and reports zones_written 0, edges_created 0, aggregation_ran false, errors 0, blocked 4.
+
+The read-tool ambiguous divergence stays as ruled by Phase 254 (2026-09-02): callTool discloses and proceeds on ambiguous for read tools, and the hook still blocks ambiguous/unknown on mcp__pws-brain-mcp__ and on mcp__theo__ Brain-verb names. This plan does not change it.
+
+### Cross-note for the 2 PENDING debug files (not changed)
+
+- `part8-egress-guard-blocks-pws-brain-mcp-unconditionally`: the matrix above does not explain that symptom. brain_write is now blocked by name on every scope, which is a new, deliberate block. The pws-brain-mcp symptom concerns typed READ tools that classify ambiguous/unknown (E9) and stay so after this plan. The explanation in the earlier cross-note (typed tools without an allow arm) still stands and is untouched.
+- `part8-egress-guard-under-blocks-key-shape-and-spelled-money` (GAP1 and GAP2): not touched. Both remain open in the corpus baseline, which is unchanged.
+
+### Follow-ups left open by this plan
+
+- The shim tool description for brain_write (scripts/mindrian-brain-mcp-client.cjs) still says "Generic methodology framework writes only". It is now always refused. The file is outside this plan's file list, and the shim contract tests may pin the text. Change the wording in a later plan that owns the shim.
+- Plan 386-21 moves this file to resolved and writes the knowledge-base entry.
 
 ## Owner decision
 
