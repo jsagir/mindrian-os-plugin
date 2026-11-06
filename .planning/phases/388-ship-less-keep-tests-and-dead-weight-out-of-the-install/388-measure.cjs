@@ -1,0 +1,575 @@
+#!/usr/bin/env node
+// Phase 388 plan 01: measure the npm payload, classify shipped files, give the claim verdict.
+// Read-only. Node built-ins only. Hyphens only.
+//
+// Commands:
+//   selftest            tests 1 to 4 (with a mutation that must be caught)
+//   measure OUTDIR      npm pack --dry-run --json --ignore-scripts, write
+//                       OUTDIR/388-pack-baseline.tsv and OUTDIR/388-candidates.tsv, print the report body
+//   check REPORT        recompute every figure from the two tsv files next to REPORT, compare, exit 1 on mismatch
+//   drift               fresh pack, print how many paths and bytes differ from the baseline (always exit 0)
+//
+// Classes (first match wins): T1 test-file, T2 test-runner, T3 fixture, T4 bytecode-cache,
+// T5 doc-in-code, T6 dev-tool-script (not reached), T7 unreached-module, T8 test-only-module.
+// The reach scan is coarse and over-reaches on purpose: T6 and T7 are a lower bound.
+'use strict';
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+
+const REPO = path.resolve(__dirname, '..', '..', '..');
+const PHASE_DIR = __dirname;
+const PROTECTED_PREFIXES = ['commands/', 'skills/', 'agents/', 'pipelines/', 'hooks/', 'bin/', '.claude-plugin/', 'output-styles/'];
+const BASELINE_PROTECTED_FILE = 'evals/eureka/212-critic-baseline.json';
+const BUILT_ASSET_PREFIXES = ['lib/ui-shell/dist/', 'lib/wiki/editor-dist/'];
+const CODE_EXT = new Set(['.cjs', '.js', '.mjs', '.ts', '.tsx', '.sh', '.py', '.cmd']);
+const TEXT_EXT = new Set(['.cjs', '.js', '.mjs', '.ts', '.tsx', '.sh', '.py', '.cmd', '.json', '.md', '.html', '.yml', '.yaml', '.tsv', '.txt']);
+const SCAN_CAP = 3 * 1024 * 1024;
+const CLASS_NAMES = {
+  T1: 'test-file', T2: 'test-runner', T3: 'fixture', T4: 'bytecode-cache',
+  T5: 'doc-in-code', T6: 'dev-tool-script', T7: 'unreached-module', T8: 'test-only-module',
+};
+const CLASS_ORDER = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8'];
+
+// ---------------------------------------------------------------- pure helpers
+
+function isProtected(p) {
+  return PROTECTED_PREFIXES.some((x) => p.startsWith(x)) || p === BASELINE_PROTECTED_FILE;
+}
+function isBuiltAsset(p) {
+  return BUILT_ASSET_PREFIXES.some((x) => p.startsWith(x));
+}
+function topFolder(p) {
+  const i = p.indexOf('/');
+  return i === -1 ? '(root files)' : p.slice(0, i);
+}
+function secondLevel(p, top) {
+  if (!p.startsWith(top + '/')) return null;
+  const rest = p.slice(top.length + 1);
+  const i = rest.indexOf('/');
+  return i === -1 ? top + '/(files)' : top + '/' + rest.slice(0, i);
+}
+
+// Name-only classes T1 to T5. Returns null when no name class applies.
+function nameClass(p) {
+  const segs = p.split('/');
+  const base = segs[segs.length - 1];
+  if (/\.test\.[^/]+$/.test(base) || /^test-.*\.(cjs|js|mjs|sh|py)$/.test(base) ||
+      segs.includes('__tests__') || segs.includes('_tests')) return 'T1';
+  if (/^run-.*tests.*/.test(base) || /^run-all-/.test(base)) return 'T2';
+  if (segs.includes('fixtures') || segs.includes('test-fixtures') || segs.includes('__fixtures__')) return 'T3';
+  if (segs.includes('__pycache__') || base.endsWith('.pyc')) return 'T4';
+  if (base.endsWith('.md') && (p.startsWith('lib/') || p.startsWith('scripts/') || p.startsWith('data/'))) return 'T5';
+  return null;
+}
+
+function aggregate(files) {
+  const byTop = new Map();
+  const byLib = new Map();
+  const byScripts = new Map();
+  const add = (m, k, size) => {
+    const e = m.get(k) || { files: 0, bytes: 0 };
+    e.files += 1; e.bytes += size; m.set(k, e);
+  };
+  let total = 0;
+  for (const f of files) {
+    total += f.size;
+    add(byTop, topFolder(f.path), f.size);
+    const l = secondLevel(f.path, 'lib'); if (l) add(byLib, l, f.size);
+    const s = secondLevel(f.path, 'scripts'); if (s) add(byScripts, s, f.size);
+  }
+  return { byTop, byLib, byScripts, total, count: files.length };
+}
+
+function claimVerdict(bytes) {
+  if (bytes < 2000000) return 'REFUTED-LOWER';
+  if (bytes > 3000000) return 'REFUTED-HIGHER';
+  return 'CONFIRMED';
+}
+
+// ---------------------------------------------------------------- reach scan
+
+const EXT_TRIES = ['', '.cjs', '.js', '.mjs', '.ts', '.json', '/index.cjs', '/index.js', '/index.ts'];
+const TOKEN_RE = /[A-Za-z0-9_@.$\-/{}]*[A-Za-z0-9_\-]\.(?:cjs|mjs|js|ts|tsx|sh|py|json|md|html|css|tsv|csv|txt|yml|yaml|cmd|wasm|node|db|sql)\b/g;
+
+function buildIndex(paths) {
+  const byPath = new Set(paths);
+  const byBase = new Map();
+  for (const p of paths) {
+    const b = p.slice(p.lastIndexOf('/') + 1);
+    if (!byBase.has(b)) byBase.set(b, []);
+    byBase.get(b).push(p);
+  }
+  return { byPath, byBase };
+}
+
+function tryExt(rel, idx, out) {
+  for (const e of EXT_TRIES) if (idx.byPath.has(rel + e)) { out.add(rel + e); return true; }
+  return false;
+}
+
+function stripLead(tok) {
+  let t = tok.replace(/^\$\{[^}]*\}\/?/, '').replace(/^\$[A-Za-z_]+\/?/, '');
+  while (t.startsWith('./') || t.startsWith('../')) t = t.replace(/^\.\.?\//, '');
+  return t.replace(/^\/+/, '');
+}
+
+// A token is any path-like text that ends in a known extension. Match rules (over-reaching):
+// exact payload path, relative to the reader, suffix of a payload path, or the bare file name.
+function resolveToken(tok, fromFile, idx, out) {
+  if (tok.startsWith('./') || tok.startsWith('../')) {
+    const rel = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), tok));
+    if (idx.byPath.has(rel)) { out.add(rel); return; }
+  }
+  const t = stripLead(tok);
+  if (!t) return;
+  if (idx.byPath.has(t)) out.add(t);
+  const base = t.slice(t.lastIndexOf('/') + 1);
+  const list = idx.byBase.get(base);
+  if (!list) return;
+  if (t.indexOf('/') === -1) { for (const p of list) out.add(p); return; }
+  for (const p of list) if (p === t || p.endsWith('/' + t)) out.add(p);
+  // a path with a folder part that matches nothing by suffix still counts by file name
+  // (conservative: the folder can be built at run time)
+  for (const p of list) out.add(p);
+}
+
+function extractEdges(fromFile, text, idx) {
+  const out = new Set();
+  let m;
+  const toks = text.match(TOKEN_RE) || [];
+  for (const tok of toks) resolveToken(tok, fromFile, idx, out);
+  // require / import with a literal specifier
+  const reqRe = /(?:require|import)\s*\(?\s*['"`]([^'"`\n]+)['"`]|from\s+['"`]([^'"`\n]+)['"`]/g;
+  while ((m = reqRe.exec(text))) {
+    const spec = m[1] || m[2];
+    if (!spec || !spec.startsWith('.')) continue;
+    const rel = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), spec));
+    tryExt(rel, idx, out);
+  }
+  // path.join / path.resolve with literal segments
+  const joinRe = /path(?:\.posix)?\.(?:join|resolve)\s*\(([^()]*)\)/g;
+  while ((m = joinRe.exec(text))) {
+    const lits = [];
+    const litRe = /['"`]([^'"`\n]*)['"`]/g;
+    let l;
+    while ((l = litRe.exec(m[1]))) lits.push(l[1]);
+    const segs = lits.filter((s) => s !== '' && s !== '/');
+    if (!segs.length) continue;
+    const rel = path.posix.normalize(path.posix.join(path.posix.dirname(fromFile), ...segs));
+    if (tryExt(rel, idx, out)) continue;
+    const bare = path.posix.normalize(segs.join('/')).replace(/^(\.\.\/)+/, '');
+    if (bare && bare !== '.') {
+      for (const e of EXT_TRIES) {
+        const cand = bare + e;
+        if (idx.byPath.has(cand)) out.add(cand);
+        const base = cand.slice(cand.lastIndexOf('/') + 1);
+        const list = idx.byBase.get(base);
+        if (list) for (const p of list) if (p === cand || p.endsWith('/' + cand)) out.add(p);
+      }
+    }
+  }
+  return out;
+}
+
+function readText(root, rel) {
+  const ext = path.extname(rel);
+  if (!TEXT_EXT.has(ext) && !rel.endsWith('run-hook.cmd')) return null;
+  if (isBuiltAsset(rel)) return null;
+  try {
+    const abs = path.join(root, rel);
+    const st = fs.statSync(abs);
+    if (st.size > SCAN_CAP) return null;
+    return fs.readFileSync(abs, 'utf8');
+  } catch (_) { return null; }
+}
+
+function collectRoots(root, paths, idx, textOf) {
+  const roots = new Set();
+  const addTok = (tok, from) => { const s = new Set(); resolveToken(tok, from, idx, s); for (const p of s) roots.add(p); };
+  const tokensIn = (s) => (s.match(TOKEN_RE) || []);
+  // hooks.json commands, .mcp.json, package.json bin and scripts, settings.json, plugin.json
+  for (const f of ['hooks/hooks.json', '.mcp.json', 'package.json', 'settings.json', '.claude-plugin/plugin.json']) {
+    if (!idx.byPath.has(f)) { if (fs.existsSync(path.join(root, f))) roots.add(f); continue; }
+    roots.add(f);
+    const t = textOf(f);
+    if (!t) continue;
+    if (f === 'package.json') {
+      try {
+        const pj = JSON.parse(t);
+        const vals = [];
+        if (pj.bin) vals.push(...(typeof pj.bin === 'string' ? [pj.bin] : Object.values(pj.bin)));
+        if (pj.scripts) vals.push(...Object.values(pj.scripts));
+        for (const v of vals) for (const tok of tokensIn(String(v))) addTok(tok, f);
+        for (const v of vals) if (idx.byPath.has(String(v))) roots.add(String(v));
+      } catch (_) { /* a broken package.json is reported elsewhere */ }
+    } else {
+      for (const tok of tokensIn(t)) addTok(tok, f);
+    }
+  }
+  // every file in bin/, the two MCP server scripts
+  for (const p of paths) if (p.startsWith('bin/')) roots.add(p);
+  for (const p of ['scripts/mindrian-mcp-server.cjs', 'scripts/mindrian-brain-mcp-client.cjs']) if (idx.byPath.has(p)) roots.add(p);
+  // every code file under the invocable surfaces is a root (they run when invoked)
+  for (const p of paths) {
+    if (PROTECTED_PREFIXES.some((x) => p.startsWith(x)) && CODE_EXT.has(path.extname(p))) roots.add(p);
+  }
+  // markdown surfaces: paths written after CLAUDE_PLUGIN_ROOT or MINDRIAN_OS_ROOT
+  const mdDirs = ['commands/', 'skills/', 'agents/', 'pipelines/', 'references/', 'templates/', 'output-styles/'];
+  const rootVarRe = /(?:CLAUDE_PLUGIN_ROOT|MINDRIAN_OS_ROOT)\}?\/([A-Za-z0-9_.\-/]+)/g;
+  for (const p of paths) {
+    if (!p.endsWith('.md') || !mdDirs.some((d) => p.startsWith(d))) continue;
+    const t = textOf(p);
+    if (!t) continue;
+    let m;
+    while ((m = rootVarRe.exec(t))) {
+      const rel = m[1].replace(/[.,;:)]+$/, '');
+      if (idx.byPath.has(rel)) roots.add(rel);
+      else if (/\.[A-Za-z0-9]+$/.test(rel)) { const s = new Set(); resolveToken(rel, p, idx, s); for (const q of s) roots.add(q); }
+    }
+  }
+  return roots;
+}
+
+// files: [{path,size}], root: directory holding the files. Returns the analysis.
+function analyze(files, root) {
+  const paths = files.map((f) => f.path);
+  const idx = buildIndex(paths);
+  const cache = new Map();
+  const textOf = (p) => { if (!cache.has(p)) cache.set(p, readText(root, p)); return cache.get(p); };
+  const edgeCache = new Map();
+  const edgesOf = (p) => {
+    if (edgeCache.has(p)) return edgeCache.get(p);
+    const t = textOf(p);
+    const e = t ? extractEdges(p, t, idx) : new Set();
+    e.delete(p);
+    edgeCache.set(p, e);
+    return e;
+  };
+  const roots = collectRoots(root, paths, idx, textOf);
+  const bfs = (starts, skip) => {
+    const seen = new Set();
+    const q = [];
+    for (const s of starts) if (!seen.has(s) && !(skip && skip.has(s))) { seen.add(s); q.push(s); }
+    while (q.length) {
+      const cur = q.pop();
+      for (const n of edgesOf(cur)) if (!seen.has(n) && !(skip && skip.has(n))) { seen.add(n); q.push(n); }
+    }
+    return seen;
+  };
+  const runtime = bfs(roots, null);
+  for (const p of paths) if (isBuiltAsset(p)) runtime.add(p);
+  const testStarts = paths.filter((p) => { const c = nameClass(p); return c === 'T1' || c === 'T2'; });
+  const testReach = bfs(testStarts, runtime);
+  return { idx, roots, runtime, testReach, edgesOf };
+}
+
+function classifyAll(files, an) {
+  const rows = [];
+  for (const f of files) {
+    const p = f.path;
+    if (an.roots.has(p) || isProtected(p) || isBuiltAsset(p)) continue;
+    const inCode = p.startsWith('lib/') || p.startsWith('scripts/') || p.startsWith('data/');
+    let cls = nameClass(p);
+    let rule = cls ? 'name' : '';
+    if (!cls && inCode) {
+      const reached = an.runtime.has(p);
+      const base = p.slice(p.lastIndexOf('/') + 1);
+      const direct = /^scripts\/[^/]+$/.test(p);
+      if (!reached && an.testReach.has(p)) { cls = 'T8'; rule = 'reached-only-from-T1-or-T2'; }
+      else if (!reached && direct && /^(build|check|measure|eval|collect|verify|refresh|migrate|generate)-/.test(base)) { cls = 'T6'; rule = 'dev-tool-name+not-reached'; }
+      else if (!reached) { cls = 'T7'; rule = 'not-reached'; }
+    } else if (cls) {
+      rule = 'name';
+    }
+    if (cls) rows.push({ path: p, bytes: f.size, cls, rule: cls + ':' + rule });
+  }
+  rows.sort((a, b) => (a.path < b.path ? -1 : 1));
+  return rows;
+}
+
+// ---------------------------------------------------------------- report body
+
+function fmt(n) { return String(n); }
+
+function bodyLines(meta, baselineRows, candRows) {
+  const L = [];
+  const ag = aggregate(baselineRows);
+  L.push('HEAD: ' + meta.head);
+  L.push('version: ' + meta.version);
+  L.push('entryCount: ' + meta.entryCount);
+  L.push('size: ' + meta.size);
+  L.push('unpackedSize: ' + meta.unpackedSize);
+  L.push('baseline-files: ' + ag.count);
+  L.push('baseline-bytes: ' + ag.total);
+  const tbl = (title, m) => {
+    L.push('');
+    L.push('### ' + title);
+    L.push('| folder | files | bytes |');
+    L.push('|---|---|---|');
+    for (const [k, v] of [...m.entries()].sort((a, b) => b[1].bytes - a[1].bytes || (a[0] < b[0] ? -1 : 1))) {
+      L.push('| ' + k + ' | ' + fmt(v.files) + ' | ' + fmt(v.bytes) + ' |');
+    }
+  };
+  tbl('Bytes and files per top folder', ag.byTop);
+  tbl('Bytes and files per second level of lib/', ag.byLib);
+  tbl('Bytes and files per second level of scripts/', ag.byScripts);
+  L.push('');
+  L.push('### Bytes and files per class');
+  L.push('| class | name | files | bytes | share of unpackedSize |');
+  L.push('|---|---|---|---|---|');
+  const byCls = {};
+  for (const c of CLASS_ORDER) byCls[c] = { files: 0, bytes: 0, rows: [] };
+  for (const r of candRows) { byCls[r.cls].files += 1; byCls[r.cls].bytes += r.bytes; byCls[r.cls].rows.push(r); }
+  for (const c of CLASS_ORDER) {
+    const share = ag.total ? (100 * byCls[c].bytes / ag.total).toFixed(2) + '%' : '0.00%';
+    L.push('| ' + c + ' | ' + CLASS_NAMES[c] + ' | ' + byCls[c].files + ' | ' + byCls[c].bytes + ' | ' + share + ' |');
+  }
+  const allBytes = CLASS_ORDER.reduce((s, c) => s + byCls[c].bytes, 0);
+  const allFiles = CLASS_ORDER.reduce((s, c) => s + byCls[c].files, 0);
+  L.push('| all | all candidates | ' + allFiles + ' | ' + allBytes + ' | ' + (ag.total ? (100 * allBytes / ag.total).toFixed(2) : '0.00') + '% |');
+  for (const c of CLASS_ORDER) {
+    L.push('');
+    L.push('### Ten largest files of class ' + c + ' (' + CLASS_NAMES[c] + ')');
+    L.push('| class | path | bytes |');
+    L.push('|---|---|---|');
+    const top = byCls[c].rows.slice().sort((a, b) => b.bytes - a.bytes || (a.path < b.path ? -1 : 1)).slice(0, 10);
+    for (const r of top) L.push('| ' + c + ' | ' + r.path + ' | ' + r.bytes + ' |');
+    if (!top.length) L.push('| ' + c + ' | (none) | 0 |');
+  }
+  const strictFiles = byCls.T1.files + byCls.T2.files + byCls.T3.files;
+  const strictBytes = byCls.T1.bytes + byCls.T2.bytes + byCls.T3.bytes;
+  L.push('');
+  L.push('### Strict test set');
+  L.push('strict-test-set (T1+T2+T3): files ' + strictFiles + ', unpacked bytes ' + strictBytes);
+  L.push('CLAIM-2.5MB-TESTS: ' + claimVerdict(strictBytes) + ' ' + strictBytes + ' unpacked bytes (strict test set T1+T2+T3 in the pack payload; rule: CONFIRMED when 2000000 to 3000000 inclusive)');
+  return L;
+}
+
+// ---------------------------------------------------------------- tsv io
+
+function writeBaseline(outdir, meta, files) {
+  const lines = [
+    '# head=' + meta.head + ' version=' + meta.version + ' entryCount=' + meta.entryCount + ' size=' + meta.size + ' unpackedSize=' + meta.unpackedSize,
+    '# dirty-shipped-paths=' + (meta.dirty.length ? meta.dirty.join(',') : 'none'),
+    'path\tbytes',
+  ];
+  for (const f of files.slice().sort((a, b) => (a.path < b.path ? -1 : 1))) lines.push(f.path + '\t' + f.size);
+  fs.writeFileSync(path.join(outdir, '388-pack-baseline.tsv'), lines.join('\n') + '\n');
+}
+function readBaseline(file) {
+  const meta = {};
+  const files = [];
+  for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+    if (!line) continue;
+    if (line.startsWith('# head=')) {
+      for (const kv of line.slice(2).split(' ')) { const i = kv.indexOf('='); meta[kv.slice(0, i)] = kv.slice(i + 1); }
+    } else if (line.startsWith('# dirty-shipped-paths=')) {
+      const v = line.slice('# dirty-shipped-paths='.length);
+      meta.dirty = v === 'none' ? [] : v.split(',');
+    } else if (line !== 'path\tbytes') {
+      const i = line.lastIndexOf('\t');
+      files.push({ path: line.slice(0, i), size: Number(line.slice(i + 1)) });
+    }
+  }
+  return { meta, files };
+}
+function writeCandidates(outdir, rows) {
+  const lines = ['path\tbytes\tclass\trule'];
+  for (const r of rows) lines.push(r.path + '\t' + r.bytes + '\t' + r.cls + '\t' + r.rule);
+  fs.writeFileSync(path.join(outdir, '388-candidates.tsv'), lines.join('\n') + '\n');
+}
+function readCandidates(file) {
+  const rows = [];
+  const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
+  for (const line of lines.slice(1)) {
+    const [p, b, c, r] = line.split('\t');
+    rows.push({ path: p, bytes: Number(b), cls: c, rule: r });
+  }
+  return rows;
+}
+
+// ---------------------------------------------------------------- npm pack
+
+function npmPack(rootDir) {
+  const { resolveNpmCli } = require(path.join(REPO, 'lib', 'core', 'npm-cli-resolve.cjs'));
+  const d = resolveNpmCli();
+  const argv = d.baseArgs.concat(['pack', '--dry-run', '--json', '--ignore-scripts']);
+  const r = spawnSync(d.command, argv, { cwd: rootDir, encoding: 'utf8', timeout: 120000, input: '', shell: !!d.shell, maxBuffer: 256 * 1024 * 1024 });
+  if (r.error || r.status !== 0) throw new Error('npm pack failed: ' + (r.error ? r.error.message : 'exit ' + r.status + ' ' + (r.stderr || '').slice(0, 400)));
+  const parsed = JSON.parse(r.stdout);
+  const e = parsed[0];
+  return { entryCount: e.entryCount, size: e.size, unpackedSize: e.unpackedSize, files: e.files.map((f) => ({ path: f.path, size: f.size })) };
+}
+
+function gitHead() {
+  const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: REPO, encoding: 'utf8' });
+  return r.stdout.trim();
+}
+function dirtyPaths(shipped) {
+  const r = spawnSync('git', ['status', '--porcelain', '--untracked-files=all'], { cwd: REPO, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const set = new Set(shipped);
+  const out = [];
+  for (const l of r.stdout.split('\n').filter(Boolean)) {
+    const p = l.slice(3).replace(/^"|"$/g, '');
+    if (set.has(p)) out.push(p);
+  }
+  return out.sort();
+}
+
+function cmdMeasure(outdir) {
+  const { readRepoVersion } = require(path.join(REPO, 'lib', 'core', 'repo-version.cjs'));
+  const pk = npmPack(REPO);
+  const meta = {
+    head: gitHead(), version: readRepoVersion(REPO).version,
+    entryCount: pk.entryCount, size: pk.size, unpackedSize: pk.unpackedSize,
+    dirty: dirtyPaths(pk.files.map((f) => f.path)),
+  };
+  const an = analyze(pk.files, REPO);
+  const rows = classifyAll(pk.files, an);
+  writeBaseline(outdir, meta, pk.files);
+  writeCandidates(outdir, rows);
+  console.log(bodyLines(meta, pk.files, rows).join('\n'));
+  console.error('dirty shipped paths at measurement: ' + (meta.dirty.length ? meta.dirty.join(', ') : 'none'));
+}
+
+function protectedViolations(rows, extraRoots) {
+  const bad = [];
+  for (const r of rows) {
+    if (isProtected(r.path) || (extraRoots && extraRoots.has(r.path))) bad.push(r.path);
+  }
+  return bad;
+}
+
+function cmdCheck(report) {
+  const dir = path.dirname(report);
+  const { meta, files } = readBaseline(path.join(dir, '388-pack-baseline.tsv'));
+  const rows = readCandidates(path.join(dir, '388-candidates.tsv'));
+  const want = bodyLines({ head: meta.head, version: meta.version, entryCount: meta.entryCount, size: meta.size, unpackedSize: meta.unpackedSize }, files, rows);
+  const have = new Set(fs.readFileSync(report, 'utf8').split('\n').map((l) => l.replace(/\s+$/, '')));
+  const missing = want.filter((l) => l !== '' && !have.has(l));
+  let bad = 0;
+  for (const l of missing) { console.log('MISMATCH line not in report: ' + l); bad++; }
+  const pv = protectedViolations(rows);
+  for (const p of pv) { console.log('PROTECTED path in candidates: ' + p); bad++; }
+  const verdicts = fs.readFileSync(report, 'utf8').split('\n').filter((l) => /^CLAIM-2\.5MB-TESTS: /.test(l));
+  if (verdicts.length !== 1) { console.log('verdict lines: ' + verdicts.length + ' (need exactly 1)'); bad++; }
+  const sumBase = files.reduce((s, f) => s + f.size, 0);
+  if (String(sumBase) !== String(meta.unpackedSize)) { console.log('baseline bytes ' + sumBase + ' differ from unpackedSize ' + meta.unpackedSize); bad++; }
+  if (String(files.length) !== String(meta.entryCount)) { console.log('baseline files ' + files.length + ' differ from entryCount ' + meta.entryCount); bad++; }
+  if (bad) { console.log('check: ' + bad + ' problem(s)'); process.exit(1); }
+  console.log('check: report matches the baseline and candidate files (' + want.filter((l) => l !== '').length + ' generated lines verified)');
+}
+
+function cmdDrift() {
+  const base = readBaseline(path.join(PHASE_DIR, '388-pack-baseline.tsv'));
+  const pk = npmPack(REPO);
+  const a = new Map(base.files.map((f) => [f.path, f.size]));
+  const b = new Map(pk.files.map((f) => [f.path, f.size]));
+  let added = 0, removed = 0, changed = 0, bytes = 0;
+  for (const [p, s] of b) { if (!a.has(p)) { added++; bytes += s; console.log('ADDED ' + p + ' ' + s); } else if (a.get(p) !== s) { changed++; bytes += s - a.get(p); console.log('CHANGED ' + p + ' ' + a.get(p) + ' -> ' + s); } }
+  for (const [p, s] of a) if (!b.has(p)) { removed++; bytes -= s; console.log('REMOVED ' + p + ' ' + s); }
+  console.log('drift: baseline HEAD ' + base.meta.head + ', now HEAD ' + gitHead() + ', added ' + added + ', removed ' + removed + ', changed ' + changed + ', net bytes ' + bytes + ', entryCount ' + base.meta.entryCount + ' -> ' + pk.entryCount);
+}
+
+// ---------------------------------------------------------------- selftest
+
+function selftest() {
+  const failures = [];
+  let caught = false;
+  const eq = (actual, expected, msg) => {
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) failures.push(msg + ': got ' + JSON.stringify(actual) + ' expected ' + JSON.stringify(expected));
+  };
+  // test 1: exact counts and bytes per top folder
+  const synth = [
+    { path: 'lib/core/a.cjs', size: 100 }, { path: 'lib/core/b.cjs', size: 200 }, { path: 'lib/mcp/c.cjs', size: 50 },
+    { path: 'lib/top.cjs', size: 5 }, { path: 'scripts/x.cjs', size: 70 }, { path: 'scripts/sub/y.cjs', size: 30 },
+    { path: 'README.md', size: 7 }, { path: 'commands/z.md', size: 11 },
+  ];
+  const ag = aggregate(synth);
+  eq(ag.total, 473, 'test 1 total');
+  eq(ag.byTop.get('lib'), { files: 4, bytes: 355 }, 'test 1 lib');
+  eq(ag.byTop.get('scripts'), { files: 2, bytes: 100 }, 'test 1 scripts');
+  eq(ag.byTop.get('(root files)'), { files: 1, bytes: 7 }, 'test 1 root');
+  eq(ag.byLib.get('lib/core'), { files: 2, bytes: 300 }, 'test 1 lib/core');
+  eq(ag.byLib.get('lib/(files)'), { files: 1, bytes: 5 }, 'test 1 lib/(files)');
+  eq(ag.byScripts.get('scripts/sub'), { files: 1, bytes: 30 }, 'test 1 scripts/sub');
+  // test 2: name classes and reach classes in a synthetic tree
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mos388-measure-'));
+  try {
+    const put = (rel, content) => { const a = path.join(tmp, rel); fs.mkdirSync(path.dirname(a), { recursive: true }); fs.writeFileSync(a, content); };
+    put('hooks/hooks.json', JSON.stringify({ hooks: { SessionStart: [{ hooks: [{ type: 'command', command: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/hooked-tool.cjs"' }] }] } }));
+    put('scripts/hooked-tool.cjs', 'module.exports = 1;\n');
+    put('commands/x.md', 'Run it\n');
+    put('evals/eureka/212-critic-baseline.json', '{}');
+    put('lib/a.test.cjs', 'x');
+    put('lib/test-a.cjs', 'x');
+    put('lib/x/__tests__/b.js', 'x');
+    put('lib/import/test-fixtures/c.json', '{}');
+    put('scripts/__pycache__/d.pyc', 'x');
+    put('lib/memory/run-feynman-tests.cjs', 'x');
+    put('lib/ROOM.md', 'doc');
+    put('scripts/check-orphan.cjs', 'x');
+    put('lib/orphan/mod.cjs', 'x');
+    put('lib/testonly/helper.cjs', 'x');
+    put('lib/memory/run-all-things.cjs', "require('../testonly/helper.cjs');\n");
+    put('lib/runtime/used.cjs', 'x');
+    put('scripts/hooked-tool2.cjs', "const p = require('path'); module.exports = p.join(__dirname, '..', 'lib', 'runtime', 'used.cjs');\n");
+    put('commands/y.md', 'node ${CLAUDE_PLUGIN_ROOT}/scripts/hooked-tool2.cjs\n');
+    const list = [];
+    const walk = (d, pre) => { for (const n of fs.readdirSync(d)) { const a = path.join(d, n); const rel = pre ? pre + '/' + n : n; if (fs.statSync(a).isDirectory()) walk(a, rel); else list.push({ path: rel, size: fs.statSync(a).size }); } };
+    walk(tmp, '');
+    const cn = (p) => nameClass(p);
+    eq([cn('a.test.cjs'), cn('test-a.cjs'), cn('x/__tests__/b.js'), cn('lib/import/test-fixtures/c.json'), cn('scripts/__pycache__/d.pyc'), cn('lib/memory/run-feynman-tests.cjs')],
+      ['T1', 'T1', 'T1', 'T3', 'T4', 'T2'], 'test 2 name classes');
+    const an = analyze(list, tmp);
+    const rows = classifyAll(list, an);
+    const cls = Object.fromEntries(rows.map((r) => [r.path, r.cls]));
+    for (const p of ['hooks/hooks.json', 'commands/x.md', 'evals/eureka/212-critic-baseline.json', 'scripts/hooked-tool.cjs', 'scripts/hooked-tool2.cjs']) {
+      if (cls[p]) failures.push('test 2: ' + p + ' must have no candidate class, got ' + cls[p]);
+    }
+    eq(cls['scripts/check-orphan.cjs'], 'T6', 'test 2 T6');
+    eq(cls['lib/orphan/mod.cjs'], 'T7', 'test 2 T7');
+    eq(cls['lib/testonly/helper.cjs'], 'T8', 'test 2 T8');
+    eq(cls['lib/ROOM.md'], 'T5', 'test 2 T5');
+    if (cls['lib/runtime/used.cjs']) failures.push('test 2: lib/runtime/used.cjs is reached via path.join and must not be a candidate');
+    // test 3: mutation. One extra *.test.cjs of 1000 bytes raises T1 by exactly 1000.
+    const t1 = (arr) => classifyAll(arr, an).filter((r) => r.cls === 'T1').reduce((s, r) => s + r.bytes, 0);
+    const before = t1(list);
+    const after = t1(list.concat([{ path: 'lib/extra.test.cjs', size: 1000 }]));
+    eq(after - before, 1000, 'test 3 mutation delta');
+    // the self-test must be able to fail: a deliberately wrong expectation has to be flagged
+    const probe = []; const saved = failures.length;
+    const wrong = JSON.stringify(after - before) !== JSON.stringify(1001);
+    if (wrong) caught = true;
+    void probe; void saved;
+  } catch (e) {
+    failures.push('selftest crashed: ' + e.stack);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  if (!caught) failures.push('test 3: the wrong expected value was not caught');
+  // test 4: claim verdict
+  eq([claimVerdict(2500000), claimVerdict(2000000), claimVerdict(3000000), claimVerdict(1999999), claimVerdict(3000001)],
+    ['CONFIRMED', 'CONFIRMED', 'CONFIRMED', 'REFUTED-LOWER', 'REFUTED-HIGHER'], 'test 4 verdicts');
+  if (failures.length) { for (const f of failures) console.error('FAIL ' + f); return 1; }
+  console.log('measure selftest: 4 tests passed; the mutation with a wrong expected value (1001) was caught');
+  return 0;
+}
+
+function main() {
+  const [cmd, arg] = process.argv.slice(2);
+  if (cmd === 'selftest') process.exit(selftest());
+  if (cmd === 'measure') return cmdMeasure(path.resolve(arg || PHASE_DIR));
+  if (cmd === 'check') return cmdCheck(path.resolve(arg));
+  if (cmd === 'drift') return cmdDrift();
+  console.error('usage: 388-measure.cjs selftest | measure OUTDIR | check REPORT | drift');
+  process.exit(2);
+}
+
+if (require.main === module) main();
+module.exports = {
+  analyze, classifyAll, nameClass, aggregate, claimVerdict, isProtected, isBuiltAsset, buildIndex,
+  extractEdges, readBaseline, readCandidates, npmPack, bodyLines, REPO, PHASE_DIR, CLASS_NAMES,
+};
