@@ -114,6 +114,7 @@ function composerDouble(_paragraph) {
 // ---------------------------------------------------------------------------
 const arms = [];
 function arm(label, fn) { arms.push({ label: label, fn: fn }); }
+const DASH_RE = new RegExp('[' + String.fromCharCode(0x2013, 0x2014) + ']');
 function check(cond, msg) { if (!cond) throw new Error(msg); }
 
 arm('SR1', async () => {
@@ -128,8 +129,9 @@ arm('SR1', async () => {
   check(typeof msg === 'string', 'refusalMessage returns a string');
   ['sprouts_required', 'Nothing was sent', 'claim_write', route, 'at most 12 words'].forEach((w) => check(msg.indexOf(w) !== -1, 'message holds ' + w));
   ['fact', 'causal', 'heuristic', 'anomaly_cue', 'mental_model', 'assumption'].forEach((t) => check(msg.indexOf(t) !== -1, 'message holds claim type ' + t));
+  m.CLAIM_TYPES.forEach((t) => check(msg.indexOf(t) !== -1, 'message names the real claim type ' + t));
   check(Buffer.byteLength(msg, 'utf8') <= 1200, 'message is at most 1200 bytes');
-  check(!/[–—]/.test(msg), 'message holds no dash character');
+  check(!DASH_RE.test(msg), 'message holds no dash character');
   const r = m.sproutsRequiredResult('brain_ask');
   check(r.error === 'egress_blocked' && r.tool === 'brain_ask', 'sentinel error and tool');
   check(r.egress_class === 'sprouts_required' && r.outcome === 'sprouts_required', 'sentinel class and outcome');
@@ -271,7 +273,7 @@ arm('SR7', async () => {
     const name = m ? m[1].replace(/^node:/, '') : '';
     check(builtins.has(name), 'top level require must be a Node built-in: ' + l);
   });
-  check(!/[–—]/.test(src), 'no dash character in the source');
+  check(!DASH_RE.test(src), 'no dash character in the source');
   const m = require(MODULE_PATH);
   const junk = [undefined, null, 5, {}, [], 'x'];
   const fns = ['sproutsRequiredResult', 'refusalMessage', 'validateSprouts', 'sharesClaimRun', 'fileClaimsLocal', 'assembleLocal'];
