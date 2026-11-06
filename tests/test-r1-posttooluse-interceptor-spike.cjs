@@ -51,11 +51,18 @@ const hooks = JSON.parse(fs.readFileSync(HOOKS_PATH, 'utf8'));
 const postToolUse = (hooks.hooks && hooks.hooks.PostToolUse) || [];
 ok('hooks.json exposes a PostToolUse hook array', Array.isArray(postToolUse) && postToolUse.length > 0);
 
-const askUqMatchers = postToolUse.filter(function (block) {
-  return typeof block.matcher === 'string' && /AskUserQuestion/.test(block.matcher);
+// Phase 385 plan 14 unwired the operator-update hook, so the live hooks.json no
+// longer has a PostToolUse matcher that lists AskUserQuestion. The evidence is now
+// the measured snapshot tests/fixtures/369/hook-cold-start-baseline.json, which
+// still holds the old matcher. FINDING 1 argues only that the host substrate can
+// observe an AskUserQuestion tool-call; it does not need a live hook for that.
+const baselineEntries = JSON.parse(fs.readFileSync(
+  path.join(REPO_ROOT, 'tests', 'fixtures', '369', 'hook-cold-start-baseline.json'), 'utf8')).entries || [];
+const askUqMatchers = baselineEntries.filter(function (block) {
+  return block.event === 'PostToolUse' && typeof block.matcher === 'string' && /AskUserQuestion/.test(block.matcher);
 });
 const cliHookCanObserveAskUq = askUqMatchers.length > 0;
-ok('FINDING 1: the CLI PostToolUse substrate CAN observe an AskUserQuestion tool-call (a matcher lists it)',
+ok('FINDING 1: the CLI PostToolUse substrate CAN observe an AskUserQuestion tool-call (a matcher lists it; evidence: the measured hook-cold-start-baseline snapshot)',
   cliHookCanObserveAskUq);
 
 // ---------------------------------------------------------------------------

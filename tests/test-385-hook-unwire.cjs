@@ -121,14 +121,6 @@ check('no command in the Stop array runs operator-update.cjs', () => {
   assert.strictEqual(hits.length, 0, hits.length + ' Stop command(s) still run operator-update.cjs');
 });
 
-check('PostToolUse and UserPromptSubmit each keep exactly one operator-update.cjs command', () => {
-  const doc = loadHooks();
-  for (const ev of ['PostToolUse', 'UserPromptSubmit']) {
-    const n = commandsOf(doc, ev).filter((c) => c.command.includes('operator-update.cjs')).length;
-    assert.strictEqual(n, 1, ev + ' has ' + n + ' operator-update.cjs commands');
-  }
-});
-
 // ---- Plan 385-09: the jtbd-update Stop leg ----
 const JTBD_SCRIPT = path.join(ROOT, 'scripts', 'jtbd-update.cjs');
 
@@ -365,6 +357,79 @@ check('no command in the Stop array runs hmi-compliance-poll.cjs and the run-hoo
   assert.strictEqual(hits.length, 0, hits.length + ' Stop command(s) still run hmi-compliance-poll.cjs');
   const onStop = cmds.filter((c) => c.command.includes('run-hook.cmd" on-stop'));
   assert.strictEqual(onStop.length, 1, 'run-hook.cmd on-stop entries: ' + onStop.length);
+});
+
+// ---- Plan 385-14: the operator-update PostToolUse and UserPromptSubmit hooks ----
+function runOperator(stdinObj) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-14-'));
+  try {
+    const roomsHome = path.join(tmp, 'rooms');
+    const roomDir = path.join(tmp, 'room-r1');
+    fs.mkdirSync(path.join(roomsHome, '.rooms'), { recursive: true });
+    fs.mkdirSync(path.join(roomDir, '.mindrian'), { recursive: true });
+    fs.writeFileSync(path.join(roomDir, '.room-root'), '');
+    fs.writeFileSync(path.join(roomDir, 'STATE.md'), '# state\n');
+    fs.writeFileSync(path.join(roomsHome, '.rooms', 'registry.json'),
+      JSON.stringify({ version: 1, active: 'r1', rooms: { r1: { abs_path: roomDir } } }));
+    const home = path.join(tmp, 'home');
+    fs.mkdirSync(home);
+    const stdin = JSON.parse(JSON.stringify(stdinObj).split('<room>').join(roomDir));
+    const before = listFiles(tmp);
+    const r = spawnSync(process.execPath, [SCRIPT], {
+      input: JSON.stringify(stdin),
+      encoding: 'utf8',
+      env: Object.assign({}, process.env, { MINDRIAN_ROOMS_HOME: roomsHome, HOME: home }),
+    });
+    const after = listFiles(tmp);
+    return { r, before, after };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+for (const payload of [
+  { hook_event_name: 'PostToolUse', tool_name: 'AskUserQuestion', tool_input: { question: 'q' } },
+  { hook_event_name: 'PostToolUse', tool_name: 'Write', tool_input: { file_path: '<room>/a.md' } },
+]) {
+  check('operator-update PostToolUse (' + payload.tool_name + ') gives the constant envelope and writes nothing (real registry shape)', () => {
+    const { r, before, after } = runOperator(payload);
+    assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+    assert.strictEqual(r.stdout, '{"continue":true,"suppressOutput":true}', 'stdout ' + r.stdout);
+    assert.deepStrictEqual(after, before, 'the file list changed');
+  });
+}
+
+check('operator-update UserPromptSubmit gives the constant envelope and writes nothing (real registry shape)', () => {
+  const { r, before, after } = runOperator({ hook_event_name: 'UserPromptSubmit', prompt: 'let us file a new section about pricing' });
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.strictEqual(r.stdout, '{"continue":true,"suppressOutput":true}', 'stdout ' + r.stdout);
+  assert.deepStrictEqual(after, before, 'the file list changed');
+});
+
+check('module contract: operator-update.cjs exports contributeOperator and contributeJtbd, and sessionstart-coordinator.cjs loads it', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-14m-'));
+  try {
+    const r = spawnSync(process.execPath, ['-e',
+      "const m=require(process.argv[1]);process.stdout.write(typeof m.contributeOperator+','+typeof m.contributeJtbd)", SCRIPT], {
+      encoding: 'utf8',
+      env: Object.assign({}, process.env, { MINDRIAN_ROOMS_HOME: path.join(tmp, 'rooms'), HOME: path.join(tmp, 'home') }),
+    });
+    assert.strictEqual(r.stdout, 'function,function', 'exports ' + r.stdout + ' ' + r.stderr);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  const coord = fs.readFileSync(path.join(ROOT, 'scripts', 'sessionstart-coordinator.cjs'), 'utf8');
+  const n = coord.split('operator-update.cjs').length - 1;
+  assert.ok(n >= 2, 'sessionstart-coordinator.cjs names operator-update.cjs ' + n + ' time(s)');
+});
+
+check('no command in any hooks.json event runs operator-update.cjs', () => {
+  const doc = loadHooks();
+  const hits = [];
+  for (const ev of Object.keys(doc.hooks || {})) {
+    for (const c of commandsOf(doc, ev)) if (c.command.includes('operator-update.cjs')) hits.push(ev);
+  }
+  assert.strictEqual(hits.length, 0, 'still run operator-update.cjs: ' + hits.join(', '));
 });
 
 process.exit(failed ? 1 : 0);

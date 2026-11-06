@@ -89,7 +89,7 @@ Does it have the right information?
 - `context_assemble` tool, `lib/mcp/tools/context.cjs:36-47`, over `getRoomContext`, `lib/core/navigation/room-context.cjs:244+` (four legs: room-state summary, session fragments, ranked graph neighborhood, projected cortex with recency decay)
 - SessionStart coordinator, `scripts/sessionstart-coordinator.cjs`, driven by the precedence ladder `lib/sessionstart/precedence-ladder.cjs:22-34`
 - TRIPLE_CONTEXT formatter, `lib/memory/triple-context-formatter.cjs`
-- UserPromptSubmit hooks: the intent classifier, jtbd-update, brain-derivation drain, auto-explore drain, mva-detect, first-install router, operator-update, and the admin gate
+- UserPromptSubmit hooks: the intent classifier, jtbd-update, brain-derivation drain, auto-explore drain, mva-detect, first-install router, and the admin gate
 - DirectiveEnvelope, `lib/core/directive-envelope.cjs:1-40` (six declared modes, GUIDED default)
 - JTBD state, `lib/hmi/jtbd-state.cjs:27`
 - The files read as context: `ROOM.md`, `STATE.md`, `USER.md`, `MINTO.md`, `BRAIN.md`, `FEYNMAN.md`, all via `lib/core/folder-memory.cjs:200-303`

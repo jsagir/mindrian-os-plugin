@@ -43,7 +43,7 @@ const BASE_SHA = 'a13ab61f1';
 
 // Phase 385 plan 08 removed one hooks.json entry on purpose (the operator-update
 // Stop entry, a constant no-op). P385 is the one record of each deliberate change
-// against the base commit. Plans 385-09, 385-10, 385-11 and 385-13 add one item each.
+// against the base commit. Plans 385-09, 385-10, 385-11, 385-13 and 385-14 add one item each.
 const P385 = {
   removed: [
     { event: 'Stop', sub: 'operator-update.cjs' },
@@ -52,6 +52,9 @@ const P385 = {
     { event: 'PostToolUse', sub: 'telemetry-command-invocation.cjs' },
     // Plan 385-13: the per-turn doctor poll Stop hook (owner ruling R1; its only effect was a side file no production code reads).
     { event: 'Stop', sub: 'hmi-compliance-poll.cjs' },
+    // Plan 385-14: the operator-update PostToolUse and UserPromptSubmit hooks (owner ruling R2; the feature stays off, the script stays).
+    { event: 'PostToolUse', sub: 'operator-update.cjs' },
+    { event: 'UserPromptSubmit', sub: 'operator-update.cjs' },
   ],
   matcher: [
     // Plan 385-10: the query-efficiency hook no longer runs on Read (its Read result was always empty).
@@ -114,14 +117,12 @@ const TABLE = [
   ['PostToolUse', 'gsd-artifact-graph-hook.cjs', 5],
   ['PostToolUse', 'memory-artifact-graph-hook.cjs', 5],
   ['PostToolUse', 'query-efficiency-telemetry.cjs', 3],
-  ['PostToolUse', 'operator-update.cjs', 5],
   ['PostToolUse', 'brain-response-sanitize-hook.cjs', 5],
   ['UserPromptSubmit', 'admin-command-gate.cjs', 3],
   ['UserPromptSubmit', 'run-hook.cmd" intent-classifier', 5],
   ['UserPromptSubmit', 'mva-detect.cjs', 3],
   ['UserPromptSubmit', 'first-install-router.cjs', 3],
   ['UserPromptSubmit', 'brain-derivation-drain.cjs', 3],
-  ['UserPromptSubmit', 'operator-update.cjs', 3],
   ['UserPromptSubmit', 'jtbd-update.cjs" userprompt', 3],
   ['UserPromptSubmit', 'auto-explore-drain.cjs', 3],
   ['FileChanged', 'run-hook.cmd" on-file-changed', 3],
