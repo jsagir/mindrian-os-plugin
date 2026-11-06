@@ -138,3 +138,21 @@ fix: none applied. Awaiting the owner decision.
 verification: caller search, offline test runs and stub probe recorded in Evidence (PROVEN).
 files_changed: none
 commits: see git log of this file
+
+## Owner decision
+
+decision: option-b
+
+- Date: 2026-11-06
+- Owner words, verbatim: "we are not useing pinecone in the mos build". The words reached this session through the coordinating session, relayed from the owner's answer card.
+- Reading: the statement is not exactly option A, B or C. It is recorded as option B because it says the build does not use Pinecone and the verdict is DEAD. This reading is the recording agent's, and the owner can correct it.
+- Reason: lib/core/pinecone-inference.cjs has 0 runtime callers, and the owner states that the build does not use Pinecone.
+- Effect: hand lib/core/pinecone-inference.cjs to Phase 385 as a removal candidate with this caller proof. Plan 385-12 item R6 picks it up. This owner statement overrides Phase 296 D-06 for this file. This plan deletes nothing.
+- Files a removal must edit (listed, not edited here):
+  - tests/272-pinecone-inference.test.cjs (delete with the module)
+  - tests/run-all-272.sh (remove its pinecone-inference lines and the Part 8 exemption note)
+  - tests/296-pinecone-residue.sh (change assertions P3 and P5, which require the file to exist and to load)
+  - tests/run-all-296.sh names the file in a comment and needs a matching text update.
+  - lib/core/rs_cache.py and CHANGELOG.md mention the file in prose only. They need no change.
+- Not covered by this decision: broader Pinecone surfaces are a separate question that plan 385-12 R6 handles. lib/core/rs-pinecone-bridge.cjs (its cosineSimilarity) has 6 production requirers (hsi-engine, hsi-lsa, rs-differential-scorer, rs-engine, semantic-index/embedding-spine, semantic-index/vector-store), and scripts/compute-hsi.py Tier 2, requirements-hsi.txt and the other `PINECONE_API_KEY` readers stay until R6 is ruled.
+- Still open from the Non-Code Follow-ups: the stored key-shaped default in scripts/consolidate-pinecone.py line 27 needs a rotation check and removal. It is not part of this decision.
