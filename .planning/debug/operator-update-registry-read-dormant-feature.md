@@ -164,3 +164,11 @@ decision: unwire
   - The feature and the SessionStart BUILD_ROOM resume hint stay off. Both use the same dead private reader.
   - A later plan may repair the read. That plan must add a keyed-shape fixture test (see Tests to Add or Update) and must record that it turns on operator transitions.
 - Effect on this phase: plan 386-08 ends as a recorded skip. No product file changes in plan 386-07 or 386-08.
+
+## Plan 386-08 gate
+
+decision: unwire
+target: PRESENT
+
+- Checked 2026-11-06. The script scripts/operator-update.cjs exists and still holds its private `resolveActiveRoom` (legacy registry shape). The target is present, but the owner chose unwire, so the repair does not run.
+- Plan 386-08 is a recorded skip. No test file was created. No product file changed. The Phase 385 hand-off in the Owner decision block above stands.
