@@ -173,27 +173,33 @@ function matchGlob(filePath, glob) {
 }
 
 // resolveRoomSlug -- maps roomDir to a room slug via the registry.
-// Falls back to basename(roomDir) if registry is missing/unreadable.
+// Falls back to basename(roomDir) if registry is missing/unreadable or no entry matches.
+// Phase 386-06 (B3): each entry's directory comes from registryRoomPath in
+// lib/core/resolve-active-room.cjs (entry.abs_path, else entry.path against the
+// rooms home), for both registry shapes (rooms object keyed by slug, and the
+// legacy rooms array). No private copy of the registry shape lives here.
 function resolveRoomSlug(roomDir) {
   try {
     const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
     const regPath = path.join(home, '.rooms', 'registry.json');
     if (!fs.existsSync(regPath)) return path.basename(roomDir);
     const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
-    const rooms = (reg && Array.isArray(reg.rooms)) ? reg.rooms : [];
+    const canonical = require('../lib/core/resolve-active-room.cjs');
     const target = path.resolve(roomDir);
-    const entry = rooms.find(x => {
-      if (!x) return false;
-      // Two registry conventions:
-      //   - across-session-memory: rooms[].path (relative or absolute)
-      //   - jtbd-update: rooms[].abs_path (absolute)
-      const candidate = (typeof x.abs_path === 'string' && x.abs_path) ||
-                        (typeof x.path === 'string' && x.path) || null;
-      if (!candidate) return false;
-      const rd = path.isAbsolute(candidate) ? candidate : path.join(home, candidate);
-      try { return path.resolve(rd) === target; } catch (_) { return false; }
-    });
-    return (entry && entry.slug) ? entry.slug : path.basename(roomDir);
+    const slugs = [];
+    if (reg && Array.isArray(reg.rooms)) {
+      reg.rooms.forEach(function (x) {
+        const sl = x && (x.slug || x.name);
+        if (typeof sl === 'string' && sl) slugs.push(sl);
+      });
+    } else if (reg && reg.rooms && typeof reg.rooms === 'object') {
+      Object.keys(reg.rooms).forEach(function (k) { slugs.push(k); });
+    }
+    for (let i = 0; i < slugs.length; i++) {
+      const rd = canonical.registryRoomPath(home, slugs[i], reg);
+      if (rd && path.resolve(rd) === target) return slugs[i];
+    }
+    return path.basename(roomDir);
   } catch (_) { return path.basename(roomDir || ''); }
 }
 

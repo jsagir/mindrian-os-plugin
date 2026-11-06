@@ -47,7 +47,6 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const os = require('node:os');
 
 // -- Glyph constants -------------------------------------------------
 // Approved 12-glyph vocabulary (skills/ui-system/SKILL.md section 3) emitted via
@@ -87,23 +86,19 @@ function trunc(s, max) {
 }
 
 // -- Active-room resolution -----------------------------------------
-// Mirrors scripts/hmi-compliance-poll.cjs._internal.resolveActiveRoom (Plan
-// 105-01). Local copy avoids the cross-script require dance and keeps this
-// command self-contained. If a future refactor exposes a shared helper, this
-// can switch to a require + fall-through pattern.
+// Routes through lib/core/resolve-active-room.cjs, the ONE resolver for the
+// active room (Phase 127.3). It reads both registry shapes (the keyed
+// `active` + rooms object that scripts/room-registry writes, and the legacy
+// `active_room` + rooms array), honors sealed/archived, and checks the
+// directory exists. Returns { slug, abs_path } or null. Never throws.
+// Phase 386-06 (B3): the old private copy only read the legacy array shape
+// and never resolved a room on the shape the writer produces.
 function resolveActiveRoom() {
-  const home = process.env.MINDRIAN_ROOMS_HOME || path.join(os.homedir(), 'MindrianRooms');
-  const regPath = path.join(home, '.rooms', 'registry.json');
-  if (!fs.existsSync(regPath)) return null;
-  let reg;
-  try { reg = JSON.parse(fs.readFileSync(regPath, 'utf8')); }
-  catch (_e) { return null; }
-  if (!reg || !reg.active_room || !Array.isArray(reg.rooms)) return null;
-  const room = reg.rooms.find(function (r) { return r && r.slug === reg.active_room; });
-  if (!room || !room.abs_path) return null;
-  if (!fs.existsSync(room.abs_path)) return null;
-  if (room.sealed === true) return null;
-  return room;
+  try {
+    return require('../lib/core/resolve-active-room.cjs').resolveActiveRoom();
+  } catch (_e) {
+    return null;
+  }
 }
 
 // -- Side-channel reader (read-only, never throws) ------------------
