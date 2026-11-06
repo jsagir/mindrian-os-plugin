@@ -273,6 +273,20 @@ Reading (the main session's reading, to be checked by the owner), in 4 short lin
 
 Gate checks made before this block was written: the plan 386-42 RCA says design_can_work: yes, and no row marked needed_by_route yes needs room text on the wire (the sprouts travel as ordinary brain_ask and brain_search calls).
 
+## Owner acknowledgement
+
+owner_ack: yes
+owner_ack_ids: X8
+owner_ack_probe_ids: C:plurai:24,C:plurai:26,C:plurai:29,C:plurai:31
+split_probe_ids: C:plurai:22,C:plurai:25,C:plurai:32,C:354-private:1,C:354-private:2,C:354-private:3,C:354-private:4,C:354-private:5,C:354-private:6,C:354-private:7,C:354-private:8,C:354-private:9
+owner_ack_unreadable_db_lexicon: yes
+owner_ack_date: 2026-11-06
+
+Source: the owner answered the plan 386-32 checkpoint on cards on 2026-11-06; the answers were relayed by the coordinating session. Owner choices, quoted verbatim:
+
+1. Residual strings: "Acknowledge the 5 (Recommended)". The 5 are X8 and the four unmarked probe strings C:plurai:24, C:plurai:26, C:plurai:29 and C:plurai:31. The owner did not choose the figure rule and did not choose the proper-name rule. The 12 marked probe strings are split, not sent; they are not part of the acknowledged-leaving set and are listed above as split_probe_ids.
+2. Unreadable room.db: "Short sprouts go, credentials still block (Recommended)". A short string that holds a room-lexicon term may leave while the room cannot be read; longer text is split (sprouts_required); credentials, emails and structured identifiers still block. The owner did not choose block-everything.
+
 ## Resolution
 
 root_cause: three causes (the owner principle of 2026-11-06 says shape, not a word list, separates a sprout from a body). The name rule decides by spelling and has no calendar, plugin-noun or shape exemption. The shared deny list runs ordinary business words on every free-form string. The my or our rule ignores question versus statement, and a failed room database read is cached under a stat key that a chmod does not change.
