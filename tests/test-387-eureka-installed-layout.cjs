@@ -263,12 +263,20 @@ function compareScenario(scenario, expectedRows, only) {
   return problems;
 }
 
+// eureka_critic has two accepted states. Before the shipping fix it answers a text-only ENOENT error
+// (the baseline file evals/eureka/212-critic-baseline.json is not in the pack). After the fix (a
+// separate quick task, 261106) it answers a ruling JSON with a verdict. Both are accepted so this
+// pin does not depend on the order in which the two changes land; once the fix is committed, narrow
+// this to the answering state.
 function criticProblems(scenario, expect) {
   const problems = [];
   for (const call of scenario.calls.filter((c) => c.tool === 'eureka_critic')) {
     const text = String(call.text || '');
-    if (call.isError !== true || !expect.critic_error_includes.every((s) => text.includes(s))) {
-      problems.push(scenario.id + ' eureka_critic: expected a text error naming ' + expect.critic_error_includes.join(' and ') + ', got ' + JSON.stringify([call.isError, text.slice(0, 120)]));
+    const broken = call.isError === true && expect.critic_error_includes.every((s) => text.includes(s));
+    let answers = false;
+    if (call.isError === false) { try { answers = typeof JSON.parse(text).verdict === 'string'; } catch (_e) { answers = false; } }
+    if (!broken && !answers) {
+      problems.push(scenario.id + ' eureka_critic: expected the ENOENT error or a ruling with a verdict, got ' + JSON.stringify([call.isError, text.slice(0, 120)]));
     }
   }
   return problems;
@@ -307,10 +315,10 @@ function armI3(report, expect) {
   const bound = s1.calls.filter((c) => c.bound);
   const engine = bound.filter((c) => c.reason === 'engine_not_configured');
   const jobs = bound.filter((c) => c.reason === 'job_session_not_found');
-  const okCalls = bound.filter((c) => c.isError === false);
+  const okCalls = bound.filter((c) => c.isError === false && c.tool !== 'eureka_critic');
   if (engine.length !== 19) problems.push('engine_not_configured count ' + engine.length + ' expected 19');
   if (jobs.length !== 3) problems.push('job_session_not_found count ' + jobs.length + ' expected 3');
-  if (okCalls.length !== 1 || okCalls[0].tool !== 'eureka_graph_project') problems.push('expected exactly eureka_graph_project to answer ok, got ' + okCalls.map((c) => c.tool).join(','));
+  if (okCalls.length !== 1 || okCalls[0].tool !== 'eureka_graph_project') problems.push('expected exactly eureka_graph_project to answer ok (eureka_critic aside), got ' + okCalls.map((c) => c.tool).join(','));
   return problems;
 }
 
