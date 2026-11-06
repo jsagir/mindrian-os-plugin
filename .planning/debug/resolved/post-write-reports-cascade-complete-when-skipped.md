@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "post-write-reports-cascade-complete-when-skipped"
 issue_id: ""

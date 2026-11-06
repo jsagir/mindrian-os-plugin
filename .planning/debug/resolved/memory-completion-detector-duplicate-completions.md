@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "memory-completion-detector-duplicate-completions"
 issue_id: ""

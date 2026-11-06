@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "research-speaker-sends-names-before-the-user-is-asked"
 issue_id: ""

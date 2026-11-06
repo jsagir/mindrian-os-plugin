@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "room-db-reported-unreadable-on-a-windows-drive-from-wsl"
 issue_id: "B18"

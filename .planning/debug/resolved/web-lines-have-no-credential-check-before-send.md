@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "web-lines-have-no-credential-check-before-send"
 issue_id: ""

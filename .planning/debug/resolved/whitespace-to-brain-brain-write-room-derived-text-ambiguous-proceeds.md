@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "whitespace-to-brain-brain-write-room-derived-text-ambiguous-proceeds"
 issue_id: "B2"

@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "web-paths-no-approval-or-audit-record"
 issue_id: ""

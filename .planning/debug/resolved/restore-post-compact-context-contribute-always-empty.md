@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "restore-post-compact-context-contribute-always-empty"
 issue_id: ""

@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "grants-gov-scan-sends-room-words-without-approval"
 issue_id: ""

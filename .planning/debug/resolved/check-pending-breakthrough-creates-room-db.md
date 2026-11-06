@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "check-pending-breakthrough-creates-room-db"
 issue_id: "B6b"

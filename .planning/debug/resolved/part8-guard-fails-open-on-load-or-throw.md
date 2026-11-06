@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "part8-guard-fails-open-on-load-or-throw"
 issue_id: "E-FAIL"

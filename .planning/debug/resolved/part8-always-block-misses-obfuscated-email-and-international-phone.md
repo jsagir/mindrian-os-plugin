@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "part8-always-block-misses-obfuscated-email-and-international-phone"
 issue_id: "E-IDENT"

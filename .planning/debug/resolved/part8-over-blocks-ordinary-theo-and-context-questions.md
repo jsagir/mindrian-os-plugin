@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "part8-over-blocks-ordinary-theo-and-context-questions"
 issue_id: "E-OVER"

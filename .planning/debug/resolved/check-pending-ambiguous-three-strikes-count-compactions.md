@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "check-pending-ambiguous-three-strikes-count-compactions"
 issue_id: "B6a"

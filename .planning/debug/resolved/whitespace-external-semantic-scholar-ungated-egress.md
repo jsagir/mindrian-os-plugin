@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "whitespace-external-semantic-scholar-ungated-egress"
 issue_id: ""

@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "approved-recovery-moves-a-healthy-room-db-aside-on-a-false-unreadable"
 issue_id: "B19"

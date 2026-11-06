@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "folder-memory-eager-timeline-runner-widens-guard-dependencies"
 issue_id: ""

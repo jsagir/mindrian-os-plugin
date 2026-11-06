@@ -1,5 +1,5 @@
 ---
-status: resolved            # gathering | investigating | fixing | resolved
+status: resolved
 kind: rca                    # rca | debug-session | qa-sweep
 trigger: "part8-job-key-skips-room-word-rules"
 issue_id: ""

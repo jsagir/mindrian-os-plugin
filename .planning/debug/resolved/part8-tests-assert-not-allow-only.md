@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "part8-tests-assert-not-allow-only"
 issue_id: "E-TEST"

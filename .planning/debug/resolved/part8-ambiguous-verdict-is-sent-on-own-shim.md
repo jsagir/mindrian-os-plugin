@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "part8-ambiguous-verdict-is-sent-on-own-shim"
 issue_id: "E-AMB"

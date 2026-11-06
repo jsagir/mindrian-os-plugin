@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "registry-readers-legacy-shape-never-resolve"
 issue_id: "B3"

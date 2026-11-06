@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "part8-no-shape-test-for-sprouts-and-bodies"
 issue_id: ""

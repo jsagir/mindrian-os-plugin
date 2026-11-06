@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "session-start-env-assignment-after-node-e-dev-clone-branch-dead"
 issue_id: "B4"

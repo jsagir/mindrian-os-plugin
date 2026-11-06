@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "post-compact-two-session-rows-and-sessionstart-envelope-fallback"
 issue_id: ""

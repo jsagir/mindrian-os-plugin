@@ -778,3 +778,353 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - Open: leak proof against the real engine not yet run (owner-run test, Plan 387-10). The effect of the uv flags inside the real engine project and the model and Node.js cells marked audit-hypothesis are also not confirmed.
 - **Pattern lesson:** (1) A fake engine proves the plugin side only; keep the real-engine check as a separate owner-run test and keep the record open until its result is pasted. (2) Put safety flags in the command arguments, not only in the environment: an environment allowlist silently drops a variable that a parent sets. (3) Run an installed-layout probe before trusting a dev-tree test: it found a shipped-file defect (the critic baseline) that no dev-tree test could.
 ---
+
+## wiki-server-shadowed-byoapi-chat-proxy-latent-part8-egress -- the wiki server kept a second, shadowed chat handler that would have sent page content to third-party APIs if a route was reordered
+- **Date:** 2026-11-06
+- **Error patterns:** none (the hazard is latent).
+- **Root cause:** the superseded BYOAPI proxy handler stayed in lib/wiki/wiki-server.cjs after the stub handler replaced it, and only registration order blocked the egress. The pdf route sat after the wildcard artifact route, so the wildcard matched first.
+- **Fix:** deleted the second POST /api/chat handler. Registered GET /wiki/:section/pdf (handler servePdf, a hoisted function declaration that keeps the original body) before GET /wiki/:section/*rest. servePdf calls next() when a page with id <section>/pdf exists. /api/briefing is unchanged.
+- **Verification:** node tests/test-386-wiki-no-byoapi-proxy.cjs (RED at 794c02fa7: arms (a) and (c) failed; GREEN at 89fac7b2b: 4 of 4 arms pass); node tests/test-232-wiki-server.cjs 8 of 8; node tests/test-261030-fbl-wiki-host-guard.cjs ALL PASS; node tests/test-visible-room-leak.cjs 14 of 14; bash tests/run-all-386.sh PASS=1 FAIL=0; bash tests/run-all-196.sh Passed 6 Failed 0 on 3 runs (1 earlier run reported Failed 1 and was not reproduced, see the plan summary); node tests/test-3692-guard-survey-gate.cjs PASS 5 FAIL 0. Surfaces: cli verified. desktop and cowork verified by construction (the wiki server...
+- **Files changed:** lib/wiki/wiki-server.cjs (deleted the BYOAPI handler, moved the pdf route before the wildcard, added the next() fall-through); tests/test-386-wiki-no-byoapi-proxy.cjs (new); tests/run-all-386.sh (new). Full record: `.planning/debug/resolved/wiki-server-shadowed-byoapi-chat-proxy-latent-part8-egress.md` (phase 386, row B1).
+- **Pattern lesson:** Delete a superseded egress handler at the origin and pin it with a static and a dynamic test; do not rely on route order for a Part 8 boundary.
+---
+
+## whitespace-to-brain-brain-write-room-derived-text-ambiguous-proceeds -- a Brain write of room-derived text went out on an ambiguous guard verdict and a refused write was counted as a success
+- **Date:** 2026-11-06
+- **Error patterns:** none. The defect is a silent proceed and a false success count.
+- **Root cause:** Confirmed, see Technical Root Cause. classify() had no arm for brain_write, so a payload that cleared the deny-list fell to the terminal ambiguous/unknown, and callTool proceeds on ambiguous. The data claim of the auditor is PARTIAL (text is a Brain framework name in the shipped pipeline; room-derived values are density and rank numbers). The seam claim is CONFIRMED.
+- **Fix:** Implemented by plan 386-04, option A. (1) lib/core/part8-egress-guard.cjs: new private predicate _isBrainWriteTool(toolName) and one arm in classify() after step 1 and step 1b, before the packet check: verdict block, class write_blocked, a constant reason with no payload bytes, no allow rule. Step 1 is unchanged. (2) scripts/part8-egress-guard-hook.cjs: the block branch gives a distinct message for write_blocked. (3) scripts/whitespace-to-brain.cjs: the wz.hypothesis assignment is removed, brainWriteOutcome() separates ok, blocked and failed, a result with an own error property is never a success, and the summary has a new blocked field. (4) scripts/discovery-cycle.cjs step 8: captures the script stdout and logs one line when blocked is above 0. (5) tests/test-brain-client-params.cjs:...
+- **Verification:** (all on synthetic strings, fixture room, fake key, fetch replaced by a counter, 0 network calls); RED proof: tests/test-386-b2-brain-write-blocked.cjs at commit 38df8b772 failed exactly A1, A3, A4, A5, A6 (18 failing checks) and passed A2 and A7.; GREEN proof: the same test passes all 7 arms after commit 4cb862239.; bash tests/run-all-196.sh: 7 passed, 0 failed (baseline 6 passed, 0 failed; the 7th leg is the new 386-04 leg). One earlier run showed a transient room_check_unavailable in the 260917-dgf leg while peer processes ran in the same tree; the rerun and a direct run were green....
+- **Files changed:** lib/core/part8-egress-guard.cjs, scripts/part8-egress-guard-hook.cjs, scripts/whitespace-to-brain.cjs, scripts/discovery-cycle.cjs, tests/run-all-196.sh, tests/test-brain-client-params.cjs, tests/test-386-b2-brain-write-blocked.cjs (new). Full record: `.planning/debug/resolved/whitespace-to-brain-brain-write-room-derived-text-ambiguous-proceeds.md` (phase 386, row B2).
+- **Pattern lesson:** A guard needs a positive rule or a block, never a silent pass on ambiguous; a caller must not count a refused call as success.
+---
+
+## whitespace-external-semantic-scholar-ungated-egress -- the Semantic Scholar script sent room title words with no approval, no credential check and no audit record
+- **Date:** 2026-11-06
+- **Error patterns:** none. The failure is silent by construction, which is why it went unnoticed.
+- **Root cause:** the 2026-10-05 gate (approval card, credential check, audit record) was never applied to scripts/query-semantic-scholar.cjs. The script sent room-derived queries with no list step, no token, no credential check and no audit call. Confirmed by static read and by a fixture-room reproduction on 2026-11-06.
+- **Fix:** option A. The script has --list-queries and --approve <token>. The token is the hash of the exact query list (lib/core/web-path-gate.cjs). Every query passes credentialCheck before any fetch (exit 3, no bytes echoed). Each request gets one audit record (provider semantic_scholar; outcome ok, empty_valid or failed). A cache hit sends nothing and needs no token. whitespace-command.cjs external prints the numbered list and the approval line, then sends only with the token. commands/whitespace.md has the approval step between marker comments, with no use of the word grant. No content scan was added.
+- **Verification:** node tests/test-386-semantic-scholar-approval.cjs arms S1 to S10 plus S7b pass (RED commit 66d2d3a14 failed S1 to S5, S7 to S10); bash tests/run-all-386.sh all pass; tests test-355-no-decimal, test-355-part8-egress, test-355-floor-sweep, test-355-producer-whitespace-hsi, test-355-stamp-coverage unchanged green; test-363-command-contract green after one in-place update of its P1 byte-preservation leg (the external section may gain the approval step and the token); build-connector-registry --check and check-render-coverage pass; check-shape-declaration advisory count unchanged at 51.
+- **Files changed:** scripts/query-semantic-scholar.cjs, scripts/whitespace-command.cjs, commands/whitespace.md, skills/whitespace/SKILL.md (generated mirror), tests/test-386-semantic-scholar-approval.cjs, tests/test-363-command-contract.cjs. Full record: `.planning/debug/resolved/whitespace-external-semantic-scholar-ungated-egress.md` (phase 386, row S2).
+- **Pattern lesson:** Extend the ruling that web lines get a grant card, a credential check and an audit record; list the exact strings first, then send with a token over them.
+---
+
+## registry-readers-legacy-shape-never-resolve -- three readers kept a private copy of the legacy registry shape and never resolved the active room
+- **Date:** 2026-11-06
+- **Error patterns:** none (every path degrades silently).
+- **Root cause:** Three readers kept private copies of the legacy registry shape after Phase 127.3 made lib/core/resolve-active-room.cjs the one resolver.
+- **Fix:** hmi-status-command, across-session-memory and memory-completion-detector now turn the slug into a directory through registryRoomPath in lib/core/resolve-active-room.cjs and read both the keyed and the legacy registry shape; no private parser remains.
+- **Verification:** tests/test-386-registry-readers.cjs 7 of 7 (RED showed 4 FAIL); test-resolve-active-room-canonical 12/12; test-across-session-memory 36/36; run-all-386 pass.
+- **Files changed:** scripts/hmi-status-command.cjs; lib/hmi/across-session-memory.cjs; scripts/memory-completion-detector.cjs. Full record: `.planning/debug/resolved/registry-readers-legacy-shape-never-resolve.md` (phase 386, row B3).
+- **Pattern lesson:** Never keep a private copy of a file shape; route every reader through the one resolver (lib/core/resolve-active-room.cjs).
+---
+
+## session-start-env-assignment-after-node-e-dev-clone-branch-dead -- an environment assignment written after node -e became an argument, so the dev-clone install branch never ran
+- **Date:** 2026-11-06
+- **Error patterns:** none (the program has a catch that prints not-found; stderr is sent to /dev/null).
+- **Root cause:** The `PLUGIN_ROOT_FOR_RESOLVE="..."` word followed the node -e program text, so bash passed it to node as an argument and not as an environment variable. The probe read undefined and always printed not-found.
+- **Fix:** Moved the assignment before the node command (prefix assignment) in the _MOS_TOPOLOGY line of the manifest reconcile block. One line changed. 2>/dev/null and the not-found fallback are kept. The extraction regex in the test was widened in the same commit to match the assignment with the prefix before node.
+- **Verification:** tests/test-386-session-start-topology-env.cjs T1 T2 T3 ok (RED showed T1 FAIL). The 5 session-start tests pass. bash -n scripts/session-start passes. bash tests/run-all-386.sh PASS=8 FAIL=0 at run time. The real scripts/session-start and scripts/install-pre-commit.sh were never run.
+- **Files changed:** scripts/session-start (one line); tests/test-386-session-start-topology-env.cjs (extraction regex). Full record: `.planning/debug/resolved/session-start-env-assignment-after-node-e-dev-clone-branch-dead.md` (phase 386, row B4).
+- **Pattern lesson:** In bash, VAR=value belongs before the command; after the program text it is just another argument.
+---
+
+## post-compact-two-session-rows-and-sessionstart-envelope-fallback -- the post-compact hook opened a second session row and fell back to the session-start envelope
+- **Date:** 2026-11-06
+- **Error patterns:** none (silent over-count, and a schema violation that the host may reject)
+- **Root cause:** A compaction creates 2 session rows. The post-compact fallback path runs scripts/session-start, which prints a SessionStart-shaped envelope into the PostCompact event, where that shape is not allowed.
+- **Fix:** Fixed in plan 386-10 (fix commit follows the RED test commit). cmdPostCompact in scripts/memory-lifecycle.cjs reuses the session the pointer names and writes only the marker fragment; it opens a row only when no usable pointer exists. scripts/post-compact prints {"continue":true} on the no-state and stale-state paths instead of exec-ing session-start.
+- **Verification:** Proof: tests/test-386-post-compact-session-rows.cjs (C1 both hook orders, C2, C3).
+- **Files changed:** scripts/memory-lifecycle.cjs, scripts/post-compact, tests/test-386-post-compact-session-rows.cjs (new). Full record: `.planning/debug/resolved/post-compact-two-session-rows-and-sessionstart-envelope-fallback.md` (phase 386, row B5).
+- **Pattern lesson:** A hook that can run in either order must reuse the session the pointer names and open a row only without a usable pointer.
+---
+
+## restore-post-compact-context-contribute-always-empty -- the post-compact restore hook copied main() without its arguments, so it read no side channel and returned empty
+- **Date:** 2026-11-06
+- **Error patterns:** `readSideChannel()` with no argument throws TypeError (path.join argument undefined); the catch hides it.
+- **Root cause:** The SessionStart coordinator loads contribute() from the post-compact consumer. contribute() never returns the side-channel fragment, so context saved at compaction never reaches the next turn through the coordinator.
+- **Fix:** Fixed in plan 386-10. contribute() now resolves the room first (resolveContributeRoom, built on lib/core/resolve-active-room.cjs), reads the side channel from that room, parses the stamp, and validates the stamp. Cross-room files are set aside with the cross-room-skip kind.
+- **Verification:** Proof: tests/test-386-restore-post-compact-context.cjs (C4, C5, C6).
+- **Files changed:** scripts/restore-post-compact-context.cjs, tests/test-386-restore-post-compact-context.cjs (new). Full record: `.planning/debug/resolved/restore-post-compact-context-contribute-always-empty.md` (phase 386, row B9).
+- **Pattern lesson:** When a function is copied from main(), copy its arguments too; fix all faults on the path (room, stamp, validation) or the file is consumed and still empty.
+---
+
+## check-pending-ambiguous-three-strikes-count-compactions -- the three-strike dismissal counted every run, so three compactions of one session dismissed both claims
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** The strike counter in throttleAndCollect was incremented once per hook run and the hook never read the SessionStart session_id, so compactions and clears inside one session each added a strike.
+- **Fix:** main reads the SessionStart stdin once (readSessionId, bounded string, null on TTY or fault). throttleAndCollect adds one strike per distinct session_id, stored as the scalar last_strike_session_id. A claim whose stored id equals the current id gets no strike and stays active. With no session_id the old per-run count applies.
+- **Verification:** tests/test-386-check-pending-hooks.cjs P1 P2 P3 ok (RED showed P1 FAIL). tests/test-check-pending-ambiguous.cjs 10 checks passed. tests/test-ambiguous-queue.cjs and tests/test-120-02-scaffold.sh exit 0. bash tests/run-all-386.sh PASS=11 FAIL=0 at run time.
+- **Files changed:** scripts/check-pending-ambiguous.cjs (readSessionId, throttleAndCollect, main); tests/test-386-check-pending-hooks.cjs. Full record: `.planning/debug/resolved/check-pending-ambiguous-three-strikes-count-compactions.md` (phase 386, row B6a).
+- **Pattern lesson:** Count a strike per distinct session id, not per run.
+---
+
+## check-pending-breakthrough-creates-room-db -- a read-only hook called a scanner that opens the room through openRoomDb, which creates room.db
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** scanner.scanForBreakthroughs opens the room through openRoomDb, which creates an absent room.db, and the hook had no existence guard.
+- **Fix:** main returns emitContinue() when <activeRoomDir>/.mindrian/room.db does not exist, before the scanner is required. The rest is unchanged.
+- **Verification:** tests/test-386-check-pending-hooks.cjs P4 and P5 ok (RED showed P4 FAIL). scripts/check-pending-breakthrough.test.cjs: 4 pass, 1 fail, the same Test 12 failure as before the change (expects shape F.7, the hook emits F.1 since Phase 188-01; a stale test expectation, not related to B6, not fixed here). tests/test-breakthrough-*.cjs all exit 0.
+- **Files changed:** scripts/check-pending-breakthrough.cjs (guard in main); tests/test-386-check-pending-hooks.cjs. Full record: `.planning/debug/resolved/check-pending-breakthrough-creates-room-db.md` (phase 386, row B6b).
+- **Pattern lesson:** A hook that only reads must check that the store exists before it opens it.
+---
+
+## post-write-reports-cascade-complete-when-skipped -- the post-write advisory said queued or complete for a cascade that was skipped or failed
+- **Date:** 2026-11-06
+- **Error patterns:** none (the status lies)
+- **Root cause:** scripts/post-write writes `cascade_status: "complete"` to last-cascade.json and prints "queued MINTO regen" when the cascade was skipped or failed. A reader of that file cannot tell a run from a skip.
+- **Fix:** Fixed in plan 386-15. scripts/post-write now has cascade_status_of (failed for an error key or non-JSON output, skipped when skipped is true, else complete); the writer takes the status, overwrites a stale record with failed for non-JSON output, and the advisory says skipped or failed. The 8-key side-channel contract is unchanged (no new key). Two older tests (test-cascade-side-channel, test-cascade-surface-e2e) had pinned the false complete status on default-layout fixtures and now expect skipped.
+- **Verification:** tests/test-386-cascade-status-and-completion.cjs; the two older cascade tests now expect skipped for default-layout fixtures.
+- **Files changed:** scripts/post-write, tests/test-386-cascade-status-and-completion.cjs (new), tests/test-cascade-side-channel.cjs and tests/test-cascade-surface-e2e.cjs (expect skipped, not complete). Full record: `.planning/debug/resolved/post-write-reports-cascade-complete-when-skipped.md` (phase 386, row B7a).
+- **Pattern lesson:** Report the real status of a side effect (complete, skipped, failed); never default to complete.
+---
+
+## memory-completion-detector-duplicate-completions -- the memory completion detector fired the same completion again for the same write record
+- **Date:** 2026-11-06
+- **Error patterns:** memory completion detector duplicate completions
+- **Root cause:** memory-completion-detector records the same JTBD completion more than once for one cascade record, and it trusts a status that post-write writes as complete even for a skip.
+- **Fix:** Fixed in plan 386-15. detectAndFire skips a record whose identity (timestamp|file_path) equals the scalar in <room>/.mindrian/last-cascade-counted, and writes that scalar after a completion. A skipped or failed record already fails the status gate. Limit: a second write of the same file in the same second shares the identity and counts once (the 8-key contract has no id key).
+- **Verification:** tests/test-386-cascade-status-and-completion.cjs arms W4 to W6.
+- **Files changed:** scripts/memory-completion-detector.cjs, tests/test-386-cascade-status-and-completion.cjs (W4 to W6). Full record: `.planning/debug/resolved/memory-completion-detector-duplicate-completions.md` (phase 386, row B7b).
+- **Pattern lesson:** Give each record an identity (timestamp and file path) and store the last counted identity as a scalar.
+---
+
+## dial-memory-rewrite-marks-sections-stale -- refreshing a section rewrote the generated FEYNMAN.md, which then made the stale rule mark the section stale
+- **Date:** 2026-11-06
+- **Error patterns:** none (wrong verdict, no exception).
+- **Root cause:** FEYNMAN.md (generated, auto-rewritten by two writers) was counted as a section artifact by the stale rule, so each rewrite read as artifacts_newer_than_minto.
+- **Fix:** FEYNMAN.md added to the RESERVED set in the sync and async folder-memory readers. The fix site moved from dial-memory-runner.cjs (plan text) to the readers, because the timeline-runner is a second writer of the same file. A real artifact edit is still stale (D2).
+- **Verification:** node tests/test-386-dial-memory-stale.cjs (all arms ok), tests/test-dial-memory-runner.cjs, tests/test-dial-memory-renderer.cjs, lib/memory/folder-memory.test.cjs, lib/memory/folder-memory-quadruple.test.cjs, lib/memory/feynman-minto-guardian.test.cjs all exit 0.
+- **Files changed:** lib/core/folder-memory.cjs (RESERVED gains FEYNMAN.md); lib/core/folder-memory-async.cjs (RESERVED gains FEYNMAN.md); tests/test-386-dial-memory-stale.cjs (new). Full record: `.planning/debug/resolved/dial-memory-rewrite-marks-sections-stale.md` (phase 386, row B8).
+- **Pattern lesson:** A generated file must not count as a new artifact in the freshness walk that decides if it is stale.
+---
+
+## rs-fetch-neo4j-uri-typeerror-instead-of-sqlite-fallback -- rs-fetch with NEO4J_URI set threw a TypeError instead of using the SQLite tier
+- **Date:** 2026-11-06
+- **Error patterns:** TypeError raised in lib/core/rs-neo4j-writer.cjs writeDiscovery (type name only).
+- **Root cause:** tier1 is chosen from NEO4J_URI alone, but rs-fetch never builds a driver, so the Aura writer throws TypeError which was not in the fallback set.
+- **Fix:** in the tier1 catch block of runDiscovery, a TypeError with no usable opts.driver now takes the SQLite fallback (fallback_reason no_aura_driver, one stderr notice). The writer is still called first, so the existing mocked-writer test keeps its contract. ExternalEgressViolation and any TypeError with a driver still bubble up. A pre-call guard was tried first and rejected: it broke lib/memory/test-rs-discovery-engine.cjs T2, which expects the writer to be attempted.
+- **Verification:** node tests/test-386-rs-fetch-neo4j-fallback.cjs (all arms ok). lib/memory/test-rs-discovery-engine.cjs rc 0, lib/memory/test-rs-explain-command.cjs rc 0. lib/memory/rs-discovery-engine.test.cjs fails at t2 (classification literal) both before and after, so that failure is pre-existing and unrelated.
+- **Files changed:** scripts/rs-discovery-engine.cjs (tier1 catch block); tests/test-386-rs-fetch-neo4j-fallback.cjs (new). Full record: `.planning/debug/resolved/rs-fetch-neo4j-uri-typeerror-instead-of-sqlite-fallback.md` (phase 386, row B10).
+- **Pattern lesson:** Choose the tier by what exists (a driver), not by an environment variable alone.
+---
+
+## framework-run-halt-card-never-minted-unknown-gate -- the framework_run halt card was rendered but never minted, so gate_answer answered unknown_gate
+- **Date:** 2026-11-06
+- **Error patterns:** reason unknown_gate
+- **Root cause:** The framework_run halt path in lib/mcp/tools/sensors.cjs rendered a gate and returned its id but never minted the id in lib/mcp/gate-ledger.cjs, so gate_answer answered unknown_gate.
+- **Fix:** After renderGate, the halt path mints the rendered card with gateLedger.mintGate (kind general, renderer from ledgerRenderer, approving 'approve', session id). Skipped when the elicitation dialog was already answered inline. gate.cjs unchanged. The entry carries no mintedRoomDir (recorded limit above).
+- **Verification:** tests/test-386-framework-run-halt-gate-minted.cjs RED (H1, H2 and the anti-vacuity row failed; H3, H4 passed) then GREEN (all arms). tests/test-sensors-routing-fence.cjs, test-sensors-part8-sweep.cjs, test-198-contract-schema, test-198-chain-run-halt, test-198-local-only, test-238-one-ledger, test-238-chosen-validation, test-289-ledger-consume-after-checks, test-h27-gate-card-node-fields, test-254-composition-census, test-248 all exit 0. bash tests/run-all-386.sh: 13 pass, 0 fail. node scripts/check-shape-declaration.cjs --check exit 0. Two failures not caused by this change:...
+- **Files changed:** lib/mcp/tools/sensors.cjs (require gate-ledger, mint in the halt path); tests/test-386-framework-run-halt-gate-minted.cjs (new). Full record: `.planning/debug/resolved/framework-run-halt-card-never-minted-unknown-gate.md` (phase 386, row B11).
+- **Pattern lesson:** A card shown to the person must be minted in the gate ledger first, or its answer has nowhere to go.
+---
+
+## last-session-md-rewritten-every-turn -- the "since last session" count was rewritten on every turn so it counted from the previous turn
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** the reference time for "since last session" is the mtime of the file that on-stop rewrites at every Stop.
+- **Fix:** scripts/on-stop (KAIROS Prep block) keeps .context/.session-baseline. It moves only when the Stop session_id changes, and takes the mtime of the previous last-session.md. The artifact count and methodology guess use find -newer against the stamp. No safe session_id keeps the old behavior. The block was written compactly to stay inside the 680 line budget of tests/test-261030-8vd-onstop-wait.cjs (655 before, 674 after). stop-gate-handler needed no change.
+- **Verification:** node tests/test-386-last-session-baseline.cjs (L1 to L4 ok, RED before). bash -n scripts/on-stop ok. test-381-onstop-failure, test-261029-kqv-stop-skip-recompute, test-240.1-state-version-preserved, test-compute-state-persists exit 0. test-261030-8vd-onstop-wait fails on B1 speed (median over 600 ms) both before and after the change, so it is pre-existing machine timing.
+- **Files changed:** scripts/on-stop (baseline stamp in the KAIROS Prep block); tests/test-386-last-session-baseline.cjs (new). Full record: `.planning/debug/resolved/last-session-md-rewritten-every-turn.md` (phase 386, row B13).
+- **Pattern lesson:** Move a baseline stamp only when the session id changes.
+---
+
+## memory-artifact-graph-hook-reconciles-wrong-room -- the memory hook reconciled the active room for a file written in another room
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** the hook gates on the basename only, then reconciles the room chosen by environment or registry, with no check that the written file lies inside it.
+- **Fix:** scripts/memory-artifact-graph-hook.cjs gains isInsideRoom (realpath of the nearest existing ancestor on both sides, then a relative-path check). runHook returns before any room.db work when the file is outside the room. The twin gsd hook is unchanged (it resolves the room from the written file).
+- **Verification:** node tests/test-386-memory-artifact-hook-room-scope.cjs (M1 to M5 ok, M1 and M2 were RED). tests/test-150-memory-nodes.cjs and tests/test-261029-qef-hook-timeouts.cjs exit 0.
+- **Files changed:** scripts/memory-artifact-graph-hook.cjs (isInsideRoom, realOrResolve, scope check); tests/test-386-memory-artifact-hook-room-scope.cjs (new). Full record: `.planning/debug/resolved/memory-artifact-graph-hook-reconciles-wrong-room.md` (phase 386, row B14).
+- **Pattern lesson:** Reconcile the active room only when the written file lies inside it (realpath on both sides).
+---
+
+## graph-doctor-module-ctx-roomdir-never-set -- the doctor never passed roomDir in the module context, so graph-doctor reported the working folder
+- **Date:** 2026-11-06
+- **Error patterns:** graph doctor module ctx roomdir never set
+- **Root cause:** The always-pass ctx in scripts/doctor.cjs (function runAccumulativeEngine) had no roomDir field, so modules that read ctx.roomDir fell back to the working directory.
+- **Fix:** Added roomDir to that ctx object, taken from callerFlags.roomDir (null when absent). No module file changed.
+- **Verification:** tests/test-386-graph-doctor-room-ctx.cjs RED (G1 failed, G2 and G3 passed) then GREEN (all 3 arms pass). tests/graph-doctor/test-graph-doctor.cjs 6 pass. tests/test-3692-providers.cjs 46 pass. node --check scripts/doctor.cjs ok. doctor --acceptance with a temporary HOME: 25 points, same ok/not-ok per row before and after (19 pass, 6 fail on both; the 6 are install-state, deployment-surfaces, version-of-record-published, session-start-active-version, verify-release-clean-tree, activation-reached-the-wire, caused by the empty temporary HOME).
+- **Files changed:** scripts/doctor.cjs (ctx object carries roomDir); tests/test-386-graph-doctor-room-ctx.cjs (new). Full record: `.planning/debug/resolved/graph-doctor-module-ctx-roomdir-never-set.md` (phase 386, row B16).
+- **Pattern lesson:** Pass the requested room in the shared context at the engine, not in each module.
+---
+
+## room-section-table-lists-the-room-own-windows-path -- a Windows drive path reached openRoomDb on POSIX and made a folder with that literal name, which the section table listed
+- **Date:** 2026-11-06
+- **Error patterns:** none (the renderer succeeds).
+- **Root cause:** a Windows drive path string is treated as a relative name on POSIX, so openRoomDb creates a literal folder with that name (and a blank room.db) in the working folder, and renderState and discoverSections list every folder without checking the name.
+- **Fix:** lib/core/platform.cjs gains isWindowsDrivePath and windowsDrivePathToPosix (maps C:\a to /mnt/c/a when the folder exists, else null, win32 unchanged). openRoomDb, registryRoomPath and the CLAUDE_ACTIVE_ROOM branches of resolveActiveRoom and resolveActiveOwnership, and renderState use it, so an unreachable drive path creates nothing and resolves to nothing (openRoomDb throws code EROOMPATH). section-registry gains isPathLikeSectionName; discoverSections, renderState (rows and scan fallback) and the analyze discoverSections skip a path-like folder name.
+- **Verification:** node tests/test-386-section-table-no-path-rows.cjs RED at c6c364eb3 (BR1 to BR4 fail, BRP1 and BRP2 pass), GREEN after 2e37f4068 (all 10 arms ok). tests/run-all-196.sh 7 passed 0 failed. test-363.1-compute-state, test-nested-artifact-indexing, test-275-section-schema, test-visible-room-nested-scan, test-381-room-scan, test-270-tree-classification, test-353-room-map, test-381-spawn-budget and 17 resolver and platform tests: same result as before. Same red before and after: test-vi3-icm-walk (I8c), test-270-resource-session-room, test-tool-router-active-room-misroute (the last two confirmed...
+- **Files changed:** lib/core/platform.cjs (two helpers); lib/core/room-db.cjs (map or refuse a drive path at the top of openRoomDb; open mode unchanged); lib/core/resolve-active-room.cjs (registryRoomPath, resolveActiveRoom, resolveActiveOwnership); lib/core/section-registry.cjs (isPathLikeSectionName, discoverSections); lib/core/room-render-state.cjs (room argument mapping, row filter); lib/core/room-render-analyze.cjs (section list filter); tests/test-386-section-table-no-path-rows.cjs (new). Full record: `.planning/debug/resolved/room-section-table-lists-the-room-own-windows-path.md` (phase 386, row B17).
+- **Pattern lesson:** Fix both ends: map or refuse the path where it enters, and skip path-like names where the rows are listed.
+---
+
+## room-db-reported-unreadable-on-a-windows-drive-from-wsl -- every room.db read failure showed one fixed "damaged" line, so a Windows-side lock read as damage
+- **Date:** 2026-11-06
+- **Error patterns:** detail kept in the result but never shown: "read-only open returned no handle".
+- **Root cause:** every room.db read failure maps to one fixed "damaged" line; the real error is dropped (the read-only door returns null), and a Windows-side hold (SQLITE_CANTOPEN, code 14) is not classified at all.
+- **Fix:** lib/core/room-readiness.cjs gains causeOfError, unreadableCause and requirementFor. The reason stays room_db_unreadable; readinessFor adds a cause field (busy, io, cannot_open, not_a_database, other) and the requirement line names it in plain words. With a thrown error the SQLite code decides; with none (room-identity drops it) the module reads the 16 header bytes and then probes one read-only open through lib/core/navigation/spine-events.cjs probeRoomDbReadOnly. graph-backfill _readinessStep and scripts/session-start carry the cause to the session-start line. lib/core/room-db.cjs, the journal mode, the timeout and the migration chain are unchanged.
+- **Verification:** node tests/test-386-room-db-unreadable-message.cjs RED at the test commit (RM1, RM2, RM3, RM5, RM6, RM8, RM9 fail; RM4 and RM7 pass), GREEN after the fix commit (9 of 9 ok). On a new scratch folder under /mnt/c (9p drvfs), a Windows process holding a synthetic room.db with no sharing now gives "room.db could not be opened: the path or the drive refused access, or another program holds the file (a Windows drive read from WSL)" instead of the damaged line. tests/run-all-196.sh 7 of 7. Related tests (17 naming room-readiness, graph-backfill or room-identity) equal their baseline. Same reds...
+- **Files changed:** lib/core/room-readiness.cjs (cause machinery, readinessFor cause); lib/core/navigation/spine-events.cjs (probeRoomDbReadOnly); lib/core/graph-backfill.cjs (cause in readiness); scripts/session-start (print requirementFor); tests/test-386-room-db-unreadable-message.cjs (new). Full record: `.planning/debug/resolved/room-db-reported-unreadable-on-a-windows-drive-from-wsl.md` (phase 386, row B18).
+- **Pattern lesson:** Name the cause class (busy, io, cannot_open, not_a_database, other) in plain words; a false damage report makes the owner doubt a healthy file.
+---
+
+## approved-recovery-moves-a-healthy-room-db-aside-on-a-false-unreadable -- an approved recovery moved room.db aside on any open failure, so a false unreadable could move a healthy file
+- **Date:** 2026-11-06
+- **Error patterns:** none. The move is silent apart from the moved_aside list in the card result.
+- **Root cause:** the move-aside guard in repairRoomIdentity was the open error alone, and the readiness answer offered the same recovery card for every cause, so a false unreadable (busy, drive error, cannot open, script error) could rename a healthy room.db, -wal and -shm aside.
+- **Fix:** repairRoomIdentity gets the cause with causeOfError (required lazily) and moves the file only for not_a_database on a file that does not start with the 16 byte SQLite header (an unreadable header read counts as valid, so nothing moves). Every other case returns { ok: false, reason: room_db_unreadable, cause, detail } and moves nothing. readinessFor gives the remediation retry_or_check_drive for busy, io, cannot_open and other, with a plain line that says what the person does; resolveMcpWriteRoom mints no card for it and says "Do what the line above says, then retry. Nothing was moved." graph-backfill carries the cause into readiness; notRecoveredMessage (now exported) names the person action, or tells the person to copy a valid-header file aside by hand and ask for help. The card text...
+- **Verification:** node tests/test-386-no-move-aside-on-false-unreadable.cjs RED at the test commit (MA1 to MA4, MA6, MA7a, MA8 fail; MA5, MA7b, MA9 pass), GREEN after the fix (14 ok lines, all arms pass). Related tests equal their baseline: test-36925-readiness-gate, test-36925-rid-repair, test-386-room-db-unreadable-message, test-36925-never-ready, test-36925-negative-leg, test-36925-naming, test-36925-rid-binding, test-36925-feyminto-identity, test-36925-rft-binding, test-derive-backfill-acceptance, test-224-backfill-idempotent, test-248-room-bind-honest-return pass before and after;...
+- **Files changed:** lib/core/navigation/room-identity.cjs (cause and header guard); lib/core/room-readiness.cjs (retry_or_check_drive, plain lines with the person action); lib/core/graph-backfill.cjs (cause in readiness); lib/mcp/room-readiness-gate.cjs (not-recovered message by cause, export); lib/mcp/session-room.cjs (refusal message for the new remediation); tests/test-386-no-move-aside-on-false-unreadable.cjs (new). Full record: `.planning/debug/resolved/approved-recovery-moves-a-healthy-room-db-aside-on-a-false-unreadable.md` (phase 386, row B19).
+- **Pattern lesson:** Guard a destructive step by the cause of the failure and by the file itself (SQLite header), not by the failure alone; offer a person action for the other causes.
+---
+
+## web-paths-no-approval-or-audit-record -- the older web paths had no shared approval, credential check or audit record
+- **Date:** 2026-11-06
+- **Error patterns:** appendAudit returns { ok: false, reason: 'egress_line_off' } for semantic_scholar, grants_gov and google_search.
+- **Root cause:** The 2026-10-05 gate was built for the research planner web lines only. The 3 older paths have no shared approval, credential check or record, and the ledger refuses a provider that has no egress line.
+- **Fix:** added lib/core/web-path-gate.cjs (approvalToken, checkApproval, credentialCheck, recordSent, CLI token, credential and record) and added semantic_scholar, grants_gov and google_search to WEB_PROVIDERS in lib/core/research-planner/egress-policy.cjs (note text of data/egress-policy.json updated). The 3 older paths are not wired in this plan; plans 386-05, 386-23 and 386-24 call the module.
+- **Verification:** node tests/test-386-web-path-gate.cjs passes GW1 to GW7 (RED before, GREEN after). node tests/test-363-audit-ledger.cjs 5 of 5, test-366-egress-policy.cjs 24 of 24, test-3692-grant-card.cjs 9 of 9, test-366-gated-term-release.cjs 28 of 28, test-366-mcp-release-route.cjs 13 of 13, test-3692-judge-line.cjs 8 of 8, test-3692-web-lines.cjs 17 of 17, bash tests/run-all-386.sh all PASSED. Fetch counter 0. The ledger still refuses an unknown provider (egress_line_off) and a key-shaped line (key_shaped_value). Credential shapes refused by the shared check today: 2 of 10 (plan 386-31 widens them).
+- **Files changed:** lib/core/web-path-gate.cjs (new); lib/core/research-planner/egress-policy.cjs (WEB_PROVIDERS and its comment); data/egress-policy.json (note text only); tests/test-386-web-path-gate.cjs (new); .planning/debug/web-paths-no-approval-or-audit-record.md (new). Full record: `.planning/debug/resolved/web-paths-no-approval-or-audit-record.md` (phase 386, row E-GATE).
+- **Pattern lesson:** Build one shared gate module and call it from every web path; do not copy rules per path.
+---
+
+## grants-gov-scan-sends-room-words-without-approval -- the funding search sent room-derived keywords with no approval and the unattended scan ran it
+- **Date:** 2026-11-06
+- **Error patterns:** grants gov scan sends room words without approval
+- **Root cause:** the 2026-10-05 gate (approval card, credential check, audit record) was never applied to scanOpportunities and its callers. The path listed nothing, checked no token, checked no credential and wrote no audit record. The 2 requests carried the room keyword (domain keywords plus 3 problem words, 100 characters at most). Confirmed by static read and fixture reproduction (2 requests, marker word in both bodies, no audit file).
+- **Fix:** scanOpportunities(roomDir, opts) lists the exact strings and a token (approval_required) and sends nothing unless opts.approval matches (web-path-gate approvalToken and checkApproval). credentialCheck runs first and a hit returns refused with no bytes echoed. Each request gets one recordSent record (provider grants_gov; outcome ok, empty_valid or failed). The scheduled scan writes a skip file with reason approval_required and sends nothing. The MCP route takes the token in the section argument; the CLI takes --approve TOKEN. agents/opportunity-scanner.md has the approval step between marker comments, without the word grant. No content scan was added.
+- **Verification:** node tests/test-386-grants-gov-approval.cjs arms GG1 to GG8 pass (RED commit failed all 8); bash tests/run-all-386.sh 21 of 21 pass; test-363-audit-ledger 5 of 5; test-363.1-agent-isolation, test-250-doctrine-fence, test-276-room-content-honesty, test-265-scout-competitor-fanout, test-scout-cadence-fires, test-phase-13.sh (32 of 32) pass; build-connector-registry --check and check-render-coverage pass. test-connector-part8-boundary CHECK 2 fails on the registry field "layer" of mcp:artifact_file, a file this plan did not touch (logged, not fixed).
+- **Files changed:** lib/core/opportunity-ops.cjs, lib/core/scheduled-scanner.cjs, lib/mcp/tool-router.cjs, scripts/mindrian-tools.cjs, agents/opportunity-scanner.md, tests/test-386-grants-gov-approval.cjs. Full record: `.planning/debug/resolved/grants-gov-scan-sends-room-words-without-approval.md` (phase 386, row E-GG).
+- **Pattern lesson:** The unattended scan stops until an approval exists; each sent string gets a credential check and an audit record.
+---
+
+## research-speaker-sends-names-before-the-user-is-asked -- research-speaker sent searches built from names before the user was asked
+- **Date:** 2026-11-06
+- **Error patterns:** research speaker sends names before the user is asked
+- **Root cause:** the 2026-10-05 gate (approval first, credential check, audit record) was never applied to scripts/research-speaker. The script had no list step, token check, credential check or audit call. The command text asked only before the PROFILE.md write, after the first send, and --apply repeated the send. Confirmed by static read and by a stub-curl reproduction (3 calls on a plain run, 3 more with --apply, name in 3 of 3 URLs, no audit file).
+- **Fix:** --list-queries prints the 3 searches and the approval token and sends nothing. A run sends only with --approve TOKEN (recomputed over the exact strings), after a credential check (refuse, nothing sent, no bytes echoed). Each search sent gets one audit record (provider google_search; outcome ok or failed) through the web-path-gate CLI. --apply needs the same token. Without node, nothing is sent. commands/file-meeting.md lists the searches, asks the user, then sends, and passes the token on --apply (marker comments, no use of the word grant). No content scan was added. Observation, not changed: with the token, --apply still repeats the 3 searches (each approved and recorded) although the apply branch does not use their results; dropping that repeat is a candidate follow-up.
+- **Verification:** node tests/test-386-research-speaker-approval.cjs arms RS1 to RS9 pass (RED commit failed all arms); bash tests/run-all-386.sh 23 of 23 pass; bash tests/run-all-eo7.sh 5 of 5 pass after in-place updates of the two research-speaker eo7 tests (the repo script runs with the approval token); test-265-file-meeting-gates, test-265-file-meeting-perspectives and test-speaker-id.sh pass; bash -n scripts/research-speaker ok; build-connector-registry --check and check-render-coverage pass.
+- **Files changed:** scripts/research-speaker, commands/file-meeting.md, skills/file-meeting/SKILL.md (generated mirror), tests/test-386-research-speaker-approval.cjs, tests/test-261030-eo7-research-speaker-apply-context.cjs, tests/test-261030-eo7-research-speaker-urlencode.cjs. Full record: `.planning/debug/resolved/research-speaker-sends-names-before-the-user-is-asked.md` (phase 386, row E-RS).
+- **Pattern lesson:** Ask before the first send, not before the file write; list the exact searches first.
+---
+
+## part8-egress-guard-blocks-pws-brain-mcp-unconditionally -- typed Theo read tools fell to ambiguous and the hook blocked them on the direct connector
+- **Date:** 2026-11-06
+- **Error patterns:** no exception/crash. The hook fired its own designed refusal card
+- **Root cause:** classify() had allow arms for 9 tool shapes only. Every other typed Theo read tool fell to the terminal ambiguous/unknown, and the hook blocks any ambiguous verdict on the direct connector mcp__pws-brain-mcp__* whatever the payload says (shim-backed scopes pass class unknown, so they were not blocked but earned no proof)."
+- **Fix:** Plan 386-25: frozen TYPED_READ_TOOLS table and _proveTypedReadShape (handle arms: exact keys, canonical handles or command slugs, integer ranges; brain_ask op mode: closed op, handle params) placed after _proveKnownToolShape; freeform typed tools (search, classify_problem_type statement) go to theoVerdict as brain_ask does, with a credential-shaped opaque token block first. Step 1, 1b and the terminal ambiguous return are unchanged."
+- **Verification:** tests/test-386-typed-theo-allow-arms.cjs (RED then GREEN, 18 checks); run-all-196, test-260906-fda, test-361-egress-shapes, test-354, test-223, test-355, test-247 pass; corpus gate DELTA lines identical to the pre-plan run (baseline unchanged); hook child process: pws-brain-mcp normalize_framework_name {Six Thinking Hats} exit 2 before, exit 0 after. run-all-386 shows 1 failure, test-386-semantic-scholar-approval (RED test of plan 386-05, not part of this plan)."
+- **Files changed:** lib/core/part8-egress-guard.cjs, tests/test-386-typed-theo-allow-arms.cjs, .planning/debug/part8-egress-guard-blocks-pws-brain-mcp-unconditionally.md. Full record: `.planning/debug/resolved/part8-egress-guard-blocks-pws-brain-mcp-unconditionally.md` (phase 386, row E-TYPED).
+- **Pattern lesson:** An allow needs a positive rule; prove a handle tool by its exact key set and closed sets, not by a word list.
+---
+
+## part8-ambiguous-verdict-is-sent-on-own-shim -- the own shim sent a call whose guard verdict was ambiguous
+- **Date:** 2026-11-06
+- **Error patterns:** none. The disclosure is typed and honest; the send is the ruled behavior.
+- **Root cause:** the disposition of `ambiguous` differs by route (send on the own shim, block on the direct connector, not inspected on raw theo names) and the own shim sends it without a shape test. After plan 386-25 only 2 repo-owned paths are still ambiguous and both are sprouts.
+- **Fix:** plan 386-27 (option-e). callTool, query(), ask() and search() return the typed sentinel of lib/core/part8-split-route.cjs (error egress_blocked, class and outcome sprouts_required, route, 5 line split guide, 0 fetch, no payload byte) for the guard class sprouts_required and for an ambiguous call whose payload carries an edge or body string by shape (new helper carriesEdgeOrBody, any depth, the cypher key of brain_query not read). The hook exits 2 with the same constant message for the class (every scope) and for the same ambiguous call on a shim-backed scope with Brain available. A sprout-only ambiguous call still proceeds with the egress_disclosure. Other block classes keep their own message with no guide. Direct connector still blocks, Brain-less hook path still allows, empty payload...
+- **Verification:** tests/test-386-sprouts-required-outcome.cjs arms SP1 to SP8 (RED at 10536cca0, GREEN at 5992a1f65). Corpus gate before and after with no stamp: MEASURED_SHA256 685f11b8... unchanged. run-all-196, run-all-245, run-all-386 pass; the named whitespace, chain and framework-name tests pass; the 4 egress suites named by the plan (254 ambiguous disclosure, 260917 dgf, 245 contentless, 260906 fda) pass with no assertion flipped, because their ambiguous fixtures hold only sprouts. The host honouring the hook exit on the direct connector end to end is UNVERIFIED.
+- **Files changed:** lib/core/brain-client.cjs, lib/core/part8-split-route.cjs, scripts/part8-egress-guard-hook.cjs, tests/test-386-sprouts-required-outcome.cjs. Full record: `.planning/debug/resolved/part8-ambiguous-verdict-is-sent-on-own-shim.md` (phase 386, row E-AMB).
+- **Pattern lesson:** Hook and callTool must treat ambiguous the same way; the owner chose the split route (sprouts_required), not a bare block.
+---
+
+## part8-job-key-skips-room-word-rules -- a job key in a packet chose the packet arm and skipped the room-word rules for free-form strings
+- **Date:** 2026-11-06
+- **Error patterns:** none (a silent allow).
+- **Root cause:** The packet arm is chosen by a job key before the free-form arm, and _proveMoveSet does not check the payload key set."
+- **Fix:** Plan 386-28: classify() decides a free-form string with theoVerdict before the packet arm; _proveMoveSet requires payload keys within data/brain-packet-schema.json in.properties for the job (plus the five handle fields). Step 1 and the terminal ambiguous return unchanged."
+- **Verification:** tests/test-386-job-key-shortcut.cjs RED (J1 to J5 fail) then GREEN (9 ok); corpus gate DELTA lines identical before and after, MEASURED_SHA256 unchanged, baseline not stamped; run-all-196, test-239 canary, e2e smoke, test-245, test-223, test-355, test-363.1, test-260906-fda, test-361-egress-shapes, part8-egress-guard.test.cjs, typed-arms test pass; run-all-386 all 20 PASSED on the final run."
+- **Files changed:** lib/core/part8-egress-guard.cjs, tests/test-386-job-key-shortcut.cjs, .planning/debug/part8-job-key-skips-room-word-rules.md. Full record: `.planning/debug/resolved/part8-job-key-skips-room-word-rules.md` (phase 386, row E-JOB).
+- **Pattern lesson:** A key must not change the verdict of a free-form string; check the packet keys against the schema.
+---
+
+## part8-guard-fails-open-on-load-or-throw -- the hook and callTool let the payload through when the guard could not load or threw
+- **Date:** 2026-11-06
+- **Error patterns:** none. The failure is silent by design.
+- **Root cause:** the hook and the belts convert every guard failure into allow (accepted risk A3 and T6 of Phase 239). `onFailure: block` never engages because the hook exits 0 on its own failures.
+- **Fix:** option A of the owner decision (plan 386-29, 2026-11-06) plus the count-only outage line, implemented by plan 386-30. The hook (scripts/part8-egress-guard-hook.cjs) exits 2 with the reason guard_unavailable when the sanitizer or the guard cannot load, classify throws, the verdict is not an object, or the hook fails after it read a Brain-shaped tool input. callTool and query() in lib/core/brain-client.cjs return { error: 'egress_guard_unavailable', tool } with 0 network calls (no session init). A provably empty payload (a plain object with no keys) still proceeds in the hook and in callTool; the check does not depend on the guard. Empty or unparsable stdin and a tool name that is not Brain-shaped keep exit 0 in the hook, because there is no tool input to inspect (a hook failure before...
+- **Verification:** PROVEN. `node tests/test-386-guard-fails-closed.cjs` red at c19a5ba36 (13 of 17 arms fail; FC4, FC6, FC8, FC15 pass), green at aeb2935e2 (17 of 17 arms pass). After the fix: `node tests/part8-egress-guard-hook.test.cjs` pass; `bash tests/run-all-196.sh` 7 of 7 (the first run had 1 transient red, see below); `node tests/test-3692-guard-survey-gate.cjs` GATE: PASS with every DELTA line equal to its baseline; `node tests/test-254-ambiguous-disclosure.cjs` pass; `node tests/test-239-query-egress-canary.cjs` pass; `bash tests/run-all-386.sh` PASS=25 FAIL=0. The transient: test-260917-dgf LEG3-1...
+- **Files changed:** scripts/part8-egress-guard-hook.cjs, lib/core/brain-client.cjs, lib/core/part8-outage-log.cjs (new), tests/test-386-guard-fails-closed.cjs (new), tests/part8-egress-guard-hook.test.cjs (header comment only; no assertion needed to flip). Full record: `.planning/debug/resolved/part8-guard-fails-open-on-load-or-throw.md` (phase 386, row E-FAIL).
+- **Pattern lesson:** A guard that cannot run must fail closed with a typed reason and leave a count-only outage line.
+---
+
+## part8-egress-guard-under-blocks-key-shape-and-spelled-money -- credential shapes passed the Brain content scan and the web credential check; spelled money passed too
+- **Date:** 2026-11-06
+- **Error patterns:** none; the defect is a silent allow
+- **Root cause:** The Brain content scan (FORBIDDEN_PATTERNS) had no credential rule. Key shapes were caught only by accident (the upper-case identifier rule, the proper-name look): 12 of 14 fake shapes passed on brain_ask and brain_query. The web credential check had 2 rules and passed the same 12. Spelled money (GAP2) is ordinary keywords in a short query under the owner principle and is left to the decision of plan 386-32."
+- **Fix:** Plan 386-31: frozen CREDENTIAL_SHAPES list in lib/core/cross-room-aggregator.cjs (12 shape rules), appended to FORBIDDEN_PATTERNS and exported; auditWebCredential in lib/core/rs-egress-prompts.cjs tests the same list (credentials only) and keeps its 2 rules and env-var check. No money, percent or k-suffix pattern added. Baseline stamped once with --stamp --reason after zero FAIL rows."
+- **Verification:** tests/test-386-key-shapes-and-money.cjs RED (K1, K2, K6 fail) then GREEN (8 ok). Corpus gate before stamp: GATE PASS, 0 FAIL rows, ext.induced_total 0 (plan-start baseline 0), GAP1 allowed_in 7 to 0 (IMPROVED), GAP2 allowed_in 7 (open, unchanged). After stamp: GATE PASS, GAP1 fixed, GAP2 open. run-all-196, test-239 canary, test-223, test-355, test-3692-theo-verdict, job-key, typed-arms tests pass; run-all-386 22 of 22 PASSED."
+- **Files changed:** lib/core/cross-room-aggregator.cjs, lib/core/rs-egress-prompts.cjs, tests/test-386-key-shapes-and-money.cjs, tests/fixtures/3692/guard-survey-baseline.json, .planning/debug/part8-egress-guard-under-blocks-key-shape-and-spelled-money.md. Full record: `.planning/debug/resolved/part8-egress-guard-under-blocks-key-shape-and-spelled-money.md` (phase 386, row E-KEY).
+- **Pattern lesson:** Credentials always block from one shared list; money words are ordinary keywords under the owner principle and get no pattern.
+---
+
+## part8-over-blocks-ordinary-theo-and-context-questions -- the name rule, ordinary business words and the my or our rule blocked ordinary keyword questions
+- **Date:** 2026-11-06
+- **Error patterns:** none. The blocks are class room_content (token class name) and content_set, or room_check_unavailable.
+- **Root cause:** three causes (the owner principle of 2026-11-06 says shape, not a word list, separates a sprout from a body). The name rule decides by spelling and has no calendar, plugin-noun or shape exemption. The shared deny list runs ordinary business words on every free-form string. The my or our rule ignores question versus statement, and a failed room database read is cached under a stat key that a chmod does not change.
+- **Fix:** plan 386-33 (option-e). The Canon list is split into ALWAYS_PATTERNS (credentials, email, phone-like, SSN-like, name plus degree, quoted-person) and PROSE_PATTERNS (word lists), FORBIDDEN_PATTERNS stays the union. The guard decides a free-form string that is not an assembled Cypher template by shape (classifyShape): credentials, identifiers and room-lexicon terms block with their own class in every shape; a body is sprouts_required (body_shape); an edge is sprouts_required (edge_rule) when a prose rule, the private-context rules, the name rule or a first-person statement fires, else allow; a clear sprout skips the word lists and is allow, unless it holds a private-claim marker (my or our plus a word, a first-person clause, a private word), which is sprouts_required (private_marker)....
+- **Verification:** tests/test-386-over-blocking-narrowed.cjs (RED 28c44303c, GREEN 93b785273) all arms pass including OBN2, OBA1, OBK1, OBK2; corpus gate PASS with ext.blocked_no_room 37 to 8, ext.induced_total 0, pos26.blocked_no_room 0, retention and must_refuse unchanged; run-all-196, run-all-245, run-all-386 (31/31) pass; run-all-252 shows only census.1 and census.5b; the measured plain-sprout leavers equal the acknowledgement (negatives X8; probes C:plurai:24, 26, 29, 31). Pre-existing reds not caused here: test-rs-fetcher-academic, test-rs-chain-feeder-core, test-rs-nl-to-query, test-rs-sqlite-mirror,...
+- **Files changed:** lib/core/part8-egress-guard.cjs, lib/core/cross-room-aggregator.cjs, lib/core/rs-egress-prompts.cjs, lib/core/part8-room-lexicon.cjs, lib/core/brain-client.cjs, tests/test-3692-guard-survey-gate.cjs, tests/fixtures/3692/guard-survey-baseline.json, tests/test-386-over-blocking-narrowed.cjs. Full record: `.planning/debug/resolved/part8-over-blocks-ordinary-theo-and-context-questions.md` (phase 386, row E-OVER).
+- **Pattern lesson:** Separate a sprout from a body by shape (size, sentences, quoted text); a word list on ordinary keywords is the wrong tool.
+---
+
+## part8-tests-assert-not-allow-only -- four test files asserted only "not allow", so a verdict regression passed them
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** not-allow is treated as safe although ambiguous is sent on some routes, so a verdict regression passes the weak tests; class sets and negative assertions accept any other refusal.
+- **Fix:** plan 386-34. The refusal assertions of tests/test-gct-process-step-id-parity.cjs, tests/test-361-egress-shapes.cjs and tests/test-354-taxonomy-ladder-casing.cjs assert exactly ambiguous/unknown; tests/test-354-egress-typed-question.cjs asserts exactly block/sprouts_required (verdict, class and token class) for every private sentence; tests/test-254-ambiguous-disclosure.cjs asserts the exact class of each fixture verdict, per-row exact verdicts in Arm 10, and a new Arm 11 for the plan 386-27 outcome (a body payload gets the typed result with class sprouts_required, the route and the 5 line guide and 0 wire calls; a sprout-only payload proceeds with the disclosure and a wire call). A mutation proof and a preload (4 modes; the 4th, ambiguous-to-block, was added because the gct, 361 and...
+- **Verification:** RED at the proof commit: M0 passes for all 5; gct, 361 and taxonomy survived ambiguous-to-block and the typed-question file survived block-to-ambiguous (4 survivals, PROVEN). GREEN: node tests/test-386-guard-test-mutation-proof.cjs exits 0 (every mode in the table fails the named file), the 5 files pass with no preload, run-all-386 32/32. Two mutants were read to check they fail for the right reason (gct under ambiguous-to-block: "verdict is exactly ambiguous"; typed-question under block-to-ambiguous: Case C and Case D).
+- **Files changed:** tests/test-gct-process-step-id-parity.cjs, tests/test-361-egress-shapes.cjs, tests/test-354-taxonomy-ladder-casing.cjs, tests/test-354-egress-typed-question.cjs, tests/test-254-ambiguous-disclosure.cjs, tests/test-386-guard-test-mutation-proof.cjs, tests/helpers/part8-verdict-mutation-386.cjs. Full record: `.planning/debug/resolved/part8-tests-assert-not-allow-only.md` (phase 386, row E-TEST).
+- **Pattern lesson:** Assert the exact verdict and prove it with a mutation run that fails when the verdict is remapped.
+---
+
+## folder-memory-eager-timeline-runner-widens-guard-dependencies -- a top-level require of the timeline runner widened the dependency chain of the guard and the statusline
+- **Date:** 2026-11-06
+- **Error patterns:** none; the cost is a long eager dependency chain
+- **Root cause:** The timeline runner is required at module load in both folder-memory twins although only extractFeynmanBody uses it, and its load pulls navigation and many modules into the guard, hook and statusline processes.
+- **Fix:** the require of ./feynman/timeline-runner.cjs moved from the top of lib/core/folder-memory.cjs and lib/core/folder-memory-async.cjs to the first statement of the existing try block in extractFeynmanBody and extractFeynmanBodyAsync. A load failure takes the existing raw-buffer fallback. Nothing else changed.
+- **Verification:** node tests/test-386-folder-memory-lazy-timeline.cjs passes L
+- **Files changed:** lib/core/folder-memory.cjs (require moved into extractFeynmanBody); lib/core/folder-memory-async.cjs (require moved into extractFeynmanBodyAsync); tests/test-386-folder-memory-lazy-timeline.cjs (new); .planning/debug/folder-memory-eager-timeline-runner-widens-guard-dependencies.md (new). Full record: `.planning/debug/resolved/folder-memory-eager-timeline-runner-widens-guard-dependencies.md` (phase 386, row E-LAZY).
+- **Pattern lesson:** Load a heavy dependency inside the function that needs it; count modules in fresh processes before and after.
+---
+
+## web-lines-have-no-credential-check-before-send -- native WebSearch, WebFetch and Tavily calls had no credential check before send
+- **Date:** 2026-11-06
+- **Error patterns:** none (a silent gap)
+- **Root cause:** The Part 8 hook matcher names only Brain tools; nothing inspected the web lines, so a credential in a web search, fetch or Tavily call left unchecked.
+- **Fix:** scripts/web-credential-guard-hook.cjs walks every string of tool_input and runs credentialCheck of lib/core/web-path-gate.cjs only (no room-word scan). A hit exits 2 with reason credential_shaped and no key byte. Every outage branch (module load fails, credentialCheck throws, any other failure) writes one count-only line (class web) through recordGuardOutage and exits 2 with web_credential_check_unavailable (plan 386-29 option-a). hooks/hooks.json gets one PreToolUse group, timeout 5, matcher ^(?:WebSearch|WebFetch|mcp__(?:plugin_a-z0-9_-+_)?(?:tavily|tavily-mcp|claude_ai_Tavily)__.*)$. The qef timeout test got a P386 added record (EXPECTED relative: 46 - removed + added), a table row and a shape-comparison strip. The catalogue lists the hook as not a judgment rule.
+- **Verification:** PROVEN. node tests/test-386-web-credential-hook.cjs red at the RED commit (WH1 to WH10 all FAIL), green after the fix (10 of 10). Counts re-taken immediately before and after the edit and before the commit, no peer commit changed them: hook_count 43 -> 44, qef pinned (46 - 3) 43 -> 44, PreToolUse groups 3 -> 4. Readers after the change equal the baseline lines above: run-all-179 (only 179-08 ga4-card-fire-e2e), run-all-198 (none), test-346 (FAIL 12 for the same 2 older scripts, the new script is not listed), test-198-adapter-budget, minto-debounce-consumer-census,...
+- **Files changed:** scripts/web-credential-guard-hook.cjs (new); hooks/hooks.json (one PreToolUse group); tests/test-261029-qef-hook-timeouts.cjs (P386, relative EXPECTED, table row, A1 strip); data/arbitration-rule-catalogue.json (not_a_judgment_rule entry); tests/test-386-web-credential-hook.cjs (new). Full record: `.planning/debug/resolved/web-lines-have-no-credential-check-before-send.md` (phase 386, row E-WEBHOOK).
+- **Pattern lesson:** Run the credential check only on web lines; no room-word, name or content scan.
+---
+
+## part8-no-shape-test-for-sprouts-and-bodies -- there was no measured test for the shape that separates a sprout from a body
+- **Date:** 2026-11-06
+- **Error patterns:** none; the defect is a missing capability, not a crash
+- **Root cause:** The guard has no shape test, so ordinary keywords meet word lists and a body is caught only by a lucky word.
+- **Fix:** added the pure module lib/core/part8-sprout-shape.cjs (classifyShape; thresholds 12 words, 40 words, 3 sentences, 2 newlines, quoted span of 4 or more words). No caller. No verdict change.
+- **Verification:** node tests/test-386-sprout-body-shape.cjs passes SH1 to SH6 (RED before the module, GREEN after). corpus_body_count 0 of 561 questions. bash tests/run-all-196.sh: 7 passed, 0 failed. node tests/test-3692-guard-survey-gate.cjs: GATE PASS, MEASURED_SHA256 1b2fc8440d3a71833a2f692baad7bdba3099dc26ea579e524caf2624a4f8dd00 before and after (no verdict change). bash tests/run-all-386.sh reports test-386-sprout-body-shape.cjs PASSED. A 1 MB string classifies in 74 ms.
+- **Files changed:** lib/core/part8-sprout-shape.cjs (new); tests/test-386-sprout-body-shape.cjs (new); .planning/debug/part8-no-shape-test-for-sprouts-and-bodies.md (new). Full record: `.planning/debug/resolved/part8-no-shape-test-for-sprouts-and-bodies.md` (phase 386, row E-SHAPE).
+- **Pattern lesson:** Measure the thresholds on the corpora and keep the helper pure; no guard code calls it until a later plan wires it.
+---
+
+## part8-no-split-route-for-bodies-and-private-claims -- a body or a private claim had only a bare block, with no route that keeps the claim local and sends sprouts
+- **Date:** 2026-11-06
+- **Error patterns:** hook exit 2 with an 88 byte or 99 byte stderr line; ask() returns egress_blocked with a one line reason.
+- **Root cause:** every refusal is a plain block with a reason and no guide and no route, and a body with no room word is not checked by shape at all (see Technical Root Cause).
+- **Fix:** lib/core/part8-split-route.cjs holds the typed outcome sprouts_required (route sprout_call, a 5 step split guide, a sentinel with error egress_blocked), the sprout validator (shape helper plus guard), the 4 word run check against the claims (class not_sprout), the local claim filer (writeClaimNode, all or nothing), the local assembler and runSplitRoute. The guard, the hook and the Brain client are unchanged; plans 386-27 and 386-33 make them answer with sproutsRequiredResult.
+- **Verification:** node tests/test-386-sprout-split-route.cjs prints ok for SR1 to SR8 and SR5b (the wire capture of SR5 holds no claim text and no run of 4 words of the paragraph; SR5b and SR6 show 0 claims filed and 0 fetch calls on a rejection). tests/run-all-386.sh with the prefix tests/test-386-sprout-split- reports PASSED. node tests/test-3692-guard-survey-gate.cjs prints GATE: PASS and the same MEASURED_SHA256 as before the change. bash tests/run-all-196.sh: 7 passed, 0 failed.
+- **Files changed:** lib/core/part8-split-route.cjs (new); tests/test-386-sprout-split-route.cjs (new); .planning/debug/part8-no-split-route-for-bodies-and-private-claims.md (this file). Full record: `.planning/debug/resolved/part8-no-split-route-for-bodies-and-private-claims.md` (phase 386, row E-SPROUT-DESIGN).
+- **Pattern lesson:** Split a body into typed local claims and generic sprouts, send only the sprouts and assemble the answer locally.
+---
+
+## part8-always-block-misses-obfuscated-email-and-international-phone -- obfuscated email forms and international phone-like forms passed the always-block rules
+- **Date:** 2026-11-06
+- **Error patterns:** none.
+- **Root cause:** the always-block list holds only the plain email at-sign form and a United States phone shape, so the same identifiers in an obfuscated or international form pass as generic questions.
+- **Fix:** two frozen patterns (_P_EMAIL_OBFUSCATED, _P_PHONE_INTL) appended to ALWAYS_PATTERNS and to the end of FORBIDDEN_PATTERNS in lib/core/cross-room-aggregator.cjs. No existing pattern changed. The three probe cases are pinned in expectations.json (structured_identifier_cases, identifier_classes email and phone_like, content_set_cases). suffix_money untouched. No pattern-count test needed a flip (none pins an absolute count; rs-egress-prompts re-exports by reference).
+- **Verification:** node tests/test-386-identifier-forms.cjs all arms ID1 to ID9 pass (RED run before the fix: ID1, ID2, ID5, ID6, ID8 failed); node tests/test-3692-guard-survey-gate.cjs 0 FAIL, ext.induced_total baseline=0 measured=0, MEASURED_SHA256 identical before and after (no stamp, no number improved); node tests/test-386-audit-probe-gate.cjs pass (matrix shows the three probe cases allow > block content_set/null); test-386-over-blocking-narrowed, test-386-key-shapes-and-money, test-386-sprouts-required-outcome pass; bash tests/run-all-196.sh 7 passed 0 failed; TEST_386_PREFIX run-all-386 PASSED for...
+- **Files changed:** lib/core/cross-room-aggregator.cjs (two patterns appended); tests/test-386-identifier-forms.cjs (new, arms ID1 to ID9); tests/fixtures/386-audit-probes/expectations.json (three probe cases added). Full record: `.planning/debug/resolved/part8-always-block-misses-obfuscated-email-and-international-phone.md` (phase 386, row E-IDENT).
+- **Pattern lesson:** Add shape-bound identifier patterns and measure them against the corpora so they cause no new block on ordinary questions.
+---

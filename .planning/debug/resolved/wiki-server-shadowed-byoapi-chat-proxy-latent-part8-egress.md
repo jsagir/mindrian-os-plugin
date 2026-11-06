@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "wiki-server-shadowed-byoapi-chat-proxy-latent-part8-egress"
 issue_id: "B1"

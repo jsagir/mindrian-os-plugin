@@ -1,5 +1,5 @@
 ---
-status: fixing
+status: resolved
 kind: rca
 trigger: "part8-no-split-route-for-bodies-and-private-claims"
 issue_id: "E-SPROUT-DESIGN"
