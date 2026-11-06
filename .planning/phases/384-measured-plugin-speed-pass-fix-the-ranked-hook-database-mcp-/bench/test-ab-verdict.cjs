@@ -98,7 +98,7 @@ function main() {
     ['KEEP', fourFiles(200, 100, 202, 102)],
     ['WORSE', fourFiles(100, 200, 102, 202)],
     ['NO-GAIN', fourFiles(100, 100, 106, 100)],
-    ['NOT-RESOLVED', fourFiles(300, 100, 100, 100)],
+    ['NOT-RESOLVED', fourFiles(130, 100, 118, 100)],
     ['BELOW-FLOOR', fourFiles(140, 100, 142, 102)],
   ];
   cases.forEach((c) => {

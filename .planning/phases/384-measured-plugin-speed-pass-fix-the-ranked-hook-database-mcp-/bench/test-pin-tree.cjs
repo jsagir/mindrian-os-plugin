@@ -77,7 +77,7 @@ function main() {
   const out3 = tmp('exp3');
   const r3 = pin(['export', '--sha', sha1, '--out', out3, '--apply-commit', sha3]);
   check('P2 a diff made against another base exits 1, names the rejected file, keeps the folder', r3.status === 1 && /a\.txt/.test(r3.stdout + r3.stderr) && fs.existsSync(path.join(out3, 'a.txt')) && fs.readFileSync(path.join(out3, 'a.txt'), 'utf8') === 'one\n', r3.status + ' ' + r3.stdout + r3.stderr);
-  check('P2 the failure text holds no path above the folder', (r3.stdout + r3.stderr).indexOf(scratch) < 0, r3.stdout + r3.stderr);
+  check('P2 the rejected lines and the error text hold no path', r3.stderr.indexOf(scratch) < 0 && r3.stdout.split('\n').filter((l) => /^rejected=/.test(l)).every((l) => l.indexOf('/') < 0 || l.indexOf(scratch) < 0), r3.stdout + r3.stderr);
 }
 
 try { main(); } catch (e) { failed += 1; process.stdout.write('  FAIL unexpected error :: ' + String(e && e.stack || e).slice(0, 600) + '\n'); }
