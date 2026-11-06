@@ -103,8 +103,8 @@ The 2026-10-05 gate (an approval card, a credential check, the audit record) was
 
 ## Resolution
 
-root_cause: see Technical Root Cause.
-fix: not started.
-verification: reproduction only.
-files_changed: none
-commits: none
+root_cause: the 2026-10-05 gate (approval card, credential check, audit record) was never applied to scanOpportunities and its callers. The path listed nothing, checked no token, checked no credential and wrote no audit record. The 2 requests carried the room keyword (domain keywords plus 3 problem words, 100 characters at most). Confirmed by static read and fixture reproduction (2 requests, marker word in both bodies, no audit file).
+fix: scanOpportunities(roomDir, opts) lists the exact strings and a token (approval_required) and sends nothing unless opts.approval matches (web-path-gate approvalToken and checkApproval). credentialCheck runs first and a hit returns refused with no bytes echoed. Each request gets one recordSent record (provider grants_gov; outcome ok, empty_valid or failed). The scheduled scan writes a skip file with reason approval_required and sends nothing. The MCP route takes the token in the section argument; the CLI takes --approve TOKEN. agents/opportunity-scanner.md has the approval step between marker comments, without the word grant. No content scan was added.
+verification: node tests/test-386-grants-gov-approval.cjs arms GG1 to GG8 pass (RED commit failed all 8); bash tests/run-all-386.sh 21 of 21 pass; test-363-audit-ledger 5 of 5; test-363.1-agent-isolation, test-250-doctrine-fence, test-276-room-content-honesty, test-265-scout-competitor-fanout, test-scout-cadence-fires, test-phase-13.sh (32 of 32) pass; build-connector-registry --check and check-render-coverage pass. test-connector-part8-boundary CHECK 2 fails on the registry field "layer" of mcp:artifact_file, a file this plan did not touch (logged, not fixed).
+files_changed: lib/core/opportunity-ops.cjs, lib/core/scheduled-scanner.cjs, lib/mcp/tool-router.cjs, scripts/mindrian-tools.cjs, agents/opportunity-scanner.md, tests/test-386-grants-gov-approval.cjs
+commits: 0149225cd (RCA), ce05bffaf (RED), 0e5fc4523 (fix)
