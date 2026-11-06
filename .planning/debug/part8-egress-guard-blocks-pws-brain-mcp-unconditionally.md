@@ -1,5 +1,5 @@
 ---
-status: gathering            # gathering | investigating | fixing | resolved
+status: investigating            # gathering | investigating | fixing | resolved
 kind: rca                    # rca | debug-session | qa-sweep
 trigger: "part8-egress-guard-blocks-pws-brain-mcp-unconditionally"
 issue_id: ""
@@ -8,7 +8,7 @@ surfaces: [cli]                # observed on cli; desktop/cowork not tested
 brain_mode: full-loop          # not actually the Brain's own refusal mode -- blocked before reaching it
 canon_parts: [8]                # Part 8, Graph Boundary -- the guard this hook is supposed to enforce
 created: 2026-08-27T00:00:00Z
-updated: 2026-08-27T00:00:00Z
+updated: 2026-11-06T00:00:00Z
 ---
 
 ## Current Focus
@@ -151,33 +151,87 @@ started: first noticed 2026-08-27, this session. Unknown whether pre-existing
     block is specific to `pws-brain-mcp` (or specific to this hook), not a
     general tool-call failure in that session
 
+## Source-of-Truth Preamble (plan 386-25, 2026-11-06, HEAD f0df97036)
+
+Claims re-checked against the code at HEAD. The 2026-08-27 seed was second-hand; every row below was reproduced here.
+- `scripts/part8-egress-guard-hook.cjs` takes its verdict from `classify()` in `lib/core/part8-egress-guard.cjs`. PROVEN by reading.
+- `classify()` has allow arms for these tool shapes only: empty payload, MOVE-SET packet, free-form string (brain_ask, brain_query, brain_search with a `question`, `cypher`, `query` or `ask` string), and `_proveKnownToolShape` (find_connections, taxonomy_ladder, recommend_chain, framework_step, framework_techniques, case_story, find_frameworks_for_problem_type, commands_for_problem_type, framework_neighborhood). PROVEN.
+- The 2026-08-27 symptom named `operate_framework`. That tool is not in the Theo repo at HEAD (`/home/jsagi/Theo/src/mcp/content` has no operate-framework file). UNVERIFIED for the Brain that served the report in August. The mechanism below applies to every typed tool without an arm.
+
+## Reproduction (counts and words only, synthetic canonical handles, roomDir null)
+
+classify() verdict for each tool under 3 prefixes (`mcp__plugin_mos_mindrian-brain__`, `mcp__pws-brain-mcp__`, `mcp__theo__`). The verdict does not depend on the prefix.
+
+| Tool | Payload shape | Verdict | Class |
+|------|---------------|---------|-------|
+| normalize_framework_name | {raw: handle} | ambiguous | unknown |
+| discover_structure | {framework_name: handle} | ambiguous | unknown |
+| orchestration_readiness | {framework_name: handle} | ambiguous | unknown |
+| feeds_into_chains | {seeds: 2 handles, max_hops: 2} | ambiguous | unknown |
+| framework_concepts | {framework: handle} | ambiguous | unknown |
+| search | {query, topK} | ambiguous | unknown |
+| brain_ask | {op, params} | ambiguous | unknown |
+| classify_problem_type | {} | allow | empty_payload |
+| theo_health | {} | allow | empty_payload |
+
+Result: 7 of 9 rows are ambiguous. The 2 allow rows carry zero bytes.
+
+Route matrix, hook run in a child process with PART8_FORCE_BRAIN_AVAILABLE=1, payload {raw: "Six Thinking Hats"} (a canonical handle):
+
+| Prefix | Hook inspects it | Hook exit code | Why |
+|--------|------------------|----------------|-----|
+| mcp__plugin_mos_mindrian-brain__ | yes | 0 (allow) | shim-backed route; class unknown is on the ambiguous pass list |
+| mcp__mindrian-brain__ | yes | 0 (allow) | shim-backed route, same rule |
+| mcp__pws-brain-mcp__ | yes | 2 (block) | direct connector; not shim-backed; Brain available so the F.1 card renders; content is never read |
+| mcp__theo__ | no | 0 (allow) | `isBrainShapedTool` is false for raw theo names, so no inspection happens |
+
+## Typed-tool table (contract for Task 3)
+
+Sources: every `callTool(` site in `lib/core/brain-client.cjs`, `data/brain-surface-contract.json` (loop_tools, non_contract_note, feyminto_reads), and Theo's own schemas read-only from `/home/jsagi/Theo/src/mcp/content` (all tools are `z.strictObject`).
+
+| Tool | Argument names and types | Kind | Rule for the arm |
+|------|--------------------------|------|------------------|
+| normalize_framework_name | raw: string (max 256) | handle | exact keys {raw}; value a canonical handle. A non-canonical term keeps the navigator release arm. |
+| discover_structure | framework_name: string (max 128) | handle | exact keys; canonical handle |
+| orchestration_readiness | framework_name: string (max 128) | handle | exact keys; canonical handle |
+| feeds_into_chains | seeds: string[1..10], max_hops: int 1..3 | handle | exact keys; each seed a canonical handle; max_hops integer 1..3 |
+| framework_concepts | framework: string, limit: int 1..10 optional | handle | keys {framework} plus optional {limit}; canonical handle; integer limit |
+| search | query: string (max 256), topK: int 1..20 optional | freeform | exact keys {query} plus optional {topK}; query decided by theoVerdict exactly as brain_ask decides it |
+| classify_problem_type | no parameters at Theo (strictObject, empty) | freeform by plan wording | `{}` already allows (empty_payload). A payload with a `statement` string is decided by theoVerdict (parity). Theo itself refuses the key, so this adds no live channel. |
+| brain_ask op mode | op: enum of 3, params: sealed object, topK | handle | op in {list_frameworks, framework_edges, framework_chain_slice}; params keys within {framework, edge_type, seeds, max_hops, limit}; framework and seeds canonical handles; edge_type matches ^[A-Z][A-Z0-9_]{0,63}$; numbers integers |
+| theo_health | none | none | empty payload; already allow |
+
+Tools with no arm after this plan (still ambiguous, by design, no schema read in this plan): load_framework, intra_framework_flow, find_bottlenecks, rank_influence, find_whitespace, structural_neighbours, find_frameworks that already have arms. A new typed tool needs a row and a test.
+
+## Plan 386-37 shape facts (copied)
+
+negatives_sprout_count: 6
+negatives_sprout_ids: X3,X4,X6,X7,X8,X10
+
+Plan 386-33 may let those short private claims leave if the owner approves option A or B in plan 386-32. Typed free-text tools are decided as brain_ask decides them, so this plan adds no new leak.
+
 ## Technical Root Cause
 
-PENDING. Not yet investigated -- this file is a seed for a future
-`/gsd:debug` session, not a completed diagnosis.
+`classify()` ends at the terminal `ambiguous` / `unknown` for every typed Theo read tool that has no arm. Only 9 tool shapes have an allow arm, and the Brain's own loop tools (normalize_framework_name, discover_structure, orchestration_readiness, feeds_into_chains, framework_concepts, search, brain_ask op mode) are not among them. The hook then decides by route:
+- shim-backed scopes pass `unknown` (so the plugin's own calls are not blocked, but they also earn no proof);
+- the direct connector `mcp__pws-brain-mcp__*` is not shim-backed, so the hook renders the F.1 card and exits 2 for any ambiguous verdict, whatever the payload says.
+
+That is the "unconditional" symptom of 2026-08-27: the block is not a session flag. It is a missing positive rule. Reformulating the text did not help because the verdict never read the text. PROVEN by the table above: the same payload gets exit 0 on the shim scope and exit 2 on the direct scope, and the classify() verdict (ambiguous, unknown) is the same on both.
+
+The Part 8 side of the fix: the new arms prove a typed read call by shape (exact key set, canonical handles, integers). They sit after step 1 (default-deny scan) and step 1b and only turn `ambiguous` into `allow`. A free-text value (search query) is decided by `theoVerdict`, the same call that decides a brain_ask question, so it is allow or block, never ambiguous.
 
 ## Required Code Changes
 
-PENDING -- depends on root cause. Candidate starting points for the
-investigator, not prescriptions:
-- Read `part8-egress-guard-hook.cjs` directly and find the actual condition
-  that decides "may leak unknown" versus "safe to pass through" for a
-  `pws-brain-mcp` call.
-- Check whether the guard's classification depends on room-binding state that
-  might be stale, absent, or misread for an established room like
-  `noga-mventures` -- e.g. does it require some per-room allowlist or context
-  flag that this room genuinely lacks, versus a bug in reading a flag it
-  should have.
-- Test whether other `pws-brain-mcp` tools in the same room/session are also
-  blocked, to determine if this is scoped to `operate_framework`/
-  `normalize_framework_name` specifically or is a true unconditional block.
+1. `lib/core/part8-egress-guard.cjs`: add a frozen `TYPED_READ_TOOLS` table (tool-name suffix rule, kind, key rule) and `_proveTypedReadShape(payload, toolName)`; call it in `classify()` right after `_proveKnownToolShape` and before the navigator release arm.
+2. Route a freeform typed tool (search, classify_problem_type with a statement) to `theoVerdict` right after the existing free-form branch. Add a credential shape check on the string (one long opaque token), because a credential-shaped token is a sprout by shape and must still block (owner principle: credentials always block). The closure of this gap for brain_ask is plan 386-31.
+3. Export `_proveTypedReadShape` on the test seam.
+4. No change to the hook. Making ambiguous a block is plan 386-27.
 
-## Tests to Add or Update
+## Tests to Add
 
-PENDING -- depends on root cause. At minimum, once diagnosed: a test that a
-generic, non-room-specific framework-name lookup (e.g.
-`normalize_framework_name` on a well-known public framework name) does NOT
-trip the Part 8 egress guard in a normal, established room.
+`tests/test-386-typed-theo-allow-arms.cjs`: TA1 to TA10 (allow per arm, parity of search with brain_ask for a sprout, an edge and a body), TB1 to TB7 (negative pins: name in a handle value, extra key, email, body, first-person edge, find_connections unchanged, credential-shaped token).
+
+##
 
 ## Non-Code Follow-ups
 
