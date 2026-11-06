@@ -150,8 +150,10 @@ Information for plan 386-32: 6 of the 10 negatives are sprouts by shape. A short
 ## Resolution
 
 root_cause: The guard has no shape test, so ordinary keywords meet word lists and a body is caught only by a lucky word.
-fix: pending until Task 3 (the pure module).
-verification: pending until Task 3.
+fix: added the pure module lib/core/part8-sprout-shape.cjs (classifyShape; thresholds 12 words, 40 words, 3 sentences, 2 newlines, quoted span of 4 or more words). No caller. No verdict change.
+verification: node tests/test-386-sprout-body-shape.cjs passes SH1 to SH6 (RED before the module, GREEN after). corpus_body_count 0 of 561 questions. bash tests/run-all-196.sh: 7 passed, 0 failed. node tests/test-3692-guard-survey-gate.cjs: GATE PASS, MEASURED_SHA256 1b2fc8440d3a71833a2f692baad7bdba3099dc26ea579e524caf2624a4f8dd00 before and after (no verdict change). bash tests/run-all-386.sh reports test-386-sprout-body-shape.cjs PASSED. A 1 MB string classifies in 74 ms.
 files_changed:
+  - lib/core/part8-sprout-shape.cjs (new)
+  - tests/test-386-sprout-body-shape.cjs (new)
   - .planning/debug/part8-no-shape-test-for-sprouts-and-bodies.md (new)
-commits: pending
+commits: see git log for 386-37 (RCA, RED test, module)
