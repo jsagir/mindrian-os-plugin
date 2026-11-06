@@ -1,5 +1,5 @@
 ---
-status: investigating            # gathering | investigating | fixing | resolved
+status: resolved            # gathering | investigating | fixing | resolved
 kind: rca                    # rca | debug-session | qa-sweep
 trigger: "part8-egress-guard-blocks-pws-brain-mcp-unconditionally"
 issue_id: ""
@@ -244,8 +244,8 @@ The Part 8 side of the fix: the new arms prove a typed read call by shape (exact
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
-root_cause: PENDING
-fix: ""
-verification: ""
-files_changed: []
-commits: []
+root_cause: "classify() had allow arms for 9 tool shapes only. Every other typed Theo read tool fell to the terminal ambiguous/unknown, and the hook blocks any ambiguous verdict on the direct connector mcp__pws-brain-mcp__* whatever the payload says (shim-backed scopes pass class unknown, so they were not blocked but earned no proof)."
+fix: "Plan 386-25: frozen TYPED_READ_TOOLS table and _proveTypedReadShape (handle arms: exact keys, canonical handles or command slugs, integer ranges; brain_ask op mode: closed op, handle params) placed after _proveKnownToolShape; freeform typed tools (search, classify_problem_type statement) go to theoVerdict as brain_ask does, with a credential-shaped opaque token block first. Step 1, 1b and the terminal ambiguous return are unchanged."
+verification: "tests/test-386-typed-theo-allow-arms.cjs (RED then GREEN, 18 checks); run-all-196, test-260906-fda, test-361-egress-shapes, test-354, test-223, test-355, test-247 pass; corpus gate DELTA lines identical to the pre-plan run (baseline unchanged); hook child process: pws-brain-mcp normalize_framework_name {Six Thinking Hats} exit 2 before, exit 0 after. run-all-386 shows 1 failure, test-386-semantic-scholar-approval (RED test of plan 386-05, not part of this plan)."
+files_changed: [lib/core/part8-egress-guard.cjs, tests/test-386-typed-theo-allow-arms.cjs, .planning/debug/part8-egress-guard-blocks-pws-brain-mcp-unconditionally.md]
+commits: [244423288 (RCA), a4c934e67 (RED test), fix commit in git log as fix(386-25)]
