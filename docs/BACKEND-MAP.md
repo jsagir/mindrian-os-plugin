@@ -68,7 +68,6 @@ MindrianOS has **TWO graphs**. Every file in this repo is classified by which gr
 | `discover-hsi-whitespace.py` | HSI gap discovery |
 | `discover-rs-whitespace.py` | Reverse-salient gap discovery |
 | `discovery-cycle.cjs` | Orchestrates discovery artifacts into room |
-| `extract-room-intelligence.cjs` | Pulls structured intel from room.md files |
 | `file-asset` | Files an asset into the room |
 | `generate-chat-embed.cjs` | Chat embed bundle for exports |
 | `generate-deck.cjs` | Generates slide deck export |
@@ -210,7 +209,6 @@ just to a room registry cache.
 | `reasoning-ops.cjs` | WRITE | REASONING.md writes |
 | `room-db.cjs` | **WRITE** | **The** SQLite room.db client |
 | `room-ops.cjs` | WRITE | Room lifecycle |
-| `room-type-detector.cjs` | WRITE | Classifies room type |
 | `scheduled-scanner.cjs` | WRITE | Cowork scheduled scanner |
 | `scratchpad-ops.cjs` | WRITE | Scratchpad CRUD |
 | `section-registry.cjs` | WRITE | Section registry in room |
