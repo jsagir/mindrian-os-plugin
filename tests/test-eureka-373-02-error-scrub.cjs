@@ -27,7 +27,7 @@ function assertClean(out, label) {
 
 async function main() {
   const KNOWN = ['engine_not_configured', 'engine_checkout_unavailable', 'cancelled', 'engine_timeout', 'engine_unavailable',
-    'engine_rejected_request', 'engine_invalid_response'];
+    'engine_rejected_request', 'engine_invalid_response', 'engine_extra_missing', 'engine_model_missing', 'engine_node_missing'];
   const seenMessages = new Map();
   for (const spec of TOOLS) {
     for (const reason of [...KNOWN, 'engine_status_error', 'weird_reason ' + SECRET, undefined]) {
@@ -75,6 +75,20 @@ async function main() {
       assertClean(out, 'end to end');
       assert.equal(JSON.stringify(out).includes(root), false, 'no engine root path in the result');
     }
+    // Plan 387-11: a start line with a token-like run is dropped, and the typed cause stays.
+    const { PassThrough } = require('node:stream');
+    class PipeTransport { constructor(o) { this.stderr = o && o.stderr === 'pipe' ? new PassThrough() : null; } }
+    const tokenLine = 'error: No interpreter found for Python >=3.11 ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const tokenFail = class {
+      async connect(t) { if (t.stderr) t.stderr.write(tokenLine + '\n'); await new Promise((r) => setTimeout(r, 5)); throw new Error('Connection closed'); }
+      async callTool() {} async close() {}
+    };
+    const dropped = await callEurekaWorkflow('graph.find_structural_gaps', {},
+      { MINDRIAN_EUREKA_ROOT: root, MINDRIAN_EUREKA_UV: '/nonexistent/uv', PATH: process.env.PATH }, undefined,
+      { StdioClientTransport: PipeTransport, Client: tokenFail });
+    assert.equal(dropped.cause, 'python_missing', 'the cause is typed');
+    assert.equal('engine_start_line' in dropped, false, 'a start line with a token-like run is dropped');
+    assert.equal(JSON.stringify(dropped).includes('ABCDEFGHIJKLMNOPQRSTUVWXYZ'), false, 'the token-like run does not leak');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
