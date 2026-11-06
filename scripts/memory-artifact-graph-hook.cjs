@@ -70,6 +70,39 @@ function isMemoryMarkdown(filePath) {
   return MEMORY_BASENAMES.indexOf(base) !== -1;
 }
 
+// realOrResolve -- realpath of the nearest existing ancestor plus the missing
+// tail (a Write may name a file that does not exist yet). Falls back to
+// path.resolve on any error. Phase 386 plan 16 (B14).
+function realOrResolve(p) {
+  const abs = path.resolve(p);
+  let head = abs;
+  const tail = [];
+  for (let i = 0; i < 64; i += 1) {
+    try {
+      return path.join(fs.realpathSync(head), ...tail.slice().reverse());
+    } catch (_e) {
+      const parent = path.dirname(head);
+      if (parent === head) return abs;
+      tail.push(path.basename(head));
+      head = parent;
+    }
+  }
+  return abs;
+}
+
+// isInsideRoom -- true only when the written file lies inside the room
+// directory (both sides realpath-resolved, so a symlink or a ".." segment
+// cannot point outside). Phase 386 plan 16 (B14, T-386-16-01).
+function isInsideRoom(filePath, roomDir) {
+  try {
+    const rel = path.relative(realOrResolve(roomDir), realOrResolve(filePath));
+    if (rel === '' || rel === '..' || rel.startsWith('..' + path.sep)) return false;
+    return !path.isAbsolute(rel);
+  } catch (_e) {
+    return false;
+  }
+}
+
 // readStdin -- the Claude Code PostToolUse hook contract delivers a JSON payload
 // on stdin with tool_name + tool_input.file_path (mirror of the gsd hook).
 function readStdin() {
@@ -125,6 +158,11 @@ function runHook() {
   const roomDir = resolveRoomDir();
   if (!roomDir) return;
 
+  // B14: the basename gate alone is not a scope. Reconcile only the room that
+  // owns the written file; a memory-named file in another room or another
+  // repository causes no room work.
+  if (!isInsideRoom(filePath, roomDir)) return;
+
   // Open room.db so the reconcile can upsert. Lazy-require node:sqlite so an
   // environment without it degrades to a silent no-op (Tier 0).
   let db = null;
@@ -177,7 +215,7 @@ function runHook() {
   }
 }
 
-module.exports = { isMemoryMarkdown: isMemoryMarkdown, resolveRoomDir: resolveRoomDir };
+module.exports = { isMemoryMarkdown: isMemoryMarkdown, resolveRoomDir: resolveRoomDir, isInsideRoom: isInsideRoom };
 
 // CLI entry -- the PostToolUse hook contract. ALWAYS exit 0; never block the write.
 if (require.main === module) {
