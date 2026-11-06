@@ -1,5 +1,5 @@
 ---
-status: investigating            # gathering | investigating | fixing | resolved
+status: resolved            # gathering | investigating | fixing | resolved
 kind: rca                    # rca | debug-session | qa-sweep
 trigger: "part8-job-key-skips-room-word-rules"
 issue_id: ""
@@ -97,7 +97,7 @@ The packet arm is chosen by the presence of a job key, and it sits before the fr
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: "The packet arm is chosen by a job key before the free-form arm, and _proveMoveSet does not check the payload key set."
-fix: ""
-verification: ""
-files_changed: []
-commits: []
+fix: "Plan 386-28: classify() decides a free-form string with theoVerdict before the packet arm; _proveMoveSet requires payload keys within data/brain-packet-schema.json in.properties for the job (plus the five handle fields). Step 1 and the terminal ambiguous return unchanged."
+verification: "tests/test-386-job-key-shortcut.cjs RED (J1 to J5 fail) then GREEN (9 ok); corpus gate DELTA lines identical before and after, MEASURED_SHA256 unchanged, baseline not stamped; run-all-196, test-239 canary, e2e smoke, test-245, test-223, test-355, test-363.1, test-260906-fda, test-361-egress-shapes, part8-egress-guard.test.cjs, typed-arms test pass; run-all-386 all 20 PASSED on the final run."
+files_changed: [lib/core/part8-egress-guard.cjs, tests/test-386-job-key-shortcut.cjs, .planning/debug/part8-job-key-skips-room-word-rules.md]
+commits: [RCA commit, c5342b1b9 (RED test), fix commit in git log as fix(386-28)]
