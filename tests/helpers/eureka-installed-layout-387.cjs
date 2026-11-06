@@ -446,7 +446,7 @@ const NET_PRELOAD = [
   'function note(kind, target) { try { fs.appendFileSync(log, JSON.stringify({ kind: kind, target: String(target) }) + "\\n"); } catch (_e) { /* ignore */ } }',
   'const origConnect = net.Socket.prototype.connect;',
   'net.Socket.prototype.connect = function () {',
-  '  const a = arguments[0];',
+  '  const a = Array.isArray(arguments[0]) ? arguments[0][0] : arguments[0];',
   '  note("connect", a && typeof a === "object" ? (a.path || ((a.host || "") + ":" + (a.port || ""))) : (a + ":" + (arguments[1] || "")));',
   '  return origConnect.apply(this, arguments);',
   '};',
@@ -524,6 +524,12 @@ async function perspectiveArm(layout, world, built) {
   const netlog = path.join(world.tmp, 'net-387.log');
   fs.writeFileSync(preload, NET_PRELOAD);
   fs.writeFileSync(netlog, '');
+  // Positive control: the preload must log a real connect attempt, or a count of 0 means nothing.
+  const controlLog = path.join(world.tmp, 'net-control-387.log');
+  fs.writeFileSync(controlLog, '');
+  run(process.execPath, ['--require', preload, '-e', "const s = require('node:net').connect({ host: '127.0.0.1', port: 9 }); s.on('error', () => {}); setTimeout(() => process.exit(0), 300);"],
+    { env: { PATH: process.env.PATH, MOS_387_NETLOG: controlLog }, timeout: 20000 });
+  const controlLines = fs.readFileSync(controlLog, 'utf8').split('\n').filter(Boolean).length;
   const env = Object.assign({}, built.env, { NODE_OPTIONS: '--require ' + preload, MOS_387_NETLOG: netlog });
   const conn = await startServer(layout, world, env, { identity: 'claude-code' });
   const res = { ok: null, recalled_pairs: null, reason: null };
@@ -552,6 +558,7 @@ async function perspectiveArm(layout, world, built) {
     await stopServer(conn);
   }
   const lines = fs.readFileSync(netlog, 'utf8').split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l); } catch (_e) { return null; } }).filter(Boolean);
+  res.network_counter_positive_control = controlLines >= 1;
   res.network_attempts_total = lines.length;
   res.network_attempts_non_loopback = lines.filter((l) => !isLoopback(l.target)).length;
   res.network_attempt_targets = Array.from(new Set(lines.map((l) => l.kind + ' ' + l.target))).sort();
