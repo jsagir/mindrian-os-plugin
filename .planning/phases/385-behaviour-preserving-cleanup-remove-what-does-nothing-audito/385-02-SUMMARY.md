@@ -48,7 +48,9 @@ test-267-mcpv2-lockstep PASS=6; test-341-shrinkwrap-no-dev PASS=4; test-341-payl
 - New test: 4/4 ok. All 6 pinned tests and the prune check: same results as the baseline.
 - `npm ci --dry-run --omit=dev --offline`: exit 0, "added 10 packages, and removed 1 package" (one fewer than the baseline; the removal is the local flexsearch copy).
 - `git grep -c flexsearch` on the 3 manifests: 0 matches each. HEAD holds exactly the 4 expected paths. Never-touch guard: 0.
-- orchestration-projection: OK. run-all-267, run-all-341 and doctor: deferred to one run at the end of Wave 1.
+- orchestration-projection: OK.
+- End-of-wave run (coordinator ruling: long suites run once): run-all-341 PASS=31 FAIL=4, same 4 legs as the baseline. doctor 24/25 (only the peer clean-tree point), equal to baseline.
+- run-all-267: PASS=27 FAIL=6 SKIP=1. No baseline for run-all-267 was recorded before the change (plan text expected 0 or baseline). The failing legs are CIRS gates (connector-descriptor count 35 expected, 62 found), zod4 contract (eureka_capability_job_* tool membership extras), registration API and titles, local server dual era, HTTP flag-OFF, and in-repo clients. None touches flexsearch or the lock lists; test-267-mcpv2-lockstep (Check 1 and 2) passes 6/6. Cause: stale 267 snapshot against current tool and connector counts (UNVERIFIED by a pre-change run).
 
 ## Deviations
 

@@ -46,7 +46,7 @@ exit 1
 - `git ls-files | grep -Ec '__pycache__|\.pyc$'`: 0.
 - `connector-registry: OK`, `orchestration-projection: OK`.
 - Never-touch guard on HEAD: 0 matches.
-- run-all-341 and doctor re-run: deferred to one run at the end of Wave 1 (coordinator ruling: long suites run once).
+- End-of-wave run (after plans 01, 02, 03, 07, 08 and 12 landed; coordinator ruling: long suites run once): `bash tests/run-all-341.sh` PASS=31 FAIL=4, the same 4 failing legs as the baseline. `node scripts/doctor.cjs --acceptance`: 24/25, only `verify-release-clean-tree` failing (tracked-file drift from peer sessions), equal to the baseline. A first doctor run showed 23/25 with `coverage-gate` also failing because a peer had an uncommitted edit of commands/whitespace.md (skill mirror stale); it passed on the re-run.
 
 ## Deviations
 
