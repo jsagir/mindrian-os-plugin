@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: fixing
 kind: rca
 trigger: "part8-ambiguous-verdict-is-sent-on-own-shim"
 issue_id: "E-AMB"
@@ -23,7 +23,7 @@ updated: 2026-11-06T10:00:00Z
 hypothesis: an `ambiguous` verdict means "send with a disclosure" on the plugin's own shim (callTool, and the hook for the 2 shim-backed scopes), "block" on the direct connector, and "not inspected" on raw `mcp__theo__` typed names. So the same payload has 3 outcomes by route.
 test: a spy on `classify` while every repo-owned wrapper and every repo-owned direct `callTool` caller runs with synthetic handle inputs and a fetch stub; a hook child process per route prefix with `PART8_FORCE_BRAIN_AVAILABLE` 1 and 0.
 expecting: after plan 386-25 only a few repo-owned paths are still ambiguous, and none of them carries an edge or body string.
-next_action: owner decision on the disposition of ambiguous (option-a, option-b, option-c or option-d). Plan 386-27 reads the Owner decision block.
+next_action: owner decision recorded 2026-11-06 (decision: option-e, context-based decomposition; see the Owner decision block). Plan 386-27 implements option-e.
 
 ## Meta
 
@@ -117,6 +117,12 @@ Data-dependent ambiguity (PROVEN with an invented handle `Unknown Handle Xq`): `
 
 census_ambiguous_repo_paths: 2
 census_ambiguous_body_paths: 0
+census_split_route_callers: 0
+census_codepath_body_callers: 0
+
+Definition of the two lines above (added by the option-e decision of 2026-11-06). Both count rows of the census table whose guard verdict is ambiguous and whose payload holds a string that `classifyShape` calls edge or body. Those are the only calls that plan 386-27 answers with the typed outcome sprouts_required, because the shape test reads only the strings of an ambiguous verdict. Caller kind: model means a tool call the host model composes; code means a pipeline, script or refresh with no model. Result from the saved census (54 rows, scratch file census26.json): the ambiguous rows are the 2 repo-owned paths (`normalize_framework_name` from chain-recommender and canon-release, both code callers; `command_neighborhood` from `scripts/refresh-framework-names.cjs`, a code caller) plus 6 tools with no repo caller. Every ambiguous row holds only sprouts (1 to 3 words). So 0 rows carry an edge or body string: census_split_route_callers 0 (no model call needs the split route today; it exists for a model-composed call) and census_codepath_body_callers 0 (no code path would be refused).
+
+Rows with an edge or body string and an allow verdict (info, PROVEN): 10 of 54 rows, all code callers, all tool `brain_query`, key `cypher`: `enrichCausalEdges` (4 templates, 28 or 47 words), `suggestValidationSteps` (4 templates, 19 or 36 words) and `hatAwareRecommend` (2 templates, 70 words). They are repo-built Cypher templates, the guard allows them (generic_question), and option-e does not touch an allow verdict. They carry no room text. Constraint for plan 386-33: a new body class must not apply to the `cypher` key of `brain_query`, or these 10 code paths would be refused with no model to split them.
 
 The 2 repo-owned paths are: `normalize_framework_name` with a non-canonical raw term (the call exists to map a non-canonical term to the canonical one), and `command_neighborhood` with `/mos:act` (the framework-name refresh, `scripts/refresh-framework-names.cjs`). Both carry only sprouts (1 and 2 words). The 6 unwired tools add 6 ambiguous sprouts that no repo code sends.
 
@@ -196,10 +202,31 @@ Named tests that must keep passing for any change (all PASS at 7f078287a, run in
 - Phase 254 ruling: option A changes it for the own shim only for edge and body strings. A navigator note is needed if the owner picks A.
 - Fixture note: scratch files lived under the session scratchpad. No repo product file was edited.
 
+## Owner decision
+
+decision: option-e
+date: 2026-11-06
+
+Owner's words, verbatim, spelling as typed: "block ? i dont think a block will wor it need to be context based, like the file-a meeting style where it braeks it up to claims, facts hypthtesesys ect ..."
+
+carrier_note: The sprouts travel as ordinary typed read calls (brain_ask and brain_search), not as a job of data/brain-packet-schema.json, which deviates from the PRD wording typed packet because no packet job carries a free sprout without a room-derived string.
+
+The carrier_note is a deviation the owner sees on the plan 386-32 checkpoint.
+
+Reading (the main session's reading, to be checked by the owner), in 5 short lines:
+
+1. A bare block does not work for contextualised work.
+2. A long text or an ambiguous-shape call is answered with the typed outcome sprouts_required, which carries a plain split guide and names the sprout route. It is never silent, never sends, and never echoes the text.
+3. The host model breaks the text into typed claims like the meeting filing, keeps the room claims local as proposed claims, sends only generic sprouts, and assembles the answer locally.
+4. Credentials, emails, phone-like and ID-like strings and room-lexicon terms never leave.
+5. A call whose strings are all sprouts proceeds as today, and brain_write of room text stays blocked.
+
+Gate checks made before this block was written: census_codepath_body_callers is 0 (census lines above), and the plan 386-42 RCA says design_can_work: yes. Plan 386-27 implements option-e only. Options a, b, c and d of the earlier draft are not chosen.
+
 ## Resolution
 
 root_cause: the disposition of `ambiguous` differs by route (send on the own shim, block on the direct connector, not inspected on raw theo names) and the own shim sends it without a shape test. After plan 386-25 only 2 repo-owned paths are still ambiguous and both are sprouts.
-fix: none applied. Awaiting the owner decision.
+fix: none applied in this plan (diagnosis only). The owner decision option-e is recorded; plans 386-27 and 386-33 implement it.
 verification: see Evidence (census, matrix and named tests PROVEN; the host honouring the hook exit on the direct connector end to end is UNVERIFIED).
 files_changed: none
 commits: see git log of this file
