@@ -4071,11 +4071,11 @@ Plans:
 **Goal:** Fix the audit bugs B1 to B16, Part 8 egress risks first (wiki BYOAPI proxy, brain_write of room-derived text, the Semantic Scholar path). Each fix: root-cause file first, failing test, fix at the origin, fixture rooms only. Owner decisions are asked as gates. Source: auditor findings (hypotheses; inferred ones are reproduced first), PRD in this directory.
 **Requirements**: B1 to B16 and S2 (finding IDs, see 386-PRD.md)
 **Depends on:** Phase 385
-**Plans:** 46 plans (planned 2026-11-05 to 2026-11-06; checkers PASS; about 38 executed, status 2026-11-06). Plan 21 is the close-out (wave 10). Owner decisions are recorded in 386-PRD.md and the plan RCA files.
+**Plans:** 47 plans, all executed 2026-11-06 (386-OUTCOMES.md: 36 FIXED, 4 HANDED-OFF or SKIPPED, 1 NOT-MEASURED; doctor --acceptance 25/25 on the final tree). Plan 21 is the close-out. Owner decisions are recorded in 386-PRD.md and the plan RCA files.
 
 Plans:
 
-- [ ] 386-01 to 386-46 (see the PLAN files in this directory). Open: 33 and 34 wrap-up, 44, 45, 46, 21.
+- [x] 386-01 to 386-47 (see the PLAN files and 386-COMMIT-REVIEW.md in this directory).
 
 ### Phase 387: Eureka reachable on a normal install
 
