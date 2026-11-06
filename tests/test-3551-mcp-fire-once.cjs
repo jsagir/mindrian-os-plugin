@@ -268,7 +268,7 @@ async function caseCloseOutFireOnceSequence() {
   check('sequence pull 1: fires the eureka_bridge reach', eurekaReachesOf(pull1.reaches).length === 1, JSON.stringify(pull1.reaches));
   check('sequence pull 1: the handle is noted before the close-out', surfacedOffers.peekSurfaced(room.roomDir).indexOf(handle1) !== -1);
 
-  const closeout1 = stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
+  const closeout1 = await stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
   check('close-out 1: returns the normal shape (room_dir set)', closeout1 && closeout1.room_dir === room.roomDir, JSON.stringify(closeout1));
   const ledgerAfter1 = readLedger(room.roomDir);
   check('close-out 1: the fire-once ledger now carries handle1', !!ledgerAfter1 && !!ledgerAfter1.entries && Object.prototype.hasOwnProperty.call(ledgerAfter1.entries, handle1), JSON.stringify(ledgerAfter1));
@@ -277,7 +277,7 @@ async function caseCloseOutFireOnceSequence() {
   const pull2 = sensorsTool._internal.dispatchCandidateReaches('sess-close-out', room.roomDir, {});
   check('sequence pull 2 (after close-out 1): no eureka_bridge reach fires (already surfaced)', eurekaReachesOf(pull2.reaches).length === 0, JSON.stringify(pull2.reaches));
 
-  const closeout2 = stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
+  const closeout2 = await stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
   check('close-out 2 (nothing noted): returns the normal shape and does not throw', closeout2 && closeout2.room_dir === room.roomDir, JSON.stringify(closeout2));
 
   const pull3 = sensorsTool._internal.dispatchCandidateReaches('sess-close-out', room.roomDir, {});
@@ -290,7 +290,7 @@ async function caseCloseOutFireOnceSequence() {
   check('a fresh second composition mints a different handle', handle2 !== handle1);
   check('not shown, not marked: the second handle was never noted (no pull happened for it)', surfacedOffers.peekSurfaced(room.roomDir).indexOf(handle2) === -1);
 
-  const closeout3 = stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
+  const closeout3 = await stopGateHandler.closeOutRoom(room.roomDir, 'sess-close-out');
   check('close-out 3 (no note for handle2): returns the normal shape and does not throw', closeout3 && closeout3.room_dir === room.roomDir, JSON.stringify(closeout3));
   const ledgerAfter3 = readLedger(room.roomDir);
   check('not shown, not marked: the close-out that follows never marks handle2 (it was never noted)', !ledgerAfter3 || !ledgerAfter3.entries || !Object.prototype.hasOwnProperty.call(ledgerAfter3.entries, handle2), JSON.stringify(ledgerAfter3));
@@ -383,7 +383,7 @@ async function caseSoftFailReadOnlyMindrian() {
   try {
     fs.chmodSync(mindrianDir, 0o555);
     try {
-      result = stopGateHandler.closeOutRoom(room.roomDir, 'sess-soft-fail-ro');
+      result = await stopGateHandler.closeOutRoom(room.roomDir, 'sess-soft-fail-ro');
     } catch (e) {
       threw = e;
     }
@@ -394,7 +394,7 @@ async function caseSoftFailReadOnlyMindrian() {
   check('soft-fail (read-only .mindrian): closeOutRoom returns its normal shape', result && result.room_dir === room.roomDir, JSON.stringify(result));
 }
 
-function caseSoftFailUnwritableLedger() {
+async function caseSoftFailUnwritableLedger() {
   process.stdout.write('\n-- soft-fail: an unwritable ledger path never throws out of closeOutRoom --\n');
   resetBetweenLegs();
 
@@ -407,7 +407,7 @@ function caseSoftFailUnwritableLedger() {
   let threw = null;
   let result = null;
   try {
-    result = stopGateHandler.closeOutRoom(room.roomDir, 'sess-soft-fail-ledger');
+    result = await stopGateHandler.closeOutRoom(room.roomDir, 'sess-soft-fail-ledger');
   } catch (e) {
     threw = e;
   }
@@ -463,7 +463,7 @@ function caseCliMarkUntouched() {
     await caseStatedLimitAcceptedCost();
     caseBoundedEviction();
     await caseSoftFailReadOnlyMindrian();
-    caseSoftFailUnwritableLedger();
+    await caseSoftFailUnwritableLedger();
     await caseSoftFailNoteSurfacedThrows();
     caseCliMarkUntouched();
   } catch (e) {

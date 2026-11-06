@@ -383,7 +383,7 @@ function releaseBarrierSoon(barrierFile, delayMs) {
         return { unref: function () {} };
       });
       try {
-        stopGateHandler.closeOutRoom(roomOn.roomDir, sessionOn);
+        await stopGateHandler.closeOutRoom(roomOn.roomDir, sessionOn);
       } finally {
         ambientTrigger._internal.resetSpawnImpl();
       }

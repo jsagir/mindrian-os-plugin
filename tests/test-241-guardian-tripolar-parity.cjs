@@ -195,7 +195,7 @@ function pinRequiresToRealRepo(src) {
  * valid. This is what "removing the guardian call from the shared
  * handler" means operationally. */
 function mutateRemoveGuardianCall(src) {
-  const needle = 'const guardianSm = _closeOutGuardianOnStop(roomDir);';
+  const needle = 'const guardianSm = await _closeOutGuardianOnStop(roomDir);';
   const replacement = 'const guardianSm = null; /* MUTATION (test-241 parity proof): guardian call removed */';
   assert.ok(src.indexOf(needle) !== -1, 'expected guardian-call mutation target not found in stop-gate-handler.cjs; source drifted');
   return src.split(needle).join(replacement);
@@ -223,11 +223,11 @@ function test(name, fn) { tests.push({ name, fn }); }
 // ---------------------------------------------------------------------------
 // Test 1: the shared path reports (message + substantiating report)
 // ---------------------------------------------------------------------------
-test('shared handler closeOutRoom() returns a guardian message backed by invariant-report.json', () => {
+test('shared handler closeOutRoom() returns a guardian message backed by invariant-report.json', async () => {
   const tmp = mkTmp('parity-t1-');
   const fx = seedRoom(tmp, ['market-analysis']); // no MINTO.md -> existence-check violation
 
-  const business = stopGateHandler.closeOutRoom(fx.roomDir, 'sess-parity-t1');
+  const business = await stopGateHandler.closeOutRoom(fx.roomDir, 'sess-parity-t1');
 
   assert.ok(
     typeof business.guardian_sm === 'string' && business.guardian_sm.indexOf('guardian:') !== -1,
@@ -246,13 +246,13 @@ test('shared handler closeOutRoom() returns a guardian message backed by invaria
 // ---------------------------------------------------------------------------
 // Test 2: parity between the shared path and the CLI legacy path
 // ---------------------------------------------------------------------------
-test('shared handler and CLI legacy on-stop agree on the guardian finding for the same fixture', () => {
+test('shared handler and CLI legacy on-stop agree on the guardian finding for the same fixture', async () => {
   const tmpShared = mkTmp('parity-t2-shared-');
   const tmpLegacy = mkTmp('parity-t2-legacy-');
   const fxShared = seedRoom(tmpShared, ['market-analysis']);
   const fxLegacy = seedRoom(tmpLegacy, ['market-analysis']);
 
-  const business = stopGateHandler.closeOutRoom(fxShared.roomDir, 'sess-parity-t2-shared');
+  const business = await stopGateHandler.closeOutRoom(fxShared.roomDir, 'sess-parity-t2-shared');
   const sharedGuardianPortion = extractGuardianPortion(business.guardian_sm);
   assert.ok(sharedGuardianPortion !== null, 'shared path must produce a guardian portion to compare; got guardian_sm=' + JSON.stringify(business.guardian_sm));
 
@@ -276,12 +276,12 @@ test('shared handler and CLI legacy on-stop agree on the guardian finding for th
 // Test 3: mutation proof -- removing the shared-path call turns Test 1/2
 // red, not merely "the code compiles differently"
 // ---------------------------------------------------------------------------
-test('mutation proof: removing the guardian call from the shared handler drops both the message and the report', () => {
+test('mutation proof: removing the guardian call from the shared handler drops both the message and the report', async () => {
   const tmp = mkTmp('parity-t3-');
   const fx = seedRoom(tmp, ['market-analysis']);
 
   const mutatedModule = loadMutatedStopGateHandler(tmp);
-  const business = mutatedModule.closeOutRoom(fx.roomDir, 'sess-parity-t3-mutated');
+  const business = await mutatedModule.closeOutRoom(fx.roomDir, 'sess-parity-t3-mutated');
 
   assert.ok(
     business.guardian_sm === null || typeof business.guardian_sm === 'undefined',

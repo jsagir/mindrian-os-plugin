@@ -479,7 +479,7 @@ async function legAC1() {
   });
   let business1;
   try {
-    business1 = stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+    business1 = await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
   } finally {
     ambientTrigger._internal.resetSpawnImpl();
   }
@@ -523,7 +523,7 @@ async function legAC1() {
   });
   let business2;
   try {
-    business2 = stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+    business2 = await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
   } finally {
     ambientTrigger._internal.resetSpawnImpl();
   }
@@ -545,7 +545,7 @@ async function legAC1() {
     return { unref: function () {} };
   });
   try {
-    stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+    await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
   } finally {
     ambientTrigger._internal.resetSpawnImpl();
   }
@@ -560,7 +560,7 @@ async function legAC1() {
 // closeOutRoom (in process), then evaluateAndClaim seam 'material' (in
 // process), on the SAME state -> exactly one claim, zero in-process spawns.
 // ---------------------------------------------------------------------------
-function legThreeSeams() {
+async function legThreeSeams() {
   process.stdout.write("\n-- three seams: dry-run process, then closeOutRoom, then evaluateAndClaim(material) -> exactly one claim --\n");
   resetBetween();
 
@@ -589,7 +589,7 @@ function legThreeSeams() {
     return { unref: function () {} };
   });
   try {
-    stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+    await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
   } finally {
     ambientTrigger._internal.resetSpawnImpl();
   }
@@ -633,7 +633,7 @@ async function main() {
   await legDesktop();
   await legCowork();
   await legAC1();
-  legThreeSeams();
+  await legThreeSeams();
   legStatic();
 }
 
