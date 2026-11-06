@@ -226,7 +226,8 @@ Gate checks made before this block was written: census_codepath_body_callers is 
 ## Resolution
 
 root_cause: the disposition of `ambiguous` differs by route (send on the own shim, block on the direct connector, not inspected on raw theo names) and the own shim sends it without a shape test. After plan 386-25 only 2 repo-owned paths are still ambiguous and both are sprouts.
-fix: none applied in this plan (diagnosis only). The owner decision option-e is recorded; plans 386-27 and 386-33 implement it.
-verification: see Evidence (census, matrix and named tests PROVEN; the host honouring the hook exit on the direct connector end to end is UNVERIFIED).
-files_changed: none
-commits: see git log of this file
+fix: plan 386-27 (option-e). callTool, query(), ask() and search() return the typed sentinel of lib/core/part8-split-route.cjs (error egress_blocked, class and outcome sprouts_required, route, 5 line split guide, 0 fetch, no payload byte) for the guard class sprouts_required and for an ambiguous call whose payload carries an edge or body string by shape (new helper carriesEdgeOrBody, any depth, the cypher key of brain_query not read). The hook exits 2 with the same constant message for the class (every scope) and for the same ambiguous call on a shim-backed scope with Brain available. A sprout-only ambiguous call still proceeds with the egress_disclosure. Other block classes keep their own message with no guide. Direct connector still blocks, Brain-less hook path still allows, empty payload still allows.
+verification: tests/test-386-sprouts-required-outcome.cjs arms SP1 to SP8 (RED at 10536cca0, GREEN at 5992a1f65). Corpus gate before and after with no stamp: MEASURED_SHA256 685f11b8... unchanged. run-all-196, run-all-245, run-all-386 pass; the named whitespace, chain and framework-name tests pass; the 4 egress suites named by the plan (254 ambiguous disclosure, 260917 dgf, 245 contentless, 260906 fda) pass with no assertion flipped, because their ambiguous fixtures hold only sprouts. The host honouring the hook exit on the direct connector end to end is UNVERIFIED.
+files_changed: lib/core/brain-client.cjs, lib/core/part8-split-route.cjs, scripts/part8-egress-guard-hook.cjs, tests/test-386-sprouts-required-outcome.cjs
+commits: 10536cca0 (RED), 5992a1f65 (GREEN)
+disposition: sprouts_required
