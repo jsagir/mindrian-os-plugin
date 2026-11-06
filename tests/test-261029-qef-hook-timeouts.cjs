@@ -49,7 +49,10 @@ const P385 = {
     { event: 'Stop', sub: 'operator-update.cjs' },
     { event: 'Stop', sub: 'jtbd-update.cjs" stop' },
   ],
-  matcher: [],
+  matcher: [
+    // Plan 385-10: the query-efficiency hook no longer runs on Read (its Read result was always empty).
+    { event: 'PostToolUse', sub: 'query-efficiency-telemetry.cjs', to: 'Grep|Glob' },
+  ],
 };
 const EXPECTED = 46 - P385.removed.length;
 
@@ -154,7 +157,9 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
       P385.removed.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
     for (const group of base.hooks[ev]) {
       for (const m of P385.matcher) {
-        if (m.event === ev && group.matcher === m.from) group.matcher = m.to;
+        if (m.event === ev && (group.hooks || []).some((h) => typeof h.command === 'string' && h.command.indexOf(m.sub) !== -1)) {
+          group.matcher = m.to;
+        }
       }
     }
   }

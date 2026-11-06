@@ -203,4 +203,66 @@ check('UserPromptSubmit keeps exactly one jtbd-update.cjs userprompt command', (
   assert.strictEqual(n, 1, 'UserPromptSubmit has ' + n + ' jtbd-update.cjs userprompt commands');
 });
 
+// ---- Plan 385-10: query-efficiency telemetry on Grep and Glob only ----
+const QE_SCRIPT = path.join(ROOT, 'scripts', 'query-efficiency-telemetry.cjs');
+
+function runQe(stdinObj) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p385-10-'));
+  try {
+    const home = path.join(tmp, 'home');
+    const room = path.join(tmp, 'room');
+    fs.mkdirSync(home, { recursive: true });
+    fs.mkdirSync(room, { recursive: true });
+    fs.writeFileSync(path.join(room, '.room-root'), '');
+    fs.writeFileSync(path.join(room, 'a.md'), '# t\nhello world body text here\n');
+    const env = Object.assign({}, process.env, { HOME: home, MOS_COMMAND_CONTEXT: '/mos:x' });
+    const r = spawnSync(process.execPath, [QE_SCRIPT], {
+      cwd: room,
+      input: JSON.stringify(stdinObj),
+      encoding: 'utf8',
+      env,
+    });
+    const homeFiles = listFiles(home);
+    const jsonl = path.join(home, '.mindrian', 'telemetry', 'query-efficiency.jsonl');
+    const lines = fs.existsSync(jsonl) ? fs.readFileSync(jsonl, 'utf8').split('\n').filter(Boolean).length : 0;
+    return { r, homeFiles, lines };
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+check('query-efficiency on a real-shape Read result gives no stdout and writes no file', () => {
+  const { r, homeFiles } = runQe({
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Read',
+    tool_input: { file_path: 'a.md' },
+    tool_response: { type: 'text', file: { filePath: 'a.md', content: '# t\nhello world body text here', numLines: 2, startLine: 1, totalLines: 2 } },
+  });
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.strictEqual(r.stdout, '', 'stdout ' + JSON.stringify(r.stdout));
+  assert.deepStrictEqual(homeFiles, [], 'files under HOME: ' + homeFiles.join(', '));
+});
+
+check('control: query-efficiency on a Grep result still prints the advisory and appends one row', () => {
+  const { r, lines } = runQe({
+    hook_event_name: 'PostToolUse',
+    tool_name: 'Grep',
+    tool_input: { pattern: 'x' },
+    tool_response: { content: 'a.md:1:# t\nhello world body text here' },
+  });
+  assert.strictEqual(r.status, 0, 'exit code ' + r.status);
+  assert.ok(r.stdout.includes('query efficiency'), 'stdout ' + JSON.stringify(r.stdout));
+  assert.strictEqual(lines, 1, 'jsonl rows ' + lines);
+});
+
+check('the query-efficiency PostToolUse group has matcher Grep|Glob, timeout 3 and one command', () => {
+  const doc = loadHooks();
+  const groups = ((doc.hooks && doc.hooks.PostToolUse) || []).filter((g) =>
+    (g.hooks || []).some((h) => h && typeof h.command === 'string' && h.command.includes('query-efficiency-telemetry.cjs')));
+  assert.strictEqual(groups.length, 1, 'groups ' + groups.length);
+  assert.strictEqual(groups[0].matcher, 'Grep|Glob', 'matcher ' + groups[0].matcher);
+  assert.strictEqual(groups[0].hooks.length, 1, 'commands ' + groups[0].hooks.length);
+  assert.strictEqual(groups[0].hooks[0].timeout, 3, 'timeout ' + groups[0].hooks[0].timeout);
+});
+
 process.exit(failed ? 1 : 0);
