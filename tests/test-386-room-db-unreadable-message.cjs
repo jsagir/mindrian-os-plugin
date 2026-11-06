@@ -110,7 +110,7 @@ const bad = [];
 for (const k of Object.keys(cases)) {
   const r = cases[k];
   const line = req(r);
-  const plain = line.length > 20 && !/[–—]/.test(line) && !line.includes(room) && !line.includes(garbageRoom) && !/[\\/]/.test(line);
+  const plain = line.length > 20 && !/[\u2013\u2014]/.test(line) && !line.includes(room) && !line.includes(garbageRoom) && !/[\\/]/.test(line);
   if (r.reason !== 'room_db_unreadable' || CAUSES.indexOf(r.cause) === -1 || !plain) {
     bad.push(k + ':' + r.reason + ':' + r.cause);
   }

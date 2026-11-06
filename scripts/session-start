@@ -123,7 +123,7 @@ if [ -n "${ROOM_DIR}" ] && [ -d "${ROOM_DIR}" ]; then
       Promise.resolve(backfill.runDeriveBackfill({ roomDir: roomDir, stopAfterReadiness: true })).then(function (res) {
         const r = res && res.readiness;
         if (!r || r.state !== "not_ready") return;
-        const req = rr.REQUIREMENT_LINES[r.reason] || String(r.reason || "unknown");
+        const req = rr.requirementFor(r.reason, r.cause, r.cause_class, r.cause_stage) || String(r.reason || "unknown");
         process.stdout.write(require(path.join(pluginRoot, "lib", "memory", "triple-context-formatter.cjs")).readinessLine(req));
       }).catch(function (_e) { /* soft-fail: say nothing */ });
     } catch (_e) { /* soft-fail: say nothing */ }
