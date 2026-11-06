@@ -91,4 +91,7 @@ Plan 388-04 applies the list only if the token and LIST-SHA256 below match this 
 
 LIST-SHA256: dce0040835ddffe8a31a4a1fc43b59a74991daa88170f3322e0b772a672416c1
 HEAD-AT-DECISION: 4ec4efdfc5659771fb9f6c40910f4b23f3c78a7d
-OWNER-ANSWER: PENDING
+OWNER-ANSWER: APPROVE
+OWNER-WORDS-FORK-1: Yes, take them out (Recommended)
+OWNER-WORDS-FORK-2: Keep as is for now (Recommended)
+OWNER-ANSWER-DATE: 2026-11-06 (relayed by the main session; baseline stays shipped, token APPROVE not APPROVE-BASELINE-UNDER-DATA)
