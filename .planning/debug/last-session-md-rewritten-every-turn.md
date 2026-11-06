@@ -1,5 +1,5 @@
 ---
-status: investigating
+status: resolved
 kind: rca
 trigger: "last-session-md-rewritten-every-turn"
 issue_id: "B13"
@@ -116,7 +116,9 @@ started: the KAIROS Prep block was added with the last-session.md writer.
 ## Resolution
 
 root_cause: the reference time for "since last session" is the mtime of the file that on-stop rewrites at every Stop.
-fix: pending
-verification: pending
-files_changed: []
-commits: pending
+fix: scripts/on-stop (KAIROS Prep block) keeps .context/.session-baseline. It moves only when the Stop session_id changes, and takes the mtime of the previous last-session.md. The artifact count and methodology guess use find -newer against the stamp. No safe session_id keeps the old behavior. The block was written compactly to stay inside the 680 line budget of tests/test-261030-8vd-onstop-wait.cjs (655 before, 674 after). stop-gate-handler needed no change.
+verification: node tests/test-386-last-session-baseline.cjs (L1 to L4 ok, RED before). bash -n scripts/on-stop ok. test-381-onstop-failure, test-261029-kqv-stop-skip-recompute, test-240.1-state-version-preserved, test-compute-state-persists exit 0. test-261030-8vd-onstop-wait fails on B1 speed (median over 600 ms) both before and after the change, so it is pre-existing machine timing.
+files_changed:
+  - scripts/on-stop (baseline stamp in the KAIROS Prep block)
+  - tests/test-386-last-session-baseline.cjs (new)
+commits: see git log for 386-14
