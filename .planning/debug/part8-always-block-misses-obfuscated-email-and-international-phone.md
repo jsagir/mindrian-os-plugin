@@ -146,9 +146,11 @@ carries_credential_suffix_money: no
 
 ## Resolution
 
-root_cause: PENDING
-fix: PENDING
-verification: PENDING
+root_cause: the always-block list holds only the plain email at-sign form and a United States phone shape, so the same identifiers in an obfuscated or international form pass as generic questions.
+fix: two frozen patterns (_P_EMAIL_OBFUSCATED, _P_PHONE_INTL) appended to ALWAYS_PATTERNS and to the end of FORBIDDEN_PATTERNS in lib/core/cross-room-aggregator.cjs. No existing pattern changed. The three probe cases are pinned in expectations.json (structured_identifier_cases, identifier_classes email and phone_like, content_set_cases). suffix_money untouched. No pattern-count test needed a flip (none pins an absolute count; rs-egress-prompts re-exports by reference).
+verification: node tests/test-386-identifier-forms.cjs all arms ID1 to ID9 pass (RED run before the fix: ID1, ID2, ID5, ID6, ID8 failed); node tests/test-3692-guard-survey-gate.cjs 0 FAIL, ext.induced_total baseline=0 measured=0, MEASURED_SHA256 identical before and after (no stamp, no number improved); node tests/test-386-audit-probe-gate.cjs pass (matrix shows the three probe cases allow > block content_set/null); test-386-over-blocking-narrowed, test-386-key-shapes-and-money, test-386-sprouts-required-outcome pass; bash tests/run-all-196.sh 7 passed 0 failed; TEST_386_PREFIX run-all-386 PASSED for test-386-identifier-forms; consumer tests (test-386-audit-probe-fixtures, cross-room-aggregator.test, test-rs-brain-substrate, test-rs-egress-primitives, test-355, test-220, test-214, test-c8j-brain-wire, test-3692-theo-verdict, test-148-brain-review-egress, test-361-lane-queries, test-part8-name-class-methodology-names, test-195-xroom-relevance, test-127-03 adversarial) pass.
 files_changed:
-  - PENDING
-commits: PENDING
+  - lib/core/cross-room-aggregator.cjs (two patterns appended)
+  - tests/test-386-identifier-forms.cjs (new, arms ID1 to ID9)
+  - tests/fixtures/386-audit-probes/expectations.json (three probe cases added)
+commits: RED test in the test(386-46) commit; fix 80f7a29e6
