@@ -68,6 +68,16 @@
  *     `unproven_packet` on any scope, and any ambiguous verdict on a
  *     non-shim-backed Brain-shaped key.
  *
+ * Plan 386-27 (option-e, owner decision of plan 386-26, 2026-11-06): the
+ * 260917-dgf allow above no longer covers an ambiguous payload that carries an
+ * edge or a body string (classifyShape of lib/core/part8-sprout-shape.cjs, any
+ * depth, the cypher key of brain_query excepted). On a shim-backed scope with
+ * Brain available that call exits 2 with the constant split guide of
+ * lib/core/part8-split-route.cjs (reason sprouts_required, 5 steps, no payload
+ * byte). A guard verdict block with the class sprouts_required exits 2 with the
+ * same text on every scope. A sprout-only ambiguous payload keeps the allow,
+ * Brain-less mode keeps the allow, the direct connector keeps its block.
+ *
  * Part 8 (D-01): the hook opens NO Brain wire and makes NO network call at
  * classify time. The block is a harness exit code, not a dispatch protocol.
  * Part 8 (D-08a): Brain-less mode (isAvailable() false) skips any gate, LOCAL-
@@ -167,6 +177,28 @@ function block(message) {
 // a healthy run loads nothing new. A failing log write never changes the exit.
 // ---------------------------------------------------------------------------
 const OUTAGE_LOG_PATH = path.join(LIB_CORE, 'part8-outage-log.cjs');
+
+// Plan 386-27: the sprouts_required message and the shape test come from
+// lib/core/part8-split-route.cjs (plan 386-42). Required lazily, on the paths
+// that need them, so a healthy allow loads nothing new. If the module cannot
+// load, the hook fails closed with the plain reason (it never allows).
+const SPLIT_ROUTE_PATH = path.join(LIB_CORE, 'part8-split-route.cjs');
+
+function splitRouteMessage() {
+  try {
+    return require(SPLIT_ROUTE_PATH).refusalMessage();
+  } catch (_) {
+    return 'Canon Part 8: this call carries text that must stay in the room (reason sprouts_required). Nothing was sent.';
+  }
+}
+
+function carriesEdgeOrBody(toolName, toolInput) {
+  try {
+    return require(SPLIT_ROUTE_PATH).carriesEdgeOrBody(toolName, toolInput) !== false;
+  } catch (_) {
+    return true;
+  }
+}
 
 // Set once the tool input is read and the tool is Brain-shaped.
 let armed = null;
@@ -328,6 +360,12 @@ function main() {
   const reason = verdictObj.reason || '';
 
   if (verdict === 'block') {
+    if (klass === 'sprouts_required') {
+      // Plan 386-27 (option-e, owner decision of plan 386-26): the guard asks
+      // for a split. Answer with the constant guide from the split-route
+      // module (plan 386-42): the reason, the 5 steps, no payload byte.
+      return block(splitRouteMessage());
+    }
     if (klass === 'room_content' || klass === 'room_check_unavailable') {
       // Phase 369.2 Plan 01: a Theo free-form block names its class and token
       // class, never the token and never the matched pattern.
@@ -384,6 +422,15 @@ function main() {
       shimBacked = !!(sanitizer && sanitizer.isShimBackedBrainTool(toolName));
     } catch (_) {
       shimBacked = false;
+    }
+    // Plan 386-27 (option-e): an ambiguous call on a shim-backed scope that
+    // carries an edge or a body string by shape is not handed to the shim. It
+    // gets the typed outcome sprouts_required with the split guide (exit 2).
+    // Brain-less mode has no wire, so it keeps the allow (D-08a). A sprout-only
+    // payload keeps the allow below, so a short keyword query is never stopped
+    // for being unproven. The cypher key of brain_query is not read.
+    if (shimBacked && SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES.has(klass) && brainAvailable() && carriesEdgeOrBody(toolName, toolInput)) {
+      return block(splitRouteMessage());
     }
     if (shimBacked && SHIM_BACKED_AMBIGUOUS_ALLOW_CLASSES.has(klass)) {
       return allow();
