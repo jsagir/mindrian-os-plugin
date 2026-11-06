@@ -116,9 +116,10 @@ Which call creates it: scanner.scanForBreakthroughs. It opens the room through o
 
 ## Resolution
 
-root_cause: see Technical Root Cause.
-fix: pending (set in Task 3).
-verification: pending (set in Task 3).
+root_cause: scanner.scanForBreakthroughs opens the room through openRoomDb, which creates an absent room.db, and the hook had no existence guard.
+fix: main returns emitContinue() when <activeRoomDir>/.mindrian/room.db does not exist, before the scanner is required. The rest is unchanged.
+verification: tests/test-386-check-pending-hooks.cjs P4 and P5 ok (RED showed P4 FAIL). scripts/check-pending-breakthrough.test.cjs: 4 pass, 1 fail, the same Test 12 failure as before the change (expects shape F.7, the hook emits F.1 since Phase 188-01; a stale test expectation, not related to B6, not fixed here). tests/test-breakthrough-*.cjs all exit 0.
 files_changed:
-  - scripts/check-pending-breakthrough.cjs
-commits: pending
+  - scripts/check-pending-breakthrough.cjs (guard in main)
+  - tests/test-386-check-pending-hooks.cjs
+commits: see the plan summary

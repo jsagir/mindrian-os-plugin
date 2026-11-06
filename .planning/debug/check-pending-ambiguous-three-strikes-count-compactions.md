@@ -122,9 +122,10 @@ One strike per distinct session_id. Each claim stores a scalar `last_strike_sess
 
 ## Resolution
 
-root_cause: see Technical Root Cause.
-fix: pending (set in Task 3).
-verification: pending (set in Task 3).
+root_cause: The strike counter in throttleAndCollect was incremented once per hook run and the hook never read the SessionStart session_id, so compactions and clears inside one session each added a strike.
+fix: main reads the SessionStart stdin once (readSessionId, bounded string, null on TTY or fault). throttleAndCollect adds one strike per distinct session_id, stored as the scalar last_strike_session_id. A claim whose stored id equals the current id gets no strike and stays active. With no session_id the old per-run count applies.
+verification: tests/test-386-check-pending-hooks.cjs P1 P2 P3 ok (RED showed P1 FAIL). tests/test-check-pending-ambiguous.cjs 10 checks passed. tests/test-ambiguous-queue.cjs and tests/test-120-02-scaffold.sh exit 0. bash tests/run-all-386.sh PASS=11 FAIL=0 at run time.
 files_changed:
-  - scripts/check-pending-ambiguous.cjs
-commits: pending
+  - scripts/check-pending-ambiguous.cjs (readSessionId, throttleAndCollect, main)
+  - tests/test-386-check-pending-hooks.cjs
+commits: see the plan summary
