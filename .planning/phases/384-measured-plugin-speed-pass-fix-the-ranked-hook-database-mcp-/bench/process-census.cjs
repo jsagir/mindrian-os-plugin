@@ -14,8 +14,11 @@
  *       [--events csv] [--repeats N] --counter <so> [--scratch <dir>] [--block csv] [--wait-limit-ms N]
  *       [--label <name>] [--base-sha <40 hex>] [--set <s>] --out <file>
  *   blocks --tree <dir> --room fixture|copy [source flags] [--script scripts/session-start] [--ranges csv] --out <file>
- *   walls-subagent --tree <dir> --files csv --runs N --room fixture|copy [source flags] --counter <so>
- *       [--repeats N] [--scratch <dir>] --out <file>
+ *   walls-subagent --tree <dir> [--tree-b <dir> [--label-b <name>]] --files csv --runs N --room fixture|copy [source flags]
+ *       --counter <so> [--repeats N] [--scratch <dir>] --out <file>
+ *       With --tree-b the SubagentStop event of two plugin trees is measured against the same room, interleaved: in each
+ *       round, for each size, tree A then tree B in even rounds and tree B then tree A in odd rounds. The B targets use
+ *       the id event:SubagentStop-b:files<N>; the result holds a compare key with both labels.
  *   (test-only, need MOS_PERF_SELFTEST=1: --room synthetic, --allow-short, --skip-gates)
  *
  * The harness of tools/perf is used as a library (Canon Part 7: reuse before build). The room, the
@@ -741,7 +744,9 @@ async function cmdBlocks(argv) {
 // ---------------------------------------------------------------------------
 async function cmdWallsSubagent(argv) {
   let f;
-  try { f = parseFlags(argv, Object.assign({ files: 1, runs: 1, counter: 1, repeats: 1 }, COMMON)); } catch (e) { return usage(e.message); }
+  try { f = parseFlags(argv, Object.assign({ files: 1, runs: 1, counter: 1, repeats: 1, 'tree-b': 1, 'label-b': 1 }, COMMON)); } catch (e) { return usage(e.message); }
+  const treeB = f['tree-b'] !== undefined ? path.resolve(f['tree-b']) : null;
+  if (treeB && !fs.existsSync(path.join(treeB, 'hooks', 'hooks.json'))) return usage('--tree-b is not a plugin tree');
   const sizes = String(f.files || '').split(',').map((s) => parseInt(s, 10));
   if (!sizes.length || sizes.some((n) => !(n >= 1))) return usage('--files needs a comma list of positive integers');
   const runs = parseInt(f.runs, 10);
@@ -756,13 +761,21 @@ async function cmdWallsSubagent(argv) {
   if (sess.error !== undefined) return sess.error;
   try {
     const def = H.targetDef('event:SubagentStop');
-    const acc = new Map(sizes.map((n) => [n, { wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, escaped: 0, survivors: 0, hooks: 0, blocking: 0, load1Start: null, gateWaited: 0, noisy: false }]));
-    const runSize = async (n, timed) => {
+    const labelB = f['label-b'] || (treeB ? path.basename(treeB) : null);
+    const newAccMap = () => new Map(sizes.map((n) => [n, { wall: [], cpu: [], rss: [], bg: [], exits: new Set(), timedOut: 0, failed: 0, escaped: 0, survivors: 0, hooks: 0, blocking: 0, load1Start: null, gateWaited: 0, noisy: false }]));
+    // the sides: tree A always, tree B with --tree-b (a second context on the same prepared room)
+    const sides = [{ key: 'A', ctx: sess.ctx, sess, acc: newAccMap(), idMid: '' }];
+    if (treeB) {
+      const ctxB = H.makeCtx('B', treeB, sess.prep, sess.cpus, sess.ctx.hasTaskset);
+      ctxB.touchTarget = sess.ctx.touchTarget;
+      sides.push({ key: 'B', ctx: ctxB, sess: Object.assign({}, sess, { ctx: ctxB }), acc: newAccMap(), idMid: '-b' });
+    }
+    const runSize = async (side, n, timed) => {
       let made = [];
-      const s = await H.runEventOnce(def, sess.ctx, { beforeRun: () => { made = prepModifiedFiles(sess.ctx.roomDir, n); } });
+      const s = await H.runEventOnce(def, side.ctx, { beforeRun: () => { made = prepModifiedFiles(side.ctx.roomDir, n); } });
       removeFiles(made);
       if (!timed) return;
-      const a = acc.get(n);
+      const a = side.acc.get(n);
       s.exits.forEach((x) => a.exits.add(x));
       a.timedOut += s.timed_out;
       a.hooks = s.hook_count;
@@ -776,61 +789,71 @@ async function cmdWallsSubagent(argv) {
       if (s.rss_mb !== null) a.rss.push(s.rss_mb);
       a.bg.push(s.background_ms);
     };
-    // one untimed run per size, then the rounds; the order of the sizes rotates each round (a Latin square)
-    for (const n of sizes) await runSize(n, false);
+    // one untimed run per size and tree, then the rounds; the order of the sizes rotates each round (a Latin square);
+    // for each size the trees run one after the other, A then B in even rounds and B then A in odd rounds
+    for (const n of sizes) for (const side of sides) await runSize(side, n, false);
     for (let r = 0; r < runs; r += 1) {
       const order = sizes.map((_n, i) => sizes[(i + r) % sizes.length]);
       for (const n of order) {
-        const a = acc.get(n);
-        const g = await sess.gate(GATE_MAX_MS_WALLS);
-        if (a.load1Start === null) { a.load1Start = g.load1; a.gateWaited = g.waited_ms; a.noisy = !g.ok; } else if (!g.ok) a.noisy = true;
         if (sess.prep.snap && r === 0) sess.restore();
-        await runSize(n, true);
+        const sideOrder = sides.length === 2 && r % 2 === 1 ? [sides[1], sides[0]] : sides;
+        for (const side of sideOrder) {
+          const a = side.acc.get(n);
+          const g = await sess.gate(GATE_MAX_MS_WALLS);
+          if (a.load1Start === null) { a.load1Start = g.load1; a.gateWaited = g.waited_ms; a.noisy = !g.ok; } else if (!g.ok) a.noisy = true;
+          await runSize(side, n, true);
+        }
       }
     }
-    // the counting pass: process counts and the CPU of survivors for each size (untimed, with the counter)
-    const counted = await runCensusEvents(sess, sizes.map((n) => 'SubagentStop:files' + n), { repeats, counter: path.resolve(f.counter), block: undefined, waitLimitMs: WAIT_LIMIT_MS });
-    const targets = sizes.map((n, i) => {
-      const a = acc.get(n);
-      const ev = counted[i];
-      const bg = H.statsSummary(a.bg);
-      return {
-        id: 'event:SubagentStop:files' + n,
-        files: n,
-        n: a.wall.length,
-        blocking: a.blocking > 0,
-        wall_ms: H.statsSummary(a.wall),
-        cpu_ms: H.statsSummary(a.cpu),
-        rss_mb: H.statsSummary(a.rss),
-        exits: [...a.exits].sort((x, y) => String(x).localeCompare(String(y))),
-        timed_out: a.timedOut,
-        failed_runs: a.failed,
-        hook_count: a.hooks,
-        background_ms: bg.median,
-        background_ms_p95: bg.p95,
-        escaped_max: a.escaped,
-        survivors_left: a.survivors,
-        exec_total: ev.exec_total.median,
-        exec_min_max: [ev.exec_total.min, ev.exec_total.max],
-        exec_by_program: ev.exec_by_program,
-        node_starts: ev.node_starts,
-        bash_starts: ev.bash_starts,
-        find_count: ev.find_count,
-        survivor_cpu_ms: ev.survivor_cpu_ms,
-        survivor_cpu_note: ev.survivor_cpu_note,
-        survivor_programs: ev.survivor_programs,
-        count_tail_ms: ev.tail_ms,
-        load1_start: a.load1Start,
-        load1_end: H.readLoad1(),
-        gate_waited_ms: a.gateWaited,
-        noisy: a.noisy,
-      };
-    });
+    // the counting pass: process counts and the CPU of survivors for each size and tree (untimed, with the counter)
+    for (const side of sides) {
+      side.counted = await runCensusEvents(side.sess, sizes.map((n) => 'SubagentStop:files' + n), { repeats, counter: path.resolve(f.counter), block: undefined, waitLimitMs: WAIT_LIMIT_MS });
+    }
+    const targets = [];
+    for (const side of sides) {
+      sizes.forEach((n, i) => {
+        const a = side.acc.get(n);
+        const ev = side.counted[i];
+        const bg = H.statsSummary(a.bg);
+        targets.push(Object.assign({
+          id: 'event:SubagentStop' + side.idMid + ':files' + n,
+          files: n,
+          n: a.wall.length,
+          blocking: a.blocking > 0,
+          wall_ms: H.statsSummary(a.wall),
+          cpu_ms: H.statsSummary(a.cpu),
+          rss_mb: H.statsSummary(a.rss),
+          exits: [...a.exits].sort((x, y) => String(x).localeCompare(String(y))),
+          timed_out: a.timedOut,
+          failed_runs: a.failed,
+          hook_count: a.hooks,
+          background_ms: bg.median,
+          background_ms_p95: bg.p95,
+          escaped_max: a.escaped,
+          survivors_left: a.survivors,
+          exec_total: ev.exec_total.median,
+          exec_min_max: [ev.exec_total.min, ev.exec_total.max],
+          exec_by_program: ev.exec_by_program,
+          node_starts: ev.node_starts,
+          bash_starts: ev.bash_starts,
+          find_count: ev.find_count,
+          survivor_cpu_ms: ev.survivor_cpu_ms,
+          survivor_cpu_note: ev.survivor_cpu_note,
+          survivor_programs: ev.survivor_programs,
+          count_tail_ms: ev.tail_ms,
+          load1_start: a.load1Start,
+          load1_end: H.readLoad1(),
+          gate_waited_ms: a.gateWaited,
+          noisy: a.noisy,
+        }, treeB ? { tree_label: side.key === 'A' ? sess.label : labelB } : {}));
+      });
+    }
     const fin = finishSession(sess);
     H.writeResult(f.out, {
       schema: H.SCHEMA,
       machine: machineOf(sess, fin),
       room: sess.room, set: f.set || null, tree_label: sess.label, cpus: sess.cpus, runs,
+      compare: treeB ? { a: sess.label, b: labelB } : undefined,
       note: 'SubagentStop at several modified-file counts. Wall, CPU and background time come from timed runs without the counter (the order of the sizes rotates each round). Process counts and survivor CPU come from a separate counting pass with the exec counter; survivor CPU is a lower bound.',
       isolation: sess.source ? fin.isolation : undefined,
       targets,
