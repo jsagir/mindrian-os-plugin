@@ -1,0 +1,52 @@
+{
+  "note": "Recorded from the code before the 384-13 change (SPEED384_WRITE_GOLDEN=1).",
+  "normalizations": [
+    "absolute fixture root path replaced by <ROOT>",
+    "absolute room path replaced by <ROOM>",
+    "session id replaced by <SID>",
+    "ISO 8601 UTC timestamps replaced by <TS>",
+    "the value of a key that ends in _created_at (epoch milliseconds) replaced by <EPOCH>",
+    "the value of a delta_hash key (a sha256 of room facts that include random node ids) replaced by <HASH>"
+  ],
+  "p1": {
+    "result": {
+      "room_dir": "<ROOM>",
+      "sections": 0,
+      "stale": 0,
+      "minto_pending": 0,
+      "guardian_sm": "guardian: error in room (identity, glyph low); 2 violations across 1 section"
+    },
+    "files": {
+      ".mindrian/ambient-run-ledger.json": "17f53e8f55ac675095640b3e6131c9d072bf7e0a8b5f18824487054dfdc37f58",
+      ".mindrian/invariant-report.json": "ac320c4f3ea168da093dc93c9313644c5355a51466ae9da85822ffcf0ccdc046",
+      ".mindrian/last-room-delta.json": "79e8c8e83c07e21847070e014911e64c05745dcaefd16633f30b72dd3ebfbfd3",
+      ".mindrian/session-snapshot.json": "e1b35b52fdcf4189427cb833eae2cd9d5fffff81aea27caed9f002ac114b3737",
+      "ROOM.md": "adf36598a3bb7838c8149b970c9d48c96dfa0af43e362b3a5d2bd7e74aaff69c",
+      "STATE.md": "8a8bf6bee6487cc248d9aaf3d5ebf0a627145ed8611db42fe0e18fc322d684b1"
+    }
+  },
+  "p2": {
+    "keys": [
+      "business",
+      "fire",
+      "reason"
+    ],
+    "fire": false,
+    "reason": "no-gate-signal",
+    "business": {
+      "room_dir": "<ROOM>",
+      "sections": 0,
+      "stale": 0,
+      "minto_pending": 0,
+      "guardian_sm": "guardian: error in room (identity, glyph low); 2 violations across 1 section"
+    },
+    "files": {
+      ".mindrian/ambient-run-ledger.json": "17f53e8f55ac675095640b3e6131c9d072bf7e0a8b5f18824487054dfdc37f58",
+      ".mindrian/invariant-report.json": "ac320c4f3ea168da093dc93c9313644c5355a51466ae9da85822ffcf0ccdc046",
+      ".mindrian/last-room-delta.json": "79e8c8e83c07e21847070e014911e64c05745dcaefd16633f30b72dd3ebfbfd3",
+      ".mindrian/session-snapshot.json": "e1b35b52fdcf4189427cb833eae2cd9d5fffff81aea27caed9f002ac114b3737",
+      "ROOM.md": "9af9596cf44cf2637ed6dcc07aa54319f13b679895456bf54c102568acdda87c",
+      "STATE.md": "8a8bf6bee6487cc248d9aaf3d5ebf0a627145ed8611db42fe0e18fc322d684b1"
+    }
+  }
+}
