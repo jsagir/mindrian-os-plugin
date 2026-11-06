@@ -154,3 +154,13 @@ fix: none applied. Awaiting the owner decision.
 verification: caller search and test run recorded in Evidence (PROVEN).
 files_changed: none
 commits: see git log of this file
+
+## Owner decision
+
+decision: option-a
+
+- Date: 2026-11-06
+- Choice: keep lib/core/temporal/supersession-gate.cjs as a documented, tested planned contract. No wire, no removal. The answer reached this session through the coordinating session, relayed from the owner's answer card.
+- Reason: the missing caller is a recorded Phase 348 decision (WD-348-3), the contract passes 12 assertions in tests/test-348-supersession-e2e.cjs, and a wire has no live CONTRADICTS input yet.
+- Follow-on for Phase 385: plan 385-12 item R9 carries the same module and should record this ruling (keep, planned but unwired).
+- OPEN OWNER ITEM: Phase 350 (the live CONTRADICTS writer and the gate registration) is a roadmap card with 0 plans and has no owner and no date. The owner has not named either. This record does not invent one. The wire for this module stays blocked until Phase 350 is planned.
