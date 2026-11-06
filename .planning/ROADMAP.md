@@ -4071,33 +4071,33 @@ Plans:
 **Goal:** Fix the audit bugs B1 to B16, Part 8 egress risks first (wiki BYOAPI proxy, brain_write of room-derived text, the Semantic Scholar path). Each fix: root-cause file first, failing test, fix at the origin, fixture rooms only. Owner decisions are asked as gates. Source: auditor findings (hypotheses; inferred ones are reproduced first), PRD in this directory.
 **Requirements**: B1 to B16 and S2 (finding IDs, see 386-PRD.md)
 **Depends on:** Phase 385
-**Plans:** 21 plans (planned 2026-11-05, checker PASS, not executed)
+**Plans:** 46 plans (planned 2026-11-05 to 2026-11-06; checkers PASS; about 38 executed, status 2026-11-06). Plan 21 is the close-out (wave 10). Owner decisions are recorded in 386-PRD.md and the plan RCA files.
 
 Plans:
 
-- [ ] 386-01 to 386-21 (waves 1 to 4; plans 02, 03, 07, 20 stop for an owner decision). See the PLAN files in this directory.
+- [ ] 386-01 to 386-46 (see the PLAN files in this directory). Open: 33 and 34 wrap-up, 44, 45, 46, 21.
 
 ### Phase 387: Eureka reachable on a normal install
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Make Eureka reachable on a normal install, honestly: adopt an engine checkout the person already has (the NEW mindrian-eureka; never fetch or ship it), check uv, Python, Node, packages and the model with plain messages, one approved packages step, then every engine run offline with no auto-sync, all Eureka tools listed with typed refusals. Owner option A recorded in 387-DECISION-RECORD.md.
+**Requirements**: EUR387-01 to EUR387-08
 **Depends on:** Phase 386
-**Plans:** 0 plans
+**Plans:** 11 plans (executed 2026-11-06 except the owner-run live leak test; leak proof stays OPEN)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 387 to break down)
+- [x] 387-01 to 387-11 (waves 1 to 8). 387-10 builds the owner-run live leak test; run it per 387-LEAK-RUNBOOK.md.
 
 ### Phase 388: Ship less: keep tests and dead weight out of the install
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 387
-**Plans:** 0 plans
+**Goal:** Ship less. Measure what the npm package and the install contain (the auditor's "about 2.5 MB of tests" claim is checked against real numbers), prove by static scan and an installed-layout run what is never read at run time, ask the owner about the exclusion list, then apply it with a before and after size and a fresh-install check. Protected paths (commands, skills, agents, hooks, MCP entries, the eureka_critic baseline) are never candidates.
+**Requirements**: SHIP388-01 to SHIP388-05
+**Depends on:** Phase 385
+**Plans:** 4 plans (planned 2026-11-06; plan 388-03 stops for an owner decision)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 388 to break down)
+- [ ] 388-01 measure, 388-02 runtime need, 388-03 decision (owner), 388-04 apply.
 
 ### Phase 389: Pyramid: seed and full (replaces the MVA family)
 

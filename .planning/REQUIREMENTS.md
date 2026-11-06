@@ -5205,3 +5205,22 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [ ] **CLEAN385-04**: No-op hook entries are unwired or narrowed, with a census of hook commands before and after.
 - [ ] **CLEAN385-05**: Each redundant system (kuzu, lazygraph, neo4j, pinecone, memgraph, chokidar) gets a no-caller proof and an owner ruling before any removal. Eureka is never removed.
 - [ ] **CLEAN385-06**: Test-only modules get an owner ruling and are not deleted without it.
+
+### Phase 387 - Eureka reachable on a normal install (EUR387, ids used in plan frontmatter, 2026-11-06)
+
+- [x] **EUR387-01**: Reproduction on an installed-layout copy: runtime tool count, which Eureka tools answer or refuse unbound and bound, exact reason texts. Plan 387-01.
+- [x] **EUR387-02**: The decision gate: where the engine lives, no fetch, check-and-explain, one granted packages step then offline, all tools listed with typed refusals. Plan 387-02.
+- [x] **EUR387-03**: The engine resolver and requirements core, with the no-auto-sync run arguments. Plan 387-03.
+- [x] **EUR387-04**: Typed engine states at the registration chokepoint, on CLI, Desktop and Cowork. Plans 387-05 and 387-11.
+- [ ] **EUR387-05**: Part 8 proof with a fake engine, and the owner-run live leak test (leak proof OPEN until the owner runs it). Plans 387-06 and 387-10.
+- [x] **EUR387-06**: Doctor readiness point that never reports ok from the environment file alone. Plan 387-07.
+- [x] **EUR387-07**: README and engine guide say what is true. Plan 387-08.
+- [x] **EUR387-08**: The enable command and its command text. Plans 387-04 and 387-09.
+
+### Phase 388 - Ship less (SHIP388, minted at plan time 2026-11-06)
+
+- [ ] **SHIP388-01**: The npm package and install contents are measured (counts and bytes by folder); the auditor claim of about 2.5 MB of tests is CONFIRMED or REFUTED with the real number. Plan 388-01.
+- [ ] **SHIP388-02**: For every candidate exclusion, a static scan and an installed-layout run prove that nothing reads it at run time. Plan 388-02.
+- [ ] **SHIP388-03**: The smallest safe exclusion list, with owner-visible effects. Plans 388-02, 388-03 and 388-04.
+- [ ] **SHIP388-04**: The list is applied with a before and after size and a fresh-install check. Plan 388-04.
+- [ ] **SHIP388-05**: Owner forks come as gate cards. Plan 388-03.
