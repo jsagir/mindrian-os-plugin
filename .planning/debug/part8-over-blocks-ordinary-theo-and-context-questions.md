@@ -255,6 +255,24 @@ Not changed under any row: the 12 credential shapes, the email, SSN-like and pho
 - Release lockstep: applies only if a fix ships.
 - Fixture note: scratch files lived under the session scratchpad. No repo product file was edited.
 
+## Owner decision
+
+decision: option-e
+date: 2026-11-06
+
+Owner's words, verbatim, spelling as typed: "follow last asnwer for this one as well"
+
+The answer it points to (plan 386-26), verbatim, spelling as typed: "block ? i dont think a block will wor it need to be context based, like the file-a meeting style where it braeks it up to claims, facts hypthtesesys ect ..."
+
+Reading (the main session's reading, to be checked by the owner), in 4 short lines:
+
+1. The rows marked needed_by_route yes (R1, R2, R3, R5, R6, R7, R8) are built by plan 386-33.
+2. A clear sprout passes without the name rule and the deny-word rules.
+3. A body, an edge that fails a prose rule and a short private claim are answered sprouts_required: the claim stays local, only a generic sprout leaves.
+4. Credentials, structured identifiers and room-lexicon terms never leave.
+
+Gate checks made before this block was written: the plan 386-42 RCA says design_can_work: yes, and no row marked needed_by_route yes needs room text on the wire (the sprouts travel as ordinary brain_ask and brain_search calls).
+
 ## Resolution
 
 root_cause: three causes (the owner principle of 2026-11-06 says shape, not a word list, separates a sprout from a body). The name rule decides by spelling and has no calendar, plugin-noun or shape exemption. The shared deny list runs ordinary business words on every free-form string. The my or our rule ignores question versus statement, and a failed room database read is cached under a stat key that a chmod does not change.
