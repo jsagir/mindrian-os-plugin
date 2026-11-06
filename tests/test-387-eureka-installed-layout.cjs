@@ -19,7 +19,8 @@
  *   I6  the perspective call answers ok on the installed layout with no engine and no network attempt
  *   I9  S7 (Plan 387-05): a saved setting and a minimal environment pass the gate, then fail at the missing uv
  *   I7  pin sensitivity: a deliberately wrong copy of EXPECT fails the same comparison
- *   I8  S6 argument and environment pin (Plan 387-11: the uv error line is captured as engine_start_line): a plain uv run on every spawning path
+ *   I8  S6 argument and environment pin (Plan 387-11: the uv error line is captured as engine_start_line; Plan 387-06: every
+ *       spawning path passes --no-sync --offline --locked --no-python-downloads and UV_OFFLINE is 1 in the child)
  *
  * Exit: 0 all arms pass; 1 any FAIL; 77 ENV GAP (named reason) when the layout cannot be built.
  * No real engine is started, no uv sync, no network, no real room data. Hyphens only.
@@ -40,6 +41,10 @@ const MSG = {
 // message is the fixed python_missing sentence (not the generic engine_start_failed text). The probe's
 // fixture engine folder also holds an environment folder (config file only), because the route gate refuses
 // a folder with no prepared environment before the start (env_not_synced).
+// Plan 387-06 changed arm I8 on purpose: the uv argument array of every spawning path now holds --no-sync, --offline,
+// --locked and --no-python-downloads (one builder, uvRunArgs), and UV_OFFLINE is 1 in the child on all 4 spawning
+// paths (the graph workflows, the generic call, the async job start and the opportunity scout). The old pin said a
+// plain uv run with the offline variable on the graph path only.
 // Plan 387-05 changed it on purpose: the engine check now runs at the registerEurekaTool chokepoint, before
 // the room projection, and answers one of 3 typed states with a fix line (engine_state absent or broken).
 // Row shape: [reason, message, isError] or, for a typed engine refusal, [reason, message, isError, engine_state].
@@ -123,12 +128,13 @@ const EXPECT = {
   other_serving: ['research_run', 'rs_experts_find', 'rs_thesis_read'],
   // eureka_critic: answers a ruling on the installed layout since quick 261106 (the baseline file ships).
   perspective: { ok: true, recalled_pairs: 2, network_attempts_total: 0, network_attempts_non_loopback: 0 },
-  // S6 spawn pin: the exact uv argument list for each path, and UV_OFFLINE in the child.
-  uv_args_generic: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', 'eureka-mcp'],
-  uv_args_scout: ['run', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', '--extra', 'modern-encoder', 'eureka-mcp'],
+  // S6 spawn pin: the exact uv argument list for each path, and UV_OFFLINE in the child (Plan 387-06).
+  uv_args_generic: ['run', '--no-sync', '--offline', '--locked', '--no-python-downloads', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', 'eureka-mcp'],
+  uv_args_scout: ['run', '--no-sync', '--offline', '--locked', '--no-python-downloads', '--project', '<TMP>/fixture-engine-folder-387', '--extra', 'mcp-server', '--extra', 'modern-encoder', 'eureka-mcp'],
   s6_cause: 'python_missing',
   s6_start_line: probe.UV_ERROR_LINE,
-  forbidden_uv_flags: ['--no-sync', '--offline', '--frozen', '--locked', '--no-python-downloads'],
+  required_uv_flags: ['--no-sync', '--offline', '--locked', '--no-python-downloads'],
+  forbidden_uv_flags: ['--frozen'],
 };
 EXPECT.rows = buildRows(EXPECT.eureka_tools);
 
@@ -300,10 +306,9 @@ function armI8(report, expect) {
     const sp = c.uv_spawns[0];
     for (const f of expect.forbidden_uv_flags) if (sp.argv.includes(f)) problems.push(c.tool + ': argv holds ' + f);
     if (JSON.stringify(sp.argv) !== JSON.stringify(expect.uv_args_generic)) problems.push(c.tool + ': argv ' + JSON.stringify(sp.argv));
-    const isGraph = graph.includes(c);
-    if (isGraph && sp.UV_OFFLINE !== '1') problems.push(c.tool + ': UV_OFFLINE should be 1 on the graph path, got ' + sp.UV_OFFLINE);
-    if (!isGraph && sp.UV_OFFLINE !== null) problems.push(c.tool + ': UV_OFFLINE should be unset on the generic path, got ' + sp.UV_OFFLINE);
-    if (sp.env_keys.some((k) => k.startsWith('UV_') && k !== 'UV_OFFLINE')) problems.push(c.tool + ': a UV_ key other than UV_OFFLINE reached the child');
+    for (const f of expect.required_uv_flags) if (!sp.argv.includes(f)) problems.push(c.tool + ': argv lacks ' + f);
+    if (sp.UV_OFFLINE !== '1') problems.push(c.tool + ': UV_OFFLINE should be 1 on every spawning path, got ' + sp.UV_OFFLINE);
+    if (sp.env_keys.some((k) => k.startsWith('UV_') && k !== 'UV_OFFLINE' && k !== 'UV_PROJECT_ENVIRONMENT')) problems.push(c.tool + ': a UV_ key other than UV_OFFLINE or UV_PROJECT_ENVIRONMENT reached the child');
     if (sp.env_keys.includes('MINDRIAN_EUREKA_ROOT')) problems.push(c.tool + ': MINDRIAN_EUREKA_ROOT reached the child');
     // Plan 387-11: the line is captured from the start phase (stderr is piped), so it reaches the caller as
     // engine_start_line and no longer reaches the server stderr. The message stays the fixed sentence.
@@ -317,7 +322,8 @@ function armI8(report, expect) {
     const sp = scout.uv_spawns[0];
     if (JSON.stringify(sp.argv) !== JSON.stringify(expect.uv_args_scout)) problems.push('scout argv ' + JSON.stringify(sp.argv));
     for (const f of expect.forbidden_uv_flags) if (sp.argv.includes(f)) problems.push('scout argv holds ' + f);
-    if (sp.UV_OFFLINE !== null) problems.push('scout UV_OFFLINE should be unset, got ' + sp.UV_OFFLINE);
+    for (const f of expect.required_uv_flags) if (!sp.argv.includes(f)) problems.push('scout argv lacks ' + f);
+    if (sp.UV_OFFLINE !== '1') problems.push('scout UV_OFFLINE should be 1, got ' + sp.UV_OFFLINE);
     if (scout.message_has_uv_line) problems.push('scout message holds the uv error line');
     if (scout.reason !== 'engine_unavailable') problems.push('scout reason ' + scout.reason);
     if (scout.cause !== expect.s6_cause) problems.push('scout cause ' + scout.cause + ' expected ' + expect.s6_cause);
@@ -352,7 +358,7 @@ async function main() {
     ['I9 S7 saved setting with no variable passes the gate, then fails at the missing uv', () => armI9(report, EXPECT)],
     ['I5 S1 and S2 are identical (no environment difference without the variable)', () => armI5(report)],
     ['I6 perspective answers ok on the installed layout with no engine and no network attempt', () => armI6(report, EXPECT)],
-    ['I8 S6 plain uv run on every spawning path, UV_OFFLINE on the graph path only, uv error line captured as engine_start_line (N10)', () => armI8(report, EXPECT)],
+    ['I8 S6 --no-sync --offline --locked --no-python-downloads and UV_OFFLINE=1 on every spawning path, uv error line captured as engine_start_line (N10)', () => armI8(report, EXPECT)],
   ];
   for (const [label, fn] of arms) {
     const problems = fn();

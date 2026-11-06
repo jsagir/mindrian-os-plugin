@@ -26,11 +26,18 @@
  *      explanatory comment mentioning "brain-client" in prose cannot break
  *      this gate). Phase 366-26 (D-02) moved this arm off the retired
  *      standalone runner and onto the perspective modules that replaced it.
- *   3. The ONE legitimate egress -- eureka-enable.cjs's npm registry spawn,
- *      reached only from enableEureka -- is named and bounded. This is a
- *      DELIBERATE, user-initiated exception (the operator ran /mos:eureka
- *      enable or doctor --fix eureka); the test documents it rather than
- *      pretending no egress exists at all.
+ *   3. The sanctioned egress points are named and bounded. This is a
+ *      DELIBERATE, user-initiated exception each time; the test documents
+ *      them rather than pretending no egress exists at all.
+ *      (a) eureka-enable.cjs's npm registry spawn, reached only from
+ *          enableEureka (the encoder install; the operator ran /mos:eureka
+ *          enable or doctor --fix eureka).
+ *      (b) Phase 387 plan 06: the engine uv sync, built only inside
+ *          runEngineSync (through uvSyncArgs) and called only after the
+ *          approval test (--approved-via) of /mos:eureka enable engine.
+ *      The engine doctor child (runEngineDoctor) runs offline and is NOT an
+ *      egress: it builds its array through uvRunArgs with the offline
+ *      defaults (--no-sync --offline --locked --no-python-downloads).
  *   4. Phase 342's must-not-preclude list (342-FINDINGS.md) is intact:
  *      the five data/*.json registries parse as JSON, commands/eureka.md
  *      still declares name: eureka + connects_to_spine: true, and
@@ -206,6 +213,43 @@ ok('the ONLY network-capable call in the Eureka surface is the npm spawn in enab
   assert.ok(buildFnStart !== -1 && enableFnStart !== -1 && spawnLineIdx !== -1, 'could not locate the three anchor lines in eureka-enable.cjs');
   assert.ok(enableFnStart > buildFnStart, 'the installer body must be declared after buildEurekaInstallArgv in this file');
   assert.ok(spawnLineIdx > enableFnStart, 'the real network call must be inside the installer body (called only by enableEureka), not buildEurekaInstallArgv');
+});
+
+// Phase 387 plan 06 (T341): the second sanctioned egress, the engine uv sync, is named and bounded, and the
+// engine doctor child is offline. Source-text checks only (comment lines excluded); no process is started.
+ok('Phase 387: the engine uv sync is built only in runEngineSync (uvSyncArgs), called only after the approval test; the doctor child is offline', function () {
+  const enablePath = path.join(REPO, 'lib', 'core', 'eureka', 'eureka-engine-enable.cjs');
+  const reqPath = path.join(REPO, 'lib', 'core', 'eureka', 'eureka-engine-requirements.cjs');
+  const enableCode = nonCommentLines(fs.readFileSync(enablePath, 'utf8')).join('\n');
+  const reqCode = nonCommentLines(fs.readFileSync(reqPath, 'utf8')).join('\n');
+  function bodyOf(code, name) {
+    const start = code.search(new RegExp('^function\\s+' + name + '\\s*\\(', 'm'));
+    assert.ok(start !== -1, name + ' not found');
+    const end = code.indexOf('\n}\n', start);
+    assert.ok(end !== -1, 'end of ' + name + ' not found');
+    return code.slice(start, end);
+  }
+  // 1. the only argument array that holds the word sync as its first element is built by uvSyncArgs
+  assert.ok(!/\[\s*['"]sync['"]/.test(enableCode), 'eureka-engine-enable.cjs must not build a sync argument array by hand');
+  const syncArrays = reqCode.match(/\[\s*['"]sync['"]/g) || [];
+  assert.strictEqual(syncArrays.length, 1, 'exactly one sync argument array is built in the requirements module');
+  assert.ok(/\[\s*['"]sync['"]/.test(bodyOf(reqCode, 'uvSyncArgs')), 'the sync array must live inside uvSyncArgs');
+  // 2. runEngineSync builds its array through uvSyncArgs and is the only spawn of that array
+  const syncBody = bodyOf(enableCode, 'runEngineSync');
+  assert.ok(/requirements\.uvSyncArgs\(/.test(syncBody), 'runEngineSync must build its array through uvSyncArgs');
+  const syncCalls = enableCode.split('\n').filter(function (l) { return /\brunEngineSync\(/.test(l) && !/^function\s+runEngineSync/.test(l) && !/module\.exports/.test(l); });
+  assert.strictEqual(syncCalls.length, 1, 'runEngineSync must be called from exactly one place, found: ' + JSON.stringify(syncCalls));
+  // 3. that one call sits in modeSync, after the branch that tests the approved-via value and returns
+  const modeBody = bodyOf(enableCode, 'modeSync');
+  const approvalIdx = modeBody.search(/o\.approvedVia\s*===\s*null/);
+  const callIdx = modeBody.search(/\brunEngineSync\(/);
+  assert.ok(approvalIdx !== -1 && callIdx !== -1 && approvalIdx < callIdx, 'runEngineSync must be called after the approvedVia test inside modeSync');
+  assert.ok(/return\s*\{\s*exitCode:\s*2/.test(modeBody.slice(approvalIdx, callIdx)), 'the approvedVia branch must return before the sync (exit code 2, the grant card)');
+  // 4. the doctor child builds its array through uvRunArgs with the offline defaults and an offline environment
+  const docBody = bodyOf(enableCode, 'runEngineDoctor');
+  assert.ok(/requirements\.uvRunArgs\(/.test(docBody), 'runEngineDoctor must build its array through uvRunArgs');
+  assert.ok(!/allowNetwork/.test(docBody), 'runEngineDoctor must not lift the offline defaults');
+  assert.ok(/childEnvironment\(env,\s*true\)/.test(docBody), 'runEngineDoctor must run with the offline environment');
 });
 
 // ---------------------------------------------------------------------------
