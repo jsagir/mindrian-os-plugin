@@ -87,7 +87,7 @@ Which files must fail in which mode after the fix (the table the proof test read
 | tests/test-354-egress-typed-question.cjs | must fail | n/a (no ambiguous case) | must fail | n/a |
 | tests/test-254-ambiguous-disclosure.cjs | must fail | must fail | must fail | must fail |
 
-Measured today (Task 2, RED): see the Resolution block.
+Measured at RED (Task 2): the table above holds; survivals were gct, 361 and taxonomy under M4 and the typed-question file under M1.
 
 ### Other files with a not-allow or isBlock-only form (broader search; follow-ups, not edited here)
 
@@ -125,7 +125,7 @@ Replace each not-allow assertion with the exact verdict and class that classify(
 ## Resolution
 
 root_cause: not-allow is treated as safe although ambiguous is sent on some routes, so a verdict regression passes the weak tests; class sets and negative assertions accept any other refusal.
-fix: none applied yet (diagnosis only at this commit).
-verification: pending (Tasks 2 and 3).
-files_changed: none
-commits: see git log of this file
+fix: plan 386-34. The refusal assertions of tests/test-gct-process-step-id-parity.cjs, tests/test-361-egress-shapes.cjs and tests/test-354-taxonomy-ladder-casing.cjs assert exactly ambiguous/unknown; tests/test-354-egress-typed-question.cjs asserts exactly block/sprouts_required (verdict, class and token class) for every private sentence; tests/test-254-ambiguous-disclosure.cjs asserts the exact class of each fixture verdict, per-row exact verdicts in Arm 10, and a new Arm 11 for the plan 386-27 outcome (a body payload gets the typed result with class sprouts_required, the route and the 5 line guide and 0 wire calls; a sprout-only payload proceeds with the disclosure and a wire call). A mutation proof and a preload (4 modes; the 4th, ambiguous-to-block, was added because the gct, 361 and taxonomy refusals are ambiguous, not block) show the failures.
+verification: RED at the proof commit: M0 passes for all 5; gct, 361 and taxonomy survived ambiguous-to-block and the typed-question file survived block-to-ambiguous (4 survivals, PROVEN). GREEN: node tests/test-386-guard-test-mutation-proof.cjs exits 0 (every mode in the table fails the named file), the 5 files pass with no preload, run-all-386 32/32. Two mutants were read to check they fail for the right reason (gct under ambiguous-to-block: "verdict is exactly ambiguous"; typed-question under block-to-ambiguous: Case C and Case D).
+files_changed: tests/test-gct-process-step-id-parity.cjs, tests/test-361-egress-shapes.cjs, tests/test-354-taxonomy-ladder-casing.cjs, tests/test-354-egress-typed-question.cjs, tests/test-254-ambiguous-disclosure.cjs, tests/test-386-guard-test-mutation-proof.cjs, tests/helpers/part8-verdict-mutation-386.cjs
+commits: the RCA commit, the RED proof commit, the strengthening commit (git log of this file)
