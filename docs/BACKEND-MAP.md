@@ -187,7 +187,6 @@ just to a room registry cache.
 | `artifact-id.cjs` | INFRA | ID generator |
 | `brain-client.cjs` | **READ** | **The** Brain MCP client (only one in repo) |
 | `daily-briefing.cjs` | BRIDGE | Reads Brain context, writes briefing to room |
-| `deep-links.cjs` | INFRA | URL helpers |
 | `dispatch-optimizer.cjs` | BRIDGE | Framework routing using Brain |
 | `exports-log.cjs` | WRITE | Export ledger in room.db |
 | `git-ops.cjs` | INFRA | Git wrappers |
