@@ -107,10 +107,10 @@ function loadModule() { return require(MODULE); }
 function out(result) { return String(result.stdout || '') + '\n' + String(result.stderr || ''); }
 
 function baseEnv(iso, extra) {
-  const env = Object.assign({}, iso.env, extra || {});
+  const env = Object.assign({}, iso.env);
   delete env.MINDRIAN_EUREKA_ROOT;
   delete env.MINDRIAN_EUREKA_UV;
-  return env;
+  return Object.assign(env, extra || {});
 }
 
 function pointerFile(iso) { return path.join(iso.home, '.mindrian', 'eureka-engine.json'); }
