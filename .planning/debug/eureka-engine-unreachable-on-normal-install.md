@@ -8,7 +8,7 @@ surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [7, 8, 9]
 created: 2026-11-06T08:25:26Z
-updated: 2026-11-06T08:25:26Z
+updated: 2026-11-06T09:20:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -20,10 +20,10 @@ updated: 2026-11-06T08:25:26Z
 
 ## Current Focus
 
-hypothesis: On a normal install the Eureka engine tools refuse because nothing in the shipped files sets MINDRIAN_EUREKA_ROOT; the 2 tools that need no engine answer.
-test: Read the code (this section), then run the real stdio server from an installed-layout copy with no engine present (Runtime Observations).
-expecting: The runtime tools/list holds 24 names that start with eureka; 22 engine tools refuse with engine_not_configured or job_session_not_found; eureka_graph_project and eureka_critic answer.
-next_action: Build the installed-layout probe (plan 387-01 task 2), run it, fill the two runtime sections.
+hypothesis: CONFIRMED with one change. The 22 engine tools refuse because nothing in the shipped files sets MINDRIAN_EUREKA_ROOT. Of the 2 tools that need no engine, only eureka_graph_project answers; eureka_critic fails on every install because its baseline file is not shipped.
+test: Run the real stdio server from an installed-layout copy with no engine present (done, linked layout, 6 scenarios, 2 client identities).
+expecting: (met) 24 eureka names; 19 engine_not_configured; 3 job_session_not_found; 1 ok.
+next_action: Plans 387-03 to 387-11 (owner decision first, plan 387-02). Raise the eureka_critic shipping defect with the owner of plan 387-05 or a quick task.
 
 ## Meta
 
@@ -40,7 +40,7 @@ On a normal install the Eureka engine tools cannot reach the engine, because the
 ## Symptoms
 
 expected: A person who installs the plugin can see which Eureka tools work, and gets a clear next step for the others.
-actual: PENDING-RUNTIME (the runtime section below holds the measured result).
+actual: On the installed layout with MINDRIAN_EUREKA_ROOT unset, 1 of the 24 Eureka tools answers ok (eureka_graph_project, only when a room is bound). 19 engine tools answer engine_not_configured, 3 job tools answer job_session_not_found, and eureka_critic answers a text-only ENOENT error. See Runtime Observations.
 errors: Static strings (PROVEN, see Static Findings 3): "Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool." and "The configured Mindrian Eureka checkout is unavailable."
 reproduction:
   1. Run `npm pack` and lay the package out as `<HOME>/.claude/plugins/cache/mindrian-marketplace/mos/<version>/` with a scratch HOME.
@@ -69,6 +69,18 @@ started: Since the Eureka bridge tools were added (Phase 373 and earlier). The f
   checked: static read of the 16 modules under `lib/mcp/tools/eureka-*.cjs` and `lib/mcp/tool-router.cjs`
   found: see Static Findings below
   implication: static expectation is 24 tool names; runtime must confirm
+- timestamp: 2026-11-06T09:00:00Z
+  checked: runtime tools/list from the installed layout (linked mode), both client identities
+  found: 75 distinct tools, 24 start with eureka, identical for claude-code and claude-ai in all 6 scenarios
+  implication: the static count of 24 is confirmed; no Desktop tool budget removes any Eureka tool
+- timestamp: 2026-11-06T09:05:00Z
+  checked: eureka_critic called on the installed layout (S1 to S6, bound and unbound)
+  found: text-only error "eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'" in all 12 calls; `package.json` "files" has no evals entry; 0 of 2411 shipped files are under evals/
+  implication: a tool that needs no engine is broken on every install (NEW FAILURE)
+- timestamp: 2026-11-06T09:10:00Z
+  checked: S6 fake uv log and server stderr
+  found: the uv error line reaches the MCP server stderr (19 of 19 bound spawning calls (the 2 unbound generic calls spawned too)) and the caller message holds none of it (0 of 19)
+  implication: the uv error line is lost to the caller
 
 ## Static Findings
 
@@ -155,25 +167,302 @@ MINDRIAN_EUREKA_ROOT set to a real engine checkout with uv on PATH is NOT RUN. T
 
 ## Runtime Observations (installed layout)
 
-PENDING-RUNTIME
+Method. `tests/helpers/eureka-installed-layout-387.cjs` ran `npm pack --ignore-scripts`, laid the package out as `<HOME>/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/` in a scratch HOME, and started the real `bin/mindrian-mcp-server.cjs` over stdio. Layout mode: linked (the repo `node_modules` is symlinked into the layout). The layout holds no `.planning`, no `r-and-d` and no folder named `mindrian-eureka`. The run is pinned by `tests/test-387-eureka-installed-layout.cjs` and stored in `.planning/phases/387-eureka-reachable-on-a-normal-install/387-01-OBSERVATIONS.json`.
+
+Mode of each number: every number below is PROVEN for the linked layout. It is UNVERIFIED for the npm ci layout. The `--npm-ci` mode of the probe was not run, because the plan rules forbid network access and `npm ci` needs the registry.
+
+Conditions. Baseline S1 and S2: MINDRIAN_EUREKA_ROOT is absent, the scratch HOME holds no `.mindrian/eureka-engine.json` and no `.mindrian/eureka-engine` folder, no maintainer path or checkout is inherited, and the Brain URL is a dead loopback address. A synthetic bound-room fixture (a born room with 6 synthetic nodes and 2 edges) serves the room-dependent calls; every call is made first with no room bound and again after `room_bind`. Synthetic arguments were derived from each tool schema, and the probe fails on any schema validation error (none occurred).
+
+The real-engine case (MINDRIAN_EUREKA_ROOT set to the owner engine, real uv on PATH) was NOT RUN. Static prediction, UNVERIFIED: see Owner shell case above.
+
+### Exact texts (referenced by the tables)
+
+| Id | Reason family | Exact message |
+|----|---------------|---------------|
+| M1 | job_session_not_found | No active Eureka MCP session owns this job_id. Jobs cannot resume after the MindrianOS host process restarts; start a new job. |
+| M2 | engine_not_configured | Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool. |
+| M3 | no_bound_room | Bind the intended MindrianOS room before preparing an engine projection. |
+| M4 | engine_not_configured (5 discovery-signal tools) | The local Eureka engine is not configured. Set MINDRIAN_EUREKA_ROOT to the Mindrian Eureka checkout before calling this tool. |
+| M5 | engine_checkout_unavailable | The configured Mindrian Eureka checkout is unavailable. |
+| M6 | engine_unavailable (eureka_capability_run, S4) | Could not call the configured local Eureka MCP server: spawn <TMP>/no-such-uv-387 ENOENT |
+| M7 | engine_unavailable (eureka_capability_start) | Could not start an asynchronous job in the configured local Eureka MCP server. |
+| M8 | engine_unavailable (12 graph tools) | Could not start or call the configured local Eureka MCP server. |
+| M9 | engine_unavailable (5 discovery-signal tools) | Could not start or call the configured local Eureka engine. |
+| M10 | engine_unavailable (eureka_capability_run, S5) | Could not call the configured local Eureka MCP server: spawn uv ENOENT |
+| M11 | engine_unavailable (eureka_capability_run, S6) | Could not call the configured local Eureka MCP server: Connection closed |
+
+eureka_critic (all scenarios, bound and unbound): isError true, no reason, no structuredContent, text: `eureka_critic: ENOENT: no such file or directory, open '<TMP>/home/.claude/plugins/cache/mindrian-marketplace/mos/2.0.0-beta.80/evals/eureka/212-critic-baseline.json'`.
+
+### S1 table (unset, full environment)
+
+| Tool | Unbound (S1) | Bound (S1) |
+|------|--------------|------------|
+| eureka_capability_job_cancel | job_session_not_found (M1) | job_session_not_found (M1) |
+| eureka_capability_job_result | job_session_not_found (M1) | job_session_not_found (M1) |
+| eureka_capability_job_status | job_session_not_found (M1) | job_session_not_found (M1) |
+| eureka_capability_run | engine_not_configured (M2) | engine_not_configured (M2) |
+| eureka_capability_start | engine_not_configured (M2) | engine_not_configured (M2) |
+| eureka_critic | text-only error | text-only error |
+| eureka_graph_analyze | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_assess_category_edge_patterns | no_bound_room (M3) | engine_not_configured (M4) |
+| eureka_graph_backtest | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_compare_topics | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_find_community_bridge_pairs | no_bound_room (M3) | engine_not_configured (M4) |
+| eureka_graph_find_network_holes | no_bound_room (M3) | engine_not_configured (M4) |
+| eureka_graph_find_shared_neighbor_gaps | no_bound_room (M3) | engine_not_configured (M4) |
+| eureka_graph_find_similar_unlinked_items | no_bound_room (M3) | engine_not_configured (M4) |
+| eureka_graph_genesis_plan | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_map_neighbourhoods | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_opportunity_scout | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_package_relationships | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_prepare_artifacts | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_project | no_bound_room (M3) | ok |
+| eureka_graph_propose_relationships | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_rank_paths | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_graph_score_surprise | no_bound_room (M3) | engine_not_configured (M2) |
+| eureka_hsi_interpret_whitespace | no_bound_room (M3) | engine_not_configured (M2) |
+
+Totals S1 bound: 19 engine_not_configured (14 with M2, 5 with M4), 3 job_session_not_found, 1 ok (eureka_graph_project), 1 text-only error (eureka_critic). Totals S1 unbound: 18 no_bound_room (every tool that opens the room projection, eureka_graph_project included), 3 job_session_not_found, 2 engine_not_configured (eureka_capability_run and eureka_capability_start, which do not open a projection), 1 text-only error (eureka_critic).
+
+Refusal precedence (answers the plan question): with no room bound and no engine, the 18 projection tools answer no_bound_room first. The 2 generic tools (run, start) answer engine_not_configured first, because they never read a room.
+
+### Delta tables (cells that differ from S1)
+
+S2 (unset, minimal environment: `env -i` with HOME, USERPROFILE, MINDRIAN_ROOMS_HOME, TMPDIR, PATH; a simulation of a Desktop launch, not a real Desktop run):
+
+(no cell differs from S1)
+
+S3 (MINDRIAN_EUREKA_ROOT is an empty folder; reason engine_checkout_unavailable, text M5):
+
+| Tool | State | S1 | S3 |
+|------|-------|----|----|
+| eureka_capability_run | unbound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_capability_run | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_capability_start | unbound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_capability_start | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_analyze | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_assess_category_edge_patterns | bound | engine_not_configured (M4) | engine_checkout_unavailable (M5) |
+| eureka_graph_backtest | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_compare_topics | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_find_community_bridge_pairs | bound | engine_not_configured (M4) | engine_checkout_unavailable (M5) |
+| eureka_graph_find_network_holes | bound | engine_not_configured (M4) | engine_checkout_unavailable (M5) |
+| eureka_graph_find_shared_neighbor_gaps | bound | engine_not_configured (M4) | engine_checkout_unavailable (M5) |
+| eureka_graph_find_similar_unlinked_items | bound | engine_not_configured (M4) | engine_checkout_unavailable (M5) |
+| eureka_graph_genesis_plan | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_map_neighbourhoods | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_opportunity_scout | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_package_relationships | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_prepare_artifacts | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_propose_relationships | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_rank_paths | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_graph_score_surprise | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+| eureka_hsi_interpret_whitespace | bound | engine_not_configured (M2) | engine_checkout_unavailable (M5) |
+
+S4 (fixture folder with a two-line pyproject.toml; MINDRIAN_EUREKA_UV is a path that does not exist):
+
+| Tool | State | S1 | S4 |
+|------|-------|----|----|
+| eureka_capability_run | unbound | engine_not_configured (M2) | engine_unavailable (M6) |
+| eureka_capability_run | bound | engine_not_configured (M2) | engine_unavailable (M6) |
+| eureka_capability_start | unbound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_capability_start | bound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_graph_analyze | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_assess_category_edge_patterns | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_backtest | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_compare_topics | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_find_community_bridge_pairs | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_network_holes | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_shared_neighbor_gaps | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_similar_unlinked_items | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_genesis_plan | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_map_neighbourhoods | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_opportunity_scout | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_package_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_prepare_artifacts | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_propose_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_rank_paths | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_score_surprise | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_hsi_interpret_whitespace | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+
+S5 (same fixture folder; uv absent from PATH, which holds only the node folder; the probe asserted that no file named uv sits there):
+
+| Tool | State | S1 | S5 |
+|------|-------|----|----|
+| eureka_capability_run | unbound | engine_not_configured (M2) | engine_unavailable (M10) |
+| eureka_capability_run | bound | engine_not_configured (M2) | engine_unavailable (M10) |
+| eureka_capability_start | unbound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_capability_start | bound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_graph_analyze | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_assess_category_edge_patterns | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_backtest | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_compare_topics | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_find_community_bridge_pairs | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_network_holes | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_shared_neighbor_gaps | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_similar_unlinked_items | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_genesis_plan | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_map_neighbourhoods | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_opportunity_scout | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_package_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_prepare_artifacts | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_propose_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_rank_paths | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_score_surprise | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_hsi_interpret_whitespace | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+
+S6 (same fixture folder; MINDRIAN_EUREKA_UV is a fake uv that logs its argument list and exits 2 after printing one uv-style error line to stderr):
+
+| Tool | State | S1 | S6 |
+|------|-------|----|----|
+| eureka_capability_run | unbound | engine_not_configured (M2) | engine_unavailable (M11) |
+| eureka_capability_run | bound | engine_not_configured (M2) | engine_unavailable (M11) |
+| eureka_capability_start | unbound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_capability_start | bound | engine_not_configured (M2) | engine_unavailable (M7) |
+| eureka_graph_analyze | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_assess_category_edge_patterns | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_backtest | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_compare_topics | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_find_community_bridge_pairs | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_network_holes | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_shared_neighbor_gaps | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_find_similar_unlinked_items | bound | engine_not_configured (M4) | engine_unavailable (M9) |
+| eureka_graph_genesis_plan | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_map_neighbourhoods | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_opportunity_scout | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_package_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_prepare_artifacts | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_propose_relationships | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_rank_paths | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_graph_score_surprise | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+| eureka_hsi_interpret_whitespace | bound | engine_not_configured (M2) | engine_unavailable (M8) |
+
+### S6 argument and environment log (the before-state of every spawning path)
+
+The fake uv logged exactly 1 spawn per engine call (0 spawns for the 3 job tools and for the two tools that need no engine). The exact argument list on each path:
+
+| Path | Calls | Logged argv (uv arguments) | UV_OFFLINE, HF_HUB_OFFLINE, TRANSFORMERS_OFFLINE in the child |
+|------|-------|----------------------------|------------------------------------------------------------------|
+| generic call (callEurekaCapability, eureka_capability_run) | 2 (unbound, bound) | run --project <TMP>/fixture-engine-folder-387 --extra mcp-server eureka-mcp | unset, unset, unset |
+| async job start (startCapability, eureka_capability_start) | 2 | run --project <TMP>/fixture-engine-folder-387 --extra mcp-server eureka-mcp | unset, unset, unset |
+| graph workflow (callEurekaWorkflow, 17 graph tools, bound) | 17 | run --project <TMP>/fixture-engine-folder-387 --extra mcp-server eureka-mcp | 1, 1, 1 |
+| scout (callEurekaOpportunityScout, direct call of the shipped function) | 1 | run --project <TMP>/fixture-engine-folder-387 --extra mcp-server --extra modern-encoder eureka-mcp | unset, unset, unset |
+
+None of the 4 argument lists holds --no-sync, --offline, --frozen, --locked or --no-python-downloads. The working folder of the child is the engine folder. Child environment keys on the generic and scout paths: HOME, LANG, LOGNAME, PATH, SHELL, TERM, TMPDIR, USER, USERPROFILE (LOGNAME comes from the MCP client default environment, not from the plugin allowlist). On the graph workflow path the same keys plus HF_HUB_OFFLINE, TRANSFORMERS_OFFLINE and UV_OFFLINE. MINDRIAN_EUREKA_ROOT never reaches the child.
+
+The uv error line: for 19 of 19 bound spawning calls (the 2 unbound generic calls spawned too) where the fake uv ran, the line `error: No interpreter found for Python >=3.11 in managed installations or search path` appeared in the MCP server stderr (the engine child inherits that stream; the plugin never pipes it) and 0 of 19 caller messages held any part of it. The caller sees "Connection closed" (eureka_capability_run, M11) or a fixed text (all others). For a missing uv binary (S4 and S5), only eureka_capability_run shows the cause ("spawn ... ENOENT", M6 and M10); the 17 graph tools and eureka_capability_start show the generic text.
+
+### Perspective arm (S1 only, no engine)
+
+`research_run` with op perspective_recall and perspective eureka, on a bound planted fixture room, on the installed layout with no engine: ok true, 2 candidate pairs recalled (counts: things 16, sections 4, candidates 2). Network attempts made by the server process: 0 total, 0 non-loopback, measured with a preload that wraps `net.Socket.prototype.connect` and `dns.lookup`; a positive control (a deliberate connect to 127.0.0.1:9 in a child process) was logged, so the zero is meaningful. Note: the Brain URL port 9 is on the fetch bad-ports list, so a fetch to it would not open a socket either; the zero covers every other connect and every DNS lookup. No uv or python process was started (the engine variable was unset).
 
 ## Tool Count (runtime tools/list)
 
-PENDING-RUNTIME
+- Runtime tools/list total: 75 distinct tool names, 75 entries (no duplicates), identical for the clients `claude-code` and `claude-ai 0.1.0` in all 6 scenarios. No Desktop-shaped difference exists in tools/list.
+- Names that start with eureka: 24 for both identities (S1 to S6).
+- Static expectation: 24 (23 registered through `registerEurekaTool` plus `eureka_critic`). Runtime 24 equals static 24. The difference between the auditor 23 and the runtime 24 is `eureka_critic`, registered by `registerRouterTools` in `lib/mcp/tool-router.cjs` outside the 16 modules and outside `data/mcp-tool-connectors.json` (which lists 23).
+- Other tools that serve Eureka: `research_run` (op perspective_recall, perspective eureka, needs no engine) and `rs_experts_find` and `rs_thesis_read` (the two rs_ tools in tools/list; not called by this probe).
+- Tools that need the engine: 22 (eureka_capability_run, eureka_capability_start, the 3 job tools, eureka_graph_analyze, eureka_graph_propose_relationships, the 5 discovery-signal tools, eureka_graph_backtest, eureka_graph_compare_topics, eureka_graph_genesis_plan, eureka_graph_map_neighbourhoods, eureka_graph_opportunity_scout, eureka_graph_package_relationships, eureka_graph_prepare_artifacts, eureka_graph_rank_paths, eureka_graph_score_surprise, eureka_hsi_interpret_whitespace). Runtime: 22 refuse with no engine (19 engine_not_configured, 3 job_session_not_found).
+- Tools that answered ok without an engine: 1, `eureka_graph_project` (bound room only). `eureka_critic` was expected to answer and does not: it fails on the installed layout (see Technical Root Cause).
+
+### Hypothesis check
+
+| Hypothesis | Verdict | Measured number |
+|------------|---------|-----------------|
+| Auditor: on a normal install 1 of 23 Eureka tools works | CHANGED | 1 of 24 answers ok (eureka_graph_project, bound room only). The count is 24, not 23. If eureka_critic worked it would be 2 of 24. |
+| 19 tools answer engine_not_configured | CONFIRMED | 19 bound (14 with M2, 5 with M4) |
+| 3 tools answer job_session_not_found | CONFIRMED | 3 (the job status, result and cancel tools) |
+| Nothing sets MINDRIAN_EUREKA_ROOT | CONFIRMED | 0 assignments in 2411 shipped files; S1 and S2 both unset |
+| The projection runs before the engine check on graph tools | CONFIRMED | 18 of 18 projection tools answer no_bound_room when unbound |
+| The tool count is 23 or 24 | CHANGED | 24 from runtime tools/list (static 24, auditor 23) |
+| A plain uv run on every path (no --no-sync, --offline, --frozen or --locked) | CONFIRMED | 4 of 4 argument lists, from the S6 fake uv log |
+| UV_OFFLINE is passed only on the graph workflow path | CONFIRMED | UV_OFFLINE=1 on 17 of 17 graph calls; unset on generic, async and scout paths |
+| The uv error line is lost to the caller | CONFIRMED | 0 of 19 caller messages hold it; 19 of 19 reach the server stderr |
+| /mos:eureka answers with no engine | CONFIRMED | perspective_recall ok, 2 pairs, 0 network attempts |
+| eureka_critic needs no engine and answers | REFUTED | text-only ENOENT error in 12 of 12 calls |
+
+## Technical Root Cause
+
+Plain facts, per item. Each is PROVEN for the linked installed layout unless it says otherwise.
+
+(a) The only input that reaches the engine tools is the variable MINDRIAN_EUREKA_ROOT, and nothing in the shipped files sets it. 7 shipped files hold the string; all only read it or print it. `eurekaChildEnvironment` does not pass it to the engine child. Site: `lib/mcp/tools/eureka-capability-run.cjs` lines 189-200 (and the 3 other check sites listed in Static Findings 3).
+
+(b) The variable can only come from the launching process environment. S2 (`env -i` launch) answered exactly like S1, because the variable is absent in both. A Desktop-shaped launch gets no shell environment; this is a SIMULATION (a real Desktop launch was not run, UNVERIFIED), and the claim that Desktop passes no shell variable is ASSUMED from the S2 shape.
+
+(c) The refusal text names an environment variable and says nothing about what to do. It does not say that `/mos:eureka` needs no engine, or that only 22 of 24 tools need one. Text M2 and M4.
+
+(d) The reason does not tell absent, misconfigured and broken apart for the user. S1 gives engine_not_configured; S3 gives engine_checkout_unavailable; S4, S5 and S6 (no uv, uv absent, uv fails) all give the one reason engine_unavailable with a generic text. The only cause visible to a caller is a missing uv binary on one tool (eureka_capability_run, M6 and M10).
+
+(e) The 18 projection tools open the room projection before they check the engine (I2: all 18 answer no_bound_room unbound). A person without an engine and without a bound room is told to bind a room, then told about the engine only after binding.
+
+(f) Every path starts the engine with a plain `uv run` (4 of 4 argument lists, S6 log): no --no-sync, --offline, --frozen, --locked or --no-python-downloads. The plugin side is PROVEN: nothing in the plugin argument list prevents uv from syncing, so a missing extra can make uv install packages and reach a package index at call time. UV_OFFLINE=1 is set on the graph workflow path only (17 of 17), and the allowlist drops UV_OFFLINE, proxy variables and UV_CACHE_DIR from every other path. "Offline after setup" is therefore not true for the generic, async and scout paths. The ENGINE side (that uv really syncs and fetches) is UNVERIFIED: the engine was never run.
+
+(g) A missing uv, Python, extra, model or Node, a stale lock and a bad folder all reach the caller as the one reason engine_unavailable with a generic text, and the uv error line is lost (0 of 19 caller messages; the line goes to the server stderr that the plugin never reads). S6 is the proof for uv and Python. A missing extra, model, Node and a stale lock are UNVERIFIED at runtime (the real engine was not run); only the single reason code is PROVEN for them through the same code path.
+
+(h) NEW: `eureka_critic` fails on every install. Site: `lib/core/eureka-critic.cjs` line 533, symbol `BASELINE_PATH` and function `loadBaseline`: it reads `evals/eureka/212-critic-baseline.json` relative to the repo root. `package.json` "files" has no `evals` entry, so the file is not shipped (0 of 2411 shipped files are under evals/). The tool is registered and listed (`lib/mcp/tool-router.cjs` lines 2363-2480) but answers a text-only ENOENT error. Why it surfaces now: the tool was tested only in the dev tree, where the file exists; the installed-layout probe is the first run on a packed copy. It needs no engine, so no engine plan fixes it.
+
+What works (PROVEN): the research planner perspective answers on the installed layout with no engine, the projection tool answers when a room is bound, the tool list is complete and identical for both client identities, and no network attempt was made by the perspective call.
+
+perspective_without_engine: yes
+
+Classification list (docs/RCA-TEMPLATE.md classes):
+
+Classification: (a) no setter for MINDRIAN_EUREKA_ROOT in the shipped files - KNOWN (the 2026-11-06 README says Eureka needs an optional external engine; no tracked debug session; this phase is the fix)
+Classification: (b) Desktop gets no shell variable - ENV GAP (a simulation only; a real Desktop launch was not run)
+Classification: (c) refusal text names a variable and gives no next step - KNOWN (fixed by plans 387-05 and 387-11)
+Classification: (d) absent, misconfigured and broken are not told apart - KNOWN (auditor finding, fixed by plans 387-03, 387-05 and 387-11)
+Classification: (e) projection runs before the engine check - WORKING as coded, and KNOWN as a usability gap (plan 387-05 reorders)
+Classification: (f) plain uv run on every path, offline only on the graph workflow path - NEW FAILURE for Canon Part 8 (plugin side proven; fixed by plan 387-06)
+Classification: (g) generic engine_unavailable, uv error line lost - KNOWN (fixed by plan 387-11, typed causes)
+Classification: (h) eureka_critic broken on the installed layout, evals/ not shipped - NEW FAILURE (not covered by plans 387-03 to 387-11)
+Classification: the research planner perspective with no engine, and eureka_graph_project with a bound room - WORKING
 
 ## Required Code Changes
-<!-- Filled by task 3 -->
+<!-- Explicit, imperative, one block per change; plans 387-03 to 387-11 are pointed at by goal -->
 
-PENDING-RUNTIME
+- Change 1 (plan 387-03, resolver and requirements map):
+  - Location: new core module (engine home resolver and a map of what each Eureka tool needs); replaces the 4 duplicated root checks in `lib/mcp/tools/eureka-capability-run.cjs` (`callEurekaCapability`), `eureka-capability-jobs.cjs` (`configuredRoot`), `eureka-graph-analyze.cjs` (`callEurekaWorkflow`, `callEurekaOpportunityScout`) and the message map in `eureka-graph-discovery-signals.cjs` (`ENGINE_CALL_FAILURES`).
+  - Current behavior: the root comes only from the environment variable; the check is written 4 times plus a message map.
+  - Required behavior: one resolver (override variable, then a saved setting, then a default folder) and one needs map.
+- Change 2 (plan 387-09, enable command): build `/mos:eureka enable engine` on the resolver (adopt a folder, check uv, Python, Node, packages, model, run the one granted packages step).
+- Change 3 (plan 387-04, command text): wire the enable command into `commands/eureka.md` and remove the advice to hand-set the variable (`commands/eureka.md` lines 200-216 and `skills/eureka/SKILL.md` lines 197-213).
+- Change 4 (plans 387-05 and 387-11, tool states): replace the generic refusals (M2, M4, M5, M6 to M11) with typed states from one text source; check the engine before the room projection only for the states that do not need the room; add the typed causes engine_extra_missing, engine_model_missing and engine_node_missing; pass the first stderr line of the engine child to the caller (S6 shows it is lost). Update EXPECT in `tests/test-387-eureka-installed-layout.cjs` in the same commits.
+- Change 5 (plan 387-06, egress): pass --no-sync, --offline, --locked and --no-python-downloads in the uv arguments of all 4 builders (S6 shows none has them) and force the offline variables on every path, not only the graph workflow path.
+- Change 6 (plan 387-07, doctor): add the Eureka engine readiness point to `scripts/doctor.cjs`.
+- Change 7 (plan 387-08, docs): make README and docs say that 22 of 24 tools need the engine, that `/mos:eureka` needs none, and that setup has three parts.
+- Change 8 (plan 387-10, owner-run leak test): the real-engine leak test; this plan did not run the real engine.
+- Change 9 (NOT covered by any plan 387-03 to 387-11): ship the critic baseline.
+  - Location: `lib/core/eureka-critic.cjs` line 533 (`BASELINE_PATH`) and `package.json` "files".
+  - Current behavior: `eureka_critic` reads `evals/eureka/212-critic-baseline.json`, which is not in the pack; the tool answers ENOENT on every install.
+  - Required behavior: the baseline is read from a shipped location (for example under `data/`), and the shipped copy is checked by the installed-layout test (arm I3 then changes on purpose).
+  - Short-term patch: add `evals/eureka/212-critic-baseline.json` to the `files` list in `package.json`.
+  - Long-term fix: move the baseline into `data/` with the critic tags file `data/eureka-critic-tags.json`, which already ships.
 
 ## Tests to Add or Update
 
-PENDING-RUNTIME
+- Test 1 (added by this plan):
+  - Type: integration (installed layout, real stdio server)
+  - Location: `tests/test-387-eureka-installed-layout.cjs` with helper `tests/helpers/eureka-installed-layout-387.cjs`
+  - Given: a packed copy of the repo laid out as the plugin cache in a scratch HOME, MINDRIAN_EUREKA_ROOT unset or set to a fixture folder
+  - When: the 24 eureka tools are listed and called unbound and bound to a synthetic fixture room, in 6 scenarios, with 2 client identities
+  - Then: the table equals EXPECT (arms I1 to I8); a wrong copy of EXPECT fails (arm I7)
+  - Runner registration: `bash tests/run-all-387.sh` discovers it by glob; exit 77 counts as SKIPPED
+- Test 2 (plans 387-05, 387-06, 387-11): change EXPECT in the same commit that changes the behavior; add fake-engine tests for the offline arguments.
+- Test 3 (change 9): after the baseline ships, change arm I3 so eureka_critic answers ok on the installed layout.
+
+## Non-Code Follow-ups
+
+- CHANGELOG.md and `.planning/debug/knowledge-base.md`: owned by plan 387-08; not edited here.
+- Release lockstep: a fix to the critic baseline or the engine flow ships only in a release; the lockstep in `docs/RELEASE-CEREMONY-RULING-SYSTEM.md` RULE 5 applies.
+- Canon gates: Part 8 (no room text leaves: the perspective arm made 0 network attempts; the plugin side of the engine path is a gap, fixed by plan 387-06), Tri-Polar (the MCP server is one code path for CLI, Desktop and Cowork; tools/list is identical for both client identities; a real Desktop and a real Cowork run were not made), cross-platform (probe run on Linux only; the S2 launch uses `env -i`, which Windows lacks, so Windows is UNVERIFIED), no em dashes (checked), reuse before build (the probe reuses the pack and layout idea of `tests/test-369-installed-layout.cjs`, the session-binding approach of `tests/test-desktop-stdio-session-binding.cjs`, `tests/helpers/isolated-home-36925.cjs` and `tests/helpers/fixture-366.cjs`).
+- UNVERIFIED: the npm ci layout (no network allowed); the real engine behavior for uv sync, extras, model and Node; a real Desktop launch environment.
 
 ## Resolution
 
-root_cause: PENDING
-fix: none yet
-verification: none yet
-files_changed: []
-commits: none yet
+root_cause: See Technical Root Cause (a) to (h). Diagnosis complete for the plugin side; engine-side claims stay UNVERIFIED.
+fix: none in this plan (reproduction and RCA only)
+verification: `node tests/test-387-eureka-installed-layout.cjs` (8 arms pass) and `bash tests/run-all-387.sh`
+files_changed:
+  - .planning/debug/eureka-engine-unreachable-on-normal-install.md (this file)
+  - .planning/phases/387-eureka-reachable-on-a-normal-install/387-01-OBSERVATIONS.json (measured report)
+  - tests/helpers/eureka-installed-layout-387.cjs, tests/test-387-eureka-installed-layout.cjs, tests/run-all-387.sh
+commits: see plan 387-01 SUMMARY
