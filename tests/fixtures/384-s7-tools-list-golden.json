@@ -1,0 +1,6209 @@
+{
+ "count": 72,
+ "initialize": {
+  "serverInfo": {
+   "name": "mindrian-os",
+   "title": "Larry | MindrianOS",
+   "version": "<VERSION>",
+   "icons": [
+    {
+     "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIiByb2xlPSJpbWciIGRhdGEtc3RhdGU9InJlc3QiIGFyaWEtbGFiZWw9IlRoZW8gZmFjZTogUmVzdCI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQwMCIgaGVpZ2h0PSI0MDAiIGZpbGw9IiNGN0Y1RUUiLz48cmVjdCB4PSIyNDMiIHk9IjE0IiB3aWR0aD0iMTQzIiBoZWlnaHQ9IjIwNCIgZmlsbD0iI0ZGRkZGRiIvPjxyZWN0IHg9IjIyOSIgeT0iMTQiIHdpZHRoPSIxNCIgaGVpZ2h0PSIzNzIiIGZpbGw9IiMxMTExMTEiLz48cmVjdCB4PSIyMzYiIHk9IjIxOCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNCIgZmlsbD0iIzExMTExMSIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDExMCAyMDUpIHJvdGF0ZSgxOCkiPjxyZWN0IHg9Ii0xOCIgeT0iLTEyNSIgd2lkdGg9IjM2IiBoZWlnaHQ9IjI1MCIgZmlsbD0iIzExMTExMSIvPjwvZz48cmVjdCB4PSIyODYiIHk9Ijk0IiB3aWR0aD0iNTIiIGhlaWdodD0iNTIiIGZpbGw9IiMxMTExMTEiLz48cmVjdCB4PSIyODYiIHk9IjI3NCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjUyIiBmaWxsPSIjMTExMTExIi8+PHJlY3QgeD0iNyIgeT0iNyIgd2lkdGg9IjM4NiIgaGVpZ2h0PSIzODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzExMTExMSIgc3Ryb2tlLXdpZHRoPSIxNCIvPjwvc3ZnPg==",
+     "mimeType": "image/svg+xml",
+     "sizes": [
+      "any"
+     ]
+    }
+   ]
+  },
+  "capabilities": {
+   "tools": {
+    "listChanged": true
+   },
+   "resources": {
+    "listChanged": true
+   },
+   "prompts": {
+    "listChanged": true
+   }
+  }
+ },
+ "tools": [
+  {
+   "name": "analysis",
+   "title": "Analysis",
+   "description": "Run structured analysis over a venture or the system around it: analyze-systems, analyze-timing, find-bottlenecks, root-cause, systems-thinking, the trend family (macro-trends, explore-trends, explore-futures, dominant-designs, scenario-plan), and the causal family (causal-extract, causal-trace, causal-predict). Reach for this when the question is HOW something works, WHERE it breaks, or WHAT follows from it. Use the intelligence tool instead when the question is HOW GOOD something is, since that one returns a calibrated assessment rather than a structural map.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "analyze-systems",
+       "analyze-timing",
+       "find-bottlenecks",
+       "root-cause",
+       "systems-thinking",
+       "macro-trends",
+       "explore-trends",
+       "explore-futures",
+       "dominant-designs",
+       "scenario-plan",
+       "causal-extract",
+       "causal-trace",
+       "causal-predict"
+      ],
+      "description": "Which analysis to run"
+     },
+     "context": {
+      "description": "Focus area or system boundary",
+      "type": "string"
+     },
+     "section": {
+      "description": "Section to focus on",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "artifact_file",
+   "title": "Artifact File",
+   "description": "File a markdown artifact into this session's bound room. Resolves the section via the shipped SECTION_RE/safeResolveSection path-traversal guard, now also enforcing realpath containment so an existing symlinked section, destination or parent whose realpath leaves the room is refused and the final write never follows a symlink leaf (atomic replace-in-place instead); injects a stable artifact_id (lib/core/artifact-id.cjs), and logs the filing through navigation.cjs's logMemoryEvent (the ONLY door) -- never opens the graph store directly. Also writes a typed claim node (epistemic_type defaults to 'conclusion') plus SOURCED_FROM provenance edges to evidence_node_ids, through the SAME shared writer gate_answer's approve branch uses.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "section": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Room section slug to file into."
+     },
+     "filename": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Basename for the filed artifact (a .md extension is appended if absent)."
+     },
+     "content": {
+      "type": "string",
+      "maxLength": 200000,
+      "description": "Full markdown content (including frontmatter, if any) to write."
+     },
+     "epistemic_type": {
+      "description": "Epistemic classification of the filed claim; defaults to 'conclusion' when absent. 'decision' is reserved for gate-produced nodes (gate_answer's approve branch) and should not be passed here.",
+      "type": "string",
+      "enum": [
+       "observation",
+       "extracted_fact",
+       "derived_fact",
+       "model_derived_assertion",
+       "interpretation",
+       "hypothesis",
+       "assumption",
+       "conclusion",
+       "recommendation",
+       "decision"
+      ]
+     },
+     "evidence_node_ids": {
+      "description": "Opaque LOCAL room-graph node ids, provenance only. Canon Part 8 forbids Brain identifiers or room content.",
+      "maxItems": 64,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "required": [
+     "section",
+     "filename",
+     "content"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "chain_resolve",
+   "title": "Chain Resolve",
+   "description": "Resolve an ordered framework-name chain to its command plan via lib/workflow/command-resolver.cjs::composeWorkflow -- the ONE governed reach path (R4: mints no second resolver). Read-only: executes nothing.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "chain": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Ordered list of framework names (the same names lib/workflow/command-resolver.cjs's registry indexes)."
+     }
+    },
+    "required": [
+     "chain"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "chain_run",
+   "title": "Chain Run",
+   "description": "Execute an ordered framework-name chain server-side, WRAPPING the shipped lib/core/chain-executor.cjs::runChain (Phase 166) -- mints no second executor. Runs the autonomous_safe prefix (posture resolved from the ONE shared autonomy authority in lib/core/recipe-maps.cjs, never re-derived); HALTS at the first material step and returns a gate_id minted into the shared gate ledger instead of executing it unattended. To resume, call gate_answer with that gate_id: it ratifies the decision AND runs the approved step and continues the chain in that SAME call, returning the real execution result. Do NOT then thread the answer back into chain_run -- the gate is single-use, so the second caller for that gate_id is refused with unknown_or_expired_gate and nothing re-runs. `chosen` must be an option id or an option label from the returned card, or the resume is rejected without executing the step. Only the session that halted the chain can resume it; a different session's gate_answer for the same gate_id is rejected. An approve verdict executes the halted step and continues; reject/defer leaves it unexecuted.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "chain": {
+      "description": "Ordered framework-name chain to resolve and run. Required to START a chain; omit when resuming via gate_answer.",
+      "minItems": 1,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "gate_answer": {
+      "description": "The DIRECT programmatic resume path for a caller driving chainRun in-process (not through the gate_answer MCP tool) -- it consumes the SAME single-use ledger entry and runs the SAME execution path the gate_answer tool invokes. `chosen` must match an option id or label from the halt gate's own card, and must come from the SAME session that halted the chain, or the resume is rejected before the step runs. A caller uses ONE verb or the other for a given gate_id, never both: whichever of gate_answer or this parameter consumes the entry first is the only one that executes; the other is refused with unknown_or_expired_gate.",
+      "type": "object",
+      "properties": {
+       "gate_id": {
+        "type": "string",
+        "minLength": 1
+       },
+       "chosen": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+         "type": "string",
+         "minLength": 1
+        }
+       },
+       "verdict": {
+        "type": "string",
+        "enum": [
+         "approve",
+         "reject",
+         "defer"
+        ]
+       }
+      },
+      "required": [
+       "gate_id",
+       "chosen",
+       "verdict"
+      ]
+     },
+     "subject_node_id": {
+      "description": "Opaque LOCAL room-graph node id, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Not used on the gate_answer resume branch (that path consumes a ledger entry that already carries it). Canon Part 8: must never be a Brain identifier or room content.",
+      "type": "string",
+      "minLength": 1
+     },
+     "evidence_node_ids": {
+      "description": "Opaque LOCAL room-graph node ids, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Not used on the gate_answer resume branch (that path consumes a ledger entry that already carries it). Canon Part 8: must never be Brain identifiers or room content.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "claim_read",
+   "title": "Claim Read",
+   "description": "Reopen one local claim by id or by words from its text and show its checking record beside its confirmation status (review_status), or list the room's claims. Every call also returns the room's counts of checked, disputed, inconclusive and unchecked claims; a count is not a verdict. This tool writes nothing.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "claim_id": {
+      "description": "Exact claim id to reopen. When absent, query or a bare list is used instead.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+     },
+     "query": {
+      "description": "Case-insensitive words from the claim text (or its id) to search for, so a claim can be reopened in a new session without knowing its id.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     },
+     "limit": {
+      "description": "Max claims returned when listing (default 20, max 100).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "claim_verify",
+   "title": "Claim Verify",
+   "description": "Record, on one local claim, what it was checked against, the rung it reached, the method and the result. The claim's review_status never changes: a checked claim stays proposed until a person approves it through gate_answer. Use claim_read first to find the claim_id.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "Id of the existing claim node this check is recorded on."
+     },
+     "against_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512,
+      "description": "A handle naming what the claim was checked against (a document, an artifact, a person)."
+     },
+     "against_kind": {
+      "type": "string",
+      "enum": [
+       "artifact",
+       "source",
+       "observation",
+       "person",
+       "experiment"
+      ],
+      "description": "The kind of thing checked against."
+     },
+     "method": {
+      "type": "string",
+      "enum": [
+       "read",
+       "compare",
+       "observe",
+       "test",
+       "ask"
+      ],
+      "description": "How the check was carried out."
+     },
+     "result": {
+      "type": "string",
+      "enum": [
+       "supports",
+       "contradicts",
+       "inconclusive"
+      ],
+      "description": "What the check found."
+     },
+     "rung": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Rung of the verification hierarchy the check reached, 1 is lowest: 1 = Your own intuition; 2 = A counter-argument generated by the model; 3 = A database or a document; 4 = A primary source; 5 = A person who disagrees with you."
+     },
+     "checked_by": {
+      "description": "Who performed the check. Defaults to user.",
+      "type": "string",
+      "enum": [
+       "user",
+       "system"
+      ]
+     },
+     "checked_at": {
+      "description": "Optional ISO timestamp of the check. Defaults to now.",
+      "type": "string",
+      "maxLength": 64
+     },
+     "note_handle": {
+      "description": "Optional handle to a free-form note artifact about this check; claim prose never rides here.",
+      "type": "string",
+      "maxLength": 512
+     },
+     "resolves_dispute": {
+      "description": "Set true only when the person explicitly says this check answers an earlier contradiction on this claim. Requires checked_by user.",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "claim_id",
+     "against_id",
+     "against_kind",
+     "method",
+     "result",
+     "rung"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "claim_write",
+   "title": "Claim Write",
+   "description": "Write one typed DIKW claim node (knowledge_type: fact, causal, heuristic, anomaly_cue, mental_model, or assumption) through typed-claim.cjs's writeClaimNode, the single lib/core/node-insert.cjs write chokepoint, never a second write path. The claim lands at review_status 'proposed', never 'confirmed': this tool renders no gate and ratifies nothing itself. Promotion to 'confirmed' happens only through a separate gate_render / gate_answer approve cycle (unchanged by this tool). This writes exactly one claim you give it, not the five-perspective meeting subagent fan-out and not the F.8 filing gate, both of which are CLI-only and structurally unreachable from MCP.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "knowledge_type": {
+      "type": "string",
+      "enum": [
+       "fact",
+       "causal",
+       "heuristic",
+       "anomaly_cue",
+       "mental_model",
+       "assumption"
+      ],
+      "description": "One of the six DIKW knowledge types: fact, causal, heuristic, anomaly_cue, mental_model, assumption. An out-of-enum value is refused here at the schema boundary, and again by writeClaimNode itself if reached another way."
+     },
+     "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
+      "description": "The atomic claim sentence itself."
+     },
+     "source_segment": {
+      "description": "Optional transcript segment id or excerpt this claim was drawn from. Also doubles as the idempotency key: re-filing the same segment upserts rather than duplicates.",
+      "type": "string",
+      "maxLength": 2000
+     },
+     "source_speaker": {
+      "description": "Optional speaker attribution for this claim.",
+      "type": "string",
+      "maxLength": 200
+     },
+     "conditions": {
+      "description": "Optional conditions under which this claim holds.",
+      "type": "string",
+      "maxLength": 2000
+     },
+     "counter_conditions": {
+      "description": "Optional conditions under which this claim would NOT hold.",
+      "type": "string",
+      "maxLength": 2000
+     },
+     "valid_from": {
+      "description": "Optional ISO-ish start of this claim's validity window.",
+      "type": "string",
+      "maxLength": 64
+     },
+     "valid_until": {
+      "description": "Optional ISO-ish end of this claim's validity window.",
+      "type": "string",
+      "maxLength": 64
+     },
+     "disambiguation": {
+      "description": "Optional marker (e.g. 'ambiguous') for a downstream disambiguation queue. Additive only; never a new review_status value.",
+      "type": "string",
+      "maxLength": 64
+     }
+    },
+    "required": [
+     "knowledge_type",
+     "text"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "context_assemble",
+   "title": "Context Assemble",
+   "description": "Assembles this session's room context from four local legs: the room state summary, recent session fragments, a ranked graph neighborhood around the conversation, and projected cortex nodes. Every leg reads locally through the navigation.cjs chokepoint, with zero Brain calls. The four numeric parameters are your budget dial. Beside the budget dial, focus_node_id centers the graph-neighborhood leg on a specific node instead of the one derived from the conversation, so a node can be given its own scoped context. Set estimate_only to see the projected cost per leg WITHOUT the bodies, so you can price a context pull before paying for it. Every successful result also carries _meta.omitted, a list of what was left out and why: each entry names the leg, a reason and a count, and the count is null when it is not known. Never returns raw file contents.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "fragment_window": {
+      "description": "How many of the most recent session fragments to include (default 6).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+     },
+     "fragment_char_cap": {
+      "description": "Per-fragment character cap before truncation (default 400).",
+      "type": "integer",
+      "minimum": 50,
+      "maximum": 4000
+     },
+     "top_k": {
+      "description": "Max ranked graph-neighborhood results to return (default 10).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "max_depth": {
+      "description": "Max graph traversal depth for the neighborhood leg (default 2).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "focus_node_id": {
+      "description": "The node id to center the graph-neighborhood leg on, instead of the node derived from the conversation's last ~2 fragments. A local node id or section slug only; omit to keep today's conversation-derived focus.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+     },
+     "estimate_only": {
+      "description": "When true, returns the projected per-leg cost with all leg bodies nulled, so you can see the price before paying it (default false).",
+      "type": "boolean"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "contract_version",
+   "title": "Contract Version",
+   "description": "Return the mindrian-core tool contract version (semver) and the trust boundaries its tool surface spans. Pure read, no side effects, no fork.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {}
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "contradiction_check",
+   "title": "Contradiction Check",
+   "description": "CONTRADICTS scan for this session's bound room, through the navigation.cjs chokepoint (lib/core/navigation/insights.cjs::findContradictions, Phase 109-05). Resolves the focus node from node_id, or from this session's active focus when node_id is absent.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_id": {
+      "description": "Explicit focus node id. Defaults to this session's active focus when absent.",
+      "type": "string",
+      "minLength": 1
+     },
+     "include_superseded": {
+      "description": "Include claims whose review_status is superseded in the result; defaults to false, which excludes them. Superseded claims are closed, not deleted, so this flag is how their history stays reachable.",
+      "type": "boolean"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "detect_dual_path",
+   "title": "Detect Dual Path",
+   "description": "Phase 115 dual-path detector. 5-feature additive score classifier (RESEARCH DISCRETION-03). Classifies turn-1 input as upload | type | ambiguous; returns { path, score, features } with booleans-only features payload (Canon Part 8 telemetry-safe). Pure classification, no side effects.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "text": {
+      "type": "string",
+      "description": "The user first-turn input (CV paste, conversational answer, or any string)."
+     }
+    },
+    "required": [
+     "text"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "eureka_capability_job_cancel",
+   "title": "Cancel Eureka Job",
+   "description": "Request cooperative cancellation for a job started in this MindrianOS MCP process. Eureka retains job records locally for up to 30 days. Jobs cannot resume after a MindrianOS host restart. Poll status to confirm the terminal state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     }
+    },
+    "required": [
+     "job_id"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_capability_job_result",
+   "title": "Retrieve Eureka Job Result",
+   "description": "Retrieve the result for a job started in this MindrianOS MCP process. Eureka retains the result locally for up to 30 days; RS jobs may also write derived vectors to the local embedding cache. Jobs cannot resume after a MindrianOS host restart. Terminal results close the retained Eureka session.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     }
+    },
+    "required": [
+     "job_id"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_capability_job_status",
+   "title": "Check Eureka Job Status",
+   "description": "Read progress for a job started in this MindrianOS MCP process. The Eureka job record is stored locally for up to 30 days. A job from a previous or restarted process is unknown to this host session and must be started again.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     }
+    },
+    "required": [
+     "job_id"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_capability_run",
+   "title": "Run a Catalogued Eureka Capability",
+   "description": "Inspect the Eureka catalog and contract, then run one capability currently marked experimental or host_brokered through its advertised local MCP route. Supply the exact contract-shaped request. This generic bridge does not read MindrianOS room data; use the dedicated graph projection and graph-scoped tools when the capability needs room content. Planned and blocked capabilities are refused. For asynchronous routes, prefer eureka_capability_start and the job status/result/cancel tools; this convenience call can block until completion. Async routes persist a local Eureka job record and result for up to 30 days, and RS routes may write derived vectors to the local embedding cache. The structured response distinguishes engine-side state from accepted MindrianOS knowledge; this tool never accepts proposed knowledge.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "capability_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[a-z][a-z0-9_.-]+$"
+     },
+     "request": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     }
+    },
+    "required": [
+     "capability_id",
+     "request"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_capability_start",
+   "title": "Start a Catalogued Eureka Job",
+   "description": "Start a catalogued Eureka capability that exposes a supported asynchronous route. The MindrianOS MCP process retains the same Eureka worker session so separate status, result, and cancellation calls reach the live job. Eureka stores job metadata and results locally for up to 30 days, clears the saved request after a terminal outcome, and RS jobs may write derived vectors to a local embedding cache. Data is stored under MINDRIAN_EUREKA_DATA_DIR or ~/.local/share/mindrian-eureka. Jobs cannot resume after the MindrianOS MCP process restarts. Host sessions expire after 30 minutes; at most eight can be active. Use only schema-shaped requests; this generic tool does not read the MindrianOS graph.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "capability_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[a-z][a-z0-9_.-]+$"
+     },
+     "request": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+     }
+    },
+    "required": [
+     "capability_id",
+     "request"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_critic",
+   "title": "Eureka Critic",
+   "description": "Grounding Guard calibration ruling: quantized scalars + closed enums in, a coarse verdict/confidence/reasoning_tag out; no room content ever crosses this boundary.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "differential_score": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1,
+      "description": "Quantized differential score in [-1, 1]"
+     },
+     "semantic_similarity": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1,
+      "description": "Quantized semantic similarity in [-1, 1]"
+     },
+     "lsa_similarity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Quantized LSA similarity in [0, 1]"
+     },
+     "surprise_type": {
+      "type": "string",
+      "enum": [
+       "structural_transfer",
+       "semantic_implementation"
+      ],
+      "description": "Closed surprise-type enum"
+     },
+     "source_domain_tag": {
+      "type": "string",
+      "enum": [
+       "engineering",
+       "biology",
+       "medicine",
+       "computing",
+       "materials",
+       "energy",
+       "mathematics",
+       "finance",
+       "social",
+       "food",
+       "unknown"
+      ],
+      "description": "Generic source domain tag (never a room artifact id or content)"
+     },
+     "target_domain_tag": {
+      "type": "string",
+      "enum": [
+       "engineering",
+       "biology",
+       "medicine",
+       "computing",
+       "materials",
+       "energy",
+       "mathematics",
+       "finance",
+       "social",
+       "food",
+       "unknown"
+      ],
+      "description": "Generic target domain tag (never a room artifact id or content)"
+     },
+     "rubric_pattern": {
+      "type": "string",
+      "pattern": "^[01x]{6}$",
+      "description": "The abstracted [01x]{6} rubric boolean pattern"
+     },
+     "schema_version": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991,
+      "description": "Tags/enum schema version for the Part 9 versioned-packet guard"
+     }
+    },
+    "required": [
+     "differential_score",
+     "semantic_similarity",
+     "lsa_similarity",
+     "surprise_type",
+     "source_domain_tag",
+     "target_domain_tag",
+     "rubric_pattern",
+     "schema_version"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "eureka_graph_analyze",
+   "title": "Analyze MindrianOS Graph with Eureka",
+   "description": "Project explicit node IDs from the bound MindrianOS room through its read-only navigation boundary, call the configured local Eureka MCP graph engine, and return snapshot-bound unverified proposals. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. Does not accept paths, expand graph scope, fetch remote sources, or write graph state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     },
+     "attr": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "text_label": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "null_rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+     },
+     "focus_node_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "focus_hops": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_assess_category_edge_patterns",
+   "title": "Assess Unusual Existing Category Links in MindrianOS",
+   "description": "Use when you want to compare category combinations among existing graph edges with degree-preserving rewired graphs. This describes current links; it does not find missing opportunities or measure value. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "category_attribute": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+     },
+     "shuffles": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     },
+     "use_label": {
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_backtest",
+   "title": "Backtest Relationship Methods on MindrianOS Graph History",
+   "description": "Project explicit IDs from the bound MindrianOS room and evaluate relationship methods against dated edges in that snapshot. Reads only allowlisted edge created_at metadata. Returns a scope/snapshot-bound evaluation or insufficient-data result; it does not propose accepted facts or write the graph.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "cutoff": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_compare_topics",
+   "title": "Compare Topics Across MindrianOS Graph Corpora",
+   "description": "Build two text corpora from distinct, explicitly selected MindrianOS graph node IDs and run Eureka bidirectional topic comparison. Results include corpus index-to-node mappings and scope/snapshot lineage; they are exploratory outliers, not validated opportunities. No graph write or external research occurs.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids_a": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "node_ids_b": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "k": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "tau": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "seeds": {
+      "minItems": 1,
+      "maxItems": 50,
+      "type": "array",
+      "items": {
+       "type": "integer",
+       "minimum": -9007199254740991,
+       "maximum": 9007199254740991
+      }
+     }
+    },
+    "required": [
+     "node_ids_a",
+     "node_ids_b"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_find_community_bridge_pairs",
+   "title": "Find Candidate Links Across MindrianOS Graph Communities",
+   "description": "Use when you want to identify unconnected node pairs whose neighborhoods meet at a structurally important bridge node across detected communities. Community structure does not establish a useful transfer. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     },
+     "per_node": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "min_betweenness": {
+      "type": "number",
+      "minimum": 0
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_find_network_holes",
+   "title": "Find Missing Diagonals in MindrianOS Graph Cycles",
+   "description": "Use when you want to find induced four-cycles and their missing diagonals, compared with degree-preserving rewiring. This is a structural lead, not evidence of a meaningful connection. Limit the selection to 1,200 nodes and 6,000 edges. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     },
+     "hub_cap": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2500
+     },
+     "cycle_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20000
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     },
+     "include_persistence": {
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_find_shared_neighbor_gaps",
+   "title": "Find Unlinked MindrianOS Concepts with Shared Neighbors",
+   "description": "Use when you want candidate links between unconnected graph nodes that share several neighbors. Review each candidate against source evidence; shared structure does not prove a relationship. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "min_common": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "hub_cap": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_find_similar_unlinked_items",
+   "title": "Find Similar MindrianOS Items without a Graph Link",
+   "description": "Use when you want to surface text-bearing nodes with similar wording but no graph edge. Similarity is a source-research lead, not proof of a relationship. Choose explicit node IDs and, where useful, a text label. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "text_label": {
+      "anyOf": [
+       {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "min_similarity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_genesis_plan",
+   "title": "Plan Future Research from MindrianOS Graph Context",
+   "description": "Project explicit nodes from the bound MindrianOS room, convert them into Eureka source-linked artifacts, then run the local Genesis multidomain planner. Returns a lexical, heuristic plan for Theo/MindrianOS review. It performs no model call, external search, or graph write; all research execution remains behind MindrianOS approval.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "objective": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000
+     },
+     "research_year": {
+      "type": "integer",
+      "minimum": 2000,
+      "maximum": 2100
+     }
+    },
+    "required": [
+     "node_ids",
+     "objective"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_map_neighbourhoods",
+   "title": "Map Structural Analogy Between MindrianOS Graph Neighborhoods",
+   "description": "Project explicit MindrianOS graph node IDs, then call Eureka graph.map_neighbourhoods over the selected snapshot. Requires distinct base and target IDs in the selection. Returns structural correspondences as unevidenced proposals; it does not expand the host projection or write graph state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "base_node_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+     },
+     "target_node_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+     },
+     "hops": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+     },
+     "rules": {
+      "type": "string",
+      "enum": [
+       "AN",
+       "LS",
+       "MA"
+      ]
+     },
+     "attr": {
+      "type": "string",
+      "maxLength": 128
+     }
+    },
+    "required": [
+     "node_ids",
+     "base_node_id",
+     "target_node_id"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_opportunity_scout",
+   "title": "Screen Local Graph for Candidate Pair Leads",
+   "description": "Screen explicitly selected nodes from the bound MindrianOS room for candidate relationship leads using Eureka RS+HSI. This compatibility tool waits for the job and can block; for non-blocking use, prepare artifacts and call eureka_capability_start with opportunity.synthesize_discovery_signals, then use the job status/result/cancel tools. Results are candidate pair signals, not validated or comprehensive opportunities. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. It does not fetch external research or write accepted MindrianOS graph/portfolio state. Eureka persists a local job record and result for up to 30 days and may write derived vectors to its local embedding cache.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 2,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "objective": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000
+     },
+     "max_artifacts": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 2500
+     },
+     "top_k": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "scoring": {
+      "type": "string",
+      "enum": [
+       "hybrid_2026",
+       "legacy"
+      ]
+     },
+     "lex_weight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "min_percentile": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     }
+    },
+    "required": [
+     "node_ids",
+     "objective"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_package_relationships",
+   "title": "Package MindrianOS Graph Relationship Proposals",
+   "description": "Validate caller-proposed links against selected MindrianOS node IDs and selected Evidence nodes, then ask Eureka to package them with stable graph refs and snapshot lineage. This does not discover, rank, approve, or write relationships; all proposals require MindrianOS review.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "relationships": {
+      "minItems": 1,
+      "maxItems": 1000,
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "source_id": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 200
+        },
+        "target_id": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 200
+        },
+        "relation": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 100
+        },
+        "rationale": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 5000
+        },
+        "evidence_ids": {
+         "minItems": 1,
+         "type": "array",
+         "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+         }
+        }
+       },
+       "required": [
+        "source_id",
+        "target_id",
+        "relation",
+        "rationale",
+        "evidence_ids"
+       ],
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "node_ids",
+     "relationships"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_prepare_artifacts",
+   "title": "Prepare Source-Linked Eureka Artifacts from MindrianOS Graph",
+   "description": "Project explicit node IDs from the bound MindrianOS room and call Eureka graph.prepare_artifact_bundle. Returns the versioned artifact contract for compatible text engines, preserving source refs, hashes, scope, and snapshot identity. This prepares input; it does not run the downstream analysis or write graph state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "objective": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 5000
+     },
+     "max_artifacts": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 2500
+     }
+    },
+    "required": [
+     "node_ids",
+     "objective"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_project",
+   "title": "Prepare MindrianOS Graph Projection for Eureka",
+   "description": "Read a bounded, explicit selection from the active MindrianOS room graph through the navigation boundary. Requires a bound room and verified room identity. Returns selected node text, stable graph references, induced edges, a content-derived snapshot ID, and omission metadata. Does not accept room paths, expand beyond selected IDs, call an engine, or write graph state. Pass the returned snapshot, scope_id, and snapshot_id to the separately configured Eureka MCP.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      },
+      "description": "Explicit MindrianOS graph node IDs selected for this investigation. Only these nodes and edges between them are projected."
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_propose_relationships",
+   "title": "Propose Relationship Leads from the MindrianOS Graph",
+   "description": "Project explicit node IDs from the bound MindrianOS room and run Eureka graph.propose_relationships. Returns unevidenced candidate links bound to the room scope and graph snapshot for later evidence resolution and human review. Does not expand the graph, fetch sources, approve proposals, or write graph state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "top": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000
+     },
+     "seed": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+     },
+     "attr": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "text_label": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "null_rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+     },
+     "focus_node_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "focus_hops": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+     }
+    },
+    "required": [
+     "node_ids"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_rank_paths",
+   "title": "Rank MindrianOS Graph Evidence Paths",
+   "description": "Accept ordered candidate paths from the host, verify every node and directed typed edge against an explicit MindrianOS room projection, then rank by hops, unknown confidence, and attached evidence. Returns stable IDs and snapshot lineage. Does not search paths or write the graph.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "paths": {
+      "maxItems": 5000,
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "node_ids": {
+         "minItems": 2,
+         "maxItems": 50,
+         "type": "array",
+         "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+         }
+        },
+        "edge_types": {
+         "minItems": 1,
+         "maxItems": 49,
+         "type": "array",
+         "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+         }
+        }
+       },
+       "required": [
+        "node_ids",
+        "edge_types"
+       ],
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "node_ids",
+     "paths"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_graph_score_surprise",
+   "title": "Score Bayesian Surprise for MindrianOS Claims",
+   "description": "Read claim text from explicitly selected MindrianOS graph nodes and combine it with caller-supplied prior/posterior probability vectors. Returns scope/snapshot-bound entropy and surprise triage. Eureka does not infer probabilities, retrieve evidence, or write the graph.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "claims": {
+      "minItems": 1,
+      "maxItems": 1000,
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 256
+        },
+        "prior": {
+         "minItems": 1,
+         "maxItems": 100,
+         "type": "array",
+         "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         }
+        },
+        "posterior": {
+         "minItems": 1,
+         "maxItems": 100,
+         "type": "array",
+         "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         }
+        }
+       },
+       "required": [
+        "id",
+        "prior",
+        "posterior"
+       ],
+       "additionalProperties": false
+      }
+     }
+    },
+    "required": [
+     "node_ids",
+     "claims"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_hsi_interpret_whitespace",
+   "title": "Interpret HSI Whitespace Using the MindrianOS Framework Graph",
+   "description": "Accept HSI zones and their 2D projection, then derive problem-type and FEEDS_INTO mappings exclusively from explicitly selected MindrianOS graph nodes and edges. Calls Eureka portfolio.interpret_whitespace and returns a scope/snapshot-bound interpretation for Theo. Does not infer problem type from text, expand graph scope, or write graph state.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_ids": {
+      "minItems": 1,
+      "maxItems": 2500,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+      }
+     },
+     "gaps": {
+      "minItems": 1,
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        },
+        "brain_framework_id": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 512
+        },
+        "brain_framework": {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 500
+        },
+        "gap_percentile": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "density_score": {
+         "type": "number"
+        },
+        "zone_id": {
+         "type": "string",
+         "maxLength": 512
+        },
+        "nearest_room_artifacts": {
+         "maxItems": 100,
+         "type": "array",
+         "items": {
+          "anyOf": [
+           {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+           },
+           {
+            "type": "object",
+            "properties": {
+             "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             },
+             "artifact_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+             },
+             "title": {
+              "type": "string",
+              "maxLength": 500
+             },
+             "section": {
+              "type": "string",
+              "maxLength": 500
+             }
+            },
+            "additionalProperties": false
+           }
+          ]
+         }
+        }
+       },
+       "required": [
+        "id",
+        "brain_framework_id",
+        "brain_framework",
+        "nearest_room_artifacts"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "umap_2d": {
+      "type": "object",
+      "properties": {
+       "room_artifacts": {
+        "maxItems": 2500,
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "type": [
+            "string",
+            "number",
+            "null"
+           ]
+          },
+          "title": {
+           "anyOf": [
+            {
+             "type": "string",
+             "maxLength": 500
+            },
+            {
+             "type": "null"
+            }
+           ]
+          },
+          "x": {
+           "type": "number"
+          },
+          "y": {
+           "type": "number"
+          },
+          "cluster": {
+           "type": [
+            "string",
+            "number",
+            "null"
+           ]
+          }
+         },
+         "required": [
+          "x",
+          "y"
+         ],
+         "additionalProperties": false
+        }
+       },
+       "room": {
+        "maxItems": 2500,
+        "type": "array",
+        "items": {
+         "type": "array",
+         "prefixItems": [
+          {
+           "type": "number"
+          },
+          {
+           "type": "number"
+          }
+         ],
+         "items": false,
+         "minItems": 2,
+         "maxItems": 2
+        }
+       },
+       "labels_room": {
+        "maxItems": 2500,
+        "type": "array",
+        "items": {
+         "type": [
+          "string",
+          "number",
+          "null"
+         ]
+        }
+       }
+      },
+      "additionalProperties": false
+     },
+     "spread_mode": {
+      "type": "string",
+      "enum": [
+       "percentile",
+       "fixed"
+      ]
+     },
+     "spread_percentile": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "offline_validate": {
+      "type": "boolean"
+     },
+     "hypothesis_top": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 50
+     }
+    },
+    "required": [
+     "node_ids",
+     "gaps",
+     "umap_2d"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "export",
+   "title": "Export",
+   "description": "Return the export operation instructions plus current room context; this handler does not itself render anything. Run the matching CLI command for the format you chose (/mos:export, /mos:dashboard, /mos:wiki, /mos:present, /mos:radar, /mos:publish, or /mos:snapshot) to actually produce the artifact. Choose by audience: dashboard for a single-screen status view, wiki for a browsable cross-linked reference, present for a slide deck, radar for a scored-dimension chart, snapshot for a frozen point-in-time copy, publish to push an artifact outward, and export for a plain data dump. Reach for this only once the room has content worth showing, because every format reads from existing entries and invents nothing on its own.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "export",
+       "radar",
+       "dashboard",
+       "wiki",
+       "present",
+       "publish",
+       "snapshot"
+      ],
+      "description": "Export operation"
+     },
+     "context": {
+      "description": "Export options or context",
+      "type": "string"
+     },
+     "format": {
+      "description": "Export format (e.g., html, pdf, md)",
+      "type": "string"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "extract_shallow",
+   "title": "Extract Shallow",
+   "description": "Phase 115 strategy (b) shallow-file (decision D-354-SYS05, 2026-09-23). Parses a CV, memo or pitch paste classified as upload-path into an in-memory { user, venture, claims } object (1 user, 1 venture, 1-3 claims); writes nothing to the room or its graph. To keep any of it, bind a room and file each claim with claim_write (review_status proposed) after the navigator confirms it. Falls back to 0 parsed nodes on parse failure (graceful).",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "text": {
+      "type": "string",
+      "description": "CV / memo / pitch paste classified as upload-path by detect_dual_path."
+     },
+     "sessionId": {
+      "type": "string",
+      "description": "Session id scoping the returned in-memory parsed ids only; no persistence happens here."
+     }
+    },
+    "required": [
+     "text",
+     "sessionId"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "framework_run",
+   "title": "Framework Run",
+   "description": "Resolve an ordered framework-name chain to its command plan via lib/workflow/command-resolver.cjs::composeWorkflow -- the ONE governed reach path (R4: this tool mints NO second resolver). A fully autonomous_safe chain returns the resolved plan. A chain with a material (non-autonomous_safe) step HALTS at that step and returns a gate (via the SAME gate-render.cjs ladder gate_render uses) instead of executing it unattended.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "chain": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      },
+      "description": "Ordered list of framework names (the same names lib/workflow/command-resolver.cjs's registry indexes)."
+     },
+     "subject_node_id": {
+      "description": "Opaque LOCAL room-graph node id, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Canon Part 8: must never be a Brain identifier or room content.",
+      "type": "string",
+      "minLength": 1
+     },
+     "evidence_node_ids": {
+      "description": "Opaque LOCAL room-graph node ids, provenance only. Carried onto the halt card if this chain halts at a material step; nothing consumes it yet. Canon Part 8: must never be Brain identifiers or room content.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "required": [
+     "chain"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "gate_answer",
+   "title": "Gate Answer",
+   "description": "Ratify a gate decision. Accepts { gate_id, chosen, verdict }; only ratifies a gate_id THIS server process minted for this session through the shared ledger, including a chain_run halt or a gate_render mirror_of card. chosen must be an option id or label of the minted card, else chosen_not_in_card_options before any write. An approve routes the write through lib/core/navigation.cjs (Part 9) and writes a typed decision node with SOURCED_FROM edges to the card's subject/evidence ids (plus USES_FRAMEWORK for a chain halt with a framework), promoted via navigation.confirmNode. For a chain_run halt at a material step, gate_answer is ALSO the verb that resumes the chain: an approve runs the halted step in this SAME call, result under chain_result (with the next gate_id if it halts again). The whole answer is saved in ONE transaction and the gate is released only after it commits: if saving fails the answer is refused with persistence_failed, nothing is saved, and the gate can be answered again. Answering a mirror also records its source gate as answered in that same transaction. A gate already answered returns ok with replayed true plus the recorded verdict, chosen and decision_node_id, even after a restart or after its 30 minutes ran out; if another session answered it first (through a mirror) it also says answered_elsewhere true, writes nothing, and a halted step resumes exactly once with the recorded answer. Refused with the gate left open: room_switched (bound to another room than the card's), stale_subject (an approve whose subject or evidence changed since the card was drawn; ask for a fresh card), session_mismatch, chosen_not_approving and verdict_chosen_mismatch. If the room cannot be read to look for a saved answer the reply is replay_lookup_failed (nothing written, try again). Refused with nothing to answer: gate_expired (30 minutes passed, no saved answer) and unknown_gate. A chain_run call threaded with the same answer afterward is refused with unknown_or_expired_gate and nothing re-runs.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "gate_id": {
+      "type": "string",
+      "minLength": 1
+     },
+     "chosen": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "verdict": {
+      "type": "string",
+      "enum": [
+       "approve",
+       "reject",
+       "defer"
+      ]
+     }
+    },
+    "required": [
+     "gate_id",
+     "chosen",
+     "verdict"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "gate_list",
+   "title": "Gate List",
+   "description": "List the decision gates still open in the room this session is bound to, or read the state of one gate. Read only: it never answers, renews or changes a gate. Gates come from the room's own records, so a gate raised in another session or another process (for example in Claude Code) shows up here too, with its header, options, ranks, previews, recommended option, subject and evidence ids, and when it expires (30 minutes after it was drawn). Give gate_id to read one gate: open (with its card), answered (with the recorded verdict, chosen ids and decision node, even after a restart), closed, expired, or unknown. If the room cannot be read the answer is lookup_failed, never unknown. At most 50 gates are listed, oldest first. The browser workspace uses this with gate_render to show a gate raised somewhere else. Needs a bound room: otherwise room_unbound, so call room_bind first.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "gate_id": {
+      "description": "Read the state of this one gate instead of listing the open ones.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "gate_render",
+   "title": "Gate Render",
+   "description": "Render the Mindrian gate superset card (options + per-option descriptions + ranks + previews + single/multi-select) via the capability-detected 3-rung renderer ladder: MCP elicitation, Claude Code AskUserQuestion thin adapter, or headless structured text. Returns a gate_id minted into this server process's in-memory ledger, which gate_answer must reference to ratify; when this session is bound to a room, the card's contract (header, options, ranks, previews, recommended id, subject ids, never a session identity) is recorded in that room so other MindrianOS surfaces can show the gate, but the id itself lives in this server process's ledger and does not survive a restart. To decide a gate raised in another session of this room (find it with gate_list), give mirror_of with that gate's id and repeat its option ids in order: the card is drawn from the room's own record, never from the caller, and this session gets its own gate_id for it. Do not also give gate_id (mirror_with_gate_id); different option ids are mirror_mismatch; an unknown or closed gate, or another room's, is unknown_gate; an expired one gate_expired; an answered one mirror_source_answered with its verdict. Answering the mirror with gate_answer records the source as answered in the same transaction. A mirror is never an inline elicitation and leaves no record of its own. Give approving (option ids that mean yes) and gate_answer refuses an approve that names none of them; an id that is not an option is bad_approving. A caller-chosen gate_id that is open is gate_id_in_use and one already answered in the room is gate_id_answered; one session may hold 200 open gates, past that too_many_open_gates.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "gate_id": {
+      "type": "string",
+      "minLength": 1
+     },
+     "mirror_of": {
+      "description": "The id of a gate raised in another session of this room. Shows that gate's recorded card again on this session, under a new gate_id this session owns.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     },
+     "header": {
+      "type": "string"
+     },
+     "kind": {
+      "description": "e.g. 'binding' for the D-04 once-per-session-on-ambiguity F.8 card; defaults to 'general'.",
+      "type": "string"
+     },
+     "ambiguous": {
+      "description": "Only relevant to kind:'binding' -- an unambiguous context never fires the card.",
+      "type": "boolean"
+     },
+     "select_mode": {
+      "type": "string",
+      "enum": [
+       "single",
+       "multi"
+      ]
+     },
+     "options": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "minLength": 1
+        },
+        "label": {
+         "type": "string",
+         "minLength": 1
+        },
+        "description": {
+         "type": "string"
+        },
+        "rank": {
+         "type": "number"
+        },
+        "preview": {
+         "type": "string"
+        },
+        "recommended": {
+         "description": "Mark this option as recommended. A single-select card shows one recommended option (the first flagged, else the best rank); a multi-select basket pre-selects every flagged option.",
+         "type": "boolean"
+        }
+       },
+       "required": [
+        "label"
+       ]
+      }
+     },
+     "subject_node_id": {
+      "description": "Opaque LOCAL room-graph node id, the card's subject. On an approve verdict for a kind 'general' card whose subject is a proposed claim node, gate_answer confirms that claim through navigation.confirmNode when the room's verification floor is met, and otherwise files it as needs_evidence; the card says which before the click. Evidence nodes are never promoted. Canon Part 8: must never be a Brain identifier or room content.",
+      "type": "string",
+      "minLength": 1
+     },
+     "evidence_node_ids": {
+      "description": "Opaque LOCAL room-graph node ids, provenance only -- SOURCED_FROM targets on the written decision node, never promoted by gate_answer. Canon Part 8: must never be Brain identifiers or room content.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     },
+     "approving": {
+      "description": "Option ids that mean yes. When given, gate_answer refuses an approve that names none of them (chosen_not_approving) and a reject or defer that names one (verdict_chosen_mismatch). Each must be an option id, else bad_approving.",
+      "minItems": 1,
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    },
+    "required": [
+     "options"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "graph_query",
+   "title": "Graph Query",
+   "description": "Read-only graph neighborhood query through the navigation.cjs chokepoint. Resolves the focus node from node_id, or from this session's active focus when node_id is absent.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "node_id": {
+      "description": "Explicit focus node id. Defaults to this session's active focus when absent.",
+      "type": "string",
+      "minLength": 1
+     },
+     "max_depth": {
+      "description": "Max graph traversal depth (default 2).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "top_k": {
+      "description": "Max results returned (default 20).",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "graph_reason",
+   "title": "Graph Reason",
+   "description": "Multi-hop graph reads a flat tree or a plain lookup cannot express. Mode transitive_support traces whether a claim is supported directly, only transitively through intermediate nodes, or not at all -- prefer it over graph_query when the question is \"supported how, through what chain,\" not \"what is adjacent.\" Mode nearest_sub_room_decisions ranks a room's sub-rooms by which one's decisions sit structurally nearest a focus node, crossing the room.db boundary read-only. Every mode is a pure read; it never writes a node or an edge.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "mode": {
+      "type": "string",
+      "enum": [
+       "transitive_support",
+       "nearest_sub_room_decisions"
+      ],
+      "description": "Which graph-native read to run."
+     },
+     "node_id": {
+      "description": "The focus node id. Required for transitive_support. Optional for nearest_sub_room_decisions (falls back to room-tree distance alone when absent).",
+      "type": "string",
+      "minLength": 1
+     },
+     "max_depth": {
+      "description": "Cascade bound for transitive_support (default 5, the same bound findBlockingAssumptions uses). Unused by nearest_sub_room_decisions.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "max_results": {
+      "description": "Max results for nearest_sub_room_decisions (default 10, hard-capped server-side regardless of this value). Unused by transitive_support.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+     }
+    },
+    "required": [
+     "mode"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "graph_write",
+   "title": "Graph Write",
+   "description": "Write a typed edge between two graph nodes. Routes EXCLUSIVELY through navigation.cjs (the single Part 9 chokepoint) -- never opens the graph store directly.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "source_id": {
+      "type": "string",
+      "minLength": 1
+     },
+     "target_id": {
+      "type": "string",
+      "minLength": 1
+     },
+     "edge_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One of navigation.cjs's ALLOWED_EDGE_TYPES (e.g. DEFERRED, REJECTED, INFORMS, FOLLOWS_FROM)."
+     },
+     "properties": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "read_version": {
+      "description": "Optional CAS token (last_modified_at) from a prior read of source_id; a lost update is rejected as a conflict instead of silently clobbering. This check fails open (proceeds as a normal write, no conflict reported) when source_id's node is missing, or when the guard read itself errors; a pass is not proof the node existed or was unchanged.",
+      "type": [
+       "number",
+       "null"
+      ]
+     }
+    },
+    "required": [
+     "source_id",
+     "target_id",
+     "edge_type"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "identity_write",
+   "title": "Identity Write",
+   "description": "Records durable, cross-room facts about WHO this user is (their role or archetype, journey stage, working style) into ONE home-directory file every room reads. Deliberately not scoped to a room and works before any room exists. Preserves any prose the user has written by hand below the frontmatter. This is a material write: confirm the content with the user rather than inferring it silently.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "canonical_role": {
+      "description": "The user's primary role or archetype, for example founder, researcher, student, operator.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "journey_stage": {
+      "description": "Where the user currently sits in their own venture or research journey.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "problem_type": {
+      "description": "The PWS problem-type classification of the user's current work: undefined, ill-defined, well-defined, or wicked.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "venture_stage": {
+      "description": "The user's general stage across every room, not any one room's own stage.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "larry_persona": {
+      "description": "Which Larry persona variant suits this user best, if already known.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "brain_persona": {
+      "description": "Which Brain persona variant suits this user best, if already known.",
+      "type": "string",
+      "maxLength": 120
+     },
+     "user_id": {
+      "description": "A stable identifier for this user, if the caller already has one.",
+      "type": "string",
+      "maxLength": 200
+     },
+     "role_blend": {
+      "description": "Per-axis role weights, each 0 to 1. Only the axes supplied are written; the rest keep their prior value.",
+      "type": "object",
+      "properties": {
+       "founder": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "researcher": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "operator": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "investor": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "mentor": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "domain_expert": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "student": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       }
+      }
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "intelligence",
+   "title": "Intelligence",
+   "description": "Run intelligence operations: find connections, grade ventures, build thesis, research. Larry evaluates with calibrated assessment.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "find-connections",
+       "build-thesis",
+       "compare-ventures",
+       "research",
+       "deep-grade",
+       "grade",
+       "leadership",
+       "whitespace",
+       "eureka-run",
+       "eureka-status",
+       "eureka-report",
+       "eureka-portfolio"
+      ],
+      "description": "Which intelligence operation to run"
+     },
+     "context": {
+      "description": "Focus area or evaluation target",
+      "type": "string"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "meeting",
+   "title": "Meeting",
+   "description": "Turn a raw meeting transcript into structured Data Room content. By default this tool writes nothing: it returns protocol and room context only, so call artifact_file to actually file what it hands back. On file-meeting, when you also supply knowledge_type and claim_text, it instead writes that one typed claim at review_status proposed through the same writeClaimNode primitive claim_write uses, then renders a gate_render confirmation card; call gate_answer with the returned gate_id to ratify it, since only a human approval promotes a claim to confirmed, and only when the room's verification floor is met; below it an approval files the claim as needs evidence and the card says why first. pipeline returns the meeting-intelligence pipeline reference and speakers returns the speaker-identification reference, both write nothing. The five-perspective subagent fan-out (Step 3a Dispatch) has no Agent tool or subagent registry to dispatch into on this surface, so it remains unavailable and unreachable here; for that fuller pipeline, use /mos:file-meeting on the CLI. Reach for this whenever the user pastes or points at a conversation: institutional knowledge lives in meetings rather than documents.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "file-meeting",
+       "pipeline",
+       "speakers"
+      ],
+      "description": "Meeting operation"
+     },
+     "context": {
+      "description": "Meeting transcript, date, or context",
+      "type": "string"
+     },
+     "knowledge_type": {
+      "description": "Optional, file-meeting only. Supply together with claim_text to write one typed DIKW claim (fact, causal, heuristic, anomaly_cue, mental_model, or assumption) through the same writeClaimNode primitive claim_write uses, then render a gate_render confirmation card. Omit both to get the reference-only protocol response.",
+      "type": "string",
+      "enum": [
+       "fact",
+       "causal",
+       "heuristic",
+       "anomaly_cue",
+       "mental_model",
+       "assumption"
+      ]
+     },
+     "claim_text": {
+      "description": "Optional, file-meeting only. The atomic claim sentence to write when paired with knowledge_type. Omit both to get the reference-only protocol response.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 10000
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "memory_event",
+   "title": "Memory Event",
+   "description": "Log an append-only, MCP-client-originated observation. Routes EXCLUSIVELY through navigation.cjs (the single Part 9 chokepoint) -- never opens the graph store directly.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Short label for this event."
+     },
+     "payload": {
+      "description": "Additional structured fields (generic handles only; never crosses to Brain).",
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "dedupe_key": {
+      "description": "Optional 60s idempotency key (Phase 129-01 dedupe window).",
+      "type": "string",
+      "maxLength": 200
+     }
+    },
+    "required": [
+     "label"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "methodology",
+   "title": "Methodology",
+   "description": "Run a PWS innovation methodology framework. Larry guides you through the selected framework and files results to your Data Room.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "lean-canvas",
+       "think-hats",
+       "structure-argument",
+       "beautiful-question",
+       "build-knowledge",
+       "challenge-assumptions",
+       "validate",
+       "map-unknowns",
+       "diagnose",
+       "score-innovation",
+       "explore-domains",
+       "analyze-needs",
+       "user-needs",
+       "find-analogies",
+       "scientific-roadmap"
+      ],
+      "description": "Which methodology to run"
+     },
+     "context": {
+      "description": "Focus area or venture aspect",
+      "type": "string"
+     },
+     "section": {
+      "description": "Section to focus on",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "orchestration",
+   "title": "Orchestration",
+   "description": "Manage rooms (rooms-list, rooms-new, rooms-open, rooms-close, rooms-archive, rooms-where), run scout intelligence (scout, scout-health, scout-deadlines, scout-competitors, scout-hsi, scout-snapshot), and handle admin, onboarding, models and scheduled tasks. rooms-open genuinely switches the active room. scout and its variants only return the scout reference plus current room context, not gathered intelligence; run /mos:scout on the CLI for the real scan (a .snapshots/ state capture, a competitor report, the HSI pipeline). scout-hsi returns no computed result here: call research_run with op perspective_recall and perspective \"hsi\"; the full HSI pipeline is `/mos:scout hsi` in Claude Code. Treat act, act-chain and act-swarm differently: they execute multi-step work with little supervision, so prefer act-dry-run first and do not invoke them for a decision the user has not already framed.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "act",
+       "act-chain",
+       "act-swarm",
+       "act-dry-run",
+       "rooms-list",
+       "rooms-new",
+       "rooms-open",
+       "rooms-close",
+       "rooms-archive",
+       "rooms-where",
+       "scout",
+       "scout-health",
+       "scout-deadlines",
+       "scout-competitors",
+       "scout-hsi",
+       "scout-snapshot",
+       "reanalyze",
+       "onboard",
+       "models",
+       "admin",
+       "hat-briefing",
+       "scheduled-tasks"
+      ],
+      "description": "Orchestration operation"
+     },
+     "context": {
+      "description": "Operation context or parameters",
+      "type": "string"
+     },
+     "room": {
+      "description": "Room name or path for room operations",
+      "type": "string"
+     },
+     "confirmArchived": {
+      "description": "rooms-open only: the human has confirmed reopening an ARCHIVED room (commands/rooms.md open, Step 2). Without this, opening an archived room is refused rather than performed silently.",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "question_read",
+   "title": "Question Read",
+   "description": "Show this room's governing question: where it came from (chosen, tasking, prompt or inherited), when it was set, and every earlier version with its origin, time and whether each change refines or relocates. A waiting question change and its ask come first. Use when the officer asks about the room's question, for example \"what is our governing question\", \"where did our question come from\", \"how has our question changed\". This tool writes nothing.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "history": {
+      "description": "Set false to return only the current question and any waiting change. Defaults to true.",
+      "type": "boolean"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "question_set",
+   "title": "Question Set",
+   "description": "Record or change this room's governing question with its origin (chosen, tasking, prompt or inherited). Use when the officer states or changes the room's question, for example \"our question is now ...\", \"change our governing question to ...\", not for an ordinary question asked in conversation. A changed question is recorded only with the officer's own words for what the old question got wrong (account, filed as refines) or the officer's explicit relocate (a new question, filed as relocates); without either, no version is recorded, the change waits as an ask and its card is returned. Both questions stay on the record and neither is ranked.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "text": {
+      "description": "The question exactly as the officer states it. Required unless cancel is true.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+     },
+     "origin": {
+      "description": "Where the question came from: chosen = chosen by the officer; tasking = handed down as a tasking; prompt = suggested in conversation with the tool; inherited = carried over from earlier work. Required unless cancel is true.",
+      "type": "string",
+      "enum": [
+       "chosen",
+       "tasking",
+       "prompt",
+       "inherited"
+      ]
+     },
+     "account": {
+      "description": "The officer's own words for what the old question got wrong, exactly as said; files the change as refines. Never write this for the officer.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+     },
+     "relocate": {
+      "description": "Set true only when the officer says it is a new question; files the change as relocates. Never set it by default.",
+      "type": "boolean"
+     },
+     "cancel": {
+      "description": "Set true to drop a waiting question change.",
+      "type": "boolean"
+     },
+     "based_on_version": {
+      "description": "The version the officer was looking at; if the question changed meanwhile, nothing is recorded.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "reach_candidates",
+   "title": "Reach Candidates",
+   "description": "The full candidate-reach set feeding a reach card for this session's bound room. Pulls through the SAME dispatchSensors reach path as suggest_next (Phase 143 SENSOR_REGISTRY, canonical order) -- this is the un-truncated list, not just the top pick.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "user_text": {
+      "description": "Optional free text to seed the pull. Absent -> sensors that read turn text degrade gracefully.",
+      "type": "string",
+      "maxLength": 4000
+     },
+     "section": {
+      "description": "Optional section slug for section-scoped sensors.",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "research_run",
+   "title": "Research Run",
+   "description": "Research planner for the bound room: plan a quick or deep research run, ask the navigator to approve the exact searches of each run on a public scholarly index, run quick research here and get an evidence card, review a deep plan, and file findings only after the navigator approves. Approvals are gates answered through gate_answer. Quick runs execute in this server; the deep research run itself executes in Claude Code, where the approved plan is saved. Six perspectives live here too (eureka, rs, hsi, whitespace, analogies, connections): pass perspective with op perspective_recall, which reads the local graph and the ICM structure (no embeddings, no network) and proposes candidate pairs plus a plan; op perspective_candidates pages through them (limit, offset); op perspective_judge runs the local Stage A gates and leaves judgment to you. The ops eureka_recall, eureka_candidates and eureka_judge are deprecated aliases of the perspective ops for one release. op run_quick takes offline true to answer with the plan only and send nothing. op basket can also list release offers: a room word that names no canon framework is sent, as the term only, to the remote canon-name lookup after its own gate_answer yes. Nothing else leaves the room except the search strings the navigator approved for a run.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "op": {
+      "type": "string",
+      "enum": [
+       "planners",
+       "plan",
+       "grant_request",
+       "grant_status",
+       "grant_revoke",
+       "run_quick",
+       "deep_plan",
+       "basket",
+       "file",
+       "pending",
+       "perspective_recall",
+       "perspective_candidates",
+       "perspective_judge",
+       "eureka_recall",
+       "eureka_judge",
+       "eureka_candidates"
+      ]
+     },
+     "room": {
+      "type": "string",
+      "maxLength": 200
+     },
+     "question_set": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "run_id": {
+      "type": "string",
+      "maxLength": 64
+     },
+     "grant_id": {
+      "type": "string",
+      "maxLength": 32
+     },
+     "gate_id": {
+      "type": "string",
+      "maxLength": 96
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "quick",
+       "deep"
+      ]
+     },
+     "terms": {
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+       "anyOf": [
+        {
+         "type": "string",
+         "minLength": 1,
+         "maxLength": 80
+        },
+        {
+         "type": "object",
+         "properties": {
+          "term": {
+           "type": "string",
+           "minLength": 1,
+           "maxLength": 80
+          },
+          "synonyms": {
+           "maxItems": 10,
+           "type": "array",
+           "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+           }
+          }
+         },
+         "required": [
+          "term"
+         ]
+        }
+       ]
+      }
+     },
+     "max_candidates": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2000
+     },
+     "perspective": {
+      "type": "string",
+      "enum": [
+       "eureka",
+       "rs",
+       "hsi",
+       "whitespace",
+       "analogies",
+       "connections"
+      ]
+     },
+     "run_tag": {
+      "type": "string",
+      "pattern": "^[0-9TZ]{1,20}$"
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     },
+     "offset": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "offline": {
+      "description": "run_quick only: true plans the run and sends nothing (every egress line off).",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "op"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": false,
+    "openWorldHint": true
+   }
+  },
+  {
+   "name": "room_artifact",
+   "title": "Room Artifact",
+   "description": "Return one markdown artifact from the bound room by its room-relative path, for display. It never writes, and the path cannot leave the room; a long document is cut at max_bytes and says so.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "description": "Room-relative path of a .md artifact, for example evidence/interview-03/interview-03.md."
+     },
+     "max_bytes": {
+      "description": "Most bytes to return, default 524288.",
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 2097152
+     }
+    },
+    "required": [
+     "path"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_bind",
+   "title": "Room Bind",
+   "description": "Bind this MCP session to a room (D-03: explicit room wins; cwd auto-bind when launched inside a room; a structured binding-card signal on genuine ambiguity). The room this session binds to becomes the target for every subsequent write this session makes.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "room": {
+      "description": "Explicit room slug to bind this session to. Wins over cwd auto-bind when supplied.",
+      "type": "string"
+     },
+     "sessionId": {
+      "description": "Explicit sessionId override; defaults to this connection's session id.",
+      "type": "string"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_changes",
+   "title": "Room Changes",
+   "description": "Read this room's change feed so a screen can stay current. Name one collection (nodes, relations, artifacts, decisions, activity) and a cursor; you get the changes after it in order, deletes as rows with no document, and the new cursor. If the cursor is too old or the room was rebuilt, ask again in snapshot mode and resume from its as_of_seq. This tool never writes.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "collection": {
+      "type": "string",
+      "enum": [
+       "nodes",
+       "relations",
+       "artifacts",
+       "decisions",
+       "activity"
+      ],
+      "description": "Which collection to read."
+     },
+     "after": {
+      "description": "Cursor: return changes after this change_seq. Null or absent means from the start.",
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "epoch": {
+      "description": "The epoch the cursor was issued under; a different current epoch answers epoch_changed.",
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 64
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "limit": {
+      "description": "Page size, default 200.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 500
+     },
+     "mode": {
+      "description": "delta (default) or snapshot (page current rows).",
+      "type": "string",
+      "enum": [
+       "delta",
+       "snapshot"
+      ]
+     },
+     "snapshot_cursor": {
+      "description": "The next_cursor from the previous snapshot page.",
+      "type": "string",
+      "maxLength": 512
+     }
+    },
+    "required": [
+     "collection"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_content",
+   "title": "Room Content",
+   "description": "This tool manages the entities that live inside a room: projects, opportunities, funding stages, personas, and detected integrations. The genuine WRITE surface is file-opportunity, create-funding, update-funding-stage and generate-personas; the last routes to /mos:persona --parallel by default and only writes for an explicit preview, so reach for this tool when room content needs to be added or changed. new-project, setup and update return the operation's instructions plus current room context rather than performing it; run the matching /mos: CLI command (new-project, setup or update) for the actual step. invoke-persona READS an existing persona document and returns it; it performs no write of its own. Use room_state instead when you only need to READ the room: its health, computed stage, or a suggested next move. room_state never mutates anything; the four listed commands above do, and the rest of this tool's commands return references or reads.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "new-project",
+       "setup",
+       "update",
+       "help",
+       "detect-integrations",
+       "scan-opportunities",
+       "list-opportunities",
+       "file-opportunity",
+       "list-funding",
+       "create-funding",
+       "update-funding-stage",
+       "generate-personas",
+       "list-personas",
+       "invoke-persona",
+       "analyze-perspectives"
+      ],
+      "description": "Room content operation to perform"
+     },
+     "section": {
+      "description": "Section name or JSON data for operations",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "context": {
+      "description": "Additional context for the operation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_create",
+   "title": "Prepare a new local room",
+   "description": "Prepare the first-room name, purpose and local-folder preview. Returns an F.0 approval gate; no room folder is created until the navigator answers that gate with gate_answer. Approved creation uses the existing room birth operation. Reject/defer creates nothing. Use only for a user requesting a new room; open existing rooms through room_list and room_bind. The returned receipt distinguishes creation from effective binding.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+     },
+     "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+     },
+     "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+     }
+    },
+    "required": [
+     "name",
+     "purpose"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "room_graph",
+   "title": "Room Graph",
+   "description": "Operate on the room's own knowledge graph: build and repair it (graph-index, graph-rebuild), interrogate it (graph-query, graph-stats), work the Minto reasoning layer over it (reasoning-get, reasoning-generate, reasoning-verify, reasoning-run, reasoning-list, reasoning-frontmatter), and render it (visualize-room, visualize-graph, visualize-chain). Prefer this over the standalone graph_query tool for anything beyond a single read: graph_query only answers a query, while this router also builds, verifies, explains, and draws the graph.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "graph-index",
+       "graph-rebuild",
+       "graph-query",
+       "graph-stats",
+       "reasoning-get",
+       "reasoning-generate",
+       "reasoning-verify",
+       "reasoning-run",
+       "reasoning-list",
+       "reasoning-frontmatter",
+       "visualize-room",
+       "visualize-graph",
+       "visualize-chain"
+      ],
+      "description": "Graph/reasoning/visualization operation"
+     },
+     "section": {
+      "description": "Section name, file path, SQL query, or JSON params",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "query": {
+      "description": "SQL query for graph-query command",
+      "type": "string"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_list",
+   "title": "Room List",
+   "description": "Open MindrianOS by listing the existing local rooms and showing the built-in room picker in compatible MCP Apps hosts. Read-only: listing does not bind or create a room and reads no room contents. Let the user select a room, then use room_bind without an invented sessionId; verify effective and carries_to_later_calls, call context_assemble and room_startup for its saved understanding and workday briefing, then room-dashboard without room_path to open the bound room. If the user already named a room, still validate it against this list. For a first room use room_create and its approval gate. The standalone browser shell is a separate local feature; do not route an embedded room-opening request to Claude Code. If the person asks to open the MindrianOS workspace in a browser, say exactly: This runs on your machine from Claude Code. Open Claude Code on this computer and run /mos:dashboard shell to see your room in the browser.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {}
+   },
+   "outputSchema": null,
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "room_search",
+   "title": "Room Search",
+   "description": "Search the markdown and HTML entries of this session's bound room, optionally scoped to a single section. Read-only, no side effects, and local to this machine. Send a plain question, a full sentence, or a single term. The tool first looks for your exact text, ignoring case. When no file holds that exact text, the tool ranks the files by the meaningful words in your question. It returns the best line from each of the top files. The reply names the tier that answered, phrase or words. An empty reply carries a reason and means the room holds no answer for this wording, so tell the person that. Matching is literal, with no semantic or fuzzy search, so a file that uses other words than yours is not found. For a question about how things in the room connect, use room_graph and run a graph query.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "query": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "A plain question, a full sentence, or a single term. Case-insensitive. The exact text is tried first, then its meaningful words."
+     },
+     "section": {
+      "description": "Optional section slug to scope the search to.",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    },
+    "required": [
+     "query"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_startup",
+   "title": "Start work in the bound room",
+   "description": "After room_bind and context_assemble, build a returning navigator workday briefing from saved local room records: where work stopped, recorded changes, open questions and pending decisions. Records one local visit checkpoint per room binding: each room_bind starts a new visit, and a retry in the same binding keeps the original baseline. Missing prior history is explicit. Show the briefing before its returned F.1 next-move card; use gate_answer for the choice. No Theo call is made.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {}
+   },
+   "outputSchema": null,
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "room_state",
+   "title": "Room State",
+   "description": "Check room health and state and get framework recommendations for a Data Room. Use command=status for a one-line health read, analyze for a full section-by-section room analysis, compute-state to recompute STATE.md from what is on disk, get-state to read the current STATE.md, and suggest-next for the recommended next move. Reach for this before proposing work in a room so the suggestion is grounded in the room's real state rather than the conversation.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "command": {
+      "type": "string",
+      "enum": [
+       "status",
+       "analyze",
+       "compute-state",
+       "get-state",
+       "suggest-next"
+      ],
+      "description": "Room state operation to perform"
+     },
+     "section": {
+      "description": "Section name for section-specific operations",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    },
+    "required": [
+     "command"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "room_state_bound",
+   "title": "Room State Bound",
+   "description": "Return this session's bound room STATE.md. Read-only, no side effects. (Distinct from the legacy grouped 'room_state' multi-command tool.)",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {}
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "rs_experts_find",
+   "title": "Find Authors in Local Research",
+   "description": "Find authors in the session’s bound MindrianOS room by literal topic matches against stored paper titles and abstracts. Local-only and read-only. This does not search an external expert directory or establish expertise. Requires a bound or operator-pinned room; no registry or server fallback is used.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "topic": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 240,
+      "description": "Topic terms to match against stored paper titles and abstracts in the bound room."
+     },
+     "limit": {
+      "description": "Maximum authors returned; default 25.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+     }
+    },
+    "required": [
+     "topic"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "message": {
+      "type": "string"
+     },
+     "host_service": {
+      "type": "string",
+      "const": "rs_experts_find"
+     },
+     "readiness": {
+      "type": "string",
+      "const": "host_native"
+     },
+     "local_only": {
+      "type": "boolean"
+     },
+     "match_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "authors": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "author_id": {
+         "type": "string"
+        },
+        "name": {
+         "type": "string"
+        },
+        "institutions": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "matched_paper_count": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 9007199254740991
+        },
+        "papers": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "id": {
+            "type": "string"
+           },
+           "title": {
+            "type": [
+             "string",
+             "null"
+            ]
+           },
+           "source": {
+            "type": [
+             "string",
+             "null"
+            ]
+           },
+           "matched_terms": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           }
+          },
+          "required": [
+           "id",
+           "title",
+           "source",
+           "matched_terms"
+          ],
+          "additionalProperties": false
+         }
+        }
+       },
+       "required": [
+        "author_id",
+        "name",
+        "institutions",
+        "matched_paper_count",
+        "papers"
+       ],
+       "additionalProperties": false
+      }
+     },
+     "matched_paper_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "search": {
+      "type": "object",
+      "properties": {
+       "terms": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       },
+       "fields": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       },
+       "papers_scanned": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+       },
+       "papers_in_room": {
+        "type": "integer",
+        "minimum": -9007199254740991,
+        "maximum": 9007199254740991
+       }
+      },
+      "required": [
+       "terms",
+       "fields",
+       "papers_scanned",
+       "papers_in_room"
+      ],
+      "additionalProperties": false
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "omissions": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "propertyNames": {
+        "type": "string"
+       },
+       "additionalProperties": {}
+      }
+     },
+     "limitations": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "room_binding": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "persistence": {
+      "type": "string",
+      "const": "none"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "rs_thesis_read",
+   "title": "Read Reverse Salient Thesis",
+   "description": "Read the thesis and metadata for one prior Reverse Salient discovery in this session’s bound MindrianOS room. Local-only and read-only: it never contacts Brain or writes the room. Requires a bound room or an operator-pinned room; it does not use the registry or server fallback.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "discovery_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Exact ID of a previously filed RSDiscovery in the bound room."
+     }
+    },
+    "required": [
+     "discovery_id"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "message": {
+      "type": "string"
+     },
+     "host_service": {
+      "type": "string",
+      "const": "rs_thesis_read"
+     },
+     "readiness": {
+      "type": "string",
+      "const": "host_native"
+     },
+     "tier": {
+      "type": "string",
+      "const": "tier0"
+     },
+     "local_only": {
+      "type": "boolean"
+     },
+     "discovery_id": {
+      "type": "string"
+     },
+     "thesis": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "meta": {
+      "type": "object",
+      "properties": {
+       "rs_type": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "breakthrough_score": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "room_slug": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "created_at": {
+        "type": [
+         "string",
+         "null"
+        ]
+       }
+      },
+      "additionalProperties": false
+     },
+     "room_binding": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "persistence": {
+      "type": "string",
+      "const": "none"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": true,
+    "destructiveHint": false,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "status_read",
+   "title": "Status Read",
+   "description": "Read this session's navigator status segments, including the spend/cap segment from day one (the Warp lesson -- the shape exists now even where the live billing wire is not yet built). capability_floor.tool_registration reports whenever MCP tool registration was partial (a module failed to load or register), naming the failed module so health never claims complete capability it does not have. Publishes the computed segment to the SSE bus ('status-segment') for a live subscriber.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "context_window": {
+      "description": "Optional native Claude Code statusline stdin context_window object, forwarded through to the SAME resolveCtxPct resolver the CLI statusline uses. Absent -> context_pct is null.",
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "spend_usd": {
+      "description": "Optional caller-supplied spend override (else MINDRIAN_SPEND_USD env, else null).",
+      "type": "number",
+      "minimum": 0
+     },
+     "cap_usd": {
+      "description": "Optional caller-supplied cap override (else MINDRIAN_SPEND_CAP_USD env, else null).",
+      "type": "number",
+      "minimum": 0
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "stop_gate_check",
+   "title": "Stop Gate Check",
+   "description": "Server-side Stop-gate enforcement (D-05, migrated LAST after gate-dedup + relevance existed). Consults gate-dedup (fire-once, only-when-relevant) then the shipped check-card-fire predicate; on a genuine unanswered/relevant/novel gate it composes and returns the gate_render payload; otherwise returns { fire: false }. Also owns the server-side business close-out (STATE.md persist + memory-lifecycle/minto-debouncer/folder-memory) for the session's bound room.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "session_id": {
+      "type": "string"
+     },
+     "transcript_path": {
+      "type": "string"
+     },
+     "output_text": {
+      "type": "string"
+     },
+     "ran_entries": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "preceding_user_text": {
+      "type": "string"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "suggest_next",
+   "title": "Suggest Next",
+   "description": "Next-action suggestion for this session's bound room. Pulls through the shipped dispatchSensors reach path (Phase 143) -- the SAME candidate-reach registry the per-turn navigation engine consumes, called here on demand as a read. Returns the first (highest-priority, canonical dispatch order) candidate reach, or none; next_move is the move for the active nest, from its FeyMinto brief, and next_move_source says which path produced it.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "user_text": {
+      "description": "Optional free text to seed the pull (e.g. the user's last message). Absent -> sensors that read turn text degrade gracefully.",
+      "type": "string",
+      "maxLength": 4000
+     },
+     "section": {
+      "description": "Optional section slug for section-scoped sensors.",
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     }
+    }
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "view_compile",
+   "title": "View Compile",
+   "description": "Compile a registered view (wiki/dashboard/deck/insights/diagrams/graph) for this session's bound room. Only 'wiki' compiles for real today (lib/wiki/page-renderer.cjs, side-effect-free); every other registered name degrades to an honest 'not yet wired' note rather than fabricated output.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "view": {
+      "type": "string",
+      "enum": [
+       "wiki",
+       "dashboard",
+       "deck",
+       "insights",
+       "diagrams",
+       "graph"
+      ],
+      "description": "Which registered view to compile."
+     },
+     "page_id": {
+      "description": "Optional page id (wiki view only) to render in full; absent -> a room-wide summary only.",
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "required": [
+     "view"
+    ]
+   },
+   "outputSchema": null,
+   "annotations": null
+  },
+  {
+   "name": "whitespace_scan",
+   "title": "Whitespace Scan",
+   "description": "Returns open questions and unsupported claims. This is NOT the `/mos:whitespace` HSI engine; run it in Claude Code. Gap scan for this session's bound room, through the navigation.cjs chokepoint: unanswered open_question nodes (findOpenQuestions) and claims with no SUPPORTS/EVIDENCES edge (findUnsupportedClaims), the two shipped Phase 109-05 insight primitives this tool actually calls. This module mints no third query.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {}
+   },
+   "outputSchema": null,
+   "annotations": null
+  }
+ ],
+ "health": {
+  "complete": true,
+  "failed": [],
+  "registered": [
+   "artifact-read.cjs",
+   "chain.cjs",
+   "claim-verify.cjs",
+   "claim.cjs",
+   "context.cjs",
+   "dual-path.cjs",
+   "eureka-capability-jobs.cjs",
+   "eureka-capability-run.cjs",
+   "eureka-graph-analyze.cjs",
+   "eureka-graph-backtest.cjs",
+   "eureka-graph-compare-topics.cjs",
+   "eureka-graph-discovery-signals.cjs",
+   "eureka-graph-genesis-plan.cjs",
+   "eureka-graph-map.cjs",
+   "eureka-graph-opportunity-scout.cjs",
+   "eureka-graph-package-relationships.cjs",
+   "eureka-graph-prepare-artifacts.cjs",
+   "eureka-graph-projection.cjs",
+   "eureka-graph-propose.cjs",
+   "eureka-graph-rank-paths.cjs",
+   "eureka-graph-score-surprise.cjs",
+   "eureka-hsi-interpret-whitespace.cjs",
+   "feed.cjs",
+   "gate.cjs",
+   "graph-reason.cjs",
+   "graph.cjs",
+   "identity.cjs",
+   "question.cjs",
+   "research.cjs",
+   "room.cjs",
+   "rs-experts-find.cjs",
+   "rs-thesis-read.cjs",
+   "sensors.cjs",
+   "startup.cjs",
+   "status.cjs",
+   "stop-gate.cjs",
+   "views.cjs"
+  ]
+ }
+}
