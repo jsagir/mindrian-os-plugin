@@ -4014,46 +4014,46 @@ Plans:
 **Requirements**: PERF384-01, PERF384-02, PERF384-03, PERF384-04, PERF384-05, PERF384-06 (defined in .planning/REQUIREMENTS.md and the plan objectives: harness; process census S1 S2 S4; script costs S5 S6 S9; MCP and database S3 S7 S8 S10; real-room copies; ranking)
 **Wave 1 status (2026-11-06):** plans 384-01 to 384-11 are executed and checked (the ranking 384-RANKING.md is written; owner decisions are in 384-OWNER-DECISIONS.md). **Wave 2 (fixes, owner-approved: S1, S8, S7, S4, plus the prewarm timer, the 23ab77410 port, the split doctor gate and the S2 Write path):** plans 384-12 to 384-20 are planned and checked, serial waves 12 to 20, one lock, not executed. Requirements PERF384-F01 to PERF384-F09.
 **Depends on:** Phase 383
-**Plans:** 11/20 plans executed
+**Plans:** 20/20 plans complete
 
 Plans run one after the other (one quiet host, one lock); the execution wave number equals the plan number.
 
 Plans:
 **Wave 1**
 
-- [ ] 384-01-PLAN.md - carry tools/perf onto main, review it as a second reader, fix gates, lock check, failed-run rule and result schemas, add phase-guard (PERF384-01)
+- [x] 384-01-PLAN.md - carry tools/perf onto main, review it as a second reader, fix gates, lock check, failed-run rule and result schemas, add phase-guard (PERF384-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 384-02-PLAN.md - harness run mechanics (escaped background work, count pass, restore per target, changed-path proof) and features (4 MiB transcript, SessionStart compact, per-hook results, exports) (PERF384-01)
+- [x] 384-02-PLAN.md - harness run mechanics (escaped background work, count pass, restore per target, changed-path proof) and features (4 MiB transcript, SessionStart compact, per-hook results, exports) (PERF384-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 384-03-PLAN.md - quiet-room preflight, room picker, merge, README, fixture smoke sets with spread, Wave 1 scope list (PERF384-01)
+- [x] 384-03-PLAN.md - quiet-room preflight, room picker, merge, README, fixture smoke sets with spread, Wave 1 scope list (PERF384-01)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 384-04-PLAN.md - process census per hook event with a calibrated exec counter, event walls, SessionStart block trace, SubagentStop 1/5/20 files (S1, S2, S4; PERF384-02)
+- [x] 384-04-PLAN.md - process census per hook event with a calibrated exec counter, event walls, SessionStart block trace, SubagentStop 1/5/20 files (S1, S2, S4; PERF384-02)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 384-05-PLAN.md - probe preload and script costs: Brain and auto-explore drains, ledger scaling, transcript read and Stop reads (S5, S6, S9; PERF384-03)
+- [x] 384-05-PLAN.md - probe preload and script costs: Brain and auto-explore drains, ledger scaling, transcript read and Stop reads (S5, S6, S9; PERF384-03)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 384-06-PLAN.md - MCP probe: start with a stubbed-npm exec check, CPU profile, watcher scaling at 1/10/58 rooms, opens per tool call, event-loop block (S7, S10, S8, S3 per tool; PERF384-04)
+- [x] 384-06-PLAN.md - MCP probe: start with a stubbed-npm exec check, CPU profile, watcher scaling at 1/10/58 rooms, opens per tool call, event-loop block (S7, S10, S8, S3 per tool; PERF384-04)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 384-07-PLAN.md - database open bench: openRoomDb against a bare DatabaseSync, setup-chain statement counts, opens per SessionStart (S3; PERF384-04)
+- [x] 384-07-PLAN.md - database open bench: openRoomDb against a bare DatabaseSync, setup-chain statement counts, opens per SessionStart (S3; PERF384-04)
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 384-08-PLAN.md - real-room copies, one quiet room per class (local, mount): the single stop for owner question Q1, census and walls, script costs, MCP and database (PERF384-05)
+- [x] 384-08-PLAN.md - real-room copies, one quiet room per class (local, mount): the single stop for owner question Q1, census and walls, script costs, MCP and database (PERF384-05)
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
-- [ ] 384-09-PLAN.md - frequency counts, doctor --all on main, 384-RANKING.md with a checker, and the owner checkpoint (PERF384-06)
+- [x] 384-09-PLAN.md - frequency counts, doctor --all on main, 384-RANKING.md with a checker, and the owner checkpoint (PERF384-06)
 
 ### Phase 385: Behaviour-preserving cleanup: remove what does nothing (auditor Phase A)
 

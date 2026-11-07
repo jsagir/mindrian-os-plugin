@@ -5195,7 +5195,7 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [ ] **PERF384-F06**: The 15 s prewarm timer is cleared (port of commit fb295a541), with a measured before and after. Plan 384-17.
 - [ ] **PERF384-F07**: Commit 23ab77410 lands only with a parity test on tools/perf, after an owner checkpoint. Plan 384-18.
 - [ ] **PERF384-F08**: The doctor-all point names a timeout and fails on an unreadable result; the drift count stays deferred (owner split, 2026-11-06). Plan 384-19.
-- [ ] **PERF384-F09**: S2 - the Write path: root cause of the cascade path rule, an owner decision, then the chosen fix with a measured A/B. Plan 384-20.
+- [x] **PERF384-F09**: S2 - the Write path: root cause of the cascade path rule, an owner decision, then the chosen fix with a measured A/B. Plan 384-20.
 
 ### Phase 385 - Behaviour-preserving cleanup (CLEAN385, minted at plan time 2026-11-05)
 
