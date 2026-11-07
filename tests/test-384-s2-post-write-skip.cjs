@@ -6,6 +6,8 @@
 // Groups:
 //   parity     P1..P3 (must pass before and after the change). The default run (no argument)
 //              runs this group only.
+//   mechanism  M1, M2 (M1 fails on the code before the change). Run it with the argument
+//              `mechanism`, or run both with `all`.
 //
 // Tree A runs the post-write of BASE_SHA (read with git show). Tree B runs the post-write of
 // the working tree. Everything else (mindrian-tools.cjs and the libs) is the same file in both
@@ -14,7 +16,7 @@
 // post-write starts in the background are stubs that log their arguments. Fixture rooms only
 // (Canon Part 8). Node built-ins only, no network.
 //
-// Usage: node tests/test-384-s2-post-write-skip.cjs [parity]
+// Usage: node tests/test-384-s2-post-write-skip.cjs [parity|mechanism|all]
 
 const fs = require('fs');
 const os = require('os');
@@ -25,8 +27,8 @@ const REPO = path.resolve(__dirname, '..');
 const BASE_SHA = '933ec50df06b75f2c129b3de429e428a3cde277d'; // START_SHA of plan 384-20 (post-write before the change)
 const SESSION = 'sess-384-s2';
 const group = process.argv[2] || 'parity';
-if (!['parity', 'all'].includes(group)) {
-  console.log('usage: test-384-s2-post-write-skip.cjs [parity]');
+if (!['parity', 'mechanism', 'all'].includes(group)) {
+  console.log('usage: test-384-s2-post-write-skip.cjs [parity|mechanism|all]');
   process.exit(2);
 }
 
@@ -213,8 +215,82 @@ function parity() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// mechanism group
+// ---------------------------------------------------------------------------
+function bashGlob(p) {
+  const r = spawnSync('bash', ['-c',
+    'p="$1"; if [[ "$p" == */room/* ]] || [[ "$p" == */rooms/* ]]; then echo yes; else echo no; fi',
+    'bash', p], { encoding: 'utf8', timeout: 10000 });
+  return r.stdout.trim() === 'yes';
+}
+
+function mechanism() {
+  // M1: the number of `mindrian-tools.cjs cascade` starts
+  const expected = { P1: 0, P2: 1, P3: 1 };
+  for (const c of CASES) {
+    const a = runCase('A', c);
+    const b = runCase('B', c);
+    const wantA = 1;
+    ok('M1 control ' + c.id + ': tree A starts the cascade once (' + a.starts + ')', a.starts === wantA, String(a.starts));
+    ok('M1 ' + c.id + ': tree B starts the cascade ' + expected[c.id] + ' time(s)', b.starts === expected[c.id], 'got ' + b.starts);
+  }
+
+  // M2: the bash condition equals the cascade rule on a table of paths
+  const W = mkW();
+  const sandboxHome = path.join(W, 'home');
+  fs.mkdirSync(sandboxHome, { recursive: true });
+  const base = path.join(W, 'b');
+  fs.mkdirSync(base, { recursive: true });
+  const table = [
+    'room/n/sec/ROOM.md',
+    'rooms/n/sec/ROOM.md',
+    'MindrianRooms/n/sec/ROOM.md',
+    'Rooms/n/sec/ROOM.md',
+    'my-room/n/sec/ROOM.md',
+    'team-rooms/n/sec/ROOM.md',
+    'myrooms/n/sec/ROOM.md',
+    'rooms2/n/sec/ROOM.md',
+    'ROOM/n/sec/ROOM.md',
+    '.planning/phases/x/ROOM.md',
+    '.rooms/sessions/ROOM.md',
+    'a/rooms/b/rooms/c/ROOM.md',
+    'room/room/ROOM.md',
+    'a/room/b/rooms/c/ROOM.md',
+    'rooms//n/sec/ROOM.md',
+    'x/room', // a path that ends in /room (no trailing slash)
+    'x/rooms', // a path that ends in /rooms
+    'room.d/n/ROOM.md',
+  ];
+  ok('M2 table has at least 14 paths (' + table.length + ')', table.length >= 14);
+  let allAgree = true;
+  const bad = [];
+  for (const rel of table) {
+    const file = base + '/' + rel;
+    const glob = bashGlob(file);
+    const env = { PATH: process.env.PATH, HOME: sandboxHome, USERPROFILE: sandboxHome, MINDRIAN_BRAIN_URL: 'http://127.0.0.1:9' };
+    const r = spawnSync(process.execPath, [path.join(REPO, 'scripts', 'mindrian-tools.cjs'), 'cascade', base, file, '--raw'],
+      { encoding: 'utf8', timeout: 60000, env, cwd: sandboxHome });
+    let reason = null;
+    try { reason = JSON.parse(r.stdout).skipReason || null; } catch (_) { /* leave null */ }
+    const cascadeSkipsAsNotRoom = reason === 'filePath not inside a room directory';
+    const agree = cascadeSkipsAsNotRoom === !glob;
+    if (!agree) { allAgree = false; bad.push(rel + ' glob=' + glob + ' reason=' + reason); }
+  }
+  ok('M2 the bash glob matches exactly when the cascade does not skip with "filePath not inside a room directory"', allAgree, bad.join('; '));
+
+  // M2b: post-write uses that condition before the node call (read from the working tree script)
+  const src = postWriteSource('B');
+  const i = src.indexOf('# -- Delegate intelligence cascade');
+  const j = src.indexOf('mindrian-tools.cjs" cascade', i);
+  const block = i >= 0 && j > i ? src.slice(i, j) : '';
+  ok('M2b post-write checks the room path glob inside the cascade block before the node call',
+    block.includes('*/room/*') && block.includes('*/rooms/*'));
+}
+
 try {
   if (group === 'parity' || group === 'all') parity();
+  if (group === 'mechanism' || group === 'all') mechanism();
 } finally {
   cleanup();
 }
