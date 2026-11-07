@@ -303,7 +303,7 @@ async function legClosedFiles() {
       return { unref: function () {} };
     });
     try {
-      await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+      stopGateHandler.closeOutRoom(room.roomDir, sessionId);
     } finally {
       ambientTrigger._internal.resetSpawnImpl();
     }
@@ -327,7 +327,7 @@ async function legClosedFiles() {
       return { unref: function () {} };
     });
     try {
-      await stopGateHandler.closeOutRoom(room.roomDir, sessionId);
+      stopGateHandler.closeOutRoom(room.roomDir, sessionId);
     } finally {
       ambientTrigger._internal.resetSpawnImpl();
     }

@@ -36,19 +36,13 @@ const ROOT = path.resolve(__dirname, '..');
 const HANDLER = path.join(ROOT, 'lib', 'mcp', 'stop-gate-handler.cjs');
 
 let failures = 0;
-const legs = [];
 function leg(name, fn) {
-  legs.push({ name: name, fn: fn });
-}
-async function runLegs() {
-  for (const l of legs) {
-    try {
-      const note = await l.fn();
-      console.log((note && note.skip ? 'SKIP ' + note.skip : 'ok - ' + l.name));
-    } catch (err) {
-      failures += 1;
-      console.log('not ok - ' + l.name + ': ' + (err && err.message ? err.message : String(err)));
-    }
+  try {
+    const note = fn();
+    console.log((note && note.skip ? 'SKIP ' + note.skip : 'ok - ' + name));
+  } catch (err) {
+    failures += 1;
+    console.log('not ok - ' + name + ': ' + (err && err.message ? err.message : String(err)));
   }
 }
 
@@ -62,7 +56,7 @@ leg('A source pin: _closeOutStateMd writes through persistState', () => {
   assert.ok(!body.includes("writeFileSync(path.join(roomDir, 'STATE.md')"), 'the body still writes STATE.md bare');
 });
 
-leg('B behaviour: closeOutRoom keeps gsd_state_version and status', async () => {
+leg('B behaviour: closeOutRoom keeps gsd_state_version and status', () => {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'test-381-stop-gate-'));
   const saved = { HOME: process.env.HOME, MINDRIAN_ROOMS_HOME: process.env.MINDRIAN_ROOMS_HOME };
   const cwd0 = process.cwd();
@@ -83,7 +77,7 @@ leg('B behaviour: closeOutRoom keeps gsd_state_version and status', async () => 
     process.chdir(work);
     const handler = require(HANDLER);
     assert.equal(typeof handler.closeOutRoom, 'function', 'closeOutRoom is not exported');
-    await handler.closeOutRoom(room, 'test-381');
+    handler.closeOutRoom(room, 'test-381');
 
     const after = fs.readFileSync(statePath, 'utf8');
     if (after === seed) {
@@ -106,7 +100,7 @@ leg('B behaviour: closeOutRoom keeps gsd_state_version and status', async () => 
   }
 });
 
-leg('C behaviour: a persistState verdict other than ok is logged on stderr (review fix LO-08)', async () => {
+leg('C behaviour: a persistState verdict other than ok is logged on stderr (review fix LO-08)', () => {
   const base = fs.mkdtempSync(path.join(os.tmpdir(), 'test-381-stop-gate-'));
   const saved = { HOME: process.env.HOME, MINDRIAN_ROOMS_HOME: process.env.MINDRIAN_ROOMS_HOME, CLAUDE_PLUGIN_DATA: process.env.CLAUDE_PLUGIN_DATA };
   const cwd0 = process.cwd();
@@ -135,7 +129,7 @@ leg('C behaviour: a persistState verdict other than ok is logged on stderr (revi
     };
     let ret;
     try {
-      ret = await handler.closeOutRoom(room, 'test-381-lo08');
+      ret = handler.closeOutRoom(room, 'test-381-lo08');
     } finally {
       process.stderr.write = write0;
     }
@@ -160,11 +154,9 @@ leg('C behaviour: a persistState verdict other than ok is logged on stderr (revi
   }
 });
 
-runLegs().then(() => {
-  if (failures) {
-    console.log('stop-gate-persist: ' + failures + ' FAILED');
-    process.exitCode = 1;
-  } else {
-    console.log('stop-gate-persist: ALL PASS');
-  }
-});
+if (failures) {
+  console.log('stop-gate-persist: ' + failures + ' FAILED');
+  process.exitCode = 1;
+} else {
+  console.log('stop-gate-persist: ALL PASS');
+}
