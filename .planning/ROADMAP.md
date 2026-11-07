@@ -4125,11 +4125,18 @@ Later waves (NOT planned yet): one plan set per answered group G1 orphan modules
 
 ### Phase 391: Claude Code compatibility check (2.1.288 to 2.1.318) and radar fetch fix
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Check the 27 Claude Code changelog entries newer than the capability ledger against what the plugin ships, record the screen in the ledger, and fix the `/mos:radar --fetch` silent skip (WebFetch read 100000 of 1175667 characters, the prompt asked for 10 entries, nothing compared the oldest version read with the mark, and no deterministic path existed). Fix all four causes, make the doctor ledger organ stop reporting ok for a gap, and put the five behavior changes (agent tools lists, onFailure on the web credential hook, a Bash grant for the radar command, the /ultrareview facts, the mcp__brain_* token) on owner cards. Nothing that alters behavior is applied before the owner answers.
+**Requirements**: CC391-A to CC391-J (the PRD checks a to i, plus the cheap checks)
 **Depends on:** Phase 390
-**Plans:** 0 plans
+**Plans:** 8 plans (planned 2026-11-07; plan 391-04 stops for owner decisions on five cards; plans 391-07 and 391-08 apply them only after the answers are recorded)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 391 to break down)
+- [ ] 391-01-PLAN.md - failing slicer test, fixture helper, aggregator, and the pure changelog slicer module (wave 1)
+- [ ] 391-02-PLAN.md - hook contract test with the no-onFailure pins; agent tools naming test (RED on mcp__brain_*, then an owner-gated pending entry); name checks (wave 1)
+- [ ] 391-03-PLAN.md - ask-first changelog fetch script with credential check and audit record (Phase 386 rule), provider registration (wave 2)
+- [ ] 391-04-PLAN.md - checks record, plugin-scoped name probe, guard hook timing, card checker, five owner cards, SEED-145; ends at NEEDS_HUMAN (wave 2, not autonomous)
+- [ ] 391-05-PLAN.md - six dormant ledger rows and ledger_covers.to 2.1.318 in one commit, cache view (wave 2)
+- [ ] 391-06-PLAN.md - radar command procedure fix and mirrors (Part 11), gap-aware doctor organ, aggregator registration (wave 3)
+- [ ] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
+- [ ] 391-08-PLAN.md - owner cards C2, C3 and C4 applied by token: web guard onFailure, radar Bash entry, /ultrareview seed (wave 4, gated)
