@@ -178,7 +178,7 @@ The first after-run (kept as `388-probe-after-contended.json`) showed one differ
 
 ## Doctor acceptance
 
-Before the phase files were committed: `node scripts/doctor.cjs --acceptance` gave 24/25; the one failing point is `verify-release-clean-tree` (2 tracked files modified: 388-measure.cjs and 388-installed-diff.cjs). The result after the commit of those two files is in the final report (task 3 commit). `real-room-run` shows a WARN (receipt is for ce3886f731e9, behind HEAD); that WARN is a pass state and is not caused by this plan.
+Before the phase files were committed: `node scripts/doctor.cjs --acceptance` gave 24/25; the one failing point is `verify-release-clean-tree` (2 tracked files modified: 388-measure.cjs and 388-installed-diff.cjs). After the commit of those two files (commit 21f512a9a) the roll-up gave 25/25 points passed (exit 0). `real-room-run` shows a WARN (receipt is for ce3886f731e9, behind HEAD); that WARN is a pass state and is not caused by this plan.
 
 ## UNVERIFIED
 

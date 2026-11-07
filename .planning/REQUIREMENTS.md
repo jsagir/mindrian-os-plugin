@@ -5221,6 +5221,6 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 
 - [ ] **SHIP388-01**: The npm package and install contents are measured (counts and bytes by folder); the auditor claim of about 2.5 MB of tests is CONFIRMED or REFUTED with the real number. Plan 388-01.
 - [ ] **SHIP388-02**: For every candidate exclusion, a static scan and an installed-layout run prove that nothing reads it at run time. Plan 388-02.
-- [ ] **SHIP388-03**: The smallest safe exclusion list, with owner-visible effects. Plans 388-02, 388-03 and 388-04.
-- [ ] **SHIP388-04**: The list is applied with a before and after size and a fresh-install check. Plan 388-04.
+- [x] **SHIP388-03**: The smallest safe exclusion list, with owner-visible effects. Plans 388-02, 388-03 and 388-04.
+- [x] **SHIP388-04**: The list is applied with a before and after size and a fresh-install check. Plan 388-04.
 - [ ] **SHIP388-05**: Owner forks come as gate cards. Plan 388-03.

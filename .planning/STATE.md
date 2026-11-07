@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: verifying
-stopped_at: Completed 383-02-PLAN.md (Wave 0 routing, gate and voice RED tests; HEAD table in 383-02-SUMMARY.md); next 383-03
-last_updated: "2026-11-07T18:58:20.300Z"
+stopped_at: Completed 388-04-PLAN.md (ship less applied; 222 paths out of the package; see 388-04-SUMMARY.md)
+last_updated: "2026-11-07T19:54:41.846Z"
 last_activity: 2026-11-07
 progress:
   total_phases: 154
   completed_phases: 41
-  total_plans: 786
-  completed_plans: 677
+  total_plans: 799
+  completed_plans: 678
   percent: 27
 ---
 
@@ -7441,6 +7441,7 @@ Progress: [█████████░] 86%
 | Phase 383 P06 | not timed | 3 tasks | 10 files |
 | Phase 383 P07 | n/a | 2 tasks | 7 files |
 | Phase 383 P09 | 40min | 2 tasks | 6 files |
+| Phase 388 P04 | 1 session | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -9417,8 +9418,8 @@ Progress: [█████████░] 86%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-07T18:58:15.961Z
-Stopped at: Completed 383-02-PLAN.md (Wave 0 routing, gate and voice RED tests; HEAD table in 383-02-SUMMARY.md); next 383-03
+Last session: 2026-11-07T19:54:41.616Z
+Stopped at: Completed 388-04-PLAN.md (ship less applied; 222 paths out of the package; see 388-04-SUMMARY.md)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

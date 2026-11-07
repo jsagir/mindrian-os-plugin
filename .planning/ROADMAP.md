@@ -4093,11 +4093,11 @@ Plans:
 **Goal:** Ship less. Measure what the npm package and the install contain (the auditor's "about 2.5 MB of tests" claim is checked against real numbers), prove by static scan and an installed-layout run what is never read at run time, ask the owner about the exclusion list, then apply it with a before and after size and a fresh-install check. Protected paths (commands, skills, agents, hooks, MCP entries, the eureka_critic baseline) are never candidates.
 **Requirements**: SHIP388-01 to SHIP388-05
 **Depends on:** Phase 385
-**Plans:** 4 plans (planned 2026-11-06; plan 388-03 stops for an owner decision)
+**Plans:** 4/4 plans complete
 
 Plans:
 
-- [ ] 388-01 measure, 388-02 runtime need, 388-03 decision (owner), 388-04 apply.
+- [x] 388-01 measure, 388-02 runtime need, 388-03 decision (owner), 388-04 apply.
 
 ### Phase 389: Pyramid: seed and full (replaces the MVA family)
 
