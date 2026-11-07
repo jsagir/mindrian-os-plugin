@@ -1,0 +1,22 @@
+{
+  "verdict": "NO-GAIN",
+  "d1": 76.1,
+  "d2": 76.1,
+  "noise": 75.6,
+  "floor": 50,
+  "mA1": 272.2,
+  "mB1": 196.1,
+  "mA2": 310,
+  "mB2": 233.9,
+  "nA1": 15,
+  "nB1": 15,
+  "nA2": 15,
+  "nB2": 15,
+  "p95_a": 688.7,
+  "p95_b": 722.8,
+  "spread_a_pct": 12.985228,
+  "spread_b_pct": 17.581395,
+  "metric": "wall_ms.median",
+  "p95_metric": "wall_ms.p95",
+  "label": "S2 post-write default:artifact"
+}

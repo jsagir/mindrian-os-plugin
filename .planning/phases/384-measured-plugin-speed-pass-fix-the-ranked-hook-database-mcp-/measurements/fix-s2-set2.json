@@ -1,0 +1,1456 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "cd6879a98c65bfafd60c03a1ddd555d5c0a588bc",
+    "tree_label": "before",
+    "base_sha": "94ab074c0be51b3a6209b1868ca5f2154a174b9c",
+    "started_at": "2026-11-07T18:46:29.876Z",
+    "ended_at": "2026-11-07T18:56:45.892Z",
+    "load1_start": 1.92,
+    "load1_end": 5.36
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 1.92,
+  "load1_end": 5.36,
+  "started_at": "2026-11-07T18:46:29.876Z",
+  "ended_at": "2026-11-07T18:56:45.892Z",
+  "task": "q7",
+  "identity_target_is_room_md": true,
+  "layouts": {
+    "rooms_artifact": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "rooms_artifact_changed": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "rooms_identity": {
+      "has_room_segment": false,
+      "has_rooms_segment": true
+    },
+    "default_artifact": {
+      "has_room_segment": false,
+      "has_rooms_segment": false
+    }
+  },
+  "targets": [
+    {
+      "id": "q7:write:rooms:artifact",
+      "n": 14,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4729.5,
+        "p95": 5350.8,
+        "min": 4489.6,
+        "max": 5412.9
+      },
+      "wall_ms_fine": {
+        "median": 4729.455,
+        "p95": 5350.848,
+        "min": 4489.64,
+        "max": 5412.945
+      },
+      "cpu_ms": {
+        "median": 6990,
+        "p95": 7890,
+        "min": 6730,
+        "max": 8650
+      },
+      "rss_mb": {
+        "median": 84,
+        "p95": 104.1,
+        "min": 81.4,
+        "max": 104.5
+      },
+      "exits": [
+        0,
+        "signal:SIGKILL"
+      ],
+      "timed_out": 1,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "before",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 4729.455,
+          "cpu_ms": 6625
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 51.093,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 68.601,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 67.241,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 181.963,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 50.938,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 294.936,
+          "cpu_ms": 140
+        }
+      ],
+      "rounds_ms": [
+        4830.272,
+        4577.45,
+        4653.405,
+        4587.464,
+        4498.742,
+        4489.64,
+        4725.81,
+        4733.101,
+        5350.848,
+        4595.886,
+        4924.057,
+        4876.734,
+        5412.945,
+        4957.616
+      ]
+    },
+    {
+      "id": "q7:write:rooms:artifact-changed",
+      "n": 13,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5213.6,
+        "p95": 5722.9,
+        "min": 4437.5,
+        "max": 5868.2
+      },
+      "wall_ms_fine": {
+        "median": 5213.638,
+        "p95": 5722.928,
+        "min": 4437.543,
+        "max": 5868.225
+      },
+      "cpu_ms": {
+        "median": 7450,
+        "p95": 7850,
+        "min": 6770,
+        "max": 8350
+      },
+      "rss_mb": {
+        "median": 102.1,
+        "p95": 106.2,
+        "min": 82.2,
+        "max": 107
+      },
+      "exits": [
+        0,
+        "signal:SIGKILL"
+      ],
+      "timed_out": 2,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "before",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 5213.638,
+          "cpu_ms": 7080
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 54.077,
+          "cpu_ms": 10
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 68.314,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 78.348,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 202.822,
+          "cpu_ms": 120
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 53.402,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 169.562,
+          "cpu_ms": 140
+        }
+      ],
+      "rounds_ms": [
+        4944.009,
+        4579.447,
+        4455.032,
+        4611.911,
+        5367.742,
+        5343.908,
+        5868.225,
+        5722.928,
+        5273.269,
+        4437.543,
+        5318.091,
+        4584.932,
+        5213.638
+      ]
+    },
+    {
+      "id": "q7:write:rooms:identity",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 457.2,
+        "p95": 622.1,
+        "min": 243,
+        "max": 641.2
+      },
+      "wall_ms_fine": {
+        "median": 457.219,
+        "p95": 622.081,
+        "min": 243.013,
+        "max": 641.214
+      },
+      "cpu_ms": {
+        "median": 650,
+        "p95": 750,
+        "min": 600,
+        "max": 800
+      },
+      "rss_mb": {
+        "median": 65.8,
+        "p95": 66.3,
+        "min": 64.9,
+        "max": 66.6
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "before",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 253.199,
+          "cpu_ms": 260
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 91.625,
+          "cpu_ms": 50
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 66.418,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 71.768,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 177.55,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 60.629,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 457.219,
+          "cpu_ms": 160
+        }
+      ],
+      "rounds_ms": [
+        641.214,
+        622.081,
+        500.172,
+        243.013,
+        278.594,
+        476.17,
+        275.962,
+        306.121,
+        605.006,
+        606.381,
+        257.644,
+        457.219,
+        391.851,
+        244.523,
+        570.786
+      ]
+    },
+    {
+      "id": "q7:write:default:artifact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 310,
+        "p95": 688.7,
+        "min": 216.9,
+        "max": 697.1
+      },
+      "wall_ms_fine": {
+        "median": 310.035,
+        "p95": 688.673,
+        "min": 216.878,
+        "max": 697.052
+      },
+      "cpu_ms": {
+        "median": 570,
+        "p95": 820,
+        "min": 490,
+        "max": 940
+      },
+      "rss_mb": {
+        "median": 65.9,
+        "p95": 66.5,
+        "min": 64.6,
+        "max": 66.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "before",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 254.621,
+          "cpu_ms": 220
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 49.713,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 72.915,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 74.115,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 189.844,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 60.072,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 293.056,
+          "cpu_ms": 140
+        }
+      ],
+      "rounds_ms": [
+        363.041,
+        225.141,
+        216.878,
+        697.052,
+        250.65,
+        493.028,
+        283.407,
+        633.779,
+        291.832,
+        401.932,
+        688.673,
+        293.056,
+        221.127,
+        464.077,
+        310.035
+      ]
+    },
+    {
+      "id": "q7:d:artifact-minus-identity",
+      "n": 14,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4365.6,
+        "p95": 4744.5,
+        "min": 3955.4,
+        "max": 5168.4
+      },
+      "wall_ms_fine": {
+        "median": 4365.64,
+        "p95": 4744.467,
+        "min": 3955.368,
+        "max": 5168.422
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the artifact minus the Write event on the identity file (harness layout)"
+    },
+    {
+      "id": "q7:d:changed-minus-identity",
+      "n": 13,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4642.9,
+        "p95": 5117.9,
+        "min": 4079.3,
+        "max": 5562.1
+      },
+      "wall_ms_fine": {
+        "median": 4642.851,
+        "p95": 5117.922,
+        "min": 4079.275,
+        "max": 5562.104
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the changed artifact minus the Write event on the identity file (harness layout)"
+    },
+    {
+      "id": "q7:d:changed-minus-artifact",
+      "n": 12,
+      "blocking": true,
+      "wall_ms": {
+        "median": 113.5,
+        "p95": 878.1,
+        "min": -291.8,
+        "max": 1135.1
+      },
+      "wall_ms_fine": {
+        "median": 113.453,
+        "p95": 878.102,
+        "min": -291.802,
+        "max": 1135.125
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the changed artifact minus the Write event on the artifact (harness layout)"
+    },
+    {
+      "id": "q7:d:rooms-minus-default",
+      "n": 14,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4439.5,
+        "p95": 4948.9,
+        "min": 3890.4,
+        "max": 4948.9
+      },
+      "wall_ms_fine": {
+        "median": 4439.465,
+        "p95": 4948.868,
+        "min": 3890.412,
+        "max": 4948.916
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the artifact on the harness layout minus the Write event on the artifact on the default layout"
+    },
+    {
+      "id": "q7b:write:rooms:artifact",
+      "n": 12,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5131.7,
+        "p95": 5845.1,
+        "min": 4306.7,
+        "max": 5881.8
+      },
+      "wall_ms_fine": {
+        "median": 5131.654,
+        "p95": 5845.146,
+        "min": 4306.748,
+        "max": 5881.753
+      },
+      "cpu_ms": {
+        "median": 7340,
+        "p95": 8530,
+        "min": 6730,
+        "max": 8820
+      },
+      "rss_mb": {
+        "median": 93.3,
+        "p95": 105.6,
+        "min": 81.7,
+        "max": 106.6
+      },
+      "exits": [
+        0,
+        "signal:SIGKILL"
+      ],
+      "timed_out": 3,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "after",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 5131.654,
+          "cpu_ms": 6990
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 50.566,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 69.292,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 61.688,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 178.545,
+          "cpu_ms": 100
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 55.56,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 163.427,
+          "cpu_ms": 130
+        }
+      ],
+      "rounds_ms": [
+        4570.529,
+        4603.039,
+        4871.405,
+        4720.276,
+        5845.146,
+        5157.356,
+        5881.753,
+        5163.375,
+        5105.952,
+        5429.612,
+        4306.748,
+        5244.986
+      ]
+    },
+    {
+      "id": "q7b:write:rooms:artifact-changed",
+      "n": 14,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5011.9,
+        "p95": 5354.2,
+        "min": 4508,
+        "max": 5398.9
+      },
+      "wall_ms_fine": {
+        "median": 5011.905,
+        "p95": 5354.158,
+        "min": 4508.008,
+        "max": 5398.938
+      },
+      "cpu_ms": {
+        "median": 7125,
+        "p95": 7820,
+        "min": 6950,
+        "max": 8350
+      },
+      "rss_mb": {
+        "median": 102.8,
+        "p95": 104.8,
+        "min": 81.4,
+        "max": 105
+      },
+      "exits": [
+        0,
+        "signal:SIGKILL"
+      ],
+      "timed_out": 1,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "after",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 5011.905,
+          "cpu_ms": 6765
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 52.159,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 71.571,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 72.162,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 189.936,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 46.261,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 157.524,
+          "cpu_ms": 135
+        }
+      ],
+      "rounds_ms": [
+        4941.843,
+        4508.008,
+        5354.158,
+        5265.396,
+        4953.455,
+        5001.022,
+        5202.218,
+        5212.694,
+        4705.609,
+        5315.434,
+        4584,
+        4775.162,
+        5022.788,
+        5398.938
+      ]
+    },
+    {
+      "id": "q7b:write:rooms:identity",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 423.6,
+        "p95": 621.9,
+        "min": 244,
+        "max": 770.6
+      },
+      "wall_ms_fine": {
+        "median": 423.568,
+        "p95": 621.932,
+        "min": 244.004,
+        "max": 770.631
+      },
+      "cpu_ms": {
+        "median": 770,
+        "p95": 890,
+        "min": 590,
+        "max": 910
+      },
+      "rss_mb": {
+        "median": 66,
+        "p95": 66.8,
+        "min": 64.3,
+        "max": 66.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "after",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 302.209,
+          "cpu_ms": 290
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 120.408,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 106.356,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 92.525,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 212.532,
+          "cpu_ms": 130
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 76.207,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 419.932,
+          "cpu_ms": 160
+        }
+      ],
+      "rounds_ms": [
+        621.932,
+        369.665,
+        482.24,
+        244.464,
+        497.485,
+        547.22,
+        477.919,
+        620.372,
+        345.368,
+        244.004,
+        270.345,
+        302.209,
+        423.568,
+        327.869,
+        770.631
+      ]
+    },
+    {
+      "id": "q7b:write:default:artifact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 233.9,
+        "p95": 509.2,
+        "min": 159.8,
+        "max": 538.6
+      },
+      "wall_ms_fine": {
+        "median": 233.943,
+        "p95": 509.22,
+        "min": 159.758,
+        "max": 538.626
+      },
+      "cpu_ms": {
+        "median": 410,
+        "p95": 630,
+        "min": 380,
+        "max": 690
+      },
+      "rss_mb": {
+        "median": 65.8,
+        "p95": 66.9,
+        "min": 65.1,
+        "max": 67
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "tree_label": "after",
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-write",
+          "async": false,
+          "wall_ms": 119.899,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/frontmatter-schema-validator.cjs",
+          "async": false,
+          "wall_ms": 47.686,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/async-artifact-auto-commit.cjs",
+          "async": false,
+          "wall_ms": 71.707,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/memory-completion-detector.cjs",
+          "async": false,
+          "wall_ms": 66.404,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/auto-explore-fingerprint.cjs",
+          "async": false,
+          "wall_ms": 165.486,
+          "cpu_ms": 110
+        },
+        {
+          "id": "scripts/gsd-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 60.013,
+          "cpu_ms": 20
+        },
+        {
+          "id": "scripts/memory-artifact-graph-hook.cjs",
+          "async": false,
+          "wall_ms": 233.943,
+          "cpu_ms": 150
+        }
+      ],
+      "rounds_ms": [
+        162.149,
+        467.022,
+        159.758,
+        538.626,
+        475.977,
+        256.757,
+        165.21,
+        492.03,
+        219.886,
+        442.48,
+        220.486,
+        509.22,
+        162.773,
+        233.447,
+        233.943
+      ]
+    },
+    {
+      "id": "q7b:d:artifact-minus-identity",
+      "n": 12,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4576.9,
+        "p95": 5261.4,
+        "min": 3948.6,
+        "max": 5297.9
+      },
+      "wall_ms_fine": {
+        "median": 4576.896,
+        "p95": 5261.382,
+        "min": 3948.597,
+        "max": 5297.925
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the artifact minus the Write event on the identity file (harness layout)"
+    },
+    {
+      "id": "q7b:d:changed-minus-identity",
+      "n": 14,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4527,
+        "p95": 5020.9,
+        "min": 4138.3,
+        "max": 5045.1
+      },
+      "wall_ms_fine": {
+        "median": 4526.964,
+        "p95": 5020.931,
+        "min": 4138.343,
+        "max": 5045.089
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the changed artifact minus the Write event on the identity file (harness layout)"
+    },
+    {
+      "id": "q7b:d:changed-minus-artifact",
+      "n": 11,
+      "blocking": true,
+      "wall_ms": {
+        "median": 44.9,
+        "p95": 371.3,
+        "min": -844.1,
+        "max": 482.8
+      },
+      "wall_ms_fine": {
+        "median": 44.862,
+        "p95": 371.315,
+        "min": -844.124,
+        "max": 482.754
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the changed artifact minus the Write event on the artifact (harness layout)"
+    },
+    {
+      "id": "q7b:d:rooms-minus-default",
+      "n": 12,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4827.6,
+        "p95": 5389.7,
+        "min": 3797.5,
+        "max": 5588.4
+      },
+      "wall_ms_fine": {
+        "median": 4827.568,
+        "p95": 5389.723,
+        "min": 3797.528,
+        "max": 5588.389
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on the artifact on the harness layout minus the Write event on the artifact on the default layout"
+    },
+    {
+      "id": "q7:write:rooms:artifact:a-minus-b",
+      "n": 11,
+      "blocking": true,
+      "wall_ms": {
+        "median": -221.5,
+        "p95": 259.7,
+        "min": -1355.5,
+        "max": 617.3
+      },
+      "wall_ms_fine": {
+        "median": -221.535,
+        "p95": 259.743,
+        "min": -1355.506,
+        "max": 617.309
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on tree A minus the Write event on tree B, same target (positive: tree B is faster)"
+    },
+    {
+      "id": "q7:write:rooms:artifact-changed:a-minus-b",
+      "n": 12,
+      "blocking": true,
+      "wall_ms": {
+        "median": -91.6,
+        "p95": 655.5,
+        "min": -877.9,
+        "max": 734.1
+      },
+      "wall_ms_fine": {
+        "median": -91.567,
+        "p95": 655.531,
+        "min": -877.891,
+        "max": 734.091
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on tree A minus the Write event on tree B, same target (positive: tree B is faster)"
+    },
+    {
+      "id": "q7:write:rooms:identity:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": -12.7,
+        "p95": 259.6,
+        "min": -314.3,
+        "max": 362.4
+      },
+      "wall_ms_fine": {
+        "median": -12.701,
+        "p95": 259.638,
+        "min": -314.25,
+        "max": 362.377
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on tree A minus the Write event on tree B, same target (positive: tree B is faster)"
+    },
+    {
+      "id": "q7:write:default:artifact:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 76.1,
+        "p95": 236.3,
+        "min": -241.9,
+        "max": 468.2
+      },
+      "wall_ms_fine": {
+        "median": 76.092,
+        "p95": 236.271,
+        "min": -241.881,
+        "max": 468.187
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.92,
+      "load1_end": 5.36,
+      "gate_waited_ms": 180000,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-round Write event on tree A minus the Write event on tree B, same target (positive: tree B is faster)"
+    }
+  ],
+  "compare": {
+    "a": "before",
+    "b": "after"
+  }
+}
