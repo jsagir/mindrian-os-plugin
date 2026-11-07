@@ -687,6 +687,14 @@ Exit codes:
 //                                       hanging bounded child, so its own
 //                                       timeout-and-fail path is testable
 //                                       without actually hanging the process
+//   DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS=<n> Phase 384-19: replace the time limit of
+//                                       the doctor-all point's child (default
+//                                       60000) so its timeout path is testable
+//                                       without waiting a minute
+//   DOCTOR_TEST_DOCTOR_ALL_SCRIPT=<path> Phase 384-19: run this script instead
+//                                       of scripts/doctor.cjs as the doctor-all
+//                                       child, so an unreadable or failing
+//                                       child result is testable
 //
 // Diagnostics (Phase 354-13, SYS-07 -- always on, not test-mode gated):
 //   DOCTOR_ACCEPTANCE_CHILD_TIMEOUT_MS  default bound (ms) runBoundedChild
@@ -799,6 +807,20 @@ function runBoundedChild(cmd, args, opts) {
     cmd: cmd,
     timeout_ms: timeout,
   };
+}
+
+// Phase 384-19: the time limit of the doctor-all point's child. Fixed at 60000 ms (owner decision 4):
+// measured on a rooms home copy, the cost of doctor --all does not grow with the number of rooms, so a
+// limit that scales with the room count would not follow the cost. The seam (DOCTOR_TEST_MODE=1 only) lets
+// a test make the child time out without waiting a minute; outside test mode it is ignored.
+const DOCTOR_ALL_LIMIT_MS = 60000;
+function doctorAllLimitMs(env) {
+  const e = env || process.env;
+  if (e.DOCTOR_TEST_MODE === '1') {
+    const n = Number(e.DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS);
+    if (Number.isInteger(n) && n > 0) return n;
+  }
+  return DOCTOR_ALL_LIMIT_MS;
 }
 
 function buildAcceptanceChecklist(ctx) {
@@ -1129,22 +1151,63 @@ function buildAcceptanceChecklist(ctx) {
         // Scrub DOCTOR_TEST_FAIL_POINT so a top-level test fail-point env var
         // doesn't propagate into our self-spawn and re-trigger the synthesis
         // there (the synthesis above already covers this point).
-        const cp = require('child_process');
+        // Phase 384-19: the child goes through runBoundedChild, so a timeout reports detail.child
+        // (timed_out, timeout_ms, duration_ms) and a finding that names the timeout, not "exited null".
+        // The limit comes from doctorAllLimitMs (60000 ms; a test-mode seam only). A child result that
+        // exits 0 but holds no readable JSON is a failure, not a pass.
         const childEnv = Object.assign({}, process.env, { DOCTOR_TEST_FAIL_POINT: '' });
-        const r = cp.spawnSync('node', [path.join(pluginRoot, 'scripts', 'doctor.cjs'), '--all', '--json'], { encoding: 'utf8', timeout: 60000, env: childEnv });
+        const limitMs = doctorAllLimitMs(process.env);
+        const childScript = (inTestMode && process.env.DOCTOR_TEST_DOCTOR_ALL_SCRIPT)
+          ? process.env.DOCTOR_TEST_DOCTOR_ALL_SCRIPT
+          : path.join(pluginRoot, 'scripts', 'doctor.cjs');
+        // The child writes its JSON to a file, not a pipe. The child ends with process.exit right after
+        // console.log, and on a pipe the write of a report above 64 KiB is cut at exit (measured: a
+        // 314827 byte report arrives as 65536 bytes on a pipe and complete in a file). A cut report is
+        // unreadable, and this gate must not read a cut report as a pass or as a false fail.
+        let captureDir = null;
+        let captureFd = null;
+        let captureFile = null;
+        const spawnOpts = { timeout: limitMs, env: childEnv };
+        try {
+          captureDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-doctor-all-'));
+          captureFile = path.join(captureDir, 'out.json');
+          captureFd = fs.openSync(captureFile, 'w');
+          spawnOpts.stdio = ['ignore', captureFd, 'pipe'];
+        } catch (_) { captureFile = null; /* no capture file: fall back to the pipe */ }
+        let r;
+        let childStdout = '';
+        try {
+          r = runBoundedChild('node', [childScript, '--all', '--json'], spawnOpts);
+          childStdout = r.stdout || '';
+        } finally {
+          if (captureFd !== null) { try { fs.closeSync(captureFd); } catch (_) { /* best-effort */ } }
+        }
+        if (captureFile) { try { childStdout = fs.readFileSync(captureFile, 'utf8'); } catch (_) { /* leave empty */ } }
+        if (captureDir) { try { fs.rmSync(captureDir, { recursive: true, force: true }); } catch (_) { /* best-effort */ } }
         let j = null;
         try {
-          if (r.stdout) {
-            const start = r.stdout.indexOf('{');
-            if (start !== -1) j = JSON.parse(r.stdout.slice(start));
+          if (childStdout) {
+            const start = childStdout.indexOf('{');
+            if (start !== -1) j = JSON.parse(childStdout.slice(start));
           }
         } catch (_) { /* leave null */ }
+        const readable = !!(j && typeof j === 'object');
         const driftCount = j && j.summary && typeof j.summary.drift === 'number' ? j.summary.drift : 0;
-        const ok = r.status === 0 && driftCount === 0;
+        const ok = !r.timed_out && r.status === 0 && readable && driftCount === 0;
         let finding = null;
-        if (r.status !== 0) finding = 'doctor --all exited ' + r.status;
+        if (r.timed_out) finding = 'doctor --all timed out after ' + r.timeout_ms + ' ms (limit ' + limitMs + ' ms)';
+        else if (r.status !== 0) finding = 'doctor --all exited ' + r.status;
+        else if (!readable) finding = 'doctor --all result unreadable: exit 0 but no JSON in the child output';
         else if (driftCount > 0) finding = 'doctor --all reports ' + driftCount + ' drift item(s)';
-        return { ok: ok, finding: finding, detail: { exit: r.status, summary: j && j.summary } };
+        return {
+          ok: ok,
+          finding: finding,
+          detail: {
+            exit: r.status,
+            summary: j && j.summary,
+            child: { cmd: r.cmd, timed_out: r.timed_out, signal: r.signal, status: r.status, duration_ms: r.duration_ms, timeout_ms: r.timeout_ms },
+          },
+        };
       },
     },
     {
@@ -4706,7 +4769,7 @@ function _finalizeAndExit(flags, report, classFlagsActive) {
 // Phase 225-02 (REQ-4): additive export of the WAL-reset advisory helpers for
 // hermetic unit testing via injected seams (tests/test-225-wal-advisory.cjs).
 // Additive-only append -- existing keys are never reordered.
-module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin, selectMosEntry };
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin, selectMosEntry, doctorAllLimitMs };
 
 if (require.main === module) {
   main();

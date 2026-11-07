@@ -154,6 +154,12 @@ function mechanismGroup() {
   const exit3 = tmpScript("process.stdout.write(JSON.stringify({ checks: {} }) + '\\n'); process.exit(3);\n");
   const m5 = runPoint(g.ctx, { DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_SCRIPT: exit3 });
   check('M5 exit code finding: "doctor --all exited 3"', !!m5 && m5.ok === false && m5.finding === 'doctor --all exited 3', show(m5));
+
+  // M6: a report above 64 KiB, written with process.exit right after the write (as doctor --all does).
+  // On a pipe the report is cut; the gate must read it whole.
+  const big = tmpScript("const pad = 'x'.repeat(300000); process.stdout.write(JSON.stringify({ checks: {}, pad: pad }) + '\\n'); process.exit(0);\n");
+  const m6 = runPoint(g.ctx, { DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_SCRIPT: big });
+  check('M6 a report above 64 KiB is read whole: ok true, finding null', !!m6 && m6.ok === true && m6.finding === null, show(m6));
 }
 
 try {
