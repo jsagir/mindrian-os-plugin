@@ -155,6 +155,12 @@ run "gct framework_step step_id parity (quick 261019-gct)" node tests/test-gct-p
 # The leg is a hard run (not run_if), so a missing or red test fails the cut; the aggregator never skips on a missing claude, npm or registry.
 run "380 face panel (34 engine tests plus egress, budget, copy, build, layout)" bash tests/run-all-380.sh
 
+# --- (2i) Phase 388: ship less, tests and dead weight stay out of the install ---
+# Phase 388: the payload test pins the approved exclusion list in package.json "files" (no test file, test runner,
+# bytecode cache or dead data file ships) and the must-ship list (hooks, MCP entries, bins, the eureka_critic baseline).
+# The payload test and the aggregator ride the release gate. The leg is a hard run (not run_if), so a missing or red test fails the cut.
+run "388 ship less (payload excludes tests and dead weight, keeps what the product reads)" bash tests/run-all-388.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
