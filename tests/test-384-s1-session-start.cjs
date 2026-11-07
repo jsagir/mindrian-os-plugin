@@ -301,8 +301,62 @@ async function parity() {
   check('P3 written files: tree B equals tree A', JSON.stringify(b.changed) === JSON.stringify(a1.changed), listDiff(b.changed, a1.changed));
 }
 
-// The mechanism group (M1 to M3) is added in the next commit.
-async function mechanism() {}
+const REC = path.join(REPO, 'scripts', 'session-start-reconcile.cjs');
+
+async function mechanism() {
+  const T = treeB();
+  const counts = [];
+  let last = null;
+  for (let i = 0; i < 3; i += 1) {
+    const r = await runOnce(T, { shim: true });
+    counts.push(r.starts.length);
+    last = r;
+  }
+  const limit = BASELINE_NODE_STARTS - REMOVED_NODE_STARTS;
+  check('M1 node starts at most ' + limit + ' in three repeats', counts.every((n) => n <= limit), 'counts ' + counts.join(','));
+  const recRecords = last.starts.filter((r) => r.indexOf('session-start-reconcile.cjs') >= 0);
+  check('M2 exactly one start runs session-start-reconcile.cjs', recRecords.length === 1, 'found ' + recRecords.length);
+  // the strings of the plan, plus the identifiers that the inline code of blocks 3 and 4 really holds
+  const oldNeedles = ['refreshAll(', 'dial-memory-runner', 'planning-artifact', 'memory-artifact', 'timeline-runner', 'reconcilePlanningArtifacts', 'reconcileMemoryArtifacts'];
+  const oldHits = last.starts.filter((r) => oldNeedles.some((n) => r.indexOf(n) >= 0));
+  check('M2 no start holds code of the four old inline blocks', oldHits.length === 0, 'found ' + oldHits.length);
+
+  // M3
+  const recPath = path.join(T, 'scripts', 'session-start-reconcile.cjs');
+  let mod = null;
+  try { mod = require(recPath); } catch (_e) { mod = null; }
+  if (!mod || typeof mod.runAll !== 'function') {
+    check('M3 runAll exists in scripts/session-start-reconcile.cjs', false, 'module missing');
+    check('M3 failure isolation and order', false, 'module missing');
+    check('M3 default order is timeline, dial memory, gsd planning, memory cortex', false, 'module missing');
+    check('M3 child script exits 0 and runs all four blocks after failures', false, 'module missing');
+    return;
+  }
+  const seen = [];
+  const stub = (n, boom) => { const f = function () { seen.push(n); if (boom) throw new Error('stub failure'); }; Object.defineProperty(f, 'name', { value: n }); return f; };
+  let threw = false;
+  let res = null;
+  const origErr = process.stderr.write.bind(process.stderr);
+  process.stderr.write = () => true;
+  try { res = mod.runAll({}, [stub('s1', true), stub('s2'), stub('s3'), stub('s4')]); } catch (_e) { threw = true; } finally { process.stderr.write = origErr; }
+  check('M3 runAll does not throw when the first block throws', !threw);
+  check('M3 the other three blocks still run, in order', JSON.stringify(seen) === JSON.stringify(['s1', 's2', 's3', 's4']), JSON.stringify(seen));
+  check('M3 runAll returns one result per block', Array.isArray(res) && res.length === 4 && res[0].ok === false && res[1].ok === true && res[3].ok === true);
+  const names = (mod.DEFAULT_BLOCKS || []).map((f) => f.name);
+  check('M3 default order is timeline, dial memory, gsd planning, memory cortex', JSON.stringify(names) === JSON.stringify(['refreshTimeline', 'refreshDialMemory', 'reconcileGsdPlanning', 'reconcileMemoryCortex']), JSON.stringify(names));
+  const tmpRoom = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-384-s1-room-'));
+  cleanups.push(() => fs.rmSync(tmpRoom, { recursive: true, force: true }));
+  const bogus = path.join(tmpRoom, 'no-such-plugin');
+  fs.mkdirSync(path.join(tmpRoom, '.mindrian'), { recursive: true });
+  const child = cp.spawnSync(process.execPath, [recPath], {
+    cwd: tmpRoom, encoding: 'utf8', timeout: 60000,
+    env: Object.assign({}, process.env, { ACTIVE_ROOM_FOR_RECONCILE: tmpRoom, PLUGIN_ROOT_FOR_NODE_RECONCILE: bogus, PLUGIN_ROOT_RECONCILE: bogus, HOME: tmpRoom }),
+  });
+  const errText = String(child.stderr || '');
+  const allFour = ['feynman-timeline-refresh failed', 'dial-memory-refresh failed', 'gsd-planning-reconcile failed', 'memory-cortex-reconcile failed'].every((s) => errText.indexOf(s) >= 0);
+  check('M3 child script exits 0 when every block fails', child.status === 0, 'status ' + child.status);
+  check('M3 each of the four blocks ran and reported its own failure', allFour, 'stderr ' + errText.replace(/\n/g, ' | ').slice(0, 300));
+}
 
 (async () => {
   const group = process.argv[2];
