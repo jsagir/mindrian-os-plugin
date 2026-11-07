@@ -79,19 +79,8 @@ if [ ${#modified_files[@]} -eq 0 ]; then
   exit 0
 fi
 
-# Route each modified file through the post-write cascade.
-#
-# Phase 384 Plan 16 (finding S4): the old loop started the whole cascade of
-# every file (up to 20) at the same moment, so one SubagentStop could run 40 to
-# 60 processes at once. The foreground loop now only collects the eligible
-# files and counts them; one background dispatcher below starts them in batches
-# of at most K files, K = 4 by default. MOS_AGENT_COMPLETE_MAX_JOBS replaces K
-# only when it holds a positive integer written with 1 to 4 digits and no
-# leading zero; any other value (empty, 0, negative, text, longer) gives 4.
-# The same files get the same calls as before. bash 3.2 compatible: a plain
-# `wait` inside the dispatcher subshell waits only for that subshell's jobs.
+# Route each modified file through the post-write cascade
 cascade_count=0
-cascade_files=()
 for file_path in "${modified_files[@]}"; do
   # Active room guard
   case "$file_path" in
@@ -104,61 +93,39 @@ for file_path in "${modified_files[@]}"; do
     */.*) continue ;;
   esac
 
-  cascade_files+=("$file_path")
+  # Run post-write cascade in background for each file. Redirect BOTH
+  # stdout and stderr to /dev/null so the post-write hook's own envelope
+  # (PostToolUse hookSpecificOutput) does not leak into on-agent-complete's
+  # stdout, which carries the SubagentStop envelope. Without this, the
+  # consumer would receive a multi-line stream that no longer parses as a
+  # single JSON object. Rule 3 (Blocking) fix discovered in Plan 95-04
+  # Task 2 GREEN test run.
+  bash "${SCRIPT_DIR}/post-write" "$file_path" >/dev/null 2>&1 &
+
+  # Phase 144.1-06 RETRO-03 (audit item 64): fire SENS-06 through the navigation
+  # chokepoint per cascaded file and emit a memory_event the engine can observe.
+  # on-agent-complete inherits the post-write fix: the post-write call above
+  # routes the cascade through file-evidence-readback (fileEvidenceWithReadback)
+  # and emits artifact_filed; this fire is the sensor-side the engine reads.
+  # The reach is context_block / SENS-06 / cross-relationship-scan / push_forward.
+  # When the cascaded artifact is research-agent output (a deep_research/ or
+  # research/ path), ALSO fire SENS-04 (the external-fact reach). LOCAL only
+  # (Canon Part 8): the fire carries a sha256 of the relative file path plus
+  # generic handles, never the file body. Backgrounded + soft-fail.
+  rel_file_path="${file_path#${ROOM_DIR}/}"
+  ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
+      "context_block" "SENS-06" "cross-relationship-scan" "push_forward" \
+      "$rel_file_path" >/dev/null 2>&1 || true ) &
+  case "$rel_file_path" in
+    */research/*|*/deep-research/*|*deep_research*)
+      ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
+          "deep_research" "SENS-04" "research-agent-finding" "push_forward" \
+          "$rel_file_path" >/dev/null 2>&1 || true ) &
+      ;;
+  esac
+
   cascade_count=$((cascade_count + 1))
 done
-
-max_jobs=4
-case "${MOS_AGENT_COMPLETE_MAX_JOBS:-}" in
-  ''|*[!0-9]*|0*|[0-9][0-9][0-9][0-9][0-9]*) ;; # not a positive integer of 1 to 4 digits: keep 4
-  *) max_jobs="$MOS_AGENT_COMPLETE_MAX_JOBS" ;;
-esac
-
-if [ "$cascade_count" -gt 0 ]; then
-  # One background dispatcher. stdin from /dev/null and stdout and stderr to
-  # /dev/null, so no child holds the hook's output open and the hook returns at
-  # once. Each post-write call also has both outputs discarded: the post-write
-  # hook's own envelope (PostToolUse hookSpecificOutput) must not leak into
-  # on-agent-complete's stdout, which carries the SubagentStop envelope. Without
-  # this, the consumer would receive a multi-line stream that no longer parses
-  # as a single JSON object. Rule 3 (Blocking) fix discovered in Plan 95-04
-  # Task 2 GREEN test run.
-  (
-    batch_n=0
-    for file_path in "${cascade_files[@]}"; do
-      bash "${SCRIPT_DIR}/post-write" "$file_path" >/dev/null 2>&1 &
-
-      # Phase 144.1-06 RETRO-03 (audit item 64): fire SENS-06 through the navigation
-      # chokepoint per cascaded file and emit a memory_event the engine can observe.
-      # on-agent-complete inherits the post-write fix: the post-write call above
-      # routes the cascade through file-evidence-readback (fileEvidenceWithReadback)
-      # and emits artifact_filed; this fire is the sensor-side the engine reads.
-      # The reach is context_block / SENS-06 / cross-relationship-scan / push_forward.
-      # When the cascaded artifact is research-agent output (a deep_research/ or
-      # research/ path), ALSO fire SENS-04 (the external-fact reach). LOCAL only
-      # (Canon Part 8): the fire carries a sha256 of the relative file path plus
-      # generic handles, never the file body. Backgrounded + soft-fail.
-      rel_file_path="${file_path#${ROOM_DIR}/}"
-      ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
-          "context_block" "SENS-06" "cross-relationship-scan" "push_forward" \
-          "$rel_file_path" >/dev/null 2>&1 || true ) &
-      case "$rel_file_path" in
-        */research/*|*/deep-research/*|*deep_research*)
-          ( node "${SCRIPT_DIR}/fire-sensor-event.cjs" "$ROOM_DIR" \
-              "deep_research" "SENS-04" "research-agent-finding" "push_forward" \
-              "$rel_file_path" >/dev/null 2>&1 || true ) &
-          ;;
-      esac
-
-      batch_n=$((batch_n + 1))
-      if [ "$batch_n" -ge "$max_jobs" ]; then
-        wait || true
-        batch_n=0
-      fi
-    done
-    wait || true
-  ) </dev/null >/dev/null 2>&1 &
-fi
 
 # Recompute room state after all cascades are dispatched.
 #
