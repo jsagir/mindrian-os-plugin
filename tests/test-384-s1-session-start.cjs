@@ -347,7 +347,10 @@ async function mechanism() {
   const tmpRoom = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-384-s1-room-'));
   cleanups.push(() => fs.rmSync(tmpRoom, { recursive: true, force: true }));
   const bogus = path.join(tmpRoom, 'no-such-plugin');
+  // an empty room.db, so that blocks 3 and 4 get past their no-database return and reach the missing runner module
   fs.mkdirSync(path.join(tmpRoom, '.mindrian'), { recursive: true });
+  const { DatabaseSync } = require('node:sqlite');
+  new DatabaseSync(path.join(tmpRoom, '.mindrian', 'room.db')).close();
   const child = cp.spawnSync(process.execPath, [recPath], {
     cwd: tmpRoom, encoding: 'utf8', timeout: 60000,
     env: Object.assign({}, process.env, { ACTIVE_ROOM_FOR_RECONCILE: tmpRoom, PLUGIN_ROOT_FOR_NODE_RECONCILE: bogus, PLUGIN_ROOT_RECONCILE: bogus, HOME: tmpRoom }),
