@@ -1,0 +1,249 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ccf070ebd8d9f2b233e2055d63f1a54f5d6f4fb2",
+    "tree_label": "before",
+    "base_sha": "f29165499df04a06d420e1d3afa48a00c2981e84",
+    "started_at": "2026-11-07T08:30:43.033Z",
+    "ended_at": "2026-11-07T08:49:11.493Z",
+    "load1_start": 0.62,
+    "load1_end": 0.73
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.62,
+  "load1_end": 0.73,
+  "started_at": "2026-11-07T08:30:43.033Z",
+  "ended_at": "2026-11-07T08:49:11.493Z",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "event:SessionStart:changed",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2586,
+        "p95": 2747.4,
+        "min": 2318.6,
+        "max": 3600.2
+      },
+      "cpu_ms": {
+        "median": 2620,
+        "p95": 2770,
+        "min": 2340,
+        "max": 2790
+      },
+      "rss_mb": {
+        "median": 79.1,
+        "p95": 79.6,
+        "min": 78.4,
+        "max": 79.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 15022,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 91.2,
+          "cpu_ms": 50
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 2586,
+          "cpu_ms": 2060
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 257.8,
+          "cpu_ms": 180
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 164.8,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 167.7,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 102.4,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 109.8,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 208.7,
+          "cpu_ms": 90
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 15,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.62,
+      "load1_end": 0.51,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SessionStart:compact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2596.2,
+        "p95": 4832.7,
+        "min": 2383,
+        "max": 5380.9
+      },
+      "cpu_ms": {
+        "median": 2720,
+        "p95": 5180,
+        "min": 2360,
+        "max": 5570
+      },
+      "rss_mb": {
+        "median": 79.5,
+        "p95": 79.6,
+        "min": 78.9,
+        "max": 79.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14910,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 114.4,
+          "cpu_ms": 50
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 2596.2,
+          "cpu_ms": 2110
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 287.4,
+          "cpu_ms": 180
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 196.6,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 188.3,
+          "cpu_ms": 90
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 115.2,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 122.2,
+          "cpu_ms": 40
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 214.6,
+          "cpu_ms": 100
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.51,
+      "load1_end": 0.73,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}

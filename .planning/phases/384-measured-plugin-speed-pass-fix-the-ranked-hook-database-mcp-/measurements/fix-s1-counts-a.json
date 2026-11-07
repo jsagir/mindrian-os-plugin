@@ -1,0 +1,131 @@
+{
+  "schema": "mos.perf-384-counts/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ccf070ebd8d9f2b233e2055d63f1a54f5d6f4fb2",
+    "tree_label": "a",
+    "base_sha": "f29165499df04a06d420e1d3afa48a00c2981e84",
+    "started_at": "2026-11-07T09:30:20.866Z",
+    "ended_at": "2026-11-07T09:31:24.976Z",
+    "load1_start": 0.67,
+    "load1_end": 0.52
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": null,
+  "tree_label": "a",
+  "cpus": 4,
+  "repeats": 3,
+  "note": "untimed counting pass: exec calls of the descendants of each hook shell, counted by bench/exec-counter.c; the wall times come from separate runs",
+  "events": [
+    {
+      "key": "SessionStart:startup:changed",
+      "repeats": 3,
+      "hooks": {
+        "matched": 8,
+        "blocking": 8,
+        "async": 0,
+        "skipped": 1
+      },
+      "exec_total": {
+        "min": 103,
+        "median": 103,
+        "max": 111
+      },
+      "exec_per_repeat": [
+        111,
+        103,
+        103
+      ],
+      "exec_by_program": [
+        {
+          "program": "node",
+          "count": 45
+        },
+        {
+          "program": "env",
+          "count": 11
+        },
+        {
+          "program": "bash",
+          "count": 9
+        },
+        {
+          "program": "dirname",
+          "count": 5
+        },
+        {
+          "program": "cat",
+          "count": 3
+        },
+        {
+          "program": "date",
+          "count": 3
+        },
+        {
+          "program": "find",
+          "count": 3
+        },
+        {
+          "program": "python3",
+          "count": 3
+        },
+        {
+          "program": "sed",
+          "count": 3
+        },
+        {
+          "program": "grep",
+          "count": 2
+        },
+        {
+          "program": "head",
+          "count": 2
+        },
+        {
+          "program": "tr",
+          "count": 2
+        }
+      ],
+      "node_starts": 45,
+      "bash_starts": 9,
+      "find_count": 3,
+      "tail_ms": 14797,
+      "tail_ms_max": 14824,
+      "survivors": 2,
+      "survivor_cpu_ms": 160,
+      "survivor_cpu_note": "lower bound: CPU time of each surviving process at its last poll, summed. survivors counts distinct pids seen after the last blocking hook returned, so a burst of short processes counts each one",
+      "survivor_programs": [
+        {
+          "program": "bash",
+          "script": "session-start",
+          "count": 1
+        },
+        {
+          "program": "node",
+          "script": "brain-prewarm.cjs",
+          "count": 1
+        }
+      ],
+      "killed_survivors": 0,
+      "blocked_calls": 0,
+      "carry_over_calls": 0,
+      "failed_hook_runs": 0,
+      "load1_start": 0.67,
+      "load1_end": 0.52,
+      "noisy": false,
+      "changed_taken_runs": 3,
+      "changed_unknown_runs": 0
+    }
+  ]
+}

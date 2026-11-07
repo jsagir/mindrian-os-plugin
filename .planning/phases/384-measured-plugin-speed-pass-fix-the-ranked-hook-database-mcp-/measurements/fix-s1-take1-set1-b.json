@@ -1,0 +1,225 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "ccf070ebd8d9f2b233e2055d63f1a54f5d6f4fb2",
+    "tree_label": "after",
+    "base_sha": "f29165499df04a06d420e1d3afa48a00c2981e84",
+    "started_at": "2026-11-07T08:12:25.136Z",
+    "ended_at": "2026-11-07T08:30:42.911Z",
+    "load1_start": 0.71,
+    "load1_end": 0.62
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "after",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.71,
+  "load1_end": 0.62,
+  "started_at": "2026-11-07T08:12:25.136Z",
+  "ended_at": "2026-11-07T08:30:42.911Z",
+  "targets": [
+    {
+      "id": "event:SessionStart:changed",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2323.3,
+        "p95": 3455.4,
+        "min": 2106.3,
+        "max": 5704.3
+      },
+      "cpu_ms": {
+        "median": 2180,
+        "p95": 2420,
+        "min": 2060,
+        "max": 4830
+      },
+      "rss_mb": {
+        "median": 79.4,
+        "p95": 79.7,
+        "min": 78.4,
+        "max": 79.8
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14979,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 79.7,
+          "cpu_ms": 30
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 2323.3,
+          "cpu_ms": 1700
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 248.3,
+          "cpu_ms": 160
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 166.7,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 161.7,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 108.1,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 113.1,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 194.4,
+          "cpu_ms": 90
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 15,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.71,
+      "load1_end": 0.31,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:SessionStart:compact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 2265.4,
+        "p95": 2932.7,
+        "min": 2047.9,
+        "max": 3195
+      },
+      "cpu_ms": {
+        "median": 2170,
+        "p95": 2270,
+        "min": 2000,
+        "max": 2280
+      },
+      "rss_mb": {
+        "median": 79.1,
+        "p95": 79.7,
+        "min": 78.6,
+        "max": 79.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 15001,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 97.3,
+          "cpu_ms": 40
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 2265.4,
+          "cpu_ms": 1620
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 246.2,
+          "cpu_ms": 170
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 173.9,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 186.8,
+          "cpu_ms": 80
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 103.4,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 109.9,
+          "cpu_ms": 30
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 206.7,
+          "cpu_ms": 90
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.31,
+      "load1_end": 0.62,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}
