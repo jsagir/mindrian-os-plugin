@@ -5224,3 +5224,9 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [x] **SHIP388-03**: The smallest safe exclusion list, with owner-visible effects. Plans 388-02, 388-03 and 388-04.
 - [x] **SHIP388-04**: The list is applied with a before and after size and a fresh-install check. Plan 388-04.
 - [ ] **SHIP388-05**: Owner forks come as gate cards. Plan 388-03.
+
+### Phase 390 - Recalibrate or cut stale surfaces (R390, minted at plan time 2026-11-07)
+
+- [ ] **R390-TABLE**: A verified keep / recalibrate / cut table is filed (no surface is removed in step 1), the rows the code check proved wrong are corrected, and the Phase 385 no-caller scan is re-run and recorded with a caller matrix. Plans 390-01 and 390-02.
+- [ ] **R390-FIX**: A behaviour gap (prose says wired, code is not) is fixed only after the owner answers its card. Plans 390-04 and 390-05 deliver the card and the answer gate; the fix is planned after the answer.
+- [ ] **R390-CUT-n**: Each owner-approved cut group is removed after a caller proof across CLI, Desktop, Cowork, hooks and tests, with a failing removal test first and regenerated Part 11 registries. Ids R390-CUT-1 and up are minted when a card is answered. Plans 390-03 (removal test template and aggregator), 390-04 (answer gate) and 390-05 (owner cards) prepare it; the removals are planned after the cards are answered.

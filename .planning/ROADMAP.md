@@ -4112,14 +4112,16 @@ Plans:
 
 ### Phase 390: Recalibrate or cut stale surfaces (keep, recalibrate, cut table first)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Know which stale-looking surfaces are really unused before anything is removed. File one verified keep / recalibrate / cut table (no surface is removed in step 1), correct the rows the code check proved wrong, re-run the Phase 385 no-caller scan, and give the owner one decision card per group of candidates with a one-word answer gate. A group is cut, merged or rewired only after its card is answered, with a caller proof across CLI, Desktop, Cowork, hooks and tests, a failing removal test first, and regenerated Part 11 registries. The grade family, Eureka (including the rs-* set), /mos:radar and the MVA family are never offered for a cut.
+**Requirements**: R390-TABLE, R390-FIX, R390-CUT-n
 **Depends on:** Phase 389
-**Plans:** 0 plans
+**Plans:** 5 plans (Wave 0 planned 2026-11-07; plan 390-05 stops for an owner decision; later waves are planned after the cards are answered)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 390 to break down)
+- [ ] 390-01 verified table and five corrections, 390-02 no-caller scan record and caller matrix, 390-03 removal test template and aggregator, 390-04 answer gate tool, 390-05 owner decision cards (owner).
+
+Later waves (NOT planned yet): one plan set per answered group G1 orphan modules, G2 behaviour gaps, G3 skills, G4 agents, G5 command groups, G6 Pinecone files. A group answered KEEP-ALL gets no plan.
 
 ### Phase 391: Claude Code compatibility check (2.1.288 to 2.1.318) and radar fetch fix
 
