@@ -38,10 +38,8 @@ const H = require(path.join(REPO, 'tools', 'perf', 'perf-harness.cjs'));
 // first), measured in 3 fresh child processes on the unchanged code: 479, 479, 479.
 const BASELINE_MODULES = 479;
 // REMOVED_MODULES: the modules that only the selected tool files reach (no other tool file loads them), taken from
-// the attribution table (measurements/fix-s7-attribution.md). The table counted 100 exclusive modules; 4 of them are reached by
-// requires that stay eager (perspectives/index, surfaced-offers, answer-route, session-verify-state), so the reachable number is 97,
-// rounded down to a multiple of 5.
-const REMOVED_MODULES = 95;
+// the attribution table (measurements/fix-s7-attribution.md), rounded down to a multiple of 5.
+const REMOVED_MODULES = 100;
 // The files that the change moves handler-only requires in, with the module path parts that must not be loaded when
 // that one file is required alone.
 const SELECTED_TOOL_FILES = {
