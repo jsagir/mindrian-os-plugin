@@ -4101,14 +4101,27 @@ Plans:
 
 ### Phase 389: Pyramid: seed and full (replaces the MVA family)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** One framework, the Pyramid Principle, at two depths replaces the MVA family. Seed: a person with no room types one venture sentence and gets a one-page pyramid (Situation, Complication, Question, Answer) written by the host model at once; outside evidence comes only after a card, only as short generic phrases through the Part 8 route. Full: with a room, the Phase 363 pyramid engine upgrades the seed. One gate: build a room, keep going, or challenge. The old per-message hook, brief, option router and pipeline core are retired, mva-report becomes session-report, and the surviving modules are renamed, each behind an owner token on one card. Source: 389-PRD.md and 389-RESEARCH.md (the research changes the PRD where they conflict).
+**Requirements**: PYR389-01 to PYR389-14
 **Depends on:** Phase 388
-**Plans:** 0 plans
+**Plans:** 14 plans (planned 2026-11-07, not executed; plan 389-02 stops for the owner card; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 389 to break down)
+- [ ] 389-01-PLAN.md - caller proof, test baseline, generator map, stale option-2 text fixed (wave 1)
+- [ ] 389-02-PLAN.md - owner decision card D1 to D11 with a token gate and a checker; ends at NEEDS_HUMAN (wave 2, not autonomous)
+- [ ] 389-03-PLAN.md - Seed cells on short generic phrases, card and run commands with a code refusal, Part 8 canary, live measure record (wave 2)
+- [ ] 389-04-PLAN.md - Full depth on the Phase 363 pyramid engine: one template, one adapter (wave 2)
+- [ ] 389-05-PLAN.md - Seed record and the --from-brief hand-off without the option router (wave 2)
+- [ ] 389-06-PLAN.md - Seed and Full wired into /mos:structure-argument, evidence card, Decide gate, hitl_stages, posture D11 (wave 3, gated)
+- [ ] 389-07-PLAN.md - first-install reward on the Seed (D2), per-message hook removed and Larry offer (D1) (wave 4, gated)
+- [ ] 389-08-PLAN.md - retire the pipeline skill (D3) and the option command, skill and router (D4) (wave 5, gated)
+- [ ] 389-09-PLAN.md - old brief command: soft alias or retired (D5, D8) (wave 6, gated)
+- [ ] 389-10-PLAN.md - remove the old pipeline core and apply the telemetry rule (D6) (wave 7, gated)
+- [ ] 389-11-PLAN.md - rename mva-report to session-report with an unchanged body (D7, D8) (wave 8, gated)
+- [ ] 389-12-PLAN.md - share step: opt-in with an exact-text card, or retire the deck and deploy (D10) (wave 9, gated)
+- [ ] 389-13-PLAN.md - rename the five surviving MVA-named modules, byte-equal behavior (D9) (wave 10, gated)
+- [ ] 389-14-PLAN.md - final gates against the baseline, release gate registration, changelog, carry-over list (wave 11)
 
 ### Phase 390: Recalibrate or cut stale surfaces (keep, recalibrate, cut table first)
 
