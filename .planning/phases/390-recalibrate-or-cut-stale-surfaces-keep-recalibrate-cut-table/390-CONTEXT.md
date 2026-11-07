@@ -2,7 +2,7 @@
 
 **Gathered:** 2026-11-07 by the planner from 390-PRD.md and 390-RESEARCH.md. No discuss-phase ran (config workflow.skip_discuss is true). Every decision below is an owner ruling already written in the PRD, in 385-PROOF section 14, or in the phase request. Nothing here is new policy.
 
-**Phase dependency:** Phase 390 depends on Phase 389 (ROADMAP). On 2026-11-07 Phase 389 has a PRD and a RESEARCH file and no plan. Wave 0 below is read-only analysis, new test scaffolding and owner cards. It changes no file that Phase 389 owns. Every later wave must re-check the state of Phase 389 before it touches a surface the MVA family uses.
+**Phase dependency:** Phase 390 depends on Phase 389 (ROADMAP). Phase 389 is planned (14 plans, 389-01 to 389-14) and not executed; copy the state from 390-SCAN.md section 6, do not hard-code it. Wave 0 below is read-only analysis, new test scaffolding and owner cards. It changes no file that Phase 389 owns. Every later wave must re-check the state of Phase 389 before it touches a surface the MVA family uses.
 
 <decisions>
 ## Implementation Decisions (locked)
