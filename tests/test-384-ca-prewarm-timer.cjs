@@ -8,9 +8,10 @@
  *   parity  (default, no argument): marker keys, return value, no stdout, early result,
  *           timeout path. Passes on the code before and after the timer fix.
  *   all     parity plus mechanism.
- * The mechanism group (no armed timer after the probe answers, child exit time) is added
- * by the next commit. A run with no argument skips it, so a revert of the fix leaves a
- * no-argument run green.
+ *   mechanism  no armed timer after the probe answers (M1), child exit time (M2), no armed
+ *           timer after the timeout path (M3). RED on code without the timer fix.
+ * A run with no argument skips the mechanism group, so a revert of the fix and of this
+ * group leaves a no-argument run green.
  *
  * Node built-ins only. The probe is injected, so brain-client is never loaded and no
  * network call is made. Temporary folders are removed at the end. The Brain is never
@@ -107,8 +108,44 @@ async function parityGroup() {
   }
 }
 
+async function mechanismGroup() {
+  // M1 no armed timer after the probe answers or fails.
+  for (const [label, probe] of [
+    ['answer', async () => ({ ok: true })],
+    ['reject', async () => { throw new Error('boom'); }],
+  ]) {
+    const home = mkTmp();
+    const before = timeouts();
+    await prewarm({ probe, originHost: 'example.test', homeDir: home, timeoutMs: 20000, now: FIXED });
+    const after = timeouts();
+    check('M1 no armed Timeout after prewarm (' + label + ')', after === before, 'before ' + before + ', after ' + after);
+  }
+
+  // M2 a child that only runs prewarm exits soon after the probe answers.
+  {
+    const home = mkTmp();
+    const code = 'const {prewarm}=require(' + JSON.stringify(PREWARM) + ');' +
+      'prewarm({probe:async()=>({ok:true}),originHost:"example.test",timeoutMs:8000}).then(()=>{});';
+    const env = Object.assign({}, process.env, { MINDRIAN_HOME: home });
+    delete env.MINDRIAN_DEBUG;
+    const t0 = Date.now();
+    const r = cp.spawnSync(process.execPath, ['-e', code], { env, encoding: 'utf8', timeout: 30000 });
+    const ms = Date.now() - t0;
+    check('M2 child exits within 3000 ms (timeoutMs 8000)', r.status === 0 && ms < 3000, 'status ' + r.status + ', ' + ms + ' ms');
+  }
+
+  // M3b the timeout path leaves no Timeout entry either.
+  {
+    const home = mkTmp();
+    const before = timeouts();
+    await prewarm({ probe: () => new Promise(() => {}), originHost: 'example.test', homeDir: home, timeoutMs: 100, now: FIXED });
+    check('M3 no armed Timeout after the timeout path', timeouts() === before, 'before ' + before + ', after ' + timeouts());
+  }
+}
+
 async function main() {
   if (group === 'parity' || group === 'all') await parityGroup();
+  if (group === 'mechanism' || group === 'all') await mechanismGroup();
   process.stdout.write(failed === 0 ? 'ca-prewarm: ALL PASS\n' : 'ca-prewarm: ' + failed + ' FAILED\n');
   for (const d of tmpDirs) {
     try { fs.rmSync(d, { recursive: true, force: true }); } catch (_e) { /* ignore */ }
