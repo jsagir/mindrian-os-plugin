@@ -42,6 +42,9 @@
 - **Audio transcription says where the file goes (Phase 386).** Five files now say in one plain line that the audio file leaves your machine for Modulate and does not go to the Brain. The script itself is unchanged. <!-- 386-E-MODULATE -->
 - **Obfuscated email forms and international phone-like numbers now block (Phase 386).** Emails written as "name [at] domain [dot] tld" and phone-like numbers that start with a plus and a country code are caught in every shape. A measurement on the test corpora showed no new block on ordinary questions. <!-- 386-E-IDENT -->
 
+### Pending
+- Phase 383 ships partial: the Windows room-create retest (plan 383-11) is still pending the owner's laptop run and signed receipt. Linux and the Windows side of the dev machine pass; QA383-01 stays open until the receipt is signed.
+
 ## [2.0.0-beta.79] - 2026-11-05
 
 ### Added

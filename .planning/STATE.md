@@ -9232,6 +9232,7 @@ Progress: [█████████░] 86%
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |
+| 261107-vhr | CHANGELOG beta.80 block gets a Pending bullet: Phase 383 ships partial, Windows room-create retest (plan 383-11) pending the owner's laptop run and signed receipt, QA383-01 open | 2026-11-07 | docs(quick-261107-vhr) commit | complete | [261107-vhr-changelog-pending-windows-retest-line-fo](./quick/261107-vhr-changelog-pending-windows-retest-line-fo/) |
 | 261103-vdn | 369.6 isolation guard skips only room/.mindrian/statusline-cache.json (live statusline rewrote it every ~7s and tripped B4d/B5f in the suite); pinned by tests/test-3696-isolation-cache-skip.cjs | 2026-11-03 | efdfad669 | complete | [261103-vdn-369-6-isolation-guard-skip-statusline-ca](./quick/261103-vdn-369-6-isolation-guard-skip-statusline-ca/) |
 | 261029-nhu | MINDRIAN_NPM_RECONCILE_SKIP=1 turns off the SessionStart npm reconcile (off switch for the 369.6 isolation canary; Codex round 1 BLOCK on a real-root stat probe, round 2 APPROVE) | 2026-10-29 | 58a997ca8 | complete | [261029-nhu-reconcile-hook-off-switch-mindrian-npm-r](./quick/261029-nhu-reconcile-hook-off-switch-mindrian-npm-r/) |
 |---|-------------|------|--------|--------|-----------|
