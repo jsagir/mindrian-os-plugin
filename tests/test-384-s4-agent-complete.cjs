@@ -5,9 +5,6 @@
 // A copy of the real scripts/on-agent-complete runs in a temporary scripts folder
 // next to stubs. Fixture rooms only (Canon Part 8). Node built-ins only, no network.
 //
-// RED reading on the unchanged script (plan 384-16): M1 max in flight 20; M2 max in flight 8
-// for every value (8 files). The mechanism group is expected to fail until the fix lands.
-//
 // Usage: node tests/test-384-s4-agent-complete.cjs [parity|mechanism]
 // SPEED384_WRITE_GOLDEN=1 writes tests/fixtures/384-s4-envelope-golden.json.
 
