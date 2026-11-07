@@ -1,0 +1,659 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "f20088ab2e958b27d234ef02767e45dc7b668062",
+    "tree_label": "before",
+    "base_sha": "0866337bf58f71700af4351577609faa5787f0c0",
+    "started_at": "2026-11-07T07:24:34.215Z",
+    "ended_at": "2026-11-07T07:28:04.909Z",
+    "load1_start": 0.32,
+    "load1_end": 0.79
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.32,
+  "load1_end": 0.79,
+  "started_at": "2026-11-07T07:24:34.215Z",
+  "ended_at": "2026-11-07T07:28:04.909Z",
+  "block": {
+    "write_path": "off (default: MINDRIAN_MCP_FIRST unset)",
+    "tool": "stop_gate_check",
+    "writes_to_room": false,
+    "reaches_cascade": false,
+    "ping_delay_ms": 20,
+    "meaning": "ping rows: wall_ms is the time from the ping send to its reply; tool rows: the time from the call send to its reply"
+  },
+  "targets": [
+    {
+      "id": "mcp:block:idle-ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.7,
+        "p95": 1.1,
+        "min": 0.3,
+        "max": 1.2
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "before"
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 391.1,
+        "p95": 594.1,
+        "min": 278.7,
+        "max": 604.6
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "before",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:tool",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 411.2,
+        "p95": 614.1,
+        "min": 298.3,
+        "max": 624.7
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "before",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 363.8,
+        "p95": 546,
+        "min": 241.8,
+        "max": 665.2
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "before",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:tool",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 383.4,
+        "p95": 565.9,
+        "min": 262,
+        "max": 683.6
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "before",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block-b:idle-ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.6,
+        "p95": 1.1,
+        "min": 0.3,
+        "max": 1.3
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "after"
+    },
+    {
+      "id": "mcp:block-b:stop_gate_check:cold:ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 193.4,
+        "p95": 374.6,
+        "min": 105,
+        "max": 416.7
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "after",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block-b:stop_gate_check:cold:tool",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 460.3,
+        "p95": 615.4,
+        "min": 309.7,
+        "max": 685.5
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "after",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block-b:stop_gate_check:warm:ping",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 153.2,
+        "p95": 475.9,
+        "min": 89.8,
+        "max": 479.7
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "after",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block-b:stop_gate_check:warm:tool",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 396,
+        "p95": 750.1,
+        "min": 297.9,
+        "max": 756.2
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "ping_delay_ms": 20,
+      "tree_label": "after",
+      "tool_error_runs": 0
+    },
+    {
+      "id": "mcp:block:idle-ping:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 0.1,
+        "p95": 0.5,
+        "min": -0.6,
+        "max": 0.5
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair idle ping time of tree A minus tree B, same variant, same round"
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:ping:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 193.8,
+        "p95": 279.1,
+        "min": 1.8,
+        "max": 304.5
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair ping time during the tool of tree A minus tree B, same variant, same round"
+    },
+    {
+      "id": "mcp:block:stop_gate_check:cold:tool:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": -31.4,
+        "p95": 83.4,
+        "min": -247.1,
+        "max": 123.6
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair tool reply time of tree A minus tree B, same variant, same round"
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:ping:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 170.6,
+        "p95": 211.1,
+        "min": -55.7,
+        "max": 285.8
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair ping time during the tool of tree A minus tree B, same variant, same round"
+    },
+    {
+      "id": "mcp:block:stop_gate_check:warm:tool:a-minus-b",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": -35,
+        "p95": 15.8,
+        "min": -317.7,
+        "max": 94.1
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 0.32,
+      "load1_end": 0.79,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair tool reply time of tree A minus tree B, same variant, same round"
+    }
+  ],
+  "compare": {
+    "a": "before",
+    "b": "after"
+  },
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

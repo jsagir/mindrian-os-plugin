@@ -1,0 +1,22 @@
+{
+  "verdict": "NO-GAIN",
+  "d1": 172.3,
+  "d2": 210.6,
+  "noise": 174.3,
+  "floor": 50,
+  "mA1": 257.5,
+  "mB1": 85.2,
+  "mA2": 363.8,
+  "mB2": 153.2,
+  "nA1": 15,
+  "nB1": 15,
+  "nA2": 15,
+  "nB2": 15,
+  "p95_a": 546,
+  "p95_b": 475.9,
+  "spread_a_pct": 34.218574,
+  "spread_b_pct": 57.04698,
+  "metric": "wall_ms.median",
+  "p95_metric": "wall_ms.p95",
+  "label": "S8 stop_gate_check warm ping during the call, before and after"
+}
