@@ -279,16 +279,7 @@ done
 # This keeps CLI hooks and MCP tools using identical intelligence logic.
 if [ -n "$room_dir" ]; then
   # Run cascade in foreground so we can capture and report status
-  # Phase 384-20 (S2): the cascade skips every path that has no /room/ or /rooms/
-  # segment (isRoomFile in lib/core/intelligence-cascade.cjs, same rule as the glob
-  # below), so the node start is not paid for such a path. The constant is the part
-  # of the cascade skip result that this script reads (the skipped flag); the other
-  # fields it reads are null for a skipped call. The outputs stay equal.
-  if [[ "$FILE_PATH" == */room/* ]] || [[ "$FILE_PATH" == */rooms/* ]]; then
-    CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
-  else
-    CASCADE_OUTPUT='{"skipped":true,"skipReason":"filePath not inside a room directory"}'
-  fi
+  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
 
   # 88.1-03: systemMessage retrofit. Derive a tight one-line status reporting
   # which section fired the regen/recompile cascade plus the triggering
