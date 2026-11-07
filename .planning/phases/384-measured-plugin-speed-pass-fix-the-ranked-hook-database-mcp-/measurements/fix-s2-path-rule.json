@@ -1,0 +1,63 @@
+{
+  "schema": "mos.path-rule-384/1",
+  "default_rooms_home_folder": "MindrianRooms",
+  "rule": "path contains /room/ or /rooms/",
+  "rows": [
+    {
+      "layout": "L1",
+      "shape": "base/room/n",
+      "path_rule_passed": true,
+      "bash_glob_matches": true,
+      "agree": true,
+      "skip_reason": "ROOM.md is not an artifact"
+    },
+    {
+      "layout": "L2",
+      "shape": "base/rooms/n",
+      "path_rule_passed": true,
+      "bash_glob_matches": true,
+      "agree": true,
+      "skip_reason": "ROOM.md is not an artifact"
+    },
+    {
+      "layout": "L3",
+      "shape": "base/<default rooms home>/n",
+      "path_rule_passed": false,
+      "bash_glob_matches": false,
+      "agree": true,
+      "skip_reason": "filePath not inside a room directory"
+    },
+    {
+      "layout": "L4",
+      "shape": "base/proj/.planning/phases/x",
+      "path_rule_passed": false,
+      "bash_glob_matches": false,
+      "agree": true,
+      "skip_reason": "filePath not inside a room directory"
+    },
+    {
+      "layout": "L5",
+      "shape": "base/Rooms/n",
+      "path_rule_passed": false,
+      "bash_glob_matches": false,
+      "agree": true,
+      "skip_reason": "filePath not inside a room directory"
+    },
+    {
+      "layout": "L6",
+      "shape": "base/my-room/n",
+      "path_rule_passed": false,
+      "bash_glob_matches": false,
+      "agree": true,
+      "skip_reason": "filePath not inside a room directory"
+    },
+    {
+      "layout": "L7",
+      "shape": "base/team-rooms/n",
+      "path_rule_passed": false,
+      "bash_glob_matches": false,
+      "agree": true,
+      "skip_reason": "filePath not inside a room directory"
+    }
+  ]
+}
