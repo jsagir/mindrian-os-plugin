@@ -1,0 +1,170 @@
+{
+ "before": {
+  "head": "dcbe73eee4ab04d2892ac0a9581a194c1df504dc",
+  "entryCount": 2417,
+  "size": 14042864,
+  "unpackedSize": 46291666,
+  "packageJsonHash": "862d78eaa96c4c43fe7391f53d881c2b6e5a2ac9",
+  "shrinkwrapHash": "371d79984756c366e688dd83c3df5a248967e608",
+  "gate": {
+   "test-341-payload-ceiling": "PASS",
+   "test-341-payload-shrinkwrap-present": "PASS",
+   "test-341-shrinkwrap-no-dev": "PASS",
+   "test-341-release-shrinkwrap-gate": "PASS",
+   "test-369-walled-manifest": "PASS",
+   "test-369-installed-layout": "PASS",
+   "test-369.1-desktop-artifact": "PASS",
+   "test-369.1-bin-relocation": "PASS",
+   "test-369.1-sharp-out": "PASS",
+   "test-369.1-release-lockstep": "PASS",
+   "test-345-lockstep": "PASS",
+   "test-release-bump-tag-and-publish-gates": "PASS",
+   "test-quick-261106-critic-baseline-ships": "PASS",
+   "test-387-eureka-installed-layout": "PASS",
+   "test-380-installed-layout": "PASS",
+   "check-release-payload-ceiling": "PASS",
+   "run-harness-check": "PASS",
+   "build-connector-registry-check": "PASS",
+   "build-orchestration-projection-check": "PASS",
+   "check-render-coverage": "PASS",
+   "build-desktop-artifact-check": "PASS",
+   "bash-n-run-all-366": "PASS",
+   "step-9.5-grep": "PASS",
+   "verify-release": "PASS",
+   "ship-less": "FAIL"
+  }
+ },
+ "after": {
+  "head": "a5e88deea72661fb70251643d9ec09c106989cf8",
+  "entryCount": 2195,
+  "size": 13330812,
+  "unpackedSize": 43430957,
+  "packageJsonHash": "f4c12c3941e0205b0d103c25c158c0683726d087",
+  "shrinkwrapHash": "371d79984756c366e688dd83c3df5a248967e608",
+  "gate": {
+   "test-341-payload-ceiling": "PASS",
+   "test-341-payload-shrinkwrap-present": "PASS",
+   "test-341-shrinkwrap-no-dev": "PASS",
+   "test-341-release-shrinkwrap-gate": "PASS",
+   "test-369-walled-manifest": "PASS",
+   "test-369-installed-layout": "PASS",
+   "test-369.1-desktop-artifact": "PASS",
+   "test-369.1-bin-relocation": "PASS",
+   "test-369.1-sharp-out": "PASS",
+   "test-369.1-release-lockstep": "PASS",
+   "test-345-lockstep": "PASS",
+   "test-release-bump-tag-and-publish-gates": "PASS",
+   "test-quick-261106-critic-baseline-ships": "PASS",
+   "test-387-eureka-installed-layout": "PASS",
+   "test-380-installed-layout": "PASS",
+   "check-release-payload-ceiling": "PASS",
+   "run-harness-check": "PASS",
+   "build-connector-registry-check": "PASS",
+   "build-orchestration-projection-check": "PASS",
+   "check-render-coverage": "PASS",
+   "build-desktop-artifact-check": "PASS",
+   "bash-n-run-all-366": "PASS",
+   "step-9.5-grep": "PASS",
+   "verify-release": "PASS",
+   "ship-less": "PASS"
+  },
+  "removed": {
+   "total": {
+    "files": 222,
+    "bytes": 2861559
+   },
+   "added": [],
+   "byPattern": {
+    "!data/arbitration-rule-catalogue.json": {
+     "files": 1,
+     "bytes": 19650
+    },
+    "!data/capability-map-registry.json": {
+     "files": 1,
+     "bytes": 1005
+    },
+    "!data/connector-out-of-spine-allowlist.json": {
+     "files": 1,
+     "bytes": 7262
+    },
+    "!lib/__pycache__/*.pyc": {
+     "files": 1,
+     "bytes": 154
+    },
+    "!lib/conversation/*.test.cjs": {
+     "files": 2,
+     "bytes": 12475
+    },
+    "!lib/core/__pycache__/*.pyc": {
+     "files": 7,
+     "bytes": 91512
+    },
+    "!lib/core/breakthrough/*.test.cjs": {
+     "files": 11,
+     "bytes": 123619
+    },
+    "!lib/core/*.test.cjs": {
+     "files": 39,
+     "bytes": 396573
+    },
+    "!lib/core/migrations/*.test.cjs": {
+     "files": 1,
+     "bytes": 6706
+    },
+    "!lib/core/navigation/*.test.cjs": {
+     "files": 2,
+     "bytes": 9878
+    },
+    "!lib/core/security/*.test.cjs": {
+     "files": 2,
+     "bytes": 17769
+    },
+    "!lib/core/telemetry/*.test.cjs": {
+     "files": 3,
+     "bytes": 26844
+    },
+    "!lib/core/temporal/*.test.cjs": {
+     "files": 7,
+     "bytes": 52110
+    },
+    "!lib/hmi/*.test.cjs": {
+     "files": 7,
+     "bytes": 34336
+    },
+    "!lib/import/*.test.cjs": {
+     "files": 12,
+     "bytes": 93219
+    },
+    "!lib/import/run-all-tests.cjs": {
+     "files": 1,
+     "bytes": 1081
+    },
+    "!lib/mcp/app-html/mindrian-platform.html": {
+     "files": 1,
+     "bytes": 57150
+    },
+    "!lib/memory/!(feynman-prompts-drift|post-compact-reinjection).test.cjs": {
+     "files": 117,
+     "bytes": 1716452
+    },
+    "!lib/memory/run-feynman-tests.cjs": {
+     "files": 1,
+     "bytes": 157044
+    },
+    "!lib/render/*.test.cjs": {
+     "files": 1,
+     "bytes": 10492
+    },
+    "!lib/vault/*.test.cjs": {
+     "files": 1,
+     "bytes": 6483
+    },
+    "!lib/workflow/*.test.cjs": {
+     "files": 3,
+     "bytes": 19745
+    }
+   },
+   "unmatched": []
+  }
+ }
+}

@@ -593,6 +593,7 @@ function selftest() {
   eq([claimVerdict(2500000), claimVerdict(2000000), claimVerdict(3000000), claimVerdict(1999999), claimVerdict(3000001)],
     ['CONFIRMED', 'CONFIRMED', 'CONFIRMED', 'REFUTED-LOWER', 'REFUTED-HIGHER'], 'test 4 verdicts');
   selftestProbe(failures);
+  selftestGate(failures);
   if (failures.length) { for (const f of failures) console.error('FAIL ' + f); return 1; }
   console.log('measure selftest: 4 tests plus the probe and card cases passed; the mutation with a wrong expected value (1001) was caught');
   return 0;
@@ -781,15 +782,121 @@ function selftestProbe(failures) {
   eq(checkCard(wrongSum, probe).problems.length > 0, true, 'check-decision edited byte sum must fail');
 }
 
+
+// ---------------------------------------------------------------- plan 388-04: answer gate and drift gate
+
+const OWNER_APPROVED_RUNNERS = ['lib/import/run-all-tests.cjs', 'lib/memory/run-feynman-tests.cjs'];
+
+// pure: judge the answer block of a card. isAncestor(sha) -> boolean. Returns { code, word, move }.
+function gateAnswer(text, isAncestor) {
+  const card = parseCard(text);
+  const ans = card.answer;
+  if (ans === null || ans === 'PENDING') return { code: 1, word: 'BLOCKED-PENDING', move: false };
+  if (ans === 'NO') return { code: 2, word: 'DECLINED', move: false };
+  if (ans !== 'APPROVE' && ans !== 'APPROVE-BASELINE-UNDER-DATA') return { code: 1, word: 'BLOCKED-TOKEN', move: false };
+  const sha = sha256(canonicalList(card.rows.map((r) => r.pattern)));
+  if (!card.rows.length || card.sha !== sha) return { code: 1, word: 'BLOCKED-HASH', move: false };
+  if (!card.head || !isAncestor(card.head)) return { code: 1, word: 'BLOCKED-HEAD', move: false };
+  return { code: 0, word: ans, move: ans === 'APPROVE-BASELINE-UNDER-DATA', sha, head: card.head };
+}
+
+function headIsAncestor(sha) {
+  if (!/^[0-9a-f]{7,40}$/.test(sha)) return false;
+  return spawnSync('git', ['merge-base', '--is-ancestor', sha, 'HEAD'], { cwd: REPO }).status === 0;
+}
+
+function cmdGateAnswer(file) {
+  const res = gateAnswer(fs.readFileSync(path.resolve(file), 'utf8'), headIsAncestor);
+  console.log(res.word + (res.move ? ' MOVE' : ''));
+  process.exit(res.code);
+}
+
+// pure: judge a drift. prevRemoved: Set of paths the card removed; nowRemoved: array of paths the probe removes now;
+// safe: Set of SAFE paths; approved: Set of owner-approved paths; scanner(path) -> verdict string or null.
+function judgeDrift(prevRemoved, nowRemoved, safe, approved, scanner) {
+  const lines = [];
+  let code = 0;
+  for (const p of nowRemoved) {
+    if (prevRemoved.has(p)) continue;
+    if (safe.has(p) || approved.has(p)) { lines.push('ADDED-SAFE ' + p + ' (SAFE row in 388-safe-set.tsv)'); continue; }
+    const v = scanner(p);
+    if (v === 'SAFE') lines.push('ADDED-SAFE ' + p + ' (scanner verdict SAFE)');
+    else { lines.push('DRIFT-NOT-SAFE ' + p + ' (' + (v || 'no verdict') + ')'); code = 1; }
+  }
+  const now = new Set(nowRemoved);
+  for (const p of prevRemoved) if (!now.has(p)) lines.push('NO-LONGER-REMOVED ' + p);
+  return { code, lines };
+}
+
+function cmdGateDrift(argv) {
+  const get = (n) => { const i = argv.indexOf(n); return i === -1 ? null : argv[i + 1]; };
+  const card = parseCard(fs.readFileSync(path.resolve(get('--card')), 'utf8'));
+  const safeFile = path.resolve(get('--safe'));
+  const { safe } = readSafeRows(safeFile);
+  const probeRows = fs.readFileSync(path.join(PHASE_DIR, '388-pattern-probe.tsv'), 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).slice(1).map((l) => l.split('\t')[0]);
+  const scratch = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), 'mos388-drift-'));
+  try {
+    const patFile = path.join(scratch, 'patterns.txt');
+    fs.writeFileSync(patFile, card.rows.map((r) => r.pattern).join('\n') + '\n');
+    const out = path.join(scratch, 'probe.tsv');
+    const r = spawnSync(process.execPath, [__filename, 'probe-patterns', '--safe', safeFile, '--patterns', patFile, '--out', out, '--approve', OWNER_APPROVED_RUNNERS.join(',')], { encoding: 'utf8', timeout: 900000, maxBuffer: 64 * 1024 * 1024 });
+    // the probe exits 1 on a problem; its output still tells which paths: read the tsv when present, else parse PROBLEM lines
+    let nowRemoved = [];
+    if (fs.existsSync(out)) nowRemoved = fs.readFileSync(out, 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).slice(1).map((l) => l.split('\t')[0]);
+    const extra = (r.stdout || '').split('\n').filter((l) => l.startsWith('PROBLEM removed but not a SAFE row')).map((l) => l.replace(/^.*: /, ''));
+    for (const p of extra) if (!nowRemoved.includes(p)) nowRemoved.push(p);
+    const other = (r.stdout || '').split('\n').filter((l) => l.startsWith('PROBLEM') && !l.startsWith('PROBLEM removed but not a SAFE row'));
+    for (const o of other) console.log('PROBE-' + o);
+    if (r.status !== 0 && r.status !== 1) { console.log('probe crashed: ' + (r.stderr || '').slice(0, 300)); process.exit(1); }
+    const scanner = (p) => {
+      const s = spawnSync(process.execPath, [path.join(PHASE_DIR, '388-runtime-need-scan.cjs'), 'paths', '--list', p], { encoding: 'utf8', timeout: 300000 });
+      const row = (s.stdout || '').split('\n').filter(Boolean).map((l) => l.split('\t')).find((c) => c[0] === p);
+      return row ? row[2] : null;
+    };
+    const res = judgeDrift(new Set(probeRows), nowRemoved, safe, new Set(OWNER_APPROVED_RUNNERS), scanner);
+    for (const l of res.lines) console.log(l);
+    const probeBad = other.length ? 1 : 0;
+    console.log('gate-drift: ' + (res.code || probeBad ? 'DRIFT' : 'no drift that matters') + ' (' + nowRemoved.length + ' paths removed now, ' + probeRows.length + ' on the card)');
+    process.exit(res.code || probeBad);
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+function selftestGate(failures) {
+  const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) failures.push(m + ': got ' + JSON.stringify(a) + ' expected ' + JSON.stringify(b)); };
+  const pats = ['!lib/*.test.cjs', '!data/x.json'];
+  const sha = sha256(canonicalList(pats));
+  const mk = (ans, hash, head) => ['| \x60' + pats[0] + '\x60 | T1 | 2 | 30 | e | f |', '| \x60' + pats[1] + '\x60 | T7 | 1 | 5 | e | f |', 'LIST-SHA256: ' + hash, 'HEAD-AT-DECISION: ' + head, 'OWNER-ANSWER: ' + ans].join('\n');
+  const anc = (s) => s === 'aaaaaaa';
+  const r1 = gateAnswer(mk('PENDING', sha, 'aaaaaaa'), anc); eq([r1.code, r1.word], [1, 'BLOCKED-PENDING'], 'gate test 1');
+  const r2 = gateAnswer(mk('NO', sha, 'aaaaaaa'), anc); eq([r2.code, r2.word], [2, 'DECLINED'], 'gate test 2');
+  const r3 = gateAnswer(mk('APPROVE-MOST', sha, 'aaaaaaa'), anc); eq([r3.code, r3.word], [1, 'BLOCKED-TOKEN'], 'gate test 3');
+  const r4 = gateAnswer(mk('APPROVE', 'f'.repeat(64), 'aaaaaaa'), anc); eq([r4.code, r4.word], [1, 'BLOCKED-HASH'], 'gate test 4');
+  const r5 = gateAnswer(mk('APPROVE', sha, 'aaaaaaa'), anc); eq([r5.code, r5.word, r5.move], [0, 'APPROVE', false], 'gate test 5a');
+  const r5b = gateAnswer(mk('APPROVE-BASELINE-UNDER-DATA', sha, 'aaaaaaa'), anc); eq([r5b.code, r5b.word, r5b.move], [0, 'APPROVE-BASELINE-UNDER-DATA', true], 'gate test 5b');
+  const r5c = gateAnswer(mk('APPROVE', sha, 'bbbbbbb'), anc); eq([r5c.code, r5c.word], [1, 'BLOCKED-HEAD'], 'gate test 5c head not ancestor');
+  // gate test 6: drift
+  const prev = new Set(['lib/a.test.cjs']);
+  const d1 = judgeDrift(prev, ['lib/a.test.cjs', 'lib/new.test.cjs'], new Set(['lib/a.test.cjs']), new Set(), () => null);
+  eq(d1.code, 1, 'gate test 6 unknown new path exits 1'); eq(d1.lines.some((l) => l.includes('lib/new.test.cjs')), true, 'gate test 6 names the path');
+  const d2 = judgeDrift(prev, ['lib/a.test.cjs', 'lib/new.test.cjs'], new Set(['lib/a.test.cjs']), new Set(), () => 'SAFE');
+  eq(d2.code, 0, 'gate test 6 SAFE new path exits 0'); eq(d2.lines.some((l) => l.startsWith('ADDED-SAFE lib/new.test.cjs')), true, 'gate test 6 prints ADDED-SAFE');
+  const d3 = judgeDrift(prev, ['lib/a.test.cjs', 'lib/new.test.cjs'], new Set(['lib/a.test.cjs']), new Set(), () => 'UNCERTAIN');
+  eq(d3.code, 1, 'gate test 6 UNCERTAIN new path exits 1');
+}
+
 function main() {
   const [cmd, arg] = process.argv.slice(2);
   if (cmd === 'selftest') process.exit(selftest());
+  if (cmd === 'gate-answer') return cmdGateAnswer(arg);
+  if (cmd === 'gate-drift') return cmdGateDrift(process.argv.slice(3));
   if (cmd === 'probe-patterns') return cmdProbePatterns(process.argv.slice(3));
   if (cmd === 'check-decision') return cmdCheckDecision(arg);
   if (cmd === 'measure') return cmdMeasure(path.resolve(arg || PHASE_DIR));
   if (cmd === 'check') return cmdCheck(path.resolve(arg));
   if (cmd === 'drift') return cmdDrift();
-  console.error('usage: 388-measure.cjs selftest | measure OUTDIR | check REPORT | drift | probe-patterns --safe FILE --patterns FILE --out FILE [--approve P1,P2] | check-decision FILE');
+  console.error('usage: 388-measure.cjs selftest | measure OUTDIR | check REPORT | drift | probe-patterns --safe FILE --patterns FILE --out FILE [--approve P1,P2] | check-decision FILE | gate-answer FILE | gate-drift --card FILE --safe FILE');
   process.exit(2);
 }
 

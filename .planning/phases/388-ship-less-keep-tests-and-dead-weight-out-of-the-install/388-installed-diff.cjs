@@ -251,6 +251,7 @@ async function runProbes(opts) {
         missing_module: /Cannot find module|ENOENT|ERR_REQUIRE|MODULE_NOT_FOUND/.test(res.stderr || ''),
         stdout: hash(scrubText(res.stdout || '', world, installed)),
       };
+      if (process.env.MOS388_KEEP_TEXT === '1') rec.hooks[key].text = scrubText(res.stdout || '', world, installed);
       putTrace('hook:' + n, traceOut);
     } finally { sbx.cleanup(); }
   }
@@ -410,11 +411,30 @@ async function runAll(opts) {
     const reducedRoot = path.join(base, 'reduced-copy', path.basename(layout.installed));
     fs.mkdirSync(path.dirname(reducedRoot), { recursive: true });
     fs.cpSync(layout.installed, reducedRoot, { recursive: true, verbatimSymlinks: true });
-    const removed = removeSafe(reducedRoot, safe);
+    // plan 388-04: --readd FILE builds the full copy as the pre-edit package. It puts the removed paths (first column of a tsv) back from the repo.
+    // The tarball is only files, so the copy is byte-equal to a pack taken before the edit. Both sides then run at the same time.
+    let readded = 0;
+    if (opts.readd) {
+      const rows = fs.readFileSync(opts.readd, 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).slice(1).map((l) => l.split('\t')[0]);
+      const fullRoot = path.join(base, 'full-copy', path.basename(layout.installed));
+      fs.mkdirSync(path.dirname(fullRoot), { recursive: true });
+      fs.cpSync(layout.installed, fullRoot, { recursive: true, verbatimSymlinks: true });
+      for (const p of rows) {
+        const src = path.join(REPO, p);
+        if (!fs.existsSync(src)) continue;
+        fs.mkdirSync(path.dirname(path.join(fullRoot, p)), { recursive: true });
+        fs.copyFileSync(src, path.join(fullRoot, p));
+        readded += 1;
+      }
+      layout.installedPostEdit = layout.installed;
+      layout.installed = fullRoot;
+      layout.reducedSource = layout.installedPostEdit;
+    }
+    const removed = opts.readd ? 0 : removeSafe(reducedRoot, safe);
     const meta = {
       head: cp.spawnSync('git', ['rev-parse', 'HEAD'], { cwd: REPO, encoding: 'utf8' }).stdout.trim(),
       version: layout.version, node: process.version, layout_mode: layout.layoutMode,
-      safe_paths: safe.length, safe_missing_in_pack: missingSafe, removed_in_reduced: removed,
+      safe_paths: safe.length, safe_missing_in_pack: missingSafe, removed_in_reduced: removed, readded_in_full: readded,
     };
     const cap = 10 * 60 * 1000;
     const deadlineFull1 = Date.now() + cap * 0.25;
@@ -518,7 +538,7 @@ async function main() {
   if (cmd === 'runall') {
     const scratch = path.resolve(arg('--scratch') || os.tmpdir());
     fs.mkdirSync(scratch, { recursive: true });
-    const res = await runAll({ safe: path.resolve(arg('--safe')), outFull: path.resolve(arg('--out-full')), outReduced: path.resolve(arg('--out-reduced')), scratch });
+    const res = await runAll({ safe: path.resolve(arg('--safe')), outFull: path.resolve(arg('--out-full')), outReduced: path.resolve(arg('--out-reduced')), scratch, readd: arg('--readd') ? path.resolve(arg('--readd')) : null });
     console.log('runall done in ' + res.seconds + ' s');
     for (const [k, r] of [['full1', res.fullRec.run1], ['full2', res.fullRec.run2], ['reduced', res.redRec.run1]]) {
       console.log(k + ': hooks ' + Object.keys(r.hooks).length + ', tools ' + JSON.stringify(Object.fromEntries(Object.entries(r.mcp_tools).map(([a, b]) => [a, b.length]))) + ', calls ' + Object.keys(r.mcp_calls).length + ', doctor points ' + Object.keys(r.doctor).length + ', syntax ' + Object.keys(r.syntax).length + ', skipped ' + r.skipped.length);
@@ -555,7 +575,7 @@ async function main() {
     console.log('reclassify: ' + res.moved + ' SAFE row(s) moved to UNCERTAIN because a real reader touched them in the full run');
     return;
   }
-  console.error('usage: 388-installed-diff.cjs selftest | runall --safe FILE --out-full FILE --out-reduced FILE [--scratch DIR] | compare --full FILE --reduced FILE | reclassify --full FILE --safe FILE --out FILE | trace-check --full FILE --safe FILE');
+  console.error('usage: 388-installed-diff.cjs selftest | runall --safe FILE --out-full FILE --out-reduced FILE [--scratch DIR] [--readd TSV] | compare --full FILE --reduced FILE | reclassify --full FILE --safe FILE --out FILE | trace-check --full FILE --safe FILE');
   process.exit(2);
 }
 
