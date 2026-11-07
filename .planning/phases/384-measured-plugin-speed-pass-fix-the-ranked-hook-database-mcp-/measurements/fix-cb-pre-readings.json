@@ -1,0 +1,22 @@
+{
+  "verdict": "NO-GAIN",
+  "d1": -704,
+  "d2": 203.1,
+  "noise": 907.1,
+  "floor": 50,
+  "mA1": 3481.2,
+  "mB1": 4185.2,
+  "mA2": 3921.9,
+  "mB2": 3718.8,
+  "nA1": 7,
+  "nB1": 7,
+  "nA2": 7,
+  "nB2": 7,
+  "p95_a": 4082.1,
+  "p95_b": 4431.8,
+  "spread_a_pct": 11.905823,
+  "spread_b_pct": 11.801619,
+  "metric": "wall_ms.median",
+  "p95_metric": "wall_ms.p95",
+  "label": "C-B candidate 23ab77410, doctor --all, local real-room copy, scratch trees"
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "25bb9d04b17b86be718d17e85ca6b0bf95d6969b",
+    "tree_label": "before",
+    "base_sha": "25bb9d04b17b86be718d17e85ca6b0bf95d6969b",
+    "started_at": "2026-11-07T12:40:20.704Z",
+    "ended_at": "2026-11-07T12:41:18.666Z",
+    "load1_start": 1.02,
+    "load1_end": 1.17
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.02,
+  "load1_end": 1.17,
+  "started_at": "2026-11-07T12:40:20.704Z",
+  "ended_at": "2026-11-07T12:41:18.666Z",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "doctor:all",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4146.9,
+        "p95": 4656.8,
+        "min": 3746.4,
+        "max": 4661.9
+      },
+      "cpu_ms": {
+        "median": 4870,
+        "p95": 5450,
+        "min": 4310,
+        "max": 5540
+      },
+      "rss_mb": {
+        "median": 113.6,
+        "p95": 114,
+        "min": 111.7,
+        "max": 114.5
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 12,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.02,
+      "load1_end": 1.17,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}
