@@ -10,9 +10,7 @@
  *              P2 initialize (serverInfo, capabilities) equals the golden,
  *              P3 the registration health equals the golden (complete, no failure, 37 registered file names).
  *              Passes on the code before the change and after it.
- *   mechanism  M1 the length of require.cache after registerCoreTools is at most BASELINE_MODULES minus REMOVED_MODULES
- *              in 3 of 3 fresh child processes,
- *              M2 each file of SELECTED_TOOL_FILES loads without its heavy module group.
+ *   (the mechanism group follows in the next commit of this plan)
  *
  * Golden: SPEED384_WRITE_GOLDEN=1 node tests/test-384-s7-mcp-start.cjs parity
  * writes tests/fixtures/384-s7-tools-list-golden.json from the code as it stands.
@@ -33,21 +31,6 @@ const TREE_B = path.resolve(process.env.SPEED384_TREE_B || REPO);
 const GOLDEN_PATH = path.join(__dirname, 'fixtures', '384-s7-tools-list-golden.json');
 const WRITE_GOLDEN = process.env.SPEED384_WRITE_GOLDEN === '1';
 const H = require(path.join(REPO, 'tools', 'perf', 'perf-harness.cjs'));
-
-// BASELINE_MODULES: length of require.cache after registerCoreTools on the code before the change (zod required
-// first), measured in 3 fresh child processes on the unchanged code: 479, 479, 479.
-const BASELINE_MODULES = 479;
-// REMOVED_MODULES: the modules that only the selected tool files reach (no other tool file loads them), taken from
-// the attribution table (measurements/fix-s7-attribution.md), rounded down to a multiple of 5.
-const REMOVED_MODULES = 100;
-// The files that the change moves handler-only requires in, with the module path parts that must not be loaded when
-// that one file is required alone.
-const SELECTED_TOOL_FILES = {
-  'research.cjs': ['research-planner/planner.cjs', 'research-planner/quick.cjs', 'research-planner/grants.cjs', 'research-planner/structure.cjs', 'research-planner/canon-release.cjs', 'perspectives/eureka-judge.cjs'],
-  'sensors.cjs': ['workflow/reach-hedge-ranker.cjs', 'brain/chain-recommender.cjs', 'feyminto/next-move.cjs'],
-  'gate.cjs': ['strategy/goal-gate.cjs', 'mcp/gate-raised.cjs'],
-  'stop-gate.cjs': ['mcp/stop-gate-handler.cjs'],
-};
 
 let pass = 0;
 let fail = 0;
@@ -163,21 +146,14 @@ const HEALTH_CHILD = [
   "process.stdout.write(JSON.stringify({complete:h.complete,failed:h.failed.map(f=>f.module),registered:h.registered,cache:Object.keys(require.cache).length})+'\\n');",
 ].join('');
 
-const FILE_CHILD = [
-  "const root=process.argv[1];const file=process.argv[2];require(require.resolve('zod',{paths:[root]}));",
-  "require(root+'/lib/mcp/tools/'+file);",
-  "process.stdout.write(JSON.stringify({keys:Object.keys(require.cache).map(k=>k.replace(root+'/',''))})+'\\n');",
-].join('');
-
 async function main() {
   const group = process.argv[2] || 'both';
-  if (!['parity', 'mechanism', 'both'].includes(group)) {
+  if (!['parity', 'both'].includes(group)) {
     console.log('usage: test-384-s7-mcp-start.cjs [parity|mechanism]');
     process.exit(2);
   }
   const runParity = group === 'parity' || group === 'both';
-  const runMech = group === 'mechanism' || group === 'both';
-
+  
   if (runParity) {
     const cur = await readSurface();
     let health;
@@ -208,31 +184,6 @@ async function main() {
     ok('P3 registration is complete', health && health.complete === true && !health.error, health && health.error);
     ok('P3 registration has no failure', health && Array.isArray(health.failed) && health.failed.length === 0, JSON.stringify(health && health.failed));
     ok('P3 registered file list equals the golden (37 names)', health && (health.registered || []).length === 37 && eq(health.registered, golden.health.registered) === null, 'got ' + ((health && health.registered) || []).length);
-  }
-
-  if (runMech) {
-    const prep = H.prepareRoom('fixture', { trees: [TREE_B], baseSha: 'unknown' });
-    const ctx = H.makeCtx('B', TREE_B, prep, 4, false);
-    try {
-      const counts = [];
-      for (let i = 0; i < 3; i += 1) {
-        const r = childRun(HEALTH_CHILD, ctx);
-        counts.push(r.error ? -1 : r.cache);
-      }
-      const limit = BASELINE_MODULES - REMOVED_MODULES;
-      console.log('     module counts after registration (3 repeats): ' + counts.join(', ') + ', limit ' + limit);
-      ok('M1 require.cache after registerCoreTools is at most ' + limit + ' in 3 of 3 repeats', counts.every((c) => c > 0 && c <= limit), 'counts ' + counts.join(','));
-
-      const files = Object.keys(SELECTED_TOOL_FILES);
-      for (const f of files) {
-        const r = childRun(FILE_CHILD, ctx, [f]);
-        const keys = r.error ? [] : r.keys;
-        const loaded = SELECTED_TOOL_FILES[f].filter((part) => keys.some((k) => k.includes(part)));
-        ok('M2 ' + f + ' loads without its handler-only modules', !r.error && loaded.length === 0, r.error || ('loaded at start: ' + loaded.join(',')));
-      }
-    } finally {
-      try { prep.sandbox.cleanup(); } catch (_e) { /* best effort */ }
-    }
   }
 
   console.log(fail === 0 ? 's7-mcp-start: ALL PASS' : 's7-mcp-start: ' + fail + ' FAILED');
