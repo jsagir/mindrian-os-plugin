@@ -3,6 +3,7 @@
 ### Added
 - 
 - **Eureka now tells you what it needs (Phase 387).** `/mos:eureka` runs with no engine. The engine tools answer "not set up", "set up", or "set up but not ready", and say which package group, model folder or Node.js version is missing, with one fix line. `/mos:eureka enable engine` saves the folder of an engine you already have, checks it, and runs the one package step only after you approve a card. Every engine run starts offline, and the plugin never lets it install anything by itself. `/mos:doctor` shows one readiness line. The check that the real engine sends nothing out is still open; it needs a test that you run yourself.
+- **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
 
 ### Fixed
 - **The wiki server no longer holds a hidden chat proxy that could send page text to outside services, and the printable page route works again (Phase 386).** The proxy was shadowed by another handler, so it never ran, but changing the route order would have switched it on. It is deleted, and the print route for a section is reachable before the catch-all route. <!-- 386-B1 -->
