@@ -1,0 +1,22 @@
+{
+  "verdict": "NO-GAIN",
+  "d1": -11060,
+  "d2": -13390,
+  "noise": 8870,
+  "floor": 50,
+  "mA1": 27080,
+  "mB1": 38140,
+  "mA2": 30350,
+  "mB2": 43740,
+  "nA1": 7,
+  "nB1": 7,
+  "nA2": 7,
+  "nB2": 7,
+  "p95_a": "n/a",
+  "p95_b": "n/a",
+  "spread_a_pct": 11.387776,
+  "spread_b_pct": 13.678554,
+  "metric": "survivor_cpu_ms",
+  "p95_metric": "none",
+  "label": "S4 primary: survivor CPU at 20 files"
+}
