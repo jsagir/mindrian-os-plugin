@@ -119,7 +119,41 @@ function parityGroup() {
 }
 
 function mechanismGroup() {
-  // added in the next commit of plan 384-19
+  const g = makeFixture();
+
+  // M1
+  const m1 = runPoint(g.ctx, { DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '1' });
+  const f1 = m1 && typeof m1.finding === 'string' ? m1.finding : '';
+  check('M1 timeout named: ok false, "timed out after", the limit, not "exited null", detail.child.timed_out',
+    !!m1 && m1.ok === false && f1.includes('timed out after') && f1.includes('1 ms') && !f1.includes('exited null') &&
+    !!(m1.detail && m1.detail.child && m1.detail.child.timed_out === true), show(m1));
+
+  // M2
+  const unreadable = tmpScript("process.stdout.write('this is not json\\n'); process.exit(0);\n");
+  const m2 = runPoint(g.ctx, { DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_SCRIPT: unreadable });
+  check('M2 unreadable result fails the point', !!m2 && m2.ok === false && /unreadable/.test(String(m2.finding)), show(m2));
+
+  // M3
+  let lim = null;
+  try { lim = require(path.join(REPO, 'scripts', 'doctor.cjs')).doctorAllLimitMs; } catch (_e) { lim = null; }
+  const okFn = typeof lim === 'function';
+  check('M3 doctorAllLimitMs is exported', okFn);
+  if (okFn) {
+    check('M3 default is 60000', lim({}) === 60000, String(lim({})));
+    check('M3 test-mode seam gives 300', lim({ DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '300' }) === 300);
+    check('M3 seam without test mode gives 60000', lim({ DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '300' }) === 60000);
+    const bad = ['abc', '0', '-5'].map((v) => lim({ DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: v }));
+    check('M3 bad value in test mode gives 60000', bad.every((v) => v === 60000), bad.join(','));
+  }
+
+  // M4
+  const m4 = runPoint(g.ctx, { DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '1', DOCTOR_TEST_DOCTOR_ALL_SCRIPT: unreadable });
+  check('M4 seams are ignored outside test mode: the real child runs, ok true', !!m4 && m4.ok === true, show(m4));
+
+  // M5
+  const exit3 = tmpScript("process.stdout.write(JSON.stringify({ checks: {} }) + '\\n'); process.exit(3);\n");
+  const m5 = runPoint(g.ctx, { DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_SCRIPT: exit3 });
+  check('M5 exit code finding: "doctor --all exited 3"', !!m5 && m5.ok === false && m5.finding === 'doctor --all exited 3', show(m5));
 }
 
 try {
