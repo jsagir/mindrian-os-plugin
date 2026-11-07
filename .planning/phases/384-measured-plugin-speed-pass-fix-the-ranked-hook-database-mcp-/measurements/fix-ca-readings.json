@@ -1,0 +1,22 @@
+{
+  "verdict": "KEEP",
+  "d1": 13882,
+  "d2": 14740.4,
+  "noise": 1310.4,
+  "floor": 50,
+  "mA1": 17877.2,
+  "mB1": 3995.2,
+  "mA2": 18961.6,
+  "mB2": 4221.2,
+  "nA1": 7,
+  "nB1": 7,
+  "nA2": 7,
+  "nB2": 7,
+  "p95_a": 19455.9,
+  "p95_b": 4460.6,
+  "spread_a_pct": 5.887271,
+  "spread_b_pct": 5.501193,
+  "metric": "wall_ms.median",
+  "p95_metric": "wall_ms.p95",
+  "label": "C-A doctor --all wall_ms.median"
+}

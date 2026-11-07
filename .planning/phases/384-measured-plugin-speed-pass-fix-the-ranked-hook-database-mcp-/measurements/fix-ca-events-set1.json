@@ -1,0 +1,202 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "779fb8fe0f4cc4a9a0338cb8413ad41f21787ca5",
+    "tree_label": "before",
+    "base_sha": "c5bf88d733491771609370844be414989521af90",
+    "started_at": "2026-11-07T12:22:52.002Z",
+    "ended_at": "2026-11-07T12:29:51.654Z",
+    "load1_start": 0.8,
+    "load1_end": 0.43
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.8,
+  "load1_end": 0.43,
+  "started_at": "2026-11-07T12:22:52.002Z",
+  "ended_at": "2026-11-07T12:29:51.654Z",
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0,
+    "source_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "copy_changed_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    },
+    "intersect_by_class": {
+      "shm": 0,
+      "wal": 0,
+      "db": 0,
+      "other": 0
+    }
+  },
+  "targets": [
+    {
+      "id": "event:SessionStart:changed",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5356.9,
+        "p95": 6104.4,
+        "min": 3777.8,
+        "max": 6121.3
+      },
+      "cpu_ms": {
+        "median": 5700,
+        "p95": 6360,
+        "min": 3980,
+        "max": 6680
+      },
+      "rss_mb": {
+        "median": 79.2,
+        "p95": 79.6,
+        "min": 78.6,
+        "max": 79.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 14834,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 182.2,
+          "cpu_ms": 90
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 5356.9,
+          "cpu_ms": 4730
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 437.6,
+          "cpu_ms": 300
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 269.1,
+          "cpu_ms": 160
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 287.7,
+          "cpu_ms": 150
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 175.9,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 180.7,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 355.8,
+          "cpu_ms": 160
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 15,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.8,
+      "load1_end": 0.38,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PostCompact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 29.6,
+        "p95": 33.5,
+        "min": 19.3,
+        "max": 47.1
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 20,
+        "min": 0,
+        "max": 20
+      },
+      "rss_mb": {
+        "median": 3,
+        "p95": 3,
+        "min": 3,
+        "max": 3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-compact",
+          "async": false,
+          "wall_ms": 29.6,
+          "cpu_ms": 10
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.38,
+      "load1_end": 0.43,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}

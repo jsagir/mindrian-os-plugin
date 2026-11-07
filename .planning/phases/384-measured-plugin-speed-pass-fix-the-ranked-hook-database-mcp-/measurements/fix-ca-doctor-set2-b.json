@@ -1,0 +1,74 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "779fb8fe0f4cc4a9a0338cb8413ad41f21787ca5",
+    "tree_label": "after",
+    "base_sha": "c5bf88d733491771609370844be414989521af90",
+    "started_at": "2026-11-07T12:20:07.501Z",
+    "ended_at": "2026-11-07T12:22:51.845Z",
+    "load1_start": 1.28,
+    "load1_end": 0.8
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "after",
+  "cpus": 4,
+  "runs": 7,
+  "load1_start": 1.28,
+  "load1_end": 0.8,
+  "started_at": "2026-11-07T12:20:07.501Z",
+  "ended_at": "2026-11-07T12:22:51.845Z",
+  "targets": [
+    {
+      "id": "doctor:all",
+      "n": 7,
+      "blocking": true,
+      "wall_ms": {
+        "median": 4221.2,
+        "p95": 4460.6,
+        "min": 3749.8,
+        "max": 5001.3
+      },
+      "cpu_ms": {
+        "median": 5000,
+        "p95": 5240,
+        "min": 4430,
+        "max": 5800
+      },
+      "rss_mb": {
+        "median": 111.5,
+        "p95": 112.8,
+        "min": 110.8,
+        "max": 114.3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 9,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 1.28,
+      "load1_end": 0.8,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}

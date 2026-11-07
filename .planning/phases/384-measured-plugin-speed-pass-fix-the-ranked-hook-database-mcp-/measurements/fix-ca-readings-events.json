@@ -1,0 +1,22 @@
+{
+  "verdict": "KEEP",
+  "d1": 14826,
+  "d2": 14840,
+  "noise": 14,
+  "floor": 50,
+  "mA1": 14834,
+  "mB1": 8,
+  "mA2": 14846,
+  "mB2": 6,
+  "nA1": 15,
+  "nB1": 15,
+  "nA2": 15,
+  "nB2": 15,
+  "p95_a": "n/a",
+  "p95_b": "n/a",
+  "spread_a_pct": 0.080863,
+  "spread_b_pct": 28.571429,
+  "metric": "background_ms",
+  "p95_metric": "none",
+  "label": "C-A SessionStart:changed background_ms"
+}

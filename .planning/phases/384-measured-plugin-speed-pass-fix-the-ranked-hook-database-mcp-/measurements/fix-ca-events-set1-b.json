@@ -1,0 +1,178 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "779fb8fe0f4cc4a9a0338cb8413ad41f21787ca5",
+    "tree_label": "after",
+    "base_sha": "c5bf88d733491771609370844be414989521af90",
+    "started_at": "2026-11-07T12:22:52.002Z",
+    "ended_at": "2026-11-07T12:29:51.654Z",
+    "load1_start": 0.8,
+    "load1_end": 0.43
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s1",
+  "tree_label": "after",
+  "cpus": 4,
+  "runs": 15,
+  "load1_start": 0.8,
+  "load1_end": 0.43,
+  "started_at": "2026-11-07T12:22:52.002Z",
+  "ended_at": "2026-11-07T12:29:51.654Z",
+  "targets": [
+    {
+      "id": "event:SessionStart:changed",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 5660.6,
+        "p95": 6251.5,
+        "min": 4186.2,
+        "max": 6284
+      },
+      "cpu_ms": {
+        "median": 5860,
+        "p95": 6450,
+        "min": 4530,
+        "max": 6480
+      },
+      "rss_mb": {
+        "median": 79.1,
+        "p95": 79.7,
+        "min": 78.6,
+        "max": 79.9
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [
+        {
+          "hook": "scripts/sessionstart-npm-reconcile.cjs",
+          "reason": "network_capable"
+        }
+      ],
+      "async_hooks": [],
+      "hook_count": 8,
+      "background_ms": 8,
+      "per_hook": [
+        {
+          "id": "scripts/sessionstart-post-update-preflight.cjs",
+          "async": false,
+          "wall_ms": 179.4,
+          "cpu_ms": 80
+        },
+        {
+          "id": "hooks/run-hook.cmd session-start",
+          "async": false,
+          "wall_ms": 5660.6,
+          "cpu_ms": 4870
+        },
+        {
+          "id": "scripts/sessionstart-coordinator.cjs",
+          "async": false,
+          "wall_ms": 416.6,
+          "cpu_ms": 300
+        },
+        {
+          "id": "scripts/sessionstart-reference-now-seed.cjs",
+          "async": false,
+          "wall_ms": 274.4,
+          "cpu_ms": 140
+        },
+        {
+          "id": "scripts/check-pending-breakthrough.cjs",
+          "async": false,
+          "wall_ms": 261.4,
+          "cpu_ms": 140
+        },
+        {
+          "id": "scripts/check-pending-ambiguous.cjs",
+          "async": false,
+          "wall_ms": 181.5,
+          "cpu_ms": 70
+        },
+        {
+          "id": "scripts/gsd-graph-derive-drain.cjs",
+          "async": false,
+          "wall_ms": 181.9,
+          "cpu_ms": 60
+        },
+        {
+          "id": "scripts/agentshield-sessionstart-scan.cjs",
+          "async": false,
+          "wall_ms": 325.4,
+          "cpu_ms": 150
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "changed_taken_runs": 15,
+      "changed_unknown_runs": 0,
+      "touch_applied": true,
+      "load1_start": 0.8,
+      "load1_end": 0.38,
+      "gate_waited_ms": 0,
+      "noisy": false
+    },
+    {
+      "id": "event:PostCompact",
+      "n": 15,
+      "blocking": true,
+      "wall_ms": {
+        "median": 28.4,
+        "p95": 45.6,
+        "min": 18.4,
+        "max": 47
+      },
+      "cpu_ms": {
+        "median": 10,
+        "p95": 20,
+        "min": 0,
+        "max": 30
+      },
+      "rss_mb": {
+        "median": 3,
+        "p95": 3,
+        "min": 2.9,
+        "max": 3
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 9,
+      "per_hook": [
+        {
+          "id": "hooks/run-hook.cmd post-compact",
+          "async": false,
+          "wall_ms": 28.4,
+          "cpu_ms": 10
+        }
+      ],
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "touch_applied": null,
+      "load1_start": 0.38,
+      "load1_end": 0.43,
+      "gate_waited_ms": 0,
+      "noisy": false
+    }
+  ]
+}
