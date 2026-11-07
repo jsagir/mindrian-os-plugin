@@ -1,0 +1,289 @@
+{
+  "schema": "mos.perf-384/1",
+  "machine": {
+    "cores": 12,
+    "node": "v22.23.1",
+    "platform": "linux",
+    "arch": "arm64",
+    "kernel": "6.18.33.2-microsoft-standard-WSL2",
+    "cpu_cap": 4,
+    "fs_type": "ext2/ext3",
+    "head_sha": "168315fe71d2932efadcd7d7f009abb6c998d4af",
+    "tree_label": "before",
+    "base_sha": "7a122637650fd50cd7c3cc0095974d8f99b48e26",
+    "started_at": "2026-11-07T10:04:20.372Z",
+    "ended_at": "2026-11-07T10:05:25.955Z",
+    "load1_start": 1.4,
+    "load1_end": 1.42
+  },
+  "room": {
+    "kind": "fixture-room",
+    "file_count": 64,
+    "byte_total": 415804,
+    "fs_type": "ext2/ext3"
+  },
+  "set": "s2",
+  "tree_label": "before",
+  "cpus": 4,
+  "runs": 41,
+  "load1_start": 1.4,
+  "load1_end": 1.42,
+  "started_at": "2026-11-07T10:04:20.372Z",
+  "ended_at": "2026-11-07T10:05:25.955Z",
+  "compare": {
+    "a": "before",
+    "b": "after"
+  },
+  "targets": [
+    {
+      "id": "mcp:os:initialize",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 642.3,
+        "p95": 1085.2,
+        "min": 433.7,
+        "max": 1213.8
+      },
+      "cpu_ms": {
+        "median": 770,
+        "p95": 1330,
+        "min": 530,
+        "max": 1410
+      },
+      "rss_mb": {
+        "median": 105.2,
+        "p95": 106.3,
+        "min": 103.3,
+        "max": 107
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "before",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os:tools-list",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 686.2,
+        "p95": 1130.6,
+        "min": 456.9,
+        "max": 1267.5
+      },
+      "cpu_ms": {
+        "median": 830,
+        "p95": 1420,
+        "min": 570,
+        "max": 1470
+      },
+      "rss_mb": {
+        "median": 112.8,
+        "p95": 114.6,
+        "min": 109.9,
+        "max": 116
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "before",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os-b:initialize",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 632.3,
+        "p95": 1001.7,
+        "min": 433.7,
+        "max": 1140.8
+      },
+      "cpu_ms": {
+        "median": 750,
+        "p95": 1150,
+        "min": 520,
+        "max": 1320
+      },
+      "rss_mb": {
+        "median": 99.4,
+        "p95": 100.6,
+        "min": 98.1,
+        "max": 101.1
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "after",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os-b:tools-list",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 671.8,
+        "p95": 1043.3,
+        "min": 455.9,
+        "max": 1266.8
+      },
+      "cpu_ms": {
+        "median": 830,
+        "p95": 1190,
+        "min": 550,
+        "max": 1490
+      },
+      "rss_mb": {
+        "median": 107.4,
+        "p95": 109.2,
+        "min": 106.1,
+        "max": 109.7
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": 0,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "tree_label": "after",
+      "tools": 72,
+      "eureka_tools": 24
+    },
+    {
+      "id": "mcp:os:initialize:a-minus-b",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 29.3,
+        "p95": 315.2,
+        "min": -454.7,
+        "max": 581.5
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair initialize time of tree A minus tree B"
+    },
+    {
+      "id": "mcp:os:tools-list:a-minus-b",
+      "n": 41,
+      "blocking": true,
+      "wall_ms": {
+        "median": 39.4,
+        "p95": 305,
+        "min": -547.8,
+        "max": 595.8
+      },
+      "cpu_ms": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "rss_mb": {
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "exits": [
+        0
+      ],
+      "timed_out": 0,
+      "failed_runs": 0,
+      "not_measured": [],
+      "async_hooks": [],
+      "hook_count": 1,
+      "background_ms": null,
+      "escaped_max": 0,
+      "survivors_left": 0,
+      "load1_start": 1.4,
+      "load1_end": 1.42,
+      "gate_waited_ms": 0,
+      "noisy": false,
+      "derived": true,
+      "derived_from": "per-pair tools/list time of tree A minus tree B"
+    }
+  ],
+  "isolation": {
+    "source_changed_paths": 0,
+    "copy_changed_paths": 0,
+    "intersect_paths": 0,
+    "exit_code": 0
+  }
+}

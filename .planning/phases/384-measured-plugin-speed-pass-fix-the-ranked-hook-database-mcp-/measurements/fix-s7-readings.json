@@ -1,0 +1,22 @@
+{
+  "verdict": "NO-GAIN",
+  "d1": 7.8,
+  "d2": 10,
+  "noise": 146.4,
+  "floor": 50,
+  "mA1": 568,
+  "mB1": 560.2,
+  "mA2": 642.3,
+  "mB2": 632.3,
+  "nA1": 41,
+  "nB1": 41,
+  "nA2": 41,
+  "nB2": 41,
+  "p95_a": 1085.2,
+  "p95_b": 1001.7,
+  "spread_a_pct": 12.277948,
+  "spread_b_pct": 12.092243,
+  "metric": "wall_ms.median",
+  "p95_metric": "wall_ms.p95",
+  "label": "S7 mcp:os initialize before vs after (n 41, two sets, interleaved)"
+}
