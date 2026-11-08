@@ -6,6 +6,7 @@
       { "key": "review_contract", "any": true }
     ],
     "commands": ["grade", "deep-grade"],
+    "classify": "frontmatter",
     "why": "Phase 370 covers the two student review commands only (research item O7: the other review writers stay out of scope). A file is a review artifact by its frontmatter, never by its path (research Pitfall 7)."
   },
   "sections": [
@@ -26,9 +27,15 @@
     { "id": "agent_recommendations", "pattern": "improvement\\s+recommendations", "flags": "i", "why": "D-02: the agent recommendation list is outside the fixed shape (ROADMAP Goal)." },
     { "id": "sci_fi", "pattern": "\\bsci[- ]?fi\\b", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal); note N1 of 370-CONTEXT: the Sci-Fi Connection leaves the reader-facing body." },
     { "id": "visual_synthesis", "pattern": "visual\\s+synthesis", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal); note N1 of 370-CONTEXT: the Visual Synthesis leaves the reader-facing body." },
-    { "id": "reasoning_health", "pattern": "reasoning\\.md", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal): a reasoning-file health block is internal machinery, not a reader section." }
+    { "id": "reasoning_health", "pattern": "reasoning\\.md", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal): a reasoning-file health block is internal machinery, not a reader section." },
+    { "id": "score_heading", "pattern": "^\\s*(scores?|scoring|rubric|final\\s+grade|grade)\\b", "flags": "i", "why": "Owner answer O1 (WITHHOLD), Canon Part 12: the reader-facing body carries no score, rubric or grade heading." },
+    { "id": "persona_perspective", "pattern": "^\\s*professor\\b.*\\bperspective\\b", "flags": "i", "why": "Owner answer O4A (DROP): no persona quote with a name; a Professor Perspective heading stays out of the fixed shape." }
   ],
-  "forbidden_body_patterns": [],
+  "forbidden_body_patterns": [
+    { "id": "score_table", "pattern": "\\|\\s*(weight|weighted|score)\\s*\\|", "flags": "i", "why": "Owner answer O1 (WITHHOLD), Canon Part 12: no score table in the reader-facing body." },
+    { "id": "letter_grade_line", "pattern": "^\\s*(#{1,6}\\s*)?(grade|final\\s+grade|overall\\s+grade)\\s*:", "flags": "i", "why": "Owner answer O1 (WITHHOLD), Canon Part 12: no letter-grade line in the reader-facing body." },
+    { "id": "percentile", "pattern": "\\bpercentile\\b", "flags": "i", "why": "Owner answer O1 (WITHHOLD), Canon Part 12: no percentile claim in the reader-facing body." }
+  ],
   "counts": {
     "revision_points": { "min": 3, "max": 5, "under": "executive_summary" },
     "cross_domain_ideas": { "max": 2, "marker": "Cross-domain" }
@@ -53,8 +60,24 @@
     { "term": "ROOM.md", "pattern": "(?<![\\w-])ROOM\\.md\\b", "flags": "", "class": "path_or_id", "exempt_if_in_source": false, "why": "Room file name, same reason as BRAIN.md." }
   ],
   "soft_terms": {
-    "policy": "strict",
+    "policy": "exempt_if_in_source",
     "terms": ["database", "graph"],
-    "why": "ROADMAP: graph or database names. The bare nouns are plain words a venture may really use, so the owner sets the policy through item O3 (strict, exempt_if_in_source or compound_only). Until the owner answers, the shipped default is strict."
+    "why": "ROADMAP: graph or database names. The bare nouns are plain words a venture may really use, so the owner sets the policy through item O3 (strict, exempt_if_in_source or compound_only). Owner answer O3 (2026-11-08): exempt_if_in_source, so a bare soft term passes when the student source holds it as a whole word."
+  },
+  "enforcement": {
+    "source": "370-DECISION.md",
+    "doctor_severity": "blocker",
+    "hook_mode": "log-only",
+    "door": "frontmatter"
+  },
+  "owner_answers": {
+    "O1": "WITHHOLD",
+    "O2": "KEEP",
+    "O3": "EXEMPT-IF-IN-SOURCE",
+    "O4A": "DROP",
+    "O4B": "ANONYMIZE",
+    "O6A": "BLOCKER",
+    "O6B": "LOG-ONLY",
+    "O8": "FRONTMATTER"
   }
 }
