@@ -22,7 +22,17 @@
  *        phrases in FILE. The record is deleted before the first network call,
  *        so a confirmation is single use.
  *
- * Exit codes: 0 ok, 1 usage, 2 invalid phrases, 3 card_required.
+ *   save --record FILE --sentence-file FILE [--home DIR]
+ *        Checks the Seed record, checks that its id is the id of the sentence,
+ *        writes it under <home>/.mindrian/pyramid-seed/briefs and prints the
+ *        receipt. The sentence is read for the id only.
+ *   show (--id ID | --latest) [--home DIR]
+ *        Prints the record hand-off (resolveFromBrief) and the receipt.
+ *   upgrade --record ID [--room DIR] [--home DIR]
+ *        The Full depth. Reads the record and the room notes, writes nothing,
+ *        prints the questions the Seed did not ask and the report.
+ *
+ * Exit codes: 0 ok, 1 usage, 2 invalid input, 3 card_required, 4 no record.
  * stdout is JSON only. stderr carries a usage line only.
  *
  * Reuse (Canon Part 7): the cells come from lib/core/pyramid-seed-cells.cjs, the
@@ -35,11 +45,12 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const USAGE = 'usage: pyramid-seed-run.cjs card --sprouts FILE [--sentence-file FILE] [--home DIR] | run --sprouts FILE --confirm HASH [--home DIR] [--budget-ms N]';
+const USAGE = 'usage: pyramid-seed-run.cjs card --sprouts FILE [--sentence-file FILE] [--home DIR] | run --sprouts FILE --confirm HASH [--home DIR] [--budget-ms N] | save --record FILE --sentence-file FILE [--home DIR] | show (--id ID | --latest) [--home DIR] | upgrade --record ID [--room DIR] [--home DIR]';
 const PENDING_TTL_MS = 60 * 60 * 1000;
 const DEFAULT_BUDGET_MS = 45000;
 const HASH_RE = /^[0-9a-f]{64}$/;
-const FLAGS_WITH_VALUE = ['--sprouts', '--sentence-file', '--confirm', '--home', '--budget-ms'];
+const FLAGS_WITH_VALUE = ['--sprouts', '--sentence-file', '--confirm', '--home', '--budget-ms', '--record', '--id', '--room'];
+const FLAGS_BOOLEAN = ['--latest'];
 
 function finish(obj, code, toStderr) {
   const text = toStderr ? String(obj) + '\n' : JSON.stringify(obj) + '\n';
@@ -54,6 +65,7 @@ function parseArgs(argv) {
   const flags = {};
   for (let i = 1; i < argv.length; i += 1) {
     const a = argv[i];
+    if (FLAGS_BOOLEAN.indexOf(a) !== -1) { flags[a] = true; continue; }
     if (FLAGS_WITH_VALUE.indexOf(a) === -1 || i + 1 >= argv.length) return null;
     flags[a] = argv[i + 1];
     i += 1;
@@ -209,11 +221,80 @@ async function doRun(cells, flags, home) {
   return finish({ cells: out, elapsed_ms: Date.now() - t0 }, 0);
 }
 
+// save: validate a Seed record written by the host model, check that its id is the id of the
+// sentence, and write it under <home>/.mindrian/pyramid-seed/briefs. The sentence file is read for
+// the id only. It is not stored and not printed.
+function doSave(flags, home) {
+  const recMod = require('../lib/core/pyramid-seed-record.cjs');
+  let record;
+  try { record = JSON.parse(fs.readFileSync(flags['--record'], 'utf8')); } catch (_e) {
+    return finish({ ok: false, error: 'unreadable_record' }, 2);
+  }
+  const v = recMod.validateRecord(record);
+  if (!v.ok) return finish({ ok: false, error: 'invalid_record', code: v.code, field: v.field }, 2);
+  let sentence;
+  try { sentence = fs.readFileSync(flags['--sentence-file'], 'utf8'); } catch (_e) {
+    return finish({ ok: false, error: 'unreadable_sentence_file' }, 2);
+  }
+  if (recMod.idFor(sentence) !== record.id) return finish({ ok: false, error: 'id_mismatch', code: 'id_mismatch', field: 'id' }, 2);
+  const w = recMod.writeRecord(record, { home });
+  if (!w.ok) return finish({ ok: false, error: w.reason || 'write_failed', code: w.code, field: w.field }, 2);
+  return finish({ ok: true, id: record.id, path: w.path, receipt: recMod.renderReceipt(record) }, 0);
+}
+
+// show: resolveFromBrief output plus the receipt, for one id or the newest record.
+function doShow(flags, home) {
+  const recMod = require('../lib/core/pyramid-seed-record.cjs');
+  const r = recMod.resolveFromBrief(flags['--latest'] ? null : flags['--id'], { home });
+  if (r.action === 'no_brief_available') return finish(Object.assign({}, r), 4);
+  if (r.action !== 'ignite_from_brief') return finish(Object.assign({}, r), 2);
+  const content = r.brief_content || {};
+  return finish(Object.assign({}, r, { receipt: typeof content.receipt === 'string' ? content.receipt : recMod.renderReceipt(content) }), 0);
+}
+
+// upgrade: the Full depth. Reads the record and the room notes. Writes nothing.
+function doUpgrade(flags, home) {
+  const recMod = require('../lib/core/pyramid-seed-record.cjs');
+  const upMod = require('../lib/core/pyramid-seed-upgrade.cjs');
+  const got = recMod.readRecord(flags['--record'], { home });
+  if (!got.ok) {
+    const missing = got.reason === 'not_found' || got.reason === 'invalid_id';
+    return finish({ ok: false, action: 'no_brief_available', error: got.reason }, missing ? 4 : 2);
+  }
+  const result = upMod.upgradeSeed(got.record, { roomDir: flags['--room'] });
+  if (!result.ok) return finish({ ok: false, error: result.reason || 'upgrade_failed', errors: result.errors }, 2);
+  return finish({
+    ok: true,
+    status: result.status,
+    upgraded_from: result.upgraded_from,
+    additions: result.additions,
+    mece_warnings: result.mece_warnings,
+    restatement_warnings: result.restatement_warnings,
+    uncovered: result.uncovered,
+    room_evidence: result.room_evidence,
+    report: upMod.renderUpgrade(result),
+  }, 0);
+}
+
 async function main() {
   const parsed = parseArgs(process.argv.slice(2));
   if (!parsed) return usage();
   const { cmd, flags } = parsed;
-  if ((cmd !== 'card' && cmd !== 'run') || !flags['--sprouts']) return usage();
+  if (['card', 'run', 'save', 'show', 'upgrade'].indexOf(cmd) === -1) return usage();
+  const home0 = flags['--home'] || os.homedir();
+  if (cmd === 'save') {
+    if (!flags['--record'] || !flags['--sentence-file']) return usage();
+    return doSave(flags, home0);
+  }
+  if (cmd === 'show') {
+    if (!flags['--id'] && !flags['--latest']) return usage();
+    return doShow(flags, home0);
+  }
+  if (cmd === 'upgrade') {
+    if (!flags['--record']) return usage();
+    return doUpgrade(flags, home0);
+  }
+  if (!flags['--sprouts']) return usage();
   if (cmd === 'run' && !Object.prototype.hasOwnProperty.call(flags, '--confirm')) {
     // A run without a confirm value is a refusal, not a usage error: nothing left the machine.
     return cardRequired();
