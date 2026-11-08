@@ -159,17 +159,19 @@ token and does NOT edit that registry.
    CLOSED: the stricter status wins and is recorded." Collect any such disagreement into a
    `disputes` list and render it ABOVE the percentage in the final assessment -- explicitly
    because burying a disagreement under the score would be the false-success failure class this
-   repo watches for.
+   repo watches for. In the filed review the disputes appear in Reality Check as plain statements
+   of where the evidence disagrees.
 3. **Compute the weighted aggregate and the percentile IN THE ORCHESTRATOR**, never in a component
    agent. A percentile compares the whole submission against the whole calibration distribution
    and is not a per-component operation; the weighted aggregate sums across all five components,
    which no single agent can do from its own one-lens read. Keep the existing percentile honesty
-   rule (prefix with `~`, note the small sample size).
-4. **Keep in the orchestrator, unchanged:** the Sci-Fi Literature Connection, the Visual Synthesis
-   prompt (both are whole-submission syntheses), the Top 3 Improvements ranking (a cross-component
-   priority call), and the Professor Aronhime's Perspective quote.
-5. Hand the consolidated assessment to step 6's Larry wrap exactly as before. The panel does the
-   scoring; Larry still does the teaching.
+   rule (prefix with `~`, note the small sample size). The percentile and the aggregate live in the
+   internal record, the file header and the chat; the filed review body shows neither.
+4. **Keep in the orchestrator:** the ranking of 3 to 5 key revision points (a cross-component
+   priority call) and up to 2 cross-domain ideas. No persona quote and no extra synthesis section
+   is produced; the fixed shape of the review has no place for them.
+5. Hand the consolidated assessment, as the internal record, to step 6. The panel does the
+   scoring; Larry writes the review and does the teaching.
 
 **Scope fence.** `grade-grant`'s reviewer panel is a HYBRID whose second half is a SEQUENTIAL
 `runDebate` where each reviewer reads `previousOutput` and may emit downgrade-only challenges
@@ -179,19 +181,38 @@ a larger build than this plan's scope. This plan ships the PARALLEL extraction p
 consolidation ONLY; the sequential debate half is named here as a follow-on candidate for the
 capability ledger (plan 265-23 owns the ledger rows), not something forgotten.
 
-### 6. Larry Wraps the Results
+### 6. Larry Writes the Review and Wraps It in Chat
 
-When the Grading Agent returns its structured assessment, Larry presents the results with:
-- **Teaching context** -- explain what each score means in practical terms
-- **Encouragement where earned** -- if a component scores well, acknowledge the work that went into it
-- **Specific next steps** -- for each weak component, recommend the specific `/mos:` command that addresses it
+When the consolidated assessment is ready, treat it as the internal record. Do not paste it.
+
+First, write the reader-facing review from the record, following the Review contract section of `${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/references/methodology/grade.md` (the fixed shape, the plain words, the template). Write from the student's room, in the student's words and the course's words, never from tool output. Scores go in the file header and in chat when the student asks. Then run the pre-file check in step 7.
+
+Then Larry wraps the results in chat:
+- **Teaching context** -- explain what each finding means in practical terms
+- **Encouragement where earned** -- if a component is strong, acknowledge the work that went into it
+- **Specific next steps** -- for each weak component, recommend the specific `/mos:` command that addresses it. These pointers are for chat only; the filed review holds none.
 - **The bigger picture** -- connect the assessment to the user's venture journey, not just numbers
 
-The Grading Agent does the scoring. Larry does the teaching.
+The Grading Agent does the scoring. Larry writes the review and does the teaching. The status block of step 4 is progress text in chat only and never goes into the filed review.
 
-### 7. Offer to File
+### 7. Pre-file Check and Offer to File
 
-Ask: "Want me to file this assessment to your Data Room?" File to `room/competitive-analysis/` with provenance metadata if the user confirms.
+The review is checked before it is filed. The check reads the whole body, including text inside code fences, so a code fence, a space inside a name or a rename never hides a failing line. Fix the line itself.
+
+1. On the CLI, write the draft body to a scratch file made with `mktemp` (for example `DRAFT=$(mktemp)`). The scratch name has no .md suffix, so the Write hook, when the owner turned it on, skips it. The draft needs no file header, because the check reads the body. Then run:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/check-review-contract.cjs" check "$DRAFT" --source <the student's room section folder>
+   ```
+
+   Pass a section folder or file of the student's own text as `--source`; repeat the flag for each. These files are the working record, not the student's text: BRAIN.md, STATE.md and REASONING.md. Never pass them as source.
+2. Read the exit code. Exit 0: the draft passes. Add the file header from the template of the reference file (the score fields come from the internal record), delete the scratch file, then ask the filing question below. Exit 1: the output lists lines as `VIOLATION <rule> <class> line <n> tier <tier>`. The line gives no text. Fix every listed line in the draft, then run the check again. Exit 3: the call was wrong or the draft is too large; fix the call or shorten the draft.
+3. Run the check at most 3 times. After the third failure, tell the student in plain words that the review did not meet the contract, name the rule classes that still fail, and file nothing.
+4. On Desktop and Cowork there is no scratch file. File with the `artifact_file` tool. Its door runs the same check. A refusal with reason `review_contract_violation` lists the same rule, class and line triples. Fix the review and file again, at most 3 times, then refuse in plain words as above.
+
+If the Write hook or the doctor lint reports a line list, use it the same way.
+
+Then ask: "Want me to file this assessment to your Data Room?" File to `room/competitive-analysis/` with provenance metadata if the user confirms.
 
 ## Difference from /mos:grade
 
@@ -208,4 +229,4 @@ Ask: "Want me to file this assessment to your Data Room?" File to `room/competit
 Larry's voice wraps the Grading Agent's analytical output:
 > "The calibration data tells a clear story here. Let me walk you through what it means for your venture..."
 
-Never present raw scores without context. Every number should connect to an action.
+In chat, never present raw scores without context. Every number should connect to an action. The filed review states findings and holds no score table.
