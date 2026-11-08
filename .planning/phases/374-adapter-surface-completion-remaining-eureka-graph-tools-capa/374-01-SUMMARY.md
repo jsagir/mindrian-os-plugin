@@ -32,7 +32,7 @@ The 267 suite is green on the live 75-tool surface: the registration-api attribu
 ## Commits
 
 - b51bb25b9: test(374-01): attribute registerEurekaTool calls to the calling tool file (Task 1, tests/test-267-mcpv2-registration-api.cjs only)
-- Task 2 commit: see the final report (the pin refresh and this SUMMARY)
+- 6aaa7496e: test(374-01): move the 267 wire pins for the 25 Eureka and RS tools (50 to 75) (Task 2; this SUMMARY is in the same commit)
 
 ## RED evidence (before the plan, HEAD e98c1a292)
 
