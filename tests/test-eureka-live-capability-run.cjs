@@ -44,7 +44,7 @@ async function main() {
   assert.ok((cliCounts.get('eureka-workflow') || 0) > 0, 'the shared eureka-workflow route is in use');
   const dedicatedExecutables = [...cliCounts.keys()].filter((name) => name !== 'eureka-workflow');
   for (const name of dedicatedExecutables) {
-    assert.ok(['eureka-decision-sequences', 'eureka-pair-scout', 'eureka-signal-scout', 'eureka-structure-mapping'].includes(name),
+    assert.ok(['eureka', 'eureka-decision-sequences', 'eureka-pair-scout', 'eureka-signal-scout', 'eureka-structure-mapping'].includes(name),
       `${name} is a known dedicated CLI route; add it to the descriptive-CLI check below before using it`);
   }
   const workflowHelp = spawnSync(process.env.MINDRIAN_EUREKA_UV || 'uv', [
@@ -67,8 +67,10 @@ async function main() {
     ['eureka-decision-sequences', 'eureka-omm'],
     ['eureka-decision-sequences-web', 'eureka-omm-web'],
     ['eureka-signal-scout', 'eureka-scout'],
+    // The pair screen route is the main eureka command (eureka run <folder>); it has no legacy alias.
+    ['eureka', null],
   ]) {
-    for (const executable of [command, legacy]) {
+    for (const executable of [command, legacy].filter(Boolean)) {
       const help = spawnSync(process.env.MINDRIAN_EUREKA_UV || 'uv', [
         'run', '--project', process.env.MINDRIAN_EUREKA_ROOT, executable, '--help',
       ], { encoding: 'utf8', timeout: 30000 });
