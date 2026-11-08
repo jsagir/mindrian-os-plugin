@@ -1,0 +1,51 @@
+{
+  "measured": "2026-11-08",
+  "node": "v22.23.1",
+  "claude_version": "2.1.319",
+  "head": "9eb90fad8a71095ea7e1457b4c9421d1df7768f1",
+  "payloads": {
+    "web": {
+      "tool_name": "WebSearch",
+      "tool_input": {
+        "query": "lean startup pivot"
+      }
+    },
+    "egress": {
+      "tool_name": "mcp__plugin_mos_mindrian-brain__brain_ask",
+      "tool_input": {
+        "question": "lean startup pivot"
+      }
+    }
+  },
+  "web": {
+    "cold_ms": 25.5,
+    "warm_runs": 20,
+    "p50": 24.8,
+    "p95": 26.8,
+    "max": 27.3,
+    "exit_codes_seen": [
+      0
+    ],
+    "signals": [],
+    "hooks_json_timeout_ms": 5000
+  },
+  "egress": {
+    "cold_ms": 78.1,
+    "warm_runs": 20,
+    "p50": 78.1,
+    "p95": 82.7,
+    "max": 87,
+    "exit_codes_seen": [
+      0
+    ],
+    "signals": [],
+    "hooks_json_timeout_ms": 5000
+  },
+  "note": "Cold run is the first spawn after a process-free gap; the OS file cache was already warm, so cold here is a lower bound of a true cold start (UNVERIFIED for a reboot-cold start). Synthetic payloads, scratch HOME, env built from scratch (PATH, HOME, LANG, CLAUDE_PLUGIN_ROOT only). 1 cold + 20 warm runs per hook, 10000 ms spawn timeout. Machine: 12 cores, load average about 4 to 6 during the run.",
+  "phase_384": {
+    "plan_files": 20,
+    "summary_files": 20,
+    "closed_on_disk_by_count": true,
+    "caveat": "384-20 status is PARTIAL-REVERTED with verdict NO-GAIN (fix reverted). No 384 VERIFICATION file exists. 384-20-SUMMARY.md and 384-OWNER-DECISIONS.md make no statement about the two guard hooks."
+  }
+}

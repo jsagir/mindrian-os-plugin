@@ -1,0 +1,18 @@
+agent	has_tools	allowed_tools	mcp_tokens	group	claim_lines	body_tools_outside_list	ignored_keys
+analogy-query-fetcher	no	mcp__tavily__tavily-search,WebSearch,Read	mcp__tavily__tavily-search	NW	17		allowed-tools
+brain-query	no	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records,Read	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records	NW			allowed-tools,hitl_shape,hitl_why
+chain-step-reviewer	no	Read		NW	13		allowed-tools
+competitor-watch-fetcher	no	mcp__tavily__tavily-search,WebSearch,Read	mcp__tavily__tavily-search	NW	19,20		allowed-tools
+dominant-design-researcher	yes	mcp__tavily__tavily-search,mcp__tavily-mcp__tavily-search,WebSearch,Read	mcp__tavily__tavily-search,mcp__tavily-mcp__tavily-search	HOST-TOOLS	26		allowed-tools
+framework-runner	no	Read,Write,Bash,Glob		W			allowed-tools,hitl_why
+grading	no	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,Read	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search	NW			allowed-tools,hitl_shape,hitl_why
+grant-reviewer	no	Read,Glob		NW			allowed-tools,hitl_shape,hitl_why
+investor	no	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records,Read	mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records	NW			allowed-tools,hitl_shape,hitl_why
+larry-extended	no			NONE		Read	mcpServers,initialPrompt,persona_variants,hitl_shape,hitl_why
+meeting-perspective-extractor	no	Read		NW	12		allowed-tools
+opportunity-scanner	no	Read,Write,Glob,Bash,WebSearch,mcp__tavily-mcp__tavily-search,mcp__tavily-mcp__tavily-extract	mcp__tavily-mcp__tavily-search,mcp__tavily-mcp__tavily-extract	W			allowed-tools,hitl_shape,hitl_why
+persona-analyst	no	Read,Write,Glob,WebSearch,WebFetch,mcp__mindrian-brain__brain_search,mcp__mindrian-brain__brain_query	mcp__mindrian-brain__brain_search,mcp__mindrian-brain__brain_query	W			allowed-tools,hitl_shape,hitl_why
+research-lane-analyst	yes	Read		HOST-TOOLS			allowed-tools
+research	no	mcp__tavily-mcp__tavily-search,mcp__tavily-mcp__tavily-extract,mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records,Read,Write	mcp__tavily-mcp__tavily-search,mcp__tavily-mcp__tavily-extract,mcp__mindrian-brain__brain_ask,mcp__mindrian-brain__brain_search,mcp__pinecone-brain__search-records	W			allowed-tools,hitl_shape,hitl_why
+reverse-salient-agent	no			NONE			mcpServers,persona_variants,extends,activation_gate,hitl_shape,hitl_why
+vault-section-reviewer	no	Read		NW	12,14,15		allowed-tools

@@ -1,0 +1,46 @@
+{
+  "probed": "2026-11-08",
+  "claude_version": "2.1.319",
+  "host": "claude -p, model haiku, max-turns 1, input from /dev/null, env -u MINDRIAN_BRAIN_KEY -u MINDRIAN_BRAIN_URL, cwd scratch dir",
+  "scratch_plugin": {
+    "name": "mos391probe",
+    "server": "mindrian-brain (real shim bin/mindrian-brain-mcp-client.cjs)",
+    "env": "MINDRIAN_BRAIN_URL=http://127.0.0.1:9 (dead loopback), no key, scratch HOME, prewarm timeout 2000 ms",
+    "agents": {
+      "probe-a": "tools: Read, mcp__plugin_mos391probe_mindrian-brain__*",
+      "probe-b": "tools: Read, mcp__mindrian-brain__*"
+    }
+  },
+  "attempts": [
+    {
+      "n": 1,
+      "cmd": "claude -p \"Reply with the word ok.\" --model haiku --plugin-dir SCRATCH --setting-sources project --strict-mcp-config --output-format stream-json --verbose --max-turns 1",
+      "result": "--strict-mcp-config removed the plugin server: init mcp_servers was empty. No naming data. Not used as proof."
+    },
+    {
+      "n": 2,
+      "cmd": "same command without --strict-mcp-config",
+      "result": "init mcp_servers: plugin:mos391probe:mindrian-brain connected. Plugin-scoped tools observed: mcp__plugin_mos391probe_mindrian-brain__brain_ask, brain_query, brain_schema, brain_search, brain_stats, brain_write. No tool named mcp__mindrian-brain__* (no user-level server of that name was present in this run)."
+    },
+    {
+      "n": 3,
+      "cmd": "same as attempt 2 plus --agent mos391probe:probe-a",
+      "result": "init tool list had 7 tools: Read plus the 6 plugin-scoped Brain tools. Restriction by plugin-scoped pattern works."
+    },
+    {
+      "n": 4,
+      "cmd": "same as attempt 2 plus --agent mos391probe:probe-b",
+      "result": "init tool list had 1 tool: Read. The project-scope pattern mcp__mindrian-brain__* matched nothing, so the agent lost every Brain tool."
+    }
+  ],
+  "claude_p_calls_used": 4,
+  "no_brain_call": "Tools were listed from the init event and never called. The shim pre-warm hit only http://127.0.0.1:9 (connection refused).",
+  "observed_pattern": "mcp__plugin_<plugin name>_<server>__<tool>",
+  "real_plugin_form": "mcp__plugin_mos_mindrian-brain__* and mcp__plugin_mos_mindrian-os__* (plugin name mos in .claude-plugin/plugin.json; the pattern is PROVEN for the name mos391probe, the name mos follows by substitution)",
+  "user_level_shadow": "No user-level server named mindrian-brain appeared in the tool list of these runs (only the plugin one). The project-scope form is therefore not proven to exist in any run here; the known repo risk (a user-level entry shadows the plugin shim) is not exercised.",
+  "verdicts": {
+    "naming_pattern": "PROVEN",
+    "restriction_semantics": "PROVEN",
+    "real_name_mos": "PROVEN by substitution of the plugin name (not probed with the real plugin)"
+  }
+}
