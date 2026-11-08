@@ -100,13 +100,21 @@ function codeOf(file) {
   return src.split('\n').filter((l) => !/^\s*(\/\/|\*|#)/.test(l)).join('\n');
 }
 
+const LIB_MCP_EXTRA = ['approval-gate.cjs'];
+
 function staticProblems() {
   const problems = [];
   const toolsDir = path.join(REPO, 'lib', 'mcp', 'tools');
   const toolFiles = fs.readdirSync(toolsDir).filter((f) => /^eureka-.*\.cjs$/.test(f)).sort().map((f) => path.join(toolsDir, f));
   const engineCore = ['eureka-engine-resolver.cjs', 'eureka-engine-requirements.cjs', 'eureka-engine-enable.cjs'].map((f) => path.join(REPO, 'lib', 'core', 'eureka', f));
   const contract = path.join(REPO, 'lib', 'mcp', 'eureka-tool-contract.cjs');
-  const all = toolFiles.concat([contract], engineCore);
+  // Phase 374 plan 03 (D-08): extra modules under lib/mcp that get the same rules. Plan 374-06 appends
+  // 'eureka-pair-screen.cjs'. A missing file is a problem.
+  const extra = LIB_MCP_EXTRA.map((f) => path.join(REPO, 'lib', 'mcp', f));
+  for (const f of extra) {
+    if (!fs.existsSync(f)) problems.push('lib/mcp/' + path.basename(f) + ': guarded module is missing');
+  }
+  const all = toolFiles.concat([contract], engineCore, extra.filter((f) => fs.existsSync(f)));
   const rel = (f) => path.relative(REPO, f);
   for (const f of all) {
     const code = codeOf(f);
