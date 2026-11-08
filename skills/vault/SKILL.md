@@ -16,7 +16,7 @@ serves_jtbd: ["prepare-pitch"]
 teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."
 # Phase 265-21 (docs/reward-before-investment-rule.md, --none scripting override clause):
 # vault is a deliberate lifecycle export/import command the navigator runs on purpose (mirrors
-# commands/rooms.md, commands/mva-option.md, commands/pws-brain.md's own --none declarations),
+# commands/rooms.md and the other lifecycle commands' own --none declarations),
 # not a conversational entry flow with a first-reward moment to sequence.
 interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md

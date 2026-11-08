@@ -12,7 +12,7 @@
 
 ---
 
-## COMMANDS (type: command) - 91
+## COMMANDS (type: command) - 90
 
 ### Methodology / frameworks (33)
 - `analyze-needs` - score customer jobs by importance vs satisfaction
@@ -53,7 +53,7 @@
 - `grade` - grade problem-discovery quality (6 components)
 - `deep-grade` - grade a venture against 100+ calibrated projects
 
-### Orchestration / routing (8)
+### Orchestration / routing (7)
 - `act` - Larry's best-pick methodology for the room state
 - `mos` - state-aware router to the right next surface
 - `pipeline` - chain a multi-step methodology pipeline
@@ -61,7 +61,6 @@
 - `operator` - show/set the conversation operator (state machine)
 - `jtbd` - show/set the active job-to-be-done signal
 - `models` - view/switch model-routing profiles
-- `mva-option` - route the 3-option footer after an MVA brief
 
 ### Reverse Salient / Engine 1 (4)
 - `rs-fetch` - full Reverse Salient discovery pipeline for a topic
@@ -129,7 +128,7 @@
 
 ---
 
-## SKILLS (type: skill - auto-activated) - 11
+## SKILLS (type: skill - auto-activated) - 10
 - `larry-personality` - Larry's dual-mode conversation engine + Ask-Tell dial; the core voice; freezes the 5 reach_ids + 3 postures
 - `conversation-mode` - behavior for no-room sessions (Just Talk / Explore+Capture / Build a Room)
 - `context-engine` - session context + USER.md memory + context-aware greetings
@@ -137,7 +136,6 @@
 - `room-passive` - Data Room awareness + filing intelligence (active when room/ exists)
 - `room-proactive` - surfaces gaps, contradictions, convergence
 - `brain-connector` - Brain enrichment (passive weave + proactive contradictions)
-- `mva-pipeline` - auto-fires the 30-second MVA brief on a venture sentence
 - `mullins-scaffold` - scaffolds a room around the Mullins 7 Domains
 - `mos-deck-engine` - the in-product Feynman 6-stage deck engine (twin of the feynman-engine skill)
 - `ui-system` - the CLI UI Ruling System (4-zone anatomy, glyphs, body shapes); the surface resolver
@@ -196,8 +194,8 @@
 ## Totals
 | Type | Count |
 |---|---|
-| Commands | 91 (5 deprecated) |
-| Skills | 11 |
+| Commands | 90 (5 deprecated) |
+| Skills | 10 |
 | Agents | 9 |
 | Hook scripts | 18 (+ ~11 run-hook.cmd sub-hooks) |
 | **Distinct components** | **~140** |

@@ -15,14 +15,13 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
+// Plan 08 (owner D3, D4) retired commands/mva-option.md, skills/mva-option, skills/mva-pipeline and
+// lib/core/mva-option-router.test.cjs. Their legs (stale text, option 2 text, router asserts, pins) went
+// with them; the files that stay are checked as before.
 const FILES = [
   'commands/mva-brief.md',
-  'commands/mva-option.md',
   'skills/mva-brief/SKILL.md',
-  'skills/mva-option/SKILL.md',
-  'skills/mva-pipeline/SKILL.md',
 ];
-const ROUTER_TEST = 'lib/core/mva-option-router.test.cjs';
 const KEYS = ['teaching', 'help_jtbd'];
 
 // sha256 of the frontmatter block of each key, taken from the files before plan 389-01 edited them.
@@ -32,21 +31,9 @@ const PINS = {
     teaching: '2820680b41608983e79076fde84163949e290a3a5526ea8a00d92cad242872cf',
     help_jtbd: '3661db80cac7fe319d25bdf033b4fc1447fb9d8bbdc0b1ede80f33a1ba06e527',
   },
-  'commands/mva-option.md': {
-    teaching: '168fef10e8f4f983a6438ca440f2f8c3c991a2590e30d73892fba8a2a0ad2ba0',
-    help_jtbd: '2ac39285c63180d4b0662cae639cf40823e2ac00a62de9f1f16861cb13f7c1f2',
-  },
   'skills/mva-brief/SKILL.md': {
     teaching: '2820680b41608983e79076fde84163949e290a3a5526ea8a00d92cad242872cf',
     help_jtbd: '3661db80cac7fe319d25bdf033b4fc1447fb9d8bbdc0b1ede80f33a1ba06e527',
-  },
-  'skills/mva-option/SKILL.md': {
-    teaching: '168fef10e8f4f983a6438ca440f2f8c3c991a2590e30d73892fba8a2a0ad2ba0',
-    help_jtbd: '2ac39285c63180d4b0662cae639cf40823e2ac00a62de9f1f16861cb13f7c1f2',
-  },
-  'skills/mva-pipeline/SKILL.md': {
-    teaching: 'absent',
-    help_jtbd: 'absent',
   },
 };
 
@@ -101,7 +88,7 @@ if (process.argv.includes('--print-pins')) {
   process.exit(0);
 }
 
-// ---- Test 1: no stale stub text in the five family files ----
+// ---- Test 1: no stale stub text in the two family files ----
 const STALE = [
   'phase_119_stub',
   'stub for v1.13.0',
@@ -125,23 +112,7 @@ for (const f of FILES) {
   check('Test 1: ' + f + ' holds no stale stub text', bad.length === 0, bad.join('; '));
 }
 
-// ---- Test 2: option 2 is described as ignite_from_brief with the side file ----
-for (const f of ['commands/mva-option.md', 'skills/mva-option/SKILL.md']) {
-  const t = read(f);
-  check('Test 2: ' + f + ' names ignite_from_brief', t.includes('ignite_from_brief'));
-  check('Test 2: ' + f + ' names the side file ~/.mindrian/mva/briefs/<sha8>.json', t.includes('~/.mindrian/mva/briefs/<sha8>.json'));
-  check('Test 2: ' + f + ' names no_brief_available', t.includes('no_brief_available'));
-}
-
-// ---- Test 3: the router test says what the router does ----
-{
-  const t = read(ROUTER_TEST);
-  check('Test 3: ' + ROUTER_TEST + ' no longer holds phase_119_stub', !t.includes('phase_119_stub'));
-  check('Test 3: ' + ROUTER_TEST + ' asserts ignite_from_brief for option 2', t.includes("'ignite_from_brief'"));
-  check('Test 3: ' + ROUTER_TEST + ' asserts no_brief_available for a missing brief', t.includes("'no_brief_available'"));
-}
-
-// ---- Test 4: teaching and help_jtbd are untouched (ledger hash stays valid) ----
+// ---- Test 4 (Tests 2 and 3 retired with the option files in plan 08): teaching and help_jtbd are untouched (ledger hash stays valid) ----
 if (Object.values(PINS).some((p) => p.teaching === 'PIN')) {
   fail('Test 4: pins are filled in', 'run --print-pins on the unedited files');
 } else {

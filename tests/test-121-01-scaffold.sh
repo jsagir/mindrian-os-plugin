@@ -65,9 +65,8 @@ gate4_hooked_rescore_repointed() {
 
 # Gate 5: Phase 118 MVA pipeline still functional after the shim cutover.
 gate5_phase_118_still_green() {
-  node --test lib/core/mva-option-router.test.cjs >/dev/null 2>&1 || fail "Gate 5: lib/core/mva-option-router.test.cjs failed (Phase 118 regression)"
   node lib/core/mva-telemetry.test.cjs >/dev/null 2>&1 || fail "Gate 5: lib/core/mva-telemetry.test.cjs failed (legacy mva.jsonl dual-write regression)"
-  echo "Gate 5 PASS: Phase 118 MVA pipeline still green (option-router 18/18 + mva-telemetry 5/5)"
+  echo "Gate 5 PASS: Phase 118 MVA pipeline still green (mva-telemetry 5/5; the option router was retired in Phase 389 plan 08)"
 }
 
 # Gate 6: Zero em-dashes across all 121-01 modified files (printf-encoded

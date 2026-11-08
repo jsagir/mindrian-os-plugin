@@ -1295,25 +1295,6 @@
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
     },
     {
-      "command": "/mos:mva-option",
-      "kind": "utility",
-      "surface": "navigator",
-      "visibility": null,
-      "frameworks": [],
-      "produces": null,
-      "executable": null,
-      "inputs": [],
-      "autonomous_safe": false,
-      "body_shape": "E",
-      "layer": "harness",
-      "serves_jtbd": [
-        "explore"
-      ],
-      "teaching": "When the 3-option footer shows after an MVA brief, /mos:mva-option routes your pick (refine / build a room / iterate) into the right next move. The hand-off after the first reward.",
-      "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
-    },
-    {
       "command": "/mos:mva-report",
       "kind": "utility",
       "surface": "navigator",

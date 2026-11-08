@@ -36,9 +36,8 @@ CJS_SUITES=(
   ../lib/core/resolve-vercel-key.test.cjs
   ../lib/core/mva-vercel-deploy.test.cjs
   ../lib/core/mva-deck-builder.test.cjs
-  # Plan 118-05 (footer routing + operator helper)
+  # Plan 118-05 (operator helper; the footer router was retired in Phase 389 plan 08)
   ../lib/conversation/operator.test.cjs
-  ../lib/core/mva-option-router.test.cjs
   # Plan 118-06 (rule-linter + Dror 2.0 harness)
   ../lib/core/mva-rule-linter.test.cjs
   ./test-mva-dror-harness.cjs

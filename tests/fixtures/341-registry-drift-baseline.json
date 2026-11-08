@@ -380,12 +380,6 @@
       "visibility": null
     },
     {
-      "command": "/mos:mva-option",
-      "kind": "utility",
-      "surface": "navigator",
-      "visibility": null
-    },
-    {
       "command": "/mos:mva-report",
       "kind": "utility",
       "surface": "navigator",

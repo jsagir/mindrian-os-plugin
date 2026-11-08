@@ -95,7 +95,7 @@
       "why": "Preserve or inspect prior work, changes and continuity. These are legacy command roles, not adoption of their old behavior."
     },
     "navigation-and-execution": {
-      "commands": ["act", "pipeline", "suggest-next", "scheduled-tasks", "mva-option", "explain-decision", "operator", "stance"],
+      "commands": ["act", "pipeline", "suggest-next", "scheduled-tasks", "explain-decision", "operator", "stance"],
       "why": "Choose, dispatch, schedule or explain work across the relevant sections."
     },
     "room-access-and-overview": {

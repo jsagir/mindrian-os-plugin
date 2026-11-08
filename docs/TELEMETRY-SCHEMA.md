@@ -96,7 +96,7 @@ Each subsection documents when the event fires, the closed ALLOWED_FIELDS whitel
 
 - When: at the start of an MVA option router pipeline run.
 - ALLOWED_FIELDS: `sentence_sha256`
-- Source: `lib/core/mva-option-router.cjs` via `lib/core/mva-telemetry.cjs` shim -> `writer.cjs`.
+- Source: `lib/core/mva-telemetry.cjs` shim -> `writer.cjs` (the option router that used to emit it was retired in Phase 389).
 - Sample:
   ```json
   {"event":"mva_pipeline_started","schema_version":1,"timestamp":"2026-05-19T09:00:00.000Z","session_id":"abc","sentence_sha256":"<64-hex>"}

@@ -222,22 +222,23 @@ function main() {
     check('Test 5: null uses the newest record by created_at', nl.action === 'ignite_from_brief' && nl.sha8 === '22222222', JSON.stringify(nl.sha8));
     check('Test 5: legacy-format file resolves with the old reward flag false', M.resolveFromBrief('feedf00d').brief_reward_pending === false);
 
-    // ---------- Test 6: parity with the router while it exists ----------
-    if (!fs.existsSync(ROUTER_PATH)) {
-      console.log('skip Test 6: lib/core/mva-option-router.cjs is gone (plan 08 removed it)');
-    } else {
-      const router = require(ROUTER_PATH);
-      const ro = router.resolveOption2('feedf00d');
-      const rn = M.resolveFromBrief('feedf00d');
-      check('Test 6: same action, sha8, canon_verb, invoke_command',
-        ro.action === rn.action && ro.sha8 === rn.sha8 && ro.canon_verb === rn.canon_verb && ro.invoke_command === rn.invoke_command, JSON.stringify([ro.action, rn.action]));
-      check('Test 6: same keys', JSON.stringify(Object.keys(ro).sort()) === JSON.stringify(Object.keys(rn).sort()), Object.keys(ro) + ' vs ' + Object.keys(rn));
-      const ro2 = router.resolveOption2('badbad01');
-      const rn2 = M.resolveFromBrief('badbad01');
-      check('Test 6: parse error has the same action and keys', ro2.action === rn2.action && JSON.stringify(Object.keys(ro2).sort()) === JSON.stringify(Object.keys(rn2).sort()));
-      const ro3 = router.resolveOption2('deadbeef');
-      const rn3 = M.resolveFromBrief('deadbeef');
-      check('Test 6: missing id has the same action and canon_verb', ro3.action === rn3.action && ro3.canon_verb === rn3.canon_verb);
+    // ---------- Test 6: the hand-off resolves without the router (plan 08 retired it) ----------
+    // This was a parity test while the router existed. The router is gone, so the leg is now a
+    // positive assertion: it must not skip, and the Seed record path must answer on its own.
+    check('Test 6: lib/core/mva-option-router.cjs is gone (retired in plan 08)', !fs.existsSync(ROUTER_PATH));
+    check('Test 6: the router was never loaded in this process', !Object.keys(require.cache).some((k) => /mva-option-router/.test(k)));
+    {
+      const ok6 = M.resolveFromBrief('feedf00d');
+      check('Test 6: an old side file still resolves to ignite_from_brief with the same fields',
+        ok6.action === 'ignite_from_brief' && ok6.sha8 === 'feedf00d' && ok6.canon_verb === 8 &&
+        ok6.invoke_command === '/mos:ignite --from-brief feedf00d' && ok6.brief_reward_pending === false &&
+        !!ok6.brief_content, JSON.stringify(Object.keys(ok6)));
+      const pe6 = M.resolveFromBrief('badbad01');
+      check('Test 6: a malformed old file gives brief_parse_error with canon_verb 8',
+        pe6.action === 'brief_parse_error' && pe6.sha8 === 'badbad01' && pe6.canon_verb === 8 && typeof pe6.message === 'string');
+      const nb6 = M.resolveFromBrief('deadbeef');
+      check('Test 6: a missing id gives no_brief_available with canon_verb 8 and no invoke_command',
+        nb6.action === 'no_brief_available' && nb6.canon_verb === 8 && nb6.invoke_command === undefined);
     }
 
     // ---------- Test 7: renderReceipt ----------

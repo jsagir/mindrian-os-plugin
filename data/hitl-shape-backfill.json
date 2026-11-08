@@ -107,10 +107,6 @@
     "hitl_shape": "F.8",
     "hitl_why": "Grant-lifecycle candidates are surfaced as an independent set the navigator triages in any order."
   },
-  "commands/mva-option.md": {
-    "hitl_shape": "F.8",
-    "hitl_why": "Candidate options are surfaced as an independent set to weigh in any order before a pick."
-  },
   "commands/organize.md": {
     "hitl_shape": "F.8",
     "hitl_why": "Filing and tidy jobs are surfaced as an independent set with no ordering constraint."

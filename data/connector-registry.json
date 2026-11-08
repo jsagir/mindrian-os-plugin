@@ -871,23 +871,6 @@
       "decision_surface": null
     },
     {
-      "surface": "/mos:mva-option",
-      "source": "command",
-      "connects_to_spine": true,
-      "sensor_triggers": [
-        "SENS-05"
-      ],
-      "reach_id": "context_block",
-      "sub_mode": "mva-option",
-      "framework": null,
-      "posture": "push_forward",
-      "hierarchy_rank": 11,
-      "filing": "none",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": null
-    },
-    {
       "surface": "/mos:new-project",
       "source": "command",
       "connects_to_spine": true,
@@ -2274,21 +2257,6 @@
       "framework": null,
       "posture": "push_forward",
       "hierarchy_rank": 10,
-      "filing": "none",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": null
-    },
-    {
-      "surface": "skill:mva-option",
-      "source": "skill",
-      "connects_to_spine": true,
-      "sensor_triggers": [],
-      "reach_id": "context_block",
-      "sub_mode": "mva-option",
-      "framework": null,
-      "posture": "push_forward",
-      "hierarchy_rank": 11,
       "filing": "none",
       "plan_gated": false,
       "web_scope": null,
@@ -4127,7 +4095,6 @@
       "/mos:discover",
       "/mos:jtbd",
       "/mos:leadership",
-      "/mos:mva-option",
       "/mos:operator"
     ],
     "SENS-06": [

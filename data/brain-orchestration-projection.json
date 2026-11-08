@@ -1648,36 +1648,6 @@
       }
     },
     {
-      "id": "command:/mos:mva-option",
-      "kind": "command",
-      "methodology_tier": "mindrian-operation",
-      "name": "/mos:mva-option",
-      "reach_id": "context_block",
-      "sub_mode": "mva-option",
-      "hierarchy_rank": 11,
-      "posture": "push_forward",
-      "sensor_triggers": [
-        "SENS-05"
-      ],
-      "chain_provenance": {
-        "command": "/mos:mva-option",
-        "reach_id": "context_block",
-        "sub_mode": "mva-option",
-        "firing_sensors": [
-          "SENS-05"
-        ]
-      },
-      "ranking": {
-        "reach_id": "context_block",
-        "sub_mode": "mva-option",
-        "hierarchy_rank": 11,
-        "posture": "push_forward",
-        "sensor_triggers": [
-          "SENS-05"
-        ]
-      }
-    },
-    {
       "id": "command:/mos:mva-report",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3211,12 +3181,6 @@
       "name": "mva-brief"
     },
     {
-      "id": "skill:mva-option",
-      "kind": "skill",
-      "methodology_tier": "mindrian-operation",
-      "name": "mva-option"
-    },
-    {
       "id": "skill:mva-report",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4361,12 +4325,6 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "mva-brief"
-    },
-    {
-      "id": "sub_mode:mva-option",
-      "kind": "sub_mode",
-      "methodology_tier": "mindrian-operation",
-      "name": "mva-option"
     },
     {
       "id": "sub_mode:needs-jtbd",

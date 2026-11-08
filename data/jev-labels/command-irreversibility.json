@@ -385,12 +385,6 @@
       "label_source": "navigator-arbitrated"
     },
     {
-      "command": "/mos:mva-option",
-      "irreversible": false,
-      "reason": "Reads, analyzes or writes working material inside the room",
-      "label_source": "two-model-blind-agreement"
-    },
-    {
       "command": "/mos:mva-report",
       "irreversible": false,
       "reason": "Local report only, sends nothing",

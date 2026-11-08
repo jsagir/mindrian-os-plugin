@@ -270,13 +270,6 @@
         "source": "ground-truth"
       },
       {
-        "command": "/mos:mva-option",
-        "framework": null,
-        "score": 0.37,
-        "confidence": 0.46,
-        "source": "ground-truth"
-      },
-      {
         "command": "/mos:score-innovation",
         "framework": "HSI Semantic Surprise Analysis Assistant",
         "score": 0.37,
