@@ -4153,3 +4153,27 @@ Plans:
 - [ ] 391-06-PLAN.md - radar command procedure fix and mirror (Part 11), doctor organ names the gap and warns on an incomplete fetch (default lag unchanged), aggregator registration (wave 3)
 - [ ] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
 - [ ] 391-08-PLAN.md - owner cards C2, C3, C4 and C6 applied by token: web guard onFailure, radar Bash entry, /ultrareview seed, doctor default lag (wave 4, gated)
+
+### Phase 392: Part 8 problem-shape packet: measure, close the six bypasses, send a closed-vocabulary shape beside the question, fix the composed envelope, session-owned room lexicon
+
+**Goal:** Part 8 changes from filtering the free text sent to the Brain to sending a closed-vocabulary problem shape beside one generic question, never raw room text; the guard stops leaking (six reproduced bypasses) without crippling the context engineering in the graph (37 of 535 legitimate method questions are refused today); the composed envelope says where its problem type came from and orders options by Theo's rank; the room lexicon is session-owned; Eureka calls get their real deadline.
+**Baseline:** the installed 2.0.0-beta.81, branch work/part8-shape-packet from tag v2.0.0-beta.81. Owner decisions D-01 to D-09 and verified facts F1 to F11: 392-CONTEXT.md. Research trail: ~/MindrianOS/research/2026-11-08-part8-shape-packet-plan/.
+**canon_parts:** 8, 9, 12
+**Success Criteria** (what must be TRUE):
+
+  1. A committed replay matrix over the 694-case corpus and the real-call sample records the beta.81 refusal rates before any guard change; after the change, fewer than 37 of the 535 legitimate extended questions are refused, and every must-refuse case still refuses.
+  2. Each of the six reproduced bypasses has a test that fails on beta.81 and passes after the fix (Hebrew and CJK tokens, a free-text sibling key, brain_query params, a glued paragraph, every non-brain_* Theo tool name, nested depth past 8); NFKC-normalised and format-character payloads and a 40,000-character email string are classified inside the hook budget.
+  3. One vocabulary file holds the closed enums (problem_type, stage Phase0 to Phase5, role, domain_tag, constraint_categories); a drift test pins every other list in the repo to it or retires the list; the packet is built only from the bound room by one builder and validated by exact enum membership; a model-supplied shape is ignored.
+  4. The Brain wire carries exactly {question, shape}; the capture server proves no room lexicon word and no credential shape leaves in either a bare or a shaped call; the composed envelope reports problem_type_source signal when the shape decided it, orders options by Theo's rank with a documented confidence blend, and keeps Theo's evidence block.
+  5. The lexicon check resolves the room of THIS session: unbound session gives an empty lexicon and allows; bound but unreadable, or a resolver failure, blocks with room_check_unavailable; two sessions bound to different rooms never share a lexicon.
+  6. Every Eureka client.callTool carries the plugin deadline as timeout and maxTotalTimeout; a 65-second fake engine ends as engine_timeout, not engine_start_failed.
+  7. The three loop tests pass: Theo receives only the question plus the shape; Eureka runs locally to completion; the assembled Larry answer contains room words while the captured request does not. The acceptance script (bare versus shaped, same question) is a Jev leg and the shaped call wins on problem_type_source, grounding order, coverage and ordering.
+  8. Canon Part 8, Larry's prompt and every doc line that says zero user-content egress carry the new sentence, landed after the code enforces it and through the Canon Custodian path; READMEs refreshed; tests/test-389-seed-egress.cjs and tests/test-387-eureka-egress.cjs pass on the rebased branch.
+
+**Requirements**: TBD
+**Depends on:** Phase 391
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 392 to break down)
