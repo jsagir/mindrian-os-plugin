@@ -32,7 +32,7 @@ completed: 2026-11-08
 
 ## Task commits
 
-1. Task 1 (RED then GREEN) and Task 2 (hand runs, SUMMARY): one commit, see the final line of this file for the hash.
+1. Task 1 (RED then GREEN) and Task 2 (hand runs, SUMMARY): one commit, 83fe9c48c (test(374-04): answer gate wrapper for the Phase 374 owner cards, per plan).
 
 ## RED output (selftest against stubs)
 
