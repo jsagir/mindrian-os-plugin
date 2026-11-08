@@ -19,6 +19,11 @@
  *
  * It makes no network call, requires no network module, and writes only inside its working folder.
  * It is synthetic: the real engine is never started by the tests that use it. Hyphens only.
+ *
+ * Phase 392 plan 07: in run mode the environment variable FAKE_EUREKA_SLEEP_MS (default 0) delays the
+ * scout_run_workflow and scout_result answers by that many milliseconds. Every record row carries the delay
+ * as sleep_ms. The plugin copies only allowlisted variables to the engine child, so a test sets the variable
+ * through a small launcher script that sets it and then requires this file.
  */
 
 const fs = require('node:fs');
@@ -27,11 +32,20 @@ const path = require('node:path');
 const argv = process.argv.slice(2);
 const cwd = process.cwd();
 const OFFLINE = ['UV_OFFLINE', 'HF_HUB_OFFLINE', 'TRANSFORMERS_OFFLINE'];
+const SLEEP_MS = (() => {
+  const n = Number(process.env.FAKE_EUREKA_SLEEP_MS || 0);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+})();
+
+function sleep(ms) {
+  return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+}
 
 function record(entry) {
   const row = Object.assign({
     argv,
     cwd,
+    sleep_ms: SLEEP_MS,
     env_keys: Object.keys(process.env).sort(),
     UV_OFFLINE: process.env.UV_OFFLINE === undefined ? null : process.env.UV_OFFLINE,
     HF_HUB_OFFLINE: process.env.HF_HUB_OFFLINE === undefined ? null : process.env.HF_HUB_OFFLINE,
@@ -179,6 +193,7 @@ function serve() {
   server.registerTool('scout_run_workflow', { description: 'fake workflow', inputSchema: permissive }, async (args) => {
     observe('scout_run_workflow', args);
     const ids = lineage(args && args.request);
+    await sleep(SLEEP_MS);
     return answer(Object.assign({ capability_id: args && args.capability_id, status: 'completed_analysis' }, ids));
   });
   server.registerTool('scout_start_opportunity_signal_scout', { description: 'fake async start', inputSchema: permissive }, async (args) => {
@@ -192,6 +207,7 @@ function serve() {
   });
   server.registerTool('scout_result', { description: 'fake result', inputSchema: permissive }, async (args) => {
     observe('scout_result', args);
+    await sleep(SLEEP_MS);
     return answer({ capability_id: 'opportunity.synthesize_discovery_signals', status: 'completed', scope: lastScope });
   });
   server.registerTool('scout_cancel', { description: 'fake cancel', inputSchema: permissive }, async (args) => {
