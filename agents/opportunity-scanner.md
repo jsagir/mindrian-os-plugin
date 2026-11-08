@@ -11,6 +11,15 @@ allowed-tools:
   - WebSearch
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
+  - Write
+  - Glob
+  - Bash
+  - WebSearch
+  - mcp__tavily-mcp__tavily-search
+  - mcp__tavily-mcp__tavily-extract
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

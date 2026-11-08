@@ -5,6 +5,9 @@ model: inherit
 color: teal
 allowed-tools:
   - Read
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
 # --- Phase 265 Plan 21 CIRS R1 exclude (Canon Part 11) ---
 # A NEW SIBLING agent, never a repurposed agent (mirrors the meeting-perspective-extractor.md
 # / grant-reviewer.md precedent already recorded in this repo): this worker's job is per-row

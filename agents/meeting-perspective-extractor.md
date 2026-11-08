@@ -5,6 +5,9 @@ model: inherit
 color: teal
 allowed-tools:
   - Read
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
 # --- Phase 265 Plan 19 CIRS R1 exclude (Canon Part 11) ---
 # A NEW SIBLING agent, never a repurposed agent (mirrors the grant-reviewer.md
 # precedent, D5 in that file): this worker's vocabulary is the five extraction

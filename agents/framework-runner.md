@@ -8,6 +8,12 @@ allowed-tools:
   - Write
   - Bash
   - Glob
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

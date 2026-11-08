@@ -11,6 +11,15 @@ allowed-tools:
   - mcp__pinecone-brain__search-records
   - Read
   - Write
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - mcp__tavily-mcp__tavily-search
+  - mcp__tavily-mcp__tavily-extract
+  - mcp__plugin_mos_mindrian-brain__brain_ask
+  - mcp__plugin_mos_mindrian-brain__brain_search
+  - mcp__pinecone-brain__search-records
+  - Read
+  - Write
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true

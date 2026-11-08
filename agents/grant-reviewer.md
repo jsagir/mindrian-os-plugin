@@ -6,6 +6,10 @@ color: blue
 allowed-tools:
   - Read
   - Glob
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
+  - Glob
 hitl_shape: "F.8"
 hitl_why: "The seven rubric categories (eligibility/process/budget/legal/reporting/market/ip) are examined as an independent panel in any order, an unordered basket -- same framing as persona-analyst.md's own F.8, whose de Bono hats are likewise unordered."
 # --- grade-grant reviewer-panel connector frontmatter (generated via build-connector-registry --check) ---

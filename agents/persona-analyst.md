@@ -11,6 +11,15 @@ allowed-tools:
   - WebFetch
   - mcp__mindrian-brain__brain_search
   - mcp__mindrian-brain__brain_query
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - Read
+  - Write
+  - Glob
+  - WebSearch
+  - WebFetch
+  - mcp__plugin_mos_mindrian-brain__brain_search
+  - mcp__plugin_mos_mindrian-brain__brain_query
 # --- Phase 144.1 connector frontmatter (generated via build-connector-registry --check) ---
 connector:
   connects_to_spine: true

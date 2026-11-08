@@ -8,6 +8,12 @@ allowed-tools:
   - mcp__mindrian-brain__brain_search
   - mcp__pinecone-brain__search-records
   - Read
+# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+tools:
+  - mcp__plugin_mos_mindrian-brain__brain_ask
+  - mcp__plugin_mos_mindrian-brain__brain_search
+  - mcp__pinecone-brain__search-records
+  - Read
 # --- Phase 144.1 connector frontmatter ---
 connector:
   connects_to_spine: true
