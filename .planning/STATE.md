@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: verifying
-stopped_at: 391-04-PLAN.md tasks 1-2 done, awaiting owner answers on six cards (391-DECISION.md; commit ae111cec4); earlier Completed 391-05-PLAN.md
-last_updated: "2026-11-08T05:02:34.098Z"
+stopped_at: Completed 391-06-PLAN.md (radar --fetch procedure, doctor gap rule, aggregator registered; default lag 40 and Bash grant wait for owner cards C6 and C3); 391-04 still awaiting owner answers on six cards
+last_updated: "2026-11-08T05:07:28.774Z"
 last_activity: 2026-11-08
 progress:
   total_phases: 154
   completed_phases: 41
   total_plans: 814
-  completed_plans: 683
+  completed_plans: 684
   percent: 27
 ---
 
@@ -9425,7 +9425,7 @@ Progress: [█████████░] 86%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-08T05:02:34.008Z
+Last session: 2026-11-08T05:07:28.688Z
 Stopped at: Completed 391-05-PLAN.md (six dormant ledger rows, ledger_covers.to 2.1.318 and fetch_coverage; see 391-05-SUMMARY.md)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
