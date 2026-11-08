@@ -4104,11 +4104,11 @@ Plans:
 **Goal:** One framework, the Pyramid Principle, at two depths replaces the MVA family. Seed: a person with no room types one venture sentence and gets a one-page pyramid (Situation, Complication, Question, Answer) written by the host model at once; outside evidence comes only after a card, only as short generic phrases through the Part 8 route. Full: with a room, the Phase 363 pyramid engine upgrades the seed. One gate: build a room, keep going, or challenge. The old per-message hook, brief, option router and pipeline core are retired, mva-report becomes session-report, and the surviving modules are renamed, each behind an owner token on one card. Source: 389-PRD.md and 389-RESEARCH.md (the research changes the PRD where they conflict).
 **Requirements**: PYR389-01 to PYR389-14
 **Depends on:** Phase 388
-**Plans:** 14 plans (planned 2026-11-07, not executed; plan 389-02 stops for the owner card; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
+**Plans:** 1/14 plans executed (planned 2026-11-07; plan 389-02 stops for the owner card; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
 
 Plans:
 
-- [ ] 389-01-PLAN.md - caller proof, test baseline, generator map, stale option-2 text fixed (wave 1)
+- [x] 389-01-PLAN.md - caller proof, test baseline, generator map, stale option-2 text fixed (wave 1)
 - [ ] 389-02-PLAN.md - owner decision card D1 to D11 with a token gate and a checker; ends at NEEDS_HUMAN (wave 2, not autonomous)
 - [ ] 389-03-PLAN.md - Seed cells on short generic phrases, card and run commands with a code refusal, Part 8 canary, live measure record (wave 2)
 - [ ] 389-04-PLAN.md - Full depth on the Phase 363 pyramid engine: one template, one adapter (wave 2)

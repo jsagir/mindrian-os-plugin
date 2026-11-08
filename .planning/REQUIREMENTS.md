@@ -5227,7 +5227,7 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 
 ### Phase 389 - Pyramid: seed and full, replaces the MVA family (PYR389, minted at plan time 2026-11-07)
 
-- [ ] **PYR389-01**: The callers of the MVA family are proven by a classed scan, the test baseline is recorded, and the stale "option 2 is a stub" text and its five stale router asserts are fixed. Plan 389-01.
+- [x] **PYR389-01**: The callers of the MVA family are proven by a classed scan, the test baseline is recorded, and the stale "option 2 is a stub" text and its five stale router asserts are fixed. Plan 389-01.
 - [ ] **PYR389-02**: Every owner decision (entry hook, first-install reward, retirements, renames, alias period, share step, autonomous_safe posture) is on one card with a token gate and a hash. Plan 389-02.
 - [ ] **PYR389-03**: The Seed Test step sends only short generic phrases written by the host model, only after a card, through the Part 8 route, with a code refusal when the card was not shown; the Brain answer is measured. Plan 389-03.
 - [ ] **PYR389-04**: The Full depth runs the existing Phase 363 pyramid engine through one registered template and one adapter. Plan 389-04.
