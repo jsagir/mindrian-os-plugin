@@ -23,7 +23,7 @@ CJS_SUITES=(
   # Plan 118-00 (classifier; the UserPromptSubmit hook that called it was removed in Phase 389 plan 07)
   ../lib/core/venture-sentence-classifier.test.cjs
   # Plan 118-01 (dispatch architecture)
-  ../lib/core/mva-agent-contract.test.cjs
+  ../lib/core/pyramid-seed-agent-contract.test.cjs
   ../lib/core/pyramid-seed-budget.test.cjs
   ../lib/core/mva-dispatcher.test.cjs
   # Plans 118-02 and 118-03 (six cells, progressive renderer, telemetry shim, orchestrator) were retired in Phase 389 plan 10 (owner D6)
