@@ -1,0 +1,48 @@
+file	generator_or_hand	check_command	check_exit_at_baseline	note
+commands/*.md (retired or renamed command)	hand	node scripts/build-command-registry.cjs --check	0	the command file is the source; every generator below reads it
+skills/*/SKILL.md (mirror of a command)	scripts/build-skill-mirrors.cjs	node scripts/build-skill-mirrors.cjs --check	0	run the generator, then --check; never hand-edit a mirror body
+data/command-registry.json	scripts/build-command-registry.cjs	node scripts/build-command-registry.cjs --check	0	generated from commands/*.md frontmatter
+data/connector-registry.json	scripts/build-connector-registry.cjs	node scripts/build-connector-registry.cjs --check	0	generated
+data/connector-coverage-ledger.json	scripts/build-connector-registry.cjs	node scripts/build-connector-registry.cjs --check	0	written by the same run as the registry
+data/brain-orchestration-projection.json	scripts/build-orchestration-projection.cjs	node scripts/build-orchestration-projection.cjs --check	0	generated
+data/orchestration-command-ledger.json	scripts/build-orchestration-projection.cjs	node scripts/build-orchestration-projection.cjs --check	0	written by the same run as the projection
+data/render-coverage-registry.json	scripts/build-render-coverage.cjs	node scripts/check-render-coverage.cjs	0	check is a separate script; also build-render-coverage.cjs --check
+data/harness-manifest.json	scripts/build-harness-manifest.cjs	node scripts/build-harness-manifest.cjs --check	0	generated; named in the commit 29f8b57b1 file list
+data/section-command-ledger.json	scripts/build-section-command-ledger.cjs	node scripts/build-section-command-ledger.cjs --check	1	baseline red: plugin_version drift ledger beta.80 vs repo beta.82; do not regenerate without the version owner
+data/command-irreversibility-ledger.json	scripts/build-command-irreversibility-ledger.cjs	node scripts/build-command-irreversibility-ledger.cjs --check	0	add-only ledger hash-pinned to teaching and jtbd text; baseline WARN 20 (14 STALE, 2 REMOVED, 2 UNSCORED, 1 ANSWER_KEY_DRIFT, 1 LABEL_SET_MISMATCH); a retirement adds REMOVED, never edit by hand
+data/jev-labels/command-irreversibility.json	hand	node scripts/build-command-irreversibility-ledger.cjs --check	0	Jev label output kept in the repo; no generator in this repo writes it
+data/layer-backfill.json	scripts/backfill-layer.cjs	node scripts/backfill-layer.cjs --check	1	baseline red: 4 unrelated surfaces would change; the map holds one key per surface so a retired surface needs its key removed
+data/hitl-shape-backfill.json	hand	node scripts/backfill-hitl-shape.cjs --check	1	input map of backfill-hitl-shape.cjs (the script patches surface files, it does not write this map); baseline red, lists mva-report and mva-pipeline among others
+data/help-groups.json	hand	node scripts/check-help-coverage.cjs	0	checker only
+data/section-command-relevance.json	hand	none	n/a	no writer found by grep of scripts/ and lib/; readers lib/core/feyminto/*
+data/room-blueprints.json	hand	node scripts/check-room-blueprints.cjs	0	checker only
+data/connector-out-of-spine-allowlist.json	hand	node tests/test-209-declared-implies-wired.cjs	1	no writer; line 61 names skills/mva-pipeline; baseline red on an unrelated contradiction list
+data/first-reward-surfaces.json	hand	node scripts/check-reward-before-investment.cjs --surfaces .	0	names mva-orchestrator (line 39) and mva-rule-linter; plan 10 and 13 touch it
+data/arbitration-rule-catalogue.json	hand	node tests/test-346-catalogue-schema.cjs	1	rows mva-detect and mva-state (lines 147, 157); baseline red assert 12
+data/hooks-markers.json	hand	node tests/test-quick-260911-juq-hooks-json-top-level.cjs	0	line 23 names mva-detect
+data/command-deprecations.json	hand	node scripts/check-registry-drift.cjs --check	0	one entry per retired command; a stale entry fails the check
+hooks/hooks.json	hand	node tests/test-261029-qef-hook-timeouts.cjs	0	line 354 is the mva-detect row; plan 07 reuses the 385-08 unwire precedent
+tests/fixtures/341-registry-drift-baseline.json	hand	node scripts/check-registry-drift.cjs --check	0	fallback baseline; the check read the git tag v2.0.0-beta.81 at baseline
+tests/fixtures/369/hook-cold-start-baseline.json	hand	node tests/test-369-hook-require-graph.cjs	0	line 692 names mva-detect; do not edit by hand (385-08 precedent: leave it)
+tests/test-209-declared-implies-wired.cjs	hand	node tests/test-209-declared-implies-wired.cjs	1	hand-kept contradiction list; baseline red
+tests/test-192-menu-sweep-live-selectors.cjs	hand	node tests/test-192-menu-sweep-live-selectors.cjs	not run	names MVA commands as selectors
+ui/mindrian-workspace-mod/assets/command-registry.json	ui/mindrian-workspace-mod/scripts/sync-assets.cjs	node ui/mindrian-workspace-mod/scripts/sync-assets.cjs --check	1	derived byte copy of data/command-registry.json; baseline red because the copy is behind
+ui/mos-face/hooks/commands.ts	ui/mos-face/scripts/face-commands.cjs --write	node ui/mos-face/scripts/face-commands.cjs --check	0	baseline: 112 WHY lines, 3 drift warnings, 0 problems
+lib/mos-face/dist/commands.js	scripts/build-mos-face.cjs --build	node scripts/build-mos-face.cjs --check	0	built from ui/mos-face; baseline fresh
+ui/mos-face/scripts/face-commands.cjs	hand	node ui/mos-face/scripts/face-commands.cjs --check	0	override map names mva-report (lines 99 to 100)
+dist/generic-claude-dir/.claude/skills/*/SKILL.md	scripts/build-dist-bundles.cjs	node scripts/build-dist-bundles.cjs --check-stale	1	STALE since beta.52 by design; the spawn instruction says never regenerate dist/, so plan 01 leaves the six dist paths of its file list untouched (recorded as a deviation)
+dist/zed/.agents/skills/*/SKILL.md	scripts/build-dist-bundles.cjs	node scripts/build-dist-bundles.cjs --check-stale	1	same as the row above
+scripts/build-render-coverage.cjs	hand	node scripts/check-render-coverage.cjs	0	line 369 is a comment naming skills/mva-pipeline
+scripts/migrate-skill-frontmatter.cjs	hand	none	n/a	line 79 names mva-report in a list
+scripts/hooks/pre-commit	hand	none	n/a	comment only (line 314); calls scripts/check-reward-before-investment.cjs
+scripts/verify-release	hand	none	n/a	greps the string mva-rule-linter in the output of check-reward-before-investment (line 414); the release gate
+CHANGELOG.md	hand	none	n/a	not edited in plan 01
+data/mva-agent-prompts.json	hand	none	n/a	family data file; fate plan 10
+data/mva-heuristic-keywords.json	hand	none	n/a	family data file read by mva-classifier; fate plan 13 with the classifier
+data/mva-deck-template.html	hand	none	n/a	family data file read by mva-deck-builder; fate plan 12
+lib/memory/run-feynman-tests.cjs	hand	none	n/a	lists MVA test paths (lines 1492 to 1512); a deleted test needs its line removed
+lib/memory/soft-alias.test.cjs	hand	node lib/memory/soft-alias.test.cjs	not run	named in the 29f8b57b1 file list (soft alias precedent)
+scripts/soft-alias-runner.cjs	hand	none	n/a	soft alias runner used for a rename period
+output-styles/destijl.md	hand	none	n/a	named in the 29f8b57b1 file list; a command rename may touch it
+skills/ui-system/SKILL.md	hand	node scripts/build-skill-mirrors.cjs --check	0	named in the 29f8b57b1 file list
+scripts/build-jtbd-nudges	hand	none	n/a	named in the 29f8b57b1 file list

@@ -1,0 +1,305 @@
+token	file	hits	class	fate_plan	self_plan	note
+lib/agents/mva	data/mva-agent-prompts.json	2	data	10	10	L2 family-file
+lib/agents/mva	lib/agents/mva/brain-classic-traps.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/brain-cross-domain.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/brain-similar-ventures.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/dashboard-graph-neighborhood.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/six-hats-red-black.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/tavily-funding-scan.cjs	1	comment	10	10	L5 family-file
+lib/agents/mva	lib/agents/mva/test-all-six-agents.cjs	1	test	10	10	L404 family-file
+lib/agents/mva	lib/core/llm-name-suggester.cjs	1	comment	10		L19
+lib/agents/mva	lib/core/mva-orchestrator.cjs	1	comment	10	10	L43 family-file
+lib/agents/mva	lib/core/navigation.cjs	1	comment	10		L602
+lib/agents/mva	tests/run-all-118.sh	1	test	10		L31
+lib/agents/mva	tests/test-220-part8-egress.cjs	1	test	10		L24
+lib/agents/mva	tests/test-252-guard-census.cjs	3	test	10		L26
+mva-agent-contract	lib/agents/mva/index.cjs	1	comment	13	10	L7 family-file
+mva-agent-contract	lib/core/llm-name-suggester.cjs	1	comment	13		L132
+mva-agent-contract	lib/core/mva-agent-contract.cjs	1	comment	13	13	L4 family-file
+mva-agent-contract	lib/core/mva-agent-contract.test.cjs	8	test	13	13	L4 family-file
+mva-agent-contract	lib/core/mva-dispatcher.cjs	2	require	13	13	L38 family-file
+mva-agent-contract	lib/memory/run-feynman-tests.cjs	1	path-string	13		L1495
+mva-agent-contract	tests/run-all-118.sh	1	test	13		L27
+mva-agent-prompts	lib/agents/mva/brain-cross-domain.cjs	2	path-string	10	10	L30 family-file
+mva-agent-prompts	lib/agents/mva/brain-similar-ventures.cjs	3	path-string	10	10	L35 family-file
+mva-brief	commands/mva-brief.md	4	doc	09	09	L2 family-file
+mva-brief	data/brain-orchestration-projection.json	10	data	09		L1621
+mva-brief	data/command-irreversibility-ledger.json	2	data	09		L20
+mva-brief	data/command-registry.json	2	data	09		L1299
+mva-brief	data/connector-coverage-ledger.json	2	data	09		L388
+mva-brief	data/connector-registry.json	5	data	09		L857
+mva-brief	data/harness-fixtures/converged-room/references/SECTION-SCHEMA.md	1	doc	09		L104
+mva-brief	data/help-groups.json	1	data	09		L194
+mva-brief	data/hitl-shape-backfill.json	1	data	09		L218
+mva-brief	data/jev-labels/command-irreversibility.json	1	data	09		L382
+mva-brief	data/layer-backfill.json	2	data	09		L291
+mva-brief	data/orchestration-command-ledger.json	2	data	09		L326
+mva-brief	data/render-coverage-registry.json	2	data	09		L404
+mva-brief	data/room-blueprints.json	2	data	09		L86
+mva-brief	data/section-command-ledger.json	1	data	09		L287
+mva-brief	data/section-command-relevance.json	1	data	09		L90
+mva-brief	dist/generic-claude-dir/.claude/skills/mva-brief/SKILL.md	4	doc	09	09	L2 family-file
+mva-brief	dist/generic-claude-dir/.claude/skills/mva-pipeline/SKILL.md	2	doc	09	08	L54 family-file
+mva-brief	dist/zed/.agents/skills/mva-brief/SKILL.md	4	doc	09	09	L2 family-file
+mva-brief	dist/zed/.agents/skills/mva-pipeline/SKILL.md	2	doc	09	08	L54 family-file
+mva-brief	evals/eureka/211-room-report.md	1	test	09		L61
+mva-brief	lib/core/mva-option-router.cjs	3	data	09	08	L113 family-file
+mva-brief	lib/core/mva-orchestrator.test.cjs	8	test	09	10	L447 family-file
+mva-brief	lib/core/venture-shape-nudge.test.cjs	5	test	09		L191
+mva-brief	lib/mos-face/dist/commands.js	1	data	09		L481
+mva-brief	scripts/mva-detect.cjs	2	data	09	07	L186 family-file
+mva-brief	scripts/room-naming-selector.cjs	2	path-string	09		L74
+mva-brief	skills/mva-brief/SKILL.md	4	doc	09	09	L2 family-file
+mva-brief	skills/mva-pipeline/SKILL.md	2	doc	09	08	L54 family-file
+mva-brief	templates/room-skeleton/references/SECTION-SCHEMA.md	1	doc	09		L104
+mva-brief	tests/fixtures/341-registry-drift-baseline.json	1	test	09		L377
+mva-brief	ui/mindrian-workspace-mod/assets/command-registry.json	2	data	09		L1279
+mva-brief	ui/mos-face/hooks/commands.ts	1	data	09		L493
+mva-budget	lib/core/mva-budget.cjs	1	comment	13	13	L4 family-file
+mva-budget	lib/core/mva-budget.test.cjs	8	test	13	13	L4 family-file
+mva-budget	lib/core/mva-dispatcher.cjs	1	require	13	13	L39 family-file
+mva-budget	lib/memory/run-feynman-tests.cjs	1	path-string	13		L1496
+mva-budget	tests/run-all-118.sh	1	test	13		L28
+mva-budget	tests/test-mva-dror-harness.cjs	1	test	13		L47 family-file
+mva-classifier	lib/core/claude-routing.cjs	1	comment	13		L52
+mva-classifier	lib/core/llm-name-suggester.cjs	5	comment	13		L19
+mva-classifier	lib/core/llm-name-suggester.test.cjs	1	test	13		L67
+mva-classifier	lib/core/mva-classifier.cjs	1	comment	13	13	L3 family-file
+mva-classifier	lib/core/mva-classifier.test.cjs	2	test	13	13	L3 family-file
+mva-classifier	lib/core/mva-detect.smoke.test.cjs	1	test	13	07	L176 family-file
+mva-classifier	lib/core/mva-rule-linter.test.cjs	1	test	13	13	L23 family-file
+mva-classifier	lib/core/semantic-index/entity-classifier.cjs	5	require	13		L53
+mva-classifier	lib/core/venture-shape-nudge.cjs	1	comment	13		L32
+mva-classifier	lib/memory/run-feynman-tests.cjs	1	path-string	13		L1492
+mva-classifier	lib/wiki/briefing.cjs	2	require	13		L29
+mva-classifier	lib/workflow/selector-decisions.cjs	1	require	13		L55
+mva-classifier	scripts/entity-extract.cjs	2	require	13		L128
+mva-classifier	scripts/first-install-router.cjs	1	comment	13		L423
+mva-classifier	scripts/mva-detect.cjs	2	require	13	07	L150 family-file
+mva-classifier	scripts/spike-366-prepare.cjs	1	require	13		L133
+mva-classifier	tests/run-all-118.sh	1	test	13		L24
+mva-classifier	tests/run-all-169.sh	1	test	13		L155
+mva-classifier	tests/run-all-218.sh	1	test	13		L33
+mva-classifier	tests/test-169-brain-boundary.cjs	1	test	13		L13
+mva-classifier	tests/test-218-what-why-classifier.cjs	1	test	13		L46
+mva-classifier	tests/test-232-briefing.cjs	1	test	13		L5
+mva-classifier	tests/test-room-registry-windows-atomic-replace.cjs	1	test	13		L59
+mva-deck-builder	lib/core/mva-deck-builder.cjs	1	comment	12	12	L4 family-file
+mva-deck-builder	lib/core/mva-deck-builder.test.cjs	3	test	12	12	L4 family-file
+mva-deck-builder	lib/core/mva-orchestrator.cjs	1	require	12	10	L221 family-file
+mva-deck-builder	lib/core/mva-orchestrator.test.cjs	2	test	12	10	L498 family-file
+mva-deck-builder	lib/core/mva-vercel-deploy.cjs	1	comment	12	12	L40 family-file
+mva-deck-builder	lib/memory/run-feynman-tests.cjs	1	path-string	12		L1507
+mva-deck-builder	tests/run-all-118.sh	1	test	12		L39
+mva-deck-builder	tests/test-mva-dror-harness.cjs	1	test	12		L43 family-file
+mva-detect	data/arbitration-rule-catalogue.json	3	data	07		L147
+mva-detect	data/hooks-markers.json	1	data	07		L23
+mva-detect	hooks/hooks.json	1	data	07		L354 hook-registration
+mva-detect	lib/core/mva-classifier.cjs	1	comment	07	13	L296 family-file
+mva-detect	lib/core/mva-detect.smoke.test.cjs	4	test	07	07	L3 family-file
+mva-detect	lib/core/mva-orchestrator.test.cjs	1	test	07	10	L328 family-file
+mva-detect	lib/memory/run-feynman-tests.cjs	1	path-string	07		L1493
+mva-detect	scripts/first-install-router.cjs	9	comment	07		L16
+mva-detect	scripts/mva-detect.cjs	2	data	07	07	L153 family-file
+mva-detect	tests/fixtures/369/hook-cold-start-baseline.json	1	test	07		L692
+mva-detect	tests/run-all-118.sh	1	test	07		L25
+mva-detect	tests/test-261029-qef-hook-timeouts.cjs	1	test	07		L123
+mva-detect	tests/test-267-2-pre-room-reward.cjs	1	test	07		L140
+mva-detect	tests/test-267-2-wr-02-reward-sentence-correlation.cjs	4	test	07		L6
+mva-detect	tests/test-346-catalogue-schema.cjs	2	test	07		L24
+mva-detect	tests/test-connector-tier-d-hooks.cjs	1	test	07		L42
+mva-detect	tests/test-mva-dror-harness.cjs	5	test	07		L14 family-file
+mva-detect	tests/test-quick-260911-juq-hooks-json-top-level.cjs	2	test	07		L69
+mva-dispatcher	lib/agents/mva/index.cjs	1	comment	13	10	L5 family-file
+mva-dispatcher	lib/agents/mva/test-all-six-agents.cjs	2	test	13	10	L422 family-file
+mva-dispatcher	lib/core/mva-agent-contract.cjs	1	comment	13	13	L6 family-file
+mva-dispatcher	lib/core/mva-budget.cjs	1	comment	13	13	L6 family-file
+mva-dispatcher	lib/core/mva-dispatcher.cjs	1	comment	13	13	L4 family-file
+mva-dispatcher	lib/core/mva-dispatcher.test.cjs	10	test	13	13	L4 family-file
+mva-dispatcher	lib/core/mva-orchestrator.cjs	1	require	13	10	L41 family-file
+mva-dispatcher	lib/core/mva-orchestrator.test.cjs	5	test	13	10	L50 family-file
+mva-dispatcher	lib/memory/run-feynman-tests.cjs	1	path-string	13		L1497
+mva-dispatcher	scripts/first-install-router.cjs	1	comment	13		L54
+mva-dispatcher	tests/run-all-118.sh	1	test	13		L29
+mva-option	commands/mva-option.md	5	doc	08	08	L2 family-file
+mva-option	commands/vault.md	1	doc	08		L17
+mva-option	data/brain-orchestration-projection.json	10	data	08		L1651
+mva-option	data/command-irreversibility-ledger.json	1	data	08		L411
+mva-option	data/command-registry.json	2	data	08		L1318
+mva-option	data/connector-coverage-ledger.json	2	data	08		L394
+mva-option	data/connector-registry.json	5	data	08		L874
+mva-option	data/help-groups.json	1	data	08		L195
+mva-option	data/hitl-shape-backfill.json	1	data	08		L110
+mva-option	data/jev-labels/command-irreversibility.json	1	data	08		L388
+mva-option	data/layer-backfill.json	2	data	08		L296
+mva-option	data/orchestration-command-ledger.json	2	data	08		L331
+mva-option	data/render-coverage-registry.json	2	data	08		L409
+mva-option	data/section-command-ledger.json	1	data	08		L273
+mva-option	data/section-command-relevance.json	1	data	08		L98
+mva-option	dist/generic-claude-dir/.claude/skills/mva-option/SKILL.md	5	doc	08	08	L2 family-file
+mva-option	dist/generic-claude-dir/.claude/skills/mva-pipeline/SKILL.md	3	doc	08	08	L114 family-file
+mva-option	dist/generic-claude-dir/.claude/skills/vault/SKILL.md	1	doc	08		L19
+mva-option	dist/zed/.agents/skills/mva-option/SKILL.md	5	doc	08	08	L2 family-file
+mva-option	dist/zed/.agents/skills/mva-pipeline/SKILL.md	3	doc	08	08	L114 family-file
+mva-option	dist/zed/.agents/skills/vault/SKILL.md	1	doc	08		L19
+mva-option	lib/core/mva-option-router.cjs	1	comment	08	08	L26 family-file
+mva-option	lib/core/mva-option-router.test.cjs	15	test	08	08	L12 family-file
+mva-option	lib/mos-face/dist/commands.js	1	data	08		L482
+mva-option	skills/mva-option/SKILL.md	5	doc	08	08	L2 family-file
+mva-option	skills/mva-pipeline/SKILL.md	3	doc	08	08	L114 family-file
+mva-option	skills/vault/SKILL.md	1	doc	08		L19
+mva-option	tests/fixtures/341-registry-drift-baseline.json	1	test	08		L383
+mva-option	tests/test-383-sourced-number.cjs	2	test	08		L52
+mva-option	ui/mindrian-workspace-mod/assets/command-registry.json	2	data	08		L1298
+mva-option	ui/mos-face/hooks/commands.ts	1	data	08		L494
+mva-option-router	commands/ignite.md	2	doc	08		L60
+mva-option-router	commands/mva-option.md	2	doc	08	08	L72 family-file
+mva-option-router	commands/new-project.md	1	doc	08		L64
+mva-option-router	dist/generic-claude-dir/.claude/skills/ignite/SKILL.md	2	doc	08		L56
+mva-option-router	dist/generic-claude-dir/.claude/skills/mva-option/SKILL.md	2	doc	08	08	L73 family-file
+mva-option-router	dist/generic-claude-dir/.claude/skills/new-project/SKILL.md	1	doc	08		L60
+mva-option-router	dist/zed/.agents/skills/ignite/SKILL.md	2	doc	08		L56
+mva-option-router	dist/zed/.agents/skills/mva-option/SKILL.md	2	doc	08	08	L73 family-file
+mva-option-router	dist/zed/.agents/skills/new-project/SKILL.md	1	doc	08		L60
+mva-option-router	lib/conversation/operator.cjs	1	comment	08		L411
+mva-option-router	lib/conversation/operator.test.cjs	1	test	08		L9
+mva-option-router	lib/core/mva-option-router.cjs	1	comment	08	08	L4 family-file
+mva-option-router	lib/core/mva-option-router.test.cjs	3	test	08	08	L4 family-file
+mva-option-router	lib/memory/run-feynman-tests.cjs	1	path-string	08		L1510
+mva-option-router	skills/ignite/SKILL.md	2	doc	08		L56
+mva-option-router	skills/mva-option/SKILL.md	2	doc	08	08	L73 family-file
+mva-option-router	skills/new-project/SKILL.md	1	doc	08		L60
+mva-option-router	tests/run-all-118.sh	1	test	08		L42
+mva-option-router	tests/test-121-01-scaffold.sh	1	test	08		L68
+mva-option-router	tests/test-mva-from-brief.cjs	8	test	08		L5 family-file
+mva-orchestrator	data/first-reward-surfaces.json	1	data	10		L39
+mva-orchestrator	lib/core/mva-orchestrator.cjs	1	comment	10	10	L4 family-file
+mva-orchestrator	lib/core/mva-orchestrator.test.cjs	23	test	10	10	L4 family-file
+mva-orchestrator	lib/core/room-naming-selector.cjs	1	comment	10		L5
+mva-orchestrator	lib/memory/run-feynman-tests.cjs	2	path-string	10		L1503
+mva-orchestrator	scripts/mva-run.cjs	2	require	10	10	L25 family-file
+mva-orchestrator	scripts/room-naming-selector.cjs	1	comment	10		L9
+mva-orchestrator	scripts/session-start	1	comment	10		L736
+mva-orchestrator	tests/run-all-118.sh	1	test	10		L35
+mva-orchestrator	tests/test-267-2-pre-room-reward.cjs	3	test	10		L5
+mva-orchestrator	tests/test-mva-dror-harness.cjs	3	test	10		L80 family-file
+mva-orchestrator	tests/test-room-naming-selector-integration.cjs	6	test	10		L6
+mva-pipeline	commands/mva-option.md	1	doc	08	08	L81 family-file
+mva-pipeline	data/brain-orchestration-projection.json	4	data	08		L3220
+mva-pipeline	data/connector-coverage-ledger.json	1	data	08		L1462
+mva-pipeline	data/connector-out-of-spine-allowlist.json	1	data	08		L61
+mva-pipeline	data/connector-registry.json	2	data	08		L2298
+mva-pipeline	data/hitl-shape-backfill.json	1	data	08		L689
+mva-pipeline	data/layer-backfill.json	1	data	08		L694
+mva-pipeline	data/render-coverage-registry.json	1	data	08		L928
+mva-pipeline	dist/generic-claude-dir/.claude/skills/mva-option/SKILL.md	1	doc	08	08	L82 family-file
+mva-pipeline	dist/generic-claude-dir/.claude/skills/mva-pipeline/SKILL.md	2	doc	08	08	L2 family-file
+mva-pipeline	dist/zed/.agents/skills/mva-option/SKILL.md	1	doc	08	08	L82 family-file
+mva-pipeline	dist/zed/.agents/skills/mva-pipeline/SKILL.md	2	doc	08	08	L2 family-file
+mva-pipeline	lib/core/mva-option-router.test.cjs	5	test	08	08	L12 family-file
+mva-pipeline	lib/core/mva-orchestrator.test.cjs	5	test	08	10	L433 family-file
+mva-pipeline	scripts/build-render-coverage.cjs	1	comment	08		L369
+mva-pipeline	scripts/mva-run.cjs	1	comment	08	10	L12 family-file
+mva-pipeline	skills/mva-option/SKILL.md	1	doc	08	08	L82 family-file
+mva-pipeline	skills/mva-pipeline/SKILL.md	2	doc	08	08	L2 family-file
+mva-pipeline	tests/test-209-declared-implies-wired.cjs	1	test	08		L396
+mva-progressive-renderer	lib/core/mva-orchestrator.cjs	1	require	10	10	L39 family-file
+mva-progressive-renderer	lib/core/mva-orchestrator.test.cjs	1	test	10	10	L48 family-file
+mva-progressive-renderer	lib/core/mva-progressive-renderer.cjs	2	comment	10	10	L4 family-file
+mva-progressive-renderer	lib/core/mva-progressive-renderer.test.cjs	3	test	10	10	L4 family-file
+mva-progressive-renderer	lib/memory/run-feynman-tests.cjs	1	path-string	10		L1501
+mva-progressive-renderer	tests/run-all-118.sh	1	test	10		L33
+mva-report	commands/mva-report.md	3	doc	11	11	L9 family-file
+mva-report	data/brain-orchestration-projection.json	4	data	11		L1681
+mva-report	data/command-irreversibility-ledger.json	2	data	11		L21
+mva-report	data/command-registry.json	2	data	11		L1337
+mva-report	data/connector-coverage-ledger.json	2	data	11		L400
+mva-report	data/help-groups.json	1	data	11		L196
+mva-report	data/hitl-shape-backfill.json	1	data	11		L530
+mva-report	data/jev-labels/command-irreversibility.json	1	data	11		L394
+mva-report	data/layer-backfill.json	1	data	11		L301
+mva-report	data/orchestration-command-ledger.json	2	data	11		L336
+mva-report	data/section-command-relevance.json	1	data	11		L106
+mva-report	dist/generic-claude-dir/.claude/skills/mva-report/SKILL.md	4	doc	11	11	L2 family-file
+mva-report	dist/zed/.agents/skills/mva-report/SKILL.md	4	doc	11	11	L2 family-file
+mva-report	lib/mos-face/dist/commands.js	1	data	11		L483
+mva-report	scripts/migrate-skill-frontmatter.cjs	1	data	11		L79
+mva-report	skills/mva-report/SKILL.md	4	doc	11	11	L2 family-file
+mva-report	tests/fixtures/341-registry-drift-baseline.json	1	test	11		L389
+mva-report	tests/test-192-menu-sweep-live-selectors.cjs	1	test	11		L74
+mva-report	ui/mindrian-workspace-mod/assets/command-registry.json	2	data	11		L1317
+mva-report	ui/mos-face/hooks/commands.ts	1	data	11		L495
+mva-report	ui/mos-face/scripts/face-commands.cjs	2	data	11		L99
+mva-rule-linter	data/first-reward-surfaces.json	2	data	13		L5
+mva-rule-linter	lib/core/mva-rule-linter.cjs	1	comment	13	13	L4 family-file
+mva-rule-linter	lib/core/mva-rule-linter.test.cjs	5	test	13	13	L3 family-file
+mva-rule-linter	lib/memory/run-feynman-tests.cjs	1	path-string	13		L1512
+mva-rule-linter	scripts/check-reward-before-investment.cjs	7	require	13		L71
+mva-rule-linter	scripts/hooks/pre-commit	1	comment	13		L314
+mva-rule-linter	scripts/hooks/pre-commit-room-minto-guard.sh	1	comment	13		L314
+mva-rule-linter	scripts/verify-release	2	path-string	13		L414
+mva-rule-linter	tests/run-all-118.sh	1	test	13		L44
+mva-rule-linter	tests/run-all-267.3.sh	1	test	13		L73
+mva-rule-linter	tests/test-245-reward-guard-staged.cjs	2	test	13		L52
+mva-rule-linter	tests/test-265-swarm-task-grant.cjs	1	test	13		L31
+mva-rule-linter	tests/test-267-1-first-install-hooked-audit.cjs	6	test	13		L202
+mva-rule-linter	tests/test-267.3-session-start-declaration.cjs	2	test	13		L31
+mva-rule-linter	tests/test-267.3-surface-declarations.cjs	1	test	13		L53
+mva-run	commands/mva-brief.md	1	doc	10	09	L64 family-file
+mva-run	dist/generic-claude-dir/.claude/skills/mva-brief/SKILL.md	1	doc	10	09	L65 family-file
+mva-run	dist/generic-claude-dir/.claude/skills/mva-pipeline/SKILL.md	1	doc	10	08	L54 family-file
+mva-run	dist/zed/.agents/skills/mva-brief/SKILL.md	1	doc	10	09	L65 family-file
+mva-run	dist/zed/.agents/skills/mva-pipeline/SKILL.md	1	doc	10	08	L54 family-file
+mva-run	lib/core/mva-orchestrator.test.cjs	7	test	10	10	L15 family-file
+mva-run	scripts/first-install-router.cjs	4	spawn	10		L480
+mva-run	scripts/mva-run.cjs	2	data	10	10	L33 family-file
+mva-run	skills/mva-brief/SKILL.md	1	doc	10	09	L65 family-file
+mva-run	skills/mva-pipeline/SKILL.md	1	doc	10	08	L54 family-file
+mva-run	tests/test-267-2-pre-room-reward.cjs	1	test	10		L24
+mva-state	data/arbitration-rule-catalogue.json	1	data	10		L157
+mva-state	lib/core/doctor/mode-select-checkpoint-module.cjs	1	comment	10		L48
+mva-state	lib/core/eureka-deps-resolver.cjs	1	comment	10		L37
+mva-state	lib/core/mva-classifier.test.cjs	5	test	10	13	L3 family-file
+mva-state	lib/core/mva-detect.smoke.test.cjs	1	test	10	07	L177 family-file
+mva-state	lib/core/mva-orchestrator.cjs	1	require	10	10	L38 family-file
+mva-state	lib/core/mva-orchestrator.test.cjs	4	test	10	10	L47 family-file
+mva-state	lib/core/mva-state.cjs	1	comment	10	10	L3 family-file
+mva-state	lib/core/recovery/case-file.cjs	2	comment	10		L23
+mva-state	lib/core/recovery/controller.cjs	1	comment	10		L16
+mva-state	lib/core/research-cache.cjs	1	comment	10		L31
+mva-state	lib/core/semantic-index/embedding-spine.cjs	1	comment	10		L323
+mva-state	scripts/first-install-router.cjs	6	require	10		L454
+mva-state	scripts/mva-detect.cjs	2	require	10	07	L137 family-file
+mva-state	tests/272-cache-location.test.cjs	2	test	10		L30
+mva-state	tests/test-267-2-pre-room-reward.cjs	2	test	10		L45
+mva-state	tests/test-267-2-wr-02-reward-sentence-correlation.cjs	3	test	10		L3
+mva-state	tests/test-346-catalogue-schema.cjs	1	test	10		L32
+mva-state	tests/test-room-registry-windows-atomic-replace.cjs	1	test	10		L60
+mva-telemetry	lib/core/mva-option-router.cjs	3	require	10	08	L59 family-file
+mva-telemetry	lib/core/mva-option-router.test.cjs	1	test	10	08	L102 family-file
+mva-telemetry	lib/core/mva-orchestrator.cjs	1	require	10	10	L40 family-file
+mva-telemetry	lib/core/mva-orchestrator.test.cjs	1	test	10	10	L49 family-file
+mva-telemetry	lib/core/mva-telemetry.cjs	1	comment	10	10	L3 family-file
+mva-telemetry	lib/core/mva-telemetry.test.cjs	4	test	10	10	L4 family-file
+mva-telemetry	lib/core/telemetry/schema.cjs	4	comment	10		L24
+mva-telemetry	lib/core/telemetry/schema.test.cjs	2	test	10		L18
+mva-telemetry	lib/core/telemetry/writer.cjs	1	comment	10		L8
+mva-telemetry	lib/memory/run-feynman-tests.cjs	2	path-string	10		L1502
+mva-telemetry	tests/run-all-118.sh	1	test	10		L34
+mva-telemetry	tests/test-121-01-scaffold.sh	10	test	10		L4
+mva-telemetry	tests/test-121-03-room-receipt-emit.cjs	1	test	10		L142
+mva-telemetry	tests/test-121-04-canon-part-8-audit.sh	5	test	10		L13
+mva-vercel-deploy	lib/core/mva-orchestrator.cjs	1	require	12	10	L222 family-file
+mva-vercel-deploy	lib/core/mva-orchestrator.test.cjs	2	test	12	10	L499 family-file
+mva-vercel-deploy	lib/core/mva-vercel-deploy.cjs	1	comment	12	12	L4 family-file
+mva-vercel-deploy	lib/core/mva-vercel-deploy.test.cjs	8	test	12	12	L4 family-file
+mva-vercel-deploy	lib/core/resolve-vercel-key.cjs	1	comment	12	12	L25 family-file
+mva-vercel-deploy	lib/memory/run-feynman-tests.cjs	1	path-string	12		L1506
+mva-vercel-deploy	tests/run-all-118.sh	1	test	12		L38
+mva-vercel-deploy	tests/test-mva-dror-harness.cjs	1	test	12		L43 family-file
+resolve-vercel-key	lib/core/mva-vercel-deploy.cjs	1	require	12	12	L52 family-file
+resolve-vercel-key	lib/core/mva-vercel-deploy.test.cjs	2	test	12	12	L38 family-file
+resolve-vercel-key	lib/core/resolve-vercel-key.cjs	1	comment	12	12	L4 family-file
+resolve-vercel-key	lib/core/resolve-vercel-key.test.cjs	3	test	12	12	L4 family-file
+resolve-vercel-key	lib/memory/run-feynman-tests.cjs	1	path-string	12		L1505
+resolve-vercel-key	tests/run-all-118.sh	1	test	12		L37
