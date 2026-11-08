@@ -34,7 +34,7 @@ PROVEN on claude 2.1.319 with a scratch plugin (name mos391probe) that ran the r
 - 13 agents have allowed-tools and no tools: NW (no Write, Edit, MultiEdit or Bash) 9, W (at least one of them) 4. W rows: framework-runner, opportunity-scanner, persona-analyst, research.
 - 2 agents have a host-read tools list (HOST-TOOLS): dominant-design-researcher, research-lane-analyst. 2 have neither (NONE): larry-extended, reverse-salient-agent.
 - Column body_tools_outside_list is empty for all 13 rows after hand review. The script ignores negation lines (no Write, never, only), the English verb "Write a one-paragraph ..." in grading.md line 145, and the word Agent or Task outside backticks.
-- Claim lines (comments that say structurally, CANNOT, Read ONLY or no Write): analogy-query-fetcher 17; chain-step-reviewer 13; competitor-watch-fetcher 19, 20; dominant-design-researcher 26 (a host-read list, so true); meeting-perspective-extractor 12; vault-section-reviewer 12, 14, 15. For the 6 files that have no tools list the claim does not hold at the host level.
+- Claim lines (comments that say structurally, CANNOT, Read ONLY or no Write): analogy-query-fetcher 17; chain-step-reviewer 13; competitor-watch-fetcher 19, 20; dominant-design-researcher 26 (a host-read list, so true); meeting-perspective-extractor 12; vault-section-reviewer 12, 14, 15. For the 5 files other than dominant-design-researcher (no tools list) the claim does not hold at the host level.
 
 ## Guard hook timing (card C2)
 
