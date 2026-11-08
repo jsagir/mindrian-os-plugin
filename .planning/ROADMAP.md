@@ -4145,7 +4145,7 @@ Later waves (NOT planned yet): one plan set per answered group G1 orphan modules
 
 Plans:
 
-- [ ] 391-01-PLAN.md - failing slicer test, fixture helper, aggregator, and the pure changelog slicer module (wave 1)
+- [x] 391-01-PLAN.md - failing slicer test, fixture helper, aggregator, and the pure changelog slicer module (wave 1)
 - [ ] 391-02-PLAN.md - hook contract test with the no-onFailure pins; agent tools naming test (RED on mcp__brain_*, then an owner-gated pending entry); name checks (wave 1)
 - [ ] 391-03-PLAN.md - ask-first changelog fetch script with credential check and audit record (Phase 386 rule), provider registration (wave 2)
 - [ ] 391-04-PLAN.md - checks record, plugin-scoped name probe, guard hook timing, Eureka handshake, card checker, six owner cards, SEED-145; ends at NEEDS_HUMAN (wave 2, not autonomous)
