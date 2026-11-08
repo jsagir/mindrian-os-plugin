@@ -17,6 +17,8 @@
  *   A7 names    no hidden character, no name over 256, no skills list over 32
  *   A8 mutation arms
  *   A9 the test can fail
+ *   A14 (quick 261108-es3) no plugin agent keeps allowed-tools next to a tools list,
+ *       except the two host-read agents in KEEP_ALLOWED_MIRROR
  *
  * exit 0 -> PASSED, exit 1 -> FAILED. Canon Part 8: no network. Hyphens only.
  */
@@ -57,6 +59,10 @@ const APPLIED_TOOLS = {
   "vault-section-reviewer": ["Read"],
 };
 
+// Quick 261108-es3: the host prints "does not recognize or apply" for allowed-tools on a
+// plugin agent, so the key was removed from these 13 agents (tools: carries the intent).
+// ALLOWED_BEFORE is now only a record of the removed lists: arm A13 checks that each tools
+// list does not widen what the agent used to declare.
 const ALLOWED_BEFORE = {
   "analogy-query-fetcher": ["mcp__tavily__tavily-search", "WebSearch", "Read"],
   "brain-query": ["mcp__mindrian-brain__brain_ask", "mcp__mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read"],
@@ -74,6 +80,10 @@ const ALLOWED_BEFORE = {
 };
 
 const PLUGIN_SCOPE_PREFIX = "mcp__plugin_mos_";
+
+// The two agents whose tools: list was host-read before plan 391-07. They keep allowed-tools
+// as the repo-convention mirror that tests/test-361-agent-contract.cjs pins (Leg 2).
+const KEEP_ALLOWED_MIRROR = ["dominant-design-researcher", "research-lane-analyst"];
 
 let passed = 0;
 let failed = 0;
@@ -285,6 +295,19 @@ else for (const st of res.stale) fail('A5 ' + st.msg, 'delete the entry (plan 39
 
 // A12 (was the Tier B report, now a rule): an agent with allowed-tools needs a
 // host-read tools list or the 391 note marker. The host ignores allowed-tools.
+// A14 (quick 261108-es3): with a tools list present, allowed-tools is dead text and must go,
+// unless the agent is in KEEP_ALLOWED_MIRROR.
+function ruleA14(agentSurfaces) {
+  return agentSurfaces
+    .filter((s) => s.fm && s.fm.keys['allowed-tools'] && s.fm.keys.tools &&
+      !KEEP_ALLOWED_MIRROR.includes(path.basename(s.rel, '.md')))
+    .map((s) => ({ rule: 'A14', file: s.rel, msg: path.basename(s.rel, '.md') + ' carries allowed-tools next to a tools list (the host does not apply allowed-tools)' }));
+}
+(function a14() {
+  const bad = ruleA14(surfaces.filter((s) => s.cls === 'agent'));
+  if (bad.length === 0) ok('A14 no plugin agent carries allowed-tools next to a tools list (except ' + KEEP_ALLOWED_MIRROR.join(', ') + ')');
+  else for (const b of bad) fail('A14 ' + b.file, b.msg);
+})();
 function ruleA12(agentSurfaces) {
   return agentSurfaces
     .filter((s) => s.fm && s.fm.keys['allowed-tools'] && !s.fm.keys.tools && !s.text.includes(NOTE_MARKER))
@@ -320,12 +343,12 @@ function ruleA13(tools, allowed) {
     const al = s.fm.keys['allowed-tools'] ? s.fm.keys['allowed-tools'].items : null;
     if (!tl) { fail('A10 ' + name, 'no tools list'); continue; }
     if (!same(tl, APPLIED_TOOLS[name])) fail('A10 ' + name, 'tools differ from card row: ' + tl.join(', '));
-    else if (!al || JSON.stringify(al) !== JSON.stringify(ALLOWED_BEFORE[name])) fail('A10 ' + name, 'allowed-tools changed from the card value');
-    else ok('A10 ' + name + ' tools match the card row; allowed-tools unchanged');
-    const wide = ruleA13(tl, al || []);
-    if (wide.length) fail('A13 ' + name, wide[0].msg); else ok('A13 ' + name + ' no widening');
+    else if (al) fail('A10 ' + name, 'allowed-tools is still present (quick 261108-es3 removed it)');
+    else ok('A10 ' + name + ' tools match the card row; no allowed-tools key');
+    const wide = ruleA13(tl, ALLOWED_BEFORE[name] || []);
+    if (wide.length) fail('A13 ' + name, wide[0].msg); else ok('A13 ' + name + ' no widening against the removed allowed-tools list');
     // a Brain tool must never be added to an agent that had none
-    const hadBrain = (al || []).some((e) => e.startsWith('mcp__mindrian-brain__'));
+    const hadBrain = (ALLOWED_BEFORE[name] || []).some((e) => e.startsWith('mcp__mindrian-brain__'));
     const hasBrain = tl.some((e) => /^mcp__(plugin_mos_)?mindrian-brain__/.test(e));
     if (hasBrain && !hadBrain) fail('A13 ' + name, 'Brain tool added to an agent that had none');
   }
@@ -334,6 +357,10 @@ function ruleA13(tools, allowed) {
 })();
 mutation('A12 mutation: agent with allowed-tools and no tools or marker flagged',
   ruleA12([{ rel: 'agents/x.md', text: '---\nallowed-tools:\n  - Read\n---\n', fm: parseFrontmatter('---\nallowed-tools:\n  - Read\n---\n') }]));
+mutation('A14 mutation: agent with both allowed-tools and tools flagged',
+  ruleA14([{ rel: 'agents/x.md', text: '', fm: parseFrontmatter('---\nallowed-tools:\n  - Read\ntools:\n  - Read\n---\n') }]));
+if (ruleA14([{ rel: 'agents/research-lane-analyst.md', text: '', fm: parseFrontmatter('---\nallowed-tools:\n  - Read\ntools:\n  - Read\n---\n') }]).length === 0) ok('A14 the KEEP list agent with both keys is accepted');
+else fail('A14 the KEEP list agent with both keys is accepted', 'was flagged');
 mutation('A13 mutation: widened tools list flagged', ruleA13(['Read', 'Write'], ['Read']));
 if (ruleA13(['mcp__plugin_mos_mindrian-brain__brain_ask'], ['mcp__mindrian-brain__brain_ask']).length === 0) ok('A13 plugin-scoped rewrite of an allowed entry accepted');
 else fail('A13 plugin-scoped rewrite of an allowed entry accepted', 'was flagged');
