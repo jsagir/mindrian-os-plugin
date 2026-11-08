@@ -17,7 +17,7 @@ reach_ids: [context_block, contradiction, cross_room, brain_consult, deep_resear
 posture_ids: [push_forward, hold, pull_back]                                          # the frozen 3
 filing: fileEvidenceWithReadback (fallback wireAccept)                                # decision 2
 live_call: dispatchSensors, gated behind tier_mode (degrade to doctrine-sim at tier_0) # decision 1
-allowed-tools: Read Bash Agent WebSearch WebFetch mcp__pinecone__search-docs mcp__brain_*
+allowed-tools: Read Bash Agent WebSearch WebFetch mcp__pinecone__search-docs
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
