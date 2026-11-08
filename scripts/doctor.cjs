@@ -1284,6 +1284,14 @@ function buildAcceptanceChecklist(ctx) {
           // one has NO --strict escalation mode at all (the navigator's
           // decision was visibility, never enforcement).
           { id: 'theo-mcp-exposure', script: 'check-theo-mcp-exposure.cjs' },
+          // Phase 370 Plan 10 (REV370-11, owner answer O6A = BLOCKER, 2026-11-08): the
+          // review-contract gate. The script's --check is offline. It lints the output
+          // templates of the grade and deep-grade surfaces, runs the pre-fix and
+          // post-fix fixtures, and loads the contract. Its severity is read from
+          // data/review-contract.json (enforcement.doctor_severity): blocker exits 1
+          // on any finding; advisory prints WARN lines and exits 0, the posture of
+          // shape-declaration and tool-honesty above.
+          { id: 'review-contract', script: 'check-review-contract.cjs' },
         ];
         const results = [];
         for (const g of gates) {
