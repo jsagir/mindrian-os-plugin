@@ -116,4 +116,4 @@ None. The refusal text is fixed. The only value in it is the plugin-made job id,
 
 ## Self-Check
 
-See below (filled after the commit).
+PASSED. Commit f3ca1e674 lists exactly the 6 paths of this plan (checked with git show --name-only). The 5 code and test files exist. After the commit `node tests/test-374-engine-busy.cjs` prints 9 ok. Nothing was pushed, tagged or released. STATE.md, ROADMAP.md and REQUIREMENTS.md were not touched.
