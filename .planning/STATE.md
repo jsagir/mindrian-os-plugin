@@ -4,13 +4,13 @@ milestone: v2.1.0
 milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
 status: verifying
 stopped_at: Completed 391-05-PLAN.md (six dormant ledger rows, ledger_covers.to 2.1.318 and fetch_coverage; see 391-05-SUMMARY.md)
-last_updated: "2026-11-08T04:55:00.743Z"
+last_updated: "2026-11-08T05:01:11.940Z"
 last_activity: 2026-11-08
 progress:
   total_phases: 154
   completed_phases: 41
   total_plans: 814
-  completed_plans: 681
+  completed_plans: 682
   percent: 27
 ---
 
@@ -5995,7 +5995,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-11-07
+Last activity: 2026-11-08
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -7443,6 +7443,7 @@ Progress: [█████████░] 86%
 | Phase 383 P07 | n/a | 2 tasks | 7 files |
 | Phase 383 P09 | 40min | 2 tasks | 6 files |
 | Phase 388 P04 | 1 session | 3 tasks | 12 files |
+| Phase 391 P03 | 40min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -9424,7 +9425,7 @@ Progress: [█████████░] 86%
 ## Session Continuity
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-08T04:55:00.654Z
+Last session: 2026-11-08T05:01:03.801Z
 Stopped at: Completed 391-05-PLAN.md (six dormant ledger rows, ledger_covers.to 2.1.318 and fetch_coverage; see 391-05-SUMMARY.md)
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
