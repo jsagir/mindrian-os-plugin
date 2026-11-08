@@ -151,7 +151,7 @@ rep.arm('W6 parity with the module for the pre-fix fixture', () => {
   rep.eq(ok.status, M.checkReview(post, { repoRoot: H.ROOT }).ok ? 0 : 1, 'post-fix parity');
 });
 
-rep.arm('W7 no arguments, unknown subcommand and --check exit 3 with a usage line', () => {
+rep.arm('W7 no arguments, unknown subcommand and a bad --check flag exit 3 with a usage line', () => {
   mustExist();
   const none = run([]);
   rep.eq(none.status, 3, 'no arguments: exit code');
@@ -159,9 +159,10 @@ rep.arm('W7 no arguments, unknown subcommand and --check exit 3 with a usage lin
   const bogus = run(['frobnicate']);
   rep.eq(bogus.status, 3, 'unknown subcommand: exit code');
   rep.ok(/usage/i.test(bogus.err), 'unknown subcommand: usage line on stderr');
-  const reserved = run(['--check']);
-  rep.eq(reserved.status, 3, '--check: exit code');
-  rep.ok(/not available yet/i.test(reserved.err), '--check: not available yet line');
+  // Plan 370-10 made --check the static mode (the doctor gate); only a bad --check flag is a usage error.
+  const badStatic = run(['--check', '--nope']);
+  rep.eq(badStatic.status, 3, '--check with an unknown flag: exit code');
+  rep.ok(/usage/i.test(badStatic.err), '--check with an unknown flag: usage line on stderr');
   const badFlag = run(['check', tmpFile('flag.md', post), '--nope']);
   rep.eq(badFlag.status, 3, 'unknown flag: exit code');
 });
