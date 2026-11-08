@@ -1,0 +1,20 @@
+{
+  "consumer-subscription": {
+    "situation": "meal kit subscription market",
+    "complication": "subscription churn retention problem",
+    "analogy": "recurring delivery box analogies",
+    "funding": "consumer subscription startup funding"
+  },
+  "business-tool": {
+    "situation": "accounts payable automation market",
+    "complication": "invoice exception handling problem",
+    "analogy": "three way matching software analogies",
+    "funding": "construction finance software funding"
+  },
+  "local-service": {
+    "situation": "home repair marketplace local service",
+    "complication": "trust and safety gig marketplace",
+    "analogy": "elder care service model analogies",
+    "funding": "local services startup funding"
+  }
+}
