@@ -10,7 +10,8 @@
  *   - the WebFetch fallback pages with offsets until it reaches the mark
  *   - the mark never advances over unread versions (no-advance rule)
  *   - fetch_coverage is recorded
- *   - the allowed-tools set stays at exactly 5 tools (owner card C3 is pending)
+ *   - the allowed-tools set is exactly the 5 tools plus the one narrow Bash entry
+ *     for the slicer script (owner card C3, answer APPLY-NARROW-BASH, plan 391-08)
  *
  * Plain Node script, plain counters, no network. ASCII only.
  */
@@ -100,15 +101,15 @@ check('P4 old cap of 10 entries is gone', !has('10 most recent') && !has('Extrac
   check('P7 test-265-radar-writes-ledger.cjs passes', r.status === 0, 'exit ' + r.status + ' ' + (r.stderr || '').trim());
 }
 
-// P8 allowed-tools unchanged (owner card C3 is pending)
+// P8 allowed-tools: the five tools plus the one narrow Bash entry (owner card C3)
 {
   const m = /allowed-tools:\s*\n((?:\s*-\s*.+\n?)+)/.exec(raw);
   const found = m
     ? m[1].split('\n').map((l) => l.trim()).filter((l) => l.startsWith('-')).map((l) => l.replace(/^-\s*/, '').trim())
     : [];
-  const want = ['Read', 'Write', 'WebFetch', 'Glob', 'AskUserQuestion'];
+  const want = ['Read', 'Write', 'WebFetch', 'Glob', 'AskUserQuestion', 'Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)'];
   check(
-    'P8 allowed-tools is exactly the five tools',
+    'P8 allowed-tools is the five tools plus the one narrow Bash entry',
     found.length === want.length && want.every((t, i) => found[i] === t),
     JSON.stringify(found)
   );

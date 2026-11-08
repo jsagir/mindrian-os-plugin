@@ -61,9 +61,18 @@ if (!raw.includes('source of record')) {
   fail('cache-described-as-view');
 }
 
-// Arm 6: allowed-tools set equals exactly {Read, Write, WebFetch, Glob, AskUserQuestion}.
-// No entry added, none removed -- Task 1 must not widen the command's tool grant.
-const EXPECTED_TOOLS = ['Read', 'Write', 'WebFetch', 'Glob', 'AskUserQuestion'];
+// Arm 6: allowed-tools set equals exactly the five tools plus the one narrow Bash entry.
+// The grant was widened by owner card C3 of Phase 391 (answer APPLY-NARROW-BASH,
+// 2026-11-08, plan 391-08) by that one entry and by no other reason. Only the
+// local slicer script is pre-approved. No other entry is added, none removed.
+const EXPECTED_TOOLS = [
+  'Read',
+  'Write',
+  'WebFetch',
+  'Glob',
+  'AskUserQuestion',
+  'Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)',
+];
 const atMatch = /allowed-tools:\s*\n((?:\s*-\s*.+\n?)+)/.exec(raw);
 if (!atMatch) {
   fail('allowed-tools-block-found', 'no allowed-tools YAML block located');
