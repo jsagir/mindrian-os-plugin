@@ -132,7 +132,7 @@ function ruleH5(hooksObj) {
 
 // top-level keys only: a key at column 0 of the first --- block
 function frontmatterKeys(text) {
-  const m = /^﻿?---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  const m = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---/.exec(text);
   if (!m) return [];
   const keys = [];
   for (const line of m[1].split(/\r?\n/)) {
@@ -235,7 +235,7 @@ function runGate(prompt, scratchHome) {
       space: runGate(' /mos:admin', scratch),
       tab: runGate('\t/mos:admin', scratch),
       newline: runGate('\n/mos:admin', scratch),
-      bom: runGate('﻿/mos:admin', scratch),
+      bom: runGate('\uFEFF/mos:admin', scratch),
       mention: runGate('please do not run /mos:admin for me', scratch),
       ordinary: runGate('/mos:help', scratch),
     };
