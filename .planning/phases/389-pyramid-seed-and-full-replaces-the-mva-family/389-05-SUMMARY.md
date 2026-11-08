@@ -117,7 +117,7 @@ Run over every test that names one of the four files (22 tests plus router test 
 
 **1. [Rule 1 - Bug] Literal dash characters in written files**
 - **Found during:** Task 1 (Test 9b)
-- **Issue:** the Write step turned – and — escapes into literal characters in the module (DASH_RE) and the test (one fixture string).
+- **Issue:** the Write step turned the unicode escapes for the en dash and em dash into literal characters in the module (DASH_RE) and the test (one fixture string).
 - **Fix:** replaced them with escapes by a script, re-grepped both files for non-ASCII bytes (0 found).
 - **Commit:** 09b721ce8
 
