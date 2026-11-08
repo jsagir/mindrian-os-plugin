@@ -6,8 +6,8 @@
  * The capability-ledger doctor organ must name a gap and warn on an incomplete
  * recorded fetch. Fixture ledgers are built in a temp folder and passed through
  * the ctx.ledger_path seam. The arms set MINDRIAN_LEDGER_MAX_VERSION_LAG
- * themselves, so they pass before and after owner card C6 changes the default.
- * This test does NOT pin the default value (arm D10 of plan 391-08 does that).
+ * themselves, so D1 to D9 pass whatever the default is. Arm D10 (plan 391-08,
+ * owner card C6 answer LAG-20 of 2026-11-08) pins the default value of 20.
  *
  * Plain Node script, plain counters, no network. ASCII only.
  */
@@ -163,6 +163,20 @@ try {
     const r = mod.check({ installed_version: to });
     restoreEnv();
     check('D8 real ledger is ok at lag 0', r.status === 'ok', to + ' -> ' + r.status + ' ' + r.detail);
+  }
+
+  // D10 the default boundary with the environment variable unset (owner card C6, LAG-20)
+  {
+    const N = 20;
+    setEnv(undefined);
+    const okN = run('2.1.100', '2.1.' + (100 + N));
+    const warnN1 = run('2.1.100', '2.1.' + (100 + N + 1));
+    restoreEnv();
+    check(
+      'D10 default lag is ' + N + ': lag ' + N + ' ok, lag ' + (N + 1) + ' warn',
+      okN.status === 'ok' && warnN1.status === 'warn',
+      'lag' + N + '=' + okN.status + ' lag' + (N + 1) + '=' + warnN1.status
+    );
   }
 
   // D9 the helper can fail
