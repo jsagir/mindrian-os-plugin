@@ -422,11 +422,13 @@ async function main() {
     assert.equal(typeof bad.record_note, 'string');
     assert.ok(/could not be saved/.test(bad.record_note), bad.record_note);
     assert.ok(jobs.sessions.has(bad.job_id), 'the job session was not kept');
+    restartHost(); // plan 374-11: a running job refuses a second start, so each start below begins on an idle host
     // no room id: no record, the job still starts
     const wNoRoom = makeWorld();
     wNoRoom.ident.room = null;
     const noRoom = await startGeneric(wNoRoom);
     assert.equal(noRoom.record_persisted, false);
+    restartHost();
     // a home without the folder: the folder is created
     const freshHome = path.join(TMP, 'home-fresh');
     fs.mkdirSync(freshHome);
@@ -464,6 +466,7 @@ async function main() {
     assert.equal(Date.parse(row.engine_expires_at) - Date.parse(row.started_at), 30 * DAY);
     assert.ok(text.indexOf(MARK) === -1, 'a marker string reached the record');
     assert.equal(row.terminal, false);
+    restartHost(); // plan 374-11: the generic job ends here, so the pair-screen start is not refused as busy
     // pair screen: plan, approve through the ledger, start
     run.clearCatalogCache();
     const wp = makeWorld();

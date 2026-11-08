@@ -135,6 +135,7 @@ async function main() {
     assert.equal(engine.spawns, 3, 'the child still starts for every call');
     // a second capability adds exactly one contract fetch and no catalog fetch
     await startAsync(engine, root);
+    await closeAllSessions(); // plan 374-11: a running job refuses a second start, so the first job ends here
     await startAsync(engine, root);
     assert.equal(n(engine, 'scout_capabilities'), 1, 'the catalog is still fetched once');
     assert.equal(n(engine, 'scout_capability_contract'), 2, 'one contract fetch for each capability, expected 2, got ' + n(engine, 'scout_capability_contract'));
@@ -184,6 +185,7 @@ async function main() {
     const root = makeRoot();
     await callSync(engine, root, SYNC_ID);
     await startAsync(engine, root);
+    await closeAllSessions(); // plan 374-11: a running job refuses a second start, so the first job ends here
     await callSync(engine, root, SYNC_ID);
     await startAsync(engine, root);
     assert.equal(n(engine, 'scout_capabilities'), 1, 'both paths, one root: expected 1 catalog fetch, got ' + n(engine, 'scout_capabilities'));
