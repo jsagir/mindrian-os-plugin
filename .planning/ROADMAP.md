@@ -4172,8 +4172,23 @@ Plans:
 
 **Requirements**: TBD
 **Depends on:** Phase 391
-**Plans:** 0 plans
+**Plans:** 16 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 392 to break down)
+- [ ] 392-01-PLAN.md - P0 replay harness, local real-call extraction, committed beta.81 matrix (counts only), run-all-392 (phase wave 0, exec wave 1)
+- [ ] 392-02-PLAN.md - data/brain-shape-vocabulary.json (D-01, D-02), vocabulary drift test, Theo route matrix gap pin (phase wave 0, exec wave 1)
+- [ ] 392-03-PLAN.md - bypass 1 Unicode tokenizer, NFKC and format-character strip (phase wave 1, exec wave 2)
+- [ ] 392-04-PLAN.md - bypass 4 glued paragraph caps 80 and 240, linear email regex with the 40,000 character timing test (phase wave 1, exec wave 2)
+- [ ] 392-05-PLAN.md - bypasses 2, 3 and 6: every string leaf walked, brain_query params, depth and node caps fail closed (phase wave 1, exec wave 3)
+- [ ] 392-06-PLAN.md - bypass 5: matcher widened to every Theo route, tool class table and typed arms, pws-brain-mcp retired (D-08) (phase wave 1, exec wave 4)
+- [ ] 392-07-PLAN.md - L2 Eureka deadline: timeout and maxTotalTimeout on every callTool, engine_timeout while connected, session eviction, 65 s fake engine (phase wave 1, exec wave 1)
+- [ ] 392-08-PLAN.md - P2 lib/core/brain-shape-packet.cjs builder and validator, synthetic fixture rooms (phase wave 3, exec wave 2)
+- [ ] 392-09-PLAN.md - P3 typed guard arm for the free-text key plus shape, after-arm matrix below 37 of 535, jsagi-17 notice (D-07); not autonomous (phase wave 3, exec wave 5)
+- [ ] 392-10-PLAN.md - P4 envelope: problem_type_source signal, Theo rank order with a confidence blend, evidence and coverage kept (D-03, D-04, D-05), test-339 re-pinned (phase wave 3, exec wave 4)
+- [ ] 392-11-PLAN.md - P5 session-owned lexicon: resolveSessionRoom with ownership, unbound allows, unavailable blocks, telemetry per session (phase wave 3, exec wave 6)
+- [ ] 392-12-PLAN.md - P4 wire: ask attaches the room-built shape behind a capability probe, shim optional strict shape ignored for the room-built one, router full shape, census (phase wave 3, exec wave 7)
+- [ ] 392-13-PLAN.md - loop tests L1 and L3, acceptance script as a Jev leg (exit 77; live only after Theo Phase 48 T6) (phase wave 3, exec wave 8)
+- [ ] 392-14-PLAN.md - P6 canon Part 8 sentence through the Canon Custodian path (D-06), Appendix D entry, version lockstep, CLAUDE.md; not autonomous (phase wave 5, exec wave 9)
+- [ ] 392-15-PLAN.md - P6 prompt and doc wording sweep (runtime-instructions, larry-extended, voice-dna, references/brain, skills, commands) with a wording test (phase wave 5, exec wave 10)
+- [ ] 392-16-PLAN.md - README refresh, CHANGELOG lines, docs/THEO-ROUTES-SHAPE-HANDOFF.md wave-4 note (D-08, D-09), OPEN-HANDOFFS entry (phase wave 5, exec wave 10)
