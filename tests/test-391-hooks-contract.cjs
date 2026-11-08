@@ -16,13 +16,14 @@
  *   H3 timeout      every UserPromptSubmit hook has a timeout of 1 to 5 s
  *   H4 raw line     the admin gate sees a command typed after leading white
  *                   space, a tab, a newline or a BOM (exit 2 for a non-admin)
- *   H5 onFailure    exactly one hook has onFailure: the Part 8 egress guard,
- *                   value block. Every other hook has no onFailure key.
+ *   H5 onFailure    exactly two hooks have onFailure: the Part 8 egress guard
+ *                   and the web credential guard, value block (owner card C2,
+ *                   plan 391-08). Every other hook has no onFailure key.
  *   H6 frontmatter  no command, skill or agent declares a hooks key
  *   H7 the test can fail
  *
- * The H5 set may change ONLY in plan 391-08, after an owner answer on card C2
- * of 391-DECISION.md. Plan 391-08 edits this test, tests/test-261029-qef-hook-
+ * The H5 set changed ONLY in plan 391-08, after the owner answer APPLY on card C2
+ * of 391-DECISION.md (2026-11-08). Plan 391-08 edited this test, tests/test-261029-qef-hook-
  * timeouts.cjs (arm A5) and tests/test-386-web-credential-hook.cjs (arm WH5)
  * together. This test is an additional census-side pin, not a replacement.
  *
@@ -116,16 +117,23 @@ function ruleH4(results) {
 }
 
 const EGRESS_TAIL = 'scripts/part8-egress-guard-hook.cjs';
+const WEB_TAIL = 'scripts/web-credential-guard-hook.cjs';
 function ruleH5(hooksObj) {
   const p = [];
   const withKey = flattenHooks(hooksObj).filter((e) => Object.prototype.hasOwnProperty.call(e.hook, 'onFailure'));
-  if (withKey.length !== 1) {
-    p.push(withKey.length + ' hooks carry onFailure (expected exactly 1)');
+  if (withKey.length !== 2) {
+    p.push(withKey.length + ' hooks carry onFailure (expected exactly 2)');
   }
+  const tails = [];
   for (const e of withKey) {
     const cmd = String(e.hook.command || '').replace(/"/g, '');
-    if (!cmd.endsWith(EGRESS_TAIL)) p.push('onFailure on a hook that is not the egress guard: ' + cmd.slice(-50));
-    if (e.hook.onFailure !== 'block') p.push('egress guard onFailure is ' + JSON.stringify(e.hook.onFailure) + ' (expected "block")');
+    const tail = cmd.endsWith(EGRESS_TAIL) ? EGRESS_TAIL : (cmd.endsWith(WEB_TAIL) ? WEB_TAIL : null);
+    if (!tail) p.push('onFailure on a hook that is not a guard hook: ' + cmd.slice(-50));
+    else tails.push(tail);
+    if (e.hook.onFailure !== 'block') p.push('guard onFailure is ' + JSON.stringify(e.hook.onFailure) + ' (expected "block")');
+  }
+  for (const want of [EGRESS_TAIL, WEB_TAIL]) {
+    if (tails.filter((t) => t === want).length !== 1) p.push('guard hook without exactly one onFailure entry: ' + want);
   }
   return p;
 }
@@ -252,18 +260,23 @@ mutation('H4 mutation: vacuous setup (plain not 2) flagged', ruleH4({ plain: 0, 
 mutation('H4 mutation: gate over-reaches on a mention flagged', ruleH4({ plain: 2, space: 2, tab: 2, newline: 2, bom: 2, mention: 2, ordinary: 0 }));
 
 // H5
-check('H5 exactly one hook has onFailure: the Part 8 egress guard, value block', () => ruleH5(hooksObj));
+check('H5 exactly two hooks have onFailure: the egress guard and the web credential guard, value block', () => ruleH5(hooksObj));
+const egressBlock = { type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + EGRESS_TAIL + '"', timeout: 5, onFailure: 'block' };
+const webBlock = { type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + WEB_TAIL + '"', timeout: 5, onFailure: 'block' };
 mutation('H5 mutation: onFailure on an observer hook flagged', ruleH5({
   hooks: {
-    PreToolUse: [{ matcher: 'x', hooks: [{ type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + EGRESS_TAIL + '"', timeout: 5, onFailure: 'block' }] }],
+    PreToolUse: [{ matcher: 'x', hooks: [egressBlock, webBlock] }],
     Stop: [{ hooks: [{ type: 'command', command: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/check-voice-style.cjs"', timeout: 5, onFailure: 'block' }] }],
   },
 }));
 mutation('H5 mutation: egress guard without onFailure flagged', ruleH5({
-  hooks: { PreToolUse: [{ matcher: 'x', hooks: [{ type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + EGRESS_TAIL + '"', timeout: 5 }] }] },
+  hooks: { PreToolUse: [{ matcher: 'x', hooks: [{ type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + EGRESS_TAIL + '"', timeout: 5 }, webBlock] }] },
 }));
-mutation('H5 mutation: egress guard with onFailure warn flagged', ruleH5({
-  hooks: { PreToolUse: [{ matcher: 'x', hooks: [{ type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + EGRESS_TAIL + '"', timeout: 5, onFailure: 'warn' }] }] },
+mutation('H5 mutation: web credential guard without onFailure flagged', ruleH5({
+  hooks: { PreToolUse: [{ matcher: 'x', hooks: [egressBlock, { type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + WEB_TAIL + '"', timeout: 5 }] }] },
+}));
+mutation('H5 mutation: guard with onFailure warn flagged', ruleH5({
+  hooks: { PreToolUse: [{ matcher: 'x', hooks: [egressBlock, { type: 'command', command: '"${CLAUDE_PLUGIN_ROOT}/' + WEB_TAIL + '"', timeout: 5, onFailure: 'warn' }] }] },
 }));
 
 // H6

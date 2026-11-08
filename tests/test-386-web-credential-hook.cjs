@@ -214,14 +214,17 @@ check('WH3: each Tavily tool shape with a nested credential exits 2',
       const brain = groups.filter((x) => (x.hooks || []).some((y) => typeof y.command === 'string' && y.command.indexOf('part8-egress-guard-hook') !== -1));
       const brainOk = brain.length === 1 && brain[0].hooks.length === 1 && brain[0].hooks[0].timeout === 5 &&
         brain[0].hooks[0].onFailure === 'block' && !new RegExp(brain[0].matcher).test('WebSearch');
-      const noOnFailure = !Object.prototype.hasOwnProperty.call(h, 'onFailure');
-      ok = matchesAll && matchesNone && timeoutOk && brainOk && noOnFailure;
-      detail += ' matchesAll=' + matchesAll + ' matchesNone=' + matchesNone + ' timeout=' + h.timeout + ' brainOk=' + brainOk + ' noOnFailure=' + noOnFailure;
+      // Owner card C2 of Phase 391 (answer APPLY, 2026-11-08, plan 391-08): the web
+      // credential guard carries onFailure block, so a timeout or a start failure
+      // of the hook blocks the web call. The script itself already fails closed.
+      const onFailureBlock = h.onFailure === 'block';
+      ok = matchesAll && matchesNone && timeoutOk && brainOk && onFailureBlock;
+      detail += ' matchesAll=' + matchesAll + ' matchesNone=' + matchesNone + ' timeout=' + h.timeout + ' brainOk=' + brainOk + ' onFailureBlock=' + onFailureBlock;
     }
   } catch (e) {
     detail = String(e && e.message);
   }
-  check('WH5: one PreToolUse group matches the web tools and every Tavily shape, no Brain, gate_answer or lookalike tool; timeout <= 5; Brain group unchanged', ok, detail);
+  check('WH5: one PreToolUse group matches the web tools and every Tavily shape, no Brain, gate_answer or lookalike tool; timeout <= 5 with onFailure block (owner card C2); Brain group unchanged', ok, detail);
 }
 
 // ---- WH6: unparsable stdin and empty tool_input ----------------------------

@@ -18,7 +18,8 @@
  * 2026-10-29 then set post-compact to 120 s (3 x 38,881 ms measured after the
  * change); the 100 s cap of the raise rule is lifted for that one hook.
  * DD-2: the Part 8 egress guard carries "onFailure": "block" so a timeout or a
- * crash blocks the Brain call; no other hook entry has the key.
+ * crash blocks the Brain call. Since owner card C2 of Phase 391 (plan 391-08) the
+ * web credential guard carries it too; no other hook entry has the key.
  * DD-3 / DD-4: scripts/measure-hook-cold-start.cjs and
  * scripts/check-session-start-verification.cjs read the timeout as seconds.
  *
@@ -218,12 +219,16 @@ check('A4 the DD-1 table matches every entry exactly once', () => {
   must(used.size === entries.length, 'rows cover ' + used.size + ' of ' + entries.length + ' entries');
 });
 
-check('A5 only the Part 8 egress guard has onFailure, and it is exactly "block"', () => {
+check('A5 only the two guard hooks have onFailure, and it is exactly "block"', () => {
+  // Owner card C2 of Phase 391 (answer APPLY, 2026-11-08, plan 391-08) added the web
+  // credential guard to the Part 8 egress guard. No observer hook carries the key.
   const withKey = entries.filter((e) => Object.prototype.hasOwnProperty.call(e.h, 'onFailure'));
-  const guard = entries.filter((e) => e.h.command.indexOf('part8-egress-guard-hook.cjs') !== -1);
-  must(guard.length === 1, 'guard entries: ' + guard.length);
-  must(guard[0].h.onFailure === 'block', 'guard onFailure is ' + JSON.stringify(guard[0].h.onFailure));
-  must(withKey.length === 1, 'entries with an onFailure key: ' + withKey.length);
+  for (const tail of ['part8-egress-guard-hook.cjs', 'web-credential-guard-hook.cjs']) {
+    const guard = entries.filter((e) => e.h.command.indexOf(tail) !== -1);
+    must(guard.length === 1, tail + ' entries: ' + guard.length);
+    must(guard[0].h.onFailure === 'block', tail + ' onFailure is ' + JSON.stringify(guard[0].h.onFailure));
+  }
+  must(withKey.length === 2, 'entries with an onFailure key: ' + withKey.length);
 });
 
 check('A6 ambient-stop keeps timeout 5 and async true', () => {
