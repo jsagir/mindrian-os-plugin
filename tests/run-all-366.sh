@@ -161,6 +161,11 @@ run "380 face panel (34 engine tests plus egress, budget, copy, build, layout)" 
 # The payload test and the aggregator ride the release gate. The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "388 ship less (payload excludes tests and dead weight, keeps what the product reads)" bash tests/run-all-388.sh
 
+# --- (2j) Phase 391: Claude Code compatibility check and the radar fetch fix ---
+# Phase 391: the hook facts, the agent tools naming test, the radar slicer and fetch script, the ledger rows and the doctor gap rule ride the release gate.
+# The leg is a hard run (not run_if), so a missing or red test fails the cut.
+run "391 Claude Code compat check (hook facts, agent tools naming, radar slicer and fetch, ledger rows, doctor gap)" bash tests/run-all-391.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
