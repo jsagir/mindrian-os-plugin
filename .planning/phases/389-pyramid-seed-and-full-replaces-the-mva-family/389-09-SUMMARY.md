@@ -172,4 +172,4 @@ None. No new endpoint, auth path or file access.
 
 ## Self-Check
 
-Filled in below after the commit.
+PASSED. Commit 35922a28b exists (26 paths, all in the plan list or named in this SUMMARY; scope guard commit-files exit 0). tests/test-389-retire-brief.cjs exists and passes 34 of 34. run-all-389 PASS=12 FAIL=0. No non-ASCII byte in the SUMMARY, the stubs or the new test. No push, tag, release, dist regeneration, STATE/ROADMAP/REQUIREMENTS write, ledger edit or paid call.
