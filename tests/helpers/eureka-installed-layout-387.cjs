@@ -54,7 +54,7 @@ const ALL_IDS = Object.freeze([N.a, N.b, N.c, N.d, N.e1, N.f1]);
 // Smallest valid arguments per tool, derived from the inputSchema in each module.
 const SYNTHETIC_ARGS = Object.freeze({
   eureka_capability_run: { capability_id: 'graph.explore_local_relationships', request: {} },
-  eureka_capability_start: { capability_id: 'graph.explore_local_relationships', request: {} },
+  eureka_capability_start: { capability_id: 'graph.explore_local_relationships', request: { scope_id: 'room:layout', snapshot_id: 'snapshot-layout' } },
   eureka_capability_job_status: { job_id: FAKE_JOB_ID },
   eureka_capability_job_result: { job_id: FAKE_JOB_ID },
   eureka_capability_job_cancel: { job_id: FAKE_JOB_ID },

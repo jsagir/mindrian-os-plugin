@@ -223,11 +223,15 @@ async function main() {
       client: { callTool: async () => ({ structuredContent: malformed }), async close() {} },
       job_id: jobId, capability_id: 'opportunity.find_cross_domain_pairs',
       scope_id: 'room:async', snapshot_id: 'snapshot-async',
+      // Phase 374 plan 06: a retained job belongs to the caller that started it. This injected record is
+      // owned by the default caller of this process.
+      session_key_hash: capabilityJobs.callerIdentity({}).sessionKeyHash, room_id: null,
       expires_at: Date.now() + 60_000, timer: null,
     });
     const invalidLineage = await capabilityJobs.jobResult({ job_id: jobId });
     assert.equal(invalidLineage.ok, false, `${omitted} lineage omission is rejected`);
-    assert.equal(invalidLineage.reason, 'engine_lineage_mismatch');
+    // Phase 374 plan 06: a missing capability is a mismatch; a missing scope or snapshot is engine_lineage_missing.
+    assert.equal(invalidLineage.reason, omitted === 'capability_id' ? 'engine_lineage_mismatch' : 'engine_lineage_missing');
     await capabilityJobs.closeSession(jobId);
   }
   const unknownJob = await capabilityJobs.jobStatus({ job_id: 'job-from-prior-process' });
@@ -241,7 +245,8 @@ async function main() {
   for (let index = 0; index < capabilityJobs.MAX_ACTIVE_SESSIONS; index += 1) {
     capabilityJobs.sessions.set('test-cap-' + index, {});
   }
-  const limitResult = await capabilityJobs.startCapability({ capability_id: 'opportunity.find_cross_domain_pairs', request: {} }, {}, {
+  const limitResult = await capabilityJobs.startCapability({ capability_id: 'opportunity.find_cross_domain_pairs',
+    request: { scope_id: 'room:async', snapshot_id: 'snapshot-async' } }, {}, {
     env: { MINDRIAN_EUREKA_ROOT: fakeRoot }, Client: PersistentClient, StdioClientTransport: FakeTransport,
   });
   assert.equal(limitResult.reason, 'job_session_limit', 'active job count is capped before spawning another worker');

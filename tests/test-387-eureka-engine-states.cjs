@@ -176,7 +176,7 @@ async function main() {
         capability: await run.callEurekaCapability('graph.explore_local_relationships', {}, env),
         workflow: await analyze.callEurekaWorkflow('graph.explore_local_relationships', {}, env),
         scout: await analyze.callEurekaOpportunityScout({ objective: 'Synthetic objective', artifacts: [] }, env),
-        start: await jobs.startCapability({ capability_id: 'graph.explore_local_relationships', request: {} }, {}, { env }),
+        start: await jobs.startCapability({ capability_id: 'graph.explore_local_relationships', request: { scope_id: 'room:states', snapshot_id: 'snapshot-states' } }, {}, { env }),
       };
       for (const [label, r] of Object.entries(results)) {
         assert.strictEqual(r.ok, false, label);
@@ -197,7 +197,7 @@ async function main() {
       const failures = {
         workflow: await analyze.callEurekaWorkflow('graph.explore_local_relationships', {}, env, undefined, deps),
         scout: await analyze.callEurekaOpportunityScout({ objective: 'Synthetic objective', artifacts: [] }, env, undefined, deps),
-        start: await jobs.startCapability({ capability_id: 'graph.explore_local_relationships', request: {} }, {}, Object.assign({ env }, deps)),
+        start: await jobs.startCapability({ capability_id: 'graph.explore_local_relationships', request: { scope_id: 'room:states', snapshot_id: 'snapshot-states' } }, {}, Object.assign({ env }, deps)),
         capability: await run.callEurekaCapability('graph.explore_local_relationships', {}, env, undefined, deps),
       };
       for (const [label, r] of Object.entries(failures)) {
