@@ -41,8 +41,10 @@ The ROADMAP entry for Phase 374 was written before the research. These findings 
 - The catalog cache key is the engine root plus the modification time of its `pyproject.toml`, with a 30 minute lifetime.
 - Recovery of a lost job is bound to the room, not to the MCP session id, because the session id does not survive a host restart.
 - `eureka_capability_job_forget` (if card OD-2 says so) requires `confirm: true` in its input.
+- `374-gate.cjs verify-declined` (plan 374-04) checks a declined gated plan against the plan's own files_modified (outside the phase folder) plus the plan-tagged commits since BASE, not against every path in the tree, because other sessions commit in this tree. A mode any plan (374-12) checks each skipped part with --part-files.
+- Pins are refreshed once, last, in plan 374-13 (plan checker, 2026-11-08). Plan 374-12 leaves the 384 parity test and the 267 files red for its two schema changes on purpose; test-270 stays green.
 - The 30 day sweep of plugin job records runs inside the plugin (at job start and at recovery), not in `doctor`.
-- The Part 8 scan-list additions (test-341-eureka-no-brain-reach and test-387-eureka-egress) are made by the plan that creates each module, not as one gated plan: `eureka-pair-screen.cjs` and `approval-gate.cjs` in 374-06 (ungated, because both modules are created without a card), `eureka-job-record.cjs` in 374-10 (behind card OD-4). A new module is never unguarded for longer than one plan.
+- The Part 8 scan-list additions (test-341-eureka-no-brain-reach and test-387-eureka-egress) are made by the plan that creates each module, not as one gated plan: `approval-gate.cjs` in 374-03 and `eureka-pair-screen.cjs` in 374-06 (ungated, because both modules are created without a card), `eureka-job-record.cjs` in 374-10 (behind card OD-4). A new module is never unguarded for longer than one plan.
 - Answer-independent tests (T6, T7, T8, T13) are written RED in Wave 0 (plan 374-05). Answer-dependent tests (T1 to T5, T9 to T12, T14b, T15) are written RED first inside the gated plan that consumes the answer. Reason: they pin behaviour that an owner card can change, and a test written before the answer pins a guess. This is a deliberate narrowing of "all of T1 to T15 in Wave 0".
 
 ### Deferred Ideas (OUT OF SCOPE)
@@ -89,7 +91,7 @@ The ROADMAP entry for Phase 374 was written before the research. These findings 
 | RESEARCH | T6, T7, T8, T13 | written 374-05, made green 374-06 |
 | RESEARCH | T9, T10, T12 | 374-10 |
 | RESEARCH | T11 | 374-11 |
-| RESEARCH | T14 (scan lists) | 374-06 and 374-10; (hash unchanged after a run) 374-08 |
+| RESEARCH | T14 (scan lists) | 374-03, 374-06 and 374-10; (hash unchanged after a run) 374-08 |
 | RESEARCH | T15 | 374-12 |
 | RESEARCH | Pitfalls 1 to 7 | 1: 374-12 (D-06). 2: 374-11. 3 and 4: 374-08. 5: noted in 374-12 (cap stays 2,500). 6: 374-12. 7: 374-08 |
 | RESEARCH | Owner decisions D1 to D7 | 374-07 cards OD-1 to OD-7 (D5 is OD-5A and OD-5B) |
@@ -115,7 +117,7 @@ Wave names follow the sibling phases: "Wave 0" is the first group of autonomous 
 
 - **Wave 1 (autonomous, file-disjoint):** 374-01 (267 pins), 374-02 (fake engine), 374-03 (shared approval gate), 374-04 (answer gate wrapper), 374-05 (RED tests and aggregator).
 - **Wave 2:** 374-06 (generic path hardening, autonomous), 374-07 (owner cards, `autonomous: false`, ends in one NEEDS_HUMAN line).
-- **Waves 3 to 8 (gated by the cards; each starts with the 374-gate.cjs check):** 374-08 pair-screen route and approval flow (wave 3); 374-09 `/mos:eureka screen` and 374-10 job record and recovery (wave 4); 374-11 engine_busy guard (wave 5); 374-12 caps and paging (wave 6); 374-13 forget tool, honest tool descriptions and the final pin moves (wave 7); 374-14 budget decision record, engine guide, release suite registration and close-out (wave 8). The chain is serial because plans 374-08, 374-10, 374-11, 374-12 and 374-13 all edit `lib/mcp/tools/eureka-capability-jobs.cjs`.
+- **Waves 3 to 8 (gated by the cards; each starts with the 374-gate.cjs check):** 374-08 pair-screen route and approval flow (wave 3); 374-09 `/mos:eureka screen` and 374-10 job record and recovery (wave 4); 374-11 engine_busy guard (wave 5); 374-12 caps and paging, moving no pin (wave 6); 374-13 forget tool, honest tool descriptions and the one and only refresh of the 384 golden, the 267 snapshots and the test-270 AFTER record (wave 7); 374-14 budget decision record, engine guide, release suite registration and close-out (wave 8). The chain is serial because plans 374-08, 374-10, 374-11, 374-12 and 374-13 all edit `lib/mcp/tools/eureka-capability-jobs.cjs`.
 
 ## Canonical References
 
