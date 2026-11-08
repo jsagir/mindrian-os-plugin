@@ -85,7 +85,7 @@ Consuming plan: 374-14.
 
 GROUP G1: OD-1
 GROUP-SHA256 G1: e24d516435043eb5cc26247b348c02f62fcb0381bacaa84d543465777ace6383
-OWNER-ANSWER G1: PENDING
+OWNER-ANSWER G1: RECOMMENDED
 
 ## G2 A tool to forget a finished run
 
@@ -115,7 +115,7 @@ Consuming plan: 374-13. Plan 374-08 reads this answer for the wording of the app
 
 GROUP G2: OD-2
 GROUP-SHA256 G2: e83089c1bad32ee6aa3cfc77f1b1a9596b0ed7d44d8203d994f75f1c3de03990
-OWNER-ANSWER G2: PENDING
+OWNER-ANSWER G2: RECOMMENDED
 
 ## G3 Result count and node caps
 
@@ -145,7 +145,7 @@ Consuming plan: 374-12.
 
 GROUP G3: OD-3
 GROUP-SHA256 G3: dcb3f3d7dd4514d6e8f7dce55a038c4dfed25723b1374c93e9182d931a84f29d
-OWNER-ANSWER G3: PENDING
+OWNER-ANSWER G3: RECOMMENDED
 
 ## G4 Where the job pointer record lives
 
@@ -176,7 +176,7 @@ Consuming plan: 374-10.
 
 GROUP G4: OD-4
 GROUP-SHA256 G4: 76a2bd072fa457f8150ab50a330ea216a87e62ea828038366da6b31943cce1e5
-OWNER-ANSWER G4: PENDING
+OWNER-ANSWER G4: RECOMMENDED
 
 ## G5 Pair screen card shape and subcommand
 
@@ -226,7 +226,7 @@ Consuming plans: 374-08 for OD-5A. 374-09 for OD-5B (and OD-5A must not be KEEP)
 
 GROUP G5: OD-5A, OD-5B
 GROUP-SHA256 G5: 24bde605d02e1d9a5e78b5f04c33466f354a8ac1a2ebb28d9f06b1360619ac2b
-OWNER-ANSWER G5: PENDING
+OWNER-ANSWER G5: RECOMMENDED
 
 ## G6 Guard against a second Eureka call during a job
 
@@ -257,7 +257,7 @@ Consuming plan: 374-11.
 
 GROUP G6: OD-6
 GROUP-SHA256 G6: d58fbe34bbefb1bf69d8a0bbabadf46f6f767012c62965293a52a4bc20ffced5
-OWNER-ANSWER G6: PENDING
+OWNER-ANSWER G6: RECOMMENDED
 
 ## G7 Large job results
 
@@ -288,7 +288,7 @@ Consuming plan: 374-12.
 
 GROUP G7: OD-7
 GROUP-SHA256 G7: 48fc7bc049c39da92f7d7e17aeacd80391e05385f6efa7700dd8e87cf9ae0e8b
-OWNER-ANSWER G7: PENDING
+OWNER-ANSWER G7: RECOMMENDED
 
 ## Eureka asks
 
