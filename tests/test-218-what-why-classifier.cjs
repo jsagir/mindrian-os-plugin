@@ -43,7 +43,7 @@ const classifier = require(classifierPath);
 const embedClassifier = require(embedClassifierPath);
 const { classifyByEmbedding } = embedClassifier;
 const { extractEntities } = require(extractorPath);
-const mva = require(path.join(REPO_ROOT, 'lib', 'core', 'mva-classifier.cjs'));
+const mva = require(path.join(REPO_ROOT, 'lib', 'core', 'venture-sentence-classifier.cjs'));
 
 const { openRoomDb, closeRoomDb } = require(path.join(REPO_ROOT, 'lib', 'core', 'room-db.cjs'));
 const { insertNode } = require(path.join(REPO_ROOT, 'lib', 'core', 'node-insert.cjs'));

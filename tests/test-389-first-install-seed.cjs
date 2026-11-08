@@ -4,7 +4,7 @@
 //
 // scripts/first-install-router.cjs no longer reads a pending record and no longer
 // starts a background process. At routing time it asks the sync heuristic classify of
-// lib/core/mva-classifier.cjs one question about the first answer and stores two
+// lib/core/venture-sentence-classifier.cjs one question about the first answer and stores two
 // booleans (venture, hebrew) and no text. A later turn injects one fixed instruction:
 // write the draft pyramid now, then offer the evidence step of /mos:structure-argument.
 //
@@ -65,7 +65,7 @@ const PRELOAD_TEXT = [
   "if (process.env.T389_CLASSIFIER_THROW === '1') {",
   "  const M = require('node:module');",
   "  const origLoad = M._load;",
-  "  M._load = function (request) { if (String(request).indexOf('mva-classifier') !== -1) throw new Error('forced classifier failure'); return origLoad.apply(this, arguments); };",
+  "  M._load = function (request) { if (String(request).indexOf('venture-sentence-classifier') !== -1) throw new Error('forced classifier failure'); return origLoad.apply(this, arguments); };",
   "}",
 ].join('\n');
 
@@ -330,7 +330,7 @@ check('Test 5b: a non-venture turn between routing and firing does not cancel th
 // ---------------------------------------------------------------------------
 check('Test 6: the router calls classify and never classifyAsync; no socket in any turn; writes stay in its own folders', () => {
   const src = stripComments(fs.readFileSync(ROUTER, 'utf8'));
-  assert.ok(/mva-classifier/.test(src), 'router does not name mva-classifier');
+  assert.ok(/venture-sentence-classifier/.test(src), 'router does not name venture-sentence-classifier');
   assert.ok(/\.classify\(/.test(src), 'router does not call classify(');
   assert.ok(!/classifyAsync/.test(src), 'router names classifyAsync');
   const sb = makeSandbox();

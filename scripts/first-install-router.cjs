@@ -48,7 +48,7 @@
  *
  * Plan 389-07 (D2 APPROVE) re-points the reward legs to the Pyramid Seed. At
  * routing time this router asks the SYNC heuristic classify of
- * lib/core/mva-classifier.cjs one question about the first answer (never the
+ * lib/core/venture-sentence-classifier.cjs one question about the first answer (never the
  * async variant, so no Haiku call and no network) and stores two booleans on its
  * own state: venture and hebrew. It stores no text. The fire leg moves the state
  * to reward_pending and records the skip not_venture_shaped or hebrew_refusal
@@ -345,7 +345,7 @@ function _classifyAndRoute(state, prompt, t0) {
   let venture = false;
   let hebrew = false;
   try {
-    const verdict = require('../lib/core/mva-classifier.cjs').classify(prompt);
+    const verdict = require('../lib/core/venture-sentence-classifier.cjs').classify(prompt);
     venture = !!(verdict && verdict.venture === true);
     hebrew = !!(verdict && typeof verdict.reason === 'string' && /^hebrew/.test(verdict.reason));
   } catch (_e) {

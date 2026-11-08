@@ -10,7 +10,7 @@
  * brain.mindrian / the brain-client WRITE path) -- NOT api.anthropic.com.
  *
  *   - api.anthropic.com is the SHIPPED Part-8-LEGAL LOCAL LLM transport
- *     (precedent: lib/core/llm-name-suggester.cjs + lib/core/mva-classifier.cjs).
+ *     (precedent: lib/core/llm-name-suggester.cjs + lib/core/venture-sentence-classifier.cjs).
  *     graph-candidate-producer.cjs calls fetch(api.anthropic.com) as its default
  *     transport; that is LEGAL (a stateless LLM call, never the Brain). So the
  *     sweep EXEMPTS api.anthropic.com from the raw-fetch + external-http bans and

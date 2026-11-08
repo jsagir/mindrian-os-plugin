@@ -2,7 +2,7 @@
 // Phase 232-02 Task 2 -- briefing.cjs test suite (D-06).
 //
 // briefing.cjs generates Larry's Briefing over the in-repo raw-fetch Anthropic
-// transport (the mva-classifier precedent), NOT the Vercel AI SDK (D-06 explicit
+// transport (the venture-sentence-classifier precedent), NOT the Vercel AI SDK (D-06 explicit
 // rejection). It resolves { ok:true, briefing:{critical_misses, reframe,
 // next_steps} } or { ok:false, error:'no_api_key'|'api_error' } and NEVER throws.
 //

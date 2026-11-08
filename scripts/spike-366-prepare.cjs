@@ -130,7 +130,7 @@ const CHILD_CODE = [
   "for (const m of ['http', 'https']) { const mod = require(m); mod.request = deny; mod.get = deny; }",
   "const net = require('net'); net.connect = deny; net.createConnection = deny;",
   "try { const r = require(path.join(repo, 'lib/core/eureka-deps-resolver.cjs')); const t = r.requireEurekaDep('@huggingface/transformers'); if (t && t.env) t.env.allowRemoteModels = false; } catch (_e) { /* dep absent */ }",
-  "const mva = require(path.join(repo, 'lib/core/mva-classifier.cjs'));",
+  "const mva = require(path.join(repo, 'lib/core/venture-sentence-classifier.cjs'));",
   'mva.resolveAnthropicKey = function () { return null; };',
   "const ee = require(path.join(repo, 'scripts/entity-extract.cjs'));",
   "Promise.resolve(ee.main([room, 'run'])).then(function (code) {",

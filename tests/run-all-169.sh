@@ -152,7 +152,7 @@ BRAIN_HOST='mindrian-brain|brain\.mindrian|brain-client|brainClient'
 # No raw external HTTP egress in lib/script code. The leading char class excludes
 # .fetchCorpus on a caller object. EXEMPTION: api.anthropic.com is the SHIPPED
 # Part-8-LEGAL LOCAL LLM transport (precedent: lib/core/llm-name-suggester.cjs,
-# lib/core/mva-classifier.cjs). The Canon Part 8 boundary covers ONLY the
+# lib/core/venture-sentence-classifier.cjs). The Canon Part 8 boundary covers ONLY the
 # Mindrian-owned Brain MCP host, NOT api.anthropic.com (a stateless LLM transport).
 # So the candidate producer's default anthropic-transport fetch is LEGAL; the
 # sweep filters api.anthropic.com lines out of the raw-fetch + external-http

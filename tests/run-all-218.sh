@@ -30,7 +30,7 @@
 # user bytes), so it never carries a transport of its own. The ONLY remote model
 # reach in the pipeline lives in the tier-2b classifier module
 # (lib/core/semantic-index/entity-classifier.cjs): a LOCAL classification call over the
-# Anthropic LLM transport (the mva-classifier / llm-name-suggester precedent),
+# Anthropic LLM transport (the venture-sentence-classifier / llm-name-suggester precedent),
 # NEVER the Brain surface, with a degrade-to-passthrough contract, now called for
 # the low-margin escalated residual ONLY. This is NOT the rejected Plurai network
 # judge. Every leg here runs OFFLINE: the tier-2 legs exercise the embedding tier

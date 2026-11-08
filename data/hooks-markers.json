@@ -20,6 +20,6 @@
     ]
   },
   "_firstInstallRouterOrdering": {
-    "_note": "Phase 267.2-06 (HOOK-08), rewritten by Phase 389 plan 07. scripts/first-install-router.cjs is registered in the UserPromptSubmit chain before scripts/brain-derivation-drain.cjs. This is metadata for a human reader (and any future drift test) -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key in hooks/hooks.json. The router classifies the first answer by itself with the sync heuristic of lib/core/mva-classifier.cjs and keeps its own state, so it has no ordering dependency on another entry. The per-message venture hook it once followed was removed in Phase 389 plan 07."
+    "_note": "Phase 267.2-06 (HOOK-08), rewritten by Phase 389 plan 07. scripts/first-install-router.cjs is registered in the UserPromptSubmit chain before scripts/brain-derivation-drain.cjs. This is metadata for a human reader (and any future drift test) -- it is NOT consumed by Claude Code's hook loader, which only reads the 'hooks' key in hooks/hooks.json. The router classifies the first answer by itself with the sync heuristic of lib/core/venture-sentence-classifier.cjs and keeps its own state, so it has no ordering dependency on another entry. The per-message venture hook it once followed was removed in Phase 389 plan 07."
   }
 }

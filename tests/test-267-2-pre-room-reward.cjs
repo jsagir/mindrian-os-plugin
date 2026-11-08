@@ -6,7 +6,7 @@
 // Before plan 389-07 the reward was the Instant Brief: a pending record written by a
 // per-message hook, a detached child process and a capture file. That machinery is gone.
 // The router now classifies the first answer once, at routing time, with the sync
-// heuristic of lib/core/mva-classifier.cjs, stores two booleans (venture, hebrew) and no
+// heuristic of lib/core/venture-sentence-classifier.cjs, stores two booleans (venture, hebrew) and no
 // text, and on a later turn injects one fixed instruction: write the draft pyramid, then
 // offer the evidence step of /mos:structure-argument. This file pins the legs that stay
 // true (room-free, keyless, isolated HOME, non-blocking, Part 8, bounded drain that never
@@ -27,7 +27,7 @@ const helpers = require('./test-267-2-helpers.cjs');
 
 const REPO = path.join(__dirname, '..');
 const ROUTER = path.join(REPO, 'scripts', 'first-install-router.cjs');
-const CLASSIFIER = path.join(REPO, 'lib', 'core', 'mva-classifier.cjs');
+const CLASSIFIER = path.join(REPO, 'lib', 'core', 'venture-sentence-classifier.cjs');
 
 let n = 0;
 function ok(desc, fn) { fn(); n += 1; console.log('  ok   ' + desc); }
@@ -89,7 +89,7 @@ ok('scripts/first-install-router.cjs source contains no roomDir/openRoomDb/room.
   }
 });
 
-ok('lib/core/mva-classifier.cjs source contains no roomDir/openRoomDb/room.db', function () {
+ok('lib/core/venture-sentence-classifier.cjs source contains no roomDir/openRoomDb/room.db', function () {
   const src = fs.readFileSync(CLASSIFIER, 'utf8');
   for (const forbidden of ['roomDir', 'openRoomDb', 'room.db']) {
     assert.ok(src.indexOf(forbidden) === -1, 'forbidden room-coupling token found: ' + forbidden);

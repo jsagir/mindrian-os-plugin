@@ -56,7 +56,7 @@
  * The pre-existing correct usage at scripts/track-analytics:155
  * (`os.replace(tmp_file, analytics_file)`) is the proof this primitive was
  * already the house standard -- the registry family simply missed it. The
- * same source-grep-audit shape is precedented at lib/core/mva-classifier.test.cjs
+ * same source-grep-audit shape is precedented at lib/core/venture-sentence-classifier.test.cjs
  * (asserts mva-state.cjs uses fs.renameSync, not a bare rename) -- Part 3
  * below follows that same pattern, now promoted to a release-time gate too
  * (see scripts/verify-release's Windows-unsafe-rename-primitive check).

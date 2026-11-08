@@ -122,10 +122,10 @@ const entityEmbedClassifier = require('../lib/core/semantic-index/embedding-clas
 // module. It is the ONLY model reach in this pipeline and documents its own
 // boundary; it is now the ESCALATION-ONLY path, called per artifact for just the
 // candidates tier-2a could not confidently resolve. resolveAnthropicKey gates
-// whether that escalation runs at all (Part 7 reuse of the mva-classifier
+// whether that escalation runs at all (Part 7 reuse of the venture-sentence-classifier
 // resolver, never a copy).
 const entityClassifier = require('../lib/core/semantic-index/entity-classifier.cjs');
-const { resolveAnthropicKey } = require('../lib/core/mva-classifier.cjs');
+const { resolveAnthropicKey } = require('../lib/core/venture-sentence-classifier.cjs');
 // Phase 219-02 (D-11, REQ-5): the SHIPPED zero-dep frontmatter parser (Canon
 // Part 7 reuse-before-build -- never a new YAML parser). Deterministic,
 // zero-LLM, zero network.
