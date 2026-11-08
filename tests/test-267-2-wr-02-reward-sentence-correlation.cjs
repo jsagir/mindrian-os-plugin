@@ -1,26 +1,15 @@
 'use strict';
-// Phase 267.2 code review fix WR-02 -- _fireReward trusted a shared,
-// per-turn-overwritable mva-state pending record with no correlation to the
-// sentence that actually drove THIS router's routing decision.
+// Phase 267.2 code review fix WR-02, rewritten by Phase 389 plan 07.
 //
-// scripts/mva-detect.cjs writes lib/core/mva-state.cjs's `pending` record
-// independently on EVERY UserPromptSubmit turn (it runs immediately before
-// this router in hooks/hooks.json's own chain), guarded only by
-// isAlreadyRunning() -- never by "already consumed" or "matches the
-// sentence this router itself classified." This router's own state machine
-// takes at least 2 additional user turns between the routing decision (turn
-// 1, reads the triggering sentence) and the fire turn (turn 3, reads
-// whatever `pending` currently holds). If the user's intervening turn is
-// independently classified as venture-shaped by mva-detect.cjs's own
-// classifier, `pending.sentence_sha256` is silently overwritten before the
-// fire leg ever reads it, and the "Instant Brief" would be rendered for the
-// wrong, unrelated sentence.
-//
-// Fix: _classifyAndRoute now persists sentence_sha256 onto state.json at
-// routing time; _fireReward compares it against pending.sentence_sha256 at
-// fire time and skips with skip_reason: 'pending_sentence_mismatch' on a
-// mismatch, rather than silently firing against whatever is currently
-// pending.
+// The original defect: _fireReward trusted a shared, per-turn-overwritable pending record
+// (written by a per-message hook) with no correlation to the sentence that drove THIS
+// router's routing decision, so a later, unrelated venture-shaped turn could silently
+// change which sentence the reward was rendered for. Plan 389-07 removes the shared
+// record and the hook that wrote it. The guarantee that replaces the correlation check is
+// stronger and simpler: the venture verdict is taken ONCE, at routing time, from the
+// routing sentence, and stored as two booleans on the router's own state. The fire and
+// drain legs read only those booleans. No later turn is ever read, so no later turn can
+// change the reward. This file pins that guarantee in both directions.
 //
 // Isolated HOME throughout. No em-dashes. Plain node:assert/strict.
 
@@ -34,7 +23,6 @@ const { withIsolatedHome, keylessEnv } = require('./test-267-2-helpers.cjs');
 
 const REPO = path.join(__dirname, '..');
 const ROUTER_PATH = path.join(REPO, 'scripts', 'first-install-router.cjs');
-const MVA_STATE = path.join(REPO, 'lib', 'core', 'mva-state.cjs');
 
 let n = 0;
 function ok(desc, fn) { fn(); n += 1; console.log('  ok   ' + desc); }
@@ -49,6 +37,7 @@ function callRouter(env, prompt) {
     timeout: 10000,
   });
   assert.equal(res.status, 0, 'router exited non-zero: ' + res.status + ' stderr=' + res.stderr);
+  return res;
 }
 
 function readState(home) {
@@ -56,89 +45,73 @@ function readState(home) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 
-function writePendingInChild(env, payload) {
-  const script = 'const s=require(' + JSON.stringify(MVA_STATE) + ');'
-    + 's.writePending(' + JSON.stringify(payload) + ');';
-  const r = spawnSync(process.execPath, ['-e', script], { env: env, encoding: 'utf8', timeout: 5000 });
-  assert.equal(r.status, 0, 'writePending child exited non-zero: ' + r.status + ' stderr=' + r.stderr);
-}
-
 const ROUTED_SENTENCE = 'I want to start a new venture around clinical trial recruitment coordination.';
-const UNRELATED_SENTENCE = 'a completely different sentence an intervening mva-detect.cjs turn classified';
+const LATER_VENTURE_SENTENCE = 'We are launching a startup that sells reusable packaging to neighbourhood cafes.';
+const LATER_NON_VENTURE_SENTENCE = 'what is the weather today in town please';
+const ROUTED_NON_VENTURE_SENTENCE = 'what is the weather today in town please';
 
-ok('WR-02 FIXED: a pending record for a DIFFERENT sentence than the one this router routed '
-  + 'is skipped with pending_sentence_mismatch, never fired', function () {
+function sha(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('hex'); }
+
+ok('WR-02 REPLACED: a venture-shaped turn between routing and firing does NOT turn a non-venture '
+  + 'routing into a reward (the flag was stored at routing time only)', function () {
   withIsolatedHome(function (ctx) {
     const env = keylessEnv(ctx.env);
     env.MINDRIAN_ROOMS_HOME = path.join(ctx.home, 'nonexistent-rooms-home');
 
-    // Turn 1: armed -> routed. state.sentence_sha256 becomes sha256(ROUTED_SENTENCE).
-    callRouter(env, ROUTED_SENTENCE);
+    // Turn 1: armed -> routed. The routing sentence is NOT venture-shaped.
+    callRouter(env, ROUTED_NON_VENTURE_SENTENCE);
     const afterRoute = readState(ctx.home);
     assert.equal(afterRoute.phase, 'routed');
-    assert.equal(
-      afterRoute.sentence_sha256,
-      crypto.createHash('sha256').update(ROUTED_SENTENCE, 'utf8').digest('hex'),
-      'sanity: state.json does not carry the routing-time sentence hash',
-    );
+    assert.equal(afterRoute.sentence_sha256, sha(ROUTED_NON_VENTURE_SENTENCE),
+      'sanity: state.json does not carry the routing-time sentence hash');
+    assert.strictEqual(afterRoute.venture, false);
 
-    // Turn 2: outcome_observed (phase stays routed).
-    callRouter(env, 'irrelevant second-turn prompt');
-
-    // Simulate scripts/mva-detect.cjs independently overwriting `pending` with an UNRELATED
-    // sentence's hash on the intervening turn -- exactly the race WR-02 names.
-    const unrelatedSha256 = crypto.createHash('sha256').update(UNRELATED_SENTENCE, 'utf8').digest('hex');
-    writePendingInChild(env, {
-      sentence_sha256: unrelatedSha256,
-      classified_at: Date.now(),
-      classifier_source: 'heuristic',
-      classifier_confidence: 'high',
-      locale: 'en',
-    });
-
+    // Turn 2: outcome_observed, with a clearly venture-shaped sentence typed by the person.
+    callRouter(env, LATER_VENTURE_SENTENCE);
     // Turn 3: FIRE.
     callRouter(env, 'irrelevant third-turn prompt');
     const afterFire = readState(ctx.home);
     assert.equal(afterFire.phase, 'reward_pending', 'router did not advance to reward_pending');
-    assert.equal(
-      afterFire.skip_reason,
-      'pending_sentence_mismatch',
-      'WR-02 REGRESSED: fire did not skip with pending_sentence_mismatch against a pending '
-        + 'record for a different sentence -- got skip_reason=' + JSON.stringify(afterFire.skip_reason)
-        + ' sha8=' + JSON.stringify(afterFire.sha8),
-    );
-    assert.equal(
-      afterFire.sha8,
-      null,
-      'WR-02 REGRESSED: a capture/spawn happened against a mismatched pending record '
-        + '(sha8 should stay null on a mismatch skip)',
-    );
+    assert.equal(afterFire.skip_reason, 'not_venture_shaped',
+      'REGRESSED: a later turn changed the verdict -- skip_reason=' + JSON.stringify(afterFire.skip_reason));
+    assert.equal(afterFire.sentence_sha256, sha(ROUTED_NON_VENTURE_SENTENCE),
+      'REGRESSED: the stored routing hash changed on a later turn');
+    assert.ok(!afterFire.sha8 && !afterFire.capture_path, 'nothing may be set up for a skipped reward');
+
+    // Turn 4: DRAIN injects nothing.
+    const r4 = callRouter(env, 'irrelevant fourth-turn prompt');
+    assert.equal(JSON.parse(r4.stdout).hookSpecificOutput, undefined, 'the drain injected for a skipped reward');
   });
 });
 
-ok('NON-REGRESSION: a pending record for the SAME sentence this router routed still fires normally', function () {
+ok('NON-REGRESSION: a non-venture turn between routing and firing does NOT cancel the reward of a '
+  + 'venture-shaped routing sentence', function () {
   withIsolatedHome(function (ctx) {
     const env = keylessEnv(ctx.env);
     env.MINDRIAN_ROOMS_HOME = path.join(ctx.home, 'nonexistent-rooms-home');
 
     callRouter(env, ROUTED_SENTENCE);
-    callRouter(env, 'irrelevant second-turn prompt');
-
-    const matchingSha256 = crypto.createHash('sha256').update(ROUTED_SENTENCE, 'utf8').digest('hex');
-    writePendingInChild(env, {
-      sentence_sha256: matchingSha256,
-      classified_at: Date.now(),
-      classifier_source: 'heuristic',
-      classifier_confidence: 'high',
-      locale: 'en',
-    });
-
+    callRouter(env, LATER_NON_VENTURE_SENTENCE);
     callRouter(env, 'irrelevant third-turn prompt');
+
     const afterFire = readState(ctx.home);
     assert.equal(afterFire.phase, 'reward_pending');
-    assert.equal(afterFire.skip_reason, null, 'a matching pending record must not be skipped');
-    assert.equal(afterFire.sha8, matchingSha256.slice(0, 8), 'a matching pending record must still fire');
+    assert.equal(afterFire.skip_reason, null, 'a venture routing must not be skipped');
+    assert.equal(afterFire.sentence_sha256, sha(ROUTED_SENTENCE), 'the routing hash must stay the routing sentence');
+
+    const r4 = callRouter(env, 'irrelevant fourth-turn prompt');
+    const ctxText = JSON.parse(r4.stdout).hookSpecificOutput.additionalContext;
+    assert.ok(ctxText.indexOf('draft pyramid') !== -1, 'the drain did not inject the Seed instruction');
   });
+});
+
+ok('NO SHARED RECORD: the router text names no pending record and reads no other state file', function () {
+  const src = fs.readFileSync(ROUTER_PATH, 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n').map(function (l) { return l.replace(/^\s*\/\/.*$/, ''); }).join('\n');
+  for (const forbidden of ['readPending', 'writePending', 'mva-state', 'pending_sentence_mismatch']) {
+    assert.ok(src.indexOf(forbidden) === -1, 'the router still names ' + forbidden);
+  }
 });
 
 console.log('\nPASS test-267-2-wr-02-reward-sentence-correlation (' + n + ' assertions)');

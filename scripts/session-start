@@ -732,11 +732,12 @@ else
   # `session-start:FIRST_INSTALL`, interactive_first_reward `instant_brief`.
   # This branch no longer promises a reward in prose: it hands first contact
   # to scripts/first-install-router.cjs, which classifies the user's one-
-  # sentence free-text answer locally and, on the venture-shaped path, fires
-  # the room-free Instant Brief pipeline (lib/core/mva-orchestrator.cjs) out
-  # of band, draining the rendered result as additionalContext one turn
-  # later (closing GAP R-1, .planning/research/2026-08-27-hooked-first-
-  # install-audit.md). The registry record was updated in this same change.
+  # sentence free-text answer locally (the sync heuristic, no network) and, on
+  # the venture-shaped path, asks Larry on a later turn to write the draft
+  # pyramid (the Seed of /mos:structure-argument), with no background process
+  # and no stored sentence (closing GAP R-1, .planning/research/2026-08-27-
+  # hooked-first-install-audit.md; re-pointed by Phase 389 plan 07). The
+  # registry record was updated in the same change.
   # Change the prose below and you must revisit the record: the registry's
   # `anchor` field points at a literal inside this assignment, and
   # tests/test-267.3-session-start-declaration.cjs reds the moment that

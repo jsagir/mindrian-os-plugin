@@ -13,9 +13,8 @@
  * _buildAdditionalContext below, and the Architectural Responsibility Map
  * this plan's own research names).
  *
- * Cloned in SHAPE from scripts/mva-detect.cjs (the right hook-shape target
- * per 267.2-PATTERNS.md A2) and scripts/check-pending-breakthrough.cjs (the
- * cleanest in-repo emitContinue/emitContinueWithContext pair). Deliberately
+ * Cloned in SHAPE from scripts/check-pending-breakthrough.cjs (the cleanest
+ * in-repo emitContinue/emitContinueWithContext pair). Deliberately
  * NOT cloned from scripts/intent-classifier.cjs: that file is 3400+ lines
  * carrying seven unrelated concerns and is useful here only as corroboration
  * that the additionalContext envelope works in production.
@@ -47,25 +46,24 @@
  * lib/core/ (not scripts/) precisely so one implementation can also serve a
  * future MCP handler on Desktop/Cowork.
  *
- * Plan 267.2-07 (HOOK-07) extends the state machine with the reward legs:
- * routed -> reward_pending -> reward_delivered. Decision D-D fixes the
- * architecture: this hook NEVER calls the MVA orchestrator module's
- * runPipeline inline -- runPipeline dispatches through a 45s global / 35s
- * per-agent budget (lib/core/mva-dispatcher.cjs's binding decision B2),
- * measured at up to 5337ms on the fresh-install no-key path (267.2-01),
- * against a 3000ms hook ceiling. Instead this hook fires
- * scripts/mva-run.cjs as a DETACHED, unref-ed child with its stdout
- * captured to a file, exactly the shape scripts/brain-derivation-drain.cjs
- * documents in its own header, and drains the captured render on a LATER
- * turn. Honest residual, stated not hidden: the reward is delivered by
- * machinery rather than by a prose promise (closing GAP R-1), but it lands
- * one turn after the sentence that triggers it, not the same turn.
+ * Plan 389-07 (D2 APPROVE) re-points the reward legs to the Pyramid Seed. At
+ * routing time this router asks the SYNC heuristic classify of
+ * lib/core/mva-classifier.cjs one question about the first answer (never the
+ * async variant, so no Haiku call and no network) and stores two booleans on its
+ * own state: venture and hebrew. It stores no text. The fire leg moves the state
+ * to reward_pending and records the skip not_venture_shaped or hebrew_refusal
+ * when there is nothing to reward. The drain leg, on the next turn, injects ONE
+ * fixed instruction for Larry: write the draft pyramid now (Situation,
+ * Complication, Question, Answer), then offer the evidence step of
+ * /mos:structure-argument. There is no background process, no capture file and
+ * no pending record. Honest residual, stated not hidden: the reward is delivered
+ * by machinery rather than by a prose promise (closing GAP R-1), but it lands on
+ * a later turn than the sentence that triggers it, not the same turn.
  *
- * Canon Part 8 discipline (copied verbatim in spirit from
- * scripts/mva-detect.cjs:25-29): the raw prompt lives ONLY in the in-memory
- * `prompt` variable for the classification call; it is never written to
- * state.json, never written to telemetry, never logged. Telemetry carries
- * sha256(prompt) as the largest string it ever writes.
+ * Canon Part 8 discipline: the raw prompt lives ONLY in the in-memory `prompt`
+ * variable for the classification call; it is never written to state.json, never
+ * written to telemetry, never logged. Telemetry carries sha256(prompt) as the
+ * largest string it ever writes.
  *
  * Absolutely forbidden in this file, per CONTEXT.md D-07: reading the
  * Anthropic or Tavily key env vars, or requiring the Brain client
@@ -82,7 +80,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { spawnSync, spawn } = require('node:child_process');
+const { spawnSync } = require('node:child_process');
 
 const HOOK_EVENT_NAME = 'UserPromptSubmit';
 const STDIN_TIMEOUT_MS = 200;
@@ -151,7 +149,7 @@ function telemetryFilePath() {
   return path.join(telemetryDir(), 'first-install-router.jsonl');
 }
 
-// ---------- Envelope helpers (mirrors mva-detect.cjs / check-pending-breakthrough.cjs) ----------
+// ---------- Envelope helpers (mirrors check-pending-breakthrough.cjs) ----------
 
 const ENVELOPE_ALLOWED = new Set([
   'decision', 'reason', 'continue', 'stopReason',
@@ -186,7 +184,7 @@ process.on('uncaughtException', () => {
   try { emitEmpty(); } catch (_e) { process.exit(0); }
 });
 
-// ---------- Stdin read (200ms budget; mirrors mva-detect.cjs) ----------
+// ---------- Stdin read (200ms budget) ----------
 
 function readStdinSync() {
   try {
@@ -208,7 +206,7 @@ function safeParseJSON(raw) {
   }
 }
 
-// ---------- State I/O (atomic write, mirrors lib/core/mva-state.cjs's pattern) ----------
+// ---------- State I/O (atomic write) ----------
 
 function _readState() {
   try {
@@ -232,7 +230,7 @@ function _atomicWriteState(obj) {
   }
 }
 
-// ---------- Telemetry (append-only, scalar-only; mirrors mva-detect.cjs) ----------
+// ---------- Telemetry (append-only, scalar-only) ----------
 
 function _appendTelemetry(record) {
   try {
@@ -261,7 +259,7 @@ function _checkOnboardStatus() {
   }
 }
 
-// ---------- rooms_home_exists / active_room_bound proxies (mirrors mva-detect.cjs's resolveActiveRoomDir) ----------
+// ---------- rooms_home_exists / active_room_bound proxies ----------
 
 function _resolveRoomsHome() {
   try {
@@ -340,9 +338,23 @@ function _classifyAndRoute(state, prompt, t0) {
     // degrade to the safe ambiguous/larry defaults already set above
   }
 
-  // WR-02 (267.2-REVIEW.md): computed here, before the state write, so it can be PERSISTED
-  // onto state.json (not just telemetry) -- _fireReward needs this to correlate against
-  // lib/core/mva-state.cjs's pending record at fire time, several turns later.
+  // Plan 389-07: the venture verdict is computed ONCE, here, from the sentence that is in
+  // memory right now, and stored as two booleans. The fire and drain legs read only these
+  // flags on later turns, never another sentence and never a shared record. A throw
+  // leaves both false (an honest not_venture_shaped skip, never a fabricated reward).
+  let venture = false;
+  let hebrew = false;
+  try {
+    const verdict = require('../lib/core/mva-classifier.cjs').classify(prompt);
+    venture = !!(verdict && verdict.venture === true);
+    hebrew = !!(verdict && typeof verdict.reason === 'string' && /^hebrew/.test(verdict.reason));
+  } catch (_e) {
+    venture = false;
+    hebrew = false;
+  }
+
+  // The sha256 of the routing sentence is the only thing about the sentence that is kept;
+  // the telemetry reads it and state.json carries it.
   const sentenceSha = (typeof prompt === 'string' && prompt.length > 0)
     ? crypto.createHash('sha256').update(prompt, 'utf8').digest('hex')
     : null;
@@ -354,6 +366,8 @@ function _classifyAndRoute(state, prompt, t0) {
     bucket: bucket,
     outcome: outcome,
     sentence_sha256: sentenceSha,
+    venture: venture,
+    hebrew: hebrew,
   });
   _atomicWriteState(routedState);
 
@@ -414,95 +428,36 @@ function _emitOutcomeObserved(state) {
   return emitEmpty();
 }
 
-// ---------- The reward fire: detached, fire-and-forget, never inline (D-D) ----------
+// ---------- The reward fire: a flag read, nothing started (plan 389-07) ----------
 //
 // Runs once the outcome has already been observed on an earlier turn (so
 // `existingState.phase === 'routed' && existingState.outcome_observed_at_ms`
-// is set -- see main()). Gated on the shipped MVA classifier's own verdict
-// (lib/core/mva-state.cjs::readPending), never on this router's opinion, and
-// never fabricates a pending record: mva-detect.cjs / mva-classifier.cjs own
-// that write, including the length guards, English-only rule and Hebrew
-// refusal path. A throw anywhere in this block degrades to an honest skip;
-// the envelope still emits and the state machine still advances.
-//
-// WR-02 (267.2-REVIEW.md): `pending` is a SHARED, session-scoped record
-// (lib/core/mva-state.cjs) written independently by scripts/mva-detect.cjs on EVERY
-// UserPromptSubmit turn -- it runs immediately before this router in the hook chain
-// (hooks/hooks.json's own ordering note) -- guarded only by isAlreadyRunning(), never by
-// "already consumed" or "matches the sentence that drove THIS router's routing decision."
-// This router's own state machine takes at least 2 additional user turns between the
-// routing decision (which reads the triggering sentence) and this fire turn (which reads
-// whatever `pending` currently holds). If the user's intervening turn is independently
-// classified as venture-shaped by mva-detect.cjs's own classifier, `pending.sentence_sha256`
-// is silently overwritten before this fire leg ever reads it, and the "Instant Brief"
-// delivered later is rendered for the wrong (later, unrelated) sentence. Guard: compare
-// `pending.sentence_sha256` against `state.sentence_sha256` (persisted by _classifyAndRoute
-// at routing time) and skip, named, on a mismatch rather than silently firing for the
-// wrong sentence. A missing state.sentence_sha256 (older state.json shape, or a null
-// prompt at routing time) degrades to the pre-fix behavior -- no correlation to check.
+// is set -- see main()). It reads ONLY the two booleans that _classifyAndRoute stored at
+// routing time (venture, hebrew). It starts no process, writes no capture file and reads no
+// other record, so a later turn cannot change the verdict. The phase advances to
+// reward_pending in both cases so the state machine and the telemetry keep their shape;
+// sha8 and capture_path stay null. A skip is recorded by name:
+//   hebrew_refusal      the first answer was Hebrew (the heuristic refuses it, English only)
+//   not_venture_shaped  the first answer was not venture-shaped, or the classifier threw
+// An honest skip that is recorded is worth more than a fabricated reward.
 
-const SKIP_REASONS = Object.freeze(['no_pending', 'hebrew_refusal', 'already_running', 'pending_sentence_mismatch']);
+const SKIP_REASONS = Object.freeze(['not_venture_shaped', 'hebrew_refusal']);
 
 function _fireReward(state) {
   const startMs = Date.now();
-  let sha8 = null;
   let skipReason = null;
-  let capturePath = null;
-  let sentenceSha256 = null;
-
-  try {
-    const mvaState = require('../lib/core/mva-state.cjs');
-    const pending = mvaState.readPending();
-    const routedSentenceSha256 = (typeof state.sentence_sha256 === 'string' && state.sentence_sha256.length > 0)
-      ? state.sentence_sha256 : null;
-    if (!pending || typeof pending.sentence_sha256 !== 'string' || pending.sentence_sha256.length < 8) {
-      skipReason = 'no_pending';
-    } else if (pending.hebrew_refusal === true) {
-      skipReason = 'hebrew_refusal';
-    } else if (mvaState.isAlreadyRunning()) {
-      skipReason = 'already_running';
-    } else if (routedSentenceSha256 && pending.sentence_sha256 !== routedSentenceSha256) {
-      skipReason = 'pending_sentence_mismatch';
-    } else {
-      sentenceSha256 = pending.sentence_sha256;
-      sha8 = sentenceSha256.slice(0, 8);
-      const dir = firstInstallDir();
-      fs.mkdirSync(dir, { recursive: true });
-      capturePath = path.join(dir, 'brief-' + sha8 + '.md');
-      let fd = null;
-      try {
-        fd = fs.openSync(capturePath, 'w');
-        // Detached, unref-ed child (mirrors scripts/brain-derivation-drain.cjs
-        // and scripts/auto-explore-fingerprint.cjs). This process does NOT
-        // await the child and does NOT require the MVA orchestrator module
-        // directly -- the child (scripts/mva-run.cjs) is the only caller
-        // of runPipeline.
-        const child = spawn(process.execPath, [path.join(__dirname, 'mva-run.cjs')], {
-          detached: true,
-          stdio: ['ignore', fd, 'ignore'],
-          env: process.env,
-        });
-        child.unref();
-      } finally {
-        if (fd !== null) {
-          try { fs.closeSync(fd); } catch (_e) { /* parent's copy only; best-effort */ }
-        }
-      }
-    }
-  } catch (_e) {
-    // Any throw degrades to the skip path. An honest skip that is recorded
-    // is worth more than a fabricated reward.
-    sha8 = null;
-    capturePath = null;
-    if (!skipReason || SKIP_REASONS.indexOf(skipReason) === -1) skipReason = 'no_pending';
+  if (state.hebrew === true) {
+    skipReason = 'hebrew_refusal';
+  } else if (state.venture !== true) {
+    skipReason = 'not_venture_shaped';
   }
 
   const firedAtMs = Date.now();
   const rewardState = Object.assign({}, state, {
     phase: 'reward_pending',
-    sha8: sha8,
+    sha8: null,
     fired_at_ms: firedAtMs,
-    capture_path: capturePath,
+    capture_path: null,
     skip_reason: skipReason,
     drain_retries: 0,
   });
@@ -513,8 +468,8 @@ function _fireReward(state) {
       schema_version: 1,
       event: 'reward_fired',
       ts_ms: firedAtMs,
-      sentence_sha256: sentenceSha256,
-      sha8: sha8,
+      sentence_sha256: state.sentence_sha256 || null,
+      sha8: null,
       skip_reason: skipReason,
       elapsed_ms: Date.now() - startMs,
     });
@@ -523,18 +478,20 @@ function _fireReward(state) {
   return emitEmpty();
 }
 
-// ---------- The reward drain: consumed on a later turn, never wedges ----------
+// ---------- The reward drain: one fixed instruction, once, never wedges ----------
 //
-// Runs on every turn where state.json reads phase 'reward_pending'. A
-// skipped fire (sha8 null) advances straight through with its skip_reason
-// carried forward, so the investment gate in plan 267.2-09 still opens on a
-// session where no brief was ever eligible (decision D-L: the investment ask
-// never precedes the reward ATTEMPT). Never throws, never exits non-zero: a
-// missing, empty, unreadable or malformed capture file is a not-ready state
-// or a bounded timeout, never an error.
+// Runs on every turn where state.json reads phase 'reward_pending'. A skipped fire advances
+// straight through with its skip_reason carried forward, so the investment gate in plan
+// 267.2-09 still opens on a session where no reward was eligible (decision D-L: the
+// investment ask never precedes the reward ATTEMPT). A state with no venture flag (written
+// by an older router that was mid-flight at upgrade) is treated as not venture-shaped: the
+// flag, not a guess, decides. Never throws, never exits non-zero.
 
-const DRAIN_MAX_RETRIES = 5;
-const MAX_INJECTED_CHARS = 6000;
+const SEED_INSTRUCTION = '[first-install-router] phase=reward_pending outcome=seed. '
+  + 'The user\'s first answer is a venture idea. Write the draft pyramid for it now: '
+  + 'Situation, Complication, Question and Answer, one short page. Use no outside lookup '
+  + 'and make no tool call. After the page, offer the evidence step of '
+  + '/mos:structure-argument (seed) in one line. Use exactly one De Stijl glyph.';
 
 function _advanceToRewardDelivered(state, extra) {
   const deliveredAtMs = Date.now();
@@ -547,9 +504,11 @@ function _advanceToRewardDelivered(state, extra) {
 }
 
 function _drainReward(state) {
-  // The fire leg recorded a skip: advance straight through, reason carried.
-  if (!state.sha8) {
-    const deliveredAtMs = _advanceToRewardDelivered(state, {});
+  const eligible = state.venture === true && state.hebrew !== true && !state.skip_reason;
+
+  if (!eligible) {
+    const reason = state.skip_reason || (state.hebrew === true ? 'hebrew_refusal' : 'not_venture_shaped');
+    const deliveredAtMs = _advanceToRewardDelivered(state, { skip_reason: reason });
     try {
       _appendTelemetry({
         schema_version: 1,
@@ -558,98 +517,25 @@ function _drainReward(state) {
         sha8: null,
         brief_bytes: 0,
         turns_waited: 0,
-        skip_reason: state.skip_reason || null,
+        skip_reason: reason,
       });
     } catch (_e) { /* best-effort */ }
     return emitEmpty();
   }
 
-  const retriesSoFar = typeof state.drain_retries === 'number' ? state.drain_retries : 0;
-
-  let ready = false;
-  let briefBytes = 0;
+  const deliveredAtMs = _advanceToRewardDelivered(state, {});
   try {
-    if (state.capture_path && fs.existsSync(state.capture_path)) {
-      const st = fs.statSync(state.capture_path);
-      if (st.size > 0) {
-        briefBytes = st.size;
-        let mvaComplete = false;
-        try {
-          const mvaState = require('../lib/core/mva-state.cjs');
-          const pending = mvaState.readPending();
-          // The MVA orchestrator calls markComplete() on every terminating
-          // path, including all-agents-failed, so this is the primary
-          // readiness signal.
-          mvaComplete = !!(pending && pending.pipeline_status === 'complete');
-        } catch (_e) { mvaComplete = false; }
-        // Fallback: the capture file has already survived one full turn
-        // with non-zero size, since scripts/mva-run.cjs writes its whole
-        // rendered brief in a single stdout write at process exit.
-        const stableFallback = retriesSoFar >= 1;
-        ready = mvaComplete || stableFallback;
-      }
-    }
-  } catch (_e) {
-    ready = false;
-  }
-
-  if (ready) {
-    let briefText = null;
-    try {
-      briefText = fs.readFileSync(state.capture_path, 'utf8');
-    } catch (_e) {
-      briefText = null;
-    }
-    if (typeof briefText === 'string' && briefText.length > 0) {
-      let injected = briefText;
-      if (injected.length > MAX_INJECTED_CHARS) {
-        injected = injected.slice(0, MAX_INJECTED_CHARS) + '\n\n[truncated -- brief continues beyond this point]';
-      }
-      const framing = 'This is the user\'s Instant Brief: already rendered by the wired MVA '
-        + 'pipeline, one turn ago. Hand it over to the user in your own voice, with exactly '
-        + 'one De Stijl glyph (Canon Part 12). Do NOT re-run any command to produce it -- it '
-        + 'is already complete.\n\n';
-      const deliveredAtMs = _advanceToRewardDelivered(state, {});
-      try {
-        _appendTelemetry({
-          schema_version: 1,
-          event: 'reward_delivered',
-          ts_ms: deliveredAtMs,
-          sha8: state.sha8,
-          brief_bytes: briefBytes,
-          turns_waited: retriesSoFar,
-          skip_reason: null,
-        });
-      } catch (_e) { /* best-effort */ }
-      return emitContinueWithContext(framing + injected);
-    }
-    // Read failed or came back empty despite a non-zero stat: fall through
-    // to the not-ready / retry path below rather than treating this as ready.
-  }
-
-  const nextRetries = retriesSoFar + 1;
-  if (nextRetries >= DRAIN_MAX_RETRIES) {
-    // The counter is what stops a failed pipeline from silently costing the
-    // user the rest of the flow: force reward_delivered so the investment
-    // gate can still open.
-    const deliveredAtMs = _advanceToRewardDelivered(state, { skip_reason: 'drain_timeout' });
-    try {
-      _appendTelemetry({
-        schema_version: 1,
-        event: 'reward_delivered',
-        ts_ms: deliveredAtMs,
-        sha8: state.sha8,
-        brief_bytes: briefBytes,
-        turns_waited: nextRetries,
-        skip_reason: 'drain_timeout',
-      });
-    } catch (_e) { /* best-effort */ }
-    return emitEmpty();
-  }
-
-  const retryState = Object.assign({}, state, { drain_retries: nextRetries });
-  _atomicWriteState(retryState);
-  return emitEmpty();
+    _appendTelemetry({
+      schema_version: 1,
+      event: 'reward_delivered',
+      ts_ms: deliveredAtMs,
+      sha8: null,
+      brief_bytes: 0,
+      turns_waited: 0,
+      skip_reason: null,
+    });
+  } catch (_e) { /* best-effort */ }
+  return emitContinueWithContext(SEED_INSTRUCTION);
 }
 
 // ---------- The investment leg: seed the identity file, then ask (D-L: gated on reward_delivered) ----------
@@ -1086,9 +972,8 @@ function main() {
   }
 
   if (existingState.phase === 'reward_pending') {
-    // Drain leg (plan 267.2-07 Task 2): reward_pending -> reward_delivered,
-    // either because the capture file is ready or because the bounded
-    // retry counter forced a drain_timeout.
+    // Drain leg: reward_pending -> reward_delivered, with the one fixed Seed
+    // instruction when the routing flag said venture, or with the skip carried forward.
     return _drainReward(existingState);
   }
 
