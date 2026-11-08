@@ -3,9 +3,7 @@ name: chain-step-reviewer
 description: Review ONE completed autonomous_safe chain step's output against that step's own declared acceptance criteria and return a structured verdict. Read-only, structured-data-only, never writes, never gates, never asks the user anything.
 model: inherit
 color: teal
-allowed-tools:
-  - Read
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - Read
 # --- Phase 347 Plan 10 CIRS R1 exclude (Canon Part 11), SHARED-10 ---

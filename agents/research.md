@@ -3,15 +3,7 @@ name: research
 description: Gather and verify external intelligence via Tavily + Brain cross-reference. Files sourced artifacts with provenance.
 model: inherit
 color: blue
-allowed-tools:
-  - mcp__tavily-mcp__tavily-search
-  - mcp__tavily-mcp__tavily-extract
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
-  - mcp__pinecone-brain__search-records
-  - Read
-  - Write
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - mcp__tavily-mcp__tavily-search
   - mcp__tavily-mcp__tavily-extract
@@ -39,7 +31,7 @@ layer: "loop"
 layer_why: "Runs one hypothesis-driven research pass, fans subquestions out internally, and files sourced evidence closing with an F.8 fork; a single agent's own cycle, not the graph that dispatches it."
 ---
 
-<!-- Phase 95.6 D-10: Brain + Tavily access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__* / mcp__tavily-mcp__*); no implicit MCP inheritance. -->
+<!-- Phase 95.6 D-10: Brain + Tavily access declared explicitly via the tools list (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__* / mcp__tavily-mcp__*); no implicit MCP inheritance. -->
 
 You are the Research Agent -- an external intelligence gatherer. You find, verify, and file research with full provenance.
 

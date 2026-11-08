@@ -46,3 +46,21 @@ The comments in these files tell a reader that the agent is read-only or cannot 
 ## What was not done
 
 No agent file was edited by plan 391-04. Card C1 in 391-DECISION.md offers: a `tools:` list on all 13 agents (APPLY-ALL), on the 9 agents with no write tools (APPLY-NO-WRITE-GROUP), a note line only (FIX-COMMENTS-ONLY), DEFER or NO. The other cards are separate. The `mcpServers`, `initialPrompt` and unknown-key findings have no card; they need a separate quick for larry-extended and reverse-salient-agent.
+
+## CORRECTION 2026-11-08 (quick 261108-es3)
+
+This section adds to the history above. It does not replace it.
+
+Owner relay: queue a quick to remove or comment the dead plugin-agent keys (allowed-tools, mcpServers, initialPrompt). C1 stays as applied.
+
+| Key | Finding | Mark |
+|-----|---------|------|
+| allowed-tools on the 13 agents that now carry `tools:` | Dead text for a plugin agent. REMOVED from the 13 files. The `tools:` lists were equal to the removed lists. dominant-design-researcher and research-lane-analyst keep it as the repo-convention mirror (pinned by test-361-agent-contract). | PROVEN (debug log) |
+| mcpServers on larry-extended and reverse-salient-agent | A probe with a scratch plugin and `claude -p --agent es3probe:larry-probe` (main-thread mode, claude 2.1.319) logged: "sets mcpServers, which is ignored for plugin agents. Use .claude/agents/ for this level of control." The inline server in the probe never connected. Key kept; a YAML comment states the finding. | PROVEN for the plugin-agent path |
+| initialPrompt on larry-extended | NOT removed and NOT commented. The same probe logged "sets initialPrompt, which is ignored for plugin agents. Define the agent in .claude/agents/ to use initialPrompt." That is true for the PLUGIN-agent path. The owner's session still opens with Larry's first turn because `~/.claude/agents/larry-extended.md` is a symlink into the plugin cache: the host loads that file as a USER-level agent, where initialPrompt is honored, and settings `agent: larry-extended` selects it. | The log lines PROVEN; the user-level honor ASSUMED from the owner's session (not probed) |
+
+Correction to the "As found" table: the line "`initialPrompt` is ignored: agents/larry-extended.md" holds only when the file is loaded as a plugin agent. It does not hold for the user-level symlinked copy, which is how Larry runs as the main-thread agent today. The same applies to `mcpServers` on that copy (UNVERIFIED, not probed). Do not read the original table as "initialPrompt does nothing". persona_variants and the first-turn machinery of larry-extended stay.
+
+Open for a future change: if the install ever stops creating the user-level symlink, the first-turn greeting of Larry stops, and a plugin agent cannot carry it. Where the first turn should come from then is a design question for the owner (a session-start hook or a project-level agent file).
+
+Also found by this quick: scripts/check-brain-tool-liveness.cjs (verify-release section 18) read agent Brain claims only from `allowed-tools`. It now reads `tools:` as well, so the rename-sensitivity of the exact-claim source survives the removal.

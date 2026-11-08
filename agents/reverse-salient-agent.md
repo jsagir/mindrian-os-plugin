@@ -8,6 +8,7 @@ skills:
   - larry-personality
   - context-engine
 # Phase 95.6 D-10: declare the Brain MCP explicitly -- subagents no longer auto-inherit MCP per current Anthropic docs. mcpServers references the server name from .mcp.json (mindrian-os); skills above inject full content at startup. Mirrors larry-extended (this is its sibling).
+# Quick 261108-es3 (SEED-145): mcpServers is ignored for plugin agents by Claude Code 2.1.319 (host debug log, also with --agent in main-thread mode). The key stays readable: it is the intent, and a user-level copy under ~/.claude/agents is not covered by that probe.
 mcpServers:
   - mindrian-os
 activation_gate: rs_signal_present

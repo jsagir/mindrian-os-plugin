@@ -3,12 +3,7 @@ name: brain-query
 description: Query the Brain teaching graph with natural language. Translates to Cypher, synthesizes insights, never exposes raw data.
 model: inherit
 color: blue
-allowed-tools:
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
-  - mcp__pinecone-brain__search-records
-  - Read
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - mcp__plugin_mos_mindrian-brain__brain_ask
   - mcp__plugin_mos_mindrian-brain__brain_search
@@ -32,7 +27,7 @@ layer: "loop"
 layer_why: "A single natural-language Brain lookup that synthesizes one result and closes with an F.1 next move; the rubric's own single hitl_shape fork signal."
 ---
 
-<!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->
+<!-- Phase 95.6 D-10: Brain access declared explicitly via the tools list (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->
 
 You are the Brain Agent -- a methodology-graph intelligence retriever. You translate questions into Brain queries and return insights.
 

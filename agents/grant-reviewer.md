@@ -3,10 +3,7 @@ name: grant-reviewer
 description: Adversarial per-category grant-rubric reviewer for /mos:grade-grant's reviewer-panel examination mode -- examines ONE rubric category in isolation, then (as the ruling consolidator) renders the holistic verdict across all seven.
 model: inherit
 color: blue
-allowed-tools:
-  - Read
-  - Glob
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - Read
   - Glob

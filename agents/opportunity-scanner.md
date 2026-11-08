@@ -3,15 +3,7 @@ name: opportunity-scanner
 description: PROACTIVELY scan grants and funding opportunities when room signals match domain, deadline, or funding-gap triggers.
 model: inherit
 color: orange
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Bash
-  - WebSearch
-  - mcp__tavily-mcp__tavily-search
-  - mcp__tavily-mcp__tavily-extract
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - Read
   - Write
@@ -38,7 +30,7 @@ layer: "loop"
 layer_why: "Scans grants and funding matches in one pass and surfaces them as an F.8 unordered basket; a single agent's cycle to a stopping condition."
 ---
 
-<!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via allowed-tools; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->
+<!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via the tools list; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->
 
 # Opportunity Scanner Agent
 

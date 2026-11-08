@@ -285,7 +285,7 @@ function extractBrainHookMatchers() {
 
 // ---------------------------------------------------------------------------
 // extractAgentBrainToolClaims(serverName) -- read every agents/*.md, parse the
-// YAML frontmatter allowed-tools list, and return every entry that starts
+// YAML frontmatter allowed-tools and tools lists, and return every entry that starts
 // with mcp__ AND references the Brain server: either the resolved live
 // server name, or the superseded literal mcp__brain_ (so a stale entry is
 // caught rather than silently skipped).
@@ -309,17 +309,25 @@ function extractAgentBrainToolClaims(serverName) {
     const fmMatch = raw.match(/^---\n([\s\S]*?)\n---/);
     if (!fmMatch) continue;
     const frontmatter = fmMatch[1];
-    const allowedMatch = frontmatter.match(/allowed-tools:\s*\n((?:[ \t]*-[ \t]*.+\n?)+)/);
-    if (!allowedMatch) continue;
-    const lines = allowedMatch[1].split('\n');
-    for (const line of lines) {
-      const entryMatch = line.match(/^[ \t]*-[ \t]*(\S+)/);
-      if (!entryMatch) continue;
-      const entry = entryMatch[1];
-      if (entry.indexOf('mcp__') !== 0) continue;
-      const referencesBrain = entry.indexOf(serverName) !== -1 || entry.indexOf('mcp__brain_') === 0;
-      if (!referencesBrain) continue;
-      out.push({ file: path.relative(ROOT, full).split(path.sep).join('/'), entry: entry });
+    // Quick 261108-es3: the host does not apply allowed-tools for plugin agents, so the
+    // 13 C1 agents dropped it and carry only the host-read tools: list. Read BOTH keys, so a
+    // Brain claim in either one is checked (an agent that has both is not counted twice).
+    const seen = new Set();
+    for (const keyRe of [/(?:^|\n)allowed-tools:\s*\n((?:[ \t]*-[ \t]*.+\n?)+)/, /(?:^|\n)tools:\s*\n((?:[ \t]*-[ \t]*.+\n?)+)/]) {
+      const listMatch = frontmatter.match(keyRe);
+      if (!listMatch) continue;
+      const lines = listMatch[1].split('\n');
+      for (const line of lines) {
+        const entryMatch = line.match(/^[ \t]*-[ \t]*(\S+)/);
+        if (!entryMatch) continue;
+        const entry = entryMatch[1];
+        if (entry.indexOf('mcp__') !== 0) continue;
+        const referencesBrain = entry.indexOf(serverName) !== -1 || entry.indexOf('mcp__brain_') === 0;
+        if (!referencesBrain) continue;
+        if (seen.has(entry)) continue;
+        seen.add(entry);
+        out.push({ file: path.relative(ROOT, full).split(path.sep).join('/'), entry: entry });
+      }
     }
   }
   return out;
@@ -446,7 +454,7 @@ async function main() {
   const agentClaims = extractAgentBrainToolClaims(serverName);
   const exactClaims = agentClaims.map((c) => c.entry);
   log('');
-  log('Agent allowed-tools Brain claims found (' + agentClaims.length + '):');
+  log('Agent tools and allowed-tools Brain claims found (' + agentClaims.length + '):');
   for (const ac of agentClaims) log('  ' + ac.file + ': ' + ac.entry);
 
   const verdict = evaluateLiveness({ matchers: matchers, exactClaims: exactClaims, liveToolNames: liveToolNames });

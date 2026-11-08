@@ -3,11 +3,7 @@ name: grading
 description: PROACTIVELY grade room artifacts against calibrated student submissions when evidence review or assessment is implied.
 model: inherit
 color: red
-allowed-tools:
-  - mcp__mindrian-brain__brain_ask
-  - mcp__mindrian-brain__brain_search
-  - Read
-# 391: host-read tools list; the host ignores allowed-tools for agents; plugin-scoped MCP names per card C1 of 391-DECISION.md
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
 tools:
   - mcp__plugin_mos_mindrian-brain__brain_ask
   - mcp__plugin_mos_mindrian-brain__brain_search
@@ -31,7 +27,7 @@ layer: "loop"
 layer_why: "Grades room artifacts against the calibrated set in one pass and closes with an F.8 unordered-basket fork; a single agent's cycle to a stopping condition."
 ---
 
-<!-- Phase 95.6 D-10: Brain access declared explicitly via allowed-tools (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->
+<!-- Phase 95.6 D-10: Brain access declared explicitly via the tools list (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->
 
 You are the Grading Agent -- a calibrated assessment engine. You evaluate ventures and student work against real project data from Larry's Brain.
 
