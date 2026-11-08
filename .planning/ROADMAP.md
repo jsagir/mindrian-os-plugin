@@ -1994,13 +1994,23 @@ Plans:
 **Navigator ruling (2026-10-01, relayed by the Theo session jsagi-f1):** "build a review contract into /mos:grade and /mos:deep-grade; seed it through plugin GSD." The paper author's verdict on an AI-generated 9-section student systems review (June 2025), verbatim: "Still too long. Too much jargon, including things none of us had any idea what they were talking about. 1-5 were good. 6 (tool analysis) is not necessary. 7 was incomprehensible, talking about tools that we did not understand. 8 was helpful. 9 was helpful, but too much of it."
 **Goal:** Every student- or faculty-facing review the plugin writes has one fixed shape and zero internal vocabulary, and a code check (never a model judgment) fails the output when the reader-facing body carries an internal name. The jargon that leaked was our own machinery (agent class names such as SystemArchetypeAgent, "Network Analysis MCP", "INTERSECTIONAL SYSTEMS ANALYSIS FROM NEO4J DATABASE"): Larry's chat rule "never mention databases or architecture unprompted" failing on WRITTEN deliverables. Shape, in order, from the sections the paper author kept: Executive Summary; Reality Check; Faculty Questions (challenge questions); Expert Conversations (practitioner pushback); Research Validation + Reframe; Strategic Challenge (one consolidated big question plus reflection questions); cross-domain ideas at most 2, extras under an optional "For advanced students" note. Never a tool-analysis or methodology-score-by-tool section; never "improvement recommendations mapped to agents". Methods named only as taught in the course (Meadows' leverage points, causal loops, stocks and flows); any other term defined in-line in plain words or cut. Executive summary first, then 3 to 5 key revision points; bullets and bold for takeaways. Planning input: `370-INPUT.md`.
 **Deliverables.** (1) The contract as data in the existing grading reference home (reuse before build, Canon Part 7), read by `commands/grade.md`, `commands/deep-grade.md` and `agents/grading.md`. (2) The denylist check beside the existing output lints, never a second linter framework (candidates measured 2026-10-02: `lib/core/tone-filter.cjs`, which already sweeps em-dashes and gates on audience; the Part 8 egress-guard pattern), applied to the reader-facing BODY only (frontmatter and provenance keep handles), failing the output on any `*Agent` class name, MCP, Neo4j, Brain, `/mos:`, Theo, graph or database names. (3) Tri-Polar: the contract and the check hold on CLI, Desktop and Cowork outputs alike. (4) No real student names in the repo (existing hard rule); fixtures use pseudonyms. (5) Acceptance rubric: the Lawrence review standard (short, executive summary first, taught terms only, no tool or agent names, no tool-analysis section); one before/after fixture review passes it and the pre-fix fixture fails the check.
-**Requirements**: TBD (minted at plan time)
+**Requirements**: REV370-01 to REV370-12 (minted at plan time 2026-11-08)
 **Depends on:** none (the grade surface is untouched since planting: zero commits to `commands/grade.md`, `commands/deep-grade.md`, `agents/grading.md` since 2026-10-01). Feeds the Academy feedback track and the Theo MOS-LEARNING docs (separate tracks, not this phase).
-**Plans:** 0 plans
+**Plans:** 0/11 plans executed (planned 2026-11-08; 370-03 ends at the owner decision cards G1 to G3; plans 370-04 to 370-10 each start with an owner gate and change nothing until their answer is recorded)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 370 to break down)
+- [ ] 370-01-PLAN.md - tests first (RED): pseudonym fixtures, helper, runner with the found-equals-0 guard, schema, denylist-from-disk and rule tests (wave 1)
+- [ ] 370-02-PLAN.md - contract data and the pure check module, tests GREEN (wave 2)
+- [ ] 370-03-PLAN.md - answer gate and owner decision cards O1 to O8 (G1 to G3), every answer PENDING; ends at NEEDS_HUMAN (wave 3, not autonomous)
+- [ ] 370-04-PLAN.md - owner answers applied to the contract data, with a test that data and answers agree (wave 4, gated)
+- [ ] 370-05-PLAN.md - artifact_file refuses a review that fails the check (wave 5, gated O8)
+- [ ] 370-06-PLAN.md - optional PreToolUse hook for the Write tool, log-only or enforce (wave 5, gated O6B and O8)
+- [ ] 370-07-PLAN.md - Review contract section in the grading reference; grading agent returns an internal record (wave 5, gated G1)
+- [ ] 370-08-PLAN.md - pre-file CLI wrapper scripts/check-review-contract.cjs (wave 5, gated G1 and G2)
+- [ ] 370-09-PLAN.md - render step and pre-file check in grade and deep-grade, mirrors regenerated, frontmatter byte-stable (wave 6, gated G1)
+- [ ] 370-10-PLAN.md - doctor coverage-gate entry and static template lint (wave 7, gated O6A)
+- [ ] 370-11-PLAN.md - close: Tri-Polar parity test, Lawrence rubric record, release suite registration (wave 8)
 
 ### Phase 270: Memory and Context Operator MCP
 
