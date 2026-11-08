@@ -11,7 +11,7 @@
       "flag": null,
       "fix_supported": false,
       "runner": "lib/core/doctor/capability-ledger-module.cjs",
-      "description": "Capability ledger staleness (Phase 265): warns when data/capability-ledger.json's ledger_covers.to trails the installed claude --version beyond MINDRIAN_LEDGER_MAX_VERSION_LAG. Check-only, cadence always."
+      "description": "Capability ledger staleness (Phase 265, gap rule Phase 391): warns when data/capability-ledger.json's ledger_covers.to trails the installed claude --version by more than MINDRIAN_LEDGER_MAX_VERSION_LAG patch versions (and names the unscreened range), or when the last recorded fetch was incomplete. Check-only, cadence always."
     },
     {
       "id": "research-providers",
