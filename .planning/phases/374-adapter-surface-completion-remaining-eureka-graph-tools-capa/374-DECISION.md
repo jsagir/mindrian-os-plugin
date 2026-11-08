@@ -54,7 +54,7 @@ The main session writes the token into the answer line of the card. The executor
 - The Phase 375 to 379 work, and the provenance gap marks (HOST-02).
 - The 276 tool-honesty sweep failures that exist before this phase.
 
-HEAD-AT-DECISION: 0000000000000000000000000000000000000000
+HEAD-AT-DECISION: 6a99855b6acde8c25240e105c72a0d5fe160a049
 
 ## G1 Tool router for the Eureka tools
 
@@ -84,7 +84,7 @@ Undo: edit the record. No code.
 Consuming plan: 374-14.
 
 GROUP G1: OD-1
-GROUP-SHA256 G1: 0000000000000000000000000000000000000000000000000000000000000000
+GROUP-SHA256 G1: e24d516435043eb5cc26247b348c02f62fcb0381bacaa84d543465777ace6383
 OWNER-ANSWER G1: PENDING
 
 ## G2 A tool to forget a finished run
@@ -114,7 +114,7 @@ Undo: remove the registration, the connector row and the pins (a small plan).
 Consuming plan: 374-13. Plan 374-08 reads this answer for the wording of the approval card.
 
 GROUP G2: OD-2
-GROUP-SHA256 G2: 0000000000000000000000000000000000000000000000000000000000000000
+GROUP-SHA256 G2: e83089c1bad32ee6aa3cfc77f1b1a9596b0ed7d44d8203d994f75f1c3de03990
 OWNER-ANSWER G2: PENDING
 
 ## G3 Result count and node caps
@@ -144,7 +144,170 @@ Undo: revert one constant and move the pins back.
 Consuming plan: 374-12.
 
 GROUP G3: OD-3
-GROUP-SHA256 G3: 0000000000000000000000000000000000000000000000000000000000000000
+GROUP-SHA256 G3: dcb3f3d7dd4514d6e8f7dce55a038c4dfed25723b1374c93e9182d931a84f29d
 OWNER-ANSWER G3: PENDING
 
-<!-- gsd:write-continue -->
+## G4 Where the job pointer record lives
+
+### OD-4 job record location
+
+Question: where should the plugin keep the small pointer record that lets it ask the engine about a job after the host restarts, or should it keep none?
+
+Facts:
+- The engine job store is per user: `MINDRIAN_EUREKA_DATA_DIR` or ~/.local/share/mindrian-eureka/jobs.sqlite3 (jobs.py line 26 reads the override; line 38 names the file). Records live 30 days. (PROVEN for the override and file name; the default folder is CITED and the file exists on this machine)
+- The plugin keeps open jobs only in memory: `sessions` is a Map at lib/mcp/tools/eureka-capability-jobs.cjs line 16, with a 30 minute lifetime (line 17) and a cap of 8 (line 18). A host restart loses it. (PROVEN)
+- Plugin precedent for per-user state is ~/.mindrian/: lib/mcp/answer-route.cjs line 47 builds ~/.mindrian/ui-shell/control.token. (PROVEN)
+- The record would hold ids, hashes, counts and times only. It never holds the request, a title, a source ref or result text (D-12). The job id is checked against a strict pattern before it becomes a file name.
+- USER-DIR means ~/.mindrian/eureka-jobs/<room_id>/<job_id>.json with owner-only modes and a 30 day sweep. It needs no room write scope.
+- ROOM-DIR means <room>/.mindrian/eureka-jobs/. It needs the write-scope check (`isRoomInWriteScope`, lib/core/session-binding.cjs line 126, PROVEN) and it travels with a copy of the room.
+- A job that was still running when the host died is lost or doomed whatever you choose: the next engine start marks every running row failed (jobs.py lines 101 to 109, `_recover_interrupted`). (PROVEN, read only)
+
+Surfaces: CLI and Desktop the same record. Cowork UNVERIFIED; a shared room would carry a ROOM-DIR record to other people, a USER-DIR record stays on one machine.
+
+Cost of each non-KEEP option: USER-DIR is one new module (eureka-job-record.cjs) plus its tests and a Part 8 scan-list entry. ROOM-DIR is the same module plus the write-scope check. A completed job survives a restart and its result stays readable from a fresh engine process for 30 days. Cost of KEEP: after a host restart the product cannot ask the engine, and the answer stays the existing honest "job_session_not_found".
+
+Recommendation: USER-DIR. Reason: the engine store is per user too, no room write scope is needed, and a copy of a room does not carry job pointers to another machine.
+
+OPTIONS OD-4: KEEP | USER-DIR | ROOM-DIR ; RECOMMENDED: USER-DIR
+
+Recommended token: RECOMMENDED resolves OD-4 to USER-DIR.
+Undo: delete the folder and revert one module.
+Consuming plan: 374-10.
+
+GROUP G4: OD-4
+GROUP-SHA256 G4: 76a2bd072fa457f8150ab50a330ea216a87e62ea828038366da6b31943cce1e5
+OWNER-ANSWER G4: PENDING
+
+## G5 Pair screen card shape and subcommand
+
+Two items. OD-5A decides whether the pair screen is added at all and which approval card the person sees. OD-5B decides whether a new subcommand exists. Plan 374-09 needs OD-5A to be something other than KEEP.
+
+### OD-5A pair screen approval card
+
+Question: do you want the pair screen (the one-command run over both pair engines) added to the product, and if so, which approval card should the person see: F.6 plan review, or F.0 grant?
+
+Facts:
+- commands/eureka.md already uses F.6 for plan review and F.0 for grants: the frontmatter `hitl_stages` lists "plan review" with F.6 (line 11) and "quick policy grant" and "engine setup grant" with F.0 (lines 14 and 17). (PROVEN, read lines 9 to 18)
+- The engine cannot verify the approval: `verified_by_engine` is always false (pair-screen-output.v1.json line 34, host_run/api.py line 124). The plugin gate is the only check. (PROVEN, read only)
+- The card shows counts, dropped records, the two engines, the data statement, the expected files, the model state, the 30 day record and the delete path. It never shows a node title (D-08).
+- The person's selected node text (title, source ref, text up to 4,096 characters per node) goes to the local engine over stdio. Nothing goes to Theo or Brain. (CITED, 374-RESEARCH.md Part 8 section)
+- The result stays in the engine job store for 30 days under the user's home folder. (PROVEN, run contract line 33)
+- The run contract suggests F.6 and says the plugin phase decides (assumption A3 of the research, ASSUMED).
+- Plugin side today: the gate is built privately inside lib/mcp/tools/research.cjs; plan 374-03 already extracted it to lib/mcp/approval-gate.cjs (commit 2a8a15a93). (PROVEN, ls and git log)
+
+Surfaces: CLI and Desktop both get the card through the gate renderer. Cowork UNVERIFIED.
+
+Cost of each non-KEEP option: F6 and F0 both add the pair-screen branch to `eureka_capability_start` (0 new tools), one approval gate, a job record call and tests. F6 changes no declared shape (commands/eureka.md already declares F.6). F0 asks the person for a grant with no plan to read, and the Part 11 shape declaration must name it. Cost of KEEP: the pair screen is NOT added; plans 374-08 and 374-09 change nothing.
+
+Recommendation: F6. Reason: the person has a real plan to read (counts, files, model state) before anything starts, which is what a plan review card is for.
+
+OPTIONS OD-5A: KEEP | F6 | F0 ; RECOMMENDED: F6
+
+### OD-5B screen subcommand
+
+Question: do you want a `/mos:eureka screen` subcommand, with `run` left as it is?
+
+Facts:
+- `/mos:eureka run` is the research planner perspective and does not change in any option. (PROVEN, commands/eureka.md argument-hint is `[run|enable|enable engine]`, line 5)
+- The run contract names `screen` as a suggestion and says the plugin phase decides. (CITED)
+- Without the subcommand the pair screen is reachable only through the Eureka capability tools that Larry calls.
+
+Surfaces: CLI the subcommand is a slash command. Desktop reaches the same route by talking to Larry. Cowork UNVERIFIED.
+
+Cost of SCREEN: one documented subcommand in commands/eureka.md and its generated mirrors (a born-wired change: the three Part 11 --check gates must pass), plus tests. Cost of KEEP: no subcommand.
+
+Recommendation: SCREEN. Reason: a person who wants only the pair screen gets a named, documented door, and `run` stays as it is.
+
+OPTIONS OD-5B: KEEP | SCREEN ; RECOMMENDED: SCREEN
+
+Recommended token: RECOMMENDED resolves OD-5A to F6 and OD-5B to SCREEN.
+Undo: remove the route entries (a small plan) and the command section.
+Consuming plans: 374-08 for OD-5A. 374-09 for OD-5B (and OD-5A must not be KEEP).
+
+GROUP G5: OD-5A, OD-5B
+GROUP-SHA256 G5: 24bde605d02e1d9a5e78b5f04c33466f354a8ac1a2ebb28d9f06b1360619ac2b
+OWNER-ANSWER G5: PENDING
+
+## G6 Guard against a second Eureka call during a job
+
+### OD-6 interim engine_busy guard
+
+Question: until the Eureka team lands an owner lock, do you want the plugin to refuse a second Eureka call while a job is running?
+
+Facts:
+- The owner lock does not exist yet. Source: the Eureka session's answer of 2026-11-08. My own check agrees: grep for owner lock in the engine src and docs finds nothing. Other branches are UNVERIFIED (research assumption A7).
+- Every new engine process marks all running job rows failed when it starts: `_recover_interrupted` runs from the store open (jobs.py lines 95 and 101 to 109), with no owner check. (PROVEN, read only)
+- A late worker can overwrite its row because `transition()` has no terminal-state guard. (CITED, jobs.py near line 166)
+- The plugin starts one child engine process for every job and every graph workflow call. Spawn sites found by grep: eureka-capability-jobs.cjs line 40, eureka-graph-analyze.cjs lines 30 and 120, eureka-capability-run.cjs line 211. (PROVEN)
+- So today a graph call during a running job can fail that job. The hazard exists now for scout_start jobs too.
+- The guard covers ONE host process. CLI and Desktop running at once stay unprotected. (UNVERIFIED)
+- A host kill may leave the engine child alive until its job ends (research assumption A1, UNVERIFIED; a live test decides and cannot run here).
+
+Surfaces: CLI one host process, covered. Desktop the same, but a second host stays unprotected. Cowork UNVERIFIED.
+
+Cost of ENGINE-BUSY-GUARD: while a job has not reached a terminal state in this process, any other Eureka call except status, result, cancel and the room projection answers a typed `engine_busy`. The person waits or cancels. Plus a guard module and tests. Cost of KEEP: the hazard stays as it is today for all async jobs.
+
+Recommendation: ENGINE-BUSY-GUARD. Reason: it stops the common way a person loses a long run (asking a graph question mid-run) and it can be removed when the Eureka lock lands. It is a mitigation, not the fix.
+
+OPTIONS OD-6: KEEP | ENGINE-BUSY-GUARD ; RECOMMENDED: ENGINE-BUSY-GUARD
+
+Recommended token: RECOMMENDED resolves OD-6 to ENGINE-BUSY-GUARD. The multi-host case stays UNVERIFIED in the summary.
+Undo: remove the guard (small).
+Consuming plan: 374-11.
+
+GROUP G6: OD-6
+GROUP-SHA256 G6: d58fbe34bbefb1bf69d8a0bbabadf46f6f767012c62965293a52a4bc20ffced5
+OWNER-ANSWER G6: PENDING
+
+## G7 Large job results
+
+### OD-7 paging above 256 KiB
+
+Question: when a job result is larger than 256 KiB, how should the product keep it out of the model's context?
+
+Facts:
+- 256 KiB is a warning only today: `TEXT_WARNING_BYTES = 256 * 1024` at lib/mcp/eureka-tool-contract.cjs line 238. (PROVEN)
+- The pair-screen result is about 0.5 MB for 200 pairs from each engine. This is an estimate in the run contract and was not measured. (ASSUMED, run contract line 299)
+- The pair-screen route builds its bundle inside the plugin from node ids, so the bundle never passes through the model. (CITED, plan 374-08 design)
+- The projection tools `eureka_graph_project` and `eureka_graph_prepare_artifacts` can return up to 12 MiB (`MAX_OUTPUT_BYTES`, engine-projection.cjs line 13). (PROVEN)
+- PAGE-ARG: one optional `page` input on `eureka_capability_job_result`. Below 256 KiB nothing changes. Above it the answer carries counts, hashes, the label and one page of pairs with paging info, and the inline file text stays inside the plugin (hash-checked there). 0 new tools.
+- PAGE-ARG-PROJECTION would do the same for the two projection tools. It has NO plan in this set.
+- HANDLE-TOOL would return a handle and add a read tool: +1 tool, about 1,000 bytes. It has NO plan in this set.
+
+Surfaces: CLI and Desktop the same answer shape. Cowork UNVERIFIED.
+
+Cost of each non-KEEP option: PAGE-ARG edits one tool schema (the 384 golden and the 267 pins move once, in plan 374-13) and adds tests. Answering PAGE-ARG-PROJECTION or HANDLE-TOOL stops plan 374-12 with PLAN-REPLAN and the planner writes a new plan. Cost of KEEP: large results keep returning whole with the warning.
+
+Recommendation: PAGE-ARG. Reason: it solves the job result case with 0 new tools and keeps today's behavior below 256 KiB.
+
+OPTIONS OD-7: KEEP | PAGE-ARG | PAGE-ARG-PROJECTION | HANDLE-TOOL ; RECOMMENDED: PAGE-ARG
+
+Recommended token: RECOMMENDED resolves OD-7 to PAGE-ARG.
+Undo: remove the optional argument and move the pins back.
+Consuming plan: 374-12.
+
+GROUP G7: OD-7
+GROUP-SHA256 G7: 48fc7bc049c39da92f7d7e17aeacd80391e05385f6efa7700dd8e87cf9ae0e8b
+OWNER-ANSWER G7: PENDING
+
+## Eureka asks
+
+These are asks to the Eureka session. They are not choices. The Eureka repo is not edited by this phase (D-01).
+
+- EXT-01: a job-store owner lock and a terminal-state guard. Why: a second engine process must not fail a running row, and a late worker must not overwrite a finished one. Until then: the engine_busy guard of G6.
+- EXT-02: a status read path that does not run `_recover_interrupted`. Why: a status-only child after a host restart can otherwise fail a still-running row. Until then: the answer states the limit.
+- EXT-03: workers that read `cancel_requested`. Why: today only `request_cancel` writes it, so a cancel from another process does nothing. Until then: a recovered job answers cancel_unavailable_after_restart.
+- EXT-04: lift `graph.prepare_artifact_bundle` above 2,500 and add a memory guard (LIM-01). Why: needed only if the owner answers NODES-3000 on G3. Until then: the node cap stays 2,500.
+- EXT-05: the commit id of the owner lock and of a distinct budget_exceeded status, if they exist on a branch the research could not see. Why: the ROADMAP gate "lock and budget status landed" stays open without it. Until then: recorded in the summaries.
+
+## What happens after your answer
+
+- A card answered KEEP-ALL gets no work from its plan. A plan whose act items all resolve to KEEP stops with PLAN-DECLINED and changes nothing.
+- A card answered RECOMMENDED or CUSTOM lets its plan act, as far as the resolved options say.
+- An answer that no plan covers (NODES-3000, PAGE-ARG-PROJECTION, HANDLE-TOOL) stops the consuming plan with PLAN-REPLAN. The planner then writes a new plan.
+- Each gated plan starts with the 374-gate.cjs plan check and stops on any exit code other than 0.
+- Nothing is pushed, tagged or released by these plans. A change reaches users only after a release is cut and picked up.
+
+## How the answer is recorded
+
+The main session writes your token into the answer line of each card and commits that one edit with git commit --only on this one path. The options and the hash on the card lines are sealed: if an option line changes after your answer, the gate refuses the answer and asks again.
