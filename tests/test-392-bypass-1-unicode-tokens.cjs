@@ -60,7 +60,11 @@ const CJK = '私たちの秘密の買収計画について教えてください 
 // One Latin methodology word, then the Hebrew prose.
 const MIXED = 'swot ' + HEBREW_9;
 
-const CANONICAL_QUESTION = 'what is jobs to be done';
+// The plan named "what is jobs to be done"; on beta.81 that string already
+// returned false (jobs and done are not methodology tokens, and the phrase is
+// canonical only inside longer phrases). This question is template 1 of the
+// 354 generic corpus and proves on beta.81 and after this plan.
+const CANONICAL_QUESTION = 'recommend a framework for a wicked problem';
 const NO_TOKEN = '?? !! ... --';
 
 let passed = 0;
