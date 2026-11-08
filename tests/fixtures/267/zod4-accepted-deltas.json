@@ -401,6 +401,231 @@
         "."
       ],
       "note": "Phase 371 (commit ec3d56380) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-10-19 by quick 261019-ksf."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_capability_job_cancel",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_capability_job_result",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_capability_job_status",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_capability_run",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_capability_start",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_analyze",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_assess_category_edge_patterns",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_backtest",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_compare_topics",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_find_community_bridge_pairs",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_find_network_holes",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_find_shared_neighbor_gaps",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_find_similar_unlinked_items",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_genesis_plan",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_map_neighbourhoods",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_opportunity_scout",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_package_relationships",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_prepare_artifacts",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_project",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_propose_relationships",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_rank_paths",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_graph_score_surprise",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "eureka_hsi_interpret_whitespace",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "rs_experts_find",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
+    },
+    {
+      "kind": "tool",
+      "name": "rs_thesis_read",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Commit 6bc8cfc55 (v2.0.0-beta.74) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-01."
     }
   ],
   "app_views_schema_fix": [

@@ -466,6 +466,129 @@
         }
       },
       {
+        "name": "eureka_capability_job_cancel",
+        "title": "Cancel Eureka Job",
+        "description": "Request cooperative cancellation for a job started in this MindrianOS MCP process. Eureka retains job records locally for up to 30 days. Jobs cannot resume after a MindrianOS host restart. Poll status to confirm the terminal state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "job_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_capability_job_result",
+        "title": "Retrieve Eureka Job Result",
+        "description": "Retrieve the result for a job started in this MindrianOS MCP process. Eureka retains the result locally for up to 30 days; RS jobs may also write derived vectors to the local embedding cache. Jobs cannot resume after a MindrianOS host restart. Terminal results close the retained Eureka session.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "job_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_capability_job_status",
+        "title": "Check Eureka Job Status",
+        "description": "Read progress for a job started in this MindrianOS MCP process. The Eureka job record is stored locally for up to 30 days. A job from a previous or restarted process is unknown to this host session and must be started again.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "job_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_capability_run",
+        "title": "Run a Catalogued Eureka Capability",
+        "description": "Inspect the Eureka catalog and contract, then run one capability currently marked experimental or host_brokered through its advertised local MCP route. Supply the exact contract-shaped request. This generic bridge does not read MindrianOS room data; use the dedicated graph projection and graph-scoped tools when the capability needs room content. Planned and blocked capabilities are refused. For asynchronous routes, prefer eureka_capability_start and the job status/result/cancel tools; this convenience call can block until completion. Async routes persist a local Eureka job record and result for up to 30 days, and RS routes may write derived vectors to the local embedding cache. The structured response distinguishes engine-side state from accepted MindrianOS knowledge; this tool never accepts proposed knowledge.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "capability_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[a-z][a-z0-9_.-]+$"
+            },
+            "request": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "required": [
+            "capability_id",
+            "request"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_capability_start",
+        "title": "Start a Catalogued Eureka Job",
+        "description": "Start a catalogued Eureka capability that exposes a supported asynchronous route. The MindrianOS MCP process retains the same Eureka worker session so separate status, result, and cancellation calls reach the live job. Eureka stores job metadata and results locally for up to 30 days, clears the saved request after a terminal outcome, and RS jobs may write derived vectors to a local embedding cache. Data is stored under MINDRIAN_EUREKA_DATA_DIR or ~/.local/share/mindrian-eureka. Jobs cannot resume after the MindrianOS MCP process restarts. Host sessions expire after 30 minutes; at most eight can be active. Use only schema-shaped requests; this generic tool does not read the MindrianOS graph.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "capability_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[a-z][a-z0-9_.-]+$"
+            },
+            "request": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            },
+            "idempotency_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "capability_id",
+            "request"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
         "name": "eureka_critic",
         "description": "Grounding Guard calibration ruling: quantized scalars + closed enums in, a coarse verdict/confidence/reasoning_tag out; no room content ever crosses this boundary.",
         "inputSchema": {
@@ -554,6 +677,1105 @@
             "rubric_pattern",
             "schema_version"
           ]
+        }
+      },
+      {
+        "name": "eureka_graph_analyze",
+        "title": "Analyze MindrianOS Graph with Eureka",
+        "description": "Project explicit node IDs from the bound MindrianOS room through its read-only navigation boundary, call the configured local Eureka MCP graph engine, and return snapshot-bound unverified proposals. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. Does not accept paths, expand graph scope, fetch remote sources, or write graph state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "attr": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "text_label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "null_rounds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "focus_node_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "focus_hops": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_assess_category_edge_patterns",
+        "title": "Assess Unusual Existing Category Links in MindrianOS",
+        "description": "Use when you want to compare category combinations among existing graph edges with degree-preserving rewired graphs. This describes current links; it does not find missing opportunities or measure value. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "category_attribute": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "shuffles": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "use_label": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_backtest",
+        "title": "Backtest Relationship Methods on MindrianOS Graph History",
+        "description": "Project explicit IDs from the bound MindrianOS room and evaluate relationship methods against dated edges in that snapshot. Reads only allowlisted edge created_at metadata. Returns a scope/snapshot-bound evaluation or insufficient-data result; it does not propose accepted facts or write the graph.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "cutoff": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_compare_topics",
+        "title": "Compare Topics Across MindrianOS Graph Corpora",
+        "description": "Build two text corpora from distinct, explicitly selected MindrianOS graph node IDs and run Eureka bidirectional topic comparison. Results include corpus index-to-node mappings and scope/snapshot lineage; they are exploratory outliers, not validated opportunities. No graph write or external research occurs.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids_a": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "node_ids_b": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "tau": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "seeds": {
+              "minItems": 1,
+              "maxItems": 50,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            }
+          },
+          "required": [
+            "node_ids_a",
+            "node_ids_b"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_find_community_bridge_pairs",
+        "title": "Find Candidate Links Across MindrianOS Graph Communities",
+        "description": "Use when you want to identify unconnected node pairs whose neighborhoods meet at a structurally important bridge node across detected communities. Community structure does not establish a useful transfer. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "per_node": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "min_betweenness": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_find_network_holes",
+        "title": "Find Missing Diagonals in MindrianOS Graph Cycles",
+        "description": "Use when you want to find induced four-cycles and their missing diagonals, compared with degree-preserving rewiring. This is a structural lead, not evidence of a meaningful connection. Limit the selection to 1,200 nodes and 6,000 edges. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "rounds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "hub_cap": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2500
+            },
+            "cycle_limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20000
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "include_persistence": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_find_shared_neighbor_gaps",
+        "title": "Find Unlinked MindrianOS Concepts with Shared Neighbors",
+        "description": "Use when you want candidate links between unconnected graph nodes that share several neighbors. Review each candidate against source evidence; shared structure does not prove a relationship. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "min_common": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "hub_cap": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_find_similar_unlinked_items",
+        "title": "Find Similar MindrianOS Items without a Graph Link",
+        "description": "Use when you want to surface text-bearing nodes with similar wording but no graph edge. Similarity is a source-research lead, not proof of a relationship. Choose explicit node IDs and, where useful, a text label. The tool analyzes only explicit node IDs projected from the verified, bound MindrianOS room. It does not expand scope, fetch sources, accept findings, or write the graph. Partial projections are disclosed in the result. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "text_label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "min_similarity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_genesis_plan",
+        "title": "Plan Future Research from MindrianOS Graph Context",
+        "description": "Project explicit nodes from the bound MindrianOS room, convert them into Eureka source-linked artifacts, then run the local Genesis multidomain planner. Returns a lexical, heuristic plan for Theo/MindrianOS review. It performs no model call, external search, or graph write; all research execution remains behind MindrianOS approval.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "objective": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 5000
+            },
+            "research_year": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            }
+          },
+          "required": [
+            "node_ids",
+            "objective"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_map_neighbourhoods",
+        "title": "Map Structural Analogy Between MindrianOS Graph Neighborhoods",
+        "description": "Project explicit MindrianOS graph node IDs, then call Eureka graph.map_neighbourhoods over the selected snapshot. Requires distinct base and target IDs in the selection. Returns structural correspondences as unevidenced proposals; it does not expand the host projection or write graph state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "base_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+            },
+            "target_node_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+            },
+            "hops": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            },
+            "rules": {
+              "type": "string",
+              "enum": [
+                "AN",
+                "LS",
+                "MA"
+              ]
+            },
+            "attr": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "node_ids",
+            "base_node_id",
+            "target_node_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_opportunity_scout",
+        "title": "Screen Local Graph for Candidate Pair Leads",
+        "description": "Screen explicitly selected nodes from the bound MindrianOS room for candidate relationship leads using Eureka RS+HSI. This compatibility tool waits for the job and can block; for non-blocking use, prepare artifacts and call eureka_capability_start with opportunity.synthesize_discovery_signals, then use the job status/result/cancel tools. Results are candidate pair signals, not validated or comprehensive opportunities. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. It does not fetch external research or write accepted MindrianOS graph/portfolio state. Eureka persists a local job record and result for up to 30 days and may write derived vectors to its local embedding cache.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 2,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "objective": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 5000
+            },
+            "max_artifacts": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 2500
+            },
+            "top_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "scoring": {
+              "type": "string",
+              "enum": [
+                "hybrid_2026",
+                "legacy"
+              ]
+            },
+            "lex_weight": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "min_percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "node_ids",
+            "objective"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_package_relationships",
+        "title": "Package MindrianOS Graph Relationship Proposals",
+        "description": "Validate caller-proposed links against selected MindrianOS node IDs and selected Evidence nodes, then ask Eureka to package them with stable graph refs and snapshot lineage. This does not discover, rank, approve, or write relationships; all proposals require MindrianOS review.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "relationships": {
+              "minItems": 1,
+              "maxItems": 1000,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "target_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "relation": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "rationale": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "evidence_ids": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  }
+                },
+                "required": [
+                  "source_id",
+                  "target_id",
+                  "relation",
+                  "rationale",
+                  "evidence_ids"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "node_ids",
+            "relationships"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_prepare_artifacts",
+        "title": "Prepare Source-Linked Eureka Artifacts from MindrianOS Graph",
+        "description": "Project explicit node IDs from the bound MindrianOS room and call Eureka graph.prepare_artifact_bundle. Returns the versioned artifact contract for compatible text engines, preserving source refs, hashes, scope, and snapshot identity. This prepares input; it does not run the downstream analysis or write graph state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "objective": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 5000
+            },
+            "max_artifacts": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 2500
+            }
+          },
+          "required": [
+            "node_ids",
+            "objective"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_project",
+        "title": "Prepare MindrianOS Graph Projection for Eureka",
+        "description": "Read a bounded, explicit selection from the active MindrianOS room graph through the navigation boundary. Requires a bound room and verified room identity. Returns selected node text, stable graph references, induced edges, a content-derived snapshot ID, and omission metadata. Does not accept room paths, expand beyond selected IDs, call an engine, or write graph state. Pass the returned snapshot, scope_id, and snapshot_id to the separately configured Eureka MCP.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              },
+              "description": "Explicit MindrianOS graph node IDs selected for this investigation. Only these nodes and edges between them are projected."
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_propose_relationships",
+        "title": "Propose Relationship Leads from the MindrianOS Graph",
+        "description": "Project explicit node IDs from the bound MindrianOS room and run Eureka graph.propose_relationships. Returns unevidenced candidate links bound to the room scope and graph snapshot for later evidence resolution and human review. Does not expand the graph, fetch sources, approve proposals, or write graph state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "seed": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "attr": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "text_label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "null_rounds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "focus_node_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "focus_hops": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            }
+          },
+          "required": [
+            "node_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_rank_paths",
+        "title": "Rank MindrianOS Graph Evidence Paths",
+        "description": "Accept ordered candidate paths from the host, verify every node and directed typed edge against an explicit MindrianOS room projection, then rank by hops, unknown confidence, and attached evidence. Returns stable IDs and snapshot lineage. Does not search paths or write the graph.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "paths": {
+              "maxItems": 5000,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "node_ids": {
+                    "minItems": 2,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "edge_types": {
+                    "minItems": 1,
+                    "maxItems": 49,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    }
+                  }
+                },
+                "required": [
+                  "node_ids",
+                  "edge_types"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "node_ids",
+            "paths"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_graph_score_surprise",
+        "title": "Score Bayesian Surprise for MindrianOS Claims",
+        "description": "Read claim text from explicitly selected MindrianOS graph nodes and combine it with caller-supplied prior/posterior probability vectors. Returns scope/snapshot-bound entropy and surprise triage. Eureka does not infer probabilities, retrieve evidence, or write the graph.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "claims": {
+              "minItems": 1,
+              "maxItems": 1000,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "prior": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "posterior": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "prior",
+                  "posterior"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "node_ids",
+            "claims"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "eureka_hsi_interpret_whitespace",
+        "title": "Interpret HSI Whitespace Using the MindrianOS Framework Graph",
+        "description": "Accept HSI zones and their 2D projection, then derive problem-type and FEEDS_INTO mappings exclusively from explicitly selected MindrianOS graph nodes and edges. Calls Eureka portfolio.interpret_whitespace and returns a scope/snapshot-bound interpretation for Theo. Does not infer problem type from text, expand graph scope, or write graph state.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "node_ids": {
+              "minItems": 1,
+              "maxItems": 2500,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+              }
+            },
+            "gaps": {
+              "minItems": 1,
+              "maxItems": 500,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "brain_framework_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "brain_framework": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "gap_percentile": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "density_score": {
+                    "type": "number"
+                  },
+                  "zone_id": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "nearest_room_artifacts": {
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 512
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 512
+                            },
+                            "artifact_id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 512
+                            },
+                            "title": {
+                              "type": "string",
+                              "maxLength": 500
+                            },
+                            "section": {
+                              "type": "string",
+                              "maxLength": 500
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "brain_framework_id",
+                  "brain_framework",
+                  "nearest_room_artifacts"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "umap_2d": {
+              "type": "object",
+              "properties": {
+                "room_artifacts": {
+                  "maxItems": 2500,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": [
+                          "string",
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "title": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 500
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "x": {
+                        "type": "number"
+                      },
+                      "y": {
+                        "type": "number"
+                      },
+                      "cluster": {
+                        "type": [
+                          "string",
+                          "number",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "x",
+                      "y"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "room": {
+                  "maxItems": 2500,
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "items": false,
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "labels_room": {
+                  "maxItems": 2500,
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "spread_mode": {
+              "type": "string",
+              "enum": [
+                "percentile",
+                "fixed"
+              ]
+            },
+            "spread_percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "offline_validate": {
+              "type": "boolean"
+            },
+            "hypothesis_top": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "node_ids",
+            "gaps",
+            "umap_2d"
+          ],
+          "additionalProperties": false
         }
       },
       {
@@ -1741,6 +2963,54 @@
         }
       },
       {
+        "name": "rs_experts_find",
+        "title": "Find Authors in Local Research",
+        "description": "Find authors in the session\u2019s bound MindrianOS room by literal topic matches against stored paper titles and abstracts. Local-only and read-only. This does not search an external expert directory or establish expertise. Requires a bound or operator-pinned room; no registry or server fallback is used.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "topic": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 240,
+              "description": "Topic terms to match against stored paper titles and abstracts in the bound room."
+            },
+            "limit": {
+              "description": "Maximum authors returned; default 25.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          "required": [
+            "topic"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
+        "name": "rs_thesis_read",
+        "title": "Read Reverse Salient Thesis",
+        "description": "Read the thesis and metadata for one prior Reverse Salient discovery in this session\u2019s bound MindrianOS room. Local-only and read-only: it never contacts Brain or writes the room. Requires a bound room or an operator-pinned room; it does not use the registry or server fallback.",
+        "inputSchema": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "discovery_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Exact ID of a previously filed RSDiscovery in the bound room."
+            }
+          },
+          "required": [
+            "discovery_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      {
         "name": "status_read",
         "description": "Read this session's navigator status segments, including the spend/cap segment from day one (the Warp lesson -- the shape exists now even where the live billing wire is not yet built). capability_floor.tool_registration reports whenever MCP tool registration was partial (a module failed to load or register), naming the failed module so health never claims complete capability it does not have. Publishes the computed segment to the SSE bus ('status-segment') for a live subscriber.",
         "inputSchema": {
@@ -2153,5 +3423,5 @@
     "resources": [],
     "templates": []
   },
-  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed; 369-41 2026-10-04: added gate_list (Phase 369 plan 33, 47 -> 48), refreshed the gate_render (mirror_of, approving; plans 36 and 38) and gate_answer (answered_elsewhere, replay_lookup_failed and the plan 38 states) descriptions and schemas from the live wire; room_list description unchanged (the D-03 sentences of 369-22 are already here); no other tool changed; quick 261019-ksf 2026-10-19: added room_create and room_startup (commit ec3d56380, 48 -> 50), refreshed the room_list description (ecde228dc, ec3d56380, plus the ruled Desktop sentences restored by this quick) and the room-dashboard description (ecde228dc, cec325d5b) from the live wire; added the resources ui://mindrian-os/rooms/v4.html (room-app.cjs, 371 commits ecde228dc, ec3d56380, cec325d5b) and ui://mindrian-os/decision/v1.html (gate-app.cjs, c53beea37 quick 261019-ey0) by orchestrator ruling 2026-10-19; no other tool changed; 372-02 2026-10-19: context_assemble description gains the _meta.omitted sentence (Phase 372); no other tool changed; quick 261020-0ys 2026-10-20: the context_assemble sentence now says Every successful result (error results carry no _meta); no other tool changed"
+  "refreshed_by": "267-11 2026-10-02: added research_run (Phase 366 tool, 44 -> 45) and refreshed the meeting description (Phase 365-08 text); no other tool changed; quick 261002-cud 2026-10-02: research_run gains the offline field and two description sentences (offline, canon release), captured from the live wire; 369-13 2026-10-03: added room_changes and room_artifact (Phase 369 plan 13, 45 -> 47), captured from the live wire; no other tool changed; 369-41 2026-10-04: added gate_list (Phase 369 plan 33, 47 -> 48), refreshed the gate_render (mirror_of, approving; plans 36 and 38) and gate_answer (answered_elsewhere, replay_lookup_failed and the plan 38 states) descriptions and schemas from the live wire; room_list description unchanged (the D-03 sentences of 369-22 are already here); no other tool changed; quick 261019-ksf 2026-10-19: added room_create and room_startup (commit ec3d56380, 48 -> 50), refreshed the room_list description (ecde228dc, ec3d56380, plus the ruled Desktop sentences restored by this quick) and the room-dashboard description (ecde228dc, cec325d5b) from the live wire; added the resources ui://mindrian-os/rooms/v4.html (room-app.cjs, 371 commits ecde228dc, ec3d56380, cec325d5b) and ui://mindrian-os/decision/v1.html (gate-app.cjs, c53beea37 quick 261019-ey0) by orchestrator ruling 2026-10-19; no other tool changed; 372-02 2026-10-19: context_assemble description gains the _meta.omitted sentence (Phase 372); no other tool changed; quick 261020-0ys 2026-10-20: the context_assemble sentence now says Every successful result (error results carry no _meta); no other tool changed; 374-01 2026-11-08: added the 25 Eureka and RS tools of 6bc8cfc55 (50 to 75), captured from the live wire; no other tool changed"
 }
