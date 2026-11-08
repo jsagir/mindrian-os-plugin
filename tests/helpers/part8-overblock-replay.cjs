@@ -170,7 +170,8 @@ function readLabels(labelsPath) {
 
 // Replay a local real-call JSONL file (one {tool, input} per line). Rows
 // enter set R with group real_<label>. The input text is never kept.
-// Returns { rows, network_calls, blocks, unique_inputs, labels }.
+// Returns { rows, network_calls, blocks, unique_inputs, labels }; labels
+// count unique inputs (the owner labels inputs, not blocks).
 function replayRealCalls(jsonlPath, labelsPath) {
   const labels = readLabels(labelsPath);
   const lines = fs.readFileSync(jsonlPath, 'utf8').split('\n').filter(function (l) { return l.trim().length > 0; });
@@ -183,9 +184,9 @@ function replayRealCalls(jsonlPath, labelsPath) {
       const rec = JSON.parse(line);
       const tool = String(rec.tool || 'unknown').split('__').pop();
       const hash = canonicalInputHash(rec.input);
-      seen[hash] = true;
       const label = labels[hash] || 'unknown';
-      labelCount[label] += 1;
+      if (!seen[hash]) labelCount[label] += 1; // labels count unique inputs
+      seen[hash] = true;
       const v = ctx.guard.classify(rec.input, { toolName: tool, roomDir: null });
       rows.push(rowOf('R:' + (i + 1), 'R', 'real_' + label, tool, v));
     });

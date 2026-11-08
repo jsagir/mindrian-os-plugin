@@ -13,7 +13,8 @@
  *   RH4  buildMatrix returns counts only, with every named section
  *   RH5  assertMatrixHygiene refuses a long string, a forbidden key and
  *        a credential shape; accepts the matrix of RH4
- *   RH6  the committed beta.81 matrix (task 3 adds this arm)
+ *   RH6  the committed beta.81 matrix: hygiene, network_calls 0,
+ *        guard_head 8455416a5, group totals, no rows
  *
  * Part 8: synthetic rooms only, temporary HOME, no network. The arms never
  * print a probe text. No em dash and no en dash anywhere.
@@ -152,6 +153,31 @@ arm('RH5 assertMatrixHygiene refuses long strings, forbidden keys, credential sh
     harness.assertMatrixHygiene({ total: 1, by_class: { a: shaped } });
   }, 'credential shape');
   return '3 refusals, 1 acceptance';
+});
+
+// RH6: the committed beta.81 matrix (task 3): hygiene, network 0, group totals.
+arm('RH6 committed baseline-beta81.json: hygiene, network 0, group totals', function () {
+  need(fs.existsSync(BASELINE), 'missing ' + path.relative(ROOT, BASELINE));
+  const doc = JSON.parse(fs.readFileSync(BASELINE, 'utf8'));
+  need(doc.schema === 1, 'schema ' + doc.schema);
+  need(doc.guard_head === '8455416a5', 'guard_head ' + doc.guard_head + ', want 8455416a5 (v2.0.0-beta.81)');
+  need(doc.network_calls === 0, 'network_calls ' + doc.network_calls);
+  need(!('rows' in doc), 'rows must not be committed');
+  need(doc.matrix && typeof doc.matrix === 'object', 'matrix missing');
+  harness.assertMatrixHygiene(doc.matrix);
+  harness.assertDocumentHygiene(doc);
+  const g = doc.matrix.by_group;
+  const ext = g.extended.allow + g.extended.ambiguous + g.extended.block;
+  const mr = g.must_refuse.allow + g.must_refuse.ambiguous + g.must_refuse.block;
+  need(ext === 535, 'extended total ' + ext);
+  need(mr === 10, 'must_refuse total ' + mr);
+  need(doc.matrix.extended_blocked === g.extended.block, 'extended_blocked disagrees with by_group');
+  need(doc.matrix.must_refuse_blocked === g.must_refuse.block, 'must_refuse_blocked disagrees with by_group');
+  need(doc.sources && doc.sources.fixtures && doc.sources.fixtures.cases === 694, 'sources.fixtures.cases is not 694');
+  const text = fs.readFileSync(BASELINE, 'utf8');
+  const dashes = [String.fromCharCode(0x2013), String.fromCharCode(0x2014)];
+  need(dashes.every(function (d) { return text.indexOf(d) < 0; }), 'a dash character is in the fixture');
+  return 'guard_head ' + doc.guard_head + ', extended_blocked ' + doc.matrix.extended_blocked + ', must_refuse_blocked ' + doc.matrix.must_refuse_blocked;
 });
 
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
