@@ -264,7 +264,7 @@ function main() {
   }
   ok('S6', 'no fixture line is longer than 60 characters (outside the README)', longLines === 0);
   let emDashes = 0;
-  for (const f of walk(FIXTURES)) emDashes += (fs.readFileSync(f, 'utf8').match(/—/g) || []).length;
+  for (const f of walk(FIXTURES)) emDashes += (fs.readFileSync(f, 'utf8').match(/\u2014/g) || []).length;
   ok('S6', 'no em dash in the fixture tree', emDashes === 0);
 
   console.log('');

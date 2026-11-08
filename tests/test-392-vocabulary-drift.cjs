@@ -271,6 +271,20 @@ function main() {
     ok('V11', key + ' has no duplicate member', Array.isArray(list) && new Set(list).size === list.length);
   }
 
+  // V12 -- the builder's two additions (plan 392-08): role_default is a role
+  // member; constraint_keyword_map has exactly the constraint_categories as
+  // keys, every keyword is a lowercase word, and no keyword sits in two
+  // categories (a keyword in two categories would make the packet depend on
+  // iteration order).
+  ok('V12', 'role_default is a role member', typeof vocab.role_default === 'string' && vocab.role.includes(vocab.role_default));
+  const kwMap = vocab.constraint_keyword_map || {};
+  const kwKeys = Object.keys(kwMap);
+  ok('V12', 'constraint_keyword_map keys equal constraint_categories as a set', sameSet(kwKeys, vocab.constraint_categories));
+  ok('V12', 'every constraint_keyword_map value is a non-empty array of lowercase words',
+    kwKeys.every((k) => Array.isArray(kwMap[k]) && kwMap[k].length > 0 && kwMap[k].every((w) => /^[a-z][a-z0-9_]*$/.test(w))));
+  const allKeywords = kwKeys.flatMap((k) => kwMap[k]);
+  ok('V12', 'no keyword appears in two constraint categories', new Set(allKeywords).size === allKeywords.length);
+
   console.log('');
   console.log('======================================');
   console.log('Checks: ' + checks + '  Failed: ' + failed + '  Skips: ' + skips);
