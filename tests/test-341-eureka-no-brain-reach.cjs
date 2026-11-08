@@ -137,6 +137,8 @@ const EUREKA_SURFACE_FILES = [
   // from the plan that creates it.
   'lib/mcp/approval-gate.cjs',
   'lib/mcp/eureka-pair-screen.cjs',
+  // Phase 374 plan 10 (D-08, D-12): the plugin job record joins the guard from the plan that creates it.
+  'lib/mcp/eureka-job-record.cjs',
 ].concat(
   // Phase 366-26 (D-02): the perspective modules replace the retired
   // standalone runner as the Eureka compute surface. Discovered from disk
