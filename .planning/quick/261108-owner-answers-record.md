@@ -35,3 +35,12 @@ Token: G1 CUSTOM O1=WITHHOLD O2=KEEP O4A=DROP O4B=ANONYMIZE. O1, O4A and O4B are
 Checker: check-decision OK (3 groups, 8 items). gate-group G1, G2, G3 all ANSWERED-ACTION (exit 0). resolve: O1=WITHHOLD, O2=KEEP, O4A=DROP, O4B=ANONYMIZE, O3=EXEMPT-IF-IN-SOURCE, O6A=BLOCKER, O6B=LOG-ONLY, O8=FRONTMATTER. No PENDING, no BLOCKED.
 
 Phase 370 G1 is no longer open. No card is open now.
+
+## Phase 374 (374-DECISION.md)
+
+Source: the owner answered directly in the main session chat on 2026-11-08 by choosing "RECOMMENDED on all seven".
+Tokens: G1 to G7 all RECOMMENDED. RECOMMENDED is a legal token on every group (card grammar, and every OPTIONS line prints a RECOMMENDED value). Only the seven OWNER-ANSWER lines changed. No sealed text, hash, HEAD line or OPTIONS line was edited.
+Checker: 374-gate.cjs check-map gave "OK check-map plans=7 items=8". 390-gate.cjs check-decision gave "OK check-decision groups=7 items=8". gate-group: G1 DECLINED (exit 2, owner keep, expected); G2 to G7 ANSWERED-ACTION (exit 0).
+resolve: OD-1=KEEP, OD-2=ADD-FORGET-TOOL, OD-3=TOPK-200, OD-4=USER-DIR, OD-5A=F6, OD-5B=SCREEN, OD-6=ENGINE-BUSY-GUARD, OD-7=PAGE-ARG. No PENDING, no BLOCKED.
+Plans (374-gate.cjs plan): 374-08 PLAN-GO, 374-09 PLAN-GO, 374-10 PLAN-GO, 374-11 PLAN-GO, 374-12 PLAN-GO (OD-3 and OD-7 both go), 374-13 PLAN-GO, 374-14 PLAN-GO (its act item OD-1=KEEP maps to go: record the budget). All exit 0. No PLAN-DECLINED, no PLAN-REPLAN.
+No gated plan was executed. Nothing was pushed.
