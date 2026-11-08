@@ -1,0 +1,60 @@
+{
+  "review_contract": 1,
+  "applies_to": {
+    "frontmatter": [
+      { "key": "methodology", "values": ["grade", "deep-grade"] },
+      { "key": "review_contract", "any": true }
+    ],
+    "commands": ["grade", "deep-grade"],
+    "why": "Phase 370 covers the two student review commands only (research item O7: the other review writers stay out of scope). A file is a review artifact by its frontmatter, never by its path (research Pitfall 7)."
+  },
+  "sections": [
+    { "id": "executive_summary", "heading": "Executive Summary" },
+    { "id": "reality_check", "heading": "Reality Check" },
+    { "id": "faculty_questions", "heading": "Faculty Questions" },
+    { "id": "expert_conversations", "heading": "Expert Conversations" },
+    { "id": "research_reframe", "heading": "Research Validation + Reframe" },
+    { "id": "strategic_challenge", "heading": "Strategic Challenge" }
+  ],
+  "optional_tail": [
+    { "id": "advanced", "heading": "For advanced students" }
+  ],
+  "forbidden_headings": [
+    { "id": "tool_analysis", "pattern": "tool\\s+analysis", "flags": "i", "why": "D-02: never a tool-analysis section." },
+    { "id": "score_by_tool", "pattern": "methodology\\s+scores?\\s+by\\s+tool", "flags": "i", "why": "D-02: never a methodology-score-by-tool section." },
+    { "id": "mapped_to_agents", "pattern": "mapped\\s+to\\s+agents?", "flags": "i", "why": "D-02: never an improvement-recommendations-mapped-to-agents section." },
+    { "id": "agent_recommendations", "pattern": "improvement\\s+recommendations", "flags": "i", "why": "D-02: the agent recommendation list is outside the fixed shape (ROADMAP Goal)." },
+    { "id": "sci_fi", "pattern": "\\bsci[- ]?fi\\b", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal); note N1 of 370-CONTEXT: the Sci-Fi Connection leaves the reader-facing body." },
+    { "id": "visual_synthesis", "pattern": "visual\\s+synthesis", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal); note N1 of 370-CONTEXT: the Visual Synthesis leaves the reader-facing body." },
+    { "id": "reasoning_health", "pattern": "reasoning\\.md", "flags": "i", "why": "Outside the fixed shape (ROADMAP Goal): a reasoning-file health block is internal machinery, not a reader section." }
+  ],
+  "forbidden_body_patterns": [],
+  "counts": {
+    "revision_points": { "min": 3, "max": 5, "under": "executive_summary" },
+    "cross_domain_ideas": { "max": 2, "marker": "Cross-domain" }
+  },
+  "limits": {},
+  "internal_terms": [
+    { "term": "MCP", "pattern": "\\bMCP\\b", "flags": "", "class": "backend_name", "exempt_if_in_source": false, "why": "D-04 and ROADMAP: the protocol layer is a backend name a student never needs. Case-sensitive so the lower-case plain word stays free." },
+    { "term": "Neo4j", "pattern": "\\bNeo ?4j\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "D-04 and ROADMAP: a graph backend product name. An optional space catches the spaced spelling." },
+    { "term": "Memgraph", "pattern": "\\bMemgraph\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "ROADMAP graph or database names: a graph backend product name." },
+    { "term": "Cypher", "pattern": "\\bCypher\\b", "flags": "", "class": "backend_name", "exempt_if_in_source": false, "why": "ROADMAP graph or database names: the graph query language. Case-sensitive so the lower-case cipher word stays free." },
+    { "term": "Brain", "pattern": "\\bBrain\\b", "flags": "", "class": "backend_name", "exempt_if_in_source": false, "why": "D-04 and R-14 never-say list: Brain as a backend noun. Case-sensitive whole word so the lower-case plain word brain stays free." },
+    { "term": "Theo", "pattern": "\\bTheo\\b", "flags": "", "class": "backend_name", "exempt_if_in_source": false, "why": "D-04: the teaching backend name. Larry may say it in chat (R-20) but a student review body must not." },
+    { "term": "knowledge graph", "pattern": "\\bknowledge[ \\t]+graphs?\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "370-CONTEXT deviation 4: a compound graph name fails always; only the bare noun graph is a soft term." },
+    { "term": "graph database", "pattern": "\\bgraph[ \\t]+databases?\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "370-CONTEXT deviation 4: a compound database name fails always; only the bare noun database is a soft term." },
+    { "term": "graph engine", "pattern": "\\bgraph[ \\t]+engines?\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "R-14 never-say list: the name of the local graph layer (covered by NEVER_SAY_TERMS)." },
+    { "term": "SQLite", "pattern": "\\bSQLite\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "R-14 never-say list: a storage engine name (covered by NEVER_SAY_TERMS)." },
+    { "term": "room.db", "pattern": "\\broom\\.db\\b", "flags": "i", "class": "backend_name", "exempt_if_in_source": false, "why": "R-14 never-say list: the local store file name (covered by NEVER_SAY_TERMS)." },
+    { "term": "Tier 0", "pattern": "\\bTier 0\\b", "flags": "", "class": "backend_name", "exempt_if_in_source": false, "why": "R-14 never-say list: an internal availability tier name." },
+    { "term": "BRAIN.md", "pattern": "(?<![\\w-])BRAIN\\.md\\b", "flags": "", "class": "path_or_id", "exempt_if_in_source": false, "why": "Room file name. No single exported constant names the four room files (lib/core only repeats the literals per module), so the names are kept here." },
+    { "term": "STATE.md", "pattern": "(?<![\\w-])STATE\\.md\\b", "flags": "", "class": "path_or_id", "exempt_if_in_source": false, "why": "Room file name, same reason as BRAIN.md." },
+    { "term": "REASONING.md", "pattern": "(?<![\\w-])REASONING\\.md\\b", "flags": "", "class": "path_or_id", "exempt_if_in_source": false, "why": "Room file name, same reason as BRAIN.md." },
+    { "term": "ROOM.md", "pattern": "(?<![\\w-])ROOM\\.md\\b", "flags": "", "class": "path_or_id", "exempt_if_in_source": false, "why": "Room file name, same reason as BRAIN.md." }
+  ],
+  "soft_terms": {
+    "policy": "strict",
+    "terms": ["database", "graph"],
+    "why": "ROADMAP: graph or database names. The bare nouns are plain words a venture may really use, so the owner sets the policy through item O3 (strict, exempt_if_in_source or compound_only). Until the owner answers, the shipped default is strict."
+  }
+}
