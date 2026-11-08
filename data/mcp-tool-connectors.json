@@ -281,8 +281,8 @@
       "plan_gated": false,
       "web_scope": null,
       "decision_surface": null,
-      "hitl_shape": "none",
-      "hitl_why": "Starts a supported catalogued async method and retains its worker session.",
+      "hitl_shape": "F.6",
+      "hitl_why": "Only the pair-screen capability raises a plan-review card, and only an approval on that card starts the run; every other capability starts without a card and retains its worker session.",
       "layer": "harness",
       "layer_why": "Owns the Eureka MCP worker session and job lifecycle; persistence and review remain governed by MindrianOS."
     },
