@@ -68,8 +68,8 @@ const CROSS = section(cmd, '## Cross-Surface Adaptation');
 const fm = parseFrontmatter(cmd);
 const fmText = frontmatterText(cmd);
 
-arm('W1 argument-hint is [run|enable|enable engine]', function () {
-  assert.strictEqual(fm['argument-hint'], '[run|enable|enable engine]');
+arm('W1 argument-hint is [run|screen|enable|enable engine]', function () {
+  assert.strictEqual(fm['argument-hint'], '[run|screen|enable|enable engine]');
 });
 
 arm('W2 routing table holds a row for enable engine', function () {
