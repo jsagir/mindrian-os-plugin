@@ -113,7 +113,17 @@ function makeFixtureRoom() {
 // attributedFile(stack) -- first stack frame under lib/mcp/, skipping
 // node_modules frames and this test file's own recorder frame (which is not
 // under lib/mcp/ so it is skipped naturally).
+//
+// The wrapper lib/mcp/eureka-tool-contract.cjs (registerEurekaTool) is also
+// skipped: it only forwards a tool file's registration to server.registerTool,
+// so it is not the registrar. Skipping it attributes the call to the next
+// frame, the tool file's own register function (same idea as node_modules).
+// The shared helper registerForCapability (lib/mcp/tools/eureka-graph-analyze.cjs)
+// is skipped by function name for the same reason: eureka-graph-propose.cjs
+// registers its own tool through it, so the call belongs to the caller.
 // ---------------------------------------------------------------------------
+const FORWARDING_WRAPPER = path.join(LIB_MCP, 'eureka-tool-contract.cjs');
+
 function attributedFile(stack) {
   if (!stack) return null;
   const lines = String(stack).split('\n');
@@ -121,10 +131,12 @@ function attributedFile(stack) {
   for (const line of lines) {
     const m = line.match(/\(([^()]+):\d+:\d+\)\s*$/) || line.match(/at\s+([^\s()]+):\d+:\d+\s*$/);
     if (!m) continue;
+    if (/\bat\s+registerForCapability\s*\(/.test(line)) continue;
     const filePath = m[1];
     if (!filePath || filePath.startsWith('node:')) continue;
     if (filePath.includes('node_modules' + path.sep)) continue;
     if (!filePath.includes(needle)) continue;
+    if (path.resolve(filePath) === FORWARDING_WRAPPER) continue;
     return path.resolve(filePath);
   }
   return null;
