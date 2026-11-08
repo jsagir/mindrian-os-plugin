@@ -54,6 +54,8 @@ function leg(name, fn) {
 
 const SEVEN = ['map-unknowns', 'root-cause', 'think-hats', 'whitespace', 'diffusion', 'scientific-roadmapping', 'eureka'];
 const NEW = ['rs', 'hsi', 'analogies', 'connections'];
+// Phase 389 plan 04: the Full depth of /mos:structure-argument registers one more template, explicit_only.
+const PYRAMID = ['pyramid-argument'];
 const STEPS = ['tension', 'goal', 'rung', 'forum', 'paths', 'limiters', 'ranking'];
 const WHITESPACE_SHA = '51bdb0e5ae1921475536420c88379ab004f27c41e6b60dfefbf1cb7b6969e3a2';
 const FALSIFIERS = {
@@ -73,7 +75,7 @@ const FRAMEWORKS = {
 const COMMAND_FILES = { rs: 'find-bottlenecks.md', analogies: 'find-analogies.md', connections: 'find-connections.md' };
 
 leg('T1 eleven templates, new ids after eureka, whitespace unchanged', function () {
-  assertTrue(JSON.stringify(Q.PLANNER_TEMPLATE_IDS) === JSON.stringify(SEVEN.concat(NEW)), 'ids ' + Q.PLANNER_TEMPLATE_IDS.join(','));
+  assertTrue(JSON.stringify(Q.PLANNER_TEMPLATE_IDS) === JSON.stringify(SEVEN.concat(NEW, PYRAMID)), 'ids ' + Q.PLANNER_TEMPLATE_IDS.join(','));
   const sha = crypto.createHash('sha256').update(JSON.stringify(Q.TEMPLATES.whitespace)).digest('hex');
   assertTrue(sha === WHITESPACE_SHA, 'whitespace template changed: ' + sha);
 });

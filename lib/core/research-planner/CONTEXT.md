@@ -27,12 +27,15 @@ Each line says what a file reads, what it does, what it writes, and what a human
 | `quick.cjs` / `deep.cjs` (planned) | a plan | run the plan under quick or deep caps | the run result and run record | the run stops where the plan says |
 | `filing.cjs` (planned) | a run result | proposes filing; files only on approval | room artifacts through the existing filing gate | nothing files without a yes |
 | `ambient.cjs` (planned) | the 355.1 ambient trigger | offers a run at the right moment | an offer, never a fetch | the offer is one short line |
+| `../pyramid-seed-upgrade.cjs` (Phase 389) | a Seed record (`mos.pyramid-seed/1`) and a room folder | turns the Seed into a question set for the `pyramid-argument` template, runs `buildPyramid` and `checkPyramid`, lists the questions the Seed did not ask, reads room notes through `quick.localRoomCheck` | nothing (pure; fs read only) | the report never says MECE verified; it shows overlap warnings and missing coverage |
 | `sr-steps.cjs` | Theo `framework_step` and a membership-only `recommend_chain`, through brain-client | walks the Scientific Roadmapping steps in list order; refuses a step Theo has not authored | nothing | the exact refusal text, "Theo has not authored this step yet" |
 | `sr-entry.cjs` | LOCAL room state, read-only | proposes the entry step for `/mos:scientific-roadmap` (a stamped finding in flight enters at step 6) | nothing | the F.1 entry card |
 | `sr-door.cjs` | the entry, the steps, the room's bound inputs | walks the stages, builds the question set and Stage B; the plan is saved by `planner.buildPlan` | the plan object, through the planner | each stage gate and the F.6 card |
 | `sr-filing.cjs` | an approved F.8 selection | files `research-plan/PLAN.md`, proposed claims and REJECTED_BECAUSE edges, only on approval | room artifacts through the existing filing gate | nothing files without an approved F.8 selection |
 
 ## Reuse inventory (Canon Part 7)
+
+The `pyramid-argument` template is `explicit_only`: it is reached only through the Full depth of `/mos:structure-argument` (door `/mos:structure-argument full`), so the plain `/mos:structure-argument` command is never rerouted into the planner.
 
 Search before build. Everything below already exists and is reused, not rewritten.
 

@@ -91,7 +91,8 @@ leg('Y1 TEMPLATES has exactly the eleven ids with full dimension records', funct
   need();
   const ids = Object.keys(T.TEMPLATES).sort();
   // Phase 366 Plan 04 (D-06): rs, hsi, analogies and connections join the seven.
-  const want = ['analogies', 'connections', 'diffusion', 'eureka', 'hsi', 'map-unknowns', 'root-cause', 'rs', 'scientific-roadmapping', 'think-hats', 'whitespace'];
+  const want = ['analogies', 'connections', 'diffusion', 'eureka', 'hsi', 'map-unknowns', 'pyramid-argument', 'root-cause', 'rs', 'scientific-roadmapping', 'think-hats', 'whitespace'];
+  // Phase 389 plan 04: pyramid-argument joins (explicit_only; the Full depth of /mos:structure-argument).
   assertTrue(JSON.stringify(ids) === JSON.stringify(want), 'template ids ' + ids.join(','));
   assertTrue(JSON.stringify(T.PLANNER_TEMPLATE_IDS.slice().sort()) === JSON.stringify(want), 'PLANNER_TEMPLATE_IDS');
   const families = ['whitespace-gap/v1', 'concept-evidence/v1', 'causal-link/v1', 'constraint-interrogation/v1', 'diffusion/v1'];

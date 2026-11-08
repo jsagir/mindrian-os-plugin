@@ -153,7 +153,9 @@ leg('B3 ledger content: problem types, frameworks, steps, shapes, sets, template
   assert.equal(ledger.scientific_set.length, 7);
   assert.ok(ledger.scientific_set.indexOf('Scientific Roadmapping') !== -1);
   assert.equal(ledger.diffusion_set.length, 5);
-  assert.equal(Object.keys(ledger.template_frameworks).length, 11);
+  // Phase 389 plan 04: pyramid-argument joins (The Pyramid Principle), so the count follows the added id.
+  assert.equal(Object.keys(ledger.template_frameworks).length, 12);
+  assert.equal(ledger.template_frameworks['pyramid-argument'], 'The Pyramid Principle');
   assert.equal(ledger.template_frameworks.eureka, 'Cross-Domain Opportunity Discovery');
   assert.equal(ledger.template_frameworks.whitespace, 'HSI Semantic Surprise Analysis Assistant');
   assert.equal(ledger.template_frameworks.rs, 'Reverse Salient Analysis');
