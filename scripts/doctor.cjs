@@ -65,7 +65,27 @@ const {
   readLegacyConfigPin,
   detectMarketplaceCacheInstall,
   readInstalledPluginsInstallPath,
+  // Quick 261108-ekl: the one layout detector (repo checkout vs install).
+  detectPluginLayout,
 } = require(path.join(__dirname, '..', 'lib', 'core', 'doctor', 'shared.cjs'));
+
+// Quick 261108-ekl: an install holds no tests/, no git root and no scripts/release.sh. A point that needs
+// any of them says SKIP with the reason in an install, never FAIL (the class D self-skip meaning, in the
+// detail.skipped result shape the acceptance points already use). A repo checkout keeps every point blocking.
+const DOGFOOD_SKIP_REASON = 'dev harness tests/ not present in this layout';
+const REPO_ONLY_SKIP_REASON = 'repo-only point, not a repo checkout';
+function layoutSkip(reason, layout) {
+  return {
+    ok: true,
+    finding: null,
+    detail: { skipped: true, reason: reason + ' (missing: ' + layout.missing.join(', ') + ')', layout: 'install', missing: layout.missing },
+  };
+}
+function pointTag(p) {
+  if (p && p.skipped === true) return 'SKIP';
+  return p && p.ok ? 'PASS' : 'FAIL';
+}
+
 
 // Phase 217 Plan 06: class I (install-state) + class J (deployment-surfaces)
 // migrated to registry-driven cadence:always runner modules. The accumulative
@@ -829,6 +849,8 @@ function buildAcceptanceChecklist(ctx) {
   const flagLightNpx = ctx.flagLightNpx;
   const checklistMode = ctx.mode;
   const inTestMode = process.env.DOCTOR_TEST_MODE === '1';
+  // Quick 261108-ekl: detect the layout once for the 4 repo-only points below.
+  const layout = detectPluginLayout(pluginRoot);
   return [
     {
       id: 'install-state',
@@ -1010,6 +1032,7 @@ function buildAcceptanceChecklist(ctx) {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'version-of-record-published') {
           return { ok: false, finding: 'version-of-record-published synthesized failure (test mode)', detail: {} };
         }
+        if (layout.layout === 'install') return layoutSkip(REPO_ONLY_SKIP_REASON, layout);
         const cp = require('child_process');
         try {
           // Phase 127.2 Plan 02 Finding B: resolve "version of record" via
@@ -1395,6 +1418,7 @@ function buildAcceptanceChecklist(ctx) {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'verify-release-clean-tree') {
           return { ok: false, finding: 'verify-release-clean-tree synthesized failure (test mode)', detail: {} };
         }
+        if (layout.layout === 'install') return layoutSkip(REPO_ONLY_SKIP_REASON, layout);
         const cp = require('child_process');
         try {
           // Mirror verify-release Step 12 line 296: --untracked-files=no so
@@ -1476,6 +1500,7 @@ function buildAcceptanceChecklist(ctx) {
         if (inTestMode && process.env.DOCTOR_TEST_FAIL_POINT === 'release-dry-run-output') {
           return { ok: false, finding: 'release-dry-run-output synthesized failure (test mode)', detail: {} };
         }
+        if (layout.layout === 'install') return layoutSkip(REPO_ONLY_SKIP_REASON, layout);
         const cp = require('child_process');
         try {
           // Pass an explicit bump mode ('patch') so this self-test is robust to
@@ -2209,6 +2234,7 @@ function buildAcceptanceChecklist(ctx) {
         if (process.env.DOCTOR_SKIP_CROSS_CONNECTION === '1') {
           return { ok: true, finding: null, detail: { skipped: true, reason: 'DOCTOR_SKIP_CROSS_CONNECTION=1' } };
         }
+        if (layout.layout === 'install') return layoutSkip(REPO_ONLY_SKIP_REASON, layout);
         try {
           const checkCrossConnectionHonesty = require(path.join(__dirname, 'check-cross-connection-honesty.cjs')).checkCrossConnectionHonesty;
           const repoRoot = path.join(__dirname, '..');
@@ -2432,6 +2458,7 @@ async function runAcceptance(opts) {
   const progressOn = process.env.MINDRIAN_ACCEPTANCE_PROGRESS !== '0';
   const results = [];
   const failed = [];
+  const skippedIds = [];
   const runStart = Date.now();
   for (const p of filtered) {
     if (progressOn) process.stderr.write('[acceptance] ' + p.id + ' start\n');
@@ -2440,9 +2467,11 @@ async function runAcceptance(opts) {
     try { r = await p.run(); }
     catch (e) { r = { ok: false, finding: 'point ' + p.id + ' threw: ' + e.message, detail: {} }; }
     const duration_ms = Date.now() - t0;
-    if (progressOn) process.stderr.write('[acceptance] ' + p.id + ' done ' + (r.ok ? 'ok' : 'FAIL') + ' ' + duration_ms + 'ms\n');
-    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null, duration_ms: duration_ms });
+    const isSkipped = !!(r.ok && r.detail && r.detail.skipped === true);
+    if (progressOn) process.stderr.write('[acceptance] ' + p.id + ' done ' + (isSkipped ? 'skip' : (r.ok ? 'ok' : 'FAIL')) + ' ' + duration_ms + 'ms\n');
+    results.push({ id: p.id, label: p.label, ok: !!r.ok, skipped: isSkipped, finding: r.finding || null, detail: r.detail || null, duration_ms: duration_ms });
     if (!r.ok) failed.push(p.id);
+    else if (isSkipped) skippedIds.push(p.id);
   }
   const totalDuration = Date.now() - runStart;
   let slowest = null;
@@ -2453,7 +2482,8 @@ async function runAcceptance(opts) {
     mode: mode,
     points: results,
     failed_points: failed,
-    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length, duration_ms: totalDuration, slowest: slowest },
+    skipped_points: skippedIds,
+    summary: { total: results.length, passed: results.length - failed.length - skippedIds.length, failed: failed.length, skipped: skippedIds.length, duration_ms: totalDuration, slowest: slowest },
   };
 }
 
@@ -2496,12 +2526,15 @@ async function runDogfoodAcceptance(opts) {
   const pluginRoot = opts.pluginRoot || PLUGIN_ROOT;
   const cp = require('child_process');
   const testsDir = path.join(pluginRoot, 'tests');
+  // Quick 261108-ekl: an install ships no tests/, so the drivers cannot run there. Detect once.
+  const layout = detectPluginLayout(pluginRoot);
 
   const points = ACPT_DRIVERS.map(function (d) {
     return {
       id: d.id,
       label: d.label,
       run: function () {
+        if (layout.layout === 'install') return layoutSkip(DOGFOOD_SKIP_REASON, layout);
         const driverPath = path.join(testsDir, d.file);
         if (!fs.existsSync(driverPath)) {
           return { ok: false, finding: 'driver missing: ' + d.file, detail: { file: d.file } };
@@ -2526,19 +2559,23 @@ async function runDogfoodAcceptance(opts) {
 
   const results = [];
   const failed = [];
+  const skippedIds = [];
   for (const p of points) {
     let r;
     try { r = p.run(); }
     catch (e) { r = { ok: false, finding: 'point ' + p.id + ' threw: ' + e.message, detail: {} }; }
-    results.push({ id: p.id, label: p.label, ok: !!r.ok, finding: r.finding || null, detail: r.detail || null });
+    const isSkipped = !!(r.ok && r.detail && r.detail.skipped === true);
+    results.push({ id: p.id, label: p.label, ok: !!r.ok, skipped: isSkipped, finding: r.finding || null, detail: r.detail || null });
     if (!r.ok) failed.push(p.id);
+    else if (isSkipped) skippedIds.push(p.id);
   }
 
   return {
     gate: 'dogfood-acceptance',
     points: results,
     failed_points: failed,
-    summary: { total: results.length, passed: results.length - failed.length, failed: failed.length },
+    skipped_points: skippedIds,
+    summary: { total: results.length, passed: results.length - failed.length - skippedIds.length, failed: failed.length, skipped: skippedIds.length },
   };
 }
 
@@ -3704,15 +3741,16 @@ function main() {
       // unaffected (still print to stdout as before).
       const out = flags.json ? process.stderr : { write: function (s) { console.log(s.replace(/\n$/, '')); } };
       for (const p of result.points) {
-        const tag = p.ok ? 'PASS' : 'FAIL';
-        const findingSuffix = p.finding ? '  -- ' + p.finding : '';
+        const tag = pointTag(p);
+        const findingSuffix = tag === 'SKIP' ? '  -- ' + p.detail.reason : (p.finding ? '  -- ' + p.finding : '');
         out.write(tag + '  ' + p.id + ': ' + p.label + findingSuffix + '\n');
       }
       out.write('\n');
       const failSuffix = result.failed_points.length
         ? '; failed: ' + result.failed_points.join(', ')
         : '';
-      out.write('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + failSuffix + '.\n');
+      const skipSuffix = result.summary.skipped > 0 ? ', ' + result.summary.skipped + ' skipped' : '';
+      out.write('Acceptance ' + result.mode + ': ' + result.summary.passed + '/' + result.summary.total + ' points passed' + skipSuffix + failSuffix + '.\n');
       // Phase 126 Plan 03: persist last_acceptance_run into install-state v2
       // (additive; best-effort). The write happens BEFORE the final exit so
       // even on failed --acceptance the state captures the run. Failure to
@@ -3786,16 +3824,19 @@ function main() {
   if (flags.dogfoodAcceptance) {
     runDogfoodAcceptance({ pluginRoot: PLUGIN_ROOT }).then(function (result) {
       for (const p of result.points) {
-        const tag = p.ok ? 'PASS' : 'FAIL';
-        const findingSuffix = p.finding ? '  -- ' + p.finding : '';
+        const tag = pointTag(p);
+        const findingSuffix = tag === 'SKIP' ? '  -- ' + p.detail.reason : (p.finding ? '  -- ' + p.finding : '');
         console.log(tag + '  ' + p.id + ': ' + p.label + findingSuffix);
       }
       console.log('');
       const failSuffix = result.failed_points.length
         ? '; failed: ' + result.failed_points.join(', ')
         : '';
-      console.log('Dogfood acceptance (loop-fires gate): ' + result.summary.passed + '/' + result.summary.total + ' ACPT points passed' + failSuffix + '.');
-      if (result.failed_points.length === 0) {
+      const dogSkipSuffix = result.summary.skipped > 0 ? ', ' + result.summary.skipped + ' skipped' : '';
+      console.log('Dogfood acceptance (loop-fires gate): ' + result.summary.passed + '/' + result.summary.total + ' ACPT points passed' + dogSkipSuffix + failSuffix + '.');
+      if (result.failed_points.length === 0 && result.summary.total > 0 && result.summary.skipped === result.summary.total) {
+        console.log('Exit 0: no ACPT driver ran in this layout; run the gate from a repo checkout.');
+      } else if (result.failed_points.length === 0) {
         console.log('Exit 0: the milestone ships as "Larry Reaches".');
       } else {
         console.log('Non-zero: the milestone is renamed (a loop-fires leg failed).');
@@ -4769,7 +4810,7 @@ function _finalizeAndExit(flags, report, classFlagsActive) {
 // Phase 225-02 (REQ-4): additive export of the WAL-reset advisory helpers for
 // hermetic unit testing via injected seams (tests/test-225-wal-advisory.cjs).
 // Additive-only append -- existing keys are never reordered.
-module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin, selectMosEntry, doctorAllLimitMs };
+module.exports = { runAccumulativeEngine, renderHumanReport, computeSummary, _walResetAdvisory, _sqliteVersionLt, evaluateMarketplaceSourcePin, selectMosEntry, doctorAllLimitMs, runDogfoodAcceptance, runAcceptance, pointTag };
 
 if (require.main === module) {
   main();

@@ -5,6 +5,7 @@
 
 ### Fixed
 - **`/mos:status` now shows your active room from any folder.** It used to guess from the working folder, so from your home folder it showed an old `room` folder and from the plugin folder it showed the plugin itself. When the folder is not inside a room, it now uses the room you made active. <!-- 261108-ekl -->
+- **`/mos:doctor` no longer fails checks that need a development copy when it runs from an install.** The dogfood gate and four release checks need the test files, the git history or the release script, and an install has none of them. They now say SKIP with the reason, and the summary counts them as skipped. In a development copy they still run and still block. <!-- 261108-ekl -->
 
 ## [2.0.0-beta.81] - 2026-11-07
 
