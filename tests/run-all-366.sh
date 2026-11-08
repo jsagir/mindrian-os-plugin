@@ -166,6 +166,12 @@ run "388 ship less (payload excludes tests and dead weight, keeps what the produ
 # The leg is a hard run (not run_if), so a missing or red test fails the cut.
 run "391 Claude Code compat check (hook facts, agent tools naming, radar slicer and fetch, ledger rows, doctor gap)" bash tests/run-all-391.sh
 
+# --- (2k) Phase 370: the review contract for /mos:grade and /mos:deep-grade ---
+# Phase 370: the contract data, the check module, the generated denylist, the filing door, the pre-file wrapper,
+# the Write hook, the doctor gate and the Tri-Polar parity test ride the release gate. The leg is a hard run
+# (not run_if), so a missing or red test fails the cut.
+run "370 review contract (fixed shape, generated denylist, filing door, hook, doctor gate)" bash tests/run-all-370.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
