@@ -3721,11 +3721,24 @@ External gates: the beta.73 cut; the plugin node_modules restored; Eureka job-st
 **Requirements**: ADAPT374-01 tool-budget decision (router or re-baseline) with the token figure; ADAPT374-02 job sessions bound to MCP session and room, request size cap, recovery of a lost job by asking Eureka for its status; ADAPT374-03 projection handle or paging above 256 KiB; ADAPT374-04 generic path refuses results without scope and snapshot ids; ADAPT374-05 catalog cached per process; ADAPT374-06 live tests (bridge, job cancel, capability run) pass on an idle host
 **Depends on:** Phase 373
 Gates: beta.73 cut; plugin node_modules restored; Eureka job-store lock and budget status landed (external, Eureka repo); owner call on the 25-tool surface.
-**Plans:** 0 plans
+**Plans:** 14 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 374 to break down)
+- [ ] 374-01-PLAN.md - refresh the stale 267 wire pins (25 tools of beta.74) and fix the registration-api attribution
+- [ ] 374-02-PLAN.md - extend the fake engine with the pair-screen routes, job files and a restart switch
+- [ ] 374-03-PLAN.md - extract one shared approval gate minter (no fourth copy)
+- [ ] 374-04-PLAN.md - answer gate wrapper for the Phase 374 owner cards, per plan, over 390-gate.cjs
+- [ ] 374-05-PLAN.md - RED tests for start guards, owner binding, result verifier and catalog cache, and the phase aggregator
+- [ ] 374-06-PLAN.md - harden the generic job path: size cap, lineage ids, owner binding, catalog cache, pair-screen result verifier
+- [ ] 374-07-PLAN.md - owner decision cards D1 to D7 with token gates (ends at one NEEDS_HUMAN line)
+- [ ] 374-08-PLAN.md - pair screen route, plan then approval gate then start, verified result (gated by the cards)
+- [ ] 374-09-PLAN.md - /mos:eureka screen subcommand (gated)
+- [ ] 374-10-PLAN.md - plugin job record and recovery of a lost job by asking the engine (gated)
+- [ ] 374-11-PLAN.md - interim engine_busy guard until the Eureka owner lock lands (gated)
+- [ ] 374-12-PLAN.md - top_k 200 and paged job results above 256 KiB (gated)
+- [ ] 374-13-PLAN.md - forget tool, honest job tool descriptions and the final pin moves (gated)
+- [ ] 374-14-PLAN.md - tool budget decision record with the token figure, engine guide, release suite registration (gated)
 
 ### Phase 375: JHTV derive re-measure and baseline A/B with no holonic code: the evidence gate for bounded focus (SEED-134 gate)
 

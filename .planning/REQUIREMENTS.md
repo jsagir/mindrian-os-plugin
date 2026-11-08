@@ -5262,3 +5262,25 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 - [ ] **REV370-10**: An optional CLI hook checks reviews written with the Write tool, in the mode the owner chose (log only or enforce), and fails open. Plan 370-06.
 - [ ] **REV370-11**: A doctor coverage-gate entry lints the output templates and runs the fixtures, at the severity the owner chose. Plan 370-10.
 - [ ] **REV370-12**: Tri-Polar parity is proven by one test across the doors the owner left on, and the phase tests join the release gate suite. Plan 370-11.
+
+### Phase 374 - Adapter surface completion (ADAPT374 from the ROADMAP, PLG374 minted at plan time 2026-11-08)
+
+The six ADAPT374 ids are copied from the ROADMAP entry (it named them and this file did not hold them). The PLG374 ids are the plan-level rows. The remaining dedicated graph tools were already done (14 of 14 `graph.*` catalog entries have a tool), so no row asks for one. ADAPT374-06 needs a live engine and a local model and stays open until the owner runs the live tests.
+
+- [ ] **ADAPT374-01**: Tool-budget decision (router or re-baseline) with the token figure. Plans 374-07 (card) and 374-14 (record).
+- [ ] **ADAPT374-02**: Job sessions bound to the MCP session and room, a request size cap, and recovery of a lost job by asking the engine for its status. Plans 374-06, 374-10 and 374-11.
+- [ ] **ADAPT374-03**: Paging above 256 KiB for job results (the projection tools are deferred by card OD-7). Plan 374-12.
+- [ ] **ADAPT374-04**: The generic path refuses results without scope and snapshot ids. Plans 374-06 and 374-08.
+- [ ] **ADAPT374-05**: The engine catalog is cached per process. Plan 374-06.
+- [ ] **ADAPT374-06**: Live tests (bridge, job cancel, capability run, restart) pass on an idle host. Plans 374-10 and 374-14 write and list them; the owner runs them. NOT RUN in the plan set.
+- [ ] **PLG374-01**: The stale 267 wire pins are fixed (25 tools of beta.74) and the fake engine serves the pair-screen routes. Plans 374-01 and 374-02.
+- [ ] **PLG374-02**: One shared approval gate minter, used by research and the pair screen. Plan 374-03.
+- [ ] **PLG374-03**: The owner decisions D1 to D7 are cards with a token gate and a hash, and each gated plan starts behind an answer check. Plans 374-04 and 374-07.
+- [ ] **PLG374-04**: The generic job path is hardened: size cap, required lineage ids, unconditional lineage check, job owner binding, catalog cache, and the pair-screen result verifier. Plans 374-05 and 374-06.
+- [ ] **PLG374-05**: `opportunity.run_pair_screen` runs through the capability tools: plan, one approval card, then start, with a separate needs set and a verified result. Plan 374-08.
+- [ ] **PLG374-06**: A documented `/mos:eureka screen` subcommand. Plan 374-09.
+- [ ] **PLG374-07**: A plugin job record (ids and hashes only) and recovery of a lost job by asking the engine. Plan 374-10.
+- [ ] **PLG374-08**: The interim `engine_busy` guard, until the Eureka owner lock lands. Plan 374-11.
+- [ ] **PLG374-09**: `top_k` 200 and paged job results. Plan 374-12.
+- [ ] **PLG374-10**: The forget tool (if chosen), honest tool descriptions and the final pin moves. Plan 374-13.
+- [ ] **PLG374-11**: The budget decision record, the engine guide, and the phase tests in the release gate suite. Plan 374-14.
