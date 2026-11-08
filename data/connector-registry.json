@@ -2295,21 +2295,6 @@
       "decision_surface": null
     },
     {
-      "surface": "skill:mva-pipeline",
-      "source": "skill",
-      "connects_to_spine": true,
-      "sensor_triggers": [],
-      "reach_id": "context_block",
-      "sub_mode": "mva-pipeline",
-      "framework": null,
-      "posture": "push_forward",
-      "hierarchy_rank": 12,
-      "filing": "memory_event_only",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": "F.1"
-    },
-    {
       "surface": "skill:new-project",
       "source": "skill",
       "connects_to_spine": true,

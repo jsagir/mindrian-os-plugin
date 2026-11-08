@@ -366,7 +366,7 @@ const SKILL_RENDER_ONLY_EXCLUDED = Object.freeze({
   // Merge-time population (2026-07-11/12, phases/217 + intern-w1-mode-gate-skip):
   // extending PRIMARY detection to skills/*/SKILL.md surfaced 5 previously-invisible
   // unwired declarations. 3 of the 5 (client-discovery-interview, mullins-scaffold,
-  // mva-pipeline) declare a real hitl_shape/hitl_why with no exemption claimed and no
+  // and one skill retired in Phase 389) declare a real hitl_shape/hitl_why with no exemption claimed and no
   // self-contradicting language -- they were genuinely missing the firing-block and
   // have been stamped (see their SKILL.md files), not added here. The other 2 are
   // legitimate render-only exceptions, each already admitting in its OWN hitl_why

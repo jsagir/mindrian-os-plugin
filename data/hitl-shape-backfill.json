@@ -708,10 +708,6 @@
     "hitl_shape": "F.1",
     "hitl_why": "Each of the seven domain folders is offered at an F.1 Decision Gate before creation, never auto-imposed on the room."
   },
-  "skills/mva-pipeline/SKILL.md": {
-    "hitl_shape": "F.1",
-    "hitl_why": "The 30-second brief closes with a numbered option-or-free-text choice (1/2/3/free-text), the canonical F.1 Next Move shape."
-  },
   "skills/trending-to-absurd/SKILL.md": {
     "hitl_stages": [
       {

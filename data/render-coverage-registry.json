@@ -22,7 +22,7 @@
     "render_only_excluded": 0,
     "md_declared_wired": 96,
     "md_declared_unwired": 0,
-    "skill_declared_wired": 102,
+    "skill_declared_wired": 101,
     "skill_declared_unwired": 0
   },
   "entries": [
@@ -917,11 +917,6 @@
     {
       "surface": "skills/mva-option/SKILL.md",
       "declared_shape": "F.8",
-      "wired": true
-    },
-    {
-      "surface": "skills/mva-pipeline/SKILL.md",
-      "declared_shape": "F.1",
       "wired": true
     },
     {

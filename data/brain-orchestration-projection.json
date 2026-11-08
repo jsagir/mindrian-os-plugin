@@ -3217,12 +3217,6 @@
       "name": "mva-option"
     },
     {
-      "id": "skill:mva-pipeline",
-      "kind": "skill",
-      "methodology_tier": "mindrian-operation",
-      "name": "mva-pipeline"
-    },
-    {
       "id": "skill:mva-report",
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
@@ -4373,12 +4367,6 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "mva-option"
-    },
-    {
-      "id": "sub_mode:mva-pipeline",
-      "kind": "sub_mode",
-      "methodology_tier": "mindrian-operation",
-      "name": "mva-pipeline"
     },
     {
       "id": "sub_mode:needs-jtbd",

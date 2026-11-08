@@ -691,10 +691,6 @@
     "layer": "harness",
     "layer_why": "Routes the navigator's pick from the 3-option MVA footer into the correct next move; a dispatch mechanism, not new methodology output."
   },
-  "skills/mva-pipeline/SKILL.md": {
-    "layer": "loop",
-    "layer_why": "Detects a venture sentence and relays the pre-computed 30-second MVA brief through one F.1 next-move choice; a single bounded cycle to a stopping condition, not new methodology or scaffolding."
-  },
   "skills/new-project/SKILL.md": {
     "layer": "harness",
     "layer_why": "Creates room scaffolding and registers the new room in the room registry; the rubric's own step 3 signal names both \"add scaffolding\" and \"a registry\" verbatim."

@@ -58,7 +58,6 @@
     "skill:ui-system": "HOW-layer substrate skill; the surface F.x resolver for every connector, declares no connector.",
     "skill:pws-methodology": "HOW-layer substrate skill; keeps framework-to-command resolution single-sourced, declares no connector.",
     "skill:conversation-mode": "HOW-layer substrate skill; the Shape F.1 lane-picker mapped to DIKW, declares no connector.",
-    "skill:mva-pipeline": "HOW-layer substrate skill; the MVA relay, declares no connector.",
     "skill:mullins-scaffold": "HOW-layer substrate skill; Brain-driven cross-framework scaffold, declares no connector.",
     "skill:client-discovery-interview": "HOW-layer substrate skill; the discovery-interview substrate consumed by /mos:discover, declares no connector.",
     "skill:intelligence-orchestrator": "HOW-layer substrate skill; the orchestrator that READS the registry to dispatch, is not itself a wired connector.",

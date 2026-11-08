@@ -393,7 +393,7 @@ ok('Behavior 13 (live-tree honesty check, updated at merge time 2026-07-11/12): 
       '(investigate before touching this assertion) or one of the 5 ' +
       'originally-tracked skills regressed. All 5 from the original tracked ' +
       'set (mos-deck-engine, client-discovery-interview, intelligence-orchestrator, ' +
-      'mullins-scaffold, mva-pipeline) were resolved at merge time -- see ' +
+      'mullins-scaffold, and one skill retired in Phase 389) were resolved at merge time -- see ' +
       'their SKILL.md files (3 stamped with the firing block) and ' +
       'SKILL_RENDER_ONLY_EXCLUDED in scripts/build-render-coverage.cjs (2 ' +
       'legitimately excluded, mos-deck-engine and intelligence-orchestrator).'
