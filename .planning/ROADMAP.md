@@ -4176,3 +4176,14 @@ Plans:
 - [x] 391-06-PLAN.md - radar command procedure fix and mirror (Part 11), doctor organ names the gap and warns on an incomplete fetch (default lag unchanged), aggregator registration (wave 3)
 - [ ] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
 - [ ] 391-08-PLAN.md - owner cards C2, C3, C4 and C6 applied by token: web guard onFailure, radar Bash entry, /ultrareview seed, doctor default lag (wave 4, gated)
+
+### Phase 392: alwaysLoad context cost: measure first, then the owner decides split versus re-baseline
+
+**Goal:** Measure, with NO edit to .mcp.json or any tool: (1) the token saving if a small always-loaded hot-loop MCP server (room_bind, room_list, suggest_next, gate_render, gate_answer, stop_gate_check, status_read, plus the 6 Brain tools) is split from a deferred long-tail server; (2) whether deferred loading behaves the same on Claude Code, Desktop and Cowork; (3) the cost of the split (tool-budget gates test-270, the 384 golden, 267 snapshots, hooks and commands that name tools, release lockstep). Then return one choice to the owner: split, or re-baseline the doctor mcp-surface budget (8000, set in Phase 265 plan 23 when mindrian-os measured about 7,062 tokens) to the measured figure. Owner-relayed facts to verify, not trust: .mcp.json sets alwaysLoad true on mindrian-os and mindrian-brain; doctor mcp-surface on this machine reads 75 + 6 = 81 tools, about 21,853 tokens against 8000; data/capability-ledger.json (around line 220) calls alwaysLoad a documented trade paid for in Phase 114 and says do not drop it silently.
+**Requirements**: TBD
+**Depends on:** Nothing blocking; related to Phases 265, 270 and 384 (S7)
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 392 to break down)
