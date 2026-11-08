@@ -172,6 +172,13 @@ run "391 Claude Code compat check (hook facts, agent tools naming, radar slicer 
 # (not run_if), so a missing or red test fails the cut.
 run "370 review contract (fixed shape, generated denylist, filing door, hook, doctor gate)" bash tests/run-all-370.sh
 
+# --- (2l) Phase 374: the adapter surface completion for the Eureka tools ---
+# Phase 374: the generic job path guards, the pair screen flow, the saved job record, the busy guard, the caps, paging,
+# the forget tool and the tool description pins ride the release gate. The registered run is the plain mode (no
+# --neighbors) and uses fake clients and the fake engine only, so it needs no live engine. The owner-run live restart
+# test exits 77 without MOS_374_LIVE=1 and counts as SKIPPED. The leg is a hard run (not run_if).
+run "374 adapter surface completion (generic path guards, pair screen, job record, caps, paging, forget)" bash tests/run-all-374.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs
