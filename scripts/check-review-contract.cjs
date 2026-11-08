@@ -32,8 +32,20 @@
  * EXIT CODES: 0 the review passes, 1 one or more violations, 3 usage error or read error (also an input
  * over 1000000 bytes).
  *
- * The static --check mode of this script is added by plan 370-10. Until then --check prints one
- * line on stderr and exits 3.
+ * STATIC MODE (plan 370-10): node check-review-contract.cjs --check [--repo-root <dir>] [--strict]
+ * It is the doctor coverage-gate entry. Offline. Three legs:
+ *   templates  every fenced block of references/methodology/grade.md and agents/grading.md is scanned for an
+ *              internal name or a dash; the block after the heading "## Artifact Template" must pass the
+ *              full check; a block in commands/grade.md or commands/deep-grade.md directly under the line
+ *              <!-- review-template --> must pass the full check
+ *   fixtures   tests/fixtures/370/pre-fix.md must fail and post-fix.md must pass; skipped with an explicit
+ *              SKIP line when tests/ is not in the layout (the npm pack does not ship tests/)
+ *   contract   the contract data loads
+ * OUTPUT: one LEG line per leg, one FINDING line per problem (leg, file, rule, class, line; never block
+ * text), then RESULT OK, RESULT FAIL <n> or RESULT WARN <n>.
+ * SEVERITY: read from enforcement.doctor_severity of data/review-contract.json. blocker: exit 1 on any
+ * finding. advisory: FINDING lines go to stderr with the prefix WARN, exit 0. --strict: exit 1 on any
+ * finding either way. off or missing: print "review-contract gate disabled by contract", exit 0.
  *
  * Reuse before build (Canon Part 7): no new framework. This file requires node built-ins and
  * ../lib/core/review-contract.cjs only. A switch-case router on process.argv, as in gsd-tools.cjs.
@@ -46,7 +58,7 @@ const MAX_BYTES = 1000000;
 const DEFAULT_ROOT = path.resolve(__dirname, '..');
 const SHAPE_RULES = new Set(['shape_order', 'missing_section', 'extra_section', 'forbidden_section']);
 
-const USAGE = 'usage: check-review-contract.cjs check <file|-> [--source <path>]... [--repo-root <dir>]';
+const USAGE = 'usage: check-review-contract.cjs check <file|-> [--source <path>]... [--repo-root <dir>] | --check [--repo-root <dir>] [--strict]';
 
 function fail(code, message) {
   process.stderr.write(message + '\n');
@@ -181,13 +193,204 @@ function cmdCheck(args) {
   process.exit(1);
 }
 
+// ---------------------------------------------------------------------------
+// Static mode (plan 370-10)
+// ---------------------------------------------------------------------------
+
+const TEMPLATE_MARKER = '<!-- review-template -->';
+const REF_FILE = 'references/methodology/grade.md';
+const AGENT_FILE = 'agents/grading.md';
+const COMMAND_FILES = ['commands/grade.md', 'commands/deep-grade.md'];
+const FIXTURE_DIR = 'tests/fixtures/370';
+const DASH_OR_NAME_RULES = new Set(['internal_name', 'em_dash']);
+
+// Fenced blocks of a text. Returns [{ startLine, text, marked }]. startLine is the 1-based line of the
+// opening fence; marked is true when the line right above the fence is the review-template marker.
+function fencedBlocks(text) {
+  const lines = text.split(/\r?\n/);
+  const blocks = [];
+  let open = null;
+  for (let i = 0; i < lines.length; i++) {
+    const m = /^ {0,3}(`{3,}|~{3,})/.exec(lines[i]);
+    if (open) {
+      if (m && m[1].charAt(0) === open.ch && m[1].length >= open.len && /^[ \t]*$/.test(lines[i].slice(m[0].length))) {
+        blocks.push({ startLine: open.line, text: open.buf.join('\n'), marked: open.marked });
+        open = null;
+      } else {
+        open.buf.push(lines[i]);
+      }
+    } else if (m) {
+      open = {
+        ch: m[1].charAt(0), len: m[1].length, buf: [], line: i + 1,
+        marked: i > 0 && lines[i - 1].trim() === TEMPLATE_MARKER,
+      };
+    }
+  }
+  return blocks;
+}
+
+// 1-based line number of the first line equal to the heading, or -1.
+function headingLine(text, heading) {
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) if (lines[i].trim() === heading) return i + 1;
+  return -1;
+}
+
+function staticCheck(args) {
+  let repoRoot = DEFAULT_ROOT;
+  let strict = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--repo-root') {
+      if (i + 1 >= args.length) fail(3, USAGE);
+      repoRoot = path.resolve(args[++i]);
+    } else if (args[i] === '--strict') {
+      strict = true;
+    } else {
+      fail(3, USAGE);
+    }
+  }
+
+  let RC;
+  try {
+    RC = require('../lib/core/review-contract.cjs');
+  } catch (_) {
+    return fail(3, 'cannot load the review contract module');
+  }
+
+  // Severity. An unreadable contract file fails closed (blocker) and the contract leg reports it.
+  let severity = 'blocker';
+  let raw = null;
+  try {
+    raw = JSON.parse(fs.readFileSync(path.join(repoRoot, 'data', 'review-contract.json'), 'utf8'));
+  } catch (_) { /* the contract leg reports it */ }
+  if (raw && typeof raw === 'object') {
+    const s = raw.enforcement && raw.enforcement.doctor_severity;
+    severity = (s === 'blocker' || s === 'advisory') ? s : 'off';
+  }
+  if (severity === 'off' && !strict) {
+    process.stdout.write('review-contract gate disabled by contract\n');
+    process.exit(0);
+  }
+
+  const out = [];
+  const findings = [];
+  const legCount = { templates: 0, fixtures: 0, contract: 0 };
+  const skipped = {};
+  const add = (leg, file, rule, cls, line) => {
+    findings.push('FINDING ' + leg + ' ' + file + ' ' + rule + ' ' + cls + ' line ' + line);
+    legCount[leg]++;
+  };
+  const read = (rel) => {
+    try {
+      return fs.readFileSync(path.join(repoRoot, rel), 'utf8');
+    } catch (_) {
+      return null;
+    }
+  };
+  const safeCheck = (text) => {
+    try {
+      return RC.checkReview(text, { repoRoot });
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // ---- leg: contract
+  try {
+    RC.loadContract({ repoRoot });
+  } catch (_) {
+    add('contract', 'data/review-contract.json', 'contract_load', 'contract', 0);
+  }
+
+  // ---- leg: templates
+  const scan = (rel, block, onlyNames) => {
+    const res = safeCheck(block.text);
+    if (!res) {
+      add('templates', rel, 'check_error', 'template', block.startLine);
+      return;
+    }
+    for (const v of res.violations) {
+      if (onlyNames && !DASH_OR_NAME_RULES.has(v.rule)) continue;
+      add('templates', rel, v.rule, v.class, block.startLine + v.line);
+    }
+  };
+  const ref = read(REF_FILE);
+  if (ref === null) {
+    add('templates', REF_FILE, 'missing_file', 'template', 0);
+  } else {
+    const at = headingLine(ref, '## Artifact Template');
+    let full = null;
+    if (at === -1) {
+      add('templates', REF_FILE, 'missing_template', 'template', 0);
+    } else {
+      full = fencedBlocks(ref).find((b) => b.startLine > at) || null;
+      if (!full) add('templates', REF_FILE, 'missing_template', 'template', at);
+    }
+    for (const b of fencedBlocks(ref)) scan(REF_FILE, b, !(full && b.startLine === full.startLine));
+  }
+  const agent = read(AGENT_FILE);
+  if (agent === null) {
+    add('templates', AGENT_FILE, 'missing_file', 'template', 0);
+  } else {
+    for (const b of fencedBlocks(agent)) scan(AGENT_FILE, b, true);
+  }
+  for (const rel of COMMAND_FILES) {
+    const t = read(rel);
+    if (t === null) {
+      add('templates', rel, 'missing_file', 'template', 0);
+      continue;
+    }
+    for (const b of fencedBlocks(t)) if (b.marked) scan(rel, b, false);
+  }
+
+  // ---- leg: fixtures
+  if (!fs.existsSync(path.join(repoRoot, 'tests'))) {
+    skipped.fixtures = true;
+  } else {
+    for (const [name, wantOk] of [['pre-fix.md', false], ['post-fix.md', true]]) {
+      const rel = FIXTURE_DIR + '/' + name;
+      const t = read(rel);
+      if (t === null) {
+        add('fixtures', rel, 'missing_file', 'fixture', 0);
+        continue;
+      }
+      const res = safeCheck(t);
+      if (!res) {
+        add('fixtures', rel, 'check_error', 'fixture', 0);
+      } else if (res.ok !== wantOk) {
+        add('fixtures', rel, wantOk ? 'fixture_should_pass' : 'fixture_should_fail', 'fixture', 0);
+      }
+    }
+  }
+
+  for (const leg of ['templates', 'fixtures', 'contract']) {
+    if (skipped[leg]) out.push('LEG ' + leg + ' SKIP');
+    else out.push('LEG ' + leg + ' ' + (legCount[leg] === 0 ? 'OK' : 'FINDINGS ' + legCount[leg]));
+  }
+  if (skipped.fixtures) out.push('SKIP fixtures: tests/ is not in this layout');
+
+  const n = findings.length;
+  const warnOnly = severity === 'advisory' && !strict;
+  if (n === 0) {
+    out.push('RESULT OK');
+  } else if (warnOnly) {
+    out.push('RESULT WARN ' + n);
+    process.stderr.write(findings.map((f) => 'WARN ' + f).join('\n') + '\n');
+  } else {
+    out.push('RESULT FAIL ' + n);
+    out.splice(3, 0, ...findings);
+  }
+  process.stdout.write(out.join('\n') + '\n');
+  process.exit(n > 0 && !warnOnly ? 1 : 0);
+}
+
 const cmd = process.argv[2];
 switch (cmd) {
   case 'check':
     cmdCheck(process.argv.slice(3));
     break;
   case '--check':
-    fail(3, 'static check not available yet (plan 370-10)');
+    staticCheck(process.argv.slice(3));
     break;
   default:
     fail(3, USAGE);
