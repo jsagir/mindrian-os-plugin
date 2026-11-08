@@ -36,7 +36,7 @@
  * stdout is JSON only. stderr carries a usage line only.
  *
  * Reuse (Canon Part 7): the cells come from lib/core/pyramid-seed-cells.cjs, the
- * fan-out and the clock from lib/core/mva-dispatcher.cjs, mva-budget.cjs and
+ * fan-out and the clock from lib/core/mva-dispatcher.cjs, pyramid-seed-budget.cjs and
  * mva-agent-contract.cjs, the phrase check from part8-split-route.cjs.
  */
 
