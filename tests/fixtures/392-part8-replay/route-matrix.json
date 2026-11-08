@@ -1,0 +1,133 @@
+{
+  "_note": "Phase 392 route matrix: which Theo tool names the Part 8 guard hook (hook_sees), the response sanitizer hook (post_sees) and BRAIN_SHAPED_TOOL_MATCHER (shaped_sees) match, anchored. Recorded from the live matchers by tests/test-392-theo-route-matrix.cjs --record. state beta81_gap = the F6 bypass 5 gap, committed before plan 392-06 closes it. No room content; tool names only.",
+  "guard_head": "196a5a68b",
+  "state": "beta81_gap",
+  "recorded_at": "2026-11-08T09:39:48.222Z",
+  "matchers": {
+    "hook": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+    "post": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+    "shaped": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)"
+  },
+  "rows": [
+    {
+      "name": "mcp__plugin_mos_mindrian-brain__brain_ask",
+      "hook_sees": true,
+      "post_sees": true,
+      "shaped_sees": true
+    },
+    {
+      "name": "mcp__mindrian-brain__brain_search",
+      "hook_sees": true,
+      "post_sees": true,
+      "shaped_sees": true
+    },
+    {
+      "name": "mcp__theo__brain_ask",
+      "hook_sees": true,
+      "post_sees": true,
+      "shaped_sees": true
+    },
+    {
+      "name": "mcp__theo__search",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__search_theo_chunks_fulltext",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__text2cypher",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__recommend_chain",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__classify_problem_type",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__case_story",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo__room_bind",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo-context__canon_search",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__theo-context__normalize_framework_name",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__claude_ai_Theo-Claude__canon_search",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__claude_ai_Theo-Claude__framework_route",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__claude_ai_theo-claude__canon_search",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__claude_ai_PWS_Brain__brain_ask",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__claude_ai_PWS_brain__brain_ask",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    },
+    {
+      "name": "mcp__pws-brain-mcp__brain_ask",
+      "hook_sees": true,
+      "post_sees": true,
+      "shaped_sees": true
+    },
+    {
+      "name": "mcp__pws-brain-mcp__search",
+      "hook_sees": true,
+      "post_sees": true,
+      "shaped_sees": true
+    },
+    {
+      "name": "mcp__notion__search",
+      "hook_sees": false,
+      "post_sees": false,
+      "shaped_sees": false
+    }
+  ]
+}
