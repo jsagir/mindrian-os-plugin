@@ -10,8 +10,8 @@
 // - data/command-irreversibility-ledger.json is add-only and keeps its rows.
 // - CHANGELOG.md, data/command-deprecations.json, .planning and the 389 test files may
 //   name the retired tokens (history or assertion text).
-// - Plan 10 owns scripts/mva-run.cjs and lib/core/mva-orchestrator.cjs; a comment there
-//   that names the retired skill is listed, not hidden (see COMMENT_ONLY).
+// - Plan 10 removed scripts/mva-run.cjs and lib/core/mva-orchestrator.cjs (owner D6), so
+//   the one comment-only exception that used to be listed here is gone and Test 4 asserts it.
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
@@ -151,8 +151,8 @@ check('Test 2: lib/conversation/operator.cjs keeps transitionViaMVAOption (Phase
     'tests/test-389-stale-text.cjs',
     'tests/test-389-seed-record.cjs',
   ]);
-  // Plan 10 files that only name the retired skill in a comment. Listed so the exception is visible.
-  const COMMENT_ONLY = new Set(['scripts/mva-run.cjs']);
+  // No comment-only exception remains (plan 10 removed scripts/mva-run.cjs).
+  const COMMENT_ONLY = new Set();
   const hits = [];
   for (const f of files) {
     if (EXEMPT_FILE.has(f) || COMMENT_ONLY.has(f)) continue;
@@ -168,8 +168,7 @@ check('Test 2: lib/conversation/operator.cjs keeps transitionViaMVAOption (Phase
     if (names(t, 'pipeline') || names(t, 'anyOption')) hits.push(f);
   }
   check('Test 4: zero tracked files outside the exceptions name mva-pipeline, mva-option or the router', hits.length === 0, hits.join(', '));
-  const cmt = read('scripts/mva-run.cjs').split('\n').filter((l) => names(l, 'pipeline'));
-  check('Test 4: the one allowed exception (scripts/mva-run.cjs, plan 10) is a comment line only', cmt.every((l) => /^\s*(\*|\/\/|#)/.test(l)), cmt.join(' | '));
+  check('Test 4: the one old exception (scripts/mva-run.cjs) was removed by plan 10, so no exception is left', !exists('scripts/mva-run.cjs'));
 }
 
 // ---- Test 5: no dash characters in the files this plan touches ----

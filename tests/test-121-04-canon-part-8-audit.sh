@@ -10,7 +10,7 @@
 #   3. every capture-point source imports the unified writer (single-chokepoint)
 #   4. emit-time validator is the only Part 8 enforcement layer
 #   5. forbidden patterns from validator.cjs are documented in TELEMETRY-SCHEMA.md
-#   6. mva-telemetry.cjs is a shim (Plan 121-01 atomic cutover invariant)
+#   6. mva-telemetry.cjs is gone (removed in Phase 389 plan 10; it was the Plan 121-01 shim)
 #   7. zero em-dashes across all telemetry-touching files (project hard rule)
 #
 # bash only. No emoji. No em-dashes (per memory rule feedback_no_emdashes).
@@ -37,7 +37,6 @@ SOURCE_FILES=(
   lib/core/telemetry/writer.cjs
   lib/core/telemetry/validator.cjs
   lib/core/telemetry/schema.cjs
-  lib/core/mva-telemetry.cjs
   scripts/migrate-telemetry-v1.cjs
   lib/hmi/selector-dispatcher.cjs
   lib/memory/pending-tension-store.cjs
@@ -114,10 +113,10 @@ for pattern_label in "Cypher" "Email" "Phone" "Brain URL" "Absolute path" "Raw h
     || fail "TELEMETRY-SCHEMA.md missing forbidden-pattern documentation for: $pattern_label"
 done
 
-# Gate 6: mva-telemetry.cjs is a shim (Plan 121-01 atomic cutover invariant).
-SHIM_LOC=$(wc -l < lib/core/mva-telemetry.cjs)
-if [ "$SHIM_LOC" -gt 60 ]; then
-  fail "lib/core/mva-telemetry.cjs is $SHIM_LOC lines (exceeds 60-line shim invariant from Plan 121-01)"
+# Gate 6: mva-telemetry.cjs is gone (Phase 389 plan 10, owner card D6). The Plan 121-01 shim
+# invariant is replaced by: nothing outside the unified writer writes a telemetry stream.
+if [ -e lib/core/mva-telemetry.cjs ]; then
+  fail "lib/core/mva-telemetry.cjs still exists (retired in Phase 389 plan 10)"
 fi
 
 # Gate 7: zero em-dashes across all telemetry-touching files (project hard rule).

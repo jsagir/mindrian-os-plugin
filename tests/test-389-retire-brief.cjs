@@ -119,7 +119,7 @@ for (const f of ['commands/mva-brief.md', 'skills/mva-brief/SKILL.md']) {
   check('Test 4: the two schema copies stay byte equal',
     read('templates/room-skeleton/references/SECTION-SCHEMA.md') === read('data/harness-fixtures/converged-room/references/SECTION-SCHEMA.md'));
   check('Test 4: lib/core/venture-shape-nudge.test.cjs names no mva-brief', !/mva-brief/.test(read('lib/core/venture-shape-nudge.test.cjs')));
-  check('Test 4: lib/core/mva-orchestrator.test.cjs names no mva-brief (its command legs went with the old command body)', !/mva-brief/.test(read('lib/core/mva-orchestrator.test.cjs')));
+  check('Test 4: lib/core/mva-orchestrator.test.cjs is gone (plan 10 removed the orchestrator and its test, so it names no mva-brief)', !exists('lib/core/mva-orchestrator.test.cjs'));
 }
 
 // ---- Test 5 ----

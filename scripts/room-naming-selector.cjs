@@ -6,8 +6,9 @@
  * REVISION 2026-05-16: full-duplex via the directive-file/INSTRUCTION-FOR-LARRY
  * pattern. Honors D-03 (retroactive naming) + D-06 (four F.1 options) at execution.
  *
- * Invocation (post-Phase 118 MVA completion, fired from mva-orchestrator's
- * phase-119-01-naming-selector-hook block):
+ * Invocation (it was fired from the Phase 118 orchestrator hook block
+ * phase-119-01-naming-selector-hook; Phase 389 plan 10 removed that orchestrator, so nothing
+ * spawns this shim now and it is unreachable, kept on disk for Phase 390):
  *   node scripts/room-naming-selector.cjs --room-dir <abs_path> [--sentence-sha256 <sha>]
  *
  * Operational flow (the directive-file handoff -- precedent: auto-explore-drain.cjs
@@ -17,7 +18,7 @@
  *   3. Read the Phase 118 MVA brief sentence from <roomDir>/.mindrian/mva-brief.json.
  *      (Phase 389 plan 09: no writer of this file exists in the plugin any more (389-CALLERS answer f),
  *      so the read returns an empty string unless an older release wrote the file. Kept on purpose;
- *      plan 10 and Phase 390 decide the fate of the whole shim.)
+ *      Phase 390 decides the fate of the whole shim.)
  *   4. Call llm-name-suggester.cjs::suggestRoomName (async; one-shot Haiku 4.5; LOCAL-only).
  *   5. Build the four F.1 verbs with the interpolated [name this room: <slug>] label.
  *   6. Read thinness flag from STATE.md frontmatter; if true, prepend Larry voice line.

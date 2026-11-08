@@ -26,21 +26,15 @@ CJS_SUITES=(
   ../lib/core/mva-agent-contract.test.cjs
   ../lib/core/mva-budget.test.cjs
   ../lib/core/mva-dispatcher.test.cjs
-  # Plan 118-02 (six MVA agents -- aggregate test runner for all 6)
-  ../lib/agents/mva/test-all-six-agents.cjs
-  # Plan 118-03 (progressive streaming + orchestrator + telemetry)
-  ../lib/core/mva-progressive-renderer.test.cjs
-  ../lib/core/mva-telemetry.test.cjs
-  ../lib/core/mva-orchestrator.test.cjs
+  # Plans 118-02 and 118-03 (six cells, progressive renderer, telemetry shim, orchestrator) were retired in Phase 389 plan 10 (owner D6)
   # Plan 118-04 (Feynman deck + Vercel deploy)
   ../lib/core/resolve-vercel-key.test.cjs
   ../lib/core/mva-vercel-deploy.test.cjs
   ../lib/core/mva-deck-builder.test.cjs
   # Plan 118-05 (operator helper; the footer router was retired in Phase 389 plan 08)
   ../lib/conversation/operator.test.cjs
-  # Plan 118-06 (rule-linter + Dror 2.0 harness)
+  # Plan 118-06 (rule-linter; the Dror 2.0 harness was retired in Phase 389 plan 10 with the pipeline it timed)
   ../lib/core/mva-rule-linter.test.cjs
-  ./test-mva-dror-harness.cjs
 )
 
 TOTAL=0

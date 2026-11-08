@@ -39,7 +39,7 @@ fs.appendFileSync(events-YYYY-WNN.jsonl)      (atomic JSONL append -- POSIX <PIP
 ~/.mindrian/telemetry/v1.13/                  (LOCAL only -- never leaves disk)
 ```
 
-This is the single-chokepoint pattern from Canon Part 9 (`lib/core/navigation.cjs` precedent). There are exactly zero `fs.appendFileSync` calls anywhere else under `lib/core/telemetry/`. The four legacy writers are either shimmed (`lib/core/mva-telemetry.cjs`) or migrated and renamed to `*.pre-v121.bak` after Plan 121-01.
+This is the single-chokepoint pattern from Canon Part 9 (`lib/core/navigation.cjs` precedent). There are exactly zero `fs.appendFileSync` calls anywhere else under `lib/core/telemetry/`. The four legacy writers were either shimmed (`lib/core/mva-telemetry.cjs`, removed in Phase 389 plan 10) or migrated and renamed to `*.pre-v121.bak` after Plan 121-01.
 
 Zero network surface. Zero LOCAL-to-BRAIN egress. No `fetch(`, no `http.`, no `https.`, no Brain host references in any telemetry source. The Canon Part 8 audit harness at `tests/test-121-04-canon-part-8-audit.sh` grep-verifies this invariant across every telemetry-touching file.
 
@@ -55,7 +55,7 @@ All files live under `~/.mindrian/telemetry/v1.13/`. The version-suffixed subdir
 | `.migration-fingerprints.json`                | Plan 121-01 idempotence marker. Per-source sha256 of the first-5-timestamps prefix.          |
 | `.quarantine-<source>.jsonl`                  | Rows rejected by `validateEventPayload` during one-time migration. Audit-grade; not replayed. |
 | `*.jsonl.pre-v121.bak`                        | Renamed legacy sources (mva.jsonl, selector.jsonl, navigation-bypass.jsonl, query-efficiency.jsonl) after successful migration. Read-only. |
-| `mva.jsonl`                                   | Legacy dual-write target preserved by the `mva-telemetry.cjs` shim for Phase 118 byte-functional compatibility. Retires in v1.14.0. |
+| `mva.jsonl`                                   | Legacy file of Phase 118. Nothing writes it now (the `mva-telemetry.cjs` shim was removed in Phase 389 plan 10). The one-time migration `scripts/migrate-telemetry-v1.cjs` still reads it if an older release left it on disk. Never deleted by the plugin. |
 
 ## 4. Row Envelope
 
@@ -73,7 +73,7 @@ Every line in `events-YYYY-WNN.jsonl` is a JSON object with these four envelope 
 The frozen v1 taxonomy is 15 strings:
 
 ```
-6 mva.* inherited (Phase 118)         9 net-new (Phase 121, D-04..D-09)
+6 mva.* frozen history (Phase 118)    9 net-new (Phase 121, D-04..D-09)
 --------------------------------      -----------------------------------------
 mva_pipeline_started                  selector_pick                  (D-04)
 mva_agent_returned                    tension_engagement             (D-05)
@@ -96,7 +96,7 @@ Each subsection documents when the event fires, the closed ALLOWED_FIELDS whitel
 
 - When: at the start of an MVA option router pipeline run.
 - ALLOWED_FIELDS: `sentence_sha256`
-- Source: `lib/core/mva-telemetry.cjs` shim -> `writer.cjs` (the option router that used to emit it was retired in Phase 389).
+- Source: none now. The Phase 118 writer `lib/core/mva-telemetry.cjs` and the option router that used to emit it were removed in Phase 389 (plans 08 and 10). Sections 6.1 to 6.6 are FROZEN HISTORY: the names and fields stay in the schema because `scripts/migrate-telemetry-v1.cjs` still validates old `mva.jsonl` lines against them.
 - Sample:
   ```json
   {"event":"mva_pipeline_started","schema_version":1,"timestamp":"2026-05-19T09:00:00.000Z","session_id":"abc","sentence_sha256":"<64-hex>"}
@@ -281,7 +281,7 @@ Per arXiv 2508.03680 (agent-lightning lab loop, the APO consumption pattern), SE
 5. **Group spans by session_id for within-session trajectory.** `session_id` is sourced from `CLAUDE_SESSION_ID` and is stable across a single Claude Code session.
 6. **Group spans by room_slug_sha256 for cross-session per-room trajectory.** All net-new event types carry `room_slug_sha256` (a 64-hex sha256 of the room basename) so cross-session aggregation is keyable without revealing the room name.
 7. **Trust ISO-8601 timestamps for total ordering.** `timestamp` is UTC ISO-8601 set by the writer at emit (exception: the one-time migration script preserved historical timestamps from source files; Section 12).
-8. **Never write back.** The stream is append-only by contract. The shim `mva-telemetry.cjs` legacy dual-write is the only multi-target writer, and that retires in v1.14.0.
+8. **Never write back.** The stream is append-only by contract. The old dual-write shim `mva-telemetry.cjs` was the only multi-target writer; it was removed in Phase 389 plan 10, so the unified writer is now the only writer.
 
 The lab loop activation gate is corpus size >= 100 events. The `/gsd:new-milestone` trigger scan reads the corpus and decides when to activate. There is no user-facing surface that exposes this count (D-12; Section 11).
 
@@ -339,11 +339,11 @@ Migration idempotence: the script persists per-source sha256 fingerprints (`sour
 
 ### Implementing modules
 
-- `lib/core/telemetry/schema.cjs` -- THE frozen v1 schema source-of-truth (15 EVENT_TYPES + 9 net-new ALLOWED_FIELDS + 6 inherited mva.* ALLOWED_FIELDS + SCHEMA_VERSION = 1 Number + 4 length-cap constants).
+- `lib/core/telemetry/schema.cjs` -- THE frozen v1 schema source-of-truth (15 EVENT_TYPES + 9 net-new ALLOWED_FIELDS + 6 inherited mva.* ALLOWED_FIELDS (frozen history) + SCHEMA_VERSION = 1 Number + 4 length-cap constants).
 - `lib/core/telemetry/validator.cjs` -- Canon Part 8 emit-time validator (7 forbidden-pattern detectors).
 - `lib/core/telemetry/writer.cjs` -- THE chokepoint (emit + ISO-week rotation + atomic JSONL append + silent-fs-error swallow).
 - `scripts/migrate-telemetry-v1.cjs` -- Plan 121-01 one-shot idempotent migration script (4 piecemeal source files -> unified stream).
-- `lib/core/mva-telemetry.cjs` -- Plan 121-01 shim (delegating to writer.emit() + legacy dual-write for Phase 118 byte-compat; deprecates in v1.14.0).
+- `lib/core/mva-telemetry.cjs` -- REMOVED in Phase 389 plan 10 (it was the Plan 121-01 shim with the legacy dual-write). The six mva_* names it carried stay in schema.cjs as frozen history.
 
 ### Downstream consumer (deferred)
 
@@ -352,7 +352,7 @@ Migration idempotence: the script persists per-source sha256 fingerprints (`sour
 
 ### Precedents
 
-- Phase 118 (`lib/core/mva-telemetry.cjs`) -- THE architectural ancestor of the unified writer; emit-time validator pattern; ALLOWED_FIELDS shape inherited verbatim for the 6 mva.* event types.
+- Phase 118 (`lib/core/mva-telemetry.cjs`, removed in Phase 389 plan 10) -- THE architectural ancestor of the unified writer; emit-time validator pattern; ALLOWED_FIELDS shape inherited verbatim for the 6 mva.* event types.
 - Phase 88.1 Plan 16 (`lib/memory/query-efficiency-telemetry.test.cjs`) -- proven test pattern for emit-time validator coverage.
 - Phase 109 (`lib/core/navigation.cjs`) -- the single-chokepoint pattern this writer mirrors (Canon Part 9 ratification).
 - Phase 110 (Brain Context Packet Contract) -- Canon Part 8 structural enforcement precedent; this plan applies the same structural enforcement to telemetry payloads.

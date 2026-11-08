@@ -23,7 +23,7 @@
  *             SWEEP-01 (files named test-*.cjs or *.test.cjs anywhere under
  *             the scanned scope are test fixtures, not guard sites --
  *             research's own disposition table excludes
- *             lib/agents/mva/test-all-six-agents.cjs on exactly this
+ *             the old lib/agents/mva/test-all-six-agents.cjs (removed in Phase 389 plan 10) on exactly this
  *             ground: "test driver -- rides the test re-pointing pass, not
  *             the source sweep").
  *   census.2  SEAM-LIVENESS: every ROUTE-classified file that gained a
@@ -163,8 +163,7 @@ const KEEP_SET = [
   { path: 'scripts/intent-classifier.cjs', reason: 'Part 8 explicitly-permitted boolean scalar for routing, not a methodology serve' },
   { path: 'lib/core/opportunity-ops.cjs', reason: 'optional enrichment skip ({enriched:false}), never a methodology serve' },
   { path: 'lib/core/brain-derivation-queue.cjs', reason: 're-enqueue-on-unavailable discipline; never drops, correct queue behavior' },
-  { path: 'lib/agents/mva/brain-similar-ventures.cjs', reason: 'enrichment agent; typed status:"empty", reason:"brain_unavailable"; downstream provenance-absence discloses' },
-  { path: 'lib/agents/mva/brain-cross-domain.cjs', reason: 'enrichment agent; typed status:"empty", reason:"brain_unavailable"; downstream provenance-absence discloses' },
+  { path: 'lib/core/pyramid-seed-cells.cjs', reason: 'Seed enrichment cell (Phase 389 plan 03); typed status:"empty", reason:"brain_unavailable"; the Seed prints the gap, never a substitute. Replaces the two old lib/agents/mva enrichment agents removed in plan 10' },
   { path: 'lib/core/brain-md-staleness.cjs', reason: 'staleness/health probe; reports availability, never serves methodology' },
   { path: 'lib/core/rs-chain-feeder.cjs', reason: 'fail-open gates a workflow step, not methodology content; stderr warn upgraded to visible refusal-vocabulary line (Task 3a)' },
   { path: 'lib/core/rs-brain-substrate.cjs', reason: 'per-site verified: genuinely gates the Brain key, not Aura (research conflation concern does not apply here)' },

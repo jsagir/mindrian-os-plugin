@@ -21,7 +21,7 @@
  *      referenced by lib/ or scripts/ code outside that file (nobody bypasses
  *      fetchCorpus). NOTE (deviation from the plan's literal grep): the bare
  *      'api.tavily.com' string has PRE-EXISTING legitimate /search callers
- *      (lib/core/rs-fetcher-industry.cjs, lib/agents/mva/tavily-funding-scan.cjs,
+ *      (lib/core/rs-fetcher-industry.cjs, the old lib/agents/mva/tavily-funding-scan.cjs (removed in Phase 389 plan 10),
  *      legacy lib/core/rs_corpus.py) that predate Phase 220; the uniqueness
  *      gate is therefore pinned on the /extract endpoint this plan ADDS.
  *

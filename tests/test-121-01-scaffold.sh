@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Phase 121-01 Wave-1 scaffold harness. Asserts the 6 invariants of the
 # atomic cutover: migration script idempotence + validator pre-write +
-# mva-telemetry shim contract + hooked-rescore-117 read-path repoint +
-# Phase 118 MVA tests still green + zero em-dashes across modified files.
+# mva-telemetry shim removal (frozen event names) + hooked-rescore-117 read-path repoint +
+# legacy mva.jsonl migration still green + zero em-dashes across modified files.
 # Mirrors tests/test-121-00-scaffold.sh shape (set -euo pipefail, fail()
 # helper, function-wrapped gates, per-gate PASS message). Em-dash-free
 # per memory rule feedback_no_emdashes.
@@ -35,21 +35,20 @@ gate2_migration_validator_inline() {
   echo "Gate 2 PASS: validateEventPayload wired in migration path ($hits hits)"
 }
 
-# Gate 3: mva-telemetry.cjs is a shim. Requires writer module AND line
-# count is short. The plan's literal regex did not anticipate the .cjs
-# extension that Node.js requires for resolution; we accept either form.
+# Gate 3: the mva-telemetry.cjs shim is GONE (Phase 389 plan 10, owner card D6) and the six
+# inherited mva_* event names stay in schema.cjs as frozen history, because
+# scripts/migrate-telemetry-v1.cjs still reads a legacy mva.jsonl and validates it against them.
 gate3_mva_telemetry_shim() {
-  local hits
-  hits=$(grep -c "require('./telemetry/writer" lib/core/mva-telemetry.cjs || true)
-  if [ "$hits" -lt 1 ]; then
-    fail "Gate 3: mva-telemetry.cjs missing require('./telemetry/writer...')"
+  if [ -e lib/core/mva-telemetry.cjs ]; then
+    fail "Gate 3: lib/core/mva-telemetry.cjs still exists (retired in Phase 389 plan 10)"
   fi
-  local lc
-  lc=$(wc -l < lib/core/mva-telemetry.cjs)
-  if [ "$lc" -gt 60 ]; then
-    fail "Gate 3: mva-telemetry.cjs is $lc lines, expected <= 60"
+  local n
+  n=$(grep -c "'mva_[a-z_]*'," lib/core/telemetry/schema.cjs || true)
+  if [ "$n" -lt 6 ]; then
+    fail "Gate 3: schema.cjs lost an inherited mva_* event name ($n of 6 found); the migration reader needs them"
   fi
-  echo "Gate 3 PASS: mva-telemetry.cjs is a $lc-line shim with $hits writer require"
+  grep -qi "frozen history" lib/core/telemetry/schema.cjs || fail "Gate 3: schema.cjs lacks the frozen history note for the mva_* names"
+  echo "Gate 3 PASS: shim removed; $n inherited mva_* names stay as frozen history"
 }
 
 # Gate 4: hooked-rescore-117.cjs reads unified events-YYYY-WNN.jsonl stream.
@@ -63,10 +62,10 @@ gate4_hooked_rescore_repointed() {
   echo "Gate 4 PASS: hooked-rescore-117.cjs reads unified stream ($hits events-*.jsonl hits + marker)"
 }
 
-# Gate 5: Phase 118 MVA pipeline still functional after the shim cutover.
+# Gate 5: an old mva.jsonl line still migrates (the reader that keeps the six names alive).
 gate5_phase_118_still_green() {
-  node lib/core/mva-telemetry.test.cjs >/dev/null 2>&1 || fail "Gate 5: lib/core/mva-telemetry.test.cjs failed (legacy mva.jsonl dual-write regression)"
-  echo "Gate 5 PASS: Phase 118 MVA pipeline still green (mva-telemetry 5/5; the option router was retired in Phase 389 plan 08)"
+  node scripts/migrate-telemetry-v1.test.cjs >/dev/null 2>&1 || fail "Gate 5: scripts/migrate-telemetry-v1.test.cjs failed (old mva.jsonl lines no longer migrate)"
+  echo "Gate 5 PASS: legacy mva.jsonl migration still green (the Phase 118 writer and its test were retired in Phase 389 plan 10)"
 }
 
 # Gate 6: Zero em-dashes across all 121-01 modified files (printf-encoded
@@ -78,7 +77,7 @@ gate6_zero_emdashes() {
     scripts/migrate-telemetry-v1.cjs
     scripts/migrate-telemetry-v1.test.cjs
     scripts/hooked-rescore-117.cjs
-    lib/core/mva-telemetry.cjs
+    lib/core/telemetry/schema.cjs
   )
   for f in "${files[@]}"; do
     if grep -F "$EMDASH" "$f" >/dev/null 2>&1; then
@@ -96,5 +95,5 @@ gate5_phase_118_still_green
 gate6_zero_emdashes
 
 echo ""
-echo "OK: 121-01 scaffold complete (6 gates: migration idempotent + validator inline + mva shim + hooked-rescore repoint + Phase 118 green + zero em-dashes)"
+echo "OK: 121-01 scaffold complete (6 gates: migration idempotent + validator inline + mva shim removed + hooked-rescore repoint + legacy migration green + zero em-dashes)"
 exit 0

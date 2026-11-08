@@ -1,12 +1,14 @@
 'use strict';
 /*
- * Phase 119-01 Wave 2 integration harness.
+ * Phase 119-01 Wave 2 integration harness (revised by Phase 389 plan 10, owner card D6).
  *
- * End-to-end test that seeds a Plan 119-00 placeholder + Plan 119-02 skeleton,
- * runs the Phase 118 mva-orchestrator with stub agents, asserts the Phase 119-01
- * post-MVA hook spawns the naming-selector shim, asserts the F.1 envelope is
- * well-formed AND contains the four LOCKED verbatim option labels, asserts
- * Phase 118 stays green even when the Phase 119-01 shim is broken.
+ * The Phase 118 orchestrator that spawned the naming shim was removed in Phase 389
+ * plan 10, so nothing fires scripts/room-naming-selector.cjs now. The shim stays on disk,
+ * unreachable, for Phase 390. This file pins the shim ALONE: it seeds a Plan 119-00
+ * placeholder + Plan 119-02 skeleton, runs the shim, asserts the F.1 envelope is
+ * well-formed AND contains the four LOCKED verbatim option labels, and asserts the shim
+ * never throws on bad input (it always exits 0 with one JSON line). Tests 1, 2, 3 and 5
+ * used to read the orchestrator source; they now pin the shim (same numbers, same count).
  */
 
 const test = require('node:test');
@@ -49,34 +51,50 @@ function _cleanup(tmp) {
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_e) {}
 }
 
-test('Test 1: mva-orchestrator hook lands between mva_brief_rendered and state.json write', function () {
-  const src = fs.readFileSync(path.resolve(__dirname, '..', 'lib', 'core', 'mva-orchestrator.cjs'), 'utf8');
-  const emitIdx = src.indexOf("telemetry.emit('mva_brief_rendered'");
-  const hookIdx = src.indexOf('phase-119-01-naming-selector-hook');
-  // CRITICAL-3 wire appears in the file docstring header too; find the actual
-  // wire-comment AFTER the emit call.
-  const stateIdx = src.indexOf('CRITICAL-3 wire', emitIdx);
-  assert.ok(emitIdx > 0, 'mva_brief_rendered emit must exist');
-  assert.ok(hookIdx > emitIdx, 'hook must come AFTER mva_brief_rendered');
-  if (stateIdx > 0) {
-    assert.ok(hookIdx < stateIdx, 'hook must come BEFORE state.json write (CRITICAL-3)');
-  }
+const SHIM = path.resolve(__dirname, '..', 'scripts', 'room-naming-selector.cjs');
+
+// Run the shim with a scratch HOME and no model key, so a leg never reaches a network.
+function _runShim(args, extraEnv) {
+  const env = Object.assign({}, process.env, extraEnv || {});
+  delete env.ANTHROPIC_API_KEY;
+  return cp.spawnSync('node', [SHIM].concat(args), { env: env, encoding: 'utf8' });
+}
+function _lastJson(out) {
+  const lines = String(out.stdout || '').trim().split('\n').filter(Boolean);
+  assert.strictEqual(lines.length, 1, 'shim must print exactly one JSON line; got ' + lines.length);
+  return JSON.parse(lines[0]);
+}
+
+test('Test 1: shim with no --room-dir exits 0 and prints surface:false, reason no_room_dir_arg', function () {
+  const out = _runShim([]);
+  assert.strictEqual(out.status, 0, 'shim must exit 0; stderr=' + (out.stderr || ''));
+  const parsed = _lastJson(out);
+  assert.strictEqual(parsed.shape, 'F.1');
+  assert.strictEqual(parsed.surface, false);
+  assert.strictEqual(parsed.reason, 'no_room_dir_arg');
 });
 
-test('Test 2: hook is wrapped in try/catch', function () {
-  const src = fs.readFileSync(path.resolve(__dirname, '..', 'lib', 'core', 'mva-orchestrator.cjs'), 'utf8');
-  const hookIdx = src.indexOf('phase-119-01-naming-selector-hook');
-  const slice = src.slice(hookIdx, hookIdx + 2500);
-  assert.match(slice, /try\s*\{/, 'hook block must start with try {');
-  assert.match(slice, /catch\s*\(/, 'hook block must include catch (...)');
+test('Test 2: shim with a room dir that does not exist exits 0 and prints reason room_dir_not_found', function () {
+  const ghost = path.join(os.tmpdir(), 'phase119-01-missing-' + crypto.randomBytes(4).toString('hex'));
+  assert.ok(!fs.existsSync(ghost), 'precondition: the ghost dir must not exist');
+  const out = _runShim(['--room-dir', ghost]);
+  assert.strictEqual(out.status, 0, 'shim must exit 0; stderr=' + (out.stderr || ''));
+  const parsed = _lastJson(out);
+  assert.strictEqual(parsed.shape, 'F.1');
+  assert.strictEqual(parsed.surface, false);
+  assert.strictEqual(parsed.reason, 'room_dir_not_found');
+  assert.ok(!fs.existsSync(ghost), 'the shim must not create the missing room dir');
 });
 
-test('Test 3: hook spawns detached + unref', function () {
-  const src = fs.readFileSync(path.resolve(__dirname, '..', 'lib', 'core', 'mva-orchestrator.cjs'), 'utf8');
-  const hookIdx = src.indexOf('phase-119-01-naming-selector-hook');
-  const slice = src.slice(hookIdx, hookIdx + 2500);
-  assert.match(slice, /detached:\s*true/, 'spawn must use detached: true');
-  assert.match(slice, /unref/, 'child must be unref-ed');
+test('Test 3: shim guards its work (try/catch around main work + uncaughtException handler that exits 0)', function () {
+  const src = fs.readFileSync(SHIM, 'utf8');
+  assert.match(src, /try\s*\{/, 'shim must wrap its work in try {');
+  assert.match(src, /catch\s*\(/, 'shim must include catch (...)');
+  assert.match(src, /process\.on\('uncaughtException'/, 'shim must register an uncaughtException handler');
+  const h = src.indexOf("process.on('uncaughtException'");
+  const slice = src.slice(h, h + 400);
+  assert.match(slice, /surface:\s*false/, 'the handler must print surface:false');
+  assert.match(slice, /process\.exit\(0\)/, 'the handler must exit 0');
 });
 
 test('Test 4: shim spawns + produces structured F.1 envelope on stdout', function () {
@@ -98,11 +116,17 @@ test('Test 4: shim spawns + produces structured F.1 envelope on stdout', functio
   } finally { _cleanup(tmp); }
 });
 
-test('Test 5: Phase 118 NEVER regresses on Phase 119 failure (invariant comment landed)', function () {
-  const src = fs.readFileSync(path.resolve(__dirname, '..', 'lib', 'core', 'mva-orchestrator.cjs'), 'utf8');
-  const hookIdx = src.indexOf('phase-119-01-naming-selector-hook');
-  const slice = src.slice(hookIdx, hookIdx + 2500);
-  assert.match(slice, /Phase 119-01 failure NEVER regresses Phase 118/);
+test('Test 5: a malformed auto-explore file never throws (exit 0, one JSON line)', function () {
+  const { tmp, roomDir } = _mkRoomsHome();
+  try {
+    fs.writeFileSync(path.join(roomDir, '.mindrian', 'auto-explore-x.json'), '{ this is not json');
+    const out = _runShim(['--room-dir', roomDir, '--sentence-sha256', 'deadbeef0123'], { MINDRIAN_ROOMS_HOME: tmp, HOME: tmp });
+    assert.strictEqual(out.status, 0, 'shim must exit 0 on bad input; stderr=' + (out.stderr || ''));
+    const parsed = _lastJson(out);
+    assert.strictEqual(parsed.shape, 'F.1', 'the envelope must still be shape F.1');
+    assert.ok(parsed.awaiting_input === true || parsed.surface === false,
+      'either awaiting_input:true or surface:false must be present; got ' + JSON.stringify(parsed));
+  } finally { _cleanup(tmp); }
 });
 
 test('Test 7: envelope contains four LOCKED option labels (verbatim)', function () {
