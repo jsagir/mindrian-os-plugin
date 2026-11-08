@@ -16,6 +16,7 @@ allowed-tools:
   - WebFetch
   - Glob
   - AskUserQuestion
+  - Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true

@@ -11,7 +11,7 @@ hitl_why: "Tracked capabilities are surfaced as an independent watch set the nav
 serves_jtbd: ["understand-market"]
 teaching: "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan."
 interactive_first_reward: "--none (scripting only)"
-allowed-tools: Read Write WebFetch Glob AskUserQuestion
+allowed-tools: Read, Write, WebFetch, Glob, AskUserQuestion, Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
