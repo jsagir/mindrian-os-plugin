@@ -51,6 +51,7 @@ const REPO = path.resolve(__dirname, '..');
 const VOCAB_PATH = path.join(REPO, 'data', 'brain-shape-vocabulary.json');
 const CRITIC_TAGS_PATH = path.join(REPO, 'data', 'eureka-critic-tags.json');
 const USER_MD_OPS_PATH = path.join(REPO, 'lib', 'core', 'user-md-ops.cjs');
+const MODEL_PROFILES_PATH = path.join(REPO, 'lib', 'core', 'model-profiles.cjs');
 const BRAIN_ROUTER_PATH = path.join(REPO, 'lib', 'mcp', 'brain-router.cjs');
 const THEO_CHECKOUT = process.env.MINDRIAN_THEO_CHECKOUT || '/home/jsagi/Theo';
 const THEO_VOCAB_PATH = path.join(THEO_CHECKOUT, 'src', 'mcp', 'content', 'vocabulary.ts');
@@ -145,7 +146,13 @@ function main() {
   const guard = require(path.join(REPO, 'lib', 'core', 'part8-egress-guard.cjs'));
   const brainClient = require(path.join(REPO, 'lib', 'core', 'brain-client.cjs'));
   const rungVocab = require(path.join(REPO, 'lib', 'core', 'strategy', 'rung-vocabulary.cjs'));
-  const modelProfiles = require(path.join(REPO, 'lib', 'core', 'model-profiles.cjs'));
+  // VALID_STAGES is a module-local literal in model-profiles.cjs (not exported
+  // on beta.81); read it from the source text, the user-md-ops technique below.
+  const modelProfilesText = fs.readFileSync(MODEL_PROFILES_PATH, 'utf8');
+  const validStagesMatch = modelProfilesText.match(/const VALID_STAGES = \[([\s\S]*?)\];/);
+  const VALID_STAGES = validStagesMatch ? Array.from(validStagesMatch[1].matchAll(/'([^']+)'/g), (m) => m[1]) : [];
+  const modelProfiles = { VALID_STAGES: VALID_STAGES };
+  ok('V3', 'model-profiles.cjs VALID_STAGES literal found with 5 members', VALID_STAGES.length === 5);
   const personaTaxonomy = require(path.join(REPO, 'lib', 'core', 'persona-taxonomy.cjs'));
   const criticTags = JSON.parse(fs.readFileSync(CRITIC_TAGS_PATH, 'utf8'));
 
