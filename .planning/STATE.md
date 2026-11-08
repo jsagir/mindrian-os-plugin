@@ -5994,7 +5994,7 @@ Status: Phase closed. Full gate sweep green (bash tests/run-all-344.sh PASS=13 F
   and docs/OPEN-HANDOFFS.md for the resume step). Tracked close-out record landed at
   docs/2026-09-14-PHASE-344-LAYER-CONTRACT-CLOSE-OUT.md; ROADMAP Phase 344 entry finalized (9/9
   plans, one handoff line added under Phase 340 naming docs/2026-09-14-CANON-APPENDIX-B-PROPOSED-AMENDMENT.md).
-Last activity: 2026-11-07
+Last activity: 2026-11-08 - Completed quick task 261108-ekl: beta.81 install-test defects
   fresh and green (bash tests/run-all-344.sh PASS=13 FAIL=0 SKIP=0 at 1.08s, node
   scripts/check-layer-declaration.cjs and --json, the four build-*.cjs --check generators, node
   scripts/check-render-coverage.cjs, node scripts/check-help-coverage.cjs, node
@@ -9232,6 +9232,7 @@ Progress: [█████████░] 86%
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |
+| 261108-ekl | Fix the three beta.81 install-test defects: /mos:status resolves the registry active room outside a room (resolve-active-room.cjs leg after the marker walk, before the legacy room/ walk); doctor --dogfood-acceptance and the 4 repo-only --acceptance points SKIP with a reason in an install layout (detectPluginLayout in lib/core/doctor/shared.cjs) instead of FAIL; QA sweep filed at .planning/debug/beta-81-install-test-sweep.md; SEED-145 planted for the Theo store-identity floor | 2026-11-08 | 98c203ab0 | complete | [261108-ekl-fix-the-three-beta-81-install-test-defec](./quick/261108-ekl-fix-the-three-beta-81-install-test-defec/) |
 | 261107-wjt | Refresh the ICM ruling eval record (evals/icm/last-run.json and .html) for beta.80: code 22/22, jev 2/8, agreement 1.0 (floor 0.8), jev-1.14.0; run was accidental (probing for --help) and used the dev-time TypeSafe key on fixture rooms only; kept for the icm-ruling-eval-fresh release gate | 2026-11-07 | chore(quick-261107-wjt) commit | complete | [261107-wjt-commit-refreshed-icm-eval-record-for-the](./quick/261107-wjt-commit-refreshed-icm-eval-record-for-the/) |
 | 261107-w5p | CHANGELOG [Unreleased] gets the /m:os face panel line (Claude Code terminal only, Theo, /mos-words) that W4 of tests/test-380-gate-wiring.cjs reads; the 380 release gate leg is green | 2026-11-07 | docs(quick-261107-w5p) commit | complete | [261107-w5p-changelog-face-panel-line-for-the-380-ga](./quick/261107-w5p-changelog-face-panel-line-for-the-380-ga/) |
 | 261107-vma | Refresh data/framework-names.json after the Theo release sync for beta.80 (426 live names; only snapshot_date and theo_stamp changed; --check and test-366 pass) | 2026-11-07 | chore(quick-261107-vma) commit | complete | [261107-vma-commit-refreshed-framework-names-snapsho](./quick/261107-vma-commit-refreshed-framework-names-snapsho/) |
