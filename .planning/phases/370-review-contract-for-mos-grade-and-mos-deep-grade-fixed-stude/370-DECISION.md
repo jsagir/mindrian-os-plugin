@@ -46,7 +46,7 @@ The main session writes the token into the answer line of the group. If O2 is SE
 - Tags: PROVEN means I ran the command or read the line in this session (2026-11-08). UNVERIFIED means I did not run it. Cowork is UNVERIFIED on every card.
 - Canon Part 8: this card holds names, counts and line numbers only. No room was read.
 
-HEAD-AT-DECISION: 0000000000000000000000000000000000000000
+HEAD-AT-DECISION: 46b7dd8c39dd86904ce8e299625ded8c27250413
 
 ## G1 What the student sees
 
@@ -142,7 +142,126 @@ Recommendation: ANONYMIZE. Reason: the comparison helps the student, and the nam
 OPTIONS O4B: KEEP | ANONYMIZE | DROP ; RECOMMENDED: ANONYMIZE
 
 GROUP G1: O1, O2, O4A, O4B
-GROUP-SHA256 G1: 0000000000000000000000000000000000000000000000000000000000000000
+GROUP-SHA256 G1: acfc6ff5d982131c65632961b05824fcd170c0bb9f3cbb89a89542e5cc8fd87f
 OWNER-ANSWER G1: PENDING
 
-<!-- gsd:write-continue -->
+## G2 How strict the check is
+
+### O3 the soft terms "database" and "graph"
+
+Question: when a student's own venture is about a database or a graph, may the review use those two plain words?
+
+Facts:
+- The ROADMAP says "graph or database names" fail. data/review-contract.json lines 55 to 58 hold the two soft terms and the shipped policy, strict. (PROVEN)
+- Hard names never pass under any option: agent names, MCP, Neo4j, Memgraph, Cypher, Brain, Theo, SQLite, room.db, "knowledge graph", "graph database", the four room file names, slash commands and tool ids (data/review-contract.json lines 38 to 53). (PROVEN)
+- Brain and Theo are case-sensitive hard terms. A student whose name or venture is Theo, or a neuroscience venture that writes the word Brain with a capital, would be flagged. The strict default stands until you answer, and no option exempts these two words. (PROVEN: flags are empty on lines 42 and 43)
+- Source text for the exemption comes from lib/core/review-contract.cjs collectSourceText (line 564). It reads .md files inside section folders. It skips dot-names, symlinks, the folders grades, deep-grades and node_modules (line 546), the files BRAIN.md, STATE.md, REASONING.md and ROOM.md (line 545) and any file that is itself a review (line 580). (PROVEN)
+- The soft-term policy is applied at lines 496 to 509 of the same file. (PROVEN)
+- The CLI hook has no student text, so it skips soft terms. The filing door will read the room (plan 370-05). The pre-file wrapper takes source files (plan 370-08). (UNVERIFIED: both are planned, not built)
+
+Surfaces: CLI hook skips soft terms. Desktop and Cowork reach the filing door. Cowork UNVERIFIED.
+
+KEEP means: strict. The two words fail everywhere in the review body.
+EXEMPT-IF-IN-SOURCE means: a soft term passes when the student's own section text uses the word. The word fails otherwise.
+COMPOUND-ONLY means: the bare words pass. Only compound names such as graph database, knowledge graph and Neo4j fail.
+
+Cost of each non-KEEP option: EXEMPT-IF-IN-SOURCE changes one policy word in the data file, but a student who writes "database" once lets the review use it everywhere. COMPOUND-ONLY changes the same word and lets a bare "the database" about the platform slip through. KEEP fails a correct review of a database or graph venture.
+
+Recommendation: EXEMPT-IF-IN-SOURCE. Reason: it protects students whose venture needs the words and still blocks platform talk.
+
+OPTIONS O3: KEEP | EXEMPT-IF-IN-SOURCE | COMPOUND-ONLY ; RECOMMENDED: EXEMPT-IF-IN-SOURCE
+
+GROUP G2: O3
+GROUP-SHA256 G2: 6a1310688bc4250c3d3fff43d58108c660a82fc8ae52ce5e0c60f182f386ed8f
+OWNER-ANSWER G2: PENDING
+
+## G3 Where the check runs
+
+### O6A the release check (doctor gate)
+
+Question: if a shipped template or test fixture breaks the review contract, should a release be refused, or only warned about?
+
+Facts:
+- scripts/doctor.cjs line 1230 starts the gates list. The gates connector, projection, framework-vocabulary, render (line 1245) and skill-mirrors (line 1252) block, because the roll-up is ok only when the script exits 0. (PROVEN)
+- The siblings shape-declaration (line 1261), tool-honesty (line 1272) and theo-mcp-exposure (line 1286) are advisory because their scripts exit 0 and only warn. (PROVEN)
+- The new gate would check fixtures and shipped templates only, offline, never student text. Its false-positive risk is low. (ASSUMED, from the plan)
+
+Surfaces: release time only. It does not run on a student's machine. Cowork UNVERIFIED.
+
+KEEP means: no doctor entry.
+ADVISORY means: a warning only; a release goes out with a regression.
+BLOCKER means: a release is refused when a template or fixture regresses.
+
+Cost of each non-KEEP option: BLOCKER can stop a release for a fixture mistake. ADVISORY lets a leak ship, and nobody may read the warning. Both add one entry and one script to scripts/doctor.cjs.
+
+Recommendation: BLOCKER. Reason: the gate is offline and fixture-based, so a failure is a real regression.
+
+OPTIONS O6A: KEEP | ADVISORY | BLOCKER ; RECOMMENDED: BLOCKER
+
+### O6B the Claude Code hook
+
+Question: when Claude Code writes a review file with the plain Write tool, should a hook only log a problem, or block the write?
+
+Facts:
+- hooks/hooks.json has four PreToolUse entries today. The first is write-scope-check for Write, Edit and MultiEdit with timeout 3. (PROVEN)
+- scripts/write-scope-check.cjs header (lines 3 to 15): exit 2 blocks, any parse failure exits 0 (fail open), "a false block is worse than a false allow". (PROVEN)
+- scripts/check-voice-style.cjs header (lines 1 to 45): the Phase 369.6 ladder logs first and never blocks. (PROVEN)
+- Cost of one more node start on every Write call: about 20 ms. Command: `for i in 1 2 3 4 5 6 7 8 9 10; do node -e 0; done` timed with date +%s%N; two runs gave 22.2 ms and 18.7 ms per start (Node v22.23.1). (PROVEN)
+- Hook rules from plan 370-06: Write tool only, so Edit and MultiEdit are not covered. It skips files that are not .md, files inside the plugin repo root and files under the repo-source folders pipelines, tests, .planning, references, agents, commands and skills (named in the path below the working folder). A repo spec with a grade header is never checked. It skips soft terms. It fails open on any error. (UNVERIFIED: planned, not built)
+- Latency budget (arm H11, median of 20 spawns): at most the bare node start plus 50 ms for a non-review write, and plus 150 ms for a review write. (UNVERIFIED: planned)
+
+Surfaces: hooks fire on the CLI only. Desktop and Cowork get the filing door instead. Cowork UNVERIFIED.
+
+KEEP means: no hook. The CLI is protected by the pre-file wrapper and the doctor gate.
+LOG-ONLY means: the hook records rule, class and line to a local log and never blocks.
+ENFORCE means: the hook exits 2 with the rule list and the write is refused.
+
+Cost of each non-KEEP option: LOG-ONLY adds about 20 ms to every Write call and writes a local log row on a hit. ENFORCE adds the same time and can stop a user on a wrong match. The hook is never the only protection.
+
+Recommendation: LOG-ONLY. Reason: it follows the 369.6 ladder (log first), and a false block is worse than a false allow.
+
+OPTIONS O6B: KEEP | LOG-ONLY | ENFORCE ; RECOMMENDED: LOG-ONLY
+
+### O8 how a file is known to be a review
+
+Question: should the tools decide that a file is a review by its file header, or not classify files at all?
+
+Facts:
+- Three filing paths exist in the text: commands/grade.md line 16 `produces: "room/**/grades/*"`; the lines "File this ... to problem-definition?" in commands/grade.md lines 227 and 255; commands/deep-grade.md line 198 and agents/grading.md line 207 file to room/competitive-analysis/. (PROVEN)
+- A path rule would miss real files, because the folders differ. (PROVEN, from the three paths)
+- A review written with no header escapes the filing door and the hook. This is a stated limit. The pre-file wrapper and the doctor gate still apply. (ASSUMED, from the plan)
+- The filing-folder question is not decided here. `produces:` stays byte-stable (D-13).
+
+Surfaces: the filing door serves Desktop and Cowork; the hook serves the CLI. Cowork UNVERIFIED.
+
+KEEP means: no classification. Plans 370-05 (filing door) and 370-06 (hook) are declined, and only the pre-file wrapper and the doctor gate protect.
+FRONTMATTER means: a file whose header has methodology: grade or deep-grade, or a review_contract key, is a review.
+
+Cost of FRONTMATTER: the door and the hook run, and a review with no header is not checked by them. Cost of KEEP: the door and the hook never run, and Desktop and Cowork have no write-time check.
+
+Recommendation: FRONTMATTER. Reason: it is the only rule that holds across the three folders.
+
+OPTIONS O8: KEEP | FRONTMATTER ; RECOMMENDED: FRONTMATTER
+
+GROUP G3: O6A, O6B, O8
+GROUP-SHA256 G3: 8e63aeb5e4a45fb005657a35fbfbb2ce09f5769fa6fcd98cf0c2a13a651b04d3
+OWNER-ANSWER G3: PENDING
+
+## Notes: plan defaults you can overrule
+
+These four notes have no answer line. The plan default stands unless you say otherwise.
+
+- O5 taught-terms list. Default: no list exists, none is built, and no taught-terms warning is added. The code checks names, shape and counts only. The human review rubric reads whether terms are taught. You can overrule: name an owner and a place for a list.
+- O7 scope boundary. Default: grade and deep-grade only. The writers grade-grant, grant-reviewer, vault-section-reviewer and chain-step-reviewer are out of scope. You can overrule: ask for one of them in a later phase.
+- O9 the --full report. Default: the section roll-up stays chat-only progress and is never the filed review. The filed review follows the fixed shape. You can overrule: ask for the roll-up to become part of the filed review.
+- N1 Sci-Fi Connection and Visual Synthesis. Default: they sit outside the locked shape, so they leave the review body and the agent is not required to write them. You can overrule: you may want one cross-domain idea under "For advanced students" instead.
+
+## What happens after your answer
+
+- A gated plan runs only for an answered group. Plans 370-04 to 370-10 each start with the gate command and stop on exit 1 (blocked) or exit 2 (you said keep).
+- An answer of KEEP for an item makes the plan that serves it do nothing or take its KEEP branch. O8 KEEP declines plans 370-05 and 370-06. O6B KEEP declines plan 370-06. O6A KEEP declines plan 370-10.
+- Nothing is pushed, tagged or released by these plans. A change reaches users only after a release is cut and picked up.
+
+## How the answer is recorded
+
+The main session writes your token into the OWNER-ANSWER line of each group, writes the O2 values into the O2-VALUE lines, and commits that one edit with git commit --only on this one path. The options and the hash on the group lines are sealed: if an option line changes after your answer, the gate refuses the answer and asks again.
