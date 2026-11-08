@@ -58,6 +58,7 @@ const SYNTHETIC_ARGS = Object.freeze({
   eureka_capability_job_status: { job_id: FAKE_JOB_ID },
   eureka_capability_job_result: { job_id: FAKE_JOB_ID },
   eureka_capability_job_cancel: { job_id: FAKE_JOB_ID },
+  eureka_capability_job_forget: { job_id: FAKE_JOB_ID, confirm: true },
   eureka_graph_project: { node_ids: [N.a, N.b] },
   eureka_graph_analyze: { node_ids: [N.a, N.b, N.c] },
   eureka_graph_propose_relationships: { node_ids: [N.a, N.b, N.c] },

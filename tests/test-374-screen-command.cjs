@@ -142,6 +142,10 @@ arm('S6 screen section states the honesty and data rules', function () {
   assert.ok(/[Nn]othing is filed/.test(SCREEN), 'nothing-filed sentence missing');
   assert.ok(SCREEN.includes('30 days'), '30 day record missing');
   assert.ok(SCREEN.includes(DELETE_WORDING), 'delete-path wording missing');
+  // Plan 374-13 added the forget tool: step 8 names it with confirm true, only on the person's ask, and holds no condition.
+  assert.ok(SCREEN.includes('eureka_capability_job_forget') && /`confirm` true/.test(SCREEN), 'forget tool call missing');
+  assert.ok(/Only when the person asks to forget the run/.test(SCREEN), 'forget only-on-ask sentence missing');
+  assert.ok(!/If the tool list holds/.test(SCREEN) && !/nothing here deletes it sooner/.test(SCREEN), 'the old forget condition is still in the screen section');
   assert.ok(/24 hours/.test(SCREEN), 'plan expiry missing');
 });
 

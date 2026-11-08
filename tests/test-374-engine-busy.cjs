@@ -26,8 +26,8 @@
  *   B7  when the engine client throws on a status call the session is marked unreachable and the guard clears
  *   B8  a recovery status call for a recorded job while another job runs gives engine_busy before any child
  *       starts; with no running job recovery still works (the 374-10 path is not broken)
- *   B9  the tool surface is unchanged: the four job tool descriptions and schemas keep their fingerprint and
- *       test-270 prints the same budget line as before this plan
+ *   B9  the tool surface is pinned: the five job tool descriptions and schemas keep their fingerprint and
+ *       test-270 prints the recorded budget line (both moved once, by plan 374-13)
  *
  * CJS. Hyphens only.
  */
@@ -74,8 +74,9 @@ const SESSION = 'b-session-374-11';
 const MARK = 'PLANTB-4c19';
 
 // The BEFORE figures of this plan (HEAD baea19a8f, measured 2026-11-08).
-// Plan 374-12 added the page argument to eureka_capability_job_result (schema bytes 47531 -> 47586); plan 374-13 moves this line again.
-const BASELINE_BUDGET_LINE = 'budget: 75 tools, 36269 desc bytes, 47586 schema bytes, 83855 total, ~20964 approx tokens (router 9 / atomic 66)';
+// Plan 374-12 added the page argument to eureka_capability_job_result (schema bytes 47531 -> 47586). Plan 374-13 moved this line
+// once, for the forget tool and the description rewrite: 76 tools, 37764 desc bytes, 47835 schema bytes, 85599 total.
+const BASELINE_BUDGET_LINE = 'budget: 76 tools, 37764 desc bytes, 47835 schema bytes, 85599 total, ~21400 approx tokens (router 9 / atomic 67)';
 
 let failed = 0;
 // The check helper: run one arm, print one line. An arm may throw { skip: reason } to print a skip line.
@@ -436,15 +437,15 @@ async function main() {
     assert.ok(jobRecord, 'record module');
   });
 
-  await chk('B9', 'the tool descriptions and schemas are unchanged (fingerprint and test-270 budget line)', async () => {
+  await chk('B9', 'the tool descriptions and schemas keep their pinned fingerprint and test-270 budget line', async () => {
     const server = makeServer();
     const configs = [];
     server.registerTool = (name, config, fn) => { server.handlers.set(name, fn); configs.push([name, config]); };
     jobs.register(server, { surface: 'cli' });
-    assert.equal(configs.length, 4);
+    assert.equal(configs.length, 5);
     configs.sort((a, b) => (a[0] < b[0] ? -1 : 1));
     const fingerprint = hex(configs.map(([name, cfg]) => name + '|' + cfg.description + '|' + util.inspect(cfg.inputSchema._def, { depth: 12 })).join('\n'));
-    assert.equal(fingerprint, 'aa07438b7a42135ba998888c82f282c4b230363b8d35a2989c3bf7635ee79db4', 'job tool fingerprint changed: ' + fingerprint);
+    assert.equal(fingerprint, '73360231292fb99c9e9a6e6c21fc185dba7a3c62c6025bd2dfa6148fc36aa03f', 'job tool fingerprint changed: ' + fingerprint);
     const out = cp.spawnSync(process.execPath, [path.join(REPO, 'tests', 'test-270-tool-schema-budget.cjs')], { encoding: 'utf8', timeout: 60000 });
     assert.equal(out.status, 0, 'test-270 failed');
     const line = String(out.stdout).split('\n').find((l) => l.indexOf('budget:') === 0);

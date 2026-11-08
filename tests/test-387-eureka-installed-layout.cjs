@@ -8,7 +8,7 @@
  * starts with eureka under six engine states. This test compares that run with EXPECT below.
  *
  * Arms (each prints ok - or FAIL - with its label):
- *   I1  S1 tools/list holds the 24 names in EXPECT, for both client identities (the runtime count)
+ *   I1  S1 tools/list holds the 25 names in EXPECT, for both client identities (the runtime count)
  *   I2  S1 unbound: every engine tool answers engine_not_configured with engine_state absent (Plan 387-05: the
  *       engine check runs before the room projection); eureka_graph_project answers no_bound_room
  *   I3  S1 bound: engine tools answer the typed engine_not_configured refusal; job tools answer
@@ -55,12 +55,12 @@ const S_PYPROJECT = 'The Eureka engine folder has no pyproject.toml, so it is no
 const M_PYPROJECT = S_PYPROJECT + TYPED_TAIL;
 const M_UV = 'The tool uv is not installed or is not on the PATH, so the engine cannot start.' + TYPED_TAIL;
 const M_PYTHON = 'No Python that meets the engine requirement was found.' + TYPED_TAIL;
-const JOB_TOOLS = ['eureka_capability_job_cancel', 'eureka_capability_job_result', 'eureka_capability_job_status'];
+const JOB_TOOLS = ['eureka_capability_job_cancel', 'eureka_capability_job_forget', 'eureka_capability_job_result', 'eureka_capability_job_status'];
 const RUN_TOOLS = ['eureka_capability_run', 'eureka_capability_start'];
 
 // spec: { gated: [reason, message, state] for every gated tool (unbound and bound), or
 //         start: [reason, message, state] for the engine start on a spawning tool,
-//         job: [message, state or null] for the three job tools }
+//         job: [message, state or null] for the four job tools }
 function scenarioRows(names, spec) {
   const rows = {};
   for (const n of names) {
@@ -99,6 +99,7 @@ function buildRows(names) {
 const EXPECT = {
   eureka_tools: [
     "eureka_capability_job_cancel",
+    "eureka_capability_job_forget",
     "eureka_capability_job_result",
     "eureka_capability_job_status",
     "eureka_capability_run",
@@ -123,8 +124,8 @@ const EXPECT = {
     "eureka_graph_score_surprise",
     "eureka_hsi_interpret_whitespace"
   ],
-  distinct_total: 75,
-  eureka_count: 24,
+  distinct_total: 76,
+  eureka_count: 25,
   other_serving: ['research_run', 'rs_experts_find', 'rs_thesis_read'],
   // eureka_critic: answers a ruling on the installed layout since quick 261106 (the baseline file ships).
   perspective: { ok: true, recalled_pairs: 2, network_attempts_total: 0, network_attempts_non_loopback: 0 },
@@ -223,7 +224,7 @@ function armI3(report, expect) {
   const jobs = bound.filter((c) => c.reason === 'job_session_not_found');
   const okCalls = bound.filter((c) => c.isError === false && c.tool !== 'eureka_critic');
   if (engine.length !== 19) problems.push('engine_not_configured count ' + engine.length + ' expected 19');
-  if (jobs.length !== 3) problems.push('job_session_not_found count ' + jobs.length + ' expected 3');
+  if (jobs.length !== 4) problems.push('job_session_not_found count ' + jobs.length + ' expected 4');
   if (okCalls.length !== 1 || okCalls[0].tool !== 'eureka_graph_project') problems.push('expected exactly eureka_graph_project to answer ok (eureka_critic aside), got ' + okCalls.map((c) => c.tool).join(','));
   return problems;
 }
@@ -351,9 +352,9 @@ async function main() {
   process.stdout.write('layout_mode ' + report.layout_mode + ', version ' + report.version + ', node ' + report.node_version + '\n');
 
   const arms = [
-    ['I1 tools/list holds the 24 runtime names for both client identities', () => armI1(report, EXPECT)],
+    ['I1 tools/list holds the 25 runtime names for both client identities', () => armI1(report, EXPECT)],
     ['I2 S1 unbound: engine tools answer the engine state before the room check', () => armI2(report, EXPECT)],
-    ['I3 S1 bound: typed engine_not_configured x19, job_session_not_found x3, one ok, critic pinned', () => armI3(report, EXPECT)],
+    ['I3 S1 bound: typed engine_not_configured x19, job_session_not_found x4, one ok, critic pinned', () => armI3(report, EXPECT)],
     ['I4 S3 checkout unavailable; S4 S5 S6 engine_unavailable with typed text', () => armI4(report, EXPECT)],
     ['I9 S7 saved setting with no variable passes the gate, then fails at the missing uv', () => armI9(report, EXPECT)],
     ['I5 S1 and S2 are identical (no environment difference without the variable)', () => armI5(report)],

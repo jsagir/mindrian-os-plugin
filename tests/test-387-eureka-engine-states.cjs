@@ -19,10 +19,10 @@ const CONTRACT = path.join(REPO, 'lib', 'mcp', 'eureka-tool-contract.cjs');
 const { mkIsolatedHome } = require('./helpers/isolated-home-36925.cjs');
 const { SYNTHETIC_ARGS } = require('./helpers/eureka-installed-layout-387.cjs');
 
-// Measured at git sha 16b4bf2f8 (HEAD before Plan 387-05): the 23 tools registered through lib/mcp/tools
+// Measured at git sha 16b4bf2f8 (HEAD before Plan 387-05); plan 374-13 added eureka_capability_job_forget: the 24 tools registered through lib/mcp/tools
 // (eureka_critic registers elsewhere), and the sum of their description byte lengths.
 const BASELINE_NAMES = [
-  'eureka_capability_job_cancel', 'eureka_capability_job_result', 'eureka_capability_job_status',
+  'eureka_capability_job_cancel', 'eureka_capability_job_forget', 'eureka_capability_job_result', 'eureka_capability_job_status',
   'eureka_capability_run', 'eureka_capability_start', 'eureka_graph_analyze',
   'eureka_graph_assess_category_edge_patterns', 'eureka_graph_backtest', 'eureka_graph_compare_topics',
   'eureka_graph_find_community_bridge_pairs', 'eureka_graph_find_network_holes',
@@ -32,7 +32,9 @@ const BASELINE_NAMES = [
   'eureka_graph_propose_relationships', 'eureka_graph_rank_paths', 'eureka_graph_score_surprise',
   'eureka_hsi_interpret_whitespace',
 ];
-const BASELINE_DESC_BYTES = 9096;
+// Plan 374-13 (2026-11-08) moved this pin once: it rewrote the Eureka job tool descriptions, added the forget tool and
+// added two sentences to the run and scout descriptions. 24 tools, 10850 description bytes. The +300 allowance is unchanged.
+const BASELINE_DESC_BYTES = 10850;
 
 let passed = 0;
 let failed = 0;

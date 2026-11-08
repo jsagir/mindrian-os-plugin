@@ -1,5 +1,5 @@
 {
- "count": 72,
+ "count": 73,
  "initialize": {
   "serverInfo": {
    "name": "mindrian-os",
@@ -520,7 +520,7 @@
   {
    "name": "eureka_capability_job_cancel",
    "title": "Cancel Eureka Job",
-   "description": "Request cooperative cancellation for a job started in this MindrianOS MCP process. Eureka retains job records locally for up to 30 days. Jobs cannot resume after a MindrianOS host restart. Poll status to confirm the terminal state.",
+   "description": "Request cooperative cancellation for a Eureka job started in this MindrianOS host process. Poll status to confirm the end state. A job from before a host restart cannot be cancelled (cancel_unavailable_after_restart), because a run does not resume after a restart.",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -652,9 +652,9 @@
    }
   },
   {
-   "name": "eureka_capability_job_result",
-   "title": "Retrieve Eureka Job Result",
-   "description": "Retrieve the result for a job started in this MindrianOS MCP process. Eureka retains the result locally for up to 30 days; RS jobs may also write derived vectors to the local embedding cache. Jobs cannot resume after a MindrianOS host restart. Terminal results close the retained Eureka session.",
+   "name": "eureka_capability_job_forget",
+   "title": "Forget a Finished Eureka Run",
+   "description": "Forget one finished Eureka run. Call this only after the person asks to forget it, with confirm true. It deletes the run from the Eureka job store, the MindrianOS job record and any kept result pages. This cannot be undone. A run that has not finished is refused: cancel it first. After a host restart, forgetting opens one Eureka engine process, which can mark a job running in another MindrianOS process as failed (server_restarted).",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -663,6 +663,150 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 200
+     },
+     "confirm": {
+      "type": "boolean",
+      "const": true
+     }
+    },
+    "required": [
+     "job_id",
+     "confirm"
+    ],
+    "additionalProperties": false
+   },
+   "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+     "ok": {
+      "type": "boolean"
+     },
+     "reason": {
+      "type": "string"
+     },
+     "capability_id": {
+      "type": "string"
+     },
+     "scope_id": {
+      "type": "string"
+     },
+     "snapshot_id": {
+      "type": "string"
+     },
+     "partial": {
+      "type": "boolean"
+     },
+     "projection_complete": {
+      "type": "boolean"
+     },
+     "projection_omissions": {
+      "type": "object",
+      "propertyNames": {
+       "type": "string"
+      },
+      "additionalProperties": {}
+     },
+     "review_required": {
+      "type": "boolean"
+     },
+     "acceptance_requires_review": {
+      "type": "boolean"
+     },
+     "accepted_knowledge_persistence": {
+      "type": "string",
+      "enum": [
+       "none"
+      ]
+     },
+     "engine_state_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "durable_local_job_store",
+       "unknown"
+      ]
+     },
+     "derived_cache_persistence": {
+      "type": "string",
+      "enum": [
+       "none",
+       "local_embedding_cache_may_be_written",
+       "unknown"
+      ]
+     },
+     "persistence": {
+      "type": "string"
+     },
+     "response_size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+     },
+     "response_size_warning": {
+      "type": "string"
+     },
+     "engine_state": {
+      "type": "string",
+      "enum": [
+       "absent",
+       "present",
+       "broken"
+      ]
+     },
+     "cause": {
+      "type": "string"
+     },
+     "fix": {
+      "type": "string"
+     },
+     "route_state": {
+      "type": "string",
+      "enum": [
+       "needs_extra",
+       "needs_model",
+       "needs_node"
+      ]
+     },
+     "needs": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "engine_start_line": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ok"
+    ],
+    "additionalProperties": {}
+   },
+   "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": true,
+    "openWorldHint": false
+   }
+  },
+  {
+   "name": "eureka_capability_job_result",
+   "title": "Retrieve Eureka Job Result",
+   "description": "Retrieve the result of a Eureka job. Eureka keeps the result for 30 days; RS jobs may also write vectors to the local cache. A finished job can be read again after a host restart. A job that was still running at the restart may read as failed (server_restarted), and the run does not resume. A result above 256 KiB comes as a summary plus page 1; pass page 2, 3 and on for the rest. Pages stay in memory for 30 minutes, then the answer is job_result_page_expired; a page past the end gives page_out_of_range. A finished read closes the retained Eureka session.",
+   "inputSchema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+     "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+     },
+     "page": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100000
      }
     },
     "required": [
@@ -788,7 +932,7 @@
   {
    "name": "eureka_capability_job_status",
    "title": "Check Eureka Job Status",
-   "description": "Read progress for a job started in this MindrianOS MCP process. The Eureka job record is stored locally for up to 30 days. A job from a previous or restarted process is unknown to this host session and must be started again.",
+   "description": "Read progress for a Eureka job. Eureka and MindrianOS keep the job record for 30 days. A finished job reads as finished again after a host restart. A job that was still running at the restart may read as failed (server_restarted), and the run does not resume. Reading an end state clears the engine_busy guard.",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -922,7 +1066,7 @@
   {
    "name": "eureka_capability_run",
    "title": "Run a Catalogued Eureka Capability",
-   "description": "Inspect the Eureka catalog and contract, then run one capability currently marked experimental or host_brokered through its advertised local MCP route. Supply the exact contract-shaped request. This generic bridge does not read MindrianOS room data; use the dedicated graph projection and graph-scoped tools when the capability needs room content. Planned and blocked capabilities are refused. For asynchronous routes, prefer eureka_capability_start and the job status/result/cancel tools; this convenience call can block until completion. Async routes persist a local Eureka job record and result for up to 30 days, and RS routes may write derived vectors to the local embedding cache. The structured response distinguishes engine-side state from accepted MindrianOS knowledge; this tool never accepts proposed knowledge.",
+   "description": "Inspect the Eureka catalog and contract, then run one capability currently marked experimental or host_brokered through its advertised local MCP route. Supply the exact contract-shaped request. This generic bridge does not read MindrianOS room data; use the dedicated graph projection and graph-scoped tools when the capability needs room content. Planned and blocked capabilities are refused. For asynchronous routes, prefer eureka_capability_start and the job status/result/cancel tools; this convenience call can block until completion. The pair screen opportunity.run_pair_screen is refused here (capability_requires_approval): start it with eureka_capability_start, which asks the person first. While an Eureka job runs, this call can answer engine_busy (one MindrianOS host process only). Async routes persist a local Eureka job record and result for up to 30 days, and RS routes may write derived vectors to the local embedding cache. The structured response distinguishes engine-side state from accepted MindrianOS knowledge; this tool never accepts proposed knowledge.",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1065,7 +1209,7 @@
   {
    "name": "eureka_capability_start",
    "title": "Start a Catalogued Eureka Job",
-   "description": "Start a catalogued Eureka capability that exposes a supported asynchronous route. The MindrianOS MCP process retains the same Eureka worker session so separate status, result, and cancellation calls reach the live job. Eureka stores job metadata and results locally for up to 30 days, clears the saved request after a terminal outcome, and RS jobs may write derived vectors to a local embedding cache. Data is stored under MINDRIAN_EUREKA_DATA_DIR or ~/.local/share/mindrian-eureka. Jobs cannot resume after the MindrianOS MCP process restarts. Host sessions expire after 30 minutes; at most eight can be active. Use only schema-shaped requests; this generic tool does not read the MindrianOS graph.",
+   "description": "Start a catalogued Eureka capability as a background job. The MindrianOS MCP process keeps the Eureka worker session, so status, result and cancel calls reach the live job. For opportunity.run_pair_screen the first call only plans: it runs nothing and returns awaiting_approval with a card, and the run starts only after the person answers yes on that card. Other capabilities start at once. The pair screen needs a local meaning model. Eureka keeps the job and its result for 30 days under MINDRIAN_EUREKA_DATA_DIR or ~/.local/share/mindrian-eureka, clears the saved request at the end, and RS jobs may write vectors to a local cache. MindrianOS keeps a small job record (ids and hashes only), so a finished job can be read again after a host restart. While a job runs, other Eureka calls answer engine_busy until its status or result shows an end state; this holds for one MindrianOS host process only. Sessions last 30 minutes; at most eight are active. This generic tool does not read the MindrianOS graph: send schema-shaped requests.",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2939,7 +3083,7 @@
   {
    "name": "eureka_graph_opportunity_scout",
    "title": "Screen Local Graph for Candidate Pair Leads",
-   "description": "Screen explicitly selected nodes from the bound MindrianOS room for candidate relationship leads using Eureka RS+HSI. This compatibility tool waits for the job and can block; for non-blocking use, prepare artifacts and call eureka_capability_start with opportunity.synthesize_discovery_signals, then use the job status/result/cancel tools. Results are candidate pair signals, not validated or comprehensive opportunities. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. It does not fetch external research or write accepted MindrianOS graph/portfolio state. Eureka persists a local job record and result for up to 30 days and may write derived vectors to its local embedding cache.",
+   "description": "Screen explicitly selected nodes from the bound MindrianOS room for candidate relationship leads using Eureka RS+HSI. This compatibility tool waits for the job and can block; for non-blocking use, prepare artifacts and call eureka_capability_start with opportunity.synthesize_discovery_signals, then use the job status/result/cancel tools. Results are candidate pair signals, not validated or comprehensive opportunities. top_k is 1 to 200. While another Eureka job runs, this call answers engine_busy. Requires the Eureka engine (set up with /mos:eureka enable engine) and uv. It does not fetch external research or write accepted MindrianOS graph/portfolio state. Eureka persists a local job record and result for up to 30 days and may write derived vectors to its local embedding cache.",
    "inputSchema": {
     "type": "object",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2968,7 +3112,7 @@
      "top_k": {
       "type": "integer",
       "minimum": 1,
-      "maximum": 100
+      "maximum": 200
      },
      "scoring": {
       "type": "string",

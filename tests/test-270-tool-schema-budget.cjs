@@ -502,16 +502,43 @@ const AFTER_270_12 = {
  *   schema edits to existing tools on this branch (not traced to one commit);
  *   no tool was added or removed.
  */
+/*
+ * Plan 374-13 (2026-11-08) -- the authorised AFTER re-baseline for the forget tool
+ * (owner card OD-2 = ADD-FORGET-TOOL, answered RECOMMENDED on 2026-11-08) and the
+ * honest rewrite of the Eureka job tool descriptions (E16, E17). This is the one
+ * and only pin move of phase 374: it also carries the two schema changes of plan
+ * 374-12 (eureka_capability_job_result gained the page argument, the scout top_k
+ * max went 100 to 200). Same protocol as the blocks above: measure live with this
+ * file's own listToolsOverStdio + measure() pair, record the numbers, name the
+ * percentage, no new arithmetic.
+ *
+ * Measured live (node tests/test-270-tool-schema-budget.cjs):
+ *   before plan 374-13 (HEAD 1acb2f39, after plan 374-12): 75 tools,
+ *     36269 desc bytes, 47586 schema bytes, 83855 total bytes, ~20964 approx
+ *     tokens (router 9 / atomic 66).
+ *   after plan 374-13:  76 tools, 37764 desc bytes, 47835 schema bytes,
+ *     85599 total bytes, ~21400 approx tokens (router 9 / atomic 67).
+ *   the toolCount delta is exactly one name: eureka_capability_job_forget
+ *     (lib/mcp/tools/eureka-capability-jobs.cjs, no new file). The other deltas
+ *     are description text of six existing tools (start, status, result, cancel,
+ *     run, opportunity scout), none of them a new tool.
+ *   net growth in this plan: +1744 bytes, a signed 2.08 percent change against
+ *     the 374-12 line and 2.49 percent against the recorded AFTER of the uqs
+ *     block (83522), inside DRIFT_TOLERANCE_PCT (which stays 10, not relaxed).
+ *     +436 approx tokens (20964 -> 21400) for the local tool list. The plan
+ *     limit was 3000 bytes. AFTER moves because toolCount changed 75 -> 76,
+ *     which this file's first check requires to be exact.
+ */
 const AFTER = {
-  measuredAt: '2026-10-24',
-  plan: 'quick-261024-uqs',
-  toolCount: 75,
-  totalDescBytes: 36010,
-  totalSchemaBytes: 47512,
-  totalBytes: 83522,
-  approxTokens: 20881,
+  measuredAt: '2026-11-08',
+  plan: '374-13',
+  toolCount: 76,
+  totalDescBytes: 37764,
+  totalSchemaBytes: 47835,
+  totalBytes: 85599,
+  approxTokens: 21400,
   routerCount: 9,
-  atomicCount: 66,
+  atomicCount: 67,
 };
 
 // Signed percentage change, rounded to two places. Positive means the budget

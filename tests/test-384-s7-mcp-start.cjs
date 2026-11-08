@@ -172,7 +172,7 @@ async function main() {
     let same;
     const eq = (a, b) => { try { assert.deepStrictEqual(JSON.parse(JSON.stringify(a)), JSON.parse(JSON.stringify(b))); return null; } catch (e) { return String(e.message).split('\n')[0]; } };
 
-    ok('P1 tool count is 72', cur.tools.length === 72 && golden.count === 72, 'got ' + cur.tools.length);
+    ok('P1 tool count is 73', cur.tools.length === 73 && golden.count === 73, 'got ' + cur.tools.length);
     const gNames = golden.tools.map((t) => t.name);
     const cNames = cur.tools.map((t) => t.name);
     same = eq(cNames, gNames);

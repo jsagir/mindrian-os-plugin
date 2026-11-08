@@ -413,6 +413,15 @@
     },
     {
       "kind": "tool",
+      "name": "eureka_capability_job_forget",
+      "field": "membership",
+      "path": [
+        "."
+      ],
+      "note": "Plan 374-13 (base 1acb2f39) added this tool after the zod 3 snapshot; a membership delta, not a zod delta (the gate_list precedent). Pinned 2026-11-08 by plan 374-13."
+    },
+    {
+      "kind": "tool",
       "name": "eureka_capability_job_result",
       "field": "membership",
       "path": [
