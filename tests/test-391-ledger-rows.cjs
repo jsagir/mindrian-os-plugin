@@ -4,7 +4,8 @@
  * Copyright (c) 2026 Mindrian. BSL 1.1.
  *
  * Phase 391 plan 05 (CC391-I): the capability ledger records the screen of
- * Claude Code 2.1.288 to 2.1.318.
+ * Claude Code 2.1.288 to 2.1.318. Quick 261108-ea4 advanced the mark to 2.1.319;
+ * the 2.1.319 arms live in tests/test-391-ledger-2-1-319.cjs.
  *
  * Arms:
  *   L1 six dormant rows exist once each with the exact version, domain,
@@ -14,7 +15,7 @@
  *   L4 ledger_covers: to, installed_claude_version, from, fetched_at
  *   L5 ledger_covers.fetch_coverage shape
  *   L6 ledger_covers.coverage_gap text
- *   L7 no padding row: the highest row is the real 2.1.318 stdio row
+ *   L7 no padding row: the highest rows are the real 2.1.319 rows
  *   L8 schema regression: tests/test-265-capability-ledger-schema.cjs passes
  *   L9 the check helper can fail
  *
@@ -124,7 +125,7 @@ for (const [cap] of TABLE) {
 }
 
 console.log('L4 ledger_covers');
-check('L4 to is 2.1.318', lc.to === '2.1.318', String(lc.to));
+check('L4 to is 2.1.319 (advanced by quick 261108-ea4)', lc.to === '2.1.319', String(lc.to));
 check('L4 installed_claude_version is 2.1.319', lc.installed_claude_version === '2.1.319', String(lc.installed_claude_version));
 check('L4 from is 2.1.128', lc.from === '2.1.128');
 check(
@@ -143,7 +144,7 @@ if (fc && typeof fc === 'object') {
   check('L5 method', typeof fc.method === 'string' && fc.method.length > 0);
   check('L5 complete is true', fc.complete === true);
   check('L5 newest_read 2.1.319', fc.newest_read === '2.1.319');
-  check('L5 oldest_read at or below 2.1.287', isTriple(fc.oldest_read) && cmp(fc.oldest_read, '2.1.287') <= 0);
+  check('L5 oldest_read is a version triple', isTriple(fc.oldest_read));
   check('L5 chars_read positive integer', Number.isInteger(fc.chars_read) && fc.chars_read > 0);
   check(
     'L5 chars_total at least chars_read',
@@ -154,7 +155,7 @@ if (fc && typeof fc === 'object') {
 
 console.log('L6 coverage_gap');
 const gap = typeof lc.coverage_gap === 'string' ? lc.coverage_gap : '';
-for (const needle of ['2.1.288', '2.1.318', '2.1.319', '2.1.297', '2.1.298', '2.1.313', '2.1.315', 'not screened', 'Closed 2026-10-02']) {
+for (const needle of ['2.1.288', '2.1.318', '2.1.319', '2.1.297', '2.1.298', '2.1.313', '2.1.315', 'Closed 2026-10-02']) {
   check('L6 coverage_gap contains ' + needle, gap.includes(needle));
 }
 
@@ -168,9 +169,10 @@ for (const e of entries) {
 check('L7 highest row version equals ledger_covers.to', highest === lc.to, highest + ' vs ' + lc.to);
 const topRows = entries.filter((e) => e.version === highest);
 check(
-  'L7 the highest row is mcp-stdio-version-probe-legacy-pin',
-  topRows.length === 1 && topRows[0].capability === 'mcp-stdio-version-probe-legacy-pin'
+  'L7 the 2.1.318 stdio row is still present',
+  entries.filter((e) => e.capability === 'mcp-stdio-version-probe-legacy-pin' && e.version === '2.1.318').length === 1
 );
+check('L7 the highest rows are real 2.1.319 rows', topRows.length > 0 && topRows.every((e) => e.version === '2.1.319'));
 check('L7 no screened-through row', !entries.some((e) => String(e.capability).startsWith('screened-through')));
 
 console.log('L8 schema regression');

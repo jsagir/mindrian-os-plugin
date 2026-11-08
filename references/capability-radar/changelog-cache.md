@@ -5,15 +5,22 @@ This file is a rendered human-readable VIEW. `data/capability-ledger.json` is th
 this view from it.
 
 Last fetched: 2026-11-08
-Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md (2.1.288 through 2.1.318 screened 2026-11-07 from a full local read)
+Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md (2.1.319 screened 2026-11-08 from the first live ask-first fetch; 2.1.288 through 2.1.318 screened 2026-11-07 from a full local read)
 Source (2.1.247 through 2.1.280): https://github.com/anthropics/claude-code/releases
+
+**Provenance (screen of 2026-11-08).** Claude Code 2.1.319 was screened from the first live run of
+the ask-first radar fetch: one public GET of the fixed CHANGELOG URL, no room data, run through
+`scripts/radar-changelog-slice.cjs --approve` with the navigator's go-ahead (1175667 of 1175667
+characters read, complete, 437 headers, fetch time 2026-11-08T08:16:43Z). All 146 bullets of 2.1.319
+were screened as data; most are gateway, VS Code, cloud, Chrome and permission-fix lines with no
+shipped repo surface. Four rows were added (one no-op, three dormant). The ledger now covers
+2.1.128 through 2.1.319 and the installed host is 2.1.319.
 
 **Provenance (screen of 2026-11-07).** Claude Code 2.1.288 through 2.1.318 were screened from a full
 local read of the main CHANGELOG.md (1175667 characters, complete; newest read 2.1.319, oldest read
-2.1.287). The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. Version 2.1.319 is in the
-file but is not screened; it carries MCP handshake changes worth a first look at the next fetch. Six
-dormant rows were added; the ledger now covers 2.1.128 through 2.1.318 and the installed host is
-2.1.319. No live fetch ran for this entry.
+2.1.287). The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. Version 2.1.319 was in the
+file and is screened by the 2026-11-08 entry above. Six dormant rows were added; no live fetch ran
+for this entry.
 
 **Provenance (gap closed 2026-10-02).** The 2026-10-01 fetch left Claude Code 2.1.247 through
 2.1.280 unscreened, because the main CHANGELOG.md only carries 2.1.281 and later. On 2026-10-02
@@ -33,6 +40,26 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 2.1.287 (SEED-104), so the navigator's 2026-10-02 "Normal card on CLI" ruling stands.
 
 ## Recent Changes Relevant to MindrianOS
+
+### 2.1.319 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** MCP servers on the older handshake no longer fail to connect or return empty results, because Claude Code stopped declaring an extension it only uses with newer servers.
+- **MindrianOS impact:** Both servers in `.mcp.json` are stdio and `tests/test-267-mcpv2-brain-shim.cjs` covers both handshake eras. A free fix, no change needed (no-op row).
+
+### 2.1.319 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** MCP tasks work in the terminal without feature-flag fetching: a server tool call run as a task moves to the background and the result is reported later. `CLAUDE_CODE_DISABLE_MCP_TASKS=1` turns it off.
+- **MindrianOS impact:** `lib/mcp/capability-registry.cjs` holds only a commented Phase 58 tasks hook point, and the CLI surface maps tasks to false. A candidate for long tools; dormant.
+
+### 2.1.319 (date not in fetched fields)
+- **Domain:** code
+- **Change:** PostToolUse hooks now run, with up to 10 seconds, on tool calls that finish after a new message interrupts the turn.
+- **MindrianOS impact:** `hooks/hooks.json` registers nine PostToolUse hooks (timeouts 3 to 5); each must stay safe on a half-finished turn. Dormant check.
+
+### 2.1.319 (date not in fetched fields)
+- **Domain:** code
+- **Change:** A slash command typed after a leading space, tab or newline now runs instead of going to Claude as plain text.
+- **MindrianOS impact:** `scripts/admin-command-gate.cjs` already trims leading whitespace before it matches, so a gated command cannot slip by. No test pins the leading-whitespace case; dormant.
 
 ### 2.1.318 (date not in fetched fields)
 - **Domain:** plugins_mcp
@@ -151,6 +178,7 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 
 ### Screened out (no ledger row)
 
+- **2.1.319 (the other 140 bullets):** Claude apps gateway, self-hosted runner, VS Code, cloud session, Claude in Chrome, Claude Tag, auto mode server check, Bash and sed permission fixes, /diff, /rewind, OpenTelemetry, agents view, artifact database and /claude-api lines. None touches a shipped surface: the repo has no gateway or runner config, no subagentStatusLine, no PermissionRequest hook, and no Monitor use. `permissions.denyInsteadOfPrompting` and the mod hot-reload fixes were read and judged not to change a repo dependency.
 - **2.1.283 and 2.1.286 (plugins_mcp):** 2.1.283 added MCP tool and WebFetch outputs to OpenTelemetry spans plus MCP startup and sign-in fixes; 2.1.286 added list mouse support, marketplace error and listing improvements, and headless MCP startup. No repo surface plausibly touched.
 - **2.1.280:** Agent-type PermissionRequest hooks are now refused. `hooks/hooks.json` registers no PermissionRequest event and only command-type hooks.
 - **2.1.274:** MCP entries of type sdk are skipped with a warning. `.mcp.json` declares two stdio command servers, no sdk entry.

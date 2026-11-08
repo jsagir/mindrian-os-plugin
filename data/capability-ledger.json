@@ -9,15 +9,15 @@
   ],
   "ledger_covers": {
     "from": "2.1.128",
-    "to": "2.1.318",
-    "fetched_at": "2026-11-08T04:53:49Z",
+    "to": "2.1.319",
+    "fetched_at": "2026-11-08T08:16:43Z",
     "installed_claude_version": "2.1.319",
-    "coverage_gap": "2026-11-07: Claude Code 2.1.288 through 2.1.318 were screened from a full local read of the main CHANGELOG.md. The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. Version 2.1.319 is in the file but is not screened; it carries MCP handshake changes worth a first look at the next fetch. Earlier note: Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range.",
+    "coverage_gap": "2026-11-08: Claude Code 2.1.319 was screened from the first live run of the ask-first radar fetch (one public GET, 1175667 of 1175667 characters read, complete, 146 bullets, 4 rows added). 2026-11-07: Claude Code 2.1.288 through 2.1.318 were screened from a full local read of the main CHANGELOG.md. The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. The ledger now covers 2.1.128 through 2.1.319 with no unscreened range. Earlier note: Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range.",
     "fetch_coverage": {
-      "method": "curl-full-file",
+      "method": "script",
       "complete": true,
       "newest_read": "2.1.319",
-      "oldest_read": "2.1.287",
+      "oldest_read": "2.1.319",
       "chars_read": 1175667,
       "chars_total": 1175667,
       "checked_at": "2026-11-08"
@@ -676,6 +676,46 @@
       "destination": ".mcp.json",
       "status": "dormant",
       "evidence": "CHANGELOG.md 2.1.318 (read 2026-11-07); tests/test-267-mcpv2-brain-shim.cjs covers both eras"
+    },
+    {
+      "capability": "mcp-legacy-handshake-extension-fix",
+      "version": "2.1.319",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Fixed: MCP servers on the older handshake no longer fail to connect or return empty results, because Claude Code stopped declaring an extension it only uses with newer servers. Both shipped stdio servers gain; nothing to change.",
+      "destination": ".mcp.json",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.319 (first live ask-first fetch, 2026-11-08); .mcp.json declares two stdio servers; tests/test-267-mcpv2-brain-shim.cjs covers both handshake eras"
+    },
+    {
+      "capability": "mcp-tasks-terminal-background",
+      "version": "2.1.319",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "MCP tasks now work in the terminal without feature-flag fetching: a server tool call run as a task goes to the background and the result is reported later. CLAUDE_CODE_DISABLE_MCP_TASKS=1 turns it off. Candidate for long tools.",
+      "destination": "lib/mcp/capability-registry.cjs",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.319; lib/mcp/capability-registry.cjs holds only a commented Phase 58 tasks hook point and the CLI surface maps tasks to false in lib/mcp/surface-detect.cjs"
+    },
+    {
+      "capability": "posttooluse-runs-after-interrupt",
+      "version": "2.1.319",
+      "date": null,
+      "domain": "code",
+      "leverage": "PostToolUse hooks now run, with up to 10 s, on tool calls that finish after a new message interrupts the turn. Nine shipped PostToolUse hooks (timeout 3 to 5) must stay safe on a half-finished turn.",
+      "destination": "hooks/hooks.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.319; hooks/hooks.json registers nine PostToolUse command hooks (seven on Write|Edit|MultiEdit, one Grep|Glob telemetry, one Brain response sanitizer), timeouts 3 to 5"
+    },
+    {
+      "capability": "slash-command-after-leading-whitespace",
+      "version": "2.1.319",
+      "date": null,
+      "domain": "code",
+      "leverage": "A slash command typed after a leading space, tab or newline now runs instead of going to Claude as plain text. The admin gate already trims leading whitespace before it matches, so a gated command cannot slip by; no test pins it.",
+      "destination": "scripts/admin-command-gate.cjs",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.319; scripts/admin-command-gate.cjs detectInvokedCommand applies trimStart; tests/test-admin-gate-hardening.cjs has no leading-whitespace case"
     }
   ]
 }
