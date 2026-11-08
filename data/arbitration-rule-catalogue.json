@@ -21,7 +21,8 @@
       "brain-derivation-drain.cjs": "Drains queued Brain-derivation writes in the background; bookkeeping, not a live judgment call.",
       "auto-explore-drain.cjs": "Drains the auto-explore fingerprint queue in the background; bookkeeping over prior tool-use telemetry, not a judgment over the current turn.",
       "run-hook.cmd on-stop": "The generic Stop-hook dispatcher for room-context persistence (session save state, room binding refresh); a routing indirection to per-room bookkeeping, not itself a rule that judges or blocks.",
-      "web-credential-guard-hook.cjs": "A credential-only PreToolUse check on the web lines (native WebSearch, WebFetch and the Tavily tools), plan 386-36. It matches credential shapes and nothing else, so it is a safeguard on what leaves, not an arbitration rule over Larry's conversational judgment."
+      "web-credential-guard-hook.cjs": "A credential-only PreToolUse check on the web lines (native WebSearch, WebFetch and the Tavily tools), plan 386-36. It matches credential shapes and nothing else, so it is a safeguard on what leaves, not an arbitration rule over Larry's conversational judgment.",
+      "review-contract-hook.cjs": "A PreToolUse check on the Write tool for grade and deep-grade reviews, plan 370-06. It matches the fixed review shape and the internal-name list of data/review-contract.json and nothing else; it runs in log-only mode (owner answer O6B), so it records rule ids, classes and lines and never blocks. It is a file-shape check on a deliverable, not an arbitration rule over Larry's conversational judgment."
     },
     "named_assumption": "The langtalks consult's own flag, quoted: the floor-versus-weighted-input classification is an engineering decision with no corpus backing, so every row below is arguable and each carries its own reason so the navigator can overrule it row by row."
   },

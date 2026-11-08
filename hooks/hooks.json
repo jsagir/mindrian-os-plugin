@@ -235,6 +235,16 @@
             "onFailure": "block"
           }
         ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/review-contract-hook.cjs\"",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "PostToolUse": [

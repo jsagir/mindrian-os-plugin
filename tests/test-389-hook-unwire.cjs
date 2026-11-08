@@ -83,9 +83,16 @@ check('no command in any hooks.json event runs mva-detect.cjs', () => {
   assert.strictEqual(hits.length, 0, 'still run mva-detect.cjs: ' + hits.join(', '));
 });
 
-check('the census dropped by exactly one command: total and UserPromptSubmit one less, every other count equal', () => {
+check('the census dropped by exactly one command (UserPromptSubmit one less) and gained the plan 370-06 review hook (PreToolUse one more), every other count equal', () => {
   const now = census();
-  const expected = Object.assign({}, BEFORE, { total: BEFORE.total - 1, UserPromptSubmit: BEFORE.UserPromptSubmit - 1 });
+  // Plan 370-06 (owner answers O6B and O8, 2026-11-08) then ADDED one PreToolUse command on purpose
+  // (the review contract hook, matcher Write, timeout 3, log-only). It is a deliberate change: total
+  // and PreToolUse are one higher, and the two onFailure block commands stay the same.
+  const expected = Object.assign({}, BEFORE, {
+    total: BEFORE.total - 1 + 1,
+    UserPromptSubmit: BEFORE.UserPromptSubmit - 1,
+    PreToolUse: BEFORE.PreToolUse + 1,
+  });
   assert.deepStrictEqual(now, expected);
 });
 

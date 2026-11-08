@@ -78,7 +78,19 @@ const P389 = {
     { event: 'UserPromptSubmit', sub: 'mva-detect.cjs' },
   ],
 };
-const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length;
+// Phase 370 plan 06 (owner answers O6B LOG-ONLY and O8 FRONTMATTER, 2026-11-08): one
+// PreToolUse entry was ADDED on purpose (the review contract hook for the Write tool).
+// P370 records it. The hook runs in log-only mode: it logs rows and never blocks, and it
+// carries no onFailure key. HOOK_BUDGET_REVIEW_MS is the stated latency budget of a review
+// payload above the node start (arm H11 of tests/test-370-hook.cjs); it stays far below
+// the timeout.
+const P370 = {
+  added: [
+    { event: 'PreToolUse', sub: 'review-contract-hook.cjs', timeout: 3 },
+  ],
+};
+const HOOK_BUDGET_REVIEW_MS = 150;
+const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -118,6 +130,7 @@ const TABLE = [
   ['PreToolUse', 'part8-egress-guard-hook.cjs', 5],
   ['PreToolUse', 'card-before-answer-hook.cjs', 3],
   ['PreToolUse', 'web-credential-guard-hook.cjs', 5],
+  ['PreToolUse', 'review-contract-hook.cjs', 3],
   ['PostToolUse', 'run-hook.cmd" post-write', 5],
   ['PostToolUse', 'frontmatter-schema-validator.cjs', 5],
   ['PostToolUse', 'async-artifact-auto-commit.cjs', 5],
@@ -184,12 +197,13 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
       }
     }
   }
-  // Plan 386-36: take the deliberate additions (P386) out of the current document
-  // before the comparison, because the base commit does not hold them.
+  // Plan 386-36 and plan 370-06: take the deliberate additions (P386, P370) out of the
+  // current document before the comparison, because the base commit does not hold them.
+  const addedAll = P386.added.concat(P370.added);
   const current = JSON.parse(JSON.stringify(doc));
   for (const ev of Object.keys(current.hooks || {})) {
     current.hooks[ev] = (current.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
-      P386.added.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
+      addedAll.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
   }
   must(JSON.stringify(stripKeys(current)) === JSON.stringify(stripKeys(base)),
     'hooks.json differs from ' + BASE_SHA + ' in more than timeout and onFailure');
@@ -237,6 +251,17 @@ check('A5 only the two guard hooks have onFailure, and it is exactly "block"', (
     must(guard[0].h.onFailure === 'block', tail + ' onFailure is ' + JSON.stringify(guard[0].h.onFailure));
   }
   must(withKey.length === 2, 'entries with an onFailure key: ' + withKey.length);
+});
+
+check('A5b P370 the review contract hook: Write matcher, timeout 3, no onFailure, budget far below the timeout', () => {
+  const hit = entries.filter((e) => e.h.command.indexOf('review-contract-hook.cjs') !== -1);
+  must(hit.length === 1, 'review-contract-hook entries: ' + hit.length);
+  must(hit[0].event === 'PreToolUse', 'event is ' + hit[0].event);
+  must(hit[0].group.matcher === 'Write', 'matcher is ' + hit[0].group.matcher);
+  must(hit[0].h.timeout === 3, 'timeout is ' + hit[0].h.timeout);
+  must(!Object.prototype.hasOwnProperty.call(hit[0].h, 'onFailure'), 'the hook must not carry onFailure');
+  must(10 * HOOK_BUDGET_REVIEW_MS <= hit[0].h.timeout * 1000,
+    'ten times the review budget (' + (10 * HOOK_BUDGET_REVIEW_MS) + ' ms) exceeds the timeout (' + (hit[0].h.timeout * 1000) + ' ms)');
 });
 
 check('A6 ambient-stop keeps timeout 5 and async true', () => {
