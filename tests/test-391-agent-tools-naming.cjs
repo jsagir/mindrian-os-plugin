@@ -40,6 +40,46 @@ const PENDING_OWNER = [
 
 const NOTE_MARKER = '391-NOTE-allowed-tools-not-enforced';
 
+// Owner card C1 of 391-DECISION.md, answered APPLY-ALL by the owner on 2026-11-08
+// (plan 391-07). These constants come from the C1 edit list rows (columns:
+// tools to write, allowed-tools now), not from memory. The plugin-scoped Brain
+// name form mcp__plugin_mos_mindrian-brain__TOOL was PROVEN on claude 2.1.319
+// (391-probe-plugin-names.json). The Desktop copy mos-desktop prefix is UNVERIFIED.
+// APPLY-ALL: no agent is in NOTE_SET, so arm A11 is not part of this test.
+const APPLIED_TOOLS = {
+  "analogy-query-fetcher": ["mcp__tavily__tavily-search", "WebSearch", "Read"],
+  "brain-query": ["mcp__plugin_mos_mindrian-brain__brain_ask", "mcp__plugin_mos_mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read"],
+  "chain-step-reviewer": ["Read"],
+  "competitor-watch-fetcher": ["mcp__tavily__tavily-search", "WebSearch", "Read"],
+  "framework-runner": ["Read", "Write", "Bash", "Glob"],
+  "grading": ["mcp__plugin_mos_mindrian-brain__brain_ask", "mcp__plugin_mos_mindrian-brain__brain_search", "Read"],
+  "grant-reviewer": ["Read", "Glob"],
+  "investor": ["mcp__plugin_mos_mindrian-brain__brain_ask", "mcp__plugin_mos_mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read"],
+  "meeting-perspective-extractor": ["Read"],
+  "opportunity-scanner": ["Read", "Write", "Glob", "Bash", "WebSearch", "mcp__tavily-mcp__tavily-search", "mcp__tavily-mcp__tavily-extract"],
+  "persona-analyst": ["Read", "Write", "Glob", "WebSearch", "WebFetch", "mcp__plugin_mos_mindrian-brain__brain_search", "mcp__plugin_mos_mindrian-brain__brain_query"],
+  "research": ["mcp__tavily-mcp__tavily-search", "mcp__tavily-mcp__tavily-extract", "mcp__plugin_mos_mindrian-brain__brain_ask", "mcp__plugin_mos_mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read", "Write"],
+  "vault-section-reviewer": ["Read"],
+};
+
+const ALLOWED_BEFORE = {
+  "analogy-query-fetcher": ["mcp__tavily__tavily-search", "WebSearch", "Read"],
+  "brain-query": ["mcp__mindrian-brain__brain_ask", "mcp__mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read"],
+  "chain-step-reviewer": ["Read"],
+  "competitor-watch-fetcher": ["mcp__tavily__tavily-search", "WebSearch", "Read"],
+  "framework-runner": ["Read", "Write", "Bash", "Glob"],
+  "grading": ["mcp__mindrian-brain__brain_ask", "mcp__mindrian-brain__brain_search", "Read"],
+  "grant-reviewer": ["Read", "Glob"],
+  "investor": ["mcp__mindrian-brain__brain_ask", "mcp__mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read"],
+  "meeting-perspective-extractor": ["Read"],
+  "opportunity-scanner": ["Read", "Write", "Glob", "Bash", "WebSearch", "mcp__tavily-mcp__tavily-search", "mcp__tavily-mcp__tavily-extract"],
+  "persona-analyst": ["Read", "Write", "Glob", "WebSearch", "WebFetch", "mcp__mindrian-brain__brain_search", "mcp__mindrian-brain__brain_query"],
+  "research": ["mcp__tavily-mcp__tavily-search", "mcp__tavily-mcp__tavily-extract", "mcp__mindrian-brain__brain_ask", "mcp__mindrian-brain__brain_search", "mcp__pinecone-brain__search-records", "Read", "Write"],
+  "vault-section-reviewer": ["Read"],
+};
+
+const PLUGIN_SCOPE_PREFIX = "mcp__plugin_mos_";
+
 let passed = 0;
 let failed = 0;
 function ok(name) { passed += 1; console.log('  ok   ' + name); }
@@ -227,10 +267,9 @@ for (const h of res.pendingHit) {
 if (res.stale.length === 0) ok('A5 every PENDING_OWNER entry matches a real line (' + PENDING_OWNER.length + ' entries)');
 else for (const st of res.stale) fail('A5 ' + st.msg, 'delete the entry (plan 391-07)');
 
-// A6 Tier B report (never fails)
+// A6 Tier B report (print only: ignored keys on plugin agents)
 (function a6() {
   const agents = surfaces.filter((s) => s.cls === 'agent' && s.fm);
-  const noTools = agents.filter((s) => s.fm.keys['allowed-tools'] && !s.fm.keys.tools);
   const pluginIgnored = agents.filter((s) => s.fm.keys.mcpServers || s.fm.keys.initialPrompt);
   const SUPPORTED = new Set(['name', 'description', 'model', 'effort', 'maxTurns', 'tools', 'disallowedTools', 'skills',
     'memory', 'background', 'omitClaudeMd', 'isolation', 'color', 'experimental']);
@@ -241,16 +280,68 @@ else for (const st of res.stale) fail('A5 ' + st.msg, 'delete the entry (plan 39
       if (!SUPPORTED.has(k)) { ignored[k] = (ignored[k] || 0) + 1; ignoredTotal += 1; }
     }
   }
-  const tag = (s) => path.basename(s.rel, '.md') + (s.text.includes(NOTE_MARKER) ? ' [ACKNOWLEDGED]' : '');
-  console.log('  REPORT (Tier B, never fails)');
-  console.log('       agents with allowed-tools and no tools (host ignores allowed-tools): ' + noTools.length + ' (13 expected)');
-  console.log('         ' + noTools.map(tag).join(', '));
+  console.log('  REPORT (Tier B, print only)');
   console.log('       plugin agents with mcpServers or initialPrompt (host ignores both): ' + pluginIgnored.length + ' -> ' +
     pluginIgnored.map((s) => path.basename(s.rel, '.md') + '[' + ['mcpServers', 'initialPrompt'].filter((k) => s.fm.keys[k]).join('+') + ']').join(', '));
   console.log('       ignored unknown key instances across agents: ' + ignoredTotal + '; by key: ' +
     Object.keys(ignored).sort().map((k) => k + ' ' + ignored[k]).join(', '));
   ok('A6 Tier B report printed');
 })();
+
+// A12 (was the Tier B report, now a rule): an agent with allowed-tools needs a
+// host-read tools list or the 391 note marker. The host ignores allowed-tools.
+function ruleA12(agentSurfaces) {
+  return agentSurfaces
+    .filter((s) => s.fm && s.fm.keys['allowed-tools'] && !s.fm.keys.tools && !s.text.includes(NOTE_MARKER))
+    .map((s) => ({ rule: 'A12', file: s.rel, msg: path.basename(s.rel, '.md') + ' has allowed-tools but neither tools nor ' + NOTE_MARKER }));
+}
+(function a12() {
+  const bad = ruleA12(surfaces.filter((s) => s.cls === 'agent'));
+  if (bad.length === 0) ok('A12 every agent with allowed-tools has a tools list or the note marker');
+  else for (const b of bad) fail('A12 ' + b.file, b.msg);
+})();
+
+// A10 applied set: tools equals the card row as a set; allowed-tools unchanged.
+// A13 no widening: every tools entry is in allowed-tools or is its plugin-scoped rewrite.
+function scopedForm(e) {
+  const m = /^mcp__(mindrian-brain)__(.+)$/.exec(e);
+  return m ? PLUGIN_SCOPE_PREFIX + m[1] + '__' + m[2] : e;
+}
+function ruleA13(tools, allowed) {
+  const okSet = new Set();
+  for (const a of allowed) { okSet.add(a); okSet.add(scopedForm(a)); }
+  return tools.filter((e) => !okSet.has(e)).map((e) => ({ rule: 'A13', token: e, msg: 'tools entry not in allowed-tools: ' + e }));
+}
+(function a10a13() {
+  const byName = {};
+  for (const s of surfaces) if (s.cls === 'agent') byName[path.basename(s.rel, '.md')] = s;
+  const same = (a, b) => a.length === b.length && new Set(a).size === a.length && a.every((x) => b.includes(x));
+  let n = 0;
+  for (const name of Object.keys(APPLIED_TOOLS)) {
+    n += 1;
+    const s = byName[name];
+    if (!s || !s.fm) { fail('A10 ' + name, 'agent file missing'); continue; }
+    const tl = s.fm.keys.tools ? s.fm.keys.tools.items : null;
+    const al = s.fm.keys['allowed-tools'] ? s.fm.keys['allowed-tools'].items : null;
+    if (!tl) { fail('A10 ' + name, 'no tools list'); continue; }
+    if (!same(tl, APPLIED_TOOLS[name])) fail('A10 ' + name, 'tools differ from card row: ' + tl.join(', '));
+    else if (!al || JSON.stringify(al) !== JSON.stringify(ALLOWED_BEFORE[name])) fail('A10 ' + name, 'allowed-tools changed from the card value');
+    else ok('A10 ' + name + ' tools match the card row; allowed-tools unchanged');
+    const wide = ruleA13(tl, al || []);
+    if (wide.length) fail('A13 ' + name, wide[0].msg); else ok('A13 ' + name + ' no widening');
+    // a Brain tool must never be added to an agent that had none
+    const hadBrain = (al || []).some((e) => e.startsWith('mcp__mindrian-brain__'));
+    const hasBrain = tl.some((e) => /^mcp__(plugin_mos_)?mindrian-brain__/.test(e));
+    if (hasBrain && !hadBrain) fail('A13 ' + name, 'Brain tool added to an agent that had none');
+  }
+  if (n !== 13) fail('A10 applied set size', n + ' agents, 13 expected');
+  else ok('A10 applied set holds 13 agents');
+})();
+mutation('A12 mutation: agent with allowed-tools and no tools or marker flagged',
+  ruleA12([{ rel: 'agents/x.md', text: '---\nallowed-tools:\n  - Read\n---\n', fm: parseFrontmatter('---\nallowed-tools:\n  - Read\n---\n') }]));
+mutation('A13 mutation: widened tools list flagged', ruleA13(['Read', 'Write'], ['Read']));
+if (ruleA13(['mcp__plugin_mos_mindrian-brain__brain_ask'], ['mcp__mindrian-brain__brain_ask']).length === 0) ok('A13 plugin-scoped rewrite of an allowed entry accepted');
+else fail('A13 plugin-scoped rewrite of an allowed entry accepted', 'was flagged');
 
 // A7 names
 (function a7() {
