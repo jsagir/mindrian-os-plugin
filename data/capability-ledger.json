@@ -9,10 +9,19 @@
   ],
   "ledger_covers": {
     "from": "2.1.128",
-    "to": "2.1.287",
-    "fetched_at": "2026-10-01T23:20:45Z",
-    "installed_claude_version": "2.1.287",
-    "coverage_gap": "Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range."
+    "to": "2.1.318",
+    "fetched_at": "2026-11-08T04:53:49Z",
+    "installed_claude_version": "2.1.319",
+    "coverage_gap": "2026-11-07: Claude Code 2.1.288 through 2.1.318 were screened from a full local read of the main CHANGELOG.md. The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. Version 2.1.319 is in the file but is not screened; it carries MCP handshake changes worth a first look at the next fetch. Earlier note: Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range.",
+    "fetch_coverage": {
+      "method": "curl-full-file",
+      "complete": true,
+      "newest_read": "2.1.319",
+      "oldest_read": "2.1.287",
+      "chars_read": 1175667,
+      "chars_total": 1175667,
+      "checked_at": "2026-11-08"
+    }
   },
   "entries": [
     {
@@ -607,6 +616,66 @@
       "destination": "agents/",
       "status": "dormant",
       "evidence": "Version 2.1.248 (released 2026-08-27). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.248, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."
+    },
+    {
+      "capability": "hook-onfailure-block",
+      "version": "2.1.295",
+      "date": null,
+      "domain": "code",
+      "leverage": "onFailure block makes a command or HTTP hook that cannot start, times out or exits oddly stop the action. Already on the Part 8 egress guard; the web credential guard has none. SDK callbacks follow in 2.1.317.",
+      "destination": "hooks/hooks.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.295 and 2.1.317 (anthropics/claude-code); hooks docs; 7 probe runs on claude 2.1.319 (391-RESEARCH.md check b)"
+    },
+    {
+      "capability": "agent-tools-mcp-server-naming",
+      "version": "2.1.299",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "An agent tools list takes only the named server's tools; a server name with a double underscore needs the whole name plus __*. No shipped line breaks it, but 13 agents list tools only under allowed-tools, which the host ignores.",
+      "destination": "agents/",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.299; sub-agents docs; host warning seen on claude 2.1.319 (391-RESEARCH.md check a)"
+    },
+    {
+      "capability": "mcp-protocol-2026-07-28-default",
+      "version": "2.1.292",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Claude Code asks stdio, HTTP and connector servers for MCP protocol 2026-07-28 by default; MCP_PROTOCOL_NEGOTIATION=legacy opts out. Both shipped servers negotiate it clean in local runs.",
+      "destination": ".mcp.json scripts/mindrian-mcp-server.cjs bin/mindrian-brain-mcp-client.cjs",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.292, 2.1.295, 2.1.299; mcp docs; tests/test-267-mcpv2-brain-shim.cjs PASS (391-RESEARCH.md check d)"
+    },
+    {
+      "capability": "userpromptsubmit-before-expansion",
+      "version": "2.1.299",
+      "date": null,
+      "domain": "code",
+      "leverage": "UserPromptSubmit hooks see the raw typed line before a skill or command expands; a block also stops its embedded shell commands. No shipped hook returns updatedInput. The admin gate already reads the raw prompt.",
+      "destination": "hooks/hooks.json scripts/admin-command-gate.cjs",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.299 and 2.1.300; hooks docs; payload probe on claude 2.1.319 (391-RESEARCH.md check c)"
+    },
+    {
+      "capability": "plugin-monitors",
+      "version": "2.1.310",
+      "date": null,
+      "domain": "code",
+      "leverage": "Plugin monitors are background watchers declared in monitors/monitors.json; a candidate to replace poll-style hooks. They do not start with the -p flag. Candidate only, no change planned.",
+      "destination": "none",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.310 and 2.1.317; plugins-reference docs (391-RESEARCH.md check i)"
+    },
+    {
+      "capability": "mcp-stdio-version-probe-legacy-pin",
+      "version": "2.1.318",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "A stdio MCP server that dies in under 3 s for its own reason is pinned to the legacy handshake for 7 days; one that exits on the version probe is no longer re-probed each start. Both shipped stdio servers must start clean when cold.",
+      "destination": ".mcp.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.318 (read 2026-11-07); tests/test-267-mcpv2-brain-shim.cjs covers both eras"
     }
   ]
 }

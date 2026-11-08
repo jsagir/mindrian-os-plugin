@@ -4,9 +4,16 @@ This file is a rendered human-readable VIEW. `data/capability-ledger.json` is th
 `/mos:radar --fetch` writes the ledger first (Step 3b of `commands/radar.md`), then regenerates
 this view from it.
 
-Last fetched: 2026-10-02
-Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md
+Last fetched: 2026-11-08
+Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md (2.1.288 through 2.1.318 screened 2026-11-07 from a full local read)
 Source (2.1.247 through 2.1.280): https://github.com/anthropics/claude-code/releases
+
+**Provenance (screen of 2026-11-07).** Claude Code 2.1.288 through 2.1.318 were screened from a full
+local read of the main CHANGELOG.md (1175667 characters, complete; newest read 2.1.319, oldest read
+2.1.287). The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. Version 2.1.319 is in the
+file but is not screened; it carries MCP handshake changes worth a first look at the next fetch. Six
+dormant rows were added; the ledger now covers 2.1.128 through 2.1.318 and the installed host is
+2.1.319. No live fetch ran for this entry.
 
 **Provenance (gap closed 2026-10-02).** The 2026-10-01 fetch left Claude Code 2.1.247 through
 2.1.280 unscreened, because the main CHANGELOG.md only carries 2.1.281 and later. On 2026-10-02
@@ -26,6 +33,36 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 2.1.287 (SEED-104), so the navigator's 2026-10-02 "Normal card on CLI" ruling stands.
 
 ## Recent Changes Relevant to MindrianOS
+
+### 2.1.318 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** A stdio MCP server that dies in under 3 s for its own reason is pinned to the legacy handshake for 7 days; one that exits on the version probe is no longer re-probed each start. Both shipped stdio servers must start clean when cold.
+- **MindrianOS impact:** Both servers in `.mcp.json` are stdio; `tests/test-267-mcpv2-brain-shim.cjs` covers both handshake eras. Dormant.
+
+### 2.1.310 (date not in fetched fields)
+- **Domain:** code
+- **Change:** Plugin monitors are background watchers declared in monitors/monitors.json; a candidate to replace poll-style hooks. They do not start with the -p flag. Candidate only, no change planned.
+- **MindrianOS impact:** No monitors file ships today. A candidate for later, not a change now.
+
+### 2.1.299 (date not in fetched fields)
+- **Domain:** code
+- **Change:** UserPromptSubmit hooks see the raw typed line before a skill or command expands; a block also stops its embedded shell commands. No shipped hook returns updatedInput. The admin gate already reads the raw prompt.
+- **MindrianOS impact:** The admin command gate already works on the raw typed line. No change needed.
+
+### 2.1.299 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** An agent tools list takes only the named server's tools; a server name with a double underscore needs the whole name plus __*. No shipped line breaks it, but 13 agents list tools only under allowed-tools, which the host ignores.
+- **MindrianOS impact:** Those 13 agents inherit every tool; their read-only comments do not hold at the host level. Tracked in phase 391.
+
+### 2.1.295 (date not in fetched fields)
+- **Domain:** code
+- **Change:** onFailure block makes a command or HTTP hook that cannot start, times out or exits oddly stop the action. Already on the Part 8 egress guard; the web credential guard has none. SDK callbacks follow in 2.1.317.
+- **MindrianOS impact:** The egress guard already uses it. The web credential hook does not; that is a decision for the owner.
+
+### 2.1.292 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** Claude Code asks stdio, HTTP and connector servers for MCP protocol 2026-07-28 by default; MCP_PROTOCOL_NEGOTIATION=legacy opts out. Both shipped servers negotiate it clean in local runs.
+- **MindrianOS impact:** No change needed; both servers pass the local handshake test.
 
 ### 2.1.287 (date not in fetched fields)
 - **Domain:** plugins_mcp + models
