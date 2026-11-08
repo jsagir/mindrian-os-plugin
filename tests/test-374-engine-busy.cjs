@@ -74,7 +74,8 @@ const SESSION = 'b-session-374-11';
 const MARK = 'PLANTB-4c19';
 
 // The BEFORE figures of this plan (HEAD baea19a8f, measured 2026-11-08).
-const BASELINE_BUDGET_LINE = 'budget: 75 tools, 36269 desc bytes, 47531 schema bytes, 83800 total, ~20950 approx tokens (router 9 / atomic 66)';
+// Plan 374-12 added the page argument to eureka_capability_job_result (schema bytes 47531 -> 47586); plan 374-13 moves this line again.
+const BASELINE_BUDGET_LINE = 'budget: 75 tools, 36269 desc bytes, 47586 schema bytes, 83855 total, ~20964 approx tokens (router 9 / atomic 66)';
 
 let failed = 0;
 // The check helper: run one arm, print one line. An arm may throw { skip: reason } to print a skip line.

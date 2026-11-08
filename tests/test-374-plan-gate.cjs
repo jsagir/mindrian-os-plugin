@@ -206,7 +206,7 @@ async function main() {
       ['invalid_request', startArgs({ top_k: pairScreen.TOP_K_MAX + 1 }), {}],
       ['invalid_request', startArgs({ scope_id: 'forged' }), {}],
     ];
-    assert.equal(pairScreen.TOP_K_MAX, 100, 'TOP_K_MAX');
+    assert.equal(pairScreen.TOP_K_MAX, 200, 'TOP_K_MAX');
     for (const [reason, args, envPatch] of cases) {
       run.clearCatalogCache();
       const w = makeWorld();
