@@ -50,7 +50,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const LINTER_PATH = path.join(REPO_ROOT, 'lib', 'core', 'mva-rule-linter.cjs');
+const LINTER_PATH = path.join(REPO_ROOT, 'lib', 'core', 'reward-rule-linter.cjs');
 const CLI_PATH = path.join(REPO_ROOT, 'scripts', 'check-reward-before-investment.cjs');
 
 const { scanDeclaredSurfaces, scanCommands, REWARD_TYPES } = require(LINTER_PATH);

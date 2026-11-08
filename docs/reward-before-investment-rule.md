@@ -110,10 +110,10 @@ sources**:
 - The gates below enforce this at commit time and at release time.
 
 **Implementation:**
-- Library: `lib/core/mva-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `scanDeclaredSurfaces`, `validateFrontmatter`, `REWARD_TYPES`)
+- Library: `lib/core/reward-rule-linter.cjs` (exports `scanCommands`, `scanFiles`, `scanDeclaredSurfaces`, `validateFrontmatter`, `REWARD_TYPES`)
 - CLI: `scripts/check-reward-before-investment.cjs` (table + Larry-voice summary; exits 1 on violation)
 - Registry: `data/first-reward-surfaces.json` (Phase 267.3, ruling D-A) declares the first reward for surfaces that have no frontmatter to declare in, such as the `scripts/session-start` prose branches; read by `scanDeclaredSurfaces()` and audited by the `--surfaces` CLI mode
-- Pre-commit hook: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `mva-rule-linter` arm invokes the CLI when any `commands/*.md` is staged
+- Pre-commit hook: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `reward-rule-linter` arm invokes the CLI when any `commands/*.md` is staged
 - Bypass: `COMMIT_NO_VERIFY=1` (wave-protocol invariant per Phase 125-08 SUMMARY)
 
 **Three CLI modes, one commit gate, two release gates (Phase 245-02, widened Phase 267.3):**
@@ -121,7 +121,7 @@ sources**:
 | Invocation | Scope | Used by |
 | --- | --- | --- |
 | `node scripts/check-reward-before-investment.cjs [commandsDir]` | FULL AUDIT (default mode, no flag): every `commands/*.md` in the directory. Reports the true repo-wide debt. | **Release gate 2**: `scripts/verify-release` gate 10e (Phase 267.3, wired fail-closed once the audit read zero missing / zero invalid); CI; manual sweeps |
-| `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | **The one commit gate**: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `mva-rule-linter` arm, still staged-scoped exactly as Phase 245-02 built it |
+| `node scripts/check-reward-before-investment.cjs --staged [repoRoot]` | COMMIT GATE: only the `commands/*.md` this commit is staging, discovered via `git diff --cached --name-only --diff-filter=ACM`. Nothing staged means nothing to judge (exit 0). Exits 2 if the staged set cannot be determined, so an ungateable commit is never reported as passing. | **The one commit gate**: `scripts/hooks/pre-commit-room-minto-guard.sh`'s `reward-rule-linter` arm, still staged-scoped exactly as Phase 245-02 built it |
 | `node scripts/check-reward-before-investment.cjs --surfaces [repoRoot]` | REGISTRY AUDIT (Phase 267.3): every record in `data/first-reward-surfaces.json`, the declarations for surfaces with no frontmatter. Same three buckets, same exit contract. | **Release gate 1**: `scripts/verify-release` gate 10d, wired fail-closed |
 
 So the enforcement surface is exactly: **two declaration sources** (frontmatter,
@@ -179,9 +179,9 @@ Future expansions are canon amendments, not command-level inventions.
 ## Vocabulary amendments
 
 A term is added to `REWARD_TYPES` in THREE places at once, together, or not at all: the
-allowed-values list above, the frozen Set in `lib/core/mva-rule-linter.cjs`, and the
+allowed-values list above, the frozen Set in `lib/core/reward-rule-linter.cjs`, and the
 `_doc.reward_vocabulary` mirror in `data/first-reward-surfaces.json`. Set-equality across all
-three is test-enforced by `lib/core/mva-rule-linter.test.cjs` T13 and T14, so a term added to
+three is test-enforced by `lib/core/reward-rule-linter.test.cjs` T13 and T14, so a term added to
 one and forgotten in another reds the suite instead of drifting quietly. A code change without
 an entry in this section is a command-level invention wearing a library's clothes. Each entry
 records the exact token, the surface class it describes, why the existing vocabulary could not

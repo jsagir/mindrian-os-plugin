@@ -28,7 +28,7 @@
 // sets TEST_265_GRANTS_STRICT=1.
 //
 // Frontmatter is sliced with the same plain fence-delimited read used by
-// the 265-03 predecessor and lib/core/mva-rule-linter.cjs (no YAML dep).
+// the 265-03 predecessor and lib/core/reward-rule-linter.cjs (no YAML dep).
 //
 // Plain Node script, no node:test. Hyphens only (no em-dashes).
 'use strict';

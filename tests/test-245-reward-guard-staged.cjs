@@ -49,7 +49,7 @@ const { spawnSync } = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
 const CLI_PATH = path.join(REPO, 'scripts', 'check-reward-before-investment.cjs');
-const LINTER_PATH = path.join(REPO, 'lib', 'core', 'mva-rule-linter.cjs');
+const LINTER_PATH = path.join(REPO, 'lib', 'core', 'reward-rule-linter.cjs');
 const HOOK_PATH = path.join(REPO, 'scripts', 'hooks', 'pre-commit-room-minto-guard.sh');
 
 const TMP_REAL = fs.realpathSync(os.tmpdir());
@@ -109,7 +109,7 @@ function makeRepo(prefix) {
   fs.mkdirSync(path.join(tmp, 'commands'), { recursive: true });
 
   fs.copyFileSync(CLI_PATH, path.join(tmp, 'scripts', 'check-reward-before-investment.cjs'));
-  fs.copyFileSync(LINTER_PATH, path.join(tmp, 'lib', 'core', 'mva-rule-linter.cjs'));
+  fs.copyFileSync(LINTER_PATH, path.join(tmp, 'lib', 'core', 'reward-rule-linter.cjs'));
   fs.copyFileSync(HOOK_PATH, path.join(tmp, 'scripts', 'hooks', 'pre-commit'));
 
   const installedHook = path.join(tmp, '.git', 'hooks', 'pre-commit');

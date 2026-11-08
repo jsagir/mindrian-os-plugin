@@ -28,7 +28,7 @@
  *      FIRST_INSTALL branch, not merely somewhere in the file
  *   4  every `id` is unique across the whole registry
  *   5  every `interactive_first_reward` is a member of the LIVE REWARD_TYPES Set
- *      read out of lib/core/mva-rule-linter.cjs at run time, never a copy of the
+ *      read out of lib/core/reward-rule-linter.cjs at run time, never a copy of the
  *      token list pasted into this file
  *   6  no `why` field carries a U+2014 em-dash (house rule: hyphens only)
  *   7  the tripwire actually FIRES: a synthetic registry whose anchor is absent
@@ -50,7 +50,7 @@ const os = require('node:os');
 const path = require('node:path');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const LINTER_PATH = path.join(REPO_ROOT, 'lib', 'core', 'mva-rule-linter.cjs');
+const LINTER_PATH = path.join(REPO_ROOT, 'lib', 'core', 'reward-rule-linter.cjs');
 const REGISTRY_PATH = path.join(REPO_ROOT, 'data', 'first-reward-surfaces.json');
 const SESSION_START_REL = 'scripts/session-start';
 

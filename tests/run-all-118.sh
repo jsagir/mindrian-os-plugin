@@ -34,7 +34,7 @@ CJS_SUITES=(
   # Plan 118-05 (operator helper; the footer router was retired in Phase 389 plan 08)
   ../lib/conversation/operator.test.cjs
   # Plan 118-06 (rule-linter; the Dror 2.0 harness was retired in Phase 389 plan 10 with the pipeline it timed)
-  ../lib/core/mva-rule-linter.test.cjs
+  ../lib/core/reward-rule-linter.test.cjs
 )
 
 TOTAL=0

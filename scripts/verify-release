@@ -367,7 +367,7 @@ if [ "$ANCHOR_CODE" -ne 0 ]; then
   echo "$ANCHOR_OUT" | tail -12
   echo "  Known open blocker as of Phase 271 close: 30 sites across 16 commands are ALREADY FIXED"
   echo "  in the working tree but cannot be committed until Phase 267.3 lands (they lack the"
-  echo "  interactive_first_reward declaration the mva-rule-linter requires), plus"
+  echo "  interactive_first_reward declaration the reward-rule-linter requires), plus"
   echo "  commands/doctor.md:262. See .planning/phases/271-*/deferred-items.md (DEFERRED-271-D1)."
 else
   pass "Every plugin-relative references/ citation is anchored (check-plugin-path-anchoring --check)"
@@ -411,7 +411,7 @@ if [ "$SURFACES_CODE" -ne 0 ]; then
   echo "  Legal values are the REWARD_TYPES closed vocabulary; a new term is a canon amendment,"
   echo "  never a registry-local invention. See docs/reward-before-investment-rule.md."
 else
-  SURFACES_COUNT=$(echo "$SURFACES_OUT" | sed -n 's/^mva-rule-linter: scanning \([0-9]*\) declared surfaces$/\1/p' | head -1)
+  SURFACES_COUNT=$(echo "$SURFACES_OUT" | sed -n 's/^reward-rule-linter: scanning \([0-9]*\) declared surfaces$/\1/p' | head -1)
   pass "All ${SURFACES_COUNT:-0} declared first-reward surfaces are valid (check-reward-before-investment --surfaces)"
 fi
 

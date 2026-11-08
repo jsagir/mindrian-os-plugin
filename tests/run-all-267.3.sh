@@ -70,7 +70,7 @@ done
 # 2. DO-NOT-REGRESS: the linter's own suite. It owns REWARD_TYPES, the
 #    frontmatter path, the pre-commit wire, and (as of 267.3-02) the
 #    three-way vocabulary parity between the Set, the rule doc and the registry.
-run "linter suite (do-not-regress)" node lib/core/mva-rule-linter.test.cjs
+run "linter suite (do-not-regress)" node lib/core/reward-rule-linter.test.cjs
 
 # 3. DO-NOT-REGRESS: the Phase 245-02 staged-gate suite. The commit gate is
 #    explicitly NOT changed by this phase (ruling D-C, part 1); this arm is how

@@ -4,7 +4,7 @@
  *
  * Phase 118-06 Plan 06 -- check-reward-before-investment CLI.
  *
- * Wraps lib/core/mva-rule-linter.cjs. Prints a table of compliant / missing /
+ * Wraps lib/core/reward-rule-linter.cjs. Prints a table of compliant / missing /
  * invalid counts + a Larry-voice summary line, exits 1 on any missing or
  * invalid.
  *
@@ -68,7 +68,7 @@ const {
   scanFiles,
   scanDeclaredSurfaces,
   REWARD_TYPES,
-} = require('../lib/core/mva-rule-linter.cjs');
+} = require('../lib/core/reward-rule-linter.cjs');
 
 const REPO_ROOT_DEFAULT = path.join(__dirname, '..');
 
@@ -114,14 +114,14 @@ function runStaged() {
 
   if (!staged.ok) {
     process.stderr.write(
-      'mva-rule-linter: could not determine the staged file set (' + staged.error + ').\n'
+      'reward-rule-linter: could not determine the staged file set (' + staged.error + ').\n'
       + 'Failing closed: a commit that cannot be gated is not a passing commit.\n'
     );
     process.exit(2);
   }
 
   process.stdout.write(
-    'mva-rule-linter: scanning ' + staged.files.length + ' staged commands/*.md file(s)\n'
+    'reward-rule-linter: scanning ' + staged.files.length + ' staged commands/*.md file(s)\n'
   );
 
   if (staged.files.length === 0) {
@@ -154,7 +154,7 @@ function runSurfaces() {
     result.missing[0].reason === 'registry_read_error'
   ) {
     process.stderr.write(
-      'mva-rule-linter: could not read the first-reward registry at '
+      'reward-rule-linter: could not read the first-reward registry at '
       + registryPath + ' (' + (result.missing[0].error || 'unknown error') + ').\n'
       + 'Failing closed: a registry that cannot be read is not a passing registry.\n'
     );
@@ -171,7 +171,7 @@ function runSurfaces() {
   }
 
   process.stdout.write(
-    'mva-rule-linter: scanning ' + declaredCount + ' declared surfaces\n'
+    'reward-rule-linter: scanning ' + declaredCount + ' declared surfaces\n'
   );
   process.stdout.write('  registry: ' + path.relative(repoRoot, registryPath) + '\n');
 
@@ -205,7 +205,7 @@ function main() {
   const abs = path.resolve(target);
 
   const result = scanCommands(abs);
-  process.stdout.write('mva-rule-linter: scanning ' + abs + '\n');
+  process.stdout.write('reward-rule-linter: scanning ' + abs + '\n');
   report(result, abs);
 }
 

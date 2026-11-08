@@ -311,7 +311,7 @@ fi
 # canon-amendment PR within 24 hours).
 #
 # Source-of-truth: docs/reward-before-investment-rule.md.
-# Library: lib/core/mva-rule-linter.cjs (scanFiles for the staged path,
+# Library: lib/core/reward-rule-linter.cjs (scanFiles for the staged path,
 # scanCommands for the full audit; one shared classifier).
 # Recovery on failure: declare interactive_first_reward in the offending
 # commands/*.md frontmatter. Allowed values: reframe_question, instant_brief,

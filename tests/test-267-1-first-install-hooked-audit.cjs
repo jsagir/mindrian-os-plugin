@@ -199,14 +199,14 @@ ok('Action leg: FIRST_INSTALL hands first contact to the router with no unbacked
 });
 
 ok('GAP G-1: the reward-before-investment guard has jurisdiction over commands/ only, never hooks', function () {
-  const linter = require('../lib/core/mva-rule-linter.cjs');
-  assert.equal(typeof linter.scanCommands, 'function', 'mva-rule-linter.cjs no longer exports scanCommands');
+  const linter = require('../lib/core/reward-rule-linter.cjs');
+  assert.equal(typeof linter.scanCommands, 'function', 'reward-rule-linter.cjs no longer exports scanCommands');
   assert.ok(
     Array.isArray(linter.REWARD_TYPES) || typeof linter.REWARD_TYPES === 'object',
-    'mva-rule-linter.cjs no longer exports REWARD_TYPES as an array or object/Set'
+    'reward-rule-linter.cjs no longer exports REWARD_TYPES as an array or object/Set'
   );
 
-  const linterSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'mva-rule-linter.cjs'), 'utf8');
+  const linterSrc = fs.readFileSync(path.join(REPO, 'lib', 'core', 'reward-rule-linter.cjs'), 'utf8');
   const cliSrc = fs.readFileSync(path.join(REPO, 'scripts', 'check-reward-before-investment.cjs'), 'utf8');
 
   // Phase 267.3 (commit 9a1b9fda, landed before this plan touched this file) legitimately added
@@ -243,13 +243,13 @@ ok('GAP G-1: the reward-before-investment guard has jurisdiction over commands/ 
     'GAP G-1 changed shape: scripts/check-reward-before-investment.cjs no longer targets commands/ by default - '
     + 're-run the 267.1 audit');
   assert.equal(linterCode.indexOf('session-start'), -1,
-    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references session-start in CODE '
+    'GAP G-1 closed or changed shape: lib/core/reward-rule-linter.cjs now references session-start in CODE '
     + '(not just a comment) - re-run the 267.1 audit');
   assert.equal(cliCode.indexOf('session-start'), -1,
     'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references session-start '
     + 'in CODE (not just a comment) - re-run the 267.1 audit');
   assert.equal(linterCode.indexOf("'hooks'"), -1,
-    'GAP G-1 closed or changed shape: lib/core/mva-rule-linter.cjs now references \'hooks\' in CODE '
+    'GAP G-1 closed or changed shape: lib/core/reward-rule-linter.cjs now references \'hooks\' in CODE '
     + '(not just a comment) - re-run the 267.1 audit');
   assert.equal(cliCode.indexOf("'hooks'"), -1,
     'GAP G-1 closed or changed shape: scripts/check-reward-before-investment.cjs now references \'hooks\' '
