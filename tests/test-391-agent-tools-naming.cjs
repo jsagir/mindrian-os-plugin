@@ -29,14 +29,9 @@ const ROOT = path.resolve(__dirname, '..');
 const { listFilesRecursive } = require('./helpers/hygiene-355.cjs');
 
 // Owner-gated offenders. Each entry names the owner card that decides it.
-// Plan 391-07 deletes an entry after the owner answers on card C5.
-const PENDING_OWNER = [
-  {
-    file: 'skills/intelligence-orchestrator/SKILL.md',
-    token: 'mcp__brain_*',
-    gate: 'owner card C5 in 391-DECISION.md (plan 391-04); plan 391-07 deletes this entry',
-  },
-];
+// Empty since plan 391-07: card C5 was answered REMOVE on 2026-11-08 and the token
+// mcp__brain_* was deleted from skills/intelligence-orchestrator/SKILL.md.
+const PENDING_OWNER = [];
 
 const NOTE_MARKER = '391-NOTE-allowed-tools-not-enforced';
 
