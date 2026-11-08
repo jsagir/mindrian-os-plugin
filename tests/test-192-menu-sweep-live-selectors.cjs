@@ -71,7 +71,7 @@
  *
  *   because 12 command files exist that are NOT registered in
  *   data/help-groups.json (agentshield, bono, correct-reference-now, deck,
- *   diffusion, futures, ingest-methodology, mva-report, new-surface, show,
+ *   diffusion, futures, ingest-methodology, session-report, new-surface, show,
  *   skill, trending-to-absurd). This is a help-GROUPS coverage drift, NOT a
  *   regression in the help SELECTOR mechanism (Assertions 1/3/5 -- which lock
  *   the selector contract -- all PASS). It is orthogonal to this plan's

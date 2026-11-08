@@ -96,8 +96,8 @@ const OVERRIDES = {
     'When your room is full but the story is not yet a deck, /mos:deck asks one thing: which shape fits (Feynman to make it clear, HEART to make it land, or mesh to do both), then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default',
   '/mos:mullins':
     "When you need to screen an opportunity against seven domains, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test",
-  '/mos:mva-report':
-    'When you have finished a conversation with Theo and want to see whether it fired the right things at the right time (did it reach a conclusion or circle, did it elevate across frames, did the gates fire), run /mos:mva-report',
+  '/mos:session-report':
+    'When you have finished a conversation with Theo and want to see whether it fired the right things at the right time (did it reach a conclusion or circle, did it elevate across frames, did the gates fire), run /mos:session-report',
   '/mos:show':
     "When the room is full but you don't know which view answers your question, /mos:show asks your job in plain language (know where I stand, find what's broken, make it land, get it into the world) and runs the right view underneath",
   '/mos:stance':

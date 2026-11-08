@@ -1,78 +1,68 @@
 ---
-description: Emit a clean structured conversation-flow report of the session so far (not a transcript)
-help_jtbd: "Get a clean, forwardable report of how this conversation actually flowed."
+name: mva-report
+description: "[Deprecated] Conversation-flow report (use /mos:session-report)"
+help_jtbd: "Get a clean, forwardable report of how this conversation flowed (deprecated: use /mos:session-report)."
 body_shape: E
 layer: "harness"
-layer_why: "Measures whether a prior conversation fired the right things at the right time and reports compliance, the same measurement job class as a doctor organ."
-hitl_shape: "none"
-hitl_why: "A read-only conversation-flow report that emits a structured artifact and takes no navigator decision, so it reaches no genuine fork."
-# Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/mva-report.md:34, Larry's judged read-back of the conversation (frames, per-turn moves, conclusion-or-circled verdict), not a rendered transcript.
-interactive_first_reward: methodology_reframe
+layer_why: "Deprecated alias for /mos:session-report; it forwards the call and runs nothing of its own, the rubric's own step 3 redirect signal."
+hitl_shape: "F.0"
+hitl_why: "It forwards one request to its replacement and surfaces one deprecation note, a single approve-or-defer step."
 argument-hint: "(no args -- reads the conversation you just had)"
+# Phase 389 plan 11 (owner D7 and D8, 2026-11-08): soft-alias stub for one release, forwarding to /mos:session-report.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
-teaching: "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:mva-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise)."
-disable-model-invocation: false
-allowed-tools: []
+deprecated: true
+deprecated_redirect: "session-report"
+deprecated_removal: "v2.0.0-beta.84"
+teaching: "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.84."
+ui_reference: skills/ui-system/SKILL.md
+allowed-tools: Bash, AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
   excluded: true
-  reason: "Conversational extraction surface. Reads the session that already happened and emits a structured artifact; it fires no reach, opens no Brain wire, and writes nothing to the graph. LOCAL-only by construction (Part 8). Sibling to the tester-facing docs/testers/REPORT-PROMPT.md paste block."
+  reason: "Deprecated soft alias that forwards to /mos:session-report; it holds no reach of its own, so the replacement carries the connector row."
 ---
+
+<!-- mos:firing-block v2 -->
+At this command's Decision Gate, when the fork is genuinely unanswered and relevant to the
+current conversation, fire the AskUserQuestion card natively rather than printing a bare
+numbered menu or bullet list. Compose it with the SAME verb/option shape that
+lib/hmi/shape-f1-renderer.cjs (renderShapeF1) produces and that lib/hmi/selector-dispatcher.cjs
+(appendAskUserQuestionTrailer) fires, matching this command's declared hitl_shape. Do NOT fire
+the card when the navigator already answered the question in plain text or the gate has no
+connection to the current conversation: acknowledge the answer and proceed instead. Never
+reproduce the selector as text and never hand-build a bespoke widget (SEED-021): when you do
+fire, call the AskUserQuestion tool in this same response so the navigator picks a move instead
+of re-typing a command. Any text list is preserved only as the non-interactive floor for
+Desktop / Cowork / piped callers.
+<!-- /mos:firing-block -->
 
 # /mos:mva-report
 
-Emit a clean, structured report of the conversation you just had -- so you (or
-Jonathan, from the tester cohort) can see whether it fired the right things at the
-right time: did it reach a conclusion or circle, did it connect across frames, did
-the Shape-F gates fire when they should have.
+> Deprecated. /mos:mva-report now redirects to /mos:session-report. Scheduled removal: v2.0.0-beta.84. Use /mos:session-report going forward.
 
-This is an ARTIFACT, not a transcript (SEED-046 discipline). Do NOT reproduce
-"Larry said X, you said Y" banter. Produce a deliverable a person can forward.
+You are Larry. The user invoked /mos:mva-report. Per Phase 389 (owner D7 and D8, 2026-11-08) this command is a soft-alias stub for one release. The report has nothing to do with the old brief pipeline, so the name is now /mos:session-report. The report itself is the same.
 
-## What Larry does
+## Steps
 
-Read back over THIS conversation and emit the report below verbatim in structure.
-Where something is unknown, write a placeholder `TBD: <what is missing>` -- never
-guess, never pad. Keep it tight; this is a receipt, not an essay.
+1. Emit the deprecation note above to the user as a single cyan line (Larry voice; no em-dash; one sentence per skills/ui-system/SKILL.md Section 6).
 
-### Report structure (emit exactly these sections)
+2. Invoke /mos:session-report with the user's original arguments. Run:
 
-```
-# Conversation-flow report
-
-## 1. Frames / topics that were live
-- <frame or topic>  (one line each; the distinct problem-frames the talk moved through)
-- TBD: <if a frame was implied but never named>
-
-## 2. Per-material-turn moves
-For each material Larry turn (skip pure acknowledgements), one row:
-| turn | move (ask / tell / grill / reframe / elevate) | Shape-F gate fired? (which) | one-line gist |
-|------|-----------------------------------------------|-----------------------------|---------------|
-| 1    | reframe                                       | F.1 starting gate           | ...           |
-
-## 3. Conclusion or circle
-- Verdict: reached-a-conclusion | circled | still-open
-- If reached: state the conclusion in one line. Did Larry LEAD you there, or did you already have it?
-- If circled: name the loop (what kept repeating).
-
-## 4. Cross-frame connection
-- Offered: yes / no
-- If yes: state it in one line, and whether it was HEDGED ("these MIGHT be the same argument")
-  or stated with confidence. (Hedged is correct; confident is a tone slip.)
-- Missed: TBD: <a connection across the live frames that was there but never offered>
-
-## 5. Open questions (placeholders)
-- TBD: <the decisions still unresolved, one per line>
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/soft-alias-runner.cjs" --from mva-report --to session-report --remaining-args $ARGUMENTS
 ```
 
-## Notes for the tester (why this exists)
+The runner emits a JSON envelope: `{redirect, deprecation_note, args, ok}`. Use it to confirm the redirect target, then proceed with /mos:session-report behavior. The user sees ONE deprecation note and then the report.
 
-Jonathan promised the cohort a prompt that extracts a report from the conversation
-so he can see "did it trigger and fire the right things at the right time... the
-quality of the conversation flow... if we have the workflow figured out." This is
-that prompt. Send the emitted report back. It is LOCAL only -- it runs on your own
-machine, reads only the conversation you just had, and sends nothing anywhere.
+3. Pass through any output from /mos:session-report verbatim.
 
-Provenance: `.planning/briefs/tester-conversation-flow-report-BRIEF.md`;
-cohort standup `docs/testers/weekly-cohort/2026-07-01-standup.md`. Lab-side scorer
-that grades a returned transcript: `lab/eval/report-from-transcript.cjs`.
+## Why this is a soft-alias
+
+Tester notes and the cohort prompt still type the old name. One release of alias keeps the old name from dead-ending. After that the name is removed and the deprecation record names /mos:session-report as the replacement.
+
+## Cross-references
+
+- `commands/session-report.md` -- the canonical target; it holds the report template.
+- `scripts/soft-alias-runner.cjs` -- the shared runner the soft-alias stubs share.
+- Canon Part 7 (Reuse Before Build) -- consolidation rationale.

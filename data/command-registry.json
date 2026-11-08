@@ -1329,7 +1329,7 @@
       "serves_jtbd": [
         "audit-room"
       ],
-      "teaching": "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:mva-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise).",
+      "teaching": "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.84.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
@@ -1854,6 +1854,25 @@
       "teaching": "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging."
+    },
+    {
+      "command": "/mos:session-report",
+      "kind": "utility",
+      "surface": "navigator",
+      "visibility": null,
+      "frameworks": [],
+      "produces": null,
+      "executable": null,
+      "inputs": [],
+      "autonomous_safe": false,
+      "body_shape": "E",
+      "layer": "harness",
+      "serves_jtbd": [
+        "audit-room"
+      ],
+      "teaching": "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:session-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise).",
+      "jtbd_label": "Audit Room",
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
     },
     {
       "command": "/mos:setup",

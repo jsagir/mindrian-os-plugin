@@ -191,7 +191,7 @@
         "stance",
         "explain-decision",
         "models",
-        "mva-report",
+        "session-report",
         "mos-reason",
         "brain-derive",
         "dial-memory-refresh",
@@ -224,7 +224,8 @@
     "organize": "rooms organize",
     "hmi-status": "doctor --ui-compliance",
     "visualize": "dashboard --mermaid",
-    "mva-brief": "structure-argument"
+    "mva-brief": "structure-argument",
+    "mva-report": "session-report"
   },
   "_lanes": {
     "start": "Start + navigate",

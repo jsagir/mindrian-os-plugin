@@ -2272,6 +2272,12 @@
       }
     },
     {
+      "id": "command:/mos:session-report",
+      "kind": "command",
+      "methodology_tier": "mindrian-operation",
+      "name": "/mos:session-report"
+    },
+    {
       "id": "command:/mos:setup",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
@@ -3335,6 +3341,12 @@
       "kind": "skill",
       "methodology_tier": "mindrian-operation",
       "name": "scout"
+    },
+    {
+      "id": "skill:session-report",
+      "kind": "skill",
+      "methodology_tier": "mindrian-operation",
+      "name": "session-report"
     },
     {
       "id": "skill:setup",

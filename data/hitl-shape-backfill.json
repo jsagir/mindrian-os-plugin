@@ -546,6 +546,10 @@
     "hitl_why": "A read-only security scan that reports per-surface status and takes no navigator decision, so it reaches no genuine fork (mirrors doctor as a deliberately-run diagnostic, but pure report with no repair gate)."
   },
   "commands/mva-report.md": {
+    "hitl_shape": "F.0",
+    "hitl_why": "It forwards one request to its replacement and surfaces one deprecation note, a single approve-or-defer step."
+  },
+  "commands/session-report.md": {
     "hitl_shape": "none",
     "hitl_why": "A read-only conversation-flow report that emits a structured artifact and takes no navigator decision, so it reaches no genuine fork."
   },

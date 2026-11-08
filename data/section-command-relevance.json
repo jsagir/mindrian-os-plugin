@@ -103,7 +103,7 @@
       "why": "Create, enter, navigate and inspect the room and its contents."
     },
     "quality-and-platform-maintenance": {
-      "commands": ["diagnostics", "doctor", "heal", "hmi-status", "mva-report", "agentshield", "admin", "setup", "update", "dogfood-flush", "new-surface", "ingest-methodology"],
+      "commands": ["diagnostics", "doctor", "heal", "hmi-status", "session-report", "agentshield", "admin", "setup", "update", "dogfood-flush", "new-surface", "ingest-methodology"],
       "why": "Keep the workspace and its capabilities usable, inspect behavior and maintain the system supporting every section."
     }
   },

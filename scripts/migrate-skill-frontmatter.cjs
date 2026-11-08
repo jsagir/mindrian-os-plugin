@@ -76,7 +76,7 @@ const EXCLUDED_SKILLS = new Set(['MOSDeckEngine', 'value-proposition']);
 const DISABLE_MODEL_INVOCATION_SKILLS = [
   'dial-memory-refresh', 'export', 'brain-derive', 'explain-decision',
   'dogfood-flush', 'feynman-timeline-refresh', 'publish', 'memory', 'jtbd',
-  'mva-report', 'ingest-methodology', 'pws-brain', 'operator', 'vault', 'snapshot',
+  'session-report', 'ingest-methodology', 'pws-brain', 'operator', 'vault', 'snapshot',
 ];
 
 // Body tokens that mean "this skill leans on Tier-1 hook mechanics".

@@ -295,6 +295,11 @@
   },
   "commands/mva-report.md": {
     "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:session-report; it forwards the call and runs nothing of its own, the rubric's own step 3 redirect signal.",
+    "rubric_stopped_at": 3
+  },
+  "commands/session-report.md": {
+    "layer": "harness",
     "layer_why": "Measures whether a prior conversation fired the right things at the right time and reports compliance, the same measurement job class as a doctor organ.",
     "rubric_stopped_at": 3
   },

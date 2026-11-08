@@ -491,7 +491,7 @@ export const WHY: Record<string, string> = {
   "/mos:mos": "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one",
   "/mos:mullins": "When you need to screen an opportunity against seven domains, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test",
   "/mos:mva-brief": "Deprecated alias",
-  "/mos:mva-report": "When you have finished a conversation with Theo and want to see whether it fired the right things at the right time (did it reach a conclusion or circle, did it elevate across frames, did the gates fire), run /mos:mva-report",
+  "/mos:mva-report": "Deprecated alias",
   "/mos:new-project": "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry",
   "/mos:new-surface": "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest",
   "/mos:onboard": "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room",
@@ -530,5 +530,6 @@ export const WHY: Record<string, string> = {
   "/mos:vault": "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact",
   "/mos:visualize": "Deprecated alias",
   "/mos:whitespace": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones",
-  "/mos:wiki": "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view"
+  "/mos:wiki": "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view",
+  "/mos:session-report": "When you have finished a conversation with Theo and want to see whether it fired the right things at the right time (did it reach a conclusion or circle, did it elevate across frames, did the gates fire), run /mos:session-report"
 }
