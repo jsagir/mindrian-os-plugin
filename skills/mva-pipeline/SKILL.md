@@ -60,8 +60,8 @@ brief without baking the orchestrator into Claude Code's hook protocol.
    - 1 -> stay in JUST_TALK; the brief stays visible; user can ask follow-ups
      about any cell ("tell me more about the Honeydue case", "what was the
      Gottman analogy?", etc.)
-   - 2 -> invoke /mos:new-project (Phase 119 wrapper; in v1.13.0 this surfaces
-     a stub message that the full room-build flow lands in beta.18)
+   - 2 -> invoke /mos:ignite --from-brief <sha8> (the router reads the brief
+     side file ~/.mindrian/mva/briefs/<sha8>.json through resolveOption2)
    - 3 -> invoke /mos:challenge-assumptions against the brief
 
 ## What NOT to do (per feedback_larry_pedagogical_guided_first.md)
@@ -129,11 +129,11 @@ Option 1 -- "Just tell me what's new" (stay in tell-me mode):
 - Operator: transitions to `JUST_TALK`
 - Brief stays in scrollback; follow-up questions about any of the 6 cells are welcome
 
-Option 2 -- "Build a room around this" (invest, deferred):
-- Show the stub message verbatim from `STUB_MESSAGE_119`:
-  "Building a room around this is the next layer; shipping in beta.18 (Phase 119). For now, press option 1 to keep this brief visible, or option 3 to go deeper."
-- Operator: no transition (option 2 is stubbed for v1.13.0)
-- In v1.13.0-beta.18 (Phase 119), this routes to `/mos:new-project --from-brief <sha8>`
+Option 2 -- "Build a room around this" (invest):
+- The router returns `ignite_from_brief` (`STUB_MESSAGE_119` is `null`). `resolveOption2(sha8)` reads the brief side file `~/.mindrian/mva/briefs/<sha8>.json` and returns `invoke_command`.
+- Operator: no transition
+- Invoke: `/mos:ignite --from-brief <sha8>`
+- No side file: the router returns `no_brief_available`; show its message and do not invoke ignite
 
 Option 3 -- "Challenge me -- Devil's Advocate" (go deeper):
 - Bridge text: "Going deeper. Pulling the brief into a Devil's Advocate pass."
@@ -154,7 +154,7 @@ Option 3 -- "Challenge me -- Devil's Advocate" (go deeper):
 ### Do NOT
 
 - Do NOT autonomously pick an option for the user.
-- Do NOT pre-summarize what option 2 "would do" -- the stub message says it.
+- Do NOT pre-summarize what option 2 "would do" -- the router message says it.
 - Do NOT add em-dashes to any rendered option text -- use `--` only.
-- Do NOT invoke `/mos:new-project` for option 2 in v1.13.0 -- that wiring
-  lands in Phase 119 (beta.18).
+- Do NOT invoke `/mos:new-project` directly for option 2 -- route through
+  `/mos:ignite --from-brief <sha8>`.

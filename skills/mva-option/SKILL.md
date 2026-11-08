@@ -85,11 +85,9 @@ The auto-resolve form is what the `mva-pipeline` skill instructs the model to ru
 
 - **Option 1** -- operator transitions to `JUST_TALK`; the brief stays in scrollback; the user can ask any follow-up about the 6 cells. The router returns `{ action: 'stay_in_just_talk', next_state: 'JUST_TALK', message: ... }`.
 
-- **Option 2** -- operator unchanged; the router returns `{ action: 'phase_119_stub', next_state: null, message: STUB_MESSAGE_119 }`. The stub message reads:
+- **Option 2** -- operator unchanged; `routeOption(2, ...)` returns `{ action: 'ignite_from_brief', next_state: null, message: ... }` (Phase 155-04 replaced the old Phase 119 stub; `STUB_MESSAGE_119` is `null`). The hand-off itself is `resolveOption2(sha8)`, which reads the brief side file `~/.mindrian/mva/briefs/<sha8>.json` and returns `{ action: 'ignite_from_brief', sha8, brief_content, invoke_command: '/mos:ignite --from-brief <sha8>', brief_reward_pending }`. The model then runs `/mos:ignite --from-brief <sha8>`.
 
-  > Building a room around this is the next layer; shipping in beta.18 (Phase 119). For now, press option 1 to keep this brief visible, or option 3 to go deeper.
-
-  Per binding decision B6 OPTION A, option 2 is deferred to Phase 119 / v1.13.0-beta.18. The router does NOT invoke `/mos:new-project` in v1.13.0.
+  When no side file exists, `resolveOption2` returns `{ action: 'no_brief_available', message: 'No MVA brief found. Run /mos:mva-brief first to generate one.' }`, and when the file is not valid JSON it returns `{ action: 'brief_parse_error' }`. Show the message and do not invoke `/mos:ignite`. A `sha8` that is not exactly 8 hex characters is refused as `no_brief_available` before any file is read.
 
 - **Option 3** -- operator transitions to `METHODOLOGY`; the router returns `{ action: 'invoke_challenge_assumptions', next_state: 'METHODOLOGY', invoke_command: '/mos:challenge-assumptions --from-brief <sha8>' }`. The model then runs the named slash command against the brief.
 

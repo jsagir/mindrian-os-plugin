@@ -1,0 +1,14 @@
+[
+  {
+    "id": "consumer-subscription",
+    "sentence": "A monthly box for people who live alone and want to cook one proper dinner a week, with the ingredients, a short recipe card and a ten minute video, so they stop ordering takeaway on tired evenings."
+  },
+  {
+    "id": "business-tool",
+    "sentence": "A small tool for the finance team of a mid sized building contractor that reads supplier invoices, matches each one to its purchase order and flags the ones that do not match, so late payment penalties stop surprising the owner."
+  },
+  {
+    "id": "local-service",
+    "sentence": "A weekend repair service for elderly people in one city neighbourhood: a vetted helper comes to fix small things like a loose shelf, a dripping tap or a stuck window, for a fixed price that the family pays."
+  }
+]

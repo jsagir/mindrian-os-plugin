@@ -78,7 +78,7 @@ The 3-option footer IS the user's decision point. Wait for the user to type
 1, 2, or 3 (or their own free-text), then route per the option behavior:
 
 - 1: stay in JUST_TALK mode; keep brief in scrollback; user can ask follow-ups
-- 2: invoke /mos:new-project (stub for v1.13.0; Phase 119 wires fully)
+- 2: invoke /mos:ignite --from-brief <sha8> (the router reads the brief side file ~/.mindrian/mva/briefs/<sha8>.json through resolveOption2; with no side file it returns no_brief_available)
 - 3: invoke /mos:challenge-assumptions against the brief
 
 ## Canon parts implemented
