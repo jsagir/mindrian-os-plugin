@@ -4,7 +4,7 @@
 
 ## Framework Overview
 
-The PWS Grading framework evaluates problem discovery quality -- not business plans, not pitch decks, not ideas. You grade how well someone found and validated REAL problems worth solving. Based on weighted scoring across 6 components with a mandatory scoring table output.
+The PWS Grading framework evaluates problem discovery quality -- not business plans, not pitch decks, not ideas. You grade how well someone found and validated REAL problems worth solving. Based on weighted scoring across 6 components. The scoring result goes to the internal record and the file header; the review a student reads states findings (see the Review contract section).
 
 The operating principle: Finding ONE deeply validated real problem is worth more than twenty assumed problems. Grade accordingly. Grade on thinking, not polish. If the student has not made Larry feel uneasy or surprised, they have not gone far enough.
 
@@ -23,7 +23,7 @@ Signature phrases:
 - "Finding the problem is harder than solving it. Show me you did the hard part."
 
 Anti-patterns to catch:
-- Grading without showing the scoring table -- P0 CONSTRAINT violation
+- Grading without computing the scoring table in the internal record -- the numbers still have to be worked out and kept
 - Giving credit for assumptions, no matter how well-structured
 - Weighting business viability over problem reality -- this is discovery, not pitch
 - Accepting framework name-dropping as framework integration
@@ -136,59 +136,126 @@ Classify every claim in the room:
 
 Apply the weighted formula. Compute the total. Assign the letter grade.
 
-### Phase 5: Top 3 Actions (turn 3)
+### Phase 5: Revision Points (turn 3)
 
-Specific, actionable next steps to improve the score. Each action should target the weakest components.
+3 to 5 specific, actionable next steps to improve the work. Each one should target the weakest components. They become the revision points of the review.
+
+## Review contract
+
+The review contract is the fixed shape of the text a student reads. It is enforced by code (`lib/core/review-contract.cjs`) and held as data (`data/review-contract.json`). A drift test pins this section to that data.
+
+### What the review is
+
+The reader-facing review is the part a student reads. It is written from the student's room, in the student's own words and the course's own words. It is not a copy of tool output, and it is not the internal record.
+
+### The shape
+
+Headings, in order:
+
+1. Executive Summary
+2. Reality Check
+3. Faculty Questions
+4. Expert Conversations
+5. Research Validation + Reframe
+6. Strategic Challenge
+7. For advanced students (optional last note)
+
+Each heading is a level 2 heading. The last note is optional. A review has no other level 2 heading.
+
+- Revision points: 3 to 5. They are the top-level list items under Executive Summary. Each one starts with a bold takeaway.
+- Cross-domain ideas in the body: at most 2. Each one is a list item that starts with the bold label "Cross-domain:". More ideas go in the optional last note.
+- Length: no number is set. The owner chose not to set a word limit or a question limit, so none is stated here and none is invented.
+
+### Plain words
+
+- Name a method only as the course teaches it. Leverage points, causal loops, and stocks and flows are taught. Explain any other term in plain words, or cut it.
+- The review names no tool, agent, command, database or system. It does not mention a file of the room by its file name.
+- The review holds no run id, no tool id and no path.
+- Use hyphens. Do not use an em dash or an en dash.
+
+### Forbidden sections
+
+The review has none of these sections: a tool analysis, a score by tool, a list of recommendations mapped to agents, a Sci-Fi section, an image prompt, a health block for a note file. It has no score heading and no persona heading.
+
+### Two layers
+
+- The internal record may keep working vocabulary and the numbers. The grading agent returns it to the command. It is never filed as the review.
+- The file header keeps the provenance handles and the score fields (see the template below).
+- The review body keeps neither. A calibration table, a tool answer and the name of another cohort's project never enter the body.
+
+### Scores, the persona quote and project comparisons
+
+These are plain statements of what is true now.
+
+- Scores: the review body shows no letter grade, no percentile and no component table. The score fields sit in the file header. Larry shows the numbers in chat when the student asks.
+- Persona quote: the review holds no quote from a persona and no personal name.
+- Project comparisons: a comparison names no project. It says "a higher-scoring submission in the same course".
+
+The scoring result goes to the internal record and the file header. The review states findings.
 
 ## Artifact Template
 
-**P0 CONSTRAINT: This scoring table MUST appear in EVERY grading output. No exceptions.**
+The reader-facing review follows this template. Placeholders are in braces. The score fields in the file header are filled from the internal record.
 
 ```markdown
 ---
 methodology: grade
+review_contract: 1
 created: {date}
 depth: full
 venture_stage: {stage}
 room_section: problem-definition
+provenance: {calibration source and date}
+score_total: {score}
+grade_letter: {letter}
+percentile: {percentile}
 ---
 
-# PWS Grade -- {Venture Name}
+# Review: {Venture Name}
 
-## FINAL GRADE: {Letter} ({Score}/100)
+## Executive Summary
 
-**Verdict:** {Found validated real problems / Found assumed problems only / Found no validated problems}
+{Two or three plain sentences. Say what the venture is. Say whether the work found validated problems, assumed problems only, or no validated problems. Say what needs work first.}
 
----
-
-| Component | Weight | Score | Points | Assessment |
-|-----------|--------|-------|--------|------------|
-| **Problem Reality** | 35% | X/10 | XX.X | {evidence quality} |
-| **Problem Discovery** | 25% | X/10 | XX.X | {# found, % validated} |
-| **Framework Integration** | 20% | X/10 | XX.X | {applied vs. mentioned} |
-| **Mindrian Thinking** | 10% | X/10 | XX.X | {cross-domain connections} |
-| **Can We Win?** | 5% | X/10 | X.X | {capability check} |
-| **Is It Worth It?** | 5% | X/10 | X.X | {scale check} |
-| **TOTAL** | **100%** | - | **XX.X** | **{Letter Grade}** |
-
----
+- **{Revision point 1 takeaway}:** {one plain sentence}
+- **{Revision point 2 takeaway}:** {one plain sentence}
+- **{Revision point 3 takeaway}:** {one plain sentence}
+- **{Revision point 4 takeaway}:** {one plain sentence}
 
 ## Reality Check
 
-- **Validated Problems:** {list with evidence citations}
-- **Assumed Problems:** {list -- zero credit given}
-- **Fantasy Problems:** {list -- called out}
-- **Missing Evidence:** {what they should have gathered}
+- **Validated:** {problems with evidence, and the evidence}
+- **Assumed:** {problems stated without evidence}
+- **Fantasy:** {claims with no basis, called out}
+- **Missing evidence:** {what the student should gather}
 
-## Top 3 Actions
+## Faculty Questions
 
-1. Validate {most promising problem} using {specific method}
-2. Deepen evidence for {problem} via {specific research}
-3. Connect {problem} to {adjacent problem space}
+- {A question a faculty member would ask about the weakest claim}
+- {A question about the evidence}
 
-## Homework
+## Expert Conversations
 
-{Specific assignment Larry would give -- go talk to X, research Y, test Z}
+{Who the student should talk to, what each person would say, and what the student should ask.}
+
+## Research Validation + Reframe
+
+{Plain-language check of the main claim against public research, then one reframe of the problem. Use only methods the course teaches.}
+
+- **Cross-domain:** {an idea from another field that mirrors the pattern}
+- **Cross-domain:** {a second idea from another field}
+
+## Strategic Challenge
+
+**Big question:** {the one question the student should answer next}
+
+- {A reflection question}
+- {A reflection question}
+- {A reflection question}
+
+## For advanced students
+
+- **Cross-domain:** {an optional extra idea from another field}
 ```
 
 ## Default Room
