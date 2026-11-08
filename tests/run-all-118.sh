@@ -25,7 +25,7 @@ CJS_SUITES=(
   # Plan 118-01 (dispatch architecture)
   ../lib/core/pyramid-seed-agent-contract.test.cjs
   ../lib/core/pyramid-seed-budget.test.cjs
-  ../lib/core/mva-dispatcher.test.cjs
+  ../lib/core/pyramid-seed-dispatcher.test.cjs
   # Plans 118-02 and 118-03 (six cells, progressive renderer, telemetry shim, orchestrator) were retired in Phase 389 plan 10 (owner D6)
   # Plan 118-04 (Feynman deck + Vercel deploy)
   ../lib/core/resolve-vercel-key.test.cjs

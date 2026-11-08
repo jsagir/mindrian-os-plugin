@@ -163,7 +163,7 @@ async function main() {
 
   // Test 8
   {
-    const { dispatchToArray } = require(path.join(REPO, 'lib/core/mva-dispatcher.cjs'));
+    const { dispatchToArray } = require(path.join(REPO, 'lib/core/pyramid-seed-dispatcher.cjs'));
     const hang = fakeBrain((q) => (q === SET.situation ? new Promise(() => {}) : { text: 'answer ' + q }));
     const built = cells.buildCells(SET, { brain: hang, corpus: fakeCorpus(OK_ENV) });
     const t0 = Date.now();

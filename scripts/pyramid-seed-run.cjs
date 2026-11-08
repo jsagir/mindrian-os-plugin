@@ -36,7 +36,7 @@
  * stdout is JSON only. stderr carries a usage line only.
  *
  * Reuse (Canon Part 7): the cells come from lib/core/pyramid-seed-cells.cjs, the
- * fan-out and the clock from lib/core/mva-dispatcher.cjs, pyramid-seed-budget.cjs and
+ * fan-out and the clock from lib/core/pyramid-seed-dispatcher.cjs, pyramid-seed-budget.cjs and
  * pyramid-seed-agent-contract.cjs, the phrase check from part8-split-route.cjs.
  */
 
@@ -192,7 +192,7 @@ async function doRun(cells, flags, home) {
     const n = Number(flags['--budget-ms']);
     if (Number.isInteger(n) && n > 0) budget = Math.min(n, DEFAULT_BUDGET_MS);
   }
-  const { dispatchToArray } = require('../lib/core/mva-dispatcher.cjs');
+  const { dispatchToArray } = require('../lib/core/pyramid-seed-dispatcher.cjs');
   const agents = cells.buildCells(set, {});
   const t0 = Date.now();
   const results = await dispatchToArray(agents, sha, { globalBudgetMs: budget });
