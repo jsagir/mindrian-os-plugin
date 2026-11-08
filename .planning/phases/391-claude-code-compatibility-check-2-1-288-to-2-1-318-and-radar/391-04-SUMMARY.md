@@ -65,7 +65,7 @@ NEEDS_HUMAN: Answer the 6 cards in 391-DECISION.md with one token each. C1 (agen
 | Task | Commit | Files |
 |------|--------|-------|
 | 1 Facts, probes and the CHECKS record | 3f9632819 | 391-CHECKS.md, two probe JSON files, 391-agent-table.tsv |
-| 2 Card checker, six cards, seed | see the commit line below | 391-card-check.cjs, 391-DECISION.md, SEED-145, this SUMMARY, one wording fix in 391-CHECKS.md |
+| 2 Card checker, six cards, seed | ae111cec4 | 391-card-check.cjs, 391-DECISION.md, SEED-145, this SUMMARY, one wording fix in 391-CHECKS.md |
 
 ## Checker
 
@@ -100,6 +100,6 @@ None. The probes made no Brain call (the shim pre-warm hit only the dead loopbac
 - Peers 391-03 and 391-05 committed during this plan (HEAD moved from ae836b43a). No peer file was touched. Commits used `git add -f` and `git commit --only` with exact paths.
 - Escape sequences: no Unicode escape was written through the Write tool in this plan (the checker builds dash characters from code points). A grep for non-ASCII bytes in the three phase files returns 0.
 
-## Self-Check: PENDING
+## Self-Check: PASSED
 
-Run after the commit (see the final report).
+All 7 created files exist; commits 3f9632819 and ae111cec4 exist in git log. Task 3 (owner answers) is open by design.
