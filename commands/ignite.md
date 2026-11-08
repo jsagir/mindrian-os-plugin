@@ -57,7 +57,7 @@ Note: /mos:ignite is the canonical front door for new room creation. /mos:new-pr
 
 ## Reward-before-investment (Decision 8 / constraint 10)
 
-Before any gate fires, check whether this session has already delivered an MVA brief reward. Read the mva_brief_pending flag from resolveOption2(null) in lib/core/mva-option-router.cjs. If brief_reward_pending is true: render the instant brief summary FIRST (from the session context or from the brief side-file) before B1. See docs/reward-before-investment-rule.md.
+Before any gate fires, check whether this session has already delivered an MVA brief reward. Read the mva_brief_pending flag from resolveFromBrief(null) in lib/core/pyramid-seed-record.cjs. If brief_reward_pending is true: render the instant brief summary FIRST (from the session context or from the brief side-file) before B1. See docs/reward-before-investment-rule.md.
 
 ## Gate B0 -- Room Chooser (F.1, pre-birth -- FIRST CONSUMER OF Phase 188)
 
@@ -89,7 +89,7 @@ Three entry doors per BIRTH-FLOW-BRIEF.md Section 2:
 
 **B. Directive** -- three directive paths:
 - `--express`: skips conversation, uses current session context as blueprint input, jumps directly to B2. Reward-before-investment invariant preserved.
-- `--from-brief <sha8>`: reads the Phase 118 brief side-file via resolveOption2(sha8) from lib/core/mva-option-router.cjs. Renders brief reward if brief_reward_pending is true, then proceeds to B2 with brief_content as blueprint input.
+- `--from-brief <sha8>`: reads the Seed record (or an older brief side file) via resolveFromBrief(sha8) from lib/core/pyramid-seed-record.cjs. Renders brief reward if brief_reward_pending is true, then proceeds to B2 with brief_content as blueprint input.
 - Imperative ("make me a room for X"): treat as --express with the stated context as blueprint seed.
 
 **C. Umbilical** -- `/mos:ignite --from-opportunity <ref>` (U0 on-demand path). arrival_asset is 'excavated-opportunity'. B1 is SKIPPED because the opportunity context determines the blueprintFamily. B2 is prefilled from the parent room's opportunity data. Proceed directly to B2.

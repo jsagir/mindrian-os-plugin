@@ -58,10 +58,10 @@ B2 gate. Then proceed to B2 with the session context as blueprint input.
 
 **`--from-brief <sha8>`**
 Brief fast path. When invoked as `/mos:new-project --from-brief <sha8>`, read the
-Phase 118 brief side-file at `~/.mindrian/mva/briefs/<sha8>.json` and use its
+Seed record (or an older brief side file) and use its
 content as the blueprint input. This is the primary path wired by MVA option 2.
 
-Call `resolveOption2(sha8)` from `lib/core/mva-option-router.cjs` to read the brief:
+Call `resolveFromBrief(sha8)` from `lib/core/pyramid-seed-record.cjs` to read the brief:
 - If `result.action === 'ignite_from_brief'`: use `result.brief_content` as blueprint
   input. Proceed directly to the B2 blueprint gate (skip Steps 2-3).
 - If `result.action === 'no_brief_available'`: surface `result.message` and fall back
