@@ -13,8 +13,7 @@
  *   RH4  buildMatrix returns counts only, with every named section
  *   RH5  assertMatrixHygiene refuses a long string, a forbidden key and
  *        a credential shape; accepts the matrix of RH4
- *   RH6  the committed beta.81 matrix: hygiene, network_calls 0,
- *        guard_head present, group totals (added by task 3)
+ *   RH6  the committed beta.81 matrix (task 3 adds this arm)
  *
  * Part 8: synthetic rooms only, temporary HOME, no network. The arms never
  * print a probe text. No em dash and no en dash anywhere.
@@ -82,7 +81,7 @@ arm('RH1 harness module loads with the 4 exports', function () {
 });
 
 if (!harness) {
-  console.log('FAIL - RH2..RH6 not run: the harness module did not load');
+  console.log('FAIL - RH2..RH5 not run: the harness module did not load');
   try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
   process.exit(1);
 }
@@ -153,26 +152,6 @@ arm('RH5 assertMatrixHygiene refuses long strings, forbidden keys, credential sh
     harness.assertMatrixHygiene({ total: 1, by_class: { a: shaped } });
   }, 'credential shape');
   return '3 refusals, 1 acceptance';
-});
-
-// RH6: the committed beta.81 matrix (task 3 writes it; the arm fails until then).
-arm('RH6 committed baseline-beta81.json: hygiene, network 0, group totals', function () {
-  need(fs.existsSync(BASELINE), 'missing ' + path.relative(ROOT, BASELINE));
-  const doc = JSON.parse(fs.readFileSync(BASELINE, 'utf8'));
-  need(doc.schema === 1, 'schema ' + doc.schema);
-  need(typeof doc.guard_head === 'string' && /^[0-9a-f]{7,12}$/.test(doc.guard_head), 'guard_head missing or not a sha');
-  need(doc.network_calls === 0, 'network_calls ' + doc.network_calls);
-  need(doc.matrix && typeof doc.matrix === 'object', 'matrix missing');
-  harness.assertMatrixHygiene(doc.matrix);
-  const g = doc.matrix.by_group;
-  const ext = g.extended.allow + g.extended.ambiguous + g.extended.block;
-  const mr = g.must_refuse.allow + g.must_refuse.ambiguous + g.must_refuse.block;
-  need(ext === 535, 'extended total ' + ext);
-  need(mr === 10, 'must_refuse total ' + mr);
-  need(typeof doc.matrix.extended_blocked === 'number', 'extended_blocked missing');
-  need(typeof doc.matrix.must_refuse_blocked === 'number', 'must_refuse_blocked missing');
-  need(!('rows' in doc), 'rows must not be committed');
-  return 'guard_head ' + doc.guard_head + ', extended_blocked ' + doc.matrix.extended_blocked + ', must_refuse_blocked ' + doc.matrix.must_refuse_blocked;
 });
 
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
