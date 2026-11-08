@@ -132,8 +132,30 @@
     "hitl_why": "The six thinking hats fire in a fixed sequence where the order is the method, an ordered walk."
   },
   "commands/structure-argument.md": {
-    "hitl_shape": "F.9",
-    "hitl_why": "The Minto pyramid is built top-down in a fixed order, an ordered walk where each level needs the last."
+    "hitl_stages": [
+      {
+        "stage": "pyramid build",
+        "shapes": [
+          "F.9"
+        ],
+        "mode": "ordered"
+      },
+      {
+        "stage": "seed evidence card",
+        "shapes": [
+          "F.0"
+        ],
+        "mode": "gate"
+      },
+      {
+        "stage": "decide",
+        "shapes": [
+          "F.1"
+        ],
+        "mode": "gate"
+      }
+    ],
+    "hitl_why": "The Minto pyramid is built top-down in a fixed order where each level needs the last, the Seed looks outside only after the person says yes on an F.0 evidence card, and the person picks the next move on an F.1 card."
   },
   "commands/beautiful-question.md": {
     "hitl_shape": "F.9",

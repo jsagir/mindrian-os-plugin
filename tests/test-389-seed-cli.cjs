@@ -109,6 +109,14 @@ const briefsDir = (home) => path.join(home, '.mindrian', 'pyramid-seed', 'briefs
   check('Test 1.5: only the briefs file was written under the seed folder', files.every((p) => p.indexOf(path.join('.mindrian', 'pyramid-seed', 'briefs')) === 0 || p === '.mindrian' || p === path.join('.mindrian', 'pyramid-seed')) && files.filter((p) => /\.json$/.test(p)).length === 1, files.join(','));
   check('Test 1.6: the sentence text is not stored or printed', !!r.json && typeof r.json.path === 'string' && !r.out.includes(SENTENCE.slice(0, 40)) && fs.existsSync(r.json.path) && !fs.readFileSync(r.json.path, 'utf8').includes(SENTENCE.slice(0, 40)));
 
+  // a record without id, created_at, schema and depth: save fills them
+  const home4 = mkHome();
+  const lean = goodRecord();
+  ['id', 'created_at', 'schema', 'depth'].forEach((k) => { delete lean[k]; });
+  const leanFile = writeJson(work, 'lean.json', lean);
+  const rl = run(['save', '--record', leanFile, '--sentence-file', sentFile, '--home', home4], home4);
+  check('Test 1.10: save fills id, created_at, schema and depth when absent', rl.code === 0 && !!rl.json && rl.json.id === ID && fs.existsSync(rl.json.path) && JSON.parse(fs.readFileSync(rl.json.path, 'utf8')).schema === 'mos.pyramid-seed/1' && JSON.parse(fs.readFileSync(rl.json.path, 'utf8')).depth === 'seed', rl.out.slice(0, 200));
+
   // invalid record
   const home2 = mkHome();
   const bad = goodRecord(); delete bad.answer;

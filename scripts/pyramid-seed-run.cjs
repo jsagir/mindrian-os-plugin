@@ -230,12 +230,20 @@ function doSave(flags, home) {
   try { record = JSON.parse(fs.readFileSync(flags['--record'], 'utf8')); } catch (_e) {
     return finish({ ok: false, error: 'unreadable_record' }, 2);
   }
-  const v = recMod.validateRecord(record);
-  if (!v.ok) return finish({ ok: false, error: 'invalid_record', code: v.code, field: v.field }, 2);
   let sentence;
   try { sentence = fs.readFileSync(flags['--sentence-file'], 'utf8'); } catch (_e) {
     return finish({ ok: false, error: 'unreadable_sentence_file' }, 2);
   }
+  // The host model cannot compute a hash or a clock. Fill what is absent: the id from the
+  // sentence, the time, the schema name and the depth. A value that is present is kept and checked.
+  if (record && typeof record === 'object' && !Array.isArray(record)) {
+    if (record.id === undefined) record.id = recMod.idFor(sentence);
+    if (record.created_at === undefined) record.created_at = new Date().toISOString();
+    if (record.schema === undefined) record.schema = recMod.SCHEMA;
+    if (record.depth === undefined) record.depth = 'seed';
+  }
+  const v = recMod.validateRecord(record);
+  if (!v.ok) return finish({ ok: false, error: 'invalid_record', code: v.code, field: v.field }, 2);
   if (recMod.idFor(sentence) !== record.id) return finish({ ok: false, error: 'id_mismatch', code: 'id_mismatch', field: 'id' }, 2);
   const w = recMod.writeRecord(record, { home });
   if (!w.ok) return finish({ ok: false, error: w.reason || 'write_failed', code: w.code, field: w.field }, 2);

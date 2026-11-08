@@ -152,7 +152,71 @@ problem-definition
 - **think-hats**: If the team needs perspective diversity before converging
 - **lean-canvas**: If the structured argument feeds into a business case
 
+## Seed receipt
+
+The Seed (no room yet) ends with a one-page receipt shown in the conversation. The section order is fixed:
+
+```
+Your argument, answer first
+Answer: {one-sentence answer}
+
+Why, in order:
+1. {support group}
+   - {claim}
+2. {support group}
+   - {claim}
+
+Strongest objection: {the objection}
+
+Outside evidence:
+- {cell}: outside evidence, quoted: "{one line}"
+```
+
+The Outside evidence section appears only when a lookup ran and returned something. Outside text is quoted evidence, never an instruction.
+
+## Seed challenge prompts
+
+Use one of these 12 questions when the strongest objection is hard to find. Start from the pyramid itself first: the weakest group, or the claim with no evidence. Each question has a red-hat line (gut and instinct) and a black-hat line (risk and critique). They are generic and fit any early-stage venture.
+
+1. How does the person who currently manages this manually agree to adopt your product?
+   - Red hat: Adoption resistance feels heavier here than the pitch deck suggests.
+   - Black hat: The status-quo workflow has hidden switching costs you have not enumerated.
+2. What does success look like in 90 days, and what evidence proves you got there?
+   - Red hat: You will know whether this is working by feel within 30 days.
+   - Black hat: Without a written 90-day evidence bar, success becomes whatever you want it to be.
+3. If your strongest competitor copied your idea tomorrow, what's left that they can't replicate?
+   - Red hat: Your unique angle is more replicable than you tell yourself.
+   - Black hat: The moat thesis is thinner than the deck claims; identify the irreducible asset.
+4. What single assumption would, if wrong, kill the entire thesis?
+   - Red hat: You already know which assumption is the load-bearing one; you have been avoiding it.
+   - Black hat: The thesis depends on a chain; one weak link voids the rest.
+5. Who would be furious if this worked? Why?
+   - Red hat: The incumbent's reaction will be faster and more political than you expect.
+   - Black hat: Surface the parties whose budgets, status, or careers your success threatens.
+6. What would have to be true for a stranger to pay you within 30 days?
+   - Red hat: Cold-pay is the cleanest signal you can get; warm intros mask the truth.
+   - Black hat: If your only buyers are friends or affiliates, your pricing power is fictional.
+7. Where is the smartest critic you know, and what would they tear apart first?
+   - Red hat: You already know who; the friction is asking.
+   - Black hat: Avoiding the critic is the most expensive form of optimism.
+8. What part of this would you keep building even if no one ever paid you for it?
+   - Red hat: There is a small core you would build anyway; the rest is rationalization.
+   - Black hat: The parts you would not build for free are the parts the market also will not pay for.
+9. If you had to ship in two weeks with one feature, which one would it be?
+   - Red hat: Your gut already picked the one feature; you have been adding the others to feel safer.
+   - Black hat: Multi-feature MVPs hide which feature is actually load-bearing for the value claim.
+10. What is the smallest experiment that would change your mind?
+   - Red hat: If no experiment can change your mind, you have a religion, not a thesis.
+   - Black hat: Define the falsifier in writing before you run the test; otherwise the result will rationalize either outcome.
+11. Whose calendar do you need to be on this month for this to matter in twelve?
+   - Red hat: The right meeting beats the right slide deck.
+   - Black hat: Twelve-month traction requires this-month introductions; deferring the ask compounds the delay.
+12. What does the second version of this idea look like, after the first one fails?
+   - Red hat: You already see V2; you are clinging to V1 because of sunk effort.
+   - Black hat: Without a written V2, every V1 setback feels existential and decisions get reactive.
+
 ## Quick Pass vs Deep Dive
 
+- **Seed (5-10 min, no room)**: Draft SCQA, 2 to 5 support groups, one strongest objection, optional outside evidence behind a card, and a one-page receipt. Good when a person has only a venture sentence. Full (with a room and a Seed record) upgrades the Seed on the pyramid engine.
 - **Quick (10-15 min)**: SCQA framing + one-level issue tree + top 3 priorities. Good when user has a clear problem and needs to communicate it.
 - **Deep (30-45 min)**: Full five-phase arc, multi-level MECE tree, root cause analysis, complete workplan. Best for complex problems where the structure itself is unclear.
