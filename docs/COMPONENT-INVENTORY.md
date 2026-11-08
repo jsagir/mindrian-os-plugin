@@ -47,7 +47,7 @@
 - `validate` - importance-satisfaction validation
 - `value-proposition` - score the value proposition against 3 gates
 - `hat-briefing` - consolidate Six-Hats briefings from hat memory
-- `mva-brief` - run the 30-second MVA pipeline on a venture sentence
+- `mva-brief` - deprecated soft alias for one release; forwards to `structure-argument` (Seed depth)
 
 ### Grading / assessment (2)
 - `grade` - grade problem-discovery quality (6 components)

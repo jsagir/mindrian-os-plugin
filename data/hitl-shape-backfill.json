@@ -234,8 +234,8 @@
     "hitl_why": "The operator view offers one next move on the current state."
   },
   "commands/mva-brief.md": {
-    "hitl_shape": "F.1",
-    "hitl_why": "The 30-second brief closes with a numbered option or free-text choice, the canonical F.1 Next Move."
+    "hitl_shape": "F.0",
+    "hitl_why": "It forwards one request to its replacement and surfaces one deprecation note, a single approve-or-defer step."
   },
   "commands/new-project.md": {
     "hitl_shape": "F.1",

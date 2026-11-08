@@ -402,7 +402,7 @@
     },
     {
       "surface": "commands/mva-brief.md",
-      "declared_shape": "F.1",
+      "declared_shape": "F.0",
       "wired": true
     },
     {
@@ -906,7 +906,7 @@
     },
     {
       "surface": "skills/mva-brief/SKILL.md",
-      "declared_shape": "F.1",
+      "declared_shape": "F.0",
       "wired": true
     },
     {

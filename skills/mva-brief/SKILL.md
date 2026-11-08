@@ -1,30 +1,27 @@
 ---
 name: mva-brief
-description: Run the 30-second MVA pipeline for the user's current venture sentence
+description: "[Deprecated] Venture-sentence brief (use /mos:structure-argument, Seed depth)"
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
-help_jtbd: "Build a Minimum Viable Argument brief from your room."
+help_jtbd: "Turn a venture sentence into a first argument (deprecated: use /mos:structure-argument, Seed depth)."
 body_shape: E
-layer: "graph"
-layer_why: "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name."
-hitl_shape: "F.1"
-hitl_why: "The 30-second brief closes with a numbered option or free-text choice, the canonical F.1 Next Move."
-argument-hint: (no args -- reads pending state from UserPromptSubmit detection)
+layer: "harness"
+layer_why: "Deprecated alias for /mos:structure-argument; it forwards the call and runs nothing of its own, the rubric's own step 3 redirect signal."
+hitl_shape: "F.0"
+hitl_why: "It forwards one request to its replacement and surfaces one deprecation note, a single approve-or-defer step."
+argument-hint: "[venture sentence]"
+# Phase 389 plan 09 (owner D5 and D8, 2026-11-08): soft-alias stub for one release, forwarding to the Seed depth of /mos:structure-argument.
+interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["explore"]
-teaching: "When you have just typed a venture sentence and want a brief in under a minute, /mos:mva-brief runs the 6-agent fan-out and deploys a shareable deck. The reward-before-investment surface of Phase 118."
+deprecated: true
+deprecated_redirect: "structure-argument"
+deprecated_removal: "v2.0.0-beta.84"
+teaching: "Deprecated alias. Use /mos:structure-argument and choose the Seed depth to turn a venture sentence into a first argument pyramid. Scheduled removal: v2.0.0-beta.84."
+ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash, AskUserQuestion
-interactive_first_reward: instant_brief
-# --- Phase 144.1 connector frontmatter ---
+# --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
 connector:
-  connects_to_spine: true
-  sensor_triggers: []
-  reach_id: deep_research
-  sub_mode: mva-brief
-  framework: null
-  posture: push_forward
-  hierarchy_rank: 10
-  filing: none
-  plan_gated: false
-  web_scope: null
+  excluded: true
+  reason: "Deprecated soft alias that forwards to /mos:structure-argument; it holds no reach of its own, so the replacement carries the connector row."
 ---
 
 <!-- mos:firing-block v2 -->
@@ -43,47 +40,30 @@ Desktop / Cowork / piped callers.
 
 # /mos:mva-brief
 
-Run the 30-second MVA pipeline against the pending venture sentence detected by
-the UserPromptSubmit hook (Plan 118-00).
+> Deprecated. /mos:mva-brief now redirects to /mos:structure-argument (Seed depth). Scheduled removal: v2.0.0-beta.84. Use /mos:structure-argument going forward.
 
-## What this does
+You are Larry. The user invoked /mos:mva-brief. Per Phase 389 (owner D5 and D8, 2026-11-08) this command is a soft-alias stub for one release. The old 30-second pipeline is gone. The Seed depth of /mos:structure-argument does the same job: a venture sentence in, a first argument pyramid out, with outside evidence only after the person says yes on a card.
 
-1. Reads pending state from `~/.mindrian/mva/<session-id>.json` (written by
-   Plan 118-00 detection hook).
-2. Fires 6 parallel agents (Brain similar + Brain cross-domain + Brain classic
-   traps + Tavily funding + Six-hats red/black + Dashboard graph) under the
-   45-second hard budget.
-3. Streams agent results as they return -- each one rendered in Larry's
-   GUIDED voice (per feedback_larry_pedagogical_guided_first.md).
-4. Closes with the 3-option footer:
-   - [1] Just tell me what's new (stay in "tell me" mode)
-   - [2] Build a room around this (invest)
-   - [3] Challenge me -- Devil's Advocate (go deeper cognitively)
+## Steps
 
-## Instructions for the model
+1. Emit the deprecation note above to the user as a single cyan line (Larry voice; no em-dash; one sentence per skills/ui-system/SKILL.md Section 6).
 
-Invoke `node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mva-run.cjs"` via Bash with no arguments. The script reads
-the pending state file, runs the orchestrator, and writes the rendered output
-to stdout.
+2. Invoke /mos:structure-argument with the user's original arguments and pick the Seed depth. Run:
 
-Relay the stdout to the user VERBATIM. Do NOT:
+```bash
+node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/soft-alias-runner.cjs" --from mva-brief --to structure-argument --remaining-args $ARGUMENTS
+```
 
-- Add commentary or interpretation before the rendered output
-- Re-summarize the agent findings ("So basically what this means is...")
-- Skip the 3-option footer
-- Autonomously pick option 1, 2, or 3 for the user
-- Add Larry-voice framing ("Here's what I found for you...") -- the renderer
-  already speaks in Larry's voice; double-voicing breaks the GUIDED tone
+The runner emits a JSON envelope: `{redirect, deprecation_note, args, ok}`. Use it to confirm the redirect target, then proceed with /mos:structure-argument behavior. The user sees ONE deprecation note and then the Seed.
 
-The 3-option footer IS the user's decision point. Wait for the user to type
-1, 2, or 3 (or their own free-text), then route per the option behavior:
+3. Pass through any output from /mos:structure-argument verbatim.
 
-- 1: stay in JUST_TALK mode; keep brief in scrollback; user can ask follow-ups
-- 2: invoke /mos:ignite --from-brief <sha8> (the router reads the brief side file ~/.mindrian/mva/briefs/<sha8>.json through resolveOption2; with no side file it returns no_brief_available)
-- 3: invoke /mos:challenge-assumptions against the brief
+## Why this is a soft-alias
 
-## Canon parts implemented
+People and tester notes still type the old name. The old pipeline ran six agents and deployed a deck from a pending-state file; nothing writes that state file any more. One release of alias keeps the old name from dead-ending. After that the name is removed and the deprecation record names /mos:structure-argument as the replacement.
 
-- Part 2 (team around navigator -- 6 agents as a parallel team)
-- Part 8 (boundary -- agents send only generic handles to Brain / Tavily)
-- Part 10 sub-claim 3 (room as receipt -- the brief IS the reward)
+## Cross-references
+
+- `commands/structure-argument.md` -- the canonical target; the Seed block holds the logic.
+- `scripts/soft-alias-runner.cjs` -- the shared runner the soft-alias stubs share.
+- Canon Part 7 (Reuse Before Build) -- consolidation rationale.

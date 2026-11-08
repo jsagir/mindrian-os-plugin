@@ -7,20 +7,20 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "3ede98819b206ce2103b31d457de136e7c2645878e3f89662ee12571bb836244",
+      "digest": "49a73407e13c2539e4062b75819c93a6eceb3017cb3106588afd8a447fffeabe",
       "source_count": 112
     },
     {
       "role": "wiring",
       "path": "data/connector-registry.json",
-      "digest": "58605ea90bc865e51583fe43d706bf6e23224b3804ea42ac5220c4634971c8ff",
-      "source_count": 245
+      "digest": "f947f4e0d499f5ff920605edc3bfc87b93efdefa83bec0b0e888839821287f19",
+      "source_count": 244
     },
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "9314b9f560855373dd95677659cae3bccad16fbc907f903938d128cab2a2727c",
-      "source_count": 386
+      "digest": "8493c79ab61353065f586aabe579bc0daed808cd2041790fa24b1e3887450709",
+      "source_count": 385
     }
   ],
   "runtime_surfaces": [
@@ -69,6 +69,6 @@
   ],
   "fixture_ref": {
     "path": "data/harness-fixtures/converged-room",
-    "digest": "6f2635a32872d7e066964da4dacd6f67a0cf7afc9bfde281fe4fb6f2035e0401"
+    "digest": "7ae9727d92920452b02ff465dd0e31a73bf958be6bb04c4857bbbafcb4ff35b8"
   }
 }

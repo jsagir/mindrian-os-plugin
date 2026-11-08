@@ -112,13 +112,14 @@ for (const f of FILES) {
   check('Test 1: ' + f + ' holds no stale stub text', bad.length === 0, bad.join('; '));
 }
 
-// ---- Test 4 (Tests 2 and 3 retired with the option files in plan 08): teaching and help_jtbd are untouched (ledger hash stays valid) ----
+// ---- Test 4 (Tests 2 and 3 retired with the option files in plan 08): plan 09 rewrote teaching and help_jtbd of the two
+// mva-brief files on purpose (soft-alias stub, owner D5 and D8), so the old pins must now DIFFER. The old text is gone. ----
 if (Object.values(PINS).some((p) => p.teaching === 'PIN')) {
   fail('Test 4: pins are filled in', 'run --print-pins on the unedited files');
 } else {
   for (const f of FILES) {
     for (const k of KEYS) {
-      check('Test 4: ' + f + ' ' + k + ' unchanged', pin(read(f), k) === PINS[f][k]);
+      check('Test 4: ' + f + ' ' + k + ' no longer holds the old brief text (rewritten by plan 09)', pin(read(f), k) !== PINS[f][k]);
     }
   }
 }

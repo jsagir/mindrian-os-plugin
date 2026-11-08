@@ -83,7 +83,7 @@
   },
   "venture": {
     "description": "Sole entrepreneur or defined venture: the navigator arrives with a venture in hand. Reproduces the SECTION_NAMES frozen 11 for backwards compatibility.",
-    "arrival_assets": ["defined-venture", "mva-brief"],
+    "arrival_assets": ["defined-venture", "seed-pyramid"],
     "sections": [
       "problem-definition",
       "market-analysis",
@@ -99,7 +99,7 @@
     ],
     "_sections_note": "Exact reproduction of the SECTION_NAMES frozen table in room-skeleton-scaffold.cjs. Backwards-compat guarantee: callers that pass blueprintFamily='venture' get the same sections as callers that pass no blueprintFamily. Phase 275 (D-01): grew 8 -> 11 alongside SECTION_NAMES; the exact-reproduction contract above is what forces this.",
     "default_methodologies": [
-      "mva-brief",
+      "structure-argument",
       "diagnose",
       "lean-canvas"
     ]

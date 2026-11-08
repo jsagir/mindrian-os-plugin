@@ -1621,31 +1621,7 @@
       "id": "command:/mos:mva-brief",
       "kind": "command",
       "methodology_tier": "mindrian-operation",
-      "name": "/mos:mva-brief",
-      "reach_id": "deep_research",
-      "sub_mode": "mva-brief",
-      "hierarchy_rank": 10,
-      "posture": "push_forward",
-      "sensor_triggers": [
-        "SENS-01"
-      ],
-      "chain_provenance": {
-        "command": "/mos:mva-brief",
-        "reach_id": "deep_research",
-        "sub_mode": "mva-brief",
-        "firing_sensors": [
-          "SENS-01"
-        ]
-      },
-      "ranking": {
-        "reach_id": "deep_research",
-        "sub_mode": "mva-brief",
-        "hierarchy_rank": 10,
-        "posture": "push_forward",
-        "sensor_triggers": [
-          "SENS-01"
-        ]
-      }
+      "name": "/mos:mva-brief"
     },
     {
       "id": "command:/mos:mva-report",
@@ -4319,12 +4295,6 @@
       "kind": "sub_mode",
       "methodology_tier": "mindrian-operation",
       "name": "mullins-seven"
-    },
-    {
-      "id": "sub_mode:mva-brief",
-      "kind": "sub_mode",
-      "methodology_tier": "mindrian-operation",
-      "name": "mva-brief"
     },
     {
       "id": "sub_mode:needs-jtbd",

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "builder": "scripts/build-mos-face.cjs",
-  "sourceHash": "233c400c03cdd15a5ae020e0b1c09fd111a1fef35b975d8631212e70a1a28ff3",
+  "sourceHash": "4c317c5dd0d169d0e6bc16c7c1c6602aa6f84c4f26de0b0a10ade402074fcbfe",
   "typescript": "7.0.2",
   "importRewrite": false,
   "files": {
@@ -9,7 +9,7 @@
     "assets/asset-d96217b320.js": "9ba50a842158058aabc91356eea3f12c7de0ade619c13c7b3ad1cc6b50ce0d75",
     "assets/asset-fa8504998f.json": "e54e7c6a3c11a039059fb47833b09e865cd3981e2910b4f13571e87c06682da2",
     "bind.js": "ef9ef1ce66d828ed1dae448d68687478cac7a17f27360e9464db3d859e1b3b17",
-    "commands.js": "14036639308402a60890ded66e53e0f4d0663eacbceaa985d5118a406ad15eb1",
+    "commands.js": "4d842ef02aabb57abfdda6ba37f4809429fff629625185355b060e9390275735",
     "face-events.js": "72d6c439025f2f45072b2467b358957d4e4b9f335f105a661c90834c35d8f3a4",
     "face.js": "977094d2695555f616e8b93019e3229fe7477999d417d7f81081d8d955d5e4e1",
     "gauge.js": "6776c11204da079aa904640c1601cfb16d2e34dbb2af680df94479550218913c",

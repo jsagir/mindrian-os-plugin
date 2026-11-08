@@ -854,23 +854,6 @@
       "decision_surface": "F.2"
     },
     {
-      "surface": "/mos:mva-brief",
-      "source": "command",
-      "connects_to_spine": true,
-      "sensor_triggers": [
-        "SENS-01"
-      ],
-      "reach_id": "deep_research",
-      "sub_mode": "mva-brief",
-      "framework": null,
-      "posture": "push_forward",
-      "hierarchy_rank": 10,
-      "filing": "none",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": null
-    },
-    {
       "surface": "/mos:new-project",
       "source": "command",
       "connects_to_spine": true,
@@ -2248,21 +2231,6 @@
       "decision_surface": "F.1"
     },
     {
-      "surface": "skill:mva-brief",
-      "source": "skill",
-      "connects_to_spine": true,
-      "sensor_triggers": [],
-      "reach_id": "deep_research",
-      "sub_mode": "mva-brief",
-      "framework": null,
-      "posture": "push_forward",
-      "hierarchy_rank": 10,
-      "filing": "none",
-      "plan_gated": false,
-      "web_scope": null,
-      "decision_surface": null
-    },
-    {
       "surface": "skill:new-project",
       "source": "skill",
       "connects_to_spine": true,
@@ -3120,6 +3088,25 @@
       "layer_why": "Owns the Eureka MCP worker session and job lifecycle; persistence and review remain governed by MindrianOS."
     },
     {
+      "surface": "mcp:eureka_capability_job_forget",
+      "source": "mcp_tool",
+      "connects_to_spine": true,
+      "sensor_triggers": [],
+      "reach_id": null,
+      "sub_mode": null,
+      "framework": null,
+      "posture": null,
+      "hierarchy_rank": null,
+      "filing": null,
+      "plan_gated": false,
+      "web_scope": null,
+      "decision_surface": null,
+      "hitl_shape": "F.0",
+      "hitl_why": "A person asks to forget one finished run, and the explicit confirm flag is that yes; the tool deletes only that run from the Eureka job store and the local MindrianOS record.",
+      "layer": "harness",
+      "layer_why": "Owns the Eureka MCP worker session and job lifecycle; persistence and review remain governed by MindrianOS."
+    },
+    {
       "surface": "mcp:eureka_capability_job_result",
       "source": "mcp_tool",
       "connects_to_spine": true,
@@ -3134,7 +3121,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Returns result for a completed catalogued Eureka job.",
+      "hitl_why": "Returns the checked result for a finished catalogued Eureka job, in pages above 256 KiB.",
       "layer": "harness",
       "layer_why": "Owns the Eureka MCP worker session and job lifecycle; persistence and review remain governed by MindrianOS."
     },
@@ -3153,7 +3140,7 @@
       "web_scope": null,
       "decision_surface": null,
       "hitl_shape": "none",
-      "hitl_why": "Reads status for jobs owned by the current MindrianOS process.",
+      "hitl_why": "Reads status for a Eureka job from the live session or, after a host restart, from the MindrianOS job record and the engine.",
       "layer": "harness",
       "layer_why": "Owns the Eureka MCP worker session and job lifecycle; persistence and review remain governed by MindrianOS."
     },
@@ -4144,7 +4131,6 @@
       "/mos:explore-domains",
       "/mos:find-analogies",
       "/mos:find-connections",
-      "/mos:mva-brief",
       "/mos:new-project",
       "/mos:new-surface",
       "/mos:skill"

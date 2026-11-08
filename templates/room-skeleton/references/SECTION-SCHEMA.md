@@ -101,7 +101,7 @@ Chosen once, at room birth, from the navigator's arrival shape, transcribed from
 | problem-first | validate, mullins, explore-domains |
 | business-first | lean-canvas, challenge-assumptions, diagnose |
 | portfolio | find-connections, whitespace, explore-domains |
-| venture | mva-brief, diagnose, lean-canvas |
+| venture | structure-argument, diagnose, lean-canvas |
 | program | explore-domains, mullins, validate |
 | case-study | diagnose, lean-canvas, find-analogies |
 | hypothesis | structure-argument, challenge-assumptions, validate, research |

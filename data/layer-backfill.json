@@ -289,8 +289,8 @@
     "layer": "loop"
   },
   "commands/mva-brief.md": {
-    "layer": "graph",
-    "layer_why": "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name.",
+    "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:structure-argument; it forwards the call and runs nothing of its own, the rubric's own step 3 redirect signal.",
     "rubric_stopped_at": 3
   },
   "commands/mva-report.md": {
@@ -679,8 +679,8 @@
     "layer": "loop"
   },
   "skills/mva-brief/SKILL.md": {
-    "layer": "graph",
-    "layer_why": "Explicitly runs a 6-agent fan-out and deploys a shareable brief, the rubric's own step 1 fan-out signal by name."
+    "layer": "harness",
+    "layer_why": "Deprecated alias for /mos:structure-argument; it forwards the call and runs nothing of its own, the rubric's own step 3 redirect signal."
   },
   "skills/new-project/SKILL.md": {
     "layer": "harness",

@@ -15,6 +15,9 @@
  *   1. Resolve the placeholder slug from the room-dir path.basename.
  *   2. Read the Phase 117 auto-explore finding from <roomDir>/.mindrian/auto-explore-*.json.
  *   3. Read the Phase 118 MVA brief sentence from <roomDir>/.mindrian/mva-brief.json.
+ *      (Phase 389 plan 09: no writer of this file exists in the plugin any more (389-CALLERS answer f),
+ *      so the read returns an empty string unless an older release wrote the file. Kept on purpose;
+ *      plan 10 and Phase 390 decide the fate of the whole shim.)
  *   4. Call llm-name-suggester.cjs::suggestRoomName (async; one-shot Haiku 4.5; LOCAL-only).
  *   5. Build the four F.1 verbs with the interpolated [name this room: <slug>] label.
  *   6. Read thinness flag from STATE.md frontmatter; if true, prepend Larry voice line.
@@ -69,6 +72,8 @@ function readAutoExploreFinding(roomDir) {
   } catch (_e) { return null; }
 }
 
+// Phase 389 plan 09: read-only and writer-less (no code writes this file). It answers for rooms that an older
+// release wrote. Missing or malformed file gives an empty string.
 function readMvaBriefSentence(roomDir) {
   try {
     const briefPath = path.join(roomDir, '.mindrian', 'mva-brief.json');
