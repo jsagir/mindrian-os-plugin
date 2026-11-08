@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.1.0
-milestone_name: to next) -- close the drift between docs/MINDRIAN-CANON.md
+milestone_name: milestone
 status: verifying
-stopped_at: Completed 389-01-PLAN.md (MVA caller proof, baseline, stale text fixed; Phase 389 plans 02 to 14 next)
+stopped_at: Phase 391 plans 01-06, Phase 389 plans 01-05 and Phase 390 plans 01-05 have summaries; owner cards 391-C1..C6, 389-D1..D11 and 390-G1..G6 are PENDING; 391-07/08 and 389-06..14 wait for owner tokens
 last_updated: "2026-11-08T05:21:46.955Z"
-last_activity: 2026-11-08
+last_activity: "2026-11-08 - recorded 391/389/390 progress; v2.0.0-beta.81 cut (tag 8455416a5), repo 2.0.0-beta.82 in progress; 383-11 pending the owner"
 progress:
   total_phases: 154
   completed_phases: 41
@@ -9235,6 +9235,7 @@ Progress: [█████████░] 86%
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Status | Directory |
+| 261108-asx | Hand-recorded Phase 391 (6/8), 389 (5/14) and 390 (5/5) execution progress in STATE, ROADMAP and REQUIREMENTS (PYR389-03/04/05 and R390-TABLE marked complete); STATE milestone_name restored to "milestone"; no gsd-tools write command used | 2026-11-08 | docs(quick-261108-asx) commit | complete | [261108-asx-record-391-389-390-execution-progress-in](./quick/261108-asx-record-391-389-390-execution-progress-in/) |
 | 261108-98w | README refresh after the beta.81 cut: every root README fact (113 commands, 126 skills, 17 agents, 4 pipelines, 12 hook events, 24 Eureka tools, census 28131/457, install steps, links) checked against disk; no README needed an edit; dist/README.md left stale on purpose; Claude Code install-command conflict (bin/cli.js npm vs PACKAGING-PATHS native) reported, not settled by code | 2026-11-08 | docs(quick-261108-98w) commit | complete | [261108-98w-refresh-readmes-after-the-beta-81-versio](./quick/261108-98w-refresh-readmes-after-the-beta-81-versio/) |
 | 261107-wjt | Refresh the ICM ruling eval record (evals/icm/last-run.json and .html) for beta.80: code 22/22, jev 2/8, agreement 1.0 (floor 0.8), jev-1.14.0; run was accidental (probing for --help) and used the dev-time TypeSafe key on fixture rooms only; kept for the icm-ruling-eval-fresh release gate | 2026-11-07 | chore(quick-261107-wjt) commit | complete | [261107-wjt-commit-refreshed-icm-eval-record-for-the](./quick/261107-wjt-commit-refreshed-icm-eval-record-for-the/) |
 | 261107-w5p | CHANGELOG [Unreleased] gets the /m:os face panel line (Claude Code terminal only, Theo, /mos-words) that W4 of tests/test-380-gate-wiring.cjs reads; the 380 release gate leg is green | 2026-11-07 | docs(quick-261107-w5p) commit | complete | [261107-w5p-changelog-face-panel-line-for-the-380-ga](./quick/261107-w5p-changelog-face-panel-line-for-the-380-ga/) |
@@ -9428,6 +9429,8 @@ Progress: [█████████░] 86%
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-11-08T05:21:46.861Z
 Stopped at: Completed 389-01-PLAN.md (MVA caller proof, baseline, stale text fixed; Phase 389 plans 02 to 14 next)
+
+**Quick 261108-asx (2026-11-08, hand-written; no gsd-tools state write used):** Phase 391 has 8 plans, summaries 01 to 06 (391-04 ended at owner cards C1 to C6, PENDING; 391-07 and 391-08 wait for owner tokens). Phase 389 has 14 plans, summaries 01 to 05 (389-02 ended at owner cards D1 to D11, PENDING; 389-06 to 389-13 are gated on owner tokens). Phase 390 has 5 plans, all with summaries (Wave 0 complete; 390-05 ended at group answers G1 to G6, PENDING; no cut executed). Release: v2.0.0-beta.81 is cut (tag 8455416a5 on origin, npm latest); repo is 2.0.0-beta.82 in progress; Phase 383 shipped partial, plan 383-11 (Windows retest) pending the owner; website step skipped on purpose. The frontmatter `stopped_at` above is the newer pointer.
 
 **Phase 343 Plan 05 (2026-09-14, this session):** computed the first counter-metric pair
 declared in 343-04 (CENSUS-09). `lib/core/navigation/claim-counter-metric.cjs`

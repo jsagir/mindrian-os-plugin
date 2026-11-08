@@ -5229,9 +5229,9 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 
 - [x] **PYR389-01**: The callers of the MVA family are proven by a classed scan, the test baseline is recorded, and the stale "option 2 is a stub" text and its five stale router asserts are fixed. Plan 389-01.
 - [ ] **PYR389-02**: Every owner decision (entry hook, first-install reward, retirements, renames, alias period, share step, autonomous_safe posture) is on one card with a token gate and a hash. Plan 389-02.
-- [ ] **PYR389-03**: The Seed Test step sends only short generic phrases written by the host model, only after a card, through the Part 8 route, with a code refusal when the card was not shown; the Brain answer is measured. Plan 389-03.
-- [ ] **PYR389-04**: The Full depth runs the existing Phase 363 pyramid engine through one registered template and one adapter. Plan 389-04.
-- [ ] **PYR389-05**: A Seed record and a hand-off to /mos:ignite and /mos:new-project work without the option router. Plan 389-05.
+- [x] **PYR389-03**: The Seed Test step sends only short generic phrases written by the host model, only after a card, through the Part 8 route, with a code refusal when the card was not shown; the Brain answer is measured. Plan 389-03.
+- [x] **PYR389-04**: The Full depth runs the existing Phase 363 pyramid engine through one registered template and one adapter. Plan 389-04.
+- [x] **PYR389-05**: A Seed record and a hand-off to /mos:ignite and /mos:new-project work without the option router. Plan 389-05.
 - [ ] **PYR389-06**: The Seed and Full depths live in /mos:structure-argument with no new command and no new connector row, an evidence card, a three-way Decide gate, hitl_stages and the posture the owner chose. Plan 389-06.
 - [ ] **PYR389-07**: The first-install reward runs on the Seed, and the per-message venture hook is removed when the owner approves command-only entry. Plan 389-07.
 - [ ] **PYR389-08**: The pipeline skill, the option command, the option skill and the option router are retired by owner token. Plan 389-08.
@@ -5244,6 +5244,6 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 
 ### Phase 390 - Recalibrate or cut stale surfaces (R390, minted at plan time 2026-11-07)
 
-- [ ] **R390-TABLE**: A verified keep / recalibrate / cut table is filed (no surface is removed in step 1), the rows the code check proved wrong are corrected, and the Phase 385 no-caller scan is re-run and recorded with a caller matrix. Plans 390-01 and 390-02.
+- [x] **R390-TABLE**: A verified keep / recalibrate / cut table is filed (no surface is removed in step 1), the rows the code check proved wrong are corrected, and the Phase 385 no-caller scan is re-run and recorded with a caller matrix. Plans 390-01 and 390-02.
 - [ ] **R390-FIX**: A behaviour gap (prose says wired, code is not) is fixed only after the owner answers its card. Plans 390-04 and 390-05 deliver the card and the answer gate; the fix is planned after the answer.
 - [ ] **R390-CUT-n**: Each owner-approved cut group is removed after a caller proof across CLI, Desktop, Cowork, hooks and tests, with a failing removal test first and regenerated Part 11 registries. Ids R390-CUT-1 and up are minted when a card is answered. Plans 390-03 (removal test template and aggregator), 390-04 (answer gate) and 390-05 (owner cards) prepare it; the removals are planned after the cards are answered.

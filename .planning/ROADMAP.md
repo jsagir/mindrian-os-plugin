@@ -4104,15 +4104,15 @@ Plans:
 **Goal:** One framework, the Pyramid Principle, at two depths replaces the MVA family. Seed: a person with no room types one venture sentence and gets a one-page pyramid (Situation, Complication, Question, Answer) written by the host model at once; outside evidence comes only after a card, only as short generic phrases through the Part 8 route. Full: with a room, the Phase 363 pyramid engine upgrades the seed. One gate: build a room, keep going, or challenge. The old per-message hook, brief, option router and pipeline core are retired, mva-report becomes session-report, and the surviving modules are renamed, each behind an owner token on one card. Source: 389-PRD.md and 389-RESEARCH.md (the research changes the PRD where they conflict).
 **Requirements**: PYR389-01 to PYR389-14
 **Depends on:** Phase 388
-**Plans:** 1/14 plans executed (planned 2026-11-07; plan 389-02 stops for the owner card; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
+**Plans:** 5/14 plans executed (planned 2026-11-07; 389-01 to 389-05 have summaries; 389-02 ended at the owner card D1 to D11, all PENDING; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
 
 Plans:
 
 - [x] 389-01-PLAN.md - caller proof, test baseline, generator map, stale option-2 text fixed (wave 1)
-- [ ] 389-02-PLAN.md - owner decision card D1 to D11 with a token gate and a checker; ends at NEEDS_HUMAN (wave 2, not autonomous)
-- [ ] 389-03-PLAN.md - Seed cells on short generic phrases, card and run commands with a code refusal, Part 8 canary, live measure record (wave 2)
-- [ ] 389-04-PLAN.md - Full depth on the Phase 363 pyramid engine: one template, one adapter (wave 2)
-- [ ] 389-05-PLAN.md - Seed record and the --from-brief hand-off without the option router (wave 2)
+- [x] 389-02-PLAN.md - owner decision card D1 to D11 with a token gate and a checker; ends at NEEDS_HUMAN (wave 2, not autonomous)
+- [x] 389-03-PLAN.md - Seed cells on short generic phrases, card and run commands with a code refusal, Part 8 canary, live measure record (wave 2)
+- [x] 389-04-PLAN.md - Full depth on the Phase 363 pyramid engine: one template, one adapter (wave 2)
+- [x] 389-05-PLAN.md - Seed record and the --from-brief hand-off without the option router (wave 2)
 - [ ] 389-06-PLAN.md - Seed and Full wired into /mos:structure-argument, evidence card, Decide gate, hitl_stages, posture D11 (wave 3, gated)
 - [ ] 389-07-PLAN.md - first-install reward on the Seed (D2), per-message hook removed and Larry offer (D1) (wave 4, gated)
 - [ ] 389-08-PLAN.md - retire the pipeline skill (D3) and the option command, skill and router (D4) (wave 5, gated)
@@ -4128,11 +4128,11 @@ Plans:
 **Goal:** Know which stale-looking surfaces are really unused before anything is removed. File one verified keep / recalibrate / cut table (no surface is removed in step 1), correct the rows the code check proved wrong, re-run the Phase 385 no-caller scan, and give the owner one decision card per group of candidates with a one-word answer gate. A group is cut, merged or rewired only after its card is answered, with a caller proof across CLI, Desktop, Cowork, hooks and tests, a failing removal test first, and regenerated Part 11 registries. The grade family, Eureka (including the rs-* set), /mos:radar and the MVA family are never offered for a cut.
 **Requirements**: R390-TABLE, R390-FIX, R390-CUT-n
 **Depends on:** Phase 389
-**Plans:** 3/5 plans executed (Wave 0 planned 2026-11-07; 390-01, 390-03 and 390-04 done 2026-11-08; plan 390-05 stops for an owner decision; later waves are planned after the cards are answered)
+**Plans:** 5/5 plans executed (Wave 0 complete 2026-11-08; 390-05 ended at the owner decision cards G1 to G6, all PENDING; no cut is executed; later waves are planned after the cards are answered)
 
 Plans:
 
-- [ ] 390-01 verified table and five corrections, 390-02 no-caller scan record and caller matrix, 390-03 removal test template and aggregator, 390-04 answer gate tool, 390-05 owner decision cards (owner).
+- [x] 390-01 verified table and five corrections, 390-02 no-caller scan record and caller matrix, 390-03 removal test template and aggregator, 390-04 answer gate tool, 390-05 owner decision cards (owner).
 
 Later waves (NOT planned yet): one plan set per answered group G1 orphan modules, G2 behaviour gaps, G3 skills, G4 agents, G5 command groups, G6 Pinecone files. A group answered KEEP-ALL gets no plan.
 
@@ -4141,14 +4141,14 @@ Later waves (NOT planned yet): one plan set per answered group G1 orphan modules
 **Goal:** Check the 27 Claude Code changelog entries newer than the capability ledger against what the plugin ships, record the screen in the ledger, and fix the `/mos:radar --fetch` silent skip (WebFetch read 100000 of 1175667 characters, the prompt asked for 10 entries, nothing compared the oldest version read with the mark, and no deterministic path existed). Fix all four causes, make the doctor ledger organ name a gap and warn on an incomplete fetch, and put the six behavior changes (agent tools lists, onFailure on the web credential hook, a Bash grant for the radar command, the /ultrareview facts, the mcp__brain_* token, the default lag of the doctor ledger organ) on owner cards. Nothing that alters behavior is applied before the owner answers.
 **Requirements**: CC391-A to CC391-J (the PRD checks a to i, plus the cheap checks)
 **Depends on:** Phase 390
-**Plans:** 8 plans (planned 2026-11-07; plan 391-04 stops for owner decisions on six cards; plans 391-07 and 391-08 apply them only after the answers are recorded; 391-01, 391-02, 391-03, 391-05, 391-06 executed)
+**Plans:** 6/8 plans executed (planned 2026-11-07; 391-01 to 391-06 have summaries; 391-04 ended at owner cards C1 to C6, all PENDING; plans 391-07 and 391-08 apply them only after the answers are recorded)
 
 Plans:
 
 - [x] 391-01-PLAN.md - failing slicer test, fixture helper, aggregator, and the pure changelog slicer module (wave 1)
 - [x] 391-02-PLAN.md - hook contract test with the no-onFailure pins; agent tools naming test (RED on mcp__brain_*, then an owner-gated pending entry); name checks (wave 1)
 - [x] 391-03-PLAN.md - ask-first changelog fetch script with credential check and audit record (Phase 386 rule), provider registration (wave 2)
-- [ ] 391-04-PLAN.md - checks record, plugin-scoped name probe, guard hook timing, Eureka handshake, card checker, six owner cards, SEED-145; ends at NEEDS_HUMAN (wave 2, not autonomous)
+- [x] 391-04-PLAN.md - checks record, plugin-scoped name probe, guard hook timing, Eureka handshake, card checker, six owner cards, SEED-145; ends at NEEDS_HUMAN (wave 2, not autonomous)
 - [x] 391-05-PLAN.md - six dormant ledger rows and ledger_covers.to 2.1.318 in one commit, cache view (wave 2)
 - [x] 391-06-PLAN.md - radar command procedure fix and mirror (Part 11), doctor organ names the gap and warns on an incomplete fetch (default lag unchanged), aggregator registration (wave 3)
 - [ ] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
