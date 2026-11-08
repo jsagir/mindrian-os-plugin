@@ -144,19 +144,6 @@
       "reason": "Read in full for this task, answering assumption A9. hookMain() (scripts/hmi-compliance-poll.cjs lines 382-401) only fires pollOnce() when the event is Stop, wraps the call in a try/catch that swallows every error (lines 393-398), and unconditionally returns silentHookSuccess() (line 400), which emits {continue:true, suppressOutput:true} through an allowlisted envelope filter (lines 348-370) that carries no BINDING marker and no systemMessage. It never gates a turn and never surfaces model-visible text; it only writes a side-channel JSON file (<room>/.mindrian/last-hmi-poll.json) that no conversation-time consumer reads back. Classified as an available-but-currently-zero-weight arbiter input rather than a floor, since nothing here is constitutional or doctrinal; its practical judgment impact today is inert."
     },
     {
-      "id": "mva-detect",
-      "rule": "A UserPromptSubmit classifier detects venture-shaped first sentences and seeds the 30-Second MVA pipeline.",
-      "mechanism": "scripts/mva-detect.cjs",
-      "hook_event": "UserPromptSubmit",
-      "policy_file": null,
-      "rung_today": null,
-      "rung_proposed": "logged",
-      "floor": "none",
-      "floor_source": null,
-      "arbiter_input": true,
-      "reason": "Read in full for this task, answering assumption A9 alongside hmi-compliance-poll.cjs. main() (scripts/mva-detect.cjs lines 121-223) never blocks a turn: every branch, including a classifier error, ends in emitEmpty() -> {continue:true}. But on a venture-positive classification (line 162) it writes a pending record via mvaState.writePending() (lines 163-169) that scripts/first-install-router.cjs reads several turns later (first-install-router.cjs line 345, its own comment: 'lib/core/mva-state.cjs's pending record at fire time, several turns later') to fire the 30-Second MVA Instant Brief, and it also fires a memory_event through the navigation chokepoint (navigation.logSpineRead, lines 178-194) carrying only closed-enum tokens and a sentence hash, never raw prompt text. This is the hooked-model first-step concern in miniature: the detector itself never gates, but its write is the seed of a later first-turn reward surface. Classified as a weighted input, not a floor, at rung logged, matching the binding-gate-injection precedent of a rule with real observable fires worth an evidence trail."
-    },
-    {
       "id": "admin-command-gate",
       "rule": "An admin-only slash command is rejected on a UserPromptSubmit turn from a non-admin identity.",
       "mechanism": "scripts/admin-command-gate.cjs",

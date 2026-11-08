@@ -164,7 +164,6 @@
 - `sessionstart-npm-reconcile.cjs` (SessionStart) - reconcile npm/install version
 - `sessionstart-post-update-preflight.cjs` (SessionStart) - post-update preflight check
 - `check-pending-breakthrough.cjs` (SessionStart) - surface a pending breakthrough (SENS-07)
-- `mva-detect.cjs` (UserPromptSubmit) - classify a venture sentence -> MVA brief
 - `brain-derivation-drain.cjs` (UserPromptSubmit) - drain the BRAIN.md derivation queue
 - `operator-update.cjs` (script only, no hook entry since Phase 385; the SessionStart contributors still load it) - update the conversation operator state
 - `jtbd-update.cjs` (UserPromptSubmit) - update the active JTBD signal (SENS-05)

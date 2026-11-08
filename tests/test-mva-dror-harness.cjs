@@ -1,68 +1,47 @@
 'use strict';
 /*
- * Phase 118-06 Plan 06 -- Dror 2.0 Acceptance Harness.
+ * Phase 118-06 Plan 06 -- Dror 2.0 Acceptance Harness (reduced by Phase 389 plan 07).
  *
  * The source-spec's hardest acceptance criterion (the-30-second-mva.md
  * line 129): "subject types one sentence and clicks an option within 60
- * seconds of the brief rendering." This harness is the programmatic test
- * that converts the criterion into a CI-enforceable invariant.
- *
- * 4 tests across 3 fixture sentences + the concurrency invariant from
- * Plan 118-00:
+ * seconds of the brief rendering." The harness first spawned the per-message
+ * hook scripts/mva-detect.cjs. Phase 389 plan 07 (owner card D1 APPROVE,
+ * 2026-11-08) removed that hook: the venture verdict is now taken once by
+ * scripts/first-install-router.cjs from the sync heuristic classify of
+ * lib/core/mva-classifier.cjs (pinned by tests/test-389-first-install-seed.cjs).
+ * This harness keeps what is still true of the classification phase, on the
+ * classifier itself, for the same 3 fixture sentences:
  *
  *   Test 1: VENTURE_EN ("I have an idea for a couples finance app")
- *           spawn mva-detect.cjs hook -> classifier identifies venture ->
- *           state file appears in <HOME>/.mindrian/mva/<session>.json with
- *           pipeline_status='pending' -> assert total elapsed <= 45000ms
- *           (WARN-2 field name: total_duration_ms, NOT duration_ms).
+ *           classify -> venture true, within the classification budget.
  *
  *   Test 2: NON_VENTURE ("fix the failing test in src/foo.test.ts")
- *           spawn hook -> classifier rejects -> NO state file mutation
- *           (or state file with hebrew_refusal=false AND venture=false).
+ *           classify -> venture false.
  *
  *   Test 3 (CRITICAL-1+5 -- LD1 LOCKED Hebrew refusal):
- *           HEBREW = "יש לי רעיון לאפליקציה לזוגות"
+ *           HEBREW = (a short Hebrew sentence, see the const below)
  *           Harness reads LD1 from 118-CONTEXT.md at startup; LD1 is
  *           LOCKED (English-only for v1.13.0; OQ1 is CLOSED per LD1).
- *           The harness asserts state file carries hebrew_refusal:true
- *           AND locale:'he' per the LD1 prescribed behavior.
- *           The harness DOES NOT fail loudly on "OQ1 unresolved" -- LD1
- *           supersedes OQ1. The ONLY failure mode for this test is if LD1
- *           is DELETED from 118-CONTEXT.md (canon-deletion guard).
+ *           The harness asserts the classifier refuses Hebrew (venture false,
+ *           reason hebrew_unsupported_v1.13.0). The ONLY failure mode for the
+ *           LD1 read is if LD1 is DELETED from 118-CONTEXT.md (canon-deletion
+ *           guard).
  *           Future-grep keywords: LD1, LOCKED -- the literal substrings
  *           MUST appear inline so reviewers can confirm OQ1 is closed.
  *
- *   Test 4: Concurrency invariant (per Plan 118-00 binding): 2 venture
- *           sentences submitted within ~5 seconds in the same session ->
- *           only one state file (the first); the second invocation sees
- *           isAlreadyRunning() and exits without overwriting state.
- *
- * Vercel-in-CI note: production Vercel deploy requires VERCEL_TOKEN. The
- * harness runs the CLASSIFICATION + STATE-WRITE phase end-to-end (the part
- * that is hermetic-able in CI). The deck-build + Vercel deploy phase is
- * tested by lib/core/mva-deck-builder.test.cjs + mva-vercel-deploy.test.cjs
- * (Plan 118-04 substrate). The Dror harness asserts that the FIRST 1.5
- * seconds of the pipeline (the hook + classifier + state write) complete
- * well within budget; the downstream 6-agent fan-out + deck deploy is
- * gated by the orchestrator under its own budget (Plan 118-03 mva-budget
- * .cjs caps total at 45000ms).
- *
- * Per OQ6 lean (settled): synthetic harness in CI + real-user "felt the
- * product" signal collected outside CI by a Wave-2 tester at /gsd:verify
- * -work time. This file ships the synthetic half.
+ * Removed with the hook (it had no other home): the pending state file and the
+ * no-double-fire concurrency invariant (Test 4), and the hook telemetry check.
+ * The downstream pipeline budget is asserted by mva-orchestrator.test.cjs.
  *
  * Pure CJS, node built-ins only.
  */
 
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
-const crypto = require('node:crypto');
-const { spawnSync } = require('node:child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
-const DETECT_PATH = path.resolve(REPO_ROOT, 'scripts', 'mva-detect.cjs');
+const classifier = require(path.resolve(REPO_ROOT, 'lib', 'core', 'mva-classifier.cjs'));
 const CONTEXT_PATH = path.resolve(
   REPO_ROOT,
   '.planning',
@@ -85,7 +64,7 @@ const HOOK_BUDGET_MS = 10000; // classification-phase budget for this harness
 
 const VENTURE_EN = 'I have an idea for a couples finance app';
 const NON_VENTURE = 'fix the failing test in src/foo.test.ts';
-const HEBREW = 'יש לי רעיון לאפליקציה לזוגות';
+const HEBREW = '\u05D9\u05E9 \u05DC\u05D9 \u05E8\u05E2\u05D9\u05D5\u05DF \u05DC\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 \u05DC\u05D6\u05D5\u05D2\u05D5\u05EA';
 
 // ---------- LD1 LOCKED reader (CRITICAL-1+5) ----------
 
@@ -151,66 +130,6 @@ function run(name, fn) {
   }
 }
 
-// ---------- Helpers: hermetic HOME + hook spawn ----------
-
-function makeHermeticHome() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'dror-harness-'));
-}
-
-function spawnHook(sentence, hermeticHome, sessionId) {
-  // Build the UserPromptSubmit envelope per Plan 118-00 mva-detect.cjs
-  // (reads stdin JSON, extracts payload.prompt).
-  const payload = JSON.stringify({
-    hook_event_name: 'UserPromptSubmit',
-    prompt: sentence,
-  });
-
-  // Run with a hermetic HOME so .mindrian/mva and .mindrian/telemetry
-  // don't pollute the dev machine. ANTHROPIC_API_KEY is deleted so the
-  // classifier falls back to its heuristic path (deterministic in CI).
-  const env = Object.assign({}, process.env, {
-    HOME: hermeticHome,
-    USERPROFILE: hermeticHome,
-    CLAUDE_SESSION_ID: sessionId,
-  });
-  delete env.ANTHROPIC_API_KEY;
-
-  const result = spawnSync(process.execPath, [DETECT_PATH], {
-    input: payload,
-    env: env,
-    encoding: 'utf8',
-    timeout: HOOK_BUDGET_MS,
-  });
-  return result;
-}
-
-function readStateFile(hermeticHome, sessionId) {
-  const p = path.join(hermeticHome, '.mindrian', 'mva', sessionId + '.json');
-  try {
-    const raw = fs.readFileSync(p, 'utf8');
-    return JSON.parse(raw);
-  } catch (_e) {
-    return null;
-  }
-}
-
-function readTelemetry(hermeticHome) {
-  const p = path.join(hermeticHome, '.mindrian', 'telemetry', 'v1.13', 'mva.jsonl');
-  try {
-    const raw = fs.readFileSync(p, 'utf8');
-    return raw.split('\n').filter((l) => l.length > 0).map((l) => {
-      try { return JSON.parse(l); } catch (_e) { return null; }
-    }).filter((x) => x !== null);
-  } catch (_e) {
-    return [];
-  }
-}
-
-function makeSessionId(sentence) {
-  const h = crypto.createHash('sha256').update(sentence, 'utf8').digest('hex').slice(0, 12);
-  return 'dror-' + h + '-' + Date.now();
-}
-
 // ---------- Load LD1 once at startup (CRITICAL-1+5) ----------
 
 let LD1;
@@ -224,131 +143,32 @@ try {
 
 // ---------- Test 1: VENTURE_EN happy path ----------
 
-run('Test 1 VENTURE_EN: classifier identifies venture, state file appears, elapsed <= budget', () => {
-  const home = makeHermeticHome();
-  const sid = makeSessionId(VENTURE_EN);
+run('Test 1 VENTURE_EN: classifier identifies venture within the classification budget', () => {
   const t0 = Date.now();
-  const r = spawnHook(VENTURE_EN, home, sid);
+  const verdict = classifier.classify(VENTURE_EN);
   const elapsed = Date.now() - t0;
-  assert.equal(r.status, 0, 'expected hook exit 0; got ' + r.status + '\nstderr: ' + r.stderr);
-  // WARN-2 field name: total_duration_ms (not duration_ms). The harness
-  // asserts the wall-clock for the classification phase against the
-  // HOOK_BUDGET_MS; the downstream brief-rendering 45s budget is the
-  // orchestrator's own concern (asserted in mva-orchestrator.test.cjs).
+  assert.equal(verdict.venture, true, 'expected venture true; got ' + JSON.stringify(verdict));
   assert.ok(elapsed <= HOOK_BUDGET_MS, 'classification phase took ' + elapsed + 'ms; budget ' + HOOK_BUDGET_MS + 'ms');
-  // The source-spec ceiling of 60000ms (total_duration_ms <= 45000ms per
-  // the brief-rendered telemetry contract) is also asserted for parity
-  // with the WARN-2 invariant.
   assert.ok(elapsed <= MAX_TIME_MS, 'classification phase exceeded source-spec ceiling (' + MAX_TIME_MS + 'ms)');
-  // total_duration_ms is the Plan 118-03 telemetry field name (WARN-2);
-  // here we surface the same scalar concept (the harness's wall-clock).
-  const total_duration_ms = elapsed;
-  assert.ok(total_duration_ms <= 45000, 'total_duration_ms ' + total_duration_ms + ' exceeds 45000ms (WARN-2 invariant)');
-  const state = readStateFile(home, sid);
-  assert.ok(state, 'expected state file at ' + path.join(home, '.mindrian/mva/' + sid + '.json'));
-  assert.equal(state.pipeline_status, 'pending', 'expected pipeline_status=pending; got ' + state.pipeline_status);
-  assert.equal(state.locale, 'en', 'expected locale=en; got ' + state.locale);
-  assert.ok(state.sentence_sha256 && state.sentence_sha256.length === 64, 'expected sentence_sha256 of length 64');
-  assert.ok(!state.hebrew_refusal, 'expected hebrew_refusal absent for English venture');
 });
 
-// ---------- Test 2: NON_VENTURE -- no state mutation ----------
+// ---------- Test 2: NON_VENTURE ----------
 
-run('Test 2 NON_VENTURE: classifier rejects, no state file mutation', () => {
-  const home = makeHermeticHome();
-  const sid = makeSessionId(NON_VENTURE);
-  const r = spawnHook(NON_VENTURE, home, sid);
-  assert.equal(r.status, 0, 'expected hook exit 0; got ' + r.status);
-  const state = readStateFile(home, sid);
-  // Non-venture English -> NO state file written (per Plan 118-00 mva-detect
-  // .cjs: only writePending on venture:true OR hebrew_refusal).
-  assert.equal(state, null, 'expected NO state file for non-venture sentence; got ' + JSON.stringify(state));
+run('Test 2 NON_VENTURE: classifier rejects a non-venture sentence', () => {
+  const verdict = classifier.classify(NON_VENTURE);
+  assert.equal(verdict.venture, false, 'expected venture false; got ' + JSON.stringify(verdict));
 });
 
 // ---------- Test 3 (CRITICAL-1+5): LD1 LOCKED Hebrew refusal ----------
 
-run('Test 3 (LD1 LOCKED -- OQ1 closed): Hebrew sentence -> hebrew_refusal envelope', () => {
+run('Test 3 (LD1 LOCKED -- OQ1 closed): Hebrew sentence is refused by the classifier', () => {
   // LD1 LOCKS English-only for v1.13.0. LD1 supersedes OQ1.
-  // The harness asserts LD1's prescribed behavior, not a runtime-resolved OQ1.
   assert.ok(LD1.locked, 'LD1 must be LOCKED at this point (read at harness startup)');
   assert.ok(LD1.english_only_v1_13_0, 'LD1 LOCKS English-only behavior');
-
-  const home = makeHermeticHome();
-  const sid = makeSessionId(HEBREW);
-  const r = spawnHook(HEBREW, home, sid);
-  assert.equal(r.status, 0, 'expected hook exit 0; got ' + r.status);
-  const state = readStateFile(home, sid);
-  assert.ok(state, 'expected state file with hebrew_refusal envelope (per LD1 LOCKED behavior)');
-  assert.equal(state.hebrew_refusal, true, 'expected hebrew_refusal=true per LD1; got ' + state.hebrew_refusal);
-  assert.equal(state.locale, 'he', 'expected locale=he per LD1; got ' + state.locale);
-  assert.equal(state.pipeline_status, 'pending', 'expected pipeline_status=pending (orchestrator short-circuits on hebrew_refusal); got ' + state.pipeline_status);
-  // Per LD1 LOCKED behavior: NO agents invoked, NO Vercel deploy. The
-  // pipeline_status stays 'pending' until the orchestrator (Plan 118-03)
-  // sees hebrew_refusal:true and short-circuits to the bilingual refusal
-  // envelope. The harness asserts the STATE invariant the orchestrator
-  // consumes, not the rendered output (rendered output is asserted by
-  // mva-orchestrator.test.cjs Plan 118-03 substrate).
-});
-
-// ---------- Test 4: Concurrency invariant (no double-fire) ----------
-
-run('Test 4 concurrency: 2 venture sentences in same session -> only one pipeline runs', () => {
-  const home = makeHermeticHome();
-  const sid = makeSessionId('concurrency-' + VENTURE_EN);
-  const r1 = spawnHook(VENTURE_EN, home, sid);
-  assert.equal(r1.status, 0, 'expected first hook exit 0');
-  const state1 = readStateFile(home, sid);
-  assert.ok(state1, 'expected state file after first invocation');
-  assert.equal(state1.pipeline_status, 'pending');
-  const sha1 = state1.sentence_sha256;
-
-  // Manually transition to 'running' (simulating what Plan 118-01 dispatcher
-  // does between the first and second hook fires).
-  const statePath = path.join(home, '.mindrian', 'mva', sid + '.json');
-  const cur = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-  cur.pipeline_status = 'running';
-  cur.started_at = Date.now();
-  fs.writeFileSync(statePath, JSON.stringify(cur), 'utf8');
-
-  // Now fire a second venture sentence. The hook should see isAlreadyRunning
-  // and exit without overwriting the state.
-  const SECOND_SENTENCE = 'launching a SaaS for dentists';
-  const r2 = spawnHook(SECOND_SENTENCE, home, sid);
-  assert.equal(r2.status, 0, 'expected second hook exit 0');
-  const state2 = readStateFile(home, sid);
-  assert.ok(state2, 'state file still present');
-  // The sentence_sha256 must NOT change to the second sentence -- the first
-  // pipeline's state is preserved per the no-double-fire invariant.
-  assert.equal(
-    state2.sentence_sha256, sha1,
-    'state file overwritten by second sentence -- no-double-fire invariant violated'
-  );
-  assert.equal(state2.pipeline_status, 'running', 'pipeline_status mutated by second hook -- invariant violated');
-});
-
-// ---------- Telemetry sanity check ----------
-
-run('Telemetry sanity: mva_classified events present in jsonl after the 3 fixture sentences', () => {
-  // Re-run a venture sentence into a fresh home so we can read telemetry
-  // from a known-clean state.
-  const home = makeHermeticHome();
-  const sid = makeSessionId('telemetry-' + VENTURE_EN);
-  spawnHook(VENTURE_EN, home, sid);
-  const events = readTelemetry(home);
-  assert.ok(events.length > 0, 'expected at least one telemetry event after venture sentence; got ' + events.length);
-  const classified = events.filter((e) => e.event === 'mva_classified');
-  assert.ok(classified.length >= 1, 'expected at least one mva_classified event; got ' + classified.length);
-  const e = classified[0];
-  // Canon Part 8: telemetry MUST NOT carry raw user content. Assert that
-  // no field's value equals the raw sentence text.
-  for (const [k, v] of Object.entries(e)) {
-    if (typeof v === 'string') {
-      assert.notEqual(v, VENTURE_EN, 'Canon Part 8 violation: telemetry field ' + k + ' contains raw venture sentence');
-    }
-  }
-  // The sha256_of_sentence field IS expected and is a one-way hash (per
-  // Plan 118-00 mva-detect.cjs invariant).
-  assert.ok(e.sha256_of_sentence && e.sha256_of_sentence.length === 64, 'expected sha256_of_sentence (64-char hex)');
+  const verdict = classifier.classify(HEBREW);
+  assert.equal(verdict.venture, false, 'expected venture false per LD1; got ' + JSON.stringify(verdict));
+  assert.equal(verdict.source, 'language_detect', 'expected source language_detect per LD1; got ' + verdict.source);
+  assert.match(verdict.reason, /^hebrew/, 'expected a hebrew reason per LD1; got ' + verdict.reason);
 });
 
 // ---------- Summary ----------

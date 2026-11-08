@@ -20,9 +20,8 @@ START_TIME=$(date +%s)
 SHELL_SUITES=(
 )
 CJS_SUITES=(
-  # Plan 118-00 (UserPromptSubmit detection)
+  # Plan 118-00 (classifier; the UserPromptSubmit hook that called it was removed in Phase 389 plan 07)
   ../lib/core/mva-classifier.test.cjs
-  ../lib/core/mva-detect.smoke.test.cjs
   # Plan 118-01 (dispatch architecture)
   ../lib/core/mva-agent-contract.test.cjs
   ../lib/core/mva-budget.test.cjs

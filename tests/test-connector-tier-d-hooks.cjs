@@ -39,7 +39,6 @@ const CJS_HOOKS = [
   'scripts/auto-explore-drain.cjs',
   'scripts/jtbd-update.cjs',
   'scripts/memory-completion-detector.cjs',
-  'scripts/mva-detect.cjs',
   'scripts/brain-derivation-drain.cjs',
 ];
 

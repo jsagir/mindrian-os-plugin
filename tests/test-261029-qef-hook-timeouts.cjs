@@ -70,7 +70,15 @@ const P386 = {
     { event: 'PreToolUse', sub: 'web-credential-guard-hook.cjs', timeout: 5 },
   ],
 };
-const EXPECTED = 46 - P385.removed.length + P386.added.length;
+// Phase 389 plan 07 (owner card D1 APPROVE, 2026-11-08): the per-message venture hook
+// (scripts/mva-detect.cjs) was REMOVED on purpose, after the first-install router was
+// re-pointed to the Seed (D2). P389 records it; the count stays relative to the base.
+const P389 = {
+  removed: [
+    { event: 'UserPromptSubmit', sub: 'mva-detect.cjs' },
+  ],
+};
+const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -121,7 +129,6 @@ const TABLE = [
   ['PostToolUse', 'brain-response-sanitize-hook.cjs', 5],
   ['UserPromptSubmit', 'admin-command-gate.cjs', 3],
   ['UserPromptSubmit', 'run-hook.cmd" intent-classifier', 5],
-  ['UserPromptSubmit', 'mva-detect.cjs', 3],
   ['UserPromptSubmit', 'first-install-router.cjs', 3],
   ['UserPromptSubmit', 'brain-derivation-drain.cjs', 3],
   ['UserPromptSubmit', 'jtbd-update.cjs" userprompt', 3],
@@ -164,10 +171,11 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
   const r = spawnSync('git', ['show', BASE_SHA + ':hooks/hooks.json'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
   if (r.error || r.status !== 0) return { skip: 'git unavailable' };
   const base = JSON.parse(r.stdout);
-  // Apply the deliberate Phase 385 changes (P385) to the base before the comparison.
+  // Apply the deliberate Phase 385 and Phase 389 changes (P385, P389) to the base before the comparison.
+  const removedAll = P385.removed.concat(P389.removed);
   for (const ev of Object.keys(base.hooks || {})) {
     base.hooks[ev] = (base.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>
-      P385.removed.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
+      removedAll.some((x) => x.event === ev && typeof h.command === 'string' && h.command.indexOf(x.sub) !== -1)));
     for (const group of base.hooks[ev]) {
       for (const m of P385.matcher) {
         if (m.event === ev && (group.hooks || []).some((h) => typeof h.command === 'string' && h.command.indexOf(m.sub) !== -1)) {

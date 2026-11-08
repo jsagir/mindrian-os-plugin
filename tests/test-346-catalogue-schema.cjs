@@ -21,20 +21,10 @@
 // gates and never surfaces model-visible text, it only writes a side-channel
 // JSON file (atomicWriteSideChannel, lines 208-222) the model never reads.
 //
-// scripts/mva-detect.cjs (UserPromptSubmit hook, main() lines 121-223): it
-// also never blocks -- every branch (parse failure line 124, no prompt line
-// 132, no state module line 139-140, classifier error line 152-155, and the
-// success path line 222) ends in emitEmpty() -> {continue:true} (lines
-// 64-66). It CAN force a later first-turn surface indirectly: on a
-// venture-positive classification (line 162) it calls
-// mvaState.writePending() (lines 163-169), and that pending record is read
-// several turns later by scripts/first-install-router.cjs (its own header
-// comment at line 345: "lib/core/mva-state.cjs's pending record at fire
-// time, several turns later") to fire the 30-Second MVA Instant Brief. So
-// mva-detect.cjs itself never gates a turn; it is the producer of a signal a
-// different mechanism (first-install-router.cjs) later consumes to surface
-// something -- the hooked-model first-step concern belongs to that consumer,
-// not to this detector.
+// scripts/mva-detect.cjs (UserPromptSubmit hook): its row was REMOVED from the
+// catalogue by Phase 389 plan 07 (owner card D1 APPROVE, 2026-11-08), together
+// with the hook, its script and its smoke test. The router that consumed its
+// signal now classifies by itself.
 //
 // House rule: hyphens only, no em-dashes, no emoji.
 

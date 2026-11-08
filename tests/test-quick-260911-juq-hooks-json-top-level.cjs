@@ -66,8 +66,8 @@ test('Arm 2: data/hooks-markers.json carries both markers, nothing lost in the m
   );
   assert.match(
     ordering._note,
-    /mva-detect\.cjs/,
-    '_firstInstallRouterOrdering._note must still mention mva-detect.cjs (the load-bearing ordering fact the note exists to carry)'
+    /no ordering dependency/,
+    '_firstInstallRouterOrdering._note must say the router has no ordering dependency (Phase 389 plan 07: the router classifies by itself, the old order fact is gone)'
   );
 });
 
