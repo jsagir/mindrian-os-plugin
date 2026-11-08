@@ -250,5 +250,17 @@ check('Test 1.3: the two blocks are byte equal', cmdBlock !== null && cmdBlock =
   });
 })();
 
+// ---------------------------------------------------------------------------
+// Test 9 (plan 12, owner D10 APPROVE): the opt-in share offer sits in the Seed block
+// ---------------------------------------------------------------------------
+(function testShareOffer() {
+  const f = flat(cmdBlock || '');
+  check('Test 9.1: the block offers the public page once, on Vercel', /Offer once: I can make a public page of this on Vercel\./.test(f));
+  check('Test 9.2: the card comes first and nothing is sent before a yes', /Show the page text with the share card first/.test(f) && /send nothing before the person says yes/.test(f));
+  check('Test 9.3: the offer names the share script', /pyramid-seed-share\.cjs card --id/.test(f) && /pyramid-seed-share\.cjs send --id ID --confirm HASH/.test(f));
+  check('Test 9.4: the offer comes after the receipt step', f.indexOf('Offer once: I can make a public page') > f.indexOf('**7. Receipt.**') && f.indexOf('Offer once: I can make a public page') < f.indexOf('**8. Decide (F.1).**'));
+  check('Test 9.5: the command and the skill blocks are still byte equal', cmdBlock !== null && cmdBlock === skillBlock);
+})();
+
 console.log('test-389-seed-structure: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail === 0 ? 0 : 1);
