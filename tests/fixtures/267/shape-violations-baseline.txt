@@ -10,6 +10,8 @@ commands/help.md
 commands/hmi-status.md
 commands/models.md
 commands/mos.md
+commands/mva-brief.md
+commands/mva-report.md
 commands/onboard.md
 commands/organize.md
 commands/publish.md
@@ -37,6 +39,8 @@ skills/hmi-status/SKILL.md
 skills/intelligence-orchestrator/SKILL.md
 skills/models/SKILL.md
 skills/mos/SKILL.md
+skills/mva-brief/SKILL.md
+skills/mva-report/SKILL.md
 skills/onboard/SKILL.md
 skills/organize/SKILL.md
 skills/publish/SKILL.md
