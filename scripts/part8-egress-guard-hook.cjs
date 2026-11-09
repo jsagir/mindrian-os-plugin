@@ -59,6 +59,21 @@
  * direct connector key is retired from every matcher; every Brain route is
  * mindrian-brain or a Theo server.
  *
+ * Phase 392 plan 11 (P5, 392-SC5, F8, 2026-11-09): the lexicon check is
+ * session-owned. The hook hands `session_id` to
+ * `part8-room-lexicon.cjs::resolveLexiconRoom({sessionId, requireOwnership:
+ * true})`, which resolves THIS session's bound room through
+ * `resolveSessionRoom` (the binding file under .rooms/sessions). An unbound
+ * session has an empty lexicon and is allowed; a corrupt binding, a resolver
+ * throw or a bound room whose room.db cannot be read is `unavailable`, and the
+ * guard blocks every payload kind with `room_check_unavailable`. Two sessions
+ * bound to different rooms never share a lexicon. Without a session id the
+ * check runs against the machine-global active room (today's behaviour) and
+ * the verdict says so (`lexicon_scope: machine_global`). Telemetry lands in
+ * the resolved room only, with `lexicon_scope` on the row. With
+ * MINDRIAN_PART8_DEBUG set the hook writes one stderr line, "part8 session:
+ * present|absent; lexicon_scope: session|machine_global", never the id.
+ *
  * Fail posture (plan 386-30, owner decision of plan 386-29, 2026-11-06; this
  * REVERSES the earlier A3 accepted risk and threat T6 of Phase 239):
  *   - fail-CLOSED (exit 2, reason guard_unavailable) when the sanitizer or the
@@ -135,7 +150,6 @@ const ONTOLOGY_PATH = path.join(LIB_CORE, 'part8-egress-ontology.cjs');
 const SANITIZER_PATH = path.join(LIB_CORE, 'brain-response-sanitize.cjs');
 const BRAIN_CLIENT_PATH = path.join(LIB_CORE, 'brain-client.cjs');
 const ROOM_DB_PATH = path.join(LIB_CORE, 'room-db.cjs');
-const NAVIGATION_PATH = path.join(LIB_CORE, 'navigation.cjs');
 // The F.1 gate lands in 196-05; require it DEFENSIVELY so this hook degrades
 // gracefully until Wave 3.
 const GATE_PATH = path.join(__dirname, '..', 'lib', 'hmi', 'part8-egress-gate.cjs');
@@ -251,19 +265,22 @@ function brainAvailable() {
 }
 
 // ---------------------------------------------------------------------------
-// Best-effort telemetry. Resolve the active room db, hand it to the ontology
-// writer, and close it. EVERY step is wrapped -- a telemetry failure NEVER
+// Best-effort telemetry. Plan 392-11 (P5): the row lands in the room the
+// lexicon check resolved (the session's room when a session id exists, the
+// machine-global active room otherwise), with lexicon_scope on it. Nothing is
+// written for an unbound session (no room) or an unavailable one (no db to
+// write). The db is opened only when room.db already exists, so telemetry
+// never mints a database. EVERY step is wrapped -- a telemetry failure NEVER
 // bricks a Brain call and NEVER changes the exit code.
 // ---------------------------------------------------------------------------
-function bestEffortRecord(verdictObj, sessionId) {
+function bestEffortRecord(verdictObj, sessionId, resolvedRoom) {
   let db = null;
   let roomDb = null;
   try {
-    const navigation = require(NAVIGATION_PATH);
-    const active = navigation.detectActiveRoom && navigation.detectActiveRoom();
-    if (!active || !active.roomDir || !active.hasRoomDb) return;
+    if (!resolvedRoom || resolvedRoom.status !== 'bound' || typeof resolvedRoom.roomDir !== 'string') return;
+    if (!fs.existsSync(path.join(resolvedRoom.roomDir, '.mindrian', 'room.db'))) return;
     roomDb = require(ROOM_DB_PATH);
-    db = roomDb.openRoomDb(active.roomDir);
+    db = roomDb.openRoomDb(resolvedRoom.roomDir);
     const ontology = require(ONTOLOGY_PATH);
     ontology.record(db, {
       verdict: verdictObj.verdict,
@@ -271,6 +288,7 @@ function bestEffortRecord(verdictObj, sessionId) {
       matched_pattern: verdictObj.reason,
       count: 1,
       sessionId: sessionId,
+      lexicon_scope: resolvedRoom.lexicon_scope,
     });
   } catch (_e) {
     // best-effort: swallow
@@ -340,6 +358,7 @@ function main() {
 
   let verdictObj;
   let guard;
+  let resolvedRoom = null;
   try {
     guard = require(GUARD_PATH);
   } catch (_) {
@@ -349,15 +368,31 @@ function main() {
     // Phase 369.2 Plan 01 (CODE-07, J4): the hook asks the same Theo verdict
     // the in-process verbs ask. The bound room is resolved through the one
     // shared resolver (never the payload cwd directly) and its lexicon is
-    // read from room.db rows only, inside this hook's 2000 ms budget. A
-    // resolver miss is "no room bound" (null), never a throw.
-    let roomDir = null;
+    // read from room.db rows only, inside this hook's 2000 ms budget.
+    // Phase 392 plan 11 (P5): the room is THIS session's room
+    // (resolveSessionRoom through resolveLexiconRoom with requireOwnership),
+    // the machine-global active room only when the payload carries no
+    // session_id. A resolver throw is "unavailable" and blocks; it is never
+    // an empty lexicon.
+    const scopeIfThrown = sessionId ? 'session' : 'machine_global';
     try {
-      roomDir = require(LEXICON_PATH).resolveLexiconRoomDir({});
+      resolvedRoom = require(LEXICON_PATH).resolveLexiconRoom({ sessionId: sessionId || null, requireOwnership: true });
     } catch (_) {
-      roomDir = null;
+      resolvedRoom = null;
     }
-    verdictObj = guard.classify(toolInput, { toolName: toolName, roomDir: roomDir });
+    if (!resolvedRoom || typeof resolvedRoom !== 'object' || typeof resolvedRoom.status !== 'string') {
+      resolvedRoom = { status: 'unavailable', roomDir: null, reason: 'resolver_error', lexicon_scope: scopeIfThrown };
+    }
+    if (process.env.MINDRIAN_PART8_DEBUG) {
+      // The F8 probe (392-CONTEXT.md): presence and scope only, never the id.
+      process.stderr.write('part8 session: ' + (sessionId ? 'present' : 'absent') + '; lexicon_scope: ' + resolvedRoom.lexicon_scope + '\n');
+    }
+    verdictObj = guard.classify(toolInput, {
+      toolName: toolName,
+      roomDir: resolvedRoom.status === 'bound' ? resolvedRoom.roomDir : null,
+      roomStatus: resolvedRoom.status,
+      lexiconScope: resolvedRoom.lexicon_scope,
+    });
   } catch (_) {
     return guardUnavailable(toolName, toolInput, 'classify_threw');
   }
@@ -366,7 +401,7 @@ function main() {
   }
 
   // Best-effort telemetry BEFORE the exit branch (process.exit terminates).
-  bestEffortRecord(verdictObj, sessionId);
+  bestEffortRecord(verdictObj, sessionId, resolvedRoom);
 
   const verdict = verdictObj.verdict;
   const klass = verdictObj.class || 'unknown';

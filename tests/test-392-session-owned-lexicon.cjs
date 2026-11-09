@@ -374,7 +374,12 @@ async function main() {
     assert.strictEqual(newB.length, 1, 'room B rows after L1: ' + newB.length + ' (before ' + rowsBBefore + ')');
     assert.strictEqual(newB[0].lexicon_scope, 'session', 'room B row: ' + JSON.stringify(newB[0]));
     assert.strictEqual(newB[0].event_type, 'brain_egress_blocked');
-    assert.strictEqual(rowsAAfterL1.length, rowsABefore, 'room A gained rows during the session B block: ' + (rowsAAfterL1.length - rowsABefore));
+    // L1 ran two hooks: session B (blocked, room B above) and session A (allowed).
+    // Room A therefore gained exactly the session A allow row, scope session.
+    const newA1 = rowsAAfterL1.slice(rowsABefore);
+    assert.strictEqual(newA1.length, 1, 'room A rows after L1: ' + newA1.length + ' (before ' + rowsABefore + ')');
+    assert.strictEqual(newA1[0].event_type, 'brain_egress_allowed', 'room A row: ' + JSON.stringify(newA1[0]));
+    assert.strictEqual(newA1[0].lexicon_scope, 'session', 'room A row: ' + JSON.stringify(newA1[0]));
     // L1's allow leg (session A, room B's word) and L2 wrote to room A only.
     assert.strictEqual(rowsBAfterL2, rowsBAfterL1.length + 1, 'room B after L2 (session B allow): ' + rowsBAfterL2);
     assert.ok(rowsAAfterL2 > rowsABefore, 'room A gained no row from the session A runs');
