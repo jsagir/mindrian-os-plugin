@@ -329,9 +329,12 @@ check('B10 the generic content arm: decided by the free-form rules, 256 cap, no-
   const b = guard.classify({ term: PARAGRAPH }, { toolName: 'mcp__theo__brand_new_tool', roomDir: roomDir });
   assert.strictEqual(b.verdict, 'block', 'paragraph not blocked: ' + JSON.stringify(b));
   assert.ok(noText(b), 'verdict carries text: ' + JSON.stringify(b));
-  // A Theo content tool with no typed arm (recommend_chain carries a rung handle).
-  const c = guard.classify({ problem_type: 'Wicked', max_steps: 4 }, { toolName: 'mcp__theo__recommend_chain', roomDir: roomDir });
-  assert.notStrictEqual(c.verdict, 'ambiguous', 'recommend_chain with a rung is ambiguous: ' + JSON.stringify(c));
+  // A Theo content tool with no typed arm (find_chapter_for_need carries a need string).
+  const c = guard.classify({ need: GENERIC }, { toolName: 'mcp__theo__find_chapter_for_need', roomDir: roomDir });
+  assert.strictEqual(c.verdict, 'allow', 'find_chapter_for_need with a generic need: ' + JSON.stringify(c));
+  // A tool WITH a typed arm keeps its fail-closed posture: an extra key stays ambiguous (plan 386-25, TB2).
+  const c2 = guard.classify({ query: GENERIC, extra: 'x' }, { toolName: 'mcp__theo__search', roomDir: roomDir });
+  assert.strictEqual(c2.verdict, 'ambiguous', 'search with an extra key is not ambiguous: ' + JSON.stringify(c2));
   // A string past the cap blocks even when every word is generic.
   const long = Array(60).fill('jobs to be done').join(' ');
   assert.ok(long.length > 256, 'fixture is not past the cap');
