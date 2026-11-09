@@ -29,8 +29,9 @@
  * as an unreadable error string).
  *
  * Quick task 260917-ild (Codex finding F1, narrows the allow above): the
- * ambiguous branch's allow used `isBrainTool()`, which ALSO trusts
- * `mcp__pws-brain-mcp__*` -- a direct HTTPS connector with no local plugin
+ * ambiguous branch's allow used `isBrainTool()`, which at that time ALSO
+ * trusted the direct HTTPS connector key of the Memgraph era (retired since
+ * Phase 392 plan 06, D-08, 2026-11-08) -- a connector with no local plugin
  * code anywhere in its path (`lib/mcp/brain-composition-census.cjs`'s
  * ruling). That route never reaches `bin/mindrian-brain-mcp-client.cjs`, so
  * `brain-client.cjs::callTool`'s second classification -- the one the
@@ -44,8 +45,19 @@
  * byte-unchanged: this quick task NARROWS an allow and widens nothing. Every
  * scope that blocked before this quick task keeps blocking; the two
  * shim-backed scopes keep the allow the shim's own egress_disclosure already
- * justifies; `mcp__pws-brain-mcp__*` and `mcp__theo__*` return to exit 2 on
- * ambiguity.
+ * justifies; every other Brain-shaped route (`mcp__theo__*`,
+ * `mcp__theo-context__*`, the claude.ai Theo connectors, a legacy direct
+ * connector's brain_* calls) returns to exit 2 on ambiguity.
+ *
+ * Phase 392 plan 06 (F6 bypass 5, D-08, 2026-11-08): the hook matcher and
+ * `isBrainShapedTool()` now see EVERY Theo route Claude Code can call, in
+ * both cases of the known connector literals, and the guard reads
+ * `data/theo-tool-classes.json`: an operational Theo tool (room_bind,
+ * graph_write, gate_*, chain_run and the rest) is allowed by class without a
+ * scan (class operational_tool, recorded in telemetry); a content tool is
+ * scanned by its typed arm or the generic content arm. The Memgraph-era
+ * direct connector key is retired from every matcher; every Brain route is
+ * mindrian-brain or a Theo server.
  *
  * Fail posture (plan 386-30, owner decision of plan 386-29, 2026-11-06; this
  * REVERSES the earlier A3 accepted risk and threat T6 of Phase 239):
@@ -60,9 +72,9 @@
  *   - fail-CLOSED (exit 2) also on a real content hit.
  *   - As of 260917-ild: the hook no longer converts a proven-harmless
  *     ambiguity into a block on a SHIM-BACKED scope. It still does for every
- *     other Brain-shaped key, including the direct connector
- *     (`mcp__pws-brain-mcp__*`) and untrusted keys (`mcp__theo__brain_ask`
- *     and friends): none of those has a second enforcement point behind it,
+ *     other Brain-shaped key, the untrusted Theo routes (`mcp__theo__*`,
+ *     `mcp__theo-context__*`, the claude.ai connectors) and a legacy direct
+ *     connector's brain_* calls: none of those has a second enforcement point behind it,
  *     so the hook's block stays exactly as strict as before this quick task.
  *     Fail-CLOSED is unchanged for: `content_set` on any scope,
  *     `unproven_packet` on any scope, and any ambiguous verdict on a
@@ -93,9 +105,10 @@
  * allow now covers only scopes with a second enforcement point behind them
  * (the two shim-backed scopes; `isShimBackedBrainTool`), so allowing the
  * hook's exit does not make the call silent -- the shim still classifies
- * every call that reaches it. Every other Brain-shaped name, including
- * `mcp__pws-brain-mcp__*` (the direct HTTPS connector, no second
- * classification behind it) and `mcp__theo__*`, keeps exit 2 on ambiguity,
+ * every call that reaches it. Every other Brain-shaped name (`mcp__theo__*`,
+ * `mcp__theo-context__*`, the claude.ai connectors, a legacy direct
+ * connector's brain_* calls; no second classification behind any of them)
+ * keeps exit 2 on ambiguity,
  * because none of them ever reaches the shim's second classification.
  * Tri-Polar note: Claude Desktop resolves the plugin scope through that same
  * shim -- no PreToolUse hook fires there, every plugin-scoped brain_* call
@@ -294,8 +307,8 @@ function main() {
   // connector key such as `theo` (mcp__theo__brain_ask) reach classify() at
   // all -- before this change, `isBrainTool` matched neither the plugin
   // scope (mcp__plugin_mos_mindrian-brain__brain_*), the project scope
-  // (mcp__mindrian-brain__brain_*), nor the canonical custom-connector name
-  // (mcp__pws-brain-mcp__brain_*), so a theo-keyed call took the
+  // (mcp__mindrian-brain__brain_*), nor the custom-connector key of that
+  // time (retired since Phase 392 plan 06, D-08), so a theo-keyed call took the
   // unconditional allow() below and got ZERO Part 8 enforcement. Being in
   // scope here means the payload gets INSPECTED by classify(), never that
   // the connector is TRUSTED: isBrainTool (the trust predicate) is
