@@ -231,12 +231,7 @@ check('Test 1.3: the two blocks are byte equal', cmdBlock !== null && cmdBlock =
     check('Test 7.4: prompt ' + (i + 1) + ' is listed (' + h + ')', cpSection.indexOf(h) !== -1);
   });
   check('Test 7.5: twelve red-hat lines and twelve black-hat lines', (cpSection.match(/^\s*- Red hat: /gm) || []).length === 12 && (cpSection.match(/^\s*- Black hat: /gm) || []).length === 12);
-  // While the old cell file still exists, the copy must equal it word for word.
-  const oldCell = path.join(ROOT, 'lib/agents/mva/six-hats-red-black.cjs');
-  if (fs.existsSync(oldCell)) {
-    const reg = require(oldCell)._test.QUESTION_REGISTRY;
-    check('Test 7.6: every summary, red and black text equals the old cell text', reg.every((q) => cpSection.indexOf(q.summary) !== -1 && cpSection.indexOf('Red hat: ' + q.red) !== -1 && cpSection.indexOf('Black hat: ' + q.black) !== -1));
-  }
+  // Test 7.6 (copy equals the old cell file) is gone: plan 389-10 deleted that file (quick 261109-sss). Its text now lives only in the reference list, where tests 7.4 and 7.5 pin it.
   check('Test 7.7: the Seed block points to the list', /Seed challenge prompts/.test(cmdBlock || '') && /use a prompt from that list when stuck/i.test(flat(cmdBlock || '')));
 })();
 
