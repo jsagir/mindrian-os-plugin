@@ -179,6 +179,12 @@ run "370 review contract (fixed shape, generated denylist, filing door, hook, do
 # test exits 77 without MOS_374_LIVE=1 and counts as SKIPPED. The leg is a hard run (not run_if).
 run "374 adapter surface completion (generic path guards, pair screen, job record, caps, paging, forget)" bash tests/run-all-374.sh
 
+# --- (2m) Phase 389: the Pyramid Seed and Full replace the MVA family ---
+# Phase 389: the Seed and Full pyramid tests and the retirement proofs ride the release gate. The aggregator finds its
+# test files by glob (tests/test-389-*), uses a scratch-safe path and makes no live call. The leg is a hard run (not
+# run_if), so a missing or red test fails the cut.
+run "389 pyramid seed and full, MVA family replaced (Seed cells, record, Full engine adapter, retirements and renames that the owner approved)" bash tests/run-all-389.sh
+
 # --- (3) Pins carried by this phase (guarded so a later retirement never breaks this file) ---
 run_if "pin 363 pyramid"                       tests/test-363-pyramid.cjs                     node tests/test-363-pyramid.cjs
 run_if "pin 363 structure"                     tests/test-363-structure.cjs                   node tests/test-363-structure.cjs

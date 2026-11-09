@@ -1,7 +1,22 @@
 ## [Unreleased] -- v2.0.0-beta.82 (in progress)
 
 ### Added
-- 
+- **The Seed: a venture sentence becomes a one-page pyramid (Phase 389).** `/mos:structure-argument` has a third depth, the Seed. You give one sentence about your venture and Larry writes Situation, Complication, Question and Answer on one page, with no outside lookup and no room needed. Outside evidence (similar cases, known traps, analogies, funding) comes only after a card shows the exact short phrases and where they go, and you say yes; the code refuses to look anything up until that confirmation matches the phrases on the card. Your own sentence never leaves your machine. <!-- 389-06 -->
+- **The Seed keeps a record, and a room can start from it (Phase 389).** A Seed is saved on your machine. Saying "build a room" in `/mos:ignite` or `/mos:new-project` reads that record. Older saved briefs are still read. <!-- 389-05 -->
+- **The Full upgrade (Phase 389).** A Seed can grow into a checked pyramid on the existing pyramid engine. It lists the questions the Seed did not ask and says that its check cannot prove the groups are separate. <!-- 389-04 -->
+- **An opt-in share of a Seed (Phase 389).** A Seed can become a public page on Vercel, but only after a card prints the exact page text and names Vercel, and you confirm that exact page. The confirmation works once. The old default of deploying whenever a Vercel token exists is gone. <!-- 389-12 -->
+
+### Changed
+- **The first-install reward is now the Seed (Phase 389).** The first answer is checked once on your machine. If it sounds like a venture, Larry writes the draft pyramid at once and offers the evidence step in one line. No hidden background process runs and no sentence is stored. The old reward was the same brief for every idea and came a turn late. <!-- 389-07 -->
+- **A venture sentence is now offered by Larry or started by the command, with no per-message hook (Phase 389).** Larry offers the Seed once in conversation, and `/mos:structure-argument` starts it on request. One program less runs on every message. <!-- 389-07 -->
+- **`/mos:mva-report` is now `/mos:session-report` (Phase 389).** The command writes a receipt of the conversation, so the name now says so. The report is the same. The old name keeps working for one release and points to the new one. <!-- 389-11 -->
+- **Five internal modules have names that say what they do (Phase 389).** The sentence classifier, the reward rule linter, the Seed budget, the agent contract and the dispatcher were renamed. Their behavior is byte for byte the same. <!-- 389-13 -->
+
+### Removed
+- **The per-message venture hook is gone (Phase 389).** `scripts/mva-detect.cjs` and its hook row no longer run on every message. <!-- 389-07 -->
+- **The `mva-pipeline` skill and `/mos:mva-option` are gone (Phase 389).** Both waited for files that nothing writes any more. The Decide step of `/mos:structure-argument` now does the job of the option pick. `/mos:mva-option` has a deprecation entry. <!-- 389-08 -->
+- **`/mos:mva-brief` now points to the Seed (Phase 389).** It prints one short note and forwards to the Seed depth of `/mos:structure-argument` for one release. <!-- 389-09 -->
+- **The old brief pipeline core is gone (Phase 389).** The orchestrator, its state file, the progressive renderer, the run script, the six old cells with their prompts and the Dror harness were removed. The old telemetry event names stay as history so older log lines still read. <!-- 389-10 -->
 
 ## [2.0.0-beta.81] - 2026-11-07
 
