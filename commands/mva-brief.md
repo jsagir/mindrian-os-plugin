@@ -13,8 +13,8 @@ interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["explore"]
 deprecated: true
 deprecated_redirect: "structure-argument"
-deprecated_removal: "v2.0.0-beta.84"
-teaching: "Deprecated alias. Use /mos:structure-argument and choose the Seed depth to turn a venture sentence into a first argument pyramid. Scheduled removal: v2.0.0-beta.84."
+deprecated_removal: "v2.0.0-beta.86"
+teaching: "Deprecated alias. Use /mos:structure-argument and choose the Seed depth to turn a venture sentence into a first argument pyramid. Scheduled removal: v2.0.0-beta.86."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash, AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
@@ -39,7 +39,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:mva-brief
 
-> Deprecated. /mos:mva-brief now redirects to /mos:structure-argument (Seed depth). Scheduled removal: v2.0.0-beta.84. Use /mos:structure-argument going forward.
+> Deprecated. /mos:mva-brief now redirects to /mos:structure-argument (Seed depth). Scheduled removal: v2.0.0-beta.86. Use /mos:structure-argument going forward.
 
 You are Larry. The user invoked /mos:mva-brief. Per Phase 389 (owner D5 and D8, 2026-11-08) this command is a soft-alias stub for one release. The old 30-second pipeline is gone. The Seed depth of /mos:structure-argument does the same job: a venture sentence in, a first argument pyramid out, with outside evidence only after the person says yes on a card.
 

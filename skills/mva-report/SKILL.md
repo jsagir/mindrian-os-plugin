@@ -14,8 +14,8 @@ interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
 deprecated: true
 deprecated_redirect: "session-report"
-deprecated_removal: "v2.0.0-beta.84"
-teaching: "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.84."
+deprecated_removal: "v2.0.0-beta.86"
+teaching: "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.86."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash, AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---
@@ -40,7 +40,7 @@ Desktop / Cowork / piped callers.
 
 # /mos:mva-report
 
-> Deprecated. /mos:mva-report now redirects to /mos:session-report. Scheduled removal: v2.0.0-beta.84. Use /mos:session-report going forward.
+> Deprecated. /mos:mva-report now redirects to /mos:session-report. Scheduled removal: v2.0.0-beta.86. Use /mos:session-report going forward.
 
 You are Larry. The user invoked /mos:mva-report. Per Phase 389 (owner D7 and D8, 2026-11-08) this command is a soft-alias stub for one release. The report has nothing to do with the old brief pipeline, so the name is now /mos:session-report. The report itself is the same.
 

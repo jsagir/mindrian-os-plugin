@@ -130,7 +130,7 @@ check('Test 2: lib/conversation/operator.cjs keeps transitionViaMVAOption (Phase
   const e = rows[0] || {};
   check('Test 3: replaced_by is /mos:structure-argument', e.replaced_by === '/mos:structure-argument', String(e.replaced_by));
   check('Test 3: decided_by is navigator', e.decided_by === 'navigator');
-  check('Test 3: retired_in is 2.0.0-beta.83 (in progress 2.0.0-beta.82 plus one beta step, no v prefix)', e.retired_in === '2.0.0-beta.83', String(e.retired_in));
+  check('Test 3: retired_in is 2.0.0-beta.85 (the release that carries this change; releases step by 2: 81, 83, 85; no v prefix)', e.retired_in === '2.0.0-beta.85', String(e.retired_in));
   check('Test 3: date is YYYY-MM-DD', /^\d{4}-\d{2}-\d{2}$/.test(e.date || ''), String(e.date));
   check('Test 3: reason is one sentence', typeof e.reason === 'string' && e.reason.length > 20 && (e.reason.match(/[.!?](\s|$)/g) || []).length === 1, String(e.reason));
   check('Test 3: record names Phase 389 plan 08', /389/.test(e.record || ''), String(e.record));

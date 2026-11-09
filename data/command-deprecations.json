@@ -21,7 +21,7 @@
     },
     {
       "command": "/mos:mva-option",
-      "retired_in": "2.0.0-beta.83",
+      "retired_in": "2.0.0-beta.85",
       "replaced_by": "/mos:structure-argument",
       "reason": "It only routed the 3-option footer of the old brief, and the Decide step now lives in /mos:structure-argument.",
       "decided_by": "navigator",
