@@ -5,6 +5,7 @@
 - **The Seed keeps a record, and a room can start from it (Phase 389).** A Seed is saved on your machine. Saying "build a room" in `/mos:ignite` or `/mos:new-project` reads that record. Older saved briefs are still read. <!-- 389-05 -->
 - **The Full upgrade (Phase 389).** A Seed can grow into a checked pyramid on the existing pyramid engine. It lists the questions the Seed did not ask and says that its check cannot prove the groups are separate. <!-- 389-04 -->
 - **An opt-in share of a Seed (Phase 389).** A Seed can become a public page on Vercel, but only after a card prints the exact page text and names Vercel, and you confirm that exact page. The confirmation works once. The old default of deploying whenever a Vercel token exists is gone. <!-- 389-12 -->
+- **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
 
 ### Changed
 - **The first-install reward is now the Seed (Phase 389).** The first answer is checked once on your machine. If it sounds like a venture, Larry writes the draft pyramid at once and offers the evidence step in one line. No hidden background process runs and no sentence is stored. The old reward was the same brief for every idea and came a turn late. <!-- 389-07 -->
