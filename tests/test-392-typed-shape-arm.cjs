@@ -58,6 +58,15 @@
  *       matrix-after-arm.json exists, extended_blocked below 37 and not
  *       above the beta.81 baseline, must_refuse_blocked 10; a live replay
  *       agrees with the committed counts; network_calls 0.
+ *   A13 (D-07, release session constraint) the Phase 389 Seed's brain_search
+ *       form {query: <sprout phrase>, namespace: undefined, topK} passes the
+ *       arm with and without a shape (a: classify; b: brain-client.search
+ *       reaches the capture server unchanged; c: the form plus a shape passes
+ *       the callTool belt unchanged); topK out of range and a string
+ *       namespace block.
+ *   A14 brain_search with an extra free-text sibling key beside a shape
+ *       blocks (a: classify, reason unexpected_key, no text; b: the belt
+ *       sends nothing).
  *
  * Plain Node. Exit 1 on any failure. No em dash and no en dash anywhere.
  */
@@ -249,32 +258,120 @@ check('A11 Hebrew sentence carrying a room lexicon word, shaped and bound, block
   assert.strictEqual(clean.verdict, 'allow', 'clean Hebrew question blocked under the bound room: ' + JSON.stringify(clean));
 });
 
-check('A12 the committed matrix after the arm: below 37, not above the beta.81 baseline, must_refuse 10, live replay agrees', function () {
-  assert.ok(fs.existsSync(AFTER_PATH), 'missing ' + path.relative(REPO_ROOT, AFTER_PATH) + ' (record it with the harness)');
-  const after = JSON.parse(fs.readFileSync(AFTER_PATH, 'utf8'));
-  const baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
-  replay.assertMatrixHygiene(after.matrix);
-  replay.assertDocumentHygiene(after);
-  assert.strictEqual(after.network_calls, 0, 'network_calls ' + after.network_calls);
-  assert.ok(after.matrix.extended_blocked < 37, 'extended_blocked ' + after.matrix.extended_blocked + ' is not below 37');
-  assert.ok(after.matrix.extended_blocked <= baseline.matrix.extended_blocked,
-    'extended_blocked ' + after.matrix.extended_blocked + ' is above the beta.81 baseline ' + baseline.matrix.extended_blocked);
-  assert.strictEqual(after.matrix.must_refuse_blocked, 10, 'must_refuse_blocked ' + after.matrix.must_refuse_blocked);
-  const live = replay.replayFixtures();
-  assert.strictEqual(live.network_calls, 0, 'the live replay opened a network call');
-  const ext = groupCounts(live.rows, 'extended');
-  const mr = groupCounts(live.rows, 'must_refuse');
-  console.log('    live: extended allow ' + ext.allow + ' block ' + ext.block + ', must_refuse block ' + mr.block + ' of ' + (mr.allow + mr.ambiguous + mr.block));
-  assert.strictEqual(ext.block, after.matrix.extended_blocked, 'live extended_blocked ' + ext.block + ' differs from the committed ' + after.matrix.extended_blocked);
-  assert.strictEqual(mr.block, after.matrix.must_refuse_blocked, 'live must_refuse_blocked ' + mr.block + ' differs from the committed ' + after.matrix.must_refuse_blocked);
-});
+// A13 and A14 (D-07 constraint from the release session, 2026-11-09): the
+// Phase 389 pyramid Seed calls brain-client search(phrase, {topK}) with an
+// approved sprout phrase (closed vocabulary words, never a room body); the
+// shipped client sends {query, namespace: undefined, topK}. The brain_search
+// arm must keep passing that form, with shape optional; an extra free-text
+// sibling key blocks. The phrase below is invented sprout vocabulary.
+const SEED_PHRASE = 'discovery stage framework sequence';
+const SEED_TOPK = 3;
 
-try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
-
-console.log('\n' + passed + ' passed, ' + failed + ' failed.');
-if (failed > 0) {
-  console.log('FAIL: test-392-typed-shape-arm');
-  process.exit(1);
+async function checkAsync(name, fn) {
+  try {
+    await fn();
+    passed += 1;
+    console.log('  ok - ' + name);
+  } catch (err) {
+    failed += 1;
+    console.error('  FAIL - ' + name);
+    console.error('    ' + (err && err.message ? err.message : err));
+  }
 }
-console.log('PASS: test-392-typed-shape-arm');
-process.exit(0);
+
+async function main() {
+  check('A13a the Seed sprout form {query, namespace undefined, topK} passes the arm with and without a shape', function () {
+    const seedArgs = { query: SEED_PHRASE, namespace: undefined, topK: SEED_TOPK };
+    const bare = guard.classify(seedArgs, { toolName: 'brain_search', roomDir: null });
+    assert.strictEqual(bare.verdict, 'allow', 'bare Seed form blocked: ' + JSON.stringify(bare));
+    const shaped = guard.classify(Object.assign({}, seedArgs, { shape: SHAPE }), { toolName: 'brain_search', roomDir: null });
+    assert.strictEqual(shaped.verdict, 'allow', 'shaped Seed form blocked: ' + JSON.stringify(shaped));
+    assert.strictEqual(shaped.shape_validated, true);
+    const outOfRange = guard.classify({ query: SEED_PHRASE, topK: 51, shape: SHAPE }, { toolName: 'brain_search', roomDir: null });
+    assert.strictEqual(outOfRange.verdict, 'block', 'topK 51 allowed: ' + JSON.stringify(outOfRange));
+    assert.strictEqual(outOfRange.reason, 'param_out_of_range');
+    const ns = guard.classify({ query: SEED_PHRASE, namespace: 'swot', topK: SEED_TOPK, shape: SHAPE }, { toolName: 'brain_search', roomDir: null });
+    assert.strictEqual(ns.verdict, 'block', 'a string namespace beside a shape was allowed: ' + JSON.stringify(ns));
+    assert.strictEqual(ns.leaf_path, 'namespace');
+  });
+
+  check('A14a brain_search with an extra free-text sibling key beside a shape blocks with no text', function () {
+    const v = guard.classify({ query: SEED_PHRASE, topK: SEED_TOPK, shape: SHAPE, notes: ROOM_PARAGRAPH }, { toolName: 'brain_search', roomDir: null });
+    assert.strictEqual(v.verdict, 'block', 'sibling leaf allowed: ' + JSON.stringify(v));
+    assert.strictEqual(v.reason, 'unexpected_key', 'reason ' + v.reason);
+    assert.strictEqual(v.leaf_path, 'notes');
+    assert.ok(noText(v, ['Brightmoor', 'spring', 'pricing']), 'the verdict carries text: ' + JSON.stringify(v));
+  });
+
+  const CLIENT_PATH = path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs');
+  const capture = require(path.join(REPO_ROOT, 'tests', 'helpers', 'brain-capture-server.cjs'));
+  process.env.MINDRIAN_BRAIN_RETRY_BASE_MS = '1';
+  const started = await capture.startCaptureServer();
+  process.env.MINDRIAN_BRAIN_URL = started.url;
+  process.env.MINDRIAN_BRAIN_KEY = 'test-key-not-real-392-09';
+  delete require.cache[CLIENT_PATH];
+  const bc = require(CLIENT_PATH);
+  try {
+    await checkAsync('A13b the Seed call brain-client.search(phrase, {topK}) reaches the capture server unchanged, one brain_search call', async function () {
+      capture.resetCaptured();
+      await bc.search(SEED_PHRASE, { topK: SEED_TOPK });
+      assert.strictEqual(capture.captured.length, 1, 'the wire received ' + capture.captured.length + ' call(s)');
+      assert.strictEqual(capture.captured[0].name, 'brain_search');
+      assert.deepStrictEqual(capture.captured[0].arguments, { query: SEED_PHRASE, topK: SEED_TOPK }, 'arguments changed: ' + JSON.stringify(capture.captured[0].arguments));
+    });
+
+    await checkAsync('A13c the Seed form plus a shape passes the callTool belt and reaches the capture server unchanged', async function () {
+      capture.resetCaptured();
+      const args = { query: SEED_PHRASE, topK: SEED_TOPK, shape: SHAPE };
+      const r = await bc.callTool('brain_search', args);
+      assert.ok(!(r && r.error === 'egress_blocked'), 'the belt refused the shaped Seed form: ' + JSON.stringify(r));
+      assert.strictEqual(capture.captured.length, 1, 'the wire received ' + capture.captured.length + ' call(s)');
+      assert.strictEqual(capture.captured[0].name, 'brain_search');
+      assert.deepStrictEqual(capture.captured[0].arguments, args, 'arguments changed: ' + JSON.stringify(capture.captured[0].arguments));
+    });
+
+    await checkAsync('A14b brain_search with an extra free-text sibling key beside a shape sends nothing through the belt', async function () {
+      capture.resetCaptured();
+      const r = await bc.callTool('brain_search', { query: SEED_PHRASE, topK: SEED_TOPK, shape: SHAPE, notes: ROOM_PARAGRAPH });
+      assert.strictEqual(capture.captured.length, 0, 'the wire received ' + capture.captured.length + ' call(s)');
+      assert.ok(r && r.error === 'egress_blocked', 'no typed refusal: ' + JSON.stringify(r));
+      assert.ok(noText(r, ['Brightmoor', 'spring', 'pricing']), 'the refusal carries text: ' + JSON.stringify(r));
+    });
+  } finally {
+    await capture.stopCaptureServer(started.server);
+  }
+
+  check('A12 the committed matrix after the arm: below 37, not above the beta.81 baseline, must_refuse 10, live replay agrees', function () {
+    assert.ok(fs.existsSync(AFTER_PATH), 'missing ' + path.relative(REPO_ROOT, AFTER_PATH) + ' (record it with the harness)');
+    const after = JSON.parse(fs.readFileSync(AFTER_PATH, 'utf8'));
+    const baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
+    replay.assertMatrixHygiene(after.matrix);
+    replay.assertDocumentHygiene(after);
+    assert.strictEqual(after.network_calls, 0, 'network_calls ' + after.network_calls);
+    assert.ok(after.matrix.extended_blocked < 37, 'extended_blocked ' + after.matrix.extended_blocked + ' is not below 37');
+    assert.ok(after.matrix.extended_blocked <= baseline.matrix.extended_blocked,
+      'extended_blocked ' + after.matrix.extended_blocked + ' is above the beta.81 baseline ' + baseline.matrix.extended_blocked);
+    assert.strictEqual(after.matrix.must_refuse_blocked, 10, 'must_refuse_blocked ' + after.matrix.must_refuse_blocked);
+    const live = replay.replayFixtures();
+    assert.strictEqual(live.network_calls, 0, 'the live replay opened a network call');
+    const ext = groupCounts(live.rows, 'extended');
+    const mr = groupCounts(live.rows, 'must_refuse');
+    console.log('    live: extended allow ' + ext.allow + ' block ' + ext.block + ', must_refuse block ' + mr.block + ' of ' + (mr.allow + mr.ambiguous + mr.block));
+    assert.strictEqual(ext.block, after.matrix.extended_blocked, 'live extended_blocked ' + ext.block + ' differs from the committed ' + after.matrix.extended_blocked);
+    assert.strictEqual(mr.block, after.matrix.must_refuse_blocked, 'live must_refuse_blocked ' + mr.block + ' differs from the committed ' + after.matrix.must_refuse_blocked);
+  });
+}
+
+main().then(function () {
+  try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
+  console.log('\n' + passed + ' passed, ' + failed + ' failed.');
+  if (failed > 0) {
+    console.log('FAIL: test-392-typed-shape-arm');
+    process.exit(1);
+  }
+  console.log('PASS: test-392-typed-shape-arm');
+  process.exit(0);
+}, function (err) {
+  console.error('FAIL: test-392-typed-shape-arm: ' + (err && err.stack ? err.stack : err));
+  process.exit(1);
+});
