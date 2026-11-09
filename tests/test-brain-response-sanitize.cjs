@@ -328,10 +328,10 @@ test('hooks.json Brain matchers equal the exported BRAIN_SHAPED_TOOL_MATCHER aut
   }
 });
 
-test('BRAIN_TOOL_MATCHER is pinned to its exact literal string (quick task 260906-gr1 freeze)', () => {
+test('BRAIN_TOOL_MATCHER is pinned to its exact literal string (quick task 260906-gr1 freeze; pws-brain-mcp retired by Phase 392 D-08)', () => {
   assert.equal(
     sanitizer.BRAIN_TOOL_MATCHER,
-    'mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*',
+    'mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-brain__.*',
     'BRAIN_TOOL_MATCHER drifted from its frozen literal'
   );
 });
