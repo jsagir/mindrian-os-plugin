@@ -203,6 +203,8 @@ const ALLOWED_OLD_NAME = new Set([
   'data/orchestration-command-ledger.json', 'data/command-irreversibility-ledger.json', 'data/jev-labels/command-irreversibility.json',
   'data/help-groups.json', 'data/layer-backfill.json', 'data/hitl-shape-backfill.json', 'data/render-coverage-registry.json',
   'ui/mindrian-workspace-mod/assets/command-registry.json', 'ui/mos-face/hooks/commands.ts', 'lib/mos-face/dist/commands.js',
+  // quick 261109-s67 baselined the stub paths in the shape-violation baseline fixture; that one path names the stub on purpose
+  'tests/fixtures/267/shape-violations-baseline.txt',
 ]);
 function oldNameHits(files, readFn) {
   const hits = [];

@@ -157,6 +157,8 @@ const ALLOWED_FILE = new Set([
   'docs/2026-09-23-HANDOFF-phase-356-irreversibility-ledger.md',
   'scripts/room-naming-selector.cjs',
   'tests/test-389-stale-text.cjs',
+  // quick 261109-s67 baselined the stub paths in the shape-violation baseline fixture; that one path names the stub on purpose
+  'tests/fixtures/267/shape-violations-baseline.txt',
 ]);
 function namesBrief(t) { return /mva-brief/.test(t); }
 {
