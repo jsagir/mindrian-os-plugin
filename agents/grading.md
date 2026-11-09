@@ -3,7 +3,7 @@ name: grading
 description: PROACTIVELY grade room artifacts against calibrated student submissions when evidence review or assessment is implied.
 model: inherit
 color: red
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - mcp__plugin_mos_mindrian-brain__brain_ask
   - mcp__plugin_mos_mindrian-brain__brain_search

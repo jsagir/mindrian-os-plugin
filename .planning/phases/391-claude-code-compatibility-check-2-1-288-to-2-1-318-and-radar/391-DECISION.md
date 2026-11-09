@@ -262,7 +262,7 @@ C6-OWNER-ANSWER: LAG-20
 
 ## 4. Adjacent findings (recorded, no edit)
 
-- The host ignores allowed-tools for 15 agent files (13 with no tools list). It also ignores mcpServers for plugin agents (agents/larry-extended.md, agents/reverse-salient-agent.md), initialPrompt (agents/larry-extended.md) and the keys persona_variants, extends, activation_gate, hitl_shape, hitl_why. Filed as SEED-145.
+- The host ignores allowed-tools for 15 agent files (13 with no tools list). It also ignores mcpServers for plugin agents (agents/larry-extended.md, agents/reverse-salient-agent.md), initialPrompt (agents/larry-extended.md) and the keys persona_variants, extends, activation_gate, hitl_shape, hitl_why. Filed as SEED-147.
 - The Phase 95.6 comment that relies on mcpServers is not true for the plugin install.
 - tests/test-267-mcpv2-dual-era.cjs has 2 stale snapshot arms since Phase 387 (the eureka tools are missing from the snapshot). This is not caused by Phase 391. The fix is a snapshot update in a quick.
 - CLAUDE.md names the SDK as @modelcontextprotocol/sdk ^1.29.0 while the repo is on the v2 packages 2.1.0.

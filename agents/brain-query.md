@@ -3,7 +3,7 @@ name: brain-query
 description: Query the Brain teaching graph with natural language. Translates to Cypher, synthesizes insights, never exposes raw data.
 model: inherit
 color: blue
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - mcp__plugin_mos_mindrian-brain__brain_ask
   - mcp__plugin_mos_mindrian-brain__brain_search

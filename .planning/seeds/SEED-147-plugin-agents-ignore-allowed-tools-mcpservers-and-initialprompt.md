@@ -1,5 +1,5 @@
 ---
-id: SEED-145
+id: SEED-147
 title: "Plugin agents ignore allowed-tools, mcpServers and initialPrompt: 13 agents run with every tool and the comments that say otherwise do not hold"
 status: open
 priority: medium
@@ -13,7 +13,7 @@ related: [SEED-107, SEED-143]
 promotes_to: "plan 391-07 if the owner answers card C1 with an APPLY token; otherwise a quick that fixes the comments"
 ---
 
-# SEED-145: Plugin agents ignore allowed-tools, mcpServers and initialPrompt
+# SEED-147: Plugin agents ignore allowed-tools, mcpServers and initialPrompt
 
 ## As found
 
@@ -64,3 +64,7 @@ Correction to the "As found" table: the line "`initialPrompt` is ignored: agents
 Open for a future change: if the install ever stops creating the user-level symlink, the first-turn greeting of Larry stops, and a plugin agent cannot carry it. Where the first turn should come from then is a design question for the owner (a session-start hook or a project-level agent file).
 
 Also found by this quick: scripts/check-brain-tool-liveness.cjs (verify-release section 18) read agent Brain claims only from `allowed-tools`. It now reads `tools:` as well, so the rename-sensitivity of the exact-claim source survives the removal.
+
+## Renumbered 2026-11-09
+
+This seed was filed as SEED-145 on 2026-11-08. Origin filed a different SEED-145 (Theo store-identity floor) the same day. The merge of quick 261109-mrg renumbered this seed to SEED-147. Older text that says SEED-145 for the agent keys now reads SEED-147.

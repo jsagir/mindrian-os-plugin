@@ -3,7 +3,7 @@ name: meeting-perspective-extractor
 description: Extract atomic claims from a FULL meeting transcript through ONE named perspective lens (references/meeting/extraction-perspectives.md). Read-only, structured-JSON-only, never writes, never gates, never asks the user anything.
 model: inherit
 color: teal
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - Read
 # --- Phase 265 Plan 19 CIRS R1 exclude (Canon Part 11) ---

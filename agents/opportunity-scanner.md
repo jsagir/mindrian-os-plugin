@@ -3,7 +3,7 @@ name: opportunity-scanner
 description: PROACTIVELY scan grants and funding opportunities when room signals match domain, deadline, or funding-gap triggers.
 model: inherit
 color: orange
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - Read
   - Write

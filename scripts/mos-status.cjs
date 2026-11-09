@@ -87,6 +87,14 @@ try {
   navigation = require(path.join(__dirname, '..', 'lib', 'core',
     'navigation.cjs'));
 } catch (_e) { /* graceful fallback; emitSpineRead becomes a no-op */ }
+// 261108-ekl: resolve-active-room.cjs is the ONE registry reader (Canon Part 7).
+// resolveRoomRoot calls it after the explicit marker walk. A load failure
+// drops the registry leg and leaves the older passes in place.
+let activeRoomResolver = null;
+try {
+  activeRoomResolver = require(path.join(__dirname, '..', 'lib', 'core',
+    'resolve-active-room.cjs'));
+} catch (_e) { /* graceful fallback; the registry leg becomes a no-op */ }
 
 // ---------- Argument parsing ----------
 
@@ -109,18 +117,28 @@ function parseArgs(argv) {
 /**
  * resolveRoomRoot(cwd)
  *
- * Walk from cwd up 6 levels looking for:
- *   1. A directory containing ROOM.md at the top level and at least one
- *      subdirectory with its own ROOM.md (the room layout).
- *   2. A `.room-root` sentinel file.
+ * Resolution order (first hit wins):
+ *   1. Explicit marker walk: walk from cwd up 6 levels for a `.room-root`
+ *      sentinel file, or a directory with ROOM.md plus at least one subdir
+ *      that also has ROOM.md (the 2-level room layout). A marker wins
+ *      because the folder you stand in is the room you mean.
+ *   2. Registry active room: resolveActiveRoom() from
+ *      lib/core/resolve-active-room.cjs (the one registry reader). It beats
+ *      a cwd guess, so a folder that is not a room still reports the room
+ *      you made active.
+ *   3. Legacy `room/` subdir walk: a `room/` folder at any hop that looks
+ *      like a room. It loses to the registry (same order as
+ *      scripts/resolve-room: registry before the legacy fallback).
+ *   4. Fixture pass: the starting cwd only, when any subdir has ROOM.md.
+ *      Kept for the test-fixture layout.
  *
  * Returns absolute path to the room root or null if none is found. Never
- * throws. Never queries outside the filesystem.
+ * throws. Never queries outside the filesystem (no network, no Brain).
  */
 function resolveRoomRoot(cwd) {
   if (!cwd) return null;
 
-  // Pass 1: walk UP from cwd looking for an EXPLICIT room marker.
+  // Walk A: walk UP from cwd looking for an EXPLICIT room marker.
   // Explicit markers: .room-root sentinel OR ROOM.md with at least one
   // subdir that also carries ROOM.md (the canonical 2-level room layout).
   // This pass is strict because walking up a filesystem without strictness
@@ -142,7 +160,26 @@ function resolveRoomRoot(cwd) {
           }
         }
       }
-      // room/ subdir at any hop that itself looks like a room.
+    } catch (_e) { /* ignore this hop */ }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+
+  // Registry leg: the active room from the shared resolver.
+  try {
+    if (activeRoomResolver && typeof activeRoomResolver.resolveActiveRoom === 'function') {
+      const active = activeRoomResolver.resolveActiveRoom();
+      if (active && typeof active.abs_path === 'string' && active.abs_path.length > 0) {
+        return active.abs_path;
+      }
+    }
+  } catch (_e) { /* fall through to the older passes */ }
+
+  // Walk B: legacy room/ subdir at any hop that itself looks like a room.
+  dir = cwd;
+  for (let hop = 0; hop < 6; hop++) {
+    try {
       const nested = path.join(dir, 'room');
       if (fs.existsSync(nested)) {
         try {
@@ -162,7 +199,7 @@ function resolveRoomRoot(cwd) {
     dir = parent;
   }
 
-  // Pass 2: fixture-friendly fallback. ONLY checks the starting cwd (not
+  // Fixture pass: fixture-friendly fallback. ONLY checks the starting cwd (not
   // parents). The cwd IS a room if it contains at least ONE subdir with
   // ROOM.md. This tolerates the test-fixture layout where each section
   // has its own ROOM.md but the outer tmp dir does not.
@@ -631,11 +668,7 @@ function main() {
   const args = parseArgs(process.argv);
   if (args.checks) {
     try {
-      let roomDir = resolveRoomRoot(process.cwd());
-      if (!roomDir && navigation && typeof navigation.detectActiveRoom === 'function') {
-        const active = navigation.detectActiveRoom();
-        if (active && typeof active.roomDir === 'string') roomDir = active.roomDir;
-      }
+      const roomDir = resolveRoomRoot(process.cwd());
       process.stdout.write((roomDir ? renderChecks(roomDir)
         : 'no active room; /mos:rooms to list available rooms') + '\n');
     } catch (_e) {
@@ -653,11 +686,7 @@ function main() {
     // Phase 129-02: emit spine_read AFTER stdout so the user-visible frame is
     // never delayed by the journal write. Best-effort; never load-bearing.
     try {
-      let roomDir = resolveRoomRoot(process.cwd());
-      if (!roomDir && navigation && typeof navigation.detectActiveRoom === 'function') {
-        const active = navigation.detectActiveRoom();
-        if (active && typeof active.roomDir === 'string') roomDir = active.roomDir;
-      }
+      const roomDir = resolveRoomRoot(process.cwd());
       if (roomDir) {
         emitSpineRead(roomDir, { section: args.section || 'all' });
       }

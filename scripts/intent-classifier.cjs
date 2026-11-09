@@ -1011,6 +1011,21 @@ function injectGraphFindings(injectionStart) {
 // ---------------------------------------------------------------------------
 
 const NAV_HARD_TIMEOUT_MS = 1200;
+
+// Quick 261109 (RCA intent-classifier-hook-timeout): the Phase 158-03 reach
+// penalty fold runs synchronous room.db reads AFTER decide() settles, outside
+// the NAV_HARD_TIMEOUT_MS race (a timer cannot interrupt a synchronous sqlite
+// statement, so the race never bounds that work). When the engine phase has
+// already spent its own envelope (a slow filesystem such as WSL2 /mnt/c, or a
+// loaded machine), the fold is skipped and the render degrades to the documented
+// un-discounted reach list, so the turn keeps its NAVIGATION DECISION block
+// instead of losing it to the 5 s hook timeout. A missing or non-finite clock
+// never skips. Exported for tests/test-261109-intent-classifier-query-count.cjs.
+function shouldSkipReachPenalties(elapsedMs) {
+  return typeof elapsedMs === 'number'
+    && Number.isFinite(elapsedMs)
+    && elapsedMs >= NAV_HARD_TIMEOUT_MS;
+}
 const TRACE_ROTATE_AT = 50;
 const TRACE_KEEP_AFTER_ROTATE = 40;
 
@@ -2726,7 +2741,14 @@ function runNavigationEngine(roomDir, sessionId) {
           // suppressedReachIds is empty -> byte-identical render (RJP-02).
           let reachPenalties = { discountedScores: {}, suppressedReachIds: [] };
           try {
-            if (roomDb && Array.isArray(cortexNodes) && cortexNodes.length > 0) {
+            // Quick 261109: a fresh clock read at the fold (the reach_presented
+            // and gate_reached writes above also cost time on a slow filesystem).
+            // Over the engine envelope -> skip the fold, keep the turn.
+            const foldElapsedMs = Date.now() - startedAt;
+            if (roomDb
+                && Array.isArray(cortexNodes)
+                && cortexNodes.length > 0
+                && !shouldSkipReachPenalties(foldElapsedMs)) {
               const reachReader = require(
                 path.join(__dirname, '..', 'lib', 'workflow', 'reach-reject-reader.cjs')
               );
@@ -3637,6 +3659,11 @@ module.exports = {
   buildReachPresentedPayload: buildReachPresentedPayload,
   buildGateReachedPayload: buildGateReachedPayload,
   buildStrategyProposedPayload: buildStrategyProposedPayload,
+  // Quick 261109 (RCA intent-classifier-hook-timeout): the penalty-fold time
+  // guard and its threshold, exported so the regression tests the PRODUCTION
+  // predicate rather than a reimplementation.
+  shouldSkipReachPenalties: shouldSkipReachPenalties,
+  NAV_HARD_TIMEOUT_MS: NAV_HARD_TIMEOUT_MS,
 };
 
 // 369.6-12 (D-16, D-34, R-06): the static per-turn voice and operation line. One line from the one constant

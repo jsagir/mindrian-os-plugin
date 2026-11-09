@@ -3,7 +3,7 @@ name: vault-section-reviewer
 description: Confirm or correct a stub classifier's section guess for one guessed-section group of /mos:vault import rows, reading each source file body against the venture context. Read-only, structured-data-only, never writes classifications.md or MANIFEST.json.
 model: inherit
 color: teal
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - Read
 # --- Phase 265 Plan 21 CIRS R1 exclude (Canon Part 11) ---

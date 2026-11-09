@@ -11,7 +11,7 @@ provides:
   - 391-agent-table.tsv (17 agents)
   - 391-card-check.cjs (selftest, check, gate, edit-list, sha)
   - 391-DECISION.md (six owner cards C1 to C6, all OWNER-ANSWER PENDING)
-  - SEED-145 (agents ignore allowed-tools, mcpServers, initialPrompt)
+  - SEED-147 (agents ignore allowed-tools, mcpServers, initialPrompt)
 affects: [391-07, 391-08]
 key-files:
   created:
@@ -21,7 +21,7 @@ key-files:
     - .planning/phases/391-claude-code-compatibility-check-2-1-288-to-2-1-318-and-radar/391-agent-table.tsv
     - .planning/phases/391-claude-code-compatibility-check-2-1-288-to-2-1-318-and-radar/391-card-check.cjs
     - .planning/phases/391-claude-code-compatibility-check-2-1-288-to-2-1-318-and-radar/391-DECISION.md
-    - .planning/seeds/SEED-145-plugin-agents-ignore-allowed-tools-mcpservers-and-initialprompt.md
+    - .planning/seeds/SEED-147-plugin-agents-ignore-allowed-tools-mcpservers-and-initialprompt.md
   modified: []
 requirements-completed: [CC391-A, CC391-B, CC391-D, CC391-F, CC391-G, CC391-H, CC391-J]
 completed: 2026-11-08
@@ -65,7 +65,7 @@ NEEDS_HUMAN: Answer the 6 cards in 391-DECISION.md with one token each. C1 (agen
 | Task | Commit | Files |
 |------|--------|-------|
 | 1 Facts, probes and the CHECKS record | 3f9632819 | 391-CHECKS.md, two probe JSON files, 391-agent-table.tsv |
-| 2 Card checker, six cards, seed | ae111cec4 | 391-card-check.cjs, 391-DECISION.md, SEED-145, this SUMMARY, one wording fix in 391-CHECKS.md |
+| 2 Card checker, six cards, seed | ae111cec4 | 391-card-check.cjs, 391-DECISION.md, SEED-147, this SUMMARY, one wording fix in 391-CHECKS.md |
 
 ## Checker
 

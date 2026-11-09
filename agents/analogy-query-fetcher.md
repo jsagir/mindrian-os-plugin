@@ -3,7 +3,7 @@ name: analogy-query-fetcher
 description: Fetch ONE navigator-approved, composer-produced audited query string for /mos:find-analogies --external (Tavily, falling back to WebSearch with the identical string), and extract a structural SAPPhIRE mapping per result. Never composes, rephrases, expands, or supplements the query; never writes to Brain.
 model: inherit
 color: teal
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - mcp__tavily__tavily-search
   - WebSearch

@@ -3,7 +3,7 @@ name: competitor-watch-fetcher
 description: Search public sources for ONE tracked competitor's recent developments (funding, launch, pivot, acquisition) and check them against the orchestrator's supplied claims. Read-only, structured-JSON-only, never writes, never calls Brain, never gates.
 model: inherit
 color: teal
-# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-145).
+# 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).
 tools:
   - mcp__tavily__tavily-search
   - WebSearch

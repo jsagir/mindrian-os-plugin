@@ -95,7 +95,7 @@ Listed in card C4 of 391-DECISION.md, re-checked against the docs page above. Ch
 
 ## Adjacent findings
 
-1. The host ignores allowed-tools for 15 agent files, mcpServers for 2 plugin agents, initialPrompt for larry-extended, and the keys persona_variants, extends, activation_gate, hitl_shape, hitl_why. Filed as SEED-145.
+1. The host ignores allowed-tools for 15 agent files, mcpServers for 2 plugin agents, initialPrompt for larry-extended, and the keys persona_variants, extends, activation_gate, hitl_shape, hitl_why. Filed as SEED-147.
 2. The Phase 95.6 comment that relies on mcpServers for larry-extended is not true for the plugin install.
 3. tests/test-267-mcpv2-dual-era.cjs has 2 stale snapshot arms since Phase 387. The fix is a snapshot update in a quick.
 4. CLAUDE.md names @modelcontextprotocol/sdk ^1.29.0; the repo is on the v2 packages 2.1.0.

@@ -9,7 +9,7 @@ origin: "Phase 391 owner card C4 (Claude Code 2.1.288 to 2.1.318 compatibility c
 trigger_when: "the next phase that adds guidance, a guard or a doc about code review or about running Claude Code inside a Data Room folder"
 scope: small
 surfaces: [MindrianOS-Plugin]
-related: [SEED-145]
+related: [SEED-147]
 promotes_to: "a decision on a Part 8 rule for /ultrareview"
 ---
 
