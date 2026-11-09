@@ -1996,21 +1996,21 @@ Plans:
 **Deliverables.** (1) The contract as data in the existing grading reference home (reuse before build, Canon Part 7), read by `commands/grade.md`, `commands/deep-grade.md` and `agents/grading.md`. (2) The denylist check beside the existing output lints, never a second linter framework (candidates measured 2026-10-02: `lib/core/tone-filter.cjs`, which already sweeps em-dashes and gates on audience; the Part 8 egress-guard pattern), applied to the reader-facing BODY only (frontmatter and provenance keep handles), failing the output on any `*Agent` class name, MCP, Neo4j, Brain, `/mos:`, Theo, graph or database names. (3) Tri-Polar: the contract and the check hold on CLI, Desktop and Cowork outputs alike. (4) No real student names in the repo (existing hard rule); fixtures use pseudonyms. (5) Acceptance rubric: the Lawrence review standard (short, executive summary first, taught terms only, no tool or agent names, no tool-analysis section); one before/after fixture review passes it and the pre-fix fixture fails the check.
 **Requirements**: REV370-01 to REV370-12 (minted at plan time 2026-11-08)
 **Depends on:** none (the grade surface is untouched since planting: zero commits to `commands/grade.md`, `commands/deep-grade.md`, `agents/grading.md` since 2026-10-01). Feeds the Academy feedback track and the Theo MOS-LEARNING docs (separate tracks, not this phase).
-**Plans:** 0/11 plans executed (planned 2026-11-08; 370-03 ends at the owner decision cards G1 to G3; plans 370-04 to 370-10 each start with an owner gate and change nothing until their answer is recorded)
+**Plans:** 11/11 plans executed (planned 2026-11-08; all 11 have summaries, owner answers recorded and applied by 370-04; acceptance record 370-ACCEPTANCE.md; carry-overs listed there: filing folder, dist rebuild at release, hook limits, human rubric items UNVERIFIED by code)
 
 Plans:
 
-- [ ] 370-01-PLAN.md - tests first (RED): pseudonym fixtures, helper, runner with the found-equals-0 guard, schema, denylist-from-disk and rule tests (wave 1)
-- [ ] 370-02-PLAN.md - contract data and the pure check module, tests GREEN (wave 2)
-- [ ] 370-03-PLAN.md - answer gate and owner decision cards O1 to O8 (G1 to G3), every answer PENDING; ends at NEEDS_HUMAN (wave 3, not autonomous)
-- [ ] 370-04-PLAN.md - owner answers applied to the contract data, with a test that data and answers agree (wave 4, gated)
-- [ ] 370-05-PLAN.md - artifact_file refuses a review that fails the check (wave 5, gated O8)
-- [ ] 370-06-PLAN.md - optional PreToolUse hook for the Write tool, log-only or enforce (wave 5, gated O6B and O8)
-- [ ] 370-07-PLAN.md - Review contract section in the grading reference; grading agent returns an internal record (wave 5, gated G1)
-- [ ] 370-08-PLAN.md - pre-file CLI wrapper scripts/check-review-contract.cjs (wave 5, gated G1 and G2)
-- [ ] 370-09-PLAN.md - render step and pre-file check in grade and deep-grade, mirrors regenerated, frontmatter byte-stable (wave 6, gated G1)
-- [ ] 370-10-PLAN.md - doctor coverage-gate entry and static template lint (wave 7, gated O6A)
-- [ ] 370-11-PLAN.md - close: Tri-Polar parity test, Lawrence rubric record, release suite registration (wave 8)
+- [x] 370-01-PLAN.md - tests first (RED): pseudonym fixtures, helper, runner with the found-equals-0 guard, schema, denylist-from-disk and rule tests (wave 1)
+- [x] 370-02-PLAN.md - contract data and the pure check module, tests GREEN (wave 2)
+- [x] 370-03-PLAN.md - answer gate and owner decision cards O1 to O8 (G1 to G3), every answer PENDING; ends at NEEDS_HUMAN (wave 3, not autonomous)
+- [x] 370-04-PLAN.md - owner answers applied to the contract data, with a test that data and answers agree (wave 4, gated)
+- [x] 370-05-PLAN.md - artifact_file refuses a review that fails the check (wave 5, gated O8)
+- [x] 370-06-PLAN.md - optional PreToolUse hook for the Write tool, log-only or enforce (wave 5, gated O6B and O8)
+- [x] 370-07-PLAN.md - Review contract section in the grading reference; grading agent returns an internal record (wave 5, gated G1)
+- [x] 370-08-PLAN.md - pre-file CLI wrapper scripts/check-review-contract.cjs (wave 5, gated G1 and G2)
+- [x] 370-09-PLAN.md - render step and pre-file check in grade and deep-grade, mirrors regenerated, frontmatter byte-stable (wave 6, gated G1)
+- [x] 370-10-PLAN.md - doctor coverage-gate entry and static template lint (wave 7, gated O6A)
+- [x] 370-11-PLAN.md - close: Tri-Polar parity test, Lawrence rubric record, release suite registration (wave 8)
 
 ### Phase 270: Memory and Context Operator MCP
 
@@ -3721,24 +3721,24 @@ External gates: the beta.73 cut; the plugin node_modules restored; Eureka job-st
 **Requirements**: ADAPT374-01 tool-budget decision (router or re-baseline) with the token figure; ADAPT374-02 job sessions bound to MCP session and room, request size cap, recovery of a lost job by asking Eureka for its status; ADAPT374-03 projection handle or paging above 256 KiB; ADAPT374-04 generic path refuses results without scope and snapshot ids; ADAPT374-05 catalog cached per process; ADAPT374-06 live tests (bridge, job cancel, capability run) pass on an idle host
 **Depends on:** Phase 373
 Gates: beta.73 cut; plugin node_modules restored; Eureka job-store lock and budget status landed (external, Eureka repo); owner call on the 25-tool surface.
-**Plans:** 14 plans
+**Plans:** 14/14 plans executed (all 14 have summaries; close commit 0051bc545; open: ADAPT374-02 multi-host proof waits for the Eureka owner lock, ADAPT374-06 live restart proof T12 is owner-run)
 
 Plans:
 
-- [ ] 374-01-PLAN.md - refresh the stale 267 wire pins (25 tools of beta.74) and fix the registration-api attribution
-- [ ] 374-02-PLAN.md - extend the fake engine with the pair-screen routes, job files and a restart switch
-- [ ] 374-03-PLAN.md - extract one shared approval gate minter (no fourth copy)
-- [ ] 374-04-PLAN.md - answer gate wrapper for the Phase 374 owner cards, per plan, over 390-gate.cjs
-- [ ] 374-05-PLAN.md - RED tests for start guards, owner binding, result verifier and catalog cache, and the phase aggregator
-- [ ] 374-06-PLAN.md - harden the generic job path: size cap, lineage ids, owner binding, catalog cache, pair-screen result verifier
-- [ ] 374-07-PLAN.md - owner decision cards D1 to D7 with token gates (ends at one NEEDS_HUMAN line)
-- [ ] 374-08-PLAN.md - pair screen route, plan then approval gate then start, verified result (gated by the cards)
-- [ ] 374-09-PLAN.md - /mos:eureka screen subcommand (gated)
-- [ ] 374-10-PLAN.md - plugin job record and recovery of a lost job by asking the engine (gated)
-- [ ] 374-11-PLAN.md - interim engine_busy guard until the Eureka owner lock lands (gated)
-- [ ] 374-12-PLAN.md - top_k 200 and paged job results above 256 KiB (gated)
-- [ ] 374-13-PLAN.md - forget tool, honest job tool descriptions and the final pin moves (gated)
-- [ ] 374-14-PLAN.md - tool budget decision record with the token figure, engine guide, release suite registration (gated)
+- [x] 374-01-PLAN.md - refresh the stale 267 wire pins (25 tools of beta.74) and fix the registration-api attribution
+- [x] 374-02-PLAN.md - extend the fake engine with the pair-screen routes, job files and a restart switch
+- [x] 374-03-PLAN.md - extract one shared approval gate minter (no fourth copy)
+- [x] 374-04-PLAN.md - answer gate wrapper for the Phase 374 owner cards, per plan, over 390-gate.cjs
+- [x] 374-05-PLAN.md - RED tests for start guards, owner binding, result verifier and catalog cache, and the phase aggregator
+- [x] 374-06-PLAN.md - harden the generic job path: size cap, lineage ids, owner binding, catalog cache, pair-screen result verifier
+- [x] 374-07-PLAN.md - owner decision cards D1 to D7 with token gates (ends at one NEEDS_HUMAN line)
+- [x] 374-08-PLAN.md - pair screen route, plan then approval gate then start, verified result (gated by the cards)
+- [x] 374-09-PLAN.md - /mos:eureka screen subcommand (gated)
+- [x] 374-10-PLAN.md - plugin job record and recovery of a lost job by asking the engine (gated)
+- [x] 374-11-PLAN.md - interim engine_busy guard until the Eureka owner lock lands (gated)
+- [x] 374-12-PLAN.md - top_k 200 and paged job results above 256 KiB (gated)
+- [x] 374-13-PLAN.md - forget tool, honest job tool descriptions and the final pin moves (gated)
+- [x] 374-14-PLAN.md - tool budget decision record with the token figure, engine guide, release suite registration (gated)
 
 ### Phase 375: JHTV derive re-measure and baseline A/B with no holonic code: the evidence gate for bounded focus (SEED-134 gate)
 
@@ -4127,7 +4127,7 @@ Plans:
 **Goal:** One framework, the Pyramid Principle, at two depths replaces the MVA family. Seed: a person with no room types one venture sentence and gets a one-page pyramid (Situation, Complication, Question, Answer) written by the host model at once; outside evidence comes only after a card, only as short generic phrases through the Part 8 route. Full: with a room, the Phase 363 pyramid engine upgrades the seed. One gate: build a room, keep going, or challenge. The old per-message hook, brief, option router and pipeline core are retired, mva-report becomes session-report, and the surviving modules are renamed, each behind an owner token on one card. Source: 389-PRD.md and 389-RESEARCH.md (the research changes the PRD where they conflict).
 **Requirements**: PYR389-01 to PYR389-14
 **Depends on:** Phase 388
-**Plans:** 5/14 plans executed (planned 2026-11-07; 389-01 to 389-05 have summaries; 389-02 ended at the owner card D1 to D11, all PENDING; plans 389-06 to 389-13 each start with an owner gate and change nothing until their token is recorded)
+**Plans:** 14/14 plans executed (planned 2026-11-07; all 14 have summaries; owner tokens D1 to D11 all APPROVE; closeout in 389-CLOSEOUT.md; open carry-overs: Jev rescore not run (389-CLOSEOUT section 6), live measure MOS_389_LIVE not run (389-MEASURE.md NOT-MEASURED), soft-alias stubs removed at v2.0.0-beta.84)
 
 Plans:
 
@@ -4136,15 +4136,15 @@ Plans:
 - [x] 389-03-PLAN.md - Seed cells on short generic phrases, card and run commands with a code refusal, Part 8 canary, live measure record (wave 2)
 - [x] 389-04-PLAN.md - Full depth on the Phase 363 pyramid engine: one template, one adapter (wave 2)
 - [x] 389-05-PLAN.md - Seed record and the --from-brief hand-off without the option router (wave 2)
-- [ ] 389-06-PLAN.md - Seed and Full wired into /mos:structure-argument, evidence card, Decide gate, hitl_stages, posture D11 (wave 3, gated)
-- [ ] 389-07-PLAN.md - first-install reward on the Seed (D2), per-message hook removed and Larry offer (D1) (wave 4, gated)
-- [ ] 389-08-PLAN.md - retire the pipeline skill (D3) and the option command, skill and router (D4) (wave 5, gated)
-- [ ] 389-09-PLAN.md - old brief command: soft alias or retired (D5, D8) (wave 6, gated)
-- [ ] 389-10-PLAN.md - remove the old pipeline core and apply the telemetry rule (D6) (wave 7, gated)
-- [ ] 389-11-PLAN.md - rename mva-report to session-report with an unchanged body (D7, D8) (wave 8, gated)
-- [ ] 389-12-PLAN.md - share step: opt-in with an exact-text card, or retire the deck and deploy (D10) (wave 9, gated)
-- [ ] 389-13-PLAN.md - rename the five surviving MVA-named modules, byte-equal behavior (D9) (wave 10, gated)
-- [ ] 389-14-PLAN.md - final gates against the baseline, release gate registration, changelog, carry-over list (wave 11)
+- [x] 389-06-PLAN.md - Seed and Full wired into /mos:structure-argument, evidence card, Decide gate, hitl_stages, posture D11 (wave 3, gated)
+- [x] 389-07-PLAN.md - first-install reward on the Seed (D2), per-message hook removed and Larry offer (D1) (wave 4, gated)
+- [x] 389-08-PLAN.md - retire the pipeline skill (D3) and the option command, skill and router (D4) (wave 5, gated)
+- [x] 389-09-PLAN.md - old brief command: soft alias or retired (D5, D8) (wave 6, gated)
+- [x] 389-10-PLAN.md - remove the old pipeline core and apply the telemetry rule (D6) (wave 7, gated)
+- [x] 389-11-PLAN.md - rename mva-report to session-report with an unchanged body (D7, D8) (wave 8, gated)
+- [x] 389-12-PLAN.md - share step: opt-in with an exact-text card, or retire the deck and deploy (D10) (wave 9, gated)
+- [x] 389-13-PLAN.md - rename the five surviving MVA-named modules, byte-equal behavior (D9) (wave 10, gated)
+- [x] 389-14-PLAN.md - final gates against the baseline, release gate registration, changelog, carry-over list (wave 11)
 
 ### Phase 390: Recalibrate or cut stale surfaces (keep, recalibrate, cut table first)
 
@@ -4164,7 +4164,7 @@ Later waves (NOT planned yet): one plan set per answered group G1 orphan modules
 **Goal:** Check the 27 Claude Code changelog entries newer than the capability ledger against what the plugin ships, record the screen in the ledger, and fix the `/mos:radar --fetch` silent skip (WebFetch read 100000 of 1175667 characters, the prompt asked for 10 entries, nothing compared the oldest version read with the mark, and no deterministic path existed). Fix all four causes, make the doctor ledger organ name a gap and warn on an incomplete fetch, and put the six behavior changes (agent tools lists, onFailure on the web credential hook, a Bash grant for the radar command, the /ultrareview facts, the mcp__brain_* token, the default lag of the doctor ledger organ) on owner cards. Nothing that alters behavior is applied before the owner answers.
 **Requirements**: CC391-A to CC391-J (the PRD checks a to i, plus the cheap checks)
 **Depends on:** Phase 390
-**Plans:** 6/8 plans executed (planned 2026-11-07; 391-01 to 391-06 have summaries; 391-04 ended at owner cards C1 to C6, all PENDING; plans 391-07 and 391-08 apply them only after the answers are recorded)
+**Plans:** 8/8 plans executed (planned 2026-11-07; all 8 have summaries; owner cards C1 to C6 answered 2026-11-08 and applied by 391-07 and 391-08)
 
 Plans:
 
@@ -4174,8 +4174,8 @@ Plans:
 - [x] 391-04-PLAN.md - checks record, plugin-scoped name probe, guard hook timing, Eureka handshake, card checker, six owner cards, SEED-145; ends at NEEDS_HUMAN (wave 2, not autonomous)
 - [x] 391-05-PLAN.md - six dormant ledger rows and ledger_covers.to 2.1.318 in one commit, cache view (wave 2)
 - [x] 391-06-PLAN.md - radar command procedure fix and mirror (Part 11), doctor organ names the gap and warns on an incomplete fetch (default lag unchanged), aggregator registration (wave 3)
-- [ ] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
-- [ ] 391-08-PLAN.md - owner cards C2, C3, C4 and C6 applied by token: web guard onFailure, radar Bash entry, /ultrareview seed, doctor default lag (wave 4, gated)
+- [x] 391-07-PLAN.md - owner cards C1 and C5 applied by token: agent tools lists or notes, the mcp__brain_* token (wave 3, gated)
+- [x] 391-08-PLAN.md - owner cards C2, C3, C4 and C6 applied by token: web guard onFailure, radar Bash entry, /ultrareview seed, doctor default lag (wave 4, gated)
 
 ### Phase 392: alwaysLoad context cost: measure first, then the owner decides split versus re-baseline
 

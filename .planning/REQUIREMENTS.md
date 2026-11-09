@@ -5228,19 +5228,19 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 ### Phase 389 - Pyramid: seed and full, replaces the MVA family (PYR389, minted at plan time 2026-11-07)
 
 - [x] **PYR389-01**: The callers of the MVA family are proven by a classed scan, the test baseline is recorded, and the stale "option 2 is a stub" text and its five stale router asserts are fixed. Plan 389-01.
-- [ ] **PYR389-02**: Every owner decision (entry hook, first-install reward, retirements, renames, alias period, share step, autonomous_safe posture) is on one card with a token gate and a hash. Plan 389-02.
+- [x] **PYR389-02**: Every owner decision (entry hook, first-install reward, retirements, renames, alias period, share step, autonomous_safe posture) is on one card with a token gate and a hash. Plan 389-02.
 - [x] **PYR389-03**: The Seed Test step sends only short generic phrases written by the host model, only after a card, through the Part 8 route, with a code refusal when the card was not shown; the Brain answer is measured. Plan 389-03.
 - [x] **PYR389-04**: The Full depth runs the existing Phase 363 pyramid engine through one registered template and one adapter. Plan 389-04.
 - [x] **PYR389-05**: A Seed record and a hand-off to /mos:ignite and /mos:new-project work without the option router. Plan 389-05.
-- [ ] **PYR389-06**: The Seed and Full depths live in /mos:structure-argument with no new command and no new connector row, an evidence card, a three-way Decide gate, hitl_stages and the posture the owner chose. Plan 389-06.
-- [ ] **PYR389-07**: The first-install reward runs on the Seed, and the per-message venture hook is removed when the owner approves command-only entry. Plan 389-07.
-- [ ] **PYR389-08**: The pipeline skill, the option command, the option skill and the option router are retired by owner token. Plan 389-08.
-- [ ] **PYR389-09**: The old brief command becomes a soft alias for one release or is retired, by owner token. Plan 389-09.
-- [ ] **PYR389-10**: The old pipeline core (orchestrator, state, renderer, telemetry shim, run script, old cells) is removed by owner token. Plan 389-10.
-- [ ] **PYR389-11**: /mos:mva-report is renamed /mos:session-report with an unchanged body, by owner token. Plan 389-11.
-- [ ] **PYR389-12**: The share step is opt-in behind a card that shows the exact public text and names Vercel, or is retired, by owner token. Plan 389-12.
-- [ ] **PYR389-13**: The five surviving MVA-named modules are renamed with byte-equal behavior, by owner token. Plan 389-13.
-- [ ] **PYR389-14**: Every gate is re-run against the baseline, the phase tests ride the release gate suite, the changelog is written for what was approved, and the carry-over list is named. Plan 389-14.
+- [x] **PYR389-06**: The Seed and Full depths live in /mos:structure-argument with no new command and no new connector row, an evidence card, a three-way Decide gate, hitl_stages and the posture the owner chose. Plan 389-06.
+- [x] **PYR389-07**: The first-install reward runs on the Seed, and the per-message venture hook is removed when the owner approves command-only entry. Plan 389-07.
+- [x] **PYR389-08**: The pipeline skill, the option command, the option skill and the option router are retired by owner token. Plan 389-08.
+- [x] **PYR389-09**: The old brief command becomes a soft alias for one release or is retired, by owner token. Plan 389-09.
+- [x] **PYR389-10**: The old pipeline core (orchestrator, state, renderer, telemetry shim, run script, old cells) is removed by owner token. Plan 389-10.
+- [x] **PYR389-11**: /mos:mva-report is renamed /mos:session-report with an unchanged body, by owner token. Plan 389-11.
+- [x] **PYR389-12**: The share step is opt-in behind a card that shows the exact public text and names Vercel, or is retired, by owner token. Plan 389-12.
+- [x] **PYR389-13**: The five surviving MVA-named modules are renamed with byte-equal behavior, by owner token. Plan 389-13.
+- [x] **PYR389-14**: Every gate is re-run against the baseline, the phase tests ride the release gate suite, the changelog is written for what was approved, and the carry-over list is named. Plan 389-14.
 
 ### Phase 390 - Recalibrate or cut stale surfaces (R390, minted at plan time 2026-11-07)
 
@@ -5250,37 +5250,37 @@ Defined by the Wave 1 plans in .planning/phases/384-measured-plugin-speed-pass-f
 
 ### Phase 370 - Review contract for /mos:grade and /mos:deep-grade (REV370, minted at plan time 2026-11-08)
 
-- [ ] **REV370-01**: The review contract is data: the fixed shape (six sections in order, an optional last note for advanced students, forbidden section patterns, 3 to 5 revision points, at most 2 cross-domain ideas) lives in data/review-contract.json and the grading reference carries the same contract in prose; a drift test pins the two. Plans 370-02 and 370-07.
-- [ ] **REV370-02**: The denylist is generated from disk at check time with a repoRoot parameter (agent names, commands, tool ids); agent names, commands and tool ids are never hand-kept, and the hand-kept parts (named-backend terms, soft terms, forbidden patterns, generic path and prefix regexes) each carry a why or a comment, with a test that no hand-kept term equals a generated name; a test grows and shrinks the list on a temp tree. Plans 370-01 and 370-02.
-- [ ] **REV370-03**: A pure, local code check (never a model judgment) fails a review whose body carries an internal name or breaks the shape; frontmatter keeps handles; the result holds rule, class and line only and never body text; no Brain call. Plans 370-01 and 370-02.
-- [ ] **REV370-04**: One pre-fix fixture review fails the check and one post-fix review passes it; fixtures use pseudonyms only; the acceptance record applies the Lawrence review standard and marks person-judged items UNVERIFIED by code. Plans 370-01, 370-02 and 370-11.
-- [ ] **REV370-05**: Owner questions O1 to O9 come as one decision card with a hash-checked answer gate, every answer PENDING until the owner answers; no number or policy is invented. Plan 370-03.
-- [ ] **REV370-06**: The owner answers are applied to the contract data (score table, length caps, soft-term policy, persona quote, enforcement settings) and a test proves the data matches the answers. Plan 370-04.
-- [ ] **REV370-07**: The grading agent returns an internal record and the commands render a separate reader-facing review in the fixed shape; no output template teaches an internal name; command frontmatter stays byte-stable and the skill mirrors are regenerated. Plans 370-07 and 370-09.
-- [ ] **REV370-08**: A pre-file check (CLI wrapper) runs before a review is filed, with at most 3 tries and an honest refusal after that. Plans 370-08 and 370-09.
-- [ ] **REV370-09**: The MCP filing door artifact_file refuses a review that fails the check, before anything is written, on Desktop and Cowork alike (when the owner chose classification by file header). Plan 370-05.
-- [ ] **REV370-10**: An optional CLI hook checks reviews written with the Write tool, in the mode the owner chose (log only or enforce), and fails open. Plan 370-06.
-- [ ] **REV370-11**: A doctor coverage-gate entry lints the output templates and runs the fixtures, at the severity the owner chose. Plan 370-10.
-- [ ] **REV370-12**: Tri-Polar parity is proven by one test across the doors the owner left on, and the phase tests join the release gate suite. Plan 370-11.
+- [x] **REV370-01**: The review contract is data: the fixed shape (six sections in order, an optional last note for advanced students, forbidden section patterns, 3 to 5 revision points, at most 2 cross-domain ideas) lives in data/review-contract.json and the grading reference carries the same contract in prose; a drift test pins the two. Plans 370-02 and 370-07.
+- [x] **REV370-02**: The denylist is generated from disk at check time with a repoRoot parameter (agent names, commands, tool ids); agent names, commands and tool ids are never hand-kept, and the hand-kept parts (named-backend terms, soft terms, forbidden patterns, generic path and prefix regexes) each carry a why or a comment, with a test that no hand-kept term equals a generated name; a test grows and shrinks the list on a temp tree. Plans 370-01 and 370-02.
+- [x] **REV370-03**: A pure, local code check (never a model judgment) fails a review whose body carries an internal name or breaks the shape; frontmatter keeps handles; the result holds rule, class and line only and never body text; no Brain call. Plans 370-01 and 370-02.
+- [x] **REV370-04**: One pre-fix fixture review fails the check and one post-fix review passes it; fixtures use pseudonyms only; the acceptance record applies the Lawrence review standard and marks person-judged items UNVERIFIED by code. Plans 370-01, 370-02 and 370-11.
+- [x] **REV370-05**: Owner questions O1 to O9 come as one decision card with a hash-checked answer gate, every answer PENDING until the owner answers; no number or policy is invented. Plan 370-03.
+- [x] **REV370-06**: The owner answers are applied to the contract data (score table, length caps, soft-term policy, persona quote, enforcement settings) and a test proves the data matches the answers. Plan 370-04.
+- [x] **REV370-07**: The grading agent returns an internal record and the commands render a separate reader-facing review in the fixed shape; no output template teaches an internal name; command frontmatter stays byte-stable and the skill mirrors are regenerated. Plans 370-07 and 370-09.
+- [x] **REV370-08**: A pre-file check (CLI wrapper) runs before a review is filed, with at most 3 tries and an honest refusal after that. Plans 370-08 and 370-09.
+- [x] **REV370-09**: The MCP filing door artifact_file refuses a review that fails the check, before anything is written, on Desktop and Cowork alike (when the owner chose classification by file header). Plan 370-05.
+- [x] **REV370-10**: An optional CLI hook checks reviews written with the Write tool, in the mode the owner chose (log only or enforce), and fails open. Plan 370-06.
+- [x] **REV370-11**: A doctor coverage-gate entry lints the output templates and runs the fixtures, at the severity the owner chose. Plan 370-10.
+- [x] **REV370-12**: Tri-Polar parity is proven by one test across the doors the owner left on, and the phase tests join the release gate suite. Plan 370-11.
 
 ### Phase 374 - Adapter surface completion (ADAPT374 from the ROADMAP, PLG374 minted at plan time 2026-11-08)
 
 The six ADAPT374 ids are copied from the ROADMAP entry (it named them and this file did not hold them). The PLG374 ids are the plan-level rows. The remaining dedicated graph tools were already done (14 of 14 `graph.*` catalog entries have a tool), so no row asks for one. ADAPT374-06 needs a live engine and a local model and stays open until the owner runs the live tests.
 
-- [ ] **ADAPT374-01**: Tool-budget decision (router or re-baseline) with the token figure. Plans 374-07 (card) and 374-14 (record).
+- [x] **ADAPT374-01**: Tool-budget decision (router or re-baseline) with the token figure. Plans 374-07 (card) and 374-14 (record).
 - [ ] **ADAPT374-02**: Job sessions bound to the MCP session and room, a request size cap, and recovery of a lost job by asking the engine for its status. Plans 374-06, 374-10 and 374-11.
-- [ ] **ADAPT374-03**: Paging above 256 KiB for job results (the projection tools are deferred by card OD-7). Plan 374-12.
-- [ ] **ADAPT374-04**: The generic path refuses results without scope and snapshot ids. Plans 374-06 and 374-08.
-- [ ] **ADAPT374-05**: The engine catalog is cached per process. Plan 374-06.
+- [x] **ADAPT374-03**: Paging above 256 KiB for job results (the projection tools are deferred by card OD-7). Plan 374-12.
+- [x] **ADAPT374-04**: The generic path refuses results without scope and snapshot ids. Plans 374-06 and 374-08.
+- [x] **ADAPT374-05**: The engine catalog is cached per process. Plan 374-06.
 - [ ] **ADAPT374-06**: Live tests (bridge, job cancel, capability run, restart) pass on an idle host. Plans 374-10 and 374-14 write and list them; the owner runs them. NOT RUN in the plan set.
-- [ ] **PLG374-01**: The stale 267 wire pins are fixed (25 tools of beta.74) and the fake engine serves the pair-screen routes. Plans 374-01 and 374-02.
-- [ ] **PLG374-02**: One shared approval gate minter, used by research and the pair screen. Plan 374-03.
-- [ ] **PLG374-03**: The owner decisions D1 to D7 are cards with a token gate and a hash, and each gated plan starts behind an answer check. Plans 374-04 and 374-07.
-- [ ] **PLG374-04**: The generic job path is hardened: size cap, required lineage ids, unconditional lineage check, job owner binding, catalog cache, and the pair-screen result verifier. Plans 374-05 and 374-06.
-- [ ] **PLG374-05**: `opportunity.run_pair_screen` runs through the capability tools: plan, one approval card, then start, with a separate needs set and a verified result. Plan 374-08.
-- [ ] **PLG374-06**: A documented `/mos:eureka screen` subcommand. Plan 374-09.
-- [ ] **PLG374-07**: A plugin job record (ids and hashes only) and recovery of a lost job by asking the engine. Plan 374-10.
-- [ ] **PLG374-08**: The interim `engine_busy` guard, until the Eureka owner lock lands. Plan 374-11.
-- [ ] **PLG374-09**: `top_k` 200 and paged job results. Plan 374-12.
-- [ ] **PLG374-10**: The forget tool (if chosen), honest tool descriptions and the final pin moves. Plan 374-13.
-- [ ] **PLG374-11**: The budget decision record, the engine guide, and the phase tests in the release gate suite. Plan 374-14.
+- [x] **PLG374-01**: The stale 267 wire pins are fixed (25 tools of beta.74) and the fake engine serves the pair-screen routes. Plans 374-01 and 374-02.
+- [x] **PLG374-02**: One shared approval gate minter, used by research and the pair screen. Plan 374-03.
+- [x] **PLG374-03**: The owner decisions D1 to D7 are cards with a token gate and a hash, and each gated plan starts behind an answer check. Plans 374-04 and 374-07.
+- [x] **PLG374-04**: The generic job path is hardened: size cap, required lineage ids, unconditional lineage check, job owner binding, catalog cache, and the pair-screen result verifier. Plans 374-05 and 374-06.
+- [x] **PLG374-05**: `opportunity.run_pair_screen` runs through the capability tools: plan, one approval card, then start, with a separate needs set and a verified result. Plan 374-08.
+- [x] **PLG374-06**: A documented `/mos:eureka screen` subcommand. Plan 374-09.
+- [x] **PLG374-07**: A plugin job record (ids and hashes only) and recovery of a lost job by asking the engine. Plan 374-10.
+- [x] **PLG374-08**: The interim `engine_busy` guard, until the Eureka owner lock lands. Plan 374-11.
+- [x] **PLG374-09**: `top_k` 200 and paged job results. Plan 374-12.
+- [x] **PLG374-10**: The forget tool (if chosen), honest tool descriptions and the final pin moves. Plan 374-13.
+- [x] **PLG374-11**: The budget decision record, the engine guide, and the phase tests in the release gate suite. Plan 374-14.
