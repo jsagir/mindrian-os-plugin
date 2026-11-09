@@ -5,7 +5,29 @@ This folder holds the recorded refusal matrices of the Part 8 egress guard. A ma
 Files:
 
 - baseline-beta81.json: the matrix of the v2.0.0-beta.81 guard (`guard_head` 8455416a5, the tag commit), recorded before any Phase 392 guard change. `recorded_head` is the branch commit the harness ran on (docs and test commits only after the tag; `git log v2.0.0-beta.81..HEAD -- lib/core/part8-*` was empty). The fixture rows (694) and the local real-call rows (126, set R) share the matrix.
+- matrix-after-arm.json: the matrix after plan 392-09 (the typed shape arm; `guard_head` e3c1afedf). See "Three matrices" below.
+- route-matrix.json: the Theo route matrix of plan 392-06 (a different schema: which tool names the hook, the sanitizer and the shaped-tool matcher see); not a refusal matrix.
 - ../386-audit-probes: the 694 probe cases this matrix counts (see its README).
+
+## Three matrices
+
+| File | Guard tree (`guard_head`) | Recorded by | Status |
+|------|---------------------------|-------------|--------|
+| ../386-audit-probes/baseline-before.json | f0df97036 (the audit tree, before plans 386-25, 386-28, 386-31, 386-33) | Phase 386 | never overwritten |
+| baseline-beta81.json | 8455416a5 (tag v2.0.0-beta.81) | plan 392-01 | never overwritten |
+| matrix-after-arm.json | e3c1afedf (plan 392-09, the typed shape arm `{question, shape}` and its brain_search and classify_problem_type twins) | plan 392-09 | the current matrix |
+
+The first two files are baselines and are never overwritten (the harness refuses a `baseline-*` name without `--force`; no plan may pass `--force` on them). A later guard change records a NEW named file beside these three (for example after-392-11.json) so before and after stay side by side; it never rewrites matrix-after-arm.json either, because that file is the proof of plan 392-09's target. tests/test-392-replay-harness.cjs (RH7) runs the hygiene assertions on every matrix file in this folder; tests/test-392-typed-shape-arm.cjs (A12) asserts matrix-after-arm.json against a live replay.
+
+The three count lines, each with the file the number comes from:
+
+| Number | baseline-before.json (386, f0df97036) | baseline-beta81.json (392-01, 8455416a5) | matrix-after-arm.json (392-09, e3c1afedf) |
+|--------|------|------|------|
+| extended_blocked (of 535) | 37 (36 room_content by the name rule, 1 content_set) | 8 (all sprouts_required, edge_rule) | 8 (all sprouts_required, edge_rule) |
+| must_refuse_blocked (of 10) | 10 | 10 | 10 |
+| by_tool allow / ambiguous / block | corpora only: 573 allow, 83 block (no per-tool split in that file) | brain_ask 668 / 2 / 83; brain_query 43 / 0 / 2; brain_search 8 / 0 / 0; brain_write 0 / 0 / 3; brain_schema 6 allow; brain_stats 4 allow; normalize_framework_name 1 allow | identical to beta.81, tool by tool |
+
+The after-arm matrix equals the beta.81 matrix in by_verdict (730 / 2 / 88), by_group, by_tool and by_token_class. The one by_class difference (generic_question 671 and typed_question 48, against 670 and 49) is a real-call row (set R) that moved from typed_question to generic_question, both allow, when plan 392-03 made the typed proof fail on a non-vocabulary character; plan 392-06 recorded the same split, so plan 392-09 changes no replay row. Every replay case is a bare question (no `shape` key), so the arm is not exercised by the corpus; tests/test-392-typed-shape-arm.cjs carries the arm's own coverage.
 
 ## How to record a matrix
 

@@ -180,6 +180,39 @@ arm('RH6 committed baseline-beta81.json: hygiene, network 0, group totals', func
   return 'guard_head ' + doc.guard_head + ', extended_blocked ' + doc.matrix.extended_blocked + ', must_refuse_blocked ' + doc.matrix.must_refuse_blocked;
 });
 
+// RH7 (plan 392-09, task 3): every refusal matrix in the fixture folder passes
+// the hygiene assertions, not only the baseline. A matrix file is a JSON
+// document with schema 1 and a `matrix` key; route-matrix.json (plan 392-06,
+// a different schema) is skipped by that test. At least two matrices must be
+// found (the baseline and matrix-after-arm.json), so a renamed or deleted
+// after-arm file fails here.
+arm('RH7 every refusal matrix in the folder: hygiene, network 0, no rows, group totals', function () {
+  const dir = path.dirname(BASELINE);
+  const files = fs.readdirSync(dir).filter(function (f) { return /\.json$/.test(f); }).sort();
+  const seen = [];
+  files.forEach(function (f) {
+    const doc = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+    if (!(doc && doc.schema === 1 && doc.matrix && typeof doc.matrix === 'object')) return;
+    harness.assertMatrixHygiene(doc.matrix);
+    harness.assertDocumentHygiene(doc);
+    need(doc.network_calls === 0, f + ': network_calls ' + doc.network_calls);
+    need(!('rows' in doc), f + ': rows must not be committed');
+    const g = doc.matrix.by_group;
+    const ext = g.extended.allow + g.extended.ambiguous + g.extended.block;
+    const mr = g.must_refuse.allow + g.must_refuse.ambiguous + g.must_refuse.block;
+    need(ext === 535, f + ': extended total ' + ext);
+    need(mr === 10, f + ': must_refuse total ' + mr);
+    need(doc.matrix.must_refuse_blocked === 10, f + ': must_refuse_blocked ' + doc.matrix.must_refuse_blocked);
+    const text = fs.readFileSync(path.join(dir, f), 'utf8');
+    const dashes = [String.fromCharCode(0x2013), String.fromCharCode(0x2014)];
+    need(dashes.every(function (d) { return text.indexOf(d) < 0; }), f + ': a dash character is in the fixture');
+    seen.push(f + ' (extended_blocked ' + doc.matrix.extended_blocked + ')');
+  });
+  need(seen.length >= 2, 'expected the baseline and the after-arm matrix, found ' + seen.length);
+  need(seen.some(function (s) { return s.indexOf('matrix-after-arm.json') === 0; }), 'matrix-after-arm.json missing');
+  return seen.join(', ');
+});
+
 try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (_e) { /* best effort */ }
 if (failed > 0) {
   console.log('test-392-replay-harness: ' + failed + ' arm(s) failed');
