@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.82 (in progress)
+## [Unreleased] -- v2.0.0-beta.84 (in progress)
 
 ### Added
 - **The Seed: a venture sentence becomes a one-page pyramid (Phase 389).** `/mos:structure-argument` has a third depth, the Seed. You give one sentence about your venture and Larry writes Situation, Complication, Question and Answer on one page, with no outside lookup and no room needed. Outside evidence (similar cases, known traps, analogies, funding) comes only after a card shows the exact short phrases and where they go, and you say yes; the code refuses to look anything up until that confirmation matches the phrases on the card. Your own sentence never leaves your machine. <!-- 389-06 -->
@@ -17,6 +17,11 @@
 - **The `mva-pipeline` skill and `/mos:mva-option` are gone (Phase 389).** Both waited for files that nothing writes any more. The Decide step of `/mos:structure-argument` now does the job of the option pick. `/mos:mva-option` has a deprecation entry. <!-- 389-08 -->
 - **`/mos:mva-brief` now points to the Seed (Phase 389).** It prints one short note and forwards to the Seed depth of `/mos:structure-argument` for one release. <!-- 389-09 -->
 - **The old brief pipeline core is gone (Phase 389).** The orchestrator, its state file, the progressive renderer, the run script, the six old cells with their prompts and the Dror harness were removed. The old telemetry event names stay as history so older log lines still read. <!-- 389-10 -->
+
+## [2.0.0-beta.83] - 2026-11-09
+
+### Added
+- 
 
 ### Fixed
 - **Your prompt no longer loses its navigation block on a slow disk or a busy machine.** On every prompt the hook re-read the room's event history 29 to 48 times to work out which reaches you had rejected. With the room on a Windows drive under WSL2 (`/mnt/c`) that took 10 to 28 seconds, the 5 second hook limit cut it off, and the turn had no NAVIGATION DECISION. It now reads the history twice, and when the turn is already slow it skips the reject check instead of losing the turn. Measured on the same room: 11 to 18 seconds before, 2.4 to 4.8 seconds after; on a Linux disk 0.35 to 0.64 seconds. The hook limit stays at 5 seconds. <!-- 261109-intent-classifier-timeout -->
