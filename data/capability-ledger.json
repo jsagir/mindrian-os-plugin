@@ -9,18 +9,18 @@
   ],
   "ledger_covers": {
     "from": "2.1.128",
-    "to": "2.1.319",
-    "fetched_at": "2026-11-08T08:16:43Z",
-    "installed_claude_version": "2.1.319",
-    "coverage_gap": "2026-11-08: Claude Code 2.1.319 was screened from the first live run of the ask-first radar fetch (one public GET, 1175667 of 1175667 characters read, complete, 146 bullets, 4 rows added). 2026-11-07: Claude Code 2.1.288 through 2.1.318 were screened from a full local read of the main CHANGELOG.md. The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. The ledger now covers 2.1.128 through 2.1.319 with no unscreened range. Earlier note: Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range.",
+    "to": "2.1.321",
+    "fetched_at": "2026-11-09T19:51:53Z",
+    "installed_claude_version": "2.1.321",
+    "coverage_gap": "2026-11-09: Claude Code 2.1.321 was screened from the second live run of the ask-first radar fetch (one public GET, 1192343 of 1192343 characters read, complete, 118 bullets, 4 rows added). The file has no 2.1.320 entry, so 2.1.321 is the only version newer than 2.1.319. Two no-action items, read and not rowed: the Fable 5.2 model addition (the project never pins or uses a Fable model; agents use model inherit), and the Cowork rule that a PostToolUse hook can no longer replace the AskUserQuestion answer (hooks/hooks.json has no PostToolUse hook that matches AskUserQuestion; its PostToolUse matchers are Write|Edit|MultiEdit, Grep|Glob and a Brain tool pattern). The ledger now covers 2.1.128 through 2.1.321 with no unscreened range. 2026-11-08: Claude Code 2.1.319 was screened from the first live run of the ask-first radar fetch (one public GET, 1175667 of 1175667 characters read, complete, 146 bullets, 4 rows added). 2026-11-07: Claude Code 2.1.288 through 2.1.318 were screened from a full local read of the main CHANGELOG.md. The file has no entry for 2.1.297, 2.1.298, 2.1.313 and 2.1.315. The ledger now covers 2.1.128 through 2.1.319 with no unscreened range. Earlier note: Closed 2026-10-02: 2.1.247 through 2.1.280 were screened from the GitHub release notes (github.com/anthropics/claude-code/releases), because the main CHANGELOG.md only carries 2.1.281 and later. No release tag exists for 2.1.249, 2.1.253 to 2.1.256, 2.1.262, 2.1.264 or 2.1.279. The ledger now covers 2.1.128 through 2.1.287 with no unscreened range.",
     "fetch_coverage": {
       "method": "script",
       "complete": true,
-      "newest_read": "2.1.319",
-      "oldest_read": "2.1.319",
-      "chars_read": 1175667,
-      "chars_total": 1175667,
-      "checked_at": "2026-11-08"
+      "newest_read": "2.1.321",
+      "oldest_read": "2.1.321",
+      "chars_read": 1192343,
+      "chars_total": 1192343,
+      "checked_at": "2026-11-09"
     }
   },
   "entries": [
@@ -716,6 +716,46 @@
       "destination": "scripts/admin-command-gate.cjs",
       "status": "dormant",
       "evidence": "CHANGELOG.md 2.1.319; scripts/admin-command-gate.cjs detectInvokedCommand applies trimStart; tests/test-admin-gate-hardening.cjs has no leading-whitespace case"
+    },
+    {
+      "capability": "mods-tool-calls-no-prompt-and-auto-enable",
+      "version": "2.1.321",
+      "date": null,
+      "domain": "code",
+      "leverage": "A mod's own tool calls ($.tool.call, $.mcp.call) raise no permission prompt; deny rules and org policy still apply. Mods Claude writes turn on unasked in auto and bypass modes and do not load in dontAsk. Note only.",
+      "destination": "hooks/mos-face.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.321 (second live ask-first fetch, 2026-11-09); hooks/mos-face.json registers the face panel mod; owed to Phase 392 or a later mod phase: check the panel still loads in dontAsk"
+    },
+    {
+      "capability": "mcp-connected-no-tools-reconnect-fix",
+      "version": "2.1.321",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Fixed: an MCP server shown as connected with no tools after a reconnect or a directory change while tools were loading. Also fixed: context usage estimates that overcounted tool definitions. Phase 392 watch and measure note.",
+      "destination": ".mcp.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.321 (read 2026-11-09); .mcp.json declares mindrian-os with alwaysLoad true, a server with a large tool list; the estimate fix changes how Phase 392 reads its numbers"
+    },
+    {
+      "capability": "desktop-same-name-mcp-disconnect-fix",
+      "version": "2.1.321",
+      "date": null,
+      "domain": "desktop_cowork",
+      "leverage": "Fixed: a project MCP server is no longer disconnected after the first message in a Desktop Code tab session when the desktop app has an MCP server or extension of the same name. Desktop prefix risk (owner item A). Not claimed fixed for us.",
+      "destination": ".mcp.json",
+      "status": "dormant",
+      "evidence": "CHANGELOG.md 2.1.321 (read 2026-11-09); .mcp.json server names are mindrian-os and mindrian-brain; the real mos-desktop install test is still owed"
+    },
+    {
+      "capability": "plugins-update-redownload-and-name-guards",
+      "version": "2.1.321",
+      "date": null,
+      "domain": "plugins_mcp",
+      "leverage": "Plugin auto-updates and marketplace updates no longer download a plugin again per worktree. Nested .claude/skills in ~/.claude/plugins no longer load. Skill and command names with a Bamum letter are refused. Our names are ASCII; no action.",
+      "destination": ".claude-plugin/plugin.json",
+      "status": "no-op",
+      "evidence": "CHANGELOG.md 2.1.321 (read 2026-11-09); grep over commands/ and skills/ file names and frontmatter name fields (113 commands, 125 skill folders, 231 name fields) found no non-ASCII character"
     }
   ]
 }

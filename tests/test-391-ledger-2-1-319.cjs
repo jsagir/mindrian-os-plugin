@@ -5,6 +5,9 @@
  *
  * Quick 261108-ea4: the capability ledger records the screen of Claude Code
  * 2.1.319 from the first live run of the ask-first radar fetch.
+ * Quick 261109-rdr advanced the mark to 2.1.321; the mark, fetch time and fetch
+ * coverage arms (N5, N6) now check the 2.1.319 state as history (to is at or
+ * above 2.1.319) and the 2.1.321 values live in tests/test-391-ledger-2-1-321.cjs.
  *
  * Arms:
  *   N1 four rows exist once each with exact version, domain, destination, status
@@ -106,10 +109,10 @@ for (const [cap, , , dest] of TABLE) {
 }
 
 console.log('N5 ledger_covers');
-check('N5 to is 2.1.319', lc.to === '2.1.319', String(lc.to));
-check('N5 installed_claude_version is 2.1.319', lc.installed_claude_version === '2.1.319', String(lc.installed_claude_version));
+check('N5 to is at or above 2.1.319 (advanced by quick 261109-rdr)', cmp(String(lc.to), '2.1.319') >= 0, String(lc.to));
+check('N5 installed_claude_version is at or above 2.1.319', cmp(String(lc.installed_claude_version), '2.1.319') >= 0, String(lc.installed_claude_version));
 check('N5 from is 2.1.128', lc.from === '2.1.128');
-check('N5 fetched_at is the audit record time', lc.fetched_at === '2026-11-08T08:16:43Z', String(lc.fetched_at));
+check('N5 fetched_at is an ISO time on or after the 2.1.319 audit record', typeof lc.fetched_at === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(lc.fetched_at) && lc.fetched_at >= '2026-11-08T08:16:43Z', String(lc.fetched_at));
 
 console.log('N6 fetch_coverage');
 const fc = lc.fetch_coverage;
@@ -117,11 +120,10 @@ check('N6 is an object', !!fc && typeof fc === 'object' && !Array.isArray(fc));
 if (fc && typeof fc === 'object') {
   check('N6 method is script', fc.method === 'script', String(fc.method));
   check('N6 complete is true', fc.complete === true);
-  check('N6 newest_read 2.1.319', fc.newest_read === '2.1.319');
-  check('N6 oldest_read 2.1.319', fc.oldest_read === '2.1.319', String(fc.oldest_read));
-  check('N6 chars_read 1175667', fc.chars_read === 1175667);
-  check('N6 chars_total 1175667', fc.chars_total === 1175667);
-  check('N6 checked_at 2026-11-08', fc.checked_at === '2026-11-08');
+  check('N6 newest_read is at or above 2.1.319', cmp(String(fc.newest_read), '2.1.319') >= 0, String(fc.newest_read));
+  check('N6 oldest_read is at or above 2.1.319', cmp(String(fc.oldest_read), '2.1.319') >= 0, String(fc.oldest_read));
+  check('N6 chars_read positive and equals chars_total', Number.isInteger(fc.chars_read) && fc.chars_read > 0 && fc.chars_read === fc.chars_total);
+  check('N6 checked_at on or after 2026-11-08', typeof fc.checked_at === 'string' && fc.checked_at >= '2026-11-08', String(fc.checked_at));
 }
 
 console.log('N7 highest row');

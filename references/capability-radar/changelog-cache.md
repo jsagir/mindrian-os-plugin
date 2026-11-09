@@ -4,9 +4,16 @@ This file is a rendered human-readable VIEW. `data/capability-ledger.json` is th
 `/mos:radar --fetch` writes the ledger first (Step 3b of `commands/radar.md`), then regenerates
 this view from it.
 
-Last fetched: 2026-11-08
-Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md (2.1.319 screened 2026-11-08 from the first live ask-first fetch; 2.1.288 through 2.1.318 screened 2026-11-07 from a full local read)
+Last fetched: 2026-11-09
+Source (2.1.281 and later): https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md (2.1.321 screened 2026-11-09 from the second live ask-first fetch; 2.1.319 screened 2026-11-08 from the first live ask-first fetch; 2.1.288 through 2.1.318 screened 2026-11-07 from a full local read)
 Source (2.1.247 through 2.1.280): https://github.com/anthropics/claude-code/releases
+
+**Provenance (screen of 2026-11-09).** Claude Code 2.1.321 was screened from the second live run of
+the ask-first radar fetch: one public GET of the fixed CHANGELOG URL, no room data (1192343 of 1192343
+characters read, complete, 438 headers, fetch time 2026-11-09T19:51:53Z). The file has no 2.1.320
+entry, so 2.1.321 is the only version newer than 2.1.319. All 118 bullets were screened as data. Four
+rows were added (one no-op, three dormant). The ledger now covers 2.1.128 through 2.1.321 and the
+installed host is 2.1.321.
 
 **Provenance (screen of 2026-11-08).** Claude Code 2.1.319 was screened from the first live run of
 the ask-first radar fetch: one public GET of the fixed CHANGELOG URL, no room data, run through
@@ -40,6 +47,26 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 2.1.287 (SEED-104), so the navigator's 2026-10-02 "Normal card on CLI" ruling stands.
 
 ## Recent Changes Relevant to MindrianOS
+
+### 2.1.321 (date not in fetched fields)
+- **Domain:** code
+- **Change:** A mod's own tool calls ($.tool.call, $.mcp.call) raise no permission prompt; deny rules and organization policy still apply. Mods Claude writes turn on without asking in auto and bypass modes and do not load in dontAsk mode.
+- **MindrianOS impact:** The face panel is a plugin mod (`hooks/mos-face.json`). Note only; the owner check that the panel still loads in dontAsk is owed to Phase 392 or a later mod phase.
+
+### 2.1.321 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** Fixed an MCP server showing connected with no tools after a reconnect or a directory change while tools were loading; also fixed context usage estimates that overcounted tool definitions.
+- **MindrianOS impact:** The `mindrian-os` server (`.mcp.json`, alwaysLoad) has a large tool list. Watch item and measurement note for Phase 392; dormant.
+
+### 2.1.321 (date not in fetched fields)
+- **Domain:** desktop_cowork
+- **Change:** A project's MCP server is no longer disconnected after the first message in a Desktop Code tab session when the desktop app has an MCP server or extension of the same name.
+- **MindrianOS impact:** This touches the Desktop prefix risk (owner item A). The real mos-desktop install test is still owed; not claimed fixed for us. Dormant.
+
+### 2.1.321 (date not in fetched fields)
+- **Domain:** plugins_mcp
+- **Change:** Plugin auto-updates and marketplace updates no longer download a plugin again per worktree; nested `.claude/skills` folders inside `~/.claude/plugins` no longer load; skill and command names with a Bamum letter are refused.
+- **MindrianOS impact:** Install and update path only. All command and skill names are ASCII (113 command files, 125 skill folders, 231 name fields checked). No action (no-op row).
 
 ### 2.1.319 (date not in fetched fields)
 - **Domain:** plugins_mcp
@@ -178,6 +205,7 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 
 ### Screened out (no ledger row)
 
+- **2.1.321 (the other 108 bullets, no-action items first):** The Fable 5.2 model addition (the project never pins or uses a Fable model) and the Cowork rule that a PostToolUse hook can no longer replace the AskUserQuestion answer (`hooks/hooks.json` has no PostToolUse hook that matches AskUserQuestion). The rest is gateway, remote control, VS Code, cloud session, Windows, macOS, Chrome, Bash and file permission fixes, OpenTelemetry and /model picker lines with no shipped repo surface.
 - **2.1.319 (the other 140 bullets):** Claude apps gateway, self-hosted runner, VS Code, cloud session, Claude in Chrome, Claude Tag, auto mode server check, Bash and sed permission fixes, /diff, /rewind, OpenTelemetry, agents view, artifact database and /claude-api lines. None touches a shipped surface: the repo has no gateway or runner config, no subagentStatusLine, no PermissionRequest hook, and no Monitor use. `permissions.denyInsteadOfPrompting` and the mod hot-reload fixes were read and judged not to change a repo dependency.
 - **2.1.283 and 2.1.286 (plugins_mcp):** 2.1.283 added MCP tool and WebFetch outputs to OpenTelemetry spans plus MCP startup and sign-in fixes; 2.1.286 added list mouse support, marketplace error and listing improvements, and headless MCP startup. No repo surface plausibly touched.
 - **2.1.280:** Agent-type PermissionRequest hooks are now refused. `hooks/hooks.json` registers no PermissionRequest event and only command-type hooks.

@@ -5,7 +5,9 @@
  *
  * Phase 391 plan 05 (CC391-I): the capability ledger records the screen of
  * Claude Code 2.1.288 to 2.1.318. Quick 261108-ea4 advanced the mark to 2.1.319;
- * the 2.1.319 arms live in tests/test-391-ledger-2-1-319.cjs.
+ * the 2.1.319 arms live in tests/test-391-ledger-2-1-319.cjs. Quick 261109-rdr
+ * advanced it to 2.1.321 (arms in tests/test-391-ledger-2-1-321.cjs); L4, L5 and
+ * L7 here now check the mark is at or above the 2.1.319 state.
  *
  * Arms:
  *   L1 six dormant rows exist once each with the exact version, domain,
@@ -125,8 +127,8 @@ for (const [cap] of TABLE) {
 }
 
 console.log('L4 ledger_covers');
-check('L4 to is 2.1.319 (advanced by quick 261108-ea4)', lc.to === '2.1.319', String(lc.to));
-check('L4 installed_claude_version is 2.1.319', lc.installed_claude_version === '2.1.319', String(lc.installed_claude_version));
+check('L4 to is at or above 2.1.319 (advanced by quick 261109-rdr)', cmp(String(lc.to), '2.1.319') >= 0, String(lc.to));
+check('L4 installed_claude_version is at or above 2.1.319', cmp(String(lc.installed_claude_version), '2.1.319') >= 0, String(lc.installed_claude_version));
 check('L4 from is 2.1.128', lc.from === '2.1.128');
 check(
   'L4 fetched_at ISO on or after 2026-11-07',
@@ -143,7 +145,7 @@ check('L5 is an object', !!fc && typeof fc === 'object' && !Array.isArray(fc));
 if (fc && typeof fc === 'object') {
   check('L5 method', typeof fc.method === 'string' && fc.method.length > 0);
   check('L5 complete is true', fc.complete === true);
-  check('L5 newest_read 2.1.319', fc.newest_read === '2.1.319');
+  check('L5 newest_read is at or above 2.1.319', cmp(String(fc.newest_read), '2.1.319') >= 0, String(fc.newest_read));
   check('L5 oldest_read is a version triple', isTriple(fc.oldest_read));
   check('L5 chars_read positive integer', Number.isInteger(fc.chars_read) && fc.chars_read > 0);
   check(
@@ -172,7 +174,7 @@ check(
   'L7 the 2.1.318 stdio row is still present',
   entries.filter((e) => e.capability === 'mcp-stdio-version-probe-legacy-pin' && e.version === '2.1.318').length === 1
 );
-check('L7 the highest rows are real 2.1.319 rows', topRows.length > 0 && topRows.every((e) => e.version === '2.1.319'));
+check('L7 the highest rows are real rows at the mark', topRows.length > 0 && topRows.every((e) => e.version === highest));
 check('L7 no screened-through row', !entries.some((e) => String(e.capability).startsWith('screened-through')));
 
 console.log('L8 schema regression');
