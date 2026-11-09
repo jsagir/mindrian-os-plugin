@@ -1,0 +1,262 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-11-09T20:42:26.015Z",
+  "guard_head": "e3c1afedf",
+  "recorded_head": "e3c1afedf",
+  "network_calls": 0,
+  "note": "after the 392-09 typed shape arm; fixtures are bare questions, the arm does not change their class",
+  "sources": {
+    "fixtures": {
+      "cases": 694
+    },
+    "real_calls": {
+      "blocks": 126,
+      "unique_inputs": 87,
+      "labels": {
+        "legitimate": 0,
+        "not": 0,
+        "unknown": 87
+      }
+    }
+  },
+  "matrix": {
+    "total": 820,
+    "by_verdict": {
+      "allow": 730,
+      "ambiguous": 2,
+      "block": 88
+    },
+    "by_set": {
+      "P": {
+        "allow": 5,
+        "ambiguous": 0,
+        "block": 10
+      },
+      "ADV": {
+        "allow": 4,
+        "ambiguous": 0,
+        "block": 19
+      },
+      "C": {
+        "allow": 606,
+        "ambiguous": 0,
+        "block": 50
+      },
+      "R": {
+        "allow": 115,
+        "ambiguous": 2,
+        "block": 9
+      }
+    },
+    "by_group": {
+      "P": {
+        "allow": 5,
+        "ambiguous": 0,
+        "block": 10
+      },
+      "ADV": {
+        "allow": 4,
+        "ambiguous": 0,
+        "block": 19
+      },
+      "positives_26": {
+        "allow": 26,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "negatives": {
+        "allow": 1,
+        "ambiguous": 0,
+        "block": 9
+      },
+      "known_leaks": {
+        "allow": 1,
+        "ambiguous": 0,
+        "block": 1
+      },
+      "must_refuse": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 10
+      },
+      "extended": {
+        "allow": 527,
+        "ambiguous": 0,
+        "block": 8
+      },
+      "compliant": {
+        "allow": 16,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "violation": {
+        "allow": 4,
+        "ambiguous": 0,
+        "block": 12
+      },
+      "354-private": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 10
+      },
+      "354-generic": {
+        "allow": 31,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "real_unknown": {
+        "allow": 115,
+        "ambiguous": 2,
+        "block": 9
+      }
+    },
+    "by_tool": {
+      "brain_write": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 3
+      },
+      "brain_ask": {
+        "allow": 668,
+        "ambiguous": 2,
+        "block": 83
+      },
+      "brain_query": {
+        "allow": 43,
+        "ambiguous": 0,
+        "block": 2
+      },
+      "brain_search": {
+        "allow": 8,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "normalize_framework_name": {
+        "allow": 1,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "brain_stats": {
+        "allow": 4,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "brain_schema": {
+        "allow": 6,
+        "ambiguous": 0,
+        "block": 0
+      }
+    },
+    "by_class": {
+      "write_blocked": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 2
+      },
+      "content_set": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 20
+      },
+      "room_content": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 14
+      },
+      "sprouts_required": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 52
+      },
+      "generic_question": {
+        "allow": 671,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "typed_read_shape": {
+        "allow": 1,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "empty_payload": {
+        "allow": 10,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "typed_question": {
+        "allow": 48,
+        "ambiguous": 0,
+        "block": 0
+      },
+      "unknown": {
+        "allow": 0,
+        "ambiguous": 2,
+        "block": 0
+      }
+    },
+    "by_token_class": {
+      "none": {
+        "allow": 730,
+        "ambiguous": 2,
+        "block": 22
+      },
+      "private_context": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 1
+      },
+      "edge_rule": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 29
+      },
+      "private_marker": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 17
+      },
+      "identifier": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 2
+      },
+      "person": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 1
+      },
+      "room_term": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 4
+      },
+      "venture_name": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 1
+      },
+      "claim": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 3
+      },
+      "room_file": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 1
+      },
+      "body_shape": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 6
+      },
+      "name": {
+        "allow": 0,
+        "ambiguous": 0,
+        "block": 1
+      }
+    },
+    "extended_blocked": 8,
+    "must_refuse_blocked": 10
+  }
+}
