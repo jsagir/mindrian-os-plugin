@@ -1,14 +1,14 @@
 ---
-status: awaiting_human_verify
+status: resolved
 kind: rca
 trigger: "intent-classifier-hook-timeout"
 issue_id: ""
 severity: high
-surfaces: [cli]
+surfaces: [cli, desktop, cowork]
 brain_mode: full-loop
 canon_parts: [8, 9]
 created: 2026-11-09T21:55:00Z
-updated: 2026-11-09T22:58:00Z
+updated: 2026-11-09T23:20:00Z
 ---
 
 ## Source-of-Truth Preamble
@@ -23,8 +23,8 @@ updated: 2026-11-09T22:58:00Z
 
 hypothesis: CONFIRMED and FIXED in the worktree (see Technical Root Cause and Resolution). The reach-reject penalty fold re-issued one full scan of room.db 29 to 48 times per prompt; with the room on /mnt/c (9p) every scan was a host round trip; no timer could interrupt the synchronous calls; machine load multiplied the latency.
 test: RED test went RED (47 reads) on HEAD and GREEN (2 reads) after; interleaved A/B of the install cache (before) against the worktree (after) on the real 9p room, on an ext4 copy, with and without 2 busy loops.
-expecting: the human confirms, in a live session on this machine, that the UserPromptSubmit hook no longer times out and the NAVIGATION DECISION block is present each turn; then the two open decisions (the Phase 345-03 require cycle, the 5 s timeout) get a ruling.
-next_action: human verification in the owner's real session; then archive to .planning/debug/resolved/ and add the knowledge-base block.
+expecting: owner rulings 2026-11-09 received: (1) the branch goes to the release session for beta.83 and the live confirmation happens after that cut; (2) finding 2 (the Phase 345-03 require cycle) fixed on the same branch, RED then GREEN; (3) the 5 s timeout stays and the structural work is Phase 394 in the worktree ROADMAP.
+next_action: none in this session. Resolved; the file moves to .planning/debug/resolved/ and the knowledge-base block is added. The live-session confirmation is owed after the beta.83 cut.
 
 reasoning_checkpoint:
   hypothesis: "scripts/intent-classifier.cjs:2737 calls lib/workflow/reach-reject-reader.cjs computeReachPenalties, which calls presentationsCount and rejectCountInWindow up to 8 times per reach id for 6 reach ids; every call runs navigation.findRecentChanges, a full scan of the 14,082 memory_event rows (json_extract has no index; plan: SEARCH nodes USING INDEX idx_nodes_type + TEMP B-TREE FOR ORDER BY); the room.db is on /mnt/c (9p drvfs) so every scan re-reads about 17 MB across the WSL2 host boundary, 200 to 3,600 ms per scan under load; 29 scans took 11,333 ms of a 12,451 ms run. The NAV_HARD_TIMEOUT_MS race cannot stop synchronous sqlite calls, so nothing bounds the fold."
@@ -196,6 +196,21 @@ started: observed 2026-11-09 under heavy load; not observed in the idle baseline
   found: real 9p room, load 10.98 to 13.53, no extra load: before 17,617 / 13,053 / 11,452 / 12,239 / 16,733 ms; after 4,835 / 2,744 / 2,424 / 2,352 / 3,238 ms (every before run over 5,000 ms; every after run under it; 4.5x to 5.2x). ext4 copy, load 10.6: before 918 / 634 / 968 / 951 / 959 ms; after 350 / 364 / 387 / 636 / 521 ms. real 9p room plus 2 busy loops (node while(1)), load 10.8 to 12.6: before 21,615 / 19,267 / 18,913 ms; after 3,760 / 4,440 / 3,817 ms (slowdown factor of the 2 loops about 1.4x before, 1.3x after). ext4 copy plus busy loops (4 loops: 2 strays from the previous arm plus 2 new; the strays were found and killed afterwards), load 12.3: before 784 / 836 / 777 ms; after 427 / 387 / 464 ms. First reproduction earlier (cache only, load 28 falling to 17): 28,268 / 18,853 / 9,774 / 10,459 / 12,900 ms.
   implication: the dominant cause is removed; on a /mnt/c room at load 12 to 13 the after-fix worst case is 4.8 s, inside the 5 s budget with little margin; at the incident's load 24 a /mnt/c room may still breach until the structural phase lands or the room moves to the Linux filesystem (ext4 after: 0.35 to 0.64 s).
 
+- timestamp: 2026-11-09T23:05:00Z
+  checked: finding 2, RED test tests/test-261109-reach-reader-load-order.cjs on the reader before the cure (navigation.cjs required first, then room-db, then the reader; Test 0 proves the reader is already in require.cache after the navigation require, so the cycle is exercised)
+  found: RED: presentationsCount(deep_research) returned 0 for 3 seeded rows
+  implication: the placeholder-export mechanism is reproduced by a test, not inferred.
+
+- timestamp: 2026-11-09T23:10:00Z
+  checked: the cure in lib/workflow/reach-reject-reader.cjs (the top-level `const navigation = require('../core/navigation.cjs')` replaced by `function chokepoint() { return require('../core/navigation.cjs'); }` and a call-time `const navigation = chokepoint();` in presentationsCount, rejectCountInWindow and precomputeReachCounters); then the suites
+  found: load-order test PASS 3 of 3; query-count test PASS 5 of 5; bash tests/run-all-158.sh: presentation-counter PASS (3 checks, was FAILED), reject-only PASS (4 checks, was FAILED), part8-no-reason PASS (2 checks, was FAILED), id-keying 4, discount 5, hard-suppress 3, fences 6, frozen-148-guard 8, byte-stable 3, part9-chokepoint 3, Part 8 sweep, Part 9 sweep, connector-registry, frozen-148 passthrough PASS; orchestrator-pure still FAILED, for an unrelated reason (lib/hmi/dial-reach-orchestrator.cjs requires ../core/act-jtbd-blurb.cjs; the suite pins f-selector-ranker.cjs as the only require; a later phase's drift, not the reader); test-159-integration-2turn-suppress PASS 3 of 3 (was FAILED "N=3 REAL rejects; got 0"); test-159-turn-start-wiring PASS 5; test-345-cooldown PASS; test-222-readonly-rank advanced from its D1 failure ("the scored order did not flip", the dead reader) to a later failure `server.registerTool is not a function` (an MCP SDK API shape, unrelated; 17 checks pass before it); six classifier suites PASS; tests/test-369-hook-require-graph.cjs 5 passed
+  implication: finding 2 is FIXED; 3 of the 4 red 158 suites and the 159 integration suite are green because of it; the two residual failures have other causes and are filed under Non-Code Follow-ups.
+
+- timestamp: 2026-11-09T23:12:00Z
+  checked: the consumers of the reader that run in processes which load navigation.cjs first: lib/workflow/reach-hedge-ranker.cjs:592 (countPenalty, the composed 158 discount), lib/core/strategy/strategy-throttle.cjs:186 (rejectCountInWindow, the Phase 345 strategy-reach cool-down); navigation.cjs is required at top level by lib/mcp/startup-operations.cjs, never-do-gate.cjs, gate-raised.cjs and room-watcher.cjs
+  found: in the MCP server (Desktop, Cowork and the CLI MCP tools) both consumers read 0 before the cure and read real counts after it
+  implication: BEHAVIOR CHANGE, stated plainly: the reach penalty fold and the strategy-reach cool-down now run in every process that loads navigation.cjs first, the MCP server included. What a user notices: in Desktop and Cowork a reach they rejected within the trailing window loses up to 60 percent of its score, a reach rejected 3 times after 2 or more presentations disappears from the offered reaches until every 5th presentation (parole), and a rejected strategy reach is cooled down; the Claude Code prompt hook already behaved this way. Nothing new is written to room.db, no Brain wire is touched (Part 8), every read stays on the navigation chokepoint (Part 9).
+
 ## Technical Root Cause
 
 - Site: lib/workflow/reach-reject-reader.cjs:328-362 function `computeReachPenalties`, through `presentationsCount` (:143-167) and `rejectCountInWindow` (:184-250); the consumer is scripts/intent-classifier.cjs:2730-2760 (the Phase 158-03 penalty fold); the scan is lib/core/navigation/memory-events.cjs:909-935 `findRecentChanges`.
@@ -237,19 +252,25 @@ started: observed 2026-11-09 under heavy load; not observed in the idle baseline
 
 - CHANGELOG.md: add a Fixed entry under the next version (the fix is in the worktree; the release session adds the entry at cut time).
 - Release lockstep: the fix ships through scripts/release.sh; nothing in this RCA bumps a version by hand.
-- Proposed phase (design, not this quick): (1) make findRecentChanges use a plan that stops early (ORDER BY created_at DESC through idx_nodes_created_at, or an expression index on json_extract(properties, '$.event_type') for type = 'memory_event', shipped as a room-db migration); (2) memory_event retention or roll-up (the hook writes reach_presented and gate_reached on every prompt; 7,431 such rows in 6 weeks); (3) a bound-room entry in the 369 cold-start baseline.
-- knowledge-base.md: on resolve, add the summary block.
-- Canon: Part 9 unchanged (every read stays on the navigation chokepoint); Part 8 unchanged (no Brain wire in this path).
+- Phase 394 (added to .planning/ROADMAP.md in the worktree, owner ruling 2026-11-09; id 394 because the dev tree already holds 392 and 393): findRecentChanges stops early (ORDER BY created_at DESC through idx_nodes_created_at with LIMIT, or an expression index on json_extract(properties, '$.event_type') for type = 'memory_event', shipped as a room-db migration); an index on nodes(source_section); memory_event retention or roll-up (the hook writes reach_presented and gate_reached on every prompt; 7,431 such rows in 6 weeks); a bound-room entry in the 369 cold-start baseline; measured target: a /mnt/c room under 1,000 ms per prompt at load 12.
+- Finding 2 FIXED in this quick (owner ruling 2026-11-09): the Phase 345-03 require cycle; see Evidence 23:05 to 23:12 and Resolution.
+- Residual, pre-existing, unrelated to this quick, for their own sessions: tests/test-158-reach-orchestrator-pure.cjs fails because lib/hmi/dial-reach-orchestrator.cjs requires ../core/act-jtbd-blurb.cjs while the suite pins f-selector-ranker.cjs as the only require; tests/test-222-readonly-rank.cjs fails at `server.registerTool is not a function` (MCP SDK API shape) after its 17 earlier checks pass.
+- knowledge-base.md: the summary block is added with this resolve.
+- Canon: Part 9 unchanged (every read stays on the navigation chokepoint); Part 8 unchanged (no Brain wire in this path). Tri-Polar: the finding-2 cure changes Desktop and Cowork behavior (stated in Evidence 23:12); the hook fix is CLI only.
 
 ## Resolution
 <!-- OVERWRITE as understanding evolves -->
 
 root_cause: computeReachPenalties (lib/workflow/reach-reject-reader.cjs, Phase 158-03) re-issued the same unindexed full scan of the 14,082 memory_event rows 29 to 48 times per prompt through synchronous sqlite calls that the NAV_HARD_TIMEOUT_MS timer cannot interrupt; with room.db on /mnt/c (9p drvfs) each scan re-read about 17 MB across the WSL2 host boundary (11.3 s of a 12.5 s run), and machine load multiplied the per-scan latency 2x to 7x, so the 5 s UserPromptSubmit budget was lost together with the NAVIGATION DECISION block.
-fix: (1) lib/workflow/reach-reject-reader.cjs: new precomputeReachCounters reads reach_presented once and f_selector_decision once through the navigation chokepoint and derives the six per-reach counts in memory with identical semantics; computeReachPenalties feeds them to the per-reach readers through the shipped roomState injection seam (2 scans per fold instead of 29 to 48; the caller's roomState is not mutated; caller-supplied finite counters win). (2) scripts/intent-classifier.cjs: shouldSkipReachPenalties(elapsedMs) skips the fold when the engine phase has already reached NAV_HARD_TIMEOUT_MS (fresh clock at the fold), degrading to the documented un-discounted render instead of losing the turn; the predicate and the constant are exported. (3) tests/test-261109-intent-classifier-query-count.cjs: RED-then-GREEN pin (reads per fold at most 2), parity with the per-reach readers, the guard predicate, the fold-site gate, and an anti-vacuous "reader is alive" check in the hook's load order. The hooks.json timeout is unchanged at 5 s.
+fix: (1) lib/workflow/reach-reject-reader.cjs: new precomputeReachCounters reads reach_presented once and f_selector_decision once through the navigation chokepoint and derives the six per-reach counts in memory with identical semantics; computeReachPenalties feeds them to the per-reach readers through the shipped roomState injection seam (2 scans per fold instead of 29 to 48; the caller's roomState is not mutated; caller-supplied finite counters win). (2) scripts/intent-classifier.cjs: shouldSkipReachPenalties(elapsedMs) skips the fold when the engine phase has already reached NAV_HARD_TIMEOUT_MS (fresh clock at the fold), degrading to the documented un-discounted render instead of losing the turn; the predicate and the constant are exported. (3) tests/test-261109-intent-classifier-query-count.cjs: RED-then-GREEN pin (reads per fold at most 2), parity with the per-reach readers, the guard predicate, the fold-site gate, and an anti-vacuous "reader is alive" check in the hook's load order. (4) Finding 2: lib/workflow/reach-reject-reader.cjs resolves the navigation chokepoint at call time (`function chokepoint()`), so the Phase 345-03 require cycle no longer hands it the placeholder export; tests/test-261109-reach-reader-load-order.cjs (RED 0, GREEN 3) pins it. The hooks.json timeout is unchanged at 5 s (owner ruling). Structural follow-up: Phase 394.
 verification: node tests/test-261109-intent-classifier-query-count.cjs: RED on HEAD (47 reads), PASS 5 of 5 after. node tests/test-369-hook-require-graph.cjs: 5 passed, 0 failed. bash tests/run-all-386.sh: PASS=37 FAIL=0 SKIP=0. bash tests/run-all-158.sh: the same 4 pre-existing failures as HEAD (presentation-counter, reject-only, orchestrator-pure, part8-no-reason: the Phase 345-03 require cycle), no new failure. Related suites identical to HEAD (159 turn-start-wiring, 345-cooldown, six classifier suites PASS; 159 integration and 222 readonly-rank FAIL on HEAD and after). A/B timing: real 9p room before 11.5 to 17.6 s, after 2.4 to 4.8 s; ext4 before 0.63 to 0.97 s, after 0.35 to 0.64 s; 9p plus 2 busy loops before 18.9 to 21.6 s, after 3.8 to 4.4 s. Module count unchanged (217 both arms). No em-dashes in the changed files.
 files_changed:
-  - lib/workflow/reach-reject-reader.cjs (precomputeReachCounters; computeReachPenalties uses the injection seam; export)
+  - lib/workflow/reach-reject-reader.cjs (precomputeReachCounters; computeReachPenalties uses the injection seam; export; finding 2: call-time chokepoint resolution)
   - scripts/intent-classifier.cjs (shouldSkipReachPenalties; fold gate with a fresh clock; two exports)
   - tests/test-261109-intent-classifier-query-count.cjs (new regression)
-  - .planning/debug/intent-classifier-hook-timeout.md (this RCA)
-commits: 598b62422 (fix plus test, branch quick/261109-intent-classifier-timeout, worktree /home/jsagi/gsd-workspaces/hook-timeout/MindrianOS-Plugin); this RCA lands in the commit that follows it
+  - tests/test-261109-reach-reader-load-order.cjs (new regression, finding 2)
+  - .planning/ROADMAP.md (Phase 394 added, Goal and Success Criteria from this RCA)
+  - CHANGELOG.md (two Unreleased Fixed entries)
+  - .planning/debug/knowledge-base.md (summary block)
+  - .planning/debug/resolved/intent-classifier-hook-timeout.md (this RCA, moved on resolve)
+commits: 598b62422 (fix plus test), a78f7bb28 (RCA, first filing); the finding-2 fix plus its test, and the docs commit (ROADMAP Phase 394, CHANGELOG, knowledge base, this file moved to resolved/) follow on branch quick/261109-intent-classifier-timeout, worktree /home/jsagi/gsd-workspaces/hook-timeout/MindrianOS-Plugin
