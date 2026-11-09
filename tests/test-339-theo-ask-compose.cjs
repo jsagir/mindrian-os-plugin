@@ -153,58 +153,59 @@ test('Arm 1: Theo rows + stubbed recommendChain/query compose a full envelope, o
   assert.equal(composed.next_gate.sub_shape, 'F.1');
   assert.equal(composed.next_gate.options.length, 4);
 
-  // Quick 260911-ddd (DDD-01): command-bearing-first stable partition.
-  // Design Thinking (step 1) and Red Teaming (step 3) both carry a command
-  // and keep Theo's relative order; Disruptive Innovation (step 2) and
-  // Creative Destruction (step 4) carry none and keep Theo's relative
-  // order. Post-sort order: Design Thinking, Red Teaming, Disruptive
-  // Innovation, Creative Destruction -- this is the shipped Arm 1 fixture
-  // where the TOP step already has a command, so directive.guided.framework
-  // stays 'Design Thinking' above.
+  // Phase 392-10 (D-05, 2026-11-08) RE-PIN: Theo's pedagogical rank is
+  // authoritative. The Quick 260911-ddd command-bearing-first partition is
+  // removed, so the options come back in Theo's order (steps 1, 2, 3, 4):
+  // Design Thinking, Disruptive Innovation, Red Teaming, Creative
+  // Destruction. Was: Design Thinking, Red Teaming, Disruptive Innovation,
+  // Creative Destruction (command-bearing first).
   assert.deepEqual(composed.next_gate.options.map((o) => o.framework), [
-    'Design Thinking', 'Red Teaming', 'Disruptive Innovation', 'Creative Destruction',
+    'Design Thinking', 'Disruptive Innovation', 'Red Teaming', 'Creative Destruction',
   ]);
   assert.deepEqual(composed.next_gate.options[0].commands, ['diagnose', 'build-mvp']);
-  assert.deepEqual(composed.next_gate.options[1].commands, ['challenge-assumptions']);
-  assert.deepEqual(composed.next_gate.options[2].commands, []); // Disruptive Innovation has no edges
+  assert.deepEqual(composed.next_gate.options[1].commands, []); // Disruptive Innovation has no edges
+  assert.deepEqual(composed.next_gate.options[2].commands, ['challenge-assumptions']);
   assert.deepEqual(composed.next_gate.options[3].commands, []); // Creative Destruction has no edges
+  // The partition's information survives as a boolean on each option.
+  assert.deepEqual(composed.next_gate.options.map((o) => o.has_command), [true, false, true, false]);
 
-  // Confidence is unchanged by the sort -- assert per framework, not per
-  // index, since the sort moves frameworks but must never move a value.
+  // 392-10 RE-PIN: confidence is the documented blend (confidence_source
+  // 'theo_rank_blend'): clamp(0.9 - 0.1 * (rank - 1), 0.5, 0.9), degree
+  // only as a tie-break between equal ranks (none here). Was the degree
+  // normalisation 0.5 + 0.4 * degree/top (0.9, 0.85, 0.83, 0.76).
   const confidenceByFramework = {};
   for (const o of composed.next_gate.options) confidenceByFramework[o.framework] = o.confidence;
   assert.equal(confidenceByFramework['Design Thinking'], 0.9);
-  assert.equal(confidenceByFramework['Disruptive Innovation'], 0.85);
-  assert.equal(confidenceByFramework['Red Teaming'], 0.83);
-  assert.equal(confidenceByFramework['Creative Destruction'], 0.76);
+  assert.equal(confidenceByFramework['Disruptive Innovation'], 0.8);
+  assert.equal(confidenceByFramework['Red Teaming'], 0.7);
+  assert.equal(confidenceByFramework['Creative Destruction'], 0.6);
 
-  // The shipped global "confidence must be non-increasing" check is now
-  // FALSE by design: post-sort the series reads 0.9, 0.83, 0.85, 0.76 (it
-  // rises from Red Teaming to Disruptive Innovation because the sort groups
-  // by command-bearing-ness, not by confidence). Replaced by non-increasing
-  // WITHIN each partition.
+  // 392-10 RE-PIN: the global "confidence must be non-increasing" check is
+  // TRUE again by construction (one rank step is 0.1, a tie-break at most
+  // 0.04); the per-partition checks are gone with the partition.
   const confidences = composed.next_gate.options.map((o) => o.confidence);
   for (const c of confidences) assert.ok(c >= 0.5 && c <= 0.9);
-  const commandBearingConf = confidences.slice(0, 2); // Design Thinking, Red Teaming
-  const commandLessConf = confidences.slice(2); // Disruptive Innovation, Creative Destruction
-  assert.ok(commandBearingConf[1] <= commandBearingConf[0], 'command-bearing partition must be non-increasing');
-  assert.ok(commandLessConf[1] <= commandLessConf[0], 'command-less partition must be non-increasing');
-  assert.equal(confidences[0], 0.9); // the first sorted option is also the top-degree step here
+  for (let i = 1; i < confidences.length; i++) {
+    assert.ok(confidences[i] <= confidences[i - 1], 'confidence must be non-increasing along theo_rank');
+  }
+  assert.equal(confidences[0], 0.9); // the rank-1 option reads the top value
 
-  // theo_rank carries Theo's own rank on every option, surviving the
-  // reorder: Design Thinking=1, Red Teaming=3, Disruptive Innovation=2,
-  // Creative Destruction=4.
-  assert.deepEqual(composed.next_gate.options.map((o) => o.theo_rank), [1, 3, 2, 4]);
+  // 392-10 RE-PIN: theo_rank carries Theo's own rank on every option and
+  // the options are sorted by it: [1, 2, 3, 4]. Was [1, 3, 2, 4] under the
+  // partition.
+  assert.deepEqual(composed.next_gate.options.map((o) => o.theo_rank), [1, 2, 3, 4]);
 
   // grounding.option_order names the applied ordering on the success path.
-  assert.equal(composed.grounding.option_order, 'command_bearing_first');
+  // 392-10 RE-PIN: 'theo_rank'; was 'command_bearing_first'.
+  assert.equal(composed.grounding.option_order, 'theo_rank');
 
   assert.equal(composed.grounding.rows.length, 3);
   for (const r of composed.grounding.rows) {
     assert.deepEqual(Object.keys(r).sort(), ['chapterId', 'score', 'section', 'snippet']);
   }
   assert.equal(composed.grounding.problem_type_source, 'heuristic');
-  assert.equal(composed.grounding.confidence_source, 'theo_degree_normalized');
+  // 392-10 RE-PIN: 'theo_rank_blend'; was 'theo_degree_normalized'.
+  assert.equal(composed.grounding.confidence_source, 'theo_rank_blend');
   assert.equal(composed.grounding.chain_status, 'ok');
   assert.equal('query_terms' in composed, false);
 
@@ -220,10 +221,14 @@ test('Arm 1: Theo rows + stubbed recommendChain/query compose a full envelope, o
 });
 
 // ---------------------------------------------------------------------------
-// Quick 260911-ddd (DDD-01) arms: command-bearing-first partition, theo_rank,
-// grounding.option_order.
+// Quick 260911-ddd (DDD-01) arms: theo_rank and grounding.option_order.
+// Phase 392-10 (D-05, 2026-11-08) RE-PIN: the command-bearing-first partition
+// these arms pinned is removed; Theo's pedagogical rank is authoritative and
+// the information the partition encoded is kept as `has_command` on each
+// option. The arms below keep their purpose (rank survives, catch path
+// carries option_order) with the new rule.
 // ---------------------------------------------------------------------------
-test('Arm DDD-1 (260911-ddd): mixed chain, top step has NO command -- a command-bearing framework surfaces at options[0] (live IllDefined shape)', async () => {
+test('Arm DDD-1 (260911-ddd, re-pinned 392-10): mixed chain, top step has NO command -- the rank-1 framework stays at options[0]; has_command marks the command-bearing one (live IllDefined shape)', async () => {
   const brainClient = freshBrainClient('test-key-260911-ddd-arm1');
   const payload = {
     answer_mode: 'structured_rows',
@@ -252,25 +257,34 @@ test('Arm DDD-1 (260911-ddd): mixed chain, top step has NO command -- a command-
     { recommendChain: async () => chainStub, query: queryStub }
   );
 
+  // 392-10 RE-PIN: Theo's order, rank-1 Design Thinking at options[0] even
+  // without a command. Was: Red Teaming (the only command-bearing option)
+  // surfaced first with theo_rank 3 at options[0].
   assert.deepEqual(composed.next_gate.options.map((o) => o.framework), [
-    'Red Teaming', 'Design Thinking', 'Disruptive Innovation', 'Creative Destruction',
+    'Design Thinking', 'Disruptive Innovation', 'Red Teaming', 'Creative Destruction',
   ]);
-  assert.equal(composed.directive.guided.framework, 'Red Teaming');
-  assert.equal(composed.next_gate.options[0].theo_rank, 3);
+  assert.equal(composed.directive.guided.framework, 'Design Thinking');
+  assert.equal(composed.next_gate.options[0].theo_rank, 1);
+  assert.equal(composed.next_gate.options[0].has_command, false);
 
+  // The command information is not lost: has_command on every option.
+  assert.deepEqual(composed.next_gate.options.map((o) => o.has_command), [false, false, true, false]);
   const commandLessFrameworks = composed.next_gate.options
-    .filter((o) => !Array.isArray(o.commands) || o.commands.length === 0)
+    .filter((o) => !o.has_command)
     .map((o) => o.framework);
   assert.deepEqual(commandLessFrameworks, ['Design Thinking', 'Disruptive Innovation', 'Creative Destruction']);
   assert.equal(commandLessFrameworks.length, 3);
+  assert.deepEqual(composed.next_gate.options[2].commands, ['challenge-assumptions']);
 
   const theoRankByFramework = {};
   for (const o of composed.next_gate.options) theoRankByFramework[o.framework] = o.theo_rank;
   assert.equal(theoRankByFramework['Design Thinking'], 1);
   assert.equal(theoRankByFramework['Disruptive Innovation'], 2);
+  assert.equal(theoRankByFramework['Red Teaming'], 3);
   assert.equal(theoRankByFramework['Creative Destruction'], 4);
 
-  assert.equal(composed.grounding.option_order, 'command_bearing_first');
+  // 392-10 RE-PIN: 'theo_rank'; was 'command_bearing_first'.
+  assert.equal(composed.grounding.option_order, 'theo_rank');
 });
 
 test('Arm DDD-2 (260911-ddd): an all-command chain and a no-command chain both come back in Theo order, theo_rank strictly ascending', async () => {
@@ -327,19 +341,24 @@ test('Arm DDD-2 (260911-ddd): an all-command chain and a no-command chain both c
   for (let i = 1; i < noRanks.length; i++) assert.ok(noRanks[i] > noRanks[i - 1], 'theo_rank must be strictly ascending');
 });
 
-test('Arm DDD-3 (260911-ddd): theo_rank falls back to the 1-based Theo-chain index when step is absent, never to the post-sort index', async () => {
+test('Arm DDD-3 (260911-ddd, re-pinned 392-10): theo_rank falls back to the 1-based Theo-chain index when rank and step are absent, never to the post-sort index', async () => {
   const brainClient = freshBrainClient('test-key-260911-ddd-arm3');
   const payload = {
     answer_mode: 'structured_rows',
     rows: [{ chapterId: 'c1', section: 's', score: 1, snippet: 'x' }],
     query_terms: ['x'],
   };
-  // Neither step carries a `step` field -- theo_rank must fall back to the
-  // 1-based index WITHIN Theo's own chain array, computed BEFORE the sort.
+  // Neither step carries a `rank` or a `step` field -- theo_rank must fall
+  // back to the 1-based index WITHIN Theo's own chain array, computed
+  // BEFORE the sort. 392-10 RE-PIN: unranked steps sort by degree
+  // descending (the partition that put command-bearing Beta first is
+  // gone), so the chain is written with the lower-degree step FIRST to keep
+  // the arm's purpose: the sort moves Beta ahead, theo_rank must still read
+  // the ORIGINAL index (2 then 1), never the post-sort position.
   const chainStub = {
     chain: [
-      { framework: 'Alpha', degree: 300 }, // index 0 -> fallback rank 1, no command
-      { framework: 'Beta', degree: 200 },  // index 1 -> fallback rank 2, has a command
+      { framework: 'Alpha', degree: 200 }, // index 0 -> fallback rank 1, no command
+      { framework: 'Beta', degree: 300 },  // index 1 -> fallback rank 2, has a command
     ],
   };
   const queryStub = async () => ({ records: [{ framework: 'Beta', commands: ['/mos:cmd-beta'] }] });
@@ -349,11 +368,13 @@ test('Arm DDD-3 (260911-ddd): theo_rank falls back to the 1-based Theo-chain ind
     query: queryStub,
   });
 
-  // Beta (command-bearing) sorts first, Alpha second -- but theo_rank must
+  // Beta (higher degree) sorts first, Alpha second -- but theo_rank must
   // reflect the ORIGINAL Theo index (2 then 1), never the post-sort
-  // position (which would read 1 then 2).
+  // position (which would read 1 then 2). Both read the floor confidence.
   assert.deepEqual(composed.next_gate.options.map((o) => o.framework), ['Beta', 'Alpha']);
   assert.deepEqual(composed.next_gate.options.map((o) => o.theo_rank), [2, 1]);
+  assert.deepEqual(composed.next_gate.options.map((o) => o.confidence), [0.5, 0.5]);
+  assert.deepEqual(composed.next_gate.options.map((o) => o.has_command), [true, false]);
 });
 
 test('Arm DDD-4 (260911-ddd): grounding.option_order is present on the degraded catch path too (chain unreachable, options [])', async () => {
@@ -385,7 +406,9 @@ test('Arm DDD-4 (260911-ddd): grounding.option_order is present on the degraded 
   assert.deepEqual(composed.next_gate.options, []);
   assert.equal(composed.directive.guided.framework, null);
   assert.equal(composed.grounding.chain_status, 'unreachable');
-  assert.equal(composed.grounding.option_order, 'command_bearing_first');
+  // 392-10 RE-PIN: 'theo_rank'; was 'command_bearing_first'.
+  assert.equal(composed.grounding.option_order, 'theo_rank');
+  assert.equal(composed.grounding.confidence_source, 'theo_rank_blend');
 });
 
 // ---------------------------------------------------------------------------
