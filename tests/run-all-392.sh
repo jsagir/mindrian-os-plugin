@@ -12,7 +12,10 @@
 # discovers nothing must FAIL, not print green.
 #
 # run_may_skip: an environment self-skip (exit 0 plus a line that starts with
-# SKIP) is tallied as SKIP, never as a pass it did not earn.
+# SKIP) is tallied as SKIP, never as a pass it did not earn. Plan 392-13: the
+# .cjs loop runs through run_may_skip too (the acceptance Jev leg
+# tests/test-392-acceptance-jev.cjs self-skips its live arm with a SKIP line;
+# test-392-vocabulary-drift prints one when the Theo tree is unreadable).
 #
 # bash only. No em-dashes.
 
@@ -55,7 +58,7 @@ shopt -s nullglob
 found=0
 for t in "$PREFIX"*.cjs; do
   found=$((found+1))
-  run "$(basename "$t")" node "$t"
+  run_may_skip "$(basename "$t")" node "$t"
 done
 for t in "$PREFIX"*.sh; do
   found=$((found+1))

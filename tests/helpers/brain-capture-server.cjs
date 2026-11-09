@@ -149,10 +149,22 @@ function startCaptureServer() {
         // `initialize` above never increments it (only the first call in a
         // suite handshakes, since the session is cached).
         toolScriptState.toolCallCount += 1;
-        const byName = toolReplyState.replies
+        let byName = toolReplyState.replies
           && Object.prototype.hasOwnProperty.call(toolReplyState.replies, parsed.params && parsed.params.name)
           ? toolReplyState.replies[parsed.params.name]
           : null;
+        // Plan 392-13: a reply keyed by name may be a FUNCTION of the call's
+        // arguments, (args, parsed) -> descriptor, so one scripted Theo can
+        // answer a bare {question} and a shaped {question, shape} call
+        // differently inside one process (the acceptance script runs both).
+        // A descriptor object behaves exactly as before.
+        if (typeof byName === 'function') {
+          try {
+            byName = byName((parsed.params && parsed.params.arguments) || {}, parsed);
+          } catch (_e) {
+            byName = null;
+          }
+        }
         if (byName && typeof byName === 'object') {
           res.writeHead(byName.status || 200, Object.assign({ 'Content-Type': 'text/event-stream' }, byName.headers || {}));
           res.end(
