@@ -146,6 +146,12 @@ arm('E3', function () {
     upper_words: (LOCAL2 + ' at fake dot ' + TLD).toUpperCase(),
     two_labels: LOCAL2 + ' at fake dot example dot ' + TLD,
     in_sentence: 'please write to ' + LOCAL2 + ' at fake dot ' + TLD + ' about the pilot',
+    // Plan 392-09 (carried from 392-04 and 392-05): a gap of 4 to 8 ordinary
+    // whitespace characters between the tokens. The normaliser strips format
+    // characters but never collapses spaces, so the bound itself must reach.
+    wide_gap_words: LOCAL2 + '      at      fake      dot      ' + TLD,
+    wide_gap_marker: LOCAL + '     [at]     ' + DOM + '     [dot]     ' + TLD,
+    tab_gap_words: LOCAL2 + ' \t\t at \t\t fake \t\t dot \t\t ' + TLD,
   };
   const negatives = [
     'look at the dot com bubble as a teaching case',
