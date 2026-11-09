@@ -468,8 +468,10 @@ arm('PG33U', async function () {
       const sh = shapeOf(c.q);
       const v = guard.classify({ question: c.q }, { toolName: 'brain_ask', roomDir: dir });
       if (sh.kind === 'sprout') {
-        if (v.verdict === 'allow' && v.class === 'room_check_skipped') skipped += 1;
-        else fails.push(c.key + ' sprout is ' + tag(v) + ', expected allow room_check_skipped');
+        // Plan 392-11 (P5): the 386-33 acknowledgement (sprouts proceed as
+        // room_check_skipped) is superseded; an unreadable room blocks every kind.
+        if (v.verdict === 'block' && v.class === 'room_check_unavailable') skipped += 1;
+        else fails.push(c.key + ' sprout is ' + tag(v) + ', expected block room_check_unavailable (plan 392-11)');
       } else if (v.verdict === 'block' && v.class === 'sprouts_required' && v.token_class === 'room_check_unavailable') {
         unavailable += 1;
       } else {
@@ -483,13 +485,13 @@ arm('PG33U', async function () {
     credBlocked = cv.verdict === 'block';
     if (!credBlocked) fails.push('5 sprouts joined with a fake credential are ' + tag(cv) + ', expected block');
     lexProbe = guard.classify({ question: EXP.unreadable_db_lexicon_probe }, { toolName: 'brain_ask', roomDir: dir });
-    if (lexProbe.verdict !== 'allow' || lexProbe.class !== 'room_check_skipped') fails.push('the sprout with a fixture lexicon word is ' + tag(lexProbe) + ', expected allow room_check_skipped (the acknowledged exposure)');
+    if (lexProbe.verdict !== 'block' || lexProbe.class !== 'room_check_unavailable') fails.push('the sprout with a fixture lexicon word is ' + tag(lexProbe) + ', expected block room_check_unavailable (plan 392-11 closed the acknowledged exposure)');
   } finally {
     try { fs.chmodSync(dbFile, mode); } catch (_e) { /* best effort */ }
     lexMod._resetLexiconCache();
   }
-  emit('  PG33U counts - sprouts allow room_check_skipped ' + skipped + ', edges and bodies sprouts_required/room_check_unavailable ' + unavailable +
-    ', credential joined ' + (credBlocked ? 'block' : 'NOT blocked') + ', lexicon sprout ' + (lexProbe ? tag(lexProbe) : 'n/a') + ' (acknowledged exposure)');
+  emit('  PG33U counts - sprouts block room_check_unavailable ' + skipped + ', edges and bodies sprouts_required/room_check_unavailable ' + unavailable +
+    ', credential joined ' + (credBlocked ? 'block' : 'NOT blocked') + ', lexicon sprout ' + (lexProbe ? tag(lexProbe) : 'n/a') + ' (exposure closed by plan 392-11)');
   return fails.length ? { fails: fails } : undefined;
 });
 

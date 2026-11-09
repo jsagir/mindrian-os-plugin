@@ -334,14 +334,15 @@ async function main() {
     ok(open.verdict === 'allow', 'unbound: ' + JSON.stringify(open));
   });
 
-  await leg('V1g: a bound room with a corrupt room.db: a clear sprout is allowed (room_check_skipped), an edge or a body is sprouts_required/room_check_unavailable', async function () {
-    // Plan 386-33 (owner acknowledgement 2026-11-06, owner_ack_unreadable_db_lexicon):
-    // "Short sprouts go, credentials still block". The lexicon cannot be read, so a
-    // clear sprout with no other hit proceeds; a plain edge or body cannot be proven
-    // without the lexicon and is answered with the split outcome.
+  await leg('V1g: a bound room with a corrupt room.db: a clear sprout blocks room_check_unavailable (plan 392-11), an edge or a body is sprouts_required/room_check_unavailable', async function () {
+    // Plan 386-33 (owner acknowledgement 2026-11-06, owner_ack_unreadable_db_lexicon)
+    // let a clear sprout proceed as room_check_skipped. Plan 392-11 (P5, the owner
+    // rule of 392-CONTEXT wave 3: "bound but unreadable or resolver failure = block
+    // room_check_unavailable") supersedes it: cannot check means block, for every
+    // kind. A plain edge or body keeps the split outcome.
     bind(corruptRoom);
     const v = tv('How do I decide which customer segment to pursue first?', 'question', 'brain_ask', corruptRoom);
-    ok(v.verdict === 'allow' && v.class === 'room_check_skipped', JSON.stringify(v));
+    ok(v.verdict === 'block' && v.class === 'room_check_unavailable', JSON.stringify(v));
     const edge = tv('How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?', 'question', 'brain_ask', corruptRoom);
     ok(edge.verdict === 'block' && edge.class === 'sprouts_required' && edge.token_class === 'room_check_unavailable', JSON.stringify(edge));
   });
@@ -458,7 +459,7 @@ async function main() {
     }
   });
 
-  await leg('V2e: a bound room with a corrupt room.db blocks an edge on every verb and the hook (sprouts_required/room_check_unavailable); a clear sprout proceeds (plan 386-33)', async function () {
+  await leg('V2e: a bound room with a corrupt room.db blocks an edge on every verb and the hook (sprouts_required/room_check_unavailable); a clear sprout blocks room_check_unavailable too (plan 392-11)', async function () {
     bind(corruptRoom);
     const edgeText = 'How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?';
     const row = await driveRow(edgeText, corruptRoom);
@@ -473,10 +474,16 @@ async function main() {
       if (verb !== 'query') ok(r.token_class === 'room_check_unavailable', verb + ' token_class: ' + JSON.stringify(r));
     });
     const sprout = await driveRow('How do I decide which customer segment to pursue first?', corruptRoom);
-    // ask, search and their hooks proceed (clear sprout, owner-acknowledged); the query
-    // verb carries the string as cypher and keeps the legacy block.
-    ok(sprout.perVerb.ask.disposition === 'proceed' && sprout.perVerb.search.disposition === 'proceed', 'sprout ask/search: ' + JSON.stringify(dispositions(sprout)));
-    ok(sprout.hook[0] === 'proceed' && sprout.hook[1] === 'proceed', 'sprout hook ask/search: ' + JSON.stringify(sprout.hook));
+    // Plan 392-11 (P5): a room that cannot be checked blocks every kind. ask and
+    // search refuse with the class room_check_unavailable, zero bytes on the wire;
+    // their hooks exit 2; the query verb keeps its legacy block. One disposition.
+    ok(!disagrees(sprout) && dispositions(sprout)[0] === 'blocked', 'sprout dispositions: ' + JSON.stringify(dispositions(sprout)));
+    ['ask', 'search'].forEach(function (verb) {
+      const r = sprout.perVerb[verb].result;
+      refusals.push(JSON.stringify(r));
+      ok(r && r.error === 'egress_blocked' && r.egress_class === 'room_check_unavailable', 'sprout ' + verb + ': ' + JSON.stringify(r));
+    });
+    ok(sprout.hook[0] === 'blocked' && sprout.hook[1] === 'blocked', 'sprout hook ask/search: ' + JSON.stringify(sprout.hook));
     bind(null);
   });
 

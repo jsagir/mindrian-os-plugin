@@ -353,7 +353,7 @@ function main() {
     // resolver miss is "no room bound" (null), never a throw.
     let roomDir = null;
     try {
-      roomDir = require(LEXICON_PATH).resolveLexiconRoom({});
+      roomDir = require(LEXICON_PATH).resolveLexiconRoomDir({});
     } catch (_) {
       roomDir = null;
     }
