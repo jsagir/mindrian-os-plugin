@@ -478,7 +478,9 @@ test('Arm 3a: an egress_blocked sentinel passes through ask() unchanged, zero ne
     assert.equal(typeof result.reason, 'string');
     assert.ok(result.reason.length > 0, 'the sentinel must carry a plain-language reason');
     assert.ok(result.reason.indexOf('jane@startup.com') === -1 && result.reason.indexOf('startup') === -1, 'the reason must never echo the blocked content');
-    assert.deepEqual(Object.keys(result).sort(), ['egress_class', 'error', 'reason', 'token_class', 'tool']);
+    // 2026-11-10 (plan 392-13 re-pin): plan 392-11 added lexicon_scope (session | machine_global) to every sentinel.
+    assert.deepEqual(Object.keys(result).sort(), ['egress_class', 'error', 'lexicon_scope', 'reason', 'token_class', 'tool']);
+    assert.ok(['session', 'machine_global'].includes(result.lexicon_scope), 'lexicon_scope is a closed value');
     assert.equal(fetchCalls, 0);
   } finally {
     global.fetch = origFetch;
