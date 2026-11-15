@@ -4199,3 +4199,14 @@ Plans:
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 394 to break down)
+
+### Phase 395: Selection by job: the user's confirmed job is the first key of what runs next
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 394
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 395 to break down)
