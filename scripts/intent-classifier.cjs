@@ -1071,6 +1071,18 @@ function resolveActiveSectionPathForRoom(roomDir) {
   }
 }
 
+// Phase 395-03: the section slug that decide() needs to reach the selector
+// (lib/core/navigation-engine.cjs reads ctx.section and joins it to ctx.roomDir).
+// Returns the folder name only when the active section is a direct child of the
+// room and its name is a slug; else undefined, and decide() runs as before.
+function sectionSlugForEngine(roomDir, sectionPath) {
+  if (typeof roomDir !== 'string' || !roomDir) return undefined;
+  if (typeof sectionPath !== 'string' || !sectionPath) return undefined;
+  let rel;
+  try { rel = path.relative(roomDir, sectionPath); } catch (_e) { return undefined; }
+  return /^[a-z0-9-]+$/.test(rel) ? rel : undefined;
+}
+
 function resolveRoomsRootForNav() {
   // Wider env-var acceptance than Phase 83 resolveMindrianRoomsRoot. The Phase
   // 91 hot path accepts either MINDRIAN_ROOMS_HOME or MINDRIAN_ROOMS_ROOT so
@@ -2404,6 +2416,9 @@ function runNavigationEngine(roomDir, sessionId) {
         // Phase 135-01 resolver production inputs:
         operator: operatorState,
         sectionPath: sectionPath, // scope + the [[wikilink]] target the grounded reason needs
+        // Phase 395-03: the selector inputs. section is the slug decide() joins to roomDir; the hook runs in Claude Code only.
+        section: sectionSlugForEngine(roomDir, sectionPath),
+        surface: 'cli',
         problemType: userPersona && userPersona.problem_type, // rankForSelector input (null when unknown)
         jtbd: jtbd,
         // Phase 150-04 (MEM-07 link L3): thread the STARVED decide() sensor inputs
