@@ -1,0 +1,982 @@
+{
+  "schema": "mos.selection-cases/1",
+  "label_origin": "model",
+  "owner_reviewed": false,
+  "synthetic": true,
+  "written_at": "2026-11-16",
+  "note": "Every case and every label in this file was written by a model (Fable 5.2) in plan 395-09. The owner did not review them. Every room state is synthetic: no real room, no real person, no real venture. A label is an opinion that rests on three repository sources: the serves_jtbd tag of a command (data/command-registry.json), the header of the command (description and teaching), and the routing table in references/methodology/problem-types.md. The label author saw the selector output for the 11 core sections with no goal before the labels were written; one label was changed after the first scorer run, in favour of the selector (sel-35: map-unknowns moved from wrong to acceptable, because the first label was stricter than the label rule).",
+  "label_rule": "right = a command that runs on the case surface and that is a correct FIRST move for the job in this state: it serves the job (or, where no command lists the job, the section contract names it), and its own header fits what the section holds. acceptable = a defensible move that is not the best first move. wrong = a plausible mistake, named with its reason. A command in none of the three lists is not right; the scorer counts it as other. none_of_these = no shipped command that runs on the surface is a right first move.",
+  "cases": [
+    {
+      "id": "sel-01", "job_id": "find-problem", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "problem-definition", "section_kind": "core", "section_job": "find-problem", "goal_job": null,
+        "definition": "undefined", "complexity": "complex",
+        "holds": {"summary":"Nothing is recorded. The person names a field of interest and no problem.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"beautiful-question","reason":"Serves find-problem. Its reference says it is best for undefined problems where the question itself needs work; routing table row Undefined."},
+          {"command":"explore-domains","reason":"Serves find-problem. Header: use when the problem could live in any of several domains; routing table row Undefined."}
+        ],
+        "acceptable": [
+          {"command":"user-needs","reason":"Serves find-problem, but it maps the needs of a user and no user is recorded."},
+          {"command":"build-knowledge","reason":"Routing table row Undefined; it does not list find-problem."},
+          {"command":"diagnose","reason":"Classifies the problem type; the type is already known in this case."}
+        ],
+        "wrong": [
+          {"command":"root-cause","reason":"Header: use when the symptom keeps coming back. An undefined problem with an empty section has no symptom to trace."},
+          {"command":"validate","reason":"Header: an idea needs a real test. No idea is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-02", "job_id": "find-problem", "surface": "cli", "label_confidence": "high",
+      "state": {
+        "section": "problem-definition", "section_kind": "core", "section_job": "find-problem", "goal_job": null,
+        "definition": "ill-defined", "complexity": "complicated",
+        "holds": {"summary":"One symptom is recorded: a result that keeps coming back. No cause is named.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"root-cause","reason":"Serves find-problem. Header: use when the symptom keeps coming back; routing table cell Ill-defined and Complicated."}
+        ],
+        "acceptable": [
+          {"command":"causal","reason":"Serves find-problem; it traces causal edges in the room graph and the graph holds one symptom only."},
+          {"command":"find-bottlenecks","reason":"Routing table cell Ill-defined and Complicated; it serves find-bottleneck, not find-problem."},
+          {"command":"user-needs","reason":"Serves find-problem; a second step after the cause is named."},
+          {"command":"beautiful-question","reason":"Serves find-problem; reframing is possible but the symptom is already named."}
+        ],
+        "wrong": [
+          {"command":"trending-to-absurd","reason":"Header: push trends to an extreme to surface opportunities. It does not trace a recorded symptom."},
+          {"command":"lean-canvas","reason":"Header: the business model on one page. No problem is named yet."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-03", "job_id": "find-problem", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "market-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": "find-problem",
+        "definition": "ill-defined", "complexity": "simple",
+        "holds": {"summary":"One customer segment is recorded. Its needs are not scored.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"analyze-needs","reason":"Serves find-problem. Header: best after a customer segment is defined; routing table cell Ill-defined and Simple."},
+          {"command":"user-needs","reason":"Serves find-problem. Header: plots importance against satisfaction; the gap is where the opportunity is."}
+        ],
+        "acceptable": [
+          {"command":"beautiful-question","reason":"Serves find-problem; a reframing step, less direct than scoring the recorded segment."},
+          {"command":"root-cause","reason":"Serves find-problem; no symptom is recorded, only a segment."}
+        ],
+        "wrong": [
+          {"command":"macro-trends","reason":"Serves the section job understand-market, not the goal job. The job is the first key."},
+          {"command":"analyze-timing","reason":"Serves understand-market; header: places a technology on the S-Curve. It finds no problem."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-04", "job_id": "understand-market", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "market-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": null,
+        "definition": "undefined", "complexity": "complex",
+        "holds": {"summary":"Nothing is recorded. The market is named only as a broad field.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"macro-trends","reason":"Serves understand-market. Header: the wide-angle lens before you zoom in."},
+          {"command":"explore-trends","reason":"Serves understand-market; routing table cell Undefined and Complex."}
+        ],
+        "acceptable": [
+          {"command":"explore-domains","reason":"Serves understand-market; maps where to look before a commitment."},
+          {"command":"research","reason":"Serves understand-market; gathers evidence, with no frame yet."},
+          {"command":"scenario-plan","reason":"Routing table cell Undefined and Complex; it does not list understand-market."}
+        ],
+        "wrong": [
+          {"command":"analyze-needs","reason":"Header: best after a customer segment is defined. No segment is recorded."},
+          {"command":"validate","reason":"Header: an idea needs a real test. No idea is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-05", "job_id": "understand-market", "surface": "cli", "label_confidence": "high",
+      "state": {
+        "section": "market-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": null,
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"One named technology and a launch decision that is not yet made.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"analyze-timing","reason":"Serves understand-market. Header: best before you commit to a launch window; routing table cell Well-defined and Complicated."}
+        ],
+        "acceptable": [
+          {"command":"dominant-designs","reason":"Serves understand-market; asks if the market settled on a design."},
+          {"command":"diffusion","reason":"Serves understand-market; its header limits it to dual-use and deep-tech innovation."},
+          {"command":"macro-trends","reason":"Serves understand-market; a wider lens than the recorded decision needs."},
+          {"command":"mullins","reason":"Serves understand-market; a full opportunity screen, wider than the timing question."}
+        ],
+        "wrong": [
+          {"command":"trending-to-absurd","reason":"Header: surfaces disruptive opportunities. The case is a well-defined timing decision."},
+          {"command":"user-needs","reason":"Maps user needs; the recorded question is the timing of a technology."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-06", "job_id": "understand-market", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "competitive-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": null,
+        "definition": "well-defined", "complexity": "complex",
+        "holds": {"summary":"Three competing products are recorded. No reading of the market structure.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"dominant-designs","reason":"Serves understand-market. Header: use when you wonder if the market settled on a winning design; routing table cell Well-defined and Complex."}
+        ],
+        "acceptable": [
+          {"command":"compare-ventures","reason":"Header: line up ventures that tried this before; it serves compare-options and writes to this section."},
+          {"command":"research","reason":"Serves understand-market; gathers evidence on the recorded products."},
+          {"command":"challenge-assumptions","reason":"Routing table cell Well-defined and Complex; it does not list understand-market."},
+          {"command":"analyze-timing","reason":"Serves understand-market; a timing reading, not a structure reading."}
+        ],
+        "wrong": [
+          {"command":"user-needs","reason":"Maps user needs; the recorded material is competitors."},
+          {"command":"explore-domains","reason":"Header: use when the problem could live in several domains. The market and the competitors are already named."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-07", "job_id": "validate-idea", "surface": "cli", "label_confidence": "high",
+      "state": {
+        "section": "business-model", "section_kind": "core", "section_job": "model-business", "goal_job": "validate-idea",
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"One value proposition is recorded with three open assumptions.","open_counterevidence":0,"open_assumptions":3}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"validate-proposition","reason":"Serves validate-idea. Header: a value proposition with no proof that it holds."},
+          {"command":"validate","reason":"Serves validate-idea; routing table cell Well-defined and Complicated."},
+          {"command":"challenge-assumptions","reason":"Serves validate-idea. Header: Devil's Advocate against the load-bearing claims; three assumptions are open."}
+        ],
+        "acceptable": [
+          {"command":"map-unknowns","reason":"Serves validate-idea; maps what is not known before a test."},
+          {"command":"lean-canvas","reason":"Serves validate-idea by its tag; it fills a canvas and tests nothing."}
+        ],
+        "wrong": [
+          {"command":"mullins","reason":"An opportunity screen that serves understand-market, not the goal job."},
+          {"command":"explore-futures","reason":"Header: use when the path branches into several futures. It tests no claim."},
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. No candidates are recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-08", "job_id": "validate-idea", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "solution-design", "section_kind": "core", "section_job": "design-solution", "goal_job": "validate-idea",
+        "definition": "well-defined", "complexity": "complex",
+        "holds": {"summary":"One design is recorded with two open assumptions and one open counterevidence line.","open_counterevidence":1,"open_assumptions":2}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"challenge-assumptions","reason":"Serves validate-idea; routing table cell Well-defined and Complex; open assumptions and counterevidence are recorded."}
+        ],
+        "acceptable": [
+          {"command":"validate","reason":"Serves validate-idea; importance and satisfaction scoring of the idea."},
+          {"command":"map-unknowns","reason":"Serves validate-idea; maps what is not known."},
+          {"command":"think-hats","reason":"Named as a validate-idea hook in the job taxonomy; it does not list validate-idea in the registry."}
+        ],
+        "wrong": [
+          {"command":"find-analogies","reason":"Serves connect-domains and the section; it tests no claim. The job is the first key."},
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. One design is recorded, not candidates."},
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-09", "job_id": "validate-idea", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "problem-definition", "section_kind": "core", "section_job": "find-problem", "goal_job": "validate-idea",
+        "definition": "ill-defined", "complexity": "complex",
+        "holds": {"summary":"One problem statement is recorded. Nothing about it is tested.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"map-unknowns","reason":"Serves validate-idea; routing table cell Ill-defined and Complex. Header: use when you cannot tell what you do not know."}
+        ],
+        "acceptable": [
+          {"command":"challenge-assumptions","reason":"Serves validate-idea; stress test of the statement."},
+          {"command":"validate","reason":"Serves validate-idea; needs a customer segment that is not recorded."},
+          {"command":"structure-argument","reason":"Serves validate-idea; the right structure surfaces the missing premise."}
+        ],
+        "wrong": [
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. No candidates are recorded."},
+          {"command":"scientific-roadmap","reason":"Its home is a Well-defined problem where the WHAT is known. This problem is ill-defined."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-10", "job_id": "find-bottleneck", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "strategy", "section_kind": "core", "section_job": "find-bottleneck", "goal_job": null,
+        "definition": "ill-defined", "complexity": "complicated",
+        "holds": {"summary":"One line is recorded: progress has stopped. No system map.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"find-bottlenecks","reason":"Serves find-bottleneck. Header: progress feels stuck and you cannot say where; routing table cell Ill-defined and Complicated."}
+        ],
+        "acceptable": [
+          {"command":"systems-thinking","reason":"Serves find-bottleneck; maps loops before the lagging part is named."},
+          {"command":"analyze-systems","reason":"Serves find-bottleneck; decomposes the system into layers."},
+          {"command":"causal","reason":"Serves find-bottleneck; needs causal edges in the room graph."},
+          {"command":"root-cause","reason":"Routing table cell Ill-defined and Complicated; it does not list find-bottleneck."}
+        ],
+        "wrong": [
+          {"command":"scenario-plan","reason":"Header: a 2x2 matrix of futures. It names no lagging component."},
+          {"command":"scientific-roadmap","reason":"Its home is a Well-defined problem where the WHAT is known. Here the problem is ill-defined."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-11", "job_id": "find-bottleneck", "surface": "cli", "label_confidence": "high",
+      "state": {
+        "section": "strategy", "section_kind": "core", "section_job": "find-bottleneck", "goal_job": null,
+        "definition": "well-defined", "complexity": "complex",
+        "holds": {"summary":"The deliverable is recorded and clear. The way to reach it is not known.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"scientific-roadmap","reason":"Serves find-bottleneck. Header: you know what must be delivered but not how."}
+        ],
+        "acceptable": [
+          {"command":"find-bottlenecks","reason":"Serves find-bottleneck; names the lagging component."},
+          {"command":"rs-fetch","reason":"Serves find-bottleneck; the full Reverse Salient pipeline for a topic."},
+          {"command":"analyze-systems","reason":"Serves find-bottleneck; decomposes the system into layers."}
+        ],
+        "wrong": [
+          {"command":"rs-thesis","reason":"Header: read the thesis of a prior Reverse Salient discovery. No discovery is recorded."},
+          {"command":"rs-explain","reason":"Header: a question about a Reverse Salient discovery. No discovery is recorded."},
+          {"command":"scenario-plan","reason":"Header: a 2x2 matrix of futures. It names no limit on the path."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-12", "job_id": "find-bottleneck", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "team-execution", "section_kind": "core", "section_job": "plan-execution", "goal_job": "find-bottleneck",
+        "definition": "ill-defined", "complexity": "complex",
+        "holds": {"summary":"Three symptoms are recorded and each one came back after a fix.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"analyze-systems","reason":"Serves find-bottleneck. Header: best when symptoms keep recurring; routing table cell Ill-defined and Complex."},
+          {"command":"systems-thinking","reason":"Serves find-bottleneck. Header: use when the dynamics matter more than the parts."}
+        ],
+        "acceptable": [
+          {"command":"find-bottlenecks","reason":"Serves find-bottleneck; names the lagging component."},
+          {"command":"causal","reason":"Serves find-bottleneck; traces upstream causes."},
+          {"command":"root-cause","reason":"Header: the symptom keeps coming back; it does not list find-bottleneck."}
+        ],
+        "wrong": [
+          {"command":"persona","reason":"Generates Six Hats lenses; it serves prepare-pitch, not the goal job."},
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-13", "job_id": "decide-pursue", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "opportunity-bank", "section_kind": "core", "section_job": "explore", "goal_job": "decide-pursue",
+        "definition": "ill-defined", "complexity": "complicated",
+        "holds": {"summary":"One opportunity is recorded with evidence in three sections. No decision.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"build-thesis","reason":"Serves decide-pursue. Header: use when you need to know if this venture is worth pursuing; the output is a go or no-go with reasons."}
+        ],
+        "acceptable": [
+          {"command":"diagnose","reason":"Serves decide-pursue; it classifies the problem type and gives no go or no-go."},
+          {"command":"deep-grade","reason":"A calibrated grade of the room, best after three sections are populated; it does not list decide-pursue."},
+          {"command":"grade","reason":"A fast grade of problem-discovery quality; it does not list decide-pursue."}
+        ],
+        "wrong": [
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. One opportunity is recorded."},
+          {"command":"opportunities","reason":"Header: manage grants in the Opportunity Bank. It gives no go or no-go."},
+          {"command":"whitespace","reason":"Header: best after the room has 20 or more entries; it finds gaps and decides nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-14", "job_id": "decide-pursue", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "funding", "section_kind": "core", "section_job": "plan-execution", "goal_job": "decide-pursue",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"One draft grant application is recorded. The decision to submit is open.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"grade-grant","reason":"Serves decide-pursue. Header: run the rubric on your draft before you submit."}
+        ],
+        "acceptable": [
+          {"command":"funding","reason":"Serves decide-pursue; tracks the grant lifecycle and grades nothing."},
+          {"command":"build-thesis","reason":"Serves decide-pursue; a venture gate, wider than one application."}
+        ],
+        "wrong": [
+          {"command":"mullins","reason":"An opportunity screen that serves understand-market; it does not grade an application."},
+          {"command":"think-hats","reason":"A perspective rotation; it does not list decide-pursue."},
+          {"command":"grade","reason":"Grades problem-discovery quality of the room, not a grant application."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-15", "job_id": "compare-options", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "strategy", "section_kind": "core", "section_job": "find-bottleneck", "goal_job": "compare-options",
+        "definition": "well-defined", "complexity": "wicked",
+        "holds": {"summary":"Two key uncertainties are recorded and two paths are named.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"scenario-plan","reason":"Serves compare-options. Header: the future could go two ways on two key uncertainties; routing table cell Well-defined and Wicked."}
+        ],
+        "acceptable": [
+          {"command":"explore-futures","reason":"Serves compare-options; helps to choose between plausible futures."},
+          {"command":"think-hats","reason":"Serves compare-options; a perspective rotation on the two paths."}
+        ],
+        "wrong": [
+          {"command":"models","reason":"Carries the tag compare-options, but its header is about model-routing profiles of the tool."},
+          {"command":"find-bottlenecks","reason":"Serves the section job, not the goal job. The job is the first key."},
+          {"command":"score-innovation","reason":"Header: rank cross-domain innovation candidates by semantic surprise. The options are two paths, not such candidates."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-16", "job_id": "compare-options", "surface": "cli", "label_confidence": "high",
+      "state": {
+        "section": "competitive-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": "compare-options",
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"Four earlier ventures that tried the same approach are recorded.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"compare-ventures","reason":"Serves compare-options. Header: weigh your approach against ventures that tried this before."}
+        ],
+        "acceptable": [
+          {"command":"deep-grade","reason":"Serves compare-options; grades against calibrated projects."},
+          {"command":"scenario-plan","reason":"Serves compare-options; no two uncertainties are recorded."},
+          {"command":"dominant-designs","reason":"Reads the market design; it does not list compare-options."}
+        ],
+        "wrong": [
+          {"command":"models","reason":"Carries the tag compare-options, but its header is about model-routing profiles of the tool."},
+          {"command":"trending-to-absurd","reason":"Surfaces opportunities; it compares nothing."},
+          {"command":"scout","reason":"Background sentinel scans; it compares nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-17", "job_id": "connect-domains", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "solution-design", "section_kind": "core", "section_job": "design-solution", "goal_job": "connect-domains",
+        "definition": "ill-defined", "complexity": "complex",
+        "holds": {"summary":"One problem is recorded. No solution path. The room has six entries.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"find-analogies","reason":"Serves connect-domains. Header: use when the answer might live in another field."},
+          {"command":"find-connections","reason":"Serves connect-domains. Header: use when your work touches a pattern in another field."}
+        ],
+        "acceptable": [
+          {"command":"explore-domains","reason":"Named as a connect-domains hook in the job taxonomy; it does not list connect-domains in the registry."},
+          {"command":"systems-thinking","reason":"Writes to this section; it does not list connect-domains."}
+        ],
+        "wrong": [
+          {"command":"whitespace","reason":"Carries the tag connect-domains, but its header says best after the room has 20 or more entries. The room has six."},
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-18", "job_id": "connect-domains", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "opportunity-bank", "section_kind": "core", "section_job": "explore", "goal_job": "connect-domains",
+        "definition": "undefined", "complexity": "complex",
+        "holds": {"summary":"The room has 25 entries in several domains. No link between them is recorded.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"eureka","reason":"Serves connect-domains. Header: recalls cross-domain pairs from the graph of the room."},
+          {"command":"find-connections","reason":"Serves connect-domains. Header: traces cross-domain links through the graph."}
+        ],
+        "acceptable": [
+          {"command":"whitespace","reason":"Serves connect-domains; the room has more than 20 entries, as its header asks."},
+          {"command":"find-analogies","reason":"Serves connect-domains; it needs one problem as a start and none is named."},
+          {"command":"futures","reason":"Serves connect-domains; needs a seed concept."},
+          {"command":"eureka-portfolio","reason":"Serves connect-domains; ranks linked pairs, and no pair is linked yet."}
+        ],
+        "wrong": [
+          {"command":"think-hats","reason":"A perspective rotation; it links no domains."},
+          {"command":"opportunities","reason":"Header: manage grants in the Opportunity Bank. It links no domains."},
+          {"command":"rs-thesis","reason":"Header: read the thesis of a prior Reverse Salient discovery. No discovery is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-19", "job_id": "plan-execution", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "team-execution", "section_kind": "core", "section_job": "plan-execution", "goal_job": null,
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"Four analyses are recorded in other sections. No next step is chosen.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"act","reason":"Serves plan-execution. Header: analyses are on the table and there is no clear next step."},
+          {"command":"pipeline","reason":"Serves plan-execution. Header: chain several methodologies in place of one-by-one runs."}
+        ],
+        "acceptable": [
+          {"command":"suggest-next","reason":"Serves plan-execution; it proposes moves and runs none."},
+          {"command":"scenario-plan","reason":"Serves plan-execution; no two uncertainties are recorded."}
+        ],
+        "wrong": [
+          {"command":"persona","reason":"Generates Six Hats lenses; it serves prepare-pitch and plans nothing."},
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."},
+          {"command":"rs-experts","reason":"Header: find authors in the paper corpus of the room. It plans nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-20", "job_id": "plan-execution", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "funding", "section_kind": "core", "section_job": "plan-execution", "goal_job": null,
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"Two grant opportunities are tracked. A recurring check of deadlines is wanted.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"funding","reason":"Header: track grants as a pipeline from spotted to applied to decided; it writes to this section. It does not list plan-execution."},
+          {"command":"scheduled-tasks","reason":"Serves plan-execution. Header: best for nightly grant sweeps."}
+        ],
+        "acceptable": [
+          {"command":"opportunities","reason":"Header: manage grants as a live pipeline."},
+          {"command":"act","reason":"Serves plan-execution; picks a methodology, where the need is a recurring task."},
+          {"command":"intel-pipeline","reason":"Serves plan-execution; a research pass, where the need is a recurring check."}
+        ],
+        "wrong": [
+          {"command":"mullins","reason":"An opportunity screen; it plans nothing and tracks no grant."},
+          {"command":"think-hats","reason":"A perspective rotation; it plans nothing."},
+          {"command":"grade","reason":"Grades problem-discovery quality; it plans nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-21", "job_id": "prepare-pitch", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "funding", "section_kind": "core", "section_job": "plan-execution", "goal_job": "prepare-pitch",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"An investor meeting is recorded. Six sections of the room hold material.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"build-thesis","reason":"Serves prepare-pitch; the first prepare-pitch hook in the job taxonomy; it gives a defensible thesis for an investor."},
+          {"command":"present","reason":"Serves prepare-pitch. Header: walk someone through the room visually."}
+        ],
+        "acceptable": [
+          {"command":"hat-briefing","reason":"Serves prepare-pitch; best right before a stakeholder review, if hat sessions exist."},
+          {"command":"export","reason":"Serves prepare-pitch; packages a view for a person outside the room."},
+          {"command":"dashboard","reason":"Serves prepare-pitch; reads room health before a meeting."},
+          {"command":"snapshot","reason":"Serves prepare-pitch; a frozen bundle to share."},
+          {"command":"persona","reason":"Serves prepare-pitch; fresh perspectives before the meeting."},
+          {"command":"lean-canvas","reason":"Serves prepare-pitch; a one-page model to show."}
+        ],
+        "wrong": [
+          {"command":"scenario-plan","reason":"Plans futures; it prepares no meeting."},
+          {"command":"publish","reason":"Deploys the presentation to a public address. A public deploy is not a first move for a private investor meeting."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-22", "job_id": "prepare-pitch", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "business-model", "section_kind": "core", "section_job": "model-business", "goal_job": "prepare-pitch",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"A partner meeting is recorded. The business model section is empty.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"lean-canvas","reason":"Serves prepare-pitch. Header: the fastest way to get a defensible canvas in front of someone; it writes to this section."}
+        ],
+        "acceptable": [
+          {"command":"validate-proposition","reason":"Serves prepare-pitch; needs a value proposition that is not recorded."},
+          {"command":"build-thesis","reason":"Serves prepare-pitch; a thesis needs a model that is not recorded yet."},
+          {"command":"deck","reason":"Serves prepare-pitch; its header says the room is full, and this section is empty."}
+        ],
+        "wrong": [
+          {"command":"mullins","reason":"An opportunity screen; it serves understand-market, not the goal job."},
+          {"command":"explore-futures","reason":"Synthesizes futures; it prepares no meeting."},
+          {"command":"analyze-systems","reason":"Decomposes a system; it prepares no meeting."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-23", "job_id": "surface-contradiction", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "problem-definition", "section_kind": "core", "section_job": "find-problem", "goal_job": "surface-contradiction",
+        "definition": "ill-defined", "complexity": "complicated",
+        "holds": {"summary":"One problem statement is recorded with two open counterevidence lines against it.","open_counterevidence":2,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"challenge-assumptions","reason":"The one command that serves surface-contradiction and runs on this surface; Devil's Advocate against the load-bearing claims."}
+        ],
+        "acceptable": [
+          {"command":"structure-argument","reason":"The right structure surfaces the missing premise; it does not list surface-contradiction."},
+          {"command":"map-unknowns","reason":"Maps what is not known; it does not list surface-contradiction."}
+        ],
+        "wrong": [
+          {"command":"beautiful-question","reason":"Reframes the challenge; it does not resolve the recorded counterevidence."},
+          {"command":"explore-domains","reason":"Maps domains; it does not resolve the recorded counterevidence."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-24", "job_id": "file-meeting", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "team-execution", "section_kind": "core", "section_job": "plan-execution", "goal_job": "file-meeting",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"One meeting took place. Its transcript is not filed.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"file-meeting","reason":"Serves file-meeting. Header: a meeting just happened; capture the transcript and route it."}
+        ],
+        "acceptable": [],
+        "wrong": [
+          {"command":"speakers","reason":"Header: shows who spoke in filed meetings. No meeting is filed."},
+          {"command":"reanalyze","reason":"Header: a meeting was filed earlier. No meeting is filed."},
+          {"command":"persona","reason":"Generates Six Hats lenses; it files nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-25", "job_id": "file-meeting", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "meetings", "section_kind": "custom", "section_job": "file-meeting", "goal_job": null,
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"Four meetings were filed some time ago. The room has grown since.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"reanalyze","reason":"Serves file-meeting. Header: a meeting was filed earlier and the room has since grown."}
+        ],
+        "acceptable": [
+          {"command":"speakers","reason":"Serves file-meeting; shows who spoke in the filed meetings."},
+          {"command":"file-meeting","reason":"Serves file-meeting; the meetings are already filed."}
+        ],
+        "wrong": [
+          {"command":"think-hats","reason":"A perspective rotation; it reads no meeting."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-26", "job_id": "audit-room", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "financial-model", "section_kind": "core", "section_job": "model-finances", "goal_job": "audit-room",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"Four sections of the room hold material. No health check was run.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"grade","reason":"Serves audit-room. Header: a fast read on problem-discovery quality."},
+          {"command":"deep-grade","reason":"Serves audit-room. Header: best after at least three sections are populated."},
+          {"command":"status","reason":"Serves audit-room. Header: governing thought per section plus health glyphs."}
+        ],
+        "acceptable": [
+          {"command":"dashboard","reason":"Serves audit-room; the whole room at a glance."},
+          {"command":"graph","reason":"Serves audit-room; questions to the knowledge graph."},
+          {"command":"room","reason":"Serves audit-room; opens the room view."}
+        ],
+        "wrong": [
+          {"command":"build-thesis","reason":"An investment gate; it audits no room health."},
+          {"command":"scenario-plan","reason":"Plans futures; it audits nothing."},
+          {"command":"rooms","reason":"Carries the tag audit-room, but its header is list, switch or archive rooms."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-27", "job_id": "audit-room", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "audit", "section_kind": "custom", "section_job": "audit-room", "goal_job": null,
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"An empty folder that the person made for room checks. The room has two populated sections.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"status","reason":"Serves audit-room. Header: the 10-second status check of the room."},
+          {"command":"grade","reason":"Serves audit-room. Header: a fast read on problem-discovery quality."}
+        ],
+        "acceptable": [
+          {"command":"dashboard","reason":"Serves audit-room; the whole room at a glance."},
+          {"command":"deep-grade","reason":"Serves audit-room; its header says best after three populated sections, and the room has two."}
+        ],
+        "wrong": [
+          {"command":"update","reason":"Carries the tag audit-room, but it checks for a new version of the tool, not the room."},
+          {"command":"agentshield","reason":"Carries the tag audit-room, but it scans the tool for attack patterns, not the room."},
+          {"command":"doctor","reason":"Carries the tag audit-room, but it diagnoses the install of the tool."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-28", "job_id": "explore", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "opportunity-bank", "section_kind": "core", "section_job": "explore", "goal_job": null,
+        "definition": "undefined", "complexity": "complex",
+        "holds": {"summary":"Nothing is recorded. The person wants to look around a broad field.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"explore-domains","reason":"Serves explore. Header: surfaces where to look before you commit; routing table row Undefined."},
+          {"command":"explore-trends","reason":"Serves explore; routing table cell Undefined and Complex."}
+        ],
+        "acceptable": [
+          {"command":"beautiful-question","reason":"Serves explore; routing table row Undefined."},
+          {"command":"build-knowledge","reason":"Serves explore; routing table row Undefined."},
+          {"command":"explore-futures","reason":"Serves explore; routing table row Undefined."},
+          {"command":"think-hats","reason":"Serves explore; a perspective rotation with nothing recorded to rotate on."},
+          {"command":"scenario-plan","reason":"Routing table cell Undefined and Complex; it does not list explore."}
+        ],
+        "wrong": [
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. No candidates are recorded."},
+          {"command":"whitespace","reason":"Header: best after the room has 20 or more entries. Nothing is recorded."},
+          {"command":"opportunities","reason":"Header: discover and manage grants. The person is not looking for grants."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-29", "job_id": "explore", "surface": "mcp", "label_confidence": "low",
+      "state": {
+        "section": "market-analysis", "section_kind": "core", "section_job": "understand-market", "goal_job": "explore",
+        "definition": "undefined", "complexity": "wicked",
+        "holds": {"summary":"Nothing is recorded. Several groups with opposed interests are named.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"explore-futures","reason":"Serves explore; routing table cell Undefined and Wicked."},
+          {"command":"explore-trends","reason":"Serves explore and the section job."}
+        ],
+        "acceptable": [
+          {"command":"macro-trends","reason":"Serves the section job; the wide-angle lens."},
+          {"command":"explore-domains","reason":"Serves explore and the section job."},
+          {"command":"systems-thinking","reason":"Routing table cell Undefined and Wicked; it does not list explore."},
+          {"command":"research","reason":"Serves explore and the section job."}
+        ],
+        "wrong": [
+          {"command":"analyze-needs","reason":"Header: best after a customer segment is defined. No segment is recorded."},
+          {"command":"analyze-timing","reason":"Header: best before you commit to a launch window. No technology is named."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-30", "job_id": "design-solution", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "solution-design", "section_kind": "core", "section_job": "design-solution", "goal_job": null,
+        "definition": "ill-defined", "complexity": "complex",
+        "holds": {"summary":"One problem statement is recorded. No solution concept.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"find-analogies","reason":"No command lists design-solution. This one writes to the section by its contract, and its header says most breakthroughs are borrowed structure (SAPPhIRE and TRIZ)."}
+        ],
+        "acceptable": [
+          {"command":"find-connections","reason":"Writes to this section by its contract; cross-domain patterns."},
+          {"command":"think-hats","reason":"Routing table row Ill-defined; a perspective rotation on concepts."},
+          {"command":"analyze-systems","reason":"Writes to this section by its contract; routing table cell Ill-defined and Complex."},
+          {"command":"systems-thinking","reason":"Writes to this section by its contract."}
+        ],
+        "wrong": [
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."},
+          {"command":"score-innovation","reason":"Header: choose between cross-domain innovation candidates. No candidates are recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-31", "job_id": "design-solution", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "solution-design", "section_kind": "core", "section_job": "design-solution", "goal_job": null,
+        "definition": "well-defined", "complexity": "complex",
+        "holds": {"summary":"The required result is recorded and clear. How to build it is not known.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"scientific-roadmap","reason":"No command lists design-solution. Its header names this state: unlock the HOW when the WHAT is known."}
+        ],
+        "acceptable": [
+          {"command":"find-analogies","reason":"Writes to this section by its contract; borrowed structure for the HOW."},
+          {"command":"bono","reason":"Writes to this section by its contract; a structured debate over a what-if hypothesis."},
+          {"command":"analyze-systems","reason":"Writes to this section by its contract."}
+        ],
+        "wrong": [
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. No session is recorded."},
+          {"command":"rs-thesis","reason":"Header: read the thesis of a prior Reverse Salient discovery. No discovery is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-32", "job_id": "model-business", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "business-model", "section_kind": "core", "section_job": "model-business", "goal_job": null,
+        "definition": "undefined", "complexity": "simple",
+        "holds": {"summary":"Nothing is recorded in the section.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"lean-canvas","reason":"No command lists model-business. This one writes to the section, its header is the whole business model on one page, and it is in routing table cell Undefined and Simple."}
+        ],
+        "acceptable": [
+          {"command":"structure-argument","reason":"Routing table column Simple; it structures a claim, with no model yet."}
+        ],
+        "wrong": [
+          {"command":"analyze-systems","reason":"Header: best when symptoms keep recurring. Nothing is recorded."},
+          {"command":"explore-futures","reason":"Header: the path branches into several futures. Nothing is recorded."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-33", "job_id": "model-business", "surface": "cli", "label_confidence": "medium",
+      "state": {
+        "section": "business-model", "section_kind": "core", "section_job": "model-business", "goal_job": null,
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"A filled canvas is recorded. The opportunity was not screened and the value proposition has no proof.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": false,
+        "right": [
+          {"command":"mullins","reason":"No command lists model-business. This one writes to the section by its contract, and its header says best before you commit real resources."},
+          {"command":"validate-proposition","reason":"Writes to this section; header: a value proposition with no proof that it holds."}
+        ],
+        "acceptable": [
+          {"command":"challenge-assumptions","reason":"Routing table row Well-defined; stress test of the canvas claims."},
+          {"command":"validate","reason":"Routing table cell Well-defined and Complicated."}
+        ],
+        "wrong": [
+          {"command":"analyze-systems","reason":"Header: best when symptoms keep recurring. No symptom is recorded."},
+          {"command":"explore-futures","reason":"Synthesizes futures; it screens no opportunity."}
+        ],
+        "not_runnable_right": [],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-34", "job_id": "model-finances", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "financial-model", "section_kind": "core", "section_job": "model-finances", "goal_job": null,
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"Nothing is recorded. The person wants unit economics and a cash projection.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": true,
+        "right": [],
+        "acceptable": [
+          {"command":"lean-canvas","reason":"Its canvas has a cost box and a revenue box; the nearest shipped material, not a financial model."}
+        ],
+        "wrong": [
+          {"command":"grade","reason":"Grades problem-discovery quality; it builds no financial model."},
+          {"command":"deep-grade","reason":"Grades the room against calibrated projects; it builds no financial model."},
+          {"command":"build-thesis","reason":"An investment gate; it builds no financial model."}
+        ],
+        "not_runnable_right": [],
+        "absent": [
+          {"method":"financial model builder","reason":"No shipped command builds unit economics or a cash projection; no command lists model-finances."}
+        ]
+      }
+    },
+    {
+      "id": "sel-35", "job_id": "protect-assets", "surface": "mcp", "label_confidence": "medium",
+      "state": {
+        "section": "legal-ip", "section_kind": "core", "section_job": "protect-assets", "goal_job": null,
+        "definition": "well-defined", "complexity": "complicated",
+        "holds": {"summary":"Nothing is recorded. The person wants to know what can be protected and how.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": true,
+        "right": [],
+        "acceptable": [
+          {"command":"research","reason":"Gathers public evidence, for example on prior work; the nearest shipped material, not a protection method."},
+          {"command":"map-unknowns","reason":"Maps what is known and not known about the assets; a defensible start, not a protection method."}
+        ],
+        "wrong": [
+          {"command":"challenge-assumptions","reason":"A stress test of claims; it protects nothing and no claim is recorded."},
+          {"command":"validate","reason":"Importance and satisfaction scoring for a customer segment; it protects nothing."}
+        ],
+        "not_runnable_right": [],
+        "absent": [
+          {"method":"intellectual property protection method","reason":"No shipped command covers legal structure or protection of assets; no command lists protect-assets."}
+        ]
+      }
+    },
+    {
+      "id": "sel-36", "job_id": "temporal-correction", "surface": "mcp", "label_confidence": "high",
+      "state": {
+        "section": "problem-definition", "section_kind": "core", "section_job": "find-problem", "goal_job": "temporal-correction",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"The room states a wrong date for today. The person wants the date corrected.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": true,
+        "right": [],
+        "acceptable": [],
+        "wrong": [
+          {"command":"root-cause","reason":"Serves the section job; it corrects no date. The job is the first key."},
+          {"command":"causal","reason":"Serves the section job; it corrects no date."},
+          {"command":"beautiful-question","reason":"Serves the section job; it corrects no date."}
+        ],
+        "not_runnable_right": [
+          {"command":"correct-reference-now","reason":"The one command that serves temporal-correction; it is instruction-only on both surfaces."}
+        ],
+        "absent": []
+      }
+    },
+    {
+      "id": "sel-37", "job_id": "build", "surface": "mcp", "label_confidence": "low",
+      "state": {
+        "section": "solution-design", "section_kind": "core", "section_job": "design-solution", "goal_job": "build",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"One design is recorded and accepted. The person wants to build.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": true,
+        "right": [],
+        "acceptable": [],
+        "wrong": [
+          {"command":"find-analogies","reason":"Serves the section; it builds nothing. The job is the first key."},
+          {"command":"hat-briefing","reason":"Header: consolidate several Six Hats sessions. It builds nothing."}
+        ],
+        "not_runnable_right": [
+          {"command":"ignite","reason":"Carries the tag build; it runs on the command line only, and its header is about the birth of a room."},
+          {"command":"ingest-methodology","reason":"Carries the tag build; a maintainer pipeline, instruction-only on both surfaces."}
+        ],
+        "absent": [
+          {"method":"build step for an accepted design","reason":"The vocabulary holds the job build with no description; no runnable command on this surface lists it."}
+        ]
+      }
+    },
+    {
+      "id": "sel-38", "job_id": "navigate", "surface": "mcp", "label_confidence": "low",
+      "state": {
+        "section": "strategy", "section_kind": "core", "section_job": "find-bottleneck", "goal_job": "navigate",
+        "definition": "well-defined", "complexity": "simple",
+        "holds": {"summary":"The room holds material in eight sections. The person wants to find the way through it.","open_counterevidence":0,"open_assumptions":0}
+      },
+      "expected": {
+        "none_of_these": true,
+        "right": [],
+        "acceptable": [
+          {"command":"suggest-next","reason":"Header: the Navigation Engine made visible; it does not list navigate."},
+          {"command":"status","reason":"Header: a fast read on the state of the room; it does not list navigate."}
+        ],
+        "wrong": [
+          {"command":"find-bottlenecks","reason":"Serves the section job, not the goal job. The job is the first key."},
+          {"command":"scenario-plan","reason":"Plans futures; it navigates nothing."}
+        ],
+        "not_runnable_right": [
+          {"command":"stance","reason":"Carries the tag navigate; it runs on the command line only."},
+          {"command":"memory-cortex-reach","reason":"Carries the tag navigate; instruction-only on both surfaces."}
+        ],
+        "absent": []
+      }
+    }
+  ]
+}
