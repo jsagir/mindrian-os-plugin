@@ -69,6 +69,8 @@ Prefer one command? `npx @mindrian_os/cli` does the same job. The full walkthrou
 
 Then talk. Larry reaches for the right command for you.
 
+Tell Larry the job you want done in a room, and he puts the move for that job first. He shows you the jobs to pick from; he never picks one for you. Each offer comes with the reason that decided it.
+
 **Update.** Third-party plugins do not update on their own, so run both lines:
 
 ```bash
@@ -85,6 +87,7 @@ Something feels off? Run `/mos:doctor`. From a normal terminal, `mindrian-os doc
 - **A room on your machine.** A structured folder (default `~/MindrianRooms/`) that holds your venture, decisions and files. It is yours.
 - **Larry, a teaching partner.** He asks before he tells, and he marks when an answer came from the Brain and when it is just conversation.
 - **Methods that fit.** Reframing a problem, running discovery, grading an idea against real ventures, mapping the weakest assumption in your plan.
+- **One sentence becomes a one-page argument.** Give `/mos:structure-argument` one sentence about your venture, and Larry writes the situation, the complication, the question and the answer on one page. It needs no room and no outside lookup. Outside evidence comes only after a card shows the exact search phrases and you say yes.
 - **Claims you can trust.** A claim counts as confirmed only after it was checked against a source. Ask `/mos:status --checks` for the plain picture of your whole room.
 - **Research you approve.** `/mos:research` shows you every search before it is sent, runs only after you say yes, and files findings only when you say yes. A failed search never reads as "nothing found".
 - **Connections you did not ask about.** When your room changes in a way that matters, MindrianOS looks for links across your material and brings back at most one card, only when it holds up.
@@ -124,6 +127,7 @@ This is the promise, and it is a rule in the project's constitution ([`docs/MIND
 
 - **Your room never goes to the Brain.** Your notes, decisions and meetings stay local.
 - **Only generic methodology crosses.** A framework name or a type of problem goes out. Methodology comes back.
+- **A short question can go. Pasted text stays.** A plain methodology question of one or two sentences may go to the Brain. If you paste a quote or a block of text into it, that part is swapped for the note `[pasted text kept local]` and only the rest goes out. Passwords, keys and words from your room are still blocked.
 - **Search stays home.** The embeddings that power semantic search are made on your machine, with no network egress.
 - **Audio is the one thing you send on purpose.** If you transcribe a recording with /mos:file-meeting --audio, the audio file leaves your machine and goes to Modulate (Velma). It does not go to the Brain.
 - **The only per-install thing the Brain sees** is a random 32-character identifier, minted once and stored locally. It tells the Brain one install from another. It does not tell the Brain who you are. See [`docs/THEO-INSTALL-ID.md`](docs/THEO-INSTALL-ID.md).
@@ -168,7 +172,7 @@ Talk. That is the interface. These are here for when you already know what you w
 /mos:status --checks      # the plain-words state of your room
 ```
 
-This is a slice of what ships: 113 commands, 126 skills, 17 agents and 4 pipelines, with hooks on 12 session events. If you do not know which one to run, that is normal. Just talk.
+This is a slice of what ships: 113 commands, 125 skills, 17 agents and 4 pipelines, with hooks on 12 session events. If you do not know which one to run, that is normal. Just talk.
 
 ---
 
