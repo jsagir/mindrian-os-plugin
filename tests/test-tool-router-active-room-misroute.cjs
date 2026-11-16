@@ -23,6 +23,9 @@
  * Zero test frameworks. Node built-in assert only. CJS only.
  */
 
+// The host may export CLAUDE_CODE_SESSION_ID (a live Claude Code session). The arms
+// below bind rooms by their own session ids, so the host value must not leak in.
+delete process.env.CLAUDE_CODE_SESSION_ID;
 const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
