@@ -333,6 +333,8 @@ function bodyOf(code, name) {
     assert.equal(p('EUREKA_SETUP: FAIL model r\nEUREKA_SETUP: OK /h/y\n').folder, '/h/y');
     assert.deepEqual(p('\x1b[32mEUREKA_SETUP: OK /h/x\x1b[0m\n'), { form: 'ok', folder: '/h/x', step: null, reason: null });
     assert.equal(p('only progress\nno result here\n').form, 'none');
+    // IN-04: engine-only without a folder means the default folder (null here), never the folder "engine-only"
+    assert.deepEqual(p('EUREKA_SETUP: OK engine-only\n'), { form: 'ok_engine_only', folder: null, step: null, reason: null });
     assert.equal(p('progress\rEUREKA_SETUP: OK /h/x').form, 'ok');
     assert.equal(p('').form, 'none');
     for (const step of STEPS) assert.equal(p('EUREKA_SETUP: FAIL ' + step + ' r').step, step);
