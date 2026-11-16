@@ -143,6 +143,10 @@ const P02 = {
   paraSep: 'the board plans to fire the founder after the audit the lead investor wants out before the round the pilot failed and nobody told the regulator which framework fits',
   tabsAsBreaks: 'the board plans to fire the founder after the audit\t\tthe lead investor wants out before the round\t\tthe pilot failed and nobody told the regulator\t\twhich framework fits',
   noSpaceCapital: 'The board plans to fire the founder after the audit.The lead investor wants out before the round.The pilot failed.Which framework fits?',
+  // Coordinator fuzz (2000 cases, 2026-11-16): 1 token, no space after ! or ?.
+  bangNoSpace: 'Alpha!Beta!Gamma!CANARY_0062 founder investor regulator',
+  askNoSpace: 'Alpha?Beta?Gamma?Delta founder investor regulator',
+  dotNoSpaceCaps: 'Alpha.Beta.Gamma.Delta founder investor regulator',
   ideographicLatin: 'the board plans to fire the founder。the lead investor wants out before the round。the pilot failed and nobody told the regulator。which framework fits',
 };
 Object.keys(P02).forEach(function (k) { add('L02', 'p02 ' + k, P02[k], 'block', S02); });
@@ -398,6 +402,10 @@ check('L18 generic questions keep their sentence count', function (p) {
   });
   const lineCut = shapeMod.cutPastedText('the board met\n> see note\nthe investor left\nwhich framework fits');
   if (lineCut.text !== 'the board met\n' + NOTE + '\nthe investor left\nwhich framework fits') p.push('the cut joins lines: ' + JSON.stringify(lineCut.text));
+  [['see www.example.com now', 1], ['What is Yahoo!Mail?', 1], ['open example.com/page?id=3 now', 1]].forEach(function (r) {
+    const n = shapeMod.classifyShape(r[0]).sentences;
+    if (n > 2) p.push(JSON.stringify(r[0]) + ' sentences ' + n + ' > 2');
+  });
   const allow = [
     'What does "jobs to be done" mean in practice?',
     'How does the jobs to be done framework help a team separate the functional job from the emotional and social jobs?',
