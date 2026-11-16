@@ -12,7 +12,7 @@ serves_jtbd: ["connect-domains"]
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["Usher's Model of Cumulative Synthesis"]
+frameworks: ["Usher's Model of Cumulative Synthesis", "Extensive Searching"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true

@@ -43,7 +43,7 @@ kind: methodology
 # (dual-framework). The resolver still resolves BOTH; the connector below keys its single
 # framework: field to the PRIMARY, "Scientific Roadmapping". The frameworks: list is left
 # intact on purpose.
-frameworks: ["Scientific Roadmapping", "Hypothesis-Driven Problem Solving"]
+frameworks: ["Scientific Roadmapping", "Hypothesis-Driven Problem Solving", "Reverse Salient Analysis"]
 produces: "room/research-plan/*"
 inputs: []
 autonomous_safe: false

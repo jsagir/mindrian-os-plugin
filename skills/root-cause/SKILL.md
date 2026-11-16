@@ -15,7 +15,7 @@ interactive_first_reward: reframe_question
 teaching: "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["Root Cause Analysis"]
+frameworks: ["Root Cause Analysis", "5 Whys Technique", "Systems Thinking"]
 produces: "room/**/root-cause/*"
 inputs: []
 autonomous_safe: true

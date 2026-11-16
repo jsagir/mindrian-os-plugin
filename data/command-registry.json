@@ -281,7 +281,9 @@
       "visibility": null,
       "frameworks": [
         "Red Teaming",
-        "Pre-mortem Analysis"
+        "Pre-mortem Analysis",
+        "CIAs approach to challenging analytical assumptions",
+        "Black Hat Thinking"
       ],
       "produces": "room/**/challenge/*",
       "executable": null,
@@ -548,7 +550,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Dominant Design"
+        "Dominant Design",
+        "Era of Ferment Analysis"
       ],
       "produces": "room/**/dominant-designs/*",
       "executable": null,
@@ -772,7 +775,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Four Lenses of Innovation"
+        "Four Lenses of Innovation",
+        "TRIZ / Genrich Altshuller Innovation Algorithm"
       ],
       "produces": "room/**/analogies/*",
       "executable": null,
@@ -814,7 +818,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Usher's Model of Cumulative Synthesis"
+        "Usher's Model of Cumulative Synthesis",
+        "Extensive Searching"
       ],
       "produces": "room/**/analogies/*",
       "executable": null,
@@ -1282,7 +1287,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Mullins Model"
+        "Mullins Model",
+        "Macro Trends/Macro Trending"
       ],
       "produces": "room/**/mullins/*",
       "executable": null,
@@ -1650,7 +1656,9 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Root Cause Analysis"
+        "Root Cause Analysis",
+        "5 Whys Technique",
+        "Systems Thinking"
       ],
       "produces": "room/**/root-cause/*",
       "executable": null,
@@ -1799,7 +1807,8 @@
       "visibility": null,
       "frameworks": [
         "Scientific Roadmapping",
-        "Hypothesis-Driven Problem Solving"
+        "Hypothesis-Driven Problem Solving",
+        "Reverse Salient Analysis"
       ],
       "produces": "room/research-plan/*",
       "executable": null,
@@ -2323,6 +2332,7 @@
     ],
     "Systems Thinking": [
       "/mos:analyze-systems",
+      "/mos:root-cause",
       "/mos:systems-thinking"
     ],
     "S-Curve Analysis": [
@@ -2360,6 +2370,12 @@
     "Pre-mortem Analysis": [
       "/mos:challenge-assumptions"
     ],
+    "CIAs approach to challenging analytical assumptions": [
+      "/mos:challenge-assumptions"
+    ],
+    "Black Hat Thinking": [
+      "/mos:challenge-assumptions"
+    ],
     "PWS Triple Validation Compass": [
       "/mos:compare-ventures",
       "/mos:deep-grade",
@@ -2376,6 +2392,9 @@
     "Dominant Design": [
       "/mos:dominant-designs"
     ],
+    "Era of Ferment Analysis": [
+      "/mos:dominant-designs"
+    ],
     "Domain Selection": [
       "/mos:explore-domains"
     ],
@@ -2386,14 +2405,21 @@
     "Four Lenses of Innovation": [
       "/mos:find-analogies"
     ],
+    "TRIZ / Genrich Altshuller Innovation Algorithm": [
+      "/mos:find-analogies"
+    ],
     "Reverse Salient Analysis": [
       "/mos:find-bottlenecks",
       "/mos:rs-experts",
       "/mos:rs-explain",
       "/mos:rs-fetch",
-      "/mos:rs-thesis"
+      "/mos:rs-thesis",
+      "/mos:scientific-roadmap"
     ],
     "Usher's Model of Cumulative Synthesis": [
+      "/mos:find-connections"
+    ],
+    "Extensive Searching": [
       "/mos:find-connections"
     ],
     "Futures Wheel": [
@@ -2409,7 +2435,8 @@
       "/mos:macro-trends"
     ],
     "Macro Trends/Macro Trending": [
-      "/mos:macro-trends"
+      "/mos:macro-trends",
+      "/mos:mullins"
     ],
     "Knowns and Unknowns Matrix Framework": [
       "/mos:map-unknowns"
@@ -2424,6 +2451,9 @@
     "Hypothesis-Driven Problem Solving": [
       "/mos:research",
       "/mos:scientific-roadmap"
+    ],
+    "5 Whys Technique": [
+      "/mos:root-cause"
     ],
     "Scientific Roadmapping": [
       "/mos:scientific-roadmap"

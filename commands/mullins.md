@@ -12,7 +12,7 @@ serves_jtbd: ["understand-market"]
 teaching: "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["Mullins Model"]
+frameworks: ["Mullins Model", "Macro Trends/Macro Trending"]
 produces: "room/**/mullins/*"
 inputs: []
 autonomous_safe: true

@@ -3793,6 +3793,12 @@
       "name": "vault-section-reviewer"
     },
     {
+      "id": "framework:5 Whys Technique",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "5 Whys Technique"
+    },
+    {
       "id": "framework:Ackoff Pyramid",
       "kind": "framework",
       "methodology_tier": "pws",
@@ -3817,6 +3823,18 @@
       "name": "Beautiful Question Framework"
     },
     {
+      "id": "framework:Black Hat Thinking",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Black Hat Thinking"
+    },
+    {
+      "id": "framework:CIAs approach to challenging analytical assumptions",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "CIAs approach to challenging analytical assumptions"
+    },
+    {
       "id": "framework:Domain Selection",
       "kind": "framework",
       "methodology_tier": "pws",
@@ -3827,6 +3845,18 @@
       "kind": "framework",
       "methodology_tier": "pws",
       "name": "Dominant Design"
+    },
+    {
+      "id": "framework:Era of Ferment Analysis",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Era of Ferment Analysis"
+    },
+    {
+      "id": "framework:Extensive Searching",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Extensive Searching"
     },
     {
       "id": "framework:Four Lenses of Innovation",
@@ -3977,6 +4007,12 @@
       "kind": "framework",
       "methodology_tier": "pws",
       "name": "Trending to the Absurd"
+    },
+    {
+      "id": "framework:TRIZ / Genrich Altshuller Innovation Algorithm",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "TRIZ / Genrich Altshuller Innovation Algorithm"
     },
     {
       "id": "framework:Usher's Model of Cumulative Synthesis",
@@ -4651,6 +4687,16 @@
     {
       "type": "OPERATES",
       "from": "command:/mos:challenge-assumptions",
+      "to": "framework:Black Hat Thinking"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:challenge-assumptions",
+      "to": "framework:CIAs approach to challenging analytical assumptions"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:challenge-assumptions",
       "to": "framework:Pre-mortem Analysis"
     },
     {
@@ -4700,6 +4746,11 @@
     },
     {
       "type": "OPERATES",
+      "from": "command:/mos:dominant-designs",
+      "to": "framework:Era of Ferment Analysis"
+    },
+    {
+      "type": "OPERATES",
       "from": "command:/mos:explore-domains",
       "to": "framework:Domain Selection"
     },
@@ -4720,8 +4771,18 @@
     },
     {
       "type": "OPERATES",
+      "from": "command:/mos:find-analogies",
+      "to": "framework:TRIZ / Genrich Altshuller Innovation Algorithm"
+    },
+    {
+      "type": "OPERATES",
       "from": "command:/mos:find-bottlenecks",
       "to": "framework:Reverse Salient Analysis"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:find-connections",
+      "to": "framework:Extensive Searching"
     },
     {
       "type": "OPERATES",
@@ -4781,6 +4842,11 @@
     {
       "type": "OPERATES",
       "from": "command:/mos:mullins",
+      "to": "framework:Macro Trends/Macro Trending"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:mullins",
       "to": "framework:Mullins Model"
     },
     {
@@ -4796,7 +4862,17 @@
     {
       "type": "OPERATES",
       "from": "command:/mos:root-cause",
+      "to": "framework:5 Whys Technique"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:root-cause",
       "to": "framework:Root Cause Analysis"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:root-cause",
+      "to": "framework:Systems Thinking"
     },
     {
       "type": "OPERATES",
@@ -4827,6 +4903,11 @@
       "type": "OPERATES",
       "from": "command:/mos:scientific-roadmap",
       "to": "framework:Hypothesis-Driven Problem Solving"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:scientific-roadmap",
+      "to": "framework:Reverse Salient Analysis"
     },
     {
       "type": "OPERATES",
