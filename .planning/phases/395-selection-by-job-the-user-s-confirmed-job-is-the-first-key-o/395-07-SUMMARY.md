@@ -37,3 +37,7 @@ COMMITTED ON THE OWNER'S WORD (2026-11-16, in the main session) BEFORE THE COLD 
 * 9 new sentence texts reach a user's model with no owner review of the wording.
 * The gate refuses `explore`. Ceilings of 50 runs and 262,144 bytes; a nest file over the ceiling is cut in mid text.
 * `SELECTOR_ORDER` is a constant that a later plan must change by hand when the order or the sentences change.
+
+## Added after the commit: suite 3696 on the changed tree
+
+PASSED=126 FAILED=6 SKIPPED=2 KNOWN=17 after, against PASSED=125 FAILED=6 SKIPPED=2 KNOWN=18 before. No new failing leg. The 2 legs that differ both failed before and passed after: `debouncer-drain-at-prompt` Test 5 (bimodal on untouched code) and isolation arm B4d (it fails when a run output file in the repository is newer than its marker).
