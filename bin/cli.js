@@ -123,7 +123,12 @@ function offerEurekaSetup(choice) {
   }
   return new Promise((resolve) => {
     const rl = require('node:readline').createInterface({ input: process.stdin, output: process.stdout });
+    let answered = false;
+    // IN-01 (395-11 review): EOF or Ctrl-C at the question is a No, with the same Skipped line
+    rl.on('SIGINT', () => rl.close());
+    rl.on('close', () => { if (answered) return; answered = true; console.log(''); console.log('Skipped. ' + later); resolve(0); });
     rl.question('Set up the Eureka engine now? (y/N) ', (answer) => {
+      answered = true;
       rl.close();
       if (/^\s*y(es)?\s*$/i.test(String(answer))) { resolve(go()); return; }
       console.log('Skipped. ' + later);
