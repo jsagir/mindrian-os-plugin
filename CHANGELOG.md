@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.84 (in progress)
+## [Unreleased] -- v2.0.0-beta.86 (in progress)
 
 ### Added
 - **The Seed: a venture sentence becomes a one-page pyramid (Phase 389).** `/mos:structure-argument` has a third depth, the Seed. You give one sentence about your venture and Larry writes Situation, Complication, Question and Answer on one page, with no outside lookup and no room needed. Outside evidence (similar cases, known traps, analogies, funding) comes only after a card shows the exact short phrases and where they go, and you say yes; the code refuses to look anything up until that confirmation matches the phrases on the card. Your own sentence never leaves your machine. <!-- 389-06 -->
