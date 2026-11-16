@@ -108,8 +108,10 @@ function offerEurekaSetup(choice) {
   let enable;
   try { enable = require('../lib/core/eureka/eureka-engine-enable.cjs'); } catch (_e) { return skip(); }
   const card = enable.run(['--setup'], {});
+  // WR-04 (395-11 review): no card on screen means no question and no run
+  if (!card || card.exitCode !== 2 || !card.stdout) return skip();
   console.log('');
-  process.stdout.write(card.stdout || '');
+  process.stdout.write(card.stdout);
   const go = () => Promise.resolve(enable.run(['--setup', '--approved-via', 'cli'], {})).then((r) => {
     if (r.stdout) process.stdout.write(r.stdout);
     if (r.stderr) process.stderr.write(r.stderr);
