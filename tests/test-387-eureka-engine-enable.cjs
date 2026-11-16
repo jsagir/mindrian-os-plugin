@@ -115,7 +115,7 @@ function baseEnv(iso, extra) {
 
 function pointerFile(iso) { return path.join(iso.home, '.mindrian', 'eureka-engine.json'); }
 
-const THREE_PARTS = ['1 Python packages: ', '2 Model folder (you place it; the engine never downloads one): ', '3 Node.js 22 or newer for some workers: '];
+const THREE_PARTS = ['1 Python packages: ', '2 Model folder (the approved --setup downloads it, or you place it; the engine never downloads one by itself): ', '3 Node.js 22 or newer for some workers: '];
 
 function onlyAllowedShapes(calls) {
   for (const c of calls) {

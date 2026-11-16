@@ -287,6 +287,10 @@ function bodyOf(code, name) {
     assert.ok(result.stdout.includes('The Eureka setup finished. The engine folder is ' + engine + '.'), result.stdout);
     assert.ok(result.stdout.includes('graph: ready'), 'graph not ready');
     assert.ok(result.stdout.includes('pairs-and-scout: ready'), 'pairs-and-scout not ready');
+    // WR-09: the report after a finished setup does not deny what the setup did
+    assert.ok(result.stdout.includes('--setup prepares parts 1 and 2'), 'the report does not name what --setup prepared');
+    assert.ok(result.stdout.includes('2 Model folder (the approved --setup downloads it'), 'part 2 does not name the setup download');
+    assert.ok(!/prepares only part 1|you place it; the engine never downloads one\)/.test(result.stdout), 'the report contradicts the setup');
     assert.equal(JSON.parse(fs.readFileSync(pointerFile(iso), 'utf8')).root, engine);
   });
 

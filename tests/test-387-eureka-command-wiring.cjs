@@ -146,7 +146,7 @@ arm('W11 setup parts, model sentence, route-level reasons and the github.com sta
   assert.ok(ENGINE.length > 0, 'section is missing');
   assert.ok(/three parts/i.test(ENGINE), 'no setup-parts statement');
   assert.ok(/Python packages/.test(ENGINE) && /model folder/.test(ENGINE) && /Node\.js 22 or newer/.test(ENGINE), 'three setup parts not all named');
-  assert.ok(ENGINE.includes('The plugin never downloads a model.'), 'model sentence missing');
+  assert.ok(ENGINE.includes('Outside `--setup`, the plugin never downloads a model'), 'model sentence missing');
   assert.ok(/never installs uv, Python or Node\.js/.test(ENGINE), 'no-install sentence missing');
   const states = (ENGINE + '\n' + ADV_MCP + '\n' + CROSS);
   ['engine_extra_missing', 'engine_model_missing', 'engine_node_missing'].forEach(function (r) {
