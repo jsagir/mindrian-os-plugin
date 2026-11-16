@@ -15,7 +15,7 @@ interactive_first_reward: schema_preview
 teaching: "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["Four Lenses of Innovation"]
+frameworks: ["Four Lenses of Innovation", "TRIZ / Genrich Altshuller Innovation Algorithm"]
 produces: "room/**/analogies/*"
 inputs: []
 autonomous_safe: true
