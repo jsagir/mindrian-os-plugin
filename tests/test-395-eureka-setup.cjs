@@ -14,7 +14,7 @@
  *   S4   setupCommand: bash + curl of the .sh on POSIX, powershell irm | iex of the .ps1 on win32
  *   S5   approved, stub last line "EUREKA_SETUP: OK <folder>": exit 0, folder saved, graph and pairs-and-scout ready
  *   S6   approved, stub last line "EUREKA_SETUP: OK engine-only <folder>": exit 0, folder saved by MindrianOS
- *   S7   approved, stub last line "EUREKA_SETUP: FAIL <step> <reason>" for each of the 6 steps: exit 1, the step,
+ *   S7   approved, stub last line "EUREKA_SETUP: FAIL <step> <reason>" for each of the 7 steps: exit 1, the step,
  *        its plain sentence and the reason are shown, nothing is saved
  *   S8   a step name that is not one of the 6 is shown as unknown
  *   S9   no result line, and a command that cannot start: exit 1, "stopped without its result line"
@@ -33,6 +33,8 @@
  *   S19  WR-01: an injected short timeout stops the child and its grandchild (process group) and returns at once
  *   S20  WR-02: a stderr line after the OK line, colour codes and a UTF-8 character split across two chunks
  *        do not change the result; only stdout feeds the result line
+ *   S21  WR-08: the POSIX runner (loopback URL, fake curl) names a missing curl (tools) and a failed or empty
+ *        download (download), and runs the downloaded file only when it is complete
  *   S16  this process made 0 non-loopback connection attempts, and no spawn tried curl, powershell or
  *        raw.githubusercontent.com (such a spawn is blocked by this file and never runs)
  *
@@ -99,7 +101,7 @@ const mod = require(MODULE);
 const PIN = String(mod.EUREKA_SETUP_COMMIT);
 const URL_SH = 'https://raw.githubusercontent.com/jsagir/mindrian-eureka/' + PIN + '/scripts/setup-mindrianos.sh';
 const URL_PS1 = 'https://raw.githubusercontent.com/jsagir/mindrian-eureka/' + PIN + '/scripts/setup-mindrianos.ps1';
-const STEPS = ['tools', 'engine', 'packages', 'model', 'doctor', 'connect'];
+const STEPS = ['tools', 'download', 'engine', 'packages', 'model', 'doctor', 'connect'];
 
 let passed = 0;
 let failed = 0;
@@ -255,8 +257,16 @@ function bodyOf(code, name) {
   });
 
   await arm('S4 setupCommand: bash and curl of the .sh on POSIX; powershell irm | iex of the .ps1 on win32', async () => {
-    assert.deepEqual(mod.setupCommand('linux'), { command: 'bash', args: ['-c', 'curl -fsSL "$0" | bash', URL_SH] });
-    assert.deepEqual(mod.setupCommand('darwin'), { command: 'bash', args: ['-c', 'curl -fsSL "$0" | bash', URL_SH] });
+    for (const os of ['linux', 'darwin']) {
+      const c = mod.setupCommand(os);
+      assert.equal(c.command, 'bash');
+      assert.equal(c.args.length, 3);
+      assert.equal(c.args[0], '-c');
+      assert.equal(c.args[2], URL_SH);
+      // WR-08: download to a temp file, check it, then run it; no "curl | bash" pipe
+      assert.ok(c.args[1].includes('curl -fsSL "$0" -o "$f" && [ -s "$f" ]') && /\nbash "\$f"$/.test(c.args[1]), os + ' runner: ' + c.args[1]);
+      assert.ok(!/\|\s*bash/.test(c.args[1]), os + ' still pipes curl into bash');
+    }
     assert.deepEqual(mod.setupCommand('win32'), { command: 'powershell.exe', args: ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', 'irm ' + URL_PS1 + ' | iex'] });
   });
 
@@ -284,7 +294,8 @@ function bodyOf(code, name) {
 
   await arm('S7 approved, FAIL <step> <reason> for each of the 6 steps: exit 1, step, sentence, reason, nothing saved', async () => {
     const sentences = {
-      tools: 'A tool that the setup needs is missing (git or uv).',
+      tools: 'A tool that the setup needs is missing or could not be installed (curl, git or uv).',
+      download: 'The setup steps could not be downloaded from raw.githubusercontent.com.',
       engine: 'The engine code could not be downloaded.',
       packages: 'The Python packages could not be installed.',
       model: 'The meaning model could not be downloaded.',
@@ -516,6 +527,35 @@ function bodyOf(code, name) {
     assert.ok(!res.tail.includes('trailing stderr text'), 'stderr reached the result tail');
     assert.ok(shown.text().includes('trailing stderr text'), 'stderr was not shown');
     assert.equal(mod.parseSetupLine(res.tail).folder, '/h/מנוע engine', 'the split character broke the folder: ' + JSON.stringify(res.tail));
+  });
+
+  await arm('S21 WR-08: the POSIX runner names a missing curl and a failed download, and runs only a complete download', async () => {
+    // The runner runs with a loopback address in place of the pinned URL and a fake curl first on PATH.
+    // A missing fake curl stops this arm before any run, so the real curl is never used here.
+    const iso = mkIsolatedHome('395-s21');
+    const runner = mod.setupCommand('linux').args[1];
+    const empty = path.join(iso.home, 'emptybin');
+    fs.mkdirSync(empty, { recursive: true });
+    const runIt = (pathVar) => childProcess.spawnSync('/bin/bash', ['-c', runner, 'http://127.0.0.1:9/never'], {
+      env: { HOME: iso.home, PATH: pathVar, TMPDIR: iso.home }, encoding: 'utf8', input: '', timeout: 20000,
+    });
+    const noCurl = runIt(empty);
+    assert.equal(mod.parseSetupLine(noCurl.stdout).step, 'tools', 'missing curl: ' + noCurl.stdout + noCurl.stderr);
+    assert.ok(noCurl.stdout.includes('curl is missing'), noCurl.stdout);
+    const fakeBin = (name, body) => {
+      const dir = path.join(iso.home, name);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, 'curl'), '#!/bin/sh\n' + body + '\n', { mode: 0o755 });
+      assert.ok(fs.existsSync(path.join(dir, 'curl')), 'fake curl missing');
+      return dir + path.delimiter + '/usr/bin' + path.delimiter + '/bin';
+    };
+    const failed = runIt(fakeBin('failbin', 'exit 22'));
+    assert.equal(mod.parseSetupLine(failed.stdout).step, 'download', 'failed download: ' + failed.stdout + failed.stderr);
+    const emptyFile = runIt(fakeBin('emptybin2', ': > "$4"; exit 0'));
+    assert.equal(mod.parseSetupLine(emptyFile.stdout).step, 'download', 'empty download: ' + emptyFile.stdout);
+    const good = runIt(fakeBin('goodbin', 'printf \'echo "EUREKA_SETUP: OK /fake/engine"\\n\' > "$4"'));
+    assert.deepEqual(mod.parseSetupLine(good.stdout), { form: 'ok', folder: '/fake/engine', step: null, reason: null }, good.stdout + good.stderr);
+    assert.ok(!fs.readdirSync(iso.home).some((n) => n.startsWith('mindrian-eureka-setup.')), 'the temp file was not removed');
   });
 
   await arm('S17 the setup scripts are pinned to a 40-character engine commit, never a branch', async () => {
