@@ -18,6 +18,11 @@
  *             install` (e.g. `--version 1.13.0-beta.9`); when a version is pinned
  *             the update step is skipped. Theo needs no key, so there is nothing
  *             left to configure after the install.
+ *             Phase 395 plan 11: after the install it offers ONE optional step,
+ *             "Set up the Eureka engine". It prints the card first and asks
+ *             (default No) only in an interactive terminal. --eureka says yes
+ *             without the question (the card still prints first); --no-eureka
+ *             skips it. Neither flag is passed to `claude plugin install`.
  *   doctor    Run /mos:doctor's diagnostic from OUTSIDE Claude Code so you catch
  *             install/drift problems before a session. Resolves the installed
  *             plugin (marketplace cache, dev clone, or MINDRIAN_OS_ROOT), then
@@ -92,9 +97,43 @@ function hasDoctor(dir) {
   }
 }
 
+// Phase 395 plan 11: the optional Eureka engine step. The card always prints before anything runs.
+// choice: 'yes' (--eureka), 'no' (--no-eureka) or 'ask' (a y/N question, only in an interactive terminal).
+function offerEurekaSetup(choice) {
+  const later = 'Eureka engine (optional): run  /mos:eureka enable engine --setup  inside Claude Code at any time.';
+  const skip = () => { console.log(''); console.log(later); return Promise.resolve(0); };
+  if (choice === 'no') return skip();
+  const interactive = !!(process.stdin.isTTY && process.stdout.isTTY);
+  if (choice === 'ask' && !interactive) return skip();
+  let enable;
+  try { enable = require('../lib/core/eureka/eureka-engine-enable.cjs'); } catch (_e) { return skip(); }
+  const card = enable.run(['--setup'], {});
+  console.log('');
+  process.stdout.write(card.stdout || '');
+  const go = () => Promise.resolve(enable.run(['--setup', '--approved-via', 'cli'], {})).then((r) => {
+    if (r.stdout) process.stdout.write(r.stdout);
+    if (r.stderr) process.stderr.write(r.stderr);
+    return r.exitCode;
+  });
+  if (choice === 'yes') {
+    console.log('You gave --eureka, so the setup starts now.');
+    return go();
+  }
+  return new Promise((resolve) => {
+    const rl = require('node:readline').createInterface({ input: process.stdin, output: process.stdout });
+    rl.question('Set up the Eureka engine now? (y/N) ', (answer) => {
+      rl.close();
+      if (/^\s*y(es)?\s*$/i.test(String(answer))) { resolve(go()); return; }
+      console.log('Skipped. ' + later);
+      resolve(0);
+    });
+  });
+}
+
 function printUsage() {
   console.log('mindrian-os <install|doctor|update>   (no subcommand = install)');
   console.log('  install   install / bring current via Claude Code (marketplace add + plugin install/update)');
+  console.log('            --eureka also sets up the optional Eureka engine (card first); --no-eureka skips the offer');
   console.log('  doctor    run the MindrianOS install/drift diagnostic (passes flags through to /mos:doctor)');
   console.log('  update    bring MindrianOS current (marketplace update + plugin update; or git pull for a dev clone)');
 }
@@ -172,7 +211,9 @@ switch (sub) {
   case 'install': {
     // Flags after `install` (or leading flags when `install` is implied) pass
     // through to `claude plugin install` (e.g. `... --version 1.13.0-beta.9`).
-    const passthrough = process.argv.slice(argOffset);
+    const rawArgs = process.argv.slice(argOffset);
+    const eurekaChoice = rawArgs.includes('--eureka') ? 'yes' : (rawArgs.includes('--no-eureka') ? 'no' : 'ask');
+    const passthrough = rawArgs.filter((a) => a !== '--eureka' && a !== '--no-eureka');
     const pinned = passthrough.some((a) => a === '--version' || a.startsWith('--version='));
 
     if (!requireClaudeCli()) process.exit(1);
@@ -208,10 +249,13 @@ switch (sub) {
 
     console.log('');
     console.log('MindrianOS is installed and current. Run `claude plugin list` to see the version.');
-    console.log('');
-    console.log('Verify:  mindrian-os doctor   (or /mos:doctor inside Claude Code)');
-    console.log('Start:   open a fresh Claude Code session, then  /mos:onboard');
-    process.exit(0);
+    // The Eureka step is optional: its result never changes the exit code of the install.
+    offerEurekaSetup(eurekaChoice).then(() => {
+      console.log('');
+      console.log('Verify:  mindrian-os doctor   (or /mos:doctor inside Claude Code)');
+      console.log('Start:   open a fresh Claude Code session, then  /mos:onboard');
+      process.exit(0);
+    });
     break;
   }
 

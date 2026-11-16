@@ -373,7 +373,7 @@ arm('E12 --check --deep runs the engine doctor offline, prints the engine lines,
   assert.ok(plain.calls.every((c) => c.kind !== 'doctor'), 'the doctor must not run without --deep');
 });
 
-arm('E13 static: no network module, no brain path, no fetch; spawns only in runEngineSync and runEngineDoctor', () => {
+arm('E13 static: no network module, no brain path, no fetch; spawns only in runEngineSync, runEngineDoctor and runEngineSetup', () => {
   const src = fs.readFileSync(MODULE, 'utf8');
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"\w])\/\/.*$/gm, '$1');
   assert.ok(!/require\(\s*['"]node:(http|https|net|dns)['"]\s*\)/.test(code), 'network module required');
@@ -388,7 +388,9 @@ arm('E13 static: no network module, no brain path, no fetch; spawns only in runE
     const before = code.slice(0, m.index);
     const fns = before.match(/\bfunction\s+(\w+)/g) || [];
     const last = fns.length ? fns[fns.length - 1].replace(/function\s+/, '') : '';
-    assert.ok(last === 'runEngineSync' || last === 'runEngineDoctor', 'spawn call in ' + last);
+    // Phase 395 plan 11: runEngineSetup is the third sanctioned spawn, the approved one-step setup
+    // (tests/test-395-eureka-setup.cjs S14 pins that it runs only after the card).
+    assert.ok(last === 'runEngineSync' || last === 'runEngineDoctor' || last === 'runEngineSetup', 'spawn call in ' + last);
   }
   assert.ok(count >= 2, 'expected spawn call sites in the two functions');
   const mod = loadModule();

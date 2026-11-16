@@ -59,6 +59,8 @@ Restart Claude Code. Larry starts talking. The Brain is part of what installs: y
 
 Prefer one command? `npx @mindrian_os/cli` does the same job. The full walkthrough is in the [install guide](https://mindrian-os.com/docs/install).
 
+**Optional: the Eureka engine.** After the install, `npx @mindrian_os/cli` offers one more step: set up the Eureka engine for the Eureka graph tools. It first shows what the step reaches and downloads, and the default answer is No. Add `--eureka` to say yes without the question, or `--no-eureka` to skip it. Inside Claude Code the same step is `/mos:eureka enable engine --setup`. MindrianOS works without it.
+
 **Quick start**
 
 ```text
@@ -96,8 +98,8 @@ Be clear about what each part needs:
 
 - `/mos:eureka` works on a plain install. It needs no engine and no extra install. It needs a room with ideas from more than one area.
 - `/mos:eureka-portfolio` ranks your linked ideas with a measuring tool on your computer. `/mos:eureka enable` installs it (about 380 MB). Without it, the command tells you what is missing instead of guessing.
-- The Eureka engine tools are an advanced extra. The server lists 24 Eureka tools (the runtime count), and 22 of them need the engine. The engine is a separate folder that you already have. This plugin does not download or include the engine. `/mos:eureka enable engine --path` followed by your folder saves it.
-- Setup has three parts. First, the Python packages: run `/mos:eureka enable engine --sync` after you approve a card that lists every website it will contact. Second, a model folder that you place yourself (the engine never downloads one). Third, Node.js 22 or newer for some tools. The check also needs uv and Python 3.11 or newer.
+- The Eureka engine tools are an advanced extra. The server lists 24 Eureka tools (the runtime count), and 22 of them need the engine. The engine is a separate, public project. This plugin does not download or include the engine on its own. You have two ways to add it. `/mos:eureka enable engine --setup` does the whole setup in one step, with the setup steps tested for this MindrianOS version, only after you approve a card that says what it reaches (GitHub, the Python package sites and Hugging Face) and what it downloads (a meaning model of about 90 MB; about 1.3 GB on disk in all). Or `/mos:eureka enable engine --path` followed by a folder that you already have saves it.
+- Setup has three parts. First, the Python packages: the one-step setup installs them, or run `/mos:eureka enable engine --sync` after you approve a card that lists every website it will contact. Second, a model folder: the one-step setup downloads it, or you place one yourself (the engine never downloads one by itself). Third, Node.js 22 or newer for some tools. The check also needs uv and Python 3.11 or newer.
 - After setup the plugin starts the engine offline, and it never lets the engine install anything by itself. It sees only the items you select, and your room text stays on your machine. A test of the engine itself, run by you, is still open.
 - If a tool needs a package group, a model or Node.js that you do not have, it says which, with one fix line. `/mos:doctor` shows one line named eureka-engine-readiness: not set up (fine), ready, or what is missing.
 - Claude Desktop on the same computer reads the saved setting. Where the setting is not found, the engine tools say the engine is not set up.

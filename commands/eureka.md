@@ -221,7 +221,7 @@ Render ONE Shape E block per outcome: already installed, installed now, or the 3
 
 ## Subcommand: enable engine
 
-The Eureka engine is a separate project (`mindrian-eureka`) behind the 22 `eureka_` engine tools. The quick run above and `research_run` with op `perspective_recall` need no engine. The plugin does not download or include the engine. This step only saves where it is, checks it, and can run its package setup after a grant. It is room-independent, so it skips the room check.
+The Eureka engine is a separate project (`mindrian-eureka`) behind the 22 `eureka_` engine tools. The quick run above and `research_run` with op `perspective_recall` need no engine. The plugin does not download or include the engine. This step saves where it is, checks it, and can run its package setup after a grant. One optional step, `--setup`, gets the whole engine for you: after the person approves its card, it runs the engine's own public setup script (Apache-2.0). It is room-independent, so it skips the room check.
 
 Setup has three parts: (1) Python packages, which the optional sync gives; (2) a model folder you place yourself, because the engine never downloads one and a package sync gives no model weights; (3) Node.js 22 or newer, which some workers need. The plugin never downloads a model. The plugin never installs uv, Python or Node.js; it checks for them and says what is missing. After setup, every engine run is offline with no auto-sync: it passes `--no-sync`, `--offline` and `--locked`, so a partial setup becomes a typed answer and never a silent install.
 
@@ -278,6 +278,20 @@ Steps. Each one calls the same command and Larry renders the result:
    ```
 
    On a stop, run nothing and say so.
+
+6. One-step setup (optional). It runs the engine's setup steps as tested for this MindrianOS version (one pinned engine commit). It reaches raw.githubusercontent.com, github.com, astral.sh (only when uv is missing), the Python package sites and huggingface.co. It downloads the meaning model all-MiniLM-L6-v2 (about 90 MB) and takes about 1.3 GB on disk in all. First run it with no approval flag. It prints the card, exits 2 and runs nothing:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/lib/core/eureka/eureka-engine-enable.cjs" --setup
+   ```
+
+   Show the card as it is. Nothing from the room leaves the machine. Fire the F.0 card with AskUserQuestion (Set up now, Not now). Only on a yes, run the same command with the approval flag. It can take several minutes, so give the Bash call a timeout of 600000 ms:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/lib/core/eureka/eureka-engine-enable.cjs" --setup --approved-via cli
+   ```
+
+   The last line of the setup output is `EUREKA_SETUP: OK <folder>`, `EUREKA_SETUP: OK engine-only <folder>` or `EUREKA_SETUP: FAIL <step> <reason>`. On OK the command saves the folder and prints the check. On FAIL it prints the 3-line error with the step and its Fix. On Not now, run nothing and say that it can run later with `/mos:eureka enable engine --setup`.
 
 Render ONE Shape E block per outcome: absent, present, or broken. For broken, name the cause from the command output and give its Fix line. A failed save uses the 3-line error pattern:
 
@@ -362,6 +376,8 @@ Common errors:
 ## Cross-Surface Adaptation
 
 Engine states: the engine is separate from `/mos:eureka` and is absent, present or broken on every surface. CLI: run `/mos:eureka enable engine --check`, then `--path` or `--sync`. Desktop: the saved setting file is read from the same machine, so a setting saved from the CLI applies; an environment variable set in a shell is not seen by an app started from a menu. Cowork: it keeps its own home folder; where the saved setting is not found, the engine tools answer engine absent. A present engine can still answer `engine_extra_missing`, `engine_model_missing` or `engine_node_missing` for a route that needs more. `/mos:eureka` (CLI) and `research_run` with op `perspective_recall` (Desktop and Cowork) need no engine.
+
+One-step setup on each surface. CLI: `/mos:eureka enable engine --setup` shows the card, and the setup runs only on a yes. The terminal installer `npx @mindrian_os/cli` offers the same card after the install (`--eureka` says yes, `--no-eureka` skips it). Desktop: there is no shell step for Larry; show the card text and tell the person to run `npx @mindrian_os/cli --eureka` in a terminal on the same computer (it runs the setup steps tested for that MindrianOS version); Desktop then reads the saved setting. Cowork: it keeps its own home folder, so an engine set up on the computer is not seen there and the engine tools answer engine absent.
 
 - **Pair screen:** CLI, Desktop and Cowork use the same tools (`eureka_capability_start`, `eureka_capability_job_status`, `eureka_capability_job_result`); the card is answered with `gate_answer` on every surface.
 - **CLI:** Full power. The perspective quick run drives the research planner via Bash.

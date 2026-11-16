@@ -91,6 +91,10 @@ Tell the user:
 Theo is part of MindrianOS and needs no key, so there is nothing to set up here. Do not ask the user for anything and do not add a second connector.
 `/mos:doctor` reports whether Theo is reachable right now.
 
+### 3b. Eureka engine (optional)
+
+The Eureka engine is an optional extra for the Eureka graph tools. MindrianOS works without it. Offer it once, in one line: it can be set up with `/mos:eureka enable engine --setup`. That command shows its own card first (what it reaches, what it downloads, about how big and how long) and runs only on a yes. Do not run the setup from this command, and do not offer it a second time.
+
 ### 4. Summary
 
 Print a summary table:
@@ -99,6 +103,7 @@ Surface: {surface}
 Transport: {transport}
 MindrianOS MCP: {configured/instructions provided}
 Theo: part of MindrianOS, nothing to configure (/mos:doctor reports reachability)
+Eureka engine: optional, /mos:eureka enable engine --setup (card first)
 Capabilities: hooks={hooks}, apps={apps}, tasks={tasks}, scripts={scripts}
 ```
 
