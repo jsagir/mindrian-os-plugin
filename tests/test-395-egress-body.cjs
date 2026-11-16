@@ -191,7 +191,9 @@ check('E5 the sentence-count rule', function (p) {
     ['Explain the framework. Then give an example', 2],
     ['How does a team use e.g. the five whys vs. a fishbone? Which comes first?', 2],
     ['What did the U.S. market teach about the S-curve? How do firms use it?', 2],
-    ['How does the model of J. Doe work? What does it add?', 2],
+    // Plan 395-13 review round 2 NEW-WR-01 (fail closed): a single initial ends a sentence.
+    ['How does the model of J. Doe work? What does it add?', 3],
+    ['How does the model of J. R. R. Tolkien work? What does it add?', 2],
     ['Version 2.0 is out. What changed?', 2],
     ['1. Define the job\n2. Map the steps', 2],
     ['- define the job\n- map the steps\n- find the gaps', 3],

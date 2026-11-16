@@ -392,7 +392,8 @@ check('L18 generic questions keep their sentence count', function (p) {
   const rows = [
     ['How does a team use e.g. the five whys vs. a fishbone? Which comes first?', 2],
     ['What did the U.S. market teach about the S-curve? How do firms use it?', 2],
-    ['How does the model of J. Doe work? What does it add?', 2],
+    ['How does the model of J. Doe work? What does it add?', 3],
+    ['How does the model of J. R. R. Tolkien work? What does it add?', 2],
     ['Version 2.0 is out. What changed?', 2],
     ['Explain the jobs to be done framework.', 1],
     ['What is SWOT; how is it used?', 2],
