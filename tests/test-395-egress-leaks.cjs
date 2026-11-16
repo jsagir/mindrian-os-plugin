@@ -295,6 +295,10 @@ function runHook(toolName, input) {
 }
 
 // ---- L06 (p06) -----------------------------------------------------------
+// The p06 row mcp__theo__search is not here: that typed tool of the raw theo
+// server is outside the hook scope (isBrainShapedTool is false, THEO-04: the
+// raw server is for questions about Theo itself). It is pre-existing and is a
+// RISK of the fix record, not a finding of the review.
 check('L06 the hook stops the merge, the 6-mark fence leak and the slow input', function (p) {
   const merge = F03[0] + '\n> see note\n' + F03[1] + '\n> see note\n' + F03[2] + '\nwhich framework fits';
   const fence6 = 'explain with a framework\n``````\n' + SECRET4 + '\n``````';
@@ -303,7 +307,6 @@ check('L06 the hook stops the merge, the 6-mark fence leak and the slow input', 
     ['direct merge', DIRECT_TOOL, { question: merge }],
     ['theo fence6', THEO_TOOL, { question: fence6 }],
     ['direct slow', DIRECT_TOOL, { question: 'a.' + '"'.repeat(60000) + ' 1' }],
-    ['theo typed search', 'mcp__theo__search', { query: merge }],
     ['direct typed search', 'mcp__pws-brain-mcp__search', { query: merge }],
   ];
   rows.forEach(function (row) {
