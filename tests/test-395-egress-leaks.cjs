@@ -402,6 +402,12 @@ check('L18 generic questions keep their sentence count', function (p) {
   });
   const lineCut = shapeMod.cutPastedText('the board met\n> see note\nthe investor left\nwhich framework fits');
   if (lineCut.text !== 'the board met\n' + NOTE + '\nthe investor left\nwhich framework fits') p.push('the cut joins lines: ' + JSON.stringify(lineCut.text));
+  // test-386-audit-probe-gate C80 and C81: a semicolon and a file name keep a sprout a sprout.
+  ['how do I name the job; Larry shows or shares your work', 'how do I materialize a confirmed SyntheticExpert node into a room-scoped SKILL.md'].forEach(function (q) {
+    const k = shapeMod.classifyShape(q).kind;
+    if (k !== 'sprout') p.push(JSON.stringify(q) + ' kind ' + k + ' != sprout');
+  });
+  if (shapeMod.classifyShape('What is SKILL.md? How is it used?').sentences !== 2) p.push('SKILL.md splits a sentence');
   [['see www.example.com now', 1], ['What is Yahoo!Mail?', 1], ['open example.com/page?id=3 now', 1]].forEach(function (r) {
     const n = shapeMod.classifyShape(r[0]).sentences;
     if (n > 2) p.push(JSON.stringify(r[0]) + ' sentences ' + n + ' > 2');
