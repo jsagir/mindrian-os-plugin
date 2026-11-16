@@ -195,8 +195,12 @@ leg('frontmatter: web_scope white, Task pre-approved, autonomous_safe true, hitl
 // ============================================================================
 // Leg 2: frontmatter values that must stay exactly as they were.
 // ============================================================================
-leg('frontmatter: frameworks, filing, reach_id, sub_mode unchanged; sensor_triggers per quick-260923-u8v', () => {
-  assert.strictEqual(extractTopScalar(fm, 'frameworks'), '["Dominant Design"]', 'frameworks must be unchanged');
+leg('frontmatter: frameworks keep Dominant Design first; filing, reach_id, sub_mode unchanged; sensor_triggers per quick-260923-u8v', () => {
+  // Owner ruling 2026-11-16 (plan 395-15 section 11, option a): a PwS-backed
+  // framework may be appended to the list. The first name stays the same,
+  // because 3 readers use frameworks[0] (plan 395-15 D2).
+  const fwList = JSON.parse(extractTopScalar(fm, 'frameworks'));
+  assert.ok(Array.isArray(fwList) && fwList[0] === 'Dominant Design', 'frameworks must keep Dominant Design first');
   // SENS-09 was added on purpose by quick-260923-u8v (commit 8c6771ef5,
   // "SENS-09 surfaces Dominant Design on Theo ch04 tells") after 361-07
   // pinned the pre-phase value; this pin tracks that ruling, and every other

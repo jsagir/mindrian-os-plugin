@@ -75,14 +75,15 @@ const STAGES = [
   ['filing', ['F.8'], 'parallel'],
 ];
 
-// C1 frontmatter
+// C1 frontmatter. Owner ruling 2026-11-16 (plan 395-15 section 11, option a):
+// a PwS-backed framework may be appended; the 2 base names stay first, in order.
 {
   const fw = flat.frameworks;
   const tools = Array.isArray(flat['allowed-tools']) ? flat['allowed-tools'] : [];
   const parts = Array.isArray(flat.canon_parts) ? flat.canon_parts.map(Number) : [];
   C.check('C1 frontmatter: name, kind, safety, frameworks, produces, tools, canon_parts, argument-hint',
     !!cmd && flat.name === 'scientific-roadmap' && flat.kind === 'methodology' && flat.autonomous_safe === false &&
-    Array.isArray(fw) && fw.length === 2 && fw[0] === 'Scientific Roadmapping' && fw[1] === 'Hypothesis-Driven Problem Solving' &&
+    Array.isArray(fw) && fw.length >= 2 && fw[0] === 'Scientific Roadmapping' && fw[1] === 'Hypothesis-Driven Problem Solving' &&
     flat.produces === 'room/research-plan/*' && tools.indexOf('AskUserQuestion') !== -1 &&
     parts.indexOf(11) !== -1 && /--from-hypothesis/.test(String(flat['argument-hint'] || '')),
     cmd ? JSON.stringify({ name: flat.name, kind: flat.kind, safe: flat.autonomous_safe, fw: fw, produces: flat.produces }) : 'command file absent');

@@ -295,10 +295,16 @@ leg('P3 frontmatter: only teaching changes (whitespace also gains Write with a p
     const isTeach = (l) => /^teaching:/.test(l);
     const isPreApproval = (l) => /^\s*#/.test(l) && /pre-approval/i.test(l);
     const isWrite = (l) => /^\s+-\s+Write\s*$/.test(l);
+    // Owner ruling 2026-11-16 (plan 395-15 section 11, option a): the frameworks
+    // line may change, but only by PwS-backed names appended after the base list.
+    const isFw = (l) => /^frameworks:/.test(l);
     const baseLines = c.baseFm.split('\n');
     const newLines = c.fm.split('\n');
-    const strip = (lines) => lines.filter((l) => !isTeach(l) && !(c.name === 'whitespace' && (isPreApproval(l) || isWrite(l))));
+    const strip = (lines) => lines.filter((l) => !isTeach(l) && !isFw(l) && !(c.name === 'whitespace' && (isPreApproval(l) || isWrite(l))));
     assert.deepEqual(strip(newLines), strip(baseLines), rel + ': frontmatter changed beyond the allowed lines');
+    const baseFw = JSON.parse(extractTopScalar(c.baseFm, 'frameworks') || '[]');
+    const newFw = JSON.parse(extractTopScalar(c.fm, 'frameworks') || '[]');
+    assert.deepEqual(newFw.slice(0, baseFw.length), baseFw, rel + ': the base frameworks must stay first, in order');
     if (c.name === 'whitespace') {
       assert.equal(newLines.filter(isWrite).length, 1, rel + ': exactly one Write entry');
       assert.equal(newLines.filter(isPreApproval).length >= 1, true, rel + ': a comment containing pre-approval');

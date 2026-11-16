@@ -124,7 +124,9 @@ leg('T3 frameworks are exact canon names and match the door frontmatter', functi
     assertTrue(names.indexOf(fw) !== -1, id + ' framework not canon: ' + fw);
     if (COMMAND_FILES[id]) {
       const src = fs.readFileSync(path.join(ROOT, 'commands', COMMAND_FILES[id]), 'utf8');
-      const m = src.match(/^frameworks:\s*\[\s*"([^"]+)"\s*\]/m);
+      // Owner ruling 2026-11-16 (plan 395-15 section 11, option a): the door may list
+      // more PwS-backed frameworks; the FIRST name stays the template framework.
+      const m = src.match(/^frameworks:\s*\[\s*"([^"]+)"/m);
       assertTrue(m && m[1] === fw, id + ' frontmatter frameworks');
     }
   });
