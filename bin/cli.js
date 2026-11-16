@@ -219,7 +219,8 @@ switch (sub) {
     // Flags after `install` (or leading flags when `install` is implied) pass
     // through to `claude plugin install` (e.g. `... --version 1.13.0-beta.9`).
     const rawArgs = process.argv.slice(argOffset);
-    const eurekaChoice = rawArgs.includes('--eureka') ? 'yes' : (rawArgs.includes('--no-eureka') ? 'no' : 'ask');
+    // IN-02 (395-11 review): --no-eureka wins over --eureka (the safe choice)
+    const eurekaChoice = rawArgs.includes('--no-eureka') ? 'no' : (rawArgs.includes('--eureka') ? 'yes' : 'ask');
     const passthrough = rawArgs.filter((a) => a !== '--eureka' && a !== '--no-eureka');
     const pinned = passthrough.some((a) => a === '--version' || a.startsWith('--version='));
 
