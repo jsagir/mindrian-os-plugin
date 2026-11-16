@@ -20,6 +20,7 @@
  *   S9   no result line, and a command that cannot start: exit 1, "stopped without its result line"
  *   S10  parseSetupLine: the 3 forms, a folder with spaces, only the last line counts, carriage returns
  *   S11  the setup child environment holds no CLAUDE_, room or Brain variable, and holds HOME
+ *   S11b WR-07: the proxy, certificate and package-index variables reach the setup child
  *   S12  --check with no engine: the Fix line names --setup and --path <folder>; nothing is spawned
  *   S13  --path and --sync still work as before (save, grant card exit 2, approved sync)
  *   S14  source guard: runEngineSetup is called once, inside modeSetup, after the no-approval return;
@@ -362,6 +363,22 @@ function bodyOf(code, name) {
       assert.ok(names.indexOf(bad) === -1, 'the child got ' + bad);
     }
     assert.ok(names.indexOf('HOME') !== -1, 'the child did not get HOME');
+  });
+
+  await arm('S11b WR-07: the proxy, certificate and package-index settings reach the setup child', async () => {
+    const iso = mkIsolatedHome('395-s11b');
+    const envFile = path.join(iso.home, 'child-env.txt');
+    const net = {
+      HTTP_PROXY: 'http://127.0.0.1:3128', HTTPS_PROXY: 'http://127.0.0.1:3128', ALL_PROXY: 'socks5://127.0.0.1:1080', NO_PROXY: 'localhost',
+      UV_INDEX_URL: 'http://127.0.0.1:9/simple', UV_DEFAULT_INDEX: 'http://127.0.0.1:9/simple', PIP_INDEX_URL: 'http://127.0.0.1:9/simple',
+      UV_NATIVE_TLS: '1', HF_ENDPOINT: 'http://127.0.0.1:9/hf', CURL_CA_BUNDLE: '/etc/ca.pem', SSL_CERT_FILE: '/etc/ca.pem',
+      GIT_SSL_CAINFO: '/etc/ca.pem', NODE_EXTRA_CA_CERTS: '/etc/ca.pem',
+    };
+    const { result } = await approved(iso, ['none', path.join(iso.home, 'e'), envFile], { env: envOf(iso, Object.assign({ MINDRIAN_BRAIN_KEY: 'k' }, net)) });
+    assert.equal(result.exitCode, 1);
+    const lines = fs.readFileSync(envFile, 'utf8').split('\n');
+    for (const key of Object.keys(net)) assert.ok(lines.indexOf(key + '=' + net[key]) !== -1, 'the child did not get ' + key);
+    assert.ok(!lines.some((l) => l.startsWith('MINDRIAN_BRAIN_KEY=')), 'the child got the Brain key');
   });
 
   await arm('S12 --check with no engine: the Fix line names --setup and --path <folder>; nothing spawned', async () => {
