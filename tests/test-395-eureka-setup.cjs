@@ -28,6 +28,8 @@
  *        is shown and no setup runs; the card is printed before the approved run in offerEurekaSetup
  *   S17  owner ruling 34: EUREKA_SETUP_COMMIT is a full 40-character commit; every setup URL (both commands,
  *        both cards) uses exactly that commit, never main or another branch; the docs name no branch URL
+ *   S18  CR-01: the card names the .bak overwrite, the deleted lines, the uv cache, uv Python and the uv
+ *        installer changes; an approved POSIX run first keeps an existing ~/.bashrc.bak as .bak.mindrian-<time>
  *   S16  this process made 0 non-loopback connection attempts, and no spawn tried curl, powershell or
  *        raw.githubusercontent.com (such a spawn is blocked by this file and never runs)
  *
@@ -415,6 +417,38 @@ function bodyOf(code, name) {
     assert.ok(!/eureka/i.test(argv), 'an Eureka flag reached claude: ' + argv);
     assert.ok(!fs.existsSync(path.join(iso.home, '.mindrian')), 'the installer wrote under HOME without a yes');
     assert.ok(!fs.existsSync(curlLog), 'the installer started the setup without a yes');
+  });
+
+  await arm('S18 CR-01: the card names every change of the script; an existing .bak file is kept before the run', async () => {
+    const iso = mkIsolatedHome('395-s18');
+    const posix = mod.run(['--setup'], { env: envOf(iso), platform: 'linux' }).stdout;
+    for (const needle of ['every line that holds MINDRIAN_EUREKA_RS_MODEL_PATH is deleted', '~/.bashrc.bak and ~/.zshrc.bak',
+      'replaces a file you already have with that name', '<name>.bak.mindrian-', 'the uv package cache', 'Python 3.12 managed by uv',
+      'the uv installer from astral.sh puts uv in ~/.local/bin', 'shell start files', 'can become a plain file']) {
+      assert.ok(posix.includes(needle), 'POSIX card lacks: ' + needle);
+    }
+    const win = mod.run(['--setup'], { env: envOf(iso), platform: 'win32' }).stdout;
+    for (const needle of ['MINDRIAN_EUREKA_RS_MODEL_PATH', 'the uv package cache', 'Python 3.12 managed by uv', 'adds that folder to your user PATH']) {
+      assert.ok(win.includes(needle), 'Windows card lacks: ' + needle);
+    }
+    assert.ok(!fs.existsSync(path.join(iso.home, '.mindrian')), 'the card wrote under HOME');
+    // approved: ~/.bashrc and an own ~/.bashrc.bak exist; ~/.zshrc.bak exists without ~/.zshrc (the script skips it)
+    fs.writeFileSync(path.join(iso.home, '.bashrc'), 'echo rc\n');
+    fs.writeFileSync(path.join(iso.home, '.bashrc.bak'), 'my own backup\n');
+    fs.writeFileSync(path.join(iso.home, '.zshrc.bak'), 'not touched\n');
+    const engine = path.join(iso.home, '.mindrian', 'eureka-engine');
+    const { result, screen } = await approved(iso, ['ok', engine], { now: new Date('2026-11-16T10:20:30.400Z') });
+    assert.equal(result.exitCode, 0, out(result));
+    const keep = path.join(iso.home, '.bashrc.bak.mindrian-2026-11-16T10-20-30-400Z');
+    assert.equal(fs.readFileSync(keep, 'utf8'), 'my own backup\n', 'the own .bak file was not kept');
+    assert.ok(screen.text().indexOf('MindrianOS kept a copy of ' + path.join(iso.home, '.bashrc.bak')) !== -1, 'the copy was not shown');
+    assert.ok(screen.text().indexOf('kept a copy') < screen.text().indexOf('== 1/6 tools'), 'the copy must come before the setup runs');
+    assert.ok(!fs.readdirSync(iso.home).some((n) => n.startsWith('.zshrc.bak.mindrian-')), 'a .bak file was copied for a start file that does not exist');
+    // a second run in the same instant never replaces the kept copy: the setup stops before it runs
+    const again = await approved(iso, ['ok', engine], { now: new Date('2026-11-16T10:20:30.400Z') });
+    assert.equal(again.result.exitCode, 1, out(again.result));
+    assert.ok(again.result.stderr.includes('The Eureka setup did not start.'), again.result.stderr);
+    assert.equal(again.rec.calls.length, 0, 'the setup ran after a failed copy');
   });
 
   await arm('S17 the setup scripts are pinned to a 40-character engine commit, never a branch', async () => {
