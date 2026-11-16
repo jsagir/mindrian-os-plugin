@@ -35,6 +35,9 @@
  *   L17 the wire: brain.ask sends no secret byte for every arm above
  *   L18 no regression: generic questions keep their sentence count
  *   L19 IN-03 no cut span stands in the sent text (the disclosure is true)
+ *   L20 round 2 probes (NEW-BL-01, NEW-BL-02, NEW-WR-01 to NEW-WR-03)
+ *   L21 round 2 property: the cut keeps the sentence and the line count
+ *   L22 round 2: classifyAndCut asserts the line count
  *
  * Every string is synthetic. No network: globalThis.fetch is a stub that
  * records each tools/call (the same stub as the review probes), and the hook
@@ -227,8 +230,17 @@ add('L14', 'WR-05 unclosed pre', 'explain this with a framework <pre>board.fireF
 add('L14', 'WR-05 unclosed guillemet', 'explain this text «the board plans to fire the founder after the audit with a framework?', 'block', ['fire the founder']);
 add('L14', 'WR-05 unclosed smart quote', 'explain this text “the board plans to fire the founder after the audit with a framework?', 'block', ['fire the founder']);
 
+// ---- L20 (round 2: v2-fix-attack.cjs, v2b-fix-attack.cjs) -----------------
+const S20 = ['fire the founder', 'cut the budget', 'lead investor', 'Revenue fell', 'clinic pilot', 'fireFounderAfterAudit', 'boardPlan'];
+add('L20', 'v2 endInsideQuote (NEW-BL-01)', 'The board will fire the founder and said "we will cut the budget by half." The lead investor wrote "we want out before the next round." The clinic pilot failed and the regulator was told "there is nothing to report."', 'block', S20);
+add('L20', 'v2 multilineQuote (NEW-BL-02)', 'the board plans to fire the founder after the audit "see\nnote one two" the lead investor wants out before the round "see\nnote three four" the clinic pilot failed and nobody told the regulator', 'block', S20);
+add('L20', 'v2 initialAfterBridge (NEW-WR-01)', 'The board fired the head of B. Revenue fell after the audit. The pilot failed for lack of D. Regulators were not told.', 'block', S20);
+add('L20', 'v2 nameEndingInShort (NEW-WR-02)', 'The board will fire the founder after the audit.In short the lead investor wants out.In short the clinic pilot failed and nobody told the regulator.', 'block', S20);
+add('L20', 'v2 fenceInnerRun (NEW-WR-03)', 'explain with a framework ``` code1 ```` boardPlan fireFounderAfterAudit investorExit ``` end', 'noLeak', S20);
+add('L20', 'v2 fenceLineInnerRun (NEW-WR-03)', 'explain with a framework\n```\ncode1 ```` boardPlan fireFounderAfterAudit\n``` investorExit\nmore code\n```\nthanks', 'noLeak', S20);
+
 // ---- run the guard arms --------------------------------------------------
-['L01', 'L02', 'L03', 'L04', 'L07', 'L08', 'L10', 'L12', 'L13', 'L14'].forEach(function (arm) {
+['L01', 'L02', 'L03', 'L04', 'L07', 'L08', 'L10', 'L12', 'L13', 'L14', 'L20'].forEach(function (arm) {
   const rows = CASES.filter(function (c) { return c.arm === arm; });
   rows.forEach(function (c) {
     check(arm + ' ' + c.name + ' (' + c.expect + ')', function (p) { judge(c, p); });
@@ -436,6 +448,60 @@ check('L19 no cut span stands in the sent text; a repeated paste fails closed', 
   });
   const again = cutOf('explain "' + P07 + '" with a framework, and ' + P07 + '?');
   if (!(again.verdict.verdict === 'block' && again.cut === 0)) p.push('repeated paste: ' + tag(again.verdict) + ' cut ' + again.cut);
+});
+
+// ---- L21 (round 2: NEW-BL-01 and NEW-BL-02 as properties) -----------------
+// A seeded generator over the fuzz categories: sentences joined by each end
+// mark or line break, each with an optional pasted span (straight, smart,
+// single, guillemet, inline code, a fence), the end mark inside or after the
+// span, and spans that cross a line break. For each text the reference is the
+// same text with each span content replaced by 1 word, end marks kept.
+// Property 1: sentences(cut text) >= sentences(reference).
+// Property 2: the cut never reduces the line count (countNewlines).
+check('L21 the cut keeps the sentence and line count (property, 600 cases)', function (p) {
+  let seed = 0x395b2;
+  const rnd = function (n) { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed % n; };
+  const pick = function (xs) { return xs[rnd(xs.length)]; };
+  const words = ['the board plans to fire the founder', 'the lead investor wants out', 'the clinic pilot failed', 'nobody told the regulator', 'the budget was cut by half'];
+  const seps = ['. ', '! ', '? ', '.', '\u3002', '\uFF0E ', '\u2026 ', '\n', '\r\n', '\u2028', '\u0085', '. \n'];
+  const wraps = [['"', '"'], ['\u201C', '\u201D'], ["'", "'"], ['\u00AB', '\u00BB'], ['`', '`'], [' ```\n', '\n``` ']];
+  const marks = ['.', '!', '?', ''];
+  let bad = 0;
+  for (let c = 0; c < 600 && bad < 6; c += 1) {
+    const n = 3 + rnd(3);
+    let orig = '';
+    let ref = '';
+    for (let i = 0; i < n; i += 1) {
+      const sep = i < n - 1 ? pick(seps) : '';
+      const base = pick(words);
+      if (rnd(2) === 0) {
+        const w = pick(wraps);
+        const m = pick(marks);
+        const inside = rnd(2) === 0;
+        const body = 'we said one two three four five' + (rnd(4) === 0 ? '\nand six seven' : '');
+        const said = base + ' and wrote ' + w[0] + body + (inside ? m : '') + w[1] + (inside ? '' : m);
+        const refSaid = base + ' and wrote ' + w[0] + 'x' + (inside ? m : '') + w[1] + (inside ? '' : m);
+        orig += said + (m && sep.indexOf('.') === 0 ? sep.slice(1) : sep);
+        ref += refSaid.split('\n').join(' ') + (m && sep.indexOf('.') === 0 ? sep.slice(1) : sep);
+      } else {
+        orig += base + sep;
+        ref += base + sep;
+      }
+    }
+    const cut = shapeMod.cutPastedText(orig);
+    if (cut.ambiguous) continue;
+    const a = shapeMod.classifyShape(cut.text).sentences;
+    const b = shapeMod.classifyShape(ref).sentences;
+    if (a < b) { bad += 1; p.push('sentences ' + a + ' < ' + b + ' for ' + JSON.stringify(orig).slice(0, 120)); }
+    const lo = (orig.match(/\r\n|[\n\r\u0085\u2028\u2029]/g) || []).length;
+    const lc = (cut.text.match(/\r\n|[\n\r\u0085\u2028\u2029]/g) || []).length;
+    if (cut.count > 0 && lc < lo) { bad += 1; p.push('lines ' + lc + ' < ' + lo + ' for ' + JSON.stringify(orig).slice(0, 120)); }
+  }
+});
+
+check('L22 classifyAndCut fails closed when the cut would reduce the line count', function (p) {
+  const src = fs.readFileSync(GUARD_PATH, 'utf8');
+  if (!/countNewlines\(cut\.text\)\s*<\s*_sproutShape\.countNewlines\(entry\.str\)/.test(src)) p.push('no line-count invariant in classifyAndCut');
 });
 
 // ---- L17 (async): the wire -----------------------------------------------
