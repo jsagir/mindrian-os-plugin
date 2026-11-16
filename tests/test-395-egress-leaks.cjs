@@ -38,6 +38,7 @@
  *   L20 round 2 probes (NEW-BL-01, NEW-BL-02, NEW-WR-01 to NEW-WR-03)
  *   L21 round 2 property: the cut keeps the sentence and the line count
  *   L22 round 2: classifyAndCut asserts the line count
+ *   L23 round 3 probes (R3-WR-01 titles, R3-WR-02 end marks inside a span)
  *
  * Every string is synthetic. No network: globalThis.fetch is a stub that
  * records each tools/call (the same stub as the review probes), and the hook
@@ -239,8 +240,18 @@ add('L20', 'v2 nameEndingInShort (NEW-WR-02)', 'The board will fire the founder 
 add('L20', 'v2 fenceInnerRun (NEW-WR-03)', 'explain with a framework ``` code1 ```` boardPlan fireFounderAfterAudit investorExit ``` end', 'noLeak', S20);
 add('L20', 'v2 fenceLineInnerRun (NEW-WR-03)', 'explain with a framework\n```\ncode1 ```` boardPlan fireFounderAfterAudit\n``` investorExit\nmore code\n```\nthanks', 'noLeak', S20);
 
+// ---- L23 (round 3: v3-round3.cjs) ------------------------------------------
+const S23 = ['fire the founder', 'Investors left', 'Regulators were not told', 'lead investor', 'clinic pilot'];
+const P23 = {
+  titleLower: 'The board fired the founder and hired a dr. Investors left before the round closed. The clinic pilot failed under a prof. Regulators were not told about it.',
+  titleUpper: 'The board fired the founder and hired a Dr. Investors left before the round closed. The clinic pilot failed under a Prof. Regulators were not told about it.',
+  titleSt: 'The clinic sits on the main st. Investors left before the round closed. The pilot failed and the board hired a new mr. Regulators were not told.',
+  midQuoteEnds: 'The board will fire the founder "per the memo. Then the" lead investor wants out before the round "per his note. Then the" clinic pilot failed and nobody told the regulator.',
+};
+Object.keys(P23).forEach(function (k) { add('L23', 'v3 ' + k + (k === 'midQuoteEnds' ? ' (R3-WR-02)' : ' (R3-WR-01)'), P23[k], 'block', S23); });
+
 // ---- run the guard arms --------------------------------------------------
-['L01', 'L02', 'L03', 'L04', 'L07', 'L08', 'L10', 'L12', 'L13', 'L14', 'L20'].forEach(function (arm) {
+['L01', 'L02', 'L03', 'L04', 'L07', 'L08', 'L10', 'L12', 'L13', 'L14', 'L20', 'L23'].forEach(function (arm) {
   const rows = CASES.filter(function (c) { return c.arm === arm; });
   rows.forEach(function (c) {
     check(arm + ' ' + c.name + ' (' + c.expect + ')', function (p) { judge(c, p); });
@@ -252,6 +263,14 @@ check('L02 sentence count of the evasion forms is 3 or more', function (p) {
   Object.keys(P02).forEach(function (k) {
     const s = shapeMod.classifyShape(P02[k]);
     if (!(s.sentences >= 3 && s.kind === 'body')) p.push(k + ' sentences ' + s.sentences + ' kind ' + s.kind);
+  });
+});
+
+// R3-WR-01: a title before a capital word ends a sentence for the body rule.
+check('L23 sentence count of the title forms is 3 or more', function (p) {
+  ['titleLower', 'titleUpper', 'titleSt'].forEach(function (k) {
+    const n = shapeMod.classifyShape(P23[k]).sentences;
+    if (n < 3) p.push(k + ' sentences ' + n);
   });
 });
 
