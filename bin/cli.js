@@ -20,9 +20,12 @@
  *             left to configure after the install.
  *             Phase 395 plan 11: after the install it offers ONE optional step,
  *             "Set up the Eureka engine". It prints the card first and asks
- *             (default No) only in an interactive terminal. --eureka says yes
- *             without the question (the card still prints first); --no-eureka
- *             skips it. Neither flag is passed to `claude plugin install`.
+ *             (default No) only in an interactive terminal. --eureka prints the
+ *             card and asks in a terminal; with no terminal it prints the card
+ *             and the --eureka --yes line and runs nothing. --eureka --yes runs
+ *             after the card without the question (owner ruling 2026-11-16,
+ *             WR-05). --no-eureka skips it. None of these flags is passed to
+ *             `claude plugin install`.
  *   doctor    Run /mos:doctor's diagnostic from OUTSIDE Claude Code so you catch
  *             install/drift problems before a session. Resolves the installed
  *             plugin (marketplace cache, dev clone, or MINDRIAN_OS_ROOT), then
@@ -98,7 +101,11 @@ function hasDoctor(dir) {
 }
 
 // Phase 395 plan 11: the optional Eureka engine step. The card always prints before anything runs.
-// choice: 'yes' (--eureka), 'no' (--no-eureka) or 'ask' (a y/N question, only in an interactive terminal).
+// Owner ruling 2026-11-16 (WR-05, "card first, then go"):
+//   'ask'  (no flag)           in a terminal: card, then y/N (default No); with no terminal: no card, no run
+//   'card' (--eureka)          card, then y/N in a terminal; with no terminal: card and the --eureka --yes line, no run
+//   'yes'  (--eureka --yes)    card, then the setup runs without the question
+//   'no'   (--no-eureka)       no card, no run
 function offerEurekaSetup(choice) {
   const later = 'Eureka engine (optional): run  /mos:eureka enable engine --setup  inside Claude Code at any time.';
   const skip = () => { console.log(''); console.log(later); return Promise.resolve(0); };
@@ -118,8 +125,14 @@ function offerEurekaSetup(choice) {
     return r.exitCode;
   });
   if (choice === 'yes') {
-    console.log('You gave --eureka, so the setup starts now.');
+    console.log('You gave --eureka --yes, so the setup starts now.');
     return go();
+  }
+  if (!interactive) {
+    console.log('There is no terminal to answer in, so the setup did not run.');
+    console.log('To run it without the question, run:  npx @mindrian_os/cli --eureka --yes');
+    console.log(later);
+    return Promise.resolve(0);
   }
   return new Promise((resolve) => {
     const rl = require('node:readline').createInterface({ input: process.stdin, output: process.stdout });
@@ -140,7 +153,8 @@ function offerEurekaSetup(choice) {
 function printUsage() {
   console.log('mindrian-os <install|doctor|update>   (no subcommand = install)');
   console.log('  install   install / bring current via Claude Code (marketplace add + plugin install/update)');
-  console.log('            --eureka also sets up the optional Eureka engine (card first); --no-eureka skips the offer');
+  console.log('            --eureka shows the optional Eureka engine card, then asks (y/N) in a terminal;');
+  console.log('            --eureka --yes runs it after the card without the question; --no-eureka skips the offer');
   console.log('  doctor    run the MindrianOS install/drift diagnostic (passes flags through to /mos:doctor)');
   console.log('  update    bring MindrianOS current (marketplace update + plugin update; or git pull for a dev clone)');
 }
@@ -219,9 +233,13 @@ switch (sub) {
     // Flags after `install` (or leading flags when `install` is implied) pass
     // through to `claude plugin install` (e.g. `... --version 1.13.0-beta.9`).
     const rawArgs = process.argv.slice(argOffset);
-    // IN-02 (395-11 review): --no-eureka wins over --eureka (the safe choice)
-    const eurekaChoice = rawArgs.includes('--no-eureka') ? 'no' : (rawArgs.includes('--eureka') ? 'yes' : 'ask');
-    const passthrough = rawArgs.filter((a) => a !== '--eureka' && a !== '--no-eureka');
+    // IN-02 (395-11 review): --no-eureka wins over --eureka (the safe choice).
+    // WR-05 (owner ruling 2026-11-16): --eureka shows the card and asks; only --eureka --yes runs without the question.
+    const eurekaFlag = rawArgs.includes('--eureka');
+    const eurekaYes = eurekaFlag && rawArgs.includes('--yes');
+    const eurekaChoice = rawArgs.includes('--no-eureka') ? 'no' : (eurekaFlag ? (eurekaYes ? 'yes' : 'card') : 'ask');
+    // --yes belongs to --eureka only; without --eureka it passes through as before
+    const passthrough = rawArgs.filter((a) => a !== '--eureka' && a !== '--no-eureka' && !(eurekaFlag && a === '--yes'));
     const pinned = passthrough.some((a) => a === '--version' || a.startsWith('--version='));
 
     if (!requireClaudeCli()) process.exit(1);

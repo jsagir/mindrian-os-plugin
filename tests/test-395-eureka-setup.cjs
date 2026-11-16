@@ -27,7 +27,12 @@
  *   S14  source guard: runEngineSetup is called once, inside modeSetup, after the no-approval return;
  *        the plugin code holds no model download call
  *   S15  installer: --eureka and --no-eureka are not passed to claude; with --no-eureka or no terminal no card
- *        is shown and no setup runs; the card is printed before the approved run in offerEurekaSetup
+ *        is shown and no setup runs; the card is printed before the approved run in offerEurekaSetup;
+ *        IN-02: --no-eureka wins over --eureka
+ *   S22a-d WR-03/WR-05 (owner ruling 2026-11-16, card first, then go), the installer run for real with a fake
+ *        claude and a fake curl: --eureka with no terminal = card + the --eureka --yes line, no run;
+ *        --eureka --yes = card, then the run, no question; --eureka or no flag in a terminal = card, question,
+ *        y runs, empty, EOF and other answers are No with the Skipped line
  *   S17  owner ruling 34: EUREKA_SETUP_COMMIT is a full 40-character commit; every setup URL (both commands,
  *        both cards) uses exactly that commit, never main or another branch; the docs name no branch URL
  *   S18  CR-01: the card names the .bak overwrite, the deleted lines, the uv cache, uv Python and the uv
@@ -452,7 +457,7 @@ function bodyOf(code, name) {
     const cardIdx = offer.indexOf("enable.run(['--setup'], {})");
     const runIdx = offer.indexOf("'--approved-via', 'cli'");
     assert.ok(cardIdx !== -1 && runIdx !== -1 && cardIdx < runIdx, 'the card must be printed before the approved run');
-    assert.ok(/rawArgs\.filter\(\(a\) => a !== '--eureka' && a !== '--no-eureka'\)/.test(cli), 'the Eureka flags are not filtered out');
+    assert.ok(/rawArgs\.filter\(\(a\) => a !== '--eureka' && a !== '--no-eureka' && !\(eurekaFlag && a === '--yes'\)\)/.test(cli), 'the Eureka flags are not filtered out');
     const iso = mkIsolatedHome('395-s15');
     const bin = path.join(iso.home, 'fakebin');
     fs.mkdirSync(bin, { recursive: true });
@@ -462,7 +467,8 @@ function bodyOf(code, name) {
     const curlLog = path.join(iso.home, 'curl-argv.log');
     fs.writeFileSync(path.join(bin, 'curl'), '#!/bin/sh\necho "$*" >> "' + curlLog + '"\nexit 1\n', { mode: 0o755 });
     const env = Object.assign(envOf(iso), { PATH: bin + path.delimiter + process.env.PATH, FAKE_CLAUDE_LOG: log });
-    for (const args of [['--no-eureka'], []]) {
+    // IN-02: --no-eureka wins over --eureka (and over --eureka --yes)
+    for (const args of [['--no-eureka'], [], ['--eureka', '--no-eureka'], ['--no-eureka', '--eureka', '--yes']]) {
       const r = childProcess.spawnSync(process.execPath, [CLI].concat(args), { env, encoding: 'utf8', input: '', timeout: 60000 });
       assert.equal(r.status, 0, 'installer exit ' + r.status + ' ' + String(r.stderr).slice(0, 300));
       assert.ok(r.stdout.includes('Eureka engine (optional): run  /mos:eureka enable engine --setup'), 'no later line: ' + r.stdout.slice(-400));
@@ -474,6 +480,89 @@ function bodyOf(code, name) {
     assert.ok(!/eureka/i.test(argv), 'an Eureka flag reached claude: ' + argv);
     assert.ok(!fs.existsSync(path.join(iso.home, '.mindrian')), 'the installer wrote under HOME without a yes');
     assert.ok(!fs.existsSync(curlLog), 'the installer started the setup without a yes');
+  });
+
+  // WR-03 and WR-05 (owner ruling 2026-11-16, "card first, then go"): the installer paths run for real.
+  // A fake claude and a fake curl (first on PATH, exit 22) make every path safe: an approved setup stops at
+  // the download step. A small preload sets isTTY for the terminal paths (no pty library).
+  function installer(label, args, opts) {
+    const iso = mkIsolatedHome('395-s22-' + label);
+    const bin = path.join(iso.home, 'fakebin');
+    fs.mkdirSync(bin, { recursive: true });
+    const claudeLog = path.join(iso.home, 'claude-argv.log');
+    const curlLog = path.join(iso.home, 'curl-argv.log');
+    fs.writeFileSync(path.join(bin, 'claude'), '#!/bin/sh\necho "$*" >> "' + claudeLog + '"\nexit 0\n', { mode: 0o755 });
+    fs.writeFileSync(path.join(bin, 'curl'), '#!/bin/sh\necho "$*" >> "' + curlLog + '"\necho FAKE-CURL-RAN >&2\nexit 22\n', { mode: 0o755 });
+    assert.ok(fs.existsSync(path.join(bin, 'curl')), 'the fake curl is missing; the arm must not run');
+    const pre = [];
+    if (opts.tty) {
+      const preload = path.join(iso.home, 'tty-preload.cjs');
+      fs.writeFileSync(preload, 'process.stdin.isTTY = true;\nprocess.stdout.isTTY = true;\n');
+      pre.push('-r', preload);
+    }
+    const env = Object.assign(envOf(iso), { PATH: bin + path.delimiter + process.env.PATH });
+    const r = childProcess.spawnSync(process.execPath, pre.concat([CLI], args), { env, encoding: 'utf8', input: opts.input, timeout: 60000 });
+    const so = String(r.stdout || '');
+    return {
+      r, so, all: so + String(r.stderr || ''), ran: fs.existsSync(curlLog),
+      claudeArgv: fs.existsSync(claudeLog) ? fs.readFileSync(claudeLog, 'utf8') : '',
+      at: (needle) => so.indexOf(needle),
+    };
+  }
+  const CARD = 'It reaches these websites';
+  const QUESTION = 'Set up the Eureka engine now? (y/N)';
+  const YES_LINE = 'npx @mindrian_os/cli --eureka --yes';
+  const finished = (x) => { assert.equal(x.r.status, 0, 'installer exit ' + x.r.status + ' ' + x.all.slice(-300)); assert.ok(x.so.includes('Start:   open a fresh Claude Code session'), 'the install did not finish: ' + x.so.slice(-300)); };
+
+  await arm('S22a WR-05: --eureka with no terminal prints the card and the --eureka --yes line, asks nothing, runs nothing', async () => {
+    const x = installer('a', ['--eureka'], { tty: false, input: '' });
+    finished(x);
+    assert.ok(x.at(CARD) !== -1, 'no card');
+    assert.ok(x.at(YES_LINE) > x.at(CARD), 'the --eureka --yes line must follow the card');
+    assert.ok(x.at(QUESTION) === -1, 'a question was asked with no terminal');
+    assert.ok(!x.ran, 'the setup ran with --eureka alone and no terminal');
+    assert.ok(!/eureka/i.test(x.claudeArgv), 'an Eureka flag reached claude: ' + x.claudeArgv);
+  });
+
+  await arm('S22b WR-05: --eureka --yes prints the card, then runs without the question; the card comes before the spawn', async () => {
+    const x = installer('b', ['--eureka', '--yes'], { tty: false, input: '' });
+    finished(x);
+    assert.ok(x.at(CARD) !== -1, 'no card');
+    assert.ok(x.at(CARD) < x.at('You gave --eureka --yes'), 'the card must come before the start line');
+    assert.ok(x.at('You gave --eureka --yes') < x.at('FAKE-CURL-RAN'), 'the setup output must come after the card: ' + x.so.slice(-600));
+    assert.ok(x.ran, 'the setup did not start');
+    assert.ok(x.at(QUESTION) === -1, 'a question was asked with --yes');
+    assert.ok(x.all.includes('(step: download)'), 'the failed fake download was not reported: ' + x.all.slice(-400));
+    assert.ok(!/eureka|--yes/i.test(x.claudeArgv), 'an Eureka flag reached claude: ' + x.claudeArgv);
+  });
+
+  await arm('S22c WR-05/WR-03: --eureka in a terminal asks; y runs after the card and the question; empty and EOF are No', async () => {
+    const yes = installer('c-y', ['--eureka'], { tty: true, input: 'y\n' });
+    finished(yes);
+    assert.ok(yes.at(CARD) !== -1 && yes.at(CARD) < yes.at(QUESTION), 'the card must come before the question');
+    assert.ok(yes.at(QUESTION) < yes.at('FAKE-CURL-RAN'), 'the setup must start only after the question');
+    assert.ok(yes.ran, 'y did not start the setup');
+    for (const [label, input] of [['c-empty', '\n'], ['c-eof', '']]) {
+      const no = installer(label, ['--eureka'], { tty: true, input });
+      finished(no);
+      assert.ok(no.at(CARD) !== -1 && no.at(CARD) < no.at(QUESTION), label + ': the card must come before the question');
+      assert.ok(no.so.includes('Skipped. Eureka engine (optional)'), label + ': no Skipped line: ' + no.so.slice(-300));
+      assert.ok(!no.ran, label + ': the setup ran without a yes');
+    }
+  });
+
+  await arm('S22d WR-03: no flag in a terminal: card, question; y runs; empty and EOF (IN-01) are No with the Skipped line', async () => {
+    const yes = installer('d-y', [], { tty: true, input: 'y\n' });
+    finished(yes);
+    assert.ok(yes.at(CARD) !== -1 && yes.at(CARD) < yes.at(QUESTION) && yes.at(QUESTION) < yes.at('FAKE-CURL-RAN'), 'order is not card, question, run');
+    assert.ok(yes.ran, 'y did not start the setup');
+    for (const [label, input] of [['d-empty', '\n'], ['d-eof', ''], ['d-other', 'maybe\n']]) {
+      const no = installer(label, [], { tty: true, input });
+      finished(no);
+      assert.ok(no.at(CARD) !== -1 && no.at(CARD) < no.at(QUESTION), label + ': the card must come before the question');
+      assert.ok(no.so.includes('Skipped. Eureka engine (optional)'), label + ': no Skipped line: ' + no.so.slice(-300));
+      assert.ok(!no.ran, label + ': the setup ran without a yes');
+    }
   });
 
   await arm('S18 CR-01: the card names every change of the script; an existing .bak file is kept before the run', async () => {

@@ -59,7 +59,7 @@ Restart Claude Code. Larry starts talking. The Brain is part of what installs: y
 
 Prefer one command? `npx @mindrian_os/cli` does the same job. The full walkthrough is in the [install guide](https://mindrian-os.com/docs/install).
 
-**Optional: the Eureka engine.** After the install, `npx @mindrian_os/cli` offers one more step: set up the Eureka engine for the Eureka graph tools. It first shows what the step reaches and downloads, and the default answer is No. Add `--eureka` to say yes without the question, or `--no-eureka` to skip it. Inside Claude Code the same step is `/mos:eureka enable engine --setup`. MindrianOS works without it.
+**Optional: the Eureka engine.** After the install, `npx @mindrian_os/cli` offers one more step: set up the Eureka engine for the Eureka graph tools. It first shows what the step reaches and downloads, and the default answer is No. Add `--eureka` to see the card and the question even when the install would not ask, `--eureka --yes` to run the step after the card without the question (for scripts), or `--no-eureka` to skip it. With no terminal, `--eureka` alone shows the card and runs nothing. Inside Claude Code the same step is `/mos:eureka enable engine --setup`. MindrianOS works without it.
 
 **Quick start**
 
