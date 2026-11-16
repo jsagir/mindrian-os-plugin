@@ -1,0 +1,4630 @@
+{
+ "source": "Theo 49-17 live build, no cap (owner ruling 2026-11-16: No cap, plugin judges)",
+ "base": "5e4f6d9839c38abe6f6610a0849e8b6670781ef86ea34ea901903c9c1c2a9675",
+ "registry_ref": "fcb7cd1c3afb8bf01d545c425924db2fac9b35a7",
+ "filter": "rows not in base; statement_status ruled AND pws_backed true AND fit strong (395-15 rule 36)",
+ "commands": {
+  "/mos:analyze-needs": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:analyze-systems": [
+   {
+    "framework": "Reverse Salient",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one lagging part that holds it back\"."
+   },
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:analyze-timing": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:beautiful-question": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:bono": [
+   {
+    "framework": "Lean Startup",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "Quotes \"decide on purpose whether to pivot or persevere\"."
+   },
+   {
+    "framework": "Mullins Model",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"know if my venture has a real business case\"."
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"if my opportunity can become a real business\"; \"before I commit years to it\"."
+   }
+  ],
+  "/mos:build-thesis": [
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "Quotes \"decide on purpose whether to pivot or persevere\"."
+   },
+   {
+    "framework": "Mullins Model",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"know if my venture has a real business case\"."
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   }
+  ],
+  "/mos:causal": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:challenge-assumptions": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "surface-contradiction",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"name the contradiction ... resolve it instead of settling for a tradeoff\"."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:diagnose": [
+   {
+    "framework": "Lean Startup",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "Quotes \"decide on purpose whether to pivot or persevere\"."
+   },
+   {
+    "framework": "Mullins Model",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"know if my venture has a real business case\"."
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"if my opportunity can become a real business\"; \"before I commit years to it\"."
+   }
+  ],
+  "/mos:diffusion": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:dominant-designs": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:explore-domains": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:explore-trends": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:find-bottlenecks": [
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:futures": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "SAPPhIRE Model",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a twin in a distant field and borrow its solution\""
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"look up how other fields already got past it\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:grade-grant": [
+   {
+    "framework": "Lean Startup",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "Quotes \"decide on purpose whether to pivot or persevere\"."
+   },
+   {
+    "framework": "Mullins Model",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"know if my venture has a real business case\"."
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"if my opportunity can become a real business\"; \"before I commit years to it\"."
+   },
+   {
+    "framework": "Three Components of Innovation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"judge whether an idea can become an innovation\""
+   }
+  ],
+  "/mos:lean-canvas": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:macro-trends": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:map-unknowns": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:mullins": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:research": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:root-cause": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:rs-experts": [
+   {
+    "framework": "SAPPhIRE Model",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a twin in a distant field and borrow its solution\""
+   },
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"look up how other fields already got past it\"."
+   }
+  ],
+  "/mos:rs-explain": [
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:rs-fetch": [
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:rs-thesis": [
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:scenario-plan": [
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   }
+  ],
+  "/mos:scientific-roadmap": [
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real\""
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "Reverse Salient",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one lagging part that holds it back\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:score-innovation": [
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   }
+  ],
+  "/mos:structure-argument": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:systems-thinking": [
+   {
+    "framework": "Reverse Salient",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one lagging part that holds it back\"."
+   },
+   {
+    "framework": "Scientific Roadmapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"map the bottlenecks that block progress and rank them\"."
+   }
+  ],
+  "/mos:trending-to-absurd": [
+   {
+    "framework": "Creative Destruction",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an old industry starts to fade\"; see \"the destruction and the creation as one process\"."
+   },
+   {
+    "framework": "Dominant Design",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"tell whether the market is still in ferment or has settled on a standard\"."
+   },
+   {
+    "framework": "Dominant Design Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"check how that design got settled and what could crack it\"."
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   },
+   {
+    "framework": "Near-Term Trend Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the short-horizon trends in consumers, technology, and new competitors\"."
+   },
+   {
+    "framework": "Technology Adoption Lifecycle",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"know which group adopts now and which comes next\"."
+   },
+   {
+    "framework": "Value Migration",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"When a market shifts, I want to see where value is moving\"."
+   }
+  ],
+  "/mos:user-needs": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ],
+  "/mos:validate": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:validate-proposition": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"already love the fix I chose\": tests it to \"find its unintended consequences\"."
+   },
+   {
+    "framework": "Avoiding Bad Data",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers to test my problem\", \"discount compliments, vague promises\""
+   },
+   {
+    "framework": "BONO-Innovation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my hypothesis is still fuzzy ... reach a verdict\"."
+   },
+   {
+    "framework": "Black Hat Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"spend a set time on only its risks and weak points\""
+   },
+   {
+    "framework": "Build-Measure-Learn Cycle",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a risky assumption about my customer\"; \"build the smallest test, measure what happens\"."
+   },
+   {
+    "framework": "CIAs approach to challenging analytical assumptions",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list each key assumption and ask what evidence would make it false\""
+   },
+   {
+    "framework": "Continuous Discovery",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"talk to a customer every week\"; \"keep decisions tied to real evidence\"."
+   },
+   {
+    "framework": "Customer Development",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"validate customer segments before building\"."
+   },
+   {
+    "framework": "Discovery-Driven Planning",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list my assumptions and test them one by one\"."
+   },
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "Is it Real / Problem Validation Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check with real people that it exists as I describe it\""
+   },
+   {
+    "framework": "Lean Startup",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"beliefs I have not tested ... what I learn from real customers\"."
+   },
+   {
+    "framework": "Lean Startup (Build-Measure-Learn)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test my riskiest assumption\"; \"learn what is true instead of what I hope\""
+   },
+   {
+    "framework": "Logic Trees (Issue, Hypothesis, Decision)",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"split it into testable claims\"."
+   },
+   {
+    "framework": "Minimum Viable Product / MVP",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build the smallest version that tests my riskiest assumption\""
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test it across Mullins' seven domains\"; \"find the red light\"."
+   },
+   {
+    "framework": "Opposite Plan",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"assumptions I have not checked ... which assumptions carry the most risk\"."
+   },
+   {
+    "framework": "Red Teaming",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"what would have to be true for my product to disappear\" so I can \"find weak assumptions early\"."
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "Scientific Method",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"state it as a falsifiable hypothesis and run the cheapest test that could prove it wrong\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I call a new offer disruptive, I want to check\" it"
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"about to add a fix\": tests whether the fix holds before its \"unintended consequences\" cost more."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   },
+   {
+    "framework": "The Mom Test",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"interview customers about my idea\" so \"I can learn what is true\""
+   },
+   {
+    "framework": "Validation Ladder",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prove it step by step, from proof of concept\""
+   }
+  ],
+  "/mos:whitespace": [
+   {
+    "framework": "5 Whys Technique",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"get past the symptom to a cause I can control\"."
+   },
+   {
+    "framework": "Beautiful Question Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"an undefined problem\"; \"so I can find a better problem\"."
+   },
+   {
+    "framework": "Biodesign",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"collect and filter real clinical needs before I design anything\""
+   },
+   {
+    "framework": "Causal Loop Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem has many linked causes\"; \"see the feedback that drives it\"."
+   },
+   {
+    "framework": "Decomplexifying",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"instead of trusting the first plausible cause\": reaches the real problem."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Intensive Searching",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"stuck in an Ill-Defined problem\" to \"find an opening others missed\"."
+   },
+   {
+    "framework": "Issue tree",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the root cause\"."
+   },
+   {
+    "framework": "Jobs to Be Done",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the progress they are trying to make\"."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Market Process Theory Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for the gaps that alert people notice and others miss\"."
+   },
+   {
+    "framework": "Outcome-Driven Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the outcomes that are underserved\": the unmet need worth solving."
+   },
+   {
+    "framework": "PWS Methodology",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"no clear problem yet ... find a problem worth solving before I build anything\"."
+   },
+   {
+    "framework": "Root Cause Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"trace it down to its real cause ... not only the symptom\"."
+   },
+   {
+    "framework": "Scenario Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"build several plausible futures\" to \"find problems and opportunities nobody is looking at yet\""
+   },
+   {
+    "framework": "Stock and Flow Diagrams",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see why the problem keeps growing even after a fix\""
+   },
+   {
+    "framework": "System Archetypes",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the same problem keeps returning\" and \"find the real cause\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"study a problem from the outside\"; \"understand why it hurts the people who live it\""
+   },
+   {
+    "framework": "The Iceberg Model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"dig below to the patterns, structures and beliefs ... the cause and not the symptom\"."
+   },
+   {
+    "framework": "Understanding Needs Method",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the gap between where a person is and the progress they seek\"."
+   },
+   {
+    "framework": "User Experience Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the steps that matter most and work worst today\"."
+   },
+   {
+    "framework": "Well-Defined Problem Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my problem statement is still vague\"; \"a bounded, falsifiable statement\""
+   },
+   {
+    "framework": "Why-What If-How model",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"turn a shapeless doubt into a problem I can act on\""
+   },
+   {
+    "framework": "Wicked Problem Detection Framework",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem resists every fix\"; \"test whether it is wicked and map its system\"."
+   },
+   {
+    "framework": "Wired to Care",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see needs that reports and data miss\"."
+   }
+  ]
+ }
+}
