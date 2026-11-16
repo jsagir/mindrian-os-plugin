@@ -31,6 +31,8 @@
  *   S18  CR-01: the card names the .bak overwrite, the deleted lines, the uv cache, uv Python and the uv
  *        installer changes; an approved POSIX run first keeps an existing ~/.bashrc.bak as .bak.mindrian-<time>
  *   S19  WR-01: an injected short timeout stops the child and its grandchild (process group) and returns at once
+ *   S20  WR-02: a stderr line after the OK line, colour codes and a UTF-8 character split across two chunks
+ *        do not change the result; only stdout feeds the result line
  *   S16  this process made 0 non-loopback connection attempts, and no spawn tried curl, powershell or
  *        raw.githubusercontent.com (such a spawn is blocked by this file and never runs)
  *
@@ -122,6 +124,10 @@ const STUB = [
   '  fail:*) step="${mode#fail:}"; echo "EUREKA_SETUP: FAIL $step stub reason for $step"; exit 1 ;;',
   '  none) echo "something went wrong before the end"; exit 0 ;;',
   '  hang) sleep 30 & echo $! > "$engine"; wait ;;',
+  '  okwarn)',
+  '    mkdir -p "$engine/.venv/lib/python3.12/site-packages/mcp-2.0.0.dist-info"',
+  '    printf \'[project]\\nname = "mindrian-eureka"\\nrequires-python = ">=3.11"\\n\\n[project.scripts]\\neureka-mcp = "x:y"\\n\' > "$engine/pyproject.toml"',
+  '    echo "EUREKA_SETUP: OK $engine"; echo "WARN a late line on stderr" >&2 ;;',
   'esac',
   '',
 ].join('\n');
@@ -322,7 +328,11 @@ function bodyOf(code, name) {
     assert.deepEqual(p('EUREKA_SETUP: OK engine-only /h/my engine\r\n'), { form: 'ok_engine_only', folder: '/h/my engine', step: null, reason: null });
     assert.deepEqual(p('EUREKA_SETUP: FAIL packages uv sync failed (network or proxy?)'), { form: 'fail', folder: null, step: 'packages', reason: 'uv sync failed (network or proxy?)' });
     assert.equal(p('EUREKA_SETUP: FAIL model').reason, '');
-    assert.equal(p('EUREKA_SETUP: OK /h/x\nmore text after').form, 'none');
+    // WR-02: the result is the last EUREKA_SETUP: line; a later line does not hide it; colour codes are removed
+    assert.deepEqual(p('EUREKA_SETUP: OK /h/x\nmore text after'), { form: 'ok', folder: '/h/x', step: null, reason: null });
+    assert.equal(p('EUREKA_SETUP: FAIL model r\nEUREKA_SETUP: OK /h/y\n').folder, '/h/y');
+    assert.deepEqual(p('\x1b[32mEUREKA_SETUP: OK /h/x\x1b[0m\n'), { form: 'ok', folder: '/h/x', step: null, reason: null });
+    assert.equal(p('only progress\nno result here\n').form, 'none');
     assert.equal(p('progress\rEUREKA_SETUP: OK /h/x').form, 'ok');
     assert.equal(p('').form, 'none');
     for (const step of STEPS) assert.equal(p('EUREKA_SETUP: FAIL ' + step + ' r').step, step);
@@ -473,6 +483,37 @@ function bodyOf(code, name) {
     while (alive() && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
     assert.ok(!alive(), 'the grandchild (sleep) still runs after the timeout');
     assert.ok(!fs.existsSync(pointerFile(iso)), 'a folder was saved');
+  });
+
+  await arm('S20 WR-02: the result line comes from stdout only; a late stderr line and a split character break nothing', async () => {
+    const iso = mkIsolatedHome('395-s20');
+    const engine = path.join(iso.home, '.mindrian', 'eureka-engine');
+    const { result, screen } = await approved(iso, ['okwarn', engine]);
+    assert.equal(result.exitCode, 0, out(result));
+    assert.ok(screen.text().includes('WARN a late line on stderr'), 'stderr was not shown to the person');
+    assert.equal(JSON.parse(fs.readFileSync(pointerFile(iso), 'utf8')).root, engine);
+    // a fake child: the stdout chunk boundary falls inside a 2-byte character; stderr ends after the OK line
+    const { EventEmitter: EE } = require('node:events');
+    const line = Buffer.from('progress\nEUREKA_SETUP: OK /h/מנוע engine\n', 'utf8');
+    const cut = line.indexOf(Buffer.from('נ', 'utf8')) + 1;
+    const fake = () => {
+      const child = new EE();
+      child.stdout = new EE();
+      child.stderr = new EE();
+      child.kill = () => true;
+      setImmediate(() => {
+        child.stdout.emit('data', line.subarray(0, cut));
+        child.stdout.emit('data', line.subarray(cut));
+        child.stderr.emit('data', Buffer.from('trailing stderr text\n'));
+        child.emit('close', 0);
+      });
+      return child;
+    };
+    const shown = sink();
+    const res = await mod.runEngineSetup('linux', { env: envOf(iso), spawn: fake, stream: shown, setupCommand: { command: 'x', args: [] } });
+    assert.ok(!res.tail.includes('trailing stderr text'), 'stderr reached the result tail');
+    assert.ok(shown.text().includes('trailing stderr text'), 'stderr was not shown');
+    assert.equal(mod.parseSetupLine(res.tail).folder, '/h/מנוע engine', 'the split character broke the folder: ' + JSON.stringify(res.tail));
   });
 
   await arm('S17 the setup scripts are pinned to a 40-character engine commit, never a branch', async () => {
