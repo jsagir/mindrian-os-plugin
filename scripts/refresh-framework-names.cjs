@@ -12,12 +12,21 @@
  * (framework_names + curated_extras) verification-stamp.cjs already
  * resolves against.
  *
- * NAMES ONLY: NEVER COMMIT A THEO DESCRIPTION (IP RULING, spike-findings
- * skill). buildSnapshot copies the `name` field off each row and nothing
- * else -- no description, no category, no internal Theo record id. The
- * acceptance grep for this file greps for the literal word "description"
- * outside a proper block-comment line; this header paragraph is that one
- * permitted mention.
+ * NAMES, PLUS JOB STATEMENTS: NEVER COMMIT A THEO DESCRIPTION (IP RULING,
+ * spike-findings skill). buildSnapshot copies the `name` field off each row
+ * and nothing else -- no description, no category, no internal Theo record
+ * id. Owner ruling 22 (2026-11-16, docs/designs/front-door/BUILD-RULES.md)
+ * adds ONE exception, in a separate file: --live also writes
+ * data/framework-jobs.json, the job statements of each framework (pws_jtbd,
+ * pws_jtbd_extra, pws_jtbd_drafts) with their status marks (ruled or draft,
+ * main or extra, for a draft its confidence and its drafted-by label, for
+ * a ruled statement its basis mark when Theo holds one, for each statement
+ * one pws_backed boolean, rulings 27 and 28), plus the alias link of a
+ * framework (a name), and nothing else.
+ * lib/core/framework-jobs.cjs composes and validates that file against
+ * closed key lists. The acceptance grep for this file greps for the literal
+ * word "description" outside a proper block-comment line; this header
+ * paragraph is the one permitted place for that word.
  *
  * THE ONE WIRE DOOR (--live only): this module calls
  * `brainClient.askOp('list_frameworks', { limit })` at most once, plus (only
@@ -28,6 +37,17 @@
  * module (or running `--check`) never opens a socket. `--check` NEVER
  * requires brain-client, not even lazily: it reads the committed snapshot,
  * recomputes the hash, and validates the shape offline.
+ *
+ * JOB STATEMENTS READ (--live only, plan 395-10): `list_frameworks` does not
+ * serve the statement keys (measured 2026-11-16: it returns name, category
+ * and alias_count only), so --live reads them with fixed, parameterized
+ * Cypher through `brainClient.query`, the same door the bucketed names
+ * fallback uses: one read per first-character bucket (split on a cap), one
+ * catch-all read and one count read. The rows must equal Theo's own counts.
+ * A degraded, capped or mismatched read writes NOTHING (neither file) and
+ * exits 4. --check validates data/framework-jobs.json offline when it
+ * exists. Generic handles only: the Cypher text is fixed, the parameters are
+ * a bucket prefix and the character list, never room content (Part 8).
  *
  * DEGRADATION NEVER WRITES A PARTIAL LIST: a degraded, text-only, or
  * fewer-than-MIN_LIVE_NAMES answer from BOTH the live read and the bucketed
@@ -59,6 +79,10 @@ const crypto = require('node:crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_FW_NAMES_PATH = path.join(REPO_ROOT, 'data', 'framework-names.json');
 const DEFAULT_COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
+// Phase 395 plan 10 (ruling 22): the job statements file and its composer and validator. framework-jobs.cjs uses
+// node built-ins only, so requiring it here never loads brain-client.
+const DEFAULT_FW_JOBS_PATH = path.join(REPO_ROOT, 'data', 'framework-jobs.json');
+const FJ = require(path.join(REPO_ROOT, 'lib', 'core', 'framework-jobs.cjs'));
 
 // D-51: a live/fallback read carrying fewer names than the CURRENT committed
 // framework_names count (105 at plan-authoring time) is treated as capped or
@@ -361,6 +385,123 @@ function loadDefaultPullTheoFrameworks() {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 395 plan 10 (ruling 22): the job statements read. Three FIXED Cypher
+// texts; every variation rides in $params (check-substrate.cjs rule
+// m4-cypher-interpolation forbids concatenated Cypher). A row is read when the
+// node has a statement or an alias link; the row carries the name, the alias
+// link, the statement keys and pws_jtbd_basis only. Measured on 2026-11-16
+// through brain-client query, before Theo batch p49-promote-high-v1: 376 rows
+// selected, 70 with pws_jtbd, 289 with pws_jtbd_drafts, 0 with pws_jtbd_extra;
+// pws_jtbd_draft_confidence and pws_jtbd_draft_by are one string per node
+// (lib/core/framework-jobs.cjs also takes an index-aligned list). After that
+// batch the Theo session reports 184 with pws_jtbd and 12 with pws_jtbd_extra.
+// Owner rulings 27 and 28: the read also returns the 3 pws_backed keys of the exam 2 batch (one boolean for
+// pws_jtbd, one list aligned with pws_jtbd_extra, one list aligned with pws_jtbd_drafts); an absent key reads as
+// false or as []. lib/core/framework-jobs.cjs rowMarkErrors stops the refresh when a list does not line up.
+// ---------------------------------------------------------------------------
+const JOBS_HAS = "(toString(coalesce(f.pws_jtbd, '')) <> '' OR size(coalesce(f.pws_jtbd_extra, [])) > 0 OR size(coalesce(f.pws_jtbd_drafts, [])) > 0 OR toString(coalesce(f.alias_of, '')) <> '')";
+const JOBS_RETURN = [
+  "RETURN f.name AS name, toString(coalesce(f.alias_of, '')) AS alias_of,",
+  "toString(coalesce(f.pws_jtbd, '')) AS pws_jtbd, coalesce(f.pws_jtbd_extra, []) AS pws_jtbd_extra,",
+  "coalesce(f.pws_jtbd_drafts, []) AS pws_jtbd_drafts, coalesce(f.pws_jtbd_draft_confidence, '') AS pws_jtbd_draft_confidence,",
+  "coalesce(f.pws_jtbd_draft_by, '') AS pws_jtbd_draft_by, toString(coalesce(f.pws_jtbd_basis, '')) AS pws_jtbd_basis,",
+  'coalesce(f.pws_jtbd_pws_backed, false) AS pws_jtbd_pws_backed, coalesce(f.pws_jtbd_extra_pws_backed, []) AS pws_jtbd_extra_pws_backed,',
+  'coalesce(f.pws_jtbd_drafts_pws_backed, []) AS pws_jtbd_drafts_pws_backed',
+  'ORDER BY name LIMIT 100',
+].join(' ');
+const CYPHER_JOBS_PREFIX = ['MATCH (f:Framework)', 'WHERE toLower(left(f.name, $n)) = $prefix', 'AND', JOBS_HAS, JOBS_RETURN].join(' ');
+const CYPHER_JOBS_OTHER = ['MATCH (f:Framework)', 'WHERE NOT toLower(left(f.name, 1)) IN $alnum', 'AND', JOBS_HAS, JOBS_RETURN].join(' ');
+const CYPHER_JOBS_COUNT = [
+  'MATCH (f:Framework)',
+  'WHERE',
+  JOBS_HAS,
+  'RETURN count(f) AS selected,',
+  "sum(CASE WHEN toString(coalesce(f.pws_jtbd, '')) <> '' THEN 1 ELSE 0 END) AS ruled,",
+  'sum(CASE WHEN size(coalesce(f.pws_jtbd_extra, [])) > 0 THEN 1 ELSE 0 END) AS with_extra,',
+  'sum(CASE WHEN size(coalesce(f.pws_jtbd_drafts, [])) > 0 THEN 1 ELSE 0 END) AS with_drafts',
+].join(' ');
+const JOBS_SNAPSHOT_NOTE =
+  'The job statements of each :Framework, read from Theo through lib/core/brain-client.cjs query (a fixed bucketed read). ' +
+  'Owner ruling 22: only the job statements and their status marks are carried, no other Theo text. ' +
+  'Ruling 21: a draft is shown as a draft and does not steer selection. ' +
+  'Rulings 27 and 28: each statement carries one pws_backed mark; in this version the mark is shown and does not steer. ' +
+  'Refresh with: node scripts/refresh-framework-names.cjs --live';
+const JOBS_ALNUM = '0123456789abcdefghijklmnopqrstuvwxyz'.split('');
+const JOBS_PAGE_CAP = 100;
+const JOBS_MAX_DEPTH = 2;
+
+// jobsPage(res) -- one query answer to { kind: 'rows', rows } | { kind: 'cap' } | { kind: 'fail', reason }. A page of
+// JOBS_PAGE_CAP rows or more counts as capped (LIMIT 100 can cut a bucket without a notice).
+function jobsPage(res) {
+  if (!res || typeof res !== 'object') return { kind: 'fail', reason: 'no answer' };
+  const rows = Array.isArray(res.rows) ? res.rows : Array.isArray(res.records) ? res.records : null;
+  if (typeof res.text === 'string' && /ROW_CAP/.test(res.text) && (!rows || rows.length === 0)) return { kind: 'cap' };
+  if (!rows || res.error || res.degraded) return { kind: 'fail', reason: typeof res.error === 'string' ? res.error : 'no rows array' };
+  if (rows.length >= JOBS_PAGE_CAP) return { kind: 'cap' };
+  return { kind: 'rows', rows };
+}
+
+function hasItems(v) {
+  return (Array.isArray(v) || typeof v === 'string') && v.length > 0;
+}
+
+// pullJobRows(query) -- the bucketed job statements read. query is brain-client's query(cypher, params) or a test
+// stub. Returns { ok: true, rows, counts } only when every bucket answered and the rows equal Theo's own count;
+// else { ok: false, reason }. Never writes.
+async function pullJobRows(query) {
+  if (typeof query !== 'function') return { ok: false, reason: 'no query function' };
+  const rows = [];
+  async function ask(cypher, params) {
+    try {
+      return jobsPage(await query(cypher, params));
+    } catch (_e) {
+      return { kind: 'fail', reason: 'the read threw' };
+    }
+  }
+  async function bucket(prefix, depth) {
+    const p = await ask(CYPHER_JOBS_PREFIX, { n: prefix.length, prefix: prefix });
+    if (p.kind === 'rows') {
+      rows.push.apply(rows, p.rows);
+      return null;
+    }
+    if (p.kind === 'fail') return 'bucket "' + prefix + '": ' + p.reason;
+    if (depth >= JOBS_MAX_DEPTH) return 'bucket "' + prefix + '" is still capped at depth ' + depth;
+    for (const c of JOBS_ALNUM) {
+      const bad = await bucket(prefix + c, depth + 1);
+      if (bad) return bad;
+    }
+    return null;
+  }
+  for (const c of JOBS_ALNUM) {
+    const bad = await bucket(c, 0);
+    if (bad) return { ok: false, reason: bad };
+  }
+  const other = await ask(CYPHER_JOBS_OTHER, { alnum: JOBS_ALNUM });
+  if (other.kind !== 'rows') return { ok: false, reason: 'catch-all bucket: ' + (other.kind === 'cap' ? 'capped' : other.reason) };
+  rows.push.apply(rows, other.rows);
+  const counted = await ask(CYPHER_JOBS_COUNT, {});
+  const want = counted.kind === 'rows' ? counted.rows[0] : null;
+  if (!want || typeof want.selected !== 'number') return { ok: false, reason: 'the count read failed' };
+  const got = {
+    selected: rows.length,
+    ruled: rows.filter((r) => r && typeof r.pws_jtbd === 'string' && r.pws_jtbd !== '').length,
+    with_extra: rows.filter((r) => r && hasItems(r.pws_jtbd_extra)).length,
+    with_drafts: rows.filter((r) => r && hasItems(r.pws_jtbd_drafts)).length,
+  };
+  for (const k of ['selected', 'ruled', 'with_extra', 'with_drafts']) {
+    if (got[k] !== want[k]) {
+      return { ok: false, reason: 'the rows do not match the count of Theo (' + k + ': read ' + got[k] + ', counted ' + want[k] + ')' };
+    }
+  }
+  return { ok: true, rows: rows, counts: got };
+}
+
+function loadDefaultQuery() {
+  // Lazy require, only on the real wire path of runLive() (no injected askOp and no injected readJobRows).
+  return require(path.join(REPO_ROOT, 'lib', 'core', 'brain-client.cjs')).query;
+}
+
+// ---------------------------------------------------------------------------
 // runLive(deps) -- the --live flow. Never calls process.exit; returns
 // { ok, code, message, snapshot?, usedFallback? } so both the CLI and a test
 // can drive it. deps: { askOp, pullTheoFrameworks, prior, fwNamesPath, now,
@@ -444,8 +585,84 @@ async function runLive(deps) {
     };
   }
 
+  // Phase 395 plan 10 (ruling 22): the job statements are read and checked BEFORE anything is written, so a degraded,
+  // capped or mismatched read writes neither file. The default reader runs only on the real wire path (no injected
+  // askOp), the same rule as readMappedBy; a test injects readJobRows. An injected askOp alone reads no statements.
+  let readJobRows = null;
+  if (typeof d.readJobRows === 'function') readJobRows = d.readJobRows;
+  else if (typeof d.askOp !== 'function') readJobRows = () => pullJobRows(loadDefaultQuery());
+  const fwJobsPath = d.fwJobsPath || DEFAULT_FW_JOBS_PATH;
+  let jobsSnapshot = null;
+  if (readJobRows) {
+    let pulled = null;
+    try {
+      pulled = await readJobRows();
+    } catch (_e) {
+      pulled = null;
+    }
+    if (!pulled || pulled.ok !== true || !Array.isArray(pulled.rows)) {
+      return {
+        ok: false,
+        code: 4,
+        reason: 'jobs_unreadable',
+        message:
+          'Theo job statements read was degraded, capped or did not match the count of Theo (' +
+          (pulled && pulled.reason ? pulled.reason : 'no answer') +
+          '). Writing nothing.',
+      };
+    }
+    // Rulings 27 and 28: a pws_backed list that does not line up with its statements stops the refresh; it is never
+    // read as false.
+    const markErrors = FJ.rowMarkErrors(pulled.rows);
+    if (markErrors.length > 0) {
+      return {
+        ok: false,
+        code: 4,
+        reason: 'misaligned_marks',
+        message: 'Theo pws_backed marks do not line up with their statements, writing nothing: ' + markErrors.slice(0, 5).join('; '),
+      };
+    }
+    jobsSnapshot = FJ.buildJobsSnapshot({ rows: pulled.rows, date, note: JOBS_SNAPSHOT_NOTE });
+    const jobsValidation = FJ.validateJobsSnapshot(jobsSnapshot);
+    if (!jobsValidation.valid) {
+      return {
+        ok: false,
+        code: 4,
+        reason: 'invalid_jobs_snapshot',
+        message: 'Built job statements snapshot failed its own validation, writing nothing: ' + jobsValidation.errors.slice(0, 5).join('; '),
+      };
+    }
+  }
+  const jobsNote = jobsSnapshot
+    ? ' Also wrote ' +
+      fwJobsPath +
+      ' (job statements of ' +
+      jobsSnapshot.counts.frameworks +
+      ' frameworks: ' +
+      jobsSnapshot.counts.ruled_main +
+      ' ruled main, ' +
+      jobsSnapshot.counts.ruled_extra +
+      ' ruled extra, ' +
+      jobsSnapshot.counts.drafts +
+      ' drafts in ' +
+      jobsSnapshot.counts.with_drafts +
+      ' frameworks, ' +
+      jobsSnapshot.counts.aliases +
+      ' alias links; pws_backed: ' +
+      jobsSnapshot.counts.ruled_main_pws_backed +
+      ' ruled main, ' +
+      jobsSnapshot.counts.ruled_extra_pws_backed +
+      ' ruled extra, ' +
+      jobsSnapshot.counts.drafts_pws_backed +
+      ' drafts).'
+    : '';
+
   const write = typeof d.write === 'function' ? d.write : (p, s) => atomicWriteJSON(p, s);
   write(fwNamesPath, snapshot);
+  if (jobsSnapshot) {
+    const writeJobs = typeof d.writeJobs === 'function' ? d.writeJobs : (p, s) => atomicWriteJSON(p, s);
+    writeJobs(fwJobsPath, jobsSnapshot);
+  }
 
   if (stampMissing) {
     return {
@@ -458,7 +675,8 @@ async function runLive(deps) {
         'Wrote ' +
         fwNamesPath +
         ' names WITHOUT a theo_stamp: Theo mappedBy (or the repo version) could not be read. ' +
-        'The release gate (RULE 5 place 9) will refuse until this command runs again with Theo reachable.',
+        'The release gate (RULE 5 place 9) will refuse until this command runs again with Theo reachable.' +
+        jobsNote,
     };
   }
 
@@ -478,7 +696,8 @@ async function runLive(deps) {
       snapshot.stale_review.filter((s) => s.decision === 'dropped').length +
       ' stale-dropped' +
       (usedFallback ? ', via bucketed fallback' : '') +
-      ')',
+      ')' +
+      jobsNote,
   };
 }
 
@@ -513,10 +732,28 @@ function runCheck(deps) {
     };
   }
 
+  // Phase 395 plan 10 (ruling 22): the job statements file, validated offline when it exists. Before the first --live
+  // run after plan 395-10 the file is absent; the message names that, and it is not an error.
+  const fwJobsPath = d.fwJobsPath || DEFAULT_FW_JOBS_PATH;
+  let jobsNote = '; ' + fwJobsPath + ' absent (job statements not refreshed yet)';
+  if (fs.existsSync(fwJobsPath)) {
+    let jobs;
+    try {
+      jobs = JSON.parse(fs.readFileSync(fwJobsPath, 'utf8'));
+    } catch (e) {
+      return { ok: false, code: 1, message: 'Cannot parse ' + fwJobsPath + ' as JSON: ' + (e && e.message ? e.message : String(e)) };
+    }
+    const jobsValidation = FJ.validateJobsSnapshot(jobs);
+    if (!jobsValidation.valid) {
+      return { ok: false, code: 1, message: fwJobsPath + ' failed validation: ' + jobsValidation.errors.slice(0, 10).join('; ') };
+    }
+    jobsNote = '; ' + fwJobsPath + ' OK (job statements of ' + jobs.counts.frameworks + ' frameworks, hash verified)';
+  }
+
   return {
     ok: true,
     code: 0,
-    message: fwNamesPath + ' OK (' + snapshot.framework_names.length + ' names, hash verified)',
+    message: fwNamesPath + ' OK (' + snapshot.framework_names.length + ' names, hash verified)' + jobsNote,
   };
 }
 
@@ -529,9 +766,14 @@ function printHelp() {
       '           lib/core/brain-client.cjs askOp; regenerates',
       '           data/framework-names.json (names only, D-51) and',
       '           stamps theo_stamp {mapped_by, plugin_version,',
-      '           refreshed_at} from Theo mappedBy (366 D-17)',
+      '           refreshed_at} from Theo mappedBy (366 D-17); also',
+      '           writes data/framework-jobs.json (job statements and',
+      '           their status marks only, ruling 22; one pws_backed',
+      '           mark each, rulings 27 and 28); a degraded or',
+      '           partial read writes neither file (exit 4)',
       '  --check  offline: validates the committed snapshot and',
-      '           recomputes its hash; never loads brain-client',
+      '           recomputes its hash; never loads brain-client;',
+      '           also validates data/framework-jobs.json if present',
       '  --help   this message',
     ].join('\n')
   );
@@ -577,4 +819,8 @@ module.exports = {
   runLive,
   runCheck,
   main,
+  pullJobRows,
+  CYPHER_JOBS_PREFIX,
+  CYPHER_JOBS_OTHER,
+  CYPHER_JOBS_COUNT,
 };
