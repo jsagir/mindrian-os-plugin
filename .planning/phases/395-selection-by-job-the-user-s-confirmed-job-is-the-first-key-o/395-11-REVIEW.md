@@ -131,6 +131,7 @@ if (!card || card.exitCode !== 2 || !card.stdout) return skip();
 **File:** `bin/cli.js:118-121`; plan section 12 A1
 **Issue:** With `--eureka` the card prints and the setup starts in the same moment, also on a pipe or in CI. The person cannot read what is reached and written before it runs. The plan marks this ASSUMED (A1); it is not an owner ruling. Combined with CR-01, the flag approves writes that the card does not name.
 **Fix:** Get an owner ruling on A1. If the ruling keeps the flag, print the card and wait a short abort window (for example 10 seconds on a TTY), or require the flag to be paired with an explicit acknowledgment flag in non-TTY use.
+**Status: RESOLVED (owner ruling 2026-11-16, "card first, then go"; commit be3b7c5ae).** `--eureka` prints the full change card, then asks y/N on a TTY and starts the setup only on yes. With no TTY (CI, scripts), `--eureka` alone does not run the setup; it prints the card and a line that names `--eureka --yes`. `--eureka --yes` runs without the question, and the card still prints first. `--no-eureka` wins over both. Behavioural arms S22a to S22d in `tests/test-395-eureka-setup.cjs` cover each path (PROVEN: 27 passed, 0 failed).
 
 ### WR-06: The Windows path runs with a filtered environment that was never tested
 
