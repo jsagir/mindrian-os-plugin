@@ -926,6 +926,21 @@ running, so the NEXT real call benefits from it regardless.
 export MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS=20000
 ```
 
+## Per-turn Offer and the One Selector (Phase 395, room-local, zero egress)
+
+On each Claude Code CLI turn the UserPromptSubmit hook `scripts/intent-classifier.cjs` asks the navigation engine for at most 1 offer. Since Phase 395-06 that offer is the primary of the one selector (`lib/core/feyminto/next-move.cjs` `nextMoveForSection`), the same move that the brief of the nest and `suggest_next` name. Nothing here reaches the network or the Brain (Canon Part 8).
+
+### MINDRIAN_NAV_NO_PRIMARY_PIN
+
+**What:** A quiet switch for the 2 rules of Phase 395-06. Rule 1: when the one selector has a runnable primary for the section in focus, the per-turn offer is that primary. Rule 2: a framework chain proposal for another command does not fill an empty offer; the chain fact stays in the `Why:` line, marked as held.
+**Default:** not set. The 2 rules are on.
+**Read:** at call time, on every turn, in 1 place: `selectorIds` in `lib/core/navigation-engine-offer.cjs`. Set `MINDRIAN_NAV_NO_PRIMARY_PIN=1` to turn the 2 rules off. Any other value keeps them on.
+**Why:** With the value `1` the offer is the first row of the fused ranker list and a chain proposal fills an empty offer, as before Phase 395-06. Use it to compare the 2 behaviours or to go back without a code change. It does not change whether an offer is made by the ranker: every rule that makes no offer runs in the same way with and without the switch. CLI only: Desktop and Cowork do not run the hook.
+
+```bash
+export MINDRIAN_NAV_NO_PRIMARY_PIN=1   # the offer is the first fused row again
+```
+
 ## Room Summary Renderers (Phase 381, room-local, zero egress)
 
 The room summary scripts read every profile and every section file of a room and write a short summary. `scripts/compute-team` writes `team/TEAM-STATE.md` and the Contributions part of each `PROFILE.md`. Before Phase 381 it started about 957 small processes (sed, head, grep, date) per run. Now the same bash entry point hands the work to one node process (`lib/core/room-render.cjs`), which reads the room files itself, inside that one process, and writes the same bytes. After plans 381-06 and 381-07, `scripts/analyze-room` and `scripts/compute-state` follow the same path, and after plan 381-09 the node renderer is the only path. Nothing here reaches the network or the Brain (Canon Part 8).
