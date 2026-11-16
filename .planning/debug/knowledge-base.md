@@ -1138,3 +1138,13 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** lib/workflow/reach-reject-reader.cjs; scripts/intent-classifier.cjs; tests/test-261109-intent-classifier-query-count.cjs (new); tests/test-261109-reach-reader-load-order.cjs (new); .planning/ROADMAP.md (Phase 394); CHANGELOG.md. Full record: `.planning/debug/resolved/intent-classifier-hook-timeout.md`.
 - **Pattern lesson:** A timer race cannot bound synchronous sqlite work; count the reads per hook run against the biggest real room on the slowest real filesystem, and when a reader sits inside a require cycle resolve its chokepoint at call time, or its silence looks like "no data".
 ---
+
+## room-identity-relative-registry-path -- a legacy room could never become ready: slug unknown, registry_detail slug_unknown
+- **Date:** 2026-11-16
+- **Error patterns:** identity_missing, repair_room_identity, minted_by_repair, slug unknown, slug_unknown, the sources disagree or are absent, unknown_keys room.slug, relative registry path, empty .room-root, no icm_self, findRegistryEntry, process.cwd, path.resolve.
+- **Root cause:** lib/core/navigation/room-identity.cjs findRegistryEntry resolved the registry entry path with path.resolve (process.cwd()), but the registry stores paths relative to the rooms home. The entry never matched outside the rooms home, so a room whose .room-root is empty and whose ROOM.md has no icm_self had no slug source.
+- **Fix:** resolveRegistryPath(p, roomsHome) expands a leading "~" and joins a relative path to the rooms home, the same rule as scripts/room-registry and resolve-active-room.cjs; repairRoomIdentity passes roomsHome. The copy guard is unchanged.
+- **Verification:** tests/test-36925-rid-registry-relative-path.cjs RED 3 of 5 then GREEN 5 of 5; run-all-36925; runDeriveBackfill on a temp copy of the real room: recovered true, readback ready.
+- **Files changed:** lib/core/navigation/room-identity.cjs; tests/test-36925-rid-registry-relative-path.cjs (new); tests/run-all-36925.sh. Full record: `.planning/debug/resolved/room-identity-relative-registry-path.md`.
+- **Pattern lesson:** A registry path is relative to the registry's home, never to the process cwd; a test that runs from the repo root hides the bug when the fixture registry stores absolute paths.
+---
