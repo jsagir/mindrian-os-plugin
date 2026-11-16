@@ -388,6 +388,16 @@ check('L18 generic questions keep their sentence count', function (p) {
     const n = shapeMod.classifyShape(r[0]).sentences;
     if (n !== r[1]) p.push(JSON.stringify(r[0]) + ' sentences ' + n + ' != ' + r[1]);
   });
+  const cutAllow = [
+    'What does "jobs to be done" mean in practice? How is it used?',
+    'Explain this note:\n> the pilot ended early after the buyers left\nWhich framework fits?',
+  ];
+  cutAllow.forEach(function (q) {
+    const r = cutOf(q);
+    if (!(r.verdict.verdict === 'allow' && r.cut > 0)) p.push('cut and send: ' + JSON.stringify(q) + ' ' + tag(r.verdict) + ' cut ' + r.cut);
+  });
+  const lineCut = shapeMod.cutPastedText('the board met\n> see note\nthe investor left\nwhich framework fits');
+  if (lineCut.text !== 'the board met\n' + NOTE + '\nthe investor left\nwhich framework fits') p.push('the cut joins lines: ' + JSON.stringify(lineCut.text));
   const allow = [
     'What does "jobs to be done" mean in practice?',
     'How does the jobs to be done framework help a team separate the functional job from the emotional and social jobs?',
