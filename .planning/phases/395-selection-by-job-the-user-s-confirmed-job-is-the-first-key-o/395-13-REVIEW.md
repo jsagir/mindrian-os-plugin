@@ -245,3 +245,51 @@ _Depth: deep_
 _Fixed: 2026-11-16_
 _Fixer: Claude (gsd-code-fixer)_
 _Iteration: 1_
+
+## Re-verify (round 2, tree fe022ea35, gsd-code-reviewer)
+
+All r13 probes p01 to p12 re-run: the original CR-01 to CR-06, WR-02, WR-03 and WR-05 rows are closed (PROVEN). The 4000-character cap holds at 4000/4001 (v2c-cap.cjs). ownPluginShimRoute: no bypass found by reading; a second installed plugin with the same plugin.json name is UNVERIFIED. New findings (probes v2-fix-attack.cjs, v2b-fix-attack.cjs in the r13 folder):
+
+- **NEW-BL-01 (BLOCKER)** `lib/core/part8-egress-guard.cjs` classifyAndCut + `part8-sprout-shape.cjs` cutQuotePairs: the end marks of a body sit inside its quotes (US punctuation: `said "we will cut the budget by half." The lead investor wrote "..." ...`). The original is 3 sentences; the cut removes the 3 full stops, the rest counts 1 sentence and goes on the wire (row endInsideQuote: shim onWire=true; direct route exit 2 with a resend of the 3 private clauses). Fix: decide body_shape on the text before the cut (a body before the cut stays a body), or let each cut span keep the end marks that close it.
+- **NEW-BL-02 (BLOCKER)** `part8-sprout-shape.cjs` cutQuotePairs: "the cut never joins lines" is false for a quote span that holds a line break. 3 line-sentences joined by 2 multi-line quotes become 1 line and go on the wire (row multilineQuote; control without quotes is body_shape). Fix: a quote span that crosses a line break is ambiguous (fail closed), or put a line break in place of the span.
+- **NEW-WR-01 (WARNING)** `part8-sprout-shape.cjs:128-141` (INITIAL with prev in NAME_BRIDGES): `the head of B. Revenue fell ... lack of D. Regulators ...` counts 2 of 4 sentences and goes on the wire (row initialAfterBridge, hook exit 0 on the direct connector).
+- **NEW-WR-02 (WARNING)** `part8-sprout-shape.cjs:90-94, 209-211` (NAME_ENDINGS, d1b032fee): a no-space full stop before a capitalised word in the list (`In`, `Go`, `Me`, `Us`, `App`, `Log` ...) is not a break: `audit.In short ... out.In short ...` counts 1 of 3 sentences, on the wire (row nameEndingInShort, hook exit 0). Fix: apply nameEnding only when the ending starts lower-case.
+- **NEW-WR-03 (WARNING)** `part8-sprout-shape.cjs` cutFences: a longer backtick run inside a 3-backtick span closes it, and the code after the run is sent (row fenceInnerRun, `boardPlan fireFounderAfterAudit investorExit` on the wire with the "kept local" disclosure). This matches CommonMark only when the run is on its own line. Fix: close only at a run at the start of a line for a multi-line fence; mid-line, fail closed when a later run of the same mark follows.
+
+## Fix record round 2
+
+**Fixed:** 2026-11-16 (gsd-code-fixer), on top of fe022ea35. The semicolon and 2-tab rule is not changed: owner ruling 2026-11-16 keeps it for this cut (fail closed); calibration is a follow-up.
+**Test first:** 2b7d0ecbb adds the round 2 RED arms to `tests/test-395-egress-leaks.cjs`: L20 (the 5 rows of v2-fix-attack.cjs and v2b-fix-attack.cjs, plus a multi-line fence with an inner run), L21 (a seeded property over the fuzz categories, 600 cases: sentences(cut text) >= sentences(text with each span replaced by 1 word, end marks kept), and the cut never lowers the line count), L22 (classifyAndCut asserts the line count). RED: 81 passed, 8 failed. GREEN at 20b22edfb: 89 passed, 0 failed.
+
+| Finding | Commit | Change |
+|---------|--------|--------|
+| test | 2b7d0ecbb | round 2 RED arms L20, L21, L22 |
+| NEW-BL-02 | be06e6f57 | each cut span becomes the note plus the same number of line breaks; a run of pasted lines is 1 note line plus 1 empty line for each further line; no line is trimmed away; classifyAndCut fails closed when `countNewlines(cut.text) < countNewlines(input)` (countNewlines exported) |
+| NEW-BL-01 | eb5ec7397 | the note keeps the end marks that close the span content (`said [note]. The lead`), so the cut text keeps the sentence ends that the quotes held |
+| NEW-WR-01 | 0eb84ddb1 | a single initial ends a sentence; only a run of initials (J. R. R. Tolkien) stays open; NAME_BRIDGES removed |
+| NEW-WR-02 | 2695f4e51 | a name ending counts only when it starts lower-case and matches the list exactly (SKILL.md, example.com); `audit.In short` ends a sentence |
+| NEW-WR-03 | 20b22edfb | a fence that opens at a line start closes only at a run of the same mark, at least as long, alone on its line; a run that opens inside a line closes only at a run of exactly the same length; no close cuts to the end |
+
+**Test changes outside the new test.** `tests/test-395-egress-body.cjs`: 3 expected cut strings gain the kept empty lines (be06e6f57: Q_BLOCK_CUT, Q_CODE_CUT, the unclosed tilde fence). E5 counts "How does the model of J. Doe work? What does it add?" as 3 sentences (was 2) and adds a run-of-initials row with 2 sentences (0eb84ddb1). No verdict arm changes.
+
+**Re-run (isolated env: mktemp HOME, MINDRIAN_BRAIN_URL=http://127.0.0.1:9, no key, stdin /dev/null).**
+- v2-fix-attack: endInsideQuote and multilineQuote `block/body_shape`, onWire=null. initialAfterTitle, nameEndingIn and linkToken `block/body_shape`. fenceInnerRun: cut 1, sent `explain with a framework [pasted text kept local] end` (no secret). titleSkip: `block/edge_rule` (sentence count 2, see RISKS).
+- v2b-fix-attack: initialAfterBridge, nameEndingInShort, endInsideQuote, multilineQuote: `block/body_shape`, onWire=false, hook exit 2 on the direct connector. capBoundary (3949 characters, 2 sentences): allow under the 4000-character ruling.
+- v2c-cap: 3999 and 4000 allow, 4001 `block/body_shape`.
+- r13 p01 to p12: the same results as the first fix record (every leak row blocks or cuts). p05 at 80000: every row under 100 ms.
+- fuzz13 (2000 cases): `leak records=0`, 0 leaks in each of the 18 categories (fuzz13/after-round2.txt).
+- Suites at 20b22edfb: `bash tests/run-all-395.sh` 15 of 15 PASSED. Sweep of the 69 tests that load the guard modules: 66 pass, test-364-live-smoke skips (opt-in), test-205-grill-engine and test-252-guard-census fail with the same messages as on 07282e4ec (pre-existing).
+
+**Not fixed (RISKS).** titleSkip: a title (Dr., Prof.) before a capital word that is not a common opener keeps the sentence open, so "hired the Dr. Investors left" undercounts by 1 for each title. It is kept because methodology questions name Dr. Deming and Prof. Christensen. The probe is blocked by the name rule. The wire text now holds empty lines where pasted lines were. A second installed plugin with the same plugin.json name stays UNVERIFIED for ownPluginShimRoute. The RISKS of the first fix record still apply.
+
+_Fixed (round 2): 2026-11-16_
+_Fixer: Claude (gsd-code-fixer)_
+_Iteration: 2_
+
+## Re-verify (round 3, tree 20b22edfb, gsd-code-reviewer)
+
+r13 p01-p12, v2-fix-attack.cjs and v2b-fix-attack.cjs re-run: NEW-BL-01, NEW-BL-02, NEW-WR-01, NEW-WR-02 and NEW-WR-03 rows are closed (PROVEN). The line-count assertion in classifyAndCut holds by construction (noteFor adds the breaks of each span; LINE_BREAK_ALL and countNewlines count the same characters). Probe: v3-round3.cjs in the r13 folder.
+
+- **R3-WR-01 (WARNING, titleSkip residual is a real path)** `part8-sprout-shape.cjs` isAbbreviation, TITLES arm: a lower-case title before a capital keeps the sentence open. `...hired a dr. Investors left ... under a prof. Regulators were not told ...` and `...on the main st. Investors left ... a new mr. Regulators ...` are 4 sentences, count 2, and go on the wire (hook exit 0 on the direct connector; shim onWire=true). The TitleCase form (`Dr.`, `Prof.`) is blocked only by the proper-name rule. Fail-closed fix: remove the TITLES suppression (a title always ends a sentence for the body rule). Cost: a question needs 2 titles and 1 more sentence to reach 3; the name rule already decides `Dr. Smith`.
+- **R3-WR-02 (WARNING, low)** endMarksOf keeps only the trailing end marks of a span. End marks in the middle of a quote are lost: `founder "per the memo. Then the" lead investor ... "per his note. Then the" clinic pilot failed ...` counts 3 before the cut and 1 after, and the rest is sent (shim onWire=true; the direct route gets exit 2 with a resend of the rest). The form is unnatural. Fix: give the note one end mark when the span holds any end mark followed by a letter.
+- No new BLOCKER. `noMarkQuote` (3 clauses with no end mark) counts 1 before the cut too, so it is the old no-punctuation case, not a cut merge.
