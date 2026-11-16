@@ -392,8 +392,9 @@ function main() {
     return guardUnavailable(toolName, toolInput, 'verdict_invalid');
   }
 
-  // Best-effort telemetry BEFORE the exit branch (process.exit terminates).
-  bestEffortRecord(verdictObj, sessionId);
+  // Best-effort telemetry BEFORE each exit (process.exit terminates). Plan
+  // 395-13 review IN-02: it records the final disposition, so it runs after
+  // the paste branch below (a cut call that proceeds is recorded as an allow).
 
   // Plan 395-13 (owner ruling 37, "cut the paste, send the rest"): the guard
   // found pasted text (a quote, a block quote or a code block) and no rule
@@ -412,12 +413,17 @@ function main() {
     }
     if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'allow') {
       // Plan 395-13 review WR-06: the name alone is not trusted here.
-      if (ownPluginShimRoute(toolName, sanitizer)) return allow();
+      if (ownPluginShimRoute(toolName, sanitizer)) {
+        bestEffortRecord({ verdict: 'allow', class: 'pasted_text', reason: 'sent_without_paste' }, sessionId);
+        return allow();
+      }
+      bestEffortRecord(verdictObj, sessionId);
       return block(pasteResendMessage(planned.payload));
     }
     if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'block') verdictObj = planned.verdict;
-    else if (planned && planned.cut > 0) return block(splitRouteMessage());
+    else if (planned && planned.cut > 0) { bestEffortRecord(verdictObj, sessionId); return block(splitRouteMessage()); }
   }
+  bestEffortRecord(verdictObj, sessionId);
 
   const verdict = verdictObj.verdict;
   const klass = verdictObj.class || 'unknown';
