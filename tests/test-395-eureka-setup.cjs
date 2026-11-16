@@ -30,6 +30,7 @@
  *        both cards) uses exactly that commit, never main or another branch; the docs name no branch URL
  *   S18  CR-01: the card names the .bak overwrite, the deleted lines, the uv cache, uv Python and the uv
  *        installer changes; an approved POSIX run first keeps an existing ~/.bashrc.bak as .bak.mindrian-<time>
+ *   S19  WR-01: an injected short timeout stops the child and its grandchild (process group) and returns at once
  *   S16  this process made 0 non-loopback connection attempts, and no spawn tried curl, powershell or
  *        raw.githubusercontent.com (such a spawn is blocked by this file and never runs)
  *
@@ -120,6 +121,7 @@ const STUB = [
   '    ;;',
   '  fail:*) step="${mode#fail:}"; echo "EUREKA_SETUP: FAIL $step stub reason for $step"; exit 1 ;;',
   '  none) echo "something went wrong before the end"; exit 0 ;;',
+  '  hang) sleep 30 & echo $! > "$engine"; wait ;;',
   'esac',
   '',
 ].join('\n');
@@ -449,6 +451,28 @@ function bodyOf(code, name) {
     assert.equal(again.result.exitCode, 1, out(again.result));
     assert.ok(again.result.stderr.includes('The Eureka setup did not start.'), again.result.stderr);
     assert.equal(again.rec.calls.length, 0, 'the setup ran after a failed copy');
+  });
+
+  await arm('S19 WR-01: at the timeout the whole process group stops and the command returns at once', async () => {
+    const iso = mkIsolatedHome('395-s19');
+    const pidFile = path.join(iso.home, 'grandchild.pid');
+    const started = Date.now();
+    const { result, rec } = await approved(iso, ['hang', pidFile], { timeoutMs: 600 });
+    const took = Date.now() - started;
+    assert.equal(result.exitCode, 1, out(result));
+    assert.ok(result.stderr.includes('so MindrianOS stopped it and every process that it started (error timeout)'), result.stderr);
+    assert.ok(took < 5000, 'the command did not return at the timeout: ' + took + ' ms');
+    assert.equal(rec.calls[0].options.detached, true, 'the setup child must lead its own process group on POSIX');
+    const pid = Number(fs.readFileSync(pidFile, 'utf8').trim());
+    assert.ok(pid > 0, 'the stub did not write the grandchild pid');
+    const alive = () => {
+      try { process.kill(pid, 0); } catch (_e) { return false; }
+      try { return !/^\d+ \(.*\) Z/.test(fs.readFileSync('/proc/' + pid + '/stat', 'utf8')); } catch (_e) { return true; }
+    };
+    const until = Date.now() + 3000;
+    while (alive() && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
+    assert.ok(!alive(), 'the grandchild (sleep) still runs after the timeout');
+    assert.ok(!fs.existsSync(pointerFile(iso)), 'a folder was saved');
   });
 
   await arm('S17 the setup scripts are pinned to a 40-character engine commit, never a branch', async () => {
