@@ -33,3 +33,7 @@ Cause of the old fault: the 3 selector ids get equal ranker scores; fusion by po
 * MA3 (latent): `if (chosen === top)` at `navigation-engine-offer.cjs:206` lets the pin replace a tier 0 minimal verb when it is the top row. Not reachable today (no registry command is in the minimal set).
 * Minor: the switch is read in 2 places and is not in `docs/ENV-TUNING.md`; `tests/test-36925-practical.cjs` arm P7 has a name ("KNOWN GAP") that is now false and an assertion that never could fail.
 * Not verified: Mode A and Mode B through the hook; a live host. Desktop and Cowork get nothing from this change through the MCP server.
+
+## Owner ruling on D3 (2026-11-16)
+
+The owner confirmed D3 before the beta.85 cut: "Keep it held". A chain proposal for another command stays held; the held line names the chain (395-08).
