@@ -352,10 +352,21 @@ check('L15 the paste branch does not trust a server name alone', function (p) {
 // ---- L16 (IN-02) -----------------------------------------------------------
 check('L16 the hook records the verdict after the paste branch', function (p) {
   const src = fs.readFileSync(HOOK, 'utf8');
+  const mainAt = src.indexOf('function main()');
   const cutAt = src.indexOf('guard.classifyAndCut(toolInput');
-  const recAt = src.indexOf('bestEffortRecord(verdictObj');
-  if (cutAt === -1 || recAt === -1) { p.push('anchor not found'); return; }
-  if (recAt < cutAt) p.push('bestEffortRecord runs before classifyAndCut');
+  if (mainAt === -1 || cutAt === -1) { p.push('anchor not found'); return; }
+  // Every call of bestEffortRecord in main() (not the definition) runs after
+  // classifyAndCut, so the record holds the final disposition.
+  const re = /(^|[^\w])bestEffortRecord\(/g;
+  let m;
+  let calls = 0;
+  while ((m = re.exec(src)) !== null) {
+    const at = m.index + m[1].length;
+    if (at < mainAt) continue;
+    calls += 1;
+    if (at < cutAt) p.push('a bestEffortRecord call at offset ' + at + ' runs before classifyAndCut');
+  }
+  if (calls === 0) p.push('no bestEffortRecord call in main');
   if (src.indexOf('updatedInput') !== -1) p.push('the hook source names updatedInput');
 });
 
