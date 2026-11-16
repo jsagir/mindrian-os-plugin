@@ -178,3 +178,70 @@ The second line closes the pre-existing hole (row `cjk3`: a 4-sentence CJK body 
 _Reviewed: 2026-11-16T04:16:53Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: deep_
+
+---
+
+## Fix record
+
+**Fixed:** 2026-11-16 (gsd-code-fixer), branch `work/395-selection-by-job`, worktree `MindrianOS-Plugin-rebuild`, against 80208f14f.
+**Rulings applied:** (35) a body is 3 sentences or more; (37) cut the paste, send the rest; owner ruling 2026-11-16 (WR-04): a text of 1 or 2 sentences longer than 4000 characters is a body.
+**Test first:** `tests/test-395-egress-leaks.cjs` (added to `tests/run-all-395.sh`) turns each probe of p01 to p12 and each OLD-block / NEW-allow row of p03 into an arm. The wire is a stubbed `fetch` (the probe `lib.cjs` stub); no socket. RED at c9ecd2dc6: 9 passed, 68 failed. GREEN at the last commit: 81 passed, 0 failed.
+
+### Commits
+
+| Finding | Commit | Change |
+|---------|--------|--------|
+| test | c9ecd2dc6 | RED arms for every probe; run-all-395.sh runs the new test |
+| WR-03 | b25b2c7f9 | manual left-to-right sentence scan; no look-behind |
+| CR-06 | 3de4d29bf | one line-break set (CR LF, LF, CR, U+0085, U+2028, U+2029) for count, cut and countNewlines; U+3002, U+FF0E, U+FF01, U+FF1F, U+2026 and other script marks end a sentence with or without a space; no space after . ! ? before a word or a digit ends a sentence (not a decimal, not in a link); a digit starts a sentence; a semicolon and a run of 2 or more tabs end a sentence |
+| CR-05 | 3d08a368f | abbreviations keep a sentence open only before a lower-case word in a sentence-case text; an initial only in a name; "no." removed |
+| CR-01 | 5899caafd, then f91b213c9 | see the note under the table |
+| CR-02 | 6958a684b | fences close at a run of the same mark at least as long as the opener; unclosed fence cut to the end |
+| CR-03 | 9345ef932 | quote parser by flanking, with a stack for nested quotes; a gershayim (letter " letter) is not a quote; a closer with no opener, an unclosed opener or a lone mark is ambiguous, and classifyAndCut fails closed |
+| WR-05 | 4995e9e8d | low, reversed and full-width double quotes, guillemets, CJK brackets, single quotes (apostrophe, elision and plural possessive excluded), inline code (4 or more words or code-like), HTML pre and code, 4-space or tab indented lines; an unclosed form fails closed |
+| CR-04 | bd679f644 | `_proveTypedQuestion` proves no string with 0 tokens or a non-ASCII character (typographic quotes excepted); step 2 skips a string with a quoted span |
+| WR-02 | 153434185 | a text that holds the paste note is a long edge, so the private-claim marker rule holds after the cut and on a resend |
+| WR-04 | d0ee11502 | `BODY_MAX_CHARS = 4000`: a longer text is a body |
+| test | f6728d7bc | the `mcp__theo__search` row of p06 is out of the hook scope (see RISKS) |
+| WR-06 | 2f9fdcb0e | `ownPluginShimRoute`: the paste branch lets the uncut input go on only for the plugin scope of this plugin (plugin.json name), when `.mcp.json` registers `mindrian-brain` with the shim script and the script exists; every other route gets exit 2 with the cut input |
+| test | af2d6dc61 | L16 reads the call sites of bestEffortRecord, not the definition |
+| IN-02 | 51bc865a3 | the hook records the final disposition after the paste branch |
+| IN-03 | 792a27ddb | cutPastedText returns the cut spans; classifyAndCut fails closed when a span of 40 or more characters stands in the text to send; arm L19 |
+| test | 5fa377a8b | RED arm: a mid-sentence quote plus 1 sentence is cut and sent; the cut keeps lines |
+| test | 34622726c | RED arms from the coordinator fuzz: `Alpha!Beta!Gamma!CANARY_0062` |
+| CR-06 | d443de92a | no-space ! and ? (and a full stop before a capital) break every time; the 1-per-token cap holds only for a full stop before a lower-case word |
+| CR-06 | d1b032fee | over-block repair found by PG33 and the survey gate: a known file extension or domain ending is not a sentence end (SKILL.md); a semicolon break counts for the body rule only, not for the sprout rule |
+
+**CR-01 note.** 5899caafd made each note a sentence boundary. That over-counted a quote inside a sentence ("What does NOTE mean? How is it used?" counted 3 sentences). f91b213c9 replaced it: the cut never joins lines. A pasted line or block becomes a line that holds only the note, and the words of the note do not count. The rest keeps its true line structure, on the shim cut and on a hook resend. The "safe default" (a body before the cut stays a body) was not adopted: each ruling-37 example (a 2-line question around a pasted block) is a body by line count before the cut, so that default refuses every such question. `tests/test-395-egress-body.cjs` changes 5 expected cut strings from the joined form to the line form (P1, P2). No verdict arm of that test changes.
+
+**WR-06 choice.** The repo has a name predicate only (`isShimBackedBrainTool`). The fix keeps that predicate unchanged (the ambiguous branch still uses it) and adds an identity check for the paste branch only. The project or user scope name `mcp__mindrian-brain__*` now gets exit 2 with the cut input on the paste branch.
+
+### Probe re-run (r13/run.sh, isolated env)
+
+- p01: blockquote, fence and quoteLine: `block/sprouts_required/body_shape` (were allow, facts on the wire).
+- p02: all 13 rows `kind=body`, `onWire=false` (noSpace, digitStart, abbrevEnd, initialEnd, semicolons, cjk, fullwidth, ellipsisChar, lineSep, nel, tabsAsBreaks, hebrew, control).
+- p03: blockquoteMerge, noSpace, digitStart, abbrevEnd, initialEnd, fullwidth, lineSep, cjk: `block/body_shape`. singleQuote, guillemet, lowQuote, singleSmart, inlineCode, htmlPre, indentedCode, sixTickFence, nestedFence4: allow with the paste cut. quoteHasNote: cut 2, no paste on the wire.
+- p04: sixTick, sixTickOneLine, nested4, nested4ml, tildeInBacktick: `SECRET_ON_WIRE=false`.
+- p05 at 80000: every row under 70 ms (was 9.7 s); p05b at 40000: new 4 to 10 ms.
+- p06: shim merge exit 2, direct merge exit 2, theo fence6 exit 2 with a resend input that holds no secret, slow input exit 2 in 99 ms, pws typed search exit 2.
+- p07: strayInch `block/pasted_text cut=0` (nothing sent); nestedInner, nestedFrag, mixedSmartStraight: the whole span cut.
+- p08: ourQuote and proprietaryQuote `block/private_marker`, `onWire=null`.
+- p10: hebrewPaste and cyrillicPaste cut 1, `pasteOnWire=false`; cjk3 `block/body_shape`.
+- p11: abbrevEnd, initialEnd, hebrewPaste, strayInch: exit 2 on the direct connector; no paste in stderr.
+- p12: all 4 rows `block/body_shape`.
+- Coordinator fuzz (fuzz13, 2000 cases, ask() and 2 hook names): `leak records=0` in every category (fuzz13/after.txt).
+
+### Not fixed (RISKS)
+
+- WR-01 (pre-existing): a non-Latin edge of 1 or 2 sentences is decided by English-only edge rules. p10 `hebrew2long` (2 sentences) is still allowed and goes on the wire. CR-04 closes only the fast-path half.
+- WR-07 (pre-existing): a second free-form key on the direct connector is not shaped. p09 `question+context` and `question+ask` still exit 0.
+- p03 `longTwoSentence` (2 sentences, 75 words, about 330 characters) is allowed: rulings 35 and WR-04 (4000 characters) allow it.
+- p07 `threeShortPairs`: a quote of fewer than 4 words is not pasted text (pre-existing), so 3 short quoted fragments go on the wire.
+- p06 `mcp__theo__search` is not Brain-shaped, so the hook does not inspect it (pre-existing, THEO-04).
+- Fail-closed choices that can refuse a generic question: a semicolon and 2 or more tabs end a sentence for the body rule; a no-space full stop in a word that is not a known file or domain ending counts as an end; a stray inch mark or an unclosed quote, guillemet, backtick or single-quote opener refuses the whole call.
+- IN-01 (cut input echoed in the hook message) and IN-04 (double cut in smartSearch) are not changed.
+- The L05 timing bound (200 ms) depends on the machine. UNVERIFIED: that Claude Code honors `onFailure: block` on a hook timeout.
+
+_Fixed: 2026-11-16_
+_Fixer: Claude (gsd-code-fixer)_
+_Iteration: 1_
