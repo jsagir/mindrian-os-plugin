@@ -1,0 +1,2644 @@
+{
+ "generated_at": "2026-11-16T02:13:10Z",
+ "map_batch": "jobmap-phase49-2026-11-16",
+ "excluded_jobs": [
+  "build",
+  "explore",
+  "navigate",
+  "temporal-correction"
+ ],
+ "scope": "methodology commands only",
+ "rank": "ruled first, pws_backed first, strong first; at most 5 per command; frameworks already listed by the command (or their ALIAS_OF root) excluded",
+ "commands": {
+  "/mos:analyze-needs": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:analyze-systems": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Reverse Salient Analysis",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the one lagging part that holds the rest back\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   }
+  ],
+  "/mos:analyze-timing": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:beautiful-question": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:bono": [
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"that it is worth it\": a pursue decision."
+   },
+   {
+    "framework": "Is it Worth It / Value Assessment Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"decide if it is worth doing at all\"."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real, whether we can win, and whether it is worth it\""
+   },
+   {
+    "framework": "Three Components of Innovation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"judge whether an idea can become an innovation\""
+   },
+   {
+    "framework": "PWS Triple Validation Compass",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"weigh an opportunity\" so I can \"decide to fund it or stop\"."
+   }
+  ],
+  "/mos:build-thesis": [
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"that it is worth it\": a pursue decision."
+   },
+   {
+    "framework": "Is it Worth It / Value Assessment Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"decide if it is worth doing at all\"."
+   },
+   {
+    "framework": "Three Components of Innovation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"judge whether an idea can become an innovation\""
+   },
+   {
+    "framework": "PWS Triple Validation Compass",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"weigh an opportunity\" so I can \"decide to fund it or stop\"."
+   },
+   {
+    "framework": "Mullins Model for the Business Case / Mullins Model Validation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"if my opportunity can become a real business\"; \"before I commit years to it\"."
+   }
+  ],
+  "/mos:causal": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:challenge-assumptions": [
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real\""
+   }
+  ],
+  "/mos:compare-ventures": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Innovation Portfolio Now/New/Next",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"hold many opportunities at once, I want to sort them\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"map each step and rate it\": ranks steps against each other."
+   },
+   {
+    "framework": "Opportunity Bank Framework/Creation Process",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"pick the best ones to develop\"."
+   }
+  ],
+  "/mos:deep-grade": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see where assumption starts\""
+   },
+   {
+    "framework": "Resulting",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"review a past decision, I want to judge the reasoning\"."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"map each step and rate it\": ranks steps against each other."
+   }
+  ],
+  "/mos:diagnose": [
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"that it is worth it\": a pursue decision."
+   },
+   {
+    "framework": "Is it Worth It / Value Assessment Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"decide if it is worth doing at all\"."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real, whether we can win, and whether it is worth it\""
+   },
+   {
+    "framework": "Three Components of Innovation",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"judge whether an idea can become an innovation\""
+   },
+   {
+    "framework": "PWS Triple Validation Compass",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"weigh an opportunity\" so I can \"decide to fund it or stop\"."
+   }
+  ],
+  "/mos:diagnostics": [
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see where assumption starts\""
+   },
+   {
+    "framework": "Resulting",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"review a past decision, I want to judge the reasoning\"."
+   },
+   {
+    "framework": "Logic Assessment",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"gaps and overlaps, evidence\": checks gaps and evidence quality."
+   },
+   {
+    "framework": "White Hat Analysis",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"the known facts and the missing facts\" and \"cite a source for each claim\": evidence tier."
+   },
+   {
+    "framework": "Truth-Seeking Groups / Decision Pods",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 1,
+    "statement_kind": "draft",
+    "reason": "\"judge the quality of the decision and not just the result\""
+   }
+  ],
+  "/mos:diffusion": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:dominant-designs": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:explore-domains": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:explore-futures": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Innovation Portfolio Now/New/Next",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"hold many opportunities at once, I want to sort them\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"map each step and rate it\": ranks steps against each other."
+   },
+   {
+    "framework": "Opportunity Bank Framework/Creation Process",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"pick the best ones to develop\"."
+   }
+  ],
+  "/mos:explore-trends": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:find-analogies": [
+   {
+    "framework": "Extensive Searching",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"search broadly across many domains\"; \"connections no one in one field would see\""
+   },
+   {
+    "framework": "SAPPhIRE Model",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a twin in a distant field and borrow its solution\""
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"look up how other fields already got past it\"."
+   },
+   {
+    "framework": "Pattern Recognition",
+    "job_id": "connect-domains",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look across scenarios or markets\": carries patterns across contexts."
+   },
+   {
+    "framework": "Leveraging Resources Method",
+    "job_id": "connect-domains",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a different job those strengths could do somewhere else\"."
+   }
+  ],
+  "/mos:find-bottlenecks": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-bottleneck",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find where the system itself has to change\": locates the part that blocks the fix."
+   }
+  ],
+  "/mos:find-connections": [
+   {
+    "framework": "Extensive Searching",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"search broadly across many domains\"; \"connections no one in one field would see\""
+   },
+   {
+    "framework": "SAPPhIRE Model",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a twin in a distant field and borrow its solution\""
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"look up how other fields already got past it\"."
+   },
+   {
+    "framework": "Pattern Recognition",
+    "job_id": "connect-domains",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look across scenarios or markets\": carries patterns across contexts."
+   },
+   {
+    "framework": "Leveraging Resources Method",
+    "job_id": "connect-domains",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a different job those strengths could do somewhere else\"."
+   }
+  ],
+  "/mos:futures": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:grade-grant": [
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   },
+   {
+    "framework": "Value Proposition",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I pitch an offer\", \"one clear statement of why a customer should buy\""
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "Is it Worth It / Value Assessment Framework",
+    "job_id": "decide-pursue",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"decide if it is worth doing at all\"."
+   }
+  ],
+  "/mos:grade": [
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see where assumption starts\""
+   },
+   {
+    "framework": "Resulting",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"review a past decision, I want to judge the reasoning\"."
+   },
+   {
+    "framework": "Logic Assessment",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"gaps and overlaps, evidence\": checks gaps and evidence quality."
+   },
+   {
+    "framework": "White Hat Analysis",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"the known facts and the missing facts\" and \"cite a source for each claim\": evidence tier."
+   },
+   {
+    "framework": "Truth-Seeking Groups / Decision Pods",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 1,
+    "statement_kind": "draft",
+    "reason": "\"judge the quality of the decision and not just the result\""
+   }
+  ],
+  "/mos:hat-briefing": [
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   },
+   {
+    "framework": "Value Proposition",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I pitch an offer\", \"one clear statement of why a customer should buy\""
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "prepare-pitch",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"about to write my value proposition\": readies the core claim."
+   }
+  ],
+  "/mos:jtbd": [
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"see where assumption starts\""
+   },
+   {
+    "framework": "Resulting",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"review a past decision, I want to judge the reasoning\"."
+   },
+   {
+    "framework": "Logic Assessment",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"gaps and overlaps, evidence\": checks gaps and evidence quality."
+   },
+   {
+    "framework": "White Hat Analysis",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "draft",
+    "reason": "\"the known facts and the missing facts\" and \"cite a source for each claim\": evidence tier."
+   },
+   {
+    "framework": "Truth-Seeking Groups / Decision Pods",
+    "job_id": "audit-room",
+    "fit": "partial",
+    "statement_status": "draft",
+    "pws_backed": true,
+    "statement_index": 1,
+    "statement_kind": "draft",
+    "reason": "\"judge the quality of the decision and not just the result\""
+   }
+  ],
+  "/mos:lean-canvas": [
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   },
+   {
+    "framework": "Value Proposition",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I pitch an offer\", \"one clear statement of why a customer should buy\""
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   }
+  ],
+  "/mos:macro-trends": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   },
+   {
+    "framework": "Macro Trends/Macro Trending",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"list the political, economic, social, technological, and other macro trends\""
+   }
+  ],
+  "/mos:map-unknowns": [
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real\""
+   }
+  ],
+  "/mos:mullins": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:persona": [
+   {
+    "framework": "HEART Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"prepare to pitch my venture\" for \"a skeptical investor\"."
+   },
+   {
+    "framework": "The Golden Circle",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my pitch opens with what I built and people do not care\""
+   },
+   {
+    "framework": "Value Proposition",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"When I pitch an offer\", \"one clear statement of why a customer should buy\""
+   },
+   {
+    "framework": "SUCCESs Framework",
+    "job_id": "prepare-pitch",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"my pitch or idea does not stick with listeners\"."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "prepare-pitch",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"about to write my value proposition\": readies the core claim."
+   }
+  ],
+  "/mos:research": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:root-cause": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:rs-experts": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "Extensive Searching",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"search broadly across many domains\"; \"connections no one in one field would see\""
+   }
+  ],
+  "/mos:rs-explain": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-bottleneck",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find where the system itself has to change\": locates the part that blocks the fix."
+   }
+  ],
+  "/mos:rs-fetch": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "surface-contradiction",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"name the contradiction ... resolve it instead of settling for a tradeoff\"."
+   }
+  ],
+  "/mos:rs-thesis": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-bottleneck",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find where the system itself has to change\": locates the part that blocks the fix."
+   }
+  ],
+  "/mos:scenario-plan": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Innovation Portfolio Now/New/Next",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"hold many opportunities at once, I want to sort them\"."
+   },
+   {
+    "framework": "Five Practices of Effective Executives",
+    "job_id": "plan-execution",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"manage my time\" and \"put first things first\" to \"get the important results done\"."
+   },
+   {
+    "framework": "Commander's Intent",
+    "job_id": "plan-execution",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my plan will meet conditions I cannot predict\"; \"let the team adapt\"."
+   },
+   {
+    "framework": "Brooks's Law",
+    "job_id": "plan-execution",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"a project is late and I feel pressure to add people\"."
+   }
+  ],
+  "/mos:scientific-roadmap": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Reverse Salient Analysis",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the one lagging part that holds the rest back\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   }
+  ],
+  "/mos:score-innovation": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Innovation Portfolio Now/New/Next",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"hold many opportunities at once, I want to sort them\"."
+   },
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   }
+  ],
+  "/mos:structure-argument": [
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real\""
+   }
+  ],
+  "/mos:systems-thinking": [
+   {
+    "framework": "Fogg Behavior Model",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"want what I built but still do not use it\"; \"remove the friction that stops the behavior\"."
+   },
+   {
+    "framework": "High-Performing Teams",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my team is busy but not delivering\"; \"find what keeps us from results\"."
+   },
+   {
+    "framework": "Tech Tree Mapping",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the bottlenecks that choke progress\"."
+   },
+   {
+    "framework": "Reverse Salient Analysis",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"find the one lagging part that holds the rest back\"."
+   },
+   {
+    "framework": "Theory of Constraints",
+    "job_id": "find-bottleneck",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"find the one station that limits the whole flow\"."
+   }
+  ],
+  "/mos:think-hats": [
+   {
+    "framework": "12 Leverage Points",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"must choose where to act\" and \"rank the places I could push\"."
+   },
+   {
+    "framework": "Innovation Portfolio Now/New/Next",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Statement says \"hold many opportunities at once, I want to sort them\"."
+   },
+   {
+    "framework": "Sustaining vs Disruptive Innovation",
+    "job_id": "compare-options",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "extra",
+    "reason": "\"choose on purpose to ignore it, strengthen my core, fight it or set up a separate unit\""
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"map each step and rate it\": ranks steps against each other."
+   },
+   {
+    "framework": "Opportunity Bank Framework/Creation Process",
+    "job_id": "compare-options",
+    "fit": "partial",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"pick the best ones to develop\"."
+   }
+  ],
+  "/mos:trending-to-absurd": [
+   {
+    "framework": "Strategic Inflection Point",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"my industry shows a sudden shift in one force\": reads market dynamics."
+   },
+   {
+    "framework": "PEST",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"scan the political, economic, social and technological changes around it\"."
+   },
+   {
+    "framework": "Era of Ferment Analysis",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"the dominant design in my industry starts to break and rival designs compete\""
+   },
+   {
+    "framework": "Forecast Combination Framework",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"different forecasts for my market disagree\"; \"combine several methods into one estimate\""
+   },
+   {
+    "framework": "Disruptive Innovation",
+    "job_id": "understand-market",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a new entrant looks too small to matter\""
+   }
+  ],
+  "/mos:user-needs": [
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   },
+   {
+    "framework": "Four Lenses of Innovation",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"look for an opportunity\" to \"find openings from change, needs, habits, and resources\"."
+   },
+   {
+    "framework": "Logic Trees",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem feels like one tangled lump\": structures the problem to find its parts."
+   },
+   {
+    "framework": "Life Cycle Analysis",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find overlooked gaps in a product\" and \"spot where waste or cost hides\"."
+   }
+  ],
+  "/mos:validate": [
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "PWS Value Proposition",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test whether it is real\""
+   }
+  ],
+  "/mos:validate-proposition": [
+   {
+    "framework": "Hypothesis-Driven Problem Solving",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"test only what could prove the guess wrong\": testing a hypothesis."
+   },
+   {
+    "framework": "PWS Value Proposition Framework",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"check that the problem is real, that I can win\": tests the claim."
+   },
+   {
+    "framework": "Rapid Prototyping",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"learn from real tests before I commit money\"."
+   },
+   {
+    "framework": "Pre-mortem Analysis",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"imagine it has already failed and write how it broke\": stress-tests the plan."
+   },
+   {
+    "framework": "Ackoff Pyramid",
+    "job_id": "validate-idea",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a claim sounds confident\"; \"trace it back to observation\""
+   }
+  ],
+  "/mos:whitespace": [
+   {
+    "framework": "Extensive Searching",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"search broadly across many domains\"; \"connections no one in one field would see\""
+   },
+   {
+    "framework": "SAPPhIRE Model",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find a twin in a distant field and borrow its solution\""
+   },
+   {
+    "framework": "TRIZ / Genrich Altshuller Innovation Algorithm",
+    "job_id": "connect-domains",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "Quotes \"look up how other fields already got past it\"."
+   },
+   {
+    "framework": "Systems Thinking",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"a problem keeps coming back no matter which part I fix\": the root lies in the system, not the symptom."
+   },
+   {
+    "framework": "Process Mapping",
+    "job_id": "find-problem",
+    "fit": "strong",
+    "statement_status": "ruled",
+    "pws_backed": true,
+    "statement_index": 0,
+    "statement_kind": "ruled",
+    "reason": "\"find the steps most worth improving\": locates where the real need sits."
+   }
+  ]
+ },
+ "alias_twins": [
+  [
+   "Innovation Portfolio Now/New/Next",
+   "McKinsey Three Horizons"
+  ],
+  [
+   "Trend Line Projection",
+   "Structured Trend Extrapolation Process"
+  ],
+  [
+   "Trend Detection Framework",
+   "Structured Trend Extrapolation Process"
+  ],
+  [
+   "BONO Framework",
+   "BONO-Innovation Framework"
+  ],
+  [
+   "Building an 'opposite plan' or 'anti-plan' to challenge current plan assumptions.",
+   "Opposite Plan"
+  ],
+  [
+   "Cynefin-Informed Sequential Innovation Discovery",
+   "Cynefin-Informed Sequential Innovation Discovery with Beautiful Question Pedagogy"
+  ],
+  [
+   "Four Lenses Framework",
+   "Four Lenses of Innovation"
+  ],
+  [
+   "Issue tree",
+   "Issue Trees"
+  ],
+  [
+   "JTBD",
+   "Jobs to Be Done (JTBD)"
+  ],
+  [
+   "Jobs to Be Done",
+   "Jobs to Be Done (JTBD)"
+  ],
+  [
+   "Jobs-to-be-Done",
+   "Jobs to Be Done (JTBD)"
+  ],
+  [
+   "John Mullins Framework",
+   "Mullins Model"
+  ],
+  [
+   "Logic Trees (Issue, Hypothesis, Decision)",
+   "Logic Trees"
+  ],
+  [
+   "MAP THE HIERARCHY",
+   "Hierarchy Mapping"
+  ],
+  [
+   "MECE",
+   "MECE (Mutually Exclusive, Collectively Exhaustive)"
+  ],
+  [
+   "Minto Pyramid",
+   "The Pyramid Principle"
+  ],
+  [
+   "Orthodoxy Challenge Framework",
+   "Challenging Orthodoxies"
+  ],
+  [
+   "PEST",
+   "PEST Analysis"
+  ],
+  [
+   "PWS",
+   "PWS Methodology"
+  ],
+  [
+   "PWS (Problems Worth Solving)",
+   "PWS Methodology"
+  ],
+  [
+   "PWS Framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
+   "PWS Methodology"
+  ],
+  [
+   "Problem Exploration Framework",
+   "PWS Methodology"
+  ],
+  [
+   "Problem Worth Solving",
+   "PWS Methodology"
+  ],
+  [
+   "Problem exploration framework (Problem/Opportunity, Larger System, Goal, Map Hierarchy)",
+   "PWS Methodology"
+  ],
+  [
+   "Problem-solving framework (What problem/opportunity, What about the larger system, What's your goal)",
+   "PWS Methodology"
+  ],
+  [
+   "Problems Worth Solving",
+   "PWS Methodology"
+  ],
+  [
+   "Process Mapping for Innovation",
+   "Process Mapping"
+  ],
+  [
+   "Red Team",
+   "Red Teaming"
+  ],
+  [
+   "Reverse Salient",
+   "Reverse Salient Analysis"
+  ],
+  [
+   "Reverse Salients identification",
+   "Reverse Salient Analysis"
+  ],
+  [
+   "Scenario Analysis",
+   "Scenario Planning"
+  ],
+  [
+   "Scenario Planning for High Uncertainty",
+   "Scenario Planning"
+  ],
+  [
+   "Scenario planning methodology",
+   "Scenario Planning"
+  ],
+  [
+   "TTA",
+   "Trending to the Absurd"
+  ],
+  [
+   "Theory of Jobs to Be Done",
+   "Jobs to Be Done (JTBD)"
+  ],
+  [
+   "Ulwick Methodology",
+   "Outcome-Driven Innovation"
+  ],
+  [
+   "Value Proposition",
+   "PWS Value Proposition"
+  ],
+  [
+   "trend extrapolation framework",
+   "Structured Trend Extrapolation Process"
+  ],
+  [
+   "Black Hat Thinking",
+   "Black Hat Analysis"
+  ],
+  [
+   "The HEART Framework",
+   "HEART Framework"
+  ],
+  [
+   "Neo4j-Powered Pyramid Logic Assessment Framework",
+   "The Pyramid Principle"
+  ],
+  [
+   "Four Lenses Innovation",
+   "Four Lenses of Innovation"
+  ],
+  [
+   "Trend Confirmation path",
+   "Structured Trend Extrapolation Process"
+  ],
+  [
+   "trend_detection_framework",
+   "Structured Trend Extrapolation Process"
+  ],
+  [
+   "Tech Tree Mapping",
+   "Scientific Roadmapping"
+  ],
+  [
+   "Beautiful Question",
+   "Beautiful Question Framework"
+  ]
+ ]
+}
