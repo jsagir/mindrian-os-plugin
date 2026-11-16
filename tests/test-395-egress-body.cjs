@@ -129,9 +129,11 @@ const PASTED = 'the pilot ended early after the buyers left';
 const Q_PASTE = 'How should a team read this memo? "' + PASTED + '" Which framework fits?';
 const Q_PASTE_CUT = 'How should a team read this memo? ' + NOTE + ' Which framework fits?';
 const Q_BLOCK = 'Explain this note:\n> ' + PASTED + '\n> and the price review moved to June\nWhich framework fits?';
-const Q_BLOCK_CUT = 'Explain this note: ' + NOTE + ' Which framework fits?';
+// Plan 395-13 review CR-01: the cut keeps the line structure (the note stands
+// on its own line), so the lines around it stay separate sentences.
+const Q_BLOCK_CUT = 'Explain this note:\n' + NOTE + '\nWhich framework fits?';
 const Q_CODE = 'What is wrong here?\n```js\nconst total = price * units;\nconsole.log(total)\n```\nWhich method finds the cause?';
-const Q_CODE_CUT = 'What is wrong here? ' + NOTE + ' Which method finds the cause?';
+const Q_CODE_CUT = 'What is wrong here?\n' + NOTE + '\nWhich method finds the cause?';
 
 // ---- E1 -------------------------------------------------------------------
 check('E1 1 sentence is not a body and is allowed', function (p) {
@@ -294,9 +296,9 @@ check('P1 cutPastedText cuts each pasted span and leaves the rest', function (p)
     [Q_BLOCK, Q_BLOCK_CUT, 1],
     [Q_CODE, Q_CODE_CUT, 1],
     ['Fix this ```const a = "one two three four"``` please', 'Fix this ' + NOTE + ' please', 1],
-    ['Why does this fail?\n~~~\nan unclosed block\nof code', 'Why does this fail? ' + NOTE, 1],
-    ['Explain:\n"' + PASTED + '"\nWhy?', 'Explain: ' + NOTE + ' Why?', 1],
-    ['first\r> a quoted line after a carriage return\r\nWhat is it?', 'first ' + NOTE + ' What is it?', 1],
+    ['Why does this fail?\n~~~\nan unclosed block\nof code', 'Why does this fail?\n' + NOTE, 1],
+    ['Explain:\n"' + PASTED + '"\nWhy?', 'Explain:\n' + NOTE + '\nWhy?', 1],
+    ['first\r> a quoted line after a carriage return\r\nWhat is it?', 'first\n' + NOTE + '\nWhat is it?', 1],
     ['Compare "' + PASTED + '" with "the price review moved to June"?', 'Compare ' + NOTE + ' with ' + NOTE + '?', 2],
     ['What is a job? "Hire" is the key word.', 'What is a job? "Hire" is the key word.', 0],
     [Q2_SHORT, Q2_SHORT, 0],
