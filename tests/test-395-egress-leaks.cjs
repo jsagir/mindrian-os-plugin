@@ -34,6 +34,7 @@
  *   L16 IN-02 the hook records the final verdict, after the paste branch
  *   L17 the wire: brain.ask sends no secret byte for every arm above
  *   L18 no regression: generic questions keep their sentence count
+ *   L19 IN-03 no cut span stands in the sent text (the disclosure is true)
  *
  * Every string is synthetic. No network: globalThis.fetch is a stub that
  * records each tools/call (the same stub as the review probes), and the hook
@@ -396,6 +397,21 @@ check('L18 generic questions keep their sentence count', function (p) {
     const r = cutOf(q);
     if (r.verdict.verdict !== 'allow') p.push(JSON.stringify(q) + ' ' + tag(r.verdict));
   });
+});
+
+// ---- L19 (IN-03) ------------------------------------------------------------
+check('L19 no cut span stands in the sent text; a repeated paste fails closed', function (p) {
+  CASES.forEach(function (c) {
+    const cut = shapeMod.cutPastedText(c.text);
+    const r = cutOf(c.text);
+    if (!(r.cut > 0 && r.verdict.verdict === 'allow')) return;
+    (cut.spans || []).forEach(function (span) {
+      const inner = String(span).replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      if (inner.length >= 12 && r.payload.question.indexOf(inner) !== -1) p.push(c.name + ': span on the sent text');
+    });
+  });
+  const again = cutOf('explain "' + P07 + '" with a framework, and ' + P07 + '?');
+  if (!(again.verdict.verdict === 'block' && again.cut === 0)) p.push('repeated paste: ' + tag(again.verdict) + ' cut ' + again.cut);
 });
 
 // ---- L17 (async): the wire -----------------------------------------------
