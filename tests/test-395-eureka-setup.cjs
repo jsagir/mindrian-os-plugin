@@ -21,6 +21,7 @@
  *   S10  parseSetupLine: the 3 forms, a folder with spaces, only the last line counts, carriage returns
  *   S11  the setup child environment holds no CLAUDE_, room or Brain variable, and holds HOME
  *   S11b WR-07: the proxy, certificate and package-index variables reach the setup child
+ *   S11c WR-06: the Windows system variables (SystemDrive, USERNAME, PROCESSOR_ARCHITECTURE and more) reach it
  *   S12  --check with no engine: the Fix line names --setup and --path <folder>; nothing is spawned
  *   S13  --path and --sync still work as before (save, grant card exit 2, approved sync)
  *   S14  source guard: runEngineSetup is called once, inside modeSetup, after the no-approval return;
@@ -379,6 +380,20 @@ function bodyOf(code, name) {
     const lines = fs.readFileSync(envFile, 'utf8').split('\n');
     for (const key of Object.keys(net)) assert.ok(lines.indexOf(key + '=' + net[key]) !== -1, 'the child did not get ' + key);
     assert.ok(!lines.some((l) => l.startsWith('MINDRIAN_BRAIN_KEY=')), 'the child got the Brain key');
+  });
+
+  await arm('S11c WR-06: the Windows system variables reach the setup child (names checked on any OS)', async () => {
+    const iso = mkIsolatedHome('395-s11c');
+    const envFile = path.join(iso.home, 'child-env.txt');
+    const winVars = {
+      SystemRoot: 'C:\\Windows', SystemDrive: 'C:', windir: 'C:\\Windows', ComSpec: 'C:\\Windows\\system32\\cmd.exe',
+      PATHEXT: '.COM;.EXE;.BAT;.CMD', USERNAME: 'tester', PROCESSOR_ARCHITECTURE: 'AMD64', NUMBER_OF_PROCESSORS: '8', OS: 'Windows_NT',
+      ProgramW6432: 'C:\\Program Files', CommonProgramFiles: 'C:\\Program Files\\Common Files', ALLUSERSPROFILE: 'C:\\ProgramData', PUBLIC: 'C:\\Users\\Public',
+    };
+    const { result } = await approved(iso, ['none', path.join(iso.home, 'e'), envFile], { env: envOf(iso, winVars) });
+    assert.equal(result.exitCode, 1);
+    const lines = fs.readFileSync(envFile, 'utf8').split('\n');
+    for (const key of Object.keys(winVars)) assert.ok(lines.indexOf(key + '=' + winVars[key]) !== -1, 'the child did not get ' + key);
   });
 
   await arm('S12 --check with no engine: the Fix line names --setup and --path <folder>; nothing spawned', async () => {
