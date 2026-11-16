@@ -126,20 +126,24 @@ expectKinds('SH1', 'sprout', [
 ]);
 
 // ---- SH2 ------------------------------------------------------------------
+// Plan 395-13 (owner rulings 35 and 37, 2026-11-16): a body is 3 sentences or
+// more, and a line break ends a sentence. Size, a quoted span, a block quote
+// and a code block no longer make a body: they are an edge (SH3), and the
+// guard cuts the pasted span (tests/test-395-egress-body.cjs).
 const longSentence = 'the market for small warehouse grippers has grown quickly because ' + wordsOf(50) + ' and then it slowed';
 expectKinds('SH2', 'body', [
   'The pilot started in spring. The buyers asked for a lower price. We agreed to review it in June.',
-  longSentence,
   'first line of a note\nsecond line of a note\nthird line of a note',
-  'the memo said "the pilot ended early after the buyers left" and nothing else',
-  '> a quoted line from a private memo',
-  '```\nconst x = 1;\n```',
 ]);
 
 // ---- SH3 ------------------------------------------------------------------
 expectKinds('SH3', 'edge', [
   'my startup lost its first customers last quarter',
   'we are building a gripper for small warehouses and our pilot starts in spring',
+  longSentence,
+  'the memo said "the pilot ended early after the buyers left" and nothing else',
+  '> a quoted line from a private memo',
+  '```\nconst x = 1;\n```',
 ]);
 
 // ---- SH4 ------------------------------------------------------------------
@@ -179,8 +183,11 @@ arm('SH5', function () {
   // boundaries of the thresholds, read from the RCA
   if (kindOf(wordsOf(rca.sproutMaxWords)) !== 'sprout') problems.push('words at sprout_max_words is not sprout');
   if (kindOf(wordsOf(rca.sproutMaxWords + 1)) !== 'edge') problems.push('words above sprout_max_words is not edge');
-  if (kindOf(wordsOf(rca.bodyMinWords - 1)) !== 'edge') problems.push('words below body_min_words is not edge');
-  if (kindOf(wordsOf(rca.bodyMinWords)) !== 'body') problems.push('words at body_min_words is not body');
+  // Plan 395-13 (owner ruling 35): body_min_words is now the long-edge bound.
+  const below = classifyShape(wordsOf(rca.bodyMinWords - 1));
+  const at = classifyShape(wordsOf(rca.bodyMinWords));
+  if (!(below.kind === 'edge' && below.longEdge === false)) problems.push('words below body_min_words is not a short edge');
+  if (!(at.kind === 'edge' && at.longEdge === true)) problems.push('words at body_min_words is not a long edge');
   const sent = function (n) { const a = []; for (let i = 0; i < n; i += 1) a.push('Pilot notes number ' + 'abc'.charAt(i % 3) + ' stand here.'); return a.join(' '); };
   if (kindOf(sent(rca.bodyMinSentences - 1)) !== 'edge') problems.push('sentences below body_min_sentences is not edge');
   if (kindOf(sent(rca.bodyMinSentences)) !== 'body') problems.push('sentences at body_min_sentences is not body');

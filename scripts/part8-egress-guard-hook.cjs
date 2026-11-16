@@ -192,6 +192,18 @@ function splitRouteMessage() {
   }
 }
 
+// Plan 395-13 (owner ruling 37, "cut the paste, send the rest"). The refusal
+// for a Brain route with no shim behind it: nothing is sent, and the message
+// gives the cut input to send once more. The cut input is the question with
+// each pasted span replaced by the note; it holds no pasted byte, and the
+// guard already allowed it. A shim-backed route needs no resend: the shim cuts
+// the same spans before any wire call (lib/core/brain-client.cjs).
+function pasteResendMessage(cutInput) {
+  return 'Canon Part 8: pasted text (a quote, a block quote or a code block) stays on this machine (reason pasted_text). Nothing was sent. ' +
+    'Send the call 1 more time with exactly this input; the note in square brackets marks the pasted text: ' + JSON.stringify(cutInput) +
+    ' Write a method name without quote marks.';
+}
+
 function carriesEdgeOrBody(toolName, toolInput) {
   try {
     return require(SPLIT_ROUTE_PATH).carriesEdgeOrBody(toolName, toolInput) !== false;
@@ -327,6 +339,7 @@ function main() {
 
   let verdictObj;
   let guard;
+  let roomDir = null;
   try {
     guard = require(GUARD_PATH);
   } catch (_) {
@@ -338,7 +351,6 @@ function main() {
     // shared resolver (never the payload cwd directly) and its lexicon is
     // read from room.db rows only, inside this hook's 2000 ms budget. A
     // resolver miss is "no room bound" (null), never a throw.
-    let roomDir = null;
     try {
       roomDir = require(LEXICON_PATH).resolveLexiconRoom({});
     } catch (_) {
@@ -354,6 +366,34 @@ function main() {
 
   // Best-effort telemetry BEFORE the exit branch (process.exit terminates).
   bestEffortRecord(verdictObj, sessionId);
+
+  // Plan 395-13 (owner ruling 37, "cut the paste, send the rest"): the guard
+  // found pasted text (a quote, a block quote or a code block) and no rule
+  // for every shape fired. classifyAndCut cuts the paste and decides the rest.
+  // Rest allowed: a shim-backed route proceeds (the shim cuts the same spans
+  // before any wire call and discloses the cut); any other Brain route gets
+  // exit 2 with the cut input to send once more. Rest blocked: the verdict of
+  // the rest is answered below. This hook never rewrites the tool input.
+  if (verdictObj.verdict === 'block' && verdictObj.token_class === 'pasted_text' && typeof guard.classifyAndCut === 'function') {
+    let planned = null;
+    try {
+      planned = guard.classifyAndCut(toolInput, { toolName: toolName, roomDir: roomDir });
+    } catch (_) {
+      return guardUnavailable(toolName, toolInput, 'classify_threw');
+    }
+    if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'allow') {
+      let shimRoute = false;
+      try {
+        shimRoute = !!(sanitizer && sanitizer.isShimBackedBrainTool(toolName));
+      } catch (_) {
+        shimRoute = false;
+      }
+      if (shimRoute) return allow();
+      return block(pasteResendMessage(planned.payload));
+    }
+    if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'block') verdictObj = planned.verdict;
+    else if (planned && planned.cut > 0) return block(splitRouteMessage());
+  }
 
   const verdict = verdictObj.verdict;
   const klass = verdictObj.class || 'unknown';
