@@ -7,7 +7,7 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "7b6bcfcc4a9fda6d0711efec5747302f89e008274b78a6586c94b4176dc1fe23",
+      "digest": "6d7e04edd7175866e0d548a7c309578c83b366faf454de77de7674252945bc05",
       "source_count": 113
     },
     {
@@ -19,8 +19,8 @@
     {
       "role": "ranked_next_reach",
       "path": "data/brain-orchestration-projection.json",
-      "digest": "5c7a960409f56477e492b908f5ffd9e4cc73d8a7e045df4bef05872172e91bdc",
-      "source_count": 387
+      "digest": "ccf81636429baed2d539ad59359de476c6cdb574c01625ef97b5d77ea08384be",
+      "source_count": 389
     }
   ],
   "runtime_surfaces": [

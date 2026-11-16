@@ -280,7 +280,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "Red Teaming"
+        "Red Teaming",
+        "Pre-mortem Analysis"
       ],
       "produces": "room/**/challenge/*",
       "executable": null,
@@ -1141,7 +1142,8 @@
       "surface": "navigator",
       "visibility": null,
       "frameworks": [
-        "PEST Analysis"
+        "PEST Analysis",
+        "Macro Trends/Macro Trending"
       ],
       "produces": "room/**/trends/*",
       "executable": null,
@@ -2355,6 +2357,9 @@
     "Red Teaming": [
       "/mos:challenge-assumptions"
     ],
+    "Pre-mortem Analysis": [
+      "/mos:challenge-assumptions"
+    ],
     "PWS Triple Validation Compass": [
       "/mos:compare-ventures",
       "/mos:deep-grade",
@@ -2401,6 +2406,9 @@
       "/mos:lean-canvas"
     ],
     "PEST Analysis": [
+      "/mos:macro-trends"
+    ],
+    "Macro Trends/Macro Trending": [
       "/mos:macro-trends"
     ],
     "Knowns and Unknowns Matrix Framework": [

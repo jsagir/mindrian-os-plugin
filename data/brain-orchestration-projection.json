@@ -3871,6 +3871,12 @@
       "name": "Lean Canvas"
     },
     {
+      "id": "framework:Macro Trends/Macro Trending",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Macro Trends/Macro Trending"
+    },
+    {
       "id": "framework:MECE (Mutually Exclusive, Collectively Exhaustive)",
       "kind": "framework",
       "methodology_tier": "pws",
@@ -3887,6 +3893,12 @@
       "kind": "framework",
       "methodology_tier": "pws",
       "name": "PEST Analysis"
+    },
+    {
+      "id": "framework:Pre-mortem Analysis",
+      "kind": "framework",
+      "methodology_tier": "pws",
+      "name": "Pre-mortem Analysis"
     },
     {
       "id": "framework:Problem Definition Transformation Framework",
@@ -4639,6 +4651,11 @@
     {
       "type": "OPERATES",
       "from": "command:/mos:challenge-assumptions",
+      "to": "framework:Pre-mortem Analysis"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:challenge-assumptions",
       "to": "framework:Red Teaming"
     },
     {
@@ -4740,6 +4757,11 @@
       "type": "OPERATES",
       "from": "command:/mos:lean-canvas",
       "to": "framework:Lean Canvas"
+    },
+    {
+      "type": "OPERATES",
+      "from": "command:/mos:macro-trends",
+      "to": "framework:Macro Trends/Macro Trending"
     },
     {
       "type": "OPERATES",

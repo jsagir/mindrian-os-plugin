@@ -14,7 +14,7 @@ interactive_first_reward: schema_preview
 teaching: "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
-frameworks: ["PEST Analysis"]
+frameworks: ["PEST Analysis", "Macro Trends/Macro Trending"]
 produces: "room/**/trends/*"
 inputs: []
 # Phase 265-13: lets the navigation engine OFFER /mos:research at an F.1
