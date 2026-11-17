@@ -4,6 +4,23 @@ You are a coding agent. A person pasted a sentence like this into your chat:
 
 > Read https://mindrian-os.com/install.md and set up MindrianOS for me.
 
+## Stop here if you cannot run commands
+
+If you are ChatGPT, Gemini, or any chat assistant that cannot run commands on this computer: you cannot install MindrianOS, and it does not run inside your app. Do not propose to build an integration, a connector, an MCP server, a custom GPT or an action for MindrianOS. Do not ask for the person's files or notes.
+
+Say exactly this to the person, then stop:
+
+> MindrianOS is a plugin for Claude, so I can't install it here, and it doesn't run inside this app. You have two ways to get it:
+>
+> 1. **Claude Desktop:** open the plugin settings, choose Add marketplace, enter `jsagir/mindrian-marketplace`, and install MindrianOS.
+> 2. **Claude Code:** it needs a paid Claude plan (Pro, Max, Ultra, Team or Enterprise) or a Console account. Install it from https://code.claude.com/docs/en/setup, then paste the same sentence you gave me into Claude Code. It will do the rest.
+>
+> Full steps: https://mindrian-os.com/docs/install
+
+If you can run commands, continue below.
+
+---
+
 This file is the whole procedure. Follow it in order. Tell the person what each step does before you run it, in one plain sentence. Report each result honestly. If a step fails, stop, say what failed and what it means, and point to Troubleshooting.
 
 MindrianOS is a plugin for Claude Code. It adds Larry, a PwS (Problems worth Solving) thinking partner, and a Data Room, a local folder that keeps what you work out.
@@ -34,7 +51,7 @@ Show this scope to the person in two or three lines and get a yes before step 4.
 | Claude Code in a terminal | Follow every step below. This is the full install. |
 | Claude Desktop (Chat, Cowork or the Code tab) | Use the Desktop path in section 2a. No terminal is needed. You cannot click the app for the person, so give them the steps and wait. |
 | Codex, Cursor or another agent with a shell | MindrianOS runs inside Claude Code. If `claude` is missing, use section 2b (with a yes). Then run steps 3 to 5 in your shell and tell the person to open Claude Code for step 7. |
-| ChatGPT, or any chat with no shell | You cannot install anything here, and MindrianOS does not run inside ChatGPT. Say so plainly. Then give the person two choices: the Desktop path (section 2a) or Claude Code (section 2b, then the command in step 4). |
+| ChatGPT, Gemini, or any chat with no shell | Use the block "Stop here if you cannot run commands" at the top of this file. Say its words, then stop. |
 | No shell access at all | Stop. Give the person the Desktop path (section 2a) or the commands from sections 2b and 4 to run themselves. |
 
 ### 2a. Claude Desktop path (no terminal)
