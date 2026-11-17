@@ -32,10 +32,45 @@ Show this scope to the person in two or three lines and get a yes before step 4.
 | You are | What to do |
 |---|---|
 | Claude Code in a terminal | Follow every step below. This is the full install. |
-| Claude Desktop or Cowork, with a terminal or the Code tab | Run the same steps in that terminal. Hooks and the status line exist only in Claude Code; say so. |
-| Claude Desktop with no terminal | Do not improvise. Tell the person to install Claude Code first (https://claude.com/claude-code), then paste the same sentence there. |
-| Codex, Cursor or another agent with a shell | MindrianOS runs inside Claude Code. Use your shell to run steps 3 to 5 (they install the plugin into Claude Code), then tell the person to open Claude Code for step 7. |
-| No shell access at all | Stop. Give the person the one command from step 4 to run themselves. |
+| Claude Desktop (Chat, Cowork or the Code tab) | Use the Desktop path in section 2a. No terminal is needed. You cannot click the app for the person, so give them the steps and wait. |
+| Codex, Cursor or another agent with a shell | MindrianOS runs inside Claude Code. If `claude` is missing, use section 2b (with a yes). Then run steps 3 to 5 in your shell and tell the person to open Claude Code for step 7. |
+| ChatGPT, or any chat with no shell | You cannot install anything here, and MindrianOS does not run inside ChatGPT. Say so plainly. Then give the person two choices: the Desktop path (section 2a) or Claude Code (section 2b, then the command in step 4). |
+| No shell access at all | Stop. Give the person the Desktop path (section 2a) or the commands from sections 2b and 4 to run themselves. |
+
+### 2a. Claude Desktop path (no terminal)
+
+Give the person these steps:
+
+1. Open Claude Desktop and go to **Customize > Plugins**.
+2. Choose **Add marketplace** and enter `jsagir/mindrian-marketplace`.
+3. Install **MindrianOS** (the `mos-desktop` entry). In Claude Code, install `mos` instead, as in step 4.
+4. Larry and the room tools work in **Cowork** and in the **Code tab**. **Chat** gets the skills and commands only. Hooks and the status line exist only in Claude Code.
+5. On first use the plugin installs its own packages once. A short "installing" answer is normal; ask again after it finishes.
+
+Skip steps 3 to 6 on this path. Go to step 7 and use `/mos:onboard` in Cowork or the Code tab.
+
+### 2b. No Claude Code yet
+
+Claude Code needs a paid Claude plan (Pro, Max, Team, Enterprise) or a Console (API) account. The free claude.ai plan does not include it. Tell the person this before you install anything.
+
+After a yes, run the official installer for their system (source: https://code.claude.com/docs/en/setup):
+
+```bash
+# macOS, Linux, WSL
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+```powershell
+# Windows PowerShell
+irm https://claude.ai/install.ps1 | iex
+```
+
+```bat
+:: Windows CMD
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+Then open a new terminal and run `claude --version`. If `claude` is not found, the install folder is not on PATH yet; see https://code.claude.com/docs/en/troubleshoot-install. The person must run `claude` once and log in through the browser. You cannot do the login for them. Then continue with step 3.
 
 ---
 
@@ -55,7 +90,7 @@ uv --version
 ```
 
 - Node missing or older than 22.18.0: ask the person before installing it (for example with their package manager, `nvm` or https://nodejs.org).
-- `claude` missing: ask before installing Claude Code (https://claude.com/claude-code).
+- `claude` missing: go to section 2b. Ask before you install it.
 - `uv` missing: note it. It matters only if the person wants Eureka.
 
 Do not continue to step 4 until Node and `claude` both pass.
