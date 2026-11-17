@@ -51,7 +51,7 @@ Skip steps 3 to 6 on this path. Go to step 7 and use `/mos:onboard` in Cowork or
 
 ### 2b. No Claude Code yet
 
-Claude Code needs a paid Claude plan (Pro, Max, Team, Enterprise) or a Console (API) account. The free claude.ai plan does not include it. Tell the person this before you install anything.
+Claude Code needs a paid Claude plan (Pro, Max, Ultra, Team, Enterprise) or a Console (API) account. The free claude.ai plan does not include it. Tell the person this before you install anything.
 
 After a yes, run the official installer for their system (source: https://code.claude.com/docs/en/setup):
 
@@ -160,6 +160,7 @@ Tell the person:
 | `npx` fails with an engine or version error | Node is older than 22.18.0. Upgrade Node, retry step 4. |
 | "already installed" during step 4 | Fine. The installer updates it next. Continue to step 5. |
 | Doctor still reports a failure after `--fix` | Report the failing line to the person exactly as printed. Do not patch files by hand. |
+| Claude Desktop says "Marketplace sync failed" when you add `jsagir/mindrian-marketplace` | It is often already added: Desktop shares the plugin list of Claude Code on the same computer. Run `claude plugin marketplace list`, or look in the plugin list in Desktop. If it is there, sync it and install MindrianOS from it. Do not add it again. |
 | No `⬡ MindrianOS` line after restart | Run `/mos:doctor --fix` inside Claude Code, then restart again. |
 | Anything else | Stop and show the person the exact error. Point them to https://mindrian-os.com/docs/install. |
 
