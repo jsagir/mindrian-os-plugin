@@ -91,26 +91,51 @@ function stop(room, extraEnv) {
   return { code: r.status, ms: Date.now() - t0, out: r.stdout, err: r.stderr };
 }
 
-// scripts/on-stop recompiles every ROOM.md under a 0.4 s timeout per section; on a loaded machine some recompiles finish in the
-// next stop (a race that predates this plan). ROOM.md is a brief input, so a brief moves when its ROOM.md moves. To test what this
-// plan owns (no input change, no brief change), stop until every ROOM.md reads the same as at the previous stop. Returns the count.
-function roomMdHashes(roomDir) {
-  const o = {};
-  fs.readdirSync(roomDir, { withFileTypes: true }).filter((d) => d.isDirectory() && d.name[0] !== '.').forEach((d) => {
-    try { o[d.name] = sha(fs.readFileSync(path.join(roomDir, d.name, 'ROOM.md'), 'utf8')); } catch (_e) { o[d.name] = null; }
-  });
-  return o;
+// ROOM.md is a brief input, so a brief moves when its ROOM.md moves. scripts/on-stop recompiles ROOM.md on every stop: one
+// recompile per section, all in parallel, each under `timeout 0.4` and one room write lock. On a loaded machine a random subset
+// is killed each stop (6 to 11 of 14 measured), so a section can miss its first compile for several stops in a row and finish
+// it in a later stop; its ROOM.md, and so its brief, then moves with no change by the test (a race that predates this plan).
+// The old settle() stopped until every ROOM.md read the same as at the previous stop, but a compile killed in two stops in a
+// row also reads the same, so it returned too early and BW2 and BW3 failed under load. settle() now reaches the steady state
+// by construction, so the stops under test (default environment) see no input change:
+//   1. every section's ROOM.md is compiled to the recompiler's fixed point by the recompiler module itself, with no timeout,
+//      and the fixed point is checked with its pure functions; every later hook recompile is then a no-op that writes nothing;
+//   2. one stop with a brief budget that cannot cut the walk renders every nest against those inputs, and its session-close.log
+//      line must say left=0 and failed=0, so every BRIEF.md on disk is current.
+// Returns the sections the hook had not yet brought to the fixed point (the race, made visible).
+const RC = require(path.join(ROOT, 'scripts', 'recompile-room-references.cjs'));
+const SETTLE_BUDGET_MS = '600000';
+function roomMdSections(roomDir) {
+  return fs.readdirSync(roomDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name[0] !== '.' && fs.existsSync(path.join(roomDir, d.name, 'ROOM.md')))
+    .map((d) => d.name)
+    .sort();
+}
+function atFixedPoint(sectionDir) {
+  const existing = fs.readFileSync(path.join(sectionDir, 'ROOM.md'), 'utf8');
+  return RC.spliceReferencesBlock(existing, RC.buildReferencesBlock(RC.extractReferences(sectionDir))) === existing;
+}
+function lastBriefLog(roomDir) {
+  let log = '';
+  try { log = fs.readFileSync(path.join(roomDir, '.mindrian', 'session-close.log'), 'utf8'); } catch (_e) { log = ''; }
+  const lines = log.split('\n').filter((l) => l.indexOf(' on-stop-brief ') !== -1);
+  return { count: lines.length, last: lines.length > 0 ? lines[lines.length - 1] : '' };
 }
 function settle(room) {
-  let prev = null;
-  for (let i = 1; i <= 8; i += 1) {
-    const r = stop(room);
-    eq(r.code, 0, 'settling stop ' + i + ' exit code');
-    const h = JSON.stringify(roomMdHashes(room.roomDir));
-    if (h === prev) return i;
-    prev = h;
-  }
-  throw new Error('ROOM.md recompiles did not settle in 8 stops');
+  const behind = roomMdSections(room.roomDir).filter((s) => !atFixedPoint(path.join(room.roomDir, s)));
+  behind.forEach((s) => {
+    const dir = path.join(room.roomDir, s);
+    const res = RC.recompile(dir);
+    check(atFixedPoint(dir), s + ': ROOM.md is not at the recompiler fixed point after a direct recompile (' + JSON.stringify(res) + ')');
+  });
+  const logBefore = lastBriefLog(room.roomDir).count;
+  const r = stop(room, { MINDRIAN_BRIEF_ONSTOP_BUDGET_MS: SETTLE_BUDGET_MS });
+  eq(r.code, 0, 'settling stop exit code');
+  const after = lastBriefLog(room.roomDir);
+  eq(after.count, logBefore + 1, 'the settling stop appends one on-stop-brief line to session-close.log');
+  check(/ failed=0 left=0 /.test(after.last), 'the settling stop rendered every nest: ' + after.last);
+  roomMdSections(room.roomDir).forEach((s) => check(atFixedPoint(path.join(room.roomDir, s)), s + ': ROOM.md left the fixed point during the settling stop'));
+  return behind;
 }
 // The bytes of a nest's five brief inputs, hashed: when this is equal before and after, the brief must be byte-identical.
 function inputsHash(room, section) {
@@ -202,8 +227,8 @@ arm('BW2 on-stop writes a BRIEF per face-carrying nest, none elsewhere; stops wi
   nests.forEach((s) => {
     if (inputsHash(room, s) === inA[s]) eq(sha(readBrief(room, s)), briefA[s], s + ': inputs unchanged but the brief bytes moved');
   });
-  const n = settle(room);
-  console.log('  BW2 stops to settle ROOM.md recompiles: ' + n + ' (after the two above)');
+  const behind = settle(room);
+  console.log('  BW2 sections whose ROOM.md the two stops above had not compiled (settle compiled them): ' + behind.length + (behind.length > 0 ? ' (' + behind.join(', ') + ')' : ''));
   const settled = snapshotBriefs(room, nests);
   const r2 = stop(room);
   const r3 = stop(room);
@@ -278,7 +303,17 @@ arm('BW4 on-stop wall time over the nests (3 runs); budget 1 ms writes at most o
 
 arm('BW5 the walk: no nest over 8000 tokens, 11 nests with every face, BRIEF.md never an artifact', () => {
   const room = regenRoom();
-  eq(stop(room).code, 0, 'stop on the regenerated room');
+  // The two nests the generator cannot reach (funding, strategy) get their brief from on-stop. The brief walk stops when its
+  // 1200 ms budget is spent, renders nests with no BRIEF.md first and always renders at least one nest, so on a loaded machine
+  // the second nest can wait for the next stop (seen once in 20 runs under load: "expected 11, got 10"). Stop until every
+  // face-carrying nest has its brief, at most one stop per missing nest; the default environment is kept.
+  const missing = () => room.nests.filter((s) => readBrief(room, s) === null);
+  const toWrite = missing().length;
+  for (let i = 1; i <= Math.max(1, toWrite); i += 1) {
+    eq(stop(room).code, 0, 'stop ' + i + ' on the regenerated room');
+    if (missing().length === 0) break;
+  }
+  eq(missing(), [], 'face-carrying nests still without BRIEF.md after one stop per missing nest');
   const r = spawnSync(process.execPath, [DOCTOR, '--icm-walk', '--room', room.roomDir, '--json'], { env: room.iso.env, encoding: 'utf8', timeout: 120000 });
   eq(r.status, 0, 'doctor --icm-walk exit code: ' + String(r.stderr).slice(-300));
   const j = JSON.parse(r.stdout);
