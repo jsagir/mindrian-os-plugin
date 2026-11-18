@@ -62,3 +62,10 @@ RISKS:
 ## Notes
 
 Open owner decisions D1-D4 (who tests first, where it runs, confidential data, which demo case) are on the audit page. Build order once triggered: run the pending 369.26 render check, then the catalog and mod renderer, then the version-one parts, then the H1 test.
+
+## Owner decisions (2026-11-18, gate card)
+
+- D1 Who tests first: OTHER translational scientists first, then Noga (protect the Merck introduction from a weak first run). Overrides the recommendation.
+- D2 Where it runs: the Claude Desktop Code tab (mod pane).
+- D3 Confidential data: public-question mode, stated on screen.
+- D4 Demo case: TBD (owner left open).
