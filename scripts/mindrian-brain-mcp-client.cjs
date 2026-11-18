@@ -98,6 +98,55 @@ try {
 const brainClient = require('../lib/core/brain-client.cjs');
 const { wrapDirective } = require('../lib/core/directive-envelope.cjs');
 const { refusalResponse } = require('../lib/core/refusal-messaging.cjs');
+// Plan 392-12 (392-SC3, Canon Part 8): the closed shape vocabulary for the
+// strict brain_ask schema and the ONE builder. The lists are read once at
+// start-up from data/brain-shape-vocabulary.json (schema_version 1; the same
+// enums Theo seals on its side). This shim is not a hook, so the require is
+// not on the hook cold-start path.
+const shapePacket = require('../lib/core/brain-shape-packet.cjs');
+const { resolveLexiconRoom } = require('../lib/core/part8-room-lexicon.cjs');
+const SHAPE_VOCAB = shapePacket.loadVocabulary();
+
+/**
+ * sessionRoomShape() -> { shape: object|null, lexicon_scope: string }
+ *
+ * Plan 392-12 option (a): the shape is built in THIS process only when the
+ * host exported CLAUDE_CODE_SESSION_ID (Claude Code CLI does, proven on
+ * 2026-11-09 by /proc of the live shim processes, plan 392-11) AND that
+ * session owns a bound room (resolveLexiconRoom status bound, lexicon_scope
+ * session). Without a session id (Claude Desktop and Cowork export none and
+ * run no plugin hook) no shape is built: the call goes bare and the Part 8
+ * lexicon check inside brain-client runs against the machine-global active
+ * room, which the envelope and the telemetry name as lexicon_scope
+ * machine_global (today's behaviour on those two surfaces in this phase;
+ * 392-SC5 is met on the CLI hook path; the mindrian-os server never builds
+ * the shape in this phase). An unavailable room (corrupt binding, unreadable
+ * room.db) builds nothing here and is blocked by brain-client's own gate
+ * (room_check_unavailable) before any wire call.
+ */
+function sessionRoomShape() {
+  const sessionId = (typeof process.env.CLAUDE_CODE_SESSION_ID === 'string' && process.env.CLAUDE_CODE_SESSION_ID.length > 0)
+    ? process.env.CLAUDE_CODE_SESSION_ID
+    : null;
+  if (!sessionId) return { shape: null, lexicon_scope: 'machine_global' };
+  let room = null;
+  try {
+    room = resolveLexiconRoom({ sessionId: sessionId, requireOwnership: true });
+  } catch (_e) {
+    room = null;
+  }
+  const scope = (room && room.lexicon_scope === 'machine_global') ? 'machine_global' : 'session';
+  if (!room || room.status !== 'bound' || room.lexicon_scope !== 'session' || typeof room.roomDir !== 'string') {
+    return { shape: null, lexicon_scope: scope };
+  }
+  try {
+    const built = shapePacket.buildShapePacket({ roomDir: room.roomDir });
+    const v = (built && built.shape) ? shapePacket.validateShapePacket(built.shape) : null;
+    return { shape: (v && v.ok === true) ? built.shape : null, lexicon_scope: 'session' };
+  } catch (_e) {
+    return { shape: null, lexicon_scope: 'session' };
+  }
+}
 
 const pluginRoot = path.resolve(__dirname, '..');
 const pluginMeta = require('../.claude-plugin/plugin.json');
@@ -186,11 +235,29 @@ const server = new McpServer({ name: 'mindrian-brain', version: version });
 server.registerTool(
   'brain_ask',
   {
-    description: 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly.',
-    inputSchema: z.strictObject({ question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).') }),
+    description: 'Ask the remote teaching graph a natural-language methodology question. Routing happens server-side. Returns a DirectiveEnvelope whose directive and next_gate are composed from the graph-grounded rows behind the answer plus a recommended framework chain; grounding.rows names the rows the answer stands on, and an empty grounding.rows means thin footing, not a clean answer. Reach for this first for an open methodology question; use brain_search when you already know the topic and want matching nodes directly. The optional shape argument is a closed-vocabulary problem shape; the value you pass is ignored: the shape that leaves this machine is built from the room bound to this session, never from the model, and no shape leaves when no session owns a room (Canon Part 8).',
+    inputSchema: z.strictObject({
+      question: z.string().describe('A methodology question (generic framework handles only -- never user artifacts or personal data per Canon Part 8).'),
+      // Plan 392-12: enum members only (z.enum of the vocabulary lists, no
+      // regex: a \p{L} pattern broke the claude.ai validator in 2026-10).
+      // Strict so an extra key or a non-member is refused with the field and
+      // the accepted members; the handler ignores the value (see above).
+      shape: z.strictObject({
+        schema_version: z.literal(1),
+        problem_type: z.enum(SHAPE_VOCAB.problem_type),
+        stage: z.enum(SHAPE_VOCAB.stage),
+        role: z.enum(SHAPE_VOCAB.role),
+        domain_tag: z.enum(SHAPE_VOCAB.domain_tag),
+        constraint_categories: z.array(z.enum(SHAPE_VOCAB.constraint_categories)).max(shapePacket.CONSTRAINT_CATEGORIES_MAX),
+      }).optional().describe('Optional closed-vocabulary problem shape (schema_version 1). Ignored: the shape on the wire is built from the room bound to this session, never from the model.'),
+    }),
   },
-  async ({ question }) => {
-    const raw = await brainClient.ask(question);
+  async ({ question, shape }) => {
+    // Plan 392-12 (T-392-34): the model-supplied shape is ignored. The shape
+    // on the wire is the room-built packet of this session's bound room, or
+    // none (bare call) when no session id owns a room.
+    const roomShape = sessionRoomShape();
+    const raw = await brainClient.ask(question, roomShape.shape ? { shape: roomShape.shape } : {});
     if (raw == null) {
       // Phase 250-01 (HONEST-01): a transport failure is an honest
       // `unreachable` refusal -- wrap refusalResponse('unreachable', ...) in
@@ -228,6 +295,11 @@ server.registerTool(
         next_gate: { sub_shape: 'F.1', options: refusal.next_moves.slice() },
         refusal: refusal,
       }, { command_context: 'brain_ask' }));
+    }
+    // Plan 392-12: say so when a model-supplied shape was ignored (a closed
+    // boolean on the composed grounding, never the supplied value).
+    if (shape !== undefined && raw && typeof raw === 'object' && raw.grounding && typeof raw.grounding === 'object') {
+      raw.grounding.model_shape_ignored = true;
     }
     const signals = (raw && typeof raw === 'object' && raw.mode_signals) ? raw.mode_signals : {};
     return asContent(wrapDirective(raw, signals));

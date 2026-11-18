@@ -111,7 +111,7 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 | Markdown + YAML frontmatter | Skills, agents, commands, pipelines, references |
 | JSON | plugin.json, hooks.json, .mcp.json, settings.json, STATE.md frontmatter |
 | Bash scripts (scripts/) | Room analysis, state, meeting intelligence, PDF, transcription |
-| Theo + Brain MCP | Remote teaching graph (Streamable HTTP) at theo-mcp.onrender.com. Cutover from Neo4j Aura to Memgraph (pws-brain-mcp.onrender.com) landed 2026-07-22; cutover from Memgraph to Theo landed 2026-09-03 (Phase 339). lib/core/brain-client.cjs:24 is the single source of the default URL |
+| Theo + Brain MCP | Remote teaching graph (Streamable HTTP) at theo-mcp.onrender.com. Cutover from Neo4j Aura to Memgraph landed 2026-07-22; cutover from Memgraph to Theo landed 2026-09-03 (Phase 339); the Memgraph-era direct connector (pws-brain-mcp) is retired (Phase 392, D-08, 2026-11-08): it is never trusted, and the Part 8 hook matchers still inspect every pws-brain-mcp tool (owner ruling 2026-11-18, quick 261118-q35: retired means blocked, not ignored); every live Brain route is mindrian-brain or a Theo server. lib/core/brain-client.cjs:24 is the single source of the default URL |
 | e5 (multilingual-e5-large) | Brain semantic-search vectors, 1024-dim, embedded LOCALLY (passage:/query: prefixes, no network egress). Pinecone is RETIRED |
 | Cytoscape.js (CDN) | De Stijl knowledge-graph visualization |
 | sentence-transformers + LSA (Python) | HSI computation scripts |

@@ -205,7 +205,7 @@
         ]
       },
       {
-        "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+        "matcher": "mcp__(?:(?:plugin_[A-Za-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[Tt]heo__.*|[Tt]heo-context__.*|claude_ai_[Tt]heo[A-Za-z0-9_-]*__.*|claude_ai_PWS_[Bb]rain__.*|[A-Za-z0-9_-]+__brain_[a-z0-9_]+)",
         "hooks": [
           {
             "type": "command",
@@ -329,7 +329,7 @@
         ]
       },
       {
-        "matcher": "mcp__(?:(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[a-z0-9_-]+__brain_[a-z0-9_]+)",
+        "matcher": "mcp__(?:(?:plugin_[A-Za-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*|[Tt]heo__.*|[Tt]heo-context__.*|claude_ai_[Tt]heo[A-Za-z0-9_-]*__.*|claude_ai_PWS_[Bb]rain__.*|[A-Za-z0-9_-]+__brain_[a-z0-9_]+)",
         "hooks": [
           {
             "type": "command",

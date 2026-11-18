@@ -146,7 +146,7 @@ screen-reader fix, not a form-behavior change. The "not set / required" grant ca
 ### 2.1.280 (2026-09-22)
 - **Domain:** plugins_mcp
 - **Change:** An environment variable now sets the 2,048-character cap on MCP tool descriptions and server instructions.
-- **MindrianOS impact:** The mindrian-os server instructions measure 1984 bytes, so they are under the cap and arrive whole. The truncation seen in sessions is the remote pws-brain-mcp server (a user-level config entry, not shipped by this plugin). Touches `lib/mcp/runtime-instructions.cjs` and the tool-description floor tests.
+- **MindrianOS impact:** The mindrian-os server instructions measure 1984 bytes, so they are under the cap and arrive whole. The truncation seen in sessions is the remote direct Brain connector of that time (a user-level config entry, not shipped by this plugin; that connector is retired, Phase 392 D-08, 2026-11-08). Touches `lib/mcp/runtime-instructions.cjs` and the tool-description floor tests.
 
 ### 2.1.277 (2026-09-18)
 - **Domain:** code

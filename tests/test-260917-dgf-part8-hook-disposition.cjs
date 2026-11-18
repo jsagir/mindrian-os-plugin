@@ -331,11 +331,15 @@ function leg2PredicateSelfValidation() {
   check('LEG2-2', sanitizer.isBrainTool(UNTRUSTED_SEARCH) === false, 'LEG2-2: isBrainTool(' + UNTRUSTED_SEARCH + ') must be false');
   check('LEG2-3', sanitizer.isBrainShapedTool(UNTRUSTED_SEARCH) === true, 'LEG2-3: isBrainShapedTool(' + UNTRUSTED_SEARCH + ') must be true');
 
-  // Quick task 260917-ild (F1): isBrainTool on the direct connector stays
-  // true (the trust predicate is unchanged); isShimBackedBrainTool is false
-  // on the direct connector and on mcp__theo__brain_search, and true on both
-  // the plugin scope and the project scope.
-  check('LEG2-4', sanitizer.isBrainTool(DIRECT_SEARCH) === true, 'LEG2-4: isBrainTool(' + DIRECT_SEARCH + ') must stay true (trust predicate unchanged)');
+  // Quick task 260917-ild (F1): isBrainTool on the direct connector stayed
+  // true at that time (the trust predicate was unchanged). Phase 392 plan 06
+  // (D-08, 2026-11-08) retired the pws-brain-mcp key from the trust scope,
+  // so the pin is now false; the connector stays INSPECTED (LEG2-4b) and is
+  // still not shim-backed. isShimBackedBrainTool is false on the direct
+  // connector and on mcp__theo__brain_search, and true on both the plugin
+  // scope and the project scope.
+  check('LEG2-4', sanitizer.isBrainTool(DIRECT_SEARCH) === false, 'LEG2-4: isBrainTool(' + DIRECT_SEARCH + ') must be false (pws-brain-mcp retired, Phase 392 D-08)');
+  check('LEG2-4b', sanitizer.isBrainShapedTool(DIRECT_SEARCH) === true, 'LEG2-4b: isBrainShapedTool(' + DIRECT_SEARCH + ') must stay true (inspected through the brain_* suffix rule)');
   check('LEG2-5', sanitizer.isShimBackedBrainTool(DIRECT_SEARCH) === false, 'LEG2-5: isShimBackedBrainTool(' + DIRECT_SEARCH + ') must be false');
   check('LEG2-6', sanitizer.isShimBackedBrainTool(UNTRUSTED_SEARCH) === false, 'LEG2-6: isShimBackedBrainTool(' + UNTRUSTED_SEARCH + ') must be false');
   check('LEG2-7', sanitizer.isShimBackedBrainTool(TRUSTED_SEARCH) === true, 'LEG2-7: isShimBackedBrainTool(' + TRUSTED_SEARCH + ') must be true (plugin scope)');

@@ -29,8 +29,9 @@
  * as an unreadable error string).
  *
  * Quick task 260917-ild (Codex finding F1, narrows the allow above): the
- * ambiguous branch's allow used `isBrainTool()`, which ALSO trusts
- * `mcp__pws-brain-mcp__*` -- a direct HTTPS connector with no local plugin
+ * ambiguous branch's allow used `isBrainTool()`, which at that time ALSO
+ * trusted the direct HTTPS connector key of the Memgraph era (retired since
+ * Phase 392 plan 06, D-08, 2026-11-08) -- a connector with no local plugin
  * code anywhere in its path (`lib/mcp/brain-composition-census.cjs`'s
  * ruling). That route never reaches `bin/mindrian-brain-mcp-client.cjs`, so
  * `brain-client.cjs::callTool`'s second classification -- the one the
@@ -44,8 +45,34 @@
  * byte-unchanged: this quick task NARROWS an allow and widens nothing. Every
  * scope that blocked before this quick task keeps blocking; the two
  * shim-backed scopes keep the allow the shim's own egress_disclosure already
- * justifies; `mcp__pws-brain-mcp__*` and `mcp__theo__*` return to exit 2 on
- * ambiguity.
+ * justifies; every other Brain-shaped route (`mcp__theo__*`,
+ * `mcp__theo-context__*`, the claude.ai Theo connectors, a legacy direct
+ * connector's brain_* calls) returns to exit 2 on ambiguity.
+ *
+ * Phase 392 plan 06 (F6 bypass 5, D-08, 2026-11-08): the hook matcher and
+ * `isBrainShapedTool()` now see EVERY Theo route Claude Code can call, in
+ * both cases of the known connector literals, and the guard reads
+ * `data/theo-tool-classes.json`: an operational Theo tool (room_bind,
+ * graph_write, gate_*, chain_run and the rest) is allowed by class without a
+ * scan (class operational_tool, recorded in telemetry); a content tool is
+ * scanned by its typed arm or the generic content arm. The Memgraph-era
+ * direct connector key is retired from every matcher; every Brain route is
+ * mindrian-brain or a Theo server.
+ *
+ * Phase 392 plan 11 (P5, 392-SC5, F8, 2026-11-09): the lexicon check is
+ * session-owned. The hook hands `session_id` to
+ * `part8-room-lexicon.cjs::resolveLexiconRoom({sessionId, requireOwnership:
+ * true})`, which resolves THIS session's bound room through
+ * `resolveSessionRoom` (the binding file under .rooms/sessions). An unbound
+ * session has an empty lexicon and is allowed; a corrupt binding, a resolver
+ * throw or a bound room whose room.db cannot be read is `unavailable`, and the
+ * guard blocks every payload kind with `room_check_unavailable`. Two sessions
+ * bound to different rooms never share a lexicon. Without a session id the
+ * check runs against the machine-global active room (today's behaviour) and
+ * the verdict says so (`lexicon_scope: machine_global`). Telemetry lands in
+ * the resolved room only, with `lexicon_scope` on the row. With
+ * MINDRIAN_PART8_DEBUG set the hook writes one stderr line, "part8 session:
+ * present|absent; lexicon_scope: session|machine_global", never the id.
  *
  * Fail posture (plan 386-30, owner decision of plan 386-29, 2026-11-06; this
  * REVERSES the earlier A3 accepted risk and threat T6 of Phase 239):
@@ -60,9 +87,9 @@
  *   - fail-CLOSED (exit 2) also on a real content hit.
  *   - As of 260917-ild: the hook no longer converts a proven-harmless
  *     ambiguity into a block on a SHIM-BACKED scope. It still does for every
- *     other Brain-shaped key, including the direct connector
- *     (`mcp__pws-brain-mcp__*`) and untrusted keys (`mcp__theo__brain_ask`
- *     and friends): none of those has a second enforcement point behind it,
+ *     other Brain-shaped key, the untrusted Theo routes (`mcp__theo__*`,
+ *     `mcp__theo-context__*`, the claude.ai connectors) and a legacy direct
+ *     connector's brain_* calls: none of those has a second enforcement point behind it,
  *     so the hook's block stays exactly as strict as before this quick task.
  *     Fail-CLOSED is unchanged for: `content_set` on any scope,
  *     `unproven_packet` on any scope, and any ambiguous verdict on a
@@ -93,9 +120,10 @@
  * allow now covers only scopes with a second enforcement point behind them
  * (the two shim-backed scopes; `isShimBackedBrainTool`), so allowing the
  * hook's exit does not make the call silent -- the shim still classifies
- * every call that reaches it. Every other Brain-shaped name, including
- * `mcp__pws-brain-mcp__*` (the direct HTTPS connector, no second
- * classification behind it) and `mcp__theo__*`, keeps exit 2 on ambiguity,
+ * every call that reaches it. Every other Brain-shaped name (`mcp__theo__*`,
+ * `mcp__theo-context__*`, the claude.ai connectors, a legacy direct
+ * connector's brain_* calls; no second classification behind any of them)
+ * keeps exit 2 on ambiguity,
  * because none of them ever reaches the shim's second classification.
  * Tri-Polar note: Claude Desktop resolves the plugin scope through that same
  * shim -- no PreToolUse hook fires there, every plugin-scoped brain_* call
@@ -112,6 +140,16 @@
  * License: BSL 1.1.
  */
 
+// Quick 261118-q35 (owner ruling 2026-11-18, V6 hook budget): the Node
+// module compile cache (Node 22.1 and later; the floor here is 22.18) keeps
+// the compiled code of the guard, the sanitizer and the telemetry modules on
+// disk, so each spawn of this hook compiles less. Speed only: no check, no
+// verdict and no exit path changes. A failure or an older runtime leaves the
+// cache off; NODE_DISABLE_COMPILE_CACHE=1 turns it off by hand.
+try {
+  const nodeModule = require('node:module');
+  if (typeof nodeModule.enableCompileCache === 'function') nodeModule.enableCompileCache();
+} catch (_) { /* the cache is optional */ }
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -122,7 +160,6 @@ const ONTOLOGY_PATH = path.join(LIB_CORE, 'part8-egress-ontology.cjs');
 const SANITIZER_PATH = path.join(LIB_CORE, 'brain-response-sanitize.cjs');
 const BRAIN_CLIENT_PATH = path.join(LIB_CORE, 'brain-client.cjs');
 const ROOM_DB_PATH = path.join(LIB_CORE, 'room-db.cjs');
-const NAVIGATION_PATH = path.join(LIB_CORE, 'navigation.cjs');
 // The F.1 gate lands in 196-05; require it DEFENSIVELY so this hook degrades
 // gracefully until Wave 3.
 const GATE_PATH = path.join(__dirname, '..', 'lib', 'hmi', 'part8-egress-gate.cjs');
@@ -278,19 +315,22 @@ function brainAvailable() {
 }
 
 // ---------------------------------------------------------------------------
-// Best-effort telemetry. Resolve the active room db, hand it to the ontology
-// writer, and close it. EVERY step is wrapped -- a telemetry failure NEVER
+// Best-effort telemetry. Plan 392-11 (P5): the row lands in the room the
+// lexicon check resolved (the session's room when a session id exists, the
+// machine-global active room otherwise), with lexicon_scope on it. Nothing is
+// written for an unbound session (no room) or an unavailable one (no db to
+// write). The db is opened only when room.db already exists, so telemetry
+// never mints a database. EVERY step is wrapped -- a telemetry failure NEVER
 // bricks a Brain call and NEVER changes the exit code.
 // ---------------------------------------------------------------------------
-function bestEffortRecord(verdictObj, sessionId) {
+function bestEffortRecord(verdictObj, sessionId, resolvedRoom) {
   let db = null;
   let roomDb = null;
   try {
-    const navigation = require(NAVIGATION_PATH);
-    const active = navigation.detectActiveRoom && navigation.detectActiveRoom();
-    if (!active || !active.roomDir || !active.hasRoomDb) return;
+    if (!resolvedRoom || resolvedRoom.status !== 'bound' || typeof resolvedRoom.roomDir !== 'string') return;
+    if (!fs.existsSync(path.join(resolvedRoom.roomDir, '.mindrian', 'room.db'))) return;
     roomDb = require(ROOM_DB_PATH);
-    db = roomDb.openRoomDb(active.roomDir);
+    db = roomDb.openRoomDb(resolvedRoom.roomDir);
     const ontology = require(ONTOLOGY_PATH);
     ontology.record(db, {
       verdict: verdictObj.verdict,
@@ -298,6 +338,7 @@ function bestEffortRecord(verdictObj, sessionId) {
       matched_pattern: verdictObj.reason,
       count: 1,
       sessionId: sessionId,
+      lexicon_scope: resolvedRoom.lexicon_scope,
     });
   } catch (_e) {
     // best-effort: swallow
@@ -334,8 +375,8 @@ function main() {
   // connector key such as `theo` (mcp__theo__brain_ask) reach classify() at
   // all -- before this change, `isBrainTool` matched neither the plugin
   // scope (mcp__plugin_mos_mindrian-brain__brain_*), the project scope
-  // (mcp__mindrian-brain__brain_*), nor the canonical custom-connector name
-  // (mcp__pws-brain-mcp__brain_*), so a theo-keyed call took the
+  // (mcp__mindrian-brain__brain_*), nor the custom-connector key of that
+  // time (retired since Phase 392 plan 06, D-08), so a theo-keyed call took the
   // unconditional allow() below and got ZERO Part 8 enforcement. Being in
   // scope here means the payload gets INSPECTED by classify(), never that
   // the connector is TRUSTED: isBrainTool (the trust predicate) is
@@ -367,7 +408,7 @@ function main() {
 
   let verdictObj;
   let guard;
-  let roomDir = null;
+  let resolvedRoom = null;
   try {
     guard = require(GUARD_PATH);
   } catch (_) {
@@ -377,14 +418,31 @@ function main() {
     // Phase 369.2 Plan 01 (CODE-07, J4): the hook asks the same Theo verdict
     // the in-process verbs ask. The bound room is resolved through the one
     // shared resolver (never the payload cwd directly) and its lexicon is
-    // read from room.db rows only, inside this hook's 2000 ms budget. A
-    // resolver miss is "no room bound" (null), never a throw.
+    // read from room.db rows only, inside this hook's 2000 ms budget.
+    // Phase 392 plan 11 (P5): the room is THIS session's room
+    // (resolveSessionRoom through resolveLexiconRoom with requireOwnership),
+    // the machine-global active room only when the payload carries no
+    // session_id. A resolver throw is "unavailable" and blocks; it is never
+    // an empty lexicon.
+    const scopeIfThrown = sessionId ? 'session' : 'machine_global';
     try {
-      roomDir = require(LEXICON_PATH).resolveLexiconRoom({});
+      resolvedRoom = require(LEXICON_PATH).resolveLexiconRoom({ sessionId: sessionId || null, requireOwnership: true });
     } catch (_) {
-      roomDir = null;
+      resolvedRoom = null;
     }
-    verdictObj = guard.classify(toolInput, { toolName: toolName, roomDir: roomDir });
+    if (!resolvedRoom || typeof resolvedRoom !== 'object' || typeof resolvedRoom.status !== 'string') {
+      resolvedRoom = { status: 'unavailable', roomDir: null, reason: 'resolver_error', lexicon_scope: scopeIfThrown };
+    }
+    if (process.env.MINDRIAN_PART8_DEBUG) {
+      // The F8 probe (392-CONTEXT.md): presence and scope only, never the id.
+      process.stderr.write('part8 session: ' + (sessionId ? 'present' : 'absent') + '; lexicon_scope: ' + resolvedRoom.lexicon_scope + '\n');
+    }
+    verdictObj = guard.classify(toolInput, {
+      toolName: toolName,
+      roomDir: resolvedRoom.status === 'bound' ? resolvedRoom.roomDir : null,
+      roomStatus: resolvedRoom.status,
+      lexiconScope: resolvedRoom.lexicon_scope,
+    });
   } catch (_) {
     return guardUnavailable(toolName, toolInput, 'classify_threw');
   }
@@ -407,23 +465,24 @@ function main() {
   if (verdictObj.verdict === 'block' && verdictObj.token_class === 'pasted_text' && typeof guard.classifyAndCut === 'function') {
     let planned = null;
     try {
-      planned = guard.classifyAndCut(toolInput, { toolName: toolName, roomDir: roomDir });
+      // The session room status rides along, so an unreadable room still blocks after a cut.
+      planned = guard.classifyAndCut(toolInput, { toolName: toolName, roomDir: resolvedRoom.status === 'bound' ? resolvedRoom.roomDir : null, roomStatus: resolvedRoom.status, lexiconScope: resolvedRoom.lexicon_scope });
     } catch (_) {
       return guardUnavailable(toolName, toolInput, 'classify_threw');
     }
     if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'allow') {
       // Plan 395-13 review WR-06: the name alone is not trusted here.
       if (ownPluginShimRoute(toolName, sanitizer)) {
-        bestEffortRecord({ verdict: 'allow', class: 'pasted_text', reason: 'sent_without_paste' }, sessionId);
+        bestEffortRecord({ verdict: 'allow', class: 'pasted_text', reason: 'sent_without_paste' }, sessionId, resolvedRoom);
         return allow();
       }
-      bestEffortRecord(verdictObj, sessionId);
+      bestEffortRecord(verdictObj, sessionId, resolvedRoom);
       return block(pasteResendMessage(planned.payload));
     }
     if (planned && planned.cut > 0 && planned.verdict && planned.verdict.verdict === 'block') verdictObj = planned.verdict;
-    else if (planned && planned.cut > 0) { bestEffortRecord(verdictObj, sessionId); return block(splitRouteMessage()); }
+    else if (planned && planned.cut > 0) { bestEffortRecord(verdictObj, sessionId, resolvedRoom); return block(splitRouteMessage()); }
   }
-  bestEffortRecord(verdictObj, sessionId);
+  bestEffortRecord(verdictObj, sessionId, resolvedRoom);
 
   const verdict = verdictObj.verdict;
   const klass = verdictObj.class || 'unknown';

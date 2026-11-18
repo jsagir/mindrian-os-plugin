@@ -304,8 +304,11 @@ arm('OBU2', async () => {
 arm('OBU3', async () => {
   if (IS_ROOT) return rootSkip('OBU3');
   withUnreadableDb('u3', (dir) => {
+    // Plan 392-11 (P5): the 386-33 acknowledgement (a clear sprout proceeds as
+    // room_check_skipped) is superseded by the owner rule of 392-CONTEXT wave 3:
+    // bound but unreadable blocks every kind with the class room_check_unavailable.
     const r = verdict('which framework fits a pricing test', dir);
-    check(isAllow(r) && r.class === 'room_check_skipped', 'OBU3: sprout with an unreadable db must be allow/room_check_skipped, got ' + tag(r));
+    check(r.verdict === 'block' && r.class === 'room_check_unavailable', 'OBU3: sprout with an unreadable db must be block/room_check_unavailable (plan 392-11), got ' + tag(r));
   });
 });
 arm('OBU4', async () => {
@@ -331,9 +334,12 @@ arm('OBU5', async () => {
 arm('OBU6', async () => {
   if (IS_ROOT) return rootSkip('OBU6');
   withUnreadableDb('u6', (dir) => {
+    // Plan 392-11 (P5): the exposure acknowledged under plan 386-33 is closed. A
+    // sprout with a room-lexicon word and an unreadable room.db blocks with the
+    // class room_check_unavailable (the owner rule of 392-CONTEXT wave 3).
     const r = verdict('which framework fits Quillfern Labs', dir);
-    process.stdout.write('EXPOSURE - OBU6: ' + tag(r) + ' (a sprout with a room-lexicon word, room.db unreadable; acknowledged by the owner)\n');
-    check(isAllow(r) && r.class === 'room_check_skipped', 'OBU6: sprout with a lexicon word and an unreadable db must be allow/room_check_skipped, got ' + tag(r));
+    process.stdout.write('CLOSED - OBU6: ' + tag(r) + ' (a sprout with a room-lexicon word, room.db unreadable; blocks since plan 392-11)\n');
+    check(r.verdict === 'block' && r.class === 'room_check_unavailable', 'OBU6: sprout with a lexicon word and an unreadable db must be block/room_check_unavailable (plan 392-11), got ' + tag(r));
   });
 });
 arm('OBK1', async () => {

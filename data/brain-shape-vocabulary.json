@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "_note": "Phase 392 Part 8 problem-shape vocabulary (392-02, D-01, D-02). The ONE file that holds the closed enums a brain_ask or recommend_chain call may carry beside the generic question: problem_type, stage, role, domain_tag, constraint_categories. Enum members only, no regex pattern on the wire. Twin: Theo plan 48-01 src/mcp/content/shape-packet.ts (STAGE_IDS, ROLE_IDS, DOMAIN_TAG_IDS, CONSTRAINT_CATEGORY_IDS; PROBLEM_TYPE_IDS via vocabulary.ts); one vocabulary, two repos; tests/test-392-vocabulary-drift.cjs pins every list in this repo to this file and compares Theo's five enums when readable. D-01: stage wire ids are Theo's six Phase ids; stage_map is the one table from lib/core/model-profiles.cjs VALID_STAGES to a Phase id (Pre-Opportunity Phase1, Discovery Phase2, Validation Phase3, Design Phase4, Investment Phase5); Phase0 (Orientation) is reached only by a room with no venture_stage. D-02: domain_tag is exactly the 11 eureka_critic tags of data/eureka-critic-tags.json and nothing else in this phase; constraint_categories are the nine D-02 members; the owner trims or adds later, and any change bumps schema_version in both repos. role is the seven lowercase role_blend axes of lib/core/user-md-ops.cjs; role_map projects lib/core/persona-taxonomy.cjs ROLE_BLEND_AXES onto them. problem_type_aliases projects persona-taxonomy PROBLEM_TYPES (UDP, IDP, WDP) onto the Theo rung ids; Wicked has no alias. legacy_stage_map pins persona-taxonomy VENTURE_STAGES and the informal stage words of lib/mcp/brain-router.cjs to a Phase id or to the string retired; plan 392-12 routes the live ones through stage_map and removes the retired ones. Plan 392-08 added two builder keys: role_default (the role a room gets when USER.md is missing, unparseable or a role_blend tie with no canonical_role) and constraint_keyword_map (closed lowercase whole-word keywords per constraint category; the builder lib/core/brain-shape-packet.cjs matches STATE.md constraints and blockers entries through it and emits category ids only; a keyword sits in one category only, pinned by drift leg V12). Nothing in this file names a room, a product or a person. Hyphens only, no em dash.",
+  "problem_type": ["UnDefined", "IllDefined", "WellDefined", "Wicked"],
+  "stage": ["Phase0", "Phase1", "Phase2", "Phase3", "Phase4", "Phase5"],
+  "stage_map": {
+    "Pre-Opportunity": "Phase1",
+    "Discovery": "Phase2",
+    "Validation": "Phase3",
+    "Design": "Phase4",
+    "Investment": "Phase5"
+  },
+  "role": ["founder", "researcher", "operator", "investor", "mentor", "domain_expert", "student"],
+  "role_map": {
+    "Founder": "founder",
+    "Researcher": "researcher",
+    "Operator": "operator",
+    "Investor": "investor",
+    "Mentor": "mentor",
+    "Domain Expert": "domain_expert",
+    "Student": "student"
+  },
+  "domain_tag": [
+    "engineering",
+    "biology",
+    "medicine",
+    "computing",
+    "materials",
+    "energy",
+    "mathematics",
+    "finance",
+    "social",
+    "food",
+    "unknown"
+  ],
+  "constraint_categories": [
+    "regulatory",
+    "capital",
+    "technical",
+    "market_access",
+    "talent",
+    "time",
+    "data",
+    "partner",
+    "ethical"
+  ],
+  "role_default": "founder",
+  "constraint_keyword_map": {
+    "regulatory": ["regulatory", "regulation", "regulator", "compliance", "license", "licensing", "approval", "permit"],
+    "capital": ["capital", "funding", "cash", "budget", "runway", "investment", "financing"],
+    "technical": ["technical", "technology", "engineering", "prototype", "scalability", "integration"],
+    "market_access": ["market", "distribution", "channel", "adoption", "customer", "sales"],
+    "talent": ["talent", "hiring", "team", "skills", "staff", "recruiting"],
+    "time": ["time", "deadline", "schedule", "timeline", "urgency"],
+    "data": ["data", "dataset", "privacy", "measurement", "evidence"],
+    "partner": ["partner", "partnership", "supplier", "vendor", "alliance"],
+    "ethical": ["ethical", "ethics", "fairness", "safety", "harm", "consent"]
+  },
+  "problem_type_aliases": {
+    "UDP": "UnDefined",
+    "IDP": "IllDefined",
+    "WDP": "WellDefined"
+  },
+  "legacy_stage_map": {
+    "pre_opportunity": "Phase1",
+    "thesis_build": "Phase2",
+    "validation": "Phase3",
+    "execution": "Phase5",
+    "scale": "retired",
+    "unknown": "Phase0",
+    "discovery": "Phase2",
+    "ideation": "retired",
+    "problem-fit": "retired",
+    "growth": "retired",
+    "scaling": "retired"
+  }
+}

@@ -42,11 +42,11 @@ is itself a research gap, not rigor.
 - **Theo** (`/home/jsagi/Theo`, esp. `notes/graph-rulebook.md`, `notes/knowledge-graph.md`, and
   `.planning/ROADMAP.md` Phase 9 "Brain-Contract Cutover"): standing consult (navigator ruling,
   2026-09-02) for ANY phase whose research touches the Brain graph, framework resolution,
-  readiness scoring, or anything `check-flagship-floor.cjs`-adjacent. Theo is the pre-scoped
-  successor that `pws-brain-mcp` cuts over to (Phase 9); it is not deployable yet (no remote
-  hosting story, its own Phase 8.4 not started), so a phase should still plan and ship against
-  the CURRENT Brain -- but its research must state explicitly whether the finding/fix has a
-  Theo-side analog, and if so what it is, so cutover is a smaller diff instead of a rediscovery.
+  readiness scoring, or anything `check-flagship-floor.cjs`-adjacent. Theo IS the Brain since the
+  Phase 339 cutover (2026-09-03); the Memgraph-era direct connector is retired (Phase 392, D-08,
+  2026-11-08), and every Brain route is mindrian-brain or a Theo server. A phase plans and ships
+  against Theo, and its research must state explicitly whether the finding/fix has a
+  Theo-side analog, and if so what it is, so a fix lands once instead of being rediscovered.
   Concrete precedent: Phase 262 found a hop-depth-1 `ALIAS_OF` defect in the current Brain's
   `NORMALIZE_NAME_CYPHER` (a fork silently returns 2 "canonical" matches); Theo's own
   `resolveFramework` (`src/mcp/content/normalize-framework-name.ts`) already treats the identical

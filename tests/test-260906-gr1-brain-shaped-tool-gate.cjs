@@ -196,10 +196,13 @@ test('GROUP 3 (DISJOINTNESS GUARD): zero locally registered mindrian-os tool nam
 // GROUP 4: the scope invariants.
 // =============================================================================
 
+// Phase 392 plan 06 (D-08, 2026-11-08): the frozen literal changed ONCE, for
+// one reason only: the direct connector key pws-brain-mcp is retired from the
+// TRUST scope. Every other byte of the literal is unchanged.
 test('GROUP 4 (FREEZE): BRAIN_TOOL_MATCHER equals its exact literal string', () => {
   assert.equal(
     sanitizer.BRAIN_TOOL_MATCHER,
-    'mcp__(?:plugin_[a-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp)__.*',
+    'mcp__(?:plugin_[a-z0-9_-]+_)?mindrian-brain__.*',
     'BRAIN_TOOL_MATCHER drifted from its frozen literal'
   );
 });
@@ -211,7 +214,7 @@ test('GROUP 4 (SUPERSET): every fixture matching BRAIN_TOOL_MATCHER also matches
     'mcp__mindrian-brain__find_connections',
     'mcp__plugin_mos_mindrian-brain__brain_ask',
     'mcp__plugin_mos_mindrian-brain__brain_query',
-    'mcp__pws-brain-mcp__brain_ask',
+    'mcp__plugin_mos_mindrian-brain__find_connections',
   ];
   assert.ok(trustedFixtures.length >= 6, 'fixture corpus must have at least 6 entries');
   const trustedRe = new RegExp('^' + sanitizer.BRAIN_TOOL_MATCHER + '$');
@@ -220,6 +223,22 @@ test('GROUP 4 (SUPERSET): every fixture matching BRAIN_TOOL_MATCHER also matches
     assert.equal(trustedRe.test(name), true, name + ' must match BRAIN_TOOL_MATCHER (bad fixture)');
     assert.equal(shapedRe.test(name), true, name + ' matches BRAIN_TOOL_MATCHER but not BRAIN_SHAPED_TOOL_MATCHER -- widening narrowed the trusted scope');
   }
+});
+
+test('GROUP 4 (RETIRED, Phase 392 D-08): a pws-brain-mcp name must not match BRAIN_TOOL_MATCHER; its brain_* calls stay inspected', () => {
+  // The direct connector pws-brain-mcp is retired (owner decision D-08,
+  // 2026-11-08). It is no longer TRUSTED under any name. A brain_* call on
+  // that key is still INSPECTED through the connector-agnostic suffix rule
+  // (a rule, not a roster). Owner ruling 2026-11-18 (quick 261118-q35):
+  // retired means blocked, not ignored, so a non-brain_* call on that key is
+  // inspected too (the server literal stays in BRAIN_SHAPED_TOOL_MATCHER).
+  const retired = ['mcp__pws-brain-mcp__brain_ask', 'mcp__pws-brain-mcp__brain_search', 'mcp__pws-brain-mcp__search'];
+  for (const name of retired) {
+    assert.equal(sanitizer.isBrainTool(name), false, name + ' must not be trusted (pws-brain-mcp is retired, D-08)');
+    assert.equal(sanitizer.isShimBackedBrainTool(name), false, name + ' must not be shim-backed');
+  }
+  assert.equal(sanitizer.isBrainShapedTool('mcp__pws-brain-mcp__brain_ask'), true, 'a brain_* call on the retired key is still inspected');
+  assert.equal(sanitizer.isBrainShapedTool('mcp__pws-brain-mcp__search'), true, 'a non-brain_* call on the retired key is inspected (owner ruling 2026-11-18: retired means blocked, not ignored)');
 });
 
 test('GROUP 4 (T3 SPLIT): isBrainTool stays false while isBrainShapedTool is true for an impersonating name', () => {

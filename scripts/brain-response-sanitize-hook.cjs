@@ -9,7 +9,7 @@
  * model. Phase 239 (BRAIN-01): the matcher scopes this hook to the live
  * registered Brain tool names in both plugin scope
  * (mcp__plugin_mos_mindrian-brain__brain_*) and project scope
- * (mcp__mindrian-brain__brain_*) plus the canonical custom-connector name (mcp__pws-brain-mcp__brain_*, added 2026-08-19 - the live server registers under it on Desktop/claude.ai); the superseded dead literal 'mcp__brain_.*'
+ * (mcp__mindrian-brain__brain_*) plus, since Phase 392 plan 06 (D-08, 2026-11-08), every Theo route (mcp__theo__*, mcp__theo-context__*, the claude.ai Theo connectors in both cases) and every brain_* name on any server; the custom-connector key added 2026-08-19 is retired; the superseded dead literal 'mcp__brain_.*'
  * never matched a live name once the Brain server shipped inside the "mos"
  * plugin.
  *
