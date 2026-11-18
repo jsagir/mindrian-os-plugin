@@ -59,22 +59,19 @@ const EXPLORATION_LABELS = {
 /**
  * Theo status for the statusline. Returns 'connected' or 'disconnected'.
  * Theo needs no key (quick 261005-l8g, SEED-119), so there is nothing to
- * detect locally: the signal reads the Theo health cache if one exists
+ * detect locally: the signal reads the Theo health file if one exists
  * (~/.mindrian/bridge/brain-health.json, status 'ok' or 'error') and
- * otherwise assumes Theo is reachable. A real liveness check would require
- * a network round-trip, which the statusline cannot do synchronously;
- * /mos:doctor owns that check.
+ * otherwise assumes Theo is reachable. A health file with no at stamp, or
+ * one more than 15 minutes old, is ignored (quick 261118-o1d); the file is
+ * written by lib/core/brain-prewarm.cjs at each prewarm. A real liveness
+ * check would require a network round-trip, which the statusline cannot do
+ * synchronously; /mos:doctor owns that check.
  * @returns {'connected'|'disconnected'}
  */
 function detectBrainStatus() {
   try {
-    const health = path.join(os.homedir(), '.mindrian', 'bridge', 'brain-health.json');
-    if (fs.existsSync(health)) {
-      try {
-        const h = JSON.parse(fs.readFileSync(health, 'utf8'));
-        if (h && h.status === 'error') return 'disconnected';
-      } catch (e) {}
-    }
+    const { readBrainHealth } = require('../lib/core/brain-prewarm.cjs');
+    if (readBrainHealth() === 'error') return 'disconnected';
   } catch (e) {}
   return 'connected';
 }
