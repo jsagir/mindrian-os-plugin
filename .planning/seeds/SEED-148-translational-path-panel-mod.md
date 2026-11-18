@@ -1,6 +1,6 @@
 ---
 id: SEED-148
-status: dormant
+status: promoted (Phase 397, 2026-11-18)
 planted: 2026-11-18
 planted_during: work/part8-shape-packet (owner design session, panel UI/UX)
 trigger_when: the next milestone that touches the panel mod (369.26 workspace mod, 380 mos-face), the Data Room structure, or the researcher / TTO audience; or when the owner answers D1-D4 on the discovery audit page
@@ -14,8 +14,8 @@ The panel becomes the product's experience; the terminal stays the runtime. Gene
 ## Why This Matters
 
 - The audience is the translational scientist (one or a few rooms) and the TTO / IP portfolio manager (many rooms) (owner ruling 2026-11-18).
-- Discovery evidence: Noga Yerushalmi's hands-on beta.87 session (2026-11-16, room noga-mventures). She "would not have reached this with Claude, and not without you" (2:20:25). The value is the steered method; the founder did the steering by hand. Her friction is readability and orientation: options not understood (1:13:29), two asks one answer (1:42:43), trees confuse, work linearly (1:52:20), state unclear (1:12:51), vision problem (44:49), drift twice (1:17:54, 1:26:05), "where is the Word document?" (2:44:40), "how do I get back?" (2:28:25).
-- Her introduction to Merck Healthcare's new global AI unit depends on a case that wows; she retires around March to April. The test window is short.
+- Discovery evidence: P1's hands-on beta.87 session (2026-11-16, room p1-investor-room). She "would not have reached this with Claude, and not without you" (2:20:25). The value is the steered method; the founder did the steering by hand. Her friction is readability and orientation: options not understood (1:13:29), two asks one answer (1:42:43), trees confuse, work linearly (1:52:20), state unclear (1:12:51), vision problem (44:49), drift twice (1:17:54, 1:26:05), "where is the Word document?" (2:44:40), "how do I get back?" (2:28:25).
+- Her introduction to the pharma company's new global AI unit depends on a case that wows; she retires around March to April. The test window is short.
 
 ## What to build (version one)
 
@@ -28,7 +28,7 @@ Out of version one: portfolio board (hypothesis H6 untested), browser twin, on-p
 
 ## Gate
 
-Hypothesis H1: a translational scientist reaches a deliverable she would send, with no one at the keyboard, once the steering is on screen. Test: Noga plus two scientists, one 90-minute session each, founder silent. If no one finishes with a sendable document, the product becomes a guided service and this plan changes.
+Hypothesis H1: a translational scientist reaches a deliverable she would send, with no one at the keyboard, once the steering is on screen. Test: P1 plus two scientists, one 90-minute session each, founder silent. If no one finishes with a sendable document, the product becomes a guided service and this plan changes.
 
 ## Feasibility (checked 2026-11-18, Claude Code 2.1.326)
 
@@ -65,7 +65,7 @@ Open owner decisions D1-D4 (who tests first, where it runs, confidential data, w
 
 ## Owner decisions (2026-11-18, gate card)
 
-- D1 Who tests first: OTHER translational scientists first, then Noga (protect the Merck introduction from a weak first run). Overrides the recommendation.
+- D1 Who tests first: OTHER translational scientists first, then P1 (protect the the pharma company introduction from a weak first run). Overrides the recommendation.
 - D2 Where it runs: the Claude Desktop Code tab (mod pane).
 - D3 Confidential data: public-question mode, stated on screen.
 - D4 Demo case: TBD (owner left open).
