@@ -1,6 +1,6 @@
 ---
 id: SEED-148
-status: dormant
+status: promoted (Phase 397, 2026-11-18)
 planted: 2026-11-18
 planted_during: work/part8-shape-packet (owner design session, panel UI/UX)
 trigger_when: the next milestone that touches the panel mod (369.26 workspace mod, 380 mos-face), the Data Room structure, or the researcher / TTO audience; or when the owner answers D1-D4 on the discovery audit page
