@@ -5,6 +5,7 @@ import { JOBS } from '../hooks/jobs'
 import {
   EXCLUDED,
   STATUS_FIELDS,
+  brainFromHealth,
   contextBand,
   healthWord,
   nextMove,
@@ -53,7 +54,7 @@ const FILES: Record<string, string> = {
   '/.mindrian/brain-prewarm.json': PREWARM,
   '/.mindrian/install-state.json': INSTALL,
   '/.mindrian/next-move.json': json({ next_move: 'map unknowns', command: '/mos:map-unknowns', jtbd: null, ts: NOW }),
-  '/.mindrian/bridge/brain-health.json': json({ status: 'ok' }),
+  '/.mindrian/bridge/brain-health.json': json({ status: 'ok', at: iso(NOW) }),
   '/.mindrian/room-health.json': json({ status: 'drift', at: iso(NOW) }),
   '/.mindrian/stance-state.json': json({ stance: 'redteam', updated_at: iso(NOW) }),
   '/.mindrian/voice-mark.json': json({ color: 'blue', current_who: 'theo' }),
@@ -466,7 +467,7 @@ test('P16 copy: the healthy scene is clean at 56 columns', p16({}, WIDE))
 test('P16 copy: the failed check and drift scene is clean at 44 columns', p16({ '/.mindrian/session-verify/state.json': json({ schema: 'mos-session-verify/1', last_seen_version: '2.0.0-beta.74', local: { ok: false, failed_count: 1 } }) }, STD))
 test('P16 copy: the host voice, off Theo and a broken room scene is clean at 35 columns', p16({
   '/.mindrian/voice-mark.json': json({ color: 'yellow', current_who: 'claude', prior_who: 'larry', switched_now: true }),
-  '/.mindrian/bridge/brain-health.json': json({ status: 'error' }),
+  '/.mindrian/bridge/brain-health.json': json({ status: 'error', at: iso(NOW) }),
   '/.mindrian/room-health.json': json({ status: 'broken', at: iso(NOW) }),
   '/.mindrian/conversation-operator.json': json({ schema_version: '1.0.0', current: 'DECISION_GATE' }),
   '/.mindrian/stance-state.json': json({ stance: 'tell-act' }),
@@ -525,4 +526,17 @@ test('formatters: health, next move, Theo, voice and version say the same thing 
   // An update that equals the running version is not an update (the status line's rule).
   expect(versionWord('2.0.0-beta.74', '2.0.0-beta.74')).toBe('2.0.0-beta.74')
   expect(versionWord('unknown', null)).toBe('not read')
+})
+
+// ---- Quick 261118-o1d: a stale or unstamped Theo health file is ignored -------------------------------------------
+
+test('S1 S2 brainFromHealth: a fresh stamp is read, no stamp or a stamp more than 15 minutes from now is ignored', () => {
+  const MIN = 60 * 1000
+  expect(brainFromHealth(json({ status: 'error', at: iso(NOW) }), NOW)).toBe('error')
+  expect(brainFromHealth(json({ status: 'ok', at: iso(NOW) }), NOW)).toBe('ok')
+  expect(brainFromHealth(json({ status: 'error' }), NOW)).toBe(null)
+  expect(brainFromHealth(json({ status: 'error', at: iso(NOW - 16 * MIN) }), NOW)).toBe(null)
+  expect(brainFromHealth(json({ status: 'error', at: iso(NOW + 16 * MIN) }), NOW)).toBe(null)
+  expect(brainFromHealth('not json {', NOW)).toBe(null)
+  expect(brainFromHealth(null, NOW)).toBe(null)
 })

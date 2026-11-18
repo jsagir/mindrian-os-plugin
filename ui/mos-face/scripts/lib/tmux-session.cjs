@@ -164,7 +164,7 @@ function writeStatusFiles(opts) {
   const mind = path.join(homeDir, '.mindrian');
   const iso = new Date().toISOString();
   if (o.nextMove) put(path.join(mind, 'next-move.json'), JSON.stringify({ next_move: o.nextMove, command: '/mos:map-unknowns', jtbd: null, ts: Date.now() }));
-  if (o.brain) put(path.join(mind, 'bridge', 'brain-health.json'), JSON.stringify({ status: o.brain }));
+  if (o.brain) put(path.join(mind, 'bridge', 'brain-health.json'), JSON.stringify({ status: o.brain, at: new Date().toISOString() }));
   if (o.health) put(path.join(mind, 'room-health.json'), JSON.stringify({ status: o.health, at: iso }));
   if (o.stance) put(path.join(mind, 'stance-state.json'), JSON.stringify({ stance: o.stance, updated_at: iso }));
   if (o.voice) put(path.join(mind, 'voice-mark.json'), JSON.stringify(o.voice));

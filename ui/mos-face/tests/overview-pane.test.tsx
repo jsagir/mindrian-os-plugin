@@ -31,7 +31,7 @@ const FILES: Record<string, string> = {
   '/.mindrian/brain-prewarm.json': json({ ok: true, at: '2026-10-20T00:00:00Z', origin_host: 'theo.example.test' }),
   '/.mindrian/install-state.json': json({ active_version: '2.0.0-beta.74', installed_plugins_version: '2.0.0-beta.74' }),
   '/.mindrian/next-move.json': json({ next_move: 'map unknowns', command: '/mos:map-unknowns', jtbd: null, ts: NOW }),
-  '/.mindrian/bridge/brain-health.json': json({ status: 'ok' }),
+  '/.mindrian/bridge/brain-health.json': json({ status: 'ok', at: new Date(1_800_000_000_000).toISOString() }),
   '/.mindrian/room-health.json': json({ status: 'drift', at: iso(NOW) }),
   '/.mindrian/stance-state.json': json({ stance: 'redteam', updated_at: iso(NOW) }),
   '/.mindrian/voice-mark.json': json({ color: 'blue', current_who: 'theo' }),

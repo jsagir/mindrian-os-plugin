@@ -22,8 +22,10 @@ const CLAIMS_DELIVERY = /\b(are|is|were) sent\b/
 const json = (value: unknown): string => JSON.stringify(value)
 const INSTALL = json({ active_version: '2.0.0-beta.74', installed_plugins_version: '2.0.0-beta.74' })
 const PREWARM = json({ ok: true, at: '2026-10-20T00:00:00Z', origin_host: 'theo.example.test' })
-const HEALTH_OK = json({ status: 'ok' })
-const HEALTH_ERROR = json({ status: 'error' })
+// The clock of world() in tests/support.ts; the health files carry a fresh stamp (quick 261118-o1d).
+const WORLD_NOW = 1_800_000_000_000
+const HEALTH_OK = json({ status: 'ok', at: new Date(WORLD_NOW).toISOString() })
+const HEALTH_ERROR = json({ status: 'error', at: new Date(WORLD_NOW).toISOString() })
 // The status line's own files without any Theo host record (the fixture home of plan 10 is like this).
 const NO_THEO_RECORD: Record<string, string> = { '/.mindrian/install-state.json': INSTALL }
 
@@ -259,4 +261,26 @@ test('W16 the plain text of /mos-text says Theo was not checked when no host is 
 
   expect(text).toContain('THEO: health not checked')
   expect(text.includes('unknown - no answer')).toBe(false)
+})
+
+// ---- Quick 261118-o1d: an old or unstamped health file does not pin Theo off --------------------------------------
+// (named W17 and W18 because W16 above is the /mos-text test)
+
+test('W17 with the host recorded, the health check answering 200 and an error health file 16 minutes old, the THEO row says on and NOW does not say not answering', async ($, on) => {
+  const old = json({ status: 'error', at: new Date(WORLD_NOW - 16 * 60 * 1000).toISOString() })
+  const { ui, texts } = await open($, on, {
+    files: { ...NO_THEO_RECORD, '/.mindrian/brain-prewarm.json': PREWARM, '/.mindrian/bridge/brain-health.json': old },
+    httpStatus: 200,
+  })
+
+  expect(rowOf(texts, 'THEO')).toMatch(/^THEO\s+on$/)
+  expect(rowOf(texts, 'NOW')).not.toMatch(/not answering/)
+  await ui.unmount()
+})
+
+test('W18 with no host recorded and an error health file with no stamp, the THEO row says not read', async ($, on) => {
+  const { ui, texts } = await open($, on, { files: { ...NO_THEO_RECORD, '/.mindrian/bridge/brain-health.json': json({ status: 'error' }) } })
+
+  expect(rowOf(texts, 'THEO')).toMatch(/^THEO\s+not read$/)
+  await ui.unmount()
 })

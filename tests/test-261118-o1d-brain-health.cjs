@@ -221,6 +221,22 @@ async function main() {
     const body = m ? m[1].replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '') : '';
     check('H11 detectBrainStatus calls readBrainHealth', /readBrainHealth\(/.test(body));
   }
+
+  // S6 (only once the panel source holds the mirrored literal)
+  {
+    const tsPath = path.join(ROOT, 'ui', 'mos-face', 'hooks', 'status.ts');
+    const jsPath = path.join(ROOT, 'lib', 'mos-face', 'dist', 'status.js');
+    const ts = fs.readFileSync(tsPath, 'utf8');
+    const js = fs.readFileSync(jsPath, 'utf8');
+    const re = /BRAIN_HEALTH_TTL_MS\s*=\s*(\d+)/;
+    const a = ts.match(re);
+    const b = js.match(re);
+    check('S6 ts holds the literal', !!a, a ? a[1] : 'missing');
+    check('S6 dist holds the literal', !!b, b ? b[1] : 'missing');
+    check('S6 ts equals prewarm TTL', !!a && Number(a[1]) === mod.BRAIN_HEALTH_TTL_MS);
+    check('S6 dist equals prewarm TTL', !!b && Number(b[1]) === mod.BRAIN_HEALTH_TTL_MS);
+    check('S6 dist holds brainFromHealth', js.includes('brainFromHealth'));
+  }
 }
 
 main().then(() => {

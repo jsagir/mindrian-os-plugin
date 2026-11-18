@@ -98,6 +98,22 @@ function parse(text: string | null): Obj | null {
 
 const str = (value: unknown): string => (typeof value === 'string' ? value : '')
 
+// 15 minutes. It mirrors BRAIN_HEALTH_TTL_MS in lib/core/brain-prewarm.cjs, which the panel cannot
+// require; tests/test-261118-o1d-brain-health.cjs pins that the two agree.
+export const BRAIN_HEALTH_TTL_MS = 900000
+
+// The Theo health file, read as the status line reads it (readBrainHealth in lib/core/brain-prewarm.cjs):
+// 'error' or 'ok' when the file is a plain object with a readable stamp within 15 minutes of now, else
+// null, which means the file is ignored. A file with no stamp, or an old one, claims nothing.
+export function brainFromHealth(text: string | null, nowMs: number): 'ok' | 'error' | null {
+  const data = parse(text)
+  if (data === null) return null
+  const atMs = Date.parse(str(data.at))
+  if (!Number.isFinite(atMs) || Math.abs(nowMs - atMs) > BRAIN_HEALTH_TTL_MS) return null
+
+  return str(data.status) === 'error' ? 'error' : 'ok'
+}
+
 // The color of a voice mark, from the color, the move or the lead square of the turn, the way the
 // status line reads it. Only the color is kept: the turn text is never held.
 function colorOf(data: Obj): string {
@@ -147,8 +163,6 @@ export async function readStatusLocal($: Engine, roomPath: string): Promise<Stat
 
   const nextData = parse(next)
   const cue = str(nextData?.next_move).trim()
-  const brainData = parse(brain)
-  const brainStatus = brainData === null ? null : str(brainData.status) === 'error' ? 'error' : 'ok'
   const stanceData = parse(stance)
   const stanceName = str(stanceData?.stance)
   const updateData = parse(update)
@@ -161,11 +175,12 @@ export async function readStatusLocal($: Engine, roomPath: string): Promise<Stat
   // false). A missing, pending or damaged file claims nothing.
   const local = parse(verify)?.local
   const verifyFailed = local !== null && typeof local === 'object' && (local as Obj).ok === false
+  const now = await $.clock.now()
 
   return {
-    at: await $.clock.now(),
+    at: now,
     nextMove: cue === '' ? null : cue,
-    brain: brainStatus,
+    brain: brainFromHealth(brain, now),
     postUpdate: verifyFailed,
     voice: parseVoice(voice),
     stance: STANCES.includes(stanceName) ? stanceName : null,
@@ -214,8 +229,8 @@ export function nextMove(theo: string | null, routed: string | null, job: string
   return { value: '--', words: 'none yet', source: 'none' }
 }
 
-// Whether Theo is on, as the status line means it: the Theo health file says error, or not. With no
-// such file the reach check of the panel answers; with neither, it was not read.
+// Whether Theo is on, as the status line means it: the Theo health file, when it is fresh (15 minutes),
+// says error or not. With no fresh file the reach check of the panel answers; with neither, it was not read.
 export function theoWord(brain: 'ok' | 'error' | null, reachStatus: number | null): string {
   if (brain === 'error') return 'off'
   if (brain === 'ok') return 'on'
