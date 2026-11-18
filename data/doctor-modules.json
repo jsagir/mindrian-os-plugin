@@ -291,6 +291,15 @@
       "fix_supported": false,
       "runner": "lib/core/doctor/eureka-engine-readiness-module.cjs",
       "description": "Reports whether the Eureka engine (the new mindrian-eureka project) is set up and ready for the graph tools: skip when it is not set up (optional), ok when ready, warn with the cause and one fix line when it is set up but not ready, with each route family that is not ready (encoder group, hmm group, model folder, Node.js 22 or newer) named. A reporter: a machine with no engine never fails the doctor. It reads the engine through the one resolver and the one check function, spawns only uv --version, uv python find and node --version, never starts the engine and uses no network. It reads the installed package groups, never the environment settings file, and reports an unreadable layout as not verified. The engine own health check is the deep check of /mos:eureka enable engine --check --deep (Phase 387 Plan 07)."
+    },
+    {
+      "id": "brain-origin",
+      "introduced_version": "2.0.0-beta.88",
+      "cadence": "always",
+      "flag": null,
+      "fix_supported": false,
+      "runner": "lib/core/doctor/brain-origin-module.cjs",
+      "description": "Theo address check (quick 261118-o1d): warns when ~/.claude.json holds an MCP entry at a retired Theo host, or MINDRIAN_BRAIN_URL names a host other than the default, and prints the plain fix line. Read-only, LOCAL-only, no network, no --fix."
     }
   ]
 }
