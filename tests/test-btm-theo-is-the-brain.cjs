@@ -198,11 +198,16 @@ function run() {
     assert.strictEqual(missing.length, 0, 'section lacks: ' + missing.join(', '));
   });
 
-  check('C6 guard pin: the matchers still catch a legacy pws-brain-mcp connector', () => {
+  // Phase 392 plan 06 (D-08, 2026-11-08) reversed this pin: pws-brain-mcp is
+  // retired from the matchers too. Owner ruling 2026-11-18 (quick 261118-q35):
+  // retired means blocked, not ignored. The trust string must NOT name it
+  // (never trusted); both hooks.json matchers MUST name it (every tool on the
+  // retired key is inspected), and the brain_* suffix rule still holds.
+  check('C6 guard pin: the retired pws-brain-mcp connector is inspected by the hook matchers and never trusted', () => {
     const src = fs.readFileSync(path.join(REPO_ROOT, 'lib', 'core', 'brain-response-sanitize.cjs'), 'utf8');
     const line = src.split('\n').find((l) => l.startsWith('const BRAIN_TOOL_MATCHER ='));
     assert.ok(line, 'const BRAIN_TOOL_MATCHER line not found');
-    assert.ok(line.includes('pws-brain-mcp'), 'BRAIN_TOOL_MATCHER no longer names pws-brain-mcp');
+    assert.ok(!line.includes('pws-brain-mcp'), 'BRAIN_TOOL_MATCHER still names pws-brain-mcp (retired, D-08)');
     const hooks = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'hooks', 'hooks.json'), 'utf8'));
     const matchers = [];
     collectMatchers(hooks, matchers);
@@ -210,6 +215,8 @@ function run() {
     assert.ok(brain.length >= 2, 'expected at least 2 matchers naming mindrian-brain, found ' + brain.length);
     const lacking = brain.filter((m) => !m.includes('pws-brain-mcp'));
     assert.strictEqual(lacking.length, 0, lacking.length + ' matcher(s) name mindrian-brain but not pws-brain-mcp');
+    const shapedRe = new RegExp('^' + brain[0] + '$');
+    assert.ok(shapedRe.test('mcp__pws-brain-mcp__brain_ask'), 'a legacy brain_* call on the retired key must still be inspected (suffix rule)');
   });
 
   console.log('test-btm: ' + passed + ' passed, ' + failed + ' failed');

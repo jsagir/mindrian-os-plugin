@@ -162,7 +162,12 @@ test('Leg 7 (belt half): a CONTENT-SET forbidden-pattern payload is refused befo
   // regex; discoverStructure wraps its arg as { framework_name: ... }, so this
   // payload hits the CONTENT-SET default-deny scan at the callTool belt.
   const result = await brain.discoverStructure('leak@example.com');
-  assert.deepStrictEqual(result, {
+  // 2026-11-10 (plan 392-13 re-pin): since plan 392-11 every egress_blocked
+  // sentinel carries lexicon_scope (session when CLAUDE_CODE_SESSION_ID is
+  // present, machine_global otherwise); pinned by closed value, the rest exact.
+  assert.ok(['session', 'machine_global'].includes(result.lexicon_scope), 'lexicon_scope is a closed value: ' + result.lexicon_scope);
+  const { lexicon_scope: _scope, ...sentinel } = result;
+  assert.deepStrictEqual(sentinel, {
     error: 'egress_blocked',
     tool: 'discover_structure',
     egress_class: 'content_set',

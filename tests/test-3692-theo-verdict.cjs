@@ -25,7 +25,8 @@
  *   V5  no echo: no refusal carries the matched term, canary or city bytes.
  *   V8  matched kind and size: the refusal names the entry kind and word count,
  *       never the words (quick 261012-sph, D-A). Runs after V5, before V6.
- *   V6  hook budget: 10 spawns with a bound room, p95 under 400 ms.
+ *   V6  hook budget: 10 spawns with a bound room, p95 under 500 ms (raised
+ *       from 400 ms by owner ruling 2026-11-18, quick 261118-q35; see V6).
  *
  * Isolation: HOME, USERPROFILE, MINDRIAN_ROOMS_HOME in mkdtemp dirs; the Brain
  * URL is the loopback capture server; vendor keys deleted; a fetch guard fails
@@ -334,14 +335,15 @@ async function main() {
     ok(open.verdict === 'allow', 'unbound: ' + JSON.stringify(open));
   });
 
-  await leg('V1g: a bound room with a corrupt room.db: a clear sprout is allowed (room_check_skipped), an edge or a body is sprouts_required/room_check_unavailable', async function () {
-    // Plan 386-33 (owner acknowledgement 2026-11-06, owner_ack_unreadable_db_lexicon):
-    // "Short sprouts go, credentials still block". The lexicon cannot be read, so a
-    // clear sprout with no other hit proceeds; a plain edge or body cannot be proven
-    // without the lexicon and is answered with the split outcome.
+  await leg('V1g: a bound room with a corrupt room.db: a clear sprout blocks room_check_unavailable (plan 392-11), an edge or a body is sprouts_required/room_check_unavailable', async function () {
+    // Plan 386-33 (owner acknowledgement 2026-11-06, owner_ack_unreadable_db_lexicon)
+    // let a clear sprout proceed as room_check_skipped. Plan 392-11 (P5, the owner
+    // rule of 392-CONTEXT wave 3: "bound but unreadable or resolver failure = block
+    // room_check_unavailable") supersedes it: cannot check means block, for every
+    // kind. A plain edge or body keeps the split outcome.
     bind(corruptRoom);
     const v = tv('How do I decide which customer segment to pursue first?', 'question', 'brain_ask', corruptRoom);
-    ok(v.verdict === 'allow' && v.class === 'room_check_skipped', JSON.stringify(v));
+    ok(v.verdict === 'block' && v.class === 'room_check_unavailable', JSON.stringify(v));
     const edge = tv('How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?', 'question', 'brain_ask', corruptRoom);
     ok(edge.verdict === 'block' && edge.class === 'sprouts_required' && edge.token_class === 'room_check_unavailable', JSON.stringify(edge));
   });
@@ -458,7 +460,7 @@ async function main() {
     }
   });
 
-  await leg('V2e: a bound room with a corrupt room.db blocks an edge on every verb and the hook (sprouts_required/room_check_unavailable); a clear sprout proceeds (plan 386-33)', async function () {
+  await leg('V2e: a bound room with a corrupt room.db blocks an edge on every verb and the hook (sprouts_required/room_check_unavailable); a clear sprout blocks room_check_unavailable too (plan 392-11)', async function () {
     bind(corruptRoom);
     const edgeText = 'How do I decide which customer segment to pursue first when the group reviews the results across the next two quarters of the pilot work?';
     const row = await driveRow(edgeText, corruptRoom);
@@ -473,10 +475,16 @@ async function main() {
       if (verb !== 'query') ok(r.token_class === 'room_check_unavailable', verb + ' token_class: ' + JSON.stringify(r));
     });
     const sprout = await driveRow('How do I decide which customer segment to pursue first?', corruptRoom);
-    // ask, search and their hooks proceed (clear sprout, owner-acknowledged); the query
-    // verb carries the string as cypher and keeps the legacy block.
-    ok(sprout.perVerb.ask.disposition === 'proceed' && sprout.perVerb.search.disposition === 'proceed', 'sprout ask/search: ' + JSON.stringify(dispositions(sprout)));
-    ok(sprout.hook[0] === 'proceed' && sprout.hook[1] === 'proceed', 'sprout hook ask/search: ' + JSON.stringify(sprout.hook));
+    // Plan 392-11 (P5): a room that cannot be checked blocks every kind. ask and
+    // search refuse with the class room_check_unavailable, zero bytes on the wire;
+    // their hooks exit 2; the query verb keeps its legacy block. One disposition.
+    ok(!disagrees(sprout) && dispositions(sprout)[0] === 'blocked', 'sprout dispositions: ' + JSON.stringify(dispositions(sprout)));
+    ['ask', 'search'].forEach(function (verb) {
+      const r = sprout.perVerb[verb].result;
+      refusals.push(JSON.stringify(r));
+      ok(r && r.error === 'egress_blocked' && r.egress_class === 'room_check_unavailable', 'sprout ' + verb + ': ' + JSON.stringify(r));
+    });
+    ok(sprout.hook[0] === 'blocked' && sprout.hook[1] === 'blocked', 'sprout hook ask/search: ' + JSON.stringify(sprout.hook));
     bind(null);
   });
 
@@ -807,7 +815,14 @@ async function main() {
   // ======================================================================
   // V6: hook budget
   // ======================================================================
-  await leg('V6: 10 hook spawns on a plain question with a bound room, p95 under 400 ms', async function () {
+  // Owner ruling 2026-11-18 (quick 261118-q35, option a): the budget is 500 ms,
+  // raised from 400 ms. The Part 8 hook now writes the plan 392-11 telemetry
+  // into the session-bound room on every call (a real room.db write, about
+  // 60 to 100 ms, part of the protection work); before the merge the hook
+  // skipped that write in this test context. main itself reached 451 ms under
+  // machine load. Follow-up: move the session telemetry write off the hook
+  // hot path, then restore 400 ms.
+  await leg('V6: 10 hook spawns on a plain question with a bound room, p95 under 500 ms', async function () {
     const times = [];
     for (let i = 0; i < 10; i += 1) {
       const h = spawnHook('ask', 'How do I decide which customer segment to pursue first?', room.roomDir);
@@ -819,7 +834,7 @@ async function main() {
     const med = (times[4] + times[5]) / 2;
     const p95 = times[Math.min(9, Math.ceil(0.95 * 10) - 1)];
     console.log('  V6 hook ms min=' + min.toFixed(0) + ' median=' + med.toFixed(0) + ' p95=' + p95.toFixed(0));
-    ok(p95 < 400, 'p95 ' + p95.toFixed(0) + ' ms');
+    ok(p95 < 500, 'p95 ' + p95.toFixed(0) + ' ms');
   });
 
   await leg('V7: no stray socket was opened (net guard)', async function () {

@@ -4210,3 +4210,43 @@ Plans:
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 395 to break down)
+
+### Phase 396: Part 8 problem-shape packet: measure, close the six bypasses, send a closed-vocabulary shape beside the question, fix the composed envelope, session-owned room lexicon
+
+**Goal:** Part 8 changes from filtering the free text sent to the Brain to sending a closed-vocabulary problem shape beside one generic question, never raw room text; the guard stops leaking (six reproduced bypasses) without crippling the context engineering in the graph (37 of 535 legitimate method questions are refused today); the composed envelope says where its problem type came from and orders options by Theo's rank; the room lexicon is session-owned; Eureka calls get their real deadline.
+**Renumbered:** built as Phase 392 on branch work/part8-shape-packet (77 commits from v2.0.0-beta.81), merged into main by quick 261118-q35 on 2026-11-18; see the banner in 396-CONTEXT.md
+**Baseline:** the installed 2.0.0-beta.81, branch work/part8-shape-packet from tag v2.0.0-beta.81. Owner decisions D-01 to D-09 and verified facts F1 to F11: 392-CONTEXT.md. Research trail: ~/MindrianOS/research/2026-11-08-part8-shape-packet-plan/.
+**canon_parts:** 8, 9, 12
+**Success Criteria** (what must be TRUE):
+
+  1. A committed replay matrix over the 694-case corpus and the real-call sample records the beta.81 refusal rates before any guard change; after the change, fewer than 37 of the 535 legitimate extended questions are refused, and every must-refuse case still refuses.
+  2. Each of the six reproduced bypasses has a test that fails on beta.81 and passes after the fix (Hebrew and CJK tokens, a free-text sibling key, brain_query params, a glued paragraph, every non-brain_* Theo tool name, nested depth past 8); NFKC-normalised and format-character payloads and a 40,000-character email string are classified inside the hook budget.
+  3. One vocabulary file holds the closed enums (problem_type, stage Phase0 to Phase5, role, domain_tag, constraint_categories); a drift test pins every other list in the repo to it or retires the list; the packet is built only from the bound room by one builder and validated by exact enum membership; a model-supplied shape is ignored.
+  4. The Brain wire carries exactly {question, shape}; the capture server proves no room lexicon word and no credential shape leaves in either a bare or a shaped call; the composed envelope reports problem_type_source signal when the shape decided it, orders options by Theo's rank with a documented confidence blend, and keeps Theo's evidence block.
+  5. The lexicon check resolves the room of THIS session: unbound session gives an empty lexicon and allows; bound but unreadable, or a resolver failure, blocks with room_check_unavailable; two sessions bound to different rooms never share a lexicon.
+  6. Every Eureka client.callTool carries the plugin deadline as timeout and maxTotalTimeout; a 65-second fake engine ends as engine_timeout, not engine_start_failed.
+  7. The three loop tests pass: Theo receives only the question plus the shape; Eureka runs locally to completion; the assembled Larry answer contains room words while the captured request does not. The acceptance script (bare versus shaped, same question) is a Jev leg and the shaped call wins on problem_type_source, grounding order, coverage and ordering.
+  8. Canon Part 8, Larry's prompt and every doc line that says zero user-content egress carry the new sentence, landed after the code enforces it and through the Canon Custodian path; READMEs refreshed; tests/test-389-seed-egress.cjs and tests/test-387-eureka-egress.cjs pass on the rebased branch.
+
+**Requirements**: TBD
+**Depends on:** Phase 391
+**Plans:** 13/16 plans executed (396-14 waits on the owner decision D-06; 396-15 and 396-16 not run)
+
+Plans:
+
+- [x] 396-01-PLAN.md - P0 replay harness, local real-call extraction, committed beta.81 matrix (counts only), run-all-396 (phase wave 0, exec wave 1)
+- [x] 396-02-PLAN.md - data/brain-shape-vocabulary.json (D-01, D-02), vocabulary drift test, Theo route matrix gap pin (phase wave 0, exec wave 1)
+- [x] 396-03-PLAN.md - bypass 1 Unicode tokenizer, NFKC and format-character strip (phase wave 1, exec wave 2)
+- [x] 396-04-PLAN.md - bypass 4 glued paragraph caps 80 and 240, linear email regex with the 40,000 character timing test (phase wave 1, exec wave 2)
+- [x] 396-05-PLAN.md - bypasses 2, 3 and 6: every string leaf walked, brain_query params, depth and node caps fail closed (phase wave 1, exec wave 3)
+- [x] 396-06-PLAN.md - bypass 5: matcher widened to every Theo route, tool class table and typed arms, pws-brain-mcp retired (D-08) (phase wave 1, exec wave 4)
+- [x] 396-07-PLAN.md - L2 Eureka deadline: timeout and maxTotalTimeout on every callTool, engine_timeout while connected, session eviction, 65 s fake engine (phase wave 1, exec wave 1)
+- [x] 396-08-PLAN.md - P2 lib/core/brain-shape-packet.cjs builder and validator, synthetic fixture rooms (phase wave 3, exec wave 2)
+- [x] 396-09-PLAN.md - P3 typed guard arm for the free-text key plus shape, after-arm matrix below 37 of 535, jsagi-17 notice (D-07); not autonomous (phase wave 3, exec wave 5)
+- [x] 396-10-PLAN.md - P4 envelope: problem_type_source signal, Theo rank order with a confidence blend, evidence and coverage kept (D-03, D-04, D-05), test-339 re-pinned (phase wave 3, exec wave 4)
+- [x] 396-11-PLAN.md - P5 session-owned lexicon: resolveSessionRoom with ownership, unbound allows, unavailable blocks, telemetry per session (phase wave 3, exec wave 6)
+- [x] 396-12-PLAN.md - P4 wire: ask attaches the room-built shape behind a capability probe, shim optional strict shape ignored for the room-built one, router full shape, census (phase wave 3, exec wave 7)
+- [x] 396-13-PLAN.md - loop tests L1 and L3, acceptance script as a Jev leg (exit 77; live only after Theo Phase 48 T6) (phase wave 3, exec wave 8)
+- [ ] 396-14-PLAN.md - P6 canon Part 8 sentence through the Canon Custodian path (D-06), Appendix D entry, version lockstep, CLAUDE.md; not autonomous (phase wave 5, exec wave 9)
+- [ ] 396-15-PLAN.md - P6 prompt and doc wording sweep (runtime-instructions, larry-extended, voice-dna, references/brain, skills, commands) with a wording test (phase wave 5, exec wave 10)
+- [ ] 396-16-PLAN.md - README refresh, CHANGELOG lines, docs/THEO-ROUTES-SHAPE-HANDOFF.md wave-4 note (D-08, D-09), OPEN-HANDOFFS entry (phase wave 5, exec wave 10)

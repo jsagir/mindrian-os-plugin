@@ -462,7 +462,7 @@
       "version": "2.1.280",
       "date": "2026-09-22",
       "domain": "plugins_mcp",
-      "leverage": "CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH sets the 2,048-char cap on MCP tool descriptions and server instructions. mindrian-os serves 1984 bytes, under it; the remote pws-brain-mcp (user-level config, not shipped here) arrives truncated.",
+      "leverage": "CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH sets the 2,048-char cap on MCP tool descriptions and server instructions. mindrian-os serves 1984 bytes, under it; the remote direct Brain connector of that time (user-level config, not shipped here; retired, Phase 392 D-08) arrived truncated.",
       "destination": "lib/mcp/runtime-instructions.cjs, lib/mcp/no-instructions.test.cjs, tests/test-234-tool-description-floor.cjs",
       "status": "dormant",
       "evidence": "Version 2.1.280 (released 2026-09-22). GitHub release notes https://github.com/anthropics/claude-code/releases/tag/v2.1.280, fetched 2026-10-02; fields-only summary, repo-checked 2026-10-02."

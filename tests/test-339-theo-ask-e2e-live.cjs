@@ -117,24 +117,35 @@ async function main() {
     envelope.mode_rationale !== 'brain_unreachable'
   );
 
-  // Quick 260911-ddd (DDD-01): command-bearing-first partition, theo_rank,
-  // and grounding.option_order, proven live against the real Brain.
+  // Quick 260911-ddd (DDD-01) theo_rank and grounding.option_order, proven
+  // live against the real Brain. Phase 392-10 (D-05) RE-PIN: the
+  // command-bearing-first partition is gone; options come back in Theo's
+  // pedagogical rank order, so options[0] carries the lowest theo_rank and
+  // the confidence series is non-increasing.
   const liveOptions = (envelope.next_gate && Array.isArray(envelope.next_gate.options))
     ? envelope.next_gate.options
     : [];
-  const anyLiveOptionHasCommand = liveOptions.some((o) => Array.isArray(o.commands) && o.commands.length > 0);
+  const liveRanks = liveOptions.map((o) => o && o.theo_rank).filter((r) => Number.isFinite(r));
   check(
-    'when any option carries a command, options[0].commands.length > 0 (command-bearing-first partition)',
-    !anyLiveOptionHasCommand
-      || (liveOptions[0] && Array.isArray(liveOptions[0].commands) && liveOptions[0].commands.length > 0)
+    'options[0].theo_rank is the lowest theo_rank of the list (Theo rank order)',
+    liveOptions.length === 0
+      || (liveOptions[0] && Number.isFinite(liveOptions[0].theo_rank) && liveOptions[0].theo_rank === Math.min.apply(null, liveRanks))
+  );
+  check(
+    'confidence is non-increasing along the options',
+    liveOptions.every((o, i) => i === 0 || (typeof o.confidence === 'number' && o.confidence <= liveOptions[i - 1].confidence))
   );
   check(
     'options[0].theo_rank is a finite number',
     !!(liveOptions[0] && Number.isFinite(liveOptions[0].theo_rank))
   );
   check(
-    "grounding.option_order === 'command_bearing_first'",
-    !!(envelope.grounding && envelope.grounding.option_order === 'command_bearing_first')
+    "grounding.option_order === 'theo_rank'",
+    !!(envelope.grounding && envelope.grounding.option_order === 'theo_rank')
+  );
+  check(
+    "grounding.confidence_source === 'theo_rank_blend'",
+    !!(envelope.grounding && envelope.grounding.confidence_source === 'theo_rank_blend')
   );
 
   // Honest coverage reporting over the brainRoute-equivalent slug mapping:

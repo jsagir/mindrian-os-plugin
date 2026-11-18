@@ -23,7 +23,10 @@
  * different URL.
  *
  * Exports exactly: startCaptureServer, captured, resetCaptured,
- * stopCaptureServer, setToolScript, getToolCallCount, resetToolScript.
+ * stopCaptureServer, setToolScript, getToolCallCount, resetToolScript,
+ * setToolList, getToolListCount, resetToolList, setToolReplies (the last
+ * four: plan 392-12, the scripted tools/list reply for the shape capability
+ * probe and replies keyed by tool name).
  *
  * Phase 259 (TRUST-01, D-04): added an opt-in scripted-response mechanism,
  * ported from tests/test-250-transport-retry.cjs:45-56's already-proven
@@ -50,6 +53,30 @@ const captured = [];
 const toolScriptState = {
   script: null,
   toolCallCount: 0,
+};
+
+// Plan 392-12 (the shape on the wire): opt-in scripted `tools/list` reply so
+// the capability probe in lib/core/brain-client.cjs (brainAcceptsShape) can
+// be exercised offline against two advertised schemas: schema A (no `shape`
+// property, the beta.81 Theo) and schema B (`inputSchema.properties.shape`
+// on brain_ask and recommend_chain, Theo Phase 48). `tools` null (the
+// default) keeps today's behaviour byte-identical: `tools/list` falls through
+// to the 404 unknown_method branch below, which the probe reads as "not
+// advertised". `toolListCount` counts every tools/list request so a test can
+// prove the probe is cached per process.
+const toolListState = {
+  tools: null,
+  toolListCount: 0,
+};
+
+// Plan 392-12: opt-in replies keyed by TOOL NAME (`replies[name]` is a
+// `{ status, headers, body }` descriptor, the same shape setToolScript takes).
+// Checked before the ordered script, so a suite whose process makes calls it
+// does not sequence itself (the shim's start-up theo_health pre-warm) still
+// gets the right reply per tool. `null` (the default) is byte-identical to
+// today's behaviour.
+const toolReplyState = {
+  replies: null,
 };
 
 /**
@@ -89,6 +116,25 @@ function startCaptureServer() {
         return;
       }
 
+      // Plan 392-12: scripted tools/list reply (capability probe). Counted
+      // on every request; answered only when a list was set, else 404 below.
+      if (parsed.method === 'tools/list') {
+        toolListState.toolListCount += 1;
+        if (Array.isArray(toolListState.tools)) {
+          res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+          res.end(
+            'data: ' +
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: parsed.id,
+                result: { tools: toolListState.tools },
+              }) +
+              '\n'
+          );
+          return;
+        }
+      }
+
       if (parsed.method === 'tools/call') {
         // Capture for assertions.
         captured.push({
@@ -103,6 +149,31 @@ function startCaptureServer() {
         // `initialize` above never increments it (only the first call in a
         // suite handshakes, since the session is cached).
         toolScriptState.toolCallCount += 1;
+        let byName = toolReplyState.replies
+          && Object.prototype.hasOwnProperty.call(toolReplyState.replies, parsed.params && parsed.params.name)
+          ? toolReplyState.replies[parsed.params.name]
+          : null;
+        // Plan 392-13: a reply keyed by name may be a FUNCTION of the call's
+        // arguments, (args, parsed) -> descriptor, so one scripted Theo can
+        // answer a bare {question} and a shaped {question, shape} call
+        // differently inside one process (the acceptance script runs both).
+        // A descriptor object behaves exactly as before.
+        if (typeof byName === 'function') {
+          try {
+            byName = byName((parsed.params && parsed.params.arguments) || {}, parsed);
+          } catch (_e) {
+            byName = null;
+          }
+        }
+        if (byName && typeof byName === 'object') {
+          res.writeHead(byName.status || 200, Object.assign({ 'Content-Type': 'text/event-stream' }, byName.headers || {}));
+          res.end(
+            byName.body !== undefined
+              ? byName.body
+              : 'data: ' + JSON.stringify({ jsonrpc: '2.0', id: parsed.id, result: { content: [{ type: 'text', text: JSON.stringify({ ok: true }) }] } }) + '\n'
+          );
+          return;
+        }
         if (Array.isArray(toolScriptState.script) && toolScriptState.script.length > 0) {
           const idx = Math.min(
             toolScriptState.toolCallCount - 1,
@@ -211,6 +282,40 @@ function resetToolScript() {
   toolScriptState.toolCallCount = 0;
 }
 
+/**
+ * Plan 392-12: set the `tools/list` reply. `tools` is an array of MCP tool
+ * descriptors ({ name, inputSchema }); a non-array resets to null (today's
+ * 404 answer, read by the probe as "shape not advertised").
+ * @param {Array<object>|null} tools
+ */
+function setToolList(tools) {
+  toolListState.tools = Array.isArray(tools) ? tools : null;
+}
+
+/**
+ * @returns {number} the number of tools/list requests received so far.
+ */
+function getToolListCount() {
+  return toolListState.toolListCount;
+}
+
+/**
+ * Mutate `toolListState` back to its default (tools null, count 0).
+ */
+function resetToolList() {
+  toolListState.tools = null;
+  toolListState.toolListCount = 0;
+}
+
+/**
+ * Plan 392-12: set replies keyed by tool name ({ [name]: { status, headers,
+ * body } }). A non-object resets to null (ordered script or always-200).
+ * @param {object|null} replies
+ */
+function setToolReplies(replies) {
+  toolReplyState.replies = (replies && typeof replies === 'object') ? replies : null;
+}
+
 module.exports = {
   startCaptureServer,
   captured,
@@ -219,4 +324,8 @@ module.exports = {
   setToolScript,
   getToolCallCount,
   resetToolScript,
+  setToolList,
+  getToolListCount,
+  resetToolList,
+  setToolReplies,
 };
