@@ -18,10 +18,14 @@
  *   H3  Hebrew private markers block: secret, ours, mine, first person at
  *       a clause start, internal use.
  *   H4  a Hebrew question with a structured identifier blocks.
- *   H5  fail closed: niqqud, CJK, Cyrillic, Arabic.
- *   H7  Hebrew prose fails closed (owner ruling 2026-11-18, second answer):
- *       (a) the investor-left-after-audit sentence blocks, (b) a plain
- *       Hebrew methodology question passes, (c) main L18 passes unchanged.
+ *   H5  quick 261118-x1g (OWNER-REDUCE): a generic niqqud, Russian and
+ *       Arabic sprout allows (R1 to R3); a CJK private marker and every
+ *       unprofiled script (Thai, Persian, Serbian Cyrillic, Armenian,
+ *       Georgian, Bengali) still block.
+ *   H7  quick 261118-x1g (OWNER-R35, OWNER-H7A): the Hebrew prose bound is
+ *       withdrawn; (a) both investor-left-after-audit rows follow their
+ *       English twins (allow, R4 and R5), (b) a plain Hebrew methodology
+ *       question passes, (c) main L18 passes unchanged.
  *   H6  every mcp__pws-brain-mcp__* name is Brain-shaped (inspected) and
  *       never trusted.
  *
@@ -111,27 +115,40 @@ check('H4 a Hebrew question with an identifier blocks', function () {
   assert.strictEqual(v.verdict, 'block', tag(v));
 });
 
-check('H5 fail closed: niqqud, CJK, Cyrillic, Arabic', function () {
-  ['שָׁלוֹם מה זה SWOT', '私たちの秘密の計画', 'что такое SWOT', 'ما هو SWOT'].forEach(function (q) {
+// Quick 261118-x1g (owner rulings 2026-11-19, OWNER-REDUCE): R1 to R3. The
+// Russian and Arabic profiles and the mark fold replace the blanket rules, so
+// a generic sprout allows; the CJK private marker and the unprofiled scripts
+// still block.
+check('H5 quick 261118-x1g: generic niqqud, Russian and Arabic sprouts allow; a CJK marker and unprofiled scripts block', function () {
+  ['שָׁלוֹם מה זה SWOT', 'что такое SWOT', 'ما هو SWOT'].forEach(function (q) {
+    const v = guard.classify({ question: q }, OPTS);
+    assert.strictEqual(v.verdict, 'allow', JSON.stringify(q) + ' ' + tag(v));
+  });
+  ['私たちの秘密の計画', 'SWOT คืออะไร', 'چگونه یک مصاحبه انجام دهم؟', 'Шта је SWOT и како га применити?', 'Ինչ է SWOT-ը?', 'რა არის SWOT?', 'SWOT কী?'].forEach(function (q) {
     const v = guard.classify({ question: q }, OPTS);
     assert.strictEqual(v.verdict, 'block', JSON.stringify(q) + ' ' + tag(v));
   });
 });
 
-// Owner ruling 2026-11-18 (second answer): Hebrew prose is blocked for now.
-const PROSE_REASON_PART = 'reads as prose';
-check('H7a the investor-left-after-audit Hebrew sentence is blocked as prose', function () {
+// Quick 261118-x1g (owner rulings 2026-11-19, OWNER-R35 and OWNER-H7A): R4 and
+// R5. The Hebrew prose bound is withdrawn; ruling 35 is the only length bar.
+// Each H7a row follows its English twin, which is allowed (same verdict and
+// class).
+check('H7a the investor-left-after-audit Hebrew rows follow their English twins', function () {
   [
     // "the lead investor left after the audit and the founder wants to fire the team"
-    'המשקיע הראשי עזב אחרי הביקורת והמייסד רוצה לפטר את הצוות',
-    // the same narrative, ending as a question: over the sprout bounds
-    'המשקיע הראשי עזב אחרי הביקורת והמייסד רוצה לפטר את הצוות, איזו מסגרת מתאימה לנו עכשיו?',
-  ].forEach(function (q) {
-    const v = guard.classify({ question: q }, OPTS);
-    assert.strictEqual(v.verdict, 'block', JSON.stringify(q) + ' ' + tag(v));
-    assert.ok(String(v.reason).indexOf(PROSE_REASON_PART) !== -1, 'typed reason missing: ' + v.reason);
-    const c = guard.classifyAndCut({ question: q }, OPTS);
-    assert.strictEqual(c.verdict.verdict, 'block', 'cut ' + tag(c.verdict));
+    ['המשקיע הראשי עזב אחרי הביקורת והמייסד רוצה לפטר את הצוות',
+      'The lead investor left after the audit and the founder wants to fire the team'],
+    // the same narrative, ending as a question
+    ['המשקיע הראשי עזב אחרי הביקורת והמייסד רוצה לפטר את הצוות, איזו מסגרת מתאימה לנו עכשיו?',
+      'The lead investor left after the audit and the founder wants to fire the team, which framework fits us now?'],
+  ].forEach(function (pair) {
+    const v = guard.classify({ question: pair[0] }, OPTS);
+    const twin = guard.classify({ question: pair[1] }, OPTS);
+    assert.strictEqual(v.verdict, 'allow', JSON.stringify(pair[0]) + ' ' + tag(v));
+    assert.strictEqual(v.verdict + ' ' + v.class, twin.verdict + ' ' + twin.class, 'twin ' + tag(twin));
+    const c = guard.classifyAndCut({ question: pair[0] }, OPTS);
+    assert.strictEqual(c.verdict.verdict, 'allow', 'cut ' + tag(c.verdict));
   });
 });
 
