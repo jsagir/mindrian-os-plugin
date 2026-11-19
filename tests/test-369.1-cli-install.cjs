@@ -414,7 +414,9 @@ async function stepManifest() {
       MP = mkTemp('mp');
       fs.mkdirSync(path.join(MP, '.claude-plugin'), { recursive: true });
       const live = path.join(REAL_MARKETPLACE, '.claude-plugin', 'marketplace.json');
-      const base = fs.existsSync(live) ? JSON.parse(fs.readFileSync(live, 'utf8')) : FALLBACK_MARKETPLACE;
+      const liveBase = fs.existsSync(live) ? JSON.parse(fs.readFileSync(live, 'utf8')) : FALLBACK_MARKETPLACE;
+      // The live catalog also carries get-mindrian (quick 261119-g5g); this test proves the mos two-entry shape.
+      const base = Object.assign({}, liveBase, { plugins: (liveBase.plugins || []).filter((p) => p && (p.name === 'mos' || p.name === 'mos-desktop')) });
       fs.writeFileSync(path.join(MP, '.claude-plugin', 'marketplace.json'), JSON.stringify(base, null, 2) + '\n');
       if (fs.existsSync(GATE_LIB)) {
         const r = spawnSync('bash', ['-c', '. "$1"; mos_write_desktop_entry "$2" "$3"', 'bash', GATE_LIB, MP, version], {
@@ -439,7 +441,8 @@ async function stepManifest() {
     }
     MANIFEST = JSON.parse(fs.readFileSync(path.join(MP, '.claude-plugin', 'marketplace.json'), 'utf8'));
     assert.equal(MANIFEST.name, MARKETPLACE_NAME, 'marketplace name');
-    assert.ok(Array.isArray(MANIFEST.plugins) && MANIFEST.plugins.length === 2, 'plugins must hold exactly two entries, got ' + (MANIFEST.plugins && MANIFEST.plugins.length));
+    assert.ok(Array.isArray(MANIFEST.plugins) && MANIFEST.plugins.length >= 2, 'plugins must hold at least two entries, got ' + (MANIFEST.plugins && MANIFEST.plugins.length));
+    assert.ok(MANIFEST.plugins.slice(2).every((p) => p.name !== 'mos' && p.name !== 'mos-desktop'), 'a later entry is named mos or mos-desktop');
     assert.equal(MANIFEST.plugins[0].name, 'mos', 'plugins[0].name');
     assert.equal(MANIFEST.plugins[0].source && MANIFEST.plugins[0].source.source, 'npm', 'plugins[0] is an npm source');
     assert.equal(MANIFEST.plugins[1].name, 'mos-desktop', 'plugins[1].name');

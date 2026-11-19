@@ -151,6 +151,8 @@ function makeSandbox(manifest) {
   if (!content) {
     const live = path.join(REAL_MARKETPLACE, '.claude-plugin', 'marketplace.json');
     content = fs.existsSync(live) ? JSON.parse(fs.readFileSync(live, 'utf8')) : FALLBACK_MARKETPLACE;
+    // The live catalog also carries get-mindrian (quick 261119-g5g); this test proves the mos two-entry shape.
+    content = Object.assign({}, content, { plugins: (content.plugins || []).filter((p) => p && (p.name === 'mos' || p.name === 'mos-desktop')) });
   }
   fs.writeFileSync(path.join(root, '.claude-plugin', 'marketplace.json'), JSON.stringify(content, null, 2) + '\n');
   return root;
@@ -216,6 +218,18 @@ function armWriter() {
     const root = makeSandbox();
     writeBoth(root, TEST_VERSION);
     assertTwoEntryShape(readManifest(root), TEST_VERSION);
+  });
+  check('writer', 'Step 4 plus mos_write_desktop_entry keep a third entry (get-mindrian, quick 261119-g5g) unchanged at plugins[2]', () => {
+    const fixture = { name: 'get-mindrian', displayName: 'Get MindrianOS', description: 'fixture', version: '0.1.0', source: './plugins/get-mindrian' };
+    const base = JSON.parse(JSON.stringify(FALLBACK_MARKETPLACE));
+    base.plugins.push(JSON.parse(JSON.stringify(fixture)));
+    const root = makeSandbox(base);
+    writeBoth(root, TEST_VERSION);
+    const m = readManifest(root);
+    assert.equal(m.plugins.length, 3, 'plugins has ' + m.plugins.length + ' entries, expected 3');
+    assert.equal(m.plugins[0].name, 'mos', 'plugins[0].name');
+    assert.equal(m.plugins[1].name, 'mos-desktop', 'plugins[1].name');
+    assert.deepEqual(m.plugins[2], fixture, 'plugins[2] is not the unchanged get-mindrian fixture');
   });
 }
 
