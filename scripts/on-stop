@@ -43,6 +43,10 @@ if [ -n "$HOOK_STDIN" ]; then
   fi
 fi
 
+# Quick 261118-vbv: the Part 8 telemetry drain writes the rows the Part 8 hook queued (via
+# part8-egress-ontology and navigation.cjs). Self-bounded (4 s); never changes this hook. LOCAL only.
+printf '%s' "$HOOK_STDIN" | node "${SCRIPT_DIR}/part8-egress-telemetry-drain.cjs" --stop >/dev/null 2>&1 || true
+
 # Phase 198-09 (SPEC-5, D-05/D-06) -- thin Stop adapter under the flag.
 # BEGIN-MCP-FIRST-STOP-THIN-ADAPTER
 # MINDRIAN_MCP_FIRST naming 'cli' or 'all': wake the shared daemon, query the

@@ -156,10 +156,9 @@ const path = require('node:path');
 const LIB_CORE = path.join(__dirname, '..', 'lib', 'core');
 const GUARD_PATH = path.join(LIB_CORE, 'part8-egress-guard.cjs');
 const LEXICON_PATH = path.join(LIB_CORE, 'part8-room-lexicon.cjs');
-const ONTOLOGY_PATH = path.join(LIB_CORE, 'part8-egress-ontology.cjs');
+const TELEMETRY_QUEUE_PATH = path.join(LIB_CORE, 'part8-egress-telemetry-queue.cjs');
 const SANITIZER_PATH = path.join(LIB_CORE, 'brain-response-sanitize.cjs');
 const BRAIN_CLIENT_PATH = path.join(LIB_CORE, 'brain-client.cjs');
-const ROOM_DB_PATH = path.join(LIB_CORE, 'room-db.cjs');
 // The F.1 gate lands in 196-05; require it DEFENSIVELY so this hook degrades
 // gracefully until Wave 3.
 const GATE_PATH = path.join(__dirname, '..', 'lib', 'hmi', 'part8-egress-gate.cjs');
@@ -317,35 +316,30 @@ function brainAvailable() {
 // ---------------------------------------------------------------------------
 // Best-effort telemetry. Plan 392-11 (P5): the row lands in the room the
 // lexicon check resolved (the session's room when a session id exists, the
-// machine-global active room otherwise), with lexicon_scope on it. Nothing is
-// written for an unbound session (no room) or an unavailable one (no db to
-// write). The db is opened only when room.db already exists, so telemetry
-// never mints a database. EVERY step is wrapped -- a telemetry failure NEVER
-// bricks a Brain call and NEVER changes the exit code.
+// machine-global active room otherwise), with lexicon_scope on it. Quick
+// 261118-vbv: the hook only appends one small line to the room-local queue
+// (lib/core/part8-egress-telemetry-queue.cjs enqueue) and opens no db. The
+// Stop drain (scripts/part8-egress-telemetry-drain.cjs) writes the row through
+// part8-egress-ontology, which routes every write through navigation.cjs.
+// Nothing is queued for an unbound session (no room) or an unavailable one
+// (no db to write), and nothing when room.db does not exist, so telemetry
+// never mints a database. The verdict never waits on and never depends on the
+// record: EVERY step is wrapped -- a telemetry failure NEVER bricks a Brain
+// call and NEVER changes the exit code.
 // ---------------------------------------------------------------------------
 function bestEffortRecord(verdictObj, sessionId, resolvedRoom) {
-  let db = null;
-  let roomDb = null;
   try {
     if (!resolvedRoom || resolvedRoom.status !== 'bound' || typeof resolvedRoom.roomDir !== 'string') return;
     if (!fs.existsSync(path.join(resolvedRoom.roomDir, '.mindrian', 'room.db'))) return;
-    roomDb = require(ROOM_DB_PATH);
-    db = roomDb.openRoomDb(resolvedRoom.roomDir);
-    const ontology = require(ONTOLOGY_PATH);
-    ontology.record(db, {
+    require(TELEMETRY_QUEUE_PATH).enqueue(resolvedRoom.roomDir, {
       verdict: verdictObj.verdict,
       class: verdictObj.class,
       matched_pattern: verdictObj.reason,
-      count: 1,
       sessionId: sessionId,
       lexicon_scope: resolvedRoom.lexicon_scope,
     });
   } catch (_e) {
     // best-effort: swallow
-  } finally {
-    try {
-      if (db && roomDb && roomDb.closeRoomDb) roomDb.closeRoomDb(db);
-    } catch (_e) { /* ignore */ }
   }
 }
 
