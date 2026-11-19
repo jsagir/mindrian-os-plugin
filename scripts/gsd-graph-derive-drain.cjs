@@ -957,6 +957,19 @@ async function main() {
 
     const args = parseArgs(process.argv.slice(2));
 
+    // Quick 261118-vbv (W1): the second trigger of the Part 8 telemetry drain, at
+    // session start, so a session that ended without a Stop still lands its queued
+    // rows. Started detached (stdio ignore, unref, never awaited), so this hook
+    // waits for nothing; the drain bounds itself (4 s). No hooks.json entry is added.
+    if (!args.worker && !args.dryRun) {
+      try {
+        const { spawn } = require('node:child_process');
+        const sweep = spawn(process.execPath, [path.join(__dirname, 'part8-egress-telemetry-drain.cjs'), '--sweep'],
+          { detached: true, stdio: 'ignore', env: process.env });
+        sweep.unref();
+      } catch (_sweepErr) { /* the Stop drain stays the main trigger */ }
+    }
+
     // The SessionStart hook budget (hooks.json: timeout 5000, async false) cannot
     // cover a cold encoder load plus a room-scoped scoring pass -- and a drain
     // killed at the hook timeout used to leave its queue entry in place, so the

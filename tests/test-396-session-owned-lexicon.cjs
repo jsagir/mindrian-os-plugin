@@ -39,7 +39,8 @@
  *       block room_check_unavailable for a sprout, an edge, a body, a
  *       brain_search query and a brain_query cypher; lexicon_scope carried.
  *   L8  resolveLexiconRoom result shapes for every case; never throws.
- *   L9  telemetry: after the session B run room B holds one brain_egress_*
+ *   L9  telemetry (rows land after the drain, quick 261118-vbv: the hook
+ *       queues, egressRows drains): after the session B run room B holds one brain_egress_*
  *       row with lexicon_scope session and room A none; after a no-session
  *       run room A holds one row with lexicon_scope machine_global; nothing
  *       is written for the unbound and the unavailable runs.
@@ -189,7 +190,9 @@ function noIds(text) {
 }
 
 // brain_egress_* memory_event rows of a room, read through the read-only door.
+// Quick 261118-vbv: the hook only queues the record; drain the room first.
 function egressRows(roomDir) {
+  require(path.join(REPO_ROOT, 'lib', 'core', 'part8-egress-telemetry-queue.cjs')).drainRoom(roomDir);
   const db = require(SPINE_EVENTS_PATH).openRoomDbReadOnlyForCaller(roomDir);
   if (!db) throw new Error('could not open room.db read-only');
   try {

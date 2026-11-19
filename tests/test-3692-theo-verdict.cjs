@@ -25,8 +25,7 @@
  *   V5  no echo: no refusal carries the matched term, canary or city bytes.
  *   V8  matched kind and size: the refusal names the entry kind and word count,
  *       never the words (quick 261012-sph, D-A). Runs after V5, before V6.
- *   V6  hook budget: 10 spawns with a bound room, p95 under 500 ms (raised
- *       from 400 ms by owner ruling 2026-11-18, quick 261118-q35; see V6).
+ *   V6  hook budget: 10 spawns with a bound room, p95 under 400 ms.
  *
  * Isolation: HOME, USERPROFILE, MINDRIAN_ROOMS_HOME in mkdtemp dirs; the Brain
  * URL is the loopback capture server; vendor keys deleted; a fetch guard fails
@@ -815,14 +814,7 @@ async function main() {
   // ======================================================================
   // V6: hook budget
   // ======================================================================
-  // Owner ruling 2026-11-18 (quick 261118-q35, option a): the budget is 500 ms,
-  // raised from 400 ms. The Part 8 hook now writes the plan 392-11 telemetry
-  // into the session-bound room on every call (a real room.db write, about
-  // 60 to 100 ms, part of the protection work); before the merge the hook
-  // skipped that write in this test context. main itself reached 451 ms under
-  // machine load. Follow-up: move the session telemetry write off the hook
-  // hot path, then restore 400 ms.
-  await leg('V6: 10 hook spawns on a plain question with a bound room, p95 under 500 ms', async function () {
+  await leg('V6: 10 hook spawns on a plain question with a bound room, p95 under 400 ms', async function () {
     const times = [];
     for (let i = 0; i < 10; i += 1) {
       const h = spawnHook('ask', 'How do I decide which customer segment to pursue first?', room.roomDir);
@@ -834,7 +826,7 @@ async function main() {
     const med = (times[4] + times[5]) / 2;
     const p95 = times[Math.min(9, Math.ceil(0.95 * 10) - 1)];
     console.log('  V6 hook ms min=' + min.toFixed(0) + ' median=' + med.toFixed(0) + ' p95=' + p95.toFixed(0));
-    ok(p95 < 500, 'p95 ' + p95.toFixed(0) + ' ms');
+    ok(p95 < 400, 'p95 ' + p95.toFixed(0) + ' ms');
   });
 
   await leg('V7: no stray socket was opened (net guard)', async function () {
