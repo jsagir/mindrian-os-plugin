@@ -275,7 +275,7 @@ function slotErrors(s) {
   const e = [];
   for (const k of ['when', 'want', 'so']) {
     if (typeof s[k] !== 'string' || !s[k].trim()) e.push(k + ' empty');
-    else if (/[–—]/.test(s[k])) e.push(k + ' has a dash');
+    else if (/[\u2013\u2014]/.test(s[k])) e.push(k + ' has a dash');
     else if (/[.]$/.test(s[k].trim())) e.push(k + ' ends with a period');
   }
   return e;
