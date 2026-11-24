@@ -9,7 +9,7 @@ for t in tests/test-400-job-sentence-lib.cjs tests/test-400-description-budget.c
 done
 # Phase-owned drift checks. Run only when every test passed. One PASSED or FAILED line each.
 if [ "$FAIL" -eq 0 ]; then
-  for c in; do
+  for c in "apply-job-sentences.cjs --check"; do
     echo "--- 400 check: $c ---"
     if node scripts/$c; then echo ">>> 400 check: $c: PASSED"; else echo ">>> 400 check: $c: FAILED"; FAIL=1; fi
   done

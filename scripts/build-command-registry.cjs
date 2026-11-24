@@ -44,6 +44,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const jobSentence = require('../lib/core/job-sentence.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
@@ -289,6 +290,25 @@ function loadCuratedChains() {
 // any framework not in the allowlist. Returns the registry object PLUS the
 // non-serialized `_unresolved` field (callers strip it before writing).
 // ---------------------------------------------------------------------------
+// Phase 400-01: {when, want, so, status} when the 4 job keys are present and valid, else null.
+// A partial or invalid set prints one stderr warning line and never fails the build.
+function buildJobSentence(fm, command) {
+  const K = jobSentence.FRONTMATTER_KEYS;
+  const anyKey = [K.when, K.want, K.so, K.status].some((k) => fm[k] !== undefined);
+  if (!anyKey) return null;
+  const slots = jobSentence.slotsFromFrontmatter(fm);
+  const status = fm[K.status];
+  const ok =
+    slots &&
+    jobSentence.slotErrors(slots).length === 0 &&
+    jobSentence.SENTENCE_STATUSES.includes(status);
+  if (!ok) {
+    process.stderr.write('build-command-registry: WARN ' + command + ' has a partial or invalid job sentence; job_sentence is null\n');
+    return null;
+  }
+  return { when: slots.when, want: slots.want, so: slots.so, status };
+}
+
 function buildRegistry() {
   const fwNames = loadFrameworkNames();
   const files = fs.readdirSync(COMMANDS_DIR).filter((f) => f.endsWith('.md')).sort();
@@ -364,6 +384,9 @@ function buildRegistry() {
         ? taxonomyEntry.one_line
         : null;
 
+    // Phase 400-01 (JS-06, O-11): job_sentence from the job_when/job_want/job_so/job_sentence_status frontmatter keys; null when any is absent or invalid.
+    const jobSentenceEntry = buildJobSentence(fm, command);
+
     if (servesJtbd.length === 0) missingServesJtbd.push(command);
 
     // Phase 205-01 (D-Q6): classify the navigator|internal surface from the
@@ -393,6 +416,7 @@ function buildRegistry() {
       teaching,
       jtbd_label: jtbdLabel,
       jtbd_summary: jtbdSummary,
+      job_sentence: jobSentenceEntry,
     });
   }
 
