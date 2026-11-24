@@ -27,10 +27,23 @@
 // The per-turn path makes no live call: no file under lib/ or hooks/ names the relay or this client
 // (tests/test-400-relay-fence.cjs F1).
 //
+// Operator release run (O-10): the ONLY path that passes the line today. It needs BOTH the CLI flag
+// --operator-release-run (no environment variable sets it) AND the token in MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN.
+// Without the flag the token variable is never read. With the flag the run:
+//   - refuses operator_token_missing before any network when the token is absent,
+//   - passes the line through an in-memory one-run policy (the shipped policy file is never written),
+//   - sends Authorization: Bearer <token> and no install id header,
+//   - prints one line and the exact JSON body before each POST,
+//   - writes one audit record to <MindrianOS home>/decision-relay-audit/<UTC stamp>-<8 hex>.json (0600 in a
+//     0700 dir) before the first POST and again at the end, also on a refusal. The record holds counts, status
+//     codes, reasons and body hashes; it never holds the token, a key or a body.
+//
 // CLI: node scripts/decision-advisor-transport.cjs --provider gemini|jev|relay --request <file>
-//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>]
+//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>] [--operator-release-run]
 // Exit codes: 0 ok, 2 bad usage or labels_only_refused, 4 egress_line_off,
-//             5 no_key, endpoint_unconfirmed or no_install_id, 6 http_error, bad_response, catalog_skew or relay_refused.
+//             5 no_key, endpoint_unconfirmed, no_install_id, operator_token_missing or audit_unwritable,
+//             6 http_error, bad_response, catalog_skew or relay_refused.
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -47,12 +60,17 @@ const PROVIDER_IDS = Object.freeze({ gemini: 'gemini_decision', jev: 'jev_decisi
 const KEY_ENV = Object.freeze({ gemini: 'GEMINI_API_KEY', jev: 'TYPESAFE_API_KEY' });
 const KEY_HEADER = 'x-goog-api-key'; // confirmed 2026-11-24 from the vendor API reference.
 const REFUSALS = Object.freeze(['labels_only_refused', 'egress_line_off', 'no_key', 'endpoint_unconfirmed', 'http_error', 'bad_response',
-  'no_install_id', 'catalog_skew', 'relay_refused']);
+  'no_install_id', 'catalog_skew', 'relay_refused', 'operator_token_missing', 'audit_unwritable']);
 const TIMEOUT_MS = 120000;
 const RELAY_PATH = '/v1/decide';
 const RELAY_MAX_QUESTIONS = 1000;
 const RELAY_CATALOG_HEADER = 'x-mindrian-catalog';
 const HEX64_RE = /^[a-f0-9]{64}$/;
+const OPERATOR_TOKEN_ENV = 'MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN';
+// The relay accepts the same shape (services/decision-relay/verify-caller.cjs BEARER_RE).
+const OPERATOR_TOKEN_RE = /^[\x21-\x7e]{1,512}$/;
+const AUDIT_DIR = 'decision-relay-audit';
+const AUDIT_SCHEMA = 'mos.decision-relay-audit/1';
 // A copy of services/decision-relay/relay.cjs REASONS. services/ is not in the npm package, so this shipped
 // script does not require it; tests/test-400-relay-transport.cjs T4 pins the two lists equal.
 const RELAY_REASONS = Object.freeze([
@@ -257,39 +275,128 @@ function readRelayReply(res, chunk, fp) {
   };
 }
 
-// The relay send mode. Same line, same refusal order as the other providers; the caller is the stored install id.
+// The one-run policy of an operator release run: the shape of loadEgressPolicy output, only decision_advisor on.
+// Built in memory for one call; nothing is written. Every other line is copied with allowed false.
+function oneRunPolicy() {
+  const shipped = egress.loadEgressPolicy('', { offline: false });
+  const lines = {};
+  for (const name of Object.keys(shipped.lines || {})) lines[name] = Object.assign({}, shipped.lines[name], { allowed: name === LINE });
+  if (!lines[LINE]) lines[LINE] = { endpoint: '', default: false, scope: '', providers: [], allowed: true };
+  return { schema: shipped.schema, offline: false, lines, ignored: [], one_run: 'operator_release_run' };
+}
+
+function auditStamp(d) {
+  return d.toISOString().replace(/\.[0-9]{3}Z$/, 'Z').replace(/[-:]/g, '');
+}
+
+// Atomic temp-and-rename write, file mode 0600 in a 0700 directory. Returns true or false, never throws.
+function writeAudit(file, rec) {
+  const dir = path.dirname(file);
+  const tmp = file + '.tmp-' + process.pid + '-' + crypto.randomBytes(3).toString('hex');
+  try {
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+    if (process.platform !== 'win32') fs.chmodSync(dir, 0o700);
+    fs.writeFileSync(tmp, JSON.stringify(rec, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
+    fs.renameSync(tmp, file);
+    if (process.platform !== 'win32') fs.chmodSync(file, 0o600);
+    return true;
+  } catch (_e) {
+    try { fs.unlinkSync(tmp); } catch (_e2) { /* no temp file left */ }
+    return false;
+  }
+}
+
+// The relay send mode. Same line, same refusal order as the other providers. The caller is the stored install
+// id, or the operator token on an operator release run.
 async function sendRelay(req, o) {
   // 1 validate, before the policy check
   const built = buildRelayChunks(req);
   if (!built.ok) return built;
+  const env = o.env || process.env;
+  const operator = o.operatorReleaseRun === true;
 
-  // 2 policy
-  const policy = o.policy || egress.loadEgressPolicy(o.roomDir || '', { offline: o.offline === true });
+  // 1b operator release run: the token is read only here, only with the flag
+  let token = null;
+  if (operator) {
+    const t = env[OPERATOR_TOKEN_ENV];
+    if (typeof t !== 'string' || t.length === 0) return refuse('operator_token_missing');
+    if (!OPERATOR_TOKEN_RE.test(t)) return refuse('operator_token_missing', 'token shape');
+    token = t;
+  }
+
+  const home = mindrianHome(env);
+  const fp = labels.catalogFingerprint();
+  const base = parseBase(o.base);
+  const started = new Date();
+  const audit = operator ? {
+    file: path.join(home, AUDIT_DIR, auditStamp(started) + '-' + crypto.randomBytes(4).toString('hex') + '.json'),
+    rec: {
+      schema: AUDIT_SCHEMA,
+      at: started.toISOString(),
+      base_origin: base ? base.origin : null,
+      path: (base ? base.prefix : '') + RELAY_PATH,
+      catalog: fp,
+      chunks: [],
+      totals: { questions: 0, input_tokens: 0, output_tokens: 0 },
+      ok: false,
+      operator_release_run: true,
+    },
+  } : null;
+  // The trail exists before any byte leaves: no record, no send.
+  if (audit && !writeAudit(audit.file, audit.rec)) return refuse('audit_unwritable');
+
+  const result = await relaySteps(built, o, { env, home, fp, base, token, audit });
+  if (audit) {
+    audit.rec.ok = result.ok === true;
+    if (!writeAudit(audit.file, audit.rec)) return refuse('audit_unwritable', 'final record');
+  }
+  return result;
+}
+
+async function relaySteps(built, o, ctx) {
+  // 2 policy: the shipped policy, or the in-memory one-run policy of an operator release run
+  const policy = ctx.token ? oneRunPolicy() : (o.policy || egress.loadEgressPolicy(o.roomDir || '', { offline: o.offline === true }));
   if (!egress.lineAllowed(policy, LINE)) return refuse('egress_line_off');
 
   // 3 endpoint
-  const base = parseBase(o.base);
-  if (!base) return refuse('endpoint_unconfirmed');
-  const url = base.origin + base.prefix + RELAY_PATH;
+  if (!ctx.base) return refuse('endpoint_unconfirmed');
+  const url = ctx.base.origin + ctx.base.prefix + RELAY_PATH;
 
-  // 4 caller header: the stored install id, read only (this script never mints one)
-  const env = o.env || process.env;
-  const id = installId.peekInstallId({ homeDir: mindrianHome(env) });
-  if (!id) return refuse('no_install_id');
-  const fp = labels.catalogFingerprint();
-  const headers = { 'content-type': 'application/json', [installId.installIdHeaderName]: id, [RELAY_CATALOG_HEADER]: fp };
+  // 4 caller header: the operator token, or the stored install id read only (this script never mints one)
+  const headers = { 'content-type': 'application/json', [RELAY_CATALOG_HEADER]: ctx.fp };
+  if (ctx.token) {
+    headers.authorization = 'Bearer ' + ctx.token;
+  } else {
+    const id = installId.peekInstallId({ homeDir: ctx.home });
+    if (!id) return refuse('no_install_id');
+    headers[installId.installIdHeaderName] = id;
+  }
 
   // 5 send each chunk, 6 check and merge
+  const out = o.out && typeof o.out.write === 'function' ? o.out : process.stdout;
   const answers = {};
   const usage = { input_tokens: 0, output_tokens: 0 };
   let requests = 0;
   let model = null;
-  for (const chunk of built.chunks) {
+  const n = built.chunks.length;
+  for (let i = 0; i < n; i += 1) {
+    const chunk = built.chunks[i];
     const again = labels.validateNeutralRequest(chunk);
     if (!again.ok) return refuse('labels_only_refused', 'body_not_validated_chunk');
+    const bodyText = JSON.stringify(chunk);
+    const q = Object.keys(chunk.questions).length;
+    if (ctx.audit) out.write('decision relay release run: chunk ' + (i + 1) + ' of ' + n + ', ' + q + ' questions, to ' + url + '\n' + bodyText + '\n');
     requests += 1;
-    const res = await relayPost(url, headers, JSON.stringify(chunk), o);
-    const r = readRelayReply(res, chunk, fp);
+    const res = await relayPost(url, headers, bodyText, o);
+    const r = readRelayReply(res, chunk, ctx.fp);
+    if (ctx.audit) {
+      ctx.audit.rec.chunks.push({ questions: q, body_sha256: crypto.createHash('sha256').update(bodyText, 'utf8').digest('hex'), status: res.status, reason: r.ok ? null : r.reason });
+      ctx.audit.rec.totals.questions += q;
+      if (r.ok) {
+        ctx.audit.rec.totals.input_tokens += r.usage.input_tokens;
+        ctx.audit.rec.totals.output_tokens += r.usage.output_tokens;
+      }
+    }
     if (!r.ok) return r;
     Object.assign(answers, r.answers);
     usage.input_tokens += r.usage.input_tokens;
@@ -306,6 +413,7 @@ async function send(req, opts) {
   const o = opts || {};
   const providerKey = o.provider;
   if (providerKey === 'relay') return sendRelay(req, o);
+  if (o.operatorReleaseRun === true) return refuse('labels_only_refused', 'operator release run needs provider relay');
   if (providerKey !== 'gemini' && providerKey !== 'jev') return refuse('labels_only_refused', 'unknown provider');
   const provider = adapter.PROVIDERS[providerKey];
 
@@ -390,11 +498,11 @@ function dryRun(req, opts) {
 
 const EXIT = {
   labels_only_refused: 2, egress_line_off: 4, no_key: 5, endpoint_unconfirmed: 5, http_error: 6, bad_response: 6,
-  no_install_id: 5, catalog_skew: 6, relay_refused: 6,
+  no_install_id: 5, catalog_skew: 6, relay_refused: 6, operator_token_missing: 5, audit_unwritable: 5,
 };
 
 function parseArgs(argv) {
-  const a = { provider: null, request: null, base: null, model: null, dryRun: false, room: null, error: null };
+  const a = { provider: null, request: null, base: null, model: null, dryRun: false, room: null, operatorReleaseRun: false, error: null };
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     switch (flag) {
@@ -404,11 +512,15 @@ function parseArgs(argv) {
       case '--model': a.model = argv[++i] || null; break;
       case '--room': a.room = argv[++i] || null; break;
       case '--dry-run': a.dryRun = true; break;
+      // The only switch for an operator release run. No environment variable sets it (O-10).
+      case '--operator-release-run': a.operatorReleaseRun = true; break;
       default: a.error = 'unknown flag ' + flag;
     }
   }
   if (!a.error && a.provider !== 'gemini' && a.provider !== 'jev' && a.provider !== 'relay') a.error = 'provider must be gemini, jev or relay';
   if (!a.error && !a.request) a.error = 'missing --request';
+  if (!a.error && a.operatorReleaseRun && a.provider !== 'relay') a.error = '--operator-release-run needs --provider relay';
+  if (!a.error && a.operatorReleaseRun && a.dryRun) a.error = '--operator-release-run and --dry-run do not combine';
   return a;
 }
 
@@ -432,7 +544,7 @@ async function main(argv) {
     process.stdout.write(JSON.stringify(d.bodies.length === 1 ? d.bodies[0] : d.bodies, null, 2) + '\n');
     return 0;
   }
-  const r = await send(req, { provider: a.provider, base: a.base, model: a.model, roomDir: a.room || '' });
+  const r = await send(req, { provider: a.provider, base: a.base, model: a.model, roomDir: a.room || '', operatorReleaseRun: a.operatorReleaseRun, out: process.stdout });
   if (!r.ok) {
     process.stderr.write(r.reason + (r.detail ? ': ' + r.detail : '') + '\n');
     return EXIT[r.reason] || 6;
