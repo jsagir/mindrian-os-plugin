@@ -68,6 +68,9 @@ async function postWithBackoff(url, headers, body, o) {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
+        // Review WR-03: never follow a redirect. A 307 or 308 would re-send the body and the custom key
+        // header to whatever host the response names. A redirect becomes a fetch error, then http_error.
+        redirect: 'error',
         signal: AbortSignal.timeout(typeof o.timeoutMs === 'number' && o.timeoutMs > 0 ? o.timeoutMs : TIMEOUT_MS),
       });
     } catch (_e) {

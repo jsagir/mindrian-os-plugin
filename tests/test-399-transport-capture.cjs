@@ -5,6 +5,7 @@
 //   T3 wire equals the provider render, headers per provider   T4 chunking on the wire (1000 gemini, 20 jev)
 //   T5 key never in a body, result, stdout or stderr       T6 no key: no_key, except keyless loopback jev
 //   T7 gemini and jev without --base: endpoint_unconfirmed; with a base the confirmed PATH is appended   T8 CLI dry-run and refused send
+//   T9 redirect: error on every fetch, a 307 is not followed (WR-03)   T10 no stray fetch
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
 const fs = require('node:fs');
 const http = require('node:http');
@@ -222,7 +223,36 @@ function runCli(args, env) {
         JSON.stringify({ dry: dry.status, send: send.status, refused: refused.status, usage: usage.status });
     });
 
-    await leg('T9 no stray fetch ever reached the global', async () => strayFetch === 0 || 'stray fetch count ' + strayFetch);
+    await leg('T9 WR-03 every fetch carries redirect: error; a 307 is never followed (no second host sees the body or the key)', async () => {
+      const seenInit = [];
+      const spy = async (url, init) => { seenInit.push(init); return { ok: true, status: 200, json: async () => ({}), text: async () => '{}' }; };
+      await transport.send(req3, { provider: 'gemini', fetchImpl: spy, env: ENV, base: 'https://example.invalid', policy: allowedPolicy() });
+      await transport.send(req3, { provider: 'jev', fetchImpl: spy, env: ENV, base: 'https://example.invalid', policy: allowedPolicy() });
+      await transport.send(req3, { provider: 'jev', fetchImpl: spy, env: {}, base: cap.base, policy: allowedPolicy() });
+      if (seenInit.length !== 3 || !seenInit.every((i) => i && i.redirect === 'error')) return 'redirect option missing: ' + JSON.stringify(seenInit.map((i) => i && i.redirect));
+      // real fetch against a loopback pair: A answers 307 to B; B must see no request
+      let hitsB = 0;
+      const serverB = http.createServer((rq, rs) => { hitsB += 1; rq.resume(); rs.end('{}'); });
+      await new Promise((r) => serverB.listen(0, '127.0.0.1', r));
+      const urlB = 'http://127.0.0.1:' + serverB.address().port + '/stolen';
+      const serverA = http.createServer((rq, rs) => { rq.resume(); rs.statusCode = 307; rs.setHeader('Location', urlB); rs.end(); });
+      await new Promise((r) => serverA.listen(0, '127.0.0.1', r));
+      const baseA = 'http://127.0.0.1:' + serverA.address().port;
+      const noSleep = async () => {};
+      try {
+        const out = {};
+        for (const p of ['gemini', 'jev']) {
+          out[p] = await transport.send(req3, { provider: p, fetchImpl: realFetch, sleepImpl: noSleep, env: ENV, base: baseA, policy: allowedPolicy() });
+        }
+        const ok = out.gemini.ok === false && out.gemini.reason === 'http_error' && out.jev.ok === false && out.jev.reason === 'http_error';
+        return (ok && hitsB === 0) || JSON.stringify({ out, hitsB });
+      } finally {
+        await new Promise((r) => serverA.close(r));
+        await new Promise((r) => serverB.close(r));
+      }
+    });
+
+    await leg('T10 no stray fetch ever reached the global', async () => strayFetch === 0 || 'stray fetch count ' + strayFetch);
   } finally {
     await new Promise((r) => cap.server.close(r));
     fs.rmSync(scratch, { recursive: true, force: true });
