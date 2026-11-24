@@ -4258,7 +4258,7 @@ Plans:
 **canon_parts:** 8, 9, 12
 **Requirements**: DA-01 one job vocabulary (handoff A1, A2); DA-02 taxonomy and registry disagreements per I-02 (A3); DA-03 26 accepted command labels applied, 2 held and 5 doubtful unchanged (B1-B3, D-07); DA-04 skill and command labels in step, 0.70-0.89 band sample list (B4, B6); DA-05 agent and MCP tool labels per I-03 (B5); DA-06 provider-neutral adapter (C1); DA-07 Gemini provider shape (C2, C4); DA-08 Jev-compatible provider shape (C3); DA-09 egress line off by default plus labels-only validator (H1); DA-10 precomputed calibrated table over run-step capabilities (E1, F1, D-05); DA-11 table feeds composeNextMove and composeWorkflow, job-direct reach, no second authority (D1-D3); DA-12 ranked shortlist with band words and no strong pick (D4); DA-13 logging of shown-option probabilities, CLI accepts, features, overrules, ground-truth column (F2, F3); DA-14 two-axis problem type, additive (G1, G2, D-06); DA-15 routing benchmark with top-3 recall, calibration error and option shuffles (I1)
 **Depends on:** Phase 395, Phase 396
-**Plans:** 10/10 plans complete
+**Plans:** 10/10 plans complete. **Phase 399 closed 2026-11-24:** 399-VERIFICATION.md passed (15/15 DA, ffbda598b); 399-REVIEW.md 8 warnings fixed (b37b0f473..ce38e4e6c). Advisor opt-in (MINDRIAN_DECISION_ADVISOR=on, 587e2d646); Gemini path confirmed (ea8d1a7a5). Owner-open: 399-LABEL-REVIEW.md, book inventory as the D-05 source, release-ceremony table check, README refresh, Gemini terms and user access, push review.
 
 Plans:
 
