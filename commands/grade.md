@@ -7,7 +7,7 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The six grading components are scored independently, an unordered basket of scoring jobs."
 serves_jtbd: ["audit-room"]
-job_when: "I want a quick read on how well my room frames its problem"
+job_when: "I need a quick read on how well my room frames its problem"
 job_want: "to score the room on the core parts of problem discovery"
 job_so: "see the weakest part right away"
 job_sentence_status: "provisional"

@@ -758,7 +758,7 @@
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
       "job_sentence": {
-        "when": "I received a recommendation and want to know why it was made",
+        "when": "I received a recommendation and do not know why it was made",
         "want": "to see the reasoning path behind the last recommendation",
         "so": "trust it or challenge it with the facts in view",
         "status": "provisional"
@@ -1073,7 +1073,7 @@
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
       "job_sentence": {
-        "when": "I have a seed concept and want to know what follows from it",
+        "when": "I have a seed concept and do not know what follows from it",
         "want": "to trace its consequences outward and search for hidden bridges",
         "so": "bank the opportunities that a linear view would miss",
         "status": "provisional"
@@ -1130,7 +1130,7 @@
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
       "job_sentence": {
-        "when": "I want a quick read on how well my room frames its problem",
+        "when": "I need a quick read on how well my room frames its problem",
         "want": "to score the room on the core parts of problem discovery",
         "so": "see the weakest part right away",
         "status": "provisional"
@@ -1538,9 +1538,9 @@
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
       "job_sentence": {
-        "when": "a section of my room holds artifacts but no clear line of argument",
+        "when": "a section of my room holds artifacts but no clear argument",
         "want": "to build a pyramid from one governing thought down to its support",
-        "so": "state what the section means so others can follow",
+        "so": "state what the section means in a form others follow",
         "status": "provisional"
       }
     },
