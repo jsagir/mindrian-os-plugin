@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 399-01-PLAN.md (job vocabulary + two-axis problem type; Phase 399 plan 02 next). Earlier: Phase 391 plans 01-06, Phase 389 plans 01-05 and Phase 390 plans 01-05 have summaries; owner cards 391-C1..C6, 389-D1..D11 and 390-G1..G6 are PENDING; 391-07/08 and 389-06..14 wait for owner tokens
-last_updated: "2026-11-24T00:30:00.000Z"
-last_activity: "2026-11-24 - Phase 399 plan 01 executed (data/job-vocabulary.json, lib/core/problem-axes.cjs); earlier: 2026-11-08 recorded 391/389/390 progress; v2.0.0-beta.81 cut (tag 8455416a5), repo 2.0.0-beta.82 in progress; 383-11 pending the owner"
+stopped_at: Completed 399-02-PLAN.md (26 owner job labels applied, ruling pinned by test; Phase 399 plan 03 next). Earlier: Phase 391 plans 01-06, Phase 389 plans 01-05 and Phase 390 plans 01-05 have summaries; owner cards 391-C1..C6, 389-D1..D11 and 390-G1..G6 are PENDING; 391-07/08 and 389-06..14 wait for owner tokens
+last_updated: "2026-11-24T01:00:00.000Z"
+last_activity: "2026-11-24 - Phase 399 plan 02 executed (26 job labels applied, data/job-label-rulings.json); plan 01 executed (data/job-vocabulary.json, lib/core/problem-axes.cjs); earlier: 2026-11-08 recorded 391/389/390 progress; v2.0.0-beta.81 cut (tag 8455416a5), repo 2.0.0-beta.82 in progress; 383-11 pending the owner"
 progress:
   total_phases: 154
   completed_phases: 41
@@ -9433,6 +9433,8 @@ Progress: [█████████░] 86%
 ## Session Continuity
 
 **Phase 399 plan 01 (2026-11-24, hand-written; gsd-tools state writes clobber stopped_at, so none were kept):** two commits, 4a804d1ff (data/job-vocabulary.json, 20 ids, drift test) and cbcc01913 (lib/core/problem-axes.cjs, additive two-axis problem type). Decision: Wicked maps to ill-defined in fromFourValue; a missing wicked signal is null, never false. Next: 399-02.
+
+**Phase 399 plan 02 (2026-11-24, hand-written):** two commits, e03cff108 (26 accepted job labels on 19 commands, mirrors and registry regenerated, data/job-label-rulings.json, scripts/apply-job-labels.cjs) and 25a10ed15 (tests/test-399-job-labels.cjs). Decision: 5 taxonomy disagreements stay open for the owner; held and doubtful pairs unchanged. Watch: selection eval sel-14 now picks /mos:mullins and counts wrong. Next: 399-03.
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
 Last session: 2026-11-08T05:21:46.861Z
