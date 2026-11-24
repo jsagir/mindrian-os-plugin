@@ -3,7 +3,7 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 FAIL=0
-for t in tests/test-400-job-sentence-lib.cjs tests/test-400-description-budget.cjs tests/test-400-job-vocabulary-sentences.cjs tests/test-400-job-sentences.cjs tests/test-400-cause-effect-axis.cjs tests/test-400-cynefin-domains.cjs tests/test-400-capability-cynefin-labels.cjs tests/test-400-labels-only-domain.cjs tests/test-400-domain-store.cjs tests/test-400-domain-gate.cjs; do
+for t in tests/test-400-job-sentence-lib.cjs tests/test-400-description-budget.cjs tests/test-400-job-vocabulary-sentences.cjs tests/test-400-job-sentences.cjs tests/test-400-cause-effect-axis.cjs tests/test-400-cynefin-domains.cjs tests/test-400-capability-cynefin-labels.cjs tests/test-400-labels-only-domain.cjs tests/test-400-domain-store.cjs tests/test-400-domain-gate.cjs tests/test-400-domain-suggest-next.cjs; do
   echo "--- 400: $t ---"
   if node "$t"; then echo ">>> 400: $t: PASSED"; else echo ">>> 400: $t: FAILED"; FAIL=1; break; fi
 done
