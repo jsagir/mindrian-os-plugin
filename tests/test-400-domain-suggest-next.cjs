@@ -57,8 +57,9 @@ function assertCardSteps(howTo) {
   }
   assert.ok(howTo.indexOf('cause_effect.follow_up with stage 2') !== -1, 'names the stage 2 follow_up path');
   assert.ok(howTo.indexOf('only when the gate_answer reply has cause_effect.written true') !== -1, 'written true is the only proof');
-  assert.ok(howTo.indexOf('unknown_gate and no domain is stored') !== -1, 'unknown_gate stores nothing');
-  assert.ok(/closes a dialog with no answer, nothing is stored/.test(howTo), 'a closed dialog stores nothing');
+  // Review WR-07: the card never uses the inline elicitation rung, so the how_to names no unknown_gate case.
+  assert.equal(howTo.indexOf('unknown_gate'), -1, 'no unknown_gate sentence');
+  assert.ok(/closes the card with no answer, do not call gate_answer: nothing is stored/.test(howTo), 'a closed card stores nothing');
   assert.equal(new RegExp('[\\u2013\\u2014]').test(howTo), false);
 }
 

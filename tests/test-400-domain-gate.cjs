@@ -316,6 +316,35 @@ async function main() {
       assert.ok(line.length > 0, 'gate.cjs must differ from the base');
       assert.equal(line.split(/\s+/)[1], '0', 'deleted lines in gate.cjs: ' + line);
     });
+
+    await leg('G10 WR-07 on a host with elicitation, a cause_effect_domain card skips the inline rung; gate_answer approve stores the domain', async () => {
+      clearKey(roomDir);
+      let elicited = 0;
+      const regs = [];
+      const fakeEl = {
+        registerTool(name, config, handler) { regs.push({ name, handler }); },
+        server: {
+          getClientCapabilities() { return { elicitation: {} }; },
+          elicitInput: async () => { elicited += 1; return { action: 'accept', content: { choice: 'opt-a' } }; },
+        },
+      };
+      gateModule.register(fakeEl, { fallbackRoomDir: roomDir, surface: 'http' });
+      const renderEl = async (args) => JSON.parse((await regs.find((x) => x.name === 'gate_render').handler(args, {})).content[0].text);
+      const answerEl = async (gateId, chosen, verdict) => JSON.parse((await regs.find((x) => x.name === 'gate_answer').handler({ gate_id: gateId, chosen, verdict }, {})).content[0].text);
+      // Control: this host does take a general card inline, so the fake is an elicitation host.
+      const g = await renderEl({ kind: 'general', options: [{ id: 'opt-a', label: 'Option A' }, { id: 'opt-b', label: 'Option B' }] });
+      assert.equal(g.renderer, 'elicitation', JSON.stringify(g));
+      assert.equal(elicited, 1);
+      const r = await renderEl({ kind: 'cause_effect_domain', options: opts(S1_IDS) });
+      assert.equal(r.ok, true, JSON.stringify(r));
+      assert.notEqual(r.renderer, 'elicitation');
+      assert.equal(elicited, 1, 'the cause and effect card did not elicit');
+      assert.equal(r.answer, undefined);
+      const a = await answerEl(r.gate_id, ['ce-trained'], 'approve');
+      assert.equal(a.ok, true, JSON.stringify(a));
+      assert.deepEqual(a.cause_effect, { ok: true, written: true, domain: 'complicated' });
+      assert.equal(readKey(roomDir).domain, 'complicated');
+    });
   } finally {
     if (prevRoom === undefined) delete process.env.CLAUDE_ACTIVE_ROOM; else process.env.CLAUDE_ACTIVE_ROOM = prevRoom;
     if (prevSession !== undefined) process.env.CLAUDE_CODE_SESSION_ID = prevSession;
