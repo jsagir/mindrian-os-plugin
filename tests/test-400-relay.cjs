@@ -20,6 +20,9 @@ globalThis.fetch = function stray() { strayFetch += 1; throw new Error('stray fe
 
 let pass = 0;
 let fail = 0;
+let finished = false;
+// A pending promise with an empty event loop would end the process with code 0 and no summary. Fail instead.
+process.on('exit', (code) => { if (!finished && code === 0) { console.log('FAIL: the test ended before the summary'); process.exitCode = 1; } });
 async function leg(name, fn) {
   let ok;
   try { ok = await fn(); } catch (e) { ok = 'threw: ' + String(e && e.stack ? e.stack : e).slice(0, 400); }
@@ -49,6 +52,369 @@ function install(bucketSeed) {
   return { ok: true, kind: 'install', bucket: sha('seed:' + bucketSeed).slice(0, 32) };
 }
 const OPERATOR = { ok: true, kind: 'operator', bucket: 'operator' };
+
+// ---------- R legs: the request pipeline (plan 12 task 2) ----------
+//   R1 caller check before any body read   R2 no key   R3 size cap and not_json   R4 catalog skew
+//   R5 labels-only refusal, never strips   R6 question cap   R7 cap refusal with Retry-After
+//   R8 one pinned POST, body is the server render   R9 answers and recorded usage
+//   R10 upstream status, unreachable, timeout   R11 loopback redirect is not followed (real fetch)
+//   R12 clean logs, bodies and headers   R13 pinned origin, no env name for the origin
+const http = require('node:http');
+
+const FAKE_KEY = 'fake-gemini-key-400-relay-eeee5555';
+const SAMPLE = path.join(REPO, 'tests/fixtures/399/neutral-request-sample.json');
+const LOG_KEYS = ['t', 'route', 'status', 'reason', 'kind', 'questions', 'ms', 'upstream_ms', 'input_tokens'];
+const allLogs = [];
+const allReplies = [];
+
+function answerFor(q) {
+  if (q.type === 'noul') return { type: 'noul', noul: 0.25 };
+  if (q.type === 'choice') {
+    const keys = Object.keys(q.criteria);
+    const probabilities = {};
+    keys.forEach((k) => { probabilities[k] = 1 / keys.length; });
+    return { type: 'choice', choice: keys[0], probabilities, confidence: 0.5 };
+  }
+  return { type: 'score', score: 0.5, probabilities: { 0: 0.2, 1: 0.3, 2: 0.5 }, confidence: 0.5 };
+}
+
+function upstreamReply(bodyText, tokens) {
+  const body = JSON.parse(bodyText);
+  const answers = {};
+  for (const id of Object.keys(body.questions)) answers[id] = answerFor(body.questions[id]);
+  return JSON.stringify({ answers, usage: { total_input_tokens: tokens, total_output_tokens: 0 } });
+}
+
+// A fetch spy: records every call and answers from `respond(url, init)`.
+function spy(respond) {
+  const calls = [];
+  const f = async (url, init) => {
+    calls.push({ url, init });
+    return respond(url, init, calls.length);
+  };
+  f.calls = calls;
+  return f;
+}
+function okSpy(tokens) {
+  return spy(async (_u, init) => new Response(upstreamReply(init.body, tokens === undefined ? 42 : tokens), { status: 200 }));
+}
+
+function makeRelay(o) {
+  const relayMod = load('relay.cjs');
+  const { loadConfig } = load('config.cjs');
+  const { createLimits } = load('limits.cjs');
+  const env = o.env || { GEMINI_API_KEY: FAKE_KEY, RELAY_OPERATOR_TOKEN_SHA256: OP_HASH };
+  const cfg = Object.assign({}, loadConfig(env), o.cfg || {});
+  const ck = clock(DAY0);
+  const limits = createLimits(cfg, ck.now);
+  const logs = [];
+  const deps = { cfg, env, fetchImpl: o.fetchImpl, now: ck.now, limits, log: (r) => { logs.push(r); allLogs.push(r); } };
+  if (o.origin !== null) deps.upstreamOrigin = o.origin || 'https://upstream.test.invalid';
+  const relay = relayMod.createRelay(deps);
+  const call = async (input) => {
+    const res = await relay.handleDecide(input);
+    allReplies.push(res);
+    return res;
+  };
+  return { relay, call, logs, limits, cfg };
+}
+
+function fingerprint() { return require(path.join(REPO, 'lib/core/decision-advisor/labels-only.cjs')).catalogFingerprint(); }
+function opHeaders(over) {
+  return Object.assign({ authorization: 'Bearer ' + OP_TOKEN, 'x-mindrian-catalog': fingerprint(), 'content-type': 'application/json' }, over || {});
+}
+function installHeaders(over) {
+  return Object.assign({ 'x-theo-install-id': INSTALL_ID, 'x-mindrian-catalog': fingerprint() }, over || {});
+}
+function sample() { return JSON.parse(fs.readFileSync(SAMPLE, 'utf8')); }
+function input(headers, obj, extra) {
+  const bodyText = typeof obj === 'string' ? obj : JSON.stringify(obj);
+  return Object.assign({ headers, bodyText, bytes: Buffer.byteLength(bodyText), address: '203.0.113.7' }, extra || {});
+}
+function hdr(res, name) {
+  for (const k of Object.keys(res.headers || {})) if (k.toLowerCase() === name) return res.headers[k];
+  return undefined;
+}
+function baseHeadersOk(res) {
+  if (hdr(res, 'content-type') !== 'application/json') return 'content-type ' + hdr(res, 'content-type');
+  if (hdr(res, 'cache-control') !== 'no-store') return 'cache-control';
+  if (hdr(res, 'x-mindrian-catalog') !== fingerprint()) return 'catalog header';
+  return true;
+}
+function manyQuestions(n) {
+  const cmds = ['/mos:validate', '/mos:mullins', '/mos:map-unknowns'];
+  const questions = {};
+  for (let i = 1; i <= n; i += 1) questions['q' + String(i).padStart(4, '0')] = { type: 'yes_no', template: 'serves_job_v1', subject: cmds[i % 3] };
+  return { context: sample().context, questions };
+}
+
+async function relayLegs() {
+  const labels = require(path.join(REPO, 'lib/core/decision-advisor/labels-only.cjs'));
+  const adapter = require(path.join(REPO, 'lib/core/decision-advisor/adapter.cjs'));
+  const gemini = adapter.PROVIDERS.gemini;
+
+  await leg('R1 no caller: 401 no_caller, the body is never read, 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f });
+    let reads = 0;
+    const inp = { headers: { 'x-mindrian-catalog': fingerprint() }, bytes: 9, address: '203.0.113.7' };
+    Object.defineProperty(inp, 'bodyText', { enumerable: true, get() { reads += 1; return 'not json {'; } });
+    const res = await call(inp);
+    if (res.status !== 401 || res.body.reason !== 'no_caller' || res.body.ok !== false) return JSON.stringify(res);
+    if (reads !== 0) return 'body read ' + reads + ' times';
+    const h = baseHeadersOk(res);
+    if (h !== true) return h;
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R2 no key in deps.env: a valid operator call gives 503 no_upstream_key, 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, env: { RELAY_OPERATOR_TOKEN_SHA256: OP_HASH } });
+    const res = await call(input(opHeaders(), sample()));
+    if (res.status !== 503 || res.body.reason !== 'no_upstream_key') return JSON.stringify(res);
+    const { call: call2 } = makeRelay({ fetchImpl: f, env: { RELAY_OPERATOR_TOKEN_SHA256: OP_HASH, GEMINI_API_KEY: '' } });
+    const res2 = await call2(input(opHeaders(), sample()));
+    if (res2.status !== 503 || res2.body.reason !== 'no_upstream_key') return 'empty key ' + JSON.stringify(res2);
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R3 over maxBodyBytes: 413 too_large; not JSON: 400 not_json; 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, cfg: { maxBodyBytes: 64 } });
+    const big = await call(input(opHeaders(), sample()));
+    if (big.status !== 413 || big.body.reason !== 'too_large') return 'big ' + JSON.stringify(big);
+    // A caller-sent small `bytes` does not hide a large body.
+    const lie = await call(input(opHeaders(), sample(), { bytes: 10 }));
+    if (lie.status !== 413 || lie.body.reason !== 'too_large') return 'lying bytes ' + JSON.stringify(lie);
+    const { call: c2 } = makeRelay({ fetchImpl: f });
+    for (const t of ['not json {', '', '[1,2', 'nul']) {
+      const r = await c2(input(opHeaders(), t));
+      if (r.status !== 400 || r.body.reason !== 'not_json') return 'text ' + JSON.stringify(t) + ' ' + JSON.stringify(r);
+    }
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R4 missing or different catalog header: 409 catalog_skew with the relay fingerprint, 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f });
+    const fp = labels.catalogFingerprint();
+    if (!/^[a-f0-9]{64}$/.test(fp)) return 'fingerprint shape';
+    const h = opHeaders();
+    delete h['x-mindrian-catalog'];
+    for (const headers of [h, opHeaders({ 'x-mindrian-catalog': 'a'.repeat(64) }), opHeaders({ 'x-mindrian-catalog': fp.toUpperCase() })]) {
+      const r = await call(input(headers, sample()));
+      if (r.status !== 409 || r.body.reason !== 'catalog_skew' || r.body.relay_catalog !== fp) return JSON.stringify(r);
+      if (hdr(r, 'x-mindrian-catalog') !== fp) return 'reply header';
+    }
+    const src = fs.readFileSync(path.join(REL, 'relay.cjs'), 'utf8');
+    if (src.indexOf('catalogFingerprint()') === -1) return 'relay does not call catalogFingerprint()';
+    if (/['"][a-f0-9]{64}['"]/.test(src)) return 'a literal fingerprint is pinned in relay.cjs';
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R5 free text, unknown command, extra key, model key: 422 labels_only_refused, never stripped, 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f });
+    const variants = [];
+    const a = sample(); a.context.job_summary = 'My secret venture plan for a cancer assay.'; variants.push(a);
+    const b = sample(); b.questions.q0001.subject = '/mos:not-a-command'; variants.push(b);
+    const c = sample(); c.context.note = 'extra'; variants.push(c);
+    const d = sample(); d.model = 'gemini-other'; variants.push(d);
+    const realValidate = labels.validateNeutralRequest;
+    const seen = [];
+    labels.validateNeutralRequest = function wrapped(req, cat) { seen.push(req); return realValidate.apply(this, arguments); };
+    try {
+      for (const v of variants) {
+        const text = JSON.stringify(v);
+        const want = realValidate(JSON.parse(text)).reason;
+        seen.length = 0;
+        const r = await call(input(opHeaders(), text));
+        if (r.status !== 422 || r.body.reason !== 'labels_only_refused' || r.body.detail !== want) return JSON.stringify(r) + ' want ' + want;
+        if (seen.length === 0) return 'the shared validator was not called';
+        if (JSON.stringify(seen[0]) !== text) return 'the request changed before or during validation';
+      }
+    } finally {
+      labels.validateNeutralRequest = realValidate;
+    }
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R6 more than maxQuestions questions: 413 too_many_questions, 0 fetch calls', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, cfg: { maxQuestions: 3 } });
+    const r = await call(input(opHeaders(), manyQuestions(4)));
+    if (r.status !== 413 || r.body.reason !== 'too_many_questions') return JSON.stringify(r);
+    // The provider limit binds even when the config is higher: one POST, one chunk.
+    const { call: c2 } = makeRelay({ fetchImpl: f, cfg: { maxQuestions: 5000, maxBodyBytes: 4000000 } });
+    const r2 = await c2(input(opHeaders(), manyQuestions(gemini.MAX_QUESTIONS + 1)));
+    if (r2.status !== 413 || r2.body.reason !== 'too_many_questions') return 'provider cap ' + JSON.stringify(r2);
+    return f.calls.length === 0 ? true : 'fetch called';
+  });
+
+  await leg('R7 cap refusals: 429 with a Retry-After header and the limits reason', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, cfg: { operatorDailyQuestions: 2 } });
+    const r = await call(input(opHeaders(), sample()));
+    if (r.status !== 429 || r.body.reason !== 'operator_daily_cap') return JSON.stringify(r);
+    if (!/^[1-9][0-9]*$/.test(String(hdr(r, 'retry-after')))) return 'Retry-After ' + hdr(r, 'retry-after');
+    if (f.calls.length !== 0) return 'fetch called on a cap refusal';
+    const { call: c2 } = makeRelay({ fetchImpl: f, cfg: { userTraffic: true, installPerMinute: 1 } });
+    const ok = await c2(input(installHeaders(), sample()));
+    if (ok.status !== 200) return 'first install call ' + JSON.stringify(ok);
+    const r2 = await c2(input(installHeaders(), sample()));
+    if (r2.status !== 429 || r2.body.reason !== 'install_rate' || hdr(r2, 'retry-after') !== '60') return 'install_rate ' + JSON.stringify(r2);
+    return f.calls.length === 1 ? true : 'fetch calls ' + f.calls.length;
+  });
+
+  await leg('R8 a valid 3-question request: exactly 1 POST to the pinned path; body is the server render', async () => {
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, origin: 'https://upstream.test.invalid' });
+    const req = sample();
+    const r = await call(input(opHeaders(), req));
+    if (r.status !== 200) return JSON.stringify(r);
+    if (f.calls.length !== 1) return 'fetch calls ' + f.calls.length;
+    const { url, init } = f.calls[0];
+    if (url !== 'https://upstream.test.invalid/v1beta/decisions') return 'url ' + url;
+    if (init.method !== 'POST' || init.redirect !== 'error') return 'method or redirect';
+    if (!(init.signal instanceof AbortSignal)) return 'no AbortSignal';
+    const h = init.headers;
+    if (h['x-goog-api-key'] !== FAKE_KEY || h['content-type'] !== 'application/json') return 'headers ' + JSON.stringify(Object.keys(h));
+    if (Object.keys(h).sort().join(',') !== 'content-type,x-goog-api-key') return 'extra upstream headers ' + Object.keys(h).join(',');
+    const sent = JSON.parse(init.body);
+    const want = gemini.buildBody(adapter.renderRequest(req));
+    if (JSON.stringify(sent) !== JSON.stringify(want)) return 'body is not the server render';
+    if (sent.model !== gemini.MODEL) return 'model ' + sent.model;
+    // The caller headers never reach the upstream.
+    if (init.body.indexOf(OP_TOKEN) !== -1 || JSON.stringify(h).indexOf(OP_TOKEN) !== -1) return 'operator token forwarded';
+    return true;
+  });
+
+  await leg('R9 a 200 upstream reply: 200 {ok, answers, usage, model, catalog}; input tokens recorded', async () => {
+    const f = okSpy(42);
+    const { call, limits } = makeRelay({ fetchImpl: f, cfg: { userTraffic: true } });
+    const req = sample();
+    const r = await call(input(installHeaders(), req));
+    if (r.status !== 200) return JSON.stringify(r);
+    if (Object.keys(r.body).sort().join(',') !== 'answers,catalog,model,ok,usage') return 'keys ' + Object.keys(r.body).join(',');
+    if (r.body.ok !== true || r.body.model !== gemini.MODEL || r.body.catalog !== fingerprint()) return 'fields';
+    if (r.body.usage.input_tokens !== 42 || r.body.usage.output_tokens !== 0) return 'usage ' + JSON.stringify(r.body.usage);
+    const rendered = adapter.renderRequest(req);
+    const want = gemini.parseResponse(JSON.parse(upstreamReply(JSON.stringify(gemini.buildBody(rendered)), 42)), rendered.questions).answers;
+    if (JSON.stringify(r.body.answers) !== JSON.stringify(want)) return 'answers ' + JSON.stringify(r.body.answers);
+    if (r.body.answers.q0001.p !== 0.25 || r.body.answers.q0002.type !== 'choice') return 'parsed values';
+    const h = baseHeadersOk(r);
+    if (h !== true) return h;
+    return limits.snapshot().globalInputTokens === 42 ? true : 'tokens ' + JSON.stringify(limits.snapshot());
+  });
+
+  await leg('R10 upstream not 200: 502 upstream_error with the status only; rejection: 502 unreachable; timeout: 504', async () => {
+    const bad = spy(async () => new Response('{"error":{"message":"quota for ' + FAKE_KEY + '"}}', { status: 500 }));
+    const r1 = await makeRelay({ fetchImpl: bad }).call(input(opHeaders(), sample()));
+    if (r1.status !== 502 || r1.body.reason !== 'upstream_error' || r1.body.upstream_status !== 500) return 'status ' + JSON.stringify(r1);
+    if (Object.keys(r1.body).sort().join(',') !== 'ok,reason,upstream_status') return 'upstream text passed through';
+    const notJson = spy(async () => new Response('<html>', { status: 200 }));
+    const r1b = await makeRelay({ fetchImpl: notJson }).call(input(opHeaders(), sample()));
+    if (r1b.status !== 502 || r1b.body.reason !== 'upstream_error' || r1b.body.upstream_status !== 200) return 'not json ' + JSON.stringify(r1b);
+    const down = spy(async () => { throw new TypeError('fetch failed'); });
+    const r2 = await makeRelay({ fetchImpl: down }).call(input(opHeaders(), sample()));
+    if (r2.status !== 502 || r2.body.reason !== 'upstream_unreachable') return 'unreachable ' + JSON.stringify(r2);
+    for (const name of ['TimeoutError', 'AbortError']) {
+      const slow = spy(async () => { throw new DOMException('the operation timed out', name); });
+      const r3 = await makeRelay({ fetchImpl: slow }).call(input(opHeaders(), sample()));
+      if (r3.status !== 504 || r3.body.reason !== 'upstream_timeout') return name + ' ' + JSON.stringify(r3);
+    }
+    // The configured timeout reaches the signal.
+    // AbortSignal.timeout does not hold the event loop open, so a ref'd timer keeps the process alive here.
+    const keepAlive = setTimeout(() => {}, 5000);
+    const hang = spy((_u, init) => new Promise((_res, rej) => { init.signal.addEventListener('abort', () => rej(init.signal.reason)); }));
+    const r4 = await makeRelay({ fetchImpl: hang, cfg: { upstreamTimeoutMs: 30 } }).call(input(opHeaders(), sample()));
+    clearTimeout(keepAlive);
+    if (r4.status !== 504 || r4.body.reason !== 'upstream_timeout') return 'signal timeout ' + JSON.stringify(r4);
+    // One attempt only: no retry on failure.
+    return bad.calls.length === 1 && down.calls.length === 1 ? true : 'retry seen';
+  });
+
+  await leg('R11 loopback, real fetch: a 307 to a second server is not followed; 502; the second server sees 0 requests', async () => {
+    let secondHits = 0;
+    let firstHits = 0;
+    const second = http.createServer((rq, rs) => { secondHits += 1; rq.resume(); rs.end('{}'); });
+    const first = http.createServer((rq, rs) => {
+      firstHits += 1;
+      rq.resume();
+      rq.on('end', () => { rs.writeHead(307, { Location: 'http://127.0.0.1:' + second.address().port + '/v1beta/decisions' }); rs.end(); });
+    });
+    try {
+      await new Promise((r) => second.listen(0, '127.0.0.1', r));
+      await new Promise((r) => first.listen(0, '127.0.0.1', r));
+      const { call } = makeRelay({ fetchImpl: realFetch, origin: 'http://127.0.0.1:' + first.address().port, cfg: { upstreamTimeoutMs: 5000 } });
+      const r = await call(input(opHeaders(), sample()));
+      if (r.status !== 502) return JSON.stringify(r);
+      if (firstHits !== 1) return 'first server hits ' + firstHits;
+      return secondHits === 0 ? true : 'redirect followed';
+    } finally {
+      await new Promise((r) => first.close(r));
+      await new Promise((r) => second.close(r));
+    }
+  });
+
+  await leg('R12 logs hold only the fixed keys; no log, reply body or header holds the key, token, install id, job summary or a command name', () => {
+    if (allLogs.length < 20) return 'too few logs ' + allLogs.length;
+    for (const l of allLogs) {
+      const keys = Object.keys(l).sort().join(',');
+      if (keys !== LOG_KEYS.slice().sort().join(',')) return 'log keys ' + keys;
+      if (l.route !== '/v1/decide' || typeof l.status !== 'number' || typeof l.ms !== 'number') return 'log shape ' + JSON.stringify(l);
+      if (l.reason !== null && !load('relay.cjs').REASONS.includes(l.reason)) return 'log reason not in REASONS ' + l.reason;
+    }
+    const s = sample();
+    const secrets = [FAKE_KEY, OP_TOKEN, INSTALL_ID, s.context.job_summary, 'My secret venture plan', '203.0.113.7'];
+    const logText = JSON.stringify(allLogs);
+    for (const x of secrets) if (logText.indexOf(x) !== -1) return 'log holds ' + x.slice(0, 12);
+    if (logText.indexOf('/mos:') !== -1) return 'log holds a command name';
+    for (const res of allReplies) {
+      const headText = JSON.stringify(res.headers);
+      for (const x of secrets) if (headText.indexOf(x) !== -1) return 'header holds ' + x.slice(0, 12);
+      if (headText.indexOf('/mos:') !== -1) return 'header holds a command name';
+      const b = Object.assign({}, res.body);
+      // A command name may appear only inside a choice answer, as an option id the caller sent.
+      const answers = b.answers || {};
+      delete b.answers;
+      const bodyText = JSON.stringify(b);
+      for (const x of secrets) if (bodyText.indexOf(x) !== -1) return 'body holds ' + x.slice(0, 12);
+      if (bodyText.indexOf('/mos:') !== -1) return 'body holds a command name';
+      for (const id of Object.keys(answers)) {
+        const a = Object.assign({}, answers[id]);
+        if (a.type === 'choice') { delete a.choice; delete a.probabilities; }
+        if (JSON.stringify(a).indexOf('/mos:') !== -1) return 'answer ' + id + ' holds a command name';
+        if (JSON.stringify(answers[id]).indexOf(FAKE_KEY) !== -1) return 'answer holds the key';
+      }
+    }
+    if (!Object.isFrozen(load('relay.cjs').REASONS)) return 'REASONS not frozen';
+    return true;
+  });
+
+  await leg('R13 UPSTREAM_ORIGIN is pinned; relay.cjs reads no env name for the origin; the default origin is used', async () => {
+    const relayMod = load('relay.cjs');
+    if (relayMod.UPSTREAM_ORIGIN !== 'https://generativelanguage.googleapis.com') return 'origin ' + relayMod.UPSTREAM_ORIGIN;
+    if (relayMod.CATALOG_HEADER !== 'x-mindrian-catalog') return 'CATALOG_HEADER';
+    const want = ['no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
+      'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
+      'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
+      'upstream_unreachable', 'upstream_timeout'];
+    if (JSON.stringify(relayMod.REASONS) !== JSON.stringify(want)) return 'REASONS ' + JSON.stringify(relayMod.REASONS);
+    const src = fs.readFileSync(path.join(REL, 'relay.cjs'), 'utf8');
+    if (/process\.env\.|env\.[A-Z_]+|env\[\s*['"]/.test(src)) return 'relay.cjs reads an env name directly';
+    if (/RELAY_UPSTREAM|ORIGIN['"]\s*\]|BASE_URL/.test(src)) return 'an env name for the origin';
+    for (const p of ['../../lib/core/decision-advisor/labels-only.cjs', '../../lib/core/decision-advisor/adapter.cjs']) {
+      if (src.indexOf(p) === -1) return 'shared module not required by path: ' + p;
+    }
+    if (fs.readdirSync(REL).some((n) => /labels-only|adapter|gemini/.test(n))) return 'a vendored copy in the relay dir';
+    const f = okSpy();
+    const { call } = makeRelay({ fetchImpl: f, origin: null });
+    const r = await call(input(opHeaders(), sample()));
+    if (r.status !== 200) return JSON.stringify(r);
+    return f.calls.length === 1 && f.calls[0].url === 'https://generativelanguage.googleapis.com/v1beta/decisions' ? true : 'url ' + (f.calls[0] && f.calls[0].url);
+  });
+}
 
 async function main() {
   // ---------- C1 ----------
@@ -276,10 +642,12 @@ async function main() {
   });
 
   // RELAY_LEGS_START
+  await relayLegs();
   // RELAY_LEGS_END
 
   if (strayFetch !== 0) { fail += 1; console.log('FAIL: stray fetch calls: ' + strayFetch); }
   globalThis.fetch = realFetch;
+  finished = true;
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail === 0 ? 0 : 1);
 }
