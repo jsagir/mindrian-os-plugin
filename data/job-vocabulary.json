@@ -1,0 +1,187 @@
+{
+  "schema": "mos.job-vocabulary/1",
+  "_note": "The one canonical job list (Phase 399, D-01, I-01). The command registry, the JTBD taxonomy and the section job canon are pinned to it by tests/test-399-job-vocabulary.cjs. The registry jtbd_summary still derives from lib/hmi/jtbd-taxonomy.json one_line (Phase 104.1); this file copies those summaries verbatim and adds summaries for the jobs the taxonomy does not describe. Hyphens only.",
+  "ids": [
+    "audit-room",
+    "build",
+    "compare-options",
+    "connect-domains",
+    "decide-pursue",
+    "design-solution",
+    "explore",
+    "file-meeting",
+    "find-bottleneck",
+    "find-problem",
+    "model-business",
+    "model-finances",
+    "navigate",
+    "plan-execution",
+    "prepare-pitch",
+    "protect-assets",
+    "surface-contradiction",
+    "temporal-correction",
+    "understand-market",
+    "validate-idea"
+  ],
+  "jobs": {
+    "audit-room": {
+      "summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "build": {
+      "summary": "Build or extend the room or the method surface itself - start a room, add a method.",
+      "summary_source": "phase-399",
+      "origins": [
+        "registry"
+      ]
+    },
+    "compare-options": {
+      "summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "connect-domains": {
+      "summary": "Find cross-domain analogues - what does this look like in another field?",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "decide-pursue": {
+      "summary": "Decide if a venture / opportunity / approach is worth pursuing.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "design-solution": {
+      "summary": "Design the solution - shape what will be built and how it meets the need.",
+      "summary_source": "phase-399-section-canon",
+      "origins": [
+        "section_canon"
+      ]
+    },
+    "explore": {
+      "summary": "No specific job - general thinking, talking, ranging.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    },
+    "file-meeting": {
+      "summary": "Capture and route meeting intelligence into the room.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "find-bottleneck": {
+      "summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    },
+    "find-problem": {
+      "summary": "Find the problem worth solving (not the symptom, the root).",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    },
+    "model-business": {
+      "summary": "Model the business - how it creates, delivers and captures value.",
+      "summary_source": "phase-399-section-canon",
+      "origins": [
+        "section_canon"
+      ]
+    },
+    "model-finances": {
+      "summary": "Hold the numbers - costs, revenue, funding and runway.",
+      "summary_source": "phase-399-section-canon",
+      "origins": [
+        "section_canon"
+      ]
+    },
+    "navigate": {
+      "summary": "Steer the conversation - change Larry's stance, or reach into the room memory when a thought goes stale.",
+      "summary_source": "phase-399",
+      "origins": [
+        "registry"
+      ]
+    },
+    "plan-execution": {
+      "summary": "Plan the next 90 days - milestones, owners, dates.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    },
+    "prepare-pitch": {
+      "summary": "Prepare for an investor / partner / customer meeting.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "protect-assets": {
+      "summary": "Protect what is ours - intellectual property, rights and defensibility.",
+      "summary_source": "phase-399-section-canon",
+      "origins": [
+        "section_canon"
+      ]
+    },
+    "surface-contradiction": {
+      "summary": "Notice and resolve internal contradictions in the room.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "taxonomy"
+      ]
+    },
+    "temporal-correction": {
+      "summary": "Correct the room's reference date when the known date and the recorded date disagree.",
+      "summary_source": "phase-399",
+      "origins": [
+        "registry"
+      ]
+    },
+    "understand-market": {
+      "summary": "Understand the market for this idea - size, structure, dynamics.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    },
+    "validate-idea": {
+      "summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "summary_source": "taxonomy",
+      "origins": [
+        "registry",
+        "section_canon",
+        "taxonomy"
+      ]
+    }
+  }
+}
