@@ -13,6 +13,7 @@
 //   O7 WR-03: the token env is never read; an unsafe token file (mode, symlink) is refused; the prompt seam
 //   O8 WR-03: a non-allowlisted --base is refused before the token is read; the pinned origin is allowed
 //   E1 the release request set: 20 files, 73 serves_job_v1 questions each   E2 --out pairs feed derive-decision-fixture
+//   E2b WR-10 a later failure keeps the paid answers in <out>.partial; --resume sends only the missing request
 //   E3 end to end on loopback through the real relay server and a fake upstream   E4 no data/ file changes
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
 const fs = require('node:fs');
@@ -484,6 +485,42 @@ function runNode(file) {
       const fixture = path.join(scratch, 'e2-fixture.json');
       const d = spawnSync(process.execPath, [DERIVE, '--source', pairsFile, '--out', fixture], { encoding: 'utf8', cwd: scratch });
       return (d.status === 0 && /wrote 74 pairs/.test(d.stdout) && JSON.parse(fs.readFileSync(fixture, 'utf8')).pairs.length === 74) || 'derive exit ' + d.status + ' ' + d.stderr;
+    });
+
+    await leg('E2b WR-10 a later failure keeps the paid answers in <out>.partial (0600 in 0700); --resume sends only the missing request', async () => {
+      if (reqFiles.length !== 2) return 'E1 did not run';
+      cap.captured.length = 0;
+      let n = 0;
+      cap.reply = (body) => { n += 1; return n === 2 ? { status: 503, json: { ok: false, reason: 'relay_busy' } } : okReply(body); };
+      const home = tokenHome(false);
+      const pairsFile = path.join(scratch, 'e2b-pairs.json');
+      const partial = pairsFile + '.partial';
+      const args = ['--provider', 'relay', '--operator-release-run', '--request', reqFiles[0], '--request', SAMPLE, '--base', cap.base, '--out', pairsFile];
+      const r1 = await runCli(args, { MINDRIAN_HOME: home });
+      if (r1.status !== 6 || !/relay_refused: relay_busy/.test(r1.stderr)) return 'first run ' + r1.status + ' ' + r1.stderr.slice(0, 200);
+      if (fs.existsSync(pairsFile)) return '--out written on a failed run';
+      if (!/1 of 2 requests have saved answers/.test(r1.stderr) || !/--resume/.test(r1.stderr)) return 'no resume hint: ' + r1.stderr.slice(0, 300);
+      const files = fs.existsSync(partial) ? fs.readdirSync(partial) : [];
+      if (files.length !== 1) return 'partial files ' + JSON.stringify(files);
+      if (process.platform !== 'win32') {
+        if ((fs.statSync(path.join(partial, files[0])).mode & 0o777) !== 0o600) return 'partial file mode';
+        if ((fs.statSync(partial).mode & 0o777) !== 0o700) return 'partial dir mode';
+      }
+      const saved = fs.readFileSync(path.join(partial, files[0]), 'utf8');
+      if (saved.indexOf(FAKE_TOKEN) !== -1) return 'token in a partial file';
+      if (JSON.parse(saved).request_sha256 !== sha256(JSON.stringify(JSON.parse(fs.readFileSync(reqFiles[0], 'utf8'))))) return 'request sha';
+      // Without --resume the same command sends both again; with --resume only the missing one.
+      cap.captured.length = 0;
+      cap.reply = okReply;
+      const r2 = await runCli(args.concat(['--resume']), { MINDRIAN_HOME: home });
+      if (r2.status !== 0) return 'resume run ' + r2.status + ' ' + r2.stderr.slice(0, 200);
+      if (cap.captured.length !== 1 || Object.keys(cap.captured[0].body.questions).length !== 3) return 'resume sent ' + cap.captured.length;
+      if (!/1 of 2 requests read from saved answers/.test(r2.stderr)) return 'resume line ' + r2.stderr.slice(0, 200);
+      const doc = JSON.parse(fs.readFileSync(pairsFile, 'utf8'));
+      if (doc.pairs.length !== 74) return 'pairs ' + doc.pairs.length;
+      if (fs.existsSync(partial)) return 'partial dir kept after a full run';
+      const bad = await runCli(['--provider', 'relay', '--request', SAMPLE, '--resume'], { MINDRIAN_HOME: home });
+      return (bad.status === 2 && /--resume needs --out/.test(bad.stderr)) || 'resume without out ' + bad.status;
     });
 
     await leg('E3 end to end on loopback: operator run through the real relay server to a fake upstream; bodies equal the server render; fixture and audit', async () => {

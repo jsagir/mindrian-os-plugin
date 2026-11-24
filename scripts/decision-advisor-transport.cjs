@@ -56,9 +56,14 @@
 //   3 node scripts/derive-decision-fixture.cjs --source <pairs.json> --out <fixture path>
 // --out writes {pairs: [{job, command, p}]} from the serves_job_v1 answers; other templates are skipped and counted
 // on stderr. --request repeats only with --provider relay; --out needs --provider relay.
+// Review WR-10: with --out, each request that succeeds is saved at once to <out>.partial/<job>-<12 hex>.json (0600 in
+// a 0700 dir; the answers, usage and the request sha256, never a token or a key). When a later request fails, the
+// paid answers stay there; re-run the same command with --resume and each request whose saved request_sha256
+// matches is read from its file and not sent again. --out is written when every request has an answer; then the
+// .partial dir is removed.
 //
 // CLI: node scripts/decision-advisor-transport.cjs --provider gemini|jev|relay --request <file> [--request <file> ...]
-//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>] [--operator-release-run] [--out <file>]
+//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>] [--operator-release-run] [--out <file> [--resume]]
 // Exit codes: 0 ok, 2 bad usage or labels_only_refused, 4 egress_line_off,
 //             5 no_key, endpoint_unconfirmed, no_install_id, operator_token_missing or audit_unwritable,
 //             6 http_error, bad_response, catalog_skew or relay_refused.
@@ -615,7 +620,7 @@ const EXIT = {
 };
 
 function parseArgs(argv) {
-  const a = { provider: null, request: null, requests: [], base: null, model: null, dryRun: false, room: null, operatorReleaseRun: false, out: null, error: null };
+  const a = { provider: null, request: null, requests: [], base: null, model: null, dryRun: false, room: null, operatorReleaseRun: false, out: null, resume: false, error: null };
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     switch (flag) {
@@ -627,6 +632,7 @@ function parseArgs(argv) {
         break;
       }
       case '--out': a.out = argv[++i] || null; break;
+      case '--resume': a.resume = true; break;
       case '--base': a.base = argv[++i] || null; break;
       case '--model': a.model = argv[++i] || null; break;
       case '--room': a.room = argv[++i] || null; break;
@@ -642,6 +648,7 @@ function parseArgs(argv) {
   if (!a.error && a.operatorReleaseRun && a.dryRun) a.error = '--operator-release-run and --dry-run do not combine';
   if (!a.error && a.requests.length > 1 && (a.provider !== 'relay' || a.dryRun)) a.error = 'a repeated --request needs --provider relay without --dry-run';
   if (!a.error && a.out && (a.provider !== 'relay' || a.dryRun)) a.error = '--out needs --provider relay without --dry-run';
+  if (!a.error && a.resume && !a.out) a.error = '--resume needs --out';
   return a;
 }
 
@@ -668,6 +675,30 @@ function summaryOf(r) {
   return { provider: r.provider, model: r.model, requests: r.requests, usage: r.usage, answers: r.answers };
 }
 
+// Review WR-10: the saved answers of one request, keyed by the sha256 of the request text.
+const PARTIAL_SCHEMA = 'mos.decision-relay-partial/1';
+function requestSha(req) {
+  return crypto.createHash('sha256').update(JSON.stringify(req), 'utf8').digest('hex');
+}
+function partialFile(dir, req, sha) {
+  const job = req && req.context && typeof req.context.job_id === 'string' ? req.context.job_id : 'job';
+  const safe = job.toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 60) || 'job';
+  return path.join(dir, safe + '-' + sha.slice(0, 12) + '.json');
+}
+// A saved result, or null when the file is absent, unreadable, a symlink or for another request.
+function readPartial(file, sha) {
+  try {
+    if (fs.lstatSync(file).isSymbolicLink()) return null;
+    const doc = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!doc || doc.schema !== PARTIAL_SCHEMA || doc.request_sha256 !== sha) return null;
+    const r = doc.result;
+    if (!r || typeof r.answers !== 'object' || r.answers === null || Array.isArray(r.answers)) return null;
+    return { ok: true, provider: r.provider, model: r.model, requests: r.requests, usage: r.usage, answers: r.answers };
+  } catch (_e) {
+    return null;
+  }
+}
+
 async function main(argv) {
   const a = parseArgs(argv);
   if (a.error) {
@@ -684,17 +715,38 @@ async function main(argv) {
   const req = reqs[0];
   if (a.provider === 'relay' && !a.dryRun) {
     // One send per request, in order. The first refusal stops the run; --out is written only when all succeed.
+    // Review WR-10: with --out, each answered request is saved to <out>.partial at once; --resume reads it back.
     const runs = [];
+    const partialDir = a.out ? path.resolve(a.out) + '.partial' : null;
+    let resumed = 0;
+    let saved = 0;
     // Review WR-03: the prompt is the fallback when the token file is absent; it asks at most once per run.
     const tokenPrompt = a.operatorReleaseRun ? ttyTokenPrompt() : null;
     for (const one of reqs) {
+      const sha = partialDir ? requestSha(one) : null;
+      const pfile = partialDir ? partialFile(partialDir, one, sha) : null;
+      const kept = a.resume ? readPartial(pfile, sha) : null;
+      if (kept) {
+        resumed += 1;
+        runs.push({ req: one, result: kept });
+        continue;
+      }
       const r = await send(one, { provider: 'relay', base: a.base, roomDir: a.room || '', operatorReleaseRun: a.operatorReleaseRun, tokenPrompt, out: process.stdout });
       if (!r.ok) {
         process.stderr.write(r.reason + (r.detail ? ': ' + r.detail : '') + '\n');
+        if (partialDir && saved + resumed > 0) {
+          process.stderr.write('transport --out: ' + (saved + resumed) + ' of ' + reqs.length + ' requests have saved answers in ' + partialDir + '; run the same command with --resume\n');
+        }
         return EXIT[r.reason] || 6;
+      }
+      if (partialDir) {
+        const ok = writeAudit(pfile, { schema: PARTIAL_SCHEMA, request_sha256: sha, result: summaryOf(r) });
+        if (ok) saved += 1;
+        else process.stderr.write('transport --out: could not save the answers of one request in ' + partialDir + '\n');
       }
       runs.push({ req: one, result: r });
     }
+    if (resumed > 0) process.stderr.write('transport --resume: ' + resumed + ' of ' + reqs.length + ' requests read from saved answers, not sent\n');
     const summaries = runs.map((x) => summaryOf(x.result));
     process.stdout.write(JSON.stringify(summaries.length === 1 ? summaries[0] : summaries, null, 2) + '\n');
     if (a.out) {
@@ -703,6 +755,10 @@ async function main(argv) {
       fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.writeFileSync(target, JSON.stringify({ pairs: p.pairs }, null, 1) + '\n');
       process.stderr.write('transport --out: wrote ' + p.pairs.length + ' pairs, skipped ' + p.skipped + ' answers (not serves_job_v1, or missing)\n');
+      // Every request has an answer and --out holds them: the saved answers are no longer needed.
+      try {
+        if (fs.existsSync(partialDir) && !fs.lstatSync(partialDir).isSymbolicLink()) fs.rmSync(partialDir, { recursive: true, force: true });
+      } catch (_e) { /* a leftover dir is harmless; --resume checks each file */ }
     }
     return 0;
   }
