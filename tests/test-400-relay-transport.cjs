@@ -412,6 +412,20 @@ function runNode(file) {
       return f.reason === 'operator_token_missing' || 'empty prompt ' + JSON.stringify(f);
     });
 
+    await leg('O9 IN-07 a symlinked audit dir is refused audit_unwritable before any request; the link target mode is not changed', async () => {
+      if (process.platform === 'win32') return true;
+      cap.captured.length = 0;
+      const home = tokenHome(false);
+      const target = fs.mkdtempSync(path.join(scratch, 'audit-target-'));
+      fs.chmodSync(target, 0o755);
+      fs.symlinkSync(target, path.join(home, 'decision-relay-audit'));
+      const r = await transport.send(req3, { provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
+        env: { MINDRIAN_HOME: home }, out: collector() });
+      const mode = fs.statSync(target).mode & 0o777;
+      return (r.reason === 'audit_unwritable' && cap.captured.length === 0 && mode === 0o755 && fs.readdirSync(target).length === 0) ||
+        JSON.stringify({ r, n: cap.captured.length, mode: mode.toString(8) });
+    });
+
     await leg('O8 WR-03 a non-allowlisted --base is refused endpoint_unconfirmed before the token is read; the pinned origin and loopback are allowed', async () => {
       if (JSON.stringify(transport.OPERATOR_ORIGINS) !== JSON.stringify(['https://mindrian-decision-relay.onrender.com'])) return 'allowlist ' + JSON.stringify(transport.OPERATOR_ORIGINS);
       for (const base of ['https://evil.example', 'https://mindrian-decision-relay.onrender.com.evil.example', 'https://decision-relay.onrender.com', 'http://mindrian-decision-relay.onrender.com', null]) {

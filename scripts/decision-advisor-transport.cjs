@@ -411,6 +411,8 @@ function writeAudit(file, rec) {
   const tmp = file + '.tmp-' + process.pid + '-' + crypto.randomBytes(3).toString('hex');
   try {
     fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+    // Review IN-07: never chmod through a symlink; a symlinked directory is refused (audit_unwritable).
+    if (fs.lstatSync(dir).isSymbolicLink()) return false;
     if (process.platform !== 'win32') fs.chmodSync(dir, 0o700);
     fs.writeFileSync(tmp, JSON.stringify(rec, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
     fs.renameSync(tmp, file);
