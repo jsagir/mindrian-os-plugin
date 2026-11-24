@@ -5,6 +5,8 @@
 //
 // take(caller, questions, address) checks in this order and counts nothing when it refuses:
 //   bucket_table_full (a new install or address bucket on a full table)
+//   address_rate (per-minute requests), address_daily_requests (requests) - review WR-01: the install id is
+//     self-minted, so only the address bounds one source; these two run before every install check,
 //   install_rate (per-minute requests), install_daily_cap (questions), address_daily_cap (questions),
 //   global_daily_requests, global_daily_questions, global_token_cap (input tokens added by recordUsage).
 // The operator skips every user cap and meets only its own caps: operator_rate (per-minute requests),
@@ -33,6 +35,8 @@ function createLimits(cfg, nowFn) {
   let minute = new Map(); // install bucket -> { count, resetAt }
   let installDaily = new Map(); // install bucket -> questions today
   let addressDaily = new Map(); // address hash -> questions today
+  let addressDailyReq = new Map(); // address hash -> requests today (same keys as addressDaily)
+  const addressMinute = new Map(); // address hash -> { count, resetAt }
   let globalRequests = 0;
   let globalQuestions = 0;
   let globalInputTokens = 0;
@@ -47,6 +51,7 @@ function createLimits(cfg, nowFn) {
     day = d;
     installDaily = new Map();
     addressDaily = new Map();
+    addressDailyReq = new Map();
     globalRequests = 0;
     globalQuestions = 0;
     globalInputTokens = 0;
@@ -64,10 +69,10 @@ function createLimits(cfg, nowFn) {
     return crypto.createHmac('sha256', salt).update(a, 'utf8').digest('hex').slice(0, 32);
   }
 
-  // Drop expired minute windows when the table is full, so the minute Map stays bounded.
-  function sweepMinute(t) {
-    if (minute.size < maxBuckets) return;
-    for (const [k, w] of minute) if (w.resetAt <= t) minute.delete(k);
+  // Drop expired minute windows when the table is full, so a minute Map stays bounded.
+  function sweepMinute(table, t) {
+    if (table.size < maxBuckets) return;
+    for (const [k, w] of table) if (w.resetAt <= t) table.delete(k);
   }
 
   function take(caller, questions, address) {
@@ -94,6 +99,13 @@ function createLimits(cfg, nowFn) {
     if (!installDaily.has(bucket) && installDaily.size >= maxBuckets) return refuse('bucket_table_full', toMidnightS(t));
     if (!addressDaily.has(addr) && addressDaily.size >= maxBuckets) return refuse('bucket_table_full', toMidnightS(t));
 
+    // WR-01: the per-address request window and daily request cap, before every install check.
+    let aw = addressMinute.get(addr);
+    if (aw && aw.resetAt <= t) aw = undefined;
+    if (aw && aw.count + 1 > c.addressPerMinute) return refuse('address_rate', (aw.resetAt - t) / 1000);
+    const usedAddressReq = addressDailyReq.get(addr) || 0;
+    if (usedAddressReq + 1 > c.addressDailyRequests) return refuse('address_daily_requests', toMidnightS(t));
+
     let w = minute.get(bucket);
     if (w && w.resetAt <= t) w = undefined;
     if (w && w.count + 1 > c.installPerMinute) return refuse('install_rate', (w.resetAt - t) / 1000);
@@ -108,13 +120,20 @@ function createLimits(cfg, nowFn) {
 
     // Every check passed: count the call.
     if (!w) {
-      sweepMinute(t);
+      sweepMinute(minute, t);
       w = { count: 0, resetAt: t + MINUTE_MS };
       minute.set(bucket, w);
     }
     w.count += 1;
+    if (!aw) {
+      sweepMinute(addressMinute, t);
+      aw = { count: 0, resetAt: t + MINUTE_MS };
+      addressMinute.set(addr, aw);
+    }
+    aw.count += 1;
     installDaily.set(bucket, usedInstall + n);
     addressDaily.set(addr, usedAddress + n);
+    addressDailyReq.set(addr, usedAddressReq + 1);
     globalRequests += 1;
     globalQuestions += n;
     return { ok: true };
@@ -134,6 +153,7 @@ function createLimits(cfg, nowFn) {
       installBuckets: installDaily.size,
       addressBuckets: addressDaily.size,
       minuteWindows: minute.size,
+      addressMinuteWindows: addressMinute.size,
       globalRequests,
       globalQuestions,
       globalInputTokens,

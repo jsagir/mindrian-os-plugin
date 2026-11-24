@@ -399,7 +399,8 @@ async function relayLegs() {
     const want = ['no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
       'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
       'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
-      'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy'];
+      'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy',
+      'address_rate', 'address_daily_requests'];
     if (JSON.stringify(relayMod.REASONS) !== JSON.stringify(want)) return 'REASONS ' + JSON.stringify(relayMod.REASONS);
     const src = fs.readFileSync(path.join(REL, 'relay.cjs'), 'utf8');
     if (/process\.env\.|env\.[A-Z_]+|env\[\s*['"]/.test(src)) return 'relay.cjs reads an env name directly';
@@ -619,6 +620,37 @@ async function main() {
     return true;
   });
 
+  await leg('C4 WR-01 one address that rotates install ids meets address_daily_requests below the global cap; another address still works', () => {
+    const { createLimits } = load('limits.cjs');
+    const { DEFAULTS } = load('config.cjs');
+    if (!(DEFAULTS.addressDailyRequests < DEFAULTS.globalDailyRequests)) return 'address daily requests not below the global cap';
+    const ck = clock(DAY0);
+    const L = createLimits(cfgWith({ addressPerMinute: 1000000, installPerMinute: 1000000, maxBuckets: 100000 }), ck.now);
+    let accepted = 0;
+    let r = null;
+    for (let i = 0; i < DEFAULTS.globalDailyRequests; i += 1) {
+      r = L.take(install('rot-' + i), 1, '198.51.100.20');
+      if (!r.ok) break;
+      accepted += 1;
+    }
+    if (accepted !== DEFAULTS.addressDailyRequests) return 'accepted ' + accepted;
+    if (r.reason !== 'address_daily_requests' || r.status !== 429) return JSON.stringify(r);
+    if (L.snapshot().globalRequests !== DEFAULTS.addressDailyRequests) return 'refused call counted';
+    return L.take(install('other'), 1, '198.51.100.21').ok === true ? true : 'another address blocked';
+  });
+  await leg('C4 WR-01 per-address minute window: address_rate before install_rate, retryAfterS to the window end, not counted', () => {
+    const { createLimits } = load('limits.cjs');
+    const ck = clock(DAY0);
+    const L = createLimits(cfgWith({ addressPerMinute: 2, installPerMinute: 1 }), ck.now);
+    if (!L.take(install('a'), 1, '1.1.1.1').ok || !L.take(install('b'), 1, '1.1.1.1').ok) return 'first two refused';
+    ck.t += 10000;
+    const r = L.take(install('a'), 1, '1.1.1.1');
+    if (r.ok !== false || r.reason !== 'address_rate' || r.retryAfterS !== 50) return 'order or retry ' + JSON.stringify(r);
+    if (L.snapshot().globalRequests !== 2) return 'refused call counted';
+    if (!L.take(install('c'), 1, '2.2.2.2').ok) return 'other address blocked';
+    ck.t += 50000;
+    return L.take(install('d'), 1, '1.1.1.1').ok === true ? true : 'window did not reset';
+  });
   await leg('C4 WR-02 operator per-minute window: operator_rate with retryAfterS to the window end; refused calls not counted', () => {
     const { createLimits } = load('limits.cjs');
     const ck = clock(DAY0);

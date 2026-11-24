@@ -86,7 +86,9 @@ services:
       # Read by clientAddressOf in server.cjs (the Theo rate-limit pattern). Render ends TLS at a
       # proxy, so the socket peer is the proxy. 1 means: trust the last X-Forwarded-For entry.
       # Too low: every caller shares the proxy address and one address cap. Too high: a caller
-      # forges entries and mints a fresh address bucket per request.
+      # forges entries and mints a fresh address bucket per request. UNVERIFIED against the live
+      # Render chain (review IN-08): before user traffic, read the xff_shape log line of one
+      # request (an entry count, never an address) and set this value from it.
       - key: RELAY_PROXY_HOPS
         value: "1"
       # User traffic stays off (O-10). Only the exact value on turns it on, and only after the

@@ -228,6 +228,11 @@ async function main() {
     if (clientAddressOf(req('203.0.113.66,198.51.100.9 , 192.0.2.4'), 2) !== '198.51.100.9') return 'hops 2';
     if (clientAddressOf(req('198.51.100.9'), 2) !== '10.0.0.5') return 'short header falls back to the peer';
     if (clientAddressOf({ headers: {} }, 0) !== 'unknown') return 'no socket';
+    // IN-08: a candidate that is not an IP literal falls back to the peer.
+    for (const bad of ['not-an-ip', '198.51.100.9:443', 'unknown', '999.1.1.1', '<script>']) {
+      if (clientAddressOf(req('203.0.113.66, ' + bad), 1) !== '10.0.0.5') return 'non-IP candidate kept ' + bad;
+    }
+    if (clientAddressOf(req('2001:db8::7'), 1) !== '2001:db8::7') return 'IPv6 literal refused';
     // Through the socket: the address handleDecide receives.
     const seen = [];
     const spyRelay = { handleDecide: async (input) => { seen.push(input.address); return { status: 200, headers: { 'content-type': 'application/json' }, body: { ok: true } }; } };
@@ -299,6 +304,25 @@ async function main() {
       if (/boom|at |\.cjs/.test(r.text)) return 'stack text in reply';
       return true;
     } finally { await close(server); }
+  });
+
+  await leg('S9 IN-08 the first POST /v1/decide logs one xff_shape line with the entry count only; later requests log none', async () => {
+    const logs = [];
+    const spyRelay = { handleDecide: async () => ({ status: 200, headers: { 'content-type': 'application/json' }, body: { ok: true } }) };
+    const server = srv().createServer({ cfg: cfgWith({ proxyHops: 1 }), env: ENV, log: (r) => logs.push(r), relay: spyRelay });
+    try {
+      const port = await listen(server);
+      const h = { 'content-type': 'application/json', authorization: 'Bearer ' + OP_TOKEN, 'x-forwarded-for': '203.0.113.66, 198.51.100.9, 192.0.2.4' };
+      await request(port, { method: 'POST', path: '/v1/decide', headers: h, body: '{}' });
+      await request(port, { method: 'POST', path: '/v1/decide', headers: h, body: '{}' });
+    } finally { await close(server); }
+    const shape = logs.filter((l) => l.event === 'xff_shape');
+    if (shape.length !== 1) return 'xff_shape lines ' + shape.length;
+    const keys = Object.keys(shape[0]).sort().join(',');
+    if (keys !== 'event,proxy_hops,t,xff_entries') return 'keys ' + keys;
+    if (shape[0].xff_entries !== 3 || shape[0].proxy_hops !== 1) return JSON.stringify(shape[0]);
+    const text = JSON.stringify(logs);
+    return /203\.0\.113|198\.51\.100|192\.0\.2/.test(text) ? 'an address in the log' : true;
   });
 
   if (strayFetch !== 0) { fail += 1; console.log('FAIL: stray fetch calls: ' + strayFetch); }

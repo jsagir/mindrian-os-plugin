@@ -63,7 +63,7 @@ A refusal reply is `{ "ok": false, "reason": "<reason>" }`, sometimes with one m
 | 409 | `catalog_skew` |
 | 413 | `too_large`, `too_many_questions` |
 | 422 | `labels_only_refused` |
-| 429 | `install_rate`, `install_daily_cap`, `address_daily_cap`, `global_daily_requests`, `global_daily_questions`, `global_token_cap`, `operator_rate`, `operator_daily_cap`, `operator_token_cap`, `bucket_table_full` |
+| 429 | `address_rate`, `address_daily_requests`, `install_rate`, `install_daily_cap`, `address_daily_cap`, `global_daily_requests`, `global_daily_questions`, `global_token_cap`, `operator_rate`, `operator_daily_cap`, `operator_token_cap`, `bucket_table_full` |
 | 500 | `body_check_failed`, `internal` |
 | 502, 503, 504 | `upstream_error`, `upstream_unreachable`, `no_upstream_key`, `relay_busy`, `upstream_timeout` |
 
@@ -82,6 +82,8 @@ Every value comes from the environment. The defaults below are the values in `co
 | `RELAY_INSTALL_PER_MINUTE` | 10 | Requests per install per minute. |
 | `RELAY_INSTALL_DAILY_QUESTIONS` | 2000 | Questions per install per UTC day. |
 | `RELAY_ADDRESS_DAILY_QUESTIONS` | 20000 | Questions per client address per UTC day. |
+| `RELAY_ADDRESS_PER_MINUTE` | 20 | Requests per client address per minute (`address_rate`). Checked before the install caps, because a caller can mint any number of install ids. |
+| `RELAY_ADDRESS_DAILY_REQUESTS` | 500 | Requests per client address per UTC day (`address_daily_requests`). Keep it below the global daily request cap, so one address cannot use the whole user budget. |
 | `RELAY_GLOBAL_DAILY_REQUESTS` | 5000 | User requests per UTC day, all installs together. |
 | `RELAY_GLOBAL_DAILY_QUESTIONS` | 100000 | User questions per UTC day, all installs together. |
 | `RELAY_GLOBAL_DAILY_INPUT_TOKENS` | 20000000 | User input tokens per UTC day, as Gemini reports them. |
@@ -100,6 +102,8 @@ The daily counters reset at UTC midnight. They live in memory, so a restart or a
 ## Client address and the Theo analog
 
 Render ends TLS at its proxy, so the socket peer is the proxy, not the caller. `server.cjs` takes the caller address from `X-Forwarded-For` through a fixed hop count, counted from the right, because each trusted proxy appends one entry and a caller can only add entries on the left. This is the same pattern as Theo's `clientAddressOf` in `src/http/rate-limit.ts` and its `THEO_HTTP_PROXY_HOPS`, written again here in plain CJS. Theo is not changed by this phase.
+
+A candidate entry that is not an IP literal (`net.isIP`) falls back to the socket peer. The hop count is a config value, not a guess: the Blueprint value `"1"` is UNVERIFIED against the live Render proxy chain. After a deploy and before `RELAY_USER_TRAFFIC=on` (OWNER-GATED), send one request and read the one `xff_shape` log line: `{"t":"...","event":"xff_shape","xff_entries":1,"proxy_hops":1}`. It holds the entry count only, never an address. With no client-sent header, `xff_entries` is the number of proxies that append an entry; set `RELAY_PROXY_HOPS` to it. Every address cap depends on this value.
 
 A hop count that is too low puts every caller in the proxy's one address bucket. A hop count that is too high lets a caller forge entries and get a fresh bucket for each request. The address is hashed with a per-process salt before it is used as a key, and it is never logged.
 

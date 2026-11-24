@@ -16,6 +16,7 @@
 // Logs hold counts, durations and reasons only. CJS, node built-ins only. Hyphens only.
 
 const http = require('node:http');
+const net = require('node:net');
 const { createRelay, ROUTE } = require('./relay.cjs');
 const { loadConfig } = require('./config.cjs');
 const { verifyCaller } = require('./verify-caller.cjs');
@@ -36,6 +37,7 @@ function defaultLog(record) {
 // because each trusted proxy appends one entry and a caller can only write entries on the left.
 // Too low a count makes every caller the proxy (one shared bucket); too high lets a caller mint buckets.
 // A header shorter than the hop count falls back to the peer, never to whatever entry is there.
+// Review IN-08: a candidate that is not an IP literal (net.isIP) also falls back to the peer.
 function clientAddressOf(req, hops) {
   const peer = (req && req.socket && typeof req.socket.remoteAddress === 'string') ? req.socket.remoteAddress : 'unknown';
   const n = Number.isSafeInteger(hops) && hops > 0 ? hops : 0;
@@ -45,7 +47,16 @@ function clientAddressOf(req, hops) {
   if (typeof raw !== 'string') return peer;
   const entries = raw.split(',').map((e) => e.trim()).filter((e) => e.length > 0);
   const candidate = entries[entries.length - n];
-  return typeof candidate === 'string' && candidate.length <= 64 ? candidate : peer;
+  return typeof candidate === 'string' && candidate.length <= 64 && net.isIP(candidate) !== 0 ? candidate : peer;
+}
+
+// Review IN-08: the number of X-Forwarded-For entries, a count only (never an address). The owner reads it
+// from the first xff_shape log line after a deploy and sets RELAY_PROXY_HOPS from it; nothing here guesses it.
+function forwardedCountOf(req) {
+  let raw = req && req.headers ? req.headers['x-forwarded-for'] : undefined;
+  if (Array.isArray(raw)) raw = raw.join(',');
+  if (typeof raw !== 'string') return 0;
+  return raw.split(',').filter((e) => e.trim().length > 0).length;
 }
 
 function pathOf(url) {
@@ -67,6 +78,8 @@ function createServer(deps) {
   const now = typeof d.now === 'function' ? d.now : Date.now;
   // deps.relay is the test seam; otherwise the real pipeline with the same deps.
   const relay = d.relay || createRelay(Object.assign({}, d, { env, cfg, log }));
+  // Review IN-08: one xff_shape line per process, on the first POST /v1/decide (counts only).
+  let xffLogged = false;
 
   // A reply this file writes itself. `close` ends the connection after the reply (an unread body is not kept).
   function send(res, status, body, extraHeaders, closeAfter) {
@@ -113,6 +126,10 @@ function createServer(deps) {
   }
 
   async function onDecide(req, res, t0) {
+    if (!xffLogged) {
+      xffLogged = true;
+      log({ t: new Date(now()).toISOString(), event: 'xff_shape', xff_entries: forwardedCountOf(req), proxy_hops: cfg.proxyHops });
+    }
     if (!isJsonType(req.headers['content-type'])) { refuse(res, t0, ROUTE, 415, 'not_json', null, true); return; }
     const address = clientAddressOf(req, cfg.proxyHops);
     // A caller the relay will refuse is refused before any body byte is read. The relay itself writes the
@@ -216,4 +233,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { createServer, clientAddressOf, SERVER_REASONS, HEALTH_PATH };
+module.exports = { createServer, clientAddressOf, forwardedCountOf, SERVER_REASONS, HEALTH_PATH };

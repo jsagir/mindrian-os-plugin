@@ -30,6 +30,7 @@ const REASONS = Object.freeze([
   'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
   'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
   'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy',
+  'address_rate', 'address_daily_requests',
 ]);
 
 function defaultLog(record) {
