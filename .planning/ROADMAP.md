@@ -4280,13 +4280,13 @@ Plans:
 **canon_parts:** 7, 8, 9, 12
 **Requirements**: JS-01 vocabulary sentences (20, provisional, summary unchanged); JS-02 run-step command sentences in frontmatter, registry and mirrors (73, O-11, O-12); JS-03 other commands, standalone skills and agents (40 + 12 + 17); JS-04 MCP tool sentences in a data file (63); JS-05 framework sentences reused (184 parse); JS-06 slot validator, writer and drift test, descriptions never grow; CY-01 cause_effect axis, additive, cynefin_rating deprecated alias; CY-02 data/cynefin-domains.json with book drift test; CY-03 two-stage navigator gate card, room-level store through navigation, aliases.yml, suggest_next field; CY-04 fits_domains and move_type frontmatter labels on the 73 run-step commands; CY-05 advisor domain key, in-band reorder, chaotic and disorder handling, consumers; CY-06 labels-only catalog gains domain and move type; CY-07 selection log domain column; AX-01 reworded Well-defined test behind a flag; AX-02 wicked cut-off, never raw 0.5; RL-01 relay pipeline with the shared validator; RL-02 install-id callers, caps, operator token, counts-only logs; RL-03 catalog skew detected and refused; RL-04 relay server, health, render.yaml, README, not shipped; RL-05 plugin relay client behind the off line, O-10 operator release run with audit; LR-01 owner review file with drift test; PG-01 run-all-400 aggregator and phase gates
 **Depends on:** Phase 399
-**Plans:** 2/15 plans executed
+**Plans:** 3/15 plans executed
 
 Plans:
 
 - [x] 400-01-PLAN.md - job-sentence module, description budget guard, 20 vocabulary sentences, the frontmatter writer, registry job_sentence, tests/run-all-400.sh (wave 1)
 - [x] 400-02-PLAN.md - sentences for the 73 run-step commands in frontmatter, registry and mirrors (wave 2)
-- [ ] 400-03-PLAN.md - sentences for the other 40 commands, the 12 standalone skills and the 17 agents (wave 3)
+- [x] 400-03-PLAN.md - sentences for the other 40 commands, the 12 standalone skills and the 17 agents (wave 3)
 - [ ] 400-04-PLAN.md - sentences for the 63 MCP tools and the drift test over every surface (wave 4)
 - [ ] 400-05-PLAN.md - cause_effect axis in problem-axes.cjs and data/cynefin-domains.json with the book drift test (wave 5)
 - [ ] 400-06-PLAN.md - fits_domains and move_type frontmatter labels for the 73 run-step commands from the recorded runs (wave 6)
