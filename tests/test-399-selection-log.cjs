@@ -455,6 +455,36 @@ check('K4b WR-01 a decision that failed to persist writes no selection or calibr
   } finally { closeRoomDb(r.db); }
 });
 
+check('K4c WR-02 a replayed CLI close writes no second set of rows (explicit key, and the replay window)', () => {
+  const r = scratchRoom();
+  try {
+    const offer = { command: A, framework: 'Six Thinking Hats', confidence: 0.7 };
+    // no key: the same decision twice in a row is one decision
+    closer.closeOffer({ pick: 'accept', offer, roomState: { db: r.db, roomDir: r.dir } });
+    closer.closeOffer({ pick: 'accept', offer, roomState: { db: r.db, roomDir: r.dir } });
+    assert.equal(selRows(r.db).length, 1, 'identical close inside the window writes once');
+    // a different decision on the same offer is a new decision
+    seedAnchorNode(r.db, 'cmd:' + A, 'command'); seedAnchorNode(r.db, 'framework:Six Thinking Hats', 'framework');
+    closer.closeOffer({ pick: 'reject', offer, reason: 'REJECTED_BECAUSE x', roomState: { db: r.db, roomDir: r.dir } });
+    assert.equal(selRows(r.db).length, 2);
+    // explicit key: exact dedupe, even for a different shown command set
+    const k = (cmds) => closer.closeOffer({ pick: 'accept', offer, shown_commands: cmds, dedupe_key: 'offer-1', roomState: { db: r.db, roomDir: r.dir } });
+    k([B, C]);
+    k([B, C]);
+    assert.equal(selRows(r.db).length, 4, 'one keyed decision of 2 shown options adds 2 rows');
+    assert.ok(selRows(r.db).filter((x) => x.gate_id).length === 2);
+  } finally { closeRoomDb(r.db); }
+  // outside the window the same decision is a new decision
+  const r2 = scratchRoom();
+  try {
+    const offer = { command: A, framework: 'Six Thinking Hats', confidence: 0.7 };
+    closer.closeOffer({ pick: 'accept', offer, roomState: { db: r2.db, roomDir: r2.dir } });
+    r2.db.exec('UPDATE selection_observations SET created_at = created_at - 60000');
+    closer.closeOffer({ pick: 'accept', offer, roomState: { db: r2.db, roomDir: r2.dir } });
+    assert.equal(selRows(r2.db).length, 2);
+  } finally { closeRoomDb(r2.db); }
+});
+
 // ---------------------------------------------------------------------------
 // K5-K7: the MCP gate answer.
 // ---------------------------------------------------------------------------
