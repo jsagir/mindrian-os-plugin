@@ -261,6 +261,34 @@ check('G5 none when the shortlist state is not ok (off, tie at the top, no stron
   assert.equal(overrule({ decision: 'reject', shown_commands: [B, A], jobId: 'find-problem' }), 'none');
   assert.equal(overrule({ decision: 'reject', shown_commands: [B, A], jobId: null }), 'none');
 });
+check('G9 WR-06 schema DDL runs once per db handle, not once per call; the log stays on with the advisor off', () => {
+  const db = freshDb();
+  const realExec = db.exec.bind(db);
+  let ddl = 0;
+  db.exec = (sql) => { if (/CREATE\s+(UNIQUE\s+)?(TABLE|INDEX)|ALTER\s+TABLE/i.test(sql)) ddl += 1; return realExec(sql); };
+  const realPrepare = db.prepare.bind(db);
+  let pragma = 0;
+  db.prepare = (sql) => { if (/PRAGMA table_info/.test(sql)) pragma += 1; return realPrepare(sql); };
+  const first = record(db, { decision: 'accept', shown_commands: [A], chosen_command: A }, OFF);
+  assert.equal(first.ok, true, JSON.stringify(first));
+  const ddlFirst = ddl;
+  const pragmaFirst = pragma;
+  assert.ok(ddlFirst >= 2, 'the first call sets the schema up: ' + ddlFirst);
+  for (const cmd of [B, C, A]) {
+    const r = record(db, { decision: 'defer', shown_commands: [cmd] }, OFF);
+    assert.equal(r.ok, true, JSON.stringify(r));
+  }
+  assert.equal(ddl, ddlFirst, 'no DDL after the first call on this handle');
+  assert.equal(pragma, pragmaFirst, 'no PRAGMA table_info after the first call on this handle');
+  assert.equal(rowsOf(db, 'selection_observations').length, 4, 'rows are written with the advisor off');
+  // a new handle sets the schema up again
+  const db2 = freshDb();
+  const exec2 = db2.exec.bind(db2);
+  let ddl2 = 0;
+  db2.exec = (sql) => { if (/CREATE\s+(UNIQUE\s+)?(TABLE|INDEX)/i.test(sql)) ddl2 += 1; return exec2(sql); };
+  record(db2, { decision: 'accept', shown_commands: [A], chosen_command: A }, OFF);
+  assert.ok(ddl2 >= 2);
+});
 check('G5 advisor off: rows are still written, probability and band are null', () => {
   const db = freshDb();
   const r = record(db, { decision: 'accept', shown_commands: [A, B], chosen_command: A }, OFF);
