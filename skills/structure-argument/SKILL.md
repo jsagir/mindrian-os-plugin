@@ -16,7 +16,7 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "gate"
 hitl_why: "The Minto pyramid is built top-down in a fixed order where each level needs the last, the Seed looks outside only after the person says yes on an F.0 evidence card, and the person picks the next move on an F.1 card."
-serves_jtbd: ["validate-idea", "explore"]
+serves_jtbd: ["validate-idea", "explore", "prepare-pitch"]
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the top-down Minto pyramid structure previews before
 # the navigator invests in filling each level).

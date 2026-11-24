@@ -6,7 +6,7 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
-serves_jtbd: ["validate-idea"]
+serves_jtbd: ["validate-idea", "decide-pursue"]
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Rumsfeld matrix structure previews before the
 # navigator invests in filling each quadrant one at a time).

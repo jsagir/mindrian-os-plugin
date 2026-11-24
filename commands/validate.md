@@ -6,7 +6,7 @@ body_shape: C
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
-serves_jtbd: ["validate-idea"]
+serves_jtbd: ["validate-idea", "decide-pursue"]
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the importance-satisfaction scoring structure previews
 # before the navigator invests in scoring the full segment).

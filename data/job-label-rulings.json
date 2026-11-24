@@ -1,0 +1,182 @@
+{
+  "schema": "mos.job-label-rulings/1",
+  "_note": "Owner ruling of 2026-11-24 (Phase 399, D-07). 26 accepted command job labels are applied by scripts/apply-job-labels.cjs. 2 held pairs and 5 doubtful existing labels are listed for owner review and are not changed. Taxonomy hooks that disagree with the registry are resolved by an accepted label or stay open for owner review (I-02, no guess). The proposals came from a Gemini Decision run kept in the private research trail. Labels only, no probability. Hyphens only.",
+  "ruled_at": "2026-11-24",
+  "accepted": [
+    {
+      "job": "find-problem",
+      "command": "/mos:analyze-systems"
+    },
+    {
+      "job": "surface-contradiction",
+      "command": "/mos:bono"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:bono"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:build-thesis"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:challenge-assumptions"
+    },
+    {
+      "job": "prepare-pitch",
+      "command": "/mos:challenge-assumptions"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:compare-ventures"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:diffusion"
+    },
+    {
+      "job": "find-problem",
+      "command": "/mos:discover"
+    },
+    {
+      "job": "connect-domains",
+      "command": "/mos:explore-opportunity"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:explore-opportunity"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:intel-pipeline"
+    },
+    {
+      "job": "prepare-pitch",
+      "command": "/mos:intel-pipeline"
+    },
+    {
+      "job": "understand-market",
+      "command": "/mos:intel-pipeline"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:intel-pipeline"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:map-unknowns"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:mullins"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:mullins"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:qualify-opportunity"
+    },
+    {
+      "job": "connect-domains",
+      "command": "/mos:rs-fetch"
+    },
+    {
+      "job": "prepare-pitch",
+      "command": "/mos:structure-argument"
+    },
+    {
+      "job": "find-problem",
+      "command": "/mos:systems-thinking"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:user-needs"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:validate"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:validate-proposition"
+    },
+    {
+      "job": "audit-room",
+      "command": "/mos:whitespace"
+    }
+  ],
+  "held": [
+    {
+      "job": "surface-contradiction",
+      "command": "/mos:memory-cortex-reach",
+      "status": "held_for_owner_review"
+    },
+    {
+      "job": "find-bottleneck",
+      "command": "/mos:show",
+      "status": "held_for_owner_review"
+    }
+  ],
+  "doubtful_existing": [
+    {
+      "job": "audit-room",
+      "command": "/mos:admin",
+      "status": "owner_review_not_changed"
+    },
+    {
+      "job": "compare-options",
+      "command": "/mos:deep-grade",
+      "status": "owner_review_not_changed"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:dial-memory-refresh",
+      "status": "owner_review_not_changed"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:feynman-timeline-refresh",
+      "status": "owner_review_not_changed"
+    },
+    {
+      "job": "compare-options",
+      "command": "/mos:models",
+      "status": "owner_review_not_changed"
+    }
+  ],
+  "taxonomy_disagreements": [
+    {
+      "job": "connect-domains",
+      "command": "/mos:explore-domains",
+      "status": "open_owner_review"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:lean-canvas",
+      "status": "open_owner_review"
+    },
+    {
+      "job": "surface-contradiction",
+      "command": "/mos:persona",
+      "status": "open_owner_review"
+    },
+    {
+      "job": "surface-contradiction",
+      "command": "/mos:think-hats",
+      "status": "open_owner_review"
+    },
+    {
+      "job": "validate-idea",
+      "command": "/mos:think-hats",
+      "status": "open_owner_review"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:validate-proposition",
+      "status": "resolved_by_accepted"
+    }
+  ]
+}

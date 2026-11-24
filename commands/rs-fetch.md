@@ -14,7 +14,7 @@ hitl_stages:
 hitl_why: "The full reverse-salient pipeline runs a dependency path (F.2) as a fixed-order stage walk (F.9)."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 13): first delivery at commands/rs-fetch.md:58, the completed RSDiscovery bundle (breakthrough thesis plus confidence score) assembled end-to-end within this invocation.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["find-bottleneck", "surface-contradiction"]
+serves_jtbd: ["find-bottleneck", "surface-contradiction", "connect-domains"]
 teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

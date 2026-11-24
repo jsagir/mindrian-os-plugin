@@ -7,7 +7,7 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
-serves_jtbd: ["understand-market"]
+serves_jtbd: ["understand-market", "decide-pursue"]
 # Phase 265-22 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the innovation package previews the 2x2
 # typology structure (step 6) before the navigator invests in the full

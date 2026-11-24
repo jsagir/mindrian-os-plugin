@@ -12,7 +12,7 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
-serves_jtbd: ["validate-idea", "prepare-pitch"]
+serves_jtbd: ["validate-idea", "prepare-pitch", "decide-pursue"]
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Setup: checking business-model/problem-definition/market-analysis
 # for existing work previews the three-gate structure before the navigator

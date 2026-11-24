@@ -8,7 +8,7 @@ hitl_shape: "F.8"
 hitl_why: "Stocks, flows, and loops are surfaced as an independent set with no ordering constraint."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 17): first delivery at commands/systems-thinking.md:116, the EXECUTE step hands over one question or observation per turn, one lens at a time.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["find-bottleneck"]
+serves_jtbd: ["find-bottleneck", "find-problem"]
 teaching: "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

@@ -97,7 +97,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-bottleneck"
+        "find-bottleneck",
+        "find-problem"
       ],
       "teaching": "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring.",
       "jtbd_label": "Find Bottleneck",
@@ -184,7 +185,9 @@
       "layer": "graph",
       "serves_jtbd": [
         "explore",
-        "decide-pursue"
+        "decide-pursue",
+        "surface-contradiction",
+        "validate-idea"
       ],
       "teaching": "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph.",
       "jtbd_label": "Explore",
@@ -246,7 +249,8 @@
       "layer": "loop",
       "serves_jtbd": [
         "decide-pursue",
-        "prepare-pitch"
+        "prepare-pitch",
+        "validate-idea"
       ],
       "teaching": "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons.",
       "jtbd_label": "Decide Pursue",
@@ -293,7 +297,9 @@
       "layer": "graph",
       "serves_jtbd": [
         "validate-idea",
-        "surface-contradiction"
+        "surface-contradiction",
+        "decide-pursue",
+        "prepare-pitch"
       ],
       "teaching": "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning.",
       "jtbd_label": "Validate Idea",
@@ -314,7 +320,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "compare-options"
+        "compare-options",
+        "decide-pursue"
       ],
       "teaching": "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons.",
       "jtbd_label": "Compare Options",
@@ -479,7 +486,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "understand-market"
+        "understand-market",
+        "decide-pursue"
       ],
       "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window. It can also plan research on who adopts first, absorptive capacity, the civil and defense crossing, and timing.",
       "jtbd_label": "Understand Market",
@@ -500,7 +508,8 @@
       "body_shape": "B (Semantic Tree)",
       "layer": "loop",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "find-problem"
       ],
       "teaching": "When you have a client or a product and need to understand it before you design or build, /mos:discover runs a guided one-question-at-a-time conversation across six movements and lands a Discovery Brief plus a scaffolded Data Room. It does not design the site; it makes every later decision strategic instead of arbitrary.",
       "jtbd_label": "Explore",
@@ -683,7 +692,9 @@
       "body_shape": "E (Action Report)",
       "layer": "graph",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "connect-domains",
+        "decide-pursue"
       ],
       "teaching": "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands.",
       "jtbd_label": "Explore",
@@ -1071,7 +1082,11 @@
       "body_shape": "E (Action Report) + F.1 (calibrate + fan-approve gates) + F.5 (synthesize ruling)",
       "layer": "graph",
       "serves_jtbd": [
-        "plan-execution"
+        "plan-execution",
+        "decide-pursue",
+        "prepare-pitch",
+        "understand-market",
+        "validate-idea"
       ],
       "teaching": "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you.",
       "jtbd_label": "Plan Execution",
@@ -1178,7 +1193,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "validate-idea"
+        "validate-idea",
+        "decide-pursue"
       ],
       "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
       "jtbd_label": "Validate Idea",
@@ -1297,7 +1313,9 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "understand-market"
+        "understand-market",
+        "decide-pursue",
+        "validate-idea"
       ],
       "teaching": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
       "jtbd_label": "Understand Market",
@@ -1546,7 +1564,8 @@
       "body_shape": "E (Action Report)",
       "layer": "loop",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "decide-pursue"
       ],
       "teaching": "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from.",
       "jtbd_label": "Explore",
@@ -1732,7 +1751,8 @@
       "layer": "graph",
       "serves_jtbd": [
         "find-bottleneck",
-        "surface-contradiction"
+        "surface-contradiction",
+        "connect-domains"
       ],
       "teaching": "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample.",
       "jtbd_label": "Find Bottleneck",
@@ -2063,7 +2083,8 @@
       "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
-        "explore"
+        "explore",
+        "prepare-pitch"
       ],
       "teaching": "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise.",
       "jtbd_label": "Validate Idea",
@@ -2104,7 +2125,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-bottleneck"
+        "find-bottleneck",
+        "find-problem"
       ],
       "teaching": "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system.",
       "jtbd_label": "Find Bottleneck",
@@ -2189,7 +2211,8 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-problem"
+        "find-problem",
+        "decide-pursue"
       ],
       "teaching": "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives.",
       "jtbd_label": "Find Problem",
@@ -2212,7 +2235,8 @@
       "body_shape": "C",
       "layer": "loop",
       "serves_jtbd": [
-        "validate-idea"
+        "validate-idea",
+        "decide-pursue"
       ],
       "teaching": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
       "jtbd_label": "Validate Idea",
@@ -2234,7 +2258,8 @@
       "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
-        "prepare-pitch"
+        "prepare-pitch",
+        "decide-pursue"
       ],
       "teaching": "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass.",
       "jtbd_label": "Validate Idea",
@@ -2295,7 +2320,8 @@
       "layer": "loop",
       "serves_jtbd": [
         "connect-domains",
-        "find-problem"
+        "find-problem",
+        "audit-room"
       ],
       "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too.",
       "jtbd_label": "Connect Domains",

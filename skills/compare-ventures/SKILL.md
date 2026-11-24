@@ -9,7 +9,7 @@ hitl_shape: "F.5"
 hitl_why: "Ventures are compared as parallel branches the navigator resolves among."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 4): first delivery at commands/compare-ventures.md:89, similar ventures, the framework sequences they used, and the patterns that correlated with outcomes.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["compare-options"]
+serves_jtbd: ["compare-options", "decide-pursue"]
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

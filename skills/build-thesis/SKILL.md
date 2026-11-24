@@ -7,7 +7,7 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The Ten Questions are answered in a fixed order that builds the thesis, an ordered walk."
-serves_jtbd: ["decide-pursue", "prepare-pitch"]
+serves_jtbd: ["decide-pursue", "prepare-pitch", "validate-idea"]
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Ten Questions Rapid Assessment previews the full
 # gate structure before the navigator invests in the Deep Dive).
