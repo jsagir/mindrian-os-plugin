@@ -45,6 +45,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const jobSentence = require('../lib/core/job-sentence.cjs');
+const problemAxes = require('../lib/core/problem-axes.cjs');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const COMMANDS_DIR = path.join(REPO_ROOT, 'commands');
@@ -292,6 +293,34 @@ function loadCuratedChains() {
 // ---------------------------------------------------------------------------
 // Phase 400-01: {when, want, so, status} when the 4 job keys are present and valid, else null.
 // A partial or invalid set prints one stderr warning line and never fails the build.
+// Phase 400-06 (CY-04, O-11): the Cynefin label fields from the fits_domains/move_type/move_type_weak/cynefin_label_status frontmatter keys; a value outside its closed set is null, with one warning per command.
+function buildCynefinLabels(fm, command) {
+  const out = { fits_domains: null, move_type: null, move_type_weak: null, cynefin_label_status: null };
+  const bad = [];
+  const f = fm.fits_domains;
+  if (f !== undefined) {
+    const ok = Array.isArray(f) && f.every((d) => problemAxes.CAUSE_EFFECT_DOMAINS.includes(d)) && new Set(f).size === f.length;
+    if (ok) out.fits_domains = f.slice();
+    else bad.push('fits_domains');
+  }
+  if (fm.move_type !== undefined) {
+    if (problemAxes.MOVE_TYPES.includes(fm.move_type)) out.move_type = fm.move_type;
+    else bad.push('move_type');
+  }
+  if (fm.move_type_weak !== undefined) {
+    if (typeof fm.move_type_weak === 'boolean') out.move_type_weak = fm.move_type_weak;
+    else bad.push('move_type_weak');
+  }
+  if (fm.cynefin_label_status !== undefined) {
+    if (jobSentence.SENTENCE_STATUSES.includes(fm.cynefin_label_status)) out.cynefin_label_status = fm.cynefin_label_status;
+    else bad.push('cynefin_label_status');
+  }
+  if (bad.length) {
+    process.stderr.write('build-command-registry: WARN ' + command + ' has Cynefin label values outside the closed sets (' + bad.join(', ') + '); those fields are null\n');
+  }
+  return out;
+}
+
 function buildJobSentence(fm, command) {
   const K = jobSentence.FRONTMATTER_KEYS;
   const anyKey = [K.when, K.want, K.so, K.status].some((k) => fm[k] !== undefined);
@@ -386,6 +415,7 @@ function buildRegistry() {
 
     // Phase 400-01 (JS-06, O-11): job_sentence from the job_when/job_want/job_so/job_sentence_status frontmatter keys; null when any is absent or invalid.
     const jobSentenceEntry = buildJobSentence(fm, command);
+    const cynefinLabels = buildCynefinLabels(fm, command);
 
     if (servesJtbd.length === 0) missingServesJtbd.push(command);
 
@@ -417,6 +447,10 @@ function buildRegistry() {
       jtbd_label: jtbdLabel,
       jtbd_summary: jtbdSummary,
       job_sentence: jobSentenceEntry,
+      fits_domains: cynefinLabels.fits_domains,
+      move_type: cynefinLabels.move_type,
+      move_type_weak: cynefinLabels.move_type_weak,
+      cynefin_label_status: cynefinLabels.cynefin_label_status,
     });
   }
 
@@ -613,5 +647,5 @@ function main() {
 if (require.main === module) {
   main();
 } else {
-  module.exports = { parseFrontmatter, buildRegistry };
+  module.exports = { parseFrontmatter, buildRegistry, buildCynefinLabels };
 }

@@ -25,7 +25,11 @@
         "want": "to run the method that best fits where my room stands now",
         "so": "move forward instead of circling in more analysis",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:admin",
@@ -50,7 +54,11 @@
         "want": "to open a read-only admin panel that confirms before any rotation",
         "so": "keep the keys current without a mistaken change",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:agentshield",
@@ -75,7 +83,11 @@
         "want": "to scan its tools, hooks, skills and dependencies for that pattern",
         "so": "fix a real risk before it reaches my work",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:analyze-needs",
@@ -104,7 +116,11 @@
         "want": "to score each need by importance and by how well it is met today",
         "so": "aim at the most unmet needs",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:analyze-systems",
@@ -132,7 +148,11 @@
         "want": "to break the system into layers and find its leverage points",
         "so": "act where a small push changes the most",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:analyze-timing",
@@ -160,7 +180,11 @@
         "want": "to place the technology on its maturity curve",
         "so": "tell whether I am too early, too late or on time",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:auto-explore",
@@ -187,7 +211,11 @@
         "want": "to run that domain breakdown by hand",
         "so": "see the domains the artifact touches before I go further",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:beautiful-question",
@@ -215,7 +243,11 @@
         "want": "to recast the challenge as why, what if and how questions",
         "so": "find a question that opens more progress than a better answer would",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:bono",
@@ -245,7 +277,11 @@
         "want": "to run a structured debate of several perspectives over a testable hypothesis",
         "so": "rule on an argued synthesis with its evidence in view",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:brain-derive",
@@ -270,7 +306,11 @@
         "want": "to rebuild that section context now",
         "so": "reach a large filing or a decision with context that matches the room",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:build-knowledge",
@@ -297,7 +337,11 @@
         "want": "to sort it into data, information, knowledge and wisdom",
         "so": "see what I can decide now and what is still raw",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:build-thesis",
@@ -326,7 +370,11 @@
         "want": "to answer the standard questions of an investment thesis about it",
         "so": "reach a defensible go or no go with reasons",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:causal",
@@ -354,7 +402,11 @@
         "want": "to trace the cause and effect links behind it",
         "so": "fix the upstream cause instead of the visible effect",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:challenge-assumptions",
@@ -387,7 +439,11 @@
         "want": "to attack the claims that carry the most weight",
         "so": "catch the assumptions I stopped questioning before they cost me",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:compare-ventures",
@@ -415,7 +471,11 @@
         "want": "to line them up against my approach on the dimensions that matter",
         "so": "learn from their results without repeating their mistakes",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:correct-reference-now",
@@ -440,7 +500,11 @@
         "want": "to write the true date into the room",
         "so": "trust every statement about how long ago something happened in my work",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dashboard",
@@ -466,7 +530,11 @@
         "want": "to open a live or snapshot view of room health",
         "so": "speak to where the venture stands without digging through files",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:deck",
@@ -491,7 +559,11 @@
         "want": "to pick the deck shape that fits and fill it from my room",
         "so": "present a clear story that lands with the audience",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:deep-grade",
@@ -521,7 +593,11 @@
         "want": "to grade the room against a large set of real past projects",
         "so": "know what to improve first",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:diagnose",
@@ -548,7 +624,11 @@
         "want": "to classify the problem by its type",
         "so": "pick a method that fits the problem instead of a favorite tool",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:diagnostics",
@@ -575,7 +655,11 @@
         "want": "to measure its disruption, blind spots, novelty and surprise",
         "so": "spot where the room is thin or unexpected",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dial-memory-refresh",
@@ -601,7 +685,11 @@
         "want": "to rebuild its automatic part from my recorded selections and pivots",
         "so": "see the paths I chose while my own prose stays untouched",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:diffusion",
@@ -629,7 +717,11 @@
         "want": "to estimate who adopts it first and how fast it spreads",
         "so": "commit to a market and a timing window",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:discover",
@@ -657,7 +749,11 @@
         "want": "to work through a guided conversation one question at a time",
         "so": "base later design decisions on strategy instead of guesswork",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:doctor",
@@ -682,7 +778,11 @@
         "want": "to diagnose install drift, room identity gaps and display problems, with an optional repair",
         "so": "get back to my work on a sound setup",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dogfood-flush",
@@ -707,7 +807,11 @@
         "want": "to drain the pending update queue and refresh its live status",
         "so": "see the current state of the plugin venture right away",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dominant-designs",
@@ -735,7 +839,11 @@
         "want": "to place the market in its design cycle",
         "so": "decide whether to ride the winning design or break it",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:eureka-portfolio",
@@ -761,7 +869,11 @@
         "want": "to measure and rank each linked pair on my own machine",
         "so": "focus on the strongest links and see what moved",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:eureka",
@@ -787,7 +899,11 @@
         "want": "to research the most promising cross field pairs",
         "so": "file the pairs that the evidence supports as fundable opportunities",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:explain-decision",
@@ -812,7 +928,11 @@
         "want": "to see the reasoning path behind the last recommendation",
         "so": "trust it or challenge it with the facts in view",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:explore-domains",
@@ -841,7 +961,11 @@
         "want": "to map the territory and break each domain into its basic parts",
         "so": "know where to look before I commit to one domain",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:explore-futures",
@@ -869,7 +993,11 @@
         "want": "to combine trend, scenario and maturity views of those futures",
         "so": "choose a path without pretending I can predict",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:explore-opportunity",
@@ -896,7 +1024,11 @@
         "want": "to research it in depth and gather cited evidence",
         "so": "turn it into a well defined problem backed by sources",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:explore-trends",
@@ -924,7 +1056,11 @@
         "want": "to push those trends to their extremes",
         "so": "see the second order effects before they arrive",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:export",
@@ -949,7 +1085,11 @@
         "want": "to package the view as a self-contained web page",
         "so": "let them read it with nothing to install",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:feynman-timeline-refresh",
@@ -975,7 +1115,11 @@
         "want": "to rebuild its automatic part from the memory event log while my own prose stays untouched",
         "so": "follow how my understanding of the section grew",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:file-meeting",
@@ -1000,7 +1144,11 @@
         "want": "to capture the transcript and send each insight to the right section",
         "so": "keep the knowledge from that meeting where I can use it",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:find-analogies",
@@ -1028,7 +1176,11 @@
         "want": "to match the structure of my problem against solutions from other fields",
         "so": "borrow a proven structure instead of inventing one",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:find-bottlenecks",
@@ -1055,7 +1207,11 @@
         "want": "to name the component that lags behind the rest",
         "so": "put my effort where it unblocks the whole venture",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:find-connections",
@@ -1083,7 +1239,11 @@
         "want": "to trace links between my room and other fields",
         "so": "find connections I did not know to look for",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:funding",
@@ -1109,7 +1269,11 @@
         "want": "to track each one from first sighting to final decision",
         "so": "run funding as a steady process instead of a one off effort",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:futures",
@@ -1137,7 +1301,11 @@
         "want": "to trace its consequences outward and search for hidden bridges",
         "so": "bank the opportunities that a linear view would miss",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:grade-grant",
@@ -1165,7 +1333,11 @@
         "want": "to score the draft against the rubric the reviewers use before I submit",
         "so": "close the gaps a reviewer would flag",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:grade",
@@ -1194,7 +1366,11 @@
         "want": "to score the room on the core parts of problem discovery",
         "so": "see the weakest part right away",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:graph",
@@ -1220,7 +1396,11 @@
         "want": "to ask the knowledge graph in plain English",
         "so": "follow the connections without learning a query language",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:hat-briefing",
@@ -1247,7 +1427,11 @@
         "want": "to merge what each perspective found into one briefing",
         "so": "walk into the review with one clear picture",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:heal",
@@ -1272,7 +1456,11 @@
         "want": "to repair that structural drift through the install diagnosis",
         "so": "keep filing into a room whose folders still mean what they say",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:help",
@@ -1297,7 +1485,11 @@
         "want": "to choose from a short set of command families and run the one I pick",
         "so": "find the right move without reading the full list",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:hmi-status",
@@ -1322,7 +1514,11 @@
         "want": "to audit how well each screen complies with those rules",
         "so": "know which screens to fix first",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:ignite",
@@ -1348,7 +1544,11 @@
         "want": "to choose a starting point, approve a blueprint and win a first result",
         "so": "begin with a clear job, the right sections and one opportunity worth banking",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:ingest-methodology",
@@ -1373,7 +1573,11 @@
         "want": "to run the full intake pipeline with its data boundary check",
         "so": "make the method reachable for every user with no user data egress",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:intel-pipeline",
@@ -1402,7 +1606,11 @@
         "want": "to split my active job into research lines and gather scored evidence",
         "so": "rule on the findings and file them",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:jtbd",
@@ -1429,7 +1637,11 @@
         "want": "to see or set the active job of the room",
         "so": "get advice that fits the work I am doing",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:leadership",
@@ -1456,7 +1668,11 @@
         "want": "to diagnose which leadership pattern this stage needs",
         "so": "change how the team is led before the mismatch slows us",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:lean-canvas",
@@ -1484,7 +1700,11 @@
         "want": "to fill a one page canvas from what my room already holds",
         "so": "put a defensible model in front of them fast",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:macro-trends",
@@ -1512,7 +1732,11 @@
         "want": "to scan its political, economic, social and technological forces",
         "so": "see the wide picture before I narrow my focus",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:map-unknowns",
@@ -1540,7 +1764,11 @@
         "want": "to sort the known, the unknown and the unknowable",
         "so": "find where the hidden risk lives and plan research on it",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:memory-cortex-reach",
@@ -1565,7 +1793,11 @@
         "want": "to bring that signal to a decision point",
         "so": "rule on it before it misleads later work",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:memory",
@@ -1590,7 +1822,11 @@
         "want": "to inspect memory within this session, across sessions and across rooms",
         "so": "rely on what is carried forward and correct what is not",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:models",
@@ -1615,7 +1851,11 @@
         "want": "to see and switch which model handles which kind of work",
         "so": "balance quality and cost for each task",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mos-reason",
@@ -1642,7 +1882,11 @@
         "want": "to build a pyramid from one governing thought down to its support",
         "so": "state what the section means in a form others follow",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mos",
@@ -1667,7 +1911,11 @@
         "want": "to get the right entry point for the current state of my room",
         "so": "start the next useful step without studying the menu",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mullins",
@@ -1697,7 +1945,11 @@
         "want": "to screen it across its market, its industry and its team",
         "so": "commit only if it survives a rigorous test",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mva-brief",
@@ -1722,7 +1974,11 @@
         "want": "to turn that sentence into a first argument pyramid",
         "so": "see the premises my venture rests on",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mva-report",
@@ -1747,7 +2003,11 @@
         "want": "to get a clean structured report of what we covered",
         "so": "pick up the work later without rereading the whole conversation",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:new-project",
@@ -1772,7 +2032,11 @@
         "want": "to create the room structure and register it",
         "so": "file work in the right place from the start",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:new-surface",
@@ -1797,7 +2061,11 @@
         "want": "to generate its file with declared wiring and rebuilt registries",
         "so": "ship a surface that is wired from birth",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:onboard",
@@ -1822,7 +2090,11 @@
         "want": "to take a guided tour and build my first room",
         "so": "start working on my own without outside help",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:operator",
@@ -1847,7 +2119,11 @@
         "want": "to view and change the current conversation state",
         "so": "match the conversation to the work in front of me",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:opportunities",
@@ -1872,7 +2148,11 @@
         "want": "to see every banked opportunity with its score and decision state",
         "so": "work the best ones as a live pipeline",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:organize",
@@ -1897,7 +2177,11 @@
         "want": "to arrange my rooms into a clear parent and child structure",
         "so": "find and manage each room without searching",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:persona",
@@ -1924,7 +2208,11 @@
         "want": "to generate personas from my room data who each argue from a different stance",
         "so": "decide which of their arguments hold",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:pipeline",
@@ -1949,7 +2237,11 @@
         "want": "to run them in sequence with each output feeding the next",
         "so": "get a connected result without handing work between steps",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:present",
@@ -1974,7 +2266,11 @@
         "want": "to generate one presentation with dashboard, wiki, deck, insight, diagram and graph views",
         "so": "guide them through the venture in one sitting",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:publish",
@@ -1999,7 +2295,11 @@
         "want": "to deploy its presentation to a shareable link",
         "so": "send people one link instead of a folder of files",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:qualify-opportunity",
@@ -2025,7 +2325,11 @@
         "want": "to see which tests it passed and failed before I accept or skip it",
         "so": "make the call myself and learn the tests",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:radar",
@@ -2050,7 +2354,11 @@
         "want": "to track which ones could change what my tools can do",
         "so": "adopt the useful ones without scanning by hand",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:reanalyze",
@@ -2075,7 +2383,11 @@
         "want": "to analyze that meeting again against the current room",
         "so": "see what it means in light of what I know now",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:research",
@@ -2103,7 +2415,11 @@
         "want": "to gather sourced findings and match each to a place in my room",
         "so": "file only the findings I approve",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:room",
@@ -2128,7 +2444,11 @@
         "want": "to open the room with its governing question and the history of it",
         "so": "check that the question holds before I change it",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rooms",
@@ -2153,7 +2473,11 @@
         "want": "to list, switch and archive my rooms",
         "so": "keep each venture apart and move between them cleanly",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:root-cause",
@@ -2182,7 +2506,11 @@
         "want": "to trace it back through repeated why questions and cause diagrams",
         "so": "treat the cause instead of the recurrence",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rs-experts",
@@ -2210,7 +2538,11 @@
         "want": "to find the authors in my local papers who link to that gap",
         "so": "contact the right people with a sourced reason",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rs-explain",
@@ -2237,7 +2569,11 @@
         "want": "to ask in plain language and get an answer grounded in my graph",
         "so": "understand the finding without reading the raw analysis",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rs-fetch",
@@ -2266,7 +2602,11 @@
         "want": "to run the whole discovery from papers to cross field matches to a thesis",
         "so": "act on a complete sweep",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rs-thesis",
@@ -2293,7 +2633,11 @@
         "want": "to read back its thesis in plain language",
         "so": "revisit the finding before I discuss it",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:scenario-plan",
@@ -2321,7 +2665,11 @@
         "want": "to build a grid of scenarios and name each one",
         "so": "plan for the world I do not expect",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -2346,7 +2694,11 @@
         "want": "to define a recurring job that runs on a schedule against the room",
         "so": "get regular sweeps and digests without having to remember them",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:scientific-roadmap",
@@ -2376,7 +2728,11 @@
         "want": "to find the limits that are only assumed and rank them by what they unlock",
         "so": "turn the top limits into testable hypotheses",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:score-innovation",
@@ -2404,7 +2760,11 @@
         "want": "to rank them by how surprising each combination is",
         "so": "back the one that is truly novel",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:scout",
@@ -2430,7 +2790,11 @@
         "want": "to start the watch checks across the room",
         "so": "learn about changes before I go looking for them",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:session-report",
@@ -2455,7 +2819,11 @@
         "want": "to get a structured report of which steps and gates fired",
         "so": "forward a clean account of the session instead of a chat log",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:setup",
@@ -2480,7 +2848,11 @@
         "want": "to walk through their configuration step by step",
         "so": "let the room pull in more of my work",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:show",
@@ -2506,7 +2878,11 @@
         "want": "to name my need in plain words and get the matching view",
         "so": "see the answer without learning the view names",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:skill",
@@ -2531,7 +2907,11 @@
         "want": "to turn that persona into a skill I can talk to in the room",
         "so": "consult the expert with the confirmed record as its source",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:snapshot",
@@ -2563,7 +2943,11 @@
         "want": "to package everything into a portable read-only bundle",
         "so": "share the room as it stands without risk of edits",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:speakers",
@@ -2588,7 +2972,11 @@
         "want": "to see the participants with their roles, attendance and contribution patterns",
         "so": "weigh each voice and follow up with the right person",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:splash",
@@ -2613,7 +3001,11 @@
         "want": "to show the banner of the product",
         "so": "give the session a clear visual opening",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:stance",
@@ -2638,7 +3030,11 @@
         "want": "to switch between pulling evidence, deciding fast, asking questions or challenging me",
         "so": "get the kind of help that fits the moment",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:status",
@@ -2664,7 +3060,11 @@
         "want": "to see the governing thought of each section with its health marks",
         "so": "decide where to work next in seconds",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:structure-argument",
@@ -2694,7 +3094,11 @@
         "want": "to restructure it into a clear pyramid with no gaps or overlaps",
         "so": "find the missing premise and make the case hold",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:suggest-next",
@@ -2720,7 +3124,11 @@
         "want": "to get a short list of next moves with reasons from my room",
         "so": "choose with the reasons in view",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:systems-thinking",
@@ -2748,7 +3156,11 @@
         "want": "to map the feedback loops, stocks and flows of the system",
         "so": "see where the system resists change and where it gives way",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:think-hats",
@@ -2776,7 +3188,11 @@
         "want": "to rotate through distinct thinking perspectives one at a time",
         "so": "catch the views we keep missing",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:trending-to-absurd",
@@ -2805,7 +3221,11 @@
         "want": "to push it to its absurd extreme over a horizon I choose",
         "so": "spot the disruptive opportunity at the edge",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:update",
@@ -2830,7 +3250,11 @@
         "want": "to check for it and install it through the native plugin loader",
         "so": "keep my install in step with the documented behaviour",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:user-needs",
@@ -2858,7 +3282,11 @@
         "want": "to map what they need by importance against satisfaction",
         "so": "find the gap where the opportunity lives",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:validate",
@@ -2888,7 +3316,11 @@
         "want": "to measure how well it serves the needs of my target customers",
         "so": "base the next investment on a measurement instead of a feeling",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:validate-proposition",
@@ -2917,7 +3349,11 @@
         "want": "to test it in order against the gates a value proposition must pass",
         "so": "learn which gate it fails before customers show me",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:vault",
@@ -2942,7 +3378,11 @@
         "want": "to export it as a nested vault with its links intact",
         "so": "browse the room and its graph view without a connection",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:visualize",
@@ -2968,7 +3408,11 @@
         "want": "to open the knowledge graph viewer with diagram output",
         "so": "show the structure of the venture to others at a glance",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:whitespace",
@@ -2997,7 +3441,11 @@
         "want": "to scan my artifacts for zones that are under explored",
         "so": "fill the gaps before they weaken my case",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:wiki",
@@ -3023,7 +3471,11 @@
         "want": "to open the wiki view with cross references rendered as links",
         "so": "follow an idea across sections the way I would on a reference site",
         "status": "provisional"
-      }
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     }
   ],
   "framework_index": {
