@@ -9,6 +9,10 @@ hitl_why: "It offers a single refresh action to approve or defer."
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
+job_when: "the record of choices in a section feels stale"
+job_want: "to rebuild its automatic part from my recorded selections and pivots"
+job_so: "see the paths I chose while my own prose stays untouched"
+job_sentence_status: "provisional"
 teaching: "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion

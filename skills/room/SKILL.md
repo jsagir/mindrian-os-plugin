@@ -14,6 +14,10 @@ interactive_first_reward: "--none (diagnostic surface)"
 body_shape_overview: B (Semantic Tree)
 body_shape_section: C (Room Card)
 serves_jtbd: ["audit-room"]
+job_when: "I need to see the active room and the question it serves"
+job_want: "to open the room with its governing question and the history of it"
+job_so: "check that the question holds before I change it"
+job_sentence_status: "provisional"
 teaching: "When you need to view the active Data Room, /mos:room opens it. /mos:room question shows the room's governing question with its origin and history, and asks what the old question got wrong before a changed question is recorded."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Write Bash Glob AskUserQuestion

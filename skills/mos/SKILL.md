@@ -12,6 +12,10 @@ hitl_why: "The entry command offers one next move into the system."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: Action Report rendering of the routing decision (zone 2 names the resolved target + reason; zone 4 routes to that target as primary)
 serves_jtbd: ["explore"]
+job_when: "I do not know which command to start with"
+job_want: "to get the right entry point for the current state of my room"
+job_so: "start the next useful step without studying the menu"
+job_sentence_status: "provisional"
 teaching: "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next."
 canon_parts: [3, 7]
 phase: 121.5-08

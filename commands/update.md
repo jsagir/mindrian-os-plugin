@@ -11,6 +11,10 @@ hitl_why: "It offers one update action to approve or defer."
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[check|force]"
 serves_jtbd: ["audit-room"]
+job_when: "I suspect a newer version of my install is waiting"
+job_want: "to check for it and install it through the native plugin loader"
+job_so: "keep my install in step with the documented behaviour"
+job_sentence_status: "provisional"
 teaching: "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs."
 allowed-tools:
   - Bash

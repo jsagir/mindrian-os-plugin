@@ -12,6 +12,10 @@ hitl_why: "The 6-view present offers one next move on which view to open."
 interactive_first_reward: live_deliverable
 body_shape_detail: Generation results as action items, 6 views listed as outputs
 serves_jtbd: ["prepare-pitch"]
+job_when: "I need to walk someone through my room visually"
+job_want: "to generate one presentation with dashboard, wiki, deck, insight, diagram and graph views"
+job_so: "guide them through the venture in one sitting"
+job_sentence_status: "provisional"
 teaching: "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion

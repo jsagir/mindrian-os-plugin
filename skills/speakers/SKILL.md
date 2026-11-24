@@ -12,6 +12,10 @@ hitl_why: "Speaker attribution resolves to a single next-move confirmation."
 interactive_first_reward: methodology_reframe
 body_shape_detail: Each speaker as a card with role, expertise, meeting count
 serves_jtbd: ["file-meeting"]
+job_when: "a meeting is filed and I need to know who said what"
+job_want: "to see the participants with their roles, attendance and contribution patterns"
+job_so: "weigh each voice and follow up with the right person"
+job_sentence_status: "provisional"
 teaching: "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash AskUserQuestion

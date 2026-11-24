@@ -352,7 +352,12 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
     .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l))
     .join('\n');
   assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer and the Plan-run route section');
-  assert.equal(sched.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
+  // Phase 400 (plan 400-03) labels scheduled-tasks.md too; drop its 4 job lines the same way.
+  const schedWithoutJob = sched
+    .split('\n')
+    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l))
+    .join('\n');
+  assert.equal(schedWithoutJob.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
 });
 
 // K7 --------------------------------------------------------------------------

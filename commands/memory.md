@@ -12,6 +12,10 @@ hitl_why: "The three memory layers are queried and written as an independent set
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: 4-zone Shape E for default + park + complete + opt-out; Shape G (Comparison Matrix) for query when Phase 101 ships (Shape E fallback otherwise); Shape G Mode A or Shape E Mode B for cross-room depending on Brain availability; Shape F.6 (or F.1 fallback) for resume picker.
 serves_jtbd: ["audit-room"]
+job_when: "I am unsure what my room remembers from earlier sessions"
+job_want: "to inspect memory within this session, across sessions and across rooms"
+job_so: "rely on what is carried forward and correct what is not"
+job_sentence_status: "provisional"
 teaching: "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room. Memory locality is a Canon Part 9 invariant."
 locks_operator: null
 min_tier: 0

@@ -12,6 +12,10 @@ hitl_why: "Graph exploration offers one next move from the current node."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: Query results as cards, graph stats as header
 serves_jtbd: ["audit-room", "explore"]
+job_when: "I have a question about how the things in my room connect"
+job_want: "to ask the knowledge graph in plain English"
+job_so: "follow the connections without learning a query language"
+job_sentence_status: "provisional"
 teaching: "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read AskUserQuestion

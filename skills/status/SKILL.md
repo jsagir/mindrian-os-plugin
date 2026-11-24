@@ -12,6 +12,10 @@ hitl_why: "Status offers one next move based on where the room stands."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 21): first delivery at commands/status.md:51, quoting docs/reward-before-investment-rule.md:59 verbatim, "A /mos:status output is not a reward (predictable report)."
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "explore"]
+job_when: "I need a fast read on where my room stands"
+job_want: "to see the governing thought of each section with its health marks"
+job_so: "decide where to work next in seconds"
+job_sentence_status: "provisional"
 teaching: "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash(node scripts/mos-status.cjs:*), Read, AskUserQuestion

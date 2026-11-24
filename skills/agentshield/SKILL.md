@@ -12,6 +12,10 @@ hitl_why: "A read-only security scan that reports per-surface status and takes n
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: per-surface status rows with [clean] / [N flagged] markers, a total-findings summary, one Feynman line per flagged finding
 serves_jtbd: ["audit-room"]
+job_when: "I worry that my install carries a known attack pattern"
+job_want: "to scan its tools, hooks, skills and dependencies for that pattern"
+job_so: "fix a real risk before it reaches my work"
+job_sentence_status: "provisional"
 teaching: "When you want to know whether the plugin's own MCP tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five surfaces and reports what is clean and what is flagged. Larry runs the scan and explains any finding in plain English."
 allowed-tools: Bash Read
 # --- Phase 199-05 CIRS R1 exclude (Canon Part 11) ---
