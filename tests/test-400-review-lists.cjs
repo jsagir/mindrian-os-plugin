@@ -44,6 +44,8 @@ const { parseFrontmatter } = require(path.join(ROOT, 'scripts/build-command-regi
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8'));
 
 const DASHES = new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']');
+// The uppercase-W spelling of PwS, built from parts so this file holds no such literal.
+const UPPER_W = new RegExp('P' + 'W' + 'S(?!-Book)');
 const DOMAINS = ['clear', 'complicated', 'complex', 'chaotic', 'disorder'];
 const MOVES = ['categorize', 'analyze', 'probe', 'act', 'slice'];
 // RESEARCH Q5: 5 utility run-step commands that read as methodology. The computed list keeps
@@ -297,7 +299,7 @@ check('V3 sections 1 to 10, decimals, dashes, PwS spelling, card wording, wicked
   lines.forEach((l, i) => {
     for (const d of l.match(/\d+\.\d+/g) || []) if (!allowed.includes(d)) bad.push(i + 1 + ': ' + d);
     if (DASHES.test(l)) bad.push(i + 1 + ': dash');
-    if (/PWS(?!-Book)/.test(l)) bad.push(i + 1 + ': PWS');
+    if (UPPER_W.test(l)) bad.push(i + 1 + ': uppercase W');
   });
   assert.deepEqual(bad, []);
   const cyn = readJson('data/cynefin-domains.json');
