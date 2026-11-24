@@ -4299,3 +4299,47 @@ Plans:
 - [ ] 400-13-PLAN.md - relay server, health endpoint, render.yaml blueprint, operator README, packaging test (wave 13)
 - [ ] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [ ] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
+
+### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 401 to break down)
+
+### Phase 402: Efficiency B: lighter runtime (hot-18 alwaysLoad with deferral checked on Desktop and Cowork, Eureka tools on enable, preloaded-skill trim, hook process consolidation, card-fire stale-gate fix, opt-in process skills)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 402 to break down)
+
+### Phase 403: Efficiency C: isolated lens agents (omitClaudeMd read-only reviewers, lens-worker evaluator fetcher with modes, generic review loop with synthesizer and convergence rules)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 403 to break down)
+
+### Phase 404: Efficiency D: methodology commands as thin Theo recipes (shim step tool, recipe script, labelled local fallback, draft steps shown, pilots challenge-assumptions and root-cause, scenario evals, rollout)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 404 to break down)
