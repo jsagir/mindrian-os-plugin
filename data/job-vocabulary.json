@@ -1,6 +1,7 @@
 {
   "schema": "mos.job-vocabulary/1",
   "_note": "The one canonical job list (Phase 399, D-01, I-01). The command registry, the JTBD taxonomy and the section job canon are pinned to it by tests/test-399-job-vocabulary.cjs. The registry jtbd_summary still derives from lib/hmi/jtbd-taxonomy.json one_line (Phase 104.1); this file copies those summaries verbatim and adds summaries for the jobs the taxonomy does not describe. Hyphens only.",
+  "_sentence_note": "Phase 400 (O-01): sentence and slots are provisional, written for owner review (400-LABEL-REVIEW.md); summary stays the render text until a later ruling (Pitfall 1).",
   "ids": [
     "audit-room",
     "build",
@@ -30,14 +31,28 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When my room has grown and I am not sure it still holds together, I want to check it for gaps, drift, weak evidence and shaky decisions, so I can fix the weak spots before I build on them.",
+      "slots": {
+        "when": "my room has grown and I am not sure it still holds together",
+        "want": "to check it for gaps, drift, weak evidence and shaky decisions",
+        "so": "fix the weak spots before I build on them"
+      },
+      "sentence_status": "provisional"
     },
     "build": {
       "summary": "Build or extend the room or the method surface itself - start a room, add a method.",
       "summary_source": "phase-399",
       "origins": [
         "registry"
-      ]
+      ],
+      "sentence": "When I need a new room or a method that my room does not have yet, I want to start the room or add the method, so I can work inside a structure that fits my venture.",
+      "slots": {
+        "when": "I need a new room or a method that my room does not have yet",
+        "want": "to start the room or add the method",
+        "so": "work inside a structure that fits my venture"
+      },
+      "sentence_status": "provisional"
     },
     "compare-options": {
       "summary": "Compare alternatives across criteria - choose between A/B/C.",
@@ -45,7 +60,14 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I have several options in front of me and must pick one, I want to compare them against the same criteria, so I can choose with the trade-offs in plain view.",
+      "slots": {
+        "when": "I have several options in front of me and must pick one",
+        "want": "to compare them against the same criteria",
+        "so": "choose with the trade-offs in plain view"
+      },
+      "sentence_status": "provisional"
     },
     "connect-domains": {
       "summary": "Find cross-domain analogues - what does this look like in another field?",
@@ -53,7 +75,14 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When my thinking is stuck inside my own field, I want to find how other fields have solved a similar problem, so I can borrow a proven idea instead of starting from scratch.",
+      "slots": {
+        "when": "my thinking is stuck inside my own field",
+        "want": "to find how other fields have solved a similar problem",
+        "so": "borrow a proven idea instead of starting from scratch"
+      },
+      "sentence_status": "provisional"
     },
     "decide-pursue": {
       "summary": "Decide if a venture / opportunity / approach is worth pursuing.",
@@ -61,14 +90,28 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I have a venture, an opportunity or an approach in front of me, I want to judge whether it is worth pursuing, so I can commit my time to it or let it go with a clear reason.",
+      "slots": {
+        "when": "I have a venture, an opportunity or an approach in front of me",
+        "want": "to judge whether it is worth pursuing",
+        "so": "commit my time to it or let it go with a clear reason"
+      },
+      "sentence_status": "provisional"
     },
     "design-solution": {
       "summary": "Design the solution - shape what will be built and how it meets the need.",
       "summary_source": "phase-399-section-canon",
       "origins": [
         "section_canon"
-      ]
+      ],
+      "sentence": "When I know the need and must shape what to build, I want to design the solution and how it meets that need, so I can build the right thing in the right way.",
+      "slots": {
+        "when": "I know the need and must shape what to build",
+        "want": "to design the solution and how it meets that need",
+        "so": "build the right thing in the right way"
+      },
+      "sentence_status": "provisional"
     },
     "explore": {
       "summary": "No specific job - general thinking, talking, ranging.",
@@ -77,7 +120,14 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I have no specific job yet and want to think out loud, I want to range freely across ideas and questions, so I can notice what deserves a closer look.",
+      "slots": {
+        "when": "I have no specific job yet and want to think out loud",
+        "want": "to range freely across ideas and questions",
+        "so": "notice what deserves a closer look"
+      },
+      "sentence_status": "provisional"
     },
     "file-meeting": {
       "summary": "Capture and route meeting intelligence into the room.",
@@ -85,7 +135,14 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When a meeting just ended and its insights sit only in my notes, I want to capture what was said and route it into the room, so I can keep that knowledge from getting lost.",
+      "slots": {
+        "when": "a meeting just ended and its insights sit only in my notes",
+        "want": "to capture what was said and route it into the room",
+        "so": "keep that knowledge from getting lost"
+      },
+      "sentence_status": "provisional"
     },
     "find-bottleneck": {
       "summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
@@ -94,7 +151,14 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When progress stalls even though most parts of the venture move forward, I want to find the lagging part that holds the rest back, so I can put my effort where it unblocks the whole system.",
+      "slots": {
+        "when": "progress stalls even though most parts of the venture move forward",
+        "want": "to find the lagging part that holds the rest back",
+        "so": "put my effort where it unblocks the whole system"
+      },
+      "sentence_status": "provisional"
     },
     "find-problem": {
       "summary": "Find the problem worth solving (not the symptom, the root).",
@@ -103,28 +167,56 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I see symptoms but am not sure what the real problem is, I want to dig past the symptoms to the root cause, so I can spend my effort on a problem worth solving.",
+      "slots": {
+        "when": "I see symptoms but am not sure what the real problem is",
+        "want": "to dig past the symptoms to the root cause",
+        "so": "spend my effort on a problem worth solving"
+      },
+      "sentence_status": "provisional"
     },
     "model-business": {
       "summary": "Model the business - how it creates, delivers and captures value.",
       "summary_source": "phase-399-section-canon",
       "origins": [
         "section_canon"
-      ]
+      ],
+      "sentence": "When I have an idea but not yet a way to make it a business, I want to model how it creates, delivers and captures value, so I can see whether the business can stand on its own.",
+      "slots": {
+        "when": "I have an idea but not yet a way to make it a business",
+        "want": "to model how it creates, delivers and captures value",
+        "so": "see whether the business can stand on its own"
+      },
+      "sentence_status": "provisional"
     },
     "model-finances": {
       "summary": "Hold the numbers - costs, revenue, funding and runway.",
       "summary_source": "phase-399-section-canon",
       "origins": [
         "section_canon"
-      ]
+      ],
+      "sentence": "When I need to know whether the money side of my venture works, I want to lay out costs, revenue, funding and runway, so I can plan how long the money lasts and what it must pay for.",
+      "slots": {
+        "when": "I need to know whether the money side of my venture works",
+        "want": "to lay out costs, revenue, funding and runway",
+        "so": "plan how long the money lasts and what it must pay for"
+      },
+      "sentence_status": "provisional"
     },
     "navigate": {
       "summary": "Steer the conversation - change Larry's stance, or reach into the room memory when a thought goes stale.",
       "summary_source": "phase-399",
       "origins": [
         "registry"
-      ]
+      ],
+      "sentence": "When the conversation drifts or a thought from earlier goes stale, I want to change the stance of my thinking partner or reach into the room memory, so I can get back on a useful track.",
+      "slots": {
+        "when": "the conversation drifts or a thought from earlier goes stale",
+        "want": "to change the stance of my thinking partner or reach into the room memory",
+        "so": "get back on a useful track"
+      },
+      "sentence_status": "provisional"
     },
     "plan-execution": {
       "summary": "Plan the next 90 days - milestones, owners, dates.",
@@ -133,7 +225,14 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I know what comes next but not who does it or by when, I want to plan the next stretch of work with milestones, owners and dates, so I can turn the plan into work that gets done.",
+      "slots": {
+        "when": "I know what comes next but not who does it or by when",
+        "want": "to plan the next stretch of work with milestones, owners and dates",
+        "so": "turn the plan into work that gets done"
+      },
+      "sentence_status": "provisional"
     },
     "prepare-pitch": {
       "summary": "Prepare for an investor / partner / customer meeting.",
@@ -141,14 +240,28 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When a meeting with an investor, a partner or a customer is coming up, I want to prepare what I will say and what they will ask, so I can walk in ready and leave with a next step.",
+      "slots": {
+        "when": "a meeting with an investor, a partner or a customer is coming up",
+        "want": "to prepare what I will say and what they will ask",
+        "so": "walk in ready and leave with a next step"
+      },
+      "sentence_status": "provisional"
     },
     "protect-assets": {
       "summary": "Protect what is ours - intellectual property, rights and defensibility.",
       "summary_source": "phase-399-section-canon",
       "origins": [
         "section_canon"
-      ]
+      ],
+      "sentence": "When my venture holds ideas, rights or know-how that others could copy, I want to protect our intellectual property and our defensibility, so I can keep the value we create as ours.",
+      "slots": {
+        "when": "my venture holds ideas, rights or know-how that others could copy",
+        "want": "to protect our intellectual property and our defensibility",
+        "so": "keep the value we create as ours"
+      },
+      "sentence_status": "provisional"
     },
     "surface-contradiction": {
       "summary": "Notice and resolve internal contradictions in the room.",
@@ -156,14 +269,28 @@
       "origins": [
         "registry",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When parts of my room say things that do not agree, I want to notice the contradictions and resolve them, so I can trust what the room tells me.",
+      "slots": {
+        "when": "parts of my room say things that do not agree",
+        "want": "to notice the contradictions and resolve them",
+        "so": "trust what the room tells me"
+      },
+      "sentence_status": "provisional"
     },
     "temporal-correction": {
       "summary": "Correct the room's reference date when the known date and the recorded date disagree.",
       "summary_source": "phase-399",
       "origins": [
         "registry"
-      ]
+      ],
+      "sentence": "When the date I know and the date my room recorded disagree, I want to correct the reference date of the room, so I can read every entry against the right point in time.",
+      "slots": {
+        "when": "the date I know and the date my room recorded disagree",
+        "want": "to correct the reference date of the room",
+        "so": "read every entry against the right point in time"
+      },
+      "sentence_status": "provisional"
     },
     "understand-market": {
       "summary": "Understand the market for this idea - size, structure, dynamics.",
@@ -172,7 +299,14 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I have an idea and do not yet know the market around it, I want to learn the size, structure and dynamics of that market, so I can judge whether the market can carry my idea.",
+      "slots": {
+        "when": "I have an idea and do not yet know the market around it",
+        "want": "to learn the size, structure and dynamics of that market",
+        "so": "judge whether the market can carry my idea"
+      },
+      "sentence_status": "provisional"
     },
     "validate-idea": {
       "summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
@@ -181,7 +315,14 @@
         "registry",
         "section_canon",
         "taxonomy"
-      ]
+      ],
+      "sentence": "When I hold an idea, a hypothesis or a claim that I have not tested, I want to test whether it holds up under scrutiny, so I can build on evidence instead of hope.",
+      "slots": {
+        "when": "I hold an idea, a hypothesis or a claim that I have not tested",
+        "want": "to test whether it holds up under scrutiny",
+        "so": "build on evidence instead of hope"
+      },
+      "sentence_status": "provisional"
     }
   }
 }
