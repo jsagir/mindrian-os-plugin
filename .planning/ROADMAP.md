@@ -4280,7 +4280,7 @@ Plans:
 **canon_parts:** 7, 8, 9, 12
 **Requirements**: JS-01 vocabulary sentences (20, provisional, summary unchanged); JS-02 run-step command sentences in frontmatter, registry and mirrors (73, O-11, O-12); JS-03 other commands, standalone skills and agents (40 + 12 + 17); JS-04 MCP tool sentences in a data file (63); JS-05 framework sentences reused (184 parse); JS-06 slot validator, writer and drift test, descriptions never grow; CY-01 cause_effect axis, additive, cynefin_rating deprecated alias; CY-02 data/cynefin-domains.json with book drift test; CY-03 two-stage navigator gate card, room-level store through navigation, aliases.yml, suggest_next field; CY-04 fits_domains and move_type frontmatter labels on the 73 run-step commands; CY-05 advisor domain key, in-band reorder, chaotic and disorder handling, consumers; CY-06 labels-only catalog gains domain and move type; CY-07 selection log domain column; AX-01 reworded Well-defined test behind a flag; AX-02 wicked cut-off, never raw 0.5; RL-01 relay pipeline with the shared validator; RL-02 install-id callers, caps, operator token, counts-only logs; RL-03 catalog skew detected and refused; RL-04 relay server, health, render.yaml, README, not shipped; RL-05 plugin relay client behind the off line, O-10 operator release run with audit; LR-01 owner review file with drift test; PG-01 run-all-400 aggregator and phase gates
 **Depends on:** Phase 399
-**Plans:** 11/15 plans executed
+**Plans:** 12/15 plans executed
 
 Plans:
 
@@ -4295,7 +4295,7 @@ Plans:
 - [x] 400-09-PLAN.md - advisor domain key, in-band reorder, chaotic and disorder handling in shortlist and present (wave 9)
 - [x] 400-10-PLAN.md - next-move and composeWorkflow pass the domain; selection log domain column (wave 10)
 - [x] 400-11-PLAN.md - reworded Well-defined test behind a flag and the fitted wicked cut-off (wave 11)
-- [ ] 400-12-PLAN.md - relay pipeline, O-09 callers and caps, offline tests (wave 12)
+- [x] 400-12-PLAN.md - relay pipeline, O-09 callers and caps, offline tests (wave 12)
 - [ ] 400-13-PLAN.md - relay server, health endpoint, render.yaml blueprint, operator README, packaging test (wave 13)
 - [ ] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [ ] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
