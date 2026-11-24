@@ -3,7 +3,7 @@
 // Phase 399-07: the advisor as one key inside the single selector, and its navigator-safe presentation.
 // Legs PR1 to PR5 (present.cjs), then the selector legs added with the selector change.
 // The legs set the advisor env themselves; an ambient value must not change them.
-delete process.env.MINDRIAN_DECISION_ADVISOR;
+process.env.MINDRIAN_DECISION_ADVISOR = 'on'; // advisor is opt-in; these legs exercise it on
 delete process.env.MINDRIAN_DECISION_ADVISOR_TABLE;
 const assert = require('node:assert/strict');
 const path = require('node:path');
@@ -304,11 +304,11 @@ check('N8 nextMoveForSection reads the room definition level and builds the advi
   const R = roomLegs();
   fs.writeFileSync(path.join(R.roomDir, 'STATE.md'), '---\ndefinition_level: ill-defined\n---\n# State\n', 'utf8');
   const optsOf = (m) => m.advisor.options.map((o) => o.command);
-  const withLevel = withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: R.file, MINDRIAN_DECISION_ADVISOR: null }, () => NM.nextMoveForSection({ roomDir: R.roomDir, sectionDir: R.sectionPath, surface: 'mcp' }));
+  const withLevel = withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: R.file, MINDRIAN_DECISION_ADVISOR: 'on' }, () => NM.nextMoveForSection({ roomDir: R.roomDir, sectionDir: R.sectionPath, surface: 'mcp' }));
   assert.deepEqual(optsOf(withLevel), R.rowIll.map((e) => e.command), 'ill-defined row');
   assert.equal(withLevel.advisor.state, 'ok');
   fs.writeFileSync(path.join(R.roomDir, 'STATE.md'), '# State\n', 'utf8');
-  const noLevel = withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: R.file, MINDRIAN_DECISION_ADVISOR: null }, () => NM.nextMoveForSection({ roomDir: R.roomDir, sectionDir: R.sectionPath, surface: 'mcp' }));
+  const noLevel = withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: R.file, MINDRIAN_DECISION_ADVISOR: 'on' }, () => NM.nextMoveForSection({ roomDir: R.roomDir, sectionDir: R.sectionPath, surface: 'mcp' }));
   assert.deepEqual(optsOf(noLevel), R.rowAny.map((e) => e.command), 'job-only row');
   const off = withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: R.file, MINDRIAN_DECISION_ADVISOR: 'off' }, () => NM.nextMoveForSection({ roomDir: R.roomDir, sectionDir: R.sectionPath, surface: 'mcp' }));
   assert.equal(Object.prototype.hasOwnProperty.call(off, 'advisor'), false);
@@ -344,7 +344,7 @@ async function suggestLegs() {
     Object.keys(env).forEach((k) => { saved[k] = process.env[k]; if (env[k] === null) delete process.env[k]; else process.env[k] = env[k]; });
     try { return await fn(); } finally { Object.keys(saved).forEach((k) => { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }); }
   }
-  const on = await withEnvAsync({ MINDRIAN_DECISION_ADVISOR_TABLE: file, MINDRIAN_DECISION_ADVISOR: null }, pull);
+  const on = await withEnvAsync({ MINDRIAN_DECISION_ADVISOR_TABLE: file, MINDRIAN_DECISION_ADVISOR: 'on' }, pull);
   const off = await withEnvAsync({ MINDRIAN_DECISION_ADVISOR_TABLE: file, MINDRIAN_DECISION_ADVISOR: 'off' }, pull);
   check('N10 suggest_next carries next_move.advisor with state and options, and no raw number', () => {
     const a = on.next_move.advisor;

@@ -155,7 +155,7 @@ function withEnv(env, fn) {
   const saved = {};
   for (const k of ENV_KEYS) saved[k] = process.env[k];
   for (const k of ENV_KEYS) delete process.env[k];
-  Object.assign(process.env, env);
+  Object.assign(process.env, { MINDRIAN_DECISION_ADVISOR: 'on' }, env); // advisor is opt-in
   try {
     return fn();
   } finally {
@@ -299,6 +299,15 @@ check('S4 state words never throw: no_job, no_row, no_table, off', () => {
     assert.deepEqual(r.options, []);
     assert.equal(S.advisorEnabled(), false);
   });
+  // Opt-in default: with the variable unset the advisor is off.
+  const savedOpt = process.env.MINDRIAN_DECISION_ADVISOR;
+  delete process.env.MINDRIAN_DECISION_ADVISOR;
+  try {
+    assert.equal(S.advisorEnabled(), false);
+    assert.equal(S.lookupShortlist({ jobId: 'validate-idea' }).state, 'off');
+  } finally {
+    if (savedOpt === undefined) delete process.env.MINDRIAN_DECISION_ADVISOR; else process.env.MINDRIAN_DECISION_ADVISOR = savedOpt;
+  }
   assert.deepEqual(Object.keys(S.STATES).sort(), ['no_job', 'no_row', 'no_strong_pick', 'no_table', 'off', 'ok']);
   assert.ok(Object.isFrozen(S.STATES));
 });
@@ -332,7 +341,7 @@ check('S6 source requires only node:fs and node:path; cold require plus one look
     "const t=process.hrtime.bigint();const s=require(" + JSON.stringify(SHORTLIST) + ");" +
     "const r=s.lookupShortlist({jobId:'validate-idea'});" +
     "console.log(Number(process.hrtime.bigint()-t)/1e6+'|'+r.state);";
-  const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_DECISION_ADVISOR: '' }) });
+  const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_DECISION_ADVISOR: 'on' }) });
   assert.equal(r.status, 0, r.stderr);
   const [ms, state] = r.stdout.trim().split('|');
   assert.equal(state, 'ok');
