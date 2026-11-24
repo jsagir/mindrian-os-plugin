@@ -216,14 +216,17 @@ check('G4 the resolver source keeps the no-Brain rule on non-comment lines', () 
 const SENSORS_SRC = fs.readFileSync(path.join(ROOT, 'lib', 'mcp', 'tools', 'sensors.cjs'), 'utf8');
 const ACT_SRC = fs.readFileSync(path.join(ROOT, 'scripts', 'act-command.cjs'), 'utf8');
 
-check('W6 source: both callers pass { jobId, definitionLevel } when a job is known, and one argument otherwise', () => {
+check('W6 source: both callers get their options from advisorOptsForRoom and pass them when set, one argument otherwise', () => {
   for (const src of [SENSORS_SRC, ACT_SRC]) {
-    assert.match(src, /resolveSelectionJob\(/);
-    assert.match(src, /readRoomAxes\(/);
-    assert.ok(/advisorOpts = \{ jobId: [^}]*definitionLevel:/.test(src), 'builds { jobId, definitionLevel }');
+    assert.match(src, /advisorOptsForRoom\(roomDir\)/);
     assert.ok(/composeWorkflow\(\w+,\s*advisorOpts\)/.test(src), 'passes the options when a job is known');
     assert.ok(/:\s*(resolver\.)?composeWorkflow\(\w+\);/.test(src), 'one-argument call with no job');
+    assert.equal(/readRoomAxes\(/.test(src), false, 'the axes read lives in the one helper');
   }
+  const RES_SRC = fs.readFileSync(path.join(ROOT, 'lib', 'workflow', 'command-resolver.cjs'), 'utf8');
+  assert.match(RES_SRC, /resolveSelectionJob\(/);
+  assert.match(RES_SRC, /readRoomAxes\(/);
+  assert.ok(/return \{ jobId: selJob\.id, definitionLevel:/.test(RES_SRC), 'builds { jobId, definitionLevel }');
 });
 
 function makeRoom(name) {
@@ -234,6 +237,36 @@ function makeRoom(name) {
   return roomDir;
 }
 const JT = require(path.join(ROOT, 'lib', 'hmi', 'jtbd-state.cjs'));
+
+check('W6b WR-05 advisor off: the helper and the next-move selector read neither the job nor the room axes', () => {
+  const room = makeRoom('wr05-room');
+  assert.ok(JT.setGoal(room, { jtbd: JOB }), 'fixture: goal written');
+  const PA = require(path.join(ROOT, 'lib', 'core', 'problem-axes.cjs'));
+  const NM = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'next-move.cjs'));
+  const realAxes = PA.readRoomAxes;
+  const realJob = JT.resolveSelectionJob;
+  let axes = 0;
+  let jobs = 0;
+  PA.readRoomAxes = function counted() { axes += 1; return realAxes.apply(this, arguments); };
+  JT.resolveSelectionJob = function counted() { jobs += 1; return realJob.apply(this, arguments); };
+  try {
+    const nest = { section: 'problem-definition', job: { id: JOB }, roomDir: room, face: { keyed: false }, runs: [], need: { counterevidence: 0, assumptions: 0 } };
+    const off = withEnv({ MINDRIAN_DECISION_ADVISOR: undefined, MINDRIAN_DECISION_ADVISOR_TABLE: T_PICK }, () => ({
+      opts: resolver.advisorOptsForRoom(room),
+      move: NM.nextMoveForSection({ roomDir: room, nest, surface: 'cli' }),
+    }));
+    assert.equal(off.opts, null);
+    assert.equal(axes, 0, 'readRoomAxes not called with the advisor off');
+    assert.equal(jobs, 1, 'only nextMoveForSection resolves the job (it needs it with the advisor off too); the helper does not');
+    const on = withEnv(ON(T_PICK), () => ({
+      opts: resolver.advisorOptsForRoom(room),
+      move: NM.nextMoveForSection({ roomDir: room, nest, surface: 'cli' }),
+    }));
+    assert.deepEqual(on.opts, { jobId: JOB, definitionLevel: on.opts.definitionLevel });
+    assert.ok(axes >= 2, 'readRoomAxes called by both with the advisor on: ' + axes);
+    assert.ok(on.move && off.move);
+  } finally { PA.readRoomAxes = realAxes; JT.resolveSelectionJob = realJob; }
+});
 
 function runAct(roomDir, env) {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'act-command.cjs'), '--chain', '--from-framework', FW, '--room', roomDir], {
