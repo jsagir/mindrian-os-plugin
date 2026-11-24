@@ -1,0 +1,27 @@
+{
+  "_shape_source": "structure of a recorded self-hosted Kev response, 2026-11-24; ids and options renamed",
+  "model": "kev-latest",
+  "answers": {
+    "q0001": {
+      "type": "choice",
+      "choice": "/mos:validate",
+      "confidence": 0.4528,
+      "probabilities": {
+        "/mos:validate": 0.5622,
+        "/mos:challenge-assumptions": 0.2749,
+        "/mos:scenario-plan": 0.0985,
+        "none_of_these": 0.0644
+      }
+    },
+    "q0002": { "type": "noul", "noul": 0.5305 },
+    "q0003": {
+      "type": "score",
+      "score": 0.4124,
+      "legend": { "0": "Poor fit", "1": "Partial fit", "2": "Strong fit" },
+      "probabilities": { "0": 0.6417, "1": 0.3041, "2": 0.0542 },
+      "confidence": 0.3814
+    }
+  },
+  "usage": { "input_tokens": 195, "output_tokens": 227 },
+  "latency_ms": 139.4
+}

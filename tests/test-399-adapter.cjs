@@ -319,7 +319,185 @@ function stubProvider(id, max) {
     assert.equal(L.validateProviderBody('jev', body, badReq, catalog, providers).reason, 'unknown_key');
   });
 
-  // @@P-LEGS@@
+  // -------------------------------------------------------------------------
+  // P1 to P5: provider shapes, response fixtures, merged ask over a fake transport
+  // -------------------------------------------------------------------------
+  const G = require(path.join(AD, 'providers', 'gemini.cjs'));
+  const J = require(path.join(AD, 'providers', 'jev.cjs'));
+  const fixture = (n) => JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', '399', n), 'utf8'));
+
+  function mixedReq() {
+    return {
+      context: { job_id: JOB, job_summary: SUMMARY, definition_level: 'ill-defined', last_command: CMD2 },
+      questions: {
+        q0001: { type: 'choice', template: 'next_command_v1', options: [CMD, CMD2, CMD3] },
+        q0002: { type: 'yes_no', template: 'serves_job_v1', subject: CMD },
+        q0003: { type: 'score', template: 'fit_score_v1', subject: CMD },
+      },
+    };
+  }
+
+  check('P1: gemini.buildBody gives input, noul/choice/score, stable option ids; constants', () => {
+    const rr = A.renderRequest(mixedReq(), catalog);
+    const body = G.buildBody(rr);
+    assert.equal(body.model, 'gemini-decision-1');
+    assert.equal(body.input, rr.context);
+    assert.equal('state' in body, false);
+    assert.equal(body.questions.q0001.type, 'choice');
+    assert.deepEqual(Object.keys(body.questions.q0001.criteria), [CMD, CMD2, CMD3, 'none_of_these']);
+    assert.equal(body.questions.q0002.type, 'noul');
+    assert.equal('criteria' in body.questions.q0002, false);
+    assert.equal(body.questions.q0003.type, 'score');
+    assert.deepEqual(body.questions.q0003.criteria, ['Poor fit', 'Partial fit', 'Strong fit']);
+    assert.equal(G.MAX_QUESTIONS, 1000);
+    assert.equal(G.SORTS_OPTIONS, true);
+    assert.equal(G.API_VERSION, 'v1beta');
+    assert.equal(G.REQUEST_FIELD, 'input');
+    assert.equal(G.PATH, null);
+    assert.equal(G.PATH_CONFIRMED, false);
+    assert.deepEqual(G.TYPE_MAP, { yes_no: 'noul', choice: 'choice', score: 'score' });
+  });
+  check('P2: jev.buildBody gives state, default jev-latest, kev-latest on request; constants', () => {
+    const rr = A.renderRequest(mixedReq(), catalog);
+    const body = J.buildBody(rr);
+    assert.equal(body.model, 'jev-latest');
+    assert.equal(body.state, rr.context);
+    assert.equal('input' in body, false);
+    assert.deepEqual(body.questions, G.buildBody(rr).questions);
+    assert.equal(J.buildBody(rr, { model: 'kev-latest' }).model, 'kev-latest');
+    assert.equal(J.buildBody(rr, { model: 'other-model' }).model, 'jev-latest');
+    assert.equal(J.PATH, '/v1/systemone');
+    assert.equal(J.REQUEST_FIELD, 'state');
+    assert.equal(J.SORTS_OPTIONS, false);
+    assert.equal(J.MAX_QUESTIONS, 20);
+  });
+  check('P2: validateProviderBody accepts each real provider render and refuses a tampered body', () => {
+    const req = mixedReq();
+    const rr = A.renderRequest(req, catalog);
+    for (const [id, p] of [['gemini', G], ['jev', J]]) {
+      const body = p.buildBody(rr);
+      assert.deepEqual(L.validateProviderBody(id, body, req, catalog), { ok: true }, id);
+      const bad = clone(body);
+      bad.questions.q0002.instructions += ' with a room note';
+      assert.equal(L.validateProviderBody(id, bad, req, catalog).ok, false, id);
+    }
+    assert.deepEqual(L.validateProviderBody('jev', J.buildBody(rr, { model: 'kev-latest' }), req, catalog), { ok: true });
+    assert.equal(L.validateProviderBody('nope', {}, req, catalog).ok, false);
+  });
+
+  const EXPECT = {
+    q0001: {
+      type: 'choice',
+      choice: CMD,
+      confidence: 0.4528,
+      probabilities: { [CMD]: 0.5622, [CMD2]: 0.2749, [CMD3]: 0.0985, none_of_these: 0.0644 },
+    },
+    q0002: { type: 'yes_no', p: 0.5305 },
+    q0003: { type: 'score', score: 0.4124, confidence: 0.3814, probabilities: { 0: 0.6417, 1: 0.3041, 2: 0.0542 } },
+  };
+  const renderedMixed = A.renderRequest(mixedReq(), catalog).questions;
+
+  check('P3: jev.parseResponse of the fixture gives neutral answers and usage', () => {
+    const out = J.parseResponse(fixture('jev-response-shape.json'), renderedMixed);
+    assert.deepEqual(out.answers, EXPECT);
+    assert.deepEqual(out.usage, { input_tokens: 195, output_tokens: 227 });
+  });
+  check('P3: gemini.parseResponse of the fixture gives the same neutral answers; usage in both casings', () => {
+    const out = G.parseResponse(fixture('gemini-response-shape.json'), renderedMixed);
+    assert.deepEqual(out.answers, EXPECT);
+    assert.deepEqual(out.usage, { input_tokens: 195, output_tokens: 0 });
+    const camel = G.parseResponse({ answers: {}, usage: { totalInputTokens: 77 } }, renderedMixed);
+    assert.equal(camel.usage.input_tokens, 77);
+  });
+  check('P3: fixtures carry _shape_source and no path, host or key', () => {
+    for (const n of ['jev-response-shape.json', 'gemini-response-shape.json']) {
+      const raw = fs.readFileSync(path.join(ROOT, 'tests', 'fixtures', '399', n), 'utf8');
+      assert.ok(JSON.parse(raw)._shape_source);
+      assert.equal(/\/home\/|MindrianOS\/research|api\.|_KEY/.test(raw), false, n);
+    }
+  });
+
+  check('P4: parseResponse never throws; missing, out-of-range and unknown ids are handled', () => {
+    for (const P of [G, J]) {
+      const base = clone(fixture(P === G ? 'gemini-response-shape.json' : 'jev-response-shape.json'));
+      delete base.answers.q0002;
+      base.answers.q0001.probabilities[CMD] = 1.5;
+      base.answers.q9999 = { type: 'noul', noul: 0.4, choice: 'x' };
+      const out = P.parseResponse(base, renderedMixed);
+      assert.deepEqual(out.answers.q0002, { type: 'yes_no', missing: true });
+      assert.deepEqual(out.answers.q0001, { type: 'choice', missing: true });
+      assert.equal('q9999' in out.answers, false);
+      assert.equal(out.answers.q0003.type, 'score');
+      const neg = P.parseResponse({ answers: { q0002: P === G ? { noul: -0.1 } : { type: 'noul', noul: -0.1 } } }, renderedMixed);
+      assert.equal(neg.answers.q0002.missing, true);
+      const nan = P.parseResponse({ answers: { q0002: P === G ? { noul: NaN } : { type: 'noul', noul: NaN } } }, renderedMixed);
+      assert.equal(nan.answers.q0002.missing, true);
+      for (const junk of [null, undefined, 'text', 42, [], { answers: null }, { answers: 'x', usage: 5 }]) {
+        const o = P.parseResponse(junk, renderedMixed);
+        assert.equal(Object.keys(o.answers).length, 3);
+        assert.deepEqual(o.usage, { input_tokens: 0, output_tokens: 0 });
+        for (const k of Object.keys(o.answers)) assert.equal(o.answers[k].missing, true);
+      }
+    }
+  });
+  check('P4: a probability key outside the question options is dropped, not trusted', () => {
+    const resp = clone(fixture('jev-response-shape.json'));
+    resp.answers.q0001.probabilities['/mos:invented'] = 0.9;
+    const out = J.parseResponse(resp, renderedMixed);
+    assert.equal('/mos:invented' in out.answers.q0001.probabilities, false);
+  });
+
+  // A fake transport builds a typed answer for every question in the body it receives.
+  function fakeAnswer(shape, q) {
+    if (q.type === 'noul') return shape === 'jev' ? { type: 'noul', noul: 0.25 } : { noul: 0.25 };
+    if (q.type === 'choice') {
+      const keys = Object.keys(q.criteria);
+      const probabilities = {};
+      for (const k of keys) probabilities[k] = 1 / keys.length;
+      const a = { choice: keys[0], confidence: 0.5, probabilities };
+      return shape === 'jev' ? Object.assign({ type: 'choice' }, a) : a;
+    }
+    const a = { score: 0.5, confidence: 0.5, probabilities: { 0: 0.2, 1: 0.3, 2: 0.5 } };
+    return shape === 'jev' ? Object.assign({ type: 'score' }, a) : a;
+  }
+  function fakeTransport(shape, calls) {
+    return async (body, meta) => {
+      calls.push({ meta, n: Object.keys(body.questions).length, field: shape === 'jev' ? body.state : body.input });
+      const answers = {};
+      for (const id of Object.keys(body.questions)) answers[id] = fakeAnswer(shape, body.questions[id]);
+      return shape === 'jev' ? { model: body.model, answers, usage: { input_tokens: 10, output_tokens: 5 } } : { answers, usage: { total_input_tokens: 10 } };
+    };
+  }
+  await checkAsync('P5: askDecisionModel merges 1,500 gemini questions in 2 transport calls', async () => {
+    const calls = [];
+    const out = await A.askDecisionModel(bigReq(1500), { provider: 'gemini', transport: fakeTransport('gemini', calls), catalog });
+    assert.equal(out.ok, true);
+    assert.deepEqual(calls.map((c) => c.n), [1000, 500]);
+    assert.equal(Object.keys(out.answers).length, 1500);
+    assert.deepEqual(out.answers.q1500, { type: 'yes_no', p: 0.25 });
+    assert.deepEqual(out.usage, { input_tokens: 20, output_tokens: 0 });
+    assert.equal(calls[0].field, calls[1].field);
+  });
+  await checkAsync('P5: askDecisionModel merges 45 jev questions in 3 transport calls', async () => {
+    const calls = [];
+    const out = await A.askDecisionModel(bigReq(45), { provider: 'jev', transport: fakeTransport('jev', calls), catalog });
+    assert.equal(out.ok, true);
+    assert.deepEqual(calls.map((c) => c.n), [20, 20, 5]);
+    assert.equal(Object.keys(out.answers).length, 45);
+    assert.deepEqual(out.usage, { input_tokens: 30, output_tokens: 15 });
+  });
+  await checkAsync('P5: a mixed request over the real providers gives typed neutral answers', async () => {
+    const out = await A.askDecisionModel(mixedReq(), { provider: 'jev', transport: fakeTransport('jev', []), catalog, model: 'kev-latest' });
+    assert.equal(out.ok, true);
+    assert.equal(out.answers.q0001.type, 'choice');
+    assert.equal(out.answers.q0002.type, 'yes_no');
+    assert.equal(out.answers.q0003.type, 'score');
+  });
+  await checkAsync('P5: an unknown provider id is refused before any transport call', async () => {
+    const calls = [];
+    const out = await A.askDecisionModel(validReq(), { provider: 'other', transport: fakeTransport('jev', calls), catalog });
+    assert.deepEqual([out.ok, out.reason, calls.length], [false, 'unknown_provider', 0]);
+  });
   console.log('');
   console.log(passed + ' passed, ' + failed + ' failed');
   if (failed) process.exit(1);
