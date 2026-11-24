@@ -178,7 +178,9 @@ try {
   scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'test-400-apply-'));
   for (const rel of ['commands/validate.md', 'skills/larry-personality/SKILL.md', 'skills/validate/SKILL.md', 'agents/research.md']) {
     fs.mkdirSync(path.dirname(path.join(scratch, rel)), { recursive: true });
-    fs.copyFileSync(path.join(ROOT, rel), path.join(scratch, rel));
+    // Start every fixture without job keys: later plans label the real files (400-02 labels
+    // commands/validate.md), and W1 to W5 test the writer from a clean state.
+    fs.writeFileSync(path.join(scratch, rel), stripJobLines(fs.readFileSync(path.join(ROOT, rel), 'utf8')));
   }
   const orig = {};
   for (const rel of ['commands/validate.md', 'skills/larry-personality/SKILL.md', 'agents/research.md']) {
