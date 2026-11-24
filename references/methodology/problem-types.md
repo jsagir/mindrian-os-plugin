@@ -16,6 +16,8 @@ Every venture problem sits on two axes. Larry uses this to route users to the ri
 | **Ill-defined** | Something is broken but they cannot name it | "Customers aren't buying but I don't know why" |
 | **Well-defined** | Clear parameters, specific constraints | "We need to reduce churn by 15% in Q2" |
 
+Flagged wording (Phase 400, provisional): with MINDRIAN_LEVEL_WORDING=v2 the suggest_next reply carries problem_level_test, a reworded Well-defined test from data/problem-axes-wording.json. The table above stays the default.
+
 ### Axis 2: Complexity (Cynefin-Informed)
 
 | Level | Signal | What It Looks Like |
