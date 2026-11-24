@@ -29,6 +29,10 @@ const OA = contract.owner_answers || {};
 // The frontmatter block: the lines between the first two lines that are exactly ---,
 // joined with a line feed. Pinned from HEAD before plan 370-09 edited any command.
 // If a command's frontmatter must change, a later plan updates the pin on purpose.
+// Later-phase additive keys are dropped before the hash, so every 370 line stays pinned:
+// phase 400 (plan 400-02) adds the job sentence keys on their own lines.
+const LATER_PHASE_KEYS = ['job_when', 'job_want', 'job_so', 'job_sentence_status'];
+const LATER_PHASE_RE = new RegExp('^(' + LATER_PHASE_KEYS.join('|') + '):');
 const FM_PIN = {
   'commands/grade.md': '8253efce8f7ccc99bb6caf7bb26454d07f220c50f9f3767841a3bd844d8dddb4',
   'commands/deep-grade.md': '17e942f12d5fddbe28c1c2012406f108d6fb6d86740d5e26e27e1ba99f5d9dfa',
@@ -41,7 +45,7 @@ function frontmatter(text) {
     if (lines[i] === '---') idx.push(i);
   }
   if (idx.length < 2) return null;
-  return lines.slice(idx[0] + 1, idx[1]).join('\n');
+  return lines.slice(idx[0] + 1, idx[1]).filter((l) => !LATER_PHASE_RE.test(l)).join('\n');
 }
 
 function sha(s) {

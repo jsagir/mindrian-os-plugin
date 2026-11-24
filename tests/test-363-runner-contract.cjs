@@ -346,7 +346,11 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
   const prEnd = scout.indexOf('\n' + SCOUT_PLAN_RUN_END, prStart);
   assert.ok(prEnd !== -1, 'the Plan-run route section must end at the Step 6 heading');
   assert.ok(scout.slice(prStart + SCOUT_PLAN_RUN_HEADING.length, prEnd).indexOf('\n## ') === -1, 'the Plan-run route section must hold no other ## heading');
-  const scoutWithoutRoute = scout.slice(0, prStart) + scout.slice(prEnd + 1);
+  // Phase 400 (plan 400-02) adds the job sentence keys as own frontmatter lines; drop them too.
+  const scoutWithoutRoute = (scout.slice(0, prStart) + scout.slice(prEnd + 1))
+    .split('\n')
+    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l))
+    .join('\n');
   assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer and the Plan-run route section');
   assert.equal(sched.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
 });
