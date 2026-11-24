@@ -339,6 +339,16 @@ node_aliases:
     related_existing: lib/core/navigation.cjs
     notes: "Append-only log of shown next-move options, their calibrated advisor probability, the navigator decision and overrules, written only through the navigation chokepoint (recordSelectionOutcome); dedupes on (surface, gate_id). A derived log, not graph state, so it carries no typed edges."
 
+  # --- Phase 400 cause-and-effect domain (1 entry, registered before any write) ---
+
+  - codex_term: problem_cause_effect
+    resolution: EXTEND
+    canonical_name: identity
+    source_phase: 400
+    canon_parts: [Part 9]
+    related_existing: lib/core/navigation/cause-effect.cjs
+    notes: "Identity key problem.cause_effect in the existing identity key/value table: the navigator's Cynefin domain answer for the room (one per room, O-04), written only by lib/core/navigation/cause-effect.cjs inside the gate_answer transaction. A closed label, never room text; the Brain packet builder does not read it (Part 8)."
+
   # --- Codex-proposed nodes (14 entries) ---
 
   - codex_term: room
