@@ -21,7 +21,9 @@ Contents:
 - `verify-caller.cjs` - `verifyCaller(headers, cfg)`, the one pluggable caller check.
 - `limits.cjs` - `createLimits(cfg, now)`: bounded per-bucket and global daily caps, in memory.
 - `relay.cjs` - `createRelay(deps).handleDecide(...)`: the pure request pipeline, testable without a socket.
-- Plan 400-13 adds the socket layer, the Render blueprint and the operator README.
+- `server.cjs` - the socket layer and process entry (plan 400-13): `/health` liveness only, `/v1/decide`, the body cap while reading, the proxy hop count.
+- `render.yaml` - the Render Blueprint (custom Blueprint Path, no rootDir, NODE_VERSION pinned, auto deploy off).
+- `README.md` - the operator guide and the full OWNER-GATED step list.
 
 OWNER-GATED (no agent does these):
 - Create the Render service.
@@ -31,5 +33,5 @@ OWNER-GATED (no agent does these):
 - Deploy.
 - Change any egress default (`decision_advisor` stays off for users, O-10).
 
-Tests: `tests/test-400-relay.cjs` (in `tests/run-all-400.sh`).
+Tests: `tests/test-400-relay.cjs`, `tests/test-400-relay-server.cjs`, `tests/test-400-relay-packaging.cjs` (in `tests/run-all-400.sh`).
 Canon: Part 8 (only closed labels leave the machine), Part 7 (reuse before build).
