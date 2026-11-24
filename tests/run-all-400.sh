@@ -3,13 +3,13 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 FAIL=0
-for t in tests/test-400-job-sentence-lib.cjs tests/test-400-description-budget.cjs tests/test-400-job-vocabulary-sentences.cjs; do
+for t in tests/test-400-job-sentence-lib.cjs tests/test-400-description-budget.cjs tests/test-400-job-vocabulary-sentences.cjs tests/test-400-job-sentences.cjs; do
   echo "--- 400: $t ---"
   if node "$t"; then echo ">>> 400: $t: PASSED"; else echo ">>> 400: $t: FAILED"; FAIL=1; break; fi
 done
 # Phase-owned drift checks. Run only when every test passed. One PASSED or FAILED line each.
 if [ "$FAIL" -eq 0 ]; then
-  for c in "apply-job-sentences.cjs --check"; do
+  for c in "apply-job-sentences.cjs --check" "build-command-registry.cjs --check" "build-skill-mirrors.cjs --check"; do
     echo "--- 400 check: $c ---"
     if node scripts/$c; then echo ">>> 400 check: $c: PASSED"; else echo ">>> 400 check: $c: FAILED"; FAIL=1; fi
   done

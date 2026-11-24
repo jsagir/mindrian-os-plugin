@@ -8,6 +8,10 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Knowns and unknowns are laid out as an independent matrix set with no fixed order."
 serves_jtbd: ["validate-idea", "decide-pursue"]
+job_when: "I cannot tell what I do not know about my idea"
+job_want: "to sort the known, the unknown and the unknowable"
+job_so: "find where the hidden risk lives and plan research on it"
+job_sentence_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Rumsfeld matrix structure previews before the
 # navigator invests in filling each quadrant one at a time).

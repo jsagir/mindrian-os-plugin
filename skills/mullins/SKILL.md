@@ -10,6 +10,10 @@ hitl_why: "The seven Mullins domains are examined independently in any order, an
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 11): first delivery at commands/mullins.md:83, the seven domains rated with a sentence of evidence each and the weakest two surfaced.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["understand-market", "decide-pursue", "validate-idea"]
+job_when: "I am about to commit real resources to an opportunity"
+job_want: "to screen it across its market, its industry and its team"
+job_so: "commit only if it survives a rigorous test"
+job_sentence_status: "provisional"
 teaching: "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

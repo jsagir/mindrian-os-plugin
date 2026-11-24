@@ -1394,7 +1394,12 @@
       "teaching": "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "someone needs to see my whole business model on one page",
+        "want": "to fill a one page canvas from what my room already holds",
+        "so": "put a defensible model in front of them fast",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:macro-trends",
@@ -1417,7 +1422,12 @@
       "teaching": "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I am entering a domain and do not know the forces that shape it",
+        "want": "to scan its political, economic, social and technological forces",
+        "so": "see the wide picture before I narrow my focus",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:map-unknowns",
@@ -1440,7 +1450,12 @@
       "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I cannot tell what I do not know about my idea",
+        "want": "to sort the known, the unknown and the unknowable",
+        "so": "find where the hidden risk lives and plan research on it",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:memory-cortex-reach",
@@ -1522,7 +1537,12 @@
       "teaching": "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a section of my room holds artifacts but no clear line of argument",
+        "want": "to build a pyramid from one governing thought down to its support",
+        "so": "state what the section means so others can follow",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:mos",
@@ -1567,7 +1587,12 @@
       "teaching": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I am about to commit real resources to an opportunity",
+        "want": "to screen it across its market, its industry and its team",
+        "so": "commit only if it survives a rigorous test",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:mva-brief",
@@ -1587,7 +1612,12 @@
       "teaching": "Deprecated alias. Use /mos:structure-argument and choose the Seed depth to turn a venture sentence into a first argument pyramid. Scheduled removal: v2.0.0-beta.86.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I can describe my venture in one sentence but have no argument behind it",
+        "want": "to turn that sentence into a first argument pyramid",
+        "so": "see the premises my venture rests on",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:mva-report",
@@ -1607,7 +1637,12 @@
       "teaching": "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.86.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a working conversation just ended and I need a record of it",
+        "want": "to get a clean structured report of what we covered",
+        "so": "pick up the work later without rereading the whole conversation",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:new-project",
@@ -1627,7 +1662,12 @@
       "teaching": "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I am starting a new venture and have no room for it yet",
+        "want": "to create the room structure and register it",
+        "so": "file work in the right place from the start",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:new-surface",
@@ -1667,7 +1707,12 @@
       "teaching": "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I just installed the system and do not know where to start",
+        "want": "to take a guided tour and build my first room",
+        "so": "start working on my own without outside help",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:operator",
@@ -1707,7 +1752,12 @@
       "teaching": "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "my bank of opportunities has grown and I lose track of my decisions",
+        "want": "to see every banked opportunity with its score and decision state",
+        "so": "work the best ones as a live pipeline",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:organize",
@@ -1727,7 +1777,12 @@
       "teaching": "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
       "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "my rooms have multiplied and their hierarchy is a mess",
+        "want": "to arrange my rooms into a clear parent and child structure",
+        "so": "find and manage each room without searching",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:persona",
@@ -1749,7 +1804,12 @@
       "teaching": "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds.",
       "jtbd_label": "Prepare Pitch",
       "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "my room needs fresh perspectives I cannot supply alone",
+        "want": "to generate personas from my room data who each argue from a different stance",
+        "so": "decide which of their arguments hold",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:pipeline",
@@ -1769,7 +1829,12 @@
       "teaching": "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "several methods should run as a chain instead of one at a time",
+        "want": "to run them in sequence with each output feeding the next",
+        "so": "get a connected result without handing work between steps",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:present",
@@ -1830,7 +1895,12 @@
       "teaching": "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a candidate opportunity has surfaced and I must decide whether it qualifies",
+        "want": "to see which tests it passed and failed before I accept or skip it",
+        "so": "make the call myself and learn the tests",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:radar",
@@ -1850,7 +1920,12 @@
       "teaching": "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "new capabilities of the underlying AI model ship faster than I can follow",
+        "want": "to track which ones could change what my tools can do",
+        "so": "adopt the useful ones without scanning by hand",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:reanalyze",
@@ -1870,7 +1945,12 @@
       "teaching": "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant.",
       "jtbd_label": "File Meeting",
       "jtbd_summary": "Capture and route meeting intelligence into the room.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a meeting was filed a while ago and my room has grown since then",
+        "want": "to analyze that meeting again against the current room",
+        "so": "see what it means in light of what I know now",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:research",
@@ -1893,7 +1973,12 @@
       "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I need fresh evidence from the web on a question in my room",
+        "want": "to gather sourced findings and match each to a place in my room",
+        "so": "file only the findings I approve",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:room",
@@ -1957,7 +2042,12 @@
       "teaching": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a symptom keeps coming back after every fix",
+        "want": "to trace it back through repeated why questions and cause diagrams",
+        "so": "treat the cause instead of the recurrence",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:rs-experts",
@@ -1980,7 +2070,12 @@
       "teaching": "When a documented gap may connect to people named in your research papers, /mos:rs-experts searches the selected room's local paper corpus and shows source-linked authors. It does not verify their current expertise or availability.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a gap in my research may connect to people named in my papers",
+        "want": "to find the authors in my local papers who link to that gap",
+        "so": "contact the right people with a sourced reason",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:rs-explain",
@@ -2002,7 +2097,12 @@
       "teaching": "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I have a question about a lagging component that an earlier analysis found",
+        "want": "to ask in plain language and get an answer grounded in my graph",
+        "so": "understand the finding without reading the raw analysis",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:rs-fetch",
@@ -2026,7 +2126,12 @@
       "teaching": "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a topic needs the full analysis of what lags behind, not a sample",
+        "want": "to run the whole discovery from papers to cross field matches to a thesis",
+        "so": "act on a complete sweep",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:rs-thesis",
@@ -2048,7 +2153,12 @@
       "teaching": "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I ran a lagging component discovery earlier and a meeting on it is coming",
+        "want": "to read back its thesis in plain language",
+        "so": "revisit the finding before I discuss it",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:scenario-plan",
@@ -2071,7 +2181,12 @@
       "teaching": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "the future could go different ways on a pair of key uncertainties",
+        "want": "to build a grid of scenarios and name each one",
+        "so": "plan for the world I do not expect",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -2116,7 +2231,12 @@
       "teaching": "When you know what must be delivered but not how, /mos:scientific-roadmap walks Theo's Scientific Roadmapping steps to find the limits that are only assumed, ranks them by what they unlock, and hands the top ones to /mos:research as falsifiable hypotheses.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I know what I must deliver but not how to get there",
+        "want": "to find the limits that are only assumed and rank them by what they unlock",
+        "so": "turn the top limits into testable hypotheses",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:score-innovation",
@@ -2139,7 +2259,12 @@
       "teaching": "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel.",
       "jtbd_label": "Compare Options",
       "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I am choosing between several cross field innovation candidates",
+        "want": "to rank them by how surprising each combination is",
+        "so": "back the one that is truly novel",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:scout",
@@ -2160,7 +2285,12 @@
       "teaching": "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "background scans of my room should run without my attention",
+        "want": "to start the watch checks across the room",
+        "so": "learn about changes before I go looking for them",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:session-report",
@@ -2328,7 +2458,12 @@
       "teaching": "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced.",
       "jtbd_label": "Navigate",
       "jtbd_summary": null,
-      "job_sentence": null
+      "job_sentence": {
+        "when": "the way the conversation talks to me no longer fits this session",
+        "want": "to switch between pulling evidence, deciding fast, asking questions or challenging me",
+        "so": "get the kind of help that fits the moment",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:status",
@@ -2374,7 +2509,12 @@
       "teaching": "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "my argument feels muddled and I cannot say why",
+        "want": "to restructure it into a clear pyramid with no gaps or overlaps",
+        "so": "find the missing premise and make the case hold",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:suggest-next",
@@ -2395,7 +2535,12 @@
       "teaching": "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible.",
       "jtbd_label": "Plan Execution",
       "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I just finished a step and do not know what to do next",
+        "want": "to get a short list of next moves with reasons from my room",
+        "so": "choose with the reasons in view",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:systems-thinking",
@@ -2418,7 +2563,12 @@
       "teaching": "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system.",
       "jtbd_label": "Find Bottleneck",
       "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "the way the parts interact matters more than the parts themselves",
+        "want": "to map the feedback loops, stocks and flows of the system",
+        "so": "see where the system resists change and where it gives way",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:think-hats",
@@ -2441,7 +2591,12 @@
       "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives. Each hat can become a research lane: black for counterevidence, yellow for prior successes, white for missing facts.",
       "jtbd_label": "Explore",
       "jtbd_summary": "No specific job - general thinking, talking, ranging.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "my team keeps looking at a problem from the same angle",
+        "want": "to rotate through distinct thinking perspectives one at a time",
+        "so": "catch the views we keep missing",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:trending-to-absurd",
@@ -2465,7 +2620,12 @@
       "teaching": "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first.",
       "jtbd_label": "Understand Market",
       "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "a trend in my field feels safe and well understood",
+        "want": "to push it to its absurd extreme over a horizon I choose",
+        "so": "spot the disruptive opportunity at the edge",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:update",
@@ -2508,7 +2668,12 @@
       "teaching": "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives.",
       "jtbd_label": "Find Problem",
       "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "users tell me what they want but I doubt it matches what they need",
+        "want": "to map what they need by importance against satisfaction",
+        "so": "find the gap where the opportunity lives",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:validate",
@@ -2533,7 +2698,12 @@
       "teaching": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "an idea needs a real test before I invest more",
+        "want": "to measure how well it serves the needs of my target customers",
+        "so": "base the next investment on a measurement instead of a feeling",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:validate-proposition",
@@ -2557,7 +2727,12 @@
       "teaching": "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass.",
       "jtbd_label": "Validate Idea",
       "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I have a value proposition but no proof that it holds",
+        "want": "to test it in order against the gates a value proposition must pass",
+        "so": "learn which gate it fails before customers show me",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:vault",
@@ -2622,7 +2797,12 @@
       "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too.",
       "jtbd_label": "Connect Domains",
       "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
-      "job_sentence": null
+      "job_sentence": {
+        "when": "I suspect my room misses part of a domain",
+        "want": "to scan my artifacts for zones that are under explored",
+        "so": "fill the gaps before they weaken my case",
+        "status": "provisional"
+      }
     },
     {
       "command": "/mos:wiki",
