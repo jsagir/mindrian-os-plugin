@@ -227,6 +227,9 @@ async function main() {
       assert.equal(stored.gate_id, r.body.gate_id);
       assert.equal(stored.decision_node_id, a.body.reasoning_node.node_id);
       assert.equal(stored.decision_node_id, 'decision:gate:' + r.body.gate_id);
+      // Review WR-06: this answer has no browser proof, so the stored value says the host model relayed it.
+      assert.equal(a.body.answered_via, 'mcp_relayed');
+      assert.equal(stored.answered_via, 'mcp_relayed');
     });
 
     await leg('G5 stage-1 ce-nobody writes nothing and names stage 2; a stage-2 card answered ce-act writes chaotic', async () => {

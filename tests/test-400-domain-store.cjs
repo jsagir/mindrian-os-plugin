@@ -108,9 +108,23 @@ function main() {
         assert.equal(r.gate_id, 'g1');
         assert.equal(r.decision_node_id, 'n1');
         assert.equal(Number.isInteger(r.updated_at), true);
-        assert.deepEqual(Object.keys(r).sort(), ['decision_node_id', 'domain', 'gate_id', 'source', 'updated_at']);
+        assert.deepEqual(Object.keys(r).sort(), ['answered_via', 'decision_node_id', 'domain', 'gate_id', 'source', 'updated_at']);
+        assert.equal(r.answered_via, 'unrecorded', 'no answer route given: unrecorded');
         assert.equal(ce.KEY, 'problem.cause_effect');
-        ok('N1 writeCauseEffect complex inside a transaction; readCauseEffect returns the 5 fields with source navigator');
+        ok('N1 writeCauseEffect complex inside a transaction; readCauseEffect returns the 6 fields with source navigator');
+
+        // N1b (review WR-06): the answer route is stored and read back; an unknown word reads as unrecorded.
+        for (const [via, want] of [['browser_nonce', 'browser_nonce'], ['mcp_relayed', 'mcp_relayed'], ['navigator', 'unrecorded'], [7, 'unrecorded']]) {
+          inTx(db, function () {
+            return ce.writeCauseEffect(db, { domain: 'complex', gateId: 'g1', decisionNodeId: 'n1', answeredVia: via });
+          });
+          assert.equal(ce.readCauseEffect(db).answered_via, want, String(via));
+        }
+        // A value stored before the field existed reads as unrecorded.
+        db.prepare("UPDATE identity SET value = ? WHERE key = 'problem.cause_effect'")
+          .run(JSON.stringify({ domain: 'complex', source: 'navigator', gate_id: 'g0', decision_node_id: 'n0', updated_at: 1 }));
+        assert.equal(ce.readCauseEffect(db).answered_via, 'unrecorded');
+        ok('N1b WR-06 answered_via browser_nonce and mcp_relayed are stored; any other word and an old value read unrecorded');
 
         // N2: a second write replaces the first (one domain per room).
         inTx(db, function () {
