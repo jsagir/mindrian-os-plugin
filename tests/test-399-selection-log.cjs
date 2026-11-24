@@ -444,6 +444,17 @@ check('K4 no db, the kill switch or a writer error leaves closeOffer as at base 
   } finally { navigation.recordSelectionOutcome = original; closeRoomDb(r.db); }
 });
 
+check('K4b WR-01 a decision that failed to persist writes no selection or calibration row', () => {
+  const r = scratchRoom();
+  try {
+    // offer without a command: recordSelectorDecision refuses with invalid_command
+    const out = closer.closeOffer({ pick: 'reject', offer: {}, shown_commands: [A, B], roomState: { db: r.db, roomDir: r.dir } });
+    assert.equal(out.ok, false, JSON.stringify(out));
+    assert.equal(selRows(r.db).length, 0, 'no selection row for a failed decision');
+    assert.equal(rowsOf(r.db, 'calibration_observations').length, 0, 'no calibration row for a failed decision');
+  } finally { closeRoomDb(r.db); }
+});
+
 // ---------------------------------------------------------------------------
 // K5-K7: the MCP gate answer.
 // ---------------------------------------------------------------------------
