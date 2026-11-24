@@ -29,6 +29,16 @@ cut from `work/399-decision-advisor` at ddd9de038 (399 is unpushed; 400 stacks o
 - O-08 RELAY HOST: Render, beside the existing Brain/Theo services. Build the relay host-neutral
   (plain Node, no platform lock), with a Render blueprint for deploy.
 
+- O-09 RELAY AUTH (owner card 2026-11-24): install id + caps, the pattern Theo uses today. Every
+  install may ask the relay live; callers send the existing install id (x-theo-install-id style, see
+  400-RESEARCH Q1); per-install and global daily caps bound the bill. Users hold no key (SEED-119 stands).
+  A separate operator token, held only by the owner, skips the user caps for release-time table builds.
+  The relay accepts only closed-label requests (the shared labels-only validator), so it is not a
+  general Gemini endpoint.
+- O-10 RELEASE RUN (owner card 2026-11-24): the shipped egress line `decision_advisor` stays OFF for users.
+  The release-time table build passes only with an explicit operator flag plus the operator token;
+  each run prints what it sends and writes an audit record. Turning the line on for users is a later ruling.
+
 ## Research findings to honour (small sets, one labeller: agreement, not accuracy; never quote publicly)
 
 - F-01 Job signal per slot (176 frameworks, names hidden): When 0.75, I want 0.71, So I can 0.71,
