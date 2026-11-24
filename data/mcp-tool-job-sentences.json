@@ -1,0 +1,384 @@
+{
+  "schema": "mos.mcp-tool-job-sentences/1",
+  "_note": "Phase 400 (O-01, S1): one provisional job sentence per MCP tool. MCP tools have no frontmatter, so, as for their Phase 399 job labels in data/capability-job-labels.json, the sentences live here. Owner review: 400-LABEL-REVIEW.md.",
+  "tools": {
+    "mcp:artifact_file": {
+      "when": "a piece of work in my room is finished and worth keeping",
+      "want": "to file it in the right section with its sources linked",
+      "so": "find it later and trace each claim to its source",
+      "status": "provisional"
+    },
+    "mcp:chain_resolve": {
+      "when": "I have picked a sequence of thinking methods to run",
+      "want": "to see the exact steps that sequence turns into before anything runs",
+      "so": "check that the plan matches what I meant",
+      "status": "provisional"
+    },
+    "mcp:chain_run": {
+      "when": "I have approved a sequence of thinking methods for my room",
+      "want": "to run the safe steps on their own and stop at the first step that changes my work",
+      "so": "decide that step myself",
+      "status": "provisional"
+    },
+    "mcp:claim_read": {
+      "when": "I need to recall a claim my room already holds",
+      "want": "to see the claim with its checking record and whether a person confirmed it",
+      "so": "judge how far I can lean on it",
+      "status": "provisional"
+    },
+    "mcp:claim_verify": {
+      "when": "I have checked a claim against a source or a test",
+      "want": "to record what I checked it against, the method and the result",
+      "so": "show the evidence without pretending the claim is now confirmed",
+      "status": "provisional"
+    },
+    "mcp:claim_write": {
+      "when": "a fact, a cause, a rule of thumb or an assumption comes up in my work",
+      "want": "to record it as a typed claim for review",
+      "so": "keep it apart from what I confirmed",
+      "status": "provisional"
+    },
+    "mcp:context_assemble": {
+      "when": "I open a session in a room I worked in before",
+      "want": "to gather the room state, my recent notes and the nearby graph in one place",
+      "so": "continue from what the room already knows",
+      "status": "provisional"
+    },
+    "mcp:contract_version": {
+      "when": "the assistant I use connects to my local room server",
+      "want": "to read the version and the trust boundary that the server promises",
+      "so": "know which calls are safe before I depend on them",
+      "status": "provisional"
+    },
+    "mcp:contradiction_check": {
+      "when": "my room has grown and some entries may disagree",
+      "want": "to list the pairs of entries that contradict each other",
+      "so": "settle each conflict before it misleads a decision",
+      "status": "provisional"
+    },
+    "mcp:detect_dual_path": {
+      "when": "I open a new conversation with a pasted document or a bare question",
+      "want": "to tell whether I brought material to file or a problem to explore",
+      "so": "take the path that fits",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_job_cancel": {
+      "when": "a background analysis I started is no longer useful",
+      "want": "to ask it to stop and then confirm that it stopped",
+      "so": "free the machine and skip a result I will not use",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_job_forget": {
+      "when": "I no longer want the record of a finished analysis kept",
+      "want": "to delete that one run after I confirm the request",
+      "so": "control what stays stored about my work",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_job_result": {
+      "when": "a background analysis I started has finished",
+      "want": "to read its checked result, page by page when it is long",
+      "so": "use the findings while they are still kept",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_job_status": {
+      "when": "a background analysis is running or ran before a restart",
+      "want": "to see how far it got and whether it ended",
+      "so": "know when to read the result or start again",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_run": {
+      "when": "I have data in hand and need one local analysis on it",
+      "want": "to pick a method from the catalog and run it",
+      "so": "get a bounded result that leaves my room unchanged",
+      "status": "provisional"
+    },
+    "mcp:eureka_capability_start": {
+      "when": "an analysis will take longer than one reply",
+      "want": "to start it as a background job and come back for it later",
+      "so": "keep working while it runs",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_analyze": {
+      "when": "I have picked specific nodes in my room graph",
+      "want": "to run a local structural analysis on just those nodes",
+      "so": "spot patterns worth checking without any change to the graph",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_assess_category_edge_patterns": {
+      "when": "I suspect some kinds of links in my graph are more common than chance",
+      "want": "to compare the category mix of my links with random rewired copies of the graph",
+      "so": "tell real patterns from noise",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_backtest": {
+      "when": "I am deciding whether to trust a method that suggests new links",
+      "want": "to test it against the dated links my room already holds",
+      "so": "see how well it would have predicted what I later found",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_compare_topics": {
+      "when": "I have two groups of notes in my room on related subjects",
+      "want": "to compare the topics of each group in both directions",
+      "so": "see what one group covers that the other misses",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_find_community_bridge_pairs": {
+      "when": "my graph has clusters that rarely touch each other",
+      "want": "to find unlinked pairs whose neighbors meet at an important bridge node",
+      "so": "look for connections across the clusters that I have not made yet",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_find_network_holes": {
+      "when": "I look for gaps in the structure of my graph",
+      "want": "to find squares of links that miss a diagonal, compared with chance",
+      "so": "treat each gap as a lead to research",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_find_shared_neighbor_gaps": {
+      "when": "two ideas in my graph share many neighbors but have no link",
+      "want": "to rank those unlinked pairs as candidate links",
+      "so": "review each one against my sources",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_find_similar_unlinked_items": {
+      "when": "my notes may say the same thing in different places",
+      "want": "to find entries with similar wording but no link between them",
+      "so": "check whether they belong together",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_genesis_plan": {
+      "when": "my room points to questions that cross several fields",
+      "want": "to turn the selected nodes into a research plan across those fields",
+      "so": "review the plan before any outside search runs",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_map_neighbourhoods": {
+      "when": "I suspect two parts of my graph have the same shape",
+      "want": "to compare the neighborhood of a base node with that of a target node",
+      "so": "carry inferences across as proposals only",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_opportunity_scout": {
+      "when": "I have selected a set of nodes that may hide an opportunity",
+      "want": "to screen them for candidate relationship leads",
+      "so": "choose which leads to validate first",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_package_relationships": {
+      "when": "I have proposed links between nodes and gathered evidence for them",
+      "want": "to package each link with stable references and its evidence",
+      "so": "hand them to a person for review",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_prepare_artifacts": {
+      "when": "I need my selected nodes in a form that other analysis methods accept",
+      "want": "to convert them into a typed bundle linked to their sources",
+      "so": "run further analysis without losing where each item came from",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_project": {
+      "when": "I need a bounded slice of my room graph for analysis",
+      "want": "to read just the nodes I selected from the bound room",
+      "so": "work on that slice without exposing the rest of the room",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_propose_relationships": {
+      "when": "I wonder which of my selected nodes should be linked",
+      "want": "to get candidate links marked as unproven",
+      "so": "decide which ones deserve evidence",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_rank_paths": {
+      "when": "I have several candidate chains of reasoning through my graph",
+      "want": "to verify each step against the graph and rank the chains by length and unknowns",
+      "so": "follow the strongest chain first",
+      "status": "provisional"
+    },
+    "mcp:eureka_graph_score_surprise": {
+      "when": "I have prior and later beliefs about some claims in my room",
+      "want": "to score how much each claim moved my belief",
+      "so": "triage which claims deserve attention first",
+      "status": "provisional"
+    },
+    "mcp:eureka_hsi_interpret_whitespace": {
+      "when": "an analysis shows empty zones between the topics of my room",
+      "want": "to read each zone through the problem types and links my graph already holds",
+      "so": "turn the gaps into questions for review",
+      "status": "provisional"
+    },
+    "mcp:extract_shallow": {
+      "when": "I paste a CV, a memo or a pitch at the start",
+      "want": "to pull out who I am and what my venture is without filing anything",
+      "so": "see what was understood before anything is saved",
+      "status": "provisional"
+    },
+    "mcp:framework_run": {
+      "when": "I have chosen a thinking method or a sequence of them",
+      "want": "to get the step plan and halt at any step that would change my work",
+      "so": "approve each material step before it runs",
+      "status": "provisional"
+    },
+    "mcp:gate_answer": {
+      "when": "I have made my choice on a decision card",
+      "want": "to record my verdict on that exact card",
+      "so": "let only the work I approved go ahead",
+      "status": "provisional"
+    },
+    "mcp:gate_list": {
+      "when": "decisions in my room may still wait for me",
+      "want": "to list the open decision cards and the state of each",
+      "so": "answer the ones that block my work",
+      "status": "provisional"
+    },
+    "mcp:gate_render": {
+      "when": "my work reaches a real choice between options",
+      "want": "to see the options with their descriptions, ranks and previews on one card",
+      "so": "choose with the trade-offs in view",
+      "status": "provisional"
+    },
+    "mcp:graph_query": {
+      "when": "I focus on one idea in my room",
+      "want": "to see the nodes and links around it",
+      "so": "understand its context before I change it",
+      "status": "provisional"
+    },
+    "mcp:graph_reason": {
+      "when": "a question about my room needs more than one hop through the graph",
+      "want": "to trace support, paths and reach across several links",
+      "so": "know whether a claim stands on direct or only indirect support",
+      "status": "provisional"
+    },
+    "mcp:graph_write": {
+      "when": "I see that two ideas in my room are related",
+      "want": "to record a typed link between them",
+      "so": "make the relation part of what my room knows",
+      "status": "provisional"
+    },
+    "mcp:identity_write": {
+      "when": "I state my role, my stage or my way of working",
+      "want": "to record it once in a place every room reads",
+      "so": "stop repeating who I am in each room",
+      "status": "provisional"
+    },
+    "mcp:memory_event": {
+      "when": "something worth noting happens outside my room",
+      "want": "to log it as an observation that is never edited later",
+      "so": "keep an honest timeline of what happened",
+      "status": "provisional"
+    },
+    "mcp:question_read": {
+      "when": "I need to recall what my room is trying to answer",
+      "want": "to see the governing question, its origin and every earlier version",
+      "so": "check whether my work still serves it",
+      "status": "provisional"
+    },
+    "mcp:question_set": {
+      "when": "the question my room serves is new or has changed",
+      "want": "to record the question with where it came from and why it changed",
+      "so": "keep the history of my thinking honest",
+      "status": "provisional"
+    },
+    "mcp:reach_candidates": {
+      "when": "the single next step offered to me does not fit",
+      "want": "to see the full set of candidate next moves for my room",
+      "so": "pick the one that fits my situation",
+      "status": "provisional"
+    },
+    "mcp:research_run": {
+      "when": "my room needs outside evidence from scholarly sources",
+      "want": "to plan a quick or deep search and approve each set of queries before it runs",
+      "so": "control what leaves my machine and what gets filed",
+      "status": "provisional"
+    },
+    "mcp:room_artifact": {
+      "when": "I need to read one document from my room in full",
+      "want": "to open it by its path inside the room",
+      "so": "review it without any risk of changing it",
+      "status": "provisional"
+    },
+    "mcp:room_bind": {
+      "when": "my session does not yet know which room I am working in",
+      "want": "to bind it to the right room, or be asked when it is unclear",
+      "so": "file nothing in the wrong place",
+      "status": "provisional"
+    },
+    "mcp:room_changes": {
+      "when": "I keep a view of my room open while work goes on",
+      "want": "to fetch only what changed since my last look",
+      "so": "keep the view current without reloading everything",
+      "status": "provisional"
+    },
+    "mcp:room_create": {
+      "when": "I have no room yet for a new venture",
+      "want": "to preview its name, purpose and folder before it exists",
+      "so": "approve the room before anything is written",
+      "status": "provisional"
+    },
+    "mcp:room_list": {
+      "when": "I open my workspace and have several rooms",
+      "want": "to see the rooms I already have and pick one",
+      "so": "start in the right place without creating a new room by mistake",
+      "status": "provisional"
+    },
+    "mcp:room_search": {
+      "when": "I remember a word or phrase from my room but not where it is",
+      "want": "to search the entries, in one section or in all of them",
+      "so": "find the entry fast",
+      "status": "provisional"
+    },
+    "mcp:room_startup": {
+      "when": "I return to a room after a break",
+      "want": "to get a briefing of where I stopped, what changed and what is still open",
+      "so": "choose my next move with the full picture",
+      "status": "provisional"
+    },
+    "mcp:room_state_bound": {
+      "when": "I need the current state of the room I am in",
+      "want": "to read its state file as it stands",
+      "so": "ground my next step in what the room records",
+      "status": "provisional"
+    },
+    "mcp:rs_experts_find": {
+      "when": "I look for people who know a topic in the papers of my room",
+      "want": "to find authors whose stored papers match that topic",
+      "so": "know whom to read or contact next",
+      "status": "provisional"
+    },
+    "mcp:rs_thesis_read": {
+      "when": "a past discovery in my room may bear on my current work",
+      "want": "to read its thesis and details again",
+      "so": "build on it instead of starting over",
+      "status": "provisional"
+    },
+    "mcp:status_read": {
+      "when": "I wonder where my session stands, spend included",
+      "want": "to see the status segments of my session",
+      "so": "catch a problem or a cost before it grows",
+      "status": "provisional"
+    },
+    "mcp:stop_gate_check": {
+      "when": "a session is about to end with a decision still open",
+      "want": "to be shown the open choice once, and only when it matters",
+      "so": "close the session without leaving a fork unresolved",
+      "status": "provisional"
+    },
+    "mcp:suggest_next": {
+      "when": "I finish a piece of work and am not sure what comes next",
+      "want": "to get one suggested next move for my room",
+      "so": "keep momentum without guessing",
+      "status": "provisional"
+    },
+    "mcp:view_compile": {
+      "when": "I need a readable view of my whole room",
+      "want": "to compile the room into a set of wiki pages",
+      "so": "browse and share what the room holds",
+      "status": "provisional"
+    },
+    "mcp:whitespace_scan": {
+      "when": "I suspect my room has gaps",
+      "want": "to list the open questions and the claims with no support",
+      "so": "know where to work next",
+      "status": "provisional"
+    }
+  }
+}
