@@ -43,7 +43,7 @@
       "default": false,
       "scope": "labels only (D-03): job id, job summary, definition level, command names and registry teaching text; off until the owner rules on user access (Phase 399 Deferred)",
       "providers": ["gemini_decision", "jev_decision"],
-      "paths": { "gemini_decision": null, "jev_decision": "/v1/systemone" }
+      "paths": { "gemini_decision": "/v1beta/decisions", "jev_decision": "/v1/systemone" }
     }
   }
 }

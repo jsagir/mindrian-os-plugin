@@ -353,8 +353,8 @@ function stubProvider(id, max) {
     assert.equal(G.SORTS_OPTIONS, true);
     assert.equal(G.API_VERSION, 'v1beta');
     assert.equal(G.REQUEST_FIELD, 'input');
-    assert.equal(G.PATH, null);
-    assert.equal(G.PATH_CONFIRMED, false);
+    assert.equal(G.PATH, '/v1beta/decisions');
+    assert.equal(G.PATH_CONFIRMED, true);
     assert.deepEqual(G.TYPE_MAP, { yes_no: 'noul', choice: 'choice', score: 'score' });
   });
   check('P2: jev.buildBody gives state, default jev-latest, kev-latest on request; constants', () => {

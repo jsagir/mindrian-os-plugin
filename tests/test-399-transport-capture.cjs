@@ -4,7 +4,7 @@
 //   T1 shipped policy: line off, zero fetch calls          T2 invalid request refused before the policy check
 //   T3 wire equals the provider render, headers per provider   T4 chunking on the wire (1000 gemini, 20 jev)
 //   T5 key never in a body, result, stdout or stderr       T6 no key: no_key, except keyless loopback jev
-//   T7 gemini with PATH null off loopback: endpoint_unconfirmed   T8 CLI dry-run and refused send
+//   T7 gemini and jev without --base: endpoint_unconfirmed; with a base the confirmed PATH is appended   T8 CLI dry-run and refused send
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
 const fs = require('node:fs');
 const http = require('node:http');
@@ -191,13 +191,17 @@ function runCli(args, env) {
         !sent.headers.authorization && sent.url === '/v1/systemone' && f.calls === 1) || JSON.stringify({ a, b, c, callsAfterRefusals });
     });
 
-    await leg('T7 gemini with PATH null off loopback: endpoint_unconfirmed, 0 fetch calls', async () => {
+    await leg('T7 gemini needs an explicit base (no host constant); jev without base refused; confirmed PATH appended', async () => {
       const f = countingFetch();
-      const a = await transport.send(req3, { provider: 'gemini', fetchImpl: f.impl, env: ENV, base: 'https://example.invalid', policy: allowedPolicy() });
       const b = await transport.send(req3, { provider: 'gemini', fetchImpl: f.impl, env: ENV, policy: allowedPolicy() });
       const c = await transport.send(req3, { provider: 'jev', fetchImpl: f.impl, env: ENV, policy: allowedPolicy() });
-      return (adapter.PROVIDERS.gemini.PATH === null ? (a.reason === 'endpoint_unconfirmed' && b.reason === 'endpoint_unconfirmed') : true) &&
-        c.reason === 'endpoint_unconfirmed' && f.calls === 0 || JSON.stringify({ a, b, c });
+      const before = f.calls;
+      const seen = [];
+      const spy = async (url) => { seen.push(String(url)); return { ok: false, status: 0, json: async () => ({}), text: async () => '' }; };
+      await transport.send(req3, { provider: 'gemini', fetchImpl: spy, env: ENV, base: 'https://example.invalid', policy: allowedPolicy() });
+      return (b.reason === 'endpoint_unconfirmed' && c.reason === 'endpoint_unconfirmed' && before === 0 &&
+        adapter.PROVIDERS.gemini.PATH === '/v1beta/decisions' && seen.length >= 1 && seen[0] === 'https://example.invalid/v1beta/decisions') ||
+        JSON.stringify({ b, c, before, seen });
     });
 
     await leg('T8 CLI: dry-run prints the validated body, exit 0; a send with the shipped policy exits 4 with egress_line_off', async () => {

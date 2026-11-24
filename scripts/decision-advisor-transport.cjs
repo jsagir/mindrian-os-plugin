@@ -8,9 +8,9 @@
 //   5 per chunk: render, re-validate the body, POST   6 parse and merge
 // The key is read from the environment through opts.env (default process.env), is never printed,
 // never put in an error, and never put in a body. This file reads no secrets file.
-// Gemini REST path: lib/core/decision-advisor/providers/gemini.cjs PATH is null until the vendor
-// documentation confirms it. With PATH null a send is refused off loopback (endpoint_unconfirmed);
-// on loopback the base URL is used as given, so no path is ever invented.
+// Gemini REST path: lib/core/decision-advisor/providers/gemini.cjs PATH (/v1beta/decisions, confirmed
+// 2026-11-24 from the vendor API reference). The base host is never a constant here: pass it with --base.
+// A provider with PATH null is refused off loopback (endpoint_unconfirmed), so no path is ever invented.
 // Jev: the hosted base is read from opts.base (CLI --base) only; there is no default host constant.
 // A self-hosted Kev on loopback needs no key.
 //
@@ -30,7 +30,7 @@ const jevClient = require('./jev-devtime-client.cjs');
 const LINE = 'decision_advisor';
 const PROVIDER_IDS = Object.freeze({ gemini: 'gemini_decision', jev: 'jev_decision' });
 const KEY_ENV = Object.freeze({ gemini: 'GEMINI_API_KEY', jev: 'TYPESAFE_API_KEY' });
-const KEY_HEADER = 'x-goog-api-key'; // ASSUMED Google AI REST convention; unconfirmed from vendor documentation.
+const KEY_HEADER = 'x-goog-api-key'; // confirmed 2026-11-24 from the vendor API reference.
 const REFUSALS = Object.freeze(['labels_only_refused', 'egress_line_off', 'no_key', 'endpoint_unconfirmed', 'http_error', 'bad_response']);
 const TIMEOUT_MS = 120000;
 
