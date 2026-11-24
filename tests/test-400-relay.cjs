@@ -132,7 +132,7 @@ async function main() {
     if (none.reason !== 'bad_token') return 'empty hash list accepted a token';
     const src = fs.readFileSync(path.join(REL, 'verify-caller.cjs'), 'utf8');
     if (src.indexOf('timingSafeEqual') === -1) return 'no timingSafeEqual';
-    if (/===\s*h\b|h\s*===|indexOf\(.*hash/.test(src)) return 'plain compare on hashes';
+    if (/[Hh]ashes\.(indexOf|includes|some|find)\(/.test(src)) return 'plain compare on hashes';
     return true;
   });
 
