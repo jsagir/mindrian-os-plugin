@@ -12,3 +12,8 @@
    - In all 17 agents and the 12 standalone skills, the job lines sit after the first `# ---` comment inside frontmatter, except agents/research.md and agents/reverse-salient-agent.md.
    - When the host ends frontmatter at that comment, the host does not see the job keys as frontmatter, and the lines load as body text.
    - Plan 400-03 added no new `---` line.
+
+## From plan 400-14 (pre-existing, out of scope, not fixed)
+
+3. tests/test-346-catalogue-schema.cjs FAIL 12 (a conversation-time hook mechanism is neither catalogued nor excluded). The same failure shows at a497f7877, before plan 400-14.
+4. tests/test-355-direction-agreement.cjs leg H (comparison-to-label code in lib/core/rs-chain-feeder.cjs and lib/memory/test-rs-discovery-engine.cjs). The same failure shows at a497f7877, before plan 400-14.
