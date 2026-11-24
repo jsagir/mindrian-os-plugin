@@ -10,6 +10,8 @@
 //   O3 flag plus token: Bearer only, in-memory policy, printed line and exact body before each POST
 //   O4 one audit record, 0600 in 0700, no token, key or body; a refused run also writes one
 //   O5 the token is never in stdout, stderr, the result or the audit file   O6 no env sets the flag
+//   E1 the release request set: 20 files, 73 serves_job_v1 questions each   E2 --out pairs feed derive-decision-fixture
+//   E3 end to end on loopback through the real relay server and a fake upstream   E4 no data/ file changes
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
 const fs = require('node:fs');
 const http = require('node:http');
@@ -34,6 +36,9 @@ const TOKEN_ENV = 'MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN';
 const FAKE_TOKEN = 'fake-operator-token-400-' + crypto.randomBytes(6).toString('hex');
 const CLI = path.join(REPO, 'scripts/decision-advisor-transport.cjs');
 const POLICY_FILE = path.join(REPO, 'data/egress-policy.json');
+const BUILDER = path.join(REPO, 'scripts/build-relay-release-requests.cjs');
+const DERIVE = path.join(REPO, 'scripts/derive-decision-fixture.cjs');
+const DATA_PINS = ['data/decision-advisor-table.json', 'data/egress-policy.json'];
 const AUDIT_NAME_RE = /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}\.json$/;
 const INSTALL_ID = 'abcdef0123456789abcdef0123456789';
 
@@ -358,6 +363,117 @@ function runNode(file) {
       const inproc = await transport.send(req3, { provider: 'relay', base: cap.base, fetchImpl: countingFetch().impl, env });
       return (r.status === 4 && /egress_line_off/.test(r.stdout + r.stderr) && inproc.reason === 'egress_line_off' && cap.captured.length === 0 &&
         auditFiles(home).names.length === 0) || JSON.stringify({ status: r.status, inproc, n: cap.captured.length });
+    });
+
+    const dataBefore = DATA_PINS.map((p) => fs.readFileSync(path.join(REPO, p)));
+    const reqDir = path.join(scratch, 'release-requests');
+    let reqFiles = [];
+    await leg('E1 the release request set: one file per vocabulary job (20), 73 serves_job_v1 questions q0001..q0073 in registry order, all valid', async () => {
+      const r = spawnSync(process.execPath, [BUILDER, '--out-dir', reqDir], { encoding: 'utf8', cwd: scratch, env: { PATH: process.env.PATH, HOME: scratch } });
+      if (r.status !== 0) return 'builder exit ' + r.status + ' ' + String(r.stderr).slice(0, 200);
+      const vocab = JSON.parse(fs.readFileSync(path.join(REPO, 'data/job-vocabulary.json'), 'utf8'));
+      const scope = new Set(JSON.parse(fs.readFileSync(path.join(REPO, 'data/run-step-capabilities.json'), 'utf8')).commands);
+      const registry = JSON.parse(fs.readFileSync(path.join(REPO, 'data/command-registry.json'), 'utf8'));
+      const order = registry.commands.map((c) => c.command).filter((c) => scope.has(c));
+      const names = fs.readdirSync(reqDir).sort();
+      const want = vocab.ids.map((id) => id + '.json').sort();
+      if (JSON.stringify(names) !== JSON.stringify(want) || names.length !== 20) return 'files ' + JSON.stringify(names);
+      const cat = labels.buildLabelCatalog();
+      for (const id of vocab.ids) {
+        const req = JSON.parse(fs.readFileSync(path.join(reqDir, id + '.json'), 'utf8'));
+        if (Object.keys(req).sort().join(',') !== 'context,questions') return id + ' keys';
+        if (Object.keys(req.context).sort().join(',') !== 'job_id,job_summary' || req.context.job_id !== id || req.context.job_summary !== vocab.jobs[id].summary) return id + ' context';
+        const ids = Object.keys(req.questions);
+        if (ids.length !== 73 || order.length !== 73) return id + ' count ' + ids.length;
+        for (let i = 0; i < ids.length; i += 1) {
+          const q = req.questions[ids[i]];
+          if (ids[i] !== 'q' + String(i + 1).padStart(4, '0') || q.type !== 'yes_no' || q.template !== 'serves_job_v1' || q.subject !== order[i]) return id + ' question ' + ids[i];
+        }
+        const v = labels.validateNeutralRequest(req, cat);
+        if (!v.ok) return id + ' invalid ' + v.reason;
+      }
+      reqFiles = vocab.ids.slice(0, 2).map((id) => path.join(reqDir, id + '.json'));
+      return true;
+    });
+
+    await leg('E2 transport --out (repeated --request) writes {pairs} of the serves_job_v1 answers; derive-decision-fixture accepts it', async () => {
+      if (reqFiles.length !== 2) return 'E1 did not run';
+      cap.captured.length = 0;
+      cap.reply = okReply;
+      const home = mkHome(false);
+      const pairsFile = path.join(scratch, 'e2-pairs.json');
+      const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', reqFiles[0], '--request', SAMPLE, '--base', cap.base, '--out', pairsFile],
+        { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+      if (r.status !== 0) return 'transport exit ' + r.status + ' ' + r.stderr.slice(0, 200);
+      const doc = JSON.parse(fs.readFileSync(pairsFile, 'utf8'));
+      const job0 = path.basename(reqFiles[0], '.json');
+      const pairsOk = Object.keys(doc).join(',') === 'pairs' && doc.pairs.length === 74 &&
+        doc.pairs.every((p) => Object.keys(p).sort().join(',') === 'command,job,p' && p.p === 0.5) &&
+        doc.pairs.filter((p) => p.job === job0).length === 73 && doc.pairs.filter((p) => p.job === req3.context.job_id && p.command === '/mos:validate').length === 1;
+      if (!pairsOk) return 'pairs ' + JSON.stringify(doc).slice(0, 200);
+      if (!/skipped 2 answers/.test(r.stderr)) return 'skip count not on stderr: ' + r.stderr.slice(0, 200);
+      const fixture = path.join(scratch, 'e2-fixture.json');
+      const d = spawnSync(process.execPath, [DERIVE, '--source', pairsFile, '--out', fixture], { encoding: 'utf8', cwd: scratch });
+      return (d.status === 0 && /wrote 74 pairs/.test(d.stdout) && JSON.parse(fs.readFileSync(fixture, 'utf8')).pairs.length === 74) || 'derive exit ' + d.status + ' ' + d.stderr;
+    });
+
+    await leg('E3 end to end on loopback: operator run through the real relay server to a fake upstream; bodies equal the server render; fixture and audit', async () => {
+      if (reqFiles.length !== 2) return 'E1 did not run';
+      const { createServer } = require(path.join(REPO, 'services/decision-relay/server.cjs'));
+      const adapter = require(path.join(REPO, 'lib/core/decision-advisor/adapter.cjs'));
+      const upstreamSeen = [];
+      const upstream = http.createServer((rq, rs) => {
+        const chunks = [];
+        rq.on('data', (c) => chunks.push(c));
+        rq.on('end', () => {
+          const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+          upstreamSeen.push({ url: rq.url, key: rq.headers['x-goog-api-key'], body });
+          const answers = {};
+          for (const id of Object.keys(body.questions)) answers[id] = { noul: 0.625 };
+          rs.setHeader('Content-Type', 'application/json');
+          rs.end(JSON.stringify({ answers, usage: { total_input_tokens: 50, total_output_tokens: 5 } }));
+        });
+      });
+      await new Promise((r) => upstream.listen(0, '127.0.0.1', r));
+      const relayServer = createServer({
+        env: { GEMINI_API_KEY: 'fake-gemini-key-400-14', RELAY_OPERATOR_TOKEN_SHA256: sha256(FAKE_TOKEN) },
+        upstreamOrigin: 'http://127.0.0.1:' + upstream.address().port,
+        fetchImpl: realFetch,
+        log: () => {},
+      });
+      await new Promise((r) => relayServer.listen(0, '127.0.0.1', r));
+      try {
+        const home = mkHome(false);
+        const pairsFile = path.join(scratch, 'e3-pairs.json');
+        const relayBase = 'http://127.0.0.1:' + relayServer.address().port;
+        const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', reqFiles[0], '--request', reqFiles[1], '--base', relayBase, '--out', pairsFile],
+          { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+        if (r.status !== 0) return 'transport exit ' + r.status + ' ' + r.stderr.slice(0, 300);
+        if (upstreamSeen.length !== 2) return 'upstream saw ' + upstreamSeen.length;
+        for (let i = 0; i < 2; i += 1) {
+          const req = JSON.parse(fs.readFileSync(reqFiles[i], 'utf8'));
+          const expected = adapter.PROVIDERS.gemini.buildBody(adapter.renderRequest(req));
+          if (JSON.stringify(upstreamSeen[i].body) !== JSON.stringify(expected)) return 'upstream body ' + i + ' is not the server render';
+          if (upstreamSeen[i].url !== '/v1beta/decisions' || upstreamSeen[i].key !== 'fake-gemini-key-400-14') return 'upstream route or key header';
+        }
+        const fixture = path.join(scratch, 'e3-fixture.json');
+        const d = spawnSync(process.execPath, [DERIVE, '--source', pairsFile, '--out', fixture], { encoding: 'utf8', cwd: scratch });
+        if (d.status !== 0) return 'derive exit ' + d.status;
+        const fx = JSON.parse(fs.readFileSync(fixture, 'utf8'));
+        if (fx.pairs.length !== 146 || !fx.pairs.every((p) => p.p === 0.625)) return 'fixture pairs ' + fx.pairs.length;
+        const a = auditFiles(home);
+        if (a.names.length !== 2) return 'audit files ' + a.names.length;
+        const recs = a.names.map((n) => JSON.parse(fs.readFileSync(path.join(a.dir, n), 'utf8')));
+        return recs.every((x) => x.ok === true && x.totals.questions === 73 && x.totals.input_tokens === 50 && x.chunks[0].status === 200) || JSON.stringify(recs[0]);
+      } finally {
+        await new Promise((r) => relayServer.close(r));
+        await new Promise((r) => upstream.close(r));
+      }
+    });
+
+    await leg('E4 no file under data/ changes during E1 to E3 (decision-advisor-table.json, egress-policy.json)', async () => {
+      const after = DATA_PINS.map((p) => fs.readFileSync(path.join(REPO, p)));
+      return after.every((b, i) => b.equals(dataBefore[i])) || 'a data file changed';
     });
 
     if (strayFetch !== 0) { fail += 1; console.log('FAIL: stray fetch count ' + strayFetch); }
