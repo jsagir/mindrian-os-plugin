@@ -18,6 +18,10 @@ hitl_shape: "F.1"
 hitl_why: "Each of the six discovery movements closes with an F.1 Next Move choice (continue the movement, reframe, or move to the Discovery Brief), never silently auto-advancing."
 layer: "loop"
 layer_why: "Runs a fixed six-movement discovery interview to a stopping condition, filing a Discovery Brief artifact with an F.1 next-move gate between movements; a single agent cycle, not a multi-step coordination graph."
+job_when: "I start a new client engagement for a website or brand"
+job_want: "to run a structured discovery interview before any design begins"
+job_so: "design from the goals and users of the client, not my guesses"
+job_sentence_status: "provisional"
 ---
 
 <!-- mos:firing-block v2 -->

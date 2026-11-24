@@ -25,6 +25,10 @@ hitl_shape: "F.8"
 hitl_why: "Artifacts are graded on independent components against the calibrated set, an unordered basket."
 layer: "loop"
 layer_why: "Grades room artifacts against the calibrated set in one pass and closes with an F.8 unordered-basket fork; a single agent's cycle to a stopping condition."
+job_when: "I need to know how strong my work is against graded projects"
+job_want: "to have my artifacts scored on calibrated rubric components with cited evidence"
+job_so: "see where the work stands and what would raise it"
+job_sentence_status: "provisional"
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via the tools list (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__my-neo4j__*); no implicit MCP inheritance. -->

@@ -34,6 +34,10 @@ connector:
   reason: "Ambient always-on infra. The Shape F.1 lane-picker / mode-selection skill runs every turn to set the conversational mode; substrate, not a triggered reach."
 hitl_shape: "F.1"
 hitl_why: "The lane picker (Just Talk / Explore+Capture / Build a Room) is an explicit F.1 Decision Gate, never an inferred persona classification."
+job_when: "I start a session without a room and have not chosen how to work"
+job_want: "to pick between just talking, brainstorming and building a room"
+job_so: "get the kind of help that fits my intent"
+job_sentence_status: "provisional"
 ---
 
 # Conversation Mode -- No-Room Session Behavior

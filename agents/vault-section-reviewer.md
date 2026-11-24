@@ -26,6 +26,10 @@ connector:
   reason: "Invoked BY commands/vault.md's Step 3 threshold-gated review dispatch as one of N parallel section-group reviewers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
 layer: "loop"
 layer_why: "Confirms or corrects a stub classifier's section guess for ONE guessed-section group in a single bounded read-only pass; a worker's own cycle invoked by vault.md's fan-out, not the graph that dispatches it (WD-6)."
+job_when: "I import notes into my room and a quick classifier guessed their sections"
+job_want: "to have each guess checked against the file content and my venture context"
+job_so: "file the imported notes where they belong"
+job_sentence_status: "provisional"
 ---
 
 # Vault Section Reviewer

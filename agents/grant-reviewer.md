@@ -31,6 +31,10 @@ connector:
   web_scope: null
 layer: "loop"
 layer_why: "Examines the seven rubric categories as an independent panel and renders one holistic verdict per invocation; a single agent's cycle closing with an F.8 fork."
+job_when: "I am about to submit a grant application"
+job_want: "to have each rubric category examined in isolation and then judged as a whole"
+job_so: "fix the weakest category before the reviewers see it"
+job_sentence_status: "provisional"
 ---
 
 <!-- grade-grant reviewer-panel examination mode: this agent has TWO roles, mirroring

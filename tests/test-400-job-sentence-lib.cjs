@@ -274,7 +274,9 @@ try {
     r = runScript(scratch, ['--check', '--require-all']);
     assert.equal(r.code, 1, '--require-all bites below the total: ' + r.out);
     const real = spawnSync(process.execPath, [SCRIPT, '--check', '--require-all'], { cwd: ROOT, encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_APPLY_ROOT: '' }) });
-    assert.equal(real.status, 1, 'the repo is below its totals in plan 01');
+    // Plan 400-03 labelled every command, standalone skill and agent: the real repo is at its totals.
+    assert.equal(real.status, 0, 'the repo is at its totals after plan 400-03: ' + real.stdout + real.stderr);
+    assert.ok(real.stdout.includes('commands 113/113, skills 12/12, agents 17/17'), real.stdout);
   });
 } finally {
   if (scratch) fs.rmSync(scratch, { recursive: true, force: true });

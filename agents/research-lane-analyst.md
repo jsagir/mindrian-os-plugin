@@ -26,6 +26,10 @@ connector:
   reason: "Dispatched BY /mos:research (commands/research.md) in its deep research run, one per approved lane, strictly after the F.6 plan approval and the deep-fetch step; it reads one records file and returns rows, never reaches a Decision-Gate fork, so a declared interaction shape does not apply to it by construction."
 layer: "loop"
 layer_why: "Reads one lane's fetched records and returns evidence rows in a single bounded pass; a worker's own cycle invoked by research.md's deep run, not the graph that dispatches it."
+job_when: "literature records for one approved research lane are fetched"
+job_want: "to turn them into evidence rows, each tied to a question by a verbatim quote"
+job_so: "trust each finding because it traces to a quoted source"
+job_sentence_status: "provisional"
 ---
 
 # Research Lane Analyst

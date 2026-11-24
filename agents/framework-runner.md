@@ -22,6 +22,10 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "It runs one methodology per invocation along a dependency path (F.2) as a fixed-order stage walk (F.9)."
 layer: "graph"
+job_when: "a method was chosen for my room and needs a full run"
+job_want: "to have it executed in depth in its own context and filed"
+job_so: "get a complete analysis without crowding my main conversation"
+job_sentence_status: "provisional"
 ---
 
 <!-- Phase 95.6 D-10: NO Brain access by design -- the caller (/mos:act) does all Brain queries + framework selection before invoking this agent; it executes the chosen methodology from local references/methodology/*.md via Read/Bash. There is no implicit MCP inheritance to depend on. -->
