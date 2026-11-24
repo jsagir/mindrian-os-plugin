@@ -289,6 +289,29 @@ check('G9 WR-06 schema DDL runs once per db handle, not once per call; the log s
   record(db2, { decision: 'accept', shown_commands: [A], chosen_command: A }, OFF);
   assert.ok(ddl2 >= 2);
 });
+check('G10 WR-08 an accept with no resolvable chosen option: shown[0] only when one option was shown, else null and unlabelled', () => {
+  // several shown, chosen missing or not a registry command: no chosen command, no label on any row
+  for (const chosenArg of [undefined, null, '/mos:not-a-command']) {
+    const db = freshDb();
+    const r = record(db, { decision: 'accept', shown_commands: [A, B], chosen_command: chosenArg });
+    assert.equal(r.ok, true, JSON.stringify(r));
+    const sel = rowsOf(db, 'selection_observations');
+    assert.equal(sel.length, 2);
+    assert.deepEqual(sel.map((x) => x.ground_truth_label), [null, null], String(chosenArg));
+    assert.deepEqual(sel.map((x) => x.chosen_command), [null, null], String(chosenArg));
+    assert.deepEqual(rowsOf(db, 'calibration_observations').map((x) => x.ground_truth_label), [null, null], 'calibration rows unlabelled too');
+  }
+  // exactly one shown: it is the accepted option
+  const one = freshDb();
+  record(one, { decision: 'accept', shown_commands: [A] });
+  const row = rowsOf(one, 'selection_observations')[0];
+  assert.equal(row.ground_truth_label, 1);
+  assert.equal(row.chosen_command, A);
+  // a resolvable chosen option still labels 1 and 0
+  const two = freshDb();
+  record(two, { decision: 'accept', shown_commands: [A, B], chosen_command: B });
+  assert.deepEqual(rowsOf(two, 'selection_observations').map((x) => x.ground_truth_label), [0, 1]);
+});
 check('G5 advisor off: rows are still written, probability and band are null', () => {
   const db = freshDb();
   const r = record(db, { decision: 'accept', shown_commands: [A, B], chosen_command: A }, OFF);
