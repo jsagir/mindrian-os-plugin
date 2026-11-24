@@ -321,6 +321,24 @@ node_aliases:
     related_existing: lib/core/navigation/room-change-log.cjs
     notes: "One-row table the withRoomTx helper stamps with a transaction id that the triggers copy into room_change_log. A regular table because non-TEMP triggers may only touch tables in the same database."
 
+  # --- Phase 399 decision-advisor logging tables (2 entries, registered before any DDL) ---
+
+  - codex_term: calibration_observations
+    resolution: EXISTS
+    canonical_name: calibration_observations
+    source_phase: 399
+    canon_parts: [Part 9]
+    related_existing: lib/core/memory-ops.cjs
+    notes: "Existing table created in lib/core/memory-ops.cjs; Phase 399 adds a nullable ground_truth_label column by migration. Registered here so plan text and DDL naming it pass the drift guard."
+
+  - codex_term: selection_observations
+    resolution: NEW
+    canonical_name: selection_observations
+    source_phase: 399
+    canon_parts: [Part 9]
+    related_existing: lib/core/navigation.cjs
+    notes: "Append-only log of shown next-move options, their calibrated advisor probability, the navigator decision and overrules, written only through the navigation chokepoint (recordSelectionOutcome); dedupes on (surface, gate_id). A derived log, not graph state, so it carries no typed edges."
+
   # --- Codex-proposed nodes (14 entries) ---
 
   - codex_term: room

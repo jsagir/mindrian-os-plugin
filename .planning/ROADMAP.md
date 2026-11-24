@@ -4250,3 +4250,25 @@ Plans:
 - [ ] 396-14-PLAN.md - P6 canon Part 8 sentence through the Canon Custodian path (D-06), Appendix D entry, version lockstep, CLAUDE.md; not autonomous (phase wave 5, exec wave 9)
 - [ ] 396-15-PLAN.md - P6 prompt and doc wording sweep (runtime-instructions, larry-extended, voice-dna, references/brain, skills, commands) with a wording test (phase wave 5, exec wave 10)
 - [ ] 396-16-PLAN.md - README refresh, CHANGELOG lines, docs/THEO-ROUTES-SHAPE-HANDOFF.md wave-4 note (D-08, D-09), OPEN-HANDOFFS entry (phase wave 5, exec wave 10)
+
+### Phase 399: Decision-model advisor keyed on the job to be done: one job vocabulary, job labels on every capability, a provider-neutral decision adapter, a precomputed calibrated shortlist feeding the single next-move selector, two-axis problem type, egress-off-by-default
+
+**Goal:** Decision-model advisor keyed on the job to be done: one job vocabulary, job labels on every capability, a provider-neutral decision adapter (Gemini Decision + Jev-compatible), a precomputed calibrated shortlist table feeding the existing single next-move selector (no live model call on the per-turn path), two-axis problem type (additive), decision endpoint in egress policy OFF by default with a code-enforced labels-only validator, logging of shown-option probabilities and overrules, and a routing benchmark.
+**Baseline:** branch work/399-decision-advisor from origin/main 24d5ccb6a. Owner decisions D-01 to D-07, implementation decisions I-01 to I-12, Deferred list and facts F1 to F6: 399-CONTEXT.md. Research trail (private): ~/MindrianOS/research/2026-11-24-decision-advisor-handoff/.
+**canon_parts:** 8, 9, 12
+**Requirements**: DA-01 one job vocabulary (handoff A1, A2); DA-02 taxonomy and registry disagreements per I-02 (A3); DA-03 26 accepted command labels applied, 2 held and 5 doubtful unchanged (B1-B3, D-07); DA-04 skill and command labels in step, 0.70-0.89 band sample list (B4, B6); DA-05 agent and MCP tool labels per I-03 (B5); DA-06 provider-neutral adapter (C1); DA-07 Gemini provider shape (C2, C4); DA-08 Jev-compatible provider shape (C3); DA-09 egress line off by default plus labels-only validator (H1); DA-10 precomputed calibrated table over run-step capabilities (E1, F1, D-05); DA-11 table feeds composeNextMove and composeWorkflow, job-direct reach, no second authority (D1-D3); DA-12 ranked shortlist with band words and no strong pick (D4); DA-13 logging of shown-option probabilities, CLI accepts, features, overrules, ground-truth column (F2, F3); DA-14 two-axis problem type, additive (G1, G2, D-06); DA-15 routing benchmark with top-3 recall, calibration error and option shuffles (I1)
+**Depends on:** Phase 395, Phase 396
+**Plans:** 10 plans (10 sequential waves; every plan grows tests/run-all-399.sh)
+
+Plans:
+
+- [ ] 399-01-PLAN.md - one job vocabulary (data/job-vocabulary.json, 20 ids) and the additive two-axis problem type (lib/core/problem-axes.cjs) (wave 1)
+- [ ] 399-02-PLAN.md - apply the 26 accepted command job labels, keep held and doubtful labels, record the ruling as data, regenerate registry and mirrors (wave 2)
+- [ ] 399-03-PLAN.md - agent and MCP tool labels under one written rule, labels-only recorded fixture, owner review file 399-LABEL-REVIEW.md (wave 3)
+- [ ] 399-04-PLAN.md - provider-neutral adapter, labels-only validator, Gemini and Jev provider shapes, no-network fence (wave 4)
+- [ ] 399-05-PLAN.md - decision_advisor egress line off by default, dev-time transport with a capture-server proof (wave 5)
+- [ ] 399-06-PLAN.md - run-step capability snapshot, offline isotonic-calibrated v0 table, per-turn shortlist lookup (wave 6)
+- [ ] 399-07-PLAN.md - the advisor as one key and one source inside composeNextMove, suggest_next carries the banded shortlist (wave 7)
+- [ ] 399-08-PLAN.md - composeWorkflow ranks a framework's commands by the advisor, framework_run and /mos:act wiring, one-selector fence (wave 8)
+- [ ] 399-09-PLAN.md - ground-truth column, selection_observations log on CLI closeOffer and MCP gate_answer, overrules (wave 9)
+- [ ] 399-10-PLAN.md - routing benchmark (top-3 recall, ECE, Brier, option shuffles) and the phase gates (wave 10)
