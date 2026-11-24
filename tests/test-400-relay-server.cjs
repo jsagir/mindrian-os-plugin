@@ -248,7 +248,7 @@ async function main() {
   });
 
   await leg('S7 the process entry prints one start line, answers /health, and never prints the fake key or hash', async () => {
-    const env = { PATH: process.env.PATH, PORT: '0', RELAY_HOST: '127.0.0.1', GEMINI_API_KEY: FAKE_KEY, RELAY_OPERATOR_TOKEN_SHA256: OP_HASH };
+    const env = { PATH: process.env.PATH, PORT: '0', RELAY_HOST: '127.0.0.1', GEMINI_API_KEY: FAKE_KEY, RELAY_OPERATOR_TOKEN_SHA256: OP_HASH + ',sha256 nothex' };
     const child = spawn(process.execPath, [SERVER_PATH], { cwd: REPO, env, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     let err = '';
@@ -264,8 +264,9 @@ async function main() {
       });
       const s = JSON.parse(line);
       const keys = Object.keys(s).sort().join(',');
-      if (keys !== 'event,has_key,operator_hashes,port,t,user_traffic') return 'start keys ' + keys;
+      if (keys !== 'dropped_hashes,event,has_key,operator_hashes,port,t,user_traffic') return 'start keys ' + keys;
       if (s.event !== 'start' || s.has_key !== true || s.operator_hashes !== 1 || s.user_traffic !== false) return 'start values ' + line;
+      if (s.dropped_hashes !== 1) return 'IN-05 dropped_hashes ' + s.dropped_hashes;
       if (!(Number.isInteger(s.port) && s.port > 0)) return 'port ' + s.port;
       const r = await request(s.port, { path: '/health' });
       if (r.status !== 200 || r.text !== '{"status":"ok"}') return 'health ' + r.status + ' ' + r.text;

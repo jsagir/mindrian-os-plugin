@@ -111,7 +111,8 @@ A hop count that is too low puts every caller in the proxy's one address bucket.
 
 Logs go to stdout as one JSON object per line. They hold counts, durations and reasons only: never a body, a token, an install id, an address or the key.
 
-- Start: `{"t":"...","event":"start","port":10000,"user_traffic":false,"operator_hashes":1,"has_key":true}`
+- Start: `{"t":"...","event":"start","port":10000,"user_traffic":false,"operator_hashes":1,"dropped_hashes":0,"has_key":true}`. A `dropped_hashes` above 0 means an entry of `RELAY_OPERATOR_TOKEN_SHA256` is not 64 hex (for example a pasted `sha256 <hex>` line) and every token for it gets `bad_token`.
+- The first `/v1/decide` request: `{"t":"...","event":"xff_shape","xff_entries":1,"proxy_hops":1}` (see the client address section).
 - A `/v1/decide` reply: `{"t":"...","route":"/v1/decide","status":200,"reason":null,"kind":"operator","questions":3,"ms":812,"upstream_ms":790,"input_tokens":1234}`
 - A refusal from the socket layer: `{"t":"...","route":null,"status":404,"reason":"not_found","ms":0}`
 

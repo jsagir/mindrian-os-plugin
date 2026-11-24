@@ -225,6 +225,8 @@ function main() {
       port: server.address().port,
       user_traffic: cfg.userTraffic === true,
       operator_hashes: cfg.operatorHashes.length,
+      // Review IN-05: how many RELAY_OPERATOR_TOKEN_SHA256 entries were not 64 hex and were dropped (a count).
+      dropped_hashes: cfg.droppedHashes,
       has_key: cfg.hasKey === true,
     });
   });
