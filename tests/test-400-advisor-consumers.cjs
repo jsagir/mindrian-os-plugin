@@ -315,6 +315,42 @@ check('X7 WR-04 a domain reorder keeps equal calibrated values equal in both con
   });
 });
 
+// Review WR-09: both consumers apply the domain over the same option set, the top k of the one lookup.
+const K_TABLE = path.join(TMP, 'consumers-k-table.json');
+fs.writeFileSync(K_TABLE, JSON.stringify({
+  schema: 'mos.decision-advisor-table/1',
+  table_version: '400-consumers-k-fixture',
+  key_order: ['job', 'definition_level', 'cause_effect', 'last_command'],
+  conditioned_rows: true,
+  thresholds: { strong: 0.7, possible: 0.5 },
+  shortlist_k: 2,
+  rows: {
+    // Systems Thinking: analyze-systems (fit, rank 2, inside k 2) and systems-thinking (fit, rank 3 = k + 1).
+    'find-problem|*|*|*': [E('/mos:root-cause', 0.95), E('/mos:analyze-systems', 0.9), E('/mos:systems-thinking', 0.85)],
+    // Only a fit at rank k + 1: the top k (root-cause, bono) has none.
+    'explore|*|*|*': [E('/mos:root-cause', 0.95), E('/mos:bono', 0.93), E('/mos:systems-thinking', 0.9)],
+  },
+}));
+check('X8 WR-09 a fit strong entry at rank k + 1 is promoted by neither consumer; a fit inside the top k is promoted by both', () => {
+  withEnv({ MINDRIAN_DECISION_ADVISOR: 'on', MINDRIAN_DECISION_ADVISOR_TABLE: K_TABLE }, () => {
+    const SL = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'shortlist.cjs'));
+    const fw = 'Systems Thinking';
+    assert.deepEqual(RES.commandsForFramework(fw), ['/mos:analyze-systems', '/mos:root-cause', '/mos:systems-thinking'], 'fixture: framework commands');
+    const q = { jobId: 'find-problem', causeEffect: 'complex' };
+    const sl = SL.lookupShortlist(q);
+    assert.deepEqual(sl.options.map((x) => x.command), ['/mos:analyze-systems', '/mos:root-cause']);
+    assert.deepEqual(sl.domain.fits, ['/mos:analyze-systems'], 'next-move sees only the fit inside k');
+    const wf = RES.composeWorkflow([fw], q);
+    assert.deepEqual(wf[0].ranked_commands, ['/mos:analyze-systems', '/mos:root-cause', '/mos:systems-thinking'], 'the rank k + 1 fit is not promoted');
+    assert.deepEqual(SL.strongOrder(q), ['/mos:analyze-systems', '/mos:root-cause', '/mos:systems-thinking']);
+    // The top k holds no fit: the effect is no_change, and composeWorkflow and strongOrder keep value order.
+    const q2 = { jobId: 'explore', causeEffect: 'complex' };
+    assert.equal(SL.lookupShortlist(q2).domain.effect, 'no_change');
+    assert.deepEqual(RES.composeWorkflow([fw], q2)[0].ranked_commands, ['/mos:root-cause', '/mos:systems-thinking', '/mos:analyze-systems']);
+    assert.deepEqual(SL.strongOrder(q2), ['/mos:root-cause', '/mos:bono', '/mos:systems-thinking']);
+  });
+});
+
 check('X6 tests/test-399-one-selector-fence.cjs passes (no second selector)', () => {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tests', 'test-399-one-selector-fence.cjs')], { cwd: ROOT, encoding: 'utf8', timeout: 120000 });
   assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));

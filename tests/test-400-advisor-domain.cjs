@@ -220,7 +220,7 @@ check('A7 disorder keeps the state and the options; effect note, no forced absta
 });
 
 // ---- A8 ----
-check('A8 strongOrder lists every strong entry of the row, fit-first for a closed domain, row order otherwise', () => {
+check('A8 strongOrder lists every strong entry of the row; only the fit commands of the top k go first (WR-09), row order otherwise', () => {
   needDomain();
   const so = (q) => withTable(FIXTURE, () => S.strongOrder(q));
   const rowOrder = ['/mos:explain-decision', '/mos:bono', '/mos:causal', '/mos:opportunities', '/mos:find-connections', '/mos:explore-trends'];
@@ -228,10 +228,17 @@ check('A8 strongOrder lists every strong entry of the row, fit-first for a close
   assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'confused' }), rowOrder, 'unknown domain');
   assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'chaotic' }), rowOrder, 'chaotic');
   assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'disorder' }), rowOrder, 'disorder');
-  assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'complex' }),
-    ['/mos:find-connections', '/mos:explore-trends', '/mos:explain-decision', '/mos:bono', '/mos:causal', '/mos:opportunities']);
-  assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'complex', exclude: ['/mos:find-connections'], lastCommand: '/mos:bono' }),
-    ['/mos:explore-trends', '/mos:explain-decision', '/mos:causal', '/mos:opportunities'], 'skip list applied');
+  // Review WR-09: the two fit entries sit at ranks 5 and 6, below the top k of 4, so the lookup effect is
+  // no_change and strongOrder keeps the row order (next-move does not see them either).
+  assert.equal(withTable(FIXTURE, () => S.lookupShortlist({ jobId: 'find-problem', causeEffect: 'complex' })).domain.effect, 'no_change');
+  assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'complex' }), rowOrder, 'fit entries below rank k keep their place');
+  // With bono skipped, find-connections rises to rank 4 (inside k) and goes first; explore-trends (rank 5) does not.
+  assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'complex', lastCommand: '/mos:bono' }),
+    ['/mos:find-connections', '/mos:explain-decision', '/mos:causal', '/mos:opportunities', '/mos:explore-trends'], 'skip list applied');
+  // With two entries skipped, both fits are inside k and go first, in row order.
+  assert.deepEqual(so({ jobId: 'find-problem', causeEffect: 'complex', exclude: ['/mos:causal'], lastCommand: '/mos:bono' }),
+    ['/mos:find-connections', '/mos:explore-trends', '/mos:explain-decision', '/mos:opportunities'], 'both fits inside k');
+  assert.deepEqual(so({ jobId: 'validate-idea', causeEffect: 'complex' }), ['/mos:beautiful-question', '/mos:explain-decision', '/mos:bono'], 'a fit in the top k goes first');
   assert.deepEqual(so({ jobId: 'decide-pursue', causeEffect: 'complex' }),
     ['/mos:bono', '/mos:build-thesis', '/mos:beautiful-question'], 'a top tie keeps the row order');
   assert.deepEqual(so({ jobId: 'compare-options', causeEffect: 'complex' }), ['/mos:bono', '/mos:eureka'], 'possible never enters');
