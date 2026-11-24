@@ -2,6 +2,9 @@
 'use strict';
 // Phase 399-07: the advisor as one key inside the single selector, and its navigator-safe presentation.
 // Legs PR1 to PR5 (present.cjs), then the selector legs added with the selector change.
+// The legs set the advisor env themselves; an ambient value must not change them.
+delete process.env.MINDRIAN_DECISION_ADVISOR;
+delete process.env.MINDRIAN_DECISION_ADVISOR_TABLE;
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
@@ -313,5 +316,53 @@ check('N8 nextMoveForSection reads the room definition level and builds the advi
 
 // SELECTOR-LEGS-END
 
-console.log('\n' + passed + ' passed, ' + failed + ' failed');
-process.exit(failed === 0 ? 0 : 1);
+// ---- N10: suggest_next carries the shortlist to the host model (Task 3) ----
+async function suggestLegs() {
+  const H = require('./helpers/isolated-home-36925.cjs');
+  const iso = H.mkIsolatedHome('399sug');
+  const born = H.birthFixtureRoom({ iso, slug: 'adv-sug', vname: 'Quokka Labs', ventureText: 'Quokka Labs onboarding platform' });
+  if (!born || born.ok !== true) throw new Error('fixture birth failed');
+  const roomDir = fs.realpathSync(born.roomDir);
+  const SEC = 'problem-definition';
+  const job = NM.gatherNest({ roomDir, sectionDir: path.join(roomDir, SEC) }).job.id;
+  const SESSION = 'test-399-advisor-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  require(path.join(ROOT, 'lib', 'core', 'session-binding.cjs')).writeSessionBinding(SESSION, { bound: ['adv-sug'], primary: 'adv-sug', sticky: false }, { home: iso.roomsHome });
+  const servingJob = ALL.filter((n) => serves(n, job));
+  const rows = { [job + '|*|*']: [{ command: '/mos:' + servingJob[0], calibrated: 0.95 }, { command: '/mos:' + servingJob[1], calibrated: 0.6 }, { command: '/mos:' + servingJob[2], calibrated: 0.2 }] };
+  const table = { schema: 'mos.decision-advisor-table/1', table_version: '399-fixture', thresholds: { strong: 0.7, possible: 0.5 }, shortlist_k: 3, key_order: ['job', 'definition_level', 'last_command'], conditioned_rows: false, rows };
+  const file = path.join(iso.home, 'sug-table.json');
+  fs.writeFileSync(file, JSON.stringify(table), 'utf8');
+  const registered = [];
+  const server = { tool(name, _d, a, b) { registered.push({ name, handler: typeof b === 'function' ? b : a }); }, registerTool(name, _c, handler) { registered.push({ name, handler }); }, server: { getClientCapabilities() { return {}; } } };
+  require(path.join(ROOT, 'lib', 'mcp', 'tools', 'sensors.cjs')).register(server, { fallbackRoomDir: roomDir });
+  const suggestNext = registered.find((r) => r.name === 'suggest_next').handler;
+  const pull = async () => JSON.parse((await suggestNext({ section: SEC }, { sessionId: SESSION })).content[0].text);
+  const PR = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'present.cjs'));
+
+  async function withEnvAsync(env, fn) {
+    const saved = {};
+    Object.keys(env).forEach((k) => { saved[k] = process.env[k]; if (env[k] === null) delete process.env[k]; else process.env[k] = env[k]; });
+    try { return await fn(); } finally { Object.keys(saved).forEach((k) => { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }); }
+  }
+  const on = await withEnvAsync({ MINDRIAN_DECISION_ADVISOR_TABLE: file, MINDRIAN_DECISION_ADVISOR: null }, pull);
+  const off = await withEnvAsync({ MINDRIAN_DECISION_ADVISOR_TABLE: file, MINDRIAN_DECISION_ADVISOR: 'off' }, pull);
+  check('N10 suggest_next carries next_move.advisor with state and options, and no raw number', () => {
+    const a = on.next_move.advisor;
+    assert.ok(a && typeof a === 'object', JSON.stringify(on.next_move).slice(0, 300));
+    assert.equal(a.state, 'ok');
+    assert.deepEqual(a.options.map((o) => o.command), rows[job + '|*|*'].map((e) => e.command));
+    assert.deepEqual(a.options.map((o) => o.band), ['strong', 'possible', 'weak']);
+    assert.equal(PR.hasRawNumber(a), false);
+    assert.equal(PR.hasRawNumber(a.summary), false);
+    assert.equal(PR.hasRawNumber(on.next_move.primary.why), false);
+    assert.equal(on.next_move.primary.command, strip(rows[job + '|*|*'][0].command), 'the strong unique top leads');
+  });
+  check('N10b with the kill switch off, next_move has no advisor key', () => {
+    assert.equal(Object.prototype.hasOwnProperty.call(off.next_move, 'advisor'), false);
+  });
+}
+
+suggestLegs().then(() => {
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
+  process.exit(failed === 0 ? 0 : 1);
+}, (e) => { console.log('FAIL: N10 setup -- ' + (e && e.message ? e.message : String(e))); process.exit(1); });
