@@ -6,12 +6,17 @@
 //   T3 no install id: no_install_id, no id file  T4 catalog_skew and relay_refused (closed reason list)
 //   T5 chunking 1000 and answer checks           T6 a 307 is not followed
 //   T7 the operator token env is not read without the flag   T8 the 399 and 366 legs still pass
+//   O1 flag without token: exit 5, no call, no audit   O2 flag with gemini or jev: usage, exit 2
+//   O3 flag plus token: Bearer only, in-memory policy, printed line and exact body before each POST
+//   O4 one audit record, 0600 in 0700, no token, key or body; a refused run also writes one
+//   O5 the token is never in stdout, stderr, the result or the audit file   O6 no env sets the flag
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
 const fs = require('node:fs');
 const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
-const { spawnSync } = require('node:child_process');
+const crypto = require('node:crypto');
+const { spawn, spawnSync } = require('node:child_process');
 
 const REPO = path.resolve(__dirname, '..');
 const realFetch = globalThis.fetch;
@@ -26,7 +31,10 @@ const SAMPLE = path.join(REPO, 'tests/fixtures/399/neutral-request-sample.json')
 const req3 = JSON.parse(fs.readFileSync(SAMPLE, 'utf8'));
 const FP = labels.catalogFingerprint();
 const TOKEN_ENV = 'MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN';
-const FAKE_TOKEN = 'fake-operator-token-400-' + require('node:crypto').randomBytes(6).toString('hex');
+const FAKE_TOKEN = 'fake-operator-token-400-' + crypto.randomBytes(6).toString('hex');
+const CLI = path.join(REPO, 'scripts/decision-advisor-transport.cjs');
+const POLICY_FILE = path.join(REPO, 'data/egress-policy.json');
+const AUDIT_NAME_RE = /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}\.json$/;
 const INSTALL_ID = 'abcdef0123456789abcdef0123456789';
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-400-relay-transport-'));
@@ -97,6 +105,36 @@ function countingFetch() {
   const state = { calls: 0, inits: [], impl: null };
   state.impl = function counting(url, init) { state.calls += 1; state.inits.push(init); return realFetch(url, init); };
   return state;
+}
+
+// Async child run, so the in-process capture server keeps answering while the child sends.
+function runCli(args, env) {
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, [CLI].concat(args), {
+      cwd: scratch,
+      env: Object.assign({ PATH: process.env.PATH, HOME: scratch, USERPROFILE: scratch }, env || {}),
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (c) => { stdout += c; });
+    child.stderr.on('data', (c) => { stderr += c; });
+    child.on('close', (status) => resolve({ status, stdout, stderr }));
+  });
+}
+
+function collector() {
+  const c = { text: '', write(x) { c.text += String(x); return true; } };
+  return c;
+}
+
+function auditFiles(home) {
+  const dir = path.join(home, 'decision-relay-audit');
+  if (!fs.existsSync(dir)) return { dir, names: [] };
+  return { dir, names: fs.readdirSync(dir) };
+}
+
+function sha256(text) {
+  return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
 function runNode(file) {
@@ -215,6 +253,111 @@ function runNode(file) {
         if (r.status !== 0) bad.push(t + ' exit ' + r.status + ' ' + String(r.stdout).split('\n').filter((l) => /FAIL/.test(l)).join(' | ').slice(0, 300));
       }
       return bad.length === 0 || bad.join('; ');
+    });
+
+    await leg('O1 --operator-release-run without the token: exit 5, operator_token_missing, 0 requests, no audit file', async () => {
+      cap.captured.length = 0;
+      const home = mkHome(true);
+      const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], { MINDRIAN_HOME: home });
+      const a = auditFiles(home);
+      return (r.status === 5 && /operator_token_missing/.test(r.stdout + r.stderr) && cap.captured.length === 0 && a.names.length === 0 &&
+        !fs.existsSync(a.dir)) || JSON.stringify({ status: r.status, err: r.stderr, n: cap.captured.length, a });
+    });
+
+    await leg('O2 --operator-release-run with --provider gemini or jev is a usage error, exit 2', async () => {
+      const env = { [TOKEN_ENV]: FAKE_TOKEN, MINDRIAN_HOME: mkHome(true) };
+      const g = await runCli(['--provider', 'gemini', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], env);
+      const j = await runCli(['--provider', 'jev', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], env);
+      return (g.status === 2 && /usage error/.test(g.stderr) && j.status === 2 && /usage error/.test(j.stderr)) || JSON.stringify({ g: g.status, j: j.status });
+    });
+
+    let o3 = null;
+    await leg('O3 flag plus token: Bearer token, no install id header, in-memory policy, a printed line and the exact body before each POST', async () => {
+      cap.captured.length = 0;
+      cap.reply = okReply;
+      const before = fs.readFileSync(POLICY_FILE);
+      const home = mkHome(true);
+      const out = collector();
+      const req = bigRequest(1500);
+      const r = await transport.send(req, { provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
+        env: { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN }, out });
+      o3 = { r, home, out: out.text };
+      const after = fs.readFileSync(POLICY_FILE);
+      if (!r.ok || cap.captured.length !== 2) return JSON.stringify({ r, n: cap.captured.length });
+      for (const c of cap.captured) {
+        if (c.headers.authorization !== 'Bearer ' + FAKE_TOKEN) return 'authorization header wrong';
+        if (c.headers['x-theo-install-id'] !== undefined) return 'install id header sent on an operator run';
+        if (c.headers['x-mindrian-catalog'] !== FP) return 'catalog header';
+      }
+      if (!before.equals(after)) return 'shipped policy file changed';
+      const lines = out.text.split('\n').filter((l) => l.length > 0);
+      const want = [
+        'decision relay release run: chunk 1 of 2, 1000 questions, to ' + cap.base + '/v1/decide',
+        cap.captured[0].text,
+        'decision relay release run: chunk 2 of 2, 500 questions, to ' + cap.base + '/v1/decide',
+        cap.captured[1].text,
+      ];
+      return JSON.stringify(lines) === JSON.stringify(want) || 'printed lines differ: ' + JSON.stringify(lines.map((l) => l.slice(0, 90)));
+    });
+
+    await leg('O4 one audit record, mode 0600 in a 0700 dir, fixed keys, no token, no key, no body; a catalog_skew run also writes one', async () => {
+      if (!o3) return 'O3 did not run';
+      const a = auditFiles(o3.home);
+      if (a.names.length !== 1 || !AUDIT_NAME_RE.test(a.names[0])) return 'audit names ' + JSON.stringify(a.names);
+      const file = path.join(a.dir, a.names[0]);
+      const posix = process.platform !== 'win32';
+      if (posix && (fs.statSync(file).mode & 0o777) !== 0o600) return 'file mode ' + (fs.statSync(file).mode & 0o777).toString(8);
+      if (posix && (fs.statSync(a.dir).mode & 0o777) !== 0o700) return 'dir mode ' + (fs.statSync(a.dir).mode & 0o777).toString(8);
+      const text = fs.readFileSync(file, 'utf8');
+      const rec = JSON.parse(text);
+      const keys = Object.keys(rec).sort().join(',');
+      if (keys !== 'at,base_origin,catalog,chunks,ok,operator_release_run,path,schema,totals') return 'keys ' + keys;
+      if (rec.schema !== 'mos.decision-relay-audit/1' || rec.operator_release_run !== true || rec.ok !== true) return 'header ' + text.slice(0, 200);
+      if (rec.base_origin !== cap.base || rec.path !== '/v1/decide' || rec.catalog !== FP || Number.isNaN(Date.parse(rec.at))) return 'fields ' + text.slice(0, 300);
+      const shas = cap.captured.map((c) => sha256(c.text));
+      const chunksOk = Array.isArray(rec.chunks) && rec.chunks.length === 2 &&
+        rec.chunks.every((c, i) => Object.keys(c).sort().join(',') === 'body_sha256,questions,reason,status' && c.body_sha256 === shas[i] && c.status === 200 && c.reason === null) &&
+        rec.chunks[0].questions === 1000 && rec.chunks[1].questions === 500;
+      if (!chunksOk) return 'chunks ' + JSON.stringify(rec.chunks);
+      if (rec.totals.questions !== 1500 || rec.totals.input_tokens !== 14 || rec.totals.output_tokens !== 2) return 'totals ' + JSON.stringify(rec.totals);
+      if (text.indexOf(FAKE_TOKEN) !== -1 || text.indexOf('/mos:') !== -1 || text.indexOf(req3.context.job_summary) !== -1) return 'audit holds a token or body text';
+      // a refused run after the flag check
+      cap.captured.length = 0;
+      cap.reply = () => ({ status: 409, json: { ok: false, reason: 'catalog_skew', relay_catalog: 'c'.repeat(64) } });
+      const home2 = mkHome(false);
+      const r2 = await transport.send(req3, { provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
+        env: { MINDRIAN_HOME: home2, [TOKEN_ENV]: FAKE_TOKEN }, out: collector() });
+      cap.reply = okReply;
+      const a2 = auditFiles(home2);
+      if (r2.reason !== 'catalog_skew' || a2.names.length !== 1) return 'skew run ' + JSON.stringify({ r2, a2 });
+      const rec2 = JSON.parse(fs.readFileSync(path.join(a2.dir, a2.names[0]), 'utf8'));
+      return (rec2.ok === false && rec2.chunks.length === 1 && rec2.chunks[0].status === 409 && rec2.chunks[0].reason === 'catalog_skew' &&
+        rec2.totals.questions === 3) || JSON.stringify(rec2);
+    });
+
+    await leg('O5 the token never appears in stdout, stderr, the returned object or the audit file (child process run)', async () => {
+      cap.captured.length = 0;
+      cap.reply = okReply;
+      const home = mkHome(false);
+      const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+      const a = auditFiles(home);
+      const auditText = a.names.map((n) => fs.readFileSync(path.join(a.dir, n), 'utf8')).join('\n');
+      const blob = r.stdout + r.stderr + auditText + JSON.stringify(o3 && o3.r) + (o3 ? o3.out : '');
+      return (r.status === 0 && cap.captured.length === 1 && a.names.length === 1 && blob.indexOf(FAKE_TOKEN) === -1 &&
+        cap.captured[0].headers.authorization === 'Bearer ' + FAKE_TOKEN) || JSON.stringify({ status: r.status, err: r.stderr.slice(0, 200), n: cap.captured.length, leaked: blob.indexOf(FAKE_TOKEN) !== -1 });
+    });
+
+    await leg('O6 no env variable sets the flag: env names like the flag plus the token change nothing (exit 4, 0 requests, no audit)', async () => {
+      cap.captured.length = 0;
+      const home = mkHome(true);
+      const env = {
+        MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN, OPERATOR_RELEASE_RUN: '1', MINDRIAN_OPERATOR_RELEASE_RUN: '1',
+        MINDRIAN_DECISION_RELAY_OPERATOR_RELEASE_RUN: 'true', npm_config_operator_release_run: 'true', '--operator-release-run': '1',
+      };
+      const r = await runCli(['--provider', 'relay', '--request', SAMPLE, '--base', cap.base], env);
+      const inproc = await transport.send(req3, { provider: 'relay', base: cap.base, fetchImpl: countingFetch().impl, env });
+      return (r.status === 4 && /egress_line_off/.test(r.stdout + r.stderr) && inproc.reason === 'egress_line_off' && cap.captured.length === 0 &&
+        auditFiles(home).names.length === 0) || JSON.stringify({ status: r.status, inproc, n: cap.captured.length });
     });
 
     if (strayFetch !== 0) { fail += 1; console.log('FAIL: stray fetch count ' + strayFetch); }
