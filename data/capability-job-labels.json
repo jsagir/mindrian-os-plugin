@@ -1,0 +1,12 @@
+{
+  "schema": "mos.capability-job-labels/1",
+  "_note": "Phase 399, I-03. Agent job labels live in agents/*.md frontmatter as serves_jtbd, the same place commands and skills carry them. MCP tools have no frontmatter, so their labels live here. The proposals came from a Gemini Decision run kept in the private research trail. These labels are not owner-ruled. Every proposal not applied is listed in the phase review file for the owner. Labels only, no probability. Hyphens only.",
+  "rule": "Apply a (capability, job) pair only when all 4 hold: (a) the proposal p is 0.90 or more (the owner band of D-07); (b) the capability has at most 2 jobs at 0.90 or more; (c) the job is a member of data/job-vocabulary.json ids; (d) the name is an agent file agents/<name>.md, or an MCP tool registered as surface mcp:<name> in data/mcp-tool-connectors.json.",
+  "ruled_by": "phase-399-rule-I-03 (owner review pending)",
+  "mcp_tools": {
+    "artifact_file": ["file-meeting"],
+    "contradiction_check": ["surface-contradiction", "validate-idea"],
+    "gate_render": ["compare-options"],
+    "whitespace_scan": ["audit-room", "validate-idea"]
+  }
+}
