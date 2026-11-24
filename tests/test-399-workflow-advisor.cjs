@@ -93,8 +93,30 @@ check('W2 with a job and a table where the last command is strong, the step runs
   assert.equal(wf[0].command, CMDS[3]);
   assert.equal(wf[0].optional, false);
   assert.equal(wf[0].command_basis, 'advisor');
-  assert.deepEqual(wf[0].ranked_commands, [CMDS[3], CMDS[2], CMDS[0], CMDS[1]]);
+  // Review WR-04: only the strong band promotes; CMDS[2] (possible, 0.6) keeps registry order with the rest.
+  assert.deepEqual(wf[0].ranked_commands, [CMDS[3], CMDS[0], CMDS[1], CMDS[2]]);
   assert.deepEqual(indexOnlyProps(wf), []);
+});
+
+check('W2b WR-04 a possible command is never promoted: with no strong command the registry order stands', () => {
+  const T_POSSIBLE = writeTable('possible-only', { [JOB + '|*|*']: [E(CMDS[3], 0.6), E(CMDS[2], 0.2)] });
+  const wf = withEnv(ON(T_POSSIBLE), () => resolver.composeWorkflow([FW], { jobId: JOB }));
+  assert.equal(wf[0].command, CMDS[0]);
+  assert.equal(wf[0].command_basis, 'registry_order');
+  assert.deepEqual(wf[0].ranked_commands, CMDS);
+});
+
+check('W2c WR-04 the command that just ran is not promoted, in any spelling of the command name', () => {
+  const T_LAST = writeTable('last-top', { [JOB + '|*|*']: [E(CMDS[3], 1), E(CMDS[2], 0.75), E(CMDS[0], 0.2)] });
+  for (const last of [CMDS[3], CMDS[3].replace('/mos:', 'mos:'), CMDS[3].replace('/mos:', '')]) {
+    const wf = withEnv(ON(T_LAST), () => resolver.composeWorkflow([FW], { jobId: JOB, lastCommand: last }));
+    assert.notEqual(wf[0].command, CMDS[3], 'chain step must not re-run ' + last);
+    assert.ok(wf[0].ranked_commands.indexOf(CMDS[3]) > 0, last);
+    assert.equal(wf[0].ranked_commands.length, CMDS.length);
+  }
+  // control: without lastCommand the same table promotes it
+  const ctl = withEnv(ON(T_LAST), () => resolver.composeWorkflow([FW], { jobId: JOB }));
+  assert.equal(ctl[0].command, CMDS[3]);
 });
 
 check('W3 no non-weak command, no row for the job, or a missing table: first command, registry_order, ranked equals the registry list', () => {
