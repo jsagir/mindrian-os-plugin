@@ -4272,3 +4272,14 @@ Plans:
 - [x] 399-08-PLAN.md - composeWorkflow ranks a framework's commands by the advisor, framework_run and /mos:act wiring, one-selector fence (wave 8)
 - [x] 399-09-PLAN.md - ground-truth column, selection_observations log on CLI closeOffer and MCP gate_answer, overrules (wave 9)
 - [x] 399-10-PLAN.md - routing benchmark (top-3 recall, ECE, Brier, option shuffles) and the phase gates (wave 10)
+
+### Phase 400: Job sentences with three stored slots on every capability, a Cynefin cause-and-effect layer with move types beside the job, reworded Well-defined test and a wicked cut-off, label review carry-over, chaining deferred
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400 to break down)
