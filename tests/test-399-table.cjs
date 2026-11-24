@@ -147,7 +147,206 @@ check('B6 --check with the recorded input absent exits 3 and says so', () => {
   assert.match(r.stdout + r.stderr, /recorded input absent/);
 });
 
-// <lookup legs S1-S6 are appended below by Task 3>
+// ---- Lookup legs S1 to S7 (Task 3) ----
+const SHORTLIST = path.join(ROOT, 'lib', 'core', 'decision-advisor', 'shortlist.cjs');
+const S = require(SHORTLIST);
+const ENV_KEYS = ['MINDRIAN_DECISION_ADVISOR', 'MINDRIAN_DECISION_ADVISOR_TABLE'];
+function withEnv(env, fn) {
+  const saved = {};
+  for (const k of ENV_KEYS) saved[k] = process.env[k];
+  for (const k of ENV_KEYS) delete process.env[k];
+  Object.assign(process.env, env);
+  try {
+    return fn();
+  } finally {
+    for (const k of ENV_KEYS) {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    }
+  }
+}
+function writeFixtureTable(name, rows, extra) {
+  const t = Object.assign(
+    {
+      schema: 'mos.decision-advisor-table/1',
+      table_version: 'fixture',
+      key_order: ['job', 'definition_level', 'last_command'],
+      conditioned_rows: true,
+      thresholds: { strong: 0.7, possible: 0.5 },
+      shortlist_k: 3,
+      rows,
+    },
+    extra || {}
+  );
+  const f = path.join(scratch2, name);
+  fs.writeFileSync(f, JSON.stringify(t));
+  return f;
+}
+const scratch2 = fs.mkdtempSync(path.join(os.tmpdir(), 'da-short-'));
+
+check('S1 shipped table lookup: ranked, banded, k clamp, no_strong_pick state', () => {
+  withEnv({}, () => {
+    const jobs = Object.keys(table.rows).map((k) => k.split('|')[0]);
+    let sawOk = false;
+    for (const job of jobs) {
+      const r = S.lookupShortlist({ jobId: job });
+      assert.equal(r.key_used, job + '|*|*');
+      assert.equal(r.table_version, '399-v0');
+      assert.ok(r.options.length >= 1 && r.options.length <= 3);
+      r.options.forEach((o, i) => {
+        assert.equal(o.rank, i + 1);
+        const want = o.calibrated >= 0.7 ? 'strong' : o.calibrated >= 0.5 ? 'possible' : 'weak';
+        assert.equal(o.band, want);
+        assert.deepEqual(Object.keys(o).sort(), ['band', 'calibrated', 'command', 'rank']);
+      });
+      const anyStrong = r.options.some((o) => o.band === 'strong');
+      assert.equal(r.no_strong_pick, !anyStrong);
+      assert.equal(r.state, anyStrong ? 'ok' : 'no_strong_pick');
+      if (anyStrong) sawOk = true;
+    }
+    assert.ok(sawOk, 'no job in the shipped table has a strong option');
+    assert.equal(S.lookupShortlist({ jobId: 'validate-idea', k: 1 }).options.length, 1);
+    assert.equal(S.lookupShortlist({ jobId: 'validate-idea', k: 9 }).options.length, 3);
+  });
+  const f = writeFixtureTable('weak.json', {
+    'explore|*|*': [
+      { command: '/mos:a', calibrated: 0.4 },
+      { command: '/mos:b', calibrated: 0.2 },
+    ],
+  });
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: f }, () => {
+    const r = S.lookupShortlist({ jobId: 'explore' });
+    assert.equal(r.state, 'no_strong_pick');
+    assert.equal(r.no_strong_pick, true);
+    assert.deepEqual(r.options.map((o) => o.band), ['weak', 'weak']);
+  });
+});
+
+check('S2 fallback order: exact, job|level|*, job|*|last, job|*|*', () => {
+  const rows = {
+    'validate-idea|ill-defined|/mos:mullins': [{ command: '/mos:x1', calibrated: 0.9 }],
+    'validate-idea|ill-defined|*': [{ command: '/mos:x2', calibrated: 0.9 }],
+    'validate-idea|*|/mos:mullins': [{ command: '/mos:x3', calibrated: 0.9 }],
+    'validate-idea|*|*': [{ command: '/mos:x4', calibrated: 0.9 }],
+  };
+  const f = writeFixtureTable('full.json', rows);
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: f }, () => {
+    const q = { jobId: 'validate-idea', definitionLevel: 'ill-defined', lastCommand: '/mos:mullins' };
+    let r = S.lookupShortlist(q);
+    assert.equal(r.key_used, 'validate-idea|ill-defined|/mos:mullins');
+    assert.equal(r.options[0].command, '/mos:x1');
+    r = S.lookupShortlist({ jobId: 'validate-idea', definitionLevel: 'ill-defined', lastCommand: '/mos:other' });
+    assert.equal(r.key_used, 'validate-idea|ill-defined|*');
+    r = S.lookupShortlist({ jobId: 'validate-idea', definitionLevel: 'well-defined', lastCommand: '/mos:mullins' });
+    assert.equal(r.key_used, 'validate-idea|*|/mos:mullins');
+    r = S.lookupShortlist({ jobId: 'validate-idea', definitionLevel: 'well-defined', lastCommand: '/mos:other' });
+    assert.equal(r.key_used, 'validate-idea|*|*');
+    // An unknown level word is treated as null.
+    r = S.lookupShortlist({ jobId: 'validate-idea', definitionLevel: 'nonsense' });
+    assert.equal(r.key_used, 'validate-idea|*|*');
+    assert.equal(S.scoreFor({ jobId: 'validate-idea', definitionLevel: 'ill-defined', lastCommand: '/mos:mullins' }, '/mos:x1'), 0.9);
+  });
+});
+
+check('S3 lastCommand and exclude are removed before the top k is taken', () => {
+  const f = writeFixtureTable('excl.json', {
+    'build|*|*': [
+      { command: '/mos:a', calibrated: 0.95 },
+      { command: '/mos:b', calibrated: 0.9 },
+      { command: '/mos:c', calibrated: 0.85 },
+      { command: '/mos:d', calibrated: 0.6 },
+      { command: '/mos:e', calibrated: 0.1 },
+    ],
+  });
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: f }, () => {
+    const r = S.lookupShortlist({ jobId: 'build', lastCommand: '/mos:a', exclude: ['/mos:c'] });
+    assert.deepEqual(r.options.map((o) => o.command), ['/mos:b', '/mos:d', '/mos:e']);
+    assert.deepEqual(r.options.map((o) => o.rank), [1, 2, 3]);
+    assert.deepEqual(r.options.map((o) => o.band), ['strong', 'possible', 'weak']);
+  });
+});
+
+check('S4 state words never throw: no_job, no_row, no_table, off', () => {
+  withEnv({}, () => {
+    for (const q of [undefined, null, {}, { jobId: '' }, { jobId: 42 }]) {
+      const r = S.lookupShortlist(q);
+      assert.equal(r.state, 'no_job');
+      assert.deepEqual(r.options, []);
+    }
+    const r = S.lookupShortlist({ jobId: 'job-with-no-row' });
+    assert.equal(r.state, 'no_row');
+    assert.deepEqual(r.options, []);
+  });
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: path.join(scratch2, 'absent.json') }, () => {
+    const r = S.lookupShortlist({ jobId: 'validate-idea' });
+    assert.equal(r.state, 'no_table');
+    assert.deepEqual(r.options, []);
+    assert.equal(S.tableMeta(), null);
+  });
+  const bad = path.join(scratch2, 'bad.json');
+  fs.writeFileSync(bad, '{ not json');
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: bad }, () => {
+    assert.equal(S.lookupShortlist({ jobId: 'validate-idea' }).state, 'no_table');
+  });
+  const odd = path.join(scratch2, 'odd.json');
+  fs.writeFileSync(odd, JSON.stringify({ rows: [] }));
+  withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: odd }, () => {
+    assert.equal(S.lookupShortlist({ jobId: 'validate-idea' }).state, 'no_table');
+  });
+  withEnv({ MINDRIAN_DECISION_ADVISOR: 'off' }, () => {
+    const r = S.lookupShortlist({ jobId: 'validate-idea' });
+    assert.equal(r.state, 'off');
+    assert.deepEqual(r.options, []);
+    assert.equal(S.advisorEnabled(), false);
+  });
+  assert.deepEqual(Object.keys(S.STATES).sort(), ['no_job', 'no_row', 'no_strong_pick', 'no_table', 'off', 'ok']);
+  assert.ok(Object.isFrozen(S.STATES));
+});
+
+check('S5 scoreFor, bandFor, tableMeta', () => {
+  withEnv({}, () => {
+    const top = table.rows['validate-idea|*|*'][0];
+    assert.equal(S.scoreFor({ jobId: 'validate-idea' }, top.command), top.calibrated);
+    assert.equal(S.scoreFor({ jobId: 'validate-idea' }, '/mos:not-there'), null);
+    assert.equal(S.scoreFor({ jobId: 'no-such-job' }, top.command), null);
+    const th = { strong: 0.7, possible: 0.5 };
+    assert.equal(S.bandFor(0.7, th), 'strong');
+    assert.equal(S.bandFor(0.699, th), 'possible');
+    assert.equal(S.bandFor(0.5, th), 'possible');
+    assert.equal(S.bandFor(0.499, th), 'weak');
+    const m = S.tableMeta();
+    assert.equal(m.version, '399-v0');
+    assert.deepEqual(m.key_order, ['job', 'definition_level', 'last_command']);
+    assert.deepEqual(m.thresholds, { strong: 0.7, possible: 0.5 });
+    assert.equal(m.shortlist_k, 3);
+    assert.equal(m.conditioned_rows, false);
+  });
+});
+
+check('S6 source requires only node:fs and node:path; cold require plus one lookup is fast', () => {
+  const src = fs.readFileSync(SHORTLIST, 'utf8');
+  const reqs = Array.from(src.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)).map((m) => m[1]).sort();
+  assert.deepEqual(reqs, ['node:fs', 'node:path']);
+  assert.ok(!/\bimport\s*\(|\bfetch\s*\(/.test(src));
+  const code =
+    "const t=process.hrtime.bigint();const s=require(" + JSON.stringify(SHORTLIST) + ");" +
+    "const r=s.lookupShortlist({jobId:'validate-idea'});" +
+    "console.log(Number(process.hrtime.bigint()-t)/1e6+'|'+r.state);";
+  const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_DECISION_ADVISOR: '' }) });
+  assert.equal(r.status, 0, r.stderr);
+  const [ms, state] = r.stdout.trim().split('|');
+  assert.equal(state, 'ok');
+  console.log('S6 measured cold require plus one lookup: ' + Number(ms).toFixed(1) + ' ms (hook budget 200 ms)');
+  assert.ok(Number(ms) < 200, 'too slow: ' + ms);
+});
+
+check('S7 the frozen level copy equals problem-axes DEFINITION_LEVELS', () => {
+  const axes = require(path.join(ROOT, 'lib', 'core', 'problem-axes.cjs'));
+  assert.deepEqual([...S.DEFINITION_LEVELS], [...axes.DEFINITION_LEVELS]);
+  assert.ok(Object.isFrozen(S.DEFINITION_LEVELS));
+});
+
+fs.rmSync(scratch2, { recursive: true, force: true });
 
 fs.rmSync(scratch, { recursive: true, force: true });
 console.log(passed + ' passed, ' + failed + ' failed');
