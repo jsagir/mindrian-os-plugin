@@ -282,5 +282,67 @@ check('V6: no refusal reason was added', () => {
   assert.equal(L.REFUSAL_REASONS.length, 11);
 });
 
+// ---------------------------------------------------------------------------
+// P1 to P4: catalogFingerprint
+// ---------------------------------------------------------------------------
+const HEX64 = /^[0-9a-f]{64}$/;
+function freshCatalog(v, r) {
+  return L.buildLabelCatalog({ vocabulary: v || readJson(path.join(ROOT, 'data', 'job-vocabulary.json')), registry: r || readJson(path.join(ROOT, 'data', 'command-registry.json')) });
+}
+check('P1: catalogFingerprint returns 64 lowercase hex characters, the same value on two calls', () => {
+  assert.equal(typeof L.catalogFingerprint, 'function');
+  const a = L.catalogFingerprint();
+  assert.ok(HEX64.test(a), String(a));
+  assert.equal(L.catalogFingerprint(), a);
+  assert.equal(L.catalogFingerprint(catalog), a);
+});
+check('P2: a catalog built again from the same files gives the same value', () => {
+  assert.equal(L.catalogFingerprint(freshCatalog()), L.catalogFingerprint());
+});
+check('P2: one vocabulary summary changed gives a different value', () => {
+  const v = clone(vocab);
+  v.jobs[JOB].summary = v.jobs[JOB].summary + ' Changed.';
+  assert.notEqual(L.catalogFingerprint(freshCatalog(v)), L.catalogFingerprint());
+});
+check('P2: one command teaching changed gives a different value', () => {
+  const r = clone(registry);
+  r.commands.find((x) => x.command === CMD).teaching += ' Changed.';
+  assert.notEqual(L.catalogFingerprint(freshCatalog(null, r)), L.catalogFingerprint());
+});
+check('P2: one template wording changed (test-seam template map) gives a different value', () => {
+  const t = Object.assign({}, A.QUESTION_TEMPLATES, A.DOMAIN_TEMPLATES);
+  const same = L.catalogFingerprint(freshCatalog(), { templates: t });
+  assert.equal(same, L.catalogFingerprint());
+  t.fits_domain_v1 = Object.assign({}, t.fits_domain_v1, { prefix: t.fits_domain_v1.prefix + 'X ' });
+  assert.notEqual(L.catalogFingerprint(freshCatalog(), { templates: t }), L.catalogFingerprint());
+});
+check('P2: one move gloss changed (test-seam gloss map) gives a different value', () => {
+  const g = Object.assign({}, A.MOVE_TYPE_GLOSSES, { probe: 'Run a big test.' });
+  assert.notEqual(L.catalogFingerprint(freshCatalog(), { moveTypeGlosses: g }), L.catalogFingerprint());
+});
+check('P3: the value does not depend on Map insertion order', () => {
+  const v = clone(vocab);
+  const rev = {};
+  for (const id of Object.keys(v.jobs).reverse()) rev[id] = v.jobs[id];
+  v.jobs = rev;
+  const r = clone(registry);
+  r.commands = r.commands.slice().reverse();
+  const cat = freshCatalog(v, r);
+  assert.notDeepEqual([...cat.commands.keys()], [...catalog.commands.keys()]);
+  assert.equal(L.catalogFingerprint(cat), L.catalogFingerprint());
+  const t = {};
+  const both = Object.assign({}, A.QUESTION_TEMPLATES, A.DOMAIN_TEMPLATES);
+  for (const id of Object.keys(both).reverse()) t[id] = both[id];
+  assert.equal(L.catalogFingerprint(cat, { templates: t }), L.catalogFingerprint());
+});
+check('P4: FN1 fence holds with the node:crypto require', () => {
+  const src = fs.readFileSync(path.join(AD, 'labels-only.cjs'), 'utf8');
+  assert.ok(/require\('node:crypto'\)/.test(src));
+  assert.ok(src.includes('Phase 400: catalogFingerprint is the one skew check shared by the plugin client and the decision relay (Pitfall 12).'));
+  const r = require('node:child_process').spawnSync(process.execPath, [path.join(ROOT, 'tests', 'test-399-advisor-fence.cjs')], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.ok(/ok: FN1/.test(r.stdout), 'no FN1 ok line');
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);
