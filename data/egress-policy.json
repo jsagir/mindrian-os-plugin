@@ -39,7 +39,7 @@
       "providers": ["anthropic_haiku"]
     },
     "decision_advisor": {
-      "endpoint": "Gemini Decision (gemini-decision-1, Decisions API v1beta, Google AI host); Jev-compatible /v1/systemone (hosted Jev or a self-hosted Kev on loopback)",
+      "endpoint": "Gemini Decision (gemini-decision-1, Decisions API v1beta, Google AI host); Jev-compatible /v1/systemone (hosted Jev or a self-hosted Kev on loopback); the owner's decision relay (POST <base>/v1/decide, Phase 400 services/decision-relay, gated by this line by name)",
       "default": false,
       "scope": "labels only (D-03): job id, job summary, definition level, command names and registry teaching text; off until the owner rules on user access (Phase 399 Deferred)",
       "providers": ["gemini_decision", "jev_decision"],
