@@ -17,6 +17,10 @@ hitl_why: "Exploration spends navigator-controlled research cost and crosses mat
 # navigator invests in the approve verb that actually files it.
 interactive_first_reward: schema_preview
 serves_jtbd: ["explore", "connect-domains", "decide-pursue"]
+job_when: "I have a qualified opportunity that is still only a connection without a defined problem"
+job_want: "to research it in depth and gather cited evidence"
+job_so: "turn it into a well defined problem backed by sources"
+job_sentence_status: "provisional"
 teaching: "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands."
 allowed-tools: Read Bash WebSearch WebFetch AskUserQuestion
 # --- Phase 219-05 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---

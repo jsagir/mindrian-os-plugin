@@ -10,6 +10,10 @@ hitl_why: "It explains a decision and offers one next move to take."
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[--last N] [--session SESSIONID]"
 serves_jtbd: ["audit-room"]
+job_when: "I received a recommendation and want to know why it was made"
+job_want: "to see the reasoning path behind the last recommendation"
+job_so: "trust it or challenge it with the facts in view"
+job_sentence_status: "provisional"
 teaching: "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it."
 disable-model-invocation: true
 allowed-tools: Bash(node *), AskUserQuestion

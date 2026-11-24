@@ -14,6 +14,10 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "A dependency path (F.2) then a fixed-order projection walk (F.9) combining TTA, scenario, and S-curve."
 serves_jtbd: ["compare-options", "explore"]
+job_when: "the path ahead branches into several plausible futures"
+job_want: "to combine trend, scenario and maturity views of those futures"
+job_so: "choose a path without pretending I can predict"
+job_sentence_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the signal table previews the TTA/Scenario/S-Curve
 # synthesis structure before the navigator invests in the full projection).

@@ -10,6 +10,10 @@ hitl_why: "The rabbit-hole exploration asks how deep to keep going, a depth budg
 interactive_first_reward: methodology_reframe
 argument-hint: "<file_path>"
 serves_jtbd: ["find-problem", "understand-market", "explore"]
+job_when: "a new artifact landed in my room and the automatic domain breakdown did not start"
+job_want: "to run that domain breakdown by hand"
+job_so: "see the domains the artifact touches before I go further"
+job_sentence_status: "provisional"
 teaching: "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface."
 allowed-tools:
   - "Bash"
