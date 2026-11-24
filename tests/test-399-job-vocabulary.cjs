@@ -126,7 +126,7 @@ check('V8 mutation control: a changed serves_jtbd value is reported as a miss', 
 
 check('V9 no em dash or en dash in the vocabulary file', () => {
   const text = fs.readFileSync(path.join(ROOT, VOCAB_REL), 'utf8');
-  assert.equal(/[–—]/.test(text), false);
+  assert.equal(/[\u2013\u2014]/.test(text), false);
 });
 
 if (failed > 0) {
