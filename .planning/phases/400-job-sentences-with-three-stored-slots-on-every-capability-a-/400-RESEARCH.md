@@ -469,16 +469,21 @@ Add provider id `relay_decision` to the `decision_advisor` line `providers` and 
 | A5 | The navigator domain fits the `identity` key/value table rather than a new table | Q5 | A new table needs a registration and migration instead |
 | A6 | AskUserQuestion 2-4 option cap applies to the Claude Code CLI rung of `gate-render.cjs` | Pitfall 7 | A 6-option card is cut or refused on CLI |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Relay caller credential (blocks S4 auth).**
+   RESOLVED: O-09 (install id + per-install and global caps + operator token); overrides the operator-token-only recommendation. Plans 400-12, 400-14.
    - What we know: no per-user credential reaches any live server; the only per-user check is the Supabase lookup on a 503 service; SEED-119 forbids any key in user interaction; 269-05 is not built.
    - What is unclear: which caller check the owner accepts for v1.
    - Recommendation: operator token only in v1 (release-time build), a pluggable verifier, and the Supabase verifier deferred until the entitlement credential is provisioned at install. Ask the owner.
 2. **How a release-time relay run passes the egress line.** The line is off and cannot be widened by a room file or env. Recommendation: an owner-run dev command that loads a one-run policy object only when an explicit `--owner-approved-egress decision_advisor` flag AND a TTY confirmation are present, with the run recorded; or the owner flips `default` for the build commit only. Planner proposes, owner picks.
+   RESOLVED: O-10 (explicit operator flag + operator token, each body printed, audit record; line stays off for users). Plan 400-14.
 3. **Keep the opt-in live ask at all?** CONTEXT allows dropping it. Recommendation: drop it in v1 (no user credential exists; per-turn path stays offline).
+   RESOLVED: no live ask on the per-turn path in v1; relay user traffic off by default (RELAY_USER_TRAFFIC). Plan 400-14.
 4. **Card option layout for five domains** (Pitfall 7). Planner proposes; owner confirms wording with O-03.
+   RESOLVED: O-13, owner accepted the two-stage card wording and the disorder and chaotic host notes on 2026-11-24. Plans 400-05, 400-08, 400-09.
 5. **Owner review lists (S5):** the 22 non-methodology run-step commands, the 15 run-step commands with top move probability under 0.5, the 9 run-step commands with no domain at 0.70, the empty chaotic list, plus the 399 carry-over items in `399-LABEL-REVIEW.md` sections 1, 2 and 7. Write them to `400-LABEL-REVIEW.md` (counts and ids only; no raw research text).
+   RESOLVED: written to 400-LABEL-REVIEW.md by plan 400-15.
 
 ## Environment Availability
 

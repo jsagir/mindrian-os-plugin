@@ -45,6 +45,13 @@ cut from `work/399-decision-advisor` at ddd9de038 (399 is unpushed; 400 stacks o
 - O-12 OLD COMMANDS (owner card 2026-11-24): organize, mva-brief and mva-report stay on the 73 run-step
   list and are labelled in this phase. Their removal belongs to a later efficiency phase.
 
+- O-13 DOMAIN CARD (owner card 2026-11-24): the two-stage card wording and the disorder and chaotic host
+  notes in plan 400-05 are accepted as written (confirms O-03). Text lives in data/cynefin-domains.json.
+- O-14 JOB WORDING (owner card 2026-11-24): ship the planner's fresh job sentences written from repo text,
+  marked provisional and listed in 400-LABEL-REVIEW.md; not the research drafts.
+- OPEN (needs the research machine): the two wicked label files named in plan 400-11 are not on this
+  machine; plan 400-11 ships the wicked cut-off as not_fitted until they arrive.
+
 ## Research findings to honour (small sets, one labeller: agreement, not accuracy; never quote publicly)
 
 - F-01 Job signal per slot (176 frameworks, names hidden): When 0.75, I want 0.71, So I can 0.71,
