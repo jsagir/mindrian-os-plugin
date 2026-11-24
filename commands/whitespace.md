@@ -13,6 +13,10 @@ job_when: "I suspect my room misses part of a domain"
 job_want: "to scan my artifacts for zones that are under explored"
 job_so: "fill the gaps before they weaken my case"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

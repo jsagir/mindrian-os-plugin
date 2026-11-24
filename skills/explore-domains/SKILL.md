@@ -12,6 +12,10 @@ job_when: "my problem could belong to any of several domains"
 job_want: "to map the territory and break each domain into its basic parts"
 job_so: "know where to look before I commit to one domain"
 job_sentence_status: "provisional"
+fits_domains: ["disorder"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: intersectional collisions preview the IKA scoring
 # structure before the navigator invests in the full 5-lens decomposition).

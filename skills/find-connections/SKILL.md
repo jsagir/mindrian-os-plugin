@@ -14,6 +14,10 @@ job_when: "I suspect my work touches a pattern in another field"
 job_want: "to trace links between my room and other fields"
 job_so: "find connections I did not know to look for"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

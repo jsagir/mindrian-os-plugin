@@ -14,6 +14,10 @@ job_when: "the same symptoms keep coming back in a system with many moving parts
 job_want: "to break the system into layers and find its leverage points"
 job_so: "act where a small push changes the most"
 job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

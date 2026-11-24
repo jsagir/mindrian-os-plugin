@@ -31,6 +31,10 @@ job_when: "my room holds ideas from different fields that might combine"
 job_want: "to research the most promising cross field pairs"
 job_so: "file the pairs that the evidence supports as fundable opportunities"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka recalls cross-domain pairs from your room's graph, researches them as a perspective of the research planner, and files the supported ones only on your yes."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Bash Write AskUserQuestion

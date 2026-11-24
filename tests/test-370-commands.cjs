@@ -30,8 +30,8 @@ const OA = contract.owner_answers || {};
 // joined with a line feed. Pinned from HEAD before plan 370-09 edited any command.
 // If a command's frontmatter must change, a later plan updates the pin on purpose.
 // Later-phase additive keys are dropped before the hash, so every 370 line stays pinned:
-// phase 400 (plan 400-02) adds the job sentence keys on their own lines.
-const LATER_PHASE_KEYS = ['job_when', 'job_want', 'job_so', 'job_sentence_status'];
+// phase 400 (plan 400-02) adds the job sentence keys on their own lines; plan 400-06 adds the Cynefin label keys.
+const LATER_PHASE_KEYS = ['job_when', 'job_want', 'job_so', 'job_sentence_status', 'fits_domains', 'move_type', 'move_type_weak', 'cynefin_label_status'];
 const LATER_PHASE_RE = new RegExp('^(' + LATER_PHASE_KEYS.join('|') + '):');
 const FM_PIN = {
   'commands/grade.md': '8253efce8f7ccc99bb6caf7bb26454d07f220c50f9f3767841a3bd844d8dddb4',

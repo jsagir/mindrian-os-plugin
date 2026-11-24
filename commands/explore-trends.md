@@ -11,6 +11,10 @@ job_when: "current trends in my field might turn into future problems"
 job_want: "to push those trends to their extremes"
 job_so: "see the second order effects before they arrive"
 job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming one trend previews the extrapolation-to-absurd
 # structure before the navigator invests in the full push).

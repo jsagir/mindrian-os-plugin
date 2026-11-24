@@ -14,6 +14,10 @@ job_when: "a new artifact landed in my room and the automatic domain breakdown d
 job_want: "to run that domain breakdown by hand"
 job_so: "see the domains the artifact touches before I go further"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "categorize"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface."
 allowed-tools:
   - "Bash"

@@ -16,6 +16,10 @@ job_when: "I cannot tell how well defined my problem is"
 job_want: "to classify the problem by its type"
 job_so: "pick a method that fits the problem instead of a favorite tool"
 job_sentence_status: "provisional"
+fits_domains: ["disorder"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

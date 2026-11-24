@@ -20,6 +20,10 @@ job_when: "I have a grant draft ready and the deadline is near"
 job_want: "to score the draft against the rubric the reviewers use before I submit"
 job_so: "close the gaps a reviewer would flag"
 job_sentence_status: "provisional"
+fits_domains: ["clear","complicated"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 interactive_first_reward: schema_preview
 teaching: "Grant reviewers score against a fixed rubric whether you see it or not. /mos:grade-grant runs that rubric on your draft BEFORE you submit, so the gaps a human reviewer would flag show up here first. Starts with Tnufa (Israel Innovation Authority); the same engine scores any IIA program once its rubric is filled in."
 kind: methodology

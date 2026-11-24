@@ -14,6 +14,10 @@ job_when: "I just installed the system and do not know where to start"
 job_want: "to take a guided tour and build my first room"
 job_so: "start working on my own without outside help"
 job_sentence_status: "provisional"
+fits_domains: ["clear"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand."
 # Per docs/reward-before-investment-rule.md line 68-70: first screen is a question, not a tutorial. Remediation tracked as follow-up phase.
 interactive_first_reward: reframe_question

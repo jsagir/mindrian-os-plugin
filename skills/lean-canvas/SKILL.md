@@ -14,6 +14,10 @@ job_when: "someone needs to see my whole business model on one page"
 job_want: "to fill a one page canvas from what my room already holds"
 job_so: "put a defensible model in front of them fast"
 job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

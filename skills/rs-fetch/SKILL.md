@@ -20,6 +20,10 @@ job_when: "a topic needs the full analysis of what lags behind, not a sample"
 job_want: "to run the whole discovery from papers to cross field matches to a thesis"
 job_so: "act on a complete sweep"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

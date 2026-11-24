@@ -12,6 +12,10 @@ job_when: "I cannot tell what I do not know about my idea"
 job_want: "to sort the known, the unknown and the unknowable"
 job_so: "find where the hidden risk lives and plan research on it"
 job_sentence_status: "provisional"
+fits_domains: ["complex","disorder"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Rumsfeld matrix structure previews before the
 # navigator invests in filling each quadrant one at a time).

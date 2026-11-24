@@ -347,15 +347,16 @@ leg('K6 scout.md and scheduled-tasks.md: base sentences intact, D-05 pointer add
   assert.ok(prEnd !== -1, 'the Plan-run route section must end at the Step 6 heading');
   assert.ok(scout.slice(prStart + SCOUT_PLAN_RUN_HEADING.length, prEnd).indexOf('\n## ') === -1, 'the Plan-run route section must hold no other ## heading');
   // Phase 400 (plan 400-02) adds the job sentence keys as own frontmatter lines; drop them too.
+  // Phase 400 (plan 400-06) adds the 4 Cynefin label keys the same way; drop them too.
   const scoutWithoutRoute = (scout.slice(0, prStart) + scout.slice(prEnd + 1))
     .split('\n')
-    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l))
+    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status|fits_domains|move_type|move_type_weak|cynefin_label_status):/.test(l))
     .join('\n');
   assert.equal(scoutWithoutRoute.replace(' ' + POINTER, ''), baseScout, 'scout.md may change only by the pointer and the Plan-run route section');
   // Phase 400 (plan 400-03) labels scheduled-tasks.md too; drop its 4 job lines the same way.
   const schedWithoutJob = sched
     .split('\n')
-    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l))
+    .filter((l) => !/^(job_when|job_want|job_so|job_sentence_status|fits_domains|move_type|move_type_weak|cynefin_label_status):/.test(l))
     .join('\n');
   assert.equal(schedWithoutJob.replace(' ' + POINTER, ''), baseSched, 'scheduled-tasks.md may change only by the pointer');
 });

@@ -14,6 +14,10 @@ job_when: "I just finished a step and do not know what to do next"
 job_want: "to get a short list of next moves with reasons from my room"
 job_so: "choose with the reasons in view"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta

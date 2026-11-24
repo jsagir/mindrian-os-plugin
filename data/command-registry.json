@@ -26,10 +26,12 @@
         "so": "move forward instead of circling in more analysis",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:admin",
@@ -117,10 +119,12 @@
         "so": "aim at the most unmet needs",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:analyze-systems",
@@ -149,10 +153,12 @@
         "so": "act where a small push changes the most",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:analyze-timing",
@@ -181,10 +187,12 @@
         "so": "tell whether I am too early, too late or on time",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:auto-explore",
@@ -212,10 +220,14 @@
         "so": "see the domains the artifact touches before I go further",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:beautiful-question",
@@ -244,10 +256,13 @@
         "so": "find a question that opens more progress than a better answer would",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:bono",
@@ -278,10 +293,14 @@
         "so": "rule on an argued synthesis with its evidence in view",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:brain-derive",
@@ -338,10 +357,12 @@
         "so": "see what I can decide now and what is still raw",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:build-thesis",
@@ -371,10 +392,12 @@
         "so": "reach a defensible go or no go with reasons",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:causal",
@@ -403,10 +426,12 @@
         "so": "fix the upstream cause instead of the visible effect",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:challenge-assumptions",
@@ -440,10 +465,13 @@
         "so": "catch the assumptions I stopped questioning before they cost me",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:compare-ventures",
@@ -472,10 +500,13 @@
         "so": "learn from their results without repeating their mistakes",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:correct-reference-now",
@@ -594,10 +625,12 @@
         "so": "know what to improve first",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:diagnose",
@@ -625,10 +658,12 @@
         "so": "pick a method that fits the problem instead of a favorite tool",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:diagnostics",
@@ -656,10 +691,14 @@
         "so": "spot where the room is thin or unexpected",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:dial-memory-refresh",
@@ -718,10 +757,13 @@
         "so": "commit to a market and a timing window",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:discover",
@@ -750,10 +792,13 @@
         "so": "base later design decisions on strategy instead of guesswork",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:doctor",
@@ -840,10 +885,12 @@
         "so": "decide whether to ride the winning design or break it",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:eureka-portfolio",
@@ -900,10 +947,13 @@
         "so": "file the pairs that the evidence supports as fundable opportunities",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explain-decision",
@@ -929,10 +979,12 @@
         "so": "trust it or challenge it with the facts in view",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-domains",
@@ -962,10 +1014,12 @@
         "so": "know where to look before I commit to one domain",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-futures",
@@ -994,10 +1048,12 @@
         "so": "choose a path without pretending I can predict",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-opportunity",
@@ -1025,10 +1081,14 @@
         "so": "turn it into a well defined problem backed by sources",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-trends",
@@ -1057,10 +1117,12 @@
         "so": "see the second order effects before they arrive",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:export",
@@ -1145,10 +1207,10 @@
         "so": "keep the knowledge from that meeting where I can use it",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-analogies",
@@ -1177,10 +1239,12 @@
         "so": "borrow a proven structure instead of inventing one",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-bottlenecks",
@@ -1208,10 +1272,14 @@
         "so": "put my effort where it unblocks the whole venture",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-connections",
@@ -1240,10 +1308,13 @@
         "so": "find connections I did not know to look for",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:funding",
@@ -1270,10 +1341,12 @@
         "so": "run funding as a steady process instead of a one off effort",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "clear"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:futures",
@@ -1302,10 +1375,13 @@
         "so": "bank the opportunities that a linear view would miss",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:grade-grant",
@@ -1334,10 +1410,13 @@
         "so": "close the gaps a reviewer would flag",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "clear",
+        "complicated"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:grade",
@@ -1367,10 +1446,13 @@
         "so": "see the weakest part right away",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:graph",
@@ -1428,10 +1510,12 @@
         "so": "walk into the review with one clear picture",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:heal",
@@ -1545,10 +1629,12 @@
         "so": "begin with a clear job, the right sections and one opportunity worth banking",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:ingest-methodology",
@@ -1607,10 +1693,13 @@
         "so": "rule on the findings and file them",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:jtbd",
@@ -1638,10 +1727,10 @@
         "so": "get advice that fits the work I am doing",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:leadership",
@@ -1669,10 +1758,13 @@
         "so": "change how the team is led before the mismatch slows us",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:lean-canvas",
@@ -1701,10 +1793,10 @@
         "so": "put a defensible model in front of them fast",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:macro-trends",
@@ -1733,10 +1825,13 @@
         "so": "see the wide picture before I narrow my focus",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:map-unknowns",
@@ -1765,10 +1860,13 @@
         "so": "find where the hidden risk lives and plan research on it",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:memory-cortex-reach",
@@ -1883,10 +1981,12 @@
         "so": "state what the section means in a form others follow",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mos",
@@ -1946,10 +2046,12 @@
         "so": "commit only if it survives a rigorous test",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mva-brief",
@@ -1975,10 +2077,12 @@
         "so": "see the premises my venture rests on",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mva-report",
@@ -2004,10 +2108,10 @@
         "so": "pick up the work later without rereading the whole conversation",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:new-project",
@@ -2033,10 +2137,12 @@
         "so": "file work in the right place from the start",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:new-surface",
@@ -2091,10 +2197,12 @@
         "so": "start working on my own without outside help",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "clear"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:operator",
@@ -2149,10 +2257,12 @@
         "so": "work the best ones as a live pipeline",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:organize",
@@ -2178,10 +2288,10 @@
         "so": "find and manage each room without searching",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:persona",
@@ -2209,10 +2319,14 @@
         "so": "decide which of their arguments hold",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:pipeline",
@@ -2238,10 +2352,12 @@
         "so": "get a connected result without handing work between steps",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:present",
@@ -2326,10 +2442,13 @@
         "so": "make the call myself and learn the tests",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:radar",
@@ -2355,10 +2474,12 @@
         "so": "adopt the useful ones without scanning by hand",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:reanalyze",
@@ -2384,10 +2505,13 @@
         "so": "see what it means in light of what I know now",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:research",
@@ -2416,10 +2540,13 @@
         "so": "file only the findings I approve",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:room",
@@ -2507,10 +2634,12 @@
         "so": "treat the cause instead of the recurrence",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-experts",
@@ -2539,10 +2668,10 @@
         "so": "contact the right people with a sourced reason",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-explain",
@@ -2570,10 +2699,12 @@
         "so": "understand the finding without reading the raw analysis",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-fetch",
@@ -2603,10 +2734,12 @@
         "so": "act on a complete sweep",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-thesis",
@@ -2634,10 +2767,10 @@
         "so": "revisit the finding before I discuss it",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scenario-plan",
@@ -2666,10 +2799,12 @@
         "so": "plan for the world I do not expect",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -2729,10 +2864,13 @@
         "so": "turn the top limits into testable hypotheses",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:score-innovation",
@@ -2761,10 +2899,10 @@
         "so": "back the one that is truly novel",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scout",
@@ -2791,10 +2929,12 @@
         "so": "learn about changes before I go looking for them",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:session-report",
@@ -3031,10 +3171,12 @@
         "so": "get the kind of help that fits the moment",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:status",
@@ -3095,10 +3237,13 @@
         "so": "find the missing premise and make the case hold",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:suggest-next",
@@ -3125,10 +3270,14 @@
         "so": "choose with the reasons in view",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:systems-thinking",
@@ -3157,10 +3306,13 @@
         "so": "see where the system resists change and where it gives way",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:think-hats",
@@ -3189,10 +3341,13 @@
         "so": "catch the views we keep missing",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:trending-to-absurd",
@@ -3222,10 +3377,12 @@
         "so": "spot the disruptive opportunity at the edge",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:update",
@@ -3283,10 +3440,10 @@
         "so": "find the gap where the opportunity lives",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:validate",
@@ -3317,10 +3474,12 @@
         "so": "base the next investment on a measurement instead of a feeling",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:validate-proposition",
@@ -3350,10 +3509,13 @@
         "so": "learn which gate it fails before customers show me",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:vault",
@@ -3442,10 +3604,13 @@
         "so": "fill the gaps before they weaken my case",
         "status": "provisional"
       },
-      "fits_domains": null,
-      "move_type": null,
-      "move_type_weak": null,
-      "cynefin_label_status": null
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:wiki",

@@ -13,6 +13,10 @@ job_when: "my team feels the wrong shape for the stage of the venture"
 job_want: "to diagnose which leadership pattern this stage needs"
 job_so: "change how the team is led before the mismatch slows us"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

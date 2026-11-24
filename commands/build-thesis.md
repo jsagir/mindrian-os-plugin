@@ -11,6 +11,10 @@ job_when: "I must decide whether this venture deserves my time and money"
 job_want: "to answer the standard questions of an investment thesis about it"
 job_so: "reach a defensible go or no go with reasons"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the Ten Questions Rapid Assessment previews the full
 # gate structure before the navigator invests in the Deep Dive).

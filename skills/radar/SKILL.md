@@ -13,6 +13,10 @@ job_when: "new capabilities of the underlying AI model ship faster than I can fo
 job_want: "to track which ones could change what my tools can do"
 job_so: "adopt the useful ones without scanning by hand"
 job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan."
 interactive_first_reward: "--none (scripting only)"
 allowed-tools: Read, Write, WebFetch, Glob, AskUserQuestion, Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/radar-changelog-slice.cjs" *)

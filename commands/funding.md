@@ -15,6 +15,10 @@ job_when: "I am chasing several grants and investors at once"
 job_want: "to track each one from first sighting to final decision"
 job_so: "run funding as a steady process instead of a one off effort"
 job_sentence_status: "provisional"
+fits_domains: ["clear"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
 allowed-tools:
   - Read

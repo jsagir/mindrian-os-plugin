@@ -11,6 +11,10 @@ job_when: "the future could go different ways on a pair of key uncertainties"
 job_want: "to build a grid of scenarios and name each one"
 job_so: "plan for the world I do not expect"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the two key uncertainties previews the 2x2
 # scenario matrix structure before the navigator invests in the full narrative).

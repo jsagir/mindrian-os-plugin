@@ -12,6 +12,10 @@ job_when: "I know my customer segment but not which of its needs matter most"
 job_want: "to score each need by importance and by how well it is met today"
 job_so: "aim at the most unmet needs"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the navigator sees the importance/satisfaction scoring
 # structure form up before investing beyond the customer-segment sentence).

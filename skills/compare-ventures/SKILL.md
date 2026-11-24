@@ -14,6 +14,10 @@ job_when: "other ventures have tried an approach close to mine"
 job_want: "to line them up against my approach on the dimensions that matter"
 job_so: "learn from their results without repeating their mistakes"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

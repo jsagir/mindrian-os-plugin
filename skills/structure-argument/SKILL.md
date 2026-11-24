@@ -21,6 +21,10 @@ job_when: "my argument feels muddled and I cannot say why"
 job_want: "to restructure it into a clear pyramid with no gaps or overlaps"
 job_so: "find the missing premise and make the case hold"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "slice"
+move_type_weak: true
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the top-down Minto pyramid structure previews before
 # the navigator invests in filling each level).

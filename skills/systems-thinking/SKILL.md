@@ -14,6 +14,10 @@ job_when: "the way the parts interact matters more than the parts themselves"
 job_want: "to map the feedback loops, stocks and flows of the system"
 job_so: "see where the system resists change and where it gives way"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

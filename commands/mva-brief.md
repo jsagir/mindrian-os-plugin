@@ -15,6 +15,10 @@ job_when: "I can describe my venture in one sentence but have no argument behind
 job_want: "to turn that sentence into a first argument pyramid"
 job_so: "see the premises my venture rests on"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "structure-argument"
 deprecated_removal: "v2.0.0-beta.86"

@@ -11,6 +11,10 @@ job_when: "I am not sure whether my market has settled on a winning design"
 job_want: "to place the market in its design cycle"
 job_so: "decide whether to ride the winning design or break it"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the product category previews the competing-
 # variant census structure before the navigator invests further).

@@ -36,6 +36,10 @@ job_when: "I know what I must deliver but not how to get there"
 job_want: "to find the limits that are only assumed and rank them by what they unlock"
 job_so: "turn the top limits into testable hypotheses"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Reward before investment: the entry gate shows the navigator what Theo's steps and
 # the room's bound inputs look like before any step is walked.
 interactive_first_reward: schema_preview

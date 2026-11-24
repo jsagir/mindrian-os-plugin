@@ -14,6 +14,10 @@ job_when: "I suspect the problem I see is downstream of something else"
 job_want: "to trace the cause and effect links behind it"
 job_so: "fix the upstream cause instead of the visible effect"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

@@ -8,6 +8,10 @@ job_when: "the way the conversation talks to me no longer fits this session"
 job_want: "to switch between pulling evidence, deciding fast, asking questions or challenging me"
 job_so: "get the kind of help that fits the moment"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 argument-hint: "[]"
 body_shape: F.0
 layer: "prompt"

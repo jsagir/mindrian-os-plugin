@@ -12,6 +12,10 @@ job_when: "I have a seed concept and do not know what follows from it"
 job_want: "to trace its consequences outward and search for hidden bridges"
 job_so: "bank the opportunities that a linear view would miss"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the seed concept previews the ring-1 structure
 # before the navigator invests in the full multi-ring wheel).

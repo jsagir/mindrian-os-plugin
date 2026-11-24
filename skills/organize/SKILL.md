@@ -16,6 +16,10 @@ job_when: "my rooms have multiplied and their hierarchy is a mess"
 job_want: "to arrange my rooms into a clear parent and child structure"
 job_so: "find and manage each room without searching"
 job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "rooms organize"
 deprecated_removal: "v1.14.0"

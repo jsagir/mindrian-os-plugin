@@ -12,6 +12,10 @@ job_when: "background scans of my room should run without my attention"
 job_want: "to start the watch checks across the room"
 job_so: "learn about changes before I go looking for them"
 job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one."
 ui_reference: skills/ui-system/SKILL.md
 interactive_first_reward: "--none (scripting only)"

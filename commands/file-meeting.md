@@ -13,6 +13,10 @@ job_when: "a meeting just ended and its transcript sits outside my room"
 job_want: "to capture the transcript and send each insight to the right section"
 job_so: "keep the knowledge from that meeting where I can use it"
 job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives."
 # Per docs/reward-before-investment-rule.md line 60-62: surface first-paragraph extraction preview before full transcript ask. Remediation tracked as follow-up phase.
 interactive_first_reward: paragraph_preview

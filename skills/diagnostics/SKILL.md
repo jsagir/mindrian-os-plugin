@@ -14,6 +14,10 @@ job_when: "I need a numeric read on my room beyond my own impression"
 job_want: "to measure its disruption, blind spots, novelty and surprise"
 job_so: "spot where the room is thin or unexpected"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 renaming_to: fingerprint
 renaming_target_version: "v1.14.0"
 teaching: "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged)."

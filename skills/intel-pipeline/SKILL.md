@@ -24,6 +24,10 @@ job_when: "I have a room and a question but no time to research by hand"
 job_want: "to split my active job into research lines and gather scored evidence"
 job_so: "rule on the findings and file them"
 job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta

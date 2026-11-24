@@ -29,6 +29,10 @@ job_when: "I have several analyses in my room but no clear next step"
 job_want: "to run the method that best fits where my room stands now"
 job_so: "move forward instead of circling in more analysis"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "slice"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta

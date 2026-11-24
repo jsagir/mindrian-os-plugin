@@ -1,0 +1,42 @@
+{
+  "schema": "mos.cynefin-label-provenance/1",
+  "_note": "Phase 400 plan 06 (CY-04): provenance of the provisional Cynefin labels in the run-step command frontmatter. Written by scripts/derive-cynefin-labels.cjs from recorded labels-only runs kept outside the repo. Source names, hashes, rules and counts only; no probability and no model text.",
+  "status": "provisional",
+  "sources": [
+    {
+      "name": "cynefin-fit-commands-gemini.json",
+      "sha256": "e7874226c3c95315c5201cf5aa6e3d27323c47929b0a99211ef826019ef3145b"
+    },
+    {
+      "name": "move-type-gemini.json",
+      "sha256": "4fbb15d7a2d196a50d3bece65a9bb001108cc6fbcbf5d4a0dcfc57b571e4dde1"
+    }
+  ],
+  "threshold": 0.7,
+  "weak_below": 0.5,
+  "rules": [
+    "fits_domains: domains with p at or above the threshold, in CAUSE_EFFECT_DOMAINS order",
+    "move_type: the top move; ties take the first id in MOVE_TYPES order",
+    "move matching in the advisor reads only commands of kind methodology (plan 09); other kinds keep the 399 behaviour"
+  ],
+  "counts": {
+    "fits": {
+      "clear": 3,
+      "complicated": 50,
+      "complex": 33,
+      "chaotic": 0,
+      "disorder": 15
+    },
+    "no_domain": 9,
+    "moves": {
+      "categorize": 13,
+      "analyze": 28,
+      "probe": 25,
+      "act": 0,
+      "slice": 7
+    },
+    "weak": 15,
+    "methodology": 51
+  },
+  "derived_on": "2026-11-24"
+}

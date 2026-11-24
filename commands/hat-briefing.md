@@ -14,6 +14,10 @@ job_when: "I have run several thinking perspective sessions and a stakeholder re
 job_want: "to merge what each perspective found into one briefing"
 job_so: "walk into the review with one clear picture"
 job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology
