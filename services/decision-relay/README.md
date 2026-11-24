@@ -63,9 +63,9 @@ A refusal reply is `{ "ok": false, "reason": "<reason>" }`, sometimes with one m
 | 409 | `catalog_skew` |
 | 413 | `too_large`, `too_many_questions` |
 | 422 | `labels_only_refused` |
-| 429 | `install_rate`, `install_daily_cap`, `address_daily_cap`, `global_daily_requests`, `global_daily_questions`, `global_token_cap`, `operator_daily_cap`, `bucket_table_full` |
+| 429 | `install_rate`, `install_daily_cap`, `address_daily_cap`, `global_daily_requests`, `global_daily_questions`, `global_token_cap`, `operator_rate`, `operator_daily_cap`, `operator_token_cap`, `bucket_table_full` |
 | 500 | `body_check_failed`, `internal` |
-| 502, 503, 504 | `upstream_error`, `upstream_unreachable`, `no_upstream_key`, `upstream_timeout` |
+| 502, 503, 504 | `upstream_error`, `upstream_unreachable`, `no_upstream_key`, `relay_busy`, `upstream_timeout` |
 
 ## Configuration
 
@@ -86,13 +86,16 @@ Every value comes from the environment. The defaults below are the values in `co
 | `RELAY_GLOBAL_DAILY_QUESTIONS` | 100000 | User questions per UTC day, all installs together. |
 | `RELAY_GLOBAL_DAILY_INPUT_TOKENS` | 20000000 | User input tokens per UTC day, as Gemini reports them. |
 | `RELAY_OPERATOR_DAILY_QUESTIONS` | 200000 | Operator questions per UTC day, counted apart from the user caps. |
+| `RELAY_OPERATOR_PER_MINUTE` | 30 | Operator requests per minute (`operator_rate`). |
+| `RELAY_OPERATOR_DAILY_INPUT_TOKENS` | 40000000 | Operator input tokens per UTC day, as Gemini reports them (`operator_token_cap`). |
+| `RELAY_MAX_IN_FLIGHT` | 4 | The most upstream calls open at one time, all callers together. A call over it is `relay_busy` (503, `Retry-After: 1`) and is not counted. |
 | `RELAY_MAX_BUCKETS` | 10000 | The most install or address buckets kept in memory; a new bucket on a full table is `bucket_table_full`. |
 | `RELAY_UPSTREAM_TIMEOUT_MS` | 120000 | The upstream call timeout. The server request timeout is this plus 5000. |
 | `PORT` | 10000 | The listen port. Render sets it. |
 | `RELAY_HOST` | 0.0.0.0 | The bind address. Render needs 0.0.0.0; tests set 127.0.0.1. |
 | `NODE_VERSION` | 22 (Blueprint) | Read by Render, not by the relay. Pinned because the repo engines range has no upper bound. |
 
-The daily counters reset at UTC midnight. They live in memory, so a restart resets them too.
+The daily counters reset at UTC midnight. They live in memory, so a restart or a deploy resets them too. The caps therefore do not bound the spend over a day with restarts. Set a budget alert on the Gemini project as the spend bound that survives a restart (OWNER-GATED).
 
 ## Client address and the Theo analog
 

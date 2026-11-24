@@ -4,7 +4,7 @@
 //   C1 config defaults, invalid numbers, dropped operator hashes, no key value in the config
 //   C2 install callers (no caller, bad id, user traffic off, hashed bucket)
 //   C3 operator token by sha256 and timingSafeEqual, no fallback after a bad token
-//   C4 cap order, refused calls never counted, operator meets only its own cap
+//   C4 cap order, refused calls never counted, operator meets only its own caps (rate, questions, tokens)
 //   C5 bounded bucket tables   C6 UTC day reset and Retry-After to the next UTC midnight
 // Only 127.0.0.1 is used. No GEMINI_API_KEY is read from this machine; tests inject a fake value. Hyphens only.
 const crypto = require('node:crypto');
@@ -399,7 +399,7 @@ async function relayLegs() {
     const want = ['no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
       'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
       'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
-      'upstream_unreachable', 'upstream_timeout'];
+      'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy'];
     if (JSON.stringify(relayMod.REASONS) !== JSON.stringify(want)) return 'REASONS ' + JSON.stringify(relayMod.REASONS);
     const src = fs.readFileSync(path.join(REL, 'relay.cjs'), 'utf8');
     if (/process\.env\.|env\.[A-Z_]+|env\[\s*['"]/.test(src)) return 'relay.cjs reads an env name directly';
@@ -413,6 +413,41 @@ async function relayLegs() {
     const r = await call(input(opHeaders(), sample()));
     if (r.status !== 200) return JSON.stringify(r);
     return f.calls.length === 1 && f.calls[0].url === 'https://generativelanguage.googleapis.com/v1beta/decisions' ? true : 'url ' + (f.calls[0] && f.calls[0].url);
+  });
+
+  await leg('R14 WR-02 in-flight bound: a call over maxInFlight is 503 relay_busy with Retry-After 1, is not counted, and the slot frees', async () => {
+    const releases = [];
+    const hold = spy((_u, init) => new Promise((resolve) => {
+      releases.push(() => resolve(new Response(upstreamReply(init.body, 7), { status: 200 })));
+    }));
+    const { call, limits } = makeRelay({ fetchImpl: hold, cfg: { maxInFlight: 2 } });
+    const p1 = call(input(opHeaders(), sample()));
+    const p2 = call(input(opHeaders(), sample()));
+    await new Promise((r) => setImmediate(r));
+    if (hold.calls.length !== 2) return 'two calls not in flight ' + hold.calls.length;
+    const before = limits.snapshot().operatorRequests;
+    const busy = await call(input(opHeaders(), sample()));
+    if (busy.status !== 503 || busy.body.reason !== 'relay_busy' || hdr(busy, 'retry-after') !== '1') return 'busy ' + JSON.stringify(busy);
+    if (hold.calls.length !== 2) return 'busy call reached upstream';
+    if (limits.snapshot().operatorRequests !== before) return 'busy call counted';
+    releases.forEach((fn) => fn());
+    const [a, b] = await Promise.all([p1, p2]);
+    if (a.status !== 200 || b.status !== 200) return 'held calls ' + a.status + ' ' + b.status;
+    const after = call(input(opHeaders(), sample()));
+    await new Promise((r) => setImmediate(r));
+    if (hold.calls.length !== 3) return 'slot not freed';
+    releases[2]();
+    const c = await after;
+    return c.status === 200 ? true : 'after ' + JSON.stringify(c);
+  });
+  await leg('R15 WR-02 the in-flight slot frees after an upstream failure', async () => {
+    const boom = spy(async () => { throw new Error('down'); });
+    const { call } = makeRelay({ fetchImpl: boom, cfg: { maxInFlight: 1 } });
+    for (let i = 0; i < 3; i += 1) {
+      const r = await call(input(opHeaders(), sample()));
+      if (r.body.reason !== 'upstream_unreachable') return 'try ' + i + ' ' + JSON.stringify(r.body);
+    }
+    return boom.calls.length === 3 ? true : 'calls ' + boom.calls.length;
   });
 }
 
@@ -582,6 +617,32 @@ async function main() {
     const s = L.snapshot();
     if (s.operatorQuestions !== 2500 || s.globalQuestions !== 1 || s.globalRequests !== 1) return 'snapshot ' + JSON.stringify(s);
     return true;
+  });
+
+  await leg('C4 WR-02 operator per-minute window: operator_rate with retryAfterS to the window end; refused calls not counted', () => {
+    const { createLimits } = load('limits.cjs');
+    const ck = clock(DAY0);
+    const L = createLimits(cfgWith({ operatorPerMinute: 2 }), ck.now);
+    if (!L.take(OPERATOR, 1, 'x').ok || !L.take(OPERATOR, 1, 'x').ok) return 'first two refused';
+    ck.t += 15000;
+    const r = L.take(OPERATOR, 1, 'x');
+    if (r.ok !== false || r.status !== 429 || r.reason !== 'operator_rate' || r.retryAfterS !== 45) return JSON.stringify(r);
+    if (L.snapshot().operatorRequests !== 2 || L.snapshot().operatorQuestions !== 2) return 'refused call counted';
+    ck.t += 45000;
+    return L.take(OPERATOR, 1, 'x').ok === true ? true : 'window did not reset';
+  });
+  await leg('C4 WR-02 operator daily input tokens: operator_token_cap after recordUsage; user tokens do not count; UTC day resets it', () => {
+    const { createLimits } = load('limits.cjs');
+    const ck = clock(DAY0);
+    const L = createLimits(cfgWith({ operatorDailyInputTokens: 100, globalDailyInputTokens: 100000 }), ck.now);
+    if (!L.take(OPERATOR, 1, 'x').ok) return 'first refused';
+    L.recordUsage(install('a'), 500);
+    if (!L.take(OPERATOR, 1, 'x').ok) return 'user tokens counted against the operator';
+    L.recordUsage(OPERATOR, 100);
+    const r = L.take(OPERATOR, 1, 'x');
+    if (r.ok !== false || r.status !== 429 || r.reason !== 'operator_token_cap') return JSON.stringify(r);
+    ck.t = DAY0 + 86400000;
+    return L.take(OPERATOR, 1, 'x').ok === true ? true : 'day did not reset';
   });
 
   // ---------- C5 ----------

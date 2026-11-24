@@ -6,7 +6,7 @@
 //   1 caller check (verify-caller.cjs), before the body is read
 //   2 upstream key present (environment only)
 //   3 size cap   4 JSON parse   5 catalog fingerprint match (Pitfall 12)
-//   6 the shared labels-only validator   7 question cap   8 caps (limits.cjs)
+//   6 the shared labels-only validator   7 question cap   8 in-flight bound, then caps (limits.cjs)
 //   9 server-side render and body re-check   10 one upstream POST (no retry, no redirect, a timeout)
 //
 // The shared modules are required by relative path from the repo root, never copied (one source of truth).
@@ -29,7 +29,7 @@ const REASONS = Object.freeze([
   'no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
   'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
   'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
-  'upstream_unreachable', 'upstream_timeout',
+  'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy',
 ]);
 
 function defaultLog(record) {
@@ -54,6 +54,10 @@ function createRelay(deps) {
   const upstreamUrl = origin + gemini.PATH;
   // One request is one POST: the provider limit binds even when the config allows more.
   const maxQuestions = Math.min(cfg.maxQuestions, gemini.MAX_QUESTIONS);
+  // WR-02: the most upstream calls open at one time, for every caller kind. A call over the bound is
+  // refused before the caps count it, so a refused call costs no budget.
+  const maxInFlight = Number.isSafeInteger(cfg.maxInFlight) && cfg.maxInFlight > 0 ? cfg.maxInFlight : 4;
+  let inFlight = 0;
 
   function finish(t0, rec, status, body, extraHeaders) {
     const fp = labels.catalogFingerprint();
@@ -116,7 +120,9 @@ function createRelay(deps) {
       rec.questions = n;
       if (n > maxQuestions) return refuse(t0, rec, 413, 'too_many_questions');
 
-      // 8 caps
+      // 8 caps. The in-flight bound is checked first and counts nothing. From here to the POST the code
+      // is synchronous, so the check and the increment below cannot interleave with another request.
+      if (inFlight >= maxInFlight) return refuse(t0, rec, 503, 'relay_busy', null, { 'retry-after': '1' });
       const cap = limits.take(caller, n, inp.address);
       if (!cap.ok) return refuse(t0, rec, cap.status || 429, cap.reason, null, { 'retry-after': String(cap.retryAfterS) });
 
@@ -136,6 +142,7 @@ function createRelay(deps) {
       const u0 = now();
       let status;
       let replyText;
+      inFlight += 1;
       try {
         const r = await fetchImpl(upstreamUrl, {
           method: 'POST',
@@ -150,6 +157,8 @@ function createRelay(deps) {
         rec.upstream_ms = Math.max(0, now() - u0);
         if (isTimeout(e)) return refuse(t0, rec, 504, 'upstream_timeout');
         return refuse(t0, rec, 502, 'upstream_unreachable');
+      } finally {
+        inFlight -= 1;
       }
       rec.upstream_ms = Math.max(0, now() - u0);
       // The upstream text is never passed through: it can echo request content or account details.

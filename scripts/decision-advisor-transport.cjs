@@ -86,7 +86,7 @@ const RELAY_REASONS = Object.freeze([
   'no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
   'labels_only_refused', 'too_many_questions', 'install_rate', 'install_daily_cap', 'address_daily_cap', 'global_daily_requests',
   'global_daily_questions', 'global_token_cap', 'operator_daily_cap', 'bucket_table_full', 'body_check_failed', 'upstream_error',
-  'upstream_unreachable', 'upstream_timeout',
+  'upstream_unreachable', 'upstream_timeout', 'operator_rate', 'operator_token_cap', 'relay_busy',
 ]);
 
 const _sleep = (ms) => new Promise((r) => setTimeout(r, ms));

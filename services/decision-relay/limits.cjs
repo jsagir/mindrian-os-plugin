@@ -7,8 +7,9 @@
 //   bucket_table_full (a new install or address bucket on a full table)
 //   install_rate (per-minute requests), install_daily_cap (questions), address_daily_cap (questions),
 //   global_daily_requests, global_daily_questions, global_token_cap (input tokens added by recordUsage).
-// The operator skips every user cap and meets only operator_daily_cap. Operator usage is kept apart
-// from the user counters, so a release-time table build does not use up the user budget.
+// The operator skips every user cap and meets only its own caps: operator_rate (per-minute requests),
+// operator_daily_cap (questions) and operator_token_cap (input tokens added by recordUsage). Operator
+// usage is kept apart from the user counters, so a release-time table build does not use up the user budget.
 // Daily counters reset at UTC midnight. Keys are hashes: install buckets arrive hashed from
 // verify-caller.cjs, and addresses are hashed here with a per-process random salt. snapshot() is counts only.
 // CJS, node built-ins only. Hyphens only.
@@ -38,6 +39,7 @@ function createLimits(cfg, nowFn) {
   let operatorQuestions = 0;
   let operatorRequests = 0;
   let operatorInputTokens = 0;
+  let operatorMinute = null; // { count, resetAt } of the operator per-minute window
 
   function roll(t) {
     const d = Math.floor(t / DAY_MS);
@@ -74,7 +76,14 @@ function createLimits(cfg, nowFn) {
     const n = Number.isInteger(questions) && questions > 0 ? questions : 0;
 
     if (caller && caller.kind === 'operator') {
+      // WR-02: a leaked token is bounded by a per-minute request window and a daily input-token cap,
+      // not by the daily question count only. Checked in this order; a refusal counts nothing.
+      if (operatorMinute && operatorMinute.resetAt <= t) operatorMinute = null;
+      if (operatorMinute && operatorMinute.count + 1 > c.operatorPerMinute) return refuse('operator_rate', (operatorMinute.resetAt - t) / 1000);
       if (operatorQuestions + n > c.operatorDailyQuestions) return refuse('operator_daily_cap', toMidnightS(t));
+      if (operatorInputTokens >= c.operatorDailyInputTokens) return refuse('operator_token_cap', toMidnightS(t));
+      if (!operatorMinute) operatorMinute = { count: 0, resetAt: t + MINUTE_MS };
+      operatorMinute.count += 1;
       operatorQuestions += n;
       operatorRequests += 1;
       return { ok: true };

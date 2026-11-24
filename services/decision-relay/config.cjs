@@ -21,6 +21,9 @@ const DEFAULTS = Object.freeze({
   globalDailyQuestions: 100000,
   globalDailyInputTokens: 20000000,
   operatorDailyQuestions: 200000,
+  operatorPerMinute: 30,
+  operatorDailyInputTokens: 40000000,
+  maxInFlight: 4,
   maxBuckets: 10000,
   upstreamTimeoutMs: 120000,
 });
@@ -37,6 +40,9 @@ const NUMBERS = Object.freeze({
   RELAY_GLOBAL_DAILY_QUESTIONS: ['globalDailyQuestions', 1],
   RELAY_GLOBAL_DAILY_INPUT_TOKENS: ['globalDailyInputTokens', 1],
   RELAY_OPERATOR_DAILY_QUESTIONS: ['operatorDailyQuestions', 1],
+  RELAY_OPERATOR_PER_MINUTE: ['operatorPerMinute', 1],
+  RELAY_OPERATOR_DAILY_INPUT_TOKENS: ['operatorDailyInputTokens', 1],
+  RELAY_MAX_IN_FLIGHT: ['maxInFlight', 1],
   RELAY_MAX_BUCKETS: ['maxBuckets', 1],
   RELAY_UPSTREAM_TIMEOUT_MS: ['upstreamTimeoutMs', 1],
 });
