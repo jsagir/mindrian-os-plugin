@@ -269,7 +269,133 @@ check('R2 the registry builder emits the 4 fields; values outside the closed set
   assert.deepEqual(keys.slice(j + 1, j + 5), LABEL_KEYS);
 });
 
-// <!-- Y legs (plan 400-06 Task 2) -->
+// ---- Y1 to Y6: the live tree ----
+const { parseFrontmatter } = require(REGISTRY_BUILDER);
+// RESEARCH Q5 tallies for the 73 run-step commands (derived counts only, pinned by the plan).
+const PIN = {
+  fits: { clear: 3, complicated: 50, complex: 33, chaotic: 0, disorder: 15 },
+  no_domain: 9,
+  moves: { categorize: 13, analyze: 28, probe: 25, act: 0, slice: 7 },
+  weak: 15,
+  methodology: 51,
+};
+const RUN_STEP = require(path.join(ROOT, 'data/run-step-capabilities.json')).commands.map((c) => c.replace(/^\/mos:/, ''));
+const PROV_FILE = path.join(ROOT, 'data/cynefin-label-provenance.json');
+
+function liveCommands() {
+  const dir = path.join(ROOT, 'commands');
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.md'))
+    .sort()
+    .map((f) => {
+      const text = fs.readFileSync(path.join(dir, f), 'utf8');
+      const fm = parseFrontmatter(text);
+      const name = typeof fm.name === 'string' && fm.name ? fm.name : f.replace(/\.md$/, '');
+      const lines = fmLines(text) || [];
+      return { file: f, name, fm, labelLines: lines.filter((l) => LABEL_RE.test(l)) };
+    });
+}
+const LIVE = liveCommands();
+const LABELLED = LIVE.filter((c) => c.labelLines.length > 0);
+
+check('Y1 exactly the 73 run-step commands carry the 4 keys; no other command does', () => {
+  assert.equal(RUN_STEP.length, 73, 'the run-step list holds 73 names');
+  assert.deepEqual(LABELLED.map((c) => c.name).sort(), RUN_STEP.slice().sort());
+  for (const c of LABELLED) {
+    for (const k of LABEL_KEYS) {
+      assert.equal(c.labelLines.filter((l) => l.startsWith(k + ':')).length, 1, c.name + ' carries ' + k + ' once');
+    }
+  }
+});
+
+check('Y2 values are in the closed sets; fits_domains has no duplicates; the status is provisional', () => {
+  for (const c of LABELLED) {
+    const f = c.fm.fits_domains;
+    assert.ok(Array.isArray(f), c.name + ' fits_domains array');
+    assert.ok(f.every((d) => ax.CAUSE_EFFECT_DOMAINS.includes(d)), c.name + ' fits_domains closed set');
+    assert.equal(new Set(f).size, f.length, c.name + ' no duplicate');
+    assert.deepEqual(f, ax.CAUSE_EFFECT_DOMAINS.filter((d) => f.includes(d)), c.name + ' domain order');
+    assert.ok(ax.MOVE_TYPES.includes(c.fm.move_type), c.name + ' move_type closed set');
+    assert.equal(typeof c.fm.move_type_weak, 'boolean', c.name + ' move_type_weak boolean');
+    assert.equal(c.fm.cynefin_label_status, 'provisional', c.name + ' provisional');
+  }
+});
+
+function liveTally() {
+  const t = { fits: {}, no_domain: 0, moves: {}, weak: 0, methodology: 0 };
+  for (const d of ax.CAUSE_EFFECT_DOMAINS) t.fits[d] = 0;
+  for (const m of ax.MOVE_TYPES) t.moves[m] = 0;
+  for (const c of LABELLED) {
+    for (const d of c.fm.fits_domains) t.fits[d] += 1;
+    if (c.fm.fits_domains.length === 0) t.no_domain += 1;
+    t.moves[c.fm.move_type] += 1;
+    if (c.fm.move_type_weak) t.weak += 1;
+    if ((c.fm.kind || 'utility') === 'methodology') t.methodology += 1;
+  }
+  return t;
+}
+
+check('Y3 the tallies equal the RESEARCH Q5 counts and the provenance counts; chaotic is empty for every command', () => {
+  const t = liveTally();
+  assert.deepEqual(t, PIN, 'frontmatter tallies equal the pins');
+  const prov = JSON.parse(fs.readFileSync(PROV_FILE, 'utf8'));
+  assert.deepEqual(prov.counts, PIN, 'provenance counts equal the pins');
+  assert.ok(LABELLED.every((c) => !c.fm.fits_domains.includes('chaotic')), 'no command fits chaotic (F-04)');
+});
+
+check('Y4 the registry fields deep-equal the frontmatter for all 73; build-skill-mirrors --check passes', () => {
+  const reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/command-registry.json'), 'utf8'));
+  const byName = new Map(reg.commands.map((e) => [e.command, e]));
+  assert.equal(reg.commands.filter((e) => e.move_type).length, 73, '73 registry entries carry move_type');
+  for (const c of LIVE) {
+    const e = byName.get('/mos:' + c.name);
+    assert.ok(e, c.name + ' registry entry');
+    const want = c.labelLines.length
+      ? { fits_domains: c.fm.fits_domains, move_type: c.fm.move_type, move_type_weak: c.fm.move_type_weak, cynefin_label_status: c.fm.cynefin_label_status }
+      : { fits_domains: null, move_type: null, move_type_weak: null, cynefin_label_status: null };
+    const got = {};
+    for (const k of LABEL_KEYS) got[k] = e[k];
+    assert.deepEqual(got, want, c.name + ' registry equals frontmatter');
+  }
+  const r = cp.spawnSync('node', [path.join(ROOT, 'scripts/build-skill-mirrors.cjs'), '--check'], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(r.status, 0, 'build-skill-mirrors --check: ' + r.stdout + r.stderr);
+});
+
+check('Y5 organize, mva-brief and mva-report carry the 4 keys (O-12)', () => {
+  for (const n of ['organize', 'mva-brief', 'mva-report']) {
+    const c = LIVE.find((x) => x.name === n);
+    assert.ok(c, n + ' exists');
+    assert.equal(c.labelLines.length, 4, n + ' carries the 4 keys');
+  }
+});
+
+check('Y6 the provenance file has no p, probs or jobs key and no number other than threshold, weak_below and integer counts', () => {
+  const prov = JSON.parse(fs.readFileSync(PROV_FILE, 'utf8'));
+  assert.equal(prov.schema, 'mos.cynefin-label-provenance/1');
+  assert.equal(prov.status, 'provisional');
+  assert.equal(prov.threshold, 0.7);
+  assert.equal(prov.weak_below, 0.5);
+  const banned = ['p', 'probs', 'jobs'];
+  function walk(v, at) {
+    if (Array.isArray(v)) return v.forEach((x, i) => walk(x, at + '[' + i + ']'));
+    if (v && typeof v === 'object') {
+      for (const k of Object.keys(v)) {
+        assert.ok(!banned.includes(k), 'banned key ' + at + '.' + k);
+        walk(v[k], at + '.' + k);
+      }
+      return;
+    }
+    if (typeof v === 'number') {
+      const ok = at === '$.threshold' || at === '$.weak_below' || (at.startsWith('$.counts.') && Number.isInteger(v) && v >= 0);
+      assert.ok(ok, 'number at ' + at);
+    }
+  }
+  walk(prov, '$');
+  for (const s of prov.sources) assert.match(s.sha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(prov.sources.map((s) => s.name), ['cynefin-fit-commands-gemini.json', 'move-type-gemini.json']);
+});
+
 
 console.log('');
 console.log('passed ' + passed + ', failed ' + failed);
