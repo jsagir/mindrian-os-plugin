@@ -2,6 +2,7 @@
 'use strict';
 // Phase 400 plan 09 (CY-05): the advisor knows the room's cause and effect domain without a second ranker.
 // Legs A1 to A9: the domain-aware key, the in-band reorder, chaotic and disorder, the unknown domain floor.
+// Legs P1 to P7: the domain line and the host notes in present.cjs; no number leaves present.cjs.
 // Node built-ins only. No network.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -266,6 +267,158 @@ check('A9 the FN1 fence passes with domain.cjs present; the frozen copies equal 
   const dsrc = fs.readFileSync(path.join(ADV, 'domain.cjs'), 'utf8');
   const dreq = [...dsrc.matchAll(/require\('([^']+)'\)/g)].map((m) => m[1]);
   assert.deepEqual(dreq, ['node:fs', 'node:path']);
+});
+
+// ---- Task 2: legs P1 to P7, the domain line and the notes in present.cjs ----
+const P = load(path.join(ADV, 'present.cjs'));
+const CY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cynefin-domains.json'), 'utf8'));
+const NOTE = { disorder: CY.host_notes.disorder.text, chaotic: CY.host_notes.chaotic.text };
+
+// The 399 reference: shortlist.cjs and present.cjs at the plan base commit, read from git into scratch.
+const BASE = 'c1e496ae8';
+function baseModules() {
+  const dir = path.join(scratch, 'base-399');
+  fs.mkdirSync(dir, { recursive: true });
+  for (const f of ['shortlist.cjs', 'present.cjs']) {
+    const r = spawnSync('git', ['show', BASE + ':lib/core/decision-advisor/' + f], { cwd: ROOT, encoding: 'utf8' });
+    if (r.status !== 0) return null;
+    // The base shortlist resolves data/ from its own folder; point it at the real table.
+    const src = f === 'shortlist.cjs'
+      ? r.stdout.replace("path.join(__dirname, '..', '..', '..', 'data', 'decision-advisor-table.json')", JSON.stringify(SHIPPED))
+      : r.stdout;
+    fs.writeFileSync(path.join(dir, f), src);
+  }
+  return { S: require(path.join(dir, 'shortlist.cjs')), P: require(path.join(dir, 'present.cjs')) };
+}
+const OLD = baseModules();
+
+function sl(state, options, extra) {
+  return Object.assign({ state, key_used: 'x|*|*', options, no_strong_pick: state === 'no_strong_pick', top_tie: 1, table_version: '399-v0' }, extra || {});
+}
+const o = (command, band, rank, calibrated) => ({ command, band, rank, calibrated });
+// Hand-built inputs in the shapes of the 399 tests.
+const HAND = [
+  sl('ok', [o('/mos:bono', 'strong', 1, 0.9), o('/mos:causal', 'possible', 2, 0.6)]),
+  sl('ok', [o('/mos:bono', 'strong', 1, 0.9), o('/mos:causal', 'strong', 2, 0.8), o('/mos:jtbd', 'weak', 3, 0.2)]),
+  sl('no_strong_pick', [o('/mos:bono', 'possible', 1, 0.6), o('/mos:causal', 'possible', 2, 0.55), o('/mos:jtbd', 'possible', 3, 0.5)]),
+  sl('no_strong_pick', [o('/mos:bono', 'weak', 1, 0.3), o('/mos:causal', 'weak', 2, 0.3)], { top_tie: 9 }),
+  sl('ok', [o('/mos:bono', 'strong', 1, 1), o('/mos:causal', 'strong', 2, 1)], { top_tie: 2 }),
+  sl('no_row', [], { key_used: null }),
+  sl('no_table', [], { key_used: null, table_version: null }),
+  sl('off', [], { key_used: null, table_version: null }),
+];
+
+check('P1 with no domain key, publicShortlist and shortlistSentence are byte-identical to the 399 modules', () => {
+  assert.ok(!P._loadError, 'present.cjs loads');
+  assert.ok(OLD, 'the 399 reference modules load from git ' + BASE);
+  let compared = 0;
+  withTable(SHIPPED, () => {
+    for (const job of VOCAB) {
+      for (const level of LEVELS) {
+        const q = { jobId: job, definitionLevel: level, lastCommand: null };
+        const old = OLD.S.lookupShortlist(q);
+        for (const ce of JUNK) {
+          const now = S.lookupShortlist(Object.assign({}, q, { causeEffect: ce }));
+          assert.equal(JSON.stringify(now), JSON.stringify(old), 'lookup ' + job + ' ' + level + ' ' + String(ce));
+          const a = JSON.stringify(P.publicShortlist(now, { jobId: job }));
+          const b = JSON.stringify(OLD.P.publicShortlist(old, { jobId: job }));
+          assert.equal(a, b, 'public ' + job + ' ' + level);
+          compared += 1;
+        }
+      }
+    }
+  });
+  for (const x of HAND) {
+    const a = P.publicShortlist(x, { jobId: 'validate-idea' });
+    const b = OLD.P.publicShortlist(x, { jobId: 'validate-idea' });
+    assert.equal(JSON.stringify(a), JSON.stringify(b), x.state);
+    assert.equal(P.shortlistSentence(a), OLD.P.shortlistSentence(b));
+    assert.equal(P.isTopTie(x), OLD.P.isTopTie(x));
+  }
+  assert.equal(compared, 20 * 4 * 5);
+});
+
+const pubOf = (ce, job) => {
+  const r = onFixture({ jobId: job || 'validate-idea', causeEffect: ce });
+  return { r, pub: P.publicShortlist(r, { jobId: job || 'validate-idea' }) };
+};
+
+check('P2 reordered: the domain object, no note, and the domain line with the reorder clause', () => {
+  const { pub } = pubOf('complex');
+  assert.equal(pub.state, 'ok');
+  assert.deepEqual(pub.domain, { id: 'complex', verb_order: ['probe', 'sense', 'respond'], effect: 'reordered' });
+  assert.equal(pub.domain_note, null);
+  assert.deepEqual(pub.options.map((x) => x.command), ['/mos:beautiful-question', '/mos:explain-decision', '/mos:bono', '/mos:jtbd']);
+  const tail = ' Cause and effect domain: complex (probe, then sense, then respond); inside the strong band, options whose move fits come first.';
+  assert.ok(pub.summary.endsWith(tail), pub.summary);
+  assert.equal(P.shortlistSentence(pub), pub.summary);
+  // no_change: the domain line with no reorder clause.
+  const nc = pubOf('complex', 'compare-options').pub;
+  assert.equal(nc.domain.effect, 'no_change');
+  assert.ok(nc.summary.endsWith(' Cause and effect domain: complex (probe, then sense, then respond).'), nc.summary);
+});
+
+check('P3 chaotic: no strong pick, the chaotic host note, and the sentence ends with the note', () => {
+  const { pub } = pubOf('chaotic');
+  assert.equal(pub.state, 'no_strong_pick');
+  assert.equal(pub.no_strong_pick, true);
+  assert.equal(pub.domain.effect, 'no_fit');
+  assert.equal(pub.domain_note, NOTE.chaotic);
+  assert.ok(pub.summary.endsWith(' ' + NOTE.chaotic), pub.summary);
+  assert.ok(pub.summary.indexOf('no strong pick') !== -1);
+});
+
+check('P4 disorder: options and state as 399, the disorder note after the domain line', () => {
+  const { pub } = pubOf('disorder');
+  const plain = P.publicShortlist(onFixture({ jobId: 'validate-idea' }), { jobId: 'validate-idea' });
+  assert.equal(pub.state, plain.state);
+  assert.deepEqual(pub.options, plain.options);
+  assert.equal(pub.domain_note, NOTE.disorder);
+  assert.deepEqual(pub.domain, { id: 'disorder', verb_order: ['slice', 'place'], effect: 'note' });
+  assert.equal(pub.summary, plain.summary + ' Cause and effect domain: disorder (slice, then place). ' + NOTE.disorder);
+});
+
+check('P5 tie_kept: the 399 tie path (no strong pick, unordered) with the domain line', () => {
+  const { pub } = pubOf('complex', 'decide-pursue');
+  const plain = P.publicShortlist(onFixture({ jobId: 'decide-pursue' }), { jobId: 'decide-pursue' });
+  assert.equal(pub.state, 'no_strong_pick');
+  assert.equal(pub.unordered, true);
+  assert.deepEqual(pub.options, plain.options);
+  assert.equal(pub.domain.effect, 'tie_kept');
+  assert.equal(pub.summary, plain.summary + ' Cause and effect domain: complex (probe, then sense, then respond).');
+});
+
+check('P6 a reorder never turns a pick into a tie or a tie into a pick: isTopTie reads the lookup count only', () => {
+  // A unique top (top_tie 1) whose reorder puts two equal fit values first.
+  const x = sl('ok', [o('/mos:explain-decision', 'strong', 1, 0.95), o('/mos:find-connections', 'strong', 2, 0.8), o('/mos:explore-trends', 'strong', 3, 0.8)]);
+  const r = D.applyDomain(x, 'complex');
+  assert.equal(r.domain.effect, 'reordered');
+  assert.equal(r.options[0].calibrated, r.options[1].calibrated, 'fixture: the reordered top holds two equal values');
+  assert.equal(P.isTopTie(x), false);
+  assert.equal(P.isTopTie(r), false, 'a pick stays a pick');
+  const pub = P.publicShortlist(r, { jobId: 'validate-idea' });
+  assert.equal(pub.state, 'ok');
+  assert.equal(pub.unordered, undefined);
+  // A tie stays a tie.
+  const t = D.applyDomain(sl('ok', [o('/mos:bono', 'strong', 1, 0.9), o('/mos:build-thesis', 'strong', 2, 0.9)], { top_tie: 2 }), 'complex');
+  assert.equal(P.isTopTie(t), true);
+  assert.equal(P.publicShortlist(t, { jobId: 'validate-idea' }).unordered, true);
+});
+
+check('P7 no raw number in any public shortlist of these legs', () => {
+  const inputs = [];
+  for (const job of ['validate-idea', 'compare-options', 'decide-pursue', 'find-problem', 'explore']) {
+    for (const ce of [undefined].concat(D.CAUSE_EFFECT_DOMAINS)) inputs.push([onFixture({ jobId: job, causeEffect: ce }), job]);
+  }
+  for (const x of HAND) {
+    inputs.push([x, 'validate-idea']);
+    for (const ce of D.CAUSE_EFFECT_DOMAINS) inputs.push([D.applyDomain(x, ce), 'validate-idea']);
+  }
+  for (const [x, job] of inputs) {
+    const pub = P.publicShortlist(x, { jobId: job });
+    assert.equal(P.hasRawNumber(pub), false, JSON.stringify(pub));
+  }
+  assert.ok(inputs.length > 40);
 });
 
 fs.rmSync(scratch, { recursive: true, force: true });
