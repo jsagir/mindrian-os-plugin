@@ -279,6 +279,40 @@ check('X5b an unknown or invalid domain value gives exactly the 399 output in bo
   });
 });
 
+// Review WR-04: equal calibrated values stay equal after the domain reorder, in both consumers. The fit part
+// goes first; inside the fit part and inside the non-fit part, the other sort keys (next-move) or registry
+// order (composeWorkflow) decide a tie, never the row position.
+const TIE_TABLE = path.join(TMP, 'consumers-tie-table.json');
+fs.writeFileSync(TIE_TABLE, JSON.stringify({
+  schema: 'mos.decision-advisor-table/1',
+  table_version: '400-consumers-tie-fixture',
+  key_order: ['job', 'definition_level', 'cause_effect', 'last_command'],
+  conditioned_rows: true,
+  thresholds: { strong: 0.7, possible: 0.5 },
+  shortlist_k: 4,
+  rows: {
+    // explore: two fit probes tie at 0.9, and the row lists explore-trends (not in the contract) first.
+    'explore|*|*|*': [E('/mos:opportunities', 0.95), E('/mos:explore-trends', 0.9), E('/mos:beautiful-question', 0.9), E('/mos:bono', 0.8)],
+    // compare-options: three non-fit or fit commands tie at 0.9; the row order differs from registry order.
+    'compare-options|*|*|*': [E('/mos:bono', 0.95), E('/mos:persona', 0.9), E('/mos:think-hats', 0.9), E('/mos:hat-briefing', 0.9)],
+  },
+}));
+check('X7 WR-04 a domain reorder keeps equal calibrated values equal in both consumers (no row-position preference)', () => {
+  withEnv({ MINDRIAN_DECISION_ADVISOR: 'on', MINDRIAN_DECISION_ADVISOR_TABLE: TIE_TABLE }, () => {
+    const sl = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'shortlist.cjs')).lookupShortlist({ jobId: NM_JOB, causeEffect: 'complex' });
+    assert.equal(sl.domain.effect, 'reordered');
+    assert.deepEqual(sl.domain.fits, ['/mos:explore-trends', '/mos:beautiful-question']);
+    // The fit tie goes to the contract key (beautiful-question is in the contract), not to the row position.
+    const m = NM.composeNextMove(composeInput({ causeEffect: 'complex' }));
+    assert.deepEqual(order(m), ['beautiful-question', 'explore-trends', 'opportunities']);
+    assert.equal(/\d\.\d/.test(JSON.stringify(m)), false, 'no raw number in the next-move result');
+    // composeWorkflow: the fit command first, then value order, and the 0.9 tie keeps registry order
+    // (hat-briefing before persona), not the row order (persona before hat-briefing).
+    const wf = RES.composeWorkflow([WF_FW], { jobId: WF_JOB, causeEffect: 'complex' });
+    assert.deepEqual(wf[0].ranked_commands, ['/mos:think-hats', '/mos:bono', '/mos:hat-briefing', '/mos:persona']);
+  });
+});
+
 check('X6 tests/test-399-one-selector-fence.cjs passes (no second selector)', () => {
   const r = spawnSync(process.execPath, [path.join(ROOT, 'tests', 'test-399-one-selector-fence.cjs')], { cwd: ROOT, encoding: 'utf8', timeout: 120000 });
   assert.equal(r.status, 0, (r.stdout || '') + (r.stderr || ''));
