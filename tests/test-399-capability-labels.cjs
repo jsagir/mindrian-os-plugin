@@ -97,10 +97,81 @@ check('C4. no key named p, probability or score at any depth in the labels file'
   for (const bad of ['p', 'probability', 'score']) assert.ok(!keys.includes(bad), 'found key ' + bad);
 });
 
-// F-LEGS-MARKER
+const FIXTURE_REL = 'tests/fixtures/399/recorded-job-command-yes-no.json';
+const fixture = read(FIXTURE_REL);
+
+check('F1. fixture schema and exact header keys', () => {
+  assert.equal(fixture.schema, 'mos.decision-recorded/1');
+  assert.deepEqual(Object.keys(fixture), [
+    'schema',
+    'provider',
+    'model',
+    'question_type',
+    'question_template',
+    'recorded_at',
+    'conditioned_on',
+    'pairs',
+  ]);
+});
+
+check('F2. fixture header values', () => {
+  assert.equal(fixture.provider, 'gemini');
+  assert.equal(fixture.model, 'gemini-decision-1');
+  assert.equal(fixture.question_type, 'yes_no');
+  assert.equal(fixture.question_template, 'serves_job_v1');
+  assert.equal(fixture.recorded_at, '2026-11-24');
+  assert.deepEqual(fixture.conditioned_on, { definition_level: null, last_command: null });
+});
+
+check('F3. every pair: keys job, command, p; vocabulary job; /mos: command; p in [0,1] with at most 3 decimals; sorted; 1469 pairs', () => {
+  assert.equal(fixture.pairs.length, 1469);
+  let prev = null;
+  for (const x of fixture.pairs) {
+    assert.deepEqual(Object.keys(x), ['job', 'command', 'p']);
+    assert.ok(vocabIds.has(x.job), 'job not in vocabulary: ' + x.job);
+    assert.match(x.command, /^\/mos:[a-z0-9-]+$/);
+    assert.equal(typeof x.p, 'number');
+    assert.ok(x.p >= 0 && x.p <= 1, 'p out of range');
+    assert.equal(Math.round(x.p * 1000) / 1000, x.p, 'more than 3 decimals');
+    if (prev) {
+      const a = prev.job + '\u0000' + prev.command;
+      const b = x.job + '\u0000' + x.command;
+      assert.ok(a < b, 'not sorted or duplicate at ' + b);
+    }
+    prev = x;
+  }
+});
+
+check('F4. no string longer than 40 characters; no text-bearing key anywhere', () => {
+  const strings = [];
+  (function walk(v) {
+    if (typeof v === 'string') strings.push(v);
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+  })(fixture);
+  for (const t of strings) assert.ok(t.length <= 40, 'long string: ' + t.length + ' chars');
+  const keys = walkKeys(fixture, []);
+  for (const bad of ['label', 'primary', 'text', 'teaching', 'summary', 'instructions']) {
+    assert.ok(!keys.includes(bad), 'found key ' + bad);
+  }
+});
+
+check('F5. derive script: no home or research path, requires --source and --out, no network module', () => {
+  const t = fs.readFileSync(path.join(ROOT, 'scripts/derive-decision-fixture.cjs'), 'utf8');
+  assert.ok(!/MindrianOS\/research|\/home\//.test(t), 'path leaked into the script');
+  assert.ok(!/require\(['"](node:)?(http|https|net|dns)['"]\)|fetch\(/.test(t), 'network use');
+  const { spawnSync } = require('node:child_process');
+  const r = spawnSync(process.execPath, [path.join(ROOT, 'scripts/derive-decision-fixture.cjs')], { encoding: 'utf8' });
+  assert.equal(r.status, 2);
+});
+
+check('F6. tests/ does not ship in the npm files list', () => {
+  const pkg = read('package.json');
+  assert.ok(!(pkg.files || []).some((f) => /^tests/.test(f)));
+});
 
 check('G1. no em dash or en dash in the files of this plan', () => {
-  const files = ['data/capability-job-labels.json', 'tests/test-399-capability-labels.cjs'];
+  const files = ['data/capability-job-labels.json', 'scripts/derive-decision-fixture.cjs', 'tests/test-399-capability-labels.cjs'];
   for (const f of files) {
     const t = fs.readFileSync(path.join(ROOT, f), 'utf8');
     assert.ok(!new RegExp('[' + String.fromCharCode(0x2013) + String.fromCharCode(0x2014) + ']').test(t), f);
