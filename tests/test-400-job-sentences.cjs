@@ -254,7 +254,117 @@ check('M4 the MCP file has keys schema, _note, tools only; no en dash or em dash
   assert.deepEqual(Object.keys(data), ['schema', '_note', 'tools']);
   assert.equal(data.schema, MCP_SCHEMA);
   assert.ok(typeof data._note === 'string' && data._note.length > 0, '_note is blank');
-  assert.ok(!/[–—]/.test(raw), 'the file holds an en dash or an em dash');
+  assert.ok(!/[\u2013\u2014]/.test(raw), 'the file holds an en dash or an em dash');
+});
+
+// Plan 400-04 (JS-06): the one drift test over every surface. Each file check below is the
+// same function for the real scan (F1) and for the mutation control (F2).
+const os = require('node:os');
+const RULED_WANT_EXEMPT = 'want does not begin with "to "';
+function roundTripErrors(label, slots) {
+  const back = js.parseJob(js.renderJob(slots));
+  return JSON.stringify(back) === JSON.stringify(slots) ? [] : [label + ' (no round trip through parseJob(renderJob))'];
+}
+// One frontmatter file (command, standalone skill or agent): 4 keys, a known status, valid
+// slots, a round trip.
+function frontmatterFileErrors(label, absFile) {
+  const fm = parseFrontmatter(fs.readFileSync(absFile, 'utf8'));
+  const slots = js.slotsFromFrontmatter(fm);
+  if (!slots) return [label + ' (missing slot key)'];
+  const out = [];
+  if (!js.SENTENCE_STATUSES.includes(fm[K.status])) out.push(label + ' (status ' + fm[K.status] + ')');
+  const errs = js.slotErrors(slots);
+  if (errs.length) out.push(label + ' (' + errs.join('; ') + ')');
+  return out.concat(roundTripErrors(label, slots));
+}
+// The MCP sentence file: every entry passes mcpEntryErrors and round-trips.
+function mcpFileErrors(absFile) {
+  const data = JSON.parse(fs.readFileSync(absFile, 'utf8'));
+  const out = [];
+  for (const [surface, e] of Object.entries(data.tools || {})) {
+    const errs = mcpEntryErrors(surface, e);
+    out.push(...errs);
+    if (!errs.length) out.push(...roundTripErrors(surface, { when: e.when, want: e.want, so: e.so }));
+  }
+  return out;
+}
+
+check('F1 every surface is labelled: vocabulary 20, commands 113, skills 12, agents 17, MCP tools 63, framework statements 184; all slots valid and round-trip', () => {
+  const vocab = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/job-vocabulary.json'), 'utf8'));
+  const commandFiles = fs.readdirSync(path.join(ROOT, 'commands')).filter((f) => f.endsWith('.md')).sort();
+  const agentFiles = fs.readdirSync(path.join(ROOT, 'agents')).filter((f) => f.endsWith('.md')).sort();
+  const mcp = readMcp().data;
+  const frameworks = js.frameworkSentences();
+  const totals = {
+    vocabulary: vocab.ids.length,
+    commands: commandFiles.length,
+    skills: STANDALONE.length,
+    agents: agentFiles.length,
+    mcp_tools: Object.keys(mcp.tools).length,
+    framework_statements: frameworks.length,
+  };
+  assert.deepEqual(totals, { vocabulary: 20, commands: 113, skills: 12, agents: 17, mcp_tools: 63, framework_statements: 184 });
+  assert.equal(totals.mcp_tools, MCP_SURFACES.length, 'MCP total differs from the connector registry');
+  const miss = [];
+  for (const id of vocab.ids) {
+    const j = vocab.jobs[id];
+    const errs = js.slotErrors(j.slots);
+    if (errs.length) miss.push('job ' + id + ' (' + errs.join('; ') + ')');
+    else miss.push(...roundTripErrors('job ' + id, j.slots));
+  }
+  for (const f of commandFiles) miss.push(...frontmatterFileErrors('commands/' + f, path.join(ROOT, 'commands', f)));
+  for (const d of STANDALONE) miss.push(...frontmatterFileErrors('skills/' + d, path.join(ROOT, 'skills', d, 'SKILL.md')));
+  for (const f of agentFiles) miss.push(...frontmatterFileErrors('agents/' + f, path.join(ROOT, 'agents', f)));
+  miss.push(...mcpFileErrors(path.join(ROOT, MCP_REL)));
+  // Framework statements are ruled owner text, read and never written (S1 reuse rule). The
+  // read-time view keeps a want without a leading "to " (lib/core/job-sentence.cjs
+  // frameworkSlots), so that one style rule is exempt; every other slot rule holds.
+  for (const fw of frameworks) {
+    if (!fw.slots) { miss.push('framework ' + fw.name + ' (no slots)'); continue; }
+    const errs = js.slotErrors(fw.slots).filter((e) => e !== RULED_WANT_EXEMPT);
+    if (errs.length) miss.push('framework ' + fw.name + ' (' + errs.join('; ') + ')');
+    miss.push(...roundTripErrors('framework ' + fw.name, fw.slots));
+  }
+  assert.deepEqual(miss, [], miss.length + ' sentences fail: ' + miss.slice(0, 8).join(', '));
+});
+
+check('F2 mutation control: the same file checks report a command without job_want and an MCP want that ends in a period', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-400-04-'));
+  try {
+    const name = [...fileByName.keys()].sort()[0];
+    const src = path.join(ROOT, 'commands', fileByName.get(name));
+    assert.deepEqual(frontmatterFileErrors('real', src), [], 'the unmutated command fails');
+    const cmdCopy = path.join(dir, 'command.md');
+    const kept = fs.readFileSync(src, 'utf8').split('\n').filter((l) => !/^job_want:/.test(l));
+    fs.writeFileSync(cmdCopy, kept.join('\n'));
+    assert.deepEqual(frontmatterFileErrors('mutant', cmdCopy), ['mutant (missing slot key)']);
+
+    const mcpSrc = path.join(ROOT, MCP_REL);
+    assert.deepEqual(mcpFileErrors(mcpSrc), [], 'the unmutated MCP file fails');
+    const data = JSON.parse(fs.readFileSync(mcpSrc, 'utf8'));
+    const first = Object.keys(data.tools)[0];
+    data.tools[first].want = data.tools[first].want + '.';
+    const mcpCopy = path.join(dir, 'mcp.json');
+    fs.writeFileSync(mcpCopy, JSON.stringify(data, null, 2));
+    const errs = mcpFileErrors(mcpCopy);
+    assert.equal(errs.length, 1, 'mutant MCP errors: ' + errs.join(', '));
+    assert.ok(errs[0].startsWith(first + ' ') && errs[0].includes('want ends with punctuation'), errs[0]);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  assert.ok(!fs.existsSync(dir), 'the scratch directory is still on disk');
+});
+
+check('F3 apply-job-sentences --check --require-all exits 0 with full counts', () => {
+  // The real repo, never the test seam root.
+  const env = Object.assign({}, process.env);
+  delete env.MINDRIAN_APPLY_ROOT;
+  const out = execFileSync(process.execPath, [path.join(ROOT, 'scripts/apply-job-sentences.cjs'), '--check', '--require-all'], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env,
+  });
+  assert.match(out, /commands 113\/113, skills 12\/12, agents 17\/17/);
 });
 
 console.log(passed + ' passed, ' + failed + ' failed');
