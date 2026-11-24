@@ -252,6 +252,25 @@ function runCli(args, env) {
       }
     });
 
+    await leg('T9b IN-04 a base with a query, fragment or userinfo is refused with 0 fetch calls; a path prefix is kept; a trailing slash is dropped', async () => {
+      const f = countingFetch();
+      const refused = [];
+      for (const bad of ['https://example.invalid/?x=1', 'https://example.invalid/#frag', 'https://user:pass@example.invalid', 'https://user@example.invalid/p']) {
+        for (const p of ['gemini', 'jev']) {
+          const r = await transport.send(req3, { provider: p, fetchImpl: f.impl, env: ENV, base: bad, policy: allowedPolicy() });
+          refused.push(r.ok === false && r.reason === 'endpoint_unconfirmed');
+        }
+      }
+      const seen = [];
+      const spy = async (url) => { seen.push(String(url)); return { ok: false, status: 0, json: async () => ({}), text: async () => '' }; };
+      const noSleep = async () => {};
+      await transport.send(req3, { provider: 'gemini', fetchImpl: spy, sleepImpl: noSleep, env: ENV, base: 'https://example.invalid/proxy/', policy: allowedPolicy() });
+      await transport.send(req3, { provider: 'gemini', fetchImpl: spy, sleepImpl: noSleep, env: ENV, base: 'https://example.invalid///', policy: allowedPolicy() });
+      return (refused.length === 8 && refused.every(Boolean) && f.calls === 0 && seen.length >= 2 &&
+        seen[0] === 'https://example.invalid/proxy/v1beta/decisions' && seen.every((u) => u === 'https://example.invalid/proxy/v1beta/decisions' || u === 'https://example.invalid/v1beta/decisions')) ||
+        JSON.stringify({ refused, calls: f.calls, seen });
+    });
+
     await leg('T10 no stray fetch ever reached the global', async () => strayFetch === 0 || 'stray fetch count ' + strayFetch);
   } finally {
     await new Promise((r) => cap.server.close(r));

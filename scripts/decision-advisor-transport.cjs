@@ -10,7 +10,8 @@
 // never put in an error, and never put in a body. This file reads no secrets file.
 // Gemini REST path: lib/core/decision-advisor/providers/gemini.cjs PATH (/v1beta/decisions, confirmed
 // 2026-11-24 from the vendor API reference). The base host is never a constant here: pass it with --base.
-// A provider with PATH null is refused off loopback (endpoint_unconfirmed), so no path is ever invented.
+// Both providers carry a confirmed PATH, so the URL is always base origin + base path prefix + PATH. A base
+// with a query, a fragment or userinfo is refused (endpoint_unconfirmed), never trimmed or sent.
 // Jev: the hosted base is read from opts.base (CLI --base) only; there is no default host constant.
 // A self-hosted Kev on loopback needs no key.
 //
@@ -52,7 +53,10 @@ function parseBase(base) {
   } else if (u.protocol !== 'https:') {
     return null;
   }
-  return { href: u.href.replace(/\/+$/, ''), loopback };
+  // Review IN-04: a query, a fragment or userinfo in --base would end up inside the URL (https://h/?x=1/v1beta/...)
+  // or carry credentials; refuse them instead of building a wrong URL.
+  if (u.search !== '' || u.hash !== '' || u.username !== '' || u.password !== '') return null;
+  return { origin: u.origin, prefix: u.pathname.replace(/\/+$/, ''), loopback };
 }
 
 // One POST with the same 429/529 backoff as jev(). Used for Gemini and for keyless loopback Jev.
@@ -100,7 +104,7 @@ function buildChunks(req, providerKey, model) {
     try {
       rendered = adapter.renderRequest(chunk, cat);
       body = provider.buildBody(rendered, { model });
-    } catch (e) {
+    } catch (_e) {
       return refuse('labels_only_refused', 'render failed');
     }
     const checked = labels.validateProviderBody(providerKey, body, chunk, cat);
@@ -129,19 +133,8 @@ async function send(req, opts) {
 
   // 3 endpoint
   const base = parseBase(o.base);
-  let url;
-  if (providerKey === 'gemini') {
-    if (provider.PATH === null) {
-      if (!base || !base.loopback) return refuse('endpoint_unconfirmed');
-      url = base.href;
-    } else {
-      if (!base) return refuse('endpoint_unconfirmed');
-      url = base.href + provider.PATH;
-    }
-  } else {
-    if (!base) return refuse('endpoint_unconfirmed');
-    url = base.href + provider.PATH;
-  }
+  if (!base || typeof provider.PATH !== 'string' || provider.PATH.length === 0) return refuse('endpoint_unconfirmed');
+  const url = base.origin + base.prefix + provider.PATH;
 
   // 4 key, environment only
   const env = o.env || process.env;
