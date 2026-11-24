@@ -230,7 +230,9 @@ check('X4 chaotic: neither consumer reorders by the advisor; the advisor states 
     assert.deepEqual(order(m), ['bono', 'beautiful-question', 'opportunities']);
     assert.equal(sansAdvisor(m), sansAdvisor(off));
     assert.equal(m.advisor.state, 'no_strong_pick');
-    assert.ok(m.advisor.summary.indexOf(CY.host_notes.chaotic.text) !== -1, m.advisor.summary);
+    assert.ok(m.advisor.summary.indexOf(PR.noteBody(CY.host_notes.chaotic.text, 'chaotic')) !== -1, m.advisor.summary);
+    assert.equal(m.advisor.summary.split('Cause and effect domain: chaotic').length - 1, 1, 'WR-05: the domain head once');
+    assert.equal(m.advisor.options.some((x) => x.band === 'strong'), false, 'WR-05: no strong band under no strong pick');
     assert.equal(PR.hasRawNumber(m.advisor), false);
 
     const n = nestMove(NM, ROOMS.chaotic.nm);
@@ -253,7 +255,7 @@ check('X5 disorder: the order equals X2, and the note is present', () => {
     assert.equal(sansAdvisor(m), sansAdvisor(x2));
     assert.equal(m.advisor.domain.id, 'disorder');
     assert.equal(m.advisor.domain_note, CY.host_notes.disorder.text);
-    assert.ok(m.advisor.summary.indexOf(CY.host_notes.disorder.text) !== -1);
+    assert.ok(m.advisor.summary.indexOf(PR.noteBody(CY.host_notes.disorder.text, 'disorder')) !== -1);
 
     const n = nestMove(NM, ROOMS.disorder.nm);
     const n2 = nestMove(NM0, ROOMS.disorder.nm);

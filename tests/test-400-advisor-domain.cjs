@@ -273,6 +273,11 @@ check('A9 the FN1 fence passes with domain.cjs present; the frozen copies equal 
 const P = load(path.join(ADV, 'present.cjs'));
 const CY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cynefin-domains.json'), 'utf8'));
 const NOTE = { disorder: CY.host_notes.disorder.text, chaotic: CY.host_notes.chaotic.text };
+// Review WR-05: the summary carries each note without its own leading domain head (the domain line writes it).
+const NOTE_BODY = {
+  disorder: NOTE.disorder.replace(/^Cause and effect domain: disorder\. /, ''),
+  chaotic: NOTE.chaotic.replace(/^Cause and effect domain: chaotic\. /, ''),
+};
 
 // The 399 reference: shortlist.cjs and present.cjs at the plan base commit, read from git into scratch.
 const BASE = 'c1e496ae8';
@@ -364,8 +369,25 @@ check('P3 chaotic: no strong pick, the chaotic host note, and the sentence ends 
   assert.equal(pub.no_strong_pick, true);
   assert.equal(pub.domain.effect, 'no_fit');
   assert.equal(pub.domain_note, NOTE.chaotic);
-  assert.ok(pub.summary.endsWith(' ' + NOTE.chaotic), pub.summary);
+  assert.ok(pub.summary.endsWith(' Cause and effect domain: chaotic (act, then sense, then respond). ' + NOTE_BODY.chaotic), pub.summary);
   assert.ok(pub.summary.indexOf('no strong pick') !== -1);
+});
+
+check('P3b WR-05 chaotic: no public option says strong; the summary names the domain head once (chaotic and disorder)', () => {
+  for (const job of ['validate-idea', 'compare-options', 'decide-pursue', 'find-problem', 'explore']) {
+    const r = onFixture({ jobId: job, causeEffect: 'chaotic' });
+    const pub = P.publicShortlist(r, { jobId: job });
+    if (!pub) continue;
+    assert.equal(pub.state, 'no_strong_pick', job);
+    assert.equal(pub.options.some((x) => x.band === 'strong'), false, job + ' ' + JSON.stringify(pub.options));
+    assert.ok(r.options.some((x) => x.band === 'strong') || job !== 'validate-idea', 'fixture: the internal shortlist keeps its strong band');
+  }
+  for (const ce of ['chaotic', 'disorder']) {
+    const { pub } = pubOf(ce);
+    const heads = pub.summary.split('Cause and effect domain: ' + ce).length - 1;
+    assert.equal(heads, 1, ce + ': ' + pub.summary);
+    assert.equal(pub.domain_note, NOTE[ce], 'the public note keeps the full text');
+  }
 });
 
 check('P4 disorder: options and state as 399, the disorder note after the domain line', () => {
@@ -375,7 +397,7 @@ check('P4 disorder: options and state as 399, the disorder note after the domain
   assert.deepEqual(pub.options, plain.options);
   assert.equal(pub.domain_note, NOTE.disorder);
   assert.deepEqual(pub.domain, { id: 'disorder', verb_order: ['slice', 'place'], effect: 'note' });
-  assert.equal(pub.summary, plain.summary + ' Cause and effect domain: disorder (slice, then place). ' + NOTE.disorder);
+  assert.equal(pub.summary, plain.summary + ' Cause and effect domain: disorder (slice, then place). ' + NOTE_BODY.disorder);
 });
 
 check('P5 tie_kept: the 399 tie path (no strong pick, unordered) with the domain line', () => {
