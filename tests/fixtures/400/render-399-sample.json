@@ -1,0 +1,233 @@
+{
+  "_note": "Phase 400-07: frozen 399 renders (renderRequest plus both provider bodies) written before the Cynefin edit. Every later render must deep-equal this file.",
+  "sample": {
+    "request": {
+      "context": {
+        "job_id": "validate-idea",
+        "job_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      },
+      "questions": {
+        "q0001": {
+          "type": "yes_no",
+          "template": "serves_job_v1",
+          "subject": "/mos:validate"
+        },
+        "q0002": {
+          "type": "choice",
+          "template": "next_command_v1",
+          "options": [
+            "/mos:validate",
+            "/mos:mullins",
+            "/mos:map-unknowns"
+          ]
+        },
+        "q0003": {
+          "type": "score",
+          "template": "fit_score_v1",
+          "subject": "/mos:mullins"
+        }
+      }
+    },
+    "render": {
+      "context": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "questions": {
+        "q0001": {
+          "type": "yes_no",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "options": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:mullins": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+            "/mos:map-unknowns": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:mullins: When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+          "levels": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    },
+    "gemini": {
+      "model": "gemini-decision-1",
+      "input": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "questions": {
+        "q0001": {
+          "type": "noul",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "criteria": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:mullins": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+            "/mos:map-unknowns": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:mullins: When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+          "criteria": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    },
+    "jev": {
+      "model": "jev-latest",
+      "state": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "questions": {
+        "q0001": {
+          "type": "noul",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "criteria": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:mullins": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+            "/mos:map-unknowns": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:mullins: When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
+          "criteria": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    }
+  },
+  "all_old": {
+    "request": {
+      "context": {
+        "job_id": "validate-idea",
+        "job_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+        "definition_level": "ill-defined",
+        "wicked": true,
+        "last_command": "/mos:challenge-assumptions"
+      },
+      "questions": {
+        "q0001": {
+          "type": "yes_no",
+          "template": "serves_job_v1",
+          "subject": "/mos:validate"
+        },
+        "q0002": {
+          "type": "choice",
+          "template": "next_command_v1",
+          "options": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:scenario-plan": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "template": "fit_score_v1",
+          "subject": "/mos:scenario-plan"
+        }
+      }
+    },
+    "render": {
+      "context": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny. Problem definition level: ill-defined. Wicked problem: yes. Already run: /mos:challenge-assumptions.",
+      "questions": {
+        "q0001": {
+          "type": "yes_no",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "options": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:scenario-plan": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:scenario-plan: When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+          "levels": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    },
+    "gemini": {
+      "model": "gemini-decision-1",
+      "input": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny. Problem definition level: ill-defined. Wicked problem: yes. Already run: /mos:challenge-assumptions.",
+      "questions": {
+        "q0001": {
+          "type": "noul",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "criteria": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:scenario-plan": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:scenario-plan: When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+          "criteria": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    },
+    "jev": {
+      "model": "jev-latest",
+      "state": "Job to be done: validate-idea. Test if an idea / hypothesis / claim holds up under scrutiny. Problem definition level: ill-defined. Wicked problem: yes. Already run: /mos:challenge-assumptions.",
+      "questions": {
+        "q0001": {
+          "type": "noul",
+          "instructions": "Would running this command help a user get this job done? Command /mos:validate: When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling."
+        },
+        "q0002": {
+          "type": "choice",
+          "instructions": "Which command should run next to get this job done? Pick the best fit, or none_of_these.",
+          "criteria": {
+            "/mos:validate": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
+            "/mos:scenario-plan": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+            "none_of_these": "None of these commands fits the job now."
+          }
+        },
+        "q0003": {
+          "type": "score",
+          "instructions": "How well does this command fit the job? Command /mos:scenario-plan: When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
+          "criteria": [
+            "Poor fit",
+            "Partial fit",
+            "Strong fit"
+          ]
+        }
+      }
+    }
+  }
+}
