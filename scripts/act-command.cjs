@@ -481,7 +481,18 @@ function main(argv) {
 
   const chainPick = chainSource.resolveChainSource(opts);
   const frameworkChain = chainPick.frameworks;
-  const workflow = resolver.composeWorkflow(frameworkChain);
+  // Phase 399-08 (I-07): the room's selection job and definition level let the decision advisor pick among a
+  // framework's commands inside composeWorkflow. No job, or the advisor off, is the one-argument call of base.
+  let advisorOpts = null;
+  try {
+    const selJob = require(path.join(REPO_ROOT, 'lib', 'hmi', 'jtbd-state.cjs')).resolveSelectionJob(roomDir, null);
+    if (selJob && typeof selJob.id === 'string' && selJob.id.length > 0) {
+      let definitionLevel = null;
+      try { definitionLevel = require(path.join(REPO_ROOT, 'lib', 'core', 'problem-axes.cjs')).readRoomAxes(roomDir).definition_level || null; } catch (_e) { definitionLevel = null; }
+      advisorOpts = { jobId: selJob.id, definitionLevel: definitionLevel };
+    }
+  } catch (_e) { advisorOpts = null; }
+  const workflow = advisorOpts ? resolver.composeWorkflow(frameworkChain, advisorOpts) : resolver.composeWorkflow(frameworkChain);
   // Autonomy check FIRST.
   const autonomyReport = resolver.validateChainAutonomy(workflow);
   const plan = planChainRun(workflow, autonomyReport);
