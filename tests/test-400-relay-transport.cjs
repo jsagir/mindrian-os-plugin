@@ -5,11 +5,13 @@
 //   T1 shipped policy: line off, 0 calls        T2 wire: path, headers, neutral chunk, redirect error
 //   T3 no install id: no_install_id, no id file  T4 catalog_skew and relay_refused (closed reason list)
 //   T5 chunking 1000 and answer checks           T6 a 307 is not followed
-//   T7 the operator token env is not read without the flag   T8 the 399 and 366 legs still pass
+//   T7 the operator token file is not read without the flag   T8 the 399 and 366 legs still pass
 //   O1 flag without token: exit 5, no call, no audit   O2 flag with gemini or jev: usage, exit 2
 //   O3 flag plus token: Bearer only, in-memory policy, printed line and exact body before each POST
 //   O4 one audit record, 0600 in 0700, no token, key or body; a refused run also writes one
 //   O5 the token is never in stdout, stderr, the result or the audit file   O6 no env sets the flag
+//   O7 WR-03: the token env is never read; an unsafe token file (mode, symlink) is refused; the prompt seam
+//   O8 WR-03: a non-allowlisted --base is refused before the token is read; the pinned origin is allowed
 //   E1 the release request set: 20 files, 73 serves_job_v1 questions each   E2 --out pairs feed derive-decision-fixture
 //   E3 end to end on loopback through the real relay server and a fake upstream   E4 no data/ file changes
 // Only 127.0.0.1 is used. Scratch files are under os.tmpdir() and removed in finally. Hyphens only.
@@ -63,6 +65,20 @@ function mkHome(withId) {
   fs.mkdirSync(dir, { recursive: true });
   if (withId) fs.writeFileSync(path.join(dir, 'theo-install-id.json'), JSON.stringify({ id: INSTALL_ID, minted_at: '2026-11-24T00:00:00.000Z' }));
   return dir;
+}
+
+// Review WR-03: the operator token lives in a 0600 file under the MindrianOS home, never in the env.
+const TOKEN_FILE = 'decision-relay-operator-token';
+function writeToken(home, token, mode) {
+  const file = path.join(home, TOKEN_FILE);
+  fs.writeFileSync(file, token + '\n', { mode: 0o600 });
+  fs.chmodSync(file, mode === undefined ? 0o600 : mode);
+  return file;
+}
+function tokenHome(withId) {
+  const home = mkHome(withId);
+  writeToken(home, FAKE_TOKEN);
+  return home;
 }
 
 function bigRequest(n) {
@@ -240,10 +256,10 @@ function runNode(file) {
       }
     });
 
-    await leg('T7 the operator token in the env without the flag: no Authorization header, the install id header is sent', async () => {
+    await leg('T7 the operator token file and env without the flag: no Authorization header, the install id header is sent', async () => {
       cap.captured.length = 0;
       cap.reply = okReply;
-      const home = mkHome(true);
+      const home = tokenHome(true);
       const env = { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN };
       const r = await transport.send(req3, { provider: 'relay', base: cap.base, fetchImpl: countingFetch().impl, env, policy: allowedPolicy() });
       const h = cap.captured[0] && cap.captured[0].headers;
@@ -281,11 +297,11 @@ function runNode(file) {
       cap.captured.length = 0;
       cap.reply = okReply;
       const before = fs.readFileSync(POLICY_FILE);
-      const home = mkHome(true);
+      const home = tokenHome(true);
       const out = collector();
       const req = bigRequest(1500);
       const r = await transport.send(req, { provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
-        env: { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN }, out });
+        env: { MINDRIAN_HOME: home }, out });
       o3 = { r, home, out: out.text };
       const after = fs.readFileSync(POLICY_FILE);
       if (!r.ok || cap.captured.length !== 2) return JSON.stringify({ r, n: cap.captured.length });
@@ -329,9 +345,9 @@ function runNode(file) {
       // a refused run after the flag check
       cap.captured.length = 0;
       cap.reply = () => ({ status: 409, json: { ok: false, reason: 'catalog_skew', relay_catalog: 'c'.repeat(64) } });
-      const home2 = mkHome(false);
+      const home2 = tokenHome(false);
       const r2 = await transport.send(req3, { provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
-        env: { MINDRIAN_HOME: home2, [TOKEN_ENV]: FAKE_TOKEN }, out: collector() });
+        env: { MINDRIAN_HOME: home2 }, out: collector() });
       cap.reply = okReply;
       const a2 = auditFiles(home2);
       if (r2.reason !== 'catalog_skew' || a2.names.length !== 1) return 'skew run ' + JSON.stringify({ r2, a2 });
@@ -343,8 +359,8 @@ function runNode(file) {
     await leg('O5 the token never appears in stdout, stderr, the returned object or the audit file (child process run)', async () => {
       cap.captured.length = 0;
       cap.reply = okReply;
-      const home = mkHome(false);
-      const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+      const home = tokenHome(false);
+      const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', SAMPLE, '--base', cap.base], { MINDRIAN_HOME: home });
       const a = auditFiles(home);
       const auditText = a.names.map((n) => fs.readFileSync(path.join(a.dir, n), 'utf8')).join('\n');
       const blob = r.stdout + r.stderr + auditText + JSON.stringify(o3 && o3.r) + (o3 ? o3.out : '');
@@ -354,7 +370,7 @@ function runNode(file) {
 
     await leg('O6 no env variable sets the flag: env names like the flag plus the token change nothing (exit 4, 0 requests, no audit)', async () => {
       cap.captured.length = 0;
-      const home = mkHome(true);
+      const home = tokenHome(true);
       const env = {
         MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN, OPERATOR_RELEASE_RUN: '1', MINDRIAN_OPERATOR_RELEASE_RUN: '1',
         MINDRIAN_DECISION_RELAY_OPERATOR_RELEASE_RUN: 'true', npm_config_operator_release_run: 'true', '--operator-release-run': '1',
@@ -363,6 +379,59 @@ function runNode(file) {
       const inproc = await transport.send(req3, { provider: 'relay', base: cap.base, fetchImpl: countingFetch().impl, env });
       return (r.status === 4 && /egress_line_off/.test(r.stdout + r.stderr) && inproc.reason === 'egress_line_off' && cap.captured.length === 0 &&
         auditFiles(home).names.length === 0) || JSON.stringify({ status: r.status, inproc, n: cap.captured.length });
+    });
+
+    await leg('O7 WR-03 the token env is never read; a wide-mode or symlinked token file is refused; the prompt seam is used only with no file', async () => {
+      cap.captured.length = 0;
+      cap.reply = okReply;
+      const opts = (home, extra) => Object.assign({ provider: 'relay', operatorReleaseRun: true, base: cap.base, fetchImpl: countingFetch().impl,
+        env: { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN }, out: collector() }, extra || {});
+      const envOnly = mkHome(false);
+      const a = await transport.send(req3, opts(envOnly));
+      if (a.reason !== 'operator_token_missing' || cap.captured.length !== 0 || auditFiles(envOnly).names.length !== 0) return 'env token used ' + JSON.stringify(a);
+      if (process.platform !== 'win32') {
+        const wide = mkHome(false);
+        writeToken(wide, FAKE_TOKEN, 0o644);
+        const b = await transport.send(req3, opts(wide));
+        if (b.reason !== 'operator_token_missing' || b.detail !== 'token file mode wider than 0600' || cap.captured.length !== 0) return 'wide mode ' + JSON.stringify(b);
+        const linked = mkHome(false);
+        const real = writeToken(mkHome(false), FAKE_TOKEN);
+        fs.symlinkSync(real, path.join(linked, TOKEN_FILE));
+        const c = await transport.send(req3, opts(linked));
+        if (c.reason !== 'operator_token_missing' || c.detail !== 'token file is a symlink' || cap.captured.length !== 0) return 'symlink ' + JSON.stringify(c);
+        if (JSON.stringify([b, c]).indexOf(FAKE_TOKEN) !== -1) return 'token in a refusal';
+      }
+      let asked = 0;
+      const prompt = async () => { asked += 1; return FAKE_TOKEN; };
+      const d = await transport.send(req3, opts(mkHome(false), { tokenPrompt: prompt }));
+      if (!d.ok || asked !== 1 || cap.captured.length !== 1 || cap.captured[0].headers.authorization !== 'Bearer ' + FAKE_TOKEN) return 'prompt ' + JSON.stringify({ d, asked });
+      const e = await transport.send(req3, opts(tokenHome(false), { tokenPrompt: prompt }));
+      if (!e.ok || asked !== 1) return 'prompt asked with a token file ' + asked;
+      const f = await transport.send(req3, opts(mkHome(false), { tokenPrompt: async () => '' }));
+      return f.reason === 'operator_token_missing' || 'empty prompt ' + JSON.stringify(f);
+    });
+
+    await leg('O8 WR-03 a non-allowlisted --base is refused endpoint_unconfirmed before the token is read; the pinned origin and loopback are allowed', async () => {
+      if (JSON.stringify(transport.OPERATOR_ORIGINS) !== JSON.stringify(['https://mindrian-decision-relay.onrender.com'])) return 'allowlist ' + JSON.stringify(transport.OPERATOR_ORIGINS);
+      for (const base of ['https://evil.example', 'https://mindrian-decision-relay.onrender.com.evil.example', 'https://decision-relay.onrender.com', 'http://mindrian-decision-relay.onrender.com', null]) {
+        const home = tokenHome(false);
+        let calls = 0;
+        let asked = 0;
+        const r = await transport.send(req3, { provider: 'relay', operatorReleaseRun: true, base, fetchImpl: async () => { calls += 1; throw new Error('no'); },
+          tokenPrompt: async () => { asked += 1; return FAKE_TOKEN; }, env: { MINDRIAN_HOME: home }, out: collector() });
+        if (r.reason !== 'endpoint_unconfirmed' || calls !== 0 || asked !== 0 || auditFiles(home).names.length !== 0) return 'base ' + base + ' ' + JSON.stringify({ r, calls, asked });
+      }
+      // The pinned origin passes the pin: a fetch spy answers, so no network is used.
+      const home = tokenHome(false);
+      const seen = [];
+      const spyFetch = async (url, init) => {
+        seen.push({ url, auth: init.headers.authorization });
+        return new Response(JSON.stringify(okReply(JSON.parse(init.body)).json), { status: 200, headers: { 'content-type': 'application/json' } });
+      };
+      const r = await transport.send(req3, { provider: 'relay', operatorReleaseRun: true, base: 'https://mindrian-decision-relay.onrender.com', fetchImpl: spyFetch,
+        env: { MINDRIAN_HOME: home }, out: collector() });
+      return (r.ok && seen.length === 1 && seen[0].url === 'https://mindrian-decision-relay.onrender.com/v1/decide' && seen[0].auth === 'Bearer ' + FAKE_TOKEN) ||
+        JSON.stringify({ r, seen: seen.map((x) => x.url) });
     });
 
     const dataBefore = DATA_PINS.map((p) => fs.readFileSync(path.join(REPO, p)));
@@ -400,10 +469,10 @@ function runNode(file) {
       if (reqFiles.length !== 2) return 'E1 did not run';
       cap.captured.length = 0;
       cap.reply = okReply;
-      const home = mkHome(false);
+      const home = tokenHome(false);
       const pairsFile = path.join(scratch, 'e2-pairs.json');
       const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', reqFiles[0], '--request', SAMPLE, '--base', cap.base, '--out', pairsFile],
-        { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+        { MINDRIAN_HOME: home });
       if (r.status !== 0) return 'transport exit ' + r.status + ' ' + r.stderr.slice(0, 200);
       const doc = JSON.parse(fs.readFileSync(pairsFile, 'utf8'));
       const job0 = path.basename(reqFiles[0], '.json');
@@ -443,11 +512,11 @@ function runNode(file) {
       });
       await new Promise((r) => relayServer.listen(0, '127.0.0.1', r));
       try {
-        const home = mkHome(false);
+        const home = tokenHome(false);
         const pairsFile = path.join(scratch, 'e3-pairs.json');
         const relayBase = 'http://127.0.0.1:' + relayServer.address().port;
         const r = await runCli(['--provider', 'relay', '--operator-release-run', '--request', reqFiles[0], '--request', reqFiles[1], '--base', relayBase, '--out', pairsFile],
-          { MINDRIAN_HOME: home, [TOKEN_ENV]: FAKE_TOKEN });
+          { MINDRIAN_HOME: home });
         if (r.status !== 0) return 'transport exit ' + r.status + ' ' + r.stderr.slice(0, 300);
         if (upstreamSeen.length !== 2) return 'upstream saw ' + upstreamSeen.length;
         for (let i = 0; i < 2; i += 1) {

@@ -121,6 +121,16 @@ node -e "const c = require('node:crypto'); const t = c.randomBytes(32).toString(
 
 Keep the token in the owner's secret store. Put the sha256 line value in `RELAY_OPERATOR_TOKEN_SHA256`. To rotate, add the new hash beside the old one (comma-separated), move the release client to the new token, then remove the old hash.
 
+## Give the token to the release client
+
+The release client (`scripts/decision-advisor-transport.cjs --operator-release-run`) never reads the token from the environment or the command line, so the token never enters the shell history. It reads the file `~/.mindrian/decision-relay-operator-token` (a regular file owned by the owner, mode 0600; a symlink or a wider mode is refused). Store the token once; the `read -s` prompt does not echo it:
+
+```bash
+( umask 077; mkdir -p ~/.mindrian; read -rs T; printf '%s\n' "$T" > ~/.mindrian/decision-relay-operator-token )
+```
+
+When the file is absent and the terminal is interactive, the client asks for the token once, with no echo. The client sends the token only to `https://mindrian-decision-relay.onrender.com` or to a loopback relay. Any other `--base` is refused `endpoint_unconfirmed` before the token is read. If the service gets another URL, change `OPERATOR_ORIGINS` in the client in a reviewed commit.
+
 ## OWNER-GATED steps
 
 No agent and no executor takes any of these steps. Each one is for the owner, in this order.

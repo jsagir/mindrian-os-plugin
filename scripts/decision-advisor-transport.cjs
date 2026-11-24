@@ -28,9 +28,16 @@
 // (tests/test-400-relay-fence.cjs F1).
 //
 // Operator release run (O-10): the ONLY path that passes the line today. It needs BOTH the CLI flag
-// --operator-release-run (no environment variable sets it) AND the token in MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN.
-// Without the flag the token variable is never read. With the flag the run:
-//   - refuses operator_token_missing before any network when the token is absent,
+// --operator-release-run (no environment variable sets it) AND the operator token.
+// Review WR-03: the token never comes from the environment or the command line, so it never enters the shell
+// history. It comes from the file <MindrianOS home>/decision-relay-operator-token (a regular file, not a
+// symlink, owned by this user, mode 0600 or narrower), or, when that file is absent and the terminal is
+// interactive, from one prompt with no echo. Without the flag the file is never read and no prompt is shown.
+// The token goes only to an allowlisted origin (OPERATOR_ORIGINS) or to loopback. Any other --base is refused
+// endpoint_unconfirmed before the token is read, so a typo or a wrong pasted URL cannot leak it.
+// With the flag the run:
+//   - refuses endpoint_unconfirmed before the token is read when the --base origin is not allowlisted,
+//   - refuses operator_token_missing before any network when the token is absent or its file is unsafe,
 //   - passes the line through an in-memory one-run policy (the shipped policy file is never written),
 //   - sends Authorization: Bearer <token> and no install id header,
 //   - prints one line and the exact JSON body before each POST,
@@ -39,10 +46,13 @@
 //     codes, reasons and body hashes; it never holds the token, a key or a body.
 //
 // Release run (owner-gated). Only the owner runs these steps, against the deployed relay, with the real token.
-// No agent and no test runs step 2 against a non-loopback base. The three commands, in order:
+// No agent and no test runs step 2 against a non-loopback base. Before step 2, store the token once (the
+// token is typed at a no-echo prompt, so it is not in the shell history):
+//   ( umask 077; mkdir -p ~/.mindrian; read -rs T; printf '%s\n' "$T" > ~/.mindrian/decision-relay-operator-token )
+// Or leave the file absent and type the token at the prompt of step 2. The three commands, in order:
 //   1 node scripts/build-relay-release-requests.cjs --out-dir <dir>
-//   2 MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN=<token> node scripts/decision-advisor-transport.cjs --provider relay
-//       --operator-release-run --request <dir>/<job>.json [--request ... for each job] --base <relay url> --out <pairs.json>
+//   2 node scripts/decision-advisor-transport.cjs --provider relay --operator-release-run
+//       --request <dir>/<job>.json [--request ... for each job] --base https://mindrian-decision-relay.onrender.com --out <pairs.json>
 //   3 node scripts/derive-decision-fixture.cjs --source <pairs.json> --out <fixture path>
 // --out writes {pairs: [{job, command, p}]} from the serves_job_v1 answers; other templates are skipped and counted
 // on stderr. --request repeats only with --provider relay; --out needs --provider relay.
@@ -75,7 +85,11 @@ const RELAY_PATH = '/v1/decide';
 const RELAY_MAX_QUESTIONS = 1000;
 const RELAY_CATALOG_HEADER = 'x-mindrian-catalog';
 const HEX64_RE = /^[a-f0-9]{64}$/;
-const OPERATOR_TOKEN_ENV = 'MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN';
+// Review WR-03: the token file name under the MindrianOS home, and the only non-loopback origins that may
+// receive the token. Loopback (a local relay, the tests) is always allowed. No env name extends this list.
+const OPERATOR_TOKEN_FILE = 'decision-relay-operator-token';
+const OPERATOR_ORIGINS = Object.freeze(['https://mindrian-decision-relay.onrender.com']);
+const OPERATOR_TOKEN_FILE_MAX_BYTES = 1024;
 // The relay accepts the same shape (services/decision-relay/verify-caller.cjs BEARER_RE).
 const OPERATOR_TOKEN_RE = /^[\x21-\x7e]{1,512}$/;
 const AUDIT_DIR = 'decision-relay-audit';
@@ -185,6 +199,93 @@ function buildRelayChunks(req) {
 
 function mindrianHome(env) {
   return typeof env.MINDRIAN_HOME === 'string' && env.MINDRIAN_HOME.length > 0 ? env.MINDRIAN_HOME : path.join(os.homedir(), '.mindrian');
+}
+
+// Review WR-03: true when an operator run may send the token to this base.
+function operatorOriginAllowed(base) {
+  return !!base && (base.loopback === true || OPERATOR_ORIGINS.indexOf(base.origin) !== -1);
+}
+
+// Review WR-03: read the operator token file. Opened with O_NOFOLLOW and checked on the open descriptor, so a
+// symlink or a file swapped after a check is refused. Returns { ok: true, token }, { ok: false, absent: true }
+// when there is no file, or an operator_token_missing refusal with a fixed detail. The token is never in a detail.
+function readOperatorTokenFile(home) {
+  const file = path.join(home, OPERATOR_TOKEN_FILE);
+  const flags = fs.constants.O_RDONLY | (typeof fs.constants.O_NOFOLLOW === 'number' ? fs.constants.O_NOFOLLOW : 0);
+  let fd;
+  try {
+    fd = fs.openSync(file, flags);
+  } catch (e) {
+    if (e && e.code === 'ENOENT') return { ok: false, absent: true };
+    if (e && e.code === 'ELOOP') return refuse('operator_token_missing', 'token file is a symlink');
+    return refuse('operator_token_missing', 'token file unreadable');
+  }
+  try {
+    const st = fs.fstatSync(fd);
+    if (!st.isFile()) return refuse('operator_token_missing', 'token file is not a regular file');
+    if (process.platform !== 'win32') {
+      if ((st.mode & 0o077) !== 0) return refuse('operator_token_missing', 'token file mode wider than 0600');
+      if (typeof process.getuid === 'function' && st.uid !== process.getuid()) return refuse('operator_token_missing', 'token file owner');
+    }
+    if (st.size > OPERATOR_TOKEN_FILE_MAX_BYTES) return refuse('operator_token_missing', 'token shape');
+    const text = fs.readFileSync(fd, 'utf8').replace(/\r?\n$/, '');
+    return { ok: true, token: text };
+  } catch (_e) {
+    return refuse('operator_token_missing', 'token file unreadable');
+  } finally {
+    try { fs.closeSync(fd); } catch (_e) { /* already closed */ }
+  }
+}
+
+// Review WR-03: one no-echo token prompt on an interactive terminal, asked at most once per process.
+// Returns a function that resolves the typed text, or null when stdin or stderr is not a terminal.
+function ttyTokenPrompt() {
+  const stdin = process.stdin;
+  if (!stdin.isTTY || !process.stderr.isTTY || typeof stdin.setRawMode !== 'function') return null;
+  let asked = null;
+  return function prompt() {
+    if (asked) return asked;
+    asked = new Promise((resolve) => {
+      let buf = '';
+      const finish = (v) => {
+        stdin.removeListener('data', onData);
+        try { stdin.setRawMode(false); } catch (_e) { /* terminal gone */ }
+        stdin.pause();
+        process.stderr.write('\n');
+        resolve(v);
+      };
+      function onData(chunk) {
+        for (const ch of String(chunk)) {
+          if (ch === '\r' || ch === '\n' || ch === '\u0004') { finish(buf); return; }
+          if (ch === '\u0003') { finish(''); return; }
+          if (ch === '\u007f' || ch === '\b') { buf = buf.slice(0, -1); continue; }
+          buf += ch;
+        }
+      }
+      process.stderr.write('decision relay operator token (not echoed): ');
+      stdin.setEncoding('utf8');
+      stdin.setRawMode(true);
+      stdin.resume();
+      stdin.on('data', onData);
+    });
+    return asked;
+  };
+}
+
+// Review WR-03: the operator token, from the file, else from the prompt seam. Returns { ok: true, token } or a refusal.
+async function operatorToken(home, o) {
+  const f = readOperatorTokenFile(home);
+  let t = null;
+  if (f.ok) {
+    t = f.token;
+  } else if (f.absent && typeof o.tokenPrompt === 'function') {
+    try { t = await o.tokenPrompt(); } catch (_e) { t = null; }
+  } else if (!f.absent) {
+    return f;
+  }
+  if (typeof t !== 'string' || t.length === 0) return refuse('operator_token_missing');
+  if (!OPERATOR_TOKEN_RE.test(t)) return refuse('operator_token_missing', 'token shape');
+  return { ok: true, token: t };
 }
 
 // One POST of an exact body string. No retry: a relay refusal is final, and a resend can spend twice.
@@ -324,18 +425,19 @@ async function sendRelay(req, o) {
   const env = o.env || process.env;
   const operator = o.operatorReleaseRun === true;
 
-  // 1b operator release run: the token is read only here, only with the flag
+  const home = mindrianHome(env);
+  const base = parseBase(o.base);
+
+  // 1b operator release run: the origin pin first, then the token, read only here, only with the flag
   let token = null;
   if (operator) {
-    const t = env[OPERATOR_TOKEN_ENV];
-    if (typeof t !== 'string' || t.length === 0) return refuse('operator_token_missing');
-    if (!OPERATOR_TOKEN_RE.test(t)) return refuse('operator_token_missing', 'token shape');
-    token = t;
+    if (!operatorOriginAllowed(base)) return refuse('endpoint_unconfirmed', 'operator base origin not allowlisted');
+    const t = await operatorToken(home, o);
+    if (!t.ok) return t;
+    token = t.token;
   }
 
-  const home = mindrianHome(env);
   const fp = labels.catalogFingerprint();
-  const base = parseBase(o.base);
   const started = new Date();
   const audit = operator ? {
     file: path.join(home, AUDIT_DIR, auditStamp(started) + '-' + crypto.randomBytes(4).toString('hex') + '.json'),
@@ -417,7 +519,8 @@ async function relaySteps(built, o, ctx) {
 
 // send(req, opts) -> { ok: true, answers, usage, provider, model, requests } | { ok: false, reason, detail? }
 // opts: { provider: 'gemini' | 'jev' | 'relay', base, model, roomDir, offline, env, fetchImpl, sleepImpl, timeoutMs,
-//         policy (test seam: an object shaped like loadEgressPolicy output; no CLI flag or env sets it) }
+//         policy (test seam: an object shaped like loadEgressPolicy output; no CLI flag or env sets it),
+//         operatorReleaseRun, tokenPrompt (async () => token; asked only on an operator run with no token file) }
 async function send(req, opts) {
   const o = opts || {};
   const providerKey = o.provider;
@@ -581,8 +684,10 @@ async function main(argv) {
   if (a.provider === 'relay' && !a.dryRun) {
     // One send per request, in order. The first refusal stops the run; --out is written only when all succeed.
     const runs = [];
+    // Review WR-03: the prompt is the fallback when the token file is absent; it asks at most once per run.
+    const tokenPrompt = a.operatorReleaseRun ? ttyTokenPrompt() : null;
     for (const one of reqs) {
-      const r = await send(one, { provider: 'relay', base: a.base, roomDir: a.room || '', operatorReleaseRun: a.operatorReleaseRun, out: process.stdout });
+      const r = await send(one, { provider: 'relay', base: a.base, roomDir: a.room || '', operatorReleaseRun: a.operatorReleaseRun, tokenPrompt, out: process.stdout });
       if (!r.ok) {
         process.stderr.write(r.reason + (r.detail ? ': ' + r.detail : '') + '\n');
         return EXIT[r.reason] || 6;
@@ -618,7 +723,7 @@ async function main(argv) {
   return 0;
 }
 
-module.exports = { send, dryRun, LINE, PROVIDER_IDS, REFUSALS, RELAY_PATH, RELAY_MAX_QUESTIONS, RELAY_REASONS };
+module.exports = { send, dryRun, LINE, PROVIDER_IDS, REFUSALS, RELAY_PATH, RELAY_MAX_QUESTIONS, RELAY_REASONS, OPERATOR_ORIGINS, OPERATOR_TOKEN_FILE };
 
 if (require.main === module) {
   main(process.argv.slice(2)).then((code) => { process.exitCode = code; }, () => {
