@@ -255,15 +255,14 @@ check('A9 the FN1 fence passes with domain.cjs present; the frozen copies equal 
   const cy = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'cynefin-domains.json'), 'utf8'));
   for (const d of cy.domains) assert.equal(D.DOMAIN_MOVE[d.id], d.move_type, d.id);
   assert.deepEqual([...D.DOMAIN_EFFECTS].sort(), ['no_change', 'no_fit', 'note', 'reordered', 'tie_kept']);
-  // shortlist.cjs names only node:fs and node:path as require literals (the S6 rule of test-399-table);
-  // its one lazy load is the built path of domain.cjs, and domain.cjs requires only node:fs and node:path.
+  // Review WR-08: shortlist.cjs names node:fs, node:path and the one lazy sibling ./domain.cjs as require
+  // literals (the S6 rule of test-399-table), with no built-path require; domain.cjs requires only node:fs
+  // and node:path.
   const src = fs.readFileSync(path.join(ADV, 'shortlist.cjs'), 'utf8');
   const lits = [...src.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]).sort();
-  assert.deepEqual(lits, ['node:fs', 'node:path']);
-  assert.match(src, /const DOMAIN_MODULE = path\.join\(__dirname, 'domain\.cjs'\);/);
+  assert.deepEqual(lits, ['./domain.cjs', 'node:fs', 'node:path']);
   const dyn = src.match(/\brequire\s*\(\s*[^'"\s)]/g) || [];
-  assert.equal(dyn.length, 1, 'one built-path require only');
-  assert.match(src, /require\(DOMAIN_MODULE\)/);
+  assert.equal(dyn.length, 0, 'no built-path require');
   const dsrc = fs.readFileSync(path.join(ADV, 'domain.cjs'), 'utf8');
   const dreq = [...dsrc.matchAll(/require\('([^']+)'\)/g)].map((m) => m[1]);
   assert.deepEqual(dreq, ['node:fs', 'node:path']);

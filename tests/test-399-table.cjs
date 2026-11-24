@@ -332,20 +332,45 @@ check('S5 scoreFor, bandFor, tableMeta', () => {
   });
 });
 
-check('S6 source requires only node:fs and node:path; cold require plus one lookup is fast', () => {
+check('S6 source requires only node:fs, node:path and the one lazy sibling ./domain.cjs; cold require plus one lookup is fast', () => {
   const src = fs.readFileSync(SHORTLIST, 'utf8');
   const reqs = Array.from(src.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)).map((m) => m[1]).sort();
-  assert.deepEqual(reqs, ['node:fs', 'node:path']);
+  // Phase 400 review WR-08: exactly one sibling, the lazy domain module, and no built-path require.
+  assert.deepEqual(reqs, ['./domain.cjs', 'node:fs', 'node:path']);
+  assert.equal(Array.from(src.matchAll(/require\(/g)).length, 3, 'no require beyond the three literals');
+  const dsrc = fs.readFileSync(path.join(path.dirname(SHORTLIST), 'domain.cjs'), 'utf8');
+  const dreqs = Array.from(dsrc.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)).map((m) => m[1]).sort();
+  assert.deepEqual(dreqs, ['node:fs', 'node:path']);
+  assert.equal(Array.from(dsrc.matchAll(/require\(/g)).length, 2, 'domain.cjs: no require beyond node:fs and node:path');
   assert.ok(!/\bimport\s*\(|\bfetch\s*\(/.test(src));
+  assert.ok(!/\bimport\s*\(|\bfetch\s*\(/.test(dsrc));
   const code =
     "const t=process.hrtime.bigint();const s=require(" + JSON.stringify(SHORTLIST) + ");" +
     "const r=s.lookupShortlist({jobId:'validate-idea'});" +
-    "console.log(Number(process.hrtime.bigint()-t)/1e6+'|'+r.state);";
+    "const loaded=Object.keys(require.cache).some((f)=>/domain\\.cjs$/.test(f));" +
+    "console.log(Number(process.hrtime.bigint()-t)/1e6+'|'+r.state+'|'+loaded);";
   const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_DECISION_ADVISOR: 'on' }) });
   assert.equal(r.status, 0, r.stderr);
-  const [ms, state] = r.stdout.trim().split('|');
+  const [ms, state, loaded] = r.stdout.trim().split('|');
   assert.equal(state, 'ok');
+  assert.equal(loaded, 'false', 'domain.cjs stays unloaded with no domain (lazy)');
   console.log('S6 measured cold require plus one lookup: ' + Number(ms).toFixed(1) + ' ms (hook budget 200 ms)');
+  assert.ok(Number(ms) < 200, 'too slow: ' + ms);
+});
+
+check('S6b the domain path: cold require plus one lookup with causeEffect complex (loads domain.cjs and the registry) is fast', () => {
+  const code =
+    "const t=process.hrtime.bigint();const s=require(" + JSON.stringify(SHORTLIST) + ");" +
+    "const r=s.lookupShortlist({jobId:'validate-idea',causeEffect:'complex'});" +
+    "const loaded=Object.keys(require.cache).some((f)=>/domain\\.cjs$/.test(f));" +
+    "console.log(Number(process.hrtime.bigint()-t)/1e6+'|'+r.state+'|'+(r.domain&&r.domain.id)+'|'+loaded);";
+  const r = spawnSync(process.execPath, ['-e', code], { encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_DECISION_ADVISOR: 'on' }) });
+  assert.equal(r.status, 0, r.stderr);
+  const [ms, state, domain, loaded] = r.stdout.trim().split('|');
+  assert.ok(state === 'ok' || state === 'no_strong_pick', 'state ' + state);
+  assert.equal(domain, 'complex', 'the domain was applied');
+  assert.equal(loaded, 'true', 'domain.cjs was loaded on this path');
+  console.log('S6b measured cold require plus one lookup with a domain: ' + Number(ms).toFixed(1) + ' ms (hook budget 200 ms)');
   assert.ok(Number(ms) < 200, 'too slow: ' + ms);
 });
 
