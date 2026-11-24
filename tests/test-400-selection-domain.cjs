@@ -90,8 +90,13 @@ function storeDomain(db, domain) {
   db.exec('COMMIT');
   assert.equal(w.ok, true, 'fixture: domain stored');
 }
+// A unique dedupe key per call keeps each call outside the replay window dedupe (WR-02).
+let callNo = 0;
 function record(db, args, env) {
-  return withEnv(env || ON, () => navigation.recordSelectionOutcome(db, Object.assign({ surface: 'cli', jobId: JOB, decision: 'accept', shown_commands: [A, B], chosen_command: A }, args)));
+  callNo += 1;
+  const r = withEnv(env || ON, () => navigation.recordSelectionOutcome(db, Object.assign({ surface: 'cli', jobId: JOB, decision: 'accept', shown_commands: [A, B], chosen_command: A, dedupe_key: 'l-' + callNo }, args)));
+  assert.ok(r && r.ok === true && typeof r.decision_id === 'string', 'the call wrote rows: ' + JSON.stringify(r));
+  return r;
 }
 const domainOf = (db, decisionId) => db.prepare('SELECT ' + COL + ' AS d FROM selection_observations WHERE decision_id = ?').all(decisionId).map((r) => r.d);
 
@@ -153,7 +158,6 @@ check('L2 explicit closed domain, else the stored domain, else null; a value out
   r = record(db, {});
   assert.deepEqual(domainOf(db, r.decision_id), [null, null], 'neither: null');
   storeDomain(db, 'clear');
-  // Different shown sets keep each call outside the replay window dedupe.
   r = record(db, { shown_commands: [B, A], chosen_command: B });
   assert.deepEqual(domainOf(db, r.decision_id), ['clear', 'clear'], 'no arg: the stored domain of the same db');
   r = record(db, { causeEffect: 'chaotic', shown_commands: [A], chosen_command: A });
