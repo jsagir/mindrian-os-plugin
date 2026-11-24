@@ -317,6 +317,18 @@ async function main() {
       assert.equal(line.split(/\s+/)[1], '0', 'deleted lines in gate.cjs: ' + line);
     });
 
+    await leg('G11 IN-06 an approve with no minted decision node id says cause_effect no_decision_node and stores nothing', async () => {
+      clearKey(roomDir);
+      const r = await render({ kind: 'cause_effect_domain', options: opts(S1_IDS) });
+      assert.equal(r.body.ok, true, JSON.stringify(r.body));
+      const real = navigation.REASONING_NODE_ID;
+      navigation.REASONING_NODE_ID = () => null;
+      let a;
+      try { a = await answer(r.body.gate_id, ['ce-trained'], 'approve'); } finally { navigation.REASONING_NODE_ID = real; }
+      assert.deepEqual(a.body.cause_effect, { ok: false, reason: 'no_decision_node' }, JSON.stringify(a.body));
+      assert.equal(readKey(roomDir), null);
+    });
+
     await leg('G10 WR-07 on a host with elicitation, a cause_effect_domain card skips the inline rung; gate_answer approve stores the domain', async () => {
       clearKey(roomDir);
       let elicited = 0;
