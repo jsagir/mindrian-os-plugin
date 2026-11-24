@@ -108,6 +108,31 @@ check('G1 old 9-column db gains the column once, keeps its rows', () => {
   assert.equal(row.ground_truth_label, null);
 });
 
+check('G1b WR-07 a lost ALTER race does not throw; a real ALTER failure still does', () => {
+  // The column is added by "another process" after this process read the table info.
+  const db = freshDb();
+  db.exec('CREATE TABLE calibration_observations (id TEXT PRIMARY KEY, turn_id TEXT, turn_count INTEGER, cue_kind TEXT NOT NULL, confidence REAL, cue_disposition TEXT NOT NULL, band TEXT, created_by TEXT DEFAULT \'system\', created_at INTEGER)');
+  db.exec('ALTER TABLE calibration_observations ADD COLUMN ground_truth_label INTEGER');
+  const realPrepare = db.prepare.bind(db);
+  let stale = true;
+  db.prepare = (sql) => {
+    const stmt = realPrepare(sql);
+    if (stale && /PRAGMA table_info\(calibration_observations\)/.test(sql)) {
+      stale = false;
+      return { all: () => stmt.all().filter((c) => c.name !== 'ground_truth_label') };
+    }
+    return stmt;
+  };
+  memoryOps.initCalibrationSchema(db);
+  assert.equal(colNames(db, 'calibration_observations').filter((n) => n === 'ground_truth_label').length, 1);
+  // A failure that leaves the column missing still throws (read-only or locked db).
+  const db2 = freshDb();
+  db2.exec('CREATE TABLE calibration_observations (id TEXT PRIMARY KEY, turn_id TEXT, turn_count INTEGER, cue_kind TEXT NOT NULL, confidence REAL, cue_disposition TEXT NOT NULL, band TEXT, created_by TEXT DEFAULT \'system\', created_at INTEGER)');
+  const realExec = db2.exec.bind(db2);
+  db2.exec = (sql) => { if (/ALTER TABLE/.test(sql)) throw new Error('attempt to write a readonly database'); return realExec(sql); };
+  assert.throws(() => memoryOps.initCalibrationSchema(db2), /readonly/);
+});
+
 // ---------------------------------------------------------------------------
 // G2: logCalibrationObservation label handling.
 // ---------------------------------------------------------------------------
