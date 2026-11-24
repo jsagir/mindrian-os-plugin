@@ -30,7 +30,7 @@ Every other path returns 404 `not_found`. Another method on a known path returns
 | `Authorization: Bearer <token>` | The owner's operator token, for release-time table builds. The relay compares the sha256 of the token in constant time. A wrong token is refused `bad_token`, even when an install id is also sent. |
 | `x-mindrian-catalog: <fingerprint>` | The caller's `catalogFingerprint()` from `labels-only.cjs`. It must equal the relay's own; otherwise 409 `catalog_skew` with `relay_catalog` in the reply. |
 
-Every `/v1/decide` reply carries `content-type: application/json`, `cache-control: no-store` and `x-mindrian-catalog: <the relay fingerprint>`. A 429 also carries `Retry-After` in seconds.
+Every `/v1/decide` reply carries `content-type: application/json` and `cache-control: no-store`. A reply to a caller that passed the caller check also carries `x-mindrian-catalog: <the relay fingerprint>`; a `no_caller`, `bad_install_id`, `bad_token` or `user_traffic_off` refusal does not. A 429 and a `relay_busy` 503 also carry `Retry-After` in seconds. An upstream reply over 4194304 bytes is not read to the end and gives `upstream_error`.
 
 ## Request and reply shapes
 

@@ -49,8 +49,8 @@ services:
     buildCommand: node --version
     startCommand: node services/decision-relay/server.cjs
     # Answered by server.cjs with 200 and exactly {"status":"ok"}. Liveness only: no catalog
-    # hash, no counts, no version. The catalog hash goes on POST /v1/decide replies only
-    # (x-mindrian-catalog), never here (the Theo health posture).
+    # hash, no counts, no version. The catalog hash goes on POST /v1/decide replies to a caller
+    # that passed the caller check only (x-mindrian-catalog), never here (the Theo health posture).
     healthCheckPath: /health
     # AUTO DEPLOY OFF. Every deploy is an owner step, from the release commit (Pitfall 12: the
     # relay validates against the catalog of the commit it runs, so a deploy from another commit

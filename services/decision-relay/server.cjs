@@ -122,6 +122,8 @@ function createServer(deps) {
       req.on('end', () => done({ ok: true, text: Buffer.concat(chunks).toString('utf8'), bytes }));
       req.on('error', () => done({ ok: false, over: false }));
       req.on('aborted', () => done({ ok: false, over: false }));
+      // Review IN-02: a socket that closes with no end, error or aborted still settles the read (done is idempotent).
+      req.on('close', () => done({ ok: false, over: false }));
     });
   }
 

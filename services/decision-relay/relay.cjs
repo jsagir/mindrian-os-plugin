@@ -24,6 +24,8 @@ const UPSTREAM_ORIGIN = 'https://generativelanguage.googleapis.com';
 const UPSTREAM_KEY_HEADER = 'x-goog-api-key';
 const CATALOG_HEADER = 'x-mindrian-catalog';
 const ROUTE = '/v1/decide';
+// Review IN-03: the most upstream reply bytes the relay reads. A larger reply is upstream_error, not buffered.
+const UPSTREAM_MAX_REPLY_BYTES = 4194304;
 
 const REASONS = Object.freeze([
   'no_caller', 'bad_install_id', 'bad_token', 'user_traffic_off', 'no_upstream_key', 'too_large', 'not_json', 'catalog_skew',
@@ -35,6 +37,34 @@ const REASONS = Object.freeze([
 
 function defaultLog(record) {
   try { process.stdout.write(JSON.stringify(record) + '\n'); } catch (_e) { /* a log line must never break a reply */ }
+}
+
+// Review IN-03: read a fetch Response body with a byte cap. Resolves the text, or null when the body is larger
+// than maxBytes (the rest is not read). A body with no stream reader falls back to text() and a length check.
+async function readCapped(r, maxBytes) {
+  const declared = r && r.headers && typeof r.headers.get === 'function' ? r.headers.get('content-length') : null;
+  if (typeof declared === 'string' && /^[0-9]{1,15}$/.test(declared) && Number(declared) > maxBytes) {
+    try { if (r.body && typeof r.body.cancel === 'function') await r.body.cancel(); } catch (_e) { /* nothing to free */ }
+    return null;
+  }
+  if (!r.body || typeof r.body.getReader !== 'function') {
+    const t = await r.text();
+    return Buffer.byteLength(t, 'utf8') > maxBytes ? null : t;
+  }
+  const reader = r.body.getReader();
+  const parts = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      try { await reader.cancel(); } catch (_e) { /* nothing to free */ }
+      return null;
+    }
+    parts.push(Buffer.from(value.buffer, value.byteOffset, value.byteLength));
+  }
+  return Buffer.concat(parts).toString('utf8');
 }
 
 function isTimeout(e) {
@@ -61,8 +91,11 @@ function createRelay(deps) {
   let inFlight = 0;
 
   function finish(t0, rec, status, body, extraHeaders) {
-    const fp = labels.catalogFingerprint();
-    const headers = Object.assign({ 'content-type': 'application/json', 'cache-control': 'no-store', [CATALOG_HEADER]: fp }, extraHeaders || {});
+    // Review IN-01: the catalog hash goes only to a caller that passed step 1 (rec.kind is set), never to an
+    // unauthenticated refusal, the same posture as /health.
+    const base = { 'content-type': 'application/json', 'cache-control': 'no-store' };
+    if (rec.kind !== null) base[CATALOG_HEADER] = labels.catalogFingerprint();
+    const headers = Object.assign(base, extraHeaders || {});
     const t1 = now();
     log({
       t: new Date(t1).toISOString(),
@@ -153,7 +186,7 @@ function createRelay(deps) {
           signal: AbortSignal.timeout(cfg.upstreamTimeoutMs),
         });
         status = r.status;
-        replyText = await r.text();
+        replyText = await readCapped(r, UPSTREAM_MAX_REPLY_BYTES);
       } catch (e) {
         rec.upstream_ms = Math.max(0, now() - u0);
         if (isTimeout(e)) return refuse(t0, rec, 504, 'upstream_timeout');
@@ -163,7 +196,7 @@ function createRelay(deps) {
       }
       rec.upstream_ms = Math.max(0, now() - u0);
       // The upstream text is never passed through: it can echo request content or account details.
-      if (status !== 200) return refuse(t0, rec, 502, 'upstream_error', { upstream_status: status });
+      if (status !== 200 || replyText === null) return refuse(t0, rec, 502, 'upstream_error', { upstream_status: status });
       let json;
       try { json = JSON.parse(replyText); } catch (_e) { return refuse(t0, rec, 502, 'upstream_error', { upstream_status: status }); }
 
@@ -180,4 +213,4 @@ function createRelay(deps) {
   return { handleDecide };
 }
 
-module.exports = { createRelay, UPSTREAM_ORIGIN, CATALOG_HEADER, REASONS, ROUTE };
+module.exports = { createRelay, UPSTREAM_ORIGIN, CATALOG_HEADER, REASONS, ROUTE, UPSTREAM_MAX_REPLY_BYTES };

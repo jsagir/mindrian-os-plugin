@@ -162,8 +162,9 @@ async function relayLegs() {
     const res = await call(inp);
     if (res.status !== 401 || res.body.reason !== 'no_caller' || res.body.ok !== false) return JSON.stringify(res);
     if (reads !== 0) return 'body read ' + reads + ' times';
-    const h = baseHeadersOk(res);
-    if (h !== true) return h;
+    if (hdr(res, 'content-type') !== 'application/json' || hdr(res, 'cache-control') !== 'no-store') return 'base headers';
+    // Review IN-01: no catalog hash on a refusal before the caller check passes.
+    if (hdr(res, 'x-mindrian-catalog') !== undefined) return 'catalog header on a no_caller refusal';
     return f.calls.length === 0 ? true : 'fetch called';
   });
 
@@ -440,6 +441,22 @@ async function relayLegs() {
     releases[2]();
     const c = await after;
     return c.status === 200 ? true : 'after ' + JSON.stringify(c);
+  });
+  await leg('R16 IN-03 an upstream reply over the byte cap is 502 upstream_error, with or without a content-length', async () => {
+    const relayMod = load('relay.cjs');
+    const cap = relayMod.UPSTREAM_MAX_REPLY_BYTES;
+    if (cap !== 4194304) return 'cap ' + cap;
+    const big = 'x'.repeat(cap + 1);
+    const streamed = spy(async () => new Response(new ReadableStream({
+      start(c) { c.enqueue(new TextEncoder().encode(big.slice(0, cap))); c.enqueue(new TextEncoder().encode('xx')); c.close(); },
+    }), { status: 200 }));
+    const r1 = await makeRelay({ fetchImpl: streamed }).call(input(opHeaders(), sample()));
+    if (r1.status !== 502 || r1.body.reason !== 'upstream_error') return 'streamed ' + JSON.stringify(r1.body);
+    const declared = spy(async () => new Response('{}', { status: 200, headers: { 'content-length': String(cap + 1) } }));
+    const r2 = await makeRelay({ fetchImpl: declared }).call(input(opHeaders(), sample()));
+    if (r2.status !== 502 || r2.body.reason !== 'upstream_error') return 'declared ' + JSON.stringify(r2.body);
+    const ok = await makeRelay({ fetchImpl: okSpy() }).call(input(opHeaders(), sample()));
+    return ok.status === 200 ? true : 'small reply ' + JSON.stringify(ok.body);
   });
   await leg('R15 WR-02 the in-flight slot frees after an upstream failure', async () => {
     const boom = spy(async () => { throw new Error('down'); });
