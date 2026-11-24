@@ -2,9 +2,13 @@
 'use strict';
 // Phase 400-01: the job-sentence module (O-01 formula, three stored slots).
 // Legs L1 to L7 (module). L7 is the mutation control for the framework view.
+// Legs W1 to W5 (scripts/apply-job-sentences.cjs on a scratch root, seam MINDRIAN_APPLY_ROOT)
+// and R1 (data/command-registry.json carries job_sentence after jtbd_summary).
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 
@@ -132,6 +136,161 @@ check('L7 mutation control: a ruled statement without ", I want " gives null', (
   for (const fw of fj.frameworks) for (const j of fw.jobs) if (!text && j.status === 'ruled' && j.main) text = j.text;
   assert.ok(js.frameworkSlots(text), 'the unmutated statement parses');
   assert.equal(js.frameworkSlots(text.replace(', I want ', ' I want ')), null);
+});
+
+// ---------------------------------------------------------------------------
+// W1 to W5: the one frontmatter writer, on a scratch copy of 1 command, 1 standalone skill,
+// 1 agent and 1 mirrored skill. All scratch files are removed in finally.
+// ---------------------------------------------------------------------------
+const SCRIPT = path.join(ROOT, 'scripts/apply-job-sentences.cjs');
+const JOB_KEY_RE = /^(job_when|job_want|job_so|job_sentence_status):/;
+
+function runScript(scratch, args) {
+  const r = spawnSync(process.execPath, [SCRIPT, ...args], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: Object.assign({}, process.env, { MINDRIAN_APPLY_ROOT: scratch }),
+  });
+  return { code: r.status, out: (r.stdout || '') + (r.stderr || '') };
+}
+
+function writeInput(scratch, entries) {
+  const p = path.join(scratch, 'input-' + Math.random().toString(36).slice(2) + '.json');
+  fs.writeFileSync(p, JSON.stringify({ entries }));
+  return p;
+}
+
+function stripJobLines(text) {
+  return text.split('\n').filter((l) => !JOB_KEY_RE.test(l)).join('\n');
+}
+
+function fmLines(text) {
+  const lines = text.split('\n');
+  const end = lines.indexOf('---', 1);
+  return lines.slice(1, end);
+}
+
+const S1 = { when: 'my notes pile up', want: 'to sort, group and name them', so: 'see what I already know' };
+const S2 = { when: 'a claim has no test yet', want: 'to score it against evidence', so: 'trust it or drop it' };
+
+let scratch = null;
+try {
+  scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'test-400-apply-'));
+  for (const rel of ['commands/validate.md', 'skills/larry-personality/SKILL.md', 'skills/validate/SKILL.md', 'agents/research.md']) {
+    fs.mkdirSync(path.dirname(path.join(scratch, rel)), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, rel), path.join(scratch, rel));
+  }
+  const orig = {};
+  for (const rel of ['commands/validate.md', 'skills/larry-personality/SKILL.md', 'agents/research.md']) {
+    orig[rel] = fs.readFileSync(path.join(scratch, rel), 'utf8');
+  }
+  const read = (rel) => fs.readFileSync(path.join(scratch, rel), 'utf8');
+  const entries = (s) => [
+    Object.assign({ surface: 'command', name: 'validate' }, s),
+    Object.assign({ surface: 'skill', name: 'larry-personality' }, s),
+    Object.assign({ surface: 'agent', name: 'research' }, s),
+  ];
+
+  check('W1 apply writes the 4 keys after serves_jtbd, else before the closing ---', () => {
+    const r = runScript(scratch, ['--input', writeInput(scratch, entries(S1))]);
+    assert.equal(r.code, 0, r.out);
+    const want = [
+      'job_when: "' + S1.when + '"',
+      'job_want: "' + S1.want + '"',
+      'job_so: "' + S1.so + '"',
+      'job_sentence_status: "provisional"',
+    ];
+    for (const rel of ['commands/validate.md', 'agents/research.md']) {
+      const lines = fmLines(read(rel));
+      const i = lines.findIndex((l) => /^serves_jtbd:/.test(l));
+      assert.ok(i >= 0, 'serves_jtbd in ' + rel);
+      assert.deepEqual(lines.slice(i + 1, i + 5), want, rel);
+    }
+    const sk = fmLines(read('skills/larry-personality/SKILL.md'));
+    assert.deepEqual(sk.slice(-4), want, 'skill keys before the closing ---');
+    for (const rel of Object.keys(orig)) assert.equal(stripJobLines(read(rel)), orig[rel], 'only the 4 lines added in ' + rel);
+  });
+
+  check('W2 a second apply replaces the 4 lines in place; description untouched', () => {
+    const before = {};
+    for (const rel of Object.keys(orig)) before[rel] = read(rel);
+    const r = runScript(scratch, ['--input', writeInput(scratch, entries(S2))]);
+    assert.equal(r.code, 0, r.out);
+    for (const rel of Object.keys(orig)) {
+      const a = before[rel].split('\n');
+      const b = read(rel).split('\n');
+      assert.equal(a.length, b.length, 'line count in ' + rel);
+      const diff = a.map((l, i) => (l === b[i] ? null : i)).filter((i) => i !== null);
+      assert.ok(diff.length === 3, 'exactly 3 slot lines change in ' + rel + ': ' + diff.length);
+      for (const i of diff) assert.ok(/^job_(when|want|so):/.test(b[i]), rel + ' line ' + i);
+      assert.equal(stripJobLines(read(rel)), orig[rel], 'rest byte-identical in ' + rel);
+      assert.ok(read(rel).includes('job_when: "' + S2.when + '"'));
+    }
+  });
+
+  check('W3 one invalid entry refuses the whole batch with exit 2 and writes nothing', () => {
+    const before = {};
+    for (const rel of Object.keys(orig)) before[rel] = read(rel);
+    const bad = entries(S1);
+    bad[2] = Object.assign({}, bad[2], { so: 'so I can fail' });
+    const r = runScript(scratch, ['--input', writeInput(scratch, bad)]);
+    assert.equal(r.code, 2, r.out);
+    for (const rel of Object.keys(orig)) assert.equal(read(rel), before[rel], 'written: ' + rel);
+    const r2 = runScript(scratch, ['--input', writeInput(scratch, [Object.assign({ surface: 'agent', name: '../commands/validate' }, S1)])]);
+    assert.equal(r2.code, 2, 'a path in name is refused');
+    const r3 = runScript(scratch, ['--input', writeInput(scratch, [Object.assign({ surface: 'agent', name: 'no-such-agent' }, S1)])]);
+    assert.equal(r3.code, 2, 'an unresolvable file is refused');
+  });
+
+  check('W4 a mirrored skill is refused with exit 2', () => {
+    const before = read('skills/validate/SKILL.md');
+    const r = runScript(scratch, ['--input', writeInput(scratch, [Object.assign({ surface: 'skill', name: 'validate' }, S1)])]);
+    assert.equal(r.code, 2, r.out);
+    assert.ok(r.out.includes('mirrored skill: write the command'), r.out);
+    assert.equal(read('skills/validate/SKILL.md'), before);
+  });
+
+  check('W5 --check passes on complete keys, names the file on a missing key, --require-all bites', () => {
+    let r = runScript(scratch, ['--check']);
+    assert.equal(r.code, 0, r.out);
+    assert.ok(r.out.includes('apply-job-sentences --check: commands 1/1, skills 1/1, agents 1/1'), r.out);
+    r = runScript(scratch, ['--check', '--require-all']);
+    assert.equal(r.code, 0, r.out);
+    const rel = 'agents/research.md';
+    const keep = read(rel);
+    fs.writeFileSync(path.join(scratch, rel), keep.split('\n').filter((l) => !/^job_so:/.test(l)).join('\n'));
+    r = runScript(scratch, ['--check']);
+    assert.equal(r.code, 1, r.out);
+    assert.ok(r.out.includes(rel), 'names the file: ' + r.out);
+    fs.writeFileSync(path.join(scratch, rel), keep.replace(/^job_want: ".*"$/m, 'job_want: "no verb marker"'));
+    r = runScript(scratch, ['--check']);
+    assert.equal(r.code, 1, 'an invalid slot fails: ' + r.out);
+    fs.writeFileSync(path.join(scratch, rel), orig[rel]);
+    r = runScript(scratch, ['--check']);
+    assert.equal(r.code, 0, r.out);
+    assert.ok(r.out.includes('agents 0/1'), r.out);
+    r = runScript(scratch, ['--check', '--require-all']);
+    assert.equal(r.code, 1, '--require-all bites below the total: ' + r.out);
+    const real = spawnSync(process.execPath, [SCRIPT, '--check', '--require-all'], { cwd: ROOT, encoding: 'utf8', env: Object.assign({}, process.env, { MINDRIAN_APPLY_ROOT: '' }) });
+    assert.equal(real.status, 1, 'the repo is below its totals in plan 01');
+  });
+} finally {
+  if (scratch) fs.rmSync(scratch, { recursive: true, force: true });
+}
+
+check('R1 every registry entry has job_sentence right after jtbd_summary; null in plan 01', () => {
+  const reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/command-registry.json'), 'utf8'));
+  assert.equal(reg.commands.length, 113);
+  for (const c of reg.commands) {
+    const keys = Object.keys(c);
+    const i = keys.indexOf('jtbd_summary');
+    assert.equal(keys[i + 1], 'job_sentence', c.command);
+    const v = c.job_sentence;
+    if (v !== null) {
+      assert.deepEqual(Object.keys(v), ['when', 'want', 'so', 'status'], c.command);
+      assert.deepEqual(js.slotErrors({ when: v.when, want: v.want, so: v.so }), [], c.command);
+    }
+  }
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
