@@ -4258,7 +4258,7 @@ Plans:
 **canon_parts:** 8, 9, 12
 **Requirements**: DA-01 one job vocabulary (handoff A1, A2); DA-02 taxonomy and registry disagreements per I-02 (A3); DA-03 26 accepted command labels applied, 2 held and 5 doubtful unchanged (B1-B3, D-07); DA-04 skill and command labels in step, 0.70-0.89 band sample list (B4, B6); DA-05 agent and MCP tool labels per I-03 (B5); DA-06 provider-neutral adapter (C1); DA-07 Gemini provider shape (C2, C4); DA-08 Jev-compatible provider shape (C3); DA-09 egress line off by default plus labels-only validator (H1); DA-10 precomputed calibrated table over run-step capabilities (E1, F1, D-05); DA-11 table feeds composeNextMove and composeWorkflow, job-direct reach, no second authority (D1-D3); DA-12 ranked shortlist with band words and no strong pick (D4); DA-13 logging of shown-option probabilities, CLI accepts, features, overrules, ground-truth column (F2, F3); DA-14 two-axis problem type, additive (G1, G2, D-06); DA-15 routing benchmark with top-3 recall, calibration error and option shuffles (I1)
 **Depends on:** Phase 395, Phase 396
-**Plans:** 9/10 plans executed
+**Plans:** 10/10 plans complete
 
 Plans:
 
@@ -4271,4 +4271,4 @@ Plans:
 - [x] 399-07-PLAN.md - the advisor as one key and one source inside composeNextMove, suggest_next carries the banded shortlist (wave 7)
 - [x] 399-08-PLAN.md - composeWorkflow ranks a framework's commands by the advisor, framework_run and /mos:act wiring, one-selector fence (wave 8)
 - [x] 399-09-PLAN.md - ground-truth column, selection_observations log on CLI closeOffer and MCP gate_answer, overrules (wave 9)
-- [ ] 399-10-PLAN.md - routing benchmark (top-3 recall, ECE, Brier, option shuffles) and the phase gates (wave 10)
+- [x] 399-10-PLAN.md - routing benchmark (top-3 recall, ECE, Brier, option shuffles) and the phase gates (wave 10)
