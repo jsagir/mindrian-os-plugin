@@ -38,8 +38,17 @@
 //     0700 dir) before the first POST and again at the end, also on a refusal. The record holds counts, status
 //     codes, reasons and body hashes; it never holds the token, a key or a body.
 //
-// CLI: node scripts/decision-advisor-transport.cjs --provider gemini|jev|relay --request <file>
-//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>] [--operator-release-run]
+// Release run (owner-gated). Only the owner runs these steps, against the deployed relay, with the real token.
+// No agent and no test runs step 2 against a non-loopback base. The three commands, in order:
+//   1 node scripts/build-relay-release-requests.cjs --out-dir <dir>
+//   2 MINDRIAN_DECISION_RELAY_OPERATOR_TOKEN=<token> node scripts/decision-advisor-transport.cjs --provider relay
+//       --operator-release-run --request <dir>/<job>.json [--request ... for each job] --base <relay url> --out <pairs.json>
+//   3 node scripts/derive-decision-fixture.cjs --source <pairs.json> --out <fixture path>
+// --out writes {pairs: [{job, command, p}]} from the serves_job_v1 answers; other templates are skipped and counted
+// on stderr. --request repeats only with --provider relay; --out needs --provider relay.
+//
+// CLI: node scripts/decision-advisor-transport.cjs --provider gemini|jev|relay --request <file> [--request <file> ...]
+//        [--base <url>] [--model <jev model id>] [--dry-run] [--room <dir>] [--operator-release-run] [--out <file>]
 // Exit codes: 0 ok, 2 bad usage or labels_only_refused, 4 egress_line_off,
 //             5 no_key, endpoint_unconfirmed, no_install_id, operator_token_missing or audit_unwritable,
 //             6 http_error, bad_response, catalog_skew or relay_refused.
@@ -502,12 +511,18 @@ const EXIT = {
 };
 
 function parseArgs(argv) {
-  const a = { provider: null, request: null, base: null, model: null, dryRun: false, room: null, operatorReleaseRun: false, error: null };
+  const a = { provider: null, request: null, requests: [], base: null, model: null, dryRun: false, room: null, operatorReleaseRun: false, out: null, error: null };
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     switch (flag) {
       case '--provider': a.provider = argv[++i] || null; break;
-      case '--request': a.request = argv[++i] || null; break;
+      case '--request': {
+        const v = argv[++i] || null;
+        if (v) a.requests.push(v);
+        if (!a.request) a.request = v;
+        break;
+      }
+      case '--out': a.out = argv[++i] || null; break;
       case '--base': a.base = argv[++i] || null; break;
       case '--model': a.model = argv[++i] || null; break;
       case '--room': a.room = argv[++i] || null; break;
@@ -521,7 +536,32 @@ function parseArgs(argv) {
   if (!a.error && !a.request) a.error = 'missing --request';
   if (!a.error && a.operatorReleaseRun && a.provider !== 'relay') a.error = '--operator-release-run needs --provider relay';
   if (!a.error && a.operatorReleaseRun && a.dryRun) a.error = '--operator-release-run and --dry-run do not combine';
+  if (!a.error && a.requests.length > 1 && (a.provider !== 'relay' || a.dryRun)) a.error = 'a repeated --request needs --provider relay without --dry-run';
+  if (!a.error && a.out && (a.provider !== 'relay' || a.dryRun)) a.error = '--out needs --provider relay without --dry-run';
   return a;
+}
+
+// The pairs source of scripts/derive-decision-fixture.cjs: {pairs: [{job, command, p}]} from the serves_job_v1
+// yes/no answers. Other templates and missing answers are skipped and counted.
+function pairsOf(runs) {
+  const pairs = [];
+  let skipped = 0;
+  for (const run of runs) {
+    for (const id of Object.keys(run.req.questions)) {
+      const q = run.req.questions[id];
+      const a = run.result.answers[id];
+      if (q.template === 'serves_job_v1' && a && a.type === 'yes_no' && typeof a.p === 'number') {
+        pairs.push({ job: run.req.context.job_id, command: q.subject, p: a.p });
+      } else {
+        skipped += 1;
+      }
+    }
+  }
+  return { pairs, skipped };
+}
+
+function summaryOf(r) {
+  return { provider: r.provider, model: r.model, requests: r.requests, usage: r.usage, answers: r.answers };
 }
 
 async function main(argv) {
@@ -530,10 +570,35 @@ async function main(argv) {
     process.stderr.write('usage error: ' + a.error + '\n');
     return 2;
   }
-  let req;
-  try { req = JSON.parse(fs.readFileSync(a.request, 'utf8')); } catch (_e) {
-    process.stderr.write('usage error: request file is not readable JSON\n');
-    return 2;
+  const reqs = [];
+  for (const file of a.requests) {
+    try { reqs.push(JSON.parse(fs.readFileSync(file, 'utf8'))); } catch (_e) {
+      process.stderr.write('usage error: request file is not readable JSON\n');
+      return 2;
+    }
+  }
+  const req = reqs[0];
+  if (a.provider === 'relay' && !a.dryRun) {
+    // One send per request, in order. The first refusal stops the run; --out is written only when all succeed.
+    const runs = [];
+    for (const one of reqs) {
+      const r = await send(one, { provider: 'relay', base: a.base, roomDir: a.room || '', operatorReleaseRun: a.operatorReleaseRun, out: process.stdout });
+      if (!r.ok) {
+        process.stderr.write(r.reason + (r.detail ? ': ' + r.detail : '') + '\n');
+        return EXIT[r.reason] || 6;
+      }
+      runs.push({ req: one, result: r });
+    }
+    const summaries = runs.map((x) => summaryOf(x.result));
+    process.stdout.write(JSON.stringify(summaries.length === 1 ? summaries[0] : summaries, null, 2) + '\n');
+    if (a.out) {
+      const p = pairsOf(runs);
+      const target = path.resolve(a.out);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.writeFileSync(target, JSON.stringify({ pairs: p.pairs }, null, 1) + '\n');
+      process.stderr.write('transport --out: wrote ' + p.pairs.length + ' pairs, skipped ' + p.skipped + ' answers (not serves_job_v1, or missing)\n');
+    }
+    return 0;
   }
   if (a.dryRun) {
     const d = dryRun(req, { provider: a.provider, model: a.model });
