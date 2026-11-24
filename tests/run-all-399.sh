@@ -7,4 +7,11 @@ for t in tests/test-399-job-vocabulary.cjs tests/test-399-problem-axes.cjs tests
   echo "--- 399: $t ---"
   if node "$t"; then echo ">>> 399: $t: PASSED"; else echo ">>> 399: $t: FAILED"; FAIL=1; break; fi
 done
+# Phase-owned drift checks. Run only when every test passed. One PASSED or FAILED line each.
+if [ "$FAIL" -eq 0 ]; then
+  for c in "build-decision-advisor-table.cjs --check" "apply-job-labels.cjs --check" "build-command-registry.cjs --check" "build-skill-mirrors.cjs --check" "build-orchestration-projection.cjs --check"; do
+    echo "--- 399 check: $c ---"
+    if node scripts/$c; then echo ">>> 399 check: $c: PASSED"; else echo ">>> 399 check: $c: FAILED"; FAIL=1; fi
+  done
+fi
 exit $FAIL
