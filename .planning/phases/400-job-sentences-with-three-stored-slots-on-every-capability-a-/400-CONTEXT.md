@@ -39,6 +39,12 @@ cut from `work/399-decision-advisor` at ddd9de038 (399 is unpushed; 400 stacks o
   The release-time table build passes only with an explicit operator flag plus the operator token;
   each run prints what it sends and writes an audit record. Turning the line on for users is a later ruling.
 
+- O-11 LABEL STORE (owner card 2026-11-24): job sentence slots, fits_domains and move_type live in
+  FRONTMATTER of each capability file, like the 399 job labels. The generated skill mirrors carry the
+  copy (scripts/build-skill-mirrors.cjs must stay in sync; its --check must pass).
+- O-12 OLD COMMANDS (owner card 2026-11-24): organize, mva-brief and mva-report stay on the 73 run-step
+  list and are labelled in this phase. Their removal belongs to a later efficiency phase.
+
 ## Research findings to honour (small sets, one labeller: agreement, not accuracy; never quote publicly)
 
 - F-01 Job signal per slot (176 frameworks, names hidden): When 0.75, I want 0.71, So I can 0.71,
