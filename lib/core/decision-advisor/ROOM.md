@@ -15,6 +15,8 @@ Contents:
 - `labels-only.cjs` - the closed label catalog and the validator for the request and the provider body.
 - `providers/gemini.cjs` - body builder and response parser for the Gemini Decision shape (pure).
 - `providers/jev.cjs` - body builder and response parser for the Jev-compatible shape (pure).
+- `shortlist.cjs` - the per-turn lookup over the precomputed table; `present.cjs` - the navigator-safe shape with no number.
+- `domain.cjs` - Phase 400 (CY-05): the room's cause and effect domain applied to a shortlist (pure, reads only the registry and the domain file). Only methodology commands whose move type is the domain's move count as a fit (F-05). It reorders only inside the strong band, keeps a top tie as a tie, and never changes a band or a value. Chaotic gives an honest no strong pick; disorder keeps the shortlist and adds the slicing note for the host model (O-03). An unknown domain changes nothing: the lookup gives the Phase 399 result.
 
-Tests: `tests/test-399-adapter.cjs`, `tests/test-399-advisor-fence.cjs`.
+Tests: `tests/test-399-adapter.cjs`, `tests/test-399-advisor-fence.cjs`, `tests/test-400-advisor-domain.cjs`.
 Canon: Part 8 (labels only leave the machine), Part 7 (reuse before build), Part 9 (memory locality).
