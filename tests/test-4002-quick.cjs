@@ -113,6 +113,39 @@ check('Q4. no tension map and no perspectives key; an artifact is carried as tex
   assert.equal(ops.quickLook(room, path.join(room, 'missing.md')).artifact, null);
 });
 
+// Q4b (WR-07, NEGATIVE)
+check('Q4b. WR-07 NEGATIVE: quickLook and invokePersona refuse an artifact outside the bound room (realpath) and print none of its text', () => {
+  const room = makeRoom();
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-4002-quick-outside-'));
+  tmpRoots.push(outside);
+  const secret = path.join(outside, 'secret.md');
+  fs.writeFileSync(secret, 'SECRET-OUTSIDE-MARK\n', 'utf8');
+  // a relative path is read against the room, not the working directory
+  const rel = ops.quickLook(room, 'problem-definition/core-problem.md');
+  assert.ok(rel.artifact && rel.artifact.includes('Small studios lose clients'), 'a room-relative path is read from the room');
+  const refusedForms = [secret, path.relative(room, secret), path.join(room, '..', path.basename(outside), 'secret.md')];
+  // a symbolic link inside the room that points outside it
+  let linked = null;
+  try {
+    fs.symlinkSync(secret, path.join(room, 'problem-definition', 'link.md'));
+    linked = path.join(room, 'problem-definition', 'link.md');
+    refusedForms.push(linked, 'problem-definition/link.md');
+  } catch (e) { /* a host with no symlink right still runs the other forms */ }
+  for (const p of refusedForms) {
+    const out = ops.quickLook(room, p);
+    assert.equal(out.artifact, null, 'refused: ' + p);
+    assert.equal(out.artifact_refused, 'artifact_outside_room', p);
+    assert.equal(JSON.stringify(out).includes('SECRET-OUTSIDE-MARK'), false, 'no text of a refused path: ' + p);
+  }
+  writeHatFile(room, 'black-venture.md', { hat: 'black' }, '# Black persona');
+  const inv = ops.invokePersona(room, 'black', secret);
+  assert.equal(inv.artifact, null);
+  assert.equal(inv.artifact_refused, 'artifact_outside_room');
+  assert.equal(JSON.stringify(inv).includes('SECRET-OUTSIDE-MARK'), false);
+  const invOk = ops.invokePersona(room, 'black', 'problem-definition/core-problem.md');
+  assert.ok(invOk.artifact && invOk.artifact.includes('Small studios lose clients'));
+});
+
 // Q5 (NEGATIVE)
 check('Q5. quick mode makes zero requests and requires no research module', () => {
   const room = makeRoom();
