@@ -24,6 +24,7 @@
  *   write-persona --room <dir> --run <id>
  *   accept-persona --room <dir> --run <id> --answer <file>
  *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
+ *   run-research --room <dir> --run <id> --approved <file>  (plan 12: the fetch of the approved strings, the evidence packs, the research states)
  *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
  *   merge --room <dir> --run <id> [--counts <file>]  (plan 08, deep mode: positions, tensions, artifact, run record, cleanup)
  *   record-ruling --room <dir> --run <id> --answer <file>  (plan 09: the navigator ruling on a tension; the only writer of the rulings store)
@@ -45,7 +46,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check', 'merge', 'record-ruling']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'run-research', 'check', 'merge', 'record-ruling']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -1857,12 +1858,14 @@ function deepNoticeLines(ledger) {
   const lines = [ops.DEEP_NOTICE];
   const hats = isPlain(ledger && ledger.hats) ? ledger.hats : {};
   const reasonOf = (state) => (state.indexOf(':') === -1 ? state : state.slice(state.indexOf(':') + 1));
+  // run-research keeps the state name bare and the reason beside it (research_reason): the notice names the reason.
+  const whyOf = (hat, state) => (hats[hat] && typeof hats[hat].research_reason === 'string' && hats[hat].research_reason ? hats[hat].research_reason : reasonOf(state));
   const notRun = [];
   const failedRun = [];
   for (const hat of RESEARCH_HATS) {
     const st = hats[hat] && typeof hats[hat].research === 'string' ? hats[hat].research : '';
-    if (st === 'declined' || st.indexOf('not_planned') === 0) notRun.push(hat + ' (' + reasonOf(st) + ')');
-    else if (st.indexOf('failed') === 0 || st.indexOf('fetched_not_wired') === 0) failedRun.push(hat + ' (' + reasonOf(st) + ')');
+    if (st === 'declined' || st.indexOf('not_planned') === 0) notRun.push(hat + ' (' + whyOf(hat, st) + ')');
+    else if (st.indexOf('failed') === 0 || st.indexOf('fetched_not_wired') === 0) failedRun.push(hat + ' (' + whyOf(hat, st) + ')');
   }
   if (notRun.length) lines.push('Research not run for: ' + notRun.join(', ') + '.');
   if (failedRun.length) lines.push('Research failed for: ' + failedRun.join(', ') + '.');
@@ -2788,6 +2791,444 @@ function composeString(hat, handle) {
 }
 
 // ---------------------------------------------------------------------------
+// run-research (plan 12): the fetch, bound to the approved cards
+// ---------------------------------------------------------------------------
+
+const APPROVED_SCHEMA = 'mos.persona-approved/1';
+const APPROVED_KEYS = Object.freeze(['schema', 'run_id', 'plan_seq', 'hats']);
+const APPROVED_HAT_KEYS = Object.freeze(['decision', 'q_hashes', 'providers']);
+const APPROVED_DECISIONS = Object.freeze(['approve', 'refuse', 'defer']);
+const MAX_PROVIDER_NAMES = 10;
+const PACK_ITEM_MAX = 10;
+const PACK_TITLE_MAX = 300;
+const PACK_URL_MAX = 500;
+const PACK_SUMMARY_MAX = 600;
+const FETCH_ORDER = Object.freeze(['white', 'black', 'yellow', 'green']);
+
+/**
+ * Check the approved file (S-4) against the plan. Pure. A refusal is for the whole call: nothing is fetched.
+ * Order: schema, plan_seq, then each named hat in file order (hat, entry keys, decision, hash and provider shapes,
+ * count, plan membership, provider list). The provider list is bound only for an approve decision.
+ * @returns {{ok: true} | {ok: false, reason: string}}
+ */
+function validateApproved(plan, approved) {
+  const bad = (reason) => ({ ok: false, reason });
+  if (!isPlain(approved)) return bad('schema_invalid:root');
+  for (const k of Object.keys(approved)) if (!APPROVED_KEYS.includes(k)) return bad('unknown_key:' + safeKeyName(k));
+  if (approved.schema !== APPROVED_SCHEMA) return bad('schema_invalid:schema');
+  if (!isPlain(plan) || approved.run_id !== plan.run_id) return bad('schema_invalid:run_id');
+  if (!Number.isInteger(approved.plan_seq)) return bad('schema_invalid:plan_seq');
+  if (!isPlain(approved.hats)) return bad('schema_invalid:hats');
+  if (approved.plan_seq !== plan.plan_seq) return bad('plan_seq_stale');
+  for (const hat of Object.keys(approved.hats)) {
+    if (hat === 'red' || hat === 'blue') return bad('hat_never_searches');
+    if (!RESEARCH_HATS.includes(hat)) return bad('unknown_key:' + safeKeyName(hat));
+    const e = approved.hats[hat];
+    if (!isPlain(e)) return bad('schema_invalid:hats.' + hat);
+    for (const k of Object.keys(e)) if (!APPROVED_HAT_KEYS.includes(k)) return bad('unknown_key:' + safeKeyName(k));
+    if (!APPROVED_DECISIONS.includes(e.decision)) return bad('schema_invalid:decision');
+    if (!Array.isArray(e.q_hashes) || !e.q_hashes.every(h => typeof h === 'string' && h.length <= 100)) return bad('schema_invalid:q_hashes');
+    if (!Array.isArray(e.providers) || e.providers.length > MAX_PROVIDER_NAMES || !e.providers.every(p => typeof p === 'string' && p.length <= 40)) return bad('schema_invalid:providers');
+    if (e.q_hashes.length > MAX_STRINGS_PER_HAT) return bad('too_many_strings');
+    if (new Set(e.q_hashes).size !== e.q_hashes.length) return bad('schema_invalid:q_hashes');
+    const rec = plan.hats && plan.hats[hat];
+    const known = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.strings) ? rec.strings.map(s => s && s.q_hash) : [];
+    if (!e.q_hashes.every(h => known.includes(h))) return bad('string_not_in_plan');
+    if (e.decision === 'approve') {
+      if (e.q_hashes.length === 0) return bad('schema_invalid:q_hashes');
+      const want = Array.isArray(rec.providers) ? rec.providers : [];
+      if (want.length !== e.providers.length || want.some((p, i) => p !== e.providers[i])) return bad('provider_list_mismatch');
+    }
+  }
+  return { ok: true };
+}
+
+/** One operation of a provider, as the pack keeps it. Reads the driver record only; copies no query text. */
+function providerRecord(p) {
+  const op = isPlain(p && p.operation) ? p.operation : null;
+  let state = op && typeof op.state === 'string' ? op.state : null;
+  if (!state) {
+    if (p && p.status === 'ok') state = 'executed_with_results';
+    else if (p && p.status === 'empty') state = 'executed_empty';
+    else if (p && p.status === 'refused') state = 'refused_before_fetch';
+    else state = 'not_executed';
+  }
+  const reasonRaw = op && typeof op.reason === 'string' ? op.reason : (p && typeof p.reason === 'string' ? p.reason : null);
+  const executed = state === 'executed_with_results' || state === 'executed_empty';
+  const itemsRaw = op && Number.isInteger(op.result_count) ? op.result_count : (p && isPlain(p.counts) && Number.isInteger(p.counts.items) ? p.counts.items : 0);
+  return {
+    provider: p && typeof p.provider === 'string' ? p.provider.slice(0, 40) : 'unknown',
+    lens: p && typeof p.lens === 'string' ? p.lens.slice(0, 40) : 'unknown',
+    operation_state: state,
+    reason: executed ? null : (reasonRaw ? reasonRaw.slice(0, 80) : null),
+    items: itemsRaw,
+    cache_hit: (op && op.cache_hit === true) || (p && p.reason === 'cache_hit'),
+  };
+}
+
+/**
+ * The state of one string, from the stored record and never from the reading (DESIGN 4.4). Pure.
+ * record: {handle_changed, thrown, ok, reason, providers: [providerRecord], findings, wire_attempts: [{finding, result}], db_present}.
+ * @returns {{state: string, partial: boolean, reason: string|null, failed_providers: Array<{provider: string, reason: string}>}}
+ */
+function stringState(record) {
+  const r = isPlain(record) ? record : {};
+  const provs = Array.isArray(r.providers) ? r.providers.filter(isPlain) : [];
+  const executed = (p) => p.operation_state === 'executed_with_results' || p.operation_state === 'executed_empty';
+  const notRan = provs.filter(p => !executed(p));
+  const failedProviders = notRan.map(p => ({ provider: String(p.provider), reason: typeof p.reason === 'string' && p.reason ? p.reason : 'provider_unavailable' }));
+  const attempts = Array.isArray(r.wire_attempts) ? r.wire_attempts : [];
+  const wired = attempts.filter(a => isPlain(a) && isPlain(a.result) && a.result.ok === true && typeof a.result.node_id === 'string').length;
+  const make = (state, reason, partial) => ({ state, partial: partial === true, reason: reason || null, failed_providers: failedProviders });
+  if (r.handle_changed === true) return make('failed:handle_changed', 'handle_changed');
+  if (r.thrown === true) return make('failed:thrown', 'thrown');
+  if (r.ok !== true) {
+    if (r.ok === false) {
+      const why = r.reason === 'empty_lens_set' || r.reason === 'invalid_opts' ? r.reason : safeKeyName(r.reason);
+      return make('failed:' + why, why);
+    }
+    return make('failed:thrown', 'thrown');
+  }
+  const withResults = provs.filter(p => p.operation_state === 'executed_with_results');
+  const empties = provs.filter(p => p.operation_state === 'executed_empty');
+  const partial = notRan.length > 0;
+  if (wired > 0) return make('ran_with_results', null, partial);
+  if (withResults.length === 0 && empties.length === 0) {
+    const pf = notRan.find(p => typeof p.reason === 'string' && p.reason.indexOf('provider_failed:') === 0);
+    if (pf) return make('failed:' + pf.reason, pf.reason);
+    return make('failed:provider_unavailable', 'provider_unavailable');
+  }
+  if (withResults.length === 0) return make('ran_empty', null, partial);
+  if (r.db_present !== true) return make('fetched_not_wired:no_db', 'no_db', partial);
+  if (attempts.length > 0) return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
+  if (!Number.isInteger(r.findings) || r.findings === 0) return make('fetched_not_wired:filtered', 'filtered', partial);
+  return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
+}
+
+/**
+ * The state of one researching hat from its string results and the card decision (DESIGN 4.4). Pure.
+ * decision: approve (strings are fetched), refuse, defer, or none (the file does not name the hat).
+ * A hat is ran_empty only when every string is ran_empty and no provider failed: a failed provider never reads as
+ * "searched, found nothing".
+ * @returns {{state: string, reason: string|null}}
+ */
+function hatResearchState(strings, decision) {
+  if (decision === 'refuse') return { state: 'declined', reason: null };
+  if (decision === 'defer') return { state: 'declined', reason: 'deferred' };
+  if (decision === 'none') return { state: 'declined', reason: 'no_answer' };
+  const list = Array.isArray(strings) ? strings.filter(isPlain) : [];
+  const is = (s, name) => typeof s.state === 'string' && (s.state === name || s.state.indexOf(name + ':') === 0);
+  if (list.some(s => is(s, 'ran_with_results'))) return { state: 'ran_with_results', reason: null };
+  const notWired = list.find(s => is(s, 'fetched_not_wired'));
+  if (notWired) return { state: 'fetched_not_wired', reason: notWired.state.slice('fetched_not_wired:'.length) };
+  if (list.length > 0 && list.every(s => s.state === 'ran_empty')) {
+    const part = list.find(s => s.partial === true);
+    if (!part) return { state: 'ran_empty', reason: null };
+    const why = Array.isArray(part.failed_providers) && part.failed_providers.length > 0 ? part.failed_providers[0].reason : 'provider_unavailable';
+    return { state: 'failed', reason: why };
+  }
+  const failedString = list.find(s => is(s, 'failed'));
+  if (failedString) return { state: 'failed', reason: failedString.state.slice('failed:'.length) };
+  return { state: 'failed', reason: 'no_strings' };
+}
+
+function newStringRecord(s, dbPresent) {
+  return {
+    text: s.text,
+    q_hash: s.q_hash,
+    db_present: dbPresent,
+    handle_changed: false,
+    thrown: false,
+    ok: null,
+    reason: null,
+    providers: [],
+    research_mode: null,
+    findings: 0,
+    wire_attempts: [],
+    recovery_action: null,
+    substitute_calls: 0,
+  };
+}
+
+/**
+ * Fetch the approved strings of one hat through the Bono research leg, unchanged, wrapped. The wrapper holds a side
+ * map (one record for each string) because the leg loses the per-provider result and marks every finding confirming.
+ * No Brain function and no Brain lens reach the leg; the room-corpus substitute of the recovery path returns nothing.
+ * @returns {Promise<Array<{q_hash: string, text: string, record: Object, result: Object}>>}
+ */
+async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps) {
+  const d = deps || {};
+  const cellFanout = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs'));
+  const personaResearch = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'persona-research.cjs'));
+  const driver = require(path.join(REPO_ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
+  const wirer = require(path.join(REPO_ROOT, 'lib', 'core', 'findings-wirer.cjs'));
+  const extractor = require(path.join(REPO_ROOT, 'lib', 'core', 'research-context-extractor.cjs'));
+  const dispatchFn = typeof d.personaDispatchCell === 'function' ? d.personaDispatchCell : personaResearch.personaDispatchCell;
+  const runLens = typeof d.runSourceLens === 'function' ? d.runSourceLens : driver.runSourceLens;
+  const wireFn = typeof d.wireAccept === 'function' ? d.wireAccept : wirer.wireAccept;
+  const extractFn = typeof d.extractContext === 'function' ? d.extractContext : extractor.extractContext;
+  const frozen = (Array.isArray(rec.lens_set) ? rec.lens_set : []).map(e => ({ lens: e.lens, weight: e.weight }));
+  const records = new Map();
+  for (const s of strings) records.set(s.text, newStringRecord(s, db !== null && db !== undefined));
+
+  const dispatchCell = async (cell) => {
+    const record = records.get(cell.subdomain);
+    const stub = { subdomain: cell.subdomain, hat: cell.hat, stance: 'neutral', evidence: [], confidence: 0, wired_sources: [], degraded: true, degraded_reasons: ['not_fetched'] };
+    if (!record) return stub;
+    if (cell.handle !== record.text) {
+      record.handle_changed = true;
+      return stub;
+    }
+    const sessionId = 'persona-' + hat + '-' + String(record.q_hash).replace(/^sha256:/, '').slice(0, 12);
+    const ctx = {
+      db: db || null,
+      roomDir: roomResolved,
+      sessionId,
+      extractContextFn: (o) => {
+        let base = null;
+        try { base = extractFn(o); } catch (e) { base = null; }
+        // Relevance scoring stays local; the lens set is the frozen set of the plan, never the room-derived set.
+        return Object.assign({ ok: true, preflight: null }, isPlain(base) ? base : {}, { lens_set: frozen.map(e => ({ lens: e.lens, weight: e.weight })) });
+      },
+      runSourceLensFn: async (o) => {
+        const call = Object.assign({}, o, {
+          _substituteFn: async () => {
+            record.substitute_calls += 1;
+            return null;
+          },
+        });
+        if (typeof d._fetchCorpusEnvelope === 'function') call._fetchCorpusEnvelope = d._fetchCorpusEnvelope;
+        if (typeof d._sleep === 'function') call._sleep = d._sleep;
+        let result;
+        try {
+          result = await runLens(call);
+        } catch (e) {
+          record.thrown = true;
+          throw e;
+        }
+        if (isPlain(result)) {
+          record.ok = result.ok === true;
+          if (result.ok !== true) record.reason = typeof result.reason === 'string' ? result.reason : 'unknown';
+          record.providers = Array.isArray(result.providers) ? result.providers.map(providerRecord) : [];
+          record.research_mode = typeof result.research_mode === 'string' ? result.research_mode.slice(0, 60) : null;
+          record.findings = Array.isArray(result.findings) ? result.findings.length : 0;
+          record.recovery_action = isPlain(result.recovery) && typeof result.recovery.action === 'string' ? result.recovery.action.slice(0, 40) : null;
+        }
+        return result;
+      },
+      wireAcceptFn: (dbArg, p) => {
+        let res = null;
+        try { res = wireFn(dbArg, p); } catch (e) { res = null; }
+        const f = isPlain(p && p.finding) ? p.finding : {};
+        record.wire_attempts.push({
+          finding: { title: f.title, url: f.url, source: f.source, evidence_tier: f.evidence_tier, summary: f.summary, retrieved_at: f.retrieved_at },
+          result: { ok: !!(res && res.ok === true), node_id: res && typeof res.node_id === 'string' ? res.node_id : null, reason: res && typeof res.reason === 'string' ? res.reason : null },
+        });
+        return res;
+      },
+    };
+    return dispatchFn({ subdomain: cell.subdomain, hat, handle: cell.handle }, ctx);
+  };
+
+  await cellFanout.runCellFanout({
+    subdomains: strings.map(s => s.text),
+    hats: [hat],
+    dispatchCell,
+    selfCritique: (reading) => ({ keep: true, cell: reading }),
+  });
+  return strings.map(s => ({ q_hash: s.q_hash, text: s.text, record: records.get(s.text), result: stringState(records.get(s.text)) }));
+}
+
+/** The wired findings of the string results, as pack items: title, URL, tier, provider, summary. No verdict field. */
+function packItems(fetched) {
+  const strip = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'evidence-claim.cjs')).stripInjectionSpans;
+  const items = [];
+  const seen = new Set();
+  for (const s of fetched) {
+    for (const a of s.record.wire_attempts) {
+      if (!a.result.ok || typeof a.result.node_id !== 'string' || seen.has(a.result.node_id)) continue;
+      seen.add(a.result.node_id);
+      const f = a.finding;
+      items.push({
+        id: a.result.node_id,
+        title: strip(typeof f.title === 'string' ? f.title : '').slice(0, PACK_TITLE_MAX),
+        url: typeof f.url === 'string' ? f.url.slice(0, PACK_URL_MAX) : '',
+        tier: typeof f.evidence_tier === 'string' ? f.evidence_tier : 'None',
+        provider: typeof f.source === 'string' ? f.source : 'unknown',
+        summary: strip(typeof f.summary === 'string' ? f.summary : '').slice(0, PACK_SUMMARY_MAX),
+        retrieved_at: typeof f.retrieved_at === 'string' ? f.retrieved_at : '',
+        q_hash: s.q_hash,
+      });
+      if (items.length >= PACK_ITEM_MAX) return items;
+    }
+  }
+  return items;
+}
+
+function buildEvidencePack(runId, hat, state, reason, fetched) {
+  const list = Array.isArray(fetched) ? fetched : [];
+  const pack = {
+    schema: EVIDENCE_SCHEMA,
+    run_id: runId,
+    hat,
+    research_state: state,
+    strings: list.map(s => ({ text: s.text, q_hash: s.q_hash, state: s.result.state, partial: s.result.partial, providers: s.record.providers.map(p => Object.assign({}, p)) })),
+    items: packItems(list),
+  };
+  if (reason) pack.reason = reason;
+  return pack;
+}
+
+/**
+ * Step run_research (plan 12). Reads the ledger, the plan (its hash must equal ledger.plan_sha256) and the approved
+ * file (S-4); refuses the whole call when the file does not fit the plan; then fetches only the approved strings,
+ * White first, from exactly the providers the card showed. Writes the evidence packs, copies the White package into
+ * the five reading directories, seals the packs in the ledger and marks the step done. Sends nothing to the Brain.
+ * @param {{roomDir: string, runId: string, approvedPath: string}} args
+ * @param {Object} [deps] - homeDir, tmpDir, now; test seams: _fetchCorpusEnvelope, _sleep, preflightLenses,
+ *   personaDispatchCell, runSourceLens, wireAccept, extractContext
+ * @returns {Promise<Object>}
+ */
+async function cmdRunResearch(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  const order = requireStep(ledger, 'plan_research');
+  if (order) return { ok: false, reason: order };
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  if (ledger.steps.run_research) return { ok: false, reason: 'step_already_done:run_research' };
+  const map = readRunMap(homeDirOf(deps), ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  for (const hat of HATS) {
+    if (!hatDirOf(map, hat)) return { ok: false, reason: 'run_map_missing' };
+  }
+
+  // The plan must be the plan that the cards showed: the hash in the ledger is the only anchor.
+  const pr = readJsonFile(path.join(map.scratch_root, 'plan.json'), { noSymlink: true });
+  if (!pr.ok) return { ok: false, reason: 'plan_missing' };
+  if (pr.sha256 !== ledger.plan_sha256) return { ok: false, reason: 'plan_changed' };
+  const plan = pr.value;
+  if (!isPlain(plan) || plan.schema !== PLAN_SCHEMA || plan.run_id !== ledger.run_id || !Number.isInteger(plan.plan_seq) || !isPlain(plan.hats)) return { ok: false, reason: 'plan_changed' };
+
+  if (typeof args.approvedPath !== 'string' || args.approvedPath.length === 0) return { ok: false, reason: 'approved_file_missing' };
+  const ar = readJsonFile(args.approvedPath);
+  if (!ar.ok) return { ok: false, reason: ar.reason === 'file_unreadable' ? 'approved_file_missing' : ar.reason };
+  const valid = validateApproved(plan, ar.value);
+  if (!valid.ok) return valid;
+  const approved = ar.value;
+
+  // Decisions that need no fetch, then the queue of approved hats.
+  const results = {};
+  const queue = [];
+  let approvedCount = 0;
+  let plannedCount = 0;
+  for (const hat of RESEARCH_HATS) {
+    const rec = plan.hats[hat];
+    if (!isPlain(rec) || rec.state !== 'planned') {
+      results[hat] = { state: isPlain(rec) && typeof rec.state === 'string' ? rec.state : 'not_planned:no_valid_handle', reason: null, fetched: [] };
+      continue;
+    }
+    plannedCount += Array.isArray(rec.strings) ? rec.strings.length : 0;
+    const entry = approved.hats[hat];
+    if (!entry) { results[hat] = Object.assign(hatResearchState([], 'none'), { fetched: [] }); continue; }
+    if (entry.decision === 'refuse' || entry.decision === 'defer') { results[hat] = Object.assign(hatResearchState([], entry.decision), { fetched: [] }); continue; }
+    approvedCount += entry.q_hashes.length;
+    const lp = lensPlanOf(hat, roomResolved, deps);
+    const wantLenses = (Array.isArray(rec.lens_set) ? rec.lens_set : []).map(e => e && e.lens);
+    const sameSet = lp.lens_set.length === wantLenses.length && lp.lens_set.every((e, i) => e.lens === wantLenses[i])
+      && lp.providers.length === rec.providers.length && lp.providers.every((p, i) => p === rec.providers[i]);
+    if (!sameSet) { results[hat] = { state: 'failed', reason: 'provider_set_changed', fetched: [] }; continue; }
+    queue.push({ hat, rec, strings: rec.strings.filter(s => entry.q_hashes.includes(s.q_hash)) });
+  }
+
+  // Fetch: White first, then black, yellow, green. One hat at a time; the two strings of a hat run together.
+  if (queue.length > 0) {
+    let db = null;
+    let navigation = null;
+    try {
+      navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+      db = navigation.openRoomDbForCaller(roomResolved) || null;
+    } catch (e) {
+      db = null;
+    }
+    try {
+      for (const hat of FETCH_ORDER) {
+        const job = queue.find(q => q.hat === hat);
+        if (!job) continue;
+        try {
+          const fetched = await fetchHatStrings(hat, job.rec, job.strings, roomResolved, db, deps);
+          results[hat] = Object.assign(hatResearchState(fetched.map(f => Object.assign({ state: f.result.state, partial: f.result.partial, failed_providers: f.result.failed_providers }, {})), 'approve'), { fetched });
+        } catch (e) {
+          results[hat] = { state: 'failed', reason: 'thrown', fetched: [] };
+        }
+      }
+    } finally {
+      try { if (navigation && db) navigation.closeRoomDbForCaller(db); } catch (e) { /* closed by the caller of the process */ }
+    }
+  }
+
+  // Packs: one for each researching hat, then the copies of the White package. Not-planned hats get zero-item packs.
+  const now = nowOf(deps);
+  const packs = {};
+  for (const hat of RESEARCH_HATS) packs[hat] = buildEvidencePack(ledger.run_id, hat, results[hat].state, results[hat].reason, results[hat].fetched);
+  try {
+    for (const hat of RESEARCH_HATS) atomicWriteJson(path.join(hatDirOf(map, hat), 'evidence.json'), packs[hat]);
+    for (const hat of READ_HATS) atomicWriteJson(path.join(hatDirOf(map, hat), 'shared-white.json'), packs.white);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  for (const hat of RESEARCH_HATS) {
+    ledger.hats[hat].research = results[hat].state;
+    if (results[hat].reason) ledger.hats[hat].research_reason = results[hat].reason;
+    else delete ledger.hats[hat].research_reason;
+  }
+  const before = isPlain(ledger.research) && Number.isInteger(ledger.research.strings_refused) ? ledger.research.strings_refused : 0;
+  ledger.research = { strings_approved: approvedCount, strings_refused: before + (plannedCount - approvedCount) };
+  const sealed = sealPacks(ledger, map);
+  if (!sealed.ok) return sealed;
+  markStep(ledger, 'run_research', 'done', now);
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  const hats = {};
+  const reasons = {};
+  const stringsOut = {};
+  const itemsOut = {};
+  for (const hat of HATS) {
+    if (!RESEARCH_HATS.includes(hat)) { hats[hat] = 'never_searches'; continue; }
+    hats[hat] = results[hat].state;
+    reasons[hat] = results[hat].reason || null;
+    itemsOut[hat] = packs[hat].items.length;
+    stringsOut[hat] = results[hat].fetched.map(f => ({
+      q_hash: f.q_hash,
+      state: f.result.state,
+      partial: f.result.partial,
+      research_mode: f.record.research_mode,
+      findings: f.record.findings,
+      wired: f.record.wire_attempts.filter(a => a.result.ok).length,
+      substitute_calls: f.record.substitute_calls,
+      recovery_action: f.record.recovery_action,
+    }));
+  }
+  return {
+    ok: true,
+    run_id: ledger.run_id,
+    plan_seq: plan.plan_seq,
+    hats,
+    reasons,
+    strings: stringsOut,
+    evidence_items: itemsOut,
+    counts: { strings_approved: ledger.research.strings_approved, strings_refused: ledger.research.strings_refused },
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -2823,6 +3264,10 @@ function main(argv, deps) {
     case 'plan-research':
       missing = need(['room', 'run']);
       if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run, editedPath: typeof flags.edited === 'string' && flags.edited.length ? flags.edited : undefined }, deps);
+      break;
+    case 'run-research':
+      missing = need(['room', 'run', 'approved']);
+      if (!missing.length) result = cmdRunResearch({ roomDir: flags.room, runId: flags.run, approvedPath: flags.approved }, deps);
       break;
     case 'check':
       missing = need(['room', 'run']);
@@ -2879,6 +3324,10 @@ module.exports = {
   cmdWritePersona,
   cmdAcceptPersona,
   cmdPlanResearch,
+  cmdRunResearch,
+  validateApproved,
+  stringState,
+  hatResearchState,
   handlesNeeded,
   readHandlesStore,
   sealPacks,
