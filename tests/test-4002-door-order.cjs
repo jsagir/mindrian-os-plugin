@@ -833,6 +833,46 @@ asyncLegs.push({
   },
 });
 
+// D27 (WR-11)
+asyncLegs.push({
+  label: 'D27. WR-11 NEGATIVE: when the cleanup of merge failed, check, write-persona and accept-persona refuse the merged run and change no field of the record',
+  fn: async () => {
+    const room = makeRoom();
+    const env = makeEnv();
+    const res = runToAccepted(room, env);
+    assert.equal(door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env)).ok, true);
+    const ids = readLedgerOf(res).sub_questions.map(s => s.id);
+    for (const h of HATS) {
+      const reading = { schema: 'mos.persona-reading/1', run_id: res.run_id, hat: h };
+      if (h === 'blue') Object.assign(reading, { skipped: [], thin: [], ask_next: [] });
+      else {
+        reading.positions = ids.map(id => ({ sub_question: id, value: 'no_position' }));
+        if (h === 'white') Object.assign(reading, { evidence: [], missing_data: ['The price of rival plans.'] });
+        if (h === 'black') Object.assign(reading, { evidence: [] });
+        if (h === 'yellow') Object.assign(reading, { evidence: [], none_found: false });
+        if (h === 'green') Object.assign(reading, { provocations: ['What if the client owns the hand-off?'], evidence: [] });
+      }
+      fs.writeFileSync(path.join(res.hats[h].dir, 'reading.json'), JSON.stringify(reading), 'utf8');
+    }
+    assert.equal(door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env)).ok, true);
+    // The cleanup failed: the run map stays (restored here from a copy taken before merge).
+    const mapFile = door.runMapPath(env.homeDir, res.run_id);
+    const mapBytes = fs.readFileSync(mapFile);
+    const out = await door.cmdMerge({ roomDir: room, runId: res.run_id }, opts(env));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    fs.writeFileSync(mapFile, mapBytes, { mode: 0o600 });
+    const map = JSON.parse(mapBytes.toString('utf8'));
+    for (const d of Object.values(map.hats)) fs.mkdirSync(d, { recursive: true, mode: 0o700 });
+    const before = fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8');
+    assert.deepEqual(door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env)), { ok: false, reason: 'step_already_done:merge' });
+    assert.deepEqual(door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env)), { ok: false, reason: 'step_already_done:merge' });
+    assert.deepEqual(door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, {}) }, opts(env)), { ok: false, reason: 'step_already_done:merge' });
+    assert.equal(fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8'), before, 'the final run record is unchanged');
+    fs.rmSync(map.scratch_root, { recursive: true, force: true });
+    fs.rmSync(mapFile, { force: true });
+  },
+});
+
 (async () => {
   for (const t of asyncLegs) {
     try {

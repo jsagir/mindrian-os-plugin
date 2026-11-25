@@ -644,6 +644,8 @@ function cmdWritePersona(args, deps) {
   const lr = readLedger(roomResolved, args.runId);
   if (!lr.ok) return lr;
   const ledger = lr.ledger;
+  // WR-11: a merged run is closed; a later call must not change the final run record (S-8).
+  if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
   const order = requireStep(ledger, 'start');
   if (order) return { ok: false, reason: order };
   if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
@@ -794,6 +796,8 @@ function cmdAcceptPersona(args, deps) {
   const lr = readLedger(roomResolved, args.runId);
   if (!lr.ok) return lr;
   const ledger = lr.ledger;
+  // WR-11: a merged run is closed; a later call must not change the final run record (S-8).
+  if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
   const order = requireStep(ledger, 'write_persona');
   if (order) return { ok: false, reason: order };
   const read = readJsonFile(args.answerPath);
@@ -1897,6 +1901,8 @@ function cmdCheck(args, deps) {
   const lr = readLedger(roomResolved, args.runId);
   if (!lr.ok) return lr;
   const ledger = lr.ledger;
+  // WR-11: a merged run is closed; a later call must not change the final run record (S-8).
+  if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
   const order = requireStep(ledger, 'run_research');
   if (order) return { ok: false, reason: order };
   if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
