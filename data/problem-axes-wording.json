@@ -19,11 +19,16 @@
     }
   },
   "wicked_cutoff": {
-    "state": "not_fitted",
-    "value": null,
+    "state": "ruled",
+    "value": 0.9,
     "fitted_on": null,
     "sources": null,
     "status": "provisional",
-    "rule": "a wicked probability becomes yes only at or above a fitted cut-off; with no fit the answer is unknown (null); never a raw 0.5 cut (F-06)"
+    "rule": "a wicked probability becomes yes only at or above a stored cut-off: fitted from labels, or ruled by the owner and provisional until a fit replaces it; with no stored cut-off the answer is unknown (null); never a raw 0.5 cut (F-06)",
+    "ruled_on": {
+      "method": "provisional conservative policy choice; a false yes is weighted worse because the wicked label changes the posture of the product (F-06); not fitted from labels",
+      "decided_by": "Codex and Fable 5.2, delegated by the owner",
+      "decided_at": "2026-11-25"
+    }
   }
 }

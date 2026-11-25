@@ -37,7 +37,7 @@ const ROOT = process.env.MINDRIAN_APPLY_ROOT ? path.resolve(process.env.MINDRIAN
 const DATA_REL = path.join('data', 'problem-axes-wording.json');
 const LABEL_LINE = /^(Q\d+)\s+(Un|Ill|Well)\s+(yes|no)\b/;
 const FORBIDDEN = 'DO-NOT-OPEN';
-const RULE = 'a wicked probability becomes yes only at or above a fitted cut-off; with no fit the answer is unknown (null); never a raw 0.5 cut (F-06)';
+const RULE = 'a wicked probability becomes yes only at or above a stored cut-off: fitted from labels, or ruled by the owner and provisional until a fit replaces it; with no stored cut-off the answer is unknown (null); never a raw 0.5 cut (F-06)';
 const BLOCK_KEYS = ['state', 'value', 'fitted_on', 'sources', 'status', 'rule'];
 
 function round3(x) {
@@ -118,7 +118,9 @@ function dataPath() {
 function checkBlock(block) {
   if (!block || typeof block !== 'object') return 'no wicked_cutoff block';
   const keys = Object.keys(block);
-  if (JSON.stringify(keys) !== JSON.stringify(BLOCK_KEYS)) return 'wicked_cutoff keys are ' + JSON.stringify(keys);
+  // A ruled block (owner sign-off 2026-11-25) carries one more key, ruled_on, which says how and by whom the value was chosen.
+  const wanted = block.state === 'ruled' ? BLOCK_KEYS.concat(['ruled_on']) : BLOCK_KEYS;
+  if (JSON.stringify(keys) !== JSON.stringify(wanted)) return 'wicked_cutoff keys are ' + JSON.stringify(keys);
   if (block.status !== 'provisional') return 'status is not provisional';
   if (typeof block.rule !== 'string' || !block.rule) return 'no rule';
   if (block.state === 'not_fitted') {
@@ -135,6 +137,16 @@ function checkBlock(block) {
     if (!Array.isArray(block.sources)) return 'fitted block has no sources list';
     for (const s of block.sources) {
       if (!s || typeof s.name !== 'string' || !/^[0-9a-f]{64}$/.test(String(s.sha256))) return 'a source has no name or sha256';
+    }
+    return null;
+  }
+  if (block.state === 'ruled') {
+    if (typeof block.value !== 'number' || !Number.isFinite(block.value) || block.value < 0 || block.value > 1) return 'ruled value is not a number in 0..1';
+    if (block.fitted_on !== null || block.sources !== null) return 'a ruled block carries fit counts or sources; it is not a fit';
+    const r = block.ruled_on;
+    if (!r || typeof r !== 'object') return 'ruled block has no ruled_on';
+    for (const k of ['method', 'decided_by', 'decided_at']) {
+      if (typeof r[k] !== 'string' || !r[k]) return 'ruled_on.' + k + ' is missing';
     }
     return null;
   }

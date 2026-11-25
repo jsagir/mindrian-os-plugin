@@ -183,7 +183,7 @@ A dialog closed with no answer, a reject or a defer stores nothing.
 
 Level wording (AX-01): the reworded Well-defined test (F-07, O-02) ships as v2 behind MINDRIAN_LEVEL_WORDING=v2. The default is v1, the shipped table wording. Only the exact value v2 turns the flag on. The v2 text is in data/problem-axes-wording.json (level_wording.versions.v2), status provisional. Owner action: rule v2 after fresh cases confirm it (Deferred in CONTEXT).
 
-Wicked cut-off (AX-02, F-06): the shipped block is state not_fitted, value null. wickedFromProbability answers null for every probability; no raw 0.5 cut exists. The fit is pending the two label files of plan 11, which are not on this machine.
+Wicked cut-off (AX-02, F-06): the shipped block is state ruled, value 0.9, status provisional. It is a ruling and not a fit. The owner delegated the choice on 2026-11-25 (sign-off page, item 1), and two models chose it as a conservative policy value: a false yes is the worse error, because the wicked label changes the posture of the product. No label file was read. wickedFromProbability answers yes at or above the value and no below it; no raw 0.5 cut exists. The fit is still pending the two label files of plan 11, which are not on this machine; when it runs it replaces the ruled value.
 
 NEEDS_HUMAN: copy theo-routing-labels-two-axis-60.md and theo-routing-labels-two-axis-batch4-larry.md from the research machine, then run node scripts/derive-wicked-cutoff.cjs --answers <file> --labels <file> --labels <file> --write
 

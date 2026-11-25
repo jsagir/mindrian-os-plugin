@@ -294,7 +294,7 @@ check('V3 sections 1 to 10, decimals, dashes, PwS spelling, card wording, wicked
   assert.ok(lines[0].startsWith('# '), 'title line');
   const axes = readJson('data/problem-axes-wording.json').wicked_cutoff;
   const allowed = [...ALLOWED_DECIMALS];
-  if (axes.state === 'fitted' && typeof axes.value === 'number') allowed.push(String(axes.value));
+  if ((axes.state === 'fitted' || axes.state === 'ruled') && typeof axes.value === 'number') allowed.push(String(axes.value));
   const bad = [];
   lines.forEach((l, i) => {
     for (const d of l.match(/\d+\.\d+/g) || []) if (!allowed.includes(d)) bad.push(i + 1 + ': ' + d);
@@ -311,7 +311,11 @@ check('V3 sections 1 to 10, decimals, dashes, PwS spelling, card wording, wicked
   for (const t of texts) assert.ok(reviewText.includes(t), 'card text not copied exactly: ' + t);
   assert.ok(/O-13/.test(reviewText) && /ACCEPTED/.test(reviewText), 'O-13 accepted state');
   if (axes.state === 'fitted') assert.ok(reviewText.includes('value ' + axes.value), 'fitted value');
-  else {
+  else if (axes.state === 'ruled') {
+    assert.ok(reviewText.includes('state ruled') && reviewText.includes('value ' + axes.value), 'ruled state and value');
+    assert.ok(/not a fit/.test(reviewText), 'the review says a ruled value is not a fit');
+    assert.ok(/NEEDS_HUMAN: /.test(reviewText), 'NEEDS_HUMAN line of plan 11');
+  } else {
     assert.equal(axes.state, 'not_fitted');
     assert.ok(reviewText.includes('state not_fitted'), 'not_fitted state');
     assert.ok(/NEEDS_HUMAN: /.test(reviewText), 'NEEDS_HUMAN line of plan 11');

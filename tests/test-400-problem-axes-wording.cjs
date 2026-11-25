@@ -200,7 +200,7 @@ async function main() {
       assert.equal(A.wickedFromProbability(p, { cutoff: notFitted }), null, 'p ' + p);
     }
     const shipped = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8')).wicked_cutoff;
-    if (shipped.state !== 'fitted') {
+    if (shipped.state === 'not_fitted') {
       for (const p of [0, 0.49, 0.5, 0.51, 1]) assert.equal(A.wickedFromProbability(p), null, 'shipped block, p ' + p);
     }
     const fitted = { state: 'fitted', value: 0.83 };
@@ -230,7 +230,7 @@ async function main() {
     const line = 'wicked cut-off: value ' + e.value + ' cases ' + e.cases + ' wicked_yes ' + e.wicked_yes + ' false_yes ' + e.false_yes + ' missed ' + e.missed;
     assert.ok(r.stdout.indexOf(line) !== -1, r.stdout);
     // The dry run writes nothing.
-    assert.equal(JSON.parse(fs.readFileSync(DATA_PATH, 'utf8')).wicked_cutoff.state, 'not_fitted');
+    assert.notEqual(JSON.parse(fs.readFileSync(DATA_PATH, 'utf8')).wicked_cutoff.state, 'fitted');
     // The pure fit: ties take the widest gap, then the lower candidate.
     const S = require(SCRIPT);
     const wide = S.fitCutoff([{ p: 0.2, yes: false }, { p: 0.4, yes: true }, { p: 0.5, yes: false }, { p: 0.9, yes: true }]);
@@ -289,6 +289,29 @@ async function main() {
     assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot(bad) }).status, 1);
     // A not_fitted block that still carries a value is not honest.
     assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot({ state: 'not_fitted', value: 0.5, fitted_on: null, sources: null, status: 'provisional', rule: 'r' }) }).status, 1);
+  });
+
+  await check('W11 a ruled cut-off is active and honest: true at or above, false below; --check takes it and refuses a ruled block with no value, no ruled_on or fit counts', () => {
+    const A = require(path.join(ROOT, 'lib', 'core', 'problem-axes.cjs'));
+    const ruled = { state: 'ruled', value: 0.9 };
+    assert.equal(A.wickedFromProbability(0.9, { cutoff: ruled }), true);
+    assert.equal(A.wickedFromProbability(0.95, { cutoff: ruled }), true);
+    assert.equal(A.wickedFromProbability(0.89, { cutoff: ruled }), false);
+    assert.equal(A.wickedFromProbability(0.9, { cutoff: { state: 'ruled', value: null } }), null);
+    const good = { state: 'ruled', value: 0.9, fitted_on: null, sources: null, status: 'provisional', rule: 'r', ruled_on: { method: 'm', decided_by: 'd', decided_at: '2026-11-25' } };
+    assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot(good) }).status, 0);
+    assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot(Object.assign({}, good, { value: null })) }).status, 1);
+    const noProvenance = Object.assign({}, good);
+    delete noProvenance.ruled_on;
+    assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot(noProvenance) }).status, 1);
+    const withCounts = Object.assign({}, good, { fitted_on: { cases: 1, wicked_yes: 1, false_yes: 0, missed: 0 } });
+    assert.equal(run(['--check'], { MINDRIAN_APPLY_ROOT: scratchRoot(withCounts) }).status, 1);
+    const shipped = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8')).wicked_cutoff;
+    if (shipped.state === 'ruled') {
+      assert.equal(shipped.status, 'provisional');
+      assert.equal(A.wickedFromProbability(shipped.value), true);
+      assert.equal(A.wickedFromProbability(shipped.value - 0.01), false);
+    }
   });
 
   fs.rmSync(tmp, { recursive: true, force: true });
