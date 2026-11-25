@@ -1,7 +1,7 @@
 {
   "schema": "mos.job-vocabulary/1",
   "_note": "The one canonical job list (Phase 399, D-01, I-01). The command registry, the JTBD taxonomy and the section job canon are pinned to it by tests/test-399-job-vocabulary.cjs. The registry jtbd_summary still derives from lib/hmi/jtbd-taxonomy.json one_line (Phase 104.1); this file copies those summaries verbatim and adds summaries for the jobs the taxonomy does not describe. Hyphens only.",
-  "_sentence_note": "Phase 400 (O-01): sentence and slots are provisional, written for owner review (400-LABEL-REVIEW.md); summary stays the render text until a later ruling (Pitfall 1).",
+  "_sentence_note": "Phase 400 (O-01): sentence and slots. All 20 sentences are ruled as of 2026-11-25: the owner ruled 7 after rewording them, and the other 13 were ruled as written by Fable 5.2 under the owner's delegation of the same day. summary stays the render text until a later ruling (Pitfall 1).",
   "ids": [
     "audit-room",
     "build",
@@ -38,7 +38,7 @@
         "want": "to check it for gaps, drift, weak evidence and shaky decisions",
         "so": "fix the weak spots before I build on them"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "build": {
       "summary": "Build or extend the room or the method surface itself - start a room, add a method.",
@@ -67,7 +67,7 @@
         "want": "to compare them against the same criteria",
         "so": "choose with the trade-offs in plain view"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "connect-domains": {
       "summary": "Find cross-domain analogues - what does this look like in another field?",
@@ -82,7 +82,7 @@
         "want": "to find how other fields have solved a similar problem",
         "so": "borrow a proven idea instead of starting from scratch"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "decide-pursue": {
       "summary": "Decide if a venture / opportunity / approach is worth pursuing.",
@@ -142,7 +142,7 @@
         "want": "to capture what was said and route it into the room",
         "so": "keep that knowledge from getting lost"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "find-bottleneck": {
       "summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
@@ -158,7 +158,7 @@
         "want": "to find the lagging part that holds the rest back",
         "so": "put my effort where it unblocks the whole system"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "find-problem": {
       "summary": "Find the problem worth solving (not the symptom, the root).",
@@ -174,7 +174,7 @@
         "want": "to dig past the symptoms to the root cause",
         "so": "spend my effort on a problem worth solving"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "model-business": {
       "summary": "Model the business - how it creates, delivers and captures value.",
@@ -188,7 +188,7 @@
         "want": "to model how it creates, delivers and captures value",
         "so": "see whether the business can stand on its own"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "model-finances": {
       "summary": "Hold the numbers - costs, revenue, funding and runway.",
@@ -202,7 +202,7 @@
         "want": "to lay out costs, revenue, funding and runway",
         "so": "plan how long the money lasts and what it must pay for"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "navigate": {
       "summary": "Steer the conversation - change Larry's stance, or reach into the room memory when a thought goes stale.",
@@ -247,7 +247,7 @@
         "want": "to prepare what I will say and what they will ask",
         "so": "walk in ready and leave with a next step"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "protect-assets": {
       "summary": "Protect what is ours - intellectual property, rights and defensibility.",
@@ -276,7 +276,7 @@
         "want": "to notice the contradictions and resolve them",
         "so": "trust what the room tells me"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "temporal-correction": {
       "summary": "Correct the room's reference date when the known date and the recorded date disagree.",
@@ -290,7 +290,7 @@
         "want": "to correct the reference date of the room",
         "so": "read every entry against the right point in time"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "understand-market": {
       "summary": "Understand the market for this idea - size, structure, dynamics.",
@@ -306,7 +306,7 @@
         "want": "to learn the size, structure and dynamics of that market",
         "so": "judge whether the market can carry my idea"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "validate-idea": {
       "summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
@@ -322,7 +322,7 @@
         "want": "to test whether it holds up under scrutiny",
         "so": "build on evidence instead of hope"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     }
   }
 }

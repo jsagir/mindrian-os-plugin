@@ -197,6 +197,6 @@ The owner answered the five human items on the sign-off page (saved answers, 202
 | 2 | Order rule (WR-04, WR-09) | Agree | CLOSED. The in-band reorder is the intended one. |
 | 3 | Relay gate (IN-04) | Add a relay provider id | CLOSED. decision_relay is on the decision_advisor providers list in data/egress-policy.json; tests/test-399-egress-line.cjs pins it (E4, E5). The line default stays false. |
 | 4 | Domain card on three surfaces | Pass on Claude Code CLI, Claude Desktop and Cowork | CLOSED. |
-| 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). OPEN: the funding and personas section jobs. The other label lists were not changed by the owner and stay provisional. |
+| 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). Personas: the owner accepted the draft on 2026-11-25, so the section job stays understand-market (source jev-probe-draft-gloss) with no "One job" sentence; data/section-job-canon.json is unchanged. OPEN: the funding section job. The other label lists were not changed by the owner and stay provisional. |
 
 Also on 2026-11-25: the branch was merged into main after v2.0.0-beta.89 (f9148bf5c), and the advisor table stopped offering deprecated commands (a6d2e63ab). The O-12 commands stay on the run-step list.

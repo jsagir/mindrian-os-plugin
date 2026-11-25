@@ -45,11 +45,13 @@ check('J1 every job has valid slots and sentence equals renderJob(slots); senten
   }
 });
 
-// Owner ruling 2026-11-25 (label review section 1): these 7 reworded sentences are ruled; the rest stay provisional.
-const RULED = ['build', 'decide-pursue', 'design-solution', 'explore', 'navigate', 'plan-execution', 'protect-assets'];
+// Rulings of 2026-11-25 (label review section 1). The owner reworded and ruled these 7.
+const RULED_BY_OWNER = ['build', 'decide-pursue', 'design-solution', 'explore', 'navigate', 'plan-execution', 'protect-assets'];
+// The other 13 were ruled as written, by Fable 5.2 under the owner's delegation of the same day.
 
-check('J2 the owner-ruled jobs have sentence_status ruled; every other job is provisional', () => {
-  for (const id of vocab.ids) assert.equal(vocab.jobs[id].sentence_status, RULED.includes(id) ? 'ruled' : 'provisional', id);
+check('J2 every job has sentence_status ruled (7 by the owner, 13 by delegation)', () => {
+  for (const id of RULED_BY_OWNER) assert.ok(vocab.ids.includes(id), id + ' left the vocabulary');
+  for (const id of vocab.ids) assert.equal(vocab.jobs[id].sentence_status, 'ruled', id);
 });
 
 check('J3 summary, summary_source and origins are byte-identical to base ' + BASE, () => {
