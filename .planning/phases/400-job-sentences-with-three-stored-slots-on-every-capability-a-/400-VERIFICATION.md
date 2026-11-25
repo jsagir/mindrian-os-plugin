@@ -192,6 +192,6 @@ The owner approved the open human items to proceed. This section records the app
 
 1. Wicked cut-off: ruled by the owner (commit 365fce03b).
 2. WR-04 and WR-09 order rule: accepted as the intended in-band reorder.
-3. IN-04: the owner answered "add a relay provider id" (sign-off page 2026-11-25, see docs/2026-11-25-HANDOFF-399-400-into-next-cut.md). NOT applied yet: data/egress-policy.json and the pin in tests/test-399-egress-line.cjs.
+3. IN-04: the owner answered "add a relay provider id" (sign-off page 2026-11-25, see docs/2026-11-25-HANDOFF-399-400-into-next-cut.md). Applied 2026-11-25: decision_relay is in the providers list with the path /v1/decide; the three pins of tests/test-399-egress-line.cjs are updated. The line default stays false.
 4. Domain card on three surfaces: the owner answered pass on Claude Code, Desktop and Cowork (sign-off page 2026-11-25). This session did not render the card.
 5. Provisional labels: the 20 vocabulary sentences are ruled; funding and personas are ruled; the capability labels are approved and keep the status provisional until a later pass (400-LABEL-REVIEW.md, Owner sign-off at the end of section 10).

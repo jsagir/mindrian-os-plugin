@@ -46,18 +46,18 @@ try {
     return egress.lineAllowed(p, LINE) === false || 'allowed offline';
   });
   leg('E4 provider mapping', () => {
-    const got = ['gemini_decision', 'jev_decision', 'typesafe'].map(egress.lineForProvider).join(',');
-    return got === 'decision_advisor,decision_advisor,judge_jev' || got;
+    const got = ['gemini_decision', 'jev_decision', 'decision_relay', 'typesafe'].map(egress.lineForProvider).join(',');
+    return got === 'decision_advisor,decision_advisor,decision_advisor,judge_jev' || got;
   });
   leg('E5 entry shape and scope text', () => {
     const doc = JSON.parse(fs.readFileSync(path.join(REPO, 'data/egress-policy.json'), 'utf8'));
     const e = doc.lines[LINE];
     if (!e) return 'no entry';
     const keys = Object.keys(e).sort().join(',');
-    const pathsOk = e.paths && Object.keys(e.paths).sort().join(',') === 'gemini_decision,jev_decision' && e.paths.jev_decision === '/v1/systemone' &&
+    const pathsOk = e.paths && Object.keys(e.paths).sort().join(',') === 'decision_relay,gemini_decision,jev_decision' && e.paths.decision_relay === '/v1/decide' && e.paths.jev_decision === '/v1/systemone' &&
       (e.paths.gemini_decision === null || typeof e.paths.gemini_decision === 'string');
     const scopeOk = /D-03/.test(e.scope) && /labels only/.test(e.scope) && /user access/.test(e.scope) && /Deferred/.test(e.scope);
-    return (keys === 'default,endpoint,paths,providers,scope' && e.default === false && pathsOk && scopeOk && e.providers.join(',') === 'gemini_decision,jev_decision') || JSON.stringify({ keys, pathsOk, scopeOk });
+    return (keys === 'default,endpoint,paths,providers,scope' && e.default === false && pathsOk && scopeOk && e.providers.join(',') === 'gemini_decision,jev_decision,decision_relay') || JSON.stringify({ keys, pathsOk, scopeOk });
   });
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });

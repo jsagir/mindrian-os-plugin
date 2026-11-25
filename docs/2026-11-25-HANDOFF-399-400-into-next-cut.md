@@ -40,3 +40,12 @@
 - `bash tests/run-all-400.sh` passed on 5f72e954b.
 - NEW, owner ruling: **Phase 400.2, the persona, hats and research bundle, must be part of the next cut too.** Scope: `.planning/phases/400.2-*/400.2-CONTEXT.md`, seed SEED-149. It is not planned or built yet. Its design runs with the EGM method (elephant draft, goldfish reviews), inside GSD with owner sign-off. Phases 399, 400 and 400.1 carry a pointer to it in their CONTEXT files.
 - Effect on the steps above: the cut waits for 400.2, or the owner rules that 400.2 moves to the cut after. `.planning/` is ignored, so the 400.2 files travel only when force-added.
+
+## Update 2026-11-25 (reconcile): beta.89 is out, the branch is ready to merge
+
+- v2.0.0-beta.89 is tagged; `origin/main` is at 53a73f95f (bump to beta.90). No other session is running on this machine.
+- The relay provider id (IN-04) is applied: `decision_relay` in the providers list of the `decision_advisor` line, path `/v1/decide`, pins updated. The line default stays false.
+- All five human items of `400-VERIFICATION.md` now have an owner answer recorded (Owner sign-off section).
+- Trial merge of this branch into `origin/main` at 53a73f95f is clean (`git merge-tree --write-tree`, exit 0). `bash tests/run-all-400.sh` exit 0 on the branch tip.
+- Note for the relay: the job vocabulary sentences changed today, so `catalogFingerprint()` moves. The relay is not deployed yet; when it is, deploy from the release commit (owner-gated step 7).
+- Still open before the cut: Phase 400.2 is scoped but not planned or built; steps 4 and 5 above (gates on merged main, real-room run) are not run.
