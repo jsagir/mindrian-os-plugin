@@ -1677,7 +1677,7 @@ function buildAcceptanceChecklist(ctx) {
           // original argv byte for byte.
           const harnessArgv = [scriptPath, '--check', '--json'];
           if (checklistMode === 'session-start') harnessArgv.push('--tier', 'session-start');
-          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 180000, cwd: pluginRoot });
           let parsed;
           try {
             parsed = JSON.parse(r.stdout || '{}');
