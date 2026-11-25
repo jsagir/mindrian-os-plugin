@@ -123,7 +123,13 @@ let skipped = false;
       notes = [];
     }
     const line = (prefix) => notes.find((n) => n.startsWith('./register.tsx ' + prefix)) || '';
-    const hooksLine = line('hooks:');
+    // Quick 261125 (G2 learns the host's print, the pinned list is unchanged): Claude Code 2.1.329 prints the hook inventory of one
+    // file as more than one `hooks:` note, and marks an entry that takes the default matcher key with ` (default matcher key: <key>)`.
+    // Read every `hooks:` note of register.tsx as one list, and compare the entries without that mark.
+    const hookNotes = notes.filter((n) => n.startsWith('./register.tsx hooks:'));
+    const hooksLine = hookNotes.length
+      ? './register.tsx hooks: ' + hookNotes.map((n) => n.replace(/^.*?hooks:\s*/, '')).join(', ')
+      : '';
     const callsLine = line('calls:');
     const envLine = line('env reads:');
     check(hooksLine !== '' && callsLine !== '' && envLine !== '', 'validate printed the hooks, calls and env reads lines');
@@ -135,7 +141,7 @@ let skipped = false;
     check(callsLine !== '' && !/\$\.process\.run/.test(calls), 'G1 the calls line lists no $.process.run');
     check(callsLine !== '' && /\$\.http\.fetch/.test(calls), 'G1 the calls line still lists the two reach fetches ($.http.fetch), so the scan is not blind');
 
-    const found = splitTop(hooksLine.replace(/^.*?hooks:\s*/, ''));
+    const found = splitTop(hooksLine.replace(/^.*?hooks:\s*/, '')).map((h) => h.replace(/\s*\(default matcher key: [^)]*\)$/, ''));
     const missing = PINNED_HOOKS.filter((h) => !found.includes(h));
     const extra = found.filter((h) => !PINNED_HOOKS.includes(h));
     check(found.length === PINNED_HOOKS.length && missing.length === 0 && extra.length === 0,

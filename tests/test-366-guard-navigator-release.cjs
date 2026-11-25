@@ -129,7 +129,17 @@ function isReleased(v) { return v && v.verdict === 'allow' && v.class === 'navig
 (function () {
   const src = fs.readFileSync(path.join(REPO_ROOT, 'lib/core/part8-egress-guard.cjs'), 'utf8');
   const lines = src.split('\n');
-  const classifyStart = lines.findIndex(function (l) { return /^function classify\(/.test(l); });
+  // Quick 261125 (G10 learns by name): Phase 396 (merge 4f7c007ad) made classify a scope wrapper around _classifyUnscoped, which holds the
+  // content scan and the arm. The order rule is unchanged: the arm is called after the scan. G10w proves that classify still goes through it.
+  const wrapperStart = lines.findIndex(function (l) { return /^function classify\(/.test(l); });
+  let wrapperCallsBody = false;
+  for (let i = wrapperStart; i !== -1 && i < lines.length; i += 1) {
+    if (lines[i].indexOf('_classifyUnscoped(') !== -1) wrapperCallsBody = true;
+    if (i > wrapperStart && /^}/.test(lines[i])) break;
+  }
+  const bodyStart = lines.findIndex(function (l) { return /^function _classifyUnscoped\(/.test(l); });
+  const classifyStart = bodyStart !== -1 ? bodyStart : wrapperStart;
+  C.check('G10w classify reaches the scan and the arm (directly, or through _classifyUnscoped)', bodyStart === -1 || wrapperCallsBody, 'wrapper ' + wrapperStart + ' body ' + bodyStart);
   let scanLine = -1;
   let armLine = -1;
   for (let i = classifyStart; i < lines.length; i += 1) {

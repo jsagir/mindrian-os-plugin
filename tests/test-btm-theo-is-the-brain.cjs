@@ -55,8 +55,10 @@ const SCAN_FILES = [
 const ALLOWLIST = {
   'lib/mcp/brain-composition-census.cjs':
     'Phase 254/257 ruling record in a code comment, marked historical by quick 261019-btm; never sent to the model',
-  'references/capability-radar/changelog-cache.md':
-    'dated radar view rendered from data/capability-ledger.json (the Claude Code 2.1.280 entry, 2026-09-22); only /mos:radar --fetch regenerates it; an observation, not a route',
+  'skills/doctor/SKILL.md':
+    'the brain-origin doctor point (quick 261118-o1d, 7964c0887) names the retired entry as the thing it warns about, so the person can find and remove it; a warning, not a route',
+  'commands/doctor.md':
+    'mirror of skills/doctor/SKILL.md: the same brain-origin warning text (quick 261118-o1d); a warning, not a route',
 };
 
 /** Return the labels of the retired tokens found in text. */
