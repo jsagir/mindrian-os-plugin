@@ -2156,6 +2156,139 @@ function cmdRecordRuling(args, deps) {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 400.2-10: the Part 8 controls on a door search string (PS-01)
+// ---------------------------------------------------------------------------
+
+// Generic words that are common in room and venture names and are valid domain words. A token on this list is never
+// a screened word (the full-venture-name rule still applies). "clean room design" is not refused in a room named room.
+const IDENTITY_STOP_LIST = Object.freeze([
+  'room', 'venture', 'project', 'company', 'startup', 'labs', 'group', 'systems', 'solutions', 'technologies',
+  'global', 'health', 'energy', 'data', 'market', 'platform', 'network', 'digital', 'research', 'design', 'care',
+  'food', 'water', 'power', 'cloud', 'mobile', 'smart', 'green', 'blue', 'open', 'new', 'test', 'demo',
+]);
+
+const IDENTITY_MIN_LETTERS = 4;
+const IDENTITY_FILE_CAP = 200;
+const IDENTITY_READ_CAP = 262144;
+const UNKNOWN_VENTURE = 'unknown venture';
+
+/** Lower-case a text and split it on every character outside a-z and 0-9. */
+function identityTokens(text) {
+  return String(text == null ? '' : text).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+}
+
+/** The venture name, read with the two rules of extractDomainSignals (venture: line, else the first heading). */
+function readVentureName(roomResolved) {
+  let state = '';
+  try {
+    state = fs.readFileSync(path.join(roomResolved, 'STATE.md'), 'utf8');
+  } catch (e) {
+    return null;
+  }
+  const m = state.match(/venture:\s*(.+)/i);
+  if (m) return m[1].trim();
+  const h = state.match(/^#\s+(.+)/m);
+  if (h) return h[1].trim();
+  return null;
+}
+
+/** Base names (no extension) of the files under team/, to a depth of 3. */
+function teamFileBaseNames(roomResolved) {
+  const out = [];
+  function walk(dir, depth) {
+    if (depth > 3 || out.length >= IDENTITY_FILE_CAP) return;
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch (e) {
+      return;
+    }
+    for (const ent of entries) {
+      if (out.length >= IDENTITY_FILE_CAP) return;
+      if (ent.isDirectory()) walk(path.join(dir, ent.name), depth + 1);
+      else if (ent.isFile()) out.push(path.basename(ent.name, path.extname(ent.name)));
+    }
+  }
+  walk(path.join(roomResolved, 'team'), 1);
+  return out;
+}
+
+/**
+ * Proper-noun candidates of a text: a word that starts with a capital letter and is not the first word of a line
+ * (a heading or a list item counts as a line) or of a sentence. A limit that the card covers: an abbreviation such
+ * as "Dr." ends a sentence for this rule.
+ */
+function properNounCandidates(text) {
+  const out = [];
+  const lines = String(text).split(/\r?\n/);
+  for (const line of lines) {
+    const re = /[A-Za-z][A-Za-z0-9'’]*/g;
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      const before = line.slice(0, m.index).replace(/[\s"'“”‘’(\[\]*_`>#-]+$/, '');
+      const first = before === '' || /[.!?]$/.test(before);
+      if (!first && /^[A-Z]/.test(m[0])) out.push(m[0]);
+    }
+  }
+  return out;
+}
+
+/**
+ * The room identity screen (DESIGN 8). It collects the names of the room that must not enter a search string.
+ * It returns {ran, venture_name_found, tokens_checked} as visible fields. The token set, the venture tokens and the
+ * methods are not enumerable, so no serialised form holds a token.
+ * @param {string} roomDir
+ * @param {string[]} [readingList] - room-relative paths of the reading-list files
+ */
+function roomIdentityScreen(roomDir, readingList) {
+  const roomResolved = path.resolve(roomDir);
+  const ventureName = readVentureName(roomResolved);
+  const ventureTokens = ventureName ? identityTokens(ventureName) : [];
+  const found = ventureName !== null && ventureTokens.length > 0 && ventureName.toLowerCase().trim() !== UNKNOWN_VENTURE;
+  const tokens = new Set();
+  if (found) {
+    for (const t of ventureTokens) tokens.add(t);
+    for (const t of identityTokens(path.basename(roomResolved))) tokens.add(t);
+    for (const name of teamFileBaseNames(roomResolved)) for (const t of identityTokens(name)) tokens.add(t);
+    const list = Array.isArray(readingList) ? readingList : [];
+    let realRoom = null;
+    try { realRoom = fs.realpathSync(roomResolved); } catch (e) { realRoom = null; }
+    for (const rel of list) {
+      if (typeof rel !== 'string' || rel.length === 0 || rel.length > 300) continue;
+      try {
+        const abs = path.resolve(roomResolved, rel.replace(/\\/g, '/'));
+        const back = path.relative(roomResolved, abs);
+        if (back === '' || back.startsWith('..') || path.isAbsolute(back)) continue;
+        const real = fs.realpathSync(abs);
+        const inside = realRoom ? path.relative(realRoom, real) : '..';
+        if (inside === '' || inside.startsWith('..') || path.isAbsolute(inside)) continue;
+        if (!fs.statSync(real).isFile()) continue;
+        const buf = fs.readFileSync(real);
+        const text = buf.slice(0, IDENTITY_READ_CAP).toString('utf8');
+        for (const cand of properNounCandidates(text)) for (const t of identityTokens(cand)) tokens.add(t);
+      } catch (e) {
+        // An unreadable reading-list file adds no token. The card stays the final control.
+      }
+    }
+  }
+  const screen = {
+    ran: found,
+    venture_name_found: found,
+    tokens_checked: found ? tokens.size : 0,
+  };
+  const hidden = {
+    counts: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
+    has: (token) => found && tokens.has(String(token).toLowerCase()),
+    ventureTokens: found ? ventureTokens.slice() : [],
+    toJSON: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
+  };
+  for (const k of Object.keys(hidden)) {
+    Object.defineProperty(screen, k, { value: hidden[k], enumerable: false, writable: false, configurable: false });
+  }
+  return screen;
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -2271,4 +2404,6 @@ module.exports = {
   readRunMap,
   runMapPath,
   sweepScratch,
+  IDENTITY_STOP_LIST,
+  roomIdentityScreen,
 };
