@@ -2004,10 +2004,14 @@ function positionMarker(value) {
 /**
  * The settled-tension key: SHA-256 hex of the target content hash, the sub-question id and the sorted pair
  * joined by "+", the three parts joined by a newline. Plan 09 uses the same id as the key of its store.
+ * WR-04: a quick run adds a fourth part, the word quick, so a ruling on a fast look never settles the tension of a
+ * deep run (two modes, each with its own identity). A deep key keeps the three parts.
  */
-function tensionKey(targetContentHash, subQuestionId, pair) {
+function tensionKey(targetContentHash, subQuestionId, pair, mode) {
   const sorted = (Array.isArray(pair) ? pair.slice() : []).map(String).sort();
-  return sha256Hex([String(targetContentHash), String(subQuestionId), sorted.join('+')].join('\n'));
+  const parts = [String(targetContentHash), String(subQuestionId), sorted.join('+')];
+  if (mode === 'quick') parts.push('quick');
+  return sha256Hex(parts.join('\n'));
 }
 
 function oneLine(v) {
@@ -2318,7 +2322,7 @@ async function computeTensions(roomResolved, ledger, positions) {
       const pair = (Array.isArray(t.lenses) ? t.lenses : []).map(l => String(l).replace(/-hat$/, '')).sort();
       if (pair.length !== 2) continue;
       mine.push({
-        id: tensionKey(ledger.target_content_hash, sq.id, pair),
+        id: tensionKey(ledger.target_content_hash, sq.id, pair, ledger.mode),
         sub_question: sq.id,
         pair,
         lines: { [pair[0]]: positions[sq.id][pair[0]].line, [pair[1]]: positions[sq.id][pair[1]].line },

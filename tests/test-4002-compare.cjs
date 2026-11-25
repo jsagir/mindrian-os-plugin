@@ -532,6 +532,26 @@ check('K8. the fixture envelope uses only example.org and example.com; the fixtu
   assert.equal(DOOR_PATH.endsWith('persona-hats.cjs'), true);
 });
 
+check('K9. WR-04 NEGATIVE: a ruling in a quick run does not settle the same tension in a later deep run; it still settles a later quick run', async () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const POS = { black: ['opposes', 'no_position'], yellow: ['favours', 'no_position'] };
+  const quick = await mergedQuick({ room, env, pos: POS });
+  const qt = quick.merge.open.find(t => t.pair.slice().sort().join('+') === 'black+yellow');
+  assert.ok(qt, 'the quick run has the black and yellow tension: ' + JSON.stringify(quick.merge.open));
+  const answerPath = writeJson('ruling', 'ruling.json', { schema: 'mos.persona-ruling-answer/1', run_id: quick.res.run_id, rulings: [{ tension_id: qt.id, ruling: 'side_a', reason: 'A fast look.' }] });
+  const r = door.cmdRecordRuling({ roomDir: room, runId: quick.res.run_id, answerPath }, env.opts());
+  assert.equal(r.ok, true, JSON.stringify(r));
+  const deep = await mergedDeep({ room, env, pos: POS });
+  const dt = deep.merge.tensions.find(t => t.pair.slice().sort().join('+') === 'black+yellow' && t.sub_question === qt.sub_question);
+  assert.ok(dt, 'the deep run has the same tension');
+  assert.equal(dt.state, 'open', 'a fast-look ruling does not settle the independent review');
+  assert.notEqual(dt.id, qt.id, 'the two modes have their own tension identity');
+  const quick2 = await mergedQuick({ room, env, pos: POS });
+  const q2 = quick2.merge.tensions.find(t => t.id === qt.id);
+  assert.ok(q2 && q2.state === 'settled', 'a quick ruling settles the next quick run');
+});
+
 (async () => {
   let passed = 0;
   let failed = 0;
