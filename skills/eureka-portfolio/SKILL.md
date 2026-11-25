@@ -11,6 +11,10 @@ hitl_shape: "F.8"
 hitl_why: "The ranked pairs are an unordered set the navigator picks one from, in any order, to trace deeper."
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "explore"]
+job_when: "I have many linked ideas and cannot tell which deserve attention first"
+job_want: "to measure and rank each linked pair on my own machine"
+job_so: "focus on the strongest links and see what moved"
+job_sentence_status: "provisional"
 teaching: "When you want to know which of your linked ideas deserve your attention first, /mos:eureka-portfolio measures each linked pair on this machine, ranks them, and tells you what moved since the last run."
 canon_parts: [7, 8, 11, 12]
 ui_reference: skills/ui-system/SKILL.md

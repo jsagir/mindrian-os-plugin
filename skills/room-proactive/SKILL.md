@@ -26,6 +26,10 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "gate"
 hitl_why: "Two independent decision-close moments: an APPROVE/REJECT/DEFER mini-gate on a surfaced finding, and an F.1 Next Move gate when offering to file a conversation artifact."
+job_when: "my room holds entries but I cannot see what is missing or in conflict"
+job_want: "to have gaps, contradictions and converging signals surfaced in time"
+job_so: "fix weak spots and build on what grows stronger"
+job_sentence_status: "provisional"
 ---
 
 # Room Proactive -- Gap, Contradiction, and Convergence Detection

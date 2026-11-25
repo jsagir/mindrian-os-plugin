@@ -16,7 +16,15 @@ hitl_stages:
     mode: "gate"
 hitl_why: "Bono halts at three navigator decision surfaces: topic-confirm (F.1) frames the scope and reads the room's JTBD, hypothesis-confirm (F.1) anchors the what-if the debate bears on, and ruling (F.5) resolves the governed positions into a verb."
 body_shape_detail: A Shape F selector front door, then a governed parallel cell fan-out with per-persona research, then a governed sequential inter-hat debate as nested decision gates, then a MECE-Minto conclusion closed through the shared graph-write spine
-serves_jtbd: ["explore", "decide-pursue"]
+serves_jtbd: ["explore", "decide-pursue", "surface-contradiction", "validate-idea"]
+job_when: "I face a wicked question and one opinion is not enough"
+job_want: "to run a structured debate of several perspectives over a testable hypothesis"
+job_so: "rule on an argued synthesis with its evidence in view"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph."
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md

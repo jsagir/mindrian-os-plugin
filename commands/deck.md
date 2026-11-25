@@ -10,6 +10,10 @@ hitl_why: "The governed deck flow closes with a single Next Move gate."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/deck.md:92, each section built from the navigator's own room content and surfaced at an accept / reshape / skip gate (rests on rubric rule TB-4).
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["prepare-pitch"]
+job_when: "my room is full but the story is not yet a deck"
+job_want: "to pick the deck shape that fits and fill it from my room"
+job_so: "present a clear story that lands with the audience"
+job_sentence_status: "provisional"
 teaching: "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: mechanical

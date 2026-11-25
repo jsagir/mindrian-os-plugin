@@ -376,6 +376,8 @@ async function jev(body, opts) {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + o.key, 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        // Review WR-03: never follow a redirect (the body and the bearer key must not leave the named host).
+        redirect: 'error',
         signal: (typeof o.timeoutMs === 'number' && o.timeoutMs > 0) ? AbortSignal.timeout(o.timeoutMs) : undefined,
       });
     } catch (e) {

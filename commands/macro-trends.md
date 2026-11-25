@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The PEST factors are scanned independently, an unordered basket of trend jobs."
 serves_jtbd: ["understand-market"]
+job_when: "I am entering a domain and do not know the forces that shape it"
+job_want: "to scan its political, economic, social and technological forces"
+job_so: "see the wide picture before I narrow my focus"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "slice"
+move_type_weak: true
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the domain previews the PEST four-factor
 # structure before the navigator invests in the full scan).

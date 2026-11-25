@@ -8,6 +8,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The artifact is graded on independent components against the calibrated set, an any-order basket."
 serves_jtbd: ["audit-room", "compare-options"]
+job_when: "several sections of my room are filled and I need an honest measure of quality"
+job_want: "to grade the room against a large set of real past projects"
+job_so: "know what to improve first"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated."
 # Per docs/reward-before-investment-rule.md: field-only declaration, mirroring
 # /mos:grade's same declaration for the same Brain-calibrated grading shape.

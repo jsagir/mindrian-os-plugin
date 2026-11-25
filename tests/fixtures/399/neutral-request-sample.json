@@ -1,0 +1,27 @@
+{
+  "context": {
+    "job_id": "validate-idea",
+    "job_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+  },
+  "questions": {
+    "q0001": {
+      "type": "yes_no",
+      "template": "serves_job_v1",
+      "subject": "/mos:validate"
+    },
+    "q0002": {
+      "type": "choice",
+      "template": "next_command_v1",
+      "options": [
+        "/mos:validate",
+        "/mos:mullins",
+        "/mos:map-unknowns"
+      ]
+    },
+    "q0003": {
+      "type": "score",
+      "template": "fit_score_v1",
+      "subject": "/mos:mullins"
+    }
+  }
+}

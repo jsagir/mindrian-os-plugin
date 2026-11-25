@@ -7,7 +7,15 @@ body_shape: C
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Each need is scored on importance and satisfaction independently, an any-order basket of scoring jobs."
-serves_jtbd: ["validate-idea"]
+serves_jtbd: ["validate-idea", "decide-pursue"]
+job_when: "an idea needs a real test before I invest more"
+job_want: "to measure how well it serves the needs of my target customers"
+job_so: "base the next investment on a measurement instead of a feeling"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the importance-satisfaction scoring structure previews
 # before the navigator invests in scoring the full segment).

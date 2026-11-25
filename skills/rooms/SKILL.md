@@ -10,6 +10,10 @@ layer_why: "Manages the multi-room registry (switch, list, archive); a registry 
 hitl_shape: "F.1"
 hitl_why: "Room switch or archive offers a single next move to pick one room."
 serves_jtbd: ["audit-room"]
+job_when: "I run several ventures, each in its own room"
+job_want: "to list, switch and archive my rooms"
+job_so: "keep each venture apart and move between them cleanly"
+job_sentence_status: "provisional"
 teaching: "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures."
 interactive_first_reward: --none (scripting only)
 ui_reference: skills/ui-system/SKILL.md

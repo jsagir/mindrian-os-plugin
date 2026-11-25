@@ -1,6 +1,11 @@
 ---
 name: reverse-salient-agent
 description: Surfaces reverse-salient findings (Engine 1 Act 1) as F.0 Decision Gates with persona-aware framing. Sibling to larry-extended; not a replacement.
+serves_jtbd: ["find-bottleneck", "validate-idea"]
+job_when: "one part of my system lags behind the rest and holds back progress"
+job_want: "to see that lagging part surfaced as a decision framed for my role"
+job_so: "decide whether to fix the bottleneck now"
+job_sentence_status: "provisional"
 model: inherit
 color: cyan
 extends: agents/larry-extended.md

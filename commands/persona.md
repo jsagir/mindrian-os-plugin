@@ -18,6 +18,14 @@ hitl_why: "Synthetic experts are generated as an independent set (F.8) then thei
 # the navigator commits to a generate or a parallel run.
 interactive_first_reward: schema_preview
 serves_jtbd: ["prepare-pitch"]
+job_when: "my room needs fresh perspectives I cannot supply alone"
+job_want: "to generate personas from my room data who each argue from a different stance"
+job_so: "decide which of their arguments hold"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

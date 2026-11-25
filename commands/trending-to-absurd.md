@@ -20,6 +20,14 @@ hitl_why: "A depth-budget trend selection (F.3) then a fixed-order push toward t
 # invests in picking which trends to push.
 interactive_first_reward: schema_preview
 serves_jtbd: ["understand-market", "explore"]
+job_when: "a trend in my field feels safe and well understood"
+job_want: "to push it to its absurd extreme over a horizon I choose"
+job_so: "spot the disruptive opportunity at the edge"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

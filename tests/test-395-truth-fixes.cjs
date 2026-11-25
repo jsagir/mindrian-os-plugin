@@ -174,6 +174,10 @@ async function main() {
   });
 
   await check('T4. the 2 cases of the cold check, read from the plugin ledger and the real registry', () => {
+    // Phase 399 plan 07: the two cases pin the ledger order of the 395 selector, so the advisor key is off here.
+    const savedAdvisor = process.env.MINDRIAN_DECISION_ADVISOR;
+    process.env.MINDRIAN_DECISION_ADVISOR = 'off';
+    try {
     const L = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'section-command-ledger.json'), 'utf8'));
     const row = (job, cmd) => (L.rows[job + '|*|*'] || []).find((r) => r.command === '/mos:' + cmd) || null;
     const floor = L.confidence_floor;
@@ -189,6 +193,9 @@ async function main() {
     const two = NM.composeNextMove({ surface: 'cli', jobId: 'understand-market', face: face(['scout', 'analyze-timing']), sources: null, ledgerCandidates: null, attempted: [], need: {} });
     assert.strictEqual(two.primary.command, 'analyze-timing');
     assert.strictEqual(theoPart(two.why, 'scout'), 'the ledger rates scout as a poor first move for the job, and its rating for this command is not sure enough to count');
+    } finally {
+      if (savedAdvisor === undefined) delete process.env.MINDRIAN_DECISION_ADVISOR; else process.env.MINDRIAN_DECISION_ADVISOR = savedAdvisor;
+    }
   });
 
   // ---- T5. mi2 ----

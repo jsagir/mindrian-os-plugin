@@ -11,6 +11,10 @@ hitl_why: "The dashboard offers one next move on what to act on; the shell argum
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/dashboard.md:126, an ephemeral live rendering of already-filed room state, not a filed artifact or new analysis.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
+job_when: "a meeting is close and I need the whole room at a glance"
+job_want: "to open a live or snapshot view of room health"
+job_so: "speak to where the venture stands without digging through files"
+job_sentence_status: "provisional"
 teaching: "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting."
 ui_reference: skills/ui-system/SKILL.md
 argument-hint: "[live|stop|open|shell]"

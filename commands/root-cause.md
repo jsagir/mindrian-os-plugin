@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "The 5-Whys and fishbone drill down in a fixed order, an ordered walk toward the root."
 serves_jtbd: ["find-problem"]
+job_when: "a symptom keeps coming back after every fix"
+job_want: "to trace it back through repeated why questions and cause diagrams"
+job_so: "treat the cause instead of the recurrence"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the first Why reframes the navigator's own symptom as
 # a sharper question before they invest in the full 5-Whys drill).

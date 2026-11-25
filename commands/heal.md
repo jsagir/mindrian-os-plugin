@@ -11,6 +11,10 @@ hitl_why: "It surfaces one drift repair for a single approve-or-defer decision."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/heal.md:56, a soft-alias stub forwarding verbatim to doctor's own already-ruled diagnostic-surface heal output.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "the folder structure of my room has drifted from its expected shape"
+job_want: "to repair that structural drift through the install diagnosis"
+job_so: "keep filing into a room whose folders still mean what they say"
+job_sentence_status: "provisional"
 deprecated: true
 deprecated_redirect: "doctor --heal-room"
 deprecated_removal: "v1.14.0"

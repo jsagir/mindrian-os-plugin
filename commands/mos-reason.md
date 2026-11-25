@@ -17,6 +17,14 @@ hitl_why: "Within one section the four Feynman stages still proceed in a fixed o
 interactive_first_reward: schema_preview
 usage: /mos:reason [--section <name>] [--regenerate-all]
 serves_jtbd: ["explore"]
+job_when: "a section of my room holds artifacts but no clear argument"
+job_want: "to build a pyramid from one governing thought down to its support"
+job_so: "state what the section means in a form others follow"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

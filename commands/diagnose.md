@@ -12,6 +12,14 @@ hitl_why: "Problem classification is a single decision-close that either confirm
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 6): first delivery at commands/diagnose.md:82, three to five methodology commands ranked by fit, each with its reasoning, the classification itself kept silent.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["decide-pursue"]
+job_when: "I cannot tell how well defined my problem is"
+job_want: "to classify the problem by its type"
+job_so: "pick a method that fits the problem instead of a favorite tool"
+job_sentence_status: "provisional"
+fits_domains: ["disorder"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

@@ -314,7 +314,15 @@ function patchSurface(content, entry) {
       break;
     }
   }
-  if (insertAt === -1) insertAt = clean.length;
+  if (insertAt === -1) {
+    // Phase 400 (plan 400-03, O-11): the job sentence keys of scripts/apply-job-sentences.cjs
+    // sit immediately before the closing --- on a file with no serves_jtbd: line. The layer
+    // block stays at the end of the frontmatter, before that trailing job-key run.
+    // Phase 400 (plan 400-06): the Cynefin label keys of scripts/derive-cynefin-labels.cjs follow
+    // job_sentence_status, so they belong to the same trailing run.
+    insertAt = clean.length;
+    while (insertAt > 0 && /^(job_when|job_want|job_so|job_sentence_status|fits_domains|move_type|move_type_weak|cynefin_label_status):/.test(clean[insertAt - 1])) insertAt--;
+  }
 
   const layerLines = renderLayerLines(entry);
   const finalInner = clean.slice(0, insertAt).concat(layerLines, clean.slice(insertAt));

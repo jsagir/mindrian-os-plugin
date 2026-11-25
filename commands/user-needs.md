@@ -6,7 +6,15 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "User needs are gathered as an any-order set with no ordering constraint between them."
-serves_jtbd: ["find-problem"]
+serves_jtbd: ["find-problem", "decide-pursue"]
+job_when: "users tell me what they want but I doubt it matches what they need"
+job_want: "to map what they need by importance against satisfaction"
+job_so: "find the gap where the opportunity lives"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: the importance-versus-satisfaction plot structure
 # previews before the navigator invests in scoring every need).

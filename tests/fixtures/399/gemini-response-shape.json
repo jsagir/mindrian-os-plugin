@@ -1,0 +1,22 @@
+{
+  "_shape_source": "attribute names used by the google-genai client in the recorded research runs; REST JSON casing ASSUMED",
+  "answers": {
+    "q0001": {
+      "choice": "/mos:validate",
+      "confidence": 0.4528,
+      "probabilities": {
+        "/mos:validate": 0.5622,
+        "/mos:challenge-assumptions": 0.2749,
+        "/mos:scenario-plan": 0.0985,
+        "none_of_these": 0.0644
+      }
+    },
+    "q0002": { "noul": 0.5305 },
+    "q0003": {
+      "score": 0.4124,
+      "confidence": 0.3814,
+      "probabilities": { "0": 0.6417, "1": 0.3041, "2": 0.0542 }
+    }
+  },
+  "usage": { "total_input_tokens": 195 }
+}

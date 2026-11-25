@@ -11,6 +11,14 @@ hitl_why: "Opportunities are surfaced across multiple ADD signals as an independ
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 4, navigator-ruled): first delivery at commands/opportunities.md:75, the scan subcommand's live Grants.gov/Simpler Grants search matched against the room's own domain, geography and stage.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["explore"]
+job_when: "my bank of opportunities has grown and I lose track of my decisions"
+job_want: "to see every banked opportunity with its score and decision state"
+job_so: "work the best ones as a live pipeline"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product."
 allowed-tools:
   - Read

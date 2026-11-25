@@ -11,6 +11,14 @@ hitl_why: "Hat perspectives are consolidated from an independent set gathered in
 interactive_first_reward: methodology_reframe
 body_shape_detail: 6-panel hat grid + synthesis strip
 serves_jtbd: ["prepare-pitch"]
+job_when: "I have run several thinking perspective sessions and a stakeholder review is coming"
+job_want: "to merge what each perspective found into one briefing"
+job_so: "walk into the review with one clear picture"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

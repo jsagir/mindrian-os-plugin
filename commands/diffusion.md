@@ -6,7 +6,15 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.9"
 hitl_why: "Adoption is traced through its ordered diffusion stages, a fixed-order walk."
-serves_jtbd: ["understand-market"]
+serves_jtbd: ["understand-market", "decide-pursue"]
+job_when: "I have a dual use or deep technology innovation and must pick a market"
+job_want: "to estimate who adopts it first and how fast it spreads"
+job_so: "commit to a market and a timing window"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-22 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the innovation package previews the 2x2
 # typology structure (step 6) before the navigator invests in the full

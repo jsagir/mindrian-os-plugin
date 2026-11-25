@@ -23,6 +23,10 @@ connector:
   reason: "Invoked BY commands/file-meeting.md's Step 3a dispatch as one of five parallel extraction workers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured JSON only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
 layer: "loop"
 layer_why: "Extracts atomic claims through ONE perspective lens in a single bounded read-only pass; a worker's own cycle invoked by file-meeting.md's fan-out, not the graph that dispatches it (WD-6)."
+job_when: "a full meeting transcript is in my room"
+job_want: "to extract atomic claims from it through one named perspective"
+job_so: "see what the meeting said from that angle without losing detail"
+job_sentence_status: "provisional"
 ---
 
 # Meeting Perspective Extractor

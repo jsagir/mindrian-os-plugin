@@ -1,0 +1,70 @@
+{
+  "schema": "mos.decision-advisor-table/1",
+  "table_version": "400-fixture",
+  "data_scope": "synthetic fixture for tests/test-400-advisor-domain.cjs",
+  "_note": "Phase 400 plan 09. Synthetic: no research value. The values are chosen by hand to exercise the domain key fallback (A2) and the in-band reorder (A3 to A8). Command names are real registry names, chosen by kind and move_type in data/command-registry.json: methodology probe /mos:beautiful-question, /mos:explore-trends, /mos:find-connections; methodology analyze /mos:bono, /mos:build-thesis, /mos:causal; methodology categorize /mos:jtbd; utility analyze /mos:explain-decision, /mos:opportunities; utility probe /mos:eureka; utility with no move /mos:dashboard. The explore rows cover the 8 keys of the fallback for level ill-defined, domain complex and last command /mos:dashboard.",
+  "key_order": [
+    "job",
+    "definition_level",
+    "cause_effect",
+    "last_command"
+  ],
+  "conditioned_rows": true,
+  "thresholds": {
+    "strong": 0.7,
+    "possible": 0.5
+  },
+  "shortlist_k": 4,
+  "rows": {
+    "explore|ill-defined|complex|/mos:dashboard": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|ill-defined|*|/mos:dashboard": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|ill-defined|complex|*": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|ill-defined|*|*": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|*|complex|/mos:dashboard": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|*|*|/mos:dashboard": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|*|complex|*": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "explore|*|*|*": [
+      { "command": "/mos:bono", "calibrated": 0.9 }
+    ],
+    "validate-idea|*|*|*": [
+      { "command": "/mos:explain-decision", "calibrated": 0.95 },
+      { "command": "/mos:beautiful-question", "calibrated": 0.9 },
+      { "command": "/mos:bono", "calibrated": 0.8 },
+      { "command": "/mos:jtbd", "calibrated": 0.6 }
+    ],
+    "compare-options|*|*|*": [
+      { "command": "/mos:bono", "calibrated": 0.95 },
+      { "command": "/mos:eureka", "calibrated": 0.9 },
+      { "command": "/mos:explore-trends", "calibrated": 0.55 },
+      { "command": "/mos:find-connections", "calibrated": 0.3 }
+    ],
+    "decide-pursue|*|*|*": [
+      { "command": "/mos:bono", "calibrated": 0.9 },
+      { "command": "/mos:build-thesis", "calibrated": 0.9 },
+      { "command": "/mos:beautiful-question", "calibrated": 0.8 }
+    ],
+    "find-problem|*|*|*": [
+      { "command": "/mos:explain-decision", "calibrated": 0.98 },
+      { "command": "/mos:bono", "calibrated": 0.96 },
+      { "command": "/mos:causal", "calibrated": 0.94 },
+      { "command": "/mos:opportunities", "calibrated": 0.92 },
+      { "command": "/mos:find-connections", "calibrated": 0.9 },
+      { "command": "/mos:explore-trends", "calibrated": 0.85 },
+      { "command": "/mos:jtbd", "calibrated": 0.6 }
+    ]
+  }
+}

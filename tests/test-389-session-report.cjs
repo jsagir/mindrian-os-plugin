@@ -53,6 +53,9 @@ function field(fm, key) {
   return m ? m[1] : null;
 }
 function renamed(text) { return text.split(OLD).join(NEW); }
+// Phase 400 (plans 400-02 and 400-03, O-11) adds the 4 job sentence keys as own frontmatter lines.
+// Test 1 and the Test 2 line cite compare the file with those 4 lines dropped.
+function noJob(text) { return text.split('\n').filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l)).join('\n'); }
 
 // ---- the owner tokens ----
 function tokens() {
@@ -75,7 +78,7 @@ for (const f of ['commands/session-report.md', 'skills/session-report/SKILL.md']
   check('Test 1: ' + f + ' exists', exists(f));
 }
 if (exists('commands/session-report.md')) {
-  const t = read('commands/session-report.md');
+  const t = noJob(read('commands/session-report.md'));
   check('Test 1: the command body equals the old HEAD body with the name replaced, byte for byte', body(t) === body(renamed(oldCmd)));
   check('Test 1: the whole command file equals the old HEAD blob with the name replaced (nothing else changed)', t === renamed(oldCmd));
 } else {
@@ -83,7 +86,7 @@ if (exists('commands/session-report.md')) {
   check('Test 1: the whole command file equals the old HEAD blob with the name replaced (nothing else changed)', false, 'missing');
 }
 if (exists('skills/session-report/SKILL.md')) {
-  const t = read('skills/session-report/SKILL.md');
+  const t = noJob(read('skills/session-report/SKILL.md'));
   check('Test 1: the skill body equals the old HEAD body with the name replaced, byte for byte', body(t) === body(renamed(oldSkill)));
   check('Test 1: the whole skill file equals the old HEAD blob with the name replaced', t === renamed(oldSkill));
 } else {
@@ -108,7 +111,7 @@ if (exists('commands/session-report.md')) {
   const oldCite = /first delivery at commands\/mva-report\.md:(\d+)/.exec(ofm);
   check('Test 2: the first-delivery comment cites commands/session-report.md', !!cite);
   if (cite && oldCite) {
-    const lines = t.split('\n');
+    const lines = noJob(t).split('\n');
     const oldLines = oldCmd.split('\n');
     check('Test 2: the cited line is the same line as before (the read-back instruction)',
       cite[1] === oldCite[1] && lines[Number(cite[1]) - 1] === oldLines[Number(oldCite[1]) - 1] && /Read back over THIS conversation/.test(lines[Number(cite[1]) - 1]),

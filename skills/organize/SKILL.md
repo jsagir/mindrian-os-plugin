@@ -12,6 +12,14 @@ hitl_why: "Filing and tidy jobs are surfaced as an independent set with no order
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 5): first delivery at commands/organize.md:58, a soft-alias stub passing through /mos:rooms organize's output verbatim (router sub-case).
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "my rooms have multiplied and their hierarchy is a mess"
+job_want: "to arrange my rooms into a clear parent and child structure"
+job_so: "find and manage each room without searching"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "rooms organize"
 deprecated_removal: "v1.14.0"

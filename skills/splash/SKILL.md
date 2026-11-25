@@ -11,6 +11,10 @@ hitl_why: "The banner splash offers one next move to enter the room."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 19): first delivery at commands/splash.md:39, the hardcoded owned-emotion tagline, static first-touch copy that never varies, not a computed reward.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["explore"]
+job_when: "I am opening a demo or taking screenshots"
+job_want: "to show the banner of the product"
+job_so: "give the session a clear visual opening"
+job_sentence_status: "provisional"
 teaching: "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings."
 allowed-tools: Bash AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---

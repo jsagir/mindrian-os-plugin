@@ -25,6 +25,10 @@ hitl_stages:
     shapes: ["F.7"]
     mode: "gate"
 hitl_why: "Four independent Decision-Gate moments: a contradiction mini-gate (F.0), a deep-research plan approval (F.1), a conversation-artifact filing offer (F.1), and the ranked-reach dial (F.7, implemented via lib/hmi/dial-reach-orchestrator.cjs)."
+job_when: "I explore a venture or a problem in conversation"
+job_want: "to have a partner who asks while my problem is unclear and tells once I earn it"
+job_so: "reach the insight myself"
+job_sentence_status: "provisional"
 ---
 
 # Larry Personality - The Ask-Tell Dial

@@ -10,6 +10,14 @@ hitl_why: "It offers a short numbered set of next moves for the navigator to pic
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 16): first delivery at commands/suggest-next.md:60, the framework chain and step-numbered command sequence derived from the room, with nothing deferred to a later run (rests on rubric rule TB-4).
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["plan-execution", "explore"]
+job_when: "I just finished a step and do not know what to do next"
+job_want: "to get a short list of next moves with reasons from my room"
+job_so: "choose with the reasons in view"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta

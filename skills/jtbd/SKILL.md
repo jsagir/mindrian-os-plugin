@@ -13,6 +13,14 @@ hitl_why: "Setting the active JTBD is a single next-move selection."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: current state + last 5 history (default), 13 entries (list), full history (history), Shape F.1 picker (set with no arg), Shape E confirmation (clear, set <jtbd>)
 serves_jtbd: ["audit-room"]
+job_when: "I am not sure what kind of work my room is set up for now"
+job_want: "to see or set the active job of the room"
+job_so: "get advice that fits the work I am doing"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 kind: methodology
 frameworks: ["Jobs to Be Done (JTBD)"]
 teaching: "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now."

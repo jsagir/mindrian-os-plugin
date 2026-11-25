@@ -9,7 +9,15 @@ hitl_shape: "F.8"
 hitl_why: "Each assumption is stress-tested independently, an any-order basket of challenges."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 3): first delivery at commands/challenge-assumptions.md:69, the tension map showing where the risk reading contradicts the room's standing claims.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["validate-idea", "surface-contradiction"]
+serves_jtbd: ["validate-idea", "surface-contradiction", "decide-pursue", "prepare-pitch"]
+job_when: "an idea feels too clean and nobody has argued against it"
+job_want: "to attack the claims that carry the most weight"
+job_so: "catch the assumptions I stopped questioning before they cost me"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

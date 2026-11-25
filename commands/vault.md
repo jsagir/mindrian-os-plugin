@@ -11,6 +11,10 @@ hitl_shape: "F.0"
 hitl_why: "It surfaces one vault action for a single approve-or-defer decision."
 body_shape_overview: E (Mini Report)
 serves_jtbd: ["prepare-pitch"]
+job_when: "I need my room for offline reading in a notes app"
+job_want: "to export it as a nested vault with its links intact"
+job_so: "browse the room and its graph view without a connection"
+job_sentence_status: "provisional"
 teaching: "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free."
 # Phase 265-21 (docs/reward-before-investment-rule.md, --none scripting override clause):
 # vault is a deliberate lifecycle export/import command the navigator runs on purpose (mirrors

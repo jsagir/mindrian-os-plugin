@@ -11,6 +11,10 @@ hitl_why: "It proposes one new surface for a single approve-or-reject decision."
 interactive_first_reward: schema_preview
 argument-hint: "[kind] [name]"
 serves_jtbd: ["explore"]
+job_when: "I am adding a new command, agent or skill to the plugin"
+job_want: "to generate its file with declared wiring and rebuilt registries"
+job_so: "ship a surface that is wired from birth"
+job_sentence_status: "provisional"
 teaching: "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces."
 allowed-tools:
   - Read

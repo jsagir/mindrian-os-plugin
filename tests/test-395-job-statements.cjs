@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 'use strict';
+// Phase 399 plan 07: this test pins the primary of the 395 selector (fixture primaries root-cause and macro-trends).
+// The decision advisor is one more sort key since 399-07, so the pinned selector runs with the advisor off.
+process.env.MINDRIAN_DECISION_ADVISOR = 'off';
 // Phase 395-10: the job statements of Theo ship as data (owner rulings 21, 22 and 25 to 28). Plain Node script.
 // Exit 0 when all checks pass, 1 when one fails. One line per check: "ok:" or "FAIL:".
 //

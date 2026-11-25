@@ -13,6 +13,10 @@ hitl_why: "Brain-key admin offers one next move to confirm an action."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 1): first delivery at commands/admin.md:132, the "Current State" active-key/pending-request/total-request counts, a status roster of the plugin's own key registry.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "I operate the plugin and need to check or rotate service access keys"
+job_want: "to open a read-only admin panel that confirms before any rotation"
+job_so: "keep the keys current without a mistaken change"
+job_sentence_status: "provisional"
 teaching: "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt."
 ui_reference: skills/ui-system/SKILL.md
 visibility: admin

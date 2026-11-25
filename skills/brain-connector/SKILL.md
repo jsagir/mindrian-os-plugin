@@ -15,6 +15,10 @@ hitl_stages:
     shapes: ["F.1"]
     mode: "gate"
 hitl_why: "A Brain failure or readiness miss is a genuine Decision-Gate fork: the navigator picks the next move (retry, use partial graph material with provenance, or continue without methodology) - never silently degraded."
+job_when: "my question needs method knowledge beyond my room"
+job_want: "to get method context from the graph, or an honest refusal when it is down"
+job_so: "trust that each method claim is grounded and not guessed"
+job_sentence_status: "provisional"
 ---
 
 # Brain Connector -- Enrichment Layer

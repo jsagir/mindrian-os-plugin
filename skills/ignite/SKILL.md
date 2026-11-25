@@ -10,6 +10,14 @@ hitl_shape: "F.1"
 hitl_why: "The front door offers a small set of starting moves for the navigator to pick one."
 argument-hint: "[--express | --from-brief <sha8> | --from-opportunity <ref>]"
 serves_jtbd: ["explore", "build"]
+job_when: "I am starting a new room from nothing"
+job_want: "to choose a starting point, approve a blueprint and win a first result"
+job_so: "begin with a clear job, the right sections and one opportunity worth banking"
+job_sentence_status: "provisional"
+fits_domains: ["disorder"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity."
 interactive_first_reward: instant_brief
 allowed-tools: Read Write Bash Glob AskUserQuestion

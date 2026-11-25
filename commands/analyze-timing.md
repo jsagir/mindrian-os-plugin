@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "S-curve timing resolves to a single next-move read the navigator confirms."
 serves_jtbd: ["understand-market"]
+job_when: "I am about to pick a launch window for a technology"
+job_want: "to place the technology on its maturity curve"
+job_so: "tell whether I am too early, too late or on time"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming the technology surfaces the S-Curve position
 # structure before the navigator invests in the full timing read).

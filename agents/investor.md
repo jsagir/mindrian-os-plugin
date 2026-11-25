@@ -25,6 +25,10 @@ hitl_shape: "F.1"
 hitl_why: "The adversarial reviewer surfaces objections and one next move to address them."
 layer: "loop"
 layer_why: "Surfaces objections in one adversarial pass and closes with an F.1 next move; a single agent's cycle, not multi-step coordination."
+job_when: "my room approaches a pitch or a funding decision"
+job_want: "to hear the objections a skeptical investor would raise"
+job_so: "answer the hard questions before real investors ask them"
+job_sentence_status: "provisional"
 ---
 
 <!-- Phase 95.6 D-10: Brain access declared explicitly via the tools list (mcp__mindrian-brain__* / mcp__neo4j-brain__* / mcp__pinecone-brain__*); no implicit MCP inheritance. -->

@@ -11,6 +11,10 @@ hitl_shape: "F.0"
 hitl_why: "It surfaces one derived Brain packet for a single APPROVE, REJECT, or DEFER."
 argument-hint: "[section] [--all] [--cross-room] [--dry-run] [--review-anchors] [--orphan-census] [--cross-label-dups]"
 serves_jtbd: ["audit-room"]
+job_when: "a section of my room has drifted from the method context derived for it"
+job_want: "to rebuild that section context now"
+job_so: "reach a large filing or a decision with context that matches the room"
+job_sentence_status: "provisional"
 # Phase 245-02: this command becomes spine-invocable below, so the Phase 118-06
 # reward-before-investment rule now applies to it. schema_preview is the value
 # the command already implements: `--dry-run` previews the target sections and

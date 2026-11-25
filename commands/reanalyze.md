@@ -11,6 +11,14 @@ hitl_why: "Meetings are re-mined into an independent set of findings examined in
 interactive_first_reward: methodology_reframe
 body_shape_detail: Before/after delta showing new insights discovered
 serves_jtbd: ["file-meeting"]
+job_when: "a meeting was filed a while ago and my room has grown since then"
+job_want: "to analyze that meeting again against the current room"
+job_so: "see what it means in light of what I know now"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

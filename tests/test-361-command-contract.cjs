@@ -406,7 +406,11 @@ leg('D-11/D-12: registry row key set unchanged, autonomous_safe true, teaching m
   const registry = JSON.parse(registryText);
   const row = (registry.commands || []).find((c) => c && c.command === '/mos:dominant-designs');
   assert.ok(row, 'the /mos:dominant-designs row must exist in data/command-registry.json');
-  const rowKeys = Object.keys(row).sort();
+  // Keys a later phase adds to every registry row; the 361 pin covers the keys Phase 361 saw.
+  // Phase 400-01 (JS-06): job_sentence is additive, null until a command carries job sentence keys.
+  // Phase 400-06 (CY-04): the 4 Cynefin label fields are additive, null on a command without the keys.
+  const LATER_PHASE_KEYS = ['job_sentence', 'fits_domains', 'move_type', 'move_type_weak', 'cynefin_label_status'];
+  const rowKeys = Object.keys(row).filter((k) => !LATER_PHASE_KEYS.includes(k)).sort();
   const fixtureKeys = Object.keys(fixture.dominant_designs_row).sort();
   assert.deepStrictEqual(rowKeys, fixtureKeys, 'the registry row key set must be unchanged');
   assert.strictEqual(row.autonomous_safe, true, 'registry row autonomous_safe must be true');

@@ -19,7 +19,19 @@
       ],
       "teaching": "When you have analyses on the table but no clear next step, /mos:act picks the best-fit methodology for your current room state and runs it. Saves you from analysis paralysis.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
+      "job_sentence": {
+        "when": "I have several analyses in my room but no clear next step",
+        "want": "to run the method that best fits where my room stands now",
+        "so": "move forward instead of circling in more analysis",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:admin",
@@ -38,7 +50,17 @@
       ],
       "teaching": "When you need to inspect or rotate Brain API keys, /mos:admin opens the admin panel. Read-only by default; rotation is gated behind a confirm prompt.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I operate the plugin and need to check or rotate service access keys",
+        "want": "to open a read-only admin panel that confirms before any rotation",
+        "so": "keep the keys current without a mistaken change",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:agentshield",
@@ -57,7 +79,17 @@
       ],
       "teaching": "When you want to know whether the plugin's own MCP tools, hooks, skills, CLAUDE.md, and dependencies carry a known attack pattern, /mos:agentshield scans all five surfaces and reports what is clean and what is flagged. Larry runs the scan and explains any finding in plain English.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I worry that my install carries a known attack pattern",
+        "want": "to scan its tools, hooks, skills and dependencies for that pattern",
+        "so": "fix a real risk before it reaches my work",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:analyze-needs",
@@ -80,7 +112,19 @@
       ],
       "teaching": "When you need to know which customer jobs matter most, /mos:analyze-needs scores them by importance versus satisfaction. Best after you have a customer segment defined.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "I know my customer segment but not which of its needs matter most",
+        "want": "to score each need by importance and by how well it is met today",
+        "so": "aim at the most unmet needs",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:analyze-systems",
@@ -97,11 +141,24 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-bottleneck"
+        "find-bottleneck",
+        "find-problem"
       ],
       "teaching": "When you need to find where leverage lives in a complex system, /mos:analyze-systems decomposes it into layers and surfaces the leverage points. Best when symptoms keep recurring.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "the same symptoms keep coming back in a system with many moving parts",
+        "want": "to break the system into layers and find its leverage points",
+        "so": "act where a small push changes the most",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:analyze-timing",
@@ -123,7 +180,19 @@
       ],
       "teaching": "When you need to know if your technology is too early, too late, or right on time, /mos:analyze-timing places it on the S-Curve. Best before you commit to a launch window.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "I am about to pick a launch window for a technology",
+        "want": "to place the technology on its maturity curve",
+        "so": "tell whether I am too early, too late or on time",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:auto-explore",
@@ -144,7 +213,21 @@
       ],
       "teaching": "The room normally starts this domain decomposition on its own the moment a new artifact lands. /mos:auto-explore is the fallback: use it by hand only when the ambient run could not start on this surface.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "a new artifact landed in my room and the automatic domain breakdown did not start",
+        "want": "to run that domain breakdown by hand",
+        "so": "see the domains the artifact touches before I go further",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:beautiful-question",
@@ -166,7 +249,20 @@
       ],
       "teaching": "When the framing feels stuck, /mos:beautiful-question reshapes the challenge as Why / What-if / How. The right question unlocks more progress than a better answer.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "my framing of the challenge feels stuck",
+        "want": "to recast the challenge as why, what if and how questions",
+        "so": "find a question that opens more progress than a better answer would",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:bono",
@@ -184,11 +280,27 @@
       "layer": "graph",
       "serves_jtbd": [
         "explore",
-        "decide-pursue"
+        "decide-pursue",
+        "surface-contradiction",
+        "validate-idea"
       ],
       "teaching": "When you have a wicked question and need a structured argument rather than one opinion, /mos:bono spawns a governed research swarm across the (subdomain x hat) grid, each persona bound to its hat's scrutiny discipline and its own wired sources, then debates the readings as a sequential inter-hat argument over a graph-proposed what-if hypothesis. The navigator confirms the topic, the hypothesis, and the ruling at three decision gates; the MECE-Minto synthesis files only on APPROVE and closes the loop into the room's logical graph.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I face a wicked question and one opinion is not enough",
+        "want": "to run a structured debate of several perspectives over a testable hypothesis",
+        "so": "rule on an argued synthesis with its evidence in view",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:brain-derive",
@@ -207,7 +319,17 @@
       ],
       "teaching": "When a room section drifts from its BRAIN.md derivation, /mos:brain-derive rebuilds the per-section Brain context now. Run after large filings or before a decision gate.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "a section of my room has drifted from the method context derived for it",
+        "want": "to rebuild that section context now",
+        "so": "reach a large filing or a decision with context that matches the room",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:build-knowledge",
@@ -228,7 +350,19 @@
       ],
       "teaching": "When you have data but not yet wisdom, /mos:build-knowledge climbs Ackoff's DIKW pyramid across the room. Surfaces what you know, what you can decide, and what is still raw.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "my room holds a lot of data but little that I can act on",
+        "want": "to sort it into data, information, knowledge and wisdom",
+        "so": "see what I can decide now and what is still raw",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:build-thesis",
@@ -246,11 +380,24 @@
       "layer": "loop",
       "serves_jtbd": [
         "decide-pursue",
-        "prepare-pitch"
+        "prepare-pitch",
+        "validate-idea"
       ],
       "teaching": "When you need to know if this venture is worth pursuing, /mos:build-thesis runs the Ten-Questions investment thesis gate. The output is a defensible go / no-go with reasons.",
       "jtbd_label": "Decide Pursue",
-      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
+      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing.",
+      "job_sentence": {
+        "when": "I must decide whether this venture deserves my time and money",
+        "want": "to answer the standard questions of an investment thesis about it",
+        "so": "reach a defensible go or no go with reasons",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:causal",
@@ -272,7 +419,19 @@
       ],
       "teaching": "When you suspect the visible problem is downstream of something else, /mos:causal traces causal edges in the room's graph. Surfaces the upstream causes worth fixing.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "I suspect the problem I see is downstream of something else",
+        "want": "to trace the cause and effect links behind it",
+        "so": "fix the upstream cause instead of the visible effect",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:challenge-assumptions",
@@ -293,11 +452,26 @@
       "layer": "graph",
       "serves_jtbd": [
         "validate-idea",
-        "surface-contradiction"
+        "surface-contradiction",
+        "decide-pursue",
+        "prepare-pitch"
       ],
       "teaching": "When an idea feels too clean, /mos:challenge-assumptions runs Devil's Advocate against the load-bearing claims. Catches the assumptions you stopped questioning.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "an idea feels too clean and nobody has argued against it",
+        "want": "to attack the claims that carry the most weight",
+        "so": "catch the assumptions I stopped questioning before they cost me",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:compare-ventures",
@@ -314,11 +488,25 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "compare-options"
+        "compare-options",
+        "decide-pursue"
       ],
       "teaching": "When you are weighing your approach against ventures that tried this before, /mos:compare-ventures lines them up on the dimensions that matter. Saves you from re-learning their lessons.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "job_sentence": {
+        "when": "other ventures have tried an approach close to mine",
+        "want": "to line them up against my approach on the dimensions that matter",
+        "so": "learn from their results without repeating their mistakes",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:correct-reference-now",
@@ -337,7 +525,17 @@
       ],
       "teaching": "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Larry speaks (you raised this 3 days ago) stays honest. The SessionStart hook only seeds a Date.now() floor, and a hook subprocess may not see Claude Code's injected currentDate. This command is how Larry closes that gap.",
       "jtbd_label": "Temporal Correction",
-      "jtbd_summary": null
+      "jtbd_summary": null,
+      "job_sentence": {
+        "when": "the date my room assumes differs from the real calendar date",
+        "want": "to write the true date into the room",
+        "so": "trust every statement about how long ago something happened in my work",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dashboard",
@@ -357,7 +555,17 @@
       ],
       "teaching": "When you need to see the whole room at a glance, /mos:dashboard opens the live or snapshot view in De Stijl layout. The fastest way to read room health before a meeting.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "a meeting is close and I need the whole room at a glance",
+        "want": "to open a live or snapshot view of room health",
+        "so": "speak to where the venture stands without digging through files",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:deck",
@@ -376,7 +584,17 @@
       ],
       "teaching": "When your room is full but the story is not yet a deck, /mos:deck asks ONE thing -- which shape fits, Feynman to make it clear, HEART to make it land, or mesh to do both -- then walks the structure section by section, filling each from your own room and binding the MindrianOS look by default. The 6-stage Feynman engine and the design system already exist; the command reaches for them, it never rebuilds them.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "my room is full but the story is not yet a deck",
+        "want": "to pick the deck shape that fits and fill it from my room",
+        "so": "present a clear story that lands with the audience",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:deep-grade",
@@ -400,7 +618,19 @@
       ],
       "teaching": "When you need a calibrated grade on the room's quality, /mos:deep-grade scores it against 100+ real student projects. Best after at least three sections are populated.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "several sections of my room are filled and I need an honest measure of quality",
+        "want": "to grade the room against a large set of real past projects",
+        "so": "know what to improve first",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:diagnose",
@@ -421,7 +651,19 @@
       ],
       "teaching": "When you cannot tell if this is an Ill-Defined or Well-Defined Problem, /mos:diagnose classifies it against the PWS matrix. Knowing the problem type picks the right methodology.",
       "jtbd_label": "Decide Pursue",
-      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing."
+      "jtbd_summary": "Decide if a venture / opportunity / approach is worth pursuing.",
+      "job_sentence": {
+        "when": "I cannot tell how well defined my problem is",
+        "want": "to classify the problem by its type",
+        "so": "pick a method that fits the problem instead of a favorite tool",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:diagnostics",
@@ -442,7 +684,21 @@
       ],
       "teaching": "When you need a quantitative read on the room, /mos:diagnostics runs the Wave-1 fingerprint: disruption, blindspot, novelty, surprise. Renaming to /mos:fingerprint in v1.14.0 (functional behavior unchanged).",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need a numeric read on my room beyond my own impression",
+        "want": "to measure its disruption, blind spots, novelty and surprise",
+        "so": "spot where the room is thin or unexpected",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:dial-memory-refresh",
@@ -462,7 +718,17 @@
       ],
       "teaching": "When a section's Dial Memory feels stale, /mos:dial-memory-refresh rebuilds the auto-section from the SELECTED_REACH / PIVOTED / DRSCH relationship layer. Human-authored prose stays byte-preserved.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "the record of choices in a section feels stale",
+        "want": "to rebuild its automatic part from my recorded selections and pivots",
+        "so": "see the paths I chose while my own prose stays untouched",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:diffusion",
@@ -479,11 +745,25 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "understand-market"
+        "understand-market",
+        "decide-pursue"
       ],
       "teaching": "When you are working on a dual-use or deep-tech innovation and need to know if it will actually spread - and to whom first - /mos:diffusion runs the Adoption-Capacity Engine over it. Best before you commit to a market or a timing window. It can also plan research on who adopts first, absorptive capacity, the civil and defense crossing, and timing.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "I have a dual use or deep technology innovation and must pick a market",
+        "want": "to estimate who adopts it first and how fast it spreads",
+        "so": "commit to a market and a timing window",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:discover",
@@ -500,11 +780,25 @@
       "body_shape": "B (Semantic Tree)",
       "layer": "loop",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "find-problem"
       ],
       "teaching": "When you have a client or a product and need to understand it before you design or build, /mos:discover runs a guided one-question-at-a-time conversation across six movements and lands a Discovery Brief plus a scaffolded Data Room. It does not design the site; it makes every later decision strategic instead of arbitrary.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I have a new client or product that I do not yet understand",
+        "want": "to work through a guided conversation one question at a time",
+        "so": "base later design decisions on strategy instead of guesswork",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:doctor",
@@ -523,7 +817,17 @@
       ],
       "teaching": "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "something about my install feels off",
+        "want": "to diagnose install drift, room identity gaps and display problems, with an optional repair",
+        "so": "get back to my work on a sound setup",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dogfood-flush",
@@ -542,7 +846,17 @@
       ],
       "teaching": "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "the venture room of the plugin lags behind my latest edits",
+        "want": "to drain the pending update queue and refresh its live status",
+        "so": "see the current state of the plugin venture right away",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:dominant-designs",
@@ -564,7 +878,19 @@
       ],
       "teaching": "When you are wondering if the market has settled on a winning design, /mos:dominant-designs runs Utterback-Abernathy to spot it. Tells you whether to ride the wave or break it. The deep dive can open with a sourced research pass: four evidence lanes, searched only after you approve the queries, every claim with its source.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "I am not sure whether my market has settled on a winning design",
+        "want": "to place the market in its design cycle",
+        "so": "decide whether to ride the winning design or break it",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:eureka-portfolio",
@@ -584,7 +910,17 @@
       ],
       "teaching": "When you want to know which of your linked ideas deserve your attention first, /mos:eureka-portfolio measures each linked pair on this machine, ranks them, and tells you what moved since the last run.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
+      "job_sentence": {
+        "when": "I have many linked ideas and cannot tell which deserve attention first",
+        "want": "to measure and rank each linked pair on my own machine",
+        "so": "focus on the strongest links and see what moved",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:eureka",
@@ -604,7 +940,20 @@
       ],
       "teaching": "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka recalls cross-domain pairs from your room's graph, researches them as a perspective of the research planner, and files the supported ones only on your yes.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
+      "job_sentence": {
+        "when": "my room holds ideas from different fields that might combine",
+        "want": "to research the most promising cross field pairs",
+        "so": "file the pairs that the evidence supports as fundable opportunities",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explain-decision",
@@ -623,7 +972,19 @@
       ],
       "teaching": "When Larry made a recommendation and you want to know why, /mos:explain-decision shows the Navigation Engine trace for the last turn. Every recommendation has a graph path behind it.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I received a recommendation and do not know why it was made",
+        "want": "to see the reasoning path behind the last recommendation",
+        "so": "trust it or challenge it with the facts in view",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-domains",
@@ -646,7 +1007,19 @@
       ],
       "teaching": "When the problem could live in any of several domains, /mos:explore-domains maps the territory through IKA and Feynman decomposition. Surfaces where to look before you commit.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "my problem could belong to any of several domains",
+        "want": "to map the territory and break each domain into its basic parts",
+        "so": "know where to look before I commit to one domain",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-futures",
@@ -668,7 +1041,19 @@
       ],
       "teaching": "When the path forward branches into multiple plausible futures, /mos:explore-futures synthesizes TTA, Scenario, and S-Curve views. Helps you choose without pretending you can predict.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "job_sentence": {
+        "when": "the path ahead branches into several plausible futures",
+        "want": "to combine trend, scenario and maturity views of those futures",
+        "so": "choose a path without pretending I can predict",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-opportunity",
@@ -683,11 +1068,27 @@
       "body_shape": "E (Action Report)",
       "layer": "graph",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "connect-domains",
+        "decide-pursue"
       ],
       "teaching": "A qualified opportunity is still conceptual: a connection without a defined problem. /mos:explore-opportunity runs the analysis chain (deep research, diffusion timing, analogies, web validation) and files a Minto-shaped explored artifact - a governing thought backed by cited sources and typed graph evidence. Opportunities must be researched and explored to become well-defined problems; this is that step, and its cost stays in your hands.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I have a qualified opportunity that is still only a connection without a defined problem",
+        "want": "to research it in depth and gather cited evidence",
+        "so": "turn it into a well defined problem backed by sources",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:explore-trends",
@@ -709,7 +1110,19 @@
       ],
       "teaching": "When today's trends could become tomorrow's problems, /mos:explore-trends pushes them to extremes to surface the second-order effects. The future shows up at the edges first.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "current trends in my field might turn into future problems",
+        "want": "to push those trends to their extremes",
+        "so": "see the second order effects before they arrive",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:export",
@@ -728,7 +1141,17 @@
       ],
       "teaching": "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I need to share a view of my room with someone outside it",
+        "want": "to package the view as a self-contained web page",
+        "so": "let them read it with nothing to install",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:feynman-timeline-refresh",
@@ -748,7 +1171,17 @@
       ],
       "teaching": "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "the timeline of plain explanations in a section feels stale",
+        "want": "to rebuild its automatic part from the memory event log while my own prose stays untouched",
+        "so": "follow how my understanding of the section grew",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:file-meeting",
@@ -767,7 +1200,17 @@
       ],
       "teaching": "When a meeting just happened, /mos:file-meeting captures the transcript and routes the intelligence into the right room sections. Meetings are where institutional knowledge actually lives.",
       "jtbd_label": "File Meeting",
-      "jtbd_summary": "Capture and route meeting intelligence into the room."
+      "jtbd_summary": "Capture and route meeting intelligence into the room.",
+      "job_sentence": {
+        "when": "a meeting just ended and its transcript sits outside my room",
+        "want": "to capture the transcript and send each insight to the right section",
+        "so": "keep the knowledge from that meeting where I can use it",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-analogies",
@@ -789,7 +1232,19 @@
       ],
       "teaching": "When the answer might live in another field, /mos:find-analogies runs SAPPhIRE and TRIZ against your problem to surface cross-domain matches. Most breakthroughs are borrowed structure.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
+      "job_sentence": {
+        "when": "the answer to my problem might already exist in another field",
+        "want": "to match the structure of my problem against solutions from other fields",
+        "so": "borrow a proven structure instead of inventing one",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-bottlenecks",
@@ -810,7 +1265,21 @@
       ],
       "teaching": "When progress feels stuck and you cannot say where, /mos:find-bottlenecks runs Reverse Salient analysis to name the lagging component. Hughes 1983, but for your venture.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "progress feels stuck and I cannot say where",
+        "want": "to name the component that lags behind the rest",
+        "so": "put my effort where it unblocks the whole venture",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:find-connections",
@@ -832,7 +1301,20 @@
       ],
       "teaching": "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
+      "job_sentence": {
+        "when": "I suspect my work touches a pattern in another field",
+        "want": "to trace links between my room and other fields",
+        "so": "find connections I did not know to look for",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:funding",
@@ -852,7 +1334,19 @@
       ],
       "teaching": "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I am chasing several grants and investors at once",
+        "want": "to track each one from first sighting to final decision",
+        "so": "run funding as a steady process instead of a one off effort",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "clear"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:futures",
@@ -874,7 +1368,20 @@
       ],
       "teaching": "When you need to see the invisible cross-domain ripples a linear mind misses, /mos:futures turns a seed concept into a bounded multi-ring consequence wheel, scans for hidden bridges with HSI, and banks the opportunities. Best when 'and then what?' matters more than a tidy diagram.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "I have a seed concept and do not know what follows from it",
+        "want": "to trace its consequences outward and search for hidden bridges",
+        "so": "bank the opportunities that a linear view would miss",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:grade-grant",
@@ -896,7 +1403,20 @@
       ],
       "teaching": "Grant reviewers score against a fixed rubric whether you see it or not. /mos:grade-grant runs that rubric on your draft BEFORE you submit, so the gaps a human reviewer would flag show up here first. Starts with Tnufa (Israel Innovation Authority); the same engine scores any IIA program once its rubric is filled in.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I have a grant draft ready and the deadline is near",
+        "want": "to score the draft against the rubric the reviewers use before I submit",
+        "so": "close the gaps a reviewer would flag",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "clear",
+        "complicated"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:grade",
@@ -919,7 +1439,20 @@
       ],
       "teaching": "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need a quick read on how well my room frames its problem",
+        "want": "to score the room on the core parts of problem discovery",
+        "so": "see the weakest part right away",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:graph",
@@ -939,7 +1472,17 @@
       ],
       "teaching": "When you want to ask the knowledge graph a question without writing Cypher, /mos:graph translates plain English into the right traversal. Larry walks the edges so you do not have to.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I have a question about how the things in my room connect",
+        "want": "to ask the knowledge graph in plain English",
+        "so": "follow the connections without learning a query language",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:hat-briefing",
@@ -960,7 +1503,19 @@
       ],
       "teaching": "When you have run several Six Hats sessions and need them consolidated, /mos:hat-briefing pulls the hat memory into one briefing. Best right before a stakeholder review.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I have run several thinking perspective sessions and a stakeholder review is coming",
+        "want": "to merge what each perspective found into one briefing",
+        "so": "walk into the review with one clear picture",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:heal",
@@ -979,7 +1534,17 @@
       ],
       "teaching": "Deprecated alias. Use /mos:doctor --heal-room to repair structural drift; the canonical heal logic lives in doctor class E. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "the folder structure of my room has drifted from its expected shape",
+        "want": "to repair that structural drift through the install diagnosis",
+        "so": "keep filing into a room whose folders still mean what they say",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:help",
@@ -998,7 +1563,17 @@
       ],
       "teaching": "When the surface feels overwhelming, /mos:help is a selector: 11 command families across 3 cards, each family's commands are the options, and the one you pick runs. Add --list for the full text view, or /mos:help <family-id> for one family's full command list.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "the number of available commands feels overwhelming",
+        "want": "to choose from a short set of command families and run the one I pick",
+        "so": "find the right move without reading the full list",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:hmi-status",
@@ -1017,7 +1592,17 @@
       ],
       "teaching": "Deprecated alias. Use /mos:doctor --ui-compliance --json to audit UI Ruling System compliance; the standalone hmi-status command folds into doctor class F. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I suspect some screens and cards break the shared display rules",
+        "want": "to audit how well each screen complies with those rules",
+        "so": "know which screens to fix first",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:ignite",
@@ -1037,7 +1622,19 @@
       ],
       "teaching": "Larry walks you through three birth gates (starting point, blueprint approve, first win) so every new room begins with a clear JTBD, the right section set, and one bankable opportunity.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I am starting a new room from nothing",
+        "want": "to choose a starting point, approve a blueprint and win a first result",
+        "so": "begin with a clear job, the right sections and one opportunity worth banking",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "disorder"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:ingest-methodology",
@@ -1056,7 +1653,17 @@
       ],
       "teaching": "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress.",
       "jtbd_label": "Build",
-      "jtbd_summary": null
+      "jtbd_summary": null,
+      "job_sentence": {
+        "when": "I maintain the method library and have a new method",
+        "want": "to run the full intake pipeline with its data boundary check",
+        "so": "make the method reachable for every user with no user data egress",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:intel-pipeline",
@@ -1071,11 +1678,28 @@
       "body_shape": "E (Action Report) + F.1 (calibrate + fan-approve gates) + F.5 (synthesize ruling)",
       "layer": "graph",
       "serves_jtbd": [
-        "plan-execution"
+        "plan-execution",
+        "decide-pursue",
+        "prepare-pitch",
+        "understand-market",
+        "validate-idea"
       ],
       "teaching": "When you have a room and a question but no time to run the research by hand, /mos:intel-pipeline reads your active JTBD, breaks it into research dimensions, fans out a small set of evidence passes, scores them, and closes the loop into your graph. You approve three things along the way: the orientation, the fan size, and the final ruling. It never writes to the graph or re-points your JTBD without you.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
+      "job_sentence": {
+        "when": "I have a room and a question but no time to research by hand",
+        "want": "to split my active job into research lines and gather scored evidence",
+        "so": "rule on the findings and file them",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:jtbd",
@@ -1096,7 +1720,17 @@
       ],
       "teaching": "When you need to see or set the active job-to-be-done for this room, /mos:jtbd shows the per-room signal that tells Larry what kind of work you are doing right now.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I am not sure what kind of work my room is set up for now",
+        "want": "to see or set the active job of the room",
+        "so": "get advice that fits the work I am doing",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:leadership",
@@ -1117,7 +1751,20 @@
       ],
       "teaching": "When the team feels wrong-shaped for the stage, /mos:leadership diagnoses which leadership pattern you actually need. Different stages of a venture need different leadership shapes.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "my team feels the wrong shape for the stage of the venture",
+        "want": "to diagnose which leadership pattern this stage needs",
+        "so": "change how the team is led before the mismatch slows us",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:lean-canvas",
@@ -1139,7 +1786,17 @@
       ],
       "teaching": "When you need the whole business model on one page, /mos:lean-canvas fills the nine boxes from your room data. The fastest way to get a defensible canvas in front of someone.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "someone needs to see my whole business model on one page",
+        "want": "to fill a one page canvas from what my room already holds",
+        "so": "put a defensible model in front of them fast",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:macro-trends",
@@ -1161,7 +1818,20 @@
       ],
       "teaching": "When you need to map the forces shaping a domain, /mos:macro-trends runs PEST across Political, Economic, Social, and Technological dimensions. The wide-angle lens before you zoom in.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "I am entering a domain and do not know the forces that shape it",
+        "want": "to scan its political, economic, social and technological forces",
+        "so": "see the wide picture before I narrow my focus",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:map-unknowns",
@@ -1178,11 +1848,25 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "validate-idea"
+        "validate-idea",
+        "decide-pursue"
       ],
       "teaching": "When you cannot tell what you do not know, /mos:map-unknowns plots known, unknown, and unknowable in a Rumsfeld matrix. The unknowable column is usually where the risk lives. It can also turn your blind spots into a research plan you run with /mos:research.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "I cannot tell what I do not know about my idea",
+        "want": "to sort the known, the unknown and the unknowable",
+        "so": "find where the hidden risk lives and plan research on it",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:memory-cortex-reach",
@@ -1201,7 +1885,17 @@
       ],
       "teaching": "When a governing thought you set has gone stale, or a fresh contradiction has just landed against a claim, your memory cortex has something to tell you. /mos:memory-cortex-reach is the navigator-facing surface the orchestrator dispatches to bring that signal to a Decision Gate. It does not re-implement the cortex; it joins the reach spine so the cortex becomes dispatchable.",
       "jtbd_label": "Navigate",
-      "jtbd_summary": null
+      "jtbd_summary": null,
+      "job_sentence": {
+        "when": "a governing thought I set has gone stale or a fresh contradiction hits one of my claims",
+        "want": "to bring that signal to a decision point",
+        "so": "rule on it before it misleads later work",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:memory",
@@ -1220,7 +1914,17 @@
       ],
       "teaching": "When you need to inspect what the room remembers, /mos:memory shows the three layers: within-session, across-session, and cross-room. Memory locality is a Canon Part 9 invariant.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I am unsure what my room remembers from earlier sessions",
+        "want": "to inspect memory within this session, across sessions and across rooms",
+        "so": "rely on what is carried forward and correct what is not",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:models",
@@ -1239,7 +1943,17 @@
       ],
       "teaching": "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "job_sentence": {
+        "when": "different kinds of work in my room may need different models",
+        "want": "to see and switch which model handles which kind of work",
+        "so": "balance quality and cost for each task",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mos-reason",
@@ -1260,7 +1974,19 @@
       ],
       "teaching": "FeyMinto is the per-folder reasoning layer: its three faces are MINTO.md, FEYNMAN.md and BRAIN.md, and its brief is BRIEF.md. When a section needs its MINTO face generated against its artifacts, /mos:mos-reason produces the pyramid: governing thought down to grounded support. Larry's structured thinking surface.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "a section of my room holds artifacts but no clear argument",
+        "want": "to build a pyramid from one governing thought down to its support",
+        "so": "state what the section means in a form others follow",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mos",
@@ -1279,7 +2005,17 @@
       ],
       "teaching": "When you do not know which /mos:* surface to invoke, /mos:mos picks the right one. No room: onboard. Mostly empty room: status with a next-move hint. Populated room: suggest-next.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I do not know which command to start with",
+        "want": "to get the right entry point for the current state of my room",
+        "so": "start the next useful step without studying the menu",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:mullins",
@@ -1297,11 +2033,25 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "understand-market"
+        "understand-market",
+        "decide-pursue",
+        "validate-idea"
       ],
       "teaching": "When you need the most rigorous opportunity screen ever published, /mos:mullins runs the 7-Domains Model from Mullins' New Business Road Test. Best before you commit real resources.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "I am about to commit real resources to an opportunity",
+        "want": "to screen it across its market, its industry and its team",
+        "so": "commit only if it survives a rigorous test",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mva-brief",
@@ -1320,7 +2070,19 @@
       ],
       "teaching": "Deprecated alias. Use /mos:structure-argument and choose the Seed depth to turn a venture sentence into a first argument pyramid. Scheduled removal: v2.0.0-beta.86.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I can describe my venture in one sentence but have no argument behind it",
+        "want": "to turn that sentence into a first argument pyramid",
+        "so": "see the premises my venture rests on",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:mva-report",
@@ -1339,7 +2101,17 @@
       ],
       "teaching": "Deprecated alias. Use /mos:session-report to get a clean structured report of the conversation you just had. Scheduled removal: v2.0.0-beta.86.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "a working conversation just ended and I need a record of it",
+        "want": "to get a clean structured report of what we covered",
+        "so": "pick up the work later without rereading the whole conversation",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:new-project",
@@ -1358,7 +2130,19 @@
       ],
       "teaching": "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I am starting a new venture and have no room for it yet",
+        "want": "to create the room structure and register it",
+        "so": "file work in the right place from the start",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:new-surface",
@@ -1377,7 +2161,17 @@
       ],
       "teaching": "When you are adding a new command, agent, or skill to the harness, /mos:new-surface emits the surface .md with the correct 11-key connector frontmatter so its wiring is declared, never hand-written, then regenerates the connector-registry (its real home) and the harness-manifest wiring digest. Harness-as-code for surfaces.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I am adding a new command, agent or skill to the plugin",
+        "want": "to generate its file with declared wiring and rebuilt registries",
+        "so": "ship a surface that is wired from birth",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:onboard",
@@ -1396,7 +2190,19 @@
       ],
       "teaching": "When you just installed MindrianOS, /mos:onboard walks you through the system and builds your first room. Designed so a stranger can self-activate without Larry holding their hand.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I just installed the system and do not know where to start",
+        "want": "to take a guided tour and build my first room",
+        "so": "start working on my own without outside help",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "clear"
+      ],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:operator",
@@ -1415,7 +2221,17 @@
       ],
       "teaching": "When you want to see or set how Larry should render right now, /mos:operator shows the conversation state machine: JUST_TALK, EXPLORE_CAPTURE, BUILD_ROOM, METHODOLOGY, or DECISION_GATE.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I need to see or set how the conversation behaves right now",
+        "want": "to view and change the current conversation state",
+        "so": "match the conversation to the work in front of me",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:opportunities",
@@ -1434,7 +2250,19 @@
       ],
       "teaching": "When you need to manage grants as a live pipeline rather than a list, /mos:opportunities surfaces the Opportunity Bank with HSI scores and decision states. Funding deserves the same rigor as product.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "my bank of opportunities has grown and I lose track of my decisions",
+        "want": "to see every banked opportunity with its score and decision state",
+        "so": "work the best ones as a live pipeline",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:organize",
@@ -1453,7 +2281,17 @@
       ],
       "teaching": "Deprecated alias. Use /mos:rooms organize to manage the room portfolio hierarchy; organize is folded into the multi-room surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "my rooms have multiplied and their hierarchy is a mess",
+        "want": "to arrange my rooms into a clear parent and child structure",
+        "so": "find and manage each room without searching",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "categorize",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:persona",
@@ -1474,7 +2312,21 @@
       ],
       "teaching": "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "my room needs fresh perspectives I cannot supply alone",
+        "want": "to generate personas from my room data who each argue from a different stance",
+        "so": "decide which of their arguments hold",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:pipeline",
@@ -1493,7 +2345,19 @@
       ],
       "teaching": "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
+      "job_sentence": {
+        "when": "several methods should run as a chain instead of one at a time",
+        "want": "to run them in sequence with each output feeding the next",
+        "so": "get a connected result without handing work between steps",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:present",
@@ -1512,7 +2376,17 @@
       ],
       "teaching": "When you need to walk someone through the room visually, /mos:present generates the 6-view presentation and opens it. Dashboard, Wiki, Deck, Insights, Diagrams, Graph in one artifact.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I need to walk someone through my room visually",
+        "want": "to generate one presentation with dashboard, wiki, deck, insight, diagram and graph views",
+        "so": "guide them through the venture in one sitting",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:publish",
@@ -1531,7 +2405,17 @@
       ],
       "teaching": "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "my room is ready to share in public",
+        "want": "to deploy its presentation to a shareable link",
+        "so": "send people one link instead of a folder of files",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:qualify-opportunity",
@@ -1546,11 +2430,25 @@
       "body_shape": "E (Action Report)",
       "layer": "loop",
       "serves_jtbd": [
-        "explore"
+        "explore",
+        "decide-pursue"
       ],
       "teaching": "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "a candidate opportunity has surfaced and I must decide whether it qualifies",
+        "want": "to see which tests it passed and failed before I accept or skip it",
+        "so": "make the call myself and learn the tests",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:radar",
@@ -1569,7 +2467,19 @@
       ],
       "teaching": "When new Claude capabilities ship that might change what MindrianOS can do, /mos:radar tracks them so you do not have to. Capability awareness as a habit, not a one-time scan.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "new capabilities of the underlying AI model ship faster than I can follow",
+        "want": "to track which ones could change what my tools can do",
+        "so": "adopt the useful ones without scanning by hand",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:reanalyze",
@@ -1588,7 +2498,20 @@
       ],
       "teaching": "When a meeting was filed earlier and the room has since grown, /mos:reanalyze re-runs the cascade pattern detection. New context can change what an old meeting meant.",
       "jtbd_label": "File Meeting",
-      "jtbd_summary": "Capture and route meeting intelligence into the room."
+      "jtbd_summary": "Capture and route meeting intelligence into the room.",
+      "job_sentence": {
+        "when": "a meeting was filed a while ago and my room has grown since then",
+        "want": "to analyze that meeting again against the current room",
+        "so": "see what it means in light of what I know now",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:research",
@@ -1610,7 +2533,20 @@
       ],
       "teaching": "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I need fresh evidence from the web on a question in my room",
+        "want": "to gather sourced findings and match each to a place in my room",
+        "so": "file only the findings I approve",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:room",
@@ -1629,7 +2565,17 @@
       ],
       "teaching": "When you need to view the active Data Room, /mos:room opens it. /mos:room question shows the room's governing question with its origin and history, and asks what the old question got wrong before a changed question is recorded.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need to see the active room and the question it serves",
+        "want": "to open the room with its governing question and the history of it",
+        "so": "check that the question holds before I change it",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:rooms",
@@ -1648,7 +2594,17 @@
       ],
       "teaching": "When you have multiple venture rooms and need to switch, list, or archive them, /mos:rooms manages the registry. One person, many ventures.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I run several ventures, each in its own room",
+        "want": "to list, switch and archive my rooms",
+        "so": "keep each venture apart and move between them cleanly",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:root-cause",
@@ -1671,7 +2627,19 @@
       ],
       "teaching": "When the symptom keeps coming back, /mos:root-cause traces it via 5-Whys, Fishbone, and Fault Tree. Treats the cause, not the recurrence. Each why that rests on an assumption can become a research question with its own falsifier.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "a symptom keeps coming back after every fix",
+        "want": "to trace it back through repeated why questions and cause diagrams",
+        "so": "treat the cause instead of the recurrence",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-experts",
@@ -1693,7 +2661,17 @@
       ],
       "teaching": "When a documented gap may connect to people named in your research papers, /mos:rs-experts searches the selected room's local paper corpus and shows source-linked authors. It does not verify their current expertise or availability.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "a gap in my research may connect to people named in my papers",
+        "want": "to find the authors in my local papers who link to that gap",
+        "so": "contact the right people with a sourced reason",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-explain",
@@ -1714,7 +2692,19 @@
       ],
       "teaching": "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "I have a question about a lagging component that an earlier analysis found",
+        "want": "to ask in plain language and get an answer grounded in my graph",
+        "so": "understand the finding without reading the raw analysis",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-fetch",
@@ -1732,11 +2722,24 @@
       "layer": "graph",
       "serves_jtbd": [
         "find-bottleneck",
-        "surface-contradiction"
+        "surface-contradiction",
+        "connect-domains"
       ],
       "teaching": "When you need the full Reverse Salient pipeline run on a topic, /mos:rs-fetch executes the discovery end-to-end: corpus, math, cross-domain match, thesis. The complete sweep, not a sample.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "a topic needs the full analysis of what lags behind, not a sample",
+        "want": "to run the whole discovery from papers to cross field matches to a thesis",
+        "so": "act on a complete sweep",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:rs-thesis",
@@ -1757,7 +2760,17 @@
       ],
       "teaching": "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "I ran a lagging component discovery earlier and a meeting on it is coming",
+        "want": "to read back its thesis in plain language",
+        "so": "revisit the finding before I discuss it",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scenario-plan",
@@ -1779,7 +2792,19 @@
       ],
       "teaching": "When the future could go two different ways on two key uncertainties, /mos:scenario-plan builds the 2x2 matrix and names each quadrant. Forces you to plan for the world you do not expect.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "job_sentence": {
+        "when": "the future could go different ways on a pair of key uncertainties",
+        "want": "to build a grid of scenarios and name each one",
+        "so": "plan for the world I do not expect",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scheduled-tasks",
@@ -1798,7 +2823,17 @@
       ],
       "teaching": "When you want Cowork to run something on a schedule against this room, /mos:scheduled-tasks defines the recurring job. Best for nightly grant sweeps or weekly meeting digests.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
+      "job_sentence": {
+        "when": "some work on my room should repeat on its own",
+        "want": "to define a recurring job that runs on a schedule against the room",
+        "so": "get regular sweeps and digests without having to remember them",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:scientific-roadmap",
@@ -1822,7 +2857,20 @@
       ],
       "teaching": "When you know what must be delivered but not how, /mos:scientific-roadmap walks Theo's Scientific Roadmapping steps to find the limits that are only assumed, ranks them by what they unlock, and hands the top ones to /mos:research as falsifiable hypotheses.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "I know what I must deliver but not how to get there",
+        "want": "to find the limits that are only assumed and rank them by what they unlock",
+        "so": "turn the top limits into testable hypotheses",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:score-innovation",
@@ -1844,7 +2892,17 @@
       ],
       "teaching": "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel.",
       "jtbd_label": "Compare Options",
-      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C."
+      "jtbd_summary": "Compare alternatives across criteria - choose between A/B/C.",
+      "job_sentence": {
+        "when": "I am choosing between several cross field innovation candidates",
+        "want": "to rank them by how surprising each combination is",
+        "so": "back the one that is truly novel",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:scout",
@@ -1864,7 +2922,19 @@
       ],
       "teaching": "When you want background scans running across the room without driving them yourself, /mos:scout fires the sentinel checks. The proactive layer, not the reactive one.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "background scans of my room should run without my attention",
+        "want": "to start the watch checks across the room",
+        "so": "learn about changes before I go looking for them",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:session-report",
@@ -1883,7 +2953,17 @@
       ],
       "teaching": "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:session-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise).",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I finished a conversation and wonder whether it reached a conclusion",
+        "want": "to get a structured report of which steps and gates fired",
+        "so": "forward a clean account of the session instead of a chat log",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:setup",
@@ -1902,7 +2982,17 @@
       ],
       "teaching": "When you want to wire optional integrations like Velma or a meeting source, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder. Theo, the teaching graph, is part of MindrianOS and needs no setup.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "optional integrations such as a meeting source or a transcription service are not yet connected",
+        "want": "to walk through their configuration step by step",
+        "so": "let the room pull in more of my work",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:show",
@@ -1922,7 +3012,17 @@
       ],
       "teaching": "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "my room is full but I cannot tell which view answers my question",
+        "want": "to name my need in plain words and get the matching view",
+        "so": "see the answer without learning the view names",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:skill",
@@ -1941,7 +3041,17 @@
       ],
       "teaching": "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "a confirmed expert persona lives in my knowledge graph",
+        "want": "to turn that persona into a skill I can talk to in the room",
+        "so": "consult the expert with the confirmed record as its source",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:snapshot",
@@ -1967,7 +3077,17 @@
       ],
       "teaching": "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I need a frozen copy of my room for someone outside the team",
+        "want": "to package everything into a portable read-only bundle",
+        "so": "share the room as it stands without risk of edits",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:speakers",
@@ -1986,7 +3106,17 @@
       ],
       "teaching": "When you have a meeting filed and want to know who said what, /mos:speakers shows the participants with their roles, attendance, and contribution patterns. The people layer of meeting intelligence.",
       "jtbd_label": "File Meeting",
-      "jtbd_summary": "Capture and route meeting intelligence into the room."
+      "jtbd_summary": "Capture and route meeting intelligence into the room.",
+      "job_sentence": {
+        "when": "a meeting is filed and I need to know who said what",
+        "want": "to see the participants with their roles, attendance and contribution patterns",
+        "so": "weigh each voice and follow up with the right person",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:splash",
@@ -2005,7 +3135,17 @@
       ],
       "teaching": "When you want the MindrianOS Mondrian banner, /mos:splash displays it. Mostly decorative; useful for screenshots and demo openings.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "I am opening a demo or taking screenshots",
+        "want": "to show the banner of the product",
+        "so": "give the session a clear visual opening",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:stance",
@@ -2024,7 +3164,19 @@
       ],
       "teaching": "When you want Larry to shift how he talks to you this session -- pull evidence, deliver decisively, stay Socratic, or challenge you -- /mos:stance flips the dial in one confirm. Offered when relevant, never forced.",
       "jtbd_label": "Navigate",
-      "jtbd_summary": null
+      "jtbd_summary": null,
+      "job_sentence": {
+        "when": "the way the conversation talks to me no longer fits this session",
+        "want": "to switch between pulling evidence, deciding fast, asking questions or challenging me",
+        "so": "get the kind of help that fits the moment",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:status",
@@ -2044,7 +3196,17 @@
       ],
       "teaching": "When you need a fast read on the room's current state, /mos:status shows the governing thought per section plus health glyphs. The 10-second status check.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need a fast read on where my room stands",
+        "want": "to see the governing thought of each section with its health marks",
+        "so": "decide where to work next in seconds",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:structure-argument",
@@ -2063,11 +3225,25 @@
       "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
-        "explore"
+        "explore",
+        "prepare-pitch"
       ],
       "teaching": "When an argument is muddled and you cannot say why, /mos:structure-argument restructures it with Minto pyramid, SCQA, and MECE. The right structure usually surfaces the missing premise.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "my argument feels muddled and I cannot say why",
+        "want": "to restructure it into a clear pyramid with no gaps or overlaps",
+        "so": "find the missing premise and make the case hold",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "disorder"
+      ],
+      "move_type": "slice",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:suggest-next",
@@ -2087,7 +3263,21 @@
       ],
       "teaching": "When you finish a step and want Larry to recommend the next move, /mos:suggest-next reads the room graph and proposes 3-5 options with reasons. The Navigation Engine made visible.",
       "jtbd_label": "Plan Execution",
-      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates."
+      "jtbd_summary": "Plan the next 90 days - milestones, owners, dates.",
+      "job_sentence": {
+        "when": "I just finished a step and do not know what to do next",
+        "want": "to get a short list of next moves with reasons from my room",
+        "so": "choose with the reasons in view",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex",
+        "disorder"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:systems-thinking",
@@ -2104,11 +3294,25 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-bottleneck"
+        "find-bottleneck",
+        "find-problem"
       ],
       "teaching": "When the dynamics matter more than the parts, /mos:systems-thinking maps feedback loops, stocks, and flows. Surfaces where the leverage actually lives in the system.",
       "jtbd_label": "Find Bottleneck",
-      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress."
+      "jtbd_summary": "Find the lagging component (Hughes 1983 reverse salient) blocking progress.",
+      "job_sentence": {
+        "when": "the way the parts interact matters more than the parts themselves",
+        "want": "to map the feedback loops, stocks and flows of the system",
+        "so": "see where the system resists change and where it gives way",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:think-hats",
@@ -2130,7 +3334,20 @@
       ],
       "teaching": "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives. Each hat can become a research lane: black for counterevidence, yellow for prior successes, white for missing facts.",
       "jtbd_label": "Explore",
-      "jtbd_summary": "No specific job - general thinking, talking, ranging."
+      "jtbd_summary": "No specific job - general thinking, talking, ranging.",
+      "job_sentence": {
+        "when": "my team keeps looking at a problem from the same angle",
+        "want": "to rotate through distinct thinking perspectives one at a time",
+        "so": "catch the views we keep missing",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": true,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:trending-to-absurd",
@@ -2153,7 +3370,19 @@
       ],
       "teaching": "When a trend feels safe, you have not pushed it far enough. /mos:trending-to-absurd seeds itself from your room's connective taxonomy, then extrapolates each trend to its absurd extreme across the 3-10 / 11-30 / 50yr horizons -- the disruptive opportunity shows up at the edge first.",
       "jtbd_label": "Understand Market",
-      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics."
+      "jtbd_summary": "Understand the market for this idea - size, structure, dynamics.",
+      "job_sentence": {
+        "when": "a trend in my field feels safe and well understood",
+        "want": "to push it to its absurd extreme over a horizon I choose",
+        "so": "spot the disruptive opportunity at the edge",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:update",
@@ -2172,7 +3401,17 @@
       ],
       "teaching": "When you suspect MindrianOS has a newer version waiting, /mos:update checks and installs via Claude Code's native plugin loader. Stale plugins quietly diverge from the docs.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I suspect a newer version of my install is waiting",
+        "want": "to check for it and install it through the native plugin loader",
+        "so": "keep my install in step with the documented behaviour",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:user-needs",
@@ -2189,11 +3428,22 @@
       "body_shape": "methodology",
       "layer": "loop",
       "serves_jtbd": [
-        "find-problem"
+        "find-problem",
+        "decide-pursue"
       ],
       "teaching": "When you need to map what users actually want versus what they say they want, /mos:user-needs plots importance against satisfaction. The gap is where the opportunity lives.",
       "jtbd_label": "Find Problem",
-      "jtbd_summary": "Find the problem worth solving (not the symptom, the root)."
+      "jtbd_summary": "Find the problem worth solving (not the symptom, the root).",
+      "job_sentence": {
+        "when": "users tell me what they want but I doubt it matches what they need",
+        "want": "to map what they need by importance against satisfaction",
+        "so": "find the gap where the opportunity lives",
+        "status": "provisional"
+      },
+      "fits_domains": [],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:validate",
@@ -2212,11 +3462,24 @@
       "body_shape": "C",
       "layer": "loop",
       "serves_jtbd": [
-        "validate-idea"
+        "validate-idea",
+        "decide-pursue"
       ],
       "teaching": "When an idea needs a real test before more investment, /mos:validate runs importance-satisfaction scoring against the customer segment. Validation is a measurement, not a feeling.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "an idea needs a real test before I invest more",
+        "want": "to measure how well it serves the needs of my target customers",
+        "so": "base the next investment on a measurement instead of a feeling",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:validate-proposition",
@@ -2234,11 +3497,25 @@
       "layer": "loop",
       "serves_jtbd": [
         "validate-idea",
-        "prepare-pitch"
+        "prepare-pitch",
+        "decide-pursue"
       ],
       "teaching": "When you have a value proposition but no proof it holds, /mos:validate-proposition scores it against the three PWS VP gates with sequential math. A clean gate failure beats a vague pass.",
       "jtbd_label": "Validate Idea",
-      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny."
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
+      "job_sentence": {
+        "when": "I have a value proposition but no proof that it holds",
+        "want": "to test it in order against the gates a value proposition must pass",
+        "so": "learn which gate it fails before customers show me",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "analyze",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:vault",
@@ -2257,7 +3534,17 @@
       ],
       "teaching": "When you want the Data Room available in Obsidian for offline reading, /mos:vault exports it as a nested vault with wikilinks intact. Graph view comes free.",
       "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting."
+      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "job_sentence": {
+        "when": "I need my room for offline reading in a notes app",
+        "want": "to export it as a nested vault with its links intact",
+        "so": "browse the room and its graph view without a connection",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:visualize",
@@ -2277,7 +3564,17 @@
       ],
       "teaching": "Deprecated alias. Use /mos:dashboard --mermaid to open the De Stijl knowledge-graph viewer with Mermaid output; visualize folds into the dashboard surface. Scheduled removal: v1.14.0.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need a diagram of how the parts of my room connect",
+        "want": "to open the knowledge graph viewer with diagram output",
+        "so": "show the structure of the venture to others at a glance",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     },
     {
       "command": "/mos:whitespace",
@@ -2295,11 +3592,25 @@
       "layer": "loop",
       "serves_jtbd": [
         "connect-domains",
-        "find-problem"
+        "find-problem",
+        "audit-room"
       ],
       "teaching": "When you suspect a gap exists in the room's coverage of a domain, /mos:whitespace runs HSI scoring across the artifact corpus to find under-explored zones. Best after the room has 20+ entries. A gap that spans two sections can become a research plan that checks whether the literature is missing it too.",
       "jtbd_label": "Connect Domains",
-      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?"
+      "jtbd_summary": "Find cross-domain analogues - what does this look like in another field?",
+      "job_sentence": {
+        "when": "I suspect my room misses part of a domain",
+        "want": "to scan my artifacts for zones that are under explored",
+        "so": "fill the gaps before they weaken my case",
+        "status": "provisional"
+      },
+      "fits_domains": [
+        "complicated",
+        "complex"
+      ],
+      "move_type": "probe",
+      "move_type_weak": false,
+      "cynefin_label_status": "provisional"
     },
     {
       "command": "/mos:wiki",
@@ -2319,7 +3630,17 @@
       ],
       "teaching": "When you want to read the Data Room as linked wiki pages, /mos:wiki opens the wiki view. Section by section, with cross-references rendered as hyperlinks.",
       "jtbd_label": "Audit Room",
-      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality."
+      "jtbd_summary": "Audit Data Room health - gaps, drift, evidence tier, decision quality.",
+      "job_sentence": {
+        "when": "I need to read my room as linked pages",
+        "want": "to open the wiki view with cross references rendered as links",
+        "so": "follow an idea across sections the way I would on a reference site",
+        "status": "provisional"
+      },
+      "fits_domains": null,
+      "move_type": null,
+      "move_type_weak": null,
+      "cynefin_label_status": null
     }
   ],
   "framework_index": {

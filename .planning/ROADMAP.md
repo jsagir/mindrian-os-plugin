@@ -4250,3 +4250,107 @@ Plans:
 - [ ] 396-14-PLAN.md - P6 canon Part 8 sentence through the Canon Custodian path (D-06), Appendix D entry, version lockstep, CLAUDE.md; not autonomous (phase wave 5, exec wave 9)
 - [ ] 396-15-PLAN.md - P6 prompt and doc wording sweep (runtime-instructions, larry-extended, voice-dna, references/brain, skills, commands) with a wording test (phase wave 5, exec wave 10)
 - [ ] 396-16-PLAN.md - README refresh, CHANGELOG lines, docs/THEO-ROUTES-SHAPE-HANDOFF.md wave-4 note (D-08, D-09), OPEN-HANDOFFS entry (phase wave 5, exec wave 10)
+
+### Phase 399: Decision-model advisor keyed on the job to be done: one job vocabulary, job labels on every capability, a provider-neutral decision adapter, a precomputed calibrated shortlist feeding the single next-move selector, two-axis problem type, egress-off-by-default
+
+**Goal:** Decision-model advisor keyed on the job to be done: one job vocabulary, job labels on every capability, a provider-neutral decision adapter (Gemini Decision + Jev-compatible), a precomputed calibrated shortlist table feeding the existing single next-move selector (no live model call on the per-turn path), two-axis problem type (additive), decision endpoint in egress policy OFF by default with a code-enforced labels-only validator, logging of shown-option probabilities and overrules, and a routing benchmark.
+**Baseline:** branch work/399-decision-advisor from origin/main 24d5ccb6a. Owner decisions D-01 to D-07, implementation decisions I-01 to I-12, Deferred list and facts F1 to F6: 399-CONTEXT.md. Research trail (private): ~/MindrianOS/research/2026-11-24-decision-advisor-handoff/.
+**canon_parts:** 8, 9, 12
+**Requirements**: DA-01 one job vocabulary (handoff A1, A2); DA-02 taxonomy and registry disagreements per I-02 (A3); DA-03 26 accepted command labels applied, 2 held and 5 doubtful unchanged (B1-B3, D-07); DA-04 skill and command labels in step, 0.70-0.89 band sample list (B4, B6); DA-05 agent and MCP tool labels per I-03 (B5); DA-06 provider-neutral adapter (C1); DA-07 Gemini provider shape (C2, C4); DA-08 Jev-compatible provider shape (C3); DA-09 egress line off by default plus labels-only validator (H1); DA-10 precomputed calibrated table over run-step capabilities (E1, F1, D-05); DA-11 table feeds composeNextMove and composeWorkflow, job-direct reach, no second authority (D1-D3); DA-12 ranked shortlist with band words and no strong pick (D4); DA-13 logging of shown-option probabilities, CLI accepts, features, overrules, ground-truth column (F2, F3); DA-14 two-axis problem type, additive (G1, G2, D-06); DA-15 routing benchmark with top-3 recall, calibration error and option shuffles (I1)
+**Depends on:** Phase 395, Phase 396
+**Plans:** 10/10 plans complete. **Phase 399 closed 2026-11-24:** 399-VERIFICATION.md passed (15/15 DA, ffbda598b); 399-REVIEW.md 8 warnings fixed (b37b0f473..ce38e4e6c). Advisor opt-in (MINDRIAN_DECISION_ADVISOR=on, 587e2d646); Gemini path confirmed (ea8d1a7a5). Owner-open: 399-LABEL-REVIEW.md, book inventory as the D-05 source, release-ceremony table check, README refresh, Gemini terms and user access, push review.
+
+Plans:
+
+- [x] 399-01-PLAN.md - one job vocabulary (data/job-vocabulary.json, 20 ids) and the additive two-axis problem type (lib/core/problem-axes.cjs) (wave 1)
+- [x] 399-02-PLAN.md - apply the 26 accepted command job labels, keep held and doubtful labels, record the ruling as data, regenerate registry and mirrors (wave 2)
+- [x] 399-03-PLAN.md - agent and MCP tool labels under one written rule, labels-only recorded fixture, owner review file 399-LABEL-REVIEW.md (wave 3)
+- [x] 399-04-PLAN.md - provider-neutral adapter, labels-only validator, Gemini and Jev provider shapes, no-network fence (wave 4)
+- [x] 399-05-PLAN.md - decision_advisor egress line off by default, dev-time transport with a capture-server proof (wave 5)
+- [x] 399-06-PLAN.md - run-step capability snapshot, offline isotonic-calibrated v0 table, per-turn shortlist lookup (wave 6)
+- [x] 399-07-PLAN.md - the advisor as one key and one source inside composeNextMove, suggest_next carries the banded shortlist (wave 7)
+- [x] 399-08-PLAN.md - composeWorkflow ranks a framework's commands by the advisor, framework_run and /mos:act wiring, one-selector fence (wave 8)
+- [x] 399-09-PLAN.md - ground-truth column, selection_observations log on CLI closeOffer and MCP gate_answer, overrules (wave 9)
+- [x] 399-10-PLAN.md - routing benchmark (top-3 recall, ECE, Brier, option shuffles) and the phase gates (wave 10)
+
+### Phase 400: Job sentences with three stored slots on every capability, a Cynefin cause-and-effect layer with move types beside the job, reworded Well-defined test and a wicked cut-off, label review carry-over, chaining deferred
+
+**Goal:** Every capability carries one job sentence stored as three slots (When, I want, so I can) in its own frontmatter keys; the room gets a navigator-set Cynefin cause-and-effect domain on its own axis beside wickedness, which the existing advisor uses only inside the strong band (unknown domain = exact 399 output, chaotic = honest no strong pick, disorder = label plus slicing note); the reworded Well-defined test ships behind a flag and the wicked answer gets its own fitted cut-off; a host-neutral labels-only Gemini relay (services/decision-relay/, Render blueprint, install-id caps, operator token) is built and tested offline with the decision_advisor line still off for users; the owner gets one review file for every provisional label. Chaining, per-part domains, default-on advisor or egress, PwS-Book or Theo edits, deploy and push are out of scope.
+**Baseline:** branch work/400-job-sentences-cynefin-layer at c1e496ae8 (stacked on unpushed Phase 399). Owner rulings O-01 to O-12, findings F-01 to F-09, scope S1 to S5 and the Deferred list: 400-CONTEXT.md. Research: 400-RESEARCH.md. Validation: 400-VALIDATION.md.
+**canon_parts:** 7, 8, 9, 12
+**Requirements**: JS-01 vocabulary sentences (20, provisional, summary unchanged); JS-02 run-step command sentences in frontmatter, registry and mirrors (73, O-11, O-12); JS-03 other commands, standalone skills and agents (40 + 12 + 17); JS-04 MCP tool sentences in a data file (63); JS-05 framework sentences reused (184 parse); JS-06 slot validator, writer and drift test, descriptions never grow; CY-01 cause_effect axis, additive, cynefin_rating deprecated alias; CY-02 data/cynefin-domains.json with book drift test; CY-03 two-stage navigator gate card, room-level store through navigation, aliases.yml, suggest_next field; CY-04 fits_domains and move_type frontmatter labels on the 73 run-step commands; CY-05 advisor domain key, in-band reorder, chaotic and disorder handling, consumers; CY-06 labels-only catalog gains domain and move type; CY-07 selection log domain column; AX-01 reworded Well-defined test behind a flag; AX-02 wicked cut-off, never raw 0.5; RL-01 relay pipeline with the shared validator; RL-02 install-id callers, caps, operator token, counts-only logs; RL-03 catalog skew detected and refused; RL-04 relay server, health, render.yaml, README, not shipped; RL-05 plugin relay client behind the off line, O-10 operator release run with audit; LR-01 owner review file with drift test; PG-01 run-all-400 aggregator and phase gates
+**Depends on:** Phase 399
+**Plans:** 15/15 plans complete
+
+Plans:
+
+- [x] 400-01-PLAN.md - job-sentence module, description budget guard, 20 vocabulary sentences, the frontmatter writer, registry job_sentence, tests/run-all-400.sh (wave 1)
+- [x] 400-02-PLAN.md - sentences for the 73 run-step commands in frontmatter, registry and mirrors (wave 2)
+- [x] 400-03-PLAN.md - sentences for the other 40 commands, the 12 standalone skills and the 17 agents (wave 3)
+- [x] 400-04-PLAN.md - sentences for the 63 MCP tools and the drift test over every surface (wave 4)
+- [x] 400-05-PLAN.md - cause_effect axis in problem-axes.cjs and data/cynefin-domains.json with the book drift test (wave 5)
+- [x] 400-06-PLAN.md - fits_domains and move_type frontmatter labels for the 73 run-step commands from the recorded runs (wave 6)
+- [x] 400-07-PLAN.md - labels-only validator gains domain and move type, catalog fingerprint (wave 7)
+- [x] 400-08-PLAN.md - two-stage cause_effect_domain gate card, room-level store through navigation, suggest_next field (wave 8)
+- [x] 400-09-PLAN.md - advisor domain key, in-band reorder, chaotic and disorder handling in shortlist and present (wave 9)
+- [x] 400-10-PLAN.md - next-move and composeWorkflow pass the domain; selection log domain column (wave 10)
+- [x] 400-11-PLAN.md - reworded Well-defined test behind a flag and the fitted wicked cut-off (wave 11)
+- [x] 400-12-PLAN.md - relay pipeline, O-09 callers and caps, offline tests (wave 12)
+- [x] 400-13-PLAN.md - relay server, health endpoint, render.yaml blueprint, operator README, packaging test (wave 13)
+- [x] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
+- [x] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
+
+### Phase 400.1: Efficiency research: verify the 2026-11-24 efficiency findings and close the open checks before phases 401-404 are planned (preloaded skills, deferral on Desktop and Cowork, stdout handling, card-fire false blocks, omitClaudeMd on plugin agents, unscoped tool names, Theo step coverage and payload size, recipe pilot design) (INSERTED)
+
+**Goal:** [Urgent work - to be planned]
+**Requirements**: TBD
+**Depends on:** Phase 400
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.1 to break down)
+
+### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 401 to break down)
+
+### Phase 402: Efficiency B: lighter runtime (hot-18 alwaysLoad with deferral checked on Desktop and Cowork, Eureka tools on enable, preloaded-skill trim, hook process consolidation, card-fire stale-gate fix, opt-in process skills)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 402 to break down)
+
+### Phase 403: Efficiency C: isolated lens agents (omitClaudeMd read-only reviewers, lens-worker evaluator fetcher with modes, generic review loop with synthesizer and convergence rules)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 403 to break down)
+
+### Phase 404: Efficiency D: methodology commands as thin Theo recipes (shim step tool, recipe script, labelled local fallback, draft steps shown, pilots challenge-assumptions and root-cause, scenario evals, rollout)
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 404 to break down)

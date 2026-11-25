@@ -10,6 +10,14 @@ hitl_why: "The six HSI components are graded independently, an unordered basket 
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/score-innovation.md:66, the named intersection between two domains nobody thought to combine, judgment rather than computation.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["compare-options", "validate-idea"]
+job_when: "I am choosing between several cross field innovation candidates"
+job_want: "to rank them by how surprising each combination is"
+job_so: "back the one that is truly novel"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you are choosing between cross-domain innovation candidates, /mos:score-innovation runs HSI scoring to rank them by semantic surprise. The math reveals which idea is actually novel."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

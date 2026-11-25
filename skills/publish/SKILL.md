@@ -13,6 +13,10 @@ hitl_why: "It surfaces one publish action for a single approve-or-defer decision
 interactive_first_reward: live_deliverable
 argument-hint: "[--all|<view>]"
 serves_jtbd: ["prepare-pitch"]
+job_when: "my room is ready to share in public"
+job_want: "to deploy its presentation to a shareable link"
+job_so: "send people one link instead of a folder of files"
+job_sentence_status: "provisional"
 teaching: "When the Data Room is ready to share publicly, /mos:publish deploys the presentation to Vercel with a one-click link. From local artifact to shareable URL in one move."
 disable-model-invocation: true
 allowed-tools: Read Write Bash Glob AskUserQuestion

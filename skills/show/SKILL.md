@@ -11,6 +11,10 @@ hitl_why: "A show or splash view offers one next move on what to open next."
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 15): first delivery at commands/show.md:50, a pure router that builds no view of its own and inherits its target's reward (the documented router sub-case).
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["prepare-pitch", "explore"]
+job_when: "my room is full but I cannot tell which view answers my question"
+job_want: "to name my need in plain words and get the matching view"
+job_so: "see the answer without learning the view names"
+job_sentence_status: "provisional"
 teaching: "When the room is full but you don't know which view answers your question, /mos:show asks your JOB in plain language -- know where I stand, find what's broken, make it land, get it into the world -- and runs the right view underneath. You name the need; the command stays hidden."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: mechanical

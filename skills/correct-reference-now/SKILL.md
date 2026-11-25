@@ -12,6 +12,10 @@ hitl_why: "It surfaces one reference correction for a single approve-or-reject d
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[YYYY-MM-DD]"
 serves_jtbd: ["temporal-correction"]
+job_when: "the date my room assumes differs from the real calendar date"
+job_want: "to write the true date into the room"
+job_so: "trust every statement about how long ago something happened in my work"
+job_sentence_status: "provisional"
 teaching: "When you see today's real date diverge from what the room thinks now is, /mos:correct-reference-now writes the true calendar date into the reference seam so every delta Larry speaks (you raised this 3 days ago) stays honest. The SessionStart hook only seeds a Date.now() floor, and a hook subprocess may not see Claude Code's injected currentDate. This command is how Larry closes that gap."
 allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---

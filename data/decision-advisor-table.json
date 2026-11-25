@@ -1,0 +1,741 @@
+{
+  "schema": "mos.decision-advisor-table/1",
+  "table_version": "399-v0",
+  "data_scope": "v0 job-only data",
+  "_note": "Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.",
+  "provider": "gemini",
+  "model": "gemini-decision-1",
+  "question_template": "serves_job_v1",
+  "key_order": [
+    "job",
+    "definition_level",
+    "last_command"
+  ],
+  "conditioned_rows": false,
+  "row_depth": 12,
+  "built_from": {
+    "recorded_sha256": "b05c5ac8603b02b73311b84a8cb5268b659949d3066488fecd44e0d903d8772f",
+    "registry_labels_sha256": "ac348594020a79c582293c008bbbddb005a83219a4c74e2bb06bce74d07fa214",
+    "scope_sha256": "58716020f371395d58c59dab4f63bb1338a16110f69b9efeecc69d45c6810397",
+    "recorded_at": "2026-11-24"
+  },
+  "calibration": {
+    "method": "isotonic-pav",
+    "label_source": "The registry serves_jtbd of each command at build time. It includes the 26 labels accepted under D-07 from the same model run, so it is not an independent measure.",
+    "breakpoints": [
+      [
+        0.01,
+        0
+      ],
+      [
+        0.054,
+        0.023
+      ],
+      [
+        0.16,
+        0.027
+      ],
+      [
+        0.175,
+        0.07
+      ],
+      [
+        0.345,
+        0.098
+      ],
+      [
+        0.418,
+        0.119
+      ],
+      [
+        0.661,
+        0.154
+      ],
+      [
+        0.679,
+        0.167
+      ],
+      [
+        0.688,
+        0.256
+      ],
+      [
+        0.771,
+        0.303
+      ],
+      [
+        0.88,
+        0.389
+      ],
+      [
+        0.9,
+        0.9
+      ],
+      [
+        0.917,
+        0.929
+      ],
+      [
+        0.936,
+        1
+      ]
+    ]
+  },
+  "thresholds": {
+    "strong": 0.7,
+    "possible": 0.5
+  },
+  "shortlist_k": 3,
+  "rows": {
+    "audit-room|*|*": [
+      {
+        "command": "/mos:whitespace",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:deep-grade",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:build-knowledge",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:reanalyze",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:scout",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:grade",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.167
+      },
+      {
+        "command": "/mos:act",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:causal",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:diagnostics",
+        "calibrated": 0.119
+      }
+    ],
+    "compare-options|*|*": [
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:compare-ventures",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:explore-futures",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:score-innovation",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:act",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:explain-decision",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:opportunities",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:diffusion",
+        "calibrated": 0.098
+      }
+    ],
+    "connect-domains|*|*": [
+      {
+        "command": "/mos:find-analogies",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:find-connections",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:eureka",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:explore-domains",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:futures",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:beautiful-question",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:explain-decision",
+        "calibrated": 0.119
+      }
+    ],
+    "decide-pursue|*|*": [
+      {
+        "command": "/mos:build-thesis",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:compare-ventures",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:mullins",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:qualify-opportunity",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:validate",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:challenge-assumptions",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:diffusion",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:map-unknowns",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:validate-proposition",
+        "calibrated": 0.929
+      }
+    ],
+    "explore|*|*": [
+      {
+        "command": "/mos:beautiful-question",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:explore-trends",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:find-connections",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:futures",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:trending-to-absurd",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:build-knowledge",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:eureka",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:explore-domains",
+        "calibrated": 0.256
+      }
+    ],
+    "file-meeting|*|*": [
+      {
+        "command": "/mos:file-meeting",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:mva-report",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.154
+      },
+      {
+        "command": "/mos:reanalyze",
+        "calibrated": 0.154
+      },
+      {
+        "command": "/mos:build-knowledge",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:eureka",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:hat-briefing",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:research",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:jtbd",
+        "calibrated": 0.098
+      }
+    ],
+    "find-bottleneck|*|*": [
+      {
+        "command": "/mos:find-bottlenecks",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:causal",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:analyze-systems",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:systems-thinking",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:grade-grant",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:root-cause",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:rs-explain",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:act",
+        "calibrated": 0.167
+      }
+    ],
+    "find-problem|*|*": [
+      {
+        "command": "/mos:causal",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:beautiful-question",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:analyze-systems",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:discover",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:systems-thinking",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:root-cause",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:user-needs",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:analyze-needs",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:diagnose",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:explore-domains",
+        "calibrated": 0.303
+      }
+    ],
+    "plan-execution|*|*": [
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:act",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:challenge-assumptions",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:explore-futures",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:ignite",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:map-unknowns",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:scientific-roadmap",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:suggest-next",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:build-knowledge",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:scenario-plan",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:systems-thinking",
+        "calibrated": 0.098
+      }
+    ],
+    "prepare-pitch|*|*": [
+      {
+        "command": "/mos:challenge-assumptions",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:structure-argument",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:lean-canvas",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:hat-briefing",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:macro-trends",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:rs-thesis",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:stance",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.303
+      }
+    ],
+    "surface-contradiction|*|*": [
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:challenge-assumptions",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:reanalyze",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:structure-argument",
+        "calibrated": 0.256
+      },
+      {
+        "command": "/mos:act",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:analyze-systems",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:beautiful-question",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:build-knowledge",
+        "calibrated": 0.119
+      },
+      {
+        "command": "/mos:causal",
+        "calibrated": 0.119
+      }
+    ],
+    "understand-market|*|*": [
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:research",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:dominant-designs",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:diffusion",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:macro-trends",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:mullins",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:pipeline",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:systems-thinking",
+        "calibrated": 0.303
+      },
+      {
+        "command": "/mos:bono",
+        "calibrated": 0.256
+      }
+    ],
+    "validate-idea|*|*": [
+      {
+        "command": "/mos:bono",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:build-thesis",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:challenge-assumptions",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:mullins",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:validate",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:validate-proposition",
+        "calibrated": 1
+      },
+      {
+        "command": "/mos:map-unknowns",
+        "calibrated": 0.929
+      },
+      {
+        "command": "/mos:diffusion",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "calibrated": 0.389
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.389
+      }
+    ]
+  }
+}
