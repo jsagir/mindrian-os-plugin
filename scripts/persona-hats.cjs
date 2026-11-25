@@ -2799,6 +2799,8 @@ const APPROVED_KEYS = Object.freeze(['schema', 'run_id', 'plan_seq', 'hats']);
 const APPROVED_HAT_KEYS = Object.freeze(['decision', 'q_hashes', 'providers']);
 const APPROVED_DECISIONS = Object.freeze(['approve', 'refuse', 'defer']);
 const MAX_PROVIDER_NAMES = 10;
+// The one section that a door finding informs (DESIGN 4.4). The id is 'section:personas'; no code mints that node.
+const PERSONA_TARGET_SECTION = 'personas';
 const PACK_ITEM_MAX = 10;
 const PACK_TITLE_MAX = 300;
 const PACK_URL_MAX = 500;
@@ -3018,7 +3020,11 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps) {
       },
       wireAcceptFn: (dbArg, p) => {
         let res = null;
-        try { res = wireFn(dbArg, p); } catch (e) { res = null; }
+        // DESIGN 4.4: a finding informs the section of the personas, never a section named after the search string.
+        // The research leg of Bono files each finding under its string; the wrapper fixes the target before the write.
+        const decision = Object.assign({}, isPlain(p && p.decision) ? p.decision : {}, { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' });
+        const params = Object.assign({}, p, { decision });
+        try { res = wireFn(dbArg, params); } catch (e) { res = null; }
         const f = isPlain(p && p.finding) ? p.finding : {};
         record.wire_attempts.push({
           finding: { title: f.title, url: f.url, source: f.source, evidence_tier: f.evidence_tier, summary: f.summary, retrieved_at: f.retrieved_at },
