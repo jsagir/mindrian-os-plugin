@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-05: the door of the persona cycle (scripts/persona-hats.cjs): status, start,
-// write-persona, accept-persona. Legs D1 to D4, D9 to D14 (task 1); D5 to D8, D15, D16 (task 2).
+// write-persona, accept-persona (plan 07 adds plan-research and check: legs D17 to D19). Legs D1 to D4, D9 to D14 (task 1); D5 to D8, D15, D16 (task 2).
 // Every leg passes homeDir, tmpDir, now and randomHex as options: no test writes under the
 // real home and no test uses the clock.
 const fs = require('node:fs');
@@ -514,10 +514,94 @@ check('D16. accept_persona is done only when every hat is resolved', () => {
   assert.deepEqual(out.pending, []);
 });
 
+// ---------------------------------------------------------------------------
+// Plan 07 legs: plan-research (the no-plan branch) and check order
+// ---------------------------------------------------------------------------
+
+// Start a deep run, build and accept all six personas (or refuse the hats named in refuse).
+function runToAccepted(room, env, refuse) {
+  const res = startDeep(room, env);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  for (const h of HATS) writeSpec(res, h, validSpec(h));
+  const w = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(w.ok, true, JSON.stringify(w));
+  const answer = {};
+  for (const h of HATS) answer[h] = { decision: (refuse || []).includes(h) ? 'refuse' : 'accept' };
+  const a = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, answer) }, opts(env));
+  assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.accept_done, true);
+  return res;
+}
+
+// D17
+check('D17. NEGATIVE: plan-research before accept_persona and check before run_research are out of order', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  let out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.deepEqual(out, { ok: false, reason: 'step_out_of_order:accept_persona' });
+  out = door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.deepEqual(out, { ok: false, reason: 'step_out_of_order:run_research' });
+  const before = readLedgerOf(res);
+  assert.equal(before.steps.plan_research, undefined);
+  assert.equal(before.steps.check, undefined);
+  // Unknown run and unknown room.
+  assert.equal(door.cmdPlanResearch({ roomDir: room, runId: '20990101-000000-ffff' }, opts(env)).reason, 'run_not_found');
+  assert.equal(door.cmdCheck({ roomDir: path.join(room, 'nope'), runId: res.run_id }, opts(env)).reason, 'room_not_found');
+});
+
+// D18
+check('D18. with six accepted personas and no handle: not planned, steps closed, zero-item packs written', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = runToAccepted(room, env);
+  const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  for (const h of ['white', 'black', 'yellow', 'green']) assert.equal(out.hats[h], 'not_planned:no_valid_handle', h);
+  for (const h of ['red', 'blue']) assert.equal(out.hats[h], 'never_searches', h);
+  const ledger = readLedgerOf(res);
+  assert.equal(ledger.steps.plan_research.state, 'done');
+  assert.equal(ledger.steps.run_research.state, 'skipped');
+  assert.ok(ledger.steps.run_research.seq > ledger.steps.plan_research.seq);
+  for (const h of HATS) assert.equal(ledger.hats[h].research, out.hats[h]);
+  for (const h of ['white', 'red', 'black', 'yellow', 'green']) {
+    const shared = JSON.parse(fs.readFileSync(path.join(res.hats[h].dir, 'shared-white.json'), 'utf8'));
+    assert.deepEqual(Object.keys(shared), ['schema', 'run_id', 'hat', 'research_state', 'strings', 'items']);
+    assert.equal(shared.schema, 'mos.persona-evidence/1');
+    assert.equal(shared.hat, 'white');
+    assert.equal(shared.research_state, 'not_planned:no_valid_handle');
+    assert.deepEqual(shared.items, []);
+  }
+  for (const h of ['white', 'black', 'yellow', 'green']) {
+    const pack = JSON.parse(fs.readFileSync(path.join(res.hats[h].dir, 'evidence.json'), 'utf8'));
+    assert.equal(pack.hat, h);
+    assert.equal(pack.research_state, 'not_planned:no_valid_handle');
+    assert.deepEqual(pack.items, []);
+  }
+  for (const h of ['red']) assert.equal(fs.existsSync(path.join(res.hats[h].dir, 'evidence.json')), false);
+  // Blue's directory holds no pack of any kind and no spec file of the door.
+  assert.deepEqual(fs.readdirSync(res.hats.blue.dir).filter(n => n.endsWith('.json') && n !== 'persona.json'), []);
+  // A second call after run_research is closed does not overwrite.
+  assert.equal(door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env)).reason, 'step_already_done:run_research');
+});
+
+// D19
+check('D19. a refused persona of a researching hat is not_planned:persona_not_accepted', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = runToAccepted(room, env, ['black', 'blue']);
+  const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(out.hats.black, 'not_planned:persona_not_accepted');
+  assert.equal(out.hats.white, 'not_planned:no_valid_handle');
+  assert.equal(out.hats.blue, 'never_searches');
+  assert.equal(readLedgerOf(res).steps.plan_research.state, 'done');
+});
+
 // D0
 check('D0. SUBCOMMANDS is frozen and lists the door subcommands of this plan', () => {
   assert.ok(Object.isFrozen(door.SUBCOMMANDS));
-  for (const s of ['status', 'start', 'write-persona', 'accept-persona']) assert.ok(door.SUBCOMMANDS.includes(s), s);
+  for (const s of ['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check']) assert.ok(door.SUBCOMMANDS.includes(s), s);
   const src = fs.readFileSync(DOOR_PATH, 'utf8');
   assert.equal(/^(const|let|var)\b.*require\(['"]\.\.\/lib\/core\/bono/m.test(src), false);
 });

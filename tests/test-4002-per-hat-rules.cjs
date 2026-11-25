@@ -237,7 +237,249 @@ check('P10. self_found_sources (FS-4): valid for four hats, schema faults refuse
   assert.equal(bad([found()], ['retainer pricing']).ok, true);
 });
 
-// TASK2-LEGS-HERE
+
+// ---------------------------------------------------------------------------
+// Task 2 legs: the check step and the Blue ledger
+// ---------------------------------------------------------------------------
+// ---- shared fixture of plan 07: a deep run up to the closed research step ----
+const READ_HATS = ['white', 'red', 'black', 'yellow', 'green'];
+
+function mkTmp(label) {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-4002-' + label + '-'));
+  tmpRoots.push(d);
+  return d;
+}
+
+function put(room, rel, text) {
+  const abs = path.join(room, rel);
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(abs, text, 'utf8');
+}
+
+function makeRoom() {
+  const room = mkTmp('room');
+  put(room, 'STATE.md', '---\nventure: Harbor Light Studio\nstage: seed\n---\n\n# Harbor Light Studio\n\nA test venture.\n');
+  put(room, 'problem-definition/core-problem.md', '# Core problem\nSmall studios lose clients at the hand-off.\n');
+  put(room, 'market-analysis/size.md', '# Size\nAbout 4000 studios in the region.\n');
+  return room;
+}
+
+function counterHex() {
+  let n = 0;
+  return (len) => {
+    n += 1;
+    return crypto.createHash('sha256').update('seam-' + n).digest('hex').slice(0, len);
+  };
+}
+
+function makeEnv() {
+  const e = { homeDir: mkTmp('home'), tmpDir: mkTmp('tmp') };
+  e.opts = () => ({ homeDir: e.homeDir, tmpDir: e.tmpDir, now: NOW, randomHex: counterHex() });
+  return e;
+}
+
+function validSpec(hat) {
+  return { schema: 'mos.persona-spec/1', hat, focus: 'Look at the ' + hat + ' side.', hat_questions: ['What does the room show?', 'What is missing?', 'What would change the view?'], must_not_judge: ['The price level.'], room_sources: ['problem-definition/core-problem.md'] };
+}
+
+// Start deep, build the six personas (hats named in noSpec get no spec file), answer the card
+// (hats named in refuse are refused), and close plan_research with the no-plan branch.
+function runToResearchClosed(over) {
+  const o = over || {};
+  const room = makeRoom();
+  const env = makeEnv();
+  const bp = path.join(mkTmp('brief'), 'brief.json');
+  fs.writeFileSync(bp, JSON.stringify({
+    schema: 'mos.persona-brief/1', target: 'room',
+    governing_question: 'Should the studio move to a fixed monthly retainer model for new clients?',
+    sub_questions: ['Who pays first?', 'What breaks at the hand-off?'],
+    reading_list: ['problem-definition/core-problem.md', 'market-analysis/size.md'],
+    mode: 'deep', triage: { recommended: 'deep', reason: 'A pricing change.' },
+  }), 'utf8');
+  const res = door.cmdStart({ roomDir: room, briefPath: bp, mode: 'deep' }, env.opts());
+  assert.equal(res.ok, true, JSON.stringify(res));
+  for (const h of HATS) {
+    if ((o.noSpec || []).includes(h)) continue;
+    fs.writeFileSync(path.join(res.hats[h].dir, 'persona.json'), JSON.stringify(validSpec(h)), 'utf8');
+  }
+  assert.equal(door.cmdWritePersona({ roomDir: room, runId: res.run_id }, env.opts()).ok, true);
+  const answer = {};
+  for (const h of HATS) {
+    if ((o.noSpec || []).includes(h)) continue;
+    answer[h] = { decision: (o.refuse || []).includes(h) ? 'refuse' : 'accept' };
+  }
+  const ap = path.join(mkTmp('answer'), 'answer.json');
+  fs.writeFileSync(ap, JSON.stringify({ schema: 'mos.persona-accept/1', run_id: res.run_id, hats: answer }), 'utf8');
+  const a = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: ap }, env.opts());
+  assert.equal(a.ok && a.accept_done, true, JSON.stringify(a));
+  const p = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, env.opts());
+  assert.equal(p.ok, true, JSON.stringify(p));
+  const ledger = () => JSON.parse(fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8'));
+  const ids = ledger().sub_questions.map(s => s.id);
+  return { room, env, res, ids, ledger };
+}
+
+function runReading(hat, run, over) {
+  const base = { schema: 'mos.persona-reading/1', run_id: run.res.run_id, hat };
+  const value = hat === 'green' ? 'alternative_offered' : 'favours';
+  base.positions = run.ids.map(id => ({ sub_question: id, value, line: 'A short line.' }));
+  if (hat === 'white') Object.assign(base, { evidence: [], missing_data: ['The price of rival plans.'] });
+  if (hat === 'black') Object.assign(base, { evidence: [], steelman: 'The best case.' });
+  if (hat === 'yellow') Object.assign(base, { evidence: [], none_found: false });
+  if (hat === 'green') Object.assign(base, { provocations: ['What if the client owns the hand-off?'], evidence: [] });
+  return Object.assign(base, over || {});
+}
+
+function writeRun(run, hat, obj) {
+  fs.writeFileSync(path.join(run.res.hats[hat].dir, 'reading.json'), typeof obj === 'string' ? obj : JSON.stringify(obj), 'utf8');
+}
+
+function doCheck(run) {
+  return door.cmdCheck({ roomDir: run.room, runId: run.res.run_id }, run.env.opts());
+}
+
+function sha256File(p) {
+  return crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+}
+
+// P11
+check('P11. check records the SHA-256, rule lines, self-search strings and the count of self-found sources', () => {
+  const run = runToResearchClosed();
+  const found = (url) => ({ url, title: 'A page', search_string: 'retainer pricing', summary: 'A summary.' });
+  writeRun(run, 'white', runReading('white', run));
+  writeRun(run, 'red', runReading('red', run));
+  writeRun(run, 'black', runReading('black', run, {
+    evidence: [{ source: 'https://example.org/a', tier: 'self_found', disposition: 'disconfirming' }],
+    self_search_strings: ['retainer pricing'],
+    self_found_sources: [found('https://example.org/a'), found('https://example.org/b')],
+  }));
+  writeRun(run, 'yellow', runReading('yellow', run, { none_found: true, self_search_strings: ['retainer success cases'] }));
+  writeRun(run, 'green', runReading('green', run));
+  const out = doCheck(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const ledger = run.ledger();
+  const file = (h) => path.join(run.res.hats[h].dir, 'reading.json');
+  for (const h of READ_HATS) {
+    assert.equal(ledger.hats[h].reading, 'ran', h);
+    assert.equal(ledger.hats[h].reading_sha256, sha256File(file(h)), h);
+  }
+  assert.deepEqual(ledger.hats.black.rule_lines, []);
+  assert.deepEqual(ledger.hats.black.self_search_strings, ['retainer pricing']);
+  assert.equal(ledger.hats.black.self_found_sources, 2);
+  assert.equal(ledger.hats.black.evidence_items, 1);
+  assert.equal(ledger.hats.black.positions_taken, 2);
+  // White has no evidence in this run: a rule line, not a rejection.
+  assert.deepEqual(ledger.hats.white.rule_lines, ['white_no_evidence']);
+  assert.equal(ledger.hats.white.self_found_sources, 0);
+  // Yellow: none_found on a self-reported search (the door research was not planned).
+  assert.deepEqual(ledger.hats.yellow.rule_lines, []);
+  assert.equal(ledger.hats.yellow.none_found_basis, 'self_reported_search');
+  assert.equal(out.hats.yellow.none_found_basis, 'self_reported_search');
+  assert.deepEqual(ledger.hats.red.self_search_strings, []);
+  // The ledger holds no numeric field across hats and no winner.
+  assert.equal(JSON.stringify(ledger).includes('"score"'), false);
+});
+
+// P12
+check('P12. the Blue ledger holds integers and state names only', () => {
+  const run = runToResearchClosed();
+  const urlA = 'https://example.org/secret-title-path';
+  writeRun(run, 'white', runReading('white', run));
+  writeRun(run, 'red', runReading('red', run));
+  writeRun(run, 'black', runReading('black', run, {
+    evidence: [{ source: urlA, tier: 'self_found', disposition: 'disconfirming', note: 'A private note.' }],
+    self_search_strings: ['a search string that must not travel'],
+    self_found_sources: [{ url: urlA, title: 'A secret title', search_string: 'a search string that must not travel', summary: 'A secret summary.' }],
+  }));
+  writeRun(run, 'yellow', runReading('yellow', run));
+  writeRun(run, 'green', runReading('green', run));
+  const out = doCheck(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(out.blue_ledger, path.join(run.res.hats.blue.dir, 'ledger.json'));
+  const text = fs.readFileSync(out.blue_ledger, 'utf8');
+  const blue = JSON.parse(text);
+  assert.equal(blue.schema, 'mos.persona-blue-ledger/1');
+  assert.equal(blue.run_id, run.res.run_id);
+  assert.deepEqual(Object.keys(blue), ['schema', 'run_id', 'hats', 'sub_questions', 'strings_approved', 'strings_refused']);
+  assert.equal(blue.sub_questions, 2);
+  assert.deepEqual(Object.keys(blue.hats), HATS);
+  const BANNED = ['title', 'url', 'line', 'handle', 'text', 'summary'];
+  (function walk(v, key) {
+    if (BANNED.includes(key)) assert.fail('banned key ' + key);
+    if (typeof v === 'string') {
+      assert.ok(v.length <= 60, 'long string at ' + key + ': ' + v.length);
+      assert.equal(v.includes('http'), false, 'http at ' + key);
+    } else if (typeof v === 'number') {
+      assert.ok(Number.isInteger(v) && v >= 0, 'not a count at ' + key);
+    } else if (v && typeof v === 'object') {
+      for (const k of Object.keys(v)) walk(v[k], k);
+    } else {
+      assert.fail('unexpected value at ' + key);
+    }
+  })(blue, 'root');
+  for (const t of ['secret', 'must not travel', 'private note']) assert.equal(text.includes(t), false, t);
+  const bh = blue.hats.black;
+  assert.deepEqual(Object.keys(bh), ['persona', 'research', 'reading', 'evidence_items', 'positions_taken', 'rule_lines', 'self_found_sources', 'self_search_strings']);
+  assert.equal(bh.evidence_items, 1);
+  assert.equal(bh.self_found_sources, 1);
+  assert.equal(bh.self_search_strings, 1);
+  assert.equal(bh.research, 'not_planned:no_valid_handle');
+  assert.equal(blue.hats.red.research, 'never_searches');
+  assert.equal(blue.hats.blue.reading, 'pending');
+  assert.equal(blue.hats.blue.rule_lines, 0);
+});
+
+// P13
+check('P13. check reads no file of the Blue directory and writes nothing into another hat directory', () => {
+  const run = runToResearchClosed();
+  for (const h of READ_HATS) writeRun(run, h, runReading(h, run));
+  const blueDir = run.res.hats.blue.dir;
+  fs.writeFileSync(path.join(blueDir, 'reading.json'), 'must not be read', 'utf8');
+  const listing = () => {
+    const o = {};
+    for (const h of HATS) o[h] = fs.readdirSync(run.res.hats[h].dir).sort().join(',');
+    return o;
+  };
+  const before = listing();
+  const touched = [];
+  const names = ['readFileSync', 'readdirSync', 'statSync', 'lstatSync', 'openSync', 'existsSync', 'accessSync', 'realpathSync'];
+  const originals = {};
+  for (const n of names) {
+    originals[n] = fs[n];
+    fs[n] = function spy(p) {
+      if (typeof p === 'string' && (p === blueDir || p.startsWith(blueDir + path.sep))) touched.push(n + ' ' + p);
+      return originals[n].apply(this, arguments);
+    };
+  }
+  let out;
+  try {
+    out = doCheck(run);
+  } finally {
+    for (const n of names) fs[n] = originals[n];
+  }
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.deepEqual(touched, [], touched.join('; '));
+  const after = listing();
+  for (const h of HATS) {
+    if (h === 'blue') assert.equal(after.blue, before.blue.split(',').concat(['ledger.json']).sort().join(','));
+    else assert.equal(after[h], before[h], h + ' directory changed');
+  }
+  assert.equal(fs.readFileSync(path.join(blueDir, 'reading.json'), 'utf8'), 'must not be read');
+});
+
+// P14
+check('P14. a White reading with zero evidence and research not planned has white_no_evidence and is not rejected (FS-11)', () => {
+  const run = runToResearchClosed();
+  for (const h of READ_HATS) writeRun(run, h, runReading(h, run));
+  const out = doCheck(run);
+  assert.equal(out.ok, true);
+  assert.equal(out.hats.white.reading, 'ran');
+  assert.deepEqual(out.hats.white.rule_lines, ['white_no_evidence']);
+  assert.deepEqual(out.not_run, []);
+  // Black and Yellow and Green carry their own lines, none of them a rejection.
+  assert.deepEqual(out.hats.black.rule_lines, ['black_no_disconfirming_evidence']);
+  assert.deepEqual(out.hats.yellow.rule_lines, ['yellow_value_not_evidence_backed']);
+});
 
 for (const d of tmpRoots) {
   try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }

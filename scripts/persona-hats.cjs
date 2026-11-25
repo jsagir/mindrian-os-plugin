@@ -22,6 +22,8 @@
  *   start --room <dir> --brief <file> [--mode deep|quick]
  *   write-persona --room <dir> --run <id>
  *   accept-persona --room <dir> --run <id> --answer <file>
+ *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
+ *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
  *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).
@@ -40,7 +42,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -1105,6 +1107,207 @@ function citationCheck(hat, reading, ctx) {
 }
 
 // ---------------------------------------------------------------------------
+// plan-research (the no-plan branch) and check
+// ---------------------------------------------------------------------------
+
+const PERSONA_USABLE = ['fresh', 'built_accepted'];
+const EVIDENCE_SCHEMA = 'mos.persona-evidence/1';
+
+/** The directory of a hat from the private run map, only when it is inside the scratch root. */
+function hatDirOf(map, hat) {
+  const dir = map && map.hats ? map.hats[hat] : null;
+  if (typeof dir !== 'string' || typeof map.scratch_root !== 'string') return null;
+  const rel = path.relative(map.scratch_root, dir);
+  if (rel === '' || rel.startsWith('..') || path.isAbsolute(rel)) return null;
+  return dir;
+}
+
+/**
+ * Step plan_research. This plan holds the no-plan branch only: no handle step exists before plan 11, so
+ * every researching hat is not planned, plan_research is done and run_research is skipped. Zero-item
+ * packs (S-5) are written into the hat directories so a reading still finds its two files.
+ */
+function cmdPlanResearch(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  const order = requireStep(ledger, 'accept_persona');
+  if (order) return { ok: false, reason: order };
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  if (ledger.steps.run_research) return { ok: false, reason: 'step_already_done:run_research' };
+  const map = readRunMap(homeDirOf(deps), ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  for (const hat of HATS) {
+    if (!hatDirOf(map, hat)) return { ok: false, reason: 'run_map_missing' };
+  }
+
+  const states = {};
+  for (const hat of HATS) {
+    if (!RESEARCH_HATS.includes(hat)) states[hat] = 'never_searches';
+    else if (!PERSONA_USABLE.includes(ledger.hats[hat].persona)) states[hat] = 'not_planned:persona_not_accepted';
+    else states[hat] = 'not_planned:no_valid_handle';
+  }
+  const pack = (hat, state) => ({ schema: EVIDENCE_SCHEMA, run_id: ledger.run_id, hat, research_state: state, strings: [], items: [] });
+  try {
+    for (const hat of READ_HATS) {
+      atomicWriteJson(path.join(hatDirOf(map, hat), 'shared-white.json'), pack('white', states.white));
+    }
+    for (const hat of RESEARCH_HATS) {
+      atomicWriteJson(path.join(hatDirOf(map, hat), 'evidence.json'), pack(hat, states[hat]));
+    }
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  const now = nowOf(deps);
+  for (const hat of HATS) ledger.hats[hat].research = states[hat];
+  ledger.research = { strings_approved: 0, strings_refused: 0 };
+  markStep(ledger, 'plan_research', 'done', now);
+  markStep(ledger, 'run_research', 'skipped', now);
+  writeLedger(lr.dir, ledger);
+  return { ok: true, run_id: ledger.run_id, hats: states, planned: [] };
+}
+
+/** Read the ids and URLs of an evidence pack. A missing or invalid pack gives empty sets. */
+function packSets(file) {
+  const r = readJsonFile(file, { noSymlink: true });
+  const ids = [];
+  const urls = [];
+  if (r.ok && isPlain(r.value) && Array.isArray(r.value.items)) {
+    for (const it of r.value.items) {
+      if (!isPlain(it)) continue;
+      if (typeof it.id === 'string') ids.push(it.id);
+      if (typeof it.url === 'string') urls.push(it.url);
+    }
+  }
+  return { ids, urls };
+}
+
+/**
+ * Step check. For each of white, red, black, yellow and green it decides one state, in this order:
+ * persona refused or build failed, no reading file, schema, citation, then rule lines. It writes the
+ * counts-only ledger of Blue (S-9). It reads no file of the Blue directory and writes only ledger.json
+ * there.
+ */
+function cmdCheck(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  const order = requireStep(ledger, 'run_research');
+  if (order) return { ok: false, reason: order };
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  const map = readRunMap(homeDirOf(deps), ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  const blueDir = hatDirOf(map, 'blue');
+  if (!blueDir) return { ok: false, reason: 'run_map_missing' };
+
+  const subQuestionIds = ledger.sub_questions.map(s => s.id);
+  const now = nowOf(deps);
+  const notRun = [];
+  const perHat = {};
+  const personaNotRun = (persona) => {
+    if (persona === 'refused') return 'not_run:persona_refused';
+    if (persona === 'build_failed') return 'not_run:persona_build_failed';
+    if (!PERSONA_USABLE.includes(persona)) return 'not_run:persona_not_accepted';
+    return null;
+  };
+
+  for (const hat of READ_HATS) {
+    const entry = ledger.hats[hat];
+    const rec = { reading: null, reading_sha256: null, rule_lines: [], evidence_items: 0, positions_taken: 0, self_search_strings: [], self_found_sources: 0 };
+    delete entry.none_found_basis;
+    const early = personaNotRun(entry.persona);
+    const dir = hatDirOf(map, hat);
+    if (early) {
+      rec.reading = early;
+    } else if (!dir) {
+      rec.reading = 'not_run:no_reading_file';
+    } else {
+      const read = readJsonFile(path.join(dir, 'reading.json'), { noSymlink: true });
+      if (!read.ok && read.reason === 'file_unreadable') {
+        rec.reading = 'not_run:no_reading_file';
+      } else if (!read.ok) {
+        rec.reading = 'rejected:' + read.reason;
+      } else {
+        rec.reading_sha256 = read.sha256;
+        const reading = read.value;
+        const schema = validateReading(hat, reading, { runId: ledger.run_id, subQuestionIds });
+        if (!schema.ok) {
+          rec.reading = schema.state;
+        } else {
+          const own = RESEARCH_HATS.includes(hat) ? packSets(path.join(dir, 'evidence.json')) : { ids: [], urls: [] };
+          const white = packSets(path.join(dir, 'shared-white.json'));
+          const cite = citationCheck(hat, reading, { ownIds: own.ids, whiteIds: white.ids, ownUrls: own.urls, whiteUrls: white.urls });
+          if (!cite.ok) {
+            rec.reading = cite.state;
+          } else {
+            const rules = perHatRules(hat, reading, { researchState: entry.research });
+            rec.reading = 'ran';
+            rec.rule_lines = rules.lines;
+            if (rules.none_found_basis) entry.none_found_basis = rules.none_found_basis;
+            rec.evidence_items = Array.isArray(reading.evidence) ? reading.evidence.length : 0;
+            rec.positions_taken = reading.positions.filter(p => p.value !== 'no_position').length;
+            rec.self_search_strings = Array.isArray(reading.self_search_strings) ? reading.self_search_strings.slice() : [];
+            rec.self_found_sources = Array.isArray(reading.self_found_sources) ? reading.self_found_sources.length : 0;
+          }
+        }
+      }
+    }
+    if (rec.reading !== 'ran') notRun.push({ hat, reason: rec.reading.replace(/^(not_run|rejected):/, '') + '', state: rec.reading });
+    entry.reading = rec.reading;
+    if (rec.reading_sha256) entry.reading_sha256 = rec.reading_sha256; else delete entry.reading_sha256;
+    entry.rule_lines = rec.rule_lines;
+    entry.evidence_items = rec.evidence_items;
+    entry.positions_taken = rec.positions_taken;
+    entry.self_search_strings = rec.self_search_strings;
+    entry.self_found_sources = rec.self_found_sources;
+    perHat[hat] = rec;
+  }
+
+  // Blue is not checked here: it reads the ledger below and runs after this step.
+  const blueEntry = ledger.hats.blue;
+  const blueEarly = personaNotRun(blueEntry.persona);
+  blueEntry.reading = blueEarly || 'pending';
+  const research = isPlain(ledger.research) ? ledger.research : {};
+  const intOf = (v) => (Number.isInteger(v) && v >= 0 ? v : 0);
+
+  const ledgerBlue = { schema: 'mos.persona-blue-ledger/1', run_id: ledger.run_id, hats: {}, sub_questions: subQuestionIds.length, strings_approved: intOf(research.strings_approved), strings_refused: intOf(research.strings_refused) };
+  for (const hat of HATS) {
+    const e = ledger.hats[hat];
+    const isBlue = hat === 'blue';
+    ledgerBlue.hats[hat] = {
+      persona: String(e.persona).slice(0, 60),
+      research: String(e.research || 'never_searches').slice(0, 60),
+      reading: String(e.reading).slice(0, 60),
+      evidence_items: isBlue ? 0 : perHat[hat].evidence_items,
+      positions_taken: isBlue ? 0 : perHat[hat].positions_taken,
+      rule_lines: isBlue ? 0 : perHat[hat].rule_lines.length,
+      self_found_sources: isBlue ? 0 : perHat[hat].self_found_sources,
+      self_search_strings: isBlue ? 0 : perHat[hat].self_search_strings.length,
+    };
+  }
+  const bluePath = path.join(blueDir, 'ledger.json');
+  try {
+    atomicWriteJson(bluePath, ledgerBlue);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  if (!ledger.steps.check) markStep(ledger, 'check', 'done', now);
+  writeLedger(lr.dir, ledger);
+  const states = {};
+  for (const hat of READ_HATS) {
+    states[hat] = { reading: perHat[hat].reading, rule_lines: perHat[hat].rule_lines, evidence_items: perHat[hat].evidence_items, self_found_sources: perHat[hat].self_found_sources };
+    if (ledger.hats[hat].none_found_basis) states[hat].none_found_basis = ledger.hats[hat].none_found_basis;
+  }
+  return { ok: true, run_id: ledger.run_id, hats: states, not_run: notRun, blue_ledger: bluePath };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -1137,6 +1340,14 @@ function main(argv, deps) {
       missing = need(['room', 'run', 'answer']);
       if (!missing.length) result = cmdAcceptPersona({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
       break;
+    case 'plan-research':
+      missing = need(['room', 'run']);
+      if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run }, deps);
+      break;
+    case 'check':
+      missing = need(['room', 'run']);
+      if (!missing.length) result = cmdCheck({ roomDir: flags.room, runId: flags.run }, deps);
+      break;
     default:
       missing = ['subcommand'];
       break;
@@ -1167,6 +1378,8 @@ module.exports = {
   cmdStart,
   cmdWritePersona,
   cmdAcceptPersona,
+  cmdPlanResearch,
+  cmdCheck,
   validateReading,
   perHatRules,
   citationCheck,
