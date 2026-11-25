@@ -19,6 +19,11 @@ function check(label, fn) {
 
 const FIXED_URL = 'https://example.org/shared-page';
 
+// Plan 19: arXiv is a second keyless provider. These legs count the findings of one provider, so arXiv answers empty.
+function oneProviderSeam(count) {
+  return fx.makeSeam((a) => (a.source === 'arxiv' ? fx.emptyEnv('arxiv') : null), count);
+}
+
 function nodeRows(room, sql, ...params) {
   const db = navigation.openRoomDbForCaller(room);
   try {
@@ -33,7 +38,7 @@ check('W1. a real room.db: 3 findings for one approved string give 3 proposed Ev
     const ctx = fx.planned();
     const base = fx.dbCounts(ctx.room);
     assert.deepEqual({ claims: base.claims, informs: base.informs }, { claims: 0, informs: 0 });
-    const seam = fx.makeSeam(null, 3);
+    const seam = oneProviderSeam(3);
     const first = ctx.plan.hats.white.strings[0];
     const out = await fx.go(ctx, fx.approvedFile(ctx, { white: fx.approveHat(ctx.plan, 'white', [first.q_hash]) }), seam);
     assert.equal(out.ok, true, JSON.stringify(out));
@@ -57,7 +62,7 @@ check('W2. the same string in a new run of the same room adds zero EvidenceClaim
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();
     const first = ctx.plan.hats.white.strings[0];
-    const out1 = await fx.go(ctx, fx.approvedFile(ctx, { white: fx.approveHat(ctx.plan, 'white', [first.q_hash]) }), fx.makeSeam(null, 3));
+    const out1 = await fx.go(ctx, fx.approvedFile(ctx, { white: fx.approveHat(ctx.plan, 'white', [first.q_hash]) }), oneProviderSeam(3));
     assert.equal(out1.ok, true, JSON.stringify(out1));
     const ids1 = fx.packOf(ctx, 'white').items.map(i => i.id).sort();
     const c1 = fx.dbCounts(ctx.room);
@@ -68,7 +73,7 @@ check('W2. the same string in a new run of the same room adds zero EvidenceClaim
     assert.notEqual(ctx2.res.run_id, ctx.res.run_id);
     const second = ctx2.plan.hats.white.strings[0];
     assert.equal(second.q_hash, first.q_hash, 'the same string');
-    const out2 = await fx.go(ctx2, fx.approvedFile(ctx2, { white: fx.approveHat(ctx2.plan, 'white', [second.q_hash]) }), fx.makeSeam(null, 3));
+    const out2 = await fx.go(ctx2, fx.approvedFile(ctx2, { white: fx.approveHat(ctx2.plan, 'white', [second.q_hash]) }), oneProviderSeam(3));
     assert.equal(out2.ok, true, JSON.stringify(out2));
     const c2 = fx.dbCounts(ctx.room);
     assert.equal(c2.claims, c1.claims, 'zero new EvidenceClaim nodes');

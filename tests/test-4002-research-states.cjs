@@ -242,7 +242,10 @@ check('S1. NEGATIVE: an error from every provider is a failed string and a faile
 });
 
 check('S2. a provider that answered with zero items gives ran_empty; only then may a hat say it found nothing', async () => {
-  await withEnvAsync(NO_KEYS, async () => {
+  // Plan 19: with no Tavily key a web lens is a host-web search that the command runs; a run with no host results file
+  // reports it as not run, so a hat is ran_empty only when every provider answered. The full key set makes every lens a
+  // door provider (the host-web legs are in tests/test-4002-sources.cjs, W6).
+  await withEnvAsync(FULL_KEYS, async () => {
     const ctx = planned();
     const seam = makeSeam((a) => emptyEnv(a.source));
     const out = await go(ctx, approvedFile(ctx, approveAll(ctx.plan)), seam);
@@ -287,6 +290,8 @@ check('S3. NEGATIVE: an empty frozen lens set gives failed:empty_lens_set and no
     const planPath = path.join(mapOf(ctx).scratch_root, 'plan.json');
     const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
     plan.hats.white.lens_set = [];
+    plan.hats.white.host_lenses = [];
+    plan.hats.white.host_searches = [];
     plan.hats.white.providers = [];
     fs.writeFileSync(planPath, JSON.stringify(plan, null, 2) + '\n', 'utf8');
     const ledgerPath = path.join(ctx.res.review_dir, 'run.json');
@@ -365,7 +370,8 @@ check('S5. one provider with results and one with an error is ran_with_results, 
     assert.equal(out.hats.white, 'ran_with_results');
     const pack = packOf(ctx, 'white');
     assert.ok(pack.items.length >= 1);
-    for (const it of pack.items) assert.equal(it.provider, 'openalex');
+    // Plan 19: arXiv is a second keyless provider of the hat.
+    for (const it of pack.items) assert.ok(['openalex', 'arxiv'].includes(it.provider), it.provider);
     for (const s of pack.strings) {
       assert.equal(s.state, 'ran_with_results');
       assert.equal(s.partial, true);
@@ -433,7 +439,7 @@ check('S7. each wired finding is an item with title, URL, tier, provider and sum
         assert.ok(it.id.startsWith('EvidenceClaim:persona-' + hat + '-'), it.id);
         assert.match(it.id, /^EvidenceClaim:persona-[a-z]+-[0-9a-f]{12}:/);
         assert.equal(it.tier, 'Academic');
-        assert.equal(it.provider, 'openalex');
+        assert.ok(['openalex', 'arxiv'].includes(it.provider), it.provider);
         assert.match(it.url, /^https:\/\/example\.org\//);
         assert.ok(it.summary.length <= 600);
         assert.ok(ctx.plan.hats[hat].strings.some(s => s.q_hash === it.q_hash));
@@ -467,7 +473,8 @@ check('S8. White is fetched first; the other hats follow only after every White 
     const firstOther = idx.indexOf(false);
     assert.ok(lastWhite >= 1);
     assert.ok(firstOther > lastWhite, JSON.stringify(idx));
-    assert.equal(seam.calls.length, 8);
+    // Two keyless door providers (openalex, arxiv) are asked each of the 8 approved strings.
+    assert.equal(seam.calls.length, 16);
   });
 });
 
@@ -512,12 +519,12 @@ check('S10. a declined White leaves a copy with the state and zero items in five
       assert.deepEqual(copy.items, []);
     }
     for (const hat of ['black', 'yellow', 'green']) assert.equal(out.hats[hat], 'ran_with_results', hat);
-    assert.equal(seam.calls.length, 6);
+    assert.equal(seam.calls.length, 12);
   });
 });
 
 check('S11. the ledger holds the research state of the six hats, run_research is done and check is accepted', async () => {
-  await withEnvAsync(NO_KEYS, async () => {
+  await withEnvAsync(FULL_KEYS, async () => {
     const ctx = planned();
     const seam = makeSeam((a) => (a.query.endsWith('failure cases') ? emptyEnv(a.source) : null));
     const out = await go(ctx, approvedFile(ctx, approveAll(ctx.plan)), seam);
@@ -584,7 +591,7 @@ check('S12. NEGATIVE: no Brain lens, no Brain source and no brainFn reach the fe
     }
     for (const c of seam.calls) assert.notEqual(c.source, 'brain-cypher');
     const sources = new Set(seam.calls.map(c => c.source));
-    assert.deepEqual([...sources].sort(), ['openalex', 'patents', 'tavily']);
+    assert.deepEqual([...sources].sort(), ['arxiv', 'openalex', 'patents', 'tavily']);
   });
 });
 

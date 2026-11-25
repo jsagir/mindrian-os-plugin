@@ -504,7 +504,9 @@ function readAndCheck(ctx, over) {
 // P15
 acheck('P15. FS-10: yellow none_found has basis door_search_empty after a ran_empty search; after a failed search the same reading has none_found_without_search', async () => {
   await fx.withEnvAsync(fx.NO_KEYS, async () => {
-    const emptied = await fx.researched({ behave: (a) => fx.emptyEnv(a.source) });
+    // Plan 19: with no Tavily key the industry lens is a host-web search that is not run; a ran_empty hat needs every
+    // provider to answer, so this half uses the key set (the providers are a test seam, no request leaves).
+    const emptied = await fx.withEnvAsync({ TAVILY_API_KEY: 'dummy-value', PATENTSVIEW_API_KEY: 'dummy-value' }, () => fx.researched({ behave: (a) => fx.emptyEnv(a.source) }));
     assert.equal(emptied.out.hats.yellow, 'ran_empty');
     const outEmpty = readAndCheck(emptied.ctx, { yellow: { none_found: true } });
     assert.equal(outEmpty.hats.yellow.reading, 'ran', JSON.stringify(outEmpty.hats.yellow));

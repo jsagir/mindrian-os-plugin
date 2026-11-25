@@ -79,10 +79,11 @@ check('E1. the qualifier table, the lens table and the status', () => {
   }
   assert.equal(seen.size, 4);
   assert.deepEqual(Q, { white: 'data statistics', black: 'failure cases', yellow: 'success cases', green: 'analogous solutions' });
-  assert.deepEqual(L.white, ['scholarly', 'industry']);
-  assert.deepEqual(L.black, ['scholarly', 'industry']);
-  assert.deepEqual(L.yellow, ['industry', 'scholarly']);
-  assert.deepEqual(L.green, ['scholarly', 'patent']);
+  // Plan 19 (owner third card): preprint (arXiv) for the four hats, datasets (Kaggle) for white, nature (AskNature) for green.
+  assert.deepEqual(L.white, ['scholarly', 'preprint', 'industry', 'datasets']);
+  assert.deepEqual(L.black, ['scholarly', 'preprint', 'industry']);
+  assert.deepEqual(L.yellow, ['industry', 'scholarly', 'preprint']);
+  assert.deepEqual(L.green, ['scholarly', 'preprint', 'patent', 'nature']);
   const map = require(path.join(ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'))._internal.LENS_TO_SOURCE;
   for (const k of keys) {
     for (const lens of L[k]) {
@@ -489,17 +490,20 @@ check('E19. the providers come from preflightLenses and the unavailable line fro
     return plan(room, env, res).plan;
   });
   const bare = run(NO_KEYS);
-  assert.deepEqual(bare.hats.white.providers, ['openalex']);
-  assert.ok(bare.hats.white.unavailable_line.length > 0);
-  assert.match(bare.hats.white.unavailable_line, /Tavily/);
-  assert.deepEqual(bare.hats.green.providers, ['openalex']);
+  // Plan 19: with no Tavily key a web lens is not refused: it is a host-web search (the command runs it), so the
+  // "not searched" line is empty for the hats whose only missing lens is a web lens. Patents still need their key.
+  assert.deepEqual(bare.hats.white.providers, ['openalex', 'arxiv', 'host-web']);
+  assert.equal(bare.hats.white.unavailable_line, '');
+  assert.deepEqual(bare.hats.white.host_lenses, ['industry', 'datasets']);
+  assert.deepEqual(bare.hats.green.providers, ['openalex', 'arxiv', 'host-web']);
+  assert.ok(bare.hats.green.unavailable_line.length > 0);
   assert.match(bare.hats.green.unavailable_line, /Patent/i);
-  assert.deepEqual(bare.hats.white.lens_set.map(e => e.lens), ['scholarly']);
+  assert.deepEqual(bare.hats.white.lens_set.map(e => e.lens), ['scholarly', 'preprint']);
   const full = run({ TAVILY_API_KEY: 'dummy-value', PATENTSVIEW_API_KEY: 'dummy-value' });
-  assert.deepEqual(full.hats.white.providers, ['openalex', 'tavily']);
-  assert.deepEqual(full.hats.white.lens_set.map(e => e.lens), ['scholarly', 'industry']);
-  assert.deepEqual(full.hats.yellow.providers, ['tavily', 'openalex']);
-  assert.deepEqual(full.hats.green.providers, ['openalex', 'patents']);
+  assert.deepEqual(full.hats.white.providers, ['openalex', 'arxiv', 'tavily', 'kaggle']);
+  assert.deepEqual(full.hats.white.lens_set.map(e => e.lens), ['scholarly', 'preprint', 'industry', 'datasets']);
+  assert.deepEqual(full.hats.yellow.providers, ['tavily', 'openalex', 'arxiv']);
+  assert.deepEqual(full.hats.green.providers, ['openalex', 'arxiv', 'patents', 'asknature']);
   assert.equal(full.hats.white.unavailable_line, '');
   for (const e of full.hats.black.lens_set) assert.equal(typeof e.weight, 'number');
   assert.equal(process.env.TAVILY_API_KEY === 'dummy-value', false);
@@ -1036,7 +1040,7 @@ check('E32r. a provider set that changed since the plan fails that hat with prov
     const ctx = planWithHandles();
     makeDb(ctx.room);
     const p = ctx.out.plan;
-    assert.deepEqual(p.hats.yellow.providers, ['tavily', 'openalex']);
+    assert.deepEqual(p.hats.yellow.providers, ['tavily', 'openalex', 'arxiv']);
     // At run time the industry lens (tavily) is gone for the hat whose table starts with it.
     const seamPre = (set) => (set[0] === 'industry'
       ? { available: set.slice(1), unavailable: [{ lens: 'industry', provider: 'tavily', reason: 'no_key', needs: 'TAVILY_API_KEY' }] }
@@ -1065,7 +1069,8 @@ check('E33r. the approved subset is honoured: one of two planned strings reaches
     const hats = { white: approveHat(p, 'white', [p.hats.white.strings[0].q_hash]) };
     const out = await researchRun(ctx, approvedFile(ctx.res, hats), seam);
     assert.equal(out.ok, true, JSON.stringify(out));
-    assert.deepEqual(seam.calls.map(c => c.query), [p.hats.white.strings[0].text]);
+    // Two door providers (openalex and arxiv) are asked the one approved string.
+    assert.deepEqual(Array.from(new Set(seam.calls.map(c => c.query))), [p.hats.white.strings[0].text]);
     assert.equal(out.hats.white, 'ran_with_results');
     const pack = JSON.parse(fs.readFileSync(path.join(ctx.res.hats.white.dir, 'evidence.json'), 'utf8'));
     assert.deepEqual(pack.strings.map(s => s.q_hash), [p.hats.white.strings[0].q_hash]);
@@ -1084,7 +1089,7 @@ check('E34r. two approved strings give two rounds for the hat and at most 10 ite
     const seam = makeSeam(8);
     const out = await researchRun(ctx, approvedFile(ctx.res, { white: approveHat(p, 'white') }), seam);
     assert.equal(out.ok, true, JSON.stringify(out));
-    assert.deepEqual(seam.calls.map(c => c.query).sort(), textsOf(p, 'white').slice().sort());
+    assert.deepEqual(Array.from(new Set(seam.calls.map(c => c.query))).sort(), textsOf(p, 'white').slice().sort());
     const pack = JSON.parse(fs.readFileSync(path.join(ctx.res.hats.white.dir, 'evidence.json'), 'utf8'));
     assert.equal(pack.strings.length, 2);
     assert.equal(pack.items.length, 10);

@@ -484,7 +484,8 @@ async function recordedRuns() {
 
 check('K7. a full deep run through the fixture envelope and a full quick run of one brief give a compare.md that is byte-equal to the golden file', async () => {
   const r = await recordedRuns();
-  assert.equal(r.fetchCalls, 4, 'one string for each researching hat went through the seam');
+  // Plan 19: each string is asked of two keyless door providers (openalex and arxiv); the host-web searches are not run here.
+  assert.equal(r.fetchCalls, 8, 'one string for each researching hat went through the seam, to two providers');
   assert.equal(r.deepMerge.not_run.length, 0);
   // On the second sub-question black opposes while yellow favours and green offers an alternative: two known hat pairs.
   assert.deepEqual(r.deepMerge.tensions.map(x => x.pair.join('+')), ['black+green', 'black+yellow']);
