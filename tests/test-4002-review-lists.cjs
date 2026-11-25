@@ -527,5 +527,13 @@ check('V5 sections 1 to 10, decimals, dashes, the plan 18 pending lines, and a m
   assert.ok(compareFixed(p3, fixedTexts()).some((e) => e.startsWith('ARTIFACT_LABELS block differs')), 'a changed label is reported');
 });
 
+check('V6 IN-12: the first loop of tests/run-all-4002.sh runs every phase test and does not stop at the first failure', () => {
+  const runner = fs.readFileSync(path.join(__dirname, 'run-all-4002.sh'), 'utf8');
+  const loop1 = runner.slice(runner.indexOf('# Loop 1'), runner.indexOf('# Loop 2'));
+  assert.ok(loop1.includes('FAIL=1'), 'loop 1 records a failure');
+  assert.equal(/\bbreak\b/.test(loop1), false, 'loop 1 holds no break');
+  assert.ok(/exit \$FAIL\s*$/.test(runner), 'the runner exits with the failure flag');
+});
+
 console.log('test-4002-review-lists: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed ? 1 : 0);

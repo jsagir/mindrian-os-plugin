@@ -6,7 +6,7 @@ FAIL=0
 # Loop 1: the phase tests. Each plan appends its test files here.
 for t in tests/test-4002-job-statements.cjs tests/test-4002-job-reach.cjs tests/test-4002-persona-freshness.cjs tests/test-4002-quick.cjs tests/test-4002-door-order.cjs tests/test-4002-command-contract.cjs tests/test-4002-per-hat-rules.cjs tests/test-4002-hat-isolation.cjs tests/test-4002-not-run.cjs tests/test-4002-merge.cjs tests/test-4002-rulings.cjs tests/test-4002-research-part8.cjs tests/test-4002-research-states.cjs tests/test-4002-wire-real-db.cjs tests/test-4002-sources.cjs tests/test-4002-spike-overlap.cjs tests/test-4002-compare.cjs tests/test-4002-review-lists.cjs tests/test-4002-advisor-run-prep.cjs; do
   echo "--- 400.2: $t ---"
-  if node "$t"; then echo ">>> 400.2: $t: PASSED"; else echo ">>> 400.2: $t: FAILED"; FAIL=1; break; fi
+  if node "$t"; then echo ">>> 400.2: $t: PASSED"; else echo ">>> 400.2: $t: FAILED"; FAIL=1; fi
 done
 # Loop 2: the named existing suites that were green at the base bb0bfbab3.
 if [ "$FAIL" -eq 0 ]; then
