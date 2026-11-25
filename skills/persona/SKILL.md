@@ -217,7 +217,7 @@ Bans: Do not call brain_search or brain_query. This step makes no web search: do
 
 Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
 
-Output: one file, `persona.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-spec/1`), `hat` (your hat), `focus` (a string of 400 characters or fewer), `hat_questions` (3 to 7 strings, each 240 characters or fewer), `must_not_judge` (1 to 5 strings, each 200 characters or fewer) and `room_sources` (1 to 40 room-relative paths of the files you read, none under `personas/`). Write no URL in any string. These keys are forbidden: `research_handles`, `handles`, `brief`, `evidence`, `verdict`. Your reply is the word done and the file path.
+Output: one file, `persona.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-spec/1`), `hat` (your hat), `focus` (a string of 400 characters or fewer), `hat_questions` (3 to 7 strings, each 240 characters or fewer), `must_not_judge` (1 to 5 strings, each 200 characters or fewer) and `room_sources` (1 to 40 room-relative paths of the files you read, none under `personas/`). Write no URL in any string. Write each string as one line: no line break, no control character and no `#` at its start. These keys are forbidden: `research_handles`, `handles`, `brief`, `evidence`, `verdict`. Your reply is the word done and the file path.
 <!-- contract:builder:end -->
 
 ### Step 4 -- Handles and the research plan
