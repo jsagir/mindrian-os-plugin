@@ -157,6 +157,39 @@ check('F11. invokePersona stays at line 550', () => {
   assert.ok(lines[549].startsWith('function invokePersona('), lines[549]);
 });
 
+// Q7
+const routerSrc = fs.readFileSync(ROUTER_PATH, 'utf8');
+function caseBody(name) {
+  const start = routerSrc.indexOf("case '" + name + "': {");
+  assert.ok(start >= 0, 'case ' + name + ' found');
+  const end = routerSrc.indexOf('\n        case ', start + 10);
+  const end2 = routerSrc.indexOf('\n        default:', start + 10);
+  const stop = [end, end2].filter(n => n > 0).sort((a, b) => a - b)[0];
+  return routerSrc.slice(start, stop);
+}
+check('Q7. the analyze-perspectives case calls quickLook and not analyzeAllPerspectives (method: source assertion, the handler needs a server)', () => {
+  const body = caseBody('analyze-perspectives');
+  assert.ok(body.includes('quickLook('), 'calls quickLook');
+  assert.equal(body.includes('analyzeAllPerspectives'), false, 'no analyzeAllPerspectives call');
+  assert.equal(/await\s+personaOps\.quickLook/.test(body), false, 'quickLook is synchronous');
+  // The JSON the case returns is the quickLook JSON of a fixture room.
+  const room = makeRoom();
+  const text = JSON.stringify(ops.quickLook(room, null), null, 2);
+  const parsed = JSON.parse(text);
+  assert.deepEqual(Object.keys(parsed).slice(0, 2), ['mode', 'notice']);
+  assert.equal(parsed.notice, ops.QUICK_NOTICE);
+  console.log('  (Q7 method: source assertion plus the quickLook JSON of a fixture room)');
+});
+
+// Q8
+check('Q8. persona --parallel is kept; the generate-personas suggested-next names the fast look', () => {
+  assert.ok(routerSrc.includes('persona --parallel'));
+  const body = caseBody('generate-personas');
+  assert.ok(body.includes('fast look'));
+  assert.ok(body.includes('not an independent review'));
+  assert.ok(body.includes('Deep review runs in Claude Code as /mos:persona --parallel.'));
+});
+
 for (const r of tmpRoots) fs.rmSync(r, { recursive: true, force: true });
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);
