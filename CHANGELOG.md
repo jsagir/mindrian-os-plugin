@@ -1,7 +1,7 @@
 ## [Unreleased] -- v2.0.0-beta.88 (in progress)
 
 ### Added
-- 
+- **MindrianOS keeps its operating rules when the Larry agent does not load.** Claude Code 2.1.323 deprecated the plugin default agent, and some hosts ignore the `agent` setting. The plugin's output style, which Claude Code applies whenever the plugin is enabled, now carries a short runtime core: who answers, room first, the goal job drives the next move, writes wait for a yes, Theo gets method questions only, say only what ran, close on the engine's step. When the agent loads, its own text still wins. A runtime marker tells a check whether the agent loaded or only the style did. <!-- quick-261125-runtime-core -->
 
 ## [2.0.0-beta.87] - 2026-11-16
 
