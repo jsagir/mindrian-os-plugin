@@ -475,6 +475,104 @@ check('G14. the memory event dedupe key is stable for one tension and one ruling
   assert.ok(events[0].props.dedupe_key.includes(out.tensions[0].id));
 });
 
+// ---------------------------------------------------------------------------
+// Plan 16 (orchestrator decision): record-ruling appends a fixed "Rulings" section to the filed review artifact.
+// ---------------------------------------------------------------------------
+
+const readArtifact = (run) => fs.readFileSync(path.join(run.res.review_dir, path.basename(run.res.review_dir) + '.md'), 'utf8');
+const RULINGS_LABELS = ['tension id: ', 'ruling: ', 'side hat: ', 'ruled on: '];
+
+check('G15. record-ruling appends the fixed Rulings section; the state line of a ruled tension is no longer open; the ruling reason text is not in the artifact', async () => {
+  const run = mkRun({ pos: ONE });
+  const out = await doMerge(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const before = readArtifact(run);
+  assert.ok(before.split('\n').includes('state: open'), 'the merge artifact shows the tension open');
+  assert.equal(before.includes('## Rulings'), false, 'merge writes no Rulings section');
+  const t = out.tensions[0];
+  const r = doRule(run, [{ tension_id: t.id, ruling: 'side_a', reason: 'Navigator reason text, not for the artifact.' }]);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.artifact, { state: 'updated' });
+  const lines = readArtifact(run).split('\n').map(l => l.trimEnd());
+  assert.equal(lines.filter(l => l === '## Rulings').length, 1, 'one Rulings heading');
+  assert.equal(lines.includes('state: open'), false, 'no tension shows open');
+  assert.ok(lines.includes('state: settled'));
+  const at = lines.indexOf('## Rulings');
+  assert.deepEqual(lines.slice(at + 1).filter(l => l !== ''), [
+    'tension id: ' + t.id, 'ruling: side_a', 'side hat: black', 'ruled on: 2026-11-25',
+  ]);
+  assert.equal(lines.join('\n').includes('Navigator reason text'), false, 'the reason stays in the store');
+  // Everything above the Rulings section is the merge artifact, except the state line of the ruled tension.
+  const old = before.split('\n').map(l => l.trimEnd());
+  const head = lines.slice(0, at);
+  while (head.length && head[head.length - 1] === '') head.pop();
+  while (old.length && old[old.length - 1] === '') old.pop();
+  assert.equal(head.length, old.length);
+  const changed = head.map((l, i) => (l === old[i] ? null : [old[i], l])).filter(Boolean);
+  assert.deepEqual(changed, [['state: open', 'state: settled']]);
+});
+
+check('G16. a second call updates the section in place: both rulings are listed, the heading stays once; both_hold has side hat none', async () => {
+  const run = mkRun({ pos: TWO });
+  const out = await doMerge(run);
+  assert.equal(out.tensions.length, 2);
+  const [a, b] = out.tensions;
+  assert.equal(doRule(run, [{ tension_id: a.id, ruling: 'side_b' }]).ok, true);
+  assert.equal(doRule(run, [{ tension_id: b.id, ruling: 'both_hold' }]).ok, true);
+  const lines = readArtifact(run).split('\n').map(l => l.trimEnd());
+  assert.equal(lines.filter(l => l === '## Rulings').length, 1);
+  const at = lines.indexOf('## Rulings');
+  const tail = lines.slice(at + 1).filter(l => l !== '');
+  assert.equal(tail.length, 8);
+  for (const l of tail) assert.ok(RULINGS_LABELS.some(lab => l.indexOf(lab) === 0), l);
+  assert.deepEqual(tail.filter(l => l.indexOf('tension id: ') === 0), ['tension id: ' + a.id, 'tension id: ' + b.id]);
+  assert.ok(tail.includes('ruling: side_b'));
+  assert.ok(tail.includes('side hat: ' + a.pair[1]));
+  assert.ok(tail.includes('ruling: both_hold'));
+  assert.ok(tail.includes('side hat: none'));
+  assert.equal(lines.includes('state: open'), false);
+});
+
+check('G17. a defer adds no Rulings section and leaves the state open; reopen removes the entry, sets the state back and drops the stored lines', async () => {
+  const room = makeRoom();
+  const a = mkRun({ room, pos: ONE });
+  const outA = await doMerge(a);
+  const id = outA.tensions[0].id;
+  assert.equal(doRule(a, [{ tension_id: id, ruling: 'defer' }]).ok, true);
+  const afterDefer = readArtifact(a);
+  assert.equal(afterDefer.includes('## Rulings'), false, 'a defer adds no section');
+  assert.ok(afterDefer.split('\n').includes('state: open'));
+  // A stored ruling of run A makes the tension settled in run B; the artifact of B holds the stored lines.
+  const a2 = mkRun({ room, pos: ONE, now: new Date('2026-11-26T01:00:00.000Z') });
+  const outA2 = await doMerge(a2);
+  assert.equal(doRule(a2, [{ tension_id: outA2.tensions[0].id, ruling: 'side_a' }]).ok, true);
+  const b = mkRun({ room, pos: ONE, now: LATER });
+  const outB = await doMerge(b);
+  assert.equal(outB.tensions[0].state, 'settled');
+  assert.ok(readArtifact(b).split('\n').some(l => l.indexOf('stored ') === 0), 'merge printed the stored lines');
+  const r = doRule(b, [{ tension_id: id, ruling: 'defer', reopen: true }]);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  const lines = readArtifact(b).split('\n').map(l => l.trimEnd());
+  assert.ok(lines.includes('state: open'));
+  assert.equal(lines.some(l => l.indexOf('stored ') === 0 || l.indexOf('settled on ') === 0), false, 'stale settled lines are gone');
+  assert.equal(lines.indexOf('## Rulings'), -1, 'no ruling is left and the section was never written, so it is absent');
+});
+
+check('G18. NEGATIVE: with the artifact file gone the ruling is still stored and the output says so; the Rulings lines hold only labels and ids', async () => {
+  const run = mkRun({ pos: ONE });
+  const out = await doMerge(run);
+  fs.rmSync(out.artifact, { force: true });
+  const r = doRule(run, [{ tension_id: out.tensions[0].id, ruling: 'side_a' }]);
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.deepEqual(r.artifact, { state: 'not_updated', reason: 'artifact_missing' });
+  assert.equal(Object.keys(readStore(run.room).rulings).length, 1);
+  assert.equal(fs.existsSync(out.artifact), false, 'no artifact is created from nothing');
+  // The door source keeps every Rulings line in ARTIFACT_LABELS.
+  const L = door.ARTIFACT_LABELS;
+  assert.equal(L.section_rulings, '## Rulings');
+  for (const k of ['ruling_value', 'ruling_side_hat', 'ruling_date']) assert.equal(typeof L[k], 'string', k);
+});
+
 (async () => {
   for (const t of queue) {
     try {

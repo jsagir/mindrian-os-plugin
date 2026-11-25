@@ -1874,6 +1874,11 @@ const ARTIFACT_LABELS = Object.freeze({
   found_summary: 'summary: ',
   reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
   prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
+  section_rulings: '## Rulings',
+  ruling_value: 'ruling: ',
+  ruling_side_hat: 'side hat: ',
+  ruling_date: 'ruled on: ',
+  quick_label: 'Quick mode: one context, no research. Checks that need evidence were not run.',
 });
 
 /** The marker text of a closed position value, or null for mixed and no_position. */
@@ -2507,6 +2512,63 @@ function rulingAnswerRefusal(answer, runId) {
 }
 
 /**
+ * The state of a ruled tension in the filed artifact (plan 16, orchestrator decision). The merge wrote the artifact
+ * from evidence packs that are gone, so it cannot be rebuilt. This function edits the text only in two fixed ways:
+ * the `state:` line above each `tension id:` line is set to the state of the run record (and the stored lines of a
+ * tension that is open again are dropped), and a last section "## Rulings" is written again from the run record.
+ * Every line of the section is a fixed label and one field (tension id, ruling, side hat, date). It adds no content.
+ * @returns {string}
+ */
+function applyRulingsToArtifactText(text, tensions) {
+  const L = ARTIFACT_LABELS;
+  let lines = String(text).split('\n').map(l => l.replace(/\s+$/, ''));
+  const had = lines.indexOf(L.section_rulings);
+  if (had !== -1) lines = lines.slice(0, had);
+  while (lines.length && lines[lines.length - 1] === '') lines.pop();
+  for (const t of tensions) {
+    const at = lines.indexOf(L.tension_id + t.id);
+    if (at < 1 || lines[at - 1].indexOf(L.tension_state) !== 0) continue;
+    lines[at - 1] = L.tension_state + t.state;
+    if (t.state === 'open') {
+      let from = at - 1;
+      while (from > 0 && (lines[from - 1].indexOf('settled on ') === 0 || lines[from - 1].indexOf('stored ') === 0)) from -= 1;
+      lines.splice(from, at - 1 - from);
+    }
+  }
+  const settled = tensions.filter(t => t.state === 'settled' && typeof t.ruling === 'string' && typeof t.ruled_at === 'string');
+  if (settled.length > 0 || had !== -1) {
+    lines.push('');
+    lines.push(L.section_rulings);
+    if (settled.length === 0) lines.push(L.none);
+    settled.forEach((t, i) => {
+      if (i > 0) lines.push('');
+      lines.push(L.tension_id + t.id);
+      lines.push(L.ruling_value + t.ruling);
+      lines.push(L.ruling_side_hat + (t.ruling === 'side_a' ? t.pair[0] : (t.ruling === 'side_b' ? t.pair[1] : L.none)));
+      lines.push(L.ruling_date + String(t.ruled_at).slice(0, 10));
+    });
+  }
+  return lines.join('\n') + '\n';
+}
+
+/** Write the Rulings state into the filed artifact. A missing or unwritable artifact never undoes a stored ruling. */
+function updateArtifactRulings(reviewDir, tensions) {
+  const file = path.join(reviewDir, path.basename(reviewDir) + '.md');
+  let text;
+  try {
+    text = fs.readFileSync(file, 'utf8');
+  } catch (e) {
+    return { state: 'not_updated', reason: e && e.code === 'ENOENT' ? 'artifact_missing' : 'artifact_unreadable' };
+  }
+  try {
+    atomicWriteText(file, applyRulingsToArtifactText(text, tensions));
+  } catch (e) {
+    return { state: 'not_updated', reason: 'write_failed' };
+  }
+  return { state: 'updated' };
+}
+
+/**
  * Step record_ruling (deep mode, after merge). The answer file holds the navigator ruling for each open tension.
  * A ruling is the navigator answer on a hat pair: it confirms no venture claim. A stored ruling (side_a, side_b,
  * both_hold) goes into the rulings store of the room and makes the tension settled for every later run with the same
@@ -2591,6 +2653,8 @@ function cmdRecordRuling(args, deps) {
   } catch (e) {
     return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
   }
+  // The filed artifact shows the ruled state (plan 16): fixed labels only, no reason text.
+  const artifactState = updateArtifactRulings(lr.dir, tensions);
 
   // One decision_captured event for each stored ruling: ids and the ruling value only, never the reason or a line.
   // A ruling that cannot be logged stays stored; the output says so.
@@ -2638,6 +2702,7 @@ function cmdRecordRuling(args, deps) {
     deferred,
     reopened,
     memory_event: memoryEvent,
+    artifact: artifactState,
     remaining_open: tensions.filter(t => t.state === 'open').map(t => t.id),
   };
 }
