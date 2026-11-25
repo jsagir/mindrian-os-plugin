@@ -369,6 +369,8 @@ function readLedger(roomDir, runId) {
   if (!r.ok) return { ok: false, reason: 'ledger_invalid' };
   const l = r.value;
   if (!l || l.schema !== 'mos.persona-run/1' || l.run_id !== runId || !l.steps || !l.hats) return { ok: false, reason: 'ledger_invalid' };
+  // IN-03: brief_hash names a store file; a hand-edited value must not reach a path.
+  if (typeof l.brief_hash !== 'string' || !/^[0-9a-f]{64}$/.test(l.brief_hash)) return { ok: false, reason: 'ledger_invalid' };
   return { ok: true, dir, ledger: l };
 }
 
@@ -1367,6 +1369,7 @@ function packTamper(hat, dir, packs) {
 // ---- the handles store (S-3a): one file for each brief, keyed by hat and persona file hash ----
 
 function handlesStorePath(roomResolved, briefHash) {
+  if (typeof briefHash !== 'string' || !SHA256_RE.test(briefHash)) throw Object.assign(new Error('brief hash invalid'), { code: 'brief_hash_invalid' });
   return path.join(roomResolved, '.mindrian', 'hats', 'handles', String(briefHash).slice(0, 16) + '.json');
 }
 

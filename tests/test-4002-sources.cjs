@@ -493,6 +493,23 @@ check('W9b. WR-05 NEGATIVE: a host answer whose every result is off the site is 
   });
 });
 
+check('W9c. IN-03 NEGATIVE: a hand-edited ledger brief_hash that is not SHA-256 hex is refused and names no file outside the room', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const room = fx.harborRoom();
+    const env = fx.envOf();
+    const res = fx.runToAccepted(room, env);
+    for (const h of RESEARCH) fx.writeHandles(res, h, fx.GOOD[h]);
+    const lp = path.join(res.review_dir, 'run.json');
+    const l = JSON.parse(fs.readFileSync(lp, 'utf8'));
+    l.brief_hash = '../../../../zz03';
+    fs.writeFileSync(lp, JSON.stringify(l), 'utf8');
+    const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, fx.opts(env));
+    const outside = path.resolve(room, '.mindrian', 'hats', 'handles', '../../../../zz03.json');
+    assert.equal(fs.existsSync(outside), false, 'no store file outside the room');
+    assert.deepEqual(out, { ok: false, reason: 'ledger_invalid' });
+  });
+});
+
 check('W10. red and blue never search; every host string passes the egress audit; an edit recomputes the host strings; the room identity screen still refuses a room word', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();
