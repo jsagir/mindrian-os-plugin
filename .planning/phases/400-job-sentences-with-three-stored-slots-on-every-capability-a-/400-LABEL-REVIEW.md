@@ -8,11 +8,11 @@ tests/test-400-review-lists.cjs keeps every "- ids (...)" line and every "count 
 
 The 20 jobs of data/job-vocabulary.json carry one three-slot sentence each (fields sentence, slots, sentence_status). The summary field is unchanged.
 O-14 (owner card 2026-11-24): the sentences were written fresh from repo text, not from the research drafts. They ship as provisional.
-Owner ruling 2026-11-25: 7 sentences were reworded and are RULED: build, decide-pursue, design-solution, explore, navigate, plan-execution, protect-assets. The other 13 stay provisional.
+Owner ruling 2026-11-25: 7 sentences were reworded and are RULED: build, decide-pursue, design-solution, explore, navigate, plan-execution, protect-assets. Second ruling the same day: the other 13 were reviewed against Theo's ruled framework sentences (data/framework-jobs.json) and are RULED as written. All 20 vocabulary sentences are ruled.
 
 - count (sentences-vocabulary): 20
-- ids (vocabulary-provisional): audit-room, compare-options, connect-domains, file-meeting, find-bottleneck, find-problem, model-business, model-finances, prepare-pitch, surface-contradiction, temporal-correction, understand-market, validate-idea
-- count (vocabulary-provisional): 13
+- ids (vocabulary-provisional): none
+- count (vocabulary-provisional): 0
 
 Section-only jobs: the 4 jobs whose only origin is the section canon. They have no taxonomy summary. They got sentences like every other id.
 
@@ -32,7 +32,7 @@ Section jobs (data/section-job-canon.json):
 
 - ids (carry-section-jobs): funding|plan-execution, personas|understand-market
 - count (carry-section-jobs): 2
-- funding: the section job is plan-execution. The research run scored plan-execution low for this section, and its top job was find-bottleneck. Owner action: keep plan-execution or change the section job.
+- funding: the section job is plan-execution. The research run scored plan-execution low for this section, and its top job was find-bottleneck. RULED 2026-11-25: the owner keeps plan-execution. No change to data/section-job-canon.json.
 - personas: the section job is understand-market (source jev-probe-draft-gloss). The section has no "One job" sentence. Owner action: write the "One job" sentence, or rule that the draft gloss is enough.
 
 Held pairs (399-LABEL-REVIEW.md section 1). They are not applied. The registry does not carry them.
