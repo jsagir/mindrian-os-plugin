@@ -5,13 +5,16 @@ help_jtbd: "Get a per-persona view of your venture (role-blend x journey-stage).
 body_shape: C (Room Card)
 layer: "graph"
 hitl_stages:
+  - stage: "brief-confirm"
+    shapes: ["F.6"]
+    mode: "gate"
   - stage: "generate-experts"
     shapes: ["F.8"]
     mode: "parallel"
   - stage: "resolve-tension"
     shapes: ["F.5"]
     mode: "gate"
-hitl_why: "Synthetic experts are generated as an independent set (F.8) then their tensions are resolved among parallel branches (F.5)."
+hitl_why: "The brief is reviewed as a plan (F.6, brief-confirm), the built personas are accepted as an independent set (F.8, generate-experts), then the tensions among the hats are resolved among parallel branches (F.5, resolve-tension)."
 # Phase 118-06 reward-before-investment declaration. Grounded in the shipped
 # `list` subcommand, which returns each lens's hat color, label, domain,
 # filename and disclaimer: the structure of the six lenses is handed over before
@@ -58,12 +61,14 @@ persistence: memory_event
 # restriction list (frontmatter contract), so this removes the per-spawn
 # permission prompt rather than granting a capability the command did not
 # already have. Scoped to the invoking turn; clears on the next message.
+# AskUserQuestion carries the brief card and the persona card of the deep cycle.
 allowed-tools:
   - Read
   - Write
   - Bash
   - Glob
   - Task
+  - AskUserQuestion
 ---
 
 # Persona -- AI Perspective Lenses
@@ -77,6 +82,15 @@ This command is a thin lens-engine client. The `--parallel` analyze path rotates
 **think-hats** is an INTERACTIVE METHODOLOGY SESSION. It walks you through the six hats in sequence as a facilitated exercise.
 
 **persona** creates PERSISTENT PERSPECTIVE LENSES from your room data. Each persona file lives in your `personas/` section and can be invoked at any time to analyze artifacts, challenge assumptions, or provide a specific viewpoint.
+
+## Two modes
+
+- **deep**: six isolated hats. A hat whose persona is not fresh gets a persona built for it by its own agent run from the room, and you accept, rebuild or refuse each built persona. A deep step never runs in the main context.
+- **quick**: the fast look. One pass over the six hats in one context. It makes no agent run and no fetch, and it never builds a persona. It is not an independent review.
+- `--parallel` is the old spelling of deep mode, and it still works.
+- `analyze` is the old spelling of quick mode, and it still works.
+
+The first line of the output of each mode is the `notice` field of the door output (the `start` call below). It is never a sentence written in this command. After `start` succeeds, print the `notice` field first, on a line of its own, before any other text of that mode. For quick mode the field is `quick.notice`.
 
 ## When to use it
 
@@ -92,19 +106,153 @@ These nine situations are equal. None of them ranks above another.
 - When my team argues in circles because each person defends a position, I want to make everyone look at one side at a time, so I can move the discussion forward.
 - When new evidence arrives that could change my case, I want to see how it lands from each side, so I can update what I believe without overreacting.
 
+## Capability rule
+
+Deep mode needs two things: the Agent tool (one separate agent run for each hat) and a local shell (the door script `scripts/persona-hats.cjs`). Check both before step 1.
+
+When the Agent tool or the shell is missing (Claude Desktop through MCP, or a Cowork session with no shell), do not start deep mode. Say this sentence, word for word, and offer the fast look:
+
+> Deep review needs separate agents and a local shell. It runs in Claude Code. Here I can give the fast look, which is one pass and not an independent review.
+
+On such a surface the fast look is the `analyze-perspectives` action of the `room_content` tool. It returns the quick result with its notice first. Never run a same-context pass under the name deep.
+
+**Unattended callers get quick mode only.** When this command runs without a navigator present (inside `/mos:act`, `chain_run`, or any caller that cannot answer a card), run quick mode and show no card. Larry writes the brief itself, with the triage reason "unattended caller", and starts the door with `--mode quick`.
+
+## The deep cycle, steps 1 to 3
+
+The door is one script. Every call prints one JSON object. A refusal is data: `{"ok": false, "reason": "..."}`. Print the reason in one plain sentence and stop that step; never repeat the same call unchanged. Navigator text and room text reach the door only through a JSON file, never as argv text. The door refuses a step that comes out of order.
+
+`generate` with no flag starts the deep entry at step 2 in Claude Code.
+
+### Step 1 -- Triage
+
+Decide which mode to recommend. Quick when the target is one artifact and the question needs no outside fact. Deep when the question needs outside evidence or the decision is costly to reverse. Larry recommends with one reason of 200 characters or fewer. The navigator decides on the brief card. Triage has no stop of its own: its result is the first line of the brief card.
+
+### Step 2 -- Brief and Stop 1 (the brief card)
+
+1. Ask the door for the state of the room and of each persona:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" status --room "<room dir>"
+   ```
+
+   If `room_ok` is false, say that the room needs 2 sections with 1 or more artifact each, and stop. The field `hats` gives each hat a `state`: `fresh`, `stale`, `unaccepted`, `missing` or `preview_only`.
+
+2. Write the brief from the room and the request: the target (a room-relative path of one file, or `room`), the governing question (one sentence), 2 to 5 different sub-questions, and the reading list (1 to 12 room-relative paths, none under `personas/`). Read no persona file to write it.
+
+3. Show the brief card (shape F.6, Plan Review) with one AskUserQuestion call. The first line of the card is the triage recommendation: the recommended mode and its reason. Then the target, the governing question, the sub-questions and the reading list. In deep mode the card also names each hat that is not fresh and the reason:
+   - `missing`: no persona file yet; it will be built.
+   - `stale`: the room changed since the persona was built; it will be built again.
+   - `preview_only`: only a template preview exists; a persona will be built.
+   - `unaccepted`: built earlier, never accepted; it is not rebuilt, and it comes to the persona card again.
+
+   In quick mode the card says that no persona is built and that a hat without a fresh persona uses its fixed discipline.
+
+4. The answers are approve, edit, the other mode, cancel and defer. Offer four options: approve (the recommended mode), edit the brief, the other mode, and cancel. A free-text answer such as "later" is defer. ASSUMED (a guess): one AskUserQuestion call takes 4 options or fewer.
+   - **approve** or **the other mode**: go to point 5 with the chosen mode.
+   - **edit**: rewrite the brief from the navigator text and show the card again. Make no door call.
+   - **cancel**: stop. Nothing was written, and no run exists.
+   - **defer**: stop. Say that `/mos:persona` starts again at this card.
+
+5. Write the brief to a private temporary directory as `brief.json` (`mktemp -d` makes a directory only the user can read). Use the closed key list `schema` (`mos.persona-brief/1`), `target`, `governing_question`, `sub_questions`, `reading_list`, `mode`, and `triage` (`{"recommended": "deep" or "quick", "reason": "..."}`). `triage.recommended` keeps the triage value of Larry, also when the navigator chose the other mode. Then start the run:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" start --room "<room dir>" --brief "<tmp dir>/brief.json" --mode deep
+   ```
+
+   Print the `notice` field first (see Two modes). The output holds `run_id`, `review_dir`, `inbox_dir`, `hats` (for each hat: `persona`, `dir`, `discipline`), `to_build` and `to_accept`. Keep `run_id` and `inbox_dir`.
+
+### Step 3 -- Produce and Stop 2 (the persona card)
+
+Deep mode only. Quick mode never builds a persona.
+
+1. **Build.** For each hat of `to_build`, dispatch one fresh `persona-analyst` agent. Dispatch all of them in one message, with the Agent tool and `subagent_type: persona-analyst`. Resolve the model once with `resolveModel(roomPath, 'persona-analyst')` from `lib/core/model-profiles.cjs` (the signature is `resolveModel(roomDir, agentType)`; the argument order must not be reversed). Do not pass any manual background-execution parameter to the Agent tool call. Clamp the fan-out to 20 agents, which is more than the 6 hats. Each agent gets the builder contract below, then these lines and nothing else: the hat, the fixed discipline text (`hats.<hat>.discipline` of the `start` output), the room path, and its own directory (`hats.<hat>.dir`). It gets no other directory.
+
+   ```
+   [DEEP] Building personas: {hats of to_build}
+     Model: {resolved model}
+     Waiting for all builders to finish...
+   ```
+
+2. **Write the proposed files.** Always make this call, also when `to_build` is empty, because the door refuses the next call until it ran:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" write-persona --room "<room dir>" --run "<run_id>"
+   ```
+
+   The output gives each built hat a `state`: `proposed` with `file` (`personas/<hat>-<domain>.md`), or `build_failed:<reason>`. A hat with `build_failed` gets no card, takes no part in the reading steps, and is reported as not run, with its reason. For a hat of `to_accept` the file name is the `file` field of `status` (a bare file name under `personas/`).
+
+3. **Stop 2: the persona card (shape F.8, Unordered Basket).** Read the proposed file of each hat that has one. Show one question for each persona: the hat, its focus, its hat questions and its must-not-judge lines. The answers for each hat are accept, rebuild with one line of guidance (2 rebuilds at most for a hat), refuse, and defer. Offer three options (accept, rebuild, refuse); a free-text answer such as "later" is defer. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess). With more than 4 personas, use consecutive calls with no other step between them.
+
+4. **Record the answers.** Write the answer file in the inbox directory, then call the door. The guidance is one line of 200 characters or fewer, and only for rebuild.
+
+   ```json
+   {"schema": "mos.persona-accept/1", "run_id": "<run_id>", "hats": {"black": {"decision": "accept"}, "green": {"decision": "rebuild", "guidance": "one line"}, "red": {"decision": "refuse"}}}
+   ```
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" accept-persona --room "<room dir>" --run "<run_id>" --answer "<inbox_dir>/accept.json"
+   ```
+
+   The door writes the status `accepted` into a persona file only for an accept answer. A refused or deferred hat is reported as not run: it takes no part in the reading steps. A deferred file stays for the next run.
+
+5. **Rebuild.** The output field `to_rebuild` lists each hat with its guidance line. For each one, dispatch one new builder run (the same contract, plus the guidance line as one more input line), call `write-persona` again, and show the card again for that hat only. The door refuses a third rebuild of one hat (`rebuild_limit`): then only accept and refuse are left. Repeat until `accept_done` is true.
+
+### The builder contract
+
+Copy this block, word for word, at the head of the prompt of each builder agent. It is the only control on what a builder reads and writes.
+
+<!-- contract:builder:start -->
+You build the persona of one hat from the room. You are one hat.
+
+Agent file overrides. This dispatch replaces these instructions of the persona-analyst agent file:
+- lines 98 to 100 (run `persona list` first): read no file under `personas/`.
+- lines 105, 132 and 140 to 155 (start with the disclaimer; markdown output): write one JSON file in your directory; your reply is the word done and the file path.
+- lines 111 to 119 (all-hat mode): you are one hat.
+- lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the bans below.
+
+Inputs: the hat, its fixed discipline, the room path, and the path of your own directory. There is no brief, no governing question and no other hat in this dispatch.
+
+Reads: the room sections. Do not read `personas/`. Do not read the directory of another hat.
+
+Bans: Do not call brain_search or brain_query. This step makes no web search: use no web tool.
+
+Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
+
+Output: one file, `persona.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-spec/1`), `hat` (your hat), `focus` (a string of 400 characters or fewer), `hat_questions` (3 to 7 strings, each 240 characters or fewer), `must_not_judge` (1 to 5 strings, each 200 characters or fewer) and `room_sources` (1 to 40 room-relative paths of the files you read, none under `personas/`). Write no URL in any string. These keys are forbidden: `research_handles`, `handles`, `brief`, `evidence`, `verdict`. Your reply is the word done and the file path.
+<!-- contract:builder:end -->
+
+### Steps after acceptance
+
+The reading and tension steps follow acceptance. They are in the `parallel` subcommand below and they run with the accepted persona files.
+
+## Quick mode
+
+Quick mode is the fast look. It is steps 1 and 2 (the same brief card), then one pass of the six hats in the main context.
+
+1. Start the door with quick mode. The output holds a `quick` object:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" start --room "<room dir>" --brief "<tmp dir>/brief.json" --mode quick
+   ```
+
+2. Print the `notice` field of the output first (`quick.notice`).
+3. Make one pass over the six hats in the main context. Use the text of each hat from `quick.hats.<hat>.text`. Name every hat of `quick.fixed_discipline_hats` as "on fixed discipline": it has no fresh persona file. Give each hat 2 to 4 lines on the target, then one short list of where the hats disagree.
+4. Make no agent run and no fetch. Never build a persona. Say that this is not an independent review.
+
 ## Subcommands
 
 ### generate
 
-Create 6 hat-colored persona files from current room state.
+Build the six hat-colored persona files from current room state.
 
 ```
 /mos:persona generate
 ```
 
-Reads your room sections, extracts domain signals, and generates one persona file per hat color in `personas/`. Each file contains the persona's perspective, focus areas, hat-specific questions, and inter-hat tensions -- all grounded in YOUR room content.
+In Claude Code, `generate` with no flag starts the deep entry at step 2 of the cycle above: the status call, the brief card, and the build of every persona that is not fresh. Each persona file holds the fixed discipline of the hat, a focus, hat questions and must-not-judge lines, all built from YOUR room content. On a surface with no Agent tool or no shell, `generate` gives the refusal sentence of the capability rule and the fast look. The template preview (see below) is the only path that writes template files.
 
-**Prerequisites:** Room must have 2+ populated sections (sections with at least one .md file). Thin rooms are rejected to prevent generic output.
+**Prerequisites:** Room must have 2+ populated sections (sections with at least one artifact file). Thin rooms are rejected to prevent generic output.
 
 ### list
 
@@ -139,6 +287,8 @@ Run all 6 perspectives against a single artifact.
 
 Returns all six hat perspectives on the artifact. Highlights where hats DISAGREE -- that tension is where insight lives.
 
+`analyze` is the old spelling of quick mode: the fast look of the Quick mode section, not an independent review.
+
 ### parallel
 
 Dispatch all 6 persona-analyst agents simultaneously for maximum-speed multi-perspective analysis.
@@ -149,6 +299,8 @@ Dispatch all 6 persona-analyst agents simultaneously for maximum-speed multi-per
 ```
 
 Unlike `analyze` (which runs hats sequentially in a single context), `--parallel` spawns 6 independent persona-analyst agents -- one per De Bono hat -- running simultaneously. Each agent operates in its own context window with full room access.
+
+The reading and tension steps below follow acceptance (step 3 of the deep cycle above). `--parallel` is the old spelling of deep mode; the whole cycle runs first, and these steps run with the accepted persona files.
 
 **Prerequisites:** Same as `generate` -- room must have 2+ populated sections and personas must already exist (run `/mos:persona generate` first if needed).
 

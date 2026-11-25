@@ -528,7 +528,7 @@ function cmdStart(args, deps) {
       return { ok: true, run_id: runId, mode, review_dir: reviewDir, inbox_dir: inboxDir, quick };
     }
     const hatsOut = {};
-    for (const hat of HATS) hatsOut[hat] = { persona: freshness.hats[hat].state, dir: hatDirs[hat] };
+    for (const hat of HATS) hatsOut[hat] = { persona: freshness.hats[hat].state, dir: hatDirs[hat], discipline: ops.HAT_DISCIPLINE[hat] };
     return {
       ok: true,
       run_id: runId,

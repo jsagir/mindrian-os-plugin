@@ -209,6 +209,8 @@ check('D4. scratch layout: modes, unguessable names, private run map, no scratch
   const dirs = HATS.map(h => res.hats[h].dir);
   assert.equal(new Set(dirs).size, 6);
   for (const h of HATS) assert.match(path.basename(res.hats[h].dir), new RegExp('^' + h + '-[0-9a-f]{16}$'));
+  // Plan 06: the deep start output carries the fixed discipline text of each hat (input of the builder contract).
+  for (const h of HATS) assert.equal(res.hats[h].discipline, ops.HAT_DISCIPLINE[h], 'discipline of ' + h);
   const mapPath = path.join(env.homeDir, 'persona-hats', 'runs', res.run_id + '.json');
   assert.ok(fs.existsSync(mapPath));
   if (process.platform !== 'win32') {

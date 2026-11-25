@@ -525,6 +525,13 @@
   "commands/persona.md": {
     "hitl_stages": [
       {
+        "stage": "brief-confirm",
+        "shapes": [
+          "F.6"
+        ],
+        "mode": "gate"
+      },
+      {
         "stage": "generate-experts",
         "shapes": [
           "F.8"
@@ -539,7 +546,7 @@
         "mode": "gate"
       }
     ],
-    "hitl_why": "Synthetic experts are generated as an independent set (F.8) then their tensions are resolved among parallel branches (F.5)."
+    "hitl_why": "The brief is reviewed as a plan (F.6, brief-confirm), the built personas are accepted as an independent set (F.8, generate-experts), then the tensions among the hats are resolved among parallel branches (F.5, resolve-tension)."
   },
   "commands/agentshield.md": {
     "hitl_shape": "none",
