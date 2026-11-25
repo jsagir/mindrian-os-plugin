@@ -4,7 +4,7 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 FAIL=0
 # Loop 1: the phase tests. Each plan appends its test files here.
-for t in tests/test-4002-job-statements.cjs; do
+for t in tests/test-4002-job-statements.cjs tests/test-4002-job-reach.cjs; do
   echo "--- 400.2: $t ---"
   if node "$t"; then echo ">>> 400.2: $t: PASSED"; else echo ">>> 400.2: $t: FAILED"; FAIL=1; break; fi
 done
@@ -19,7 +19,7 @@ fi
 echo "KNOWN_RED at base bb0bfbab3 (not counted): tests/test-130-lens-engine-e2e.cjs tests/test-261029-qef-hook-timeouts.cjs tests/test-369.26-registry-sync.cjs tests/test-276-tool-honesty-findings-closed.cjs tests/test-phase-14.sh"
 # Loop 3: drift checks. Run only when every test passed. Each plan appends its checks here.
 if [ "$FAIL" -eq 0 ]; then
-  for c in ; do
+  for c in "apply-job-labels.cjs --check" "apply-job-sentences.cjs --check --require-all" "build-command-registry.cjs --check" "build-skill-mirrors.cjs --check" "build-connector-registry.cjs --check" "build-harness-manifest.cjs --check" "build-orchestration-projection.cjs --check" "build-decision-advisor-table.cjs --check"; do
     echo "--- 400.2 check: $c ---"
     if node scripts/$c; then echo ">>> 400.2 check: $c: PASSED"; else echo ">>> 400.2 check: $c: FAILED"; FAIL=1; fi
   done
