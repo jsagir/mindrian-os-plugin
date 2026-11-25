@@ -429,10 +429,11 @@ check('W8. nature is a Green-only lens and datasets a White-only lens; without a
     assert.deepEqual(p.white.host_lenses, ['industry', 'datasets']);
     assert.deepEqual(p.black.host_lenses, ['industry']);
     assert.deepEqual(p.yellow.host_lenses, ['industry']);
-    for (const s of p.green.strings) {
-      const h = p.green.host_searches.find(x => x.lens === 'nature' && x.q_hash === s.q_hash);
-      assert.equal(h.text, 'site:asknature.org ' + s.text);
-    }
+    // PS-09: the nature lens searches the nature handle of green, not the normal green strings.
+    for (const s of p.green.strings) assert.equal(p.green.host_searches.some(x => x.lens === 'nature' && x.q_hash === s.q_hash), false);
+    const nh = p.green.host_searches.filter(x => x.lens === 'nature');
+    assert.deepEqual(nh.map(x => x.text), ['site:asknature.org ' + fx.GOOD_NATURE]);
+    assert.equal(nh[0].q_hash, p.green.nature.q_hash);
     for (const s of p.white.strings) {
       const h = p.white.host_searches.find(x => x.lens === 'datasets' && x.q_hash === s.q_hash);
       assert.equal(h.text, 'site:kaggle.com/datasets ' + s.text);
@@ -468,7 +469,8 @@ check('W9. a host result off asknature.org or off kaggle.com/datasets is refused
       }
       return WEB(1);
     };
-    const first = (hat) => ctx.plan.hats[hat].strings[0].q_hash;
+    // PS-09: for green, the nature search is the one of the nature handle.
+    const first = (hat) => (hat === 'green' ? ctx.plan.hats.green.nature.q_hash : ctx.plan.hats[hat].strings[0].q_hash);
     const hats = { white: fx.approveHat(ctx.plan, 'white', [first('white')]), green: fx.approveHat(ctx.plan, 'green', [first('green')]) };
     const searches = entriesFor(ctx.plan, make, ['white', 'green']).filter(e => e.q_hash === first(e.hat));
     const out = await goHost(ctx, fx.approvedFile(ctx, hats), hostFile(ctx, searches), captureSeam());
@@ -478,7 +480,7 @@ check('W9. a host result off asknature.org or off kaggle.com/datasets is refused
     const white = fx.packOf(ctx, 'white');
     assert.ok(white.items.some(i => i.url === 'https://www.kaggle.com/datasets/acme/battery'));
     assert.ok(!white.items.some(i => /competitions|evil/.test(i.url)));
-    const g = out.strings.green[0].host.find(h => h.lens === 'nature');
+    const g = out.strings.green.find(s => s.nature === true).host.find(h => h.lens === 'nature');
     assert.equal(g.refused, 3);
     assert.equal(g.items, 1);
     const w = out.strings.white[0].host.find(h => h.lens === 'datasets');
@@ -493,13 +495,13 @@ check('W9b. WR-05 NEGATIVE: a host answer whose every result is off the site is 
     const make = (hat, h) => (h.lens === 'nature'
       ? [{ url: 'https://example.org/off', title: 'Off site', snippet: 'Off.' }, { url: 'https://asknature.org.evil.example/x', title: 'Suffix trick', snippet: 'Off.' }]
       : []);
-    const first = ctx.plan.hats.green.strings[0].q_hash;
+    const first = ctx.plan.hats.green.nature.q_hash;
     const hats = { green: fx.approveHat(ctx.plan, 'green', [first]) };
     const searches = entriesFor(ctx.plan, make, ['green']).filter(e => e.q_hash === first);
     assert.ok(searches.some(e => e.lens === 'nature'), 'green has a nature host search');
     const out = await goHost(ctx, fx.approvedFile(ctx, hats), hostFile(ctx, searches), captureSeam());
     assert.equal(out.ok, true, JSON.stringify(out));
-    const g = out.strings.green[0].host.find(h => h.lens === 'nature');
+    const g = out.strings.green.find(s => s.nature === true).host.find(h => h.lens === 'nature');
     assert.equal(g.state, 'not_executed');
     assert.equal(g.reason, 'provider_failed:host_off_site');
     assert.equal(g.refused, 2);
@@ -508,6 +510,7 @@ check('W9b. WR-05 NEGATIVE: a host answer whose every result is off the site is 
     assert.equal(out.hats.green, 'failed');
     assert.equal(out.reasons.green, 'provider_failed:host_off_site');
     assert.equal(fx.ledgerOf(ctx).hats.green.research, 'failed');
+    assert.equal(out.nature, 'failed:provider_failed:host_off_site');
   });
 });
 
@@ -543,6 +546,97 @@ check('W9d. IN-06: an invalid handles file is shown as refused and is counted in
   });
 });
 
+// PS-09 (owner sixth card, item 2): Green proposes one nature-terms handle for the nature lens.
+const NATURE = 'organisms that recover metals';
+function plannedNature(nature, extra) {
+  const room = fx.harborRoom();
+  fx.roomDbMod.closeRoomDb(fx.roomDbMod.openRoomDb(room));
+  const env = fx.envOf();
+  const res = fx.runToAccepted(room, env);
+  for (const h of RESEARCH) fx.writeHandles(res, h, fx.GOOD[h]);
+  const f = path.join(res.hats.green.dir, 'handles.json');
+  const v = JSON.parse(fs.readFileSync(f, 'utf8'));
+  if (nature === null) delete v.nature_handle;
+  else v.nature_handle = { handle: nature, why: 'How a living system does the same job.' };
+  fs.writeFileSync(f, JSON.stringify(v), 'utf8');
+  const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, fx.opts(env, extra));
+  return { room, env, res, out, plan: out.plan };
+}
+
+check('N1. PS-09: the nature lens searches the nature-terms handle of Green, limited to asknature.org; the normal Green strings never go to the nature lens', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const ctx = plannedNature(NATURE);
+    assert.equal(ctx.out.ok, true, JSON.stringify(ctx.out));
+    const g = ctx.plan.hats.green;
+    assert.equal(g.state, 'planned');
+    assert.ok(g.nature && g.nature.state === 'planned', JSON.stringify(g.nature));
+    assert.equal(g.nature.text, NATURE);
+    const nat = g.host_searches.filter(h => h.lens === 'nature');
+    assert.deepEqual(nat.map(h => h.text), ['site:asknature.org ' + NATURE]);
+    assert.equal(nat[0].q_hash, g.nature.q_hash);
+    for (const s of g.strings) assert.equal(g.host_searches.some(h => h.q_hash === s.q_hash && h.lens === 'nature'), false, 'a normal string is not an AskNature search');
+    // the host search of the nature string is filed as Green door evidence
+    const approved = fx.approvedFile(ctx, { green: fx.approveHat(ctx.plan, 'green') });
+    const host = fx.writeJsonTmp('host', 'host.json', { schema: 'mos.persona-host-results/1', run_id: ctx.res.run_id, plan_seq: 1, searches: [{ hat: 'green', lens: 'nature', q_hash: g.nature.q_hash, string: nat[0].text, results: [{ url: 'https://asknature.org/strategy/metal-recovery', title: 'Metal recovery', snippet: 'Microbes recover metals.' }] }] });
+    const seam = captureSeam();
+    const out = await door.cmdRunResearch({ roomDir: ctx.room, runId: ctx.res.run_id, approvedPath: approved, hostResultsPath: host }, fx.opts(ctx.env, { _fetchCorpusEnvelope: seam.fn, _sleep: async () => {} }));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.nature, 'ran_with_results');
+    assert.ok(fx.packOf(ctx, 'green').items.some(i => i.url === 'https://asknature.org/strategy/metal-recovery'));
+    for (const c of seam.calls) assert.notEqual(c.query, NATURE, 'the nature string goes to no door provider without a Tavily key');
+  });
+  await fx.withEnvAsync(KEYS, async () => {
+    const ctx = plannedNature(NATURE);
+    const g = ctx.plan.hats.green;
+    assert.equal(g.nature.state, 'planned');
+    const seam = captureSeam();
+    const out = await door.cmdRunResearch({ roomDir: ctx.room, runId: ctx.res.run_id, approvedPath: fx.approvedFile(ctx, { green: fx.approveHat(ctx.plan, 'green') }) }, fx.opts(ctx.env, { _fetchCorpusEnvelope: seam.fn, _sleep: async () => {} }));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    const ask = seam.calls.filter(c => Array.isArray(c.domains) && c.domains.includes('asknature.org'));
+    assert.ok(ask.length >= 1, 'one AskNature call');
+    for (const c of ask) assert.equal(c.query, NATURE, 'AskNature gets the nature handle only');
+    for (const s of g.strings) assert.ok(seam.calls.some(c => c.query === s.text && c.source === 'openalex'), 'the normal string still goes to openalex');
+    assert.equal(seam.calls.some(c => g.strings.some(s => s.text === c.query) && Array.isArray(c.domains) && c.domains.includes('asknature.org')), false);
+  });
+});
+
+check('N2. PS-09 NEGATIVE: a nature handle that names a room word, or is not a generic shape, is refused and shown; the nature lens is not planned', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    for (const [bad, reason] of [['harbor light organisms', 'room_identity_word'], ['organisms with 3 metals', 'handle_has_digit'], ['Organisms That Recover', 'handle_not_generic_shape']]) {
+      const ctx = plannedNature(bad);
+      assert.equal(ctx.out.ok, true, JSON.stringify(ctx.out));
+      const g = ctx.plan.hats.green;
+      assert.equal(g.state, 'planned', 'the normal Green strings still plan');
+      assert.equal(g.nature.state, 'not_planned:' + reason, bad);
+      assert.equal(g.host_searches.some(h => h.lens === 'nature'), false);
+      assert.ok(ctx.out.refused_shown.some(r => r.hat === 'green' && r.lens === 'nature' && r.reason === reason), JSON.stringify(ctx.out.refused_shown));
+      assert.equal(JSON.stringify(ctx.plan).includes(bad), false, 'a refused nature handle is not in the plan');
+    }
+  });
+});
+
+check('N3. PS-09 NEGATIVE: a missing nature handle reports the nature lens as not planned with a named reason, never empty; a second run uses the stored nature handle', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const ctx = plannedNature(null);
+    const g = ctx.plan.hats.green;
+    assert.equal(g.nature.state, 'not_planned:no_nature_handle');
+    assert.equal(g.host_searches.some(h => h.lens === 'nature'), false);
+    const out = await door.cmdRunResearch({ roomDir: ctx.room, runId: ctx.res.run_id, approvedPath: fx.approvedFile(ctx, { green: fx.approveHat(ctx.plan, 'green') }) }, fx.opts(ctx.env, { _fetchCorpusEnvelope: captureSeam().fn, _sleep: async () => {} }));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.nature, 'not_planned:no_nature_handle');
+    assert.notEqual(out.nature, 'ran_empty');
+    // the store keeps an accepted nature handle for the brief: a second run plans it with no handles file
+    const first = plannedNature(NATURE);
+    assert.equal(first.plan.hats.green.nature.state, 'planned');
+    const env = first.env;
+    const res2 = fx.runToAccepted(first.room, env);
+    const again = door.cmdPlanResearch({ roomDir: first.room, runId: res2.run_id }, fx.opts(env));
+    assert.equal(again.ok, true, JSON.stringify(again));
+    assert.equal(again.plan.hats.green.nature.state, 'planned');
+    assert.equal(again.plan.hats.green.nature.text, NATURE);
+  });
+});
+
 check('W10. red and blue never search; every host string passes the egress audit; an edit recomputes the host strings; the room identity screen still refuses a room word', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();
@@ -551,7 +645,8 @@ check('W10. red and blue never search; every host string passes the egress audit
     for (const hat of RESEARCH) {
       for (const h of ctx.plan.hats[hat].host_searches) {
         assert.doesNotThrow(() => rsEgress.auditQueryString(h.text, 'persona-hats'), hat + ' ' + h.text);
-        assert.ok(h.text.endsWith(ctx.plan.hats[hat].strings.find(x => x.q_hash === h.q_hash).text));
+        const src = ctx.plan.hats[hat].strings.find(x => x.q_hash === h.q_hash) || (h.lens === 'nature' ? ctx.plan.hats[hat].nature : null);
+        assert.ok(src && h.text.endsWith(src.text), hat + ' ' + h.text);
       }
     }
     const seam = captureSeam();
@@ -570,7 +665,9 @@ check('W10. red and blue never search; every host string passes the egress audit
     const g = edited.plan.hats.green;
     const newStr = g.strings[0];
     assert.equal(newStr.text, 'termite mounds analogous solutions');
-    assert.equal(g.host_searches.find(h => h.lens === 'nature' && h.q_hash === newStr.q_hash).text, 'site:asknature.org termite mounds analogous solutions');
+    // PS-09: an edit of a normal green string makes no nature search; the nature search stays the nature handle.
+    assert.equal(g.host_searches.some(h => h.q_hash === newStr.q_hash), false);
+    assert.deepEqual(g.host_searches.filter(h => h.lens === 'nature').map(h => h.text), ['site:asknature.org ' + fx.GOOD_NATURE]);
     assert.ok(!g.host_searches.some(h => h.q_hash === old.q_hash), 'no host search for the replaced string');
   });
   await fx.withEnvAsync(NO_KEYS, async () => {

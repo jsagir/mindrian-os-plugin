@@ -16,6 +16,8 @@ const FIXTURE_ROOM = path.join(__dirname, 'fixtures', '4002', 'spike-room');
 const DOOR_PATH = path.join(ROOT, 'scripts', 'persona-hats.cjs');
 const RECORD_REL = 'tests/fixtures/4002/spike-overlap-record.json';
 const DEFAULT_HANDLE = 'battery recycling';
+// PS-09 (owner sixth card, item 2): the nature-terms handle of Green for the AskNature lens.
+const DEFAULT_NATURE_HANDLE = 'organisms that recover metals';
 const RESEARCH = Object.freeze(['white', 'black', 'yellow', 'green']);
 const ALL_HATS = Object.freeze(['white', 'red', 'black', 'yellow', 'green', 'blue']);
 
@@ -58,7 +60,7 @@ function fail(reason, extra) {
 
 /**
  * Prepare one spike run in a new directory. Offline: the door steps up to plan-research only.
- * @param {{dir: string, handle?: string}} opts
+ * @param {{dir: string, handle?: string, natureHandle?: string}} opts
  * @param {Object} [deps] door seams: now, randomHex (and others the door accepts; none is a fetch)
  */
 function prepare(opts, deps) {
@@ -72,6 +74,7 @@ function prepare(opts, deps) {
     if (fs.readdirSync(dir).length > 0) return fail('dir_not_empty');
   }
   const handle = typeof o.handle === 'string' && o.handle.trim().length > 0 ? o.handle.trim() : DEFAULT_HANDLE;
+  const natureHandle = typeof o.natureHandle === 'string' && o.natureHandle.trim().length > 0 ? o.natureHandle.trim() : DEFAULT_NATURE_HANDLE;
 
   const door = require(DOOR_PATH);
   const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
@@ -108,11 +111,13 @@ function prepare(opts, deps) {
     if (!a.ok || a.accept_done !== true) return fail('accept_persona_failed:' + (a.reason || 'not_done'));
   }
   for (const hat of RESEARCH) {
-    writeJson(path.join(res.hats[hat].dir, 'handles.json'), {
+    const doc = {
       schema: 'mos.persona-handles/1',
       hat,
       handles: [{ handle, why: 'One generic field term for the overlap spike.' }],
-    });
+    };
+    if (hat === 'green') doc.nature_handle = { handle: natureHandle, why: 'The same job in nature terms, for the AskNature lens.' };
+    writeJson(path.join(res.hats[hat].dir, 'handles.json'), doc);
   }
   const plan = door.cmdPlanResearch({ roomDir, runId: res.run_id }, d);
   if (!plan.ok) return fail('plan_research_failed:' + plan.reason);
@@ -131,9 +136,13 @@ function prepare(opts, deps) {
     const rec = plan.plan.hats[hat];
     if (rec.state !== 'planned') continue;
     unavailable[hat] = rec.unavailable_line || '';
-    for (const s of rec.strings) strings.push({ hat, text: s.text, q_hash: s.q_hash, providers: rec.providers.slice(), lenses: rec.lens_set.map(e => e.lens).concat(rec.host_lenses || []) });
+    const nat = rec.nature && rec.nature.state === 'planned' ? rec.nature : null;
+    if (rec.nature && !nat) unavailable[hat] = (unavailable[hat] ? unavailable[hat] + ' ' : '') + 'AskNature: ' + rec.nature.state + '.';
+    const allLenses = rec.lens_set.map(e => e.lens).concat(rec.host_lenses || []);
+    for (const s of rec.strings) strings.push({ hat, text: s.text, q_hash: s.q_hash, providers: rec.providers.slice(), lenses: allLenses.filter(l => l !== 'nature') });
+    if (nat) strings.push({ hat, text: nat.text, q_hash: nat.q_hash, providers: rec.providers.slice(), lenses: ['nature'], nature: true });
     for (const h of (rec.host_searches || [])) hostSearches.push({ hat, lens: h.lens, label: h.label, q_hash: h.q_hash, text: h.text });
-    approved.hats[hat] = { decision: 'defer', q_hashes: rec.strings.map(s => s.q_hash), providers: rec.providers.slice() };
+    approved.hats[hat] = { decision: 'defer', q_hashes: rec.strings.map(s => s.q_hash).concat(nat ? [nat.q_hash] : []), providers: rec.providers.slice() };
   }
   const approvedPath = path.join(work, 'approved.json');
   writeJson(approvedPath, approved);
@@ -152,9 +161,10 @@ function prepare(opts, deps) {
   lines.push('SPIKE PREPARED. Nothing was sent. Nothing leaves this machine until you run the run-research line in step 4.');
   lines.push('Directory: ' + dir);
   lines.push('Handle: ' + handle + ' (generic; no room detail)');
+  lines.push('Nature handle (green, AskNature lens only): ' + natureHandle);
   lines.push('');
   lines.push('The strings that run-research sends, and the providers that receive each one:');
-  for (const s of strings) lines.push('  ' + s.hat.padEnd(7) + '| ' + s.text + ' | ' + s.providers.join(', '));
+  for (const s of strings) lines.push('  ' + s.hat.padEnd(7) + '| ' + s.text + ' | ' + (s.nature ? 'AskNature only' : s.providers.join(', ')));
   for (const hat of Object.keys(unavailable)) if (unavailable[hat]) lines.push('  ' + hat + ': ' + unavailable[hat]);
   lines.push('');
   lines.push('Providers: openalex and arxiv need no key. With TAVILY_API_KEY set, the industry lens goes through Tavily, AskNature (green) and Kaggle datasets (white) go through Tavily with a site filter (providers tavily, asknature, kaggle). With no Tavily key those web lenses become the host web search (provider host-web).');
@@ -203,11 +213,11 @@ function main(argv) {
     if (typeof argv[i] === 'string' && argv[i].startsWith('--')) flags[argv[i].slice(2)] = argv[i + 1];
   }
   if (typeof flags.dir !== 'string' || flags.dir.length === 0) {
-    process.stderr.write('usage: lib-4002-spike-prepare.cjs --dir <new empty directory> [--handle <generic term>]\n');
+    process.stderr.write('usage: lib-4002-spike-prepare.cjs --dir <new empty directory> [--handle <generic term>] [--nature-handle <the same job in nature terms>]\n');
     process.exitCode = 2;
     return undefined;
   }
-  const out = prepare({ dir: flags.dir, handle: flags.handle });
+  const out = prepare({ dir: flags.dir, handle: flags.handle, natureHandle: flags['nature-handle'] });
   if (!out.ok) {
     process.stderr.write('spike preparation failed: ' + out.reason + '\n');
     process.exitCode = 1;
@@ -222,4 +232,4 @@ if (require.main === module) {
   main(process.argv.slice(2));
 }
 
-module.exports = { prepare, main, DEFAULT_HANDLE };
+module.exports = { prepare, main, DEFAULT_HANDLE, DEFAULT_NATURE_HANDLE };

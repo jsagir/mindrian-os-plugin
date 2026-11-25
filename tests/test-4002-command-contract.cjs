@@ -480,6 +480,22 @@ check('C31. CR-01: each persona-agent dispatch (Step 4 handles, Step 6 readers, 
   }
 });
 
+check('C32. PS-09: the handle contract asks green for one nature handle (nature_handle); Step 5 shows the AskNature string, approves nature.q_hash and prints the nature state', () => {
+  const a = text.indexOf('<!-- contract:handles:start -->');
+  const b = text.indexOf('<!-- contract:handles:end -->');
+  assert.ok(a >= 0 && b > a, 'handle contract markers');
+  const h = text.slice(a, b);
+  assert.ok(/Nature rule \(green only\)/.test(h), 'the nature rule');
+  assert.ok(/`nature_handle`/.test(h), 'the output key');
+  assert.ok(/AskNature only/.test(h) && /no qualifier/.test(h), 'AskNature only, no qualifier');
+  assert.ok(/no name of the venture/.test(h.slice(h.indexOf('Nature rule'))), 'the identity rule of the nature handle');
+  const s5 = section('### Step 5');
+  assert.ok(/the `nature` entry/.test(s5), 'the card shows the nature entry');
+  assert.ok(/AskNature: not planned \(<reason>\)/.test(s5), 'a nature lens that is not planned is named with its reason');
+  assert.ok(/`nature\.q_hash`/.test(s5), 'the approved file holds the nature q_hash');
+  assert.ok(/Research green \(AskNature\): <nature>\./.test(s5), 'the research line of the nature lens');
+});
+
 check('Z1. the personas one_job_note says "is wired by Phase 400.2" and not "not wired yet"; the two job ids are unchanged', () => {
   const canon = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'section-job-canon.json'), 'utf8'));
   const list = Array.isArray(canon.sections) ? canon.sections : (Array.isArray(canon) ? canon : null);

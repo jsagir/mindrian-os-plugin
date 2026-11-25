@@ -187,8 +187,12 @@ check('O5. NEGATIVE: the preparation tool makes zero requests, stops after plan-
   assert.equal(out.ok, true, JSON.stringify(out));
   assert.equal(seamCalls.length, 0);
   assert.equal(blocked, 0);
-  assert.deepEqual(out.strings.map(s => s.hat), ['white', 'black', 'yellow', 'green']);
-  for (const s of out.strings) {
+  // PS-09: green has one more string, its nature handle for the AskNature lens only.
+  assert.deepEqual(out.strings.map(s => s.hat), ['white', 'black', 'yellow', 'green', 'green']);
+  const natureStrings = out.strings.filter(s => s.nature === true);
+  assert.deepEqual(natureStrings.map(s => [s.hat, s.text, s.lenses.join()]), [['green', 'organisms that recover metals', 'nature']]);
+  for (const s of out.strings.filter(x => x.nature !== true)) {
+    assert.equal(s.lenses.includes('nature'), false, 'a normal string never runs the nature lens');
     assert.equal(s.text, 'battery recycling ' + ops.HAT_RESEARCH_QUALIFIER[s.hat]);
     assert.ok(Array.isArray(s.providers) && s.providers.includes('openalex'), JSON.stringify(s));
   }

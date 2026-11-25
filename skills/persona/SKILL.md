@@ -265,11 +265,13 @@ Handle rule: a handle is 1 to 4 lower-case words, with no digit and no punctuati
 
 Green rule (green only): each handle names a field other than the field of the room, where the same structural problem exists.
 
+Nature rule (green only): also propose one nature handle: the job of the target in nature terms, that is, how a living system does the same job (for example `organisms that recover metals` for battery recycling). It is 1 to 6 lower-case words, with no digit and no punctuation, and it holds no name of the venture, of a person, of a product or of a place. The door searches it on AskNature only and adds no qualifier to it.
+
 Bans: This step makes no web search: do not call WebSearch or WebFetch. Do not call brain_search or brain_query. Do not read the directory of another hat.
 
 Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
 
-Output: one file, `handles.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-handles/1`), `hat` (your hat) and `handles` (1 or 2 items, each `{handle, why}`, where `handle` is the handle and `why` is the line of reason). Your reply is the word done and the file path.
+Output: one file, `handles.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-handles/1`), `hat` (your hat) and `handles` (1 or 2 items, each `{handle, why}`, where `handle` is the handle and `why` is the line of reason). Green only: one more key, `nature_handle`, with one item `{handle, why}` for the nature handle. Your reply is the word done and the file path.
 <!-- contract:handles:end -->
 
 ### Step 5 -- Stop 3: the search cards, then the research
@@ -282,6 +284,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - the hat;
    - each exact string of `strings`, word for word, one on each line (mark an edited string as edited);
    - the `providers` that will receive the string;
+   - for green, the `nature` entry: when its `state` is `planned`, its exact `text`, word for word, as the AskNature string (the nature lens searches this string only, never the other strings of green); else the line `AskNature: not planned (<reason>)` with the reason of its `state`;
    - the `unavailable_line`, when it is not empty;
    - each entry of `host_searches`, when the list is not empty: its `label` word for word (`web search by the assistant`, `AskNature (through web search)` or `Kaggle datasets (through web search)`) and its exact `text`, word for word. These searches are run by the assistant with the web search tool of the host, not by a provider of the door. Add this sentence, word for word: Code cannot prove that the assistant searched exactly that string.;
    - this sentence, word for word: A failed provider may be asked again with the same string.
@@ -304,7 +307,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
 
    The door checks the edited text again and issues a new plan with a new `plan_seq`. The cards are shown again for the edited hats, from the new `plan`, with the refused edits of `refused_shown` and their reasons. The answers of the other hats stand. An edited string must keep the qualifier of its hat.
 
-3. **Approved file.** Write the approved file immediately after the cards, when every hat of `planned` has a final answer of approve, refuse or defer. Use a new private directory (`mktemp -d`); the inbox is not used. Make no fetch and no `run-research` call before the approved file exists. Copy `q_hashes` and `providers` from the plan of the last `plan-research` output: for an approve answer, every `q_hash` of `strings` and the whole `providers` list in its order; for a refuse or a defer answer, empty lists. Use the `plan_seq` of that plan. Write no entry for a hat that is not planned, and never one for red or blue. Larry never composes a search string and never changes a hash or a provider.
+3. **Approved file.** Write the approved file immediately after the cards, when every hat of `planned` has a final answer of approve, refuse or defer. Use a new private directory (`mktemp -d`); the inbox is not used. Make no fetch and no `run-research` call before the approved file exists. Copy `q_hashes` and `providers` from the plan of the last `plan-research` output: for an approve answer, every `q_hash` of `strings` (for green also `nature.q_hash` when the `state` of `nature` is `planned`) and the whole `providers` list in its order; for a refuse or a defer answer, empty lists. Use the `plan_seq` of that plan. Write no entry for a hat that is not planned, and never one for red or blue. Larry never composes a search string and never changes a hash or a provider.
 
    ```json
    {"schema": "mos.persona-approved/1", "run_id": "<run_id>", "plan_seq": 1, "hats": {"white": {"decision": "approve", "q_hashes": ["<q_hash>"], "providers": ["<provider>"]}, "black": {"decision": "refuse", "q_hashes": [], "providers": []}}}
@@ -337,7 +340,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - `host_result_not_approved`: a host result is for a string or a hat that was not approved; no search was sent by the door.
    - `host_result_not_in_plan`, `host_string_mismatch`: a host result does not match a host search of the plan, or its string was changed; no search was sent by the door.
 
-6. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. When a string of `strings.<hat>` has a `host` entry with the state `not_executed`, print one more line: `Host web search not run for <hat> (<lens>): <reason>.` with the `reason` of that entry: `provider_unavailable:host_web` (no host results for the string) or `provider_failed:host_off_site` (every result was off the site, so the search did not run as approved). Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
+6. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. When a string of `strings.<hat>` has a `host` entry with the state `not_executed`, print one more line: `Host web search not run for <hat> (<lens>): <reason>.` with the `reason` of that entry: `provider_unavailable:host_web` (no host results for the string) or `provider_failed:host_off_site` (every result was off the site, so the search did not run as approved). For green, print one more line from the output field `nature`: `Research green (AskNature): <nature>.` Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
 
 ### Step 6 -- Readings
 

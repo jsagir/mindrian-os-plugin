@@ -1274,7 +1274,12 @@ const HANDLES_SCHEMA = 'mos.persona-handles/1';
 const HANDLES_STORE_SCHEMA = 'mos.persona-handles-store/1';
 const EDITED_SCHEMA = 'mos.persona-edited/1';
 const PACKS_SCHEMA = 'mos.persona-pack-hashes/1';
-const HANDLES_KEYS = Object.freeze(['schema', 'hat', 'handles']);
+const HANDLES_KEYS = Object.freeze(['schema', 'hat', 'handles', 'nature_handle']);
+// PS-09 (owner sixth card, item 2): Green proposes one more handle, in nature terms, for the nature lens (AskNature).
+// It passes the same identity screen and checkHandle rules, with up to 6 words; the door adds no qualifier to it.
+const NATURE_LENS = 'nature';
+const NATURE_HAT = 'green';
+const NATURE_MAX_WORDS = 6;
 const HANDLE_ITEM_KEYS = Object.freeze(['handle', 'why']);
 const EDITED_KEYS = Object.freeze(['schema', 'run_id', 'edits']);
 const EDIT_ENTRY_KEYS = Object.freeze(['hat', 'q_hash_replaced', 'text']);
@@ -1390,7 +1395,9 @@ function readHandlesStore(roomDir, briefHash) {
   for (const hat of RESEARCH_HATS) {
     const e = r.value.hats[hat];
     if (!isPlain(e) || typeof e.persona_sha256 !== 'string' || !SHA256_RE.test(e.persona_sha256) || e.brief_hash !== briefHash || !validHandleList(e.handles)) continue;
+    if (e.nature_handle !== undefined && (hat !== NATURE_HAT || typeof e.nature_handle !== 'string' || e.nature_handle.length === 0 || e.nature_handle.length > 200)) continue;
     out.hats[hat] = { persona_sha256: e.persona_sha256, handles: e.handles.slice() };
+    if (typeof e.nature_handle === 'string') out.hats[hat].nature_handle = e.nature_handle;
   }
   return out;
 }
@@ -1405,6 +1412,7 @@ function writeHandlesStore(roomResolved, briefHash, updates, deps) {
     for (const hat of RESEARCH_HATS) {
       const e = updates[hat] || current.hats[hat];
       if (e) hats[hat] = { persona_sha256: e.persona_sha256, brief_hash: briefHash, handles: e.handles.slice() };
+      if (e && hat === NATURE_HAT && typeof e.nature_handle === 'string') hats[hat].nature_handle = e.nature_handle;
     }
     atomicWriteJson(file, { schema: HANDLES_STORE_SCHEMA, brief_hash: briefHash, hats });
     return { ok: true };
@@ -1466,7 +1474,16 @@ function readHandlesFile(dir, hat) {
     if (typeof item.handle !== 'string' || item.handle.length > 200 || typeof item.why !== 'string' || item.why.length === 0 || item.why.length > 200) return { ok: false, reason: 'schema_invalid:handles' };
     list.push(item.handle);
   }
-  return { ok: true, handles: list };
+  let nature = null;
+  if (Object.prototype.hasOwnProperty.call(v, 'nature_handle')) {
+    // PS-09: only Green has a nature handle.
+    const item = v.nature_handle;
+    if (hat !== NATURE_HAT || !isPlain(item)) return { ok: false, reason: 'schema_invalid:handles' };
+    for (const k of Object.keys(item)) if (!HANDLE_ITEM_KEYS.includes(k)) return { ok: false, reason: 'schema_invalid:handles' };
+    if (typeof item.handle !== 'string' || item.handle.length > 200 || typeof item.why !== 'string' || item.why.length === 0 || item.why.length > 200) return { ok: false, reason: 'schema_invalid:handles' };
+    nature = item.handle;
+  }
+  return { ok: true, handles: list, nature_handle: nature };
 }
 
 // ---- Phase 400.2-19: the host web search as a hand-off (owner third card, items 3 to 5) ----
@@ -1493,10 +1510,19 @@ function hostSearchesOf(rec) {
   const lenses = isPlain(rec) && Array.isArray(rec.host_lenses) ? rec.host_lenses : [];
   const strings = isPlain(rec) && Array.isArray(rec.strings) ? rec.strings : [];
   const out = [];
+  // PS-09: the normal strings never go to the nature lens; the nature lens gets the nature string of Green only.
+  const normal = lenses.filter(l => l !== NATURE_LENS);
   for (const str of strings) {
-    for (const lens of lenses) out.push({ lens, label: HOST_LABELS[lens], q_hash: str.q_hash, text: hostSearchText(lens, str.text) });
+    for (const lens of normal) out.push({ lens, label: HOST_LABELS[lens], q_hash: str.q_hash, text: hostSearchText(lens, str.text) });
   }
+  const nat = naturePlanned(rec);
+  if (nat && lenses.includes(NATURE_LENS)) out.push({ lens: NATURE_LENS, label: HOST_LABELS[NATURE_LENS], q_hash: nat.q_hash, text: hostSearchText(NATURE_LENS, nat.text) });
   return out;
+}
+
+/** PS-09: the planned nature string of a hat plan ({text, q_hash, handle}), or null. */
+function naturePlanned(rec) {
+  return isPlain(rec) && isPlain(rec.nature) && rec.nature.state === 'planned' && typeof rec.nature.text === 'string' && typeof rec.nature.q_hash === 'string' ? rec.nature : null;
 }
 
 /**
@@ -1598,14 +1624,17 @@ function planFirst(roomResolved, lr, map, deps) {
     if (!sha) { rec.state = 'not_planned:persona_not_accepted'; continue; }
 
     let handles = null;
+    let natureRaw = null;
     let fromFile = false;
     const stored = store.hats[hat];
     if (stored && stored.persona_sha256 === sha) {
       handles = stored.handles;
+      natureRaw = typeof stored.nature_handle === 'string' ? stored.nature_handle : null;
     } else {
       const f = readHandlesFile(hatDirOf(map, hat), hat);
       if (f.ok) {
         handles = f.handles;
+        natureRaw = f.nature_handle;
         fromFile = true;
         consumed.push(hat);
       } else if (f.reason !== 'no_file') {
@@ -1644,6 +1673,27 @@ function planFirst(roomResolved, lr, map, deps) {
     rec.state = 'planned';
     rec.lens_set = lp.lens_set;
     rec.host_lenses = lp.host_lenses;
+    if (hat === NATURE_HAT) {
+      // PS-09: the nature lens searches the nature handle only. A missing or refused one leaves the lens not planned,
+      // with a named reason; the normal strings of the hat still plan.
+      const natureLens = lp.lens_set.some(e => e.lens === NATURE_LENS) || lp.host_lenses.includes(NATURE_LENS);
+      if (!natureLens) {
+        rec.nature = { state: 'not_planned:no_available_provider' };
+      } else if (typeof natureRaw !== 'string') {
+        rec.nature = { state: 'not_planned:no_nature_handle' };
+      } else {
+        const c = checkHandle(natureRaw, screen, NATURE_MAX_WORDS);
+        const s = c.ok ? composeNatureString(c.handle) : c;
+        if (!s.ok) {
+          rec.nature = { state: 'not_planned:' + s.reason };
+          refusedShown.push({ hat, lens: NATURE_LENS, text: natureRaw.slice(0, SHOWN_TEXT_MAX), reason: s.reason });
+          refusedCount += 1;
+        } else {
+          rec.nature = { state: 'planned', lens: NATURE_LENS, text: s.text, q_hash: s.q_hash, handle: s.handle };
+          if (storeUpdates[hat]) storeUpdates[hat].nature_handle = s.handle;
+        }
+      }
+    }
     rec.host_searches = hostSearchesOf(rec);
     rec.providers = lp.providers;
     rec.unavailable_line = lp.unavailable_line;
@@ -1661,7 +1711,7 @@ function planFirst(roomResolved, lr, map, deps) {
   const now = nowOf(deps);
   const states = {};
   for (const hat of HATS) states[hat] = RESEARCH_HATS.includes(hat) ? planHats[hat].state : 'never_searches';
-  const approved = planned.reduce((n, h) => n + planHats[h].strings.length, 0);
+  const approved = planned.reduce((n, h) => n + planHats[h].strings.length + (naturePlanned(planHats[h]) ? 1 : 0), 0);
 
   try {
     if (Object.keys(storeUpdates).length > 0) writeHandlesStore(roomResolved, ledger.brief_hash, storeUpdates, deps);
@@ -3270,7 +3320,8 @@ function handleHitsScreen(handleTokens, screen) {
  * @param {object} screen - the result of roomIdentityScreen
  * @returns {{ok: true, handle: string} | {ok: false, reason: string}}
  */
-function checkHandle(rawHandle, screen) {
+function checkHandle(rawHandle, screen, maxWords) {
+  const most = Number.isInteger(maxWords) && maxWords > 0 ? maxWords : 4;
   if (typeof rawHandle !== 'string') return { ok: false, reason: 'handle_not_generic_shape' };
   const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
   try {
@@ -3280,7 +3331,7 @@ function checkHandle(rawHandle, screen) {
   }
   const gdh = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs')).genericDomainHandle;
   const words = rawHandle.length > 0 ? rawHandle.split(' ') : [];
-  if (rawHandle !== gdh(rawHandle) || words.length < 1 || words.length > 4) return { ok: false, reason: 'handle_not_generic_shape' };
+  if (rawHandle !== gdh(rawHandle) || words.length < 1 || words.length > most) return { ok: false, reason: 'handle_not_generic_shape' };
   if (/[0-9]/.test(rawHandle)) return { ok: false, reason: 'handle_has_digit' };
   if (!screen || screen.ran !== true || typeof screen.has !== 'function') return { ok: false, reason: 'identity_screen_unavailable' };
   if (handleHitsScreen(identityTokens(rawHandle), screen)) return { ok: false, reason: 'room_identity_word' };
@@ -3308,6 +3359,24 @@ function composeString(hat, handle) {
   if (!audited.ok) return { ok: false, reason: audited.reason };
   const fam = require(path.join(REPO_ROOT, 'lib', 'core', 'research-planner', 'families.cjs'));
   return { ok: true, text, handle, qualifier, q_hash: fam.qHash(text) };
+}
+
+/**
+ * PS-09: the search string of the nature lens of Green is the nature handle alone (no qualifier). The caller passes a
+ * handle that checkHandle accepted with NATURE_MAX_WORDS. The site limit is added by the lens (Tavily domain filter, or
+ * the site: prefix of the host search), never here.
+ * @returns {{ok: true, text: string, handle: string, q_hash: string} | {ok: false, reason: string}}
+ */
+function composeNatureString(handle) {
+  if (typeof handle !== 'string') return { ok: false, reason: 'handle_not_generic_shape' };
+  const gdh = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs')).genericDomainHandle;
+  if (handle.split(' ').length > NATURE_MAX_WORDS || handle !== gdh(handle)) return { ok: false, reason: 'handle_not_generic_shape' };
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  const lq = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'lane-queries.cjs'));
+  const audited = lq.auditEditedQuery(handle, { auditFn: (s) => rs.auditQueryString(s, 'persona-hats') });
+  if (!audited.ok) return { ok: false, reason: audited.reason };
+  const fam = require(path.join(REPO_ROOT, 'lib', 'core', 'research-planner', 'families.cjs'));
+  return { ok: true, text: handle, handle, q_hash: fam.qHash(handle) };
 }
 
 // ---------------------------------------------------------------------------
@@ -3352,10 +3421,12 @@ function validateApproved(plan, approved) {
     if (!APPROVED_DECISIONS.includes(e.decision)) return bad('schema_invalid:decision');
     if (!Array.isArray(e.q_hashes) || !e.q_hashes.every(h => typeof h === 'string' && h.length <= 100)) return bad('schema_invalid:q_hashes');
     if (!Array.isArray(e.providers) || e.providers.length > MAX_PROVIDER_NAMES || !e.providers.every(p => typeof p === 'string' && p.length <= 40)) return bad('schema_invalid:providers');
-    if (e.q_hashes.length > MAX_STRINGS_PER_HAT) return bad('too_many_strings');
-    if (new Set(e.q_hashes).size !== e.q_hashes.length) return bad('schema_invalid:q_hashes');
     const rec = plan.hats && plan.hats[hat];
+    const nat = isPlain(rec) && rec.state === 'planned' ? naturePlanned(rec) : null;
+    if (e.q_hashes.length > MAX_STRINGS_PER_HAT + (nat ? 1 : 0)) return bad('too_many_strings');
+    if (new Set(e.q_hashes).size !== e.q_hashes.length) return bad('schema_invalid:q_hashes');
     const known = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.strings) ? rec.strings.map(s => s && s.q_hash) : [];
+    if (nat) known.push(nat.q_hash);
     if (!e.q_hashes.every(h => known.includes(h))) return bad('string_not_in_plan');
     if (e.decision === 'approve') {
       if (e.q_hashes.length === 0) return bad('schema_invalid:q_hashes');
@@ -3809,7 +3880,7 @@ async function cmdRunResearch(args, deps) {
       results[hat] = { state: isPlain(rec) && typeof rec.state === 'string' ? rec.state : 'not_planned:no_valid_handle', reason: null, fetched: [] };
       continue;
     }
-    plannedCount += Array.isArray(rec.strings) ? rec.strings.length : 0;
+    plannedCount += (Array.isArray(rec.strings) ? rec.strings.length : 0) + (naturePlanned(rec) ? 1 : 0);
     const entry = approved.hats[hat];
     if (!entry) { results[hat] = Object.assign(hatResearchState([], 'none'), { fetched: [] }); continue; }
     if (entry.decision === 'refuse' || entry.decision === 'defer') { results[hat] = Object.assign(hatResearchState([], entry.decision), { fetched: [] }); continue; }
@@ -3821,7 +3892,8 @@ async function cmdRunResearch(args, deps) {
       && lp.host_lenses.length === (Array.isArray(rec.host_lenses) ? rec.host_lenses : []).length
       && lp.host_lenses.every((l, i) => l === rec.host_lenses[i]);
     if (!sameSet) { results[hat] = { state: 'failed', reason: 'provider_set_changed', fetched: [] }; continue; }
-    queue.push({ hat, rec, strings: rec.strings.filter(s => entry.q_hashes.includes(s.q_hash)) });
+    const nat = naturePlanned(rec);
+    queue.push({ hat, rec, strings: rec.strings.filter(s => entry.q_hashes.includes(s.q_hash)), nature: nat && entry.q_hashes.includes(nat.q_hash) ? { text: nat.text, q_hash: nat.q_hash } : null });
   }
 
   // Fetch: White first, then black, yellow, green. One hat at a time; the two strings of a hat run together.
@@ -3839,7 +3911,17 @@ async function cmdRunResearch(args, deps) {
         const job = queue.find(q => q.hat === hat);
         if (!job) continue;
         try {
-          const fetched = await fetchHatStrings(hat, job.rec, job.strings, roomResolved, db, deps, hostIndex);
+          // PS-09: the normal strings run every lens but nature; the nature string of Green runs the nature lens only.
+          const lensSet = Array.isArray(job.rec.lens_set) ? job.rec.lens_set : [];
+          const hostLenses = Array.isArray(job.rec.host_lenses) ? job.rec.host_lenses : [];
+          const normalRec = Object.assign({}, job.rec, { lens_set: lensSet.filter(e => !(isPlain(e) && e.lens === NATURE_LENS)), host_lenses: hostLenses.filter(l => l !== NATURE_LENS) });
+          let fetched = job.strings.length > 0 ? await fetchHatStrings(hat, normalRec, job.strings, roomResolved, db, deps, hostIndex) : [];
+          if (job.nature) {
+            const natureRec = Object.assign({}, job.rec, { lens_set: lensSet.filter(e => isPlain(e) && e.lens === NATURE_LENS), host_lenses: hostLenses.filter(l => l === NATURE_LENS) });
+            const nf = await fetchHatStrings(hat, natureRec, [job.nature], roomResolved, db, deps, hostIndex);
+            for (const f of nf) f.nature = true;
+            fetched = fetched.concat(nf);
+          }
           results[hat] = Object.assign(hatResearchState(fetched.map(f => Object.assign({ state: f.result.state, partial: f.result.partial, failed_providers: f.result.failed_providers }, {})), 'approve'), { fetched });
         } catch (e) {
           results[hat] = { state: 'failed', reason: 'thrown', fetched: [] };
@@ -3866,6 +3948,20 @@ async function cmdRunResearch(args, deps) {
     if (results[hat].reason) ledger.hats[hat].research_reason = results[hat].reason;
     else delete ledger.hats[hat].research_reason;
   }
+  // PS-09: the state of the nature lens of Green, named on its own: not planned with a reason, not approved, declined,
+  // or the state of the nature string. Never an empty answer for a search that was not sent.
+  const natureState = (() => {
+    const rec = plan.hats[NATURE_HAT];
+    if (!isPlain(rec) || rec.state !== 'planned') return isPlain(rec) && typeof rec.state === 'string' ? rec.state : 'not_planned:no_valid_handle';
+    if (!isPlain(rec.nature)) return 'not_planned:no_available_provider';
+    if (rec.nature.state !== 'planned') return String(rec.nature.state);
+    const entry = approved.hats[NATURE_HAT];
+    if (!entry || entry.decision !== 'approve') return 'declined';
+    if (!entry.q_hashes.includes(rec.nature.q_hash)) return 'not_approved';
+    const f = (results[NATURE_HAT].fetched || []).find(x => x.nature === true);
+    return f ? f.result.state : (results[NATURE_HAT].state === 'failed' ? 'failed:' + (results[NATURE_HAT].reason || 'unknown') : 'not_executed');
+  })();
+  ledger.hats[NATURE_HAT].nature_research = natureState;
   const before = isPlain(ledger.research) && Number.isInteger(ledger.research.strings_refused) ? ledger.research.strings_refused : 0;
   ledger.research = { strings_approved: approvedCount, strings_refused: before + (plannedCount - approvedCount) };
   const sealed = sealPacks(ledger, map);
@@ -3887,7 +3983,7 @@ async function cmdRunResearch(args, deps) {
     hats[hat] = results[hat].state;
     reasons[hat] = results[hat].reason || null;
     itemsOut[hat] = packs[hat].items.length;
-    stringsOut[hat] = results[hat].fetched.map(f => ({
+    stringsOut[hat] = results[hat].fetched.map(f => Object.assign({
       q_hash: f.q_hash,
       state: f.result.state,
       partial: f.result.partial,
@@ -3897,7 +3993,7 @@ async function cmdRunResearch(args, deps) {
       substitute_calls: f.record.substitute_calls,
       recovery_action: f.record.recovery_action,
       host: f.record.host.map(h => Object.assign({}, h)),
-    }));
+    }, f.nature === true ? { nature: true } : {}));
   }
   return {
     ok: true,
@@ -3906,6 +4002,7 @@ async function cmdRunResearch(args, deps) {
     hats,
     reasons,
     strings: stringsOut,
+    nature: natureState,
     evidence_items: itemsOut,
     counts: { strings_approved: ledger.research.strings_approved, strings_refused: ledger.research.strings_refused },
   };

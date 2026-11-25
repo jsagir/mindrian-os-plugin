@@ -27,6 +27,8 @@ const GOOD = {
   yellow: ['subscription models', 'hand off'],
   green: ['coral reefs', 'swarm logistics'],
 };
+// PS-09: the nature-terms handle of Green for the nature lens (AskNature).
+const GOOD_NATURE = 'organisms that recover metals';
 const NO_KEYS = { TAVILY_API_KEY: null, PATENTSVIEW_API_KEY: null };
 
 const tmpRoots = [];
@@ -120,12 +122,16 @@ function runToAccepted(room, env) {
   }
   return res;
 }
-function writeHandles(res, hat, handles) {
-  fs.writeFileSync(path.join(res.hats[hat].dir, 'handles.json'), JSON.stringify({
+// nature: the nature handle of green (PS-09); undefined gives GOOD_NATURE, null gives none. Other hats have none.
+function writeHandles(res, hat, handles, nature) {
+  const doc = {
     schema: 'mos.persona-handles/1',
     hat,
     handles: handles.map(h => ({ handle: h, why: 'It names the field of the problem.' })),
-  }), 'utf8');
+  };
+  const n = nature === undefined ? GOOD_NATURE : nature;
+  if (hat === 'green' && typeof n === 'string') doc.nature_handle = { handle: n, why: 'How a living system does the same job.' };
+  fs.writeFileSync(path.join(res.hats[hat].dir, 'handles.json'), JSON.stringify(doc), 'utf8');
 }
 function ledgerOfRun(res) {
   return JSON.parse(fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8'));
@@ -133,7 +139,8 @@ function ledgerOfRun(res) {
 
 /**
  * A deep run taken to a finished plan. Call it inside withEnvAsync so the provider set is the one the leg wants.
- * options: db (default true), room (reuse a room), env (reuse an env), handles ({hat: [handle, handle]}).
+ * options: db (default true), room (reuse a room), env (reuse an env), handles ({hat: [handle, handle]}),
+ * nature (the nature handle of green; undefined gives GOOD_NATURE, null gives none).
  */
 function planned(options) {
   const o = options || {};
@@ -142,7 +149,7 @@ function planned(options) {
   const env = o.env || envOf();
   const res = runToAccepted(room, env);
   const handles = o.handles || GOOD;
-  for (const h of RESEARCH) writeHandles(res, h, handles[h]);
+  for (const h of RESEARCH) writeHandles(res, h, handles[h], o.nature);
   const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env));
   assert.equal(out.ok, true, JSON.stringify(out));
   assert.deepEqual(out.planned, RESEARCH);
@@ -159,7 +166,9 @@ function packOf(ctx, hat, file) {
 }
 function approveHat(plan, hat, hashes) {
   const p = plan.hats[hat];
-  return { decision: 'approve', q_hashes: hashes || p.strings.map(s => s.q_hash), providers: p.providers.slice() };
+  // The default approves every planned string, the nature string of green included (PS-09).
+  const all = p.strings.map(s => s.q_hash).concat(p.nature && p.nature.state === 'planned' ? [p.nature.q_hash] : []);
+  return { decision: 'approve', q_hashes: hashes || all, providers: p.providers.slice() };
 }
 function approvedFile(ctx, hats, over) {
   return writeJsonTmp('approved', 'approved.json', Object.assign({ schema: 'mos.persona-approved/1', run_id: ctx.res.run_id, plan_seq: 1, hats }, over || {}));
@@ -256,7 +265,7 @@ function dbCounts(room) {
 
 module.exports = {
   ROOT, door, fam, seEnv, roomDbMod, navigation,
-  HATS, RESEARCH, READ_HATS, NOW, GOOD, NO_KEYS,
+  HATS, RESEARCH, READ_HATS, NOW, GOOD, GOOD_NATURE, NO_KEYS,
   mkTmp, cleanup, put, harborRoom, withEnvAsync, envOf, opts, writeJsonTmp,
   runToAccepted, writeHandles, planned, ledgerOf, mapOf, packOf,
   approveHat, approvedFile, approveAll,

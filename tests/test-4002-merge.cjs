@@ -678,12 +678,13 @@ check('M21. the Blue ledger counts the approved and refused strings from the pla
     const hats = Object.assign(fx.approveAll(ctx.plan, ['yellow']), { yellow: { decision: 'refuse', q_hashes: [], providers: [] } });
     const out = await fx.go(ctx, fx.approvedFile(ctx, hats), fx.makeSeam());
     assert.equal(out.ok, true, JSON.stringify(out));
-    assert.deepEqual(out.counts, { strings_approved: 6, strings_refused: 2 });
+    // 3 approved hats with 2 strings each, plus the nature string of green (PS-09): 7.
+    assert.deepEqual(out.counts, { strings_approved: 7, strings_refused: 2 });
     for (const h of fx.READ_HATS) fx.writeReading(ctx, h, fx.readingOf(ctx, h));
     const c = fx.doCheck(ctx);
     assert.equal(c.ok, true, JSON.stringify(c));
     const blue = JSON.parse(fs.readFileSync(c.blue_ledger, 'utf8'));
-    assert.equal(blue.strings_approved, 6);
+    assert.equal(blue.strings_approved, 7);
     assert.equal(blue.strings_refused, 2);
     for (const h of fx.RESEARCH) assert.equal(blue.hats[h].door_items, fx.packOf(ctx, h).items.length, h);
     assert.equal(blue.hats.yellow.door_items, 0);
