@@ -754,6 +754,357 @@ function cmdAcceptPersona(args, deps) {
 }
 
 // ---------------------------------------------------------------------------
+// Reading schema (S-6 with FS-4), per-hat rules (DESIGN 4.7) and the citation boundary (FS-5)
+// ---------------------------------------------------------------------------
+
+const RESEARCH_HATS = Object.freeze(['white', 'black', 'yellow', 'green']);
+const READ_HATS = Object.freeze(['white', 'red', 'black', 'yellow', 'green']);
+
+const COMMON_READING_KEYS = Object.freeze(['schema', 'run_id', 'hat']);
+const SELF_KEYS = Object.freeze(['self_search_strings', 'self_found_sources']);
+
+// The closed key list of each hat. A forbidden key gives forbidden_key:<key>; any other key that is not
+// allowed gives unknown_key:<key>. Design v2 superseded by owner answer 1: no follow-up request key exists.
+const READING_KEYS = Object.freeze({
+  white: Object.freeze({
+    allowed: Object.freeze(['positions', 'evidence', 'missing_data', 'nothing_missing'].concat(SELF_KEYS)),
+    forbidden: Object.freeze(['justification', 'provocations', 'none_found', 'verdict', 'skipped', 'thin', 'ask_next']),
+  }),
+  red: Object.freeze({
+    allowed: Object.freeze(['positions']),
+    forbidden: Object.freeze(['evidence', 'justification', 'missing_data', 'provocations', 'none_found', 'verdict', 'self_search_strings', 'self_found_sources', 'skipped', 'thin', 'ask_next']),
+  }),
+  black: Object.freeze({
+    allowed: Object.freeze(['positions', 'evidence', 'steelman'].concat(SELF_KEYS)),
+    forbidden: Object.freeze(['justification', 'provocations', 'none_found', 'verdict', 'missing_data', 'skipped', 'thin', 'ask_next']),
+  }),
+  yellow: Object.freeze({
+    allowed: Object.freeze(['positions', 'evidence', 'none_found'].concat(SELF_KEYS)),
+    forbidden: Object.freeze(['justification', 'provocations', 'verdict', 'missing_data', 'skipped', 'thin', 'ask_next']),
+  }),
+  green: Object.freeze({
+    allowed: Object.freeze(['positions', 'provocations', 'evidence'].concat(SELF_KEYS)),
+    forbidden: Object.freeze(['justification', 'verdict', 'none_found', 'missing_data', 'skipped', 'thin', 'ask_next']),
+  }),
+  blue: Object.freeze({
+    allowed: Object.freeze(['skipped', 'thin', 'ask_next']),
+    forbidden: Object.freeze(['positions', 'evidence', 'justification', 'provocations', 'none_found', 'verdict', 'missing_data', 'self_search_strings', 'self_found_sources']),
+  }),
+});
+
+const FOUR_VALUES = Object.freeze(['favours', 'opposes', 'mixed', 'no_position']);
+const READING_VALUES = Object.freeze({
+  positions: Object.freeze({
+    white: FOUR_VALUES,
+    red: FOUR_VALUES,
+    black: FOUR_VALUES,
+    yellow: FOUR_VALUES,
+    green: Object.freeze(['alternative_offered', 'no_position']),
+  }),
+  // The disposition of an evidence item: black sets one of the first two on each item it cites.
+  black_dispositions: Object.freeze(['disconfirming', 'confirming']),
+  dispositions: Object.freeze(['disconfirming', 'confirming', 'neutral', 'mixed']),
+});
+
+const READING_LIMITS = Object.freeze({
+  line: 300,
+  note: 300,
+  source: 500,
+  tier: 40,
+  evidence_items: 40,
+  missing_data_items: 20,
+  missing_data: 200,
+  steelman: 400,
+  provocations: 7,
+  provocation: 300,
+  blue_items: 7,
+  blue_item: 200,
+  search_strings: 50,
+  search_string: 200,
+  found_sources: 30,
+  found_title: 200,
+  found_summary: 300,
+  red_line_words: 25,
+});
+
+/** A key name is echoed in a reason only when it is a short plain identifier. */
+function safeKeyName(k) {
+  return /^[A-Za-z0-9_]{1,24}$/.test(String(k)) ? String(k) : '_';
+}
+
+function isPlain(v) {
+  return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
+
+function strIn(v, min, max) {
+  return typeof v === 'string' && v.length >= min && v.length <= max;
+}
+
+/**
+ * Check a reading against the closed schema of its hat. Pure: no file access. Never repairs a reading
+ * and never echoes the text it refuses.
+ * @returns {{ok: true} | {ok: false, reason: string, state: string}}
+ */
+function validateReading(hat, reading, ctx) {
+  const c = ctx || {};
+  const fail = (reason) => ({ ok: false, reason, state: 'rejected:' + reason });
+  if (!Object.prototype.hasOwnProperty.call(READING_KEYS, hat)) return fail('schema_invalid:hat');
+  if (!isPlain(reading)) return fail('schema_invalid:reading');
+  const keys = READING_KEYS[hat];
+  for (const k of Object.keys(reading)) {
+    if (COMMON_READING_KEYS.includes(k)) continue;
+    if (keys.forbidden.includes(k)) return fail('forbidden_key:' + k);
+    if (!keys.allowed.includes(k)) return fail('unknown_key:' + safeKeyName(k));
+  }
+  if (reading.schema !== 'mos.persona-reading/1') return fail('schema_invalid:schema');
+  if (reading.run_id !== c.runId) return fail('schema_invalid:run_id');
+  if (reading.hat !== hat) return fail('schema_invalid:hat');
+
+  if (hat === 'blue') {
+    for (const name of ['skipped', 'thin', 'ask_next']) {
+      if (reading[name] === undefined) continue;
+      const list = reading[name];
+      if (!Array.isArray(list) || list.length > READING_LIMITS.blue_items) return fail('schema_invalid:' + name);
+      for (let i = 0; i < list.length; i += 1) {
+        if (!strIn(list[i], 1, READING_LIMITS.blue_item)) return fail('schema_invalid:' + name + '[' + i + ']');
+        if (name === 'thin' && !HATS.some(h => list[i].toLowerCase().includes(h))) return fail('schema_invalid:thin[' + i + ']');
+      }
+    }
+    return { ok: true };
+  }
+
+  // positions: one entry for each sub-question id of the ledger, no other id, no id twice.
+  const ids = Array.isArray(c.subQuestionIds) ? c.subQuestionIds : [];
+  const pos = reading.positions;
+  if (!Array.isArray(pos) || pos.length !== ids.length) return fail('schema_invalid:positions');
+  const seen = new Set();
+  const values = READING_VALUES.positions[hat];
+  for (let i = 0; i < pos.length; i += 1) {
+    const p = pos[i];
+    const at = 'positions[' + i + ']';
+    if (!isPlain(p)) return fail('schema_invalid:' + at);
+    for (const k of Object.keys(p)) {
+      if (!['sub_question', 'value', 'line'].includes(k)) return fail('schema_invalid:' + at + '.' + safeKeyName(k));
+    }
+    if (typeof p.sub_question !== 'string' || !ids.includes(p.sub_question) || seen.has(p.sub_question)) return fail('schema_invalid:' + at + '.sub_question');
+    seen.add(p.sub_question);
+    if (typeof p.value !== 'string' || !values.includes(p.value)) return fail('schema_invalid:' + at + '.value');
+    if (p.line === undefined) {
+      if (p.value !== 'no_position') return fail('schema_invalid:' + at + '.line');
+    } else if (!strIn(p.line, p.value === 'no_position' ? 0 : 1, READING_LIMITS.line)) {
+      return fail('schema_invalid:' + at + '.line');
+    }
+  }
+
+  if (reading.evidence !== undefined) {
+    const ev = reading.evidence;
+    if (!Array.isArray(ev) || ev.length > READING_LIMITS.evidence_items) return fail('schema_invalid:evidence');
+    for (let i = 0; i < ev.length; i += 1) {
+      const it = ev[i];
+      const at = 'evidence[' + i + ']';
+      if (!isPlain(it)) return fail('schema_invalid:' + at);
+      for (const k of Object.keys(it)) {
+        if (!['source', 'tier', 'disposition', 'note'].includes(k)) return fail('schema_invalid:' + at + '.' + safeKeyName(k));
+      }
+      if (it.source !== undefined && !strIn(it.source, 1, READING_LIMITS.source)) return fail('schema_invalid:' + at + '.source');
+      if (it.tier !== undefined && !strIn(it.tier, 1, READING_LIMITS.tier)) return fail('schema_invalid:' + at + '.tier');
+      if (it.note !== undefined && !strIn(it.note, 0, READING_LIMITS.note)) return fail('schema_invalid:' + at + '.note');
+      if (hat === 'black') {
+        if (!READING_VALUES.black_dispositions.includes(it.disposition)) return fail('schema_invalid:' + at + '.disposition');
+      } else if (it.disposition !== undefined && !READING_VALUES.dispositions.includes(it.disposition)) {
+        return fail('schema_invalid:' + at + '.disposition');
+      }
+    }
+  }
+
+  if (hat === 'white') {
+    if (reading.missing_data !== undefined) {
+      const md = reading.missing_data;
+      if (!Array.isArray(md) || md.length > READING_LIMITS.missing_data_items) return fail('schema_invalid:missing_data');
+      if (!md.every(s => strIn(s, 1, READING_LIMITS.missing_data))) return fail('schema_invalid:missing_data');
+    }
+    if (reading.nothing_missing !== undefined && typeof reading.nothing_missing !== 'boolean') return fail('schema_invalid:nothing_missing');
+  }
+  if (hat === 'black' && reading.steelman !== undefined && !strIn(reading.steelman, 1, READING_LIMITS.steelman)) return fail('schema_invalid:steelman');
+  if (hat === 'yellow' && reading.none_found !== undefined && typeof reading.none_found !== 'boolean') return fail('schema_invalid:none_found');
+  if (hat === 'green' && reading.provocations !== undefined) {
+    const pv = reading.provocations;
+    if (!Array.isArray(pv) || pv.length > READING_LIMITS.provocations) return fail('schema_invalid:provocations');
+    if (!pv.every(s => strIn(s, 1, READING_LIMITS.provocation))) return fail('schema_invalid:provocations');
+  }
+
+  // FS-4: self-found sources, only for white, black, yellow and green.
+  if (RESEARCH_HATS.includes(hat)) {
+    const ss = reading.self_search_strings;
+    if (ss !== undefined) {
+      if (!Array.isArray(ss) || ss.length > READING_LIMITS.search_strings) return fail('schema_invalid:self_search_strings');
+      if (!ss.every(s => strIn(s, 1, READING_LIMITS.search_string))) return fail('schema_invalid:self_search_strings');
+    }
+    const fs2 = reading.self_found_sources;
+    if (fs2 !== undefined) {
+      if (!Array.isArray(fs2) || fs2.length > READING_LIMITS.found_sources) return fail('schema_invalid:self_found_sources');
+      const strings = Array.isArray(ss) ? ss : [];
+      for (let i = 0; i < fs2.length; i += 1) {
+        const it = fs2[i];
+        const at = 'self_found_sources[' + i + ']';
+        if (!isPlain(it)) return fail('schema_invalid:' + at);
+        for (const k of Object.keys(it)) {
+          if (!['url', 'title', 'search_string', 'summary'].includes(k)) return fail('schema_invalid:' + at + '.' + safeKeyName(k));
+        }
+        if (!strIn(it.url, 1, READING_LIMITS.source) || !/^https?:\/\/\S+$/i.test(it.url)) return fail('schema_invalid:' + at + '.url');
+        if (!strIn(it.title, 1, READING_LIMITS.found_title)) return fail('schema_invalid:' + at + '.title');
+        if (!strIn(it.search_string, 1, READING_LIMITS.search_string) || !strings.includes(it.search_string)) return fail('schema_invalid:' + at + '.search_string');
+        if (!strIn(it.summary, 1, READING_LIMITS.found_summary)) return fail('schema_invalid:' + at + '.summary');
+      }
+    }
+  }
+  return { ok: true };
+}
+
+function wordCount(text) {
+  return String(text).split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * The rule lines of one reading (DESIGN 4.7 with FS-10 and FS-11). A rule line never drops a reading.
+ * For blue no governance function is called. Pure: no file access.
+ * @param {string} hat
+ * @param {Object} reading A reading that passed validateReading.
+ * @param {{researchState?: string}} [ctx]
+ * @returns {{lines: string[], none_found_basis: string|null}}
+ */
+function perHatRules(hat, reading, ctx) {
+  const c = ctx || {};
+  const out = { lines: [], none_found_basis: null };
+  if (hat === 'blue' || !READ_HATS.includes(hat)) return out;
+  const r = isPlain(reading) ? reading : {};
+  // Lazy require, with the property read at call time: the Bono modules are not loaded at top level.
+  const governance = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'hat-governance.cjs'));
+  const evidence = Array.isArray(r.evidence) ? r.evidence : [];
+  const lines = governance.enforceGovernance(hat, r).violations.slice();
+
+  if (hat === 'white') {
+    const md = Array.isArray(r.missing_data) ? r.missing_data : [];
+    if (md.length === 0 && r.nothing_missing !== true) lines.push('white_missing_data_absent');
+  } else if (hat === 'red') {
+    const pos = Array.isArray(r.positions) ? r.positions : [];
+    if (pos.some(p => p && typeof p.line === 'string' && wordCount(p.line) > READING_LIMITS.red_line_words)) lines.push('red_line_too_long');
+  } else if (hat === 'yellow') {
+    if (r.none_found === true) {
+      if (evidence.length > 0) {
+        lines.push('none_found_with_evidence');
+      } else {
+        const own = Array.isArray(r.self_search_strings) ? r.self_search_strings : [];
+        if (c.researchState === 'ran_empty') out.none_found_basis = 'door_search_empty';
+        else if (own.length >= 1) out.none_found_basis = 'self_reported_search';
+        else lines.push('none_found_without_search');
+        if (out.none_found_basis) {
+          const at = lines.indexOf('yellow_value_not_evidence_backed');
+          if (at !== -1) lines.splice(at, 1);
+        }
+      }
+    }
+  } else if (hat === 'green') {
+    if (evidence.some(it => it && it.disposition !== undefined)) lines.push('green_evidence_disposition');
+  }
+  out.lines = lines;
+  return out;
+}
+
+/** The comparison form of a URL (H7): a final run of slashes and full stops does not count. */
+function normaliseUrl(u) {
+  return String(u).replace(/[\/.]+$/, '');
+}
+
+const URL_SCAN_RE = /(?:https?:\/\/|www\.)[^\s<>"'`]+/gi;
+const CLAIM_SCAN_RE = /EvidenceClaim:[^\s<>"'`,;()\[\]{}]+/g;
+
+/** Every string value of a reading, all depths, except the url field of a self-found source. */
+function collectStrings(value, out, isSourceUrl) {
+  if (typeof value === 'string') {
+    if (!isSourceUrl) out.push(value);
+  } else if (Array.isArray(value)) {
+    for (const v of value) collectStrings(v, out, false);
+  } else if (isPlain(value)) {
+    for (const k of Object.keys(value)) collectStrings(value[k], out, false);
+  }
+  return out;
+}
+
+function stringsOfReading(reading) {
+  const out = [];
+  for (const k of Object.keys(reading)) {
+    if (k === 'self_found_sources' && Array.isArray(reading[k])) {
+      for (const it of reading[k]) {
+        if (!isPlain(it)) { collectStrings(it, out, false); continue; }
+        for (const f of Object.keys(it)) collectStrings(it[f], out, f === 'url');
+      }
+    } else {
+      collectStrings(reading[k], out, false);
+    }
+  }
+  return out;
+}
+
+/**
+ * The citation boundary (FS-5). The allowed set of a hat is its own pack ids and urls, the White ids and
+ * urls, and the urls of the reading's own self_found_sources. Any other URL or EvidenceClaim id in any
+ * string field gives rejected:citation_outside_sources. Pure. Never echoes the refused text.
+ * @returns {{ok: true} | {ok: false, reason: 'citation_outside_sources', state: string, why: string}}
+ */
+function citationCheck(hat, reading, ctx) {
+  const c = ctx || {};
+  const refuse = (why) => ({ ok: false, reason: 'citation_outside_sources', state: 'rejected:citation_outside_sources', why });
+  const r = isPlain(reading) ? reading : {};
+  const ids = new Set([].concat(c.ownIds || [], c.whiteIds || []));
+  const urls = new Set([].concat(c.ownUrls || [], c.whiteUrls || []));
+  if (RESEARCH_HATS.includes(hat) && Array.isArray(r.self_found_sources)) {
+    for (const it of r.self_found_sources) {
+      if (isPlain(it) && typeof it.url === 'string') urls.add(it.url);
+    }
+  }
+  const canonOfNorm = new Map();
+  for (const u of urls) canonOfNorm.set(normaliseUrl(u), u);
+  const bare = new Map();
+  for (const u of urls) bare.set(normaliseUrl(u).replace(/^https?:\/\//i, ''), u);
+
+  // The Bono citation check, with the sources of the reading mapped to the canonical allowed form.
+  const mapped = (Array.isArray(r.evidence) ? r.evidence : []).map(it => {
+    const src = it && typeof it.source === 'string' ? it.source : null;
+    if (src === null) return { source: null };
+    if (ids.has(src) || urls.has(src)) return { source: src };
+    const canon = canonOfNorm.get(normaliseUrl(src));
+    return { source: canon !== undefined ? canon : src };
+  });
+  const wired = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'persona-research.cjs'));
+  const base = wired.validateCitations({ evidence: mapped, wired_sources: Array.from(ids).concat(Array.from(urls)) });
+  if (!base.ok) return refuse(base.violations[0]);
+
+  // The scan of every string field.
+  const strings = stringsOfReading(r);
+  const trailing = /[.,;:!?)\]}'"\/]+$/;
+  for (const s of strings) {
+    for (const m of s.match(URL_SCAN_RE) || []) {
+      let cand = m;
+      let okUrl = false;
+      for (let guard = 0; guard < 8 && !okUrl; guard += 1) {
+        const n = normaliseUrl(cand);
+        if (canonOfNorm.has(n)) okUrl = true;
+        else if (/^www\./i.test(n) && bare.has(n)) okUrl = true;
+        const stripped = cand.replace(trailing, '');
+        if (okUrl || stripped === cand || stripped.length === 0) break;
+        cand = stripped;
+      }
+      if (!okUrl) return refuse('url');
+    }
+    for (const m of s.match(CLAIM_SCAN_RE) || []) {
+      if (!ids.has(m.replace(/[.:]+$/, ''))) return refuse('evidence_claim_id');
+    }
+  }
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -816,6 +1167,10 @@ module.exports = {
   cmdStart,
   cmdWritePersona,
   cmdAcceptPersona,
+  validateReading,
+  perHatRules,
+  citationCheck,
+  READING_VALUES,
   validateBrief,
   briefHashOf,
   subQuestionId,
