@@ -12,9 +12,10 @@
  * file-path input and the switch-case router of scripts/dominant-design-research.cjs.
  * CANON PART 8 (Graph Boundary): navigator text and room text enter by JSON file path
  * only, never as argv text. This script sends nothing to the Brain and makes no fetch.
- * CANON PART 9 (Memory Locality): this script never opens room.db and confirms no
- * truth-claim node. The only writer of persona_status accepted is the function
- * markAccepted, fed by a navigator answer file.
+ * CANON PART 9 (Memory Locality): this script confirms no truth-claim node. The only
+ * writer of persona_status accepted is the function markAccepted, fed by a navigator
+ * answer file. The one place that opens room.db is cmdRecordRuling, through the
+ * navigation chokepoint, to log one decision_captured event (ids and the ruling value).
  * CANON PART 11: this file is a door of the persona surface, not a new invocable surface.
  *
  * Subcommands of this plan (later plans add the rest of the cycle):
@@ -25,6 +26,7 @@
  *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
  *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
  *   merge --room <dir> --run <id> [--counts <file>]  (plan 08, deep mode: positions, tensions, artifact, run record, cleanup)
+ *   record-ruling --room <dir> --run <id> --answer <file>  (plan 09: the navigator ruling on a tension; the only writer of the rulings store)
  *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).
@@ -43,7 +45,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check', 'merge']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check', 'merge', 'record-ruling']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -1354,6 +1356,8 @@ const ARTIFACT_LABELS = Object.freeze({
   tension_pair: 'pair: ',
   tension_state: 'state: ',
   tension_id: 'tension id: ',
+  settled_on: 'settled on {date}: {ruling}',
+  stored_line: 'stored {hat}: ',
   no_tension: 'The tension map found no tension.',
   three_pairs: 'The tension map knows three hat pairs: yellow and black, green and black, red and white. Opposite positions of any other pair are shown in the dissent register only.',
   section_same: '## Same position',
@@ -1511,6 +1515,10 @@ function buildArtifact(record, readings, packs) {
     for (const t of mine) {
       field('tension_pair', t.pair.join(' and '));
       for (const hat of t.pair) push(posLine(sq.id, hat));
+      if (t.state === 'settled' && isPlain(t.stored_lines)) {
+        push(fillLabel('settled_on', { date: String(t.ruled_at).slice(0, 10), ruling: t.ruling }));
+        for (const hat of t.pair) field('stored_line', typeof t.stored_lines[hat] === 'string' ? t.stored_lines[hat] : '', { hat });
+      }
       field('tension_state', t.state);
       field('tension_id', t.id);
     }
@@ -1765,6 +1773,9 @@ async function cmdMerge(args, deps) {
   }
   const counts = readCounts(args.countsPath);
   if (!counts.ok) return counts;
+  // A corrupt rulings store stops the merge before anything is written: a settled tension must not come back by accident.
+  const rulings = readRulingsStore(roomResolved);
+  if (!rulings.ok) return rulings;
 
   const subQuestionIds = ledger.sub_questions.map(s => s.id);
   const now = nowOf(deps);
@@ -1805,6 +1816,7 @@ async function cmdMerge(args, deps) {
   // 3. Tensions and same-position lines, before anything is written.
   const tensionResult = await computeTensions(roomResolved, ledger, positions);
   if (!tensionResult.ok) return tensionResult;
+  markSettled(tensionResult.tensions, rulings.rulings);
   const samePosition = computeSamePosition(ledger, positions);
 
   // 4. The final run record (S-8). No key holds a score, a rank across hats or a winner.
@@ -1898,11 +1910,248 @@ async function cmdMerge(args, deps) {
     artifact: artifactPath,
     review_dir: lr.dir,
     tensions: ledger.tensions,
+    open: ledger.tensions.filter(t => t.state === 'open'),
+    settled: ledger.tensions.filter(t => t.state === 'settled'),
     same_position: samePosition,
     hats: hatsOut,
     not_run: notRun,
     session_log: sessionLog,
     cleanup: cleaned ? 'done' : 'failed',
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Tension rulings (plan 09): the store, the settled mark, record-ruling
+// ---------------------------------------------------------------------------
+
+const RULINGS_FILE = 'tension-rulings.json';
+const RULINGS_SCHEMA = 'mos.persona-tension-rulings/1';
+const RULING_ANSWER_SCHEMA = 'mos.persona-ruling-answer/1';
+const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer']);
+const STORED_RULINGS = Object.freeze(['side_a', 'side_b', 'both_hold']);
+const RULING_ANSWER_KEYS = Object.freeze(['schema', 'run_id', 'rulings']);
+const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen']);
+const STORE_ENTRY_KEYS = Object.freeze(['ruling', 'reason', 'ruled_at', 'run_id', 'sub_question_text', 'pair', 'lines']);
+const MAX_RULINGS_PER_ANSWER = 75;
+const TENSION_ID_RE = /^[0-9a-f]{64}$/;
+const ISO_RE = /^\d{4}-\d{2}-\d{2}T[0-9:.]+Z$/;
+
+function rulingsStorePath(roomResolved) {
+  return path.join(roomResolved, '.mindrian', 'hats', RULINGS_FILE);
+}
+
+function storeEntryValid(e) {
+  if (!isPlain(e)) return false;
+  const keys = Object.keys(e);
+  if (keys.length !== STORE_ENTRY_KEYS.length || !STORE_ENTRY_KEYS.every(k => keys.includes(k))) return false;
+  if (!STORED_RULINGS.includes(e.ruling)) return false;
+  if (typeof e.reason !== 'string' || e.reason.length > 280) return false;
+  if (typeof e.ruled_at !== 'string' || !ISO_RE.test(e.ruled_at)) return false;
+  if (typeof e.run_id !== 'string' || typeof e.sub_question_text !== 'string') return false;
+  if (!Array.isArray(e.pair) || e.pair.length !== 2 || !e.pair.every(h => HATS.includes(h)) || e.pair[0] >= e.pair[1]) return false;
+  if (!isPlain(e.lines)) return false;
+  const lk = Object.keys(e.lines).sort();
+  if (lk.length !== 2 || lk[0] !== e.pair[0] || lk[1] !== e.pair[1]) return false;
+  return lk.every(k => typeof e.lines[k] === 'string');
+}
+
+/**
+ * Read the rulings store of a room. A missing file is an empty store. A file that is not valid (bad JSON, another
+ * schema, an entry out of shape) is refused, so a settled tension never comes back by accident.
+ * @returns {{ok: true, rulings: Object} | {ok: false, reason: string}}
+ */
+function readRulingsStore(roomDir) {
+  const p = rulingsStorePath(path.resolve(String(roomDir)));
+  try {
+    fs.lstatSync(p);
+  } catch (e) {
+    if (e && e.code === 'ENOENT') return { ok: true, rulings: {} };
+    return { ok: false, reason: 'rulings_store_invalid' };
+  }
+  const r = readJsonFile(p, { noSymlink: true });
+  if (!r.ok || !isPlain(r.value)) return { ok: false, reason: 'rulings_store_invalid' };
+  const v = r.value;
+  const keys = Object.keys(v);
+  if (keys.length !== 2 || !keys.includes('schema') || !keys.includes('rulings') || v.schema !== RULINGS_SCHEMA || !isPlain(v.rulings)) {
+    return { ok: false, reason: 'rulings_store_invalid' };
+  }
+  for (const id of Object.keys(v.rulings)) {
+    if (!TENSION_ID_RE.test(id) || !storeEntryValid(v.rulings[id])) return { ok: false, reason: 'rulings_store_invalid' };
+  }
+  return { ok: true, rulings: v.rulings };
+}
+
+/** Mark each tension whose id is in the store as settled, with the stored ruling, its date and the stored lines. */
+function markSettled(tensions, stored) {
+  for (const t of tensions) {
+    const e = Object.prototype.hasOwnProperty.call(stored, t.id) ? stored[t.id] : null;
+    if (!e) continue;
+    t.state = 'settled';
+    t.ruling = e.ruling;
+    t.ruled_at = e.ruled_at;
+    t.stored_lines = { [t.pair[0]]: typeof e.lines[t.pair[0]] === 'string' ? e.lines[t.pair[0]] : '', [t.pair[1]]: typeof e.lines[t.pair[1]] === 'string' ? e.lines[t.pair[1]] : '' };
+  }
+}
+
+function rulingAnswerRefusal(answer, runId) {
+  if (!isPlain(answer)) return 'schema_invalid:answer';
+  for (const k of Object.keys(answer)) {
+    if (!RULING_ANSWER_KEYS.includes(k)) return 'schema_invalid:unknown_key:' + safeKeyName(k);
+  }
+  if (answer.schema !== RULING_ANSWER_SCHEMA) return 'schema_invalid:schema';
+  if (answer.run_id !== runId) return 'schema_invalid:run_id';
+  if (!Array.isArray(answer.rulings) || answer.rulings.length < 1 || answer.rulings.length > MAX_RULINGS_PER_ANSWER) return 'schema_invalid:rulings';
+  const seen = new Set();
+  for (let i = 0; i < answer.rulings.length; i += 1) {
+    const e = answer.rulings[i];
+    const at = 'schema_invalid:rulings.' + i;
+    if (!isPlain(e)) return at;
+    for (const k of Object.keys(e)) {
+      if (!RULING_ENTRY_KEYS.includes(k)) return at + '.' + safeKeyName(k);
+    }
+    if (typeof e.tension_id !== 'string' || !TENSION_ID_RE.test(e.tension_id)) return at + '.tension_id';
+    if (!RULING_VALUES.includes(e.ruling)) return at + '.ruling';
+    if (e.reason !== undefined && (typeof e.reason !== 'string' || e.reason.length > 280)) return at + '.reason';
+    if (e.reopen !== undefined && typeof e.reopen !== 'boolean') return at + '.reopen';
+    if (seen.has(e.tension_id)) return 'schema_invalid:duplicate_tension';
+    seen.add(e.tension_id);
+  }
+  return null;
+}
+
+/**
+ * Step record_ruling (deep mode, after merge). The answer file holds the navigator ruling for each open tension.
+ * A ruling is the navigator answer on a hat pair: it confirms no venture claim. A stored ruling (side_a, side_b,
+ * both_hold) goes into the rulings store of the room and makes the tension settled for every later run with the same
+ * target content, sub-question text and hat pair. A defer is written to the run record only. An entry with reopen
+ * true removes the key from the store. Each stored ruling is also logged as one decision_captured memory event with
+ * ids and the ruling value only. This function is the only writer of the store.
+ */
+function cmdRecordRuling(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  const order = requireStep(ledger, 'merge');
+  if (order) return { ok: false, reason: order };
+  const read = readJsonFile(args.answerPath, { noSymlink: true });
+  if (!read.ok) return { ok: false, reason: read.reason };
+  const bad = rulingAnswerRefusal(read.value, ledger.run_id);
+  if (bad) return { ok: false, reason: bad };
+  const answer = read.value;
+
+  const tensions = Array.isArray(ledger.tensions) ? ledger.tensions : [];
+  const byId = {};
+  for (const t of tensions) byId[t.id] = t;
+  for (const e of answer.rulings) {
+    if (!Object.prototype.hasOwnProperty.call(byId, e.tension_id)) return { ok: false, reason: 'tension_not_in_run' };
+  }
+  for (const e of answer.rulings) {
+    if (byId[e.tension_id].state === 'settled' && e.reopen !== true) return { ok: false, reason: 'tension_already_settled' };
+  }
+  const store = readRulingsStore(roomResolved);
+  if (!store.ok) return store;
+
+  const now = nowOf(deps);
+  const nowIso = now.toISOString();
+  const nextStore = Object.assign({}, store.rulings);
+  let storeChanged = false;
+  const recorded = [];
+  const deferred = [];
+  const reopened = [];
+  for (const e of answer.rulings) {
+    const t = byId[e.tension_id];
+    if (e.reopen === true) {
+      if (Object.prototype.hasOwnProperty.call(nextStore, e.tension_id)) { delete nextStore[e.tension_id]; storeChanged = true; }
+      t.state = 'open';
+      delete t.ruling;
+      delete t.ruled_at;
+      delete t.stored_lines;
+      reopened.push(e.tension_id);
+    } else if (e.ruling === 'defer') {
+      t.ruling = 'defer';
+      t.ruled_at = nowIso;
+      deferred.push(e.tension_id);
+    } else {
+      const sq = ledger.sub_questions.find(s => s.id === t.sub_question);
+      nextStore[e.tension_id] = {
+        ruling: e.ruling,
+        reason: typeof e.reason === 'string' ? e.reason.trim() : '',
+        ruled_at: nowIso,
+        run_id: ledger.run_id,
+        sub_question_text: sq ? sq.text : '',
+        pair: t.pair.slice(),
+        lines: Object.assign({}, t.lines),
+      };
+      storeChanged = true;
+      t.state = 'settled';
+      t.ruling = e.ruling;
+      t.ruled_at = nowIso;
+      delete t.stored_lines;
+      recorded.push({ tension_id: e.tension_id, ruling: e.ruling, side_hat: e.ruling === 'side_a' ? t.pair[0] : (e.ruling === 'side_b' ? t.pair[1] : null) });
+    }
+  }
+
+  try {
+    if (storeChanged) {
+      fs.mkdirSync(path.dirname(rulingsStorePath(roomResolved)), { recursive: true });
+      atomicWriteJson(rulingsStorePath(roomResolved), { schema: RULINGS_SCHEMA, rulings: nextStore });
+    }
+    markStep(ledger, 'record_ruling', 'done', now);
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  // One decision_captured event for each stored ruling: ids and the ruling value only, never the reason or a line.
+  // A ruling that cannot be logged stays stored; the output says so.
+  let memoryEvent = { state: 'none', logged: 0 };
+  if (recorded.length > 0) {
+    memoryEvent = { state: 'not_logged', logged: 0, reason: 'no_room_db' };
+    let navigation = null;
+    let db = null;
+    try {
+      navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
+      db = navigation.openRoomDbForCaller(roomResolved);
+    } catch (e) {
+      db = null;
+    }
+    if (db) {
+      let logged = 0;
+      let failure = null;
+      try {
+        for (const r of recorded) {
+          const t = byId[r.tension_id];
+          const res = navigation.logMemoryEvent(db, 'decision_captured', {
+            source: 'persona-hats',
+            tension_id: r.tension_id,
+            ruling: r.ruling,
+            run_id: ledger.run_id,
+            sub_question_id: t.sub_question,
+            pair: t.pair.slice(),
+            dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling,
+          }, { now: () => now.getTime() });
+          if (res && res.ok) logged += 1; else if (!failure) failure = 'event_refused:' + safeKeyName(res && res.reason);
+        }
+      } catch (e) {
+        failure = failure || 'event_failed';
+      } finally {
+        try { navigation.closeRoomDbForCaller(db); } catch (_) { /* tolerant */ }
+      }
+      memoryEvent = logged === recorded.length ? { state: 'logged', logged } : { state: 'not_logged', logged, reason: failure || 'event_failed' };
+    }
+  }
+
+  return {
+    ok: true,
+    run_id: ledger.run_id,
+    recorded,
+    deferred,
+    reopened,
+    memory_event: memoryEvent,
+    remaining_open: tensions.filter(t => t.state === 'open').map(t => t.id),
   };
 }
 
@@ -1951,6 +2200,10 @@ function main(argv, deps) {
       missing = need(['room', 'run']);
       if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined }, deps);
       break;
+    case 'record-ruling':
+      missing = need(['room', 'run', 'answer']);
+      if (!missing.length) result = cmdRecordRuling({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
+      break;
     default:
       missing = ['subcommand'];
       break;
@@ -1996,6 +2249,8 @@ module.exports = {
   cmdPlanResearch,
   cmdCheck,
   cmdMerge,
+  cmdRecordRuling,
+  readRulingsStore,
   tensionKey,
   positionMarker,
   buildArtifact,
