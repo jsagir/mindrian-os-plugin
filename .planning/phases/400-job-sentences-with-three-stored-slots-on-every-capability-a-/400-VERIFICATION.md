@@ -5,7 +5,8 @@ verified_head: 3daeb0dea
 baseline: c1e496ae8
 status: human_needed
 score: 24/24 requirements satisfied as worded; 11/12 goal truths verified, 1 partial (wicked cut-off not fitted)
-overrides_applied: 0
+overrides_applied: 1
+owner_signoff: 2026-11-25 (4 of 5 human items closed; the labels item is closed in part)
 human_verification:
   - test: "Rule on the wicked cut-off fit (AX-02). data/problem-axes-wording.json wicked_cutoff.state is not_fitted, value null, so wickedFromProbability answers null for every input. Supply the two wicked label files from the research machine and run scripts/derive-wicked-cutoff.cjs --write, or accept not_fitted for this phase by an override."
     expected: "Either a fitted block (state fitted, value in 0..1, counts and file hashes) that passes derive-wicked-cutoff.cjs --check, or an override entry in this file accepted by the owner."
@@ -185,3 +186,17 @@ No blocker. Every one of the 24 requirement ids has code and passing tests at HE
 
 _Verified: 2026-11-24T12:49:08Z_
 _Verifier: Claude (gsd-verifier)_
+
+## Owner sign-off, 2026-11-25
+
+The owner answered the five human items on the sign-off page (saved answers, 2026-11-25T10:20Z to 10:46Z). Status stays human_needed for one remainder, named in row 5.
+
+| # | Item | Owner answer | Result |
+|---|---|---|---|
+| 1 | Wicked cut-off (AX-02) | Fit it; Codex and Fable decide the value | OVERRIDE. The label files are not on this machine, so no fit ran. The cut-off is ruled at 0.9, state ruled, status provisional (365fce03b). The goal clause "fitted" is met by a ruled value, not a fit. |
+| 2 | Order rule (WR-04, WR-09) | Agree | CLOSED. The in-band reorder is the intended one. |
+| 3 | Relay gate (IN-04) | Add a relay provider id | CLOSED. decision_relay is on the decision_advisor providers list in data/egress-policy.json; tests/test-399-egress-line.cjs pins it (E4, E5). The line default stays false. |
+| 4 | Domain card on three surfaces | Pass on Claude Code CLI, Claude Desktop and Cowork | CLOSED. |
+| 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). OPEN: the funding and personas section jobs. The other label lists were not changed by the owner and stay provisional. |
+
+Also on 2026-11-25: the branch was merged into main after v2.0.0-beta.89 (f9148bf5c), and the advisor table stopped offering deprecated commands (a6d2e63ab). The O-12 commands stay on the run-step list.

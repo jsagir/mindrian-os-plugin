@@ -5,7 +5,7 @@
 //   E1  line present, allowed false
 //   E2  a room override cannot turn it on (named in ignored); one turning it off keeps it off
 //   E3  offline keeps it off
-//   E4  lineForProvider maps gemini_decision and jev_decision; typesafe stays judge_jev
+//   E4  lineForProvider maps gemini_decision, jev_decision and decision_relay; typesafe stays judge_jev
 //   E5  entry shape: endpoint, default, scope, providers, paths; scope names D-03 and the Deferred ruling
 // No network. Hyphens only.
 const fs = require('node:fs');
@@ -46,8 +46,9 @@ try {
     return egress.lineAllowed(p, LINE) === false || 'allowed offline';
   });
   leg('E4 provider mapping', () => {
-    const got = ['gemini_decision', 'jev_decision', 'typesafe'].map(egress.lineForProvider).join(',');
-    return got === 'decision_advisor,decision_advisor,judge_jev' || got;
+    // Review item IN-04 (owner choice of 2026-11-25): the relay provider id is on the line's providers list.
+    const got = ['gemini_decision', 'jev_decision', 'decision_relay', 'typesafe'].map(egress.lineForProvider).join(',');
+    return got === 'decision_advisor,decision_advisor,decision_advisor,judge_jev' || got;
   });
   leg('E5 entry shape and scope text', () => {
     const doc = JSON.parse(fs.readFileSync(path.join(REPO, 'data/egress-policy.json'), 'utf8'));
@@ -57,7 +58,7 @@ try {
     const pathsOk = e.paths && Object.keys(e.paths).sort().join(',') === 'gemini_decision,jev_decision' && e.paths.jev_decision === '/v1/systemone' &&
       (e.paths.gemini_decision === null || typeof e.paths.gemini_decision === 'string');
     const scopeOk = /D-03/.test(e.scope) && /labels only/.test(e.scope) && /user access/.test(e.scope) && /Deferred/.test(e.scope);
-    return (keys === 'default,endpoint,paths,providers,scope' && e.default === false && pathsOk && scopeOk && e.providers.join(',') === 'gemini_decision,jev_decision') || JSON.stringify({ keys, pathsOk, scopeOk });
+    return (keys === 'default,endpoint,paths,providers,scope' && e.default === false && pathsOk && scopeOk && e.providers.join(',') === 'gemini_decision,jev_decision,decision_relay') || JSON.stringify({ keys, pathsOk, scopeOk });
   });
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
