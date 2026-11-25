@@ -172,7 +172,7 @@ Deep mode only. Quick mode never builds a persona.
      Waiting for all builders to finish...
    ```
 
-2. **Write the proposed files.** Always make this call, also when `to_build` is empty, because the door refuses the next call until it ran:
+2. **Write the proposed files.** Make this call unless `start` skipped it. `start` skips it when both `to_build` and `to_accept` are empty; then the `start` output has no hat to build or accept, and the door does not need the call. In every other case the door refuses the next call until this one ran, also when `to_build` is empty but `to_accept` is not:
 
    ```bash
    node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" write-persona --room "<room dir>" --run "<run_id>"
@@ -286,7 +286,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - each entry of `host_searches`, when the list is not empty: its `label` word for word (`web search by the assistant`, `AskNature (through web search)` or `Kaggle datasets (through web search)`) and its exact `text`, word for word. These searches are run by the assistant with the web search tool of the host, not by a provider of the door. Add this sentence, word for word: Code cannot prove that the assistant searched exactly that string.;
    - this sentence, word for word: A failed provider may be asked again with the same string.
 
-   The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider once, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
+   The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider up to 2 times for each failed lens run, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
 
    Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, and the reason. These handles or edits were refused by the door and will never be sent.
 

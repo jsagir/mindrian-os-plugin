@@ -451,6 +451,19 @@ check('C29. Step 9 says that the filed artifact gets a Rulings section and reads
   assert.ok(/`artifact`/.test(stop), 'artifact field of the output');
 });
 
+check('C30. the command text matches the door: the resend budget is 2 for each failed lens run, and write-persona is skipped when start skipped it', () => {
+  const dispatcher = require(path.join(ROOT, 'lib', 'core', 'recovery', 'dispatcher.cjs'));
+  const n = dispatcher.RECOVERY_BUDGETS.MAX_RETRIES_PER_STAGE;
+  assert.equal(n, 2, 'the recovery budget the text names');
+  const step5 = section('### Step 5');
+  assert.ok(/same provider up to 2 times/.test(step5), 'the resend count is 2');
+  assert.ok(!/same provider once/.test(step5), 'the old "once" is gone');
+  const step3 = section('### Step 3');
+  assert.ok(!/Always make this call/.test(step3), 'the old "always" is gone');
+  assert.ok(/Make this call unless `start` skipped it/.test(step3), 'the call depends on the start output');
+  assert.ok(/both `to_build` and `to_accept` are empty/.test(step3), 'the skip rule is named');
+});
+
 check('Z1. the personas one_job_note says "is wired by Phase 400.2" and not "not wired yet"; the two job ids are unchanged', () => {
   const canon = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'section-job-canon.json'), 'utf8'));
   const list = Array.isArray(canon.sections) ? canon.sections : (Array.isArray(canon) ? canon : null);
