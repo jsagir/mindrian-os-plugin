@@ -4303,13 +4303,32 @@ Plans:
 ### Phase 400.2: Persona, hats and research bundle: persona builds six hat personas from the room, each hat runs its own research through the existing Bono leg and then does its persona work in isolation, with deep and quick modes, one approval card per researching hat, and Larry as the synthesizer (SEED-149, EGM method, part of the next cut) (INSERTED)
 
 **Goal:** /mos:persona works with the six hats and with research: six hat personas built from the room, each hat with its own approved research through the existing Bono leg, each hat's persona work done in isolation, Larry as the synthesizer, deep and quick modes. Owner-signed scope: 400.2-CONTEXT.md (SEED-149). Design work runs with the EGM method. Part of the next cut with 399 and 400.
-**Requirements**: TBD
+**Baseline:** branch work/400.2-persona-hats-research at bb0bfbab3. Owner scope, rulings and the nine jobs: 400.2-CONTEXT.md. Locked owner answers (two cards, 2026-11-25): 400.2-OWNER-ANSWERS.md. Design version 2 and its resolution: 400.2-DESIGN.md, 400.2-RESOLUTION.md. Research: 400.2-RESEARCH.md. Validation: 400.2-VALIDATION.md. Where the design and the second card differ, the card wins (hats search freely, no run sentinel; labelled commands stay in the advisor row).
+**canon_parts:** 7, 8, 9, 11
+**Requirements**: PJ-01 nine job ids on /mos:persona with validate-idea at position 0, slots through the writer, registry and mirrors rebuilt; PJ-02 statements store and the body section When to use it; PJ-03 owner_direct rulings list with the changed pins; PJ-04 ranker reach for the nine jobs; PJ-05 advisor row keeps labelled commands below rank 12 (owner answer 2); PJ-06 recorded advisor run prepared, live call OWNER-GATED, table reach for the nine jobs; PL-01 room fingerprint and per-hat persona freshness; PL-02 fixed hat disciplines and the reasoned persona writer; PL-03 the door (status, start, write-persona, accept-persona), door-only ledger, step order, private scratch; PL-04 quick mode as code with its notice, MCP path and honest refusal of deep where no shell exists; PL-05 command for triage, brief, produce and acceptance; PR-01 reading schema, per-hat rules, check, counts-only Blue ledger; PR-02 a failed hat is not run, never no objection; PR-03 merge: dissent first, tension map only, nothing added; PR-04 tension rulings, store, settled key, memory event; PR-05 hats search freely under a prompt rule, self-found sources listed and labelled, citation boundary between hats, reader and Blue contracts, web_scope green (owner answer 1); PS-01 handle checks and room identity screen; PS-02 plan-research with frozen providers and the edit path; PS-03 run-research bound to the approved cards, honest research states, evidence packs, White first and shared; PS-04 proposed EvidenceClaim nodes on a real room.db, repeat adds none, self-found never wired; PS-05 command for the handle step and four search cards together, search-approve stage; PS-06 recorded overlap spike, OWNER-GATED; PM-01 quick run record and compare; PM-02 one recorded comparison; PG-01 tests/run-all-4002.sh and phase gates; PG-02 owner review list with drift test and the cost counts for Phase 400.1; PG-03 irreversibility row re-score, OWNER-GATED
 **Depends on:** Phase 400
-**Plans:** 0 plans
+**Plans:** 18 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 400.2 to break down)
+- [ ] 400.2-01-PLAN.md - nine job ids, statements store, When to use it, owner_direct rulings, rebuilt registries, ranker reach, tests/run-all-4002.sh (slice 1, wave 1)
+- [ ] 400.2-02-PLAN.md - advisor table keeps labelled commands below rank 12, row-depth pin, table reach legs (slice 1, wave 2)
+- [ ] 400.2-03-PLAN.md - room fingerprint, per-hat freshness, fixed hat disciplines, reasoned persona writer (slice 2, wave 3)
+- [ ] 400.2-04-PLAN.md - quickLook with its notice, route fields for a surface with no shell, MCP analyze-perspectives (slice 2, wave 4)
+- [ ] 400.2-05-PLAN.md - the door scripts/persona-hats.cjs: status, start, write-persona, accept-persona, run ledger, private scratch (slice 2, wave 5)
+- [ ] 400.2-06-PLAN.md - command for triage, brief card, builder contract, persona acceptance, quick path; generated files rebuilt (slice 2, wave 6)
+- [ ] 400.2-07-PLAN.md - reading schema with self-found sources, per-hat rules, citation boundary, check, Blue ledger, not-run states (slice 3, wave 7)
+- [ ] 400.2-08-PLAN.md - merge: positions, tension call per sub-question, same-position lines, review artifact, run record, session log (slice 3, wave 8)
+- [ ] 400.2-09-PLAN.md - record-ruling, rulings store, settled tensions, memory event; command for readings, Blue, merge and rulings; web_scope green (slice 3, wave 9)
+- [ ] 400.2-10-PLAN.md - research tables, handle checks, room identity screen, composed strings (slice 4, wave 10)
+- [ ] 400.2-11-PLAN.md - plan-research: handles per hat and brief, frozen providers, handles store, card edit path (slice 4, wave 11)
+- [ ] 400.2-12-PLAN.md - run-research: approval binding, wrapper over the Bono leg, research states, evidence packs, White first (slice 4, wave 12)
+- [ ] 400.2-13-PLAN.md - real room.db wire legs, hat boundary with door evidence, after-the-fact screen of reported strings (slice 4, wave 13)
+- [ ] 400.2-14-PLAN.md - command for the handle step and four search cards together, search-approve stage, section-job-canon note; generated files rebuilt (slice 4, wave 14)
+- [ ] 400.2-15-PLAN.md - overlap spike of the four hats: tools and run sheet by an agent, live fetch OWNER-GATED, decision rule; not autonomous (slice 4, wave 15)
+- [ ] 400.2-16-PLAN.md - quick run record through merge, compare, one recorded comparison on a fixture room (slice 5, wave 16)
+- [ ] 400.2-17-PLAN.md - owner review list 400.2-OWNER-REVIEW.md with drift test, cost counts for Phase 400.1, phase gates (wave 17)
+- [ ] 400.2-18-PLAN.md - recorded advisor run: prepared by an agent, live labels-only call OWNER-GATED, pins after the run; irreversibility re-score OWNER-GATED; not autonomous (wave 18, last)
 
 ### Phase 400.1: Efficiency research: verify the 2026-11-24 efficiency findings and close the open checks before phases 401-404 are planned (preloaded skills, deferral on Desktop and Cowork, stdout handling, card-fire false blocks, omitClaudeMd on plugin agents, unscoped tool names, Theo step coverage and payload size, recipe pilot design) (INSERTED)
 
