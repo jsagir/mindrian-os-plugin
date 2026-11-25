@@ -11,23 +11,31 @@
  * wiring is what failed there (DESIGN 4.3). Precedents reused: the flag parser, the
  * file-path input and the switch-case router of scripts/dominant-design-research.cjs.
  * CANON PART 8 (Graph Boundary): navigator text and room text enter by JSON file path
- * only, never as argv text. This script sends nothing to the Brain and makes no fetch.
+ * only, never as argv text. This script sends nothing to the Brain. run-research is the one
+ * subcommand that makes a fetch: it sends only the strings that the navigator approved on a
+ * card (a screened generic handle plus a fixed qualifier) to the approved providers of the
+ * plan (openalex, arxiv, tavily, patents), never to the Brain; host web search results come
+ * back through a file. No other subcommand makes a fetch.
  * CANON PART 9 (Memory Locality): this script confirms no truth-claim node. The only
  * writer of persona_status accepted is the function markAccepted, fed by a navigator
- * answer file. The one place that opens room.db is cmdRecordRuling, through the
- * navigation chokepoint, to log one decision_captured event (ids and the ruling value).
+ * answer file. room.db is opened only through the navigation chokepoint, in three places:
+ * run-research (each finding is filed by wireAccept as a proposed EvidenceClaim under
+ * section:personas, with its memory_event rows), merge (persistPersonaFindings writes the
+ * HatState bookkeeping nodes of the session log) and record-ruling (one decision_captured
+ * event for each stored ruling: ids and the ruling value only).
  * CANON PART 11: this file is a door of the persona surface, not a new invocable surface.
  *
- * Subcommands of this plan (later plans add the rest of the cycle):
+ * Subcommands (SUBCOMMANDS):
  *   status --room <dir>
  *   start --room <dir> --brief <file> [--mode deep|quick]
  *   write-persona --room <dir> --run <id>
  *   accept-persona --room <dir> --run <id> --answer <file>
- *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
- *   run-research --room <dir> --run <id> --approved <file> [--host-results <file>]  (plan 12: the fetch of the approved strings, the evidence packs, the research states; plan 19: the results of the host web search)
- *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
- *   merge --room <dir> --run <id> [--counts <file>]  (plan 08, deep mode: positions, tensions, artifact, run record, cleanup)
- *   record-ruling --room <dir> --run <id> --answer <file>  (plan 09: the navigator ruling on a tension; the only writer of the rulings store)
+ *   plan-research --room <dir> --run <id> [--edited <file>]  (the research plan from the stored or proposed handles; an edit of its strings)
+ *   run-research --room <dir> --run <id> --approved <file> [--host-results <file>]  (the fetch of the approved strings, the evidence packs, the research states; the results of the host web search)
+ *   check --room <dir> --run <id>              (schema, per-hat rules, citation boundary, Blue ledger)
+ *   merge --room <dir> --run <id> [--counts <file>] [--quick-result <file>]  (positions, tensions, artifact, run record, cleanup; a quick run merges its quick result)
+ *   record-ruling --room <dir> --run <id> --answer <file>  (the navigator ruling on a tension; the only writer of the rulings store)
+ *   compare --room <dir> --deep <id> --quick <id>  (one merged deep run and one merged quick run of one brief, side by side)
  *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).

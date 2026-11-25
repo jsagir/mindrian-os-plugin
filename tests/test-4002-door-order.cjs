@@ -764,6 +764,16 @@ check('D0. SUBCOMMANDS is frozen and lists the door subcommands of this plan', (
   assert.equal(/^(const|let|var)\b.*require\(['"]\.\.\/lib\/core\/bono/m.test(src), false);
 });
 
+check('D0b. IN-13: the door header states the true Part 8 and Part 9 facts and lists every subcommand', () => {
+  const src = fs.readFileSync(DOOR_PATH, 'utf8');
+  const header = src.slice(0, src.indexOf('*/'));
+  assert.equal(/makes no fetch/.test(header), false, 'run-research fetches');
+  assert.equal(/The one place that opens room\.db is cmdRecordRuling/.test(header), false, 'run-research and merge open room.db too');
+  assert.ok(/run-research[^\n]*fetch/i.test(header) || /fetch[^\n]*run-research/i.test(header), 'the header names the fetch of run-research');
+  assert.ok(/never to the Brain|nothing to the Brain/.test(header), 'the Brain line stays');
+  for (const name of door.SUBCOMMANDS) assert.ok(new RegExp('^ \\*   ' + name + ' --', 'm').test(header), 'header lists ' + name);
+});
+
 // ---------------------------------------------------------------------------
 // Plan 08 leg: merge cleanup (async, because the tension call of merge is async)
 // ---------------------------------------------------------------------------
