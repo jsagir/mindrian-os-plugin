@@ -30,10 +30,10 @@ Owner action: confirm or reword each sentence. The text is in data/job-vocabular
 
 Section jobs (data/section-job-canon.json):
 
-- ids (carry-section-jobs): funding|plan-execution, personas|understand-market
+- ids (carry-section-jobs): funding|plan-execution, personas|validate-idea
 - count (carry-section-jobs): 2
 - funding: the section job is plan-execution. The research run scored plan-execution low for this section, and its top job was find-bottleneck. RULED 2026-11-25: the owner keeps plan-execution. No change to data/section-job-canon.json.
-- personas: the section job is understand-market (source jev-probe-draft-gloss). The section has no "One job" sentence. Owner action: write the "One job" sentence, or rule that the draft gloss is enough.
+- personas: RULED 2026-11-25. The section holds the six hat lenses of /mos:persona, not customer personas. The section job is validate-idea, with explore as the second job. The One job sentence is in data/section-job-canon.json (personas row). The research wiring is SEED-149.
 
 Held pairs (399-LABEL-REVIEW.md section 1). They are not applied. The registry does not carry them.
 
@@ -213,3 +213,12 @@ The 8 OWNER-GATED steps of services/decision-relay/README.md (the K4 list). No a
 
 - room.db: the table selection_observations gains the nullable column cause_effect_domain (a closed label, the room's navigator-set Cynefin domain at decision time). A 399 table migrates on first use. cynefin_rating stays written for one release as a deprecated alias. Registered in aliases.yml as selection_observations_cause_effect_domain.
 - room.db: the identity table gains the key problem.cause_effect, written only by lib/core/navigation/cause-effect.cjs when the navigator approves the cause and effect card. Registered in aliases.yml as problem_cause_effect.
+
+### Owner sign-off 2026-11-25
+
+- Section 1: all 20 vocabulary sentences are ruled (7 reworded, 13 as written).
+- Section 2: funding keeps plan-execution; personas is ruled as above. The held pairs, the doubtful labels and the band are approved as listed (no change).
+- Sections 3 to 7: approved to proceed. The capability labels keep the status provisional in frontmatter; a later pass changes the status with the writer script.
+- Section 6: the built path in shortlist.cjs is accepted. The utility commands stay excluded from move matching.
+- Section 9: the wicked cut-off is ruled (commit 365fce03b). The v2 level wording stays behind its flag.
+- Section 10: the operator and user counter split is accepted. The owner-gated relay steps stay with the owner.

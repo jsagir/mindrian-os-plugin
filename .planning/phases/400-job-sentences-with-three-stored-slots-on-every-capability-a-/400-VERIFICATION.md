@@ -185,3 +185,13 @@ No blocker. Every one of the 24 requirement ids has code and passing tests at HE
 
 _Verified: 2026-11-24T12:49:08Z_
 _Verifier: Claude (gsd-verifier)_
+
+## Owner sign-off 2026-11-25
+
+The owner approved the open human items to proceed. This section records the approval. It does not change the frontmatter status above, which is the verifier's record.
+
+1. Wicked cut-off: ruled by the owner (commit 365fce03b).
+2. WR-04 and WR-09 order rule: accepted as the intended in-band reorder.
+3. IN-04: no change. The relay stays gated by the line name.
+4. Domain card on three surfaces: NOT rendered in this session. Approved to proceed; the three-surface check stays open as a manual step.
+5. Provisional labels: the 20 vocabulary sentences are ruled; funding and personas are ruled; the capability labels are approved and keep the status provisional until a later pass (400-LABEL-REVIEW.md, Owner sign-off at the end of section 10).
