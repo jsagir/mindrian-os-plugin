@@ -123,7 +123,7 @@ On such a surface the fast look is the `analyze-perspectives` action of the `roo
 
 ## The deep cycle
 
-The door is one script. Every call prints one JSON object. A refusal is data: `{"ok": false, "reason": "..."}`. Print the reason in one plain sentence and stop that step; never repeat the same call unchanged. Navigator text and room text reach the door only through a JSON file, never as argv text. The door refuses a step that comes out of order.
+The door is one script. Every call prints one JSON object. A refusal is data: `{"ok": false, "reason": "..."}`. Print the reason in one plain sentence and stop that step; never repeat the same call unchanged. A reason `write_failed:<code>` or `internal_error:<code>` is a disk or system error of this machine, not a fault of the review. Navigator text and room text reach the door only through a JSON file, never as argv text. The door refuses a step that comes out of order.
 
 `generate` with no flag starts the deep entry at step 2 in Claude Code.
 

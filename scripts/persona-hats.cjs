@@ -442,6 +442,12 @@ function cmdStart(args, deps) {
   if (taken.some(n => n.startsWith(runId + '-'))) return { ok: false, reason: 'run_folder_exists' };
   const reviewDir = path.join(reviews, runId + '-' + slugOf(brief.governing_question));
 
+  // WR-08: the target hash is read here, so a disk error is a refusal and not a throw.
+  let targetContentHash = fingerprint;
+  if (brief.target !== 'room') {
+    try { targetContentHash = sha256Hex(fs.readFileSync(checked.targetAbs)); } catch (e) { return { ok: false, reason: 'target_unreadable' }; }
+  }
+
   const freshness = ops.personaFreshness(roomResolved);
   const toBuild = [];
   const toAccept = [];
@@ -475,7 +481,7 @@ function cmdStart(args, deps) {
     mode,
     brief_hash: briefHashOf(brief),
     target: brief.target,
-    target_content_hash: brief.target === 'room' ? fingerprint : sha256Hex(fs.readFileSync(checked.targetAbs)),
+    target_content_hash: targetContentHash,
     room_fingerprint: fingerprint,
     sub_questions: brief.sub_questions.map(text => ({ id: subQuestionId(text), text })),
     brief: { governing_question: brief.governing_question, reading_list: brief.reading_list, triage: brief.triage },
@@ -642,7 +648,11 @@ function cmdWritePersona(args, deps) {
     }
   }
   if (!ledger.steps.write_persona) markStep(ledger, 'write_persona', 'done', now);
-  writeLedger(lr.dir, ledger);
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
   return { ok: true, run_id: ledger.run_id, hats: results };
 }
 
@@ -792,7 +802,11 @@ function cmdAcceptPersona(args, deps) {
 
   const pending = allowed.filter(h => !RESOLVED.includes(ledger.hats[h].persona));
   if (!failure && pending.length === 0 && !ledger.steps.accept_persona) markStep(ledger, 'accept_persona', 'done', now);
-  writeLedger(lr.dir, ledger);
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
   if (failure) return { ok: false, reason: failure };
   const acceptDone = Boolean(ledger.steps.accept_persona);
   return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: acceptDone, persona_files: personaFilesOf(roomResolved, ledger), handles_needed: acceptDone ? handlesNeeded(roomResolved, ledger) : [] };
@@ -1914,7 +1928,11 @@ function cmdCheck(args, deps) {
   }
 
   if (!ledger.steps.check) markStep(ledger, 'check', 'done', now);
-  writeLedger(lr.dir, ledger);
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
   const states = {};
   for (const hat of READ_HATS) {
     states[hat] = { reading: perHat[hat].reading, rule_lines: perHat[hat].rule_lines, evidence_items: perHat[hat].evidence_items, self_found_sources: perHat[hat].self_found_sources };
@@ -3920,50 +3938,57 @@ function main(argv, deps) {
   const need = (names) => names.filter(n => typeof flags[n] !== 'string' || flags[n].length === 0);
   let missing = [];
   let result;
-  switch (sub) {
-    case 'status':
-      missing = need(['room']);
-      if (!missing.length) result = cmdStatus({ roomDir: flags.room }, deps);
-      break;
-    case 'start':
-      missing = need(['room', 'brief']);
-      if (!missing.length) result = cmdStart({ roomDir: flags.room, briefPath: flags.brief, mode: flags.mode }, deps);
-      break;
-    case 'write-persona':
-      missing = need(['room', 'run']);
-      if (!missing.length) result = cmdWritePersona({ roomDir: flags.room, runId: flags.run }, deps);
-      break;
-    case 'accept-persona':
-      missing = need(['room', 'run', 'answer']);
-      if (!missing.length) result = cmdAcceptPersona({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
-      break;
-    case 'plan-research':
-      missing = need(['room', 'run']);
-      if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run, editedPath: typeof flags.edited === 'string' && flags.edited.length ? flags.edited : undefined }, deps);
-      break;
-    case 'run-research':
-      missing = need(['room', 'run', 'approved']);
-      if (!missing.length) result = cmdRunResearch({ roomDir: flags.room, runId: flags.run, approvedPath: flags.approved, hostResultsPath: typeof flags['host-results'] === 'string' && flags['host-results'].length ? flags['host-results'] : undefined }, deps);
-      break;
-    case 'check':
-      missing = need(['room', 'run']);
-      if (!missing.length) result = cmdCheck({ roomDir: flags.room, runId: flags.run }, deps);
-      break;
-    case 'merge':
-      missing = need(['room', 'run']);
-      if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined, quickResultPath: typeof flags['quick-result'] === 'string' && flags['quick-result'].length ? flags['quick-result'] : undefined }, deps);
-      break;
-    case 'record-ruling':
-      missing = need(['room', 'run', 'answer']);
-      if (!missing.length) result = cmdRecordRuling({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
-      break;
-    case 'compare':
-      missing = need(['room', 'deep', 'quick']);
-      if (!missing.length) result = cmdCompare({ roomDir: flags.room, deepRunId: flags.deep, quickRunId: flags.quick }, deps);
-      break;
-    default:
-      missing = ['subcommand'];
-      break;
+  // WR-08: an exception inside a subcommand is a refusal (one JSON object, exit 0). Only the error code is printed:
+  // a message or a stack trace can hold the room path and the review folder name (room text).
+  const internal = (e) => ({ ok: false, reason: 'internal_error:' + safeKeyName(e && e.code ? e.code : 'error') });
+  try {
+    switch (sub) {
+      case 'status':
+        missing = need(['room']);
+        if (!missing.length) result = cmdStatus({ roomDir: flags.room }, deps);
+        break;
+      case 'start':
+        missing = need(['room', 'brief']);
+        if (!missing.length) result = cmdStart({ roomDir: flags.room, briefPath: flags.brief, mode: flags.mode }, deps);
+        break;
+      case 'write-persona':
+        missing = need(['room', 'run']);
+        if (!missing.length) result = cmdWritePersona({ roomDir: flags.room, runId: flags.run }, deps);
+        break;
+      case 'accept-persona':
+        missing = need(['room', 'run', 'answer']);
+        if (!missing.length) result = cmdAcceptPersona({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
+        break;
+      case 'plan-research':
+        missing = need(['room', 'run']);
+        if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run, editedPath: typeof flags.edited === 'string' && flags.edited.length ? flags.edited : undefined }, deps);
+        break;
+      case 'run-research':
+        missing = need(['room', 'run', 'approved']);
+        if (!missing.length) result = cmdRunResearch({ roomDir: flags.room, runId: flags.run, approvedPath: flags.approved, hostResultsPath: typeof flags['host-results'] === 'string' && flags['host-results'].length ? flags['host-results'] : undefined }, deps);
+        break;
+      case 'check':
+        missing = need(['room', 'run']);
+        if (!missing.length) result = cmdCheck({ roomDir: flags.room, runId: flags.run }, deps);
+        break;
+      case 'merge':
+        missing = need(['room', 'run']);
+        if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined, quickResultPath: typeof flags['quick-result'] === 'string' && flags['quick-result'].length ? flags['quick-result'] : undefined }, deps);
+        break;
+      case 'record-ruling':
+        missing = need(['room', 'run', 'answer']);
+        if (!missing.length) result = cmdRecordRuling({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
+        break;
+      case 'compare':
+        missing = need(['room', 'deep', 'quick']);
+        if (!missing.length) result = cmdCompare({ roomDir: flags.room, deepRunId: flags.deep, quickRunId: flags.quick }, deps);
+        break;
+      default:
+        missing = ['subcommand'];
+        break;
+    }
+  } catch (e) {
+    result = internal(e);
   }
   if (missing.length) {
     process.stderr.write(USAGE + '\nmissing: ' + missing.join(', ') + '\n');
@@ -3972,14 +3997,11 @@ function main(argv, deps) {
   }
   if (result && typeof result.then === 'function') {
     // merge is asynchronous: the lens engine rotate call is a promise.
-    return result.then((r) => {
+    // merge and run-research are asynchronous. A rejection is a refusal too (WR-08, IN-04).
+    return result.then((r) => r, (e) => internal(e)).then((r) => {
       process.stdout.write(JSON.stringify(r, null, 2) + '\n');
       process.exitCode = 0;
       return r;
-    }, (e) => {
-      process.stderr.write('merge failed: ' + (e && e.code ? e.code : 'error') + '\n');
-      process.exitCode = 1;
-      return undefined;
     });
   }
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');

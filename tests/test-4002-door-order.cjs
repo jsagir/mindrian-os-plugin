@@ -514,8 +514,8 @@ check('D16. accept_persona is done only when every hat is resolved', () => {
   assert.deepEqual(out.pending, []);
 });
 
-// D22 (CR-01)
-check('D22. CR-01: the door prints the persona file name: hats.<hat>.persona_file in start, persona_files in accept-persona', () => {
+// D24 (CR-01)
+check('D24. CR-01: the door prints the persona file name: hats.<hat>.persona_file in start, persona_files in accept-persona', () => {
   const room = makeRoom();
   const env = makeEnv();
   writeFresh(room, 'yellow');
@@ -575,6 +575,55 @@ check('D23. WR-01 NEGATIVE: a failed rebuild does not re-propose the old spec; a
   assert.equal(forged.ok, false);
   assert.equal(forged.reason, 'persona_file_changed:red');
   assert.equal(fmValue(redFile, 'persona_status'), 'proposed');
+});
+
+// D25 (WR-08)
+check('D25. WR-08 NEGATIVE: a disk error in write-persona is a refusal (one JSON object, exit 0), not a stack trace', () => {
+  if (process.platform === 'win32' || (typeof process.getuid === 'function' && process.getuid() === 0)) return;
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  fs.chmodSync(res.review_dir, 0o500);
+  let r;
+  try {
+    r = require('node:child_process').spawnSync(process.execPath, [DOOR_PATH, 'write-persona', '--room', room, '--run', res.run_id], { env: Object.assign({}, process.env, { MINDRIAN_HOME: env.homeDir }), encoding: 'utf8' });
+  } finally {
+    fs.chmodSync(res.review_dir, 0o700);
+  }
+  assert.equal(r.status, 0, 'exit code: ' + r.status + ' stderr: ' + String(r.stderr).slice(0, 200));
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.ok, false);
+  assert.ok(/^write_failed:/.test(out.reason), out.reason);
+  assert.equal(/\bat \S+ \(/.test(r.stderr) || r.stderr.includes(res.review_dir), false, 'no stack trace and no review path on stderr');
+});
+
+// D25b (WR-08)
+check('D25b. WR-08 NEGATIVE: an exception inside a subcommand gives internal_error:<code> and prints no message text', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  const deps = { homeDir: env.homeDir, tmpDir: env.tmpDir, get now() { const e = new Error('boom ' + room); e.code = 'EBOOM'; throw e; } };
+  const written = [];
+  const saveOut = process.stdout.write;
+  const saveErr = process.stderr.write;
+  const saveCode = process.exitCode;
+  let result;
+  let code;
+  try {
+    process.stdout.write = (s) => { written.push(String(s)); return true; };
+    process.stderr.write = (s) => { written.push(String(s)); return true; };
+    result = door.main(['write-persona', '--room', room, '--run', res.run_id], deps);
+    code = process.exitCode;
+  } finally {
+    process.stdout.write = saveOut;
+    process.stderr.write = saveErr;
+    process.exitCode = saveCode;
+  }
+  assert.deepEqual(result, { ok: false, reason: 'internal_error:EBOOM' });
+  assert.equal(code, 0);
+  assert.equal(written.join('').includes(room), false, 'no room path in the output');
+  assert.equal(written.join('').includes('boom'), false, 'no message text in the output');
 });
 
 // ---------------------------------------------------------------------------
