@@ -2,7 +2,7 @@
 'use strict';
 // Phase 400.2-06: the command contract of /mos:persona (PL-05). Legs C1 to C12 (plan 06); C13 to C19 (plan 09:
 // the reader contract, the Blue contract, steps 4 to 9, Stop 4); C20 to C26 and Z1 (plan 14: the handle contract, the
-// four search cards, the approved file); later plans add legs. The test reads commands/persona.md as text and checks what the
+// four search cards, the approved file); C27 to C29 (plan 16: the quick run record, compare, the Rulings section); later plans add legs. The test reads commands/persona.md as text and checks what the
 // command promises: stages, tools, modes, the refusal sentence, the builder contract,
 // the door calls, the cards and the fire symbols.
 const fs = require('node:fs');
@@ -418,6 +418,37 @@ check('C26. the step 4 paragraph of plan 09 is gone', () => {
   assert.ok(!/every hat that researches is `not_planned`/.test(body), 'no "every hat that researches is not_planned"');
   assert.ok(!/Make no call and no fetch here/.test(body), 'the old Step 5 stub is gone');
   assert.ok(!/marks this step as skipped in the output of Step 4/.test(body), 'the old skip line is gone');
+});
+
+check('C27. the quick section: the result file into the inbox, merge with it, notice_lines first, rulings offered; no agent run, no fetch and no web search', () => {
+  const q = section('## Quick mode');
+  assert.ok(/quick-result\.json/.test(q) && /inbox/i.test(q), 'the quick result file goes into the inbox');
+  assert.ok(/node "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/persona-hats\.cjs" merge /.test(q), 'merge door call');
+  assert.ok(/--quick-result/.test(q) && /--counts/.test(q), 'merge flags');
+  assert.ok(/print the `notice_lines`[^\n]*first/i.test(q), 'notice_lines first');
+  assert.ok(/offer[^\n]*(rulings|record-ruling)/i.test(q), 'record-ruling offered as an option');
+  assert.ok(/no agent run, no fetch and no web search/i.test(q), 'no agent run, no fetch and no web search');
+  assert.ok(/not an independent review/i.test(q), 'not an independent review');
+  assert.ok(/no source, no URL/i.test(q), 'no source in a quick line');
+  assert.ok(!q.includes(ops.QUICK_NOTICE) && !q.includes('Checks that need evidence were not run'), 'the fixed texts are the door texts, not written here');
+  assert.ok(!/WebSearch|WebFetch|Task\b|subagent_type/.test(q), 'no tool of research or dispatch in the quick section');
+});
+
+check('C28. the compare section: Larry may call compare when a deep run and a quick run of one brief exist; a surface with no shell has no run record and no compare', () => {
+  const c = section('## Compare');
+  assert.ok(/node "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/persona-hats\.cjs" compare /.test(c), 'compare door call');
+  assert.ok(/--deep/.test(c) && /--quick/.test(c), 'flags');
+  assert.ok(/compare\.md/.test(c), 'compare.md');
+  assert.ok(/both a deep run and a quick run/i.test(c) && /same brief/i.test(c), 'both runs of one brief');
+  assert.ok(/no run record and no compare/i.test(c) && /shell/i.test(c), 'a surface with no shell');
+  assert.ok(/not say which mode/i.test(c), 'no verdict on a mode');
+  assert.ok(/Navigator note/.test(c), 'the navigator note stays empty');
+});
+
+check('C29. Step 9 says that the filed artifact gets a Rulings section and reads the artifact field of the output', () => {
+  const stop = section('### Step 9');
+  assert.ok(/## Rulings/.test(stop) || /Rulings section/.test(stop), 'Rulings section');
+  assert.ok(/`artifact`/.test(stop), 'artifact field of the output');
 });
 
 check('Z1. the personas one_job_note says "is wired by Phase 400.2" and not "not wired yet"; the two job ids are unchanged', () => {

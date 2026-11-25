@@ -457,21 +457,51 @@ Ask a ruling for each tension of the `open` list of the merge output. A settled 
 
 3. Print what the output says: the rulings recorded, the tensions deferred, and `memory_event` (`logged`, or `not_logged` with its reason; the ruling is stored either way). A ruling is the answer of the navigator on a pair of hats. It confirms no claim about the venture.
 
+   The door also writes a fixed "## Rulings" section at the end of the filed review (the tension id, the ruling, the side hat and the date, and nothing else) and sets the state line of each ruled tension. Read the `artifact` field of the output: `updated`, or `not_updated` with its reason (the ruling is stored either way). The reason line of the navigator stays in the rulings store and is not written into the review.
+
 4. To re-open a settled tension, only when the navigator asks for it, add an entry for its id with `"reopen": true` (and `"ruling": "defer"`). The door removes its key from the store, and the next run asks it again. Do this for no other reason.
 
 ## Quick mode
 
-Quick mode is the fast look. It is steps 1 and 2 (the same brief card), then one pass of the six hats in the main context.
+Quick mode is the fast look. It is steps 1 and 2 (the same brief card), then one pass of the six hats in the main context. It makes no agent run, no fetch and no web search, and it never builds a persona. The pass leaves a run record, so it can be put next to a deep run (see Compare below).
 
-1. Start the door with quick mode. The output holds a `quick` object:
+1. Start the door with quick mode. The output holds a `quick` object and an `inbox_dir`:
 
    ```bash
    node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" start --room "<room dir>" --brief "<tmp dir>/brief.json" --mode quick
    ```
 
 2. Print the `notice` field of the output first (`quick.notice`).
-3. Make one pass over the six hats in the main context. Use the text of each hat from `quick.hats.<hat>.text`. Name every hat of `quick.fixed_discipline_hats` as "on fixed discipline": it has no fresh persona file. Give each hat 2 to 4 lines on the target, then one short list of where the hats disagree.
-4. Make no agent run and no fetch. Never build a persona. Say that this is not an independent review.
+3. Make one pass over the six hats in the main context. Use the text of each hat from `quick.hats.<hat>.text`. Name every hat of `quick.fixed_discipline_hats` as "on fixed discipline": it has no fresh persona file. For each hat except blue, give one position for each sub-question of the brief: one closed value and one line of 300 characters or fewer. White, red, black and yellow use `favours`, `opposes`, `mixed` or `no_position`. Green uses `alternative_offered` or `no_position` and may add provocations. Blue gives only `skipped`, `thin` and `ask_next`. Put no source, no URL and no fact from outside the room in a line: quick mode has no research.
+4. Write the quick result file `quick-result.json` into the `inbox_dir` of the output. It holds these keys and no other: `schema` (`mos.persona-quick/1`), `run_id` and `hats`. Each hat holds `positions` (the entries `sub_question` with the id of the brief, `value` and `line`), and green may hold `provocations`. A key for evidence, a search, a justification or a verdict is refused by name.
+
+   ```json
+   {"schema": "mos.persona-quick/1", "run_id": "<run_id>", "hats": {"black": {"positions": [{"sub_question": "<id>", "value": "opposes", "line": "one line"}]}, "blue": {"skipped": ["one line"]}}}
+   ```
+
+5. Write the counts file `counts.json` into the same inbox: `agent_runs` is 0, `stops` and `cards` are the brief card (1 and 1; an unattended caller shows no card and writes 0 and 0).
+6. Call the door to merge the quick result:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" merge --room "<room dir>" --run "<run_id>" --quick-result "<inbox_dir>/quick-result.json" --counts "<inbox_dir>/counts.json"
+   ```
+
+   The door checks the file, makes the same tension call and the same same-position rule as a deep run, and files the artifact and the run record. When it refuses, nothing is written: fix the file and call again.
+7. Print the `notice_lines` of the output first, each on its own line, word for word, then narrate the filed artifact under the three rules of Step 8. Say that this is not an independent review.
+8. When `open` is not empty and a navigator is present, offer the rulings of Step 9 as an option: `record-ruling` works for a quick run the same way. An unattended caller is not offered it.
+9. Make no agent run and no fetch. Never build a persona.
+
+## Compare
+
+When both a deep run and a quick run of the same brief exist and are merged, Larry may offer to put them side by side. The door checks that the brief is the same:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" compare --room "<room dir>" --deep "<deep run_id>" --quick "<quick run_id>"
+```
+
+The door writes `compare.md` in the folder of the deep run: for each sub-question the value and the line of each hat in each mode, then the counts of each mode (the agent runs, the stops and the cards are marked as reported by the command), then an empty "Navigator note:" field. Show the file. Do not say which mode is better, do not score either mode and do not write the navigator note. The navigator decides what the two columns mean.
+
+A surface with no shell (Claude Desktop through MCP, or a Cowork session with no shell) has no run record and no compare: the fast look there is the `analyze-perspectives` action, and it files nothing.
 
 ## Subcommands
 

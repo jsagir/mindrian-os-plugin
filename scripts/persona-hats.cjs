@@ -46,7 +46,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'run-research', 'check', 'merge', 'record-ruling']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'run-research', 'check', 'merge', 'record-ruling', 'compare']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -3522,6 +3522,124 @@ async function cmdRunResearch(args, deps) {
 }
 
 // ---------------------------------------------------------------------------
+// compare (plan 16): one merged deep run and one merged quick run of one brief, side by side
+// ---------------------------------------------------------------------------
+
+// Every fixed label of compare.md. The file holds these labels and fields of the two run records, and nothing else.
+// There is no score, no winner and no count of differences: the navigator reads the two columns and decides.
+const COMPARE_LABELS = Object.freeze({
+  title: '# Compare: deep run and quick run of one brief',
+  deep_run: 'deep run: ',
+  quick_run: 'quick run: ',
+  question: 'governing question: ',
+  section_positions: '## Positions',
+  heading: '### ',
+  table_head: '| hat | deep value | deep line | quick value | quick line |',
+  table_rule: '| --- | --- | --- | --- | --- |',
+  not_run: 'not run',
+  not_applicable: 'not applicable',
+  none: 'none',
+  section_deep: '## Deep run',
+  section_quick: '## Quick run',
+  run_id: 'run id: ',
+  hats_ran: 'hats that ran: ',
+  evidence_items: 'door evidence items: ',
+  found_sources: 'self-found sources: ',
+  agent_runs: 'agent runs: ',
+  stops: 'stops: ',
+  cards: 'cards: ',
+  reported: ' (reported by the command)',
+  not_reported: 'not reported',
+  wall_time: 'wall time: ',
+  seconds: ' seconds',
+  navigator_note: 'Navigator note:',
+});
+
+function compareCell(text) {
+  const t = oneLine(text).replace(/\|/g, '/');
+  return t === '' ? COMPARE_LABELS.none : t;
+}
+
+/** The position cell pair of one hat in one record: [value, line]. */
+function comparePositionCells(record, sqId, hat) {
+  const L = COMPARE_LABELS;
+  const ran = Boolean(record.hats && record.hats[hat] && record.hats[hat].reading === 'ran');
+  if (!ran) return [L.not_run, L.not_run];
+  const p = isPlain(record.positions) && isPlain(record.positions[sqId]) ? record.positions[sqId][hat] : null;
+  if (!isPlain(p)) return [L.not_applicable, L.none];
+  return [compareCell(p.value), compareCell(typeof p.line === 'string' ? p.line : '')];
+}
+
+function compareBlock(record) {
+  const L = COMPARE_LABELS;
+  const hats = isPlain(record.hats) ? record.hats : {};
+  const ran = HATS.filter(hat => hats[hat] && hats[hat].reading === 'ran');
+  const sum = (obj) => (isPlain(obj) ? Object.values(obj).reduce((a, v) => a + (Number.isInteger(v) ? v : 0), 0) : 0);
+  const found = HATS.reduce((a, hat) => a + (hats[hat] && Number.isInteger(hats[hat].self_found_sources) ? hats[hat].self_found_sources : 0), 0);
+  const audit = isPlain(record.audit) ? record.audit : {};
+  const reported = audit.reported_by === 'command';
+  const count = (v) => (reported && Number.isInteger(v) ? String(v) + L.reported : L.not_reported);
+  const ms = new Date(record.timestamps && record.timestamps.merged_at).getTime() - new Date(record.timestamps && record.timestamps.started_at).getTime();
+  return [
+    L.run_id + record.run_id,
+    L.hats_ran + (ran.length ? ran.join(', ') : L.none),
+    L.evidence_items + sum(record.sources),
+    L.found_sources + found,
+    L.agent_runs + count(audit.agent_runs),
+    L.stops + count(audit.stops),
+    L.cards + count(audit.cards),
+    L.wall_time + (Number.isFinite(ms) ? String(ms / 1000) : L.not_reported) + (Number.isFinite(ms) ? L.seconds : ''),
+  ];
+}
+
+/** Build the text of compare.md from two final run records. Pure. */
+function buildCompare(deep, quick) {
+  const L = COMPARE_LABELS;
+  const out = [L.title, L.deep_run + deep.run_id, L.quick_run + quick.run_id, L.question + oneLine(deep.brief && deep.brief.governing_question), '', L.section_positions];
+  const quickIdOf = {};
+  for (const sq of quick.sub_questions) quickIdOf[normalSubQuestion(sq.text)] = sq.id;
+  for (const sq of deep.sub_questions) {
+    const qId = Object.prototype.hasOwnProperty.call(quickIdOf, normalSubQuestion(sq.text)) ? quickIdOf[normalSubQuestion(sq.text)] : sq.id;
+    out.push(L.heading + oneLine(sq.text), L.table_head, L.table_rule);
+    for (const hat of HATS) {
+      const d = comparePositionCells(deep, sq.id, hat);
+      const q = comparePositionCells(quick, qId, hat);
+      out.push('| ' + [hat, d[0], d[1], q[0], q[1]].join(' | ') + ' |');
+    }
+    out.push('');
+  }
+  out.push(L.section_deep, ...compareBlock(deep), '', L.section_quick, ...compareBlock(quick), '', L.navigator_note);
+  return out.join('\n') + '\n';
+}
+
+/**
+ * Step compare. It reads the final run records of one merged deep run and one merged quick run of the same brief and
+ * writes compare.md in the folder of the deep run (a temporary file and a rename). It writes nothing else, changes no
+ * run record and draws no conclusion: no score, no winner, no count of differences.
+ * @param {{roomDir: string, deepRunId: string, quickRunId: string}} args
+ */
+function cmdCompare(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const d = readLedger(roomResolved, args.deepRunId);
+  if (!d.ok) return d;
+  const q = readLedger(roomResolved, args.quickRunId);
+  if (!q.ok) return q;
+  if (d.ledger.mode !== 'deep' || q.ledger.mode !== 'quick') return { ok: false, reason: 'modes_not_deep_and_quick' };
+  for (const r of [d, q]) {
+    if (!r.ledger.steps.merge || r.ledger.steps.merge.state !== 'done') return { ok: false, reason: 'not_merged:' + r.ledger.run_id };
+  }
+  if (d.ledger.brief_hash !== q.ledger.brief_hash) return { ok: false, reason: 'brief_hash_differs' };
+  const file = path.join(d.dir, 'compare.md');
+  try {
+    atomicWriteText(file, buildCompare(d.ledger, q.ledger));
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  return { ok: true, deep_run_id: d.ledger.run_id, quick_run_id: q.ledger.run_id, file };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -3573,6 +3691,10 @@ function main(argv, deps) {
     case 'record-ruling':
       missing = need(['room', 'run', 'answer']);
       if (!missing.length) result = cmdRecordRuling({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
+      break;
+    case 'compare':
+      missing = need(['room', 'deep', 'quick']);
+      if (!missing.length) result = cmdCompare({ roomDir: flags.room, deepRunId: flags.deep, quickRunId: flags.quick }, deps);
       break;
     default:
       missing = ['subcommand'];
@@ -3628,6 +3750,7 @@ module.exports = {
   cmdCheck,
   cmdMerge,
   cmdRecordRuling,
+  cmdCompare,
   readRulingsStore,
   tensionKey,
   positionMarker,
