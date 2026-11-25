@@ -534,6 +534,8 @@ function cmdStart(args, deps) {
     }
     const hatsOut = {};
     for (const hat of HATS) hatsOut[hat] = { persona: freshness.hats[hat].state, dir: hatDirs[hat], discipline: ops.HAT_DISCIPLINE[hat] };
+    // With nothing to build or accept the command goes straight to the handle agents; else accept-persona lists them.
+    const handlesList = toBuild.length === 0 && toAccept.length === 0 ? handlesNeeded(roomResolved, ledger) : [];
     return {
       ok: true,
       run_id: runId,
@@ -545,6 +547,7 @@ function cmdStart(args, deps) {
       hats: hatsOut,
       to_build: toBuild,
       to_accept: toAccept,
+      handles_needed: handlesList,
       inbox_dir: inboxDir,
     };
   } catch (e) {
@@ -755,7 +758,8 @@ function cmdAcceptPersona(args, deps) {
   if (!failure && pending.length === 0 && !ledger.steps.accept_persona) markStep(ledger, 'accept_persona', 'done', now);
   writeLedger(lr.dir, ledger);
   if (failure) return { ok: false, reason: failure };
-  return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: Boolean(ledger.steps.accept_persona) };
+  const acceptDone = Boolean(ledger.steps.accept_persona);
+  return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: acceptDone, handles_needed: acceptDone ? handlesNeeded(roomResolved, ledger) : [] };
 }
 
 // ---------------------------------------------------------------------------
@@ -1125,10 +1129,233 @@ function hatDirOf(map, hat) {
   return dir;
 }
 
+const PLAN_SCHEMA = 'mos.persona-plan/1';
+const HANDLES_SCHEMA = 'mos.persona-handles/1';
+const HANDLES_STORE_SCHEMA = 'mos.persona-handles-store/1';
+const EDITED_SCHEMA = 'mos.persona-edited/1';
+const PACKS_SCHEMA = 'mos.persona-pack-hashes/1';
+const HANDLES_KEYS = Object.freeze(['schema', 'hat', 'handles']);
+const HANDLE_ITEM_KEYS = Object.freeze(['handle', 'why']);
+const EDITED_KEYS = Object.freeze(['schema', 'run_id', 'edits']);
+const EDIT_ENTRY_KEYS = Object.freeze(['hat', 'q_hash_replaced', 'text']);
+const MAX_HANDLES_PER_HAT = 2;
+const MAX_STRINGS_PER_HAT = 2;
+const MAX_EDITS_PER_FILE = 16;
+const MAX_EDIT_TEXT = 2000;
+const SHOWN_TEXT_MAX = 300;
+const SHA256_RE = /^[0-9a-f]{64}$/;
+
+// ---- the pack hashes: a hat must not widen its own citation set by rewriting a pack (risk of plan 07) ----
+
+/** SHA-256 of a regular file that is not a symbolic link; null when the file is missing or of another kind. */
+function packFileHash(file) {
+  try {
+    const st = fs.lstatSync(file);
+    if (!st.isFile()) return null;
+    return sha256Hex(fs.readFileSync(file));
+  } catch (e) {
+    return null;
+  }
+}
+
 /**
- * Step plan_research. This plan holds the no-plan branch only: no handle step exists before plan 11, so
- * every researching hat is not planned, plan_research is done and run_research is skipped. Zero-item
- * packs (S-5) are written into the hat directories so a reading still finds its two files.
+ * Record the hashes of the packs now on disk in the ledger (not written to disk here). The research step calls
+ * this right after it writes the packs: the five copies of shared-white.json must be equal, and evidence.json
+ * must exist for white, black, yellow and green. A pack that is rewritten later no longer matches.
+ * @returns {{ok: true} | {ok: false, reason: string}}
+ */
+function sealPacks(ledger, map) {
+  let shared = null;
+  for (const hat of READ_HATS) {
+    const dir = hatDirOf(map, hat);
+    if (!dir) return { ok: false, reason: 'run_map_missing' };
+    const h = packFileHash(path.join(dir, 'shared-white.json'));
+    if (h === null) return { ok: false, reason: 'pack_missing:shared-white' };
+    if (shared === null) shared = h;
+    else if (shared !== h) return { ok: false, reason: 'shared_white_copies_differ' };
+  }
+  const evidence = {};
+  for (const hat of RESEARCH_HATS) {
+    const dir = hatDirOf(map, hat);
+    if (!dir) return { ok: false, reason: 'run_map_missing' };
+    const h = packFileHash(path.join(dir, 'evidence.json'));
+    if (h === null) return { ok: false, reason: 'pack_missing:' + hat };
+    evidence[hat] = h;
+  }
+  ledger.packs = { schema: PACKS_SCHEMA, shared_white: shared, evidence };
+  return { ok: true };
+}
+
+/** Seal the packs of one run and write the ledger. For a research step that writes packs on its own. */
+function sealRunPacks(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const map = readRunMap(homeDirOf(deps), lr.ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  const sealed = sealPacks(lr.ledger, map);
+  if (!sealed.ok) return sealed;
+  try {
+    writeLedger(lr.dir, lr.ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  return { ok: true, run_id: lr.ledger.run_id };
+}
+
+/**
+ * Compare the packs of one hat with the sealed hashes.
+ * @returns {string|null} a reading state to reject with, or null when the packs are as sealed
+ */
+function packTamper(hat, dir, packs) {
+  if (!isPlain(packs) || typeof packs.shared_white !== 'string' || !isPlain(packs.evidence)) return 'rejected:packs_not_sealed';
+  if (packFileHash(path.join(dir, 'shared-white.json')) !== packs.shared_white) return 'rejected:pack_changed_after_research';
+  if (RESEARCH_HATS.includes(hat) && packFileHash(path.join(dir, 'evidence.json')) !== packs.evidence[hat]) return 'rejected:pack_changed_after_research';
+  return null;
+}
+
+// ---- the handles store (S-3a): one file for each brief, keyed by hat and persona file hash ----
+
+function handlesStorePath(roomResolved, briefHash) {
+  return path.join(roomResolved, '.mindrian', 'hats', 'handles', String(briefHash).slice(0, 16) + '.json');
+}
+
+function validHandleList(list) {
+  return Array.isArray(list) && list.length >= 1 && list.length <= MAX_HANDLES_PER_HAT && list.every(h => typeof h === 'string' && h.length > 0 && h.length <= 200);
+}
+
+/**
+ * Read the handles store of a brief. Never throws. A missing, unreadable or invalid file, or an entry that is not
+ * well formed, gives no entry for that hat.
+ * @returns {{ok: true, hats: Object<string, {persona_sha256: string, handles: string[]}>}}
+ */
+function readHandlesStore(roomDir, briefHash) {
+  const out = { ok: true, hats: {} };
+  if (typeof briefHash !== 'string' || !SHA256_RE.test(briefHash)) return out;
+  const r = readJsonFile(handlesStorePath(path.resolve(roomDir), briefHash), { noSymlink: true });
+  if (!r.ok || !isPlain(r.value) || r.value.schema !== HANDLES_STORE_SCHEMA || r.value.brief_hash !== briefHash || !isPlain(r.value.hats)) return out;
+  for (const hat of RESEARCH_HATS) {
+    const e = r.value.hats[hat];
+    if (!isPlain(e) || typeof e.persona_sha256 !== 'string' || !SHA256_RE.test(e.persona_sha256) || e.brief_hash !== briefHash || !validHandleList(e.handles)) continue;
+    out.hats[hat] = { persona_sha256: e.persona_sha256, handles: e.handles.slice() };
+  }
+  return out;
+}
+
+function writeHandlesStore(roomResolved, briefHash, updates) {
+  const current = readHandlesStore(roomResolved, briefHash);
+  const hats = {};
+  for (const hat of RESEARCH_HATS) {
+    const e = updates[hat] || current.hats[hat];
+    if (e) hats[hat] = { persona_sha256: e.persona_sha256, brief_hash: briefHash, handles: e.handles.slice() };
+  }
+  const file = handlesStorePath(roomResolved, briefHash);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  atomicWriteJson(file, { schema: HANDLES_STORE_SCHEMA, brief_hash: briefHash, hats });
+}
+
+/** SHA-256 of the persona file of each researching hat, null for a hat that has none. */
+function personaHashesOf(roomResolved) {
+  const freshness = ops.personaFreshness(roomResolved);
+  const out = {};
+  for (const hat of RESEARCH_HATS) {
+    const entry = freshness.hats[hat];
+    out[hat] = null;
+    if (!entry || typeof entry.file !== 'string') continue;
+    try {
+      out[hat] = sha256Hex(fs.readFileSync(path.join(roomResolved, 'personas', entry.file)));
+    } catch (e) {
+      out[hat] = null;
+    }
+  }
+  return out;
+}
+
+/**
+ * The researching hats that need a handle agent: a fresh or accepted persona and no store entry for this brief and
+ * this persona file. Never names red or blue.
+ * @returns {string[]}
+ */
+function handlesNeeded(roomDir, ledger) {
+  if (!ledger || ledger.mode !== 'deep' || !isPlain(ledger.hats)) return [];
+  const roomResolved = path.resolve(roomDir);
+  const store = readHandlesStore(roomResolved, ledger.brief_hash);
+  const shas = personaHashesOf(roomResolved);
+  const out = [];
+  for (const hat of RESEARCH_HATS) {
+    const entry = ledger.hats[hat];
+    if (!entry || !PERSONA_USABLE.includes(entry.persona) || !shas[hat]) continue;
+    const stored = store.hats[hat];
+    if (stored && stored.persona_sha256 === shas[hat]) continue;
+    out.push(hat);
+  }
+  return out;
+}
+
+/** Read and check the handles file of one hat (S-3a). @returns {{ok: true, handles: string[]} | {ok: false, reason: string}} */
+function readHandlesFile(dir, hat) {
+  const r = readJsonFile(path.join(dir, 'handles.json'), { noSymlink: true });
+  if (!r.ok) return { ok: false, reason: r.reason === 'file_unreadable' ? 'no_file' : r.reason };
+  const v = r.value;
+  if (!isPlain(v)) return { ok: false, reason: 'schema_invalid:handles' };
+  for (const k of Object.keys(v)) if (!HANDLES_KEYS.includes(k)) return { ok: false, reason: 'schema_invalid:handles' };
+  if (v.schema !== HANDLES_SCHEMA || v.hat !== hat || !Array.isArray(v.handles)) return { ok: false, reason: 'schema_invalid:handles' };
+  if (v.handles.length < 1 || v.handles.length > MAX_HANDLES_PER_HAT) return { ok: false, reason: 'schema_invalid:handles' };
+  const list = [];
+  for (const item of v.handles) {
+    if (!isPlain(item)) return { ok: false, reason: 'schema_invalid:handles' };
+    for (const k of Object.keys(item)) if (!HANDLE_ITEM_KEYS.includes(k)) return { ok: false, reason: 'schema_invalid:handles' };
+    if (typeof item.handle !== 'string' || item.handle.length > 200 || typeof item.why !== 'string' || item.why.length === 0 || item.why.length > 200) return { ok: false, reason: 'schema_invalid:handles' };
+    list.push(item.handle);
+  }
+  return { ok: true, handles: list };
+}
+
+/** The frozen lens set of a hat from the table, through the preflight. No network call. */
+function lensPlanOf(hat, roomResolved, deps) {
+  const driver = require(path.join(REPO_ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
+  const preflight = deps && typeof deps.preflightLenses === 'function' ? deps.preflightLenses : driver.preflightLenses;
+  const table = ops.HAT_RESEARCH_LENSES[hat];
+  const pre = preflight(table.slice(), { roomDir: roomResolved });
+  const available = Array.isArray(pre && pre.available) ? pre.available : [];
+  const unavailable = Array.isArray(pre && pre.unavailable) ? pre.unavailable : [];
+  const lensToSource = driver._internal.LENS_TO_SOURCE;
+  const lensSet = [];
+  const providers = [];
+  table.forEach((lens, i) => {
+    if (!available.includes(lens)) return;
+    lensSet.push({ lens, weight: Math.round((1 - 0.2 * i) * 10) / 10 });
+    const provider = lensToSource[lens];
+    if (typeof provider === 'string' && !providers.includes(provider)) providers.push(provider);
+  });
+  return { lens_set: lensSet, providers, unavailable_line: driver.unavailableAnswerLine(unavailable) };
+}
+
+function emptyHatPlan(state) {
+  return { state, strings: [], refused: [], lens_set: [], providers: [], unavailable_line: '' };
+}
+
+function planOutput(ledger, plan, refusedShown, extra) {
+  const hats = {};
+  const planned = [];
+  for (const hat of HATS) {
+    if (RESEARCH_HATS.includes(hat)) {
+      hats[hat] = plan.hats[hat].state;
+      if (plan.hats[hat].state === 'planned') planned.push(hat);
+    } else {
+      hats[hat] = 'never_searches';
+    }
+  }
+  return Object.assign({ ok: true, run_id: ledger.run_id, plan_seq: plan.plan_seq, hats, planned, plan, refused_shown: refusedShown }, extra || {});
+}
+
+/**
+ * Step plan_research (plan 11). Planning branch: for each researching hat with a usable persona, the handles (the
+ * store, else handles.json) pass checkHandle and composeString, the frozen lens set passes the preflight, and one plan
+ * (S-3) is written for the cards. When no hat is planned, the closing branch runs: every hat is not planned,
+ * run_research is skipped and zero-item packs are written. With --edited the strings of the plan are edited.
+ * No fetch happens here.
  */
 function cmdPlanResearch(args, deps) {
   const roomResolved = roomDirCheck(args && args.roomDir);
@@ -1145,32 +1372,230 @@ function cmdPlanResearch(args, deps) {
   for (const hat of HATS) {
     if (!hatDirOf(map, hat)) return { ok: false, reason: 'run_map_missing' };
   }
+  if (args.editedPath !== undefined && args.editedPath !== null) return planEdit(roomResolved, lr, map, args, deps);
+  if (ledger.steps.plan_research) return { ok: false, reason: 'step_already_done:plan_research' };
+  return planFirst(roomResolved, lr, map, deps);
+}
 
-  const states = {};
-  for (const hat of HATS) {
-    if (!RESEARCH_HATS.includes(hat)) states[hat] = 'never_searches';
-    else if (!PERSONA_USABLE.includes(ledger.hats[hat].persona)) states[hat] = 'not_planned:persona_not_accepted';
-    else states[hat] = 'not_planned:no_valid_handle';
-  }
-  const pack = (hat, state) => ({ schema: EVIDENCE_SCHEMA, run_id: ledger.run_id, hat, research_state: state, strings: [], items: [] });
-  try {
-    for (const hat of READ_HATS) {
-      atomicWriteJson(path.join(hatDirOf(map, hat), 'shared-white.json'), pack('white', states.white));
+function planFirst(roomResolved, lr, map, deps) {
+  const ledger = lr.ledger;
+  const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
+  const shas = screen.ran === true ? personaHashesOf(roomResolved) : {};
+  const store = readHandlesStore(roomResolved, ledger.brief_hash);
+  const planHats = {};
+  const refusedShown = [];
+  const storeUpdates = {};
+  const consumed = [];
+  let refusedCount = 0;
+
+  for (const hat of RESEARCH_HATS) {
+    const rec = emptyHatPlan('not_planned:no_valid_handle');
+    planHats[hat] = rec;
+    if (!PERSONA_USABLE.includes(ledger.hats[hat].persona)) { rec.state = 'not_planned:persona_not_accepted'; continue; }
+    if (screen.ran !== true) { rec.state = 'not_planned:identity_screen_unavailable'; continue; }
+    const sha = shas[hat];
+    if (!sha) { rec.state = 'not_planned:persona_not_accepted'; continue; }
+
+    let handles = null;
+    let fromFile = false;
+    const stored = store.hats[hat];
+    if (stored && stored.persona_sha256 === sha) {
+      handles = stored.handles;
+    } else {
+      const f = readHandlesFile(hatDirOf(map, hat), hat);
+      if (f.ok) {
+        handles = f.handles;
+        fromFile = true;
+        consumed.push(hat);
+      } else if (f.reason !== 'no_file') {
+        rec.refused.push({ reason: f.reason });
+        refusedShown.push({ hat, text: null, reason: f.reason });
+        consumed.push(hat);
+      }
     }
-    for (const hat of RESEARCH_HATS) {
-      atomicWriteJson(path.join(hatDirOf(map, hat), 'evidence.json'), pack(hat, states[hat]));
+    if (handles === null) continue;
+
+    const passed = [];
+    for (const raw of handles) {
+      const c = checkHandle(raw, screen);
+      const s = c.ok ? composeString(hat, c.handle) : c;
+      if (!s.ok) {
+        rec.refused.push({ reason: s.reason });
+        refusedShown.push({ hat, text: typeof raw === 'string' ? raw.slice(0, SHOWN_TEXT_MAX) : null, reason: s.reason });
+        refusedCount += 1;
+        continue;
+      }
+      if (rec.strings.some(x => x.text === s.text) || rec.strings.length >= MAX_STRINGS_PER_HAT) continue;
+      rec.strings.push({ text: s.text, q_hash: s.q_hash, handle: s.handle, qualifier: s.qualifier, edited: false });
+      passed.push(c.handle);
+    }
+    if (fromFile && passed.length > 0) storeUpdates[hat] = { persona_sha256: sha, handles: passed };
+    if (rec.strings.length === 0) continue;
+
+    const lp = lensPlanOf(hat, roomResolved, deps);
+    if (lp.lens_set.length === 0) {
+      rec.state = 'not_planned:no_available_provider';
+      rec.strings = [];
+      rec.unavailable_line = lp.unavailable_line;
+      continue;
+    }
+    rec.state = 'planned';
+    rec.lens_set = lp.lens_set;
+    rec.providers = lp.providers;
+    rec.unavailable_line = lp.unavailable_line;
+  }
+
+  const planned = RESEARCH_HATS.filter(h => planHats[h].state === 'planned');
+  const plan = {
+    schema: PLAN_SCHEMA,
+    run_id: ledger.run_id,
+    brief_hash: ledger.brief_hash,
+    plan_seq: 1,
+    identity_screen: screen.counts(),
+    hats: planHats,
+  };
+  const now = nowOf(deps);
+  const states = {};
+  for (const hat of HATS) states[hat] = RESEARCH_HATS.includes(hat) ? planHats[hat].state : 'never_searches';
+  const approved = planned.reduce((n, h) => n + planHats[h].strings.length, 0);
+
+  try {
+    if (Object.keys(storeUpdates).length > 0) writeHandlesStore(roomResolved, ledger.brief_hash, storeUpdates);
+    if (planned.length > 0) {
+      const planPath = path.join(map.scratch_root, 'plan.json');
+      atomicWriteJson(planPath, plan, 0o600);
+      ledger.plan_sha256 = sha256Hex(fs.readFileSync(planPath));
+    } else {
+      const pack = (hat, state) => ({ schema: EVIDENCE_SCHEMA, run_id: ledger.run_id, hat, research_state: state, strings: [], items: [] });
+      for (const hat of READ_HATS) {
+        atomicWriteJson(path.join(hatDirOf(map, hat), 'shared-white.json'), pack('white', states.white));
+      }
+      for (const hat of RESEARCH_HATS) {
+        atomicWriteJson(path.join(hatDirOf(map, hat), 'evidence.json'), pack(hat, states[hat]));
+      }
+      const sealed = sealPacks(ledger, map);
+      if (!sealed.ok) return sealed;
     }
   } catch (e) {
     return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
   }
 
-  const now = nowOf(deps);
-  for (const hat of HATS) ledger.hats[hat].research = states[hat];
-  ledger.research = { strings_approved: 0, strings_refused: 0 };
+  for (const hat of HATS) ledger.hats[hat].research = planned.includes(hat) ? 'planned' : states[hat];
+  ledger.research = { strings_approved: approved, strings_refused: refusedCount };
   markStep(ledger, 'plan_research', 'done', now);
-  markStep(ledger, 'run_research', 'skipped', now);
-  writeLedger(lr.dir, ledger);
-  return { ok: true, run_id: ledger.run_id, hats: states, planned: [] };
+  if (planned.length === 0) markStep(ledger, 'run_research', 'skipped', now);
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  // The handles files are consumed: a refused handle text must not stay in the scratch tree.
+  for (const hat of consumed) {
+    try { fs.rmSync(path.join(hatDirOf(map, hat), 'handles.json'), { force: true }); } catch (e) { /* the scratch tree is removed at merge */ }
+  }
+  return planOutput(ledger, plan, refusedShown);
+}
+
+/** Check the shape of the edited-strings file (S-3b). @returns {string|null} a reason */
+function editedRefusal(v, runId) {
+  if (!isPlain(v)) return 'schema_invalid:root';
+  for (const k of Object.keys(v)) if (!EDITED_KEYS.includes(k)) return 'unknown_key:' + safeKeyName(k);
+  if (v.schema !== EDITED_SCHEMA) return 'schema_invalid:schema';
+  if (v.run_id !== runId) return 'schema_invalid:run_id';
+  if (!Array.isArray(v.edits) || v.edits.length > MAX_EDITS_PER_FILE) return 'schema_invalid:edits';
+  for (let i = 0; i < v.edits.length; i += 1) {
+    const e = v.edits[i];
+    if (!isPlain(e)) return 'schema_invalid:edits[' + i + ']';
+    for (const k of Object.keys(e)) if (!EDIT_ENTRY_KEYS.includes(k)) return 'unknown_key:' + safeKeyName(k);
+    if (typeof e.hat !== 'string' || e.hat.length > 20) return 'schema_invalid:edits[' + i + '].hat';
+    if (typeof e.q_hash_replaced !== 'string' || e.q_hash_replaced.length > 100) return 'schema_invalid:edits[' + i + '].q_hash_replaced';
+    if (typeof e.text !== 'string' || e.text.length > MAX_EDIT_TEXT) return 'schema_invalid:edits[' + i + '].text';
+  }
+  return null;
+}
+
+/**
+ * The checks of an edited string (DESIGN 4.5): the content fence and the length rules on the full text, the qualifier,
+ * then the four checks on the text with the qualifier removed, then the compose checks on the full text.
+ * @returns {{ok: true, composed: Object} | {ok: false, reason: string}}
+ */
+function checkEditedText(hat, text, screen) {
+  const qualifier = ops.HAT_RESEARCH_QUALIFIER[hat];
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  const lq = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'lane-queries.cjs'));
+  const first = lq.auditEditedQuery(text, { auditFn: (s) => rs.auditQueryString(s, 'persona-hats') });
+  if (!first.ok) return { ok: false, reason: first.reason };
+  let stem;
+  if (text === qualifier) stem = '';
+  else if (text.endsWith(' ' + qualifier)) stem = text.slice(0, text.length - qualifier.length - 1);
+  else return { ok: false, reason: 'qualifier_removed' };
+  const c = checkHandle(stem, screen);
+  if (!c.ok) return c;
+  const composed = composeString(hat, c.handle);
+  if (!composed.ok) return composed;
+  if (composed.text !== text) return { ok: false, reason: 'handle_not_generic_shape' };
+  return { ok: true, composed };
+}
+
+function planEdit(roomResolved, lr, map, args, deps) {
+  const ledger = lr.ledger;
+  if (!ledger.steps.plan_research) return { ok: false, reason: 'step_out_of_order:plan_research' };
+  const planPath = path.join(map.scratch_root, 'plan.json');
+  const pr = readJsonFile(planPath, { noSymlink: true });
+  if (!pr.ok) return { ok: false, reason: 'plan_missing' };
+  if (pr.sha256 !== ledger.plan_sha256) return { ok: false, reason: 'plan_changed' };
+  const plan = pr.value;
+  if (!isPlain(plan) || plan.schema !== PLAN_SCHEMA || plan.run_id !== ledger.run_id || !Number.isInteger(plan.plan_seq) || !isPlain(plan.hats)) return { ok: false, reason: 'plan_changed' };
+  const er = readJsonFile(args.editedPath);
+  if (!er.ok) return { ok: false, reason: er.reason };
+  const bad = editedRefusal(er.value, ledger.run_id);
+  if (bad) return { ok: false, reason: bad };
+
+  const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
+  const refusedShown = [];
+  const accepted = [];
+  for (const edit of er.value.edits) {
+    const refuse = (reason) => refusedShown.push({ hat: edit.hat.slice(0, 20), text: edit.text.slice(0, SHOWN_TEXT_MAX), reason });
+    if (!RESEARCH_HATS.includes(edit.hat)) { refuse('hat_never_searches'); continue; }
+    const rec = plan.hats[edit.hat];
+    const at = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.strings) ? rec.strings.findIndex(s => s.q_hash === edit.q_hash_replaced) : -1;
+    if (at === -1) { refuse('string_not_in_plan'); continue; }
+    const checked = checkEditedText(edit.hat, edit.text, screen);
+    if (!checked.ok) { refuse(checked.reason); continue; }
+    const c = checked.composed;
+    if (c.q_hash === edit.q_hash_replaced) { refuse('string_unchanged'); continue; }
+    if (rec.strings.some((s, i) => i !== at && s.q_hash === c.q_hash)) { refuse('duplicate_string'); continue; }
+    rec.strings[at] = { text: c.text, q_hash: c.q_hash, handle: c.handle, qualifier: c.qualifier, edited: true };
+    accepted.push({ hat: edit.hat, q_hash: c.q_hash });
+  }
+
+  if (accepted.length > 0) {
+    plan.plan_seq += 1;
+    try {
+      atomicWriteJson(planPath, plan, 0o600);
+      ledger.plan_sha256 = sha256Hex(fs.readFileSync(planPath));
+    } catch (e) {
+      return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+    }
+    const audit = isPlain(ledger.audit) ? ledger.audit : {};
+    const list = Array.isArray(audit.edited_strings) ? audit.edited_strings : [];
+    for (const a of accepted) list.push({ hat: a.hat, q_hash: a.q_hash, plan_seq: plan.plan_seq });
+    audit.edited_strings = list;
+    ledger.audit = audit;
+  }
+  if (refusedShown.length > 0) {
+    const research = isPlain(ledger.research) ? ledger.research : { strings_approved: 0, strings_refused: 0 };
+    research.strings_refused = (Number.isInteger(research.strings_refused) ? research.strings_refused : 0) + refusedShown.length;
+    ledger.research = research;
+  }
+  if (accepted.length > 0 || refusedShown.length > 0) {
+    try {
+      writeLedger(lr.dir, ledger);
+    } catch (e) {
+      return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+    }
+  }
+  return planOutput(ledger, plan, refusedShown, { edited: accepted });
 }
 
 /** Read the ids and URLs of an evidence pack. A missing or invalid pack gives empty sets. */
@@ -1210,6 +1635,12 @@ function judgeReading(hat, dir, ctx) {
   const schema = validateReading(hat, reading, { runId: ctx.runId, subQuestionIds: ctx.subQuestionIds });
   if (!schema.ok) {
     rec.reading = schema.state;
+    return out;
+  }
+  // A hat must not widen its citation set by rewriting a pack: the packs must be as the research step sealed them.
+  const tamper = packTamper(hat, dir, ctx.packs);
+  if (tamper) {
+    rec.reading = tamper;
     return out;
   }
   const own = RESEARCH_HATS.includes(hat) ? packSets(path.join(dir, 'evidence.json')) : { ids: [], urls: [] };
@@ -1273,7 +1704,7 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research });
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
     }
@@ -1789,7 +2220,7 @@ async function cmdMerge(args, deps) {
       verdict[hat] = { state: entry.reading };
       continue;
     }
-    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research });
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs });
     if (judged.rec.reading_sha256 !== entry.reading_sha256) {
       verdict[hat] = { state: 'rejected:changed_after_check' };
     } else if (judged.rec.reading !== 'ran') {
@@ -1847,7 +2278,9 @@ async function cmdMerge(args, deps) {
   const packs = {};
   const sources = {};
   for (const hat of HATS) {
-    packs[hat] = RESEARCH_HATS.includes(hat) ? readPackForArtifact(path.join(hatDirOf(map, hat), 'evidence.json')) : { items: [], strings: [] };
+    // A pack that differs from its sealed hash is not shown: its hat could have written the items itself.
+    const sealed = RESEARCH_HATS.includes(hat) && packTamper(hat, hatDirOf(map, hat), ledger.packs) === null;
+    packs[hat] = sealed ? readPackForArtifact(path.join(hatDirOf(map, hat), 'evidence.json')) : { items: [], strings: [] };
     sources[hat] = packs[hat].items.length;
   }
   ledger.positions = positions;
@@ -2389,7 +2822,7 @@ function main(argv, deps) {
       break;
     case 'plan-research':
       missing = need(['room', 'run']);
-      if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run }, deps);
+      if (!missing.length) result = cmdPlanResearch({ roomDir: flags.room, runId: flags.run, editedPath: typeof flags.edited === 'string' && flags.edited.length ? flags.edited : undefined }, deps);
       break;
     case 'check':
       missing = need(['room', 'run']);
@@ -2446,6 +2879,10 @@ module.exports = {
   cmdWritePersona,
   cmdAcceptPersona,
   cmdPlanResearch,
+  handlesNeeded,
+  readHandlesStore,
+  sealPacks,
+  sealRunPacks,
   cmdCheck,
   cmdMerge,
   cmdRecordRuling,

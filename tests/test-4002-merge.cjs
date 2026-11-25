@@ -151,6 +151,9 @@ function writePack(run, hat, items) {
   const strings = items.length === 0 ? [] : [{ text: 'a generic handle', q_hash: items[0].q_hash, state: 'ran_with_results', partial: false, providers: [{ provider: items[0].provider, lens: 'scholarly', operation_state: 'executed_with_results', reason: '', items: items.length, cache_hit: true }] }];
   const obj = { schema: 'mos.persona-evidence/1', run_id: run.res.run_id, hat, research_state: items.length ? 'ran_with_results' : 'ran_empty', strings, items };
   fs.writeFileSync(path.join(run.res.hats[hat].dir, 'evidence.json'), JSON.stringify(obj), 'utf8');
+  // The research step seals the packs it writes (plan 11); this helper stands in for that step.
+  const sealed = door.sealRunPacks({ roomDir: run.room, runId: run.res.run_id }, run.env.opts());
+  assert.equal(sealed.ok, true, JSON.stringify(sealed));
 }
 
 function packItem(n) {

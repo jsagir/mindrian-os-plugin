@@ -598,6 +598,26 @@ check('D19. a refused persona of a researching hat is not_planned:persona_not_ac
   assert.equal(readLedgerOf(res).steps.plan_research.state, 'done');
 });
 
+// D21 (plan 11)
+check('D21. with one planned hat plan_research is done and run_research is open; check is out of order', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = runToAccepted(room, env);
+  fs.writeFileSync(path.join(res.hats.white.dir, 'handles.json'), JSON.stringify({ schema: 'mos.persona-handles/1', hat: 'white', handles: [{ handle: 'battery recycling', why: 'The field of the problem.' }] }), 'utf8');
+  const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.deepEqual(out.planned, ['white']);
+  assert.equal(out.hats.white, 'planned');
+  assert.equal(out.hats.black, 'not_planned:no_valid_handle');
+  const ledger = readLedgerOf(res);
+  assert.equal(ledger.steps.plan_research.state, 'done');
+  assert.equal(ledger.steps.run_research, undefined);
+  assert.equal(ledger.hats.white.research, 'planned');
+  assert.deepEqual(door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env)), { ok: false, reason: 'step_out_of_order:run_research' });
+  // the packs are written by the research step, not by planning
+  assert.equal(fs.existsSync(path.join(res.hats.white.dir, 'evidence.json')), false);
+});
+
 // D0
 check('D0. SUBCOMMANDS is frozen and lists the door subcommands of this plan', () => {
   assert.ok(Object.isFrozen(door.SUBCOMMANDS));
