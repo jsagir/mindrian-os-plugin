@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-06: the command contract of /mos:persona (PL-05). Legs C1 to C12 (plan 06); C13 to C19 (plan 09:
-// the reader contract, the Blue contract, steps 4 to 9, Stop 4); later plans add legs. The test reads commands/persona.md as text and checks what the
+// the reader contract, the Blue contract, steps 4 to 9, Stop 4); C20 to C26 and Z1 (plan 14: the handle contract, the
+// four search cards, the approved file); later plans add legs. The test reads commands/persona.md as text and checks what the
 // command promises: stages, tools, modes, the refusal sentence, the builder contract,
 // the door calls, the cards and the fire symbols.
 const fs = require('node:fs');
@@ -58,7 +59,7 @@ function section(heading) {
   return lines.slice(start, end).join('\n');
 }
 
-check('C1. hitl_stages holds the three stages with their shapes and modes; hitl_why names each stage id', () => {
+check('C1. hitl_stages holds the four stages with their shapes and modes; hitl_why names each stage id', () => {
   const stages = [];
   const re = /^ {2}- stage: "([^"]+)"\n {4}shapes: \[([^\]]*)\]\n {4}mode: "([^"]+)"/gm;
   let m;
@@ -66,12 +67,13 @@ check('C1. hitl_stages holds the three stages with their shapes and modes; hitl_
   assert.deepEqual(stages, [
     { stage: 'brief-confirm', shapes: ['F.6'], mode: 'gate' },
     { stage: 'generate-experts', shapes: ['F.8'], mode: 'parallel' },
+    { stage: 'search-approve', shapes: ['F.0'], mode: 'gate' },
     { stage: 'resolve-tension', shapes: ['F.5'], mode: 'gate' },
   ]);
   const why = /^hitl_why: "([^"]*)"/m.exec(frontmatter);
   assert.ok(why, 'hitl_why line');
   for (const s of stages) assert.ok(why[1].includes(s.stage), 'hitl_why names ' + s.stage);
-  assert.ok(!/validation-approve|search-approve/.test(frontmatter), 'no validation-approve or search-approve stage in this plan');
+  assert.ok(!/validation-approve/.test(frontmatter), 'no validation-approve stage (FS-1, FS-13)');
 });
 
 check('C2. allowed-tools holds Read, Write, Bash, Glob, Task and AskUserQuestion', () => {
@@ -311,6 +313,127 @@ check('C19. the six-agent dispatch with the hand-narrated tension map is gone', 
   assert.ok(!/Build the Tension Map/.test(body), 'no hand-built tension map step');
   assert.ok(!/compute-hsi/.test(body), 'the old HSI trigger line is removed');
   assert.ok(!/[–—]/.test(text), 'no em dash and no en dash');
+});
+
+// ---------------------------------------------------------------------------
+// Plan 14: the handle contract, Stop 3 (the four search cards) and the fetch call
+// ---------------------------------------------------------------------------
+
+const HANDLES_START = '<!-- contract:handles:start -->';
+const HANDLES_END = '<!-- contract:handles:end -->';
+const FIXED_CARDS_SENTENCE = 'These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches follow a prompt rule only: no code checks them before they leave the machine. The review lists every string a hat reports and every source it found, under their own label.';
+const FAILED_PROVIDER = 'A failed provider may be asked again with the same string.';
+
+check('C20. the handle contract: role, override list, inputs with "no room section", handle rule, green rule, web ban, both Brain bans, FS-3, the S-3a keys', () => {
+  const b = block(HANDLES_START, HANDLES_END);
+  assert.ok(b.includes('You propose search handles for one hat and one brief. You are one hat.'), 'role line');
+  for (const range of ['lines 98 to 100', 'lines 105, 132 and 140 to 155', 'lines 111 to 119', 'lines 58 and 64']) {
+    assert.ok(b.includes(range), 'override range: ' + range);
+  }
+  assert.ok(b.includes('read no file under `personas/` except your own persona file'), 'override of lines 98 to 100');
+  assert.ok(b.includes('write one JSON file in your directory; your reply is the word done and the file path'), 'override of the output lines');
+  assert.ok(b.includes('you are one hat'), 'override of all-hat mode');
+  assert.ok(/no room section/i.test(b), 'the words no room section');
+  assert.ok(/no White package/i.test(b), 'the words no White package');
+  assert.ok(/1 to 4 lower-case words/.test(b), 'the handle rule: 1 to 4 lower-case words');
+  assert.ok(/no digit/.test(b), 'no digit');
+  assert.ok(/no name of the venture, of a person, of a product or of a place/.test(b), 'no name rule');
+  assert.ok(/2 handles at most/.test(b), '2 handles at most');
+  assert.ok(/another than the field of the room|a field other than the field of the room/.test(b) && /green/i.test(b), 'the green rule');
+  assert.ok(b.toLowerCase().includes(NO_WEB.toLowerCase()), 'this step makes no web search');
+  assert.ok(/Do not call brain_search or brain_query/.test(b), 'both Brain bans');
+  assert.ok(b.includes('brain_search') && b.includes('brain_query'), 'both Brain tools by name');
+  assert.ok(b.includes(FS3), 'FS-3 word for word');
+  assert.ok(b.includes('mos.persona-handles/1'), 'S-3a schema id');
+  assert.ok(b.includes('`handles.json`'), 'the output file');
+  for (const k of ['schema', 'hat', 'handles', 'handle', 'why']) assert.ok(b.includes('`' + k + '`'), 'S-3a key ' + k);
+  assert.ok(!/sentinel|validation_requests|followup|validation-approve/i.test(b), 'no sentinel and no follow-up in the contract');
+});
+
+check('C21. the body tells Larry to dispatch one handle agent for each hat of handles_needed in one message, and none when the list is empty', () => {
+  const step = section('### Step 4');
+  assert.ok(/handles_needed/.test(step), 'names handles_needed');
+  assert.ok(/one handle agent for each hat of `handles_needed`/.test(step), 'one handle agent for each hat');
+  assert.ok(/one message/i.test(step), 'one message');
+  assert.ok(/subagent_type: persona-analyst/.test(step), 'the persona-analyst agent');
+  assert.ok(step.includes("resolveModel(roomPath, 'persona-analyst')"), 'model through resolveModel');
+  assert.ok(/dispatch (no agent|none)[^\n]*(empty|nothing)|(empty|nothing)[^\n]*dispatch (no agent|none)/i.test(step), 'none when the list is empty');
+  assert.ok(/plan-research/.test(step), 'the plan-research call is in step 4');
+  // The step names no red and no blue handle agent.
+  assert.ok(/never (for )?red or blue|red and blue (never|get no)/i.test(step), 'red and blue get no handle agent');
+});
+
+check('C22. Stop 3: four cards in one interaction; each hat approved, edited or refused on its own; the card shows strings, providers, unavailable line and the failed-provider sentence', () => {
+  const stop = section('### Step 5');
+  assert.ok(/F\.0/.test(stop), 'shape F.0');
+  assert.ok(/four cards[^\n]*together[^\n]*one (AskUserQuestion )?(call|interaction)|one (AskUserQuestion )?(call|interaction)[^\n]*four cards/i.test(stop), 'four cards together in one interaction');
+  assert.ok(/each hat is approved, edited or refused on its own/i.test(stop), 'each hat on its own');
+  for (const a of ['approve', 'edit', 'refuse', 'defer']) assert.ok(stop.includes(a), 'answer: ' + a);
+  assert.ok(/exact strings?/i.test(stop), 'the exact strings');
+  assert.ok(/providers/i.test(stop), 'the providers');
+  assert.ok(/unavailable_line/.test(stop), 'the unavailable line');
+  assert.ok(stop.includes(FAILED_PROVIDER), 'the failed-provider sentence word for word');
+  assert.ok(/refused_shown/.test(stop), 'refused handles are shown with their reasons');
+  assert.ok(/not planned/i.test(stop) && /no card/i.test(stop), 'a hat that is not planned gets no card');
+  assert.ok(/mktemp -d/.test(stop), 'the edited and approved files go into a private directory');
+  assert.ok(/(remove|delete)[^\n]*(directory|dir)/i.test(stop), 'the private directory is removed after use');
+});
+
+check('C23. the approved file is written right after the cards with hashes and providers copied from the plan; an edit goes back through plan-research; Larry composes no string', () => {
+  const stop = section('### Step 5');
+  assert.ok(/mos\.persona-approved\/1/.test(stop), 'S-4 schema id');
+  assert.ok(/immediately after the cards/i.test(stop), 'immediately after the cards');
+  assert.ok(/copy[^\n]*`?q_hashes`?[^\n]*providers[^\n]*(from )?the plan|copy[^\n]*providers[^\n]*q_hashes[^\n]*plan/i.test(stop), 'hashes and providers copied from the plan');
+  assert.ok(/node "\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/persona-hats\.cjs" run-research /.test(stop), 'the run-research door call');
+  assert.ok(/--approved/.test(stop), 'the --approved flag');
+  assert.ok(/mos\.persona-edited\/1/.test(stop), 'S-3b schema id');
+  assert.ok(/plan-research[^\n]*--edited/.test(stop), 'an edit goes back through plan-research --edited');
+  assert.ok(/cards (are|is) shown again/i.test(stop), 'the cards are shown again');
+  assert.ok(/no (web )?fetch[^\n]*(before|until)[^\n]*approved/i.test(stop), 'no fetch before the approved file exists');
+  assert.ok(!/Larry (composes|writes|makes up|invents|changes) (a|the|any|its own) (search )?string/i.test(body), 'Larry never composes a string');
+  assert.ok(/Larry (never|does not) (compose|write|change)[^\n]*string/i.test(stop), 'the command says Larry does not compose or change a string');
+  for (const reason of ['step_out_of_order:plan_research', 'plan_changed', 'plan_seq_stale', 'string_not_in_plan', 'too_many_strings', 'provider_list_mismatch', 'hat_never_searches', 'approved_file_missing']) {
+    assert.ok(stop.includes(reason), 'refusal reason mapped: ' + reason);
+  }
+});
+
+check('C24. the body holds the fixed sentence about the door searches and the hat own searches, word for word', () => {
+  assert.ok(body.includes(FIXED_CARDS_SENTENCE), 'the fixed sentence');
+  const at = body.indexOf(FIXED_CARDS_SENTENCE);
+  const stopAt = body.indexOf('\n### Step 5');
+  assert.ok(stopAt >= 0 && at > stopAt, 'the sentence is inside or after the Stop 3 heading');
+  assert.ok(/Tier 1|same approved search once|ask(ed)? again/i.test(section('### Step 5')), 'the resend is named');
+});
+
+check('C25. the deep cycle holds none of "validation-approve", "followup" or "sentinel"; the frontmatter holds none of the first two', () => {
+  // The Persona Override section keeps its own, unrelated "local-only sentinel file" (Phase 265); the run sentinel of
+  // design v1 is what this leg bans, so it reads the deep cycle and the contract blocks.
+  const cycle = section('## The deep cycle');
+  for (const w of ['validation-approve', 'followup', 'sentinel']) assert.ok(!cycle.includes(w), 'the deep cycle holds ' + w);
+  for (const w of ['validation-approve', 'followup']) assert.ok(!text.includes(w), 'text holds ' + w);
+});
+
+check('C26. the step 4 paragraph of plan 09 is gone', () => {
+  assert.ok(!/plans no handle search/.test(body), 'no "plans no handle search"');
+  assert.ok(!/every hat that researches is `not_planned`/.test(body), 'no "every hat that researches is not_planned"');
+  assert.ok(!/Make no call and no fetch here/.test(body), 'the old Step 5 stub is gone');
+  assert.ok(!/marks this step as skipped in the output of Step 4/.test(body), 'the old skip line is gone');
+});
+
+check('Z1. the personas one_job_note says "is wired by Phase 400.2" and not "not wired yet"; the two job ids are unchanged', () => {
+  const canon = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'section-job-canon.json'), 'utf8'));
+  const list = Array.isArray(canon.sections) ? canon.sections : (Array.isArray(canon) ? canon : null);
+  let entry = null;
+  if (list) entry = list.find((e) => e && (e.section === 'personas' || e.name === 'personas'));
+  if (!entry) {
+    const walk = (o) => { if (o && typeof o === 'object') { if (o.one_job_note && /personas\/ holds the six De Bono hat lenses/.test(o.one_job_note)) return o; for (const v of Object.values(o)) { const r = walk(v); if (r) return r; } } return null; };
+    entry = walk(canon);
+  }
+  assert.ok(entry, 'the personas entry');
+  assert.ok(entry.one_job_note.includes('Hat-scoped research inside /mos:persona is wired by Phase 400.2: the four researching hats search through approved cards, and web_scope is green.'), 'the new sentence');
+  assert.ok(!/not wired yet/.test(entry.one_job_note), 'no "not wired yet"');
+  assert.equal(entry.job_id, 'validate-idea');
+  assert.equal(entry.secondary_job_id, 'explore');
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

@@ -12,10 +12,13 @@ hitl_stages:
   - stage: "generate-experts"
     shapes: ["F.8"]
     mode: "parallel"
+  - stage: "search-approve"
+    shapes: ["F.0"]
+    mode: "gate"
   - stage: "resolve-tension"
     shapes: ["F.5"]
     mode: "gate"
-hitl_why: "The brief is reviewed as a plan (F.6, brief-confirm), the built personas are accepted as an independent set (F.8, generate-experts), then the tensions among the hats are resolved among parallel branches (F.5, resolve-tension)."
+hitl_why: "The brief is reviewed as a plan (F.6, brief-confirm), the built personas are accepted as an independent set (F.8, generate-experts), the exact search strings and providers of the four researching hats are approved, edited or refused on four cards shown together (F.0, search-approve), then the tensions among the hats are resolved among parallel branches (F.5, resolve-tension)."
 # Phase 118-06 reward-before-investment declaration. Grounded in the shipped
 # `list` subcommand, which returns each lens's hat color, label, domain,
 # filename and disclaimer: the structure of the six lenses is handed over before
@@ -217,19 +220,112 @@ Search rule: Put no venture name, person name, figure or other room detail in a 
 Output: one file, `persona.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-spec/1`), `hat` (your hat), `focus` (a string of 400 characters or fewer), `hat_questions` (3 to 7 strings, each 240 characters or fewer), `must_not_judge` (1 to 5 strings, each 200 characters or fewer) and `room_sources` (1 to 40 room-relative paths of the files you read, none under `personas/`). Write no URL in any string. These keys are forbidden: `research_handles`, `handles`, `brief`, `evidence`, `verdict`. Your reply is the word done and the file path.
 <!-- contract:builder:end -->
 
-### Step 4 -- Plan the research
+### Step 4 -- Handles and the research plan
 
-Deep mode only. Call the door:
+Deep mode only. The door plans a search only from handles that a hat proposed. Larry proposes no handle and composes no search string.
 
-```bash
-node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>"
-```
+1. **Handles.** The list `handles_needed` names the researching hats (white, black, yellow, green) that have a fresh or accepted persona and no stored handles for this brief. Take it from the `accept-persona` output that closed Step 3 (`accept_done` is true). When Step 3 had nothing to build and nothing to accept, the `start` output already holds the same list. Dispatch one handle agent for each hat of `handles_needed`, all in one message, with the Agent tool and `subagent_type: persona-analyst`. When the list is empty, dispatch none and go to point 2. Red and blue never get a handle agent. Resolve the model once with `resolveModel(roomPath, 'persona-analyst')` from `lib/core/model-profiles.cjs` (the argument order is `roomDir`, then `agentType`). Do not pass any manual background-execution parameter to the Agent tool call. Clamp the fan-out to 20 agents, which is more than the 4 researching hats.
 
-In this build the door plans no handle search, so every hat that researches is `not_planned`. Print one line from the `hats` field of the output: `Research not run for: `, then each hat whose state starts with `not_planned:` as `<hat> (<reason>)`, in the order white, black, yellow, green, then a full stop. Print nothing when no hat is in that state. The merge repeats this line in its `notice_lines`. The door refuses a second `plan-research` call.
+   Each agent gets the handle contract below, then these lines and nothing else: its hat, the brief (the target, the governing question and the sub-questions with their ids), the name of its persona file under `personas/` (for a hat built in this run, the `file` field of the `write-persona` output; for any other hat, the `file` field of the `status` output) and its own directory (`hats.<hat>.dir`). It gets no room section, no other hat and no other directory.
 
-### Step 5 -- Research
+   ```
+   [DEEP] Proposing search handles: {hats of handles_needed}
+     Model: {resolved model}
+     Waiting for all handle agents to finish...
+   ```
 
-The door marks this step as skipped in the output of Step 4. Make no call and no fetch here.
+2. **Plan.** Call the door once. The door reads each `handles.json`, screens every handle, composes each search string and checks the provider list. It sends nothing.
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>"
+   ```
+
+   The output holds `hats` (for each hat: `planned`, `not_planned:<reason>`, or `never_searches` for red and blue), `planned` (the list of planned hats), `plan_seq`, `plan` (the plan with the exact strings and providers of each hat) and `refused_shown` (a list of `{hat, text, reason}`: the handles and edits that the door refused). The door refuses a second `plan-research` call that has no `--edited` file.
+
+3. Print one line from the `hats` field: `Research not run for: `, then each hat whose state starts with `not_planned:` as `<hat> (<reason>)`, in the order white, black, yellow, green, then a full stop. Print nothing when no hat is in that state. The merge repeats this line in its `notice_lines`.
+
+4. When `planned` is empty, the door marks the research step as skipped and writes empty evidence files. Show no card, write no approved file and make no `run-research` call. Go to Step 6.
+
+### The handle contract
+
+Copy this block, word for word, at the head of the prompt of each handle agent. It is the only control on what a handle agent reads and proposes.
+
+<!-- contract:handles:start -->
+You propose search handles for one hat and one brief. You are one hat.
+
+Agent file overrides. This dispatch replaces these instructions of the persona-analyst agent file:
+- lines 98 to 100 (run `persona list` first): read no file under `personas/` except your own persona file.
+- lines 105, 132 and 140 to 155 (start with the disclaimer; markdown output): write one JSON file in your directory; your reply is the word done and the file path.
+- lines 111 to 119 (all-hat mode): you are one hat.
+- lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the bans below.
+
+Inputs: the brief (the target, the governing question and the sub-questions) and your own persona file, and the path of your own directory. There is no room section, no White package, no reading list, no other hat and no conversation in this dispatch.
+
+Handle rule: a handle is 1 to 4 lower-case words, with no digit and no punctuation. It is a generic field term. It holds no name of the venture, of a person, of a product or of a place. Do not add the search qualifier of your hat: the door adds it. Propose 2 handles at most, each with one line of reason of 200 characters or fewer.
+
+Green rule (green only): each handle names a field other than the field of the room, where the same structural problem exists.
+
+Bans: This step makes no web search: do not call WebSearch or WebFetch. Do not call brain_search or brain_query. Do not read the directory of another hat.
+
+Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
+
+Output: one file, `handles.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-handles/1`), `hat` (your hat) and `handles` (1 or 2 items, each `{handle, why}`, where `handle` is the handle and `why` is the line of reason). Your reply is the word done and the file path.
+<!-- contract:handles:end -->
+
+### Step 5 -- Stop 3: the search cards, then the research
+
+Run this step only when `planned` is not empty. A hat that is not planned gets no card; it is named in the line of Step 4.
+
+These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches follow a prompt rule only: no code checks them before they leave the machine. The review lists every string a hat reports and every source it found, under their own label.
+
+1. **Show the cards (shape F.0, Mini Decision Gate).** Show up to four cards together, one for each hat of `planned`, in one AskUserQuestion call: the four cards are shown together in one interaction, and each hat is approved, edited or refused on its own. Each card shows, from `plan.hats.<hat>`:
+   - the hat;
+   - each exact string of `strings`, word for word, one on each line (mark an edited string as edited);
+   - the `providers` that will receive the string;
+   - the `unavailable_line`, when it is not empty;
+   - this sentence, word for word: A failed provider may be asked again with the same string.
+
+   The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider once, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
+
+   Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, and the reason. These handles or edits were refused by the door and will never be sent.
+
+   The answers for each hat are approve, edit, refuse and defer. Offer three options (approve, edit, refuse); a free-text answer such as "later" is defer. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess), and there are 4 researching hats at most.
+
+2. **Edit.** An edit answer gives the new text of one string. Larry never composes a string and never changes the text of the navigator. Write the edited strings file into a new private directory (`mktemp -d`), with the closed key list, then call the door with it and remove the directory after the call:
+
+   ```json
+   {"schema": "mos.persona-edited/1", "run_id": "<run_id>", "edits": [{"hat": "black", "q_hash_replaced": "<q_hash of the string in the plan>", "text": "the text of the navigator"}]}
+   ```
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>" --edited "<tmp dir>/edited.json"
+   ```
+
+   The door checks the edited text again and issues a new plan with a new `plan_seq`. The cards are shown again for the edited hats, from the new `plan`, with the refused edits of `refused_shown` and their reasons. The answers of the other hats stand. An edited string must keep the qualifier of its hat.
+
+3. **Approved file.** Write the approved file immediately after the cards, when every hat of `planned` has a final answer of approve, refuse or defer. Use a new private directory (`mktemp -d`); the inbox is not used. Make no fetch and no `run-research` call before the approved file exists. Copy `q_hashes` and `providers` from the plan of the last `plan-research` output: for an approve answer, every `q_hash` of `strings` and the whole `providers` list in its order; for a refuse or a defer answer, empty lists. Use the `plan_seq` of that plan. Write no entry for a hat that is not planned, and never one for red or blue. Larry never composes a search string and never changes a hash or a provider.
+
+   ```json
+   {"schema": "mos.persona-approved/1", "run_id": "<run_id>", "plan_seq": 1, "hats": {"white": {"decision": "approve", "q_hashes": ["<q_hash>"], "providers": ["<provider>"]}, "black": {"decision": "refuse", "q_hashes": [], "providers": []}}}
+   ```
+
+4. **Fetch.** Call the door once, then remove the private directory:
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" run-research --room "<room dir>" --run "<run_id>" --approved "<tmp dir>/approved.json"
+   ```
+
+   The door fetches only the approved strings from the approved providers, files the findings as proposed evidence and seals the evidence files of the hats. A refusal gives a reason: map it to one plain sentence and stop this step.
+   - `step_out_of_order:plan_research`: the plan step did not run yet.
+   - `plan_changed`: the plan changed after the cards; plan again and show the cards again.
+   - `plan_seq_stale`: the approved file does not match the newest plan; write it again from the newest plan.
+   - `string_not_in_plan`: a hash is not in the plan; no search was sent.
+   - `too_many_strings`: a hat has more than 2 strings; no search was sent.
+   - `provider_list_mismatch`: the providers differ from the card; no search was sent.
+   - `hat_never_searches`: red and blue never search.
+   - `approved_file_missing`: the approved file was not found; write it again.
+
+5. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
 
 ### Step 6 -- Readings
 
@@ -317,7 +413,7 @@ Output: one file, `reading.json`, in your own directory, with the keys `schema` 
 
 ### Step 8 -- Merge and narrate
 
-1. Write the counts file `counts.json` into the inbox directory of the run. It holds these three whole numbers and no other key: `agent_runs` (the agent runs of this run: builders, rebuilds, readers and Blue), `stops` (the stops shown so far; Stop 4 is not counted, because it follows the merge) and `cards` (the questions shown so far across those stops).
+1. Write the counts file `counts.json` into the inbox directory of the run. It holds these three whole numbers and no other key: `agent_runs` (the agent runs of this run: builders, rebuilds, handle agents, readers and Blue), `stops` (the stops shown so far, and Stop 3 is one stop; Stop 4 is not counted, because it follows the merge) and `cards` (the questions shown so far across those stops, and each search card is one question).
 
    ```json
    {"agent_runs": 7, "stops": 2, "cards": 7}
@@ -430,7 +526,7 @@ Returns all six hat perspectives on the artifact. Highlights where hats DISAGREE
 /mos:persona --parallel path/to/artifact.md
 ```
 
-With an artifact path, the path is the target of the brief (a room-relative path of one file). With no path, the target is the whole room. The cycle needs the room precondition of the door: 2 or more sections with 1 or more artifact each. Personas that are not fresh are built and accepted first (Step 3). The readings, the merge and the rulings are Steps 4 to 9 above. Use `analyze` (quick mode) for a fast single-context look; use deep mode for independent readings.
+With an artifact path, the path is the target of the brief (a room-relative path of one file). With no path, the target is the whole room. The cycle needs the room precondition of the door: 2 or more sections with 1 or more artifact each. Personas that are not fresh are built and accepted first (Step 3). The handles, the search cards, the readings, the merge and the rulings are Steps 4 to 9 above. Use `analyze` (quick mode) for a fast single-context look; use deep mode for independent readings.
 
 ### The template preview, and what it is not
 

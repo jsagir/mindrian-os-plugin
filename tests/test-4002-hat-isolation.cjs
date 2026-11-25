@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-07: the citation boundary with self-found sources (owner answer 1, FS-5).
-// Legs H1 to H7. Plan 09 adds H8 and H9 (the dispatch contracts of the command); plan 13 adds H10 to H13 (real packs).
+// Legs H1 to H7. Plan 09 adds H8 and H9 (the dispatch contracts of the command); plan 13 adds H10 to H13 (real packs); plan 14 adds H14 (the handle contract).
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -188,6 +188,19 @@ check('H9. the reader contract passes red the White copy and no evidence file of
   const blue = contract('blue');
   assert.ok(blue.includes('`ledger.json`'), 'Blue gets ledger.json');
   assert.ok(!/shared-white|evidence\.json/.test(blue), 'Blue gets no White copy and no evidence file');
+});
+
+// H14
+check('H14. the handle contract gives the brief and the own persona file only: no room section, no White package, no evidence path', () => {
+  const c = contract('handles');
+  assert.ok(/no room section/i.test(c), 'no room section');
+  assert.ok(/no White package/i.test(c), 'no White package');
+  assert.ok(!/shared-white|evidence\.json|ledger\.json/.test(c), 'names no evidence path and no ledger');
+  assert.ok(/Inputs:[^\n]*the brief[^\n]*own persona file/i.test(c), 'inputs: the brief and the own persona file');
+  assert.ok(!/reading list/i.test(c.replace(/no reading list/gi, '')), 'the reading list is not passed');
+  assert.ok(/Do not call brain_search or brain_query/.test(c) && c.includes(FS3), 'both Brain bans and FS-3');
+  assert.ok(c.toLowerCase().includes(NO_WEB.toLowerCase()), 'the step makes no web search');
+  assert.ok(!/may use WebSearch/.test(c), 'no web tool is allowed');
 });
 
 // ---------------------------------------------------------------------------
