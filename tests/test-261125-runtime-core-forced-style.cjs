@@ -39,4 +39,13 @@ check('no em dash, en dash or spaced double hyphen in the core', () => {
   assert.ok(!/[\u2014\u2013]/.test(core), 'dash found');
   assert.ok(!/ -- /.test(core), 'spaced double hyphen found');
 });
+check('the core is scoped to a MindrianOS conversation and says what it is not', () => {
+  assert.ok(core.includes('When this section applies.'), 'no scope paragraph');
+  assert.ok(core.includes('do not answer as Larry'), 'no rule for another main agent');
+  assert.ok(core.includes('It is not the agent'), 'the core does not state its limits');
+  assert.ok(core.includes('If the room tools are not available'), 'no rule for missing room tools');
+  assert.ok(!/Theo matches method/.test(core), 'the core claims Theo ranks by job');
+});
+// This file checks the text only. Whether a host applies the style is measured by a live session
+// (the runtime marker), recorded in the commit message, not asserted here.
 console.log('RESULT: PASS=' + passed + ' FAIL=0');
