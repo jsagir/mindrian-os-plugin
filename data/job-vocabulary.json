@@ -46,13 +46,13 @@
       "origins": [
         "registry"
       ],
-      "sentence": "When I need a new room or a method that my room does not have yet, I want to start the room or add the method, so I can work inside a structure that fits my venture.",
+      "sentence": "When my work needs a room or a method that does not exist yet, I want to create it, so I can work inside a structure that fits my venture.",
       "slots": {
-        "when": "I need a new room or a method that my room does not have yet",
-        "want": "to start the room or add the method",
+        "when": "my work needs a room or a method that does not exist yet",
+        "want": "to create it",
         "so": "work inside a structure that fits my venture"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "compare-options": {
       "summary": "Compare alternatives across criteria - choose between A/B/C.",
@@ -91,13 +91,13 @@
         "registry",
         "taxonomy"
       ],
-      "sentence": "When I have a venture, an opportunity or an approach in front of me, I want to judge whether it is worth pursuing, so I can commit my time to it or let it go with a clear reason.",
+      "sentence": "When an opportunity is in front of me and pursuing it would cost me months, I want to judge whether it is worth pursuing, so I can commit to it or let it go with a clear reason.",
       "slots": {
-        "when": "I have a venture, an opportunity or an approach in front of me",
+        "when": "an opportunity is in front of me and pursuing it would cost me months",
         "want": "to judge whether it is worth pursuing",
-        "so": "commit my time to it or let it go with a clear reason"
+        "so": "commit to it or let it go with a clear reason"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "design-solution": {
       "summary": "Design the solution - shape what will be built and how it meets the need.",
@@ -105,13 +105,13 @@
       "origins": [
         "section_canon"
       ],
-      "sentence": "When I know the need and must shape what to build, I want to design the solution and how it meets that need, so I can build the right thing in the right way.",
+      "sentence": "When I know the need and must shape what to build, I want to design the solution and show how it meets that need, so I can commit to one design before I spend money building it.",
       "slots": {
         "when": "I know the need and must shape what to build",
-        "want": "to design the solution and how it meets that need",
-        "so": "build the right thing in the right way"
+        "want": "to design the solution and show how it meets that need",
+        "so": "commit to one design before I spend money building it"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "explore": {
       "summary": "No specific job - general thinking, talking, ranging.",
@@ -121,13 +121,13 @@
         "section_canon",
         "taxonomy"
       ],
-      "sentence": "When I have no specific job yet and want to think out loud, I want to range freely across ideas and questions, so I can notice what deserves a closer look.",
+      "sentence": "When I have no specific job yet, I want to think out loud and range freely across ideas and questions, so I can notice what deserves a closer look.",
       "slots": {
-        "when": "I have no specific job yet and want to think out loud",
-        "want": "to range freely across ideas and questions",
+        "when": "I have no specific job yet",
+        "want": "to think out loud and range freely across ideas and questions",
         "so": "notice what deserves a closer look"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "file-meeting": {
       "summary": "Capture and route meeting intelligence into the room.",
@@ -210,13 +210,13 @@
       "origins": [
         "registry"
       ],
-      "sentence": "When the conversation drifts or a thought from earlier goes stale, I want to change the stance of my thinking partner or reach into the room memory, so I can get back on a useful track.",
+      "sentence": "When the conversation drifts or an earlier thought goes stale, I want to steer my thinking partner back by changing its stance or pulling from the room memory, so I can get back on a useful track.",
       "slots": {
-        "when": "the conversation drifts or a thought from earlier goes stale",
-        "want": "to change the stance of my thinking partner or reach into the room memory",
+        "when": "the conversation drifts or an earlier thought goes stale",
+        "want": "to steer my thinking partner back by changing its stance or pulling from the room memory",
         "so": "get back on a useful track"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "plan-execution": {
       "summary": "Plan the next 90 days - milestones, owners, dates.",
@@ -226,13 +226,13 @@
         "section_canon",
         "taxonomy"
       ],
-      "sentence": "When I know what comes next but not who does it or by when, I want to plan the next stretch of work with milestones, owners and dates, so I can turn the plan into work that gets done.",
+      "sentence": "When I know what comes next but not who does it or by when, I want to plan the next three months with milestones, owners and dates, so I can turn the plan into work that gets done.",
       "slots": {
         "when": "I know what comes next but not who does it or by when",
-        "want": "to plan the next stretch of work with milestones, owners and dates",
+        "want": "to plan the next three months with milestones, owners and dates",
         "so": "turn the plan into work that gets done"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "prepare-pitch": {
       "summary": "Prepare for an investor / partner / customer meeting.",
@@ -255,13 +255,13 @@
       "origins": [
         "section_canon"
       ],
-      "sentence": "When my venture holds ideas, rights or know-how that others could copy, I want to protect our intellectual property and our defensibility, so I can keep the value we create as ours.",
+      "sentence": "When my venture holds ideas, rights or know-how that others could copy, I want to protect my intellectual property and my defensibility, so I can keep the value I create as mine.",
       "slots": {
         "when": "my venture holds ideas, rights or know-how that others could copy",
-        "want": "to protect our intellectual property and our defensibility",
-        "so": "keep the value we create as ours"
+        "want": "to protect my intellectual property and my defensibility",
+        "so": "keep the value I create as mine"
       },
-      "sentence_status": "provisional"
+      "sentence_status": "ruled"
     },
     "surface-contradiction": {
       "summary": "Notice and resolve internal contradictions in the room.",

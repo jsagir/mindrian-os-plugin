@@ -45,8 +45,11 @@ check('J1 every job has valid slots and sentence equals renderJob(slots); senten
   }
 });
 
-check('J2 every job has sentence_status provisional', () => {
-  for (const id of vocab.ids) assert.equal(vocab.jobs[id].sentence_status, 'provisional', id);
+// Owner ruling 2026-11-25 (label review section 1): these 7 reworded sentences are ruled; the rest stay provisional.
+const RULED = ['build', 'decide-pursue', 'design-solution', 'explore', 'navigate', 'plan-execution', 'protect-assets'];
+
+check('J2 the owner-ruled jobs have sentence_status ruled; every other job is provisional', () => {
+  for (const id of vocab.ids) assert.equal(vocab.jobs[id].sentence_status, RULED.includes(id) ? 'ruled' : 'provisional', id);
 });
 
 check('J3 summary, summary_source and origins are byte-identical to base ' + BASE, () => {
