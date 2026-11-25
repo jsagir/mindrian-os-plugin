@@ -24,6 +24,7 @@
  *   accept-persona --room <dir> --run <id> --answer <file>
  *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
  *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
+ *   merge --room <dir> --run <id> [--counts <file>]  (plan 08, deep mode: positions, tensions, artifact, run record, cleanup)
  *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).
@@ -42,7 +43,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check', 'merge']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -1186,6 +1187,49 @@ function packSets(file) {
 }
 
 /**
+ * Read and judge the reading file of one hat: schema, citation boundary, rule lines. Used by check
+ * and again by merge, so both steps decide from the same code. Reads the file bytes once.
+ * @returns {{rec: Object, none_found_basis: string|null, value: Object|null}}
+ */
+function judgeReading(hat, dir, ctx) {
+  const rec = { reading: null, reading_sha256: null, rule_lines: [], evidence_items: 0, positions_taken: 0, self_search_strings: [], self_found_sources: 0 };
+  const out = { rec, none_found_basis: null, value: null };
+  const read = readJsonFile(path.join(dir, 'reading.json'), { noSymlink: true });
+  if (!read.ok && read.reason === 'file_unreadable') {
+    rec.reading = 'not_run:no_reading_file';
+    return out;
+  }
+  if (!read.ok) {
+    rec.reading = 'rejected:' + read.reason;
+    return out;
+  }
+  rec.reading_sha256 = read.sha256;
+  const reading = read.value;
+  const schema = validateReading(hat, reading, { runId: ctx.runId, subQuestionIds: ctx.subQuestionIds });
+  if (!schema.ok) {
+    rec.reading = schema.state;
+    return out;
+  }
+  const own = RESEARCH_HATS.includes(hat) ? packSets(path.join(dir, 'evidence.json')) : { ids: [], urls: [] };
+  const white = packSets(path.join(dir, 'shared-white.json'));
+  const cite = citationCheck(hat, reading, { ownIds: own.ids, whiteIds: white.ids, ownUrls: own.urls, whiteUrls: white.urls });
+  if (!cite.ok) {
+    rec.reading = cite.state;
+    return out;
+  }
+  const rules = perHatRules(hat, reading, { researchState: ctx.researchState });
+  rec.reading = 'ran';
+  rec.rule_lines = rules.lines;
+  out.none_found_basis = rules.none_found_basis || null;
+  rec.evidence_items = Array.isArray(reading.evidence) ? reading.evidence.length : 0;
+  rec.positions_taken = reading.positions.filter(p => p.value !== 'no_position').length;
+  rec.self_search_strings = Array.isArray(reading.self_search_strings) ? reading.self_search_strings.slice() : [];
+  rec.self_found_sources = Array.isArray(reading.self_found_sources) ? reading.self_found_sources.length : 0;
+  out.value = reading;
+  return out;
+}
+
+/**
  * Step check. For each of white, red, black, yellow and green it decides one state, in this order:
  * persona refused or build failed, no reading file, schema, citation, then rule lines. It writes the
  * counts-only ledger of Blue (S-9). It reads no file of the Blue directory and writes only ledger.json
@@ -1227,35 +1271,9 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const read = readJsonFile(path.join(dir, 'reading.json'), { noSymlink: true });
-      if (!read.ok && read.reason === 'file_unreadable') {
-        rec.reading = 'not_run:no_reading_file';
-      } else if (!read.ok) {
-        rec.reading = 'rejected:' + read.reason;
-      } else {
-        rec.reading_sha256 = read.sha256;
-        const reading = read.value;
-        const schema = validateReading(hat, reading, { runId: ledger.run_id, subQuestionIds });
-        if (!schema.ok) {
-          rec.reading = schema.state;
-        } else {
-          const own = RESEARCH_HATS.includes(hat) ? packSets(path.join(dir, 'evidence.json')) : { ids: [], urls: [] };
-          const white = packSets(path.join(dir, 'shared-white.json'));
-          const cite = citationCheck(hat, reading, { ownIds: own.ids, whiteIds: white.ids, ownUrls: own.urls, whiteUrls: white.urls });
-          if (!cite.ok) {
-            rec.reading = cite.state;
-          } else {
-            const rules = perHatRules(hat, reading, { researchState: entry.research });
-            rec.reading = 'ran';
-            rec.rule_lines = rules.lines;
-            if (rules.none_found_basis) entry.none_found_basis = rules.none_found_basis;
-            rec.evidence_items = Array.isArray(reading.evidence) ? reading.evidence.length : 0;
-            rec.positions_taken = reading.positions.filter(p => p.value !== 'no_position').length;
-            rec.self_search_strings = Array.isArray(reading.self_search_strings) ? reading.self_search_strings.slice() : [];
-            rec.self_found_sources = Array.isArray(reading.self_found_sources) ? reading.self_found_sources.length : 0;
-          }
-        }
-      }
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research });
+      Object.assign(rec, judged.rec);
+      if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
     }
     if (rec.reading !== 'ran') notRun.push({ hat, reason: rec.reading.replace(/^(not_run|rejected):/, '') + '', state: rec.reading });
     entry.reading = rec.reading;
@@ -1308,6 +1326,587 @@ function cmdCheck(args, deps) {
 }
 
 // ---------------------------------------------------------------------------
+// merge (deep mode): positions, tensions, same-position lines, the review artifact (plan 08)
+// ---------------------------------------------------------------------------
+
+// Owner rule: dissent first. Black is the first line under each sub-question; the others follow in this order.
+const DISSENT_ORDER = Object.freeze(['black', 'white', 'red', 'yellow', 'green']);
+// The three words are fixed marker text. tension-map.cjs reads them as a benefit marker (benefit, opportunity)
+// and a caution marker (risk), so each node holds exactly one marker and the result is deterministic.
+const POSITION_MARKERS = Object.freeze({ favours: 'benefit', alternative_offered: 'opportunity', opposes: 'risk' });
+const SAME_POSITION_HATS = Object.freeze(['white', 'red', 'black', 'yellow']);
+const SAME_POSITION_VALUES = Object.freeze(['favours', 'opposes']);
+const COUNT_KEYS = Object.freeze(['agent_runs', 'stops', 'cards']);
+
+// Every fixed sentence and label of the artifact. buildArtifact formats no sentence outside this table.
+// A token in braces is filled with a hat name or a closed position value only.
+const ARTIFACT_LABELS = Object.freeze({
+  none: 'none',
+  list_item: '- ',
+  heading: '### ',
+  section_brief: '## Brief',
+  brief_target: 'target: ',
+  brief_question: 'governing question: ',
+  brief_sub_questions: 'sub-questions:',
+  section_dissent: '## Dissent register',
+  position: '{hat} {value}: ',
+  section_tensions: '## Tensions',
+  tension_pair: 'pair: ',
+  tension_state: 'state: ',
+  tension_id: 'tension id: ',
+  no_tension: 'The tension map found no tension.',
+  three_pairs: 'The tension map knows three hat pairs: yellow and black, green and black, red and white. Opposite positions of any other pair are shown in the dissent register only.',
+  section_same: '## Same position',
+  same_position: '{value}, same position, both attributed: ',
+  section_not_run: '## Not run',
+  not_run_line: '{hat}: ',
+  white_absent: 'White did not run, so no red and white tension can exist.',
+  section_rules: '## Rule lines',
+  rule_line: '{hat}: ',
+  blue_rule: 'Blue is checked against the owner rule, not against the debate judge rule.',
+  section_lists: '## Hat lists',
+  white_missing_data: 'white missing_data: ',
+  white_nothing_missing: 'white nothing_missing: ',
+  green_provocation: 'green provocation: ',
+  blue_skipped: 'blue skipped: ',
+  blue_thin: 'blue thin: ',
+  blue_ask_next: 'blue ask_next: ',
+  yellow_none_found_door_search_empty: 'yellow none_found: the door search ran and found nothing.',
+  yellow_none_found_self_reported_search: 'yellow none_found: based on a search that the hat reports it ran.',
+  yellow_none_found_unbased: 'yellow none_found: no search is behind it.',
+  section_sources: '## Sources by hat',
+  source_id: 'id: ',
+  source_title: 'title: ',
+  source_url: 'url: ',
+  source_tier: 'tier: ',
+  source_provider: 'provider: ',
+  source_cache_hit: 'cache_hit: ',
+  found_by_hat: 'Found by the hat, not approved on a card, not wired to the room graph:',
+  found_url: 'url: ',
+  found_title: 'title: ',
+  found_search_string: 'search string: ',
+  found_summary: 'summary: ',
+  reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
+  prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
+});
+
+/** The marker text of a closed position value, or null for mixed and no_position. */
+function positionMarker(value) {
+  return Object.prototype.hasOwnProperty.call(POSITION_MARKERS, value) ? POSITION_MARKERS[value] : null;
+}
+
+/**
+ * The settled-tension key: SHA-256 hex of the target content hash, the sub-question id and the sorted pair
+ * joined by "+", the three parts joined by a newline. Plan 09 uses the same id as the key of its store.
+ */
+function tensionKey(targetContentHash, subQuestionId, pair) {
+  const sorted = (Array.isArray(pair) ? pair.slice() : []).map(String).sort();
+  return sha256Hex([String(targetContentHash), String(subQuestionId), sorted.join('+')].join('\n'));
+}
+
+function oneLine(v) {
+  return String(v).replace(/[\x00-\x1f\x7f]+/g, ' ').trim();
+}
+
+function fillLabel(key, vars) {
+  let text = ARTIFACT_LABELS[key];
+  for (const k of Object.keys(vars || {})) text = text.split('{' + k + '}').join(String(vars[k]));
+  return text;
+}
+
+/**
+ * The notice lines of a deep run, from the ledger only: the mode notice, then the hats whose research did not
+ * run or failed, then the hats whose reading did not run. Hats are named in the fixed order of the door.
+ */
+function deepNoticeLines(ledger) {
+  const lines = [ops.DEEP_NOTICE];
+  const hats = isPlain(ledger && ledger.hats) ? ledger.hats : {};
+  const reasonOf = (state) => (state.indexOf(':') === -1 ? state : state.slice(state.indexOf(':') + 1));
+  const notRun = [];
+  const failedRun = [];
+  for (const hat of RESEARCH_HATS) {
+    const st = hats[hat] && typeof hats[hat].research === 'string' ? hats[hat].research : '';
+    if (st === 'declined' || st.indexOf('not_planned') === 0) notRun.push(hat + ' (' + reasonOf(st) + ')');
+    else if (st.indexOf('failed') === 0 || st.indexOf('fetched_not_wired') === 0) failedRun.push(hat + ' (' + reasonOf(st) + ')');
+  }
+  if (notRun.length) lines.push('Research not run for: ' + notRun.join(', ') + '.');
+  if (failedRun.length) lines.push('Research failed for: ' + failedRun.join(', ') + '.');
+  const missing = HATS.filter(hat => {
+    const st = hats[hat] && typeof hats[hat].reading === 'string' ? hats[hat].reading : '';
+    return st.indexOf('not_run') === 0 || st.indexOf('rejected') === 0;
+  });
+  if (missing.length) lines.push('Not run: ' + missing.join(', ') + '.');
+  return lines;
+}
+
+/** The full door pack of a hat for the artifact: items and strings, plain objects only. */
+function readPackForArtifact(file) {
+  const r = readJsonFile(file, { noSymlink: true });
+  const out = { items: [], strings: [] };
+  if (!r.ok || !isPlain(r.value)) return out;
+  if (Array.isArray(r.value.items)) out.items = r.value.items.filter(isPlain);
+  if (Array.isArray(r.value.strings)) out.strings = r.value.strings.filter(isPlain);
+  return out;
+}
+
+function cacheHitOf(pack, item) {
+  for (const s of pack.strings) {
+    if (s.q_hash !== item.q_hash || !Array.isArray(s.providers)) continue;
+    for (const p of s.providers) {
+      if (isPlain(p) && p.provider === item.provider && typeof p.cache_hit === 'boolean') return String(p.cache_hit);
+    }
+  }
+  return 'unknown';
+}
+
+/**
+ * Build the review artifact. Every content line is a reading field, an evidence field, a brief field, a state
+ * name of the ledger or an entry of ARTIFACT_LABELS: nothing else is formatted here. A field is shown verbatim,
+ * except that line breaks become spaces so that no field can start a line of its own.
+ * @param {Object} record The run ledger after the merge fields are set.
+ * @param {Object} readings The parsed readings of the hats that ran, by hat.
+ * @param {Object} packs The door packs {items, strings} by researching hat.
+ * @returns {string}
+ */
+function buildArtifact(record, readings, packs) {
+  const L = ARTIFACT_LABELS;
+  const out = [];
+  const push = (text) => out.push(String(text).replace(/\s+$/, ''));
+  const field = (key, value, vars) => push(fillLabel(key, vars) + oneLine(value));
+  const subs = Array.isArray(record.sub_questions) ? record.sub_questions : [];
+  const positions = isPlain(record.positions) ? record.positions : {};
+  const ran = (hat) => Boolean(record.hats && record.hats[hat] && record.hats[hat].reading === 'ran');
+  const posLine = (sqId, hat) => {
+    const p = positions[sqId] && positions[sqId][hat];
+    return fillLabel('position', { hat, value: p.value }) + oneLine(p.line);
+  };
+
+  deepNoticeLines(record).forEach(push);
+  push('');
+  push(L.section_brief);
+  field('brief_target', record.target);
+  field('brief_question', record.brief && record.brief.governing_question);
+  push(L.brief_sub_questions);
+  for (const sq of subs) field('list_item', sq.text);
+
+  push('');
+  push(L.section_dissent);
+  for (const sq of subs) {
+    field('heading', sq.text);
+    let any = false;
+    for (const hat of DISSENT_ORDER) {
+      if (positions[sq.id] && positions[sq.id][hat]) { push(posLine(sq.id, hat)); any = true; }
+    }
+    if (!any) push(L.none);
+  }
+
+  push('');
+  push(L.section_tensions);
+  const tensions = Array.isArray(record.tensions) ? record.tensions : [];
+  if (tensions.length === 0) push(L.no_tension);
+  for (const sq of subs) {
+    const mine = tensions.filter(t => t.sub_question === sq.id);
+    if (mine.length === 0) continue;
+    field('heading', sq.text);
+    for (const t of mine) {
+      field('tension_pair', t.pair.join(' and '));
+      for (const hat of t.pair) push(posLine(sq.id, hat));
+      field('tension_state', t.state);
+      field('tension_id', t.id);
+    }
+  }
+  push(L.three_pairs);
+
+  push('');
+  push(L.section_same);
+  const same = Array.isArray(record.same_position) ? record.same_position : [];
+  if (same.length === 0) push(L.none);
+  for (const sq of subs) {
+    const mine = same.filter(e => e.sub_question === sq.id);
+    if (mine.length === 0) continue;
+    field('heading', sq.text);
+    for (const e of mine) push(fillLabel('same_position', { value: e.value }) + e.hats.join(', '));
+  }
+
+  push('');
+  push(L.section_not_run);
+  const notRun = HATS.filter(hat => !ran(hat));
+  if (notRun.length === 0) push(L.none);
+  for (const hat of notRun) field('not_run_line', record.hats[hat].reading, { hat });
+  if (!ran('white')) push(L.white_absent);
+
+  push('');
+  push(L.section_rules);
+  let anyRule = false;
+  for (const hat of READ_HATS) {
+    if (!ran(hat)) continue;
+    for (const rl of record.hats[hat].rule_lines || []) { field('rule_line', rl, { hat }); anyRule = true; }
+  }
+  if (!anyRule) push(L.none);
+  if (ran('blue')) push(L.blue_rule);
+
+  push('');
+  push(L.section_lists);
+  let anyList = false;
+  const lists = [];
+  const w = readings.white;
+  if (w) {
+    for (const item of Array.isArray(w.missing_data) ? w.missing_data : []) lists.push(['white_missing_data', item]);
+    if (typeof w.nothing_missing === 'boolean') lists.push(['white_nothing_missing', String(w.nothing_missing)]);
+  }
+  const g = readings.green;
+  if (g) for (const item of Array.isArray(g.provocations) ? g.provocations : []) lists.push(['green_provocation', item]);
+  const b = readings.blue;
+  if (b) {
+    for (const item of Array.isArray(b.skipped) ? b.skipped : []) lists.push(['blue_skipped', item]);
+    for (const item of Array.isArray(b.thin) ? b.thin : []) lists.push(['blue_thin', item]);
+    for (const item of Array.isArray(b.ask_next) ? b.ask_next : []) lists.push(['blue_ask_next', item]);
+  }
+  for (const [key, item] of lists) { field(key, item); anyList = true; }
+  const y = readings.yellow;
+  if (y && y.none_found === true) {
+    const basis = record.hats.yellow.none_found_basis;
+    const key = basis === 'door_search_empty' ? 'yellow_none_found_door_search_empty'
+      : (basis === 'self_reported_search' ? 'yellow_none_found_self_reported_search' : 'yellow_none_found_unbased');
+    push(L[key]);
+    anyList = true;
+  }
+  if (!anyList) push(L.none);
+
+  push('');
+  push(L.section_sources);
+  let anySource = false;
+  let anyString = false;
+  for (const hat of RESEARCH_HATS) {
+    const pack = packs[hat] || { items: [], strings: [] };
+    const found = readings[hat] && Array.isArray(readings[hat].self_found_sources) ? readings[hat].self_found_sources : [];
+    const strings = readings[hat] && Array.isArray(readings[hat].self_search_strings) ? readings[hat].self_search_strings : [];
+    if (pack.items.length === 0 && found.length === 0 && strings.length === 0) continue;
+    anySource = true;
+    field('heading', hat);
+    for (const it of pack.items) {
+      field('source_id', it.id);
+      field('source_title', it.title);
+      field('source_url', it.url);
+      field('source_tier', it.tier);
+      field('source_provider', it.provider);
+      field('source_cache_hit', cacheHitOf(pack, it));
+    }
+    if (found.length) {
+      push(L.found_by_hat);
+      for (const f of found) {
+        field('found_url', f.url);
+        field('found_title', f.title);
+        field('found_search_string', f.search_string);
+        field('found_summary', f.summary);
+      }
+    }
+    if (strings.length) {
+      push(L.reported_strings);
+      for (const s of strings) field('list_item', s);
+      anyString = true;
+    }
+  }
+  if (!anySource) push(L.none);
+  if (anyString) push(L.prompt_rule);
+  return out.join('\n') + '\n';
+}
+
+/** Read the counts file of the command. No path gives null. @returns {{ok: true, counts: Object|null} | {ok: false, reason: string}} */
+function readCounts(countsPath) {
+  if (countsPath === undefined || countsPath === null) return { ok: true, counts: null };
+  const r = readJsonFile(countsPath, { noSymlink: true });
+  if (!r.ok) return { ok: false, reason: 'counts_invalid:' + r.reason };
+  if (!isPlain(r.value)) return { ok: false, reason: 'counts_invalid:shape' };
+  for (const k of Object.keys(r.value)) {
+    if (!COUNT_KEYS.includes(k)) return { ok: false, reason: 'counts_invalid:key' };
+  }
+  const counts = {};
+  for (const k of COUNT_KEYS) {
+    const v = r.value[k];
+    if (!Number.isInteger(v) || v < 0 || v > 10000) return { ok: false, reason: 'counts_invalid:' + k };
+    counts[k] = v;
+  }
+  return { ok: true, counts };
+}
+
+/** Judge the Blue reading (P-8): schema and the citation rule with no allowed source. Blue has no rule lines. */
+function judgeBlue(dir, ledger) {
+  const rec = { reading: null, reading_sha256: null, value: null };
+  const read = readJsonFile(path.join(dir, 'reading.json'), { noSymlink: true });
+  if (!read.ok && read.reason === 'file_unreadable') { rec.reading = 'not_run:no_reading_file'; return rec; }
+  if (!read.ok) { rec.reading = 'rejected:' + read.reason; return rec; }
+  rec.reading_sha256 = read.sha256;
+  const schema = validateReading('blue', read.value, { runId: ledger.run_id, subQuestionIds: [] });
+  if (!schema.ok) { rec.reading = schema.state; return rec; }
+  const cite = citationCheck('blue', read.value, {});
+  if (!cite.ok) { rec.reading = cite.state; return rec; }
+  rec.reading = 'ran';
+  rec.value = read.value;
+  return rec;
+}
+
+/**
+ * One lens-engine rotate call for each sub-question, with the lens set of the hats that ran and hold a marked
+ * value. No db is passed, so the engine writes no node. No accept or reject hook is passed.
+ * @returns {Promise<{ok: true, tensions: Object[]} | {ok: false, reason: string}>}
+ */
+async function computeTensions(roomResolved, ledger, positions) {
+  const lensEngine = require(path.join(REPO_ROOT, 'lib', 'core', 'lens-engine.cjs'));
+  const tensions = [];
+  for (const sq of ledger.sub_questions) {
+    const lenses = [];
+    for (const hat of READ_HATS) {
+      const p = positions[sq.id][hat];
+      if (p && positionMarker(p.value) !== null) lenses.push(hat + '-hat');
+    }
+    if (lenses.length < 2) continue;
+    let result;
+    try {
+      result = await lensEngine.rotate({
+        lensType: 'cognitive',
+        lensSet: lenses,
+        rotationMode: 'parallel',
+        synthesize: 'tension-map',
+        input: { roomDir: roomResolved, topic: sq.id, sessionId: 'persona-merge-' + ledger.run_id + '-' + sq.id },
+        perLensFn: (lens) => {
+          const p = positions[sq.id][lens.replace(/-hat$/, '')];
+          return p ? { topic: sq.id, summary: positionMarker(p.value) } : null;
+        },
+      });
+    } catch (e) {
+      return { ok: false, reason: 'tension_call_failed:thrown' };
+    }
+    if (!result || result.ok !== true || !isPlain(result.synthesis) || !Array.isArray(result.synthesis.tensions)) {
+      return { ok: false, reason: 'tension_call_failed:' + safeKeyName(result && result.reason) };
+    }
+    const mine = [];
+    for (const t of result.synthesis.tensions) {
+      const pair = (Array.isArray(t.lenses) ? t.lenses : []).map(l => String(l).replace(/-hat$/, '')).sort();
+      if (pair.length !== 2) continue;
+      mine.push({
+        id: tensionKey(ledger.target_content_hash, sq.id, pair),
+        sub_question: sq.id,
+        pair,
+        lines: { [pair[0]]: positions[sq.id][pair[0]].line, [pair[1]]: positions[sq.id][pair[1]].line },
+        state: 'open',
+      });
+    }
+    mine.sort((a, b) => (a.pair.join('+') < b.pair.join('+') ? -1 : (a.pair.join('+') > b.pair.join('+') ? 1 : 0)));
+    for (const t of mine) tensions.push(t);
+  }
+  return { ok: true, tensions };
+}
+
+/** Two or more of white, red, black and yellow with the same favours or opposes value on one sub-question. */
+function computeSamePosition(ledger, positions) {
+  const out = [];
+  for (const sq of ledger.sub_questions) {
+    for (const value of SAME_POSITION_VALUES) {
+      const hats = SAME_POSITION_HATS.filter(hat => positions[sq.id][hat] && positions[sq.id][hat].value === value);
+      if (hats.length >= 2) out.push({ sub_question: sq.id, value, hats });
+    }
+  }
+  return out;
+}
+
+function atomicWriteText(target, text) {
+  const tmp = path.join(path.dirname(target), '.' + path.basename(target) + '.' + process.pid + '.' + crypto.randomBytes(4).toString('hex') + '.tmp');
+  try {
+    fs.writeFileSync(tmp, text, { encoding: 'utf8', mode: 0o644 });
+    fs.renameSync(tmp, target);
+  } catch (e) {
+    try { fs.rmSync(tmp, { force: true }); } catch (_) { /* ignore */ }
+    throw e;
+  }
+}
+
+/** Delete the scratch tree and the private run map of a run. @returns {boolean} */
+function cleanupRun(map, homeDir, runId) {
+  let ok = true;
+  const root = map && map.scratch_root;
+  const m = typeof root === 'string' ? SCRATCH_RE.exec(path.basename(root)) : null;
+  if (!m || m[1] !== runId) {
+    ok = false;
+  } else {
+    try {
+      const st = fs.lstatSync(root);
+      if (st.isDirectory() && !st.isSymbolicLink()) fs.rmSync(root, { recursive: true, force: true });
+      else ok = false;
+    } catch (e) {
+      if (!e || e.code !== 'ENOENT') ok = false;
+    }
+  }
+  try { fs.rmSync(runMapPath(homeDir, runId), { force: true }); } catch (e) { ok = false; }
+  return ok;
+}
+
+/**
+ * Step merge (deep mode). It judges every reading again from the file bytes, makes the positions table, calls the
+ * existing tension map once for each sub-question, lists same positions, files the review artifact and the final
+ * run record, writes one session log entry for each hat with position lines, and deletes the scratch tree and the
+ * run map last. It adds no fact, risk, idea or recommendation and promotes no claim.
+ */
+async function cmdMerge(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
+  const order = requireStep(ledger, 'check');
+  if (order) return { ok: false, reason: order };
+  const homeDir = homeDirOf(deps);
+  const map = readRunMap(homeDir, ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  for (const hat of HATS) {
+    if (!hatDirOf(map, hat)) return { ok: false, reason: 'run_map_missing' };
+  }
+  const counts = readCounts(args.countsPath);
+  if (!counts.ok) return counts;
+
+  const subQuestionIds = ledger.sub_questions.map(s => s.id);
+  const now = nowOf(deps);
+
+  // 1. Judge each reading again. P-7: a file whose hash differs from the one of check is rejected.
+  const verdict = {};
+  const readings = {};
+  for (const hat of READ_HATS) {
+    const entry = ledger.hats[hat];
+    if (entry.reading !== 'ran') {
+      verdict[hat] = { state: entry.reading };
+      continue;
+    }
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research });
+    if (judged.rec.reading_sha256 !== entry.reading_sha256) {
+      verdict[hat] = { state: 'rejected:changed_after_check' };
+    } else if (judged.rec.reading !== 'ran') {
+      verdict[hat] = { state: judged.rec.reading };
+    } else {
+      verdict[hat] = { state: 'ran', rec: judged.rec, none_found_basis: judged.none_found_basis };
+      readings[hat] = judged.value;
+    }
+  }
+  const blueEntry = ledger.hats.blue;
+  const blueJudged = blueEntry.reading === 'pending' ? judgeBlue(hatDirOf(map, 'blue'), ledger) : null;
+  if (blueJudged && blueJudged.reading === 'ran') readings.blue = blueJudged.value;
+
+  // 2. The positions table, only from readings that ran.
+  const positions = {};
+  for (const sq of ledger.sub_questions) positions[sq.id] = {};
+  for (const hat of READ_HATS) {
+    if (!readings[hat]) continue;
+    for (const p of readings[hat].positions) {
+      positions[p.sub_question][hat] = { value: p.value, line: typeof p.line === 'string' ? p.line : '' };
+    }
+  }
+
+  // 3. Tensions and same-position lines, before anything is written.
+  const tensionResult = await computeTensions(roomResolved, ledger, positions);
+  if (!tensionResult.ok) return tensionResult;
+  const samePosition = computeSamePosition(ledger, positions);
+
+  // 4. The final run record (S-8). No key holds a score, a rank across hats or a winner.
+  for (const hat of READ_HATS) {
+    const entry = ledger.hats[hat];
+    const v = verdict[hat];
+    entry.reading = v.state;
+    if (v.state === 'ran') {
+      entry.rule_lines = v.rec.rule_lines;
+      entry.evidence_items = v.rec.evidence_items;
+      entry.positions_taken = v.rec.positions_taken;
+      entry.self_search_strings = v.rec.self_search_strings;
+      entry.self_found_sources = v.rec.self_found_sources;
+      if (v.none_found_basis) entry.none_found_basis = v.none_found_basis; else delete entry.none_found_basis;
+    } else {
+      entry.rule_lines = [];
+      entry.evidence_items = 0;
+      entry.positions_taken = 0;
+      entry.self_search_strings = [];
+      entry.self_found_sources = 0;
+      delete entry.none_found_basis;
+    }
+  }
+  if (blueJudged) {
+    blueEntry.reading = blueJudged.reading;
+    if (blueJudged.reading_sha256) blueEntry.reading_sha256 = blueJudged.reading_sha256;
+  }
+  const packs = {};
+  const sources = {};
+  for (const hat of HATS) {
+    packs[hat] = RESEARCH_HATS.includes(hat) ? readPackForArtifact(path.join(hatDirOf(map, hat), 'evidence.json')) : { items: [], strings: [] };
+    sources[hat] = packs[hat].items.length;
+  }
+  ledger.positions = positions;
+  ledger.tensions = tensionResult.tensions;
+  ledger.same_position = samePosition;
+  ledger.sources = sources;
+  const edited = isPlain(ledger.audit) && Array.isArray(ledger.audit.edited_strings) ? ledger.audit.edited_strings : [];
+  ledger.audit = counts.counts
+    ? { edited_strings: edited, cards: counts.counts.cards, stops: counts.counts.stops, agent_runs: counts.counts.agent_runs, reported_by: 'command' }
+    : { edited_strings: edited, cards: null, stops: null, agent_runs: null, reported_by: 'not_reported' };
+  ledger.timestamps.merged_at = now.toISOString();
+  markStep(ledger, 'merge', 'done', now);
+
+  // 5. The artifact, the copies of the readings, the session log, the run record, then the cleanup.
+  const artifactPath = path.join(lr.dir, path.basename(lr.dir) + '.md');
+  try {
+    atomicWriteText(artifactPath, buildArtifact(ledger, readings, packs));
+    const readingsDir = path.join(lr.dir, 'readings');
+    fs.mkdirSync(readingsDir, { recursive: true });
+    for (const hat of HATS) {
+      if (ledger.hats[hat].reading === 'ran') fs.copyFileSync(path.join(hatDirOf(map, hat), 'reading.json'), path.join(readingsDir, hat + '.json'));
+    }
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+
+  // P-6: one entry for each hat with position lines; concerns and opportunities stay empty, because sorting a
+  // line into one of them would be an addition by the merge. Blue has no position lines.
+  const sessionLog = {};
+  for (const hat of READ_HATS) {
+    if (!readings[hat]) continue;
+    const findings = ledger.sub_questions.map(sq => positions[sq.id][hat].line).filter(line => line.length > 0).map(oneLine);
+    if (findings.length === 0) continue;
+    try {
+      const r = ops.persistPersonaFindings(roomResolved, hat, { focus: ledger.target, findings, concerns: [], opportunities: [] });
+      sessionLog[hat] = r && r.persisted ? 'logged' : 'failed:' + safeKeyName(r && r.error);
+    } catch (e) {
+      sessionLog[hat] = 'failed:error';
+    }
+  }
+
+  try {
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  const cleaned = cleanupRun(map, homeDir, ledger.run_id);
+
+  const hatsOut = {};
+  const notRun = [];
+  for (const hat of HATS) {
+    const e = ledger.hats[hat];
+    hatsOut[hat] = { reading: e.reading, evidence_items: e.evidence_items || 0, self_found_sources: e.self_found_sources || 0 };
+    if (e.reading !== 'ran') notRun.push({ hat, reason: String(e.reading).replace(/^(not_run|rejected):/, ''), state: e.reading });
+  }
+  return {
+    ok: true,
+    notice_lines: deepNoticeLines(ledger),
+    run_id: ledger.run_id,
+    artifact: artifactPath,
+    review_dir: lr.dir,
+    tensions: ledger.tensions,
+    same_position: samePosition,
+    hats: hatsOut,
+    not_run: notRun,
+    session_log: sessionLog,
+    cleanup: cleaned ? 'done' : 'failed',
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -1348,6 +1947,10 @@ function main(argv, deps) {
       missing = need(['room', 'run']);
       if (!missing.length) result = cmdCheck({ roomDir: flags.room, runId: flags.run }, deps);
       break;
+    case 'merge':
+      missing = need(['room', 'run']);
+      if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined }, deps);
+      break;
     default:
       missing = ['subcommand'];
       break;
@@ -1356,6 +1959,18 @@ function main(argv, deps) {
     process.stderr.write(USAGE + '\nmissing: ' + missing.join(', ') + '\n');
     process.exitCode = 2;
     return undefined;
+  }
+  if (result && typeof result.then === 'function') {
+    // merge is asynchronous: the lens engine rotate call is a promise.
+    return result.then((r) => {
+      process.stdout.write(JSON.stringify(r, null, 2) + '\n');
+      process.exitCode = 0;
+      return r;
+    }, (e) => {
+      process.stderr.write('merge failed: ' + (e && e.code ? e.code : 'error') + '\n');
+      process.exitCode = 1;
+      return undefined;
+    });
   }
   process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   process.exitCode = 0;
@@ -1380,6 +1995,12 @@ module.exports = {
   cmdAcceptPersona,
   cmdPlanResearch,
   cmdCheck,
+  cmdMerge,
+  tensionKey,
+  positionMarker,
+  buildArtifact,
+  deepNoticeLines,
+  ARTIFACT_LABELS,
   validateReading,
   perHatRules,
   citationCheck,

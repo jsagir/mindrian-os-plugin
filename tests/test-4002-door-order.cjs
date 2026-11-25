@@ -601,13 +601,66 @@ check('D19. a refused persona of a researching hat is not_planned:persona_not_ac
 // D0
 check('D0. SUBCOMMANDS is frozen and lists the door subcommands of this plan', () => {
   assert.ok(Object.isFrozen(door.SUBCOMMANDS));
-  for (const s of ['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check']) assert.ok(door.SUBCOMMANDS.includes(s), s);
+  for (const s of ['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'check', 'merge']) assert.ok(door.SUBCOMMANDS.includes(s), s);
   const src = fs.readFileSync(DOOR_PATH, 'utf8');
   assert.equal(/^(const|let|var)\b.*require\(['"]\.\.\/lib\/core\/bono/m.test(src), false);
 });
 
-for (const d of tmpRoots) {
-  try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
-}
-console.log(passed + ' passed, ' + failed + ' failed');
-process.exit(failed ? 1 : 0);
+// ---------------------------------------------------------------------------
+// Plan 08 leg: merge cleanup (async, because the tension call of merge is async)
+// ---------------------------------------------------------------------------
+
+// D20
+const asyncLegs = [];
+asyncLegs.push({
+  label: 'D20. after merge the scratch tree and the private run map do not exist',
+  fn: async () => {
+    const room = makeRoom();
+    const env = makeEnv();
+    const res = runToAccepted(room, env);
+    assert.equal(door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env)).ok, true);
+    const ids = readLedgerOf(res).sub_questions.map(s => s.id);
+    for (const h of HATS) {
+      const reading = { schema: 'mos.persona-reading/1', run_id: res.run_id, hat: h };
+      if (h === 'blue') Object.assign(reading, { skipped: [], thin: [], ask_next: [] });
+      else {
+        reading.positions = ids.map(id => ({ sub_question: id, value: 'no_position' }));
+        if (h === 'white') Object.assign(reading, { evidence: [], missing_data: ['The price of rival plans.'] });
+        if (h === 'black') Object.assign(reading, { evidence: [] });
+        if (h === 'yellow') Object.assign(reading, { evidence: [], none_found: false });
+        if (h === 'green') Object.assign(reading, { provocations: ['What if the client owns the hand-off?'], evidence: [] });
+      }
+      fs.writeFileSync(path.join(res.hats[h].dir, 'reading.json'), JSON.stringify(reading), 'utf8');
+    }
+    assert.equal(door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env)).ok, true);
+    const map = door.readRunMap(env.homeDir, res.run_id, room);
+    assert.ok(map);
+    assert.equal(fs.existsSync(map.scratch_root), true);
+    assert.equal(fs.existsSync(door.runMapPath(env.homeDir, res.run_id)), true);
+    const out = await door.cmdMerge({ roomDir: room, runId: res.run_id }, opts(env));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(fs.existsSync(map.scratch_root), false);
+    assert.equal(fs.existsSync(door.runMapPath(env.homeDir, res.run_id)), false);
+    assert.equal(readLedgerOf(res).steps.merge.state, 'done');
+    // No reading and no pack of the hats is left in the review folder except the copies of merge.
+    assert.equal(fs.existsSync(path.join(res.review_dir, 'readings', 'white.json')), true);
+  },
+});
+
+(async () => {
+  for (const t of asyncLegs) {
+    try {
+      await t.fn();
+      passed += 1;
+      console.log('ok: ' + t.label);
+    } catch (e) {
+      failed += 1;
+      console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  for (const d of tmpRoots) {
+    try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+  }
+  console.log(passed + ' passed, ' + failed + ' failed');
+  process.exit(failed ? 1 : 0);
+})();
