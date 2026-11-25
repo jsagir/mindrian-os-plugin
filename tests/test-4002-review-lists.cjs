@@ -77,6 +77,17 @@ const PLANNER_DECISIONS = [
   ['spike-handle', '400.2-15-PLAN.md', 'The handle is "battery recycling"'],
   ['slice1-section-job-note', '400.2-14-PLAN.md', 'Hat-scoped research inside /mos:persona is wired by Phase 400.2'],
 ];
+// Choices that DESIGN or RESEARCH mark DEFAULT CHOSEN and that no owner card ruled: id, phase file, needle.
+const DESIGN_DEFAULTS = [
+  ['hat-reads-prompt-contract', '400.2-RESEARCH.md', 'Q1 (what a hat may read)'],
+  ['hat-governance-as-data', '400.2-DESIGN.md', 'Use of `HAT_GOVERNANCE` outside the debate'],
+  ['persona-path-personas', '400.2-RESEARCH.md', 'Q3 (persona path)'],
+  ['filing-target-section-personas', '400.2-DESIGN.md', 'Where a finding is filed (DEFAULT CHOSEN, R-3 Q4)'],
+  ['digits-rule-no-year-exception', '400.2-DESIGN.md', 'DEFAULT CHOSEN: no year exception'],
+  ['web-scope-green', '400.2-DESIGN.md', 'DEFAULT CHOSEN: `green`'],
+  ['owner-direct-list', '400.2-DESIGN.md', 'They go into a new list `owner_direct`'],
+  ['dist-rebuild-release-train', '400.2-DESIGN.md', 'DEFAULT CHOSEN: leave the dist rebuild to the release train'],
+];
 const REPORTED_PART8_COMMENTS = [
   'agents/persona-analyst.md:58',
   'lib/core/bono/cell-fanout.cjs:20-21,116-118,129-130',
@@ -264,6 +275,10 @@ function compute() {
     PLANNER_DECISIONS.filter(([, file, needle]) => phaseText(file).includes(needle)).map(([id]) => id),
   );
 
+  lists['design-defaults'] = sorted(
+    DESIGN_DEFAULTS.filter(([id, file, needle]) => phaseText(file).includes(needle) && (id !== 'web-scope-green' || /web_scope: green/.test(frontmatterOf(cmdText))) && (id !== 'owner-direct-list' || rulings.owner_direct.length === 8)).map(([id]) => id),
+  );
+
   // 7. Risks: K-1 to K-12 of DESIGN 16, K-10 removed (no sentinel), K-13 added.
   const kIds = [...design.matchAll(/^- (K-\d+)\./gm)].map((m) => m[1]).filter((k) => k !== 'K-10');
   lists['risks-stated'] = sorted(kIds.concat(['K-13']));
@@ -443,6 +458,7 @@ check('V1 every id list of the review file equals the computed set', () => {
   assert.deepEqual(errs, [], errs.join(' | '));
   assert.equal(computed.lists['planner-decisions'].length, PLANNER_DECISIONS.length, 'every planner decision is in its plan file');
   assert.equal(computed.lists['reported-part8-comments'].length, REPORTED_PART8_COMMENTS.length, 'every reported file exists');
+  assert.equal(computed.lists['design-defaults'].length, DESIGN_DEFAULTS.length, 'every design default is in its phase file');
 });
 
 check('V2 every count line equals the computed count, and the pinned phase counts hold', () => {

@@ -3911,6 +3911,65 @@ function main(argv, deps) {
   return result;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 400.2-17 (PG-02): the frozen cost table of one deep run (R-10), the input for Phase 400.1.
+// tests/test-4002-review-lists.cjs (leg V3) derives every number again from the code and fails on drift:
+// the stage list from the hitl_stages of commands/persona.md, the subcommand count from SUBCOMMANDS,
+// the rebuild limit from REBUILD_LIMIT, the hat counts from HATS, READ_HATS and the lens table of persona-ops,
+// the retry budget from the recovery dispatcher. Nothing here is a limit that the code enforces; it is a count.
+//   agent_runs: produce 0 to 6 (one run for each hat to build), handles 0 to 4 (researching hats only),
+//     readings 5 (white, red, black, yellow, green), blue 1. Steady state (every persona fresh, handles stored)
+//     6 to 10. First run 16. Each rebuild asked at Stop 2 adds 1 run, 2 at most for a hat, so 28 is the maximum.
+//   stops: the stage ids of hitl_stages. Steady state has no generate-experts stop (3); a first run or a stale
+//     persona has it (4). A card edit or a rebuild repeats its own stop; no fifth stop exists.
+//   door_calls: the 10 subcommands minus compare (an optional extra, run after a merge). start skips write-persona
+//     and accept-persona when no persona is built or waits for acceptance, so steady state needs 2 fewer. A card
+//     edit round is 1 call (plan-research --edited). A rebuild round is 2 calls (write-persona, then accept-persona).
+//   research: door provider calls are lens runs sent to a provider, one for each lens of the hat and each
+//     approved string. Keyless means openalex and arxiv only. The recovery budget adds retries for a failed
+//     lens run, except the two domain lenses (asknature, kaggle), which stay out of the recovery dispatcher.
+//     host_web_searches are the extra calls of the command (WebSearch in Claude Code) when no Tavily key is set;
+//     they are not door calls. The own web tool calls of a reading hat are not bounded by code.
+function deepFreezeTable(o) {
+  for (const v of Object.values(o)) if (v && typeof v === 'object') deepFreezeTable(v);
+  return Object.freeze(o);
+}
+const DEEP_RUN_BUDGET = deepFreezeTable({
+  agent_runs: {
+    produce_min: 0,
+    produce_max: 6,
+    handles_min: 0,
+    handles_max: 4,
+    readings: 5,
+    blue: 1,
+    steady_min: 6,
+    steady_max: 10,
+    first_run: 16,
+    max_without_rebuild: 16,
+    rebuilds_per_hat_max: 2,
+    max_with_rebuilds: 28,
+  },
+  stops: {
+    steady: 3,
+    first_run: 4,
+    max: 4,
+    stages: ['brief-confirm', 'generate-experts', 'search-approve', 'resolve-tension'],
+  },
+  cards: { search_cards: 4 },
+  door_calls: { steady: 7, max: 9, per_card_edit_round: 1, per_rebuild_round: 2 },
+  research: {
+    strings_per_hat_max: 2,
+    provider_calls_keyless_max: 16,
+    provider_calls_all_keys_max: 28,
+    retries_per_call_max: 2,
+    provider_calls_with_retries_max: 76,
+    host_web_searches_max: 10,
+    host_web_searches_with_tavily_key: 0,
+  },
+  web_tool_calls_of_reading_hats: 'not bounded by code',
+  quick: { agent_runs: 0, stops: 1, door_calls: 3, fetches: 0 },
+});
+
 if (require.main === module) {
   main(process.argv.slice(2));
 }
@@ -3919,6 +3978,13 @@ module.exports = {
   SUBCOMMANDS,
   USAGE,
   HATS,
+  READ_HATS,
+  RESEARCH_HATS,
+  REBUILD_LIMIT,
+  MAX_HANDLES_PER_HAT,
+  MAX_STRINGS_PER_HAT,
+  HOST_LABELS,
+  DEEP_RUN_BUDGET,
   main,
   parseFlags,
   readJsonFile,
