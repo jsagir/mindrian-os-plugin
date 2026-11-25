@@ -577,6 +577,32 @@ check('D23. WR-01 NEGATIVE: a failed rebuild does not re-propose the old spec; a
   assert.equal(fmValue(redFile, 'persona_status'), 'proposed');
 });
 
+// D26 (WR-10)
+check('D26. WR-10 NEGATIVE: a brief target under personas/ is refused, and a reading-list or target link that resolves into personas/ is refused', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  writeFresh(room, 'black');
+  const t1 = startDeep(room, env, { target: 'personas/black-venture.md' });
+  assert.deepEqual(t1, { ok: false, reason: 'schema_invalid:target' });
+  const t2 = startDeep(room, env, { target: './personas/../personas/black-venture.md' });
+  assert.deepEqual(t2, { ok: false, reason: 'schema_invalid:target' });
+  let linked = false;
+  try {
+    fs.mkdirSync(path.join(room, 'notes'), { recursive: true });
+    fs.symlinkSync(path.join('..', 'personas', 'black-venture.md'), path.join(room, 'notes', 'x.md'));
+    linked = true;
+  } catch (e) { /* a host with no symlink right runs the lexical forms only */ }
+  if (linked) {
+    const r1 = startDeep(room, env, { reading_list: ['problem-definition/core-problem.md', 'notes/x.md'] });
+    assert.deepEqual(r1, { ok: false, reason: 'schema_invalid:reading_list' });
+    const r2 = startDeep(room, env, { target: 'notes/x.md' });
+    assert.deepEqual(r2, { ok: false, reason: 'schema_invalid:target' });
+  }
+  assert.equal(fs.existsSync(path.join(room, 'personas', 'hat-reviews')), false, 'no run folder was made');
+  const ok = startDeep(room, env, { target: 'problem-definition/core-problem.md' });
+  assert.equal(ok.ok, true, JSON.stringify(ok));
+});
+
 // D25 (WR-08)
 check('D25. WR-08 NEGATIVE: a disk error in write-persona is a refusal (one JSON object, exit 0), not a stack trace', () => {
   if (process.platform === 'win32' || (typeof process.getuid === 'function' && process.getuid() === 0)) return;

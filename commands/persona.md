@@ -141,7 +141,7 @@ Decide which mode to recommend. Quick when the target is one artifact and the qu
 
    If `room_ok` is false, say that the room needs 2 sections with 1 or more artifact each, and stop. The field `hats` gives each hat a `state`: `fresh`, `stale`, `unaccepted`, `missing` or `preview_only`.
 
-2. Write the brief from the room and the request: the target (a room-relative path of one file, or `room`), the governing question (one sentence), 2 to 5 different sub-questions, and the reading list (1 to 12 room-relative paths, none under `personas/`). Read no persona file to write it.
+2. Write the brief from the room and the request: the target (a room-relative path of one file not under `personas/`, or `room`), the governing question (one sentence), 2 to 5 different sub-questions, and the reading list (1 to 12 room-relative paths, none under `personas/`). Read no persona file to write it.
 
 3. Show the brief card (shape F.6, Plan Review) with one AskUserQuestion call. The first line of the card is the triage recommendation: the recommended mode and its reason. Then the target, the governing question, the sub-questions and the reading list. In deep mode the card also names each hat that is not fresh and the reason:
    - `missing`: no persona file yet; it will be built.

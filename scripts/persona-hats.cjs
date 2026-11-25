@@ -218,7 +218,8 @@ function subQuestionId(text) {
 
 /**
  * Resolve a room-relative path to an existing regular file inside the room.
- * @returns {{abs: string, rel: string}|null}
+ * rel is the lexical relative path; realRel is the relative path of the real file (links resolved) in the real room.
+ * @returns {{abs: string, rel: string, realRel: string}|null}
  */
 function roomFile(roomResolved, value) {
   if (typeof value !== 'string' || value.length === 0 || value.length > 300) return null;
@@ -239,7 +240,12 @@ function roomFile(roomResolved, value) {
   }
   const back = path.relative(realRoom, real);
   if (back === '' || back.startsWith('..') || path.isAbsolute(back)) return null;
-  return { abs, rel: rel.split(path.sep).join('/') };
+  return { abs, rel: rel.split(path.sep).join('/'), realRel: back.split(path.sep).join('/') };
+}
+
+/** WR-10: a path whose lexical or real first component is personas reaches a persona file. */
+function underPersonas(f) {
+  return f.rel.split('/')[0] === 'personas' || f.realRel.split('/')[0] === 'personas';
 }
 
 function nonEmptyString(v, max) {
@@ -263,7 +269,8 @@ function validateBrief(brief, roomDir) {
   if (typeof brief.target !== 'string') return fail('schema_invalid:target');
   if (brief.target !== 'room') {
     const t = roomFile(roomResolved, brief.target);
-    if (!t) return fail('schema_invalid:target');
+    // WR-10: a target under personas/ would send one hat's persona file to all six readers.
+    if (!t || underPersonas(t)) return fail('schema_invalid:target');
     targetAbs = t.abs;
   }
   if (!nonEmptyString(brief.governing_question, 300)) return fail('schema_invalid:governing_question');
@@ -277,7 +284,7 @@ function validateBrief(brief, roomDir) {
   if (!Array.isArray(rl) || rl.length < 1 || rl.length > 12) return fail('schema_invalid:reading_list');
   for (let i = 0; i < rl.length; i += 1) {
     const f = roomFile(roomResolved, rl[i]);
-    if (!f || f.rel.split('/')[0] === 'personas') return fail('schema_invalid:reading_list');
+    if (!f || underPersonas(f)) return fail('schema_invalid:reading_list');
   }
 
   if (brief.mode !== 'deep' && brief.mode !== 'quick') return fail('schema_invalid:mode');
