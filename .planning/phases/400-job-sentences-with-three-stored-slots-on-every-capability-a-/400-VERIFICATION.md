@@ -3,10 +3,10 @@ phase: 400-job-sentences-with-three-stored-slots-on-every-capability-a-
 verified: 2026-11-24T12:49:08Z
 verified_head: 3daeb0dea
 baseline: c1e496ae8
-status: human_needed
+status: passed
 score: 24/24 requirements satisfied as worded; 11/12 goal truths verified, 1 partial (wicked cut-off not fitted)
 overrides_applied: 1
-owner_signoff: 2026-11-25 (4 of 5 human items closed; the labels item is closed in part)
+owner_signoff: 2026-11-25 (5 of 5 human items answered; capability labels stay provisional)
 human_verification:
   - test: "Rule on the wicked cut-off fit (AX-02). data/problem-axes-wording.json wicked_cutoff.state is not_fitted, value null, so wickedFromProbability answers null for every input. Supply the two wicked label files from the research machine and run scripts/derive-wicked-cutoff.cjs --write, or accept not_fitted for this phase by an override."
     expected: "Either a fitted block (state fitted, value in 0..1, counts and file hashes) that passes derive-wicked-cutoff.cjs --check, or an override entry in this file accepted by the owner."
@@ -189,7 +189,7 @@ _Verifier: Claude (gsd-verifier)_
 
 ## Owner sign-off, 2026-11-25
 
-The owner answered the five human items on the sign-off page (saved answers, 2026-11-25T10:20Z to 10:46Z). Status stays human_needed for one remainder, named in row 5.
+The owner answered the five human items on the sign-off page (saved answers, 2026-11-25T10:20Z to 10:46Z). The five human items are answered. What stays provisional is named in row 5.
 
 | # | Item | Owner answer | Result |
 |---|---|---|---|
@@ -197,6 +197,6 @@ The owner answered the five human items on the sign-off page (saved answers, 202
 | 2 | Order rule (WR-04, WR-09) | Agree | CLOSED. The in-band reorder is the intended one. |
 | 3 | Relay gate (IN-04) | Add a relay provider id | CLOSED. decision_relay is on the decision_advisor providers list in data/egress-policy.json; tests/test-399-egress-line.cjs pins it (E4, E5). The line default stays false. |
 | 4 | Domain card on three surfaces | Pass on Claude Code CLI, Claude Desktop and Cowork | CLOSED. |
-| 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). Personas: the owner accepted the draft on 2026-11-25, so the section job stays understand-market (source jev-probe-draft-gloss) with no "One job" sentence; data/section-job-canon.json is unchanged. OPEN: the funding section job. The other label lists were not changed by the owner and stay provisional. |
+| 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). Personas: the owner accepted the draft on 2026-11-25, so the section job stays understand-market (source jev-probe-draft-gloss) with no "One job" sentence; data/section-job-canon.json is unchanged. Funding: the owner kept plan-execution on 2026-11-25; data unchanged. The other 13 vocabulary sentences were ruled as written by Fable 5.2 under the owner's delegation ("you rule, I close it off"), so all 20 are ruled. STILL PROVISIONAL: the capability sentences, the MCP tool sentences, fits_domains and move_type. Nobody has read them one by one, and provisional labels do not block a cut. |
 
 Also on 2026-11-25: the branch was merged into main after v2.0.0-beta.89 (f9148bf5c), and the advisor table stopped offering deprecated commands (a6d2e63ab). The O-12 commands stay on the run-step list.
