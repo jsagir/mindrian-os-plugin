@@ -5,7 +5,9 @@
 // both hats got. It sends no request. It lives under tests/ and does not ship: package.json ships scripts/ only.
 //
 // Definitions (plan 400.2-15):
-// - The URL set of a hat is the set of normalised URLs of the items of its evidence pack.
+// - The result set of a hat is the set of paper keys of the items of its evidence pack (Phase 400.2-19). The paper key
+//   of an item is its DOI, else its arXiv id, else its normalised URL, so one paper found through OpenAlex (DOI) and
+//   through arXiv (abs URL) counts once. An arXiv DOI (10.48550/arxiv.<id>) is the same paper as its arXiv id.
 // - share(A, B) = size of the intersection / size of the smaller set. An empty set gives null and the pair is no_result.
 // - decision: change_needed when 1 or more measured pairs are above 0.5; else inconclusive when 3 or more of the 6 pairs
 //   are no_result; else pass. A measured pair above 0.5 is a hard finding, so it outranks missing pairs.
@@ -32,6 +34,64 @@ function normaliseUrl(u) {
   }
 }
 
+const DOI_RE = /10\.\d{4,9}\/[^\s?#]+/i;
+const ARXIV_DOI_RE = /^10\.48550\/arxiv\.(.+)$/i;
+const DOI_HOSTS = Object.freeze(['doi.org', 'dx.doi.org']);
+
+/** The lower case DOI of an item: the doi field, else a doi.org URL. '' when there is none. */
+function doiOf(item) {
+  const field = item && typeof item.doi === 'string' ? item.doi.trim() : '';
+  if (field) {
+    const m = DOI_RE.exec(field);
+    if (m) return m[0].toLowerCase().replace(/[.,;]+$/, '');
+  }
+  const url = item && typeof item.url === 'string' ? item.url.trim() : '';
+  if (url) {
+    try {
+      const p = new URL(url);
+      if (DOI_HOSTS.includes(p.hostname.toLowerCase())) {
+        const m = DOI_RE.exec(decodeURIComponent(p.pathname.replace(/^\//, '')));
+        if (m) return m[0].toLowerCase().replace(/[.,;]+$/, '');
+      }
+    } catch (e) { /* not a URL */ }
+  }
+  return '';
+}
+
+/** The arXiv id of an arxiv.org abs or pdf URL, without the version. '' when the URL is not an arXiv URL. */
+function arxivIdOf(url) {
+  const text = typeof url === 'string' ? url.trim() : '';
+  if (!text) return '';
+  try {
+    const p = new URL(text);
+    const host = p.hostname.toLowerCase();
+    if (host !== 'arxiv.org' && !host.endsWith('.arxiv.org')) return '';
+    const m = /^\/(?:abs|pdf)\/(.+?)(?:\.pdf)?$/i.exec(p.pathname);
+    if (!m) return '';
+    return m[1].replace(/v\d+$/i, '').toLowerCase();
+  } catch (e) {
+    return '';
+  }
+}
+
+/**
+ * The key of the paper behind one item: DOI, else arXiv id, else normalised URL. '' for an item with none of them.
+ * An arXiv DOI maps to the arXiv key, so OpenAlex and arXiv agree on a preprint.
+ */
+function paperKey(item) {
+  const doi = doiOf(item);
+  if (doi) {
+    const a = ARXIV_DOI_RE.exec(doi);
+    if (a) return 'arxiv:' + a[1].replace(/v\d+$/i, '');
+    return 'doi:' + doi;
+  }
+  const url = item && typeof item.url === 'string' ? item.url : '';
+  const arx = arxivIdOf(url);
+  if (arx) return 'arxiv:' + arx;
+  const n = normaliseUrl(url);
+  return n ? 'url:' + n : '';
+}
+
 function itemsOf(pack) {
   if (Array.isArray(pack)) return pack.map(x => (typeof x === 'string' ? { url: x } : x));
   return pack && Array.isArray(pack.items) ? pack.items : [];
@@ -40,7 +100,7 @@ function itemsOf(pack) {
 function urlSet(pack) {
   const set = new Set();
   for (const item of itemsOf(pack)) {
-    const n = normaliseUrl(item && item.url);
+    const n = paperKey(item);
     if (n) set.add(n);
   }
   return set;
@@ -191,4 +251,4 @@ if (require.main === module) {
   main(process.argv.slice(2));
 }
 
-module.exports = { HATS, RECORD_SCHEMA, THRESHOLD, normaliseUrl, pairShares, decision, buildRecord, readPacks, main };
+module.exports = { HATS, RECORD_SCHEMA, THRESHOLD, normaliseUrl, paperKey, pairShares, decision, buildRecord, readPacks, main };

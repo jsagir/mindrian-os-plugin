@@ -24,7 +24,7 @@
  *   write-persona --room <dir> --run <id>
  *   accept-persona --room <dir> --run <id> --answer <file>
  *   plan-research --room <dir> --run <id>      (plan 07: the no-plan branch only)
- *   run-research --room <dir> --run <id> --approved <file>  (plan 12: the fetch of the approved strings, the evidence packs, the research states)
+ *   run-research --room <dir> --run <id> --approved <file> [--host-results <file>]  (plan 12: the fetch of the approved strings, the evidence packs, the research states; plan 19: the results of the host web search)
  *   check --room <dir> --run <id>              (plan 07: schema, per-hat rules, citation boundary, Blue ledger)
  *   merge --room <dir> --run <id> [--counts <file>]  (plan 08, deep mode: positions, tensions, artifact, run record, cleanup)
  *   record-ruling --room <dir> --run <id> --answer <file>  (plan 09: the navigator ruling on a tension; the only writer of the rulings store)
@@ -1313,7 +1313,41 @@ function readHandlesFile(dir, hat) {
   return { ok: true, handles: list };
 }
 
-/** The frozen lens set of a hat from the table, through the preflight. No network call. */
+// ---- Phase 400.2-19: the host web search as a hand-off (owner third card, items 3 to 5) ----
+// The door is a script with no model, so it cannot call the web search tool of the host. When the Tavily key is not set,
+// a web lens (industry, nature, datasets) is not refused: the plan gives that string the provider host-web, the command
+// runs the host web search with the exact host string and passes the results back in a file (--host-results).
+const HOST_WEB_PROVIDER = 'host-web';
+const HOST_ROUTED_LENSES = Object.freeze(['industry', 'nature', 'datasets']);
+const HOST_LABELS = Object.freeze({
+  industry: 'web search by the assistant',
+  nature: 'AskNature (through web search)',
+  datasets: 'Kaggle datasets (through web search)',
+});
+// The fixed prefix that limits a host search to one site. The prefix is code; the rest is the audited planned string.
+const HOST_SITE_PREFIX = Object.freeze({ industry: '', nature: 'site:asknature.org ', datasets: 'site:kaggle.com/datasets ' });
+
+/** The exact text that the host web search gets for one lens and one planned string. */
+function hostSearchText(lens, text) {
+  return (Object.prototype.hasOwnProperty.call(HOST_SITE_PREFIX, lens) ? HOST_SITE_PREFIX[lens] : '') + text;
+}
+
+/** The host searches of a planned hat: for each planned string and each host lens, the lens, label, q_hash and exact text. */
+function hostSearchesOf(rec) {
+  const lenses = isPlain(rec) && Array.isArray(rec.host_lenses) ? rec.host_lenses : [];
+  const strings = isPlain(rec) && Array.isArray(rec.strings) ? rec.strings : [];
+  const out = [];
+  for (const str of strings) {
+    for (const lens of lenses) out.push({ lens, label: HOST_LABELS[lens], q_hash: str.q_hash, text: hostSearchText(lens, str.text) });
+  }
+  return out;
+}
+
+/**
+ * The frozen lens set of a hat from the table, through the preflight. No network call.
+ * lens_set holds the lenses that the door runs; host_lenses holds the web lenses that fall back to the host web search
+ * because no Tavily key is set; providers lists both in table order (a domain lens is named asknature or kaggle).
+ */
 function lensPlanOf(hat, roomResolved, deps) {
   const driver = require(path.join(REPO_ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
   const preflight = deps && typeof deps.preflightLenses === 'function' ? deps.preflightLenses : driver.preflightLenses;
@@ -1322,19 +1356,29 @@ function lensPlanOf(hat, roomResolved, deps) {
   const available = Array.isArray(pre && pre.available) ? pre.available : [];
   const unavailable = Array.isArray(pre && pre.unavailable) ? pre.unavailable : [];
   const lensToSource = driver._internal.LENS_TO_SOURCE;
+  const domainLenses = driver._internal.DOMAIN_LENSES || {};
   const lensSet = [];
+  const hostLenses = [];
   const providers = [];
+  const addProvider = (name) => { if (typeof name === 'string' && !providers.includes(name)) providers.push(name); };
   table.forEach((lens, i) => {
-    if (!available.includes(lens)) return;
-    lensSet.push({ lens, weight: Math.round((1 - 0.2 * i) * 10) / 10 });
-    const provider = lensToSource[lens];
-    if (typeof provider === 'string' && !providers.includes(provider)) providers.push(provider);
+    if (available.includes(lens)) {
+      lensSet.push({ lens, weight: Math.round((1 - 0.2 * i) * 10) / 10 });
+      addProvider(domainLenses[lens] ? domainLenses[lens].label : lensToSource[lens]);
+      return;
+    }
+    const u = unavailable.find(x => isPlain(x) && x.lens === lens);
+    if (u && HOST_ROUTED_LENSES.includes(lens) && u.provider === 'tavily' && u.reason === 'no_key') {
+      hostLenses.push(lens);
+      addProvider(HOST_WEB_PROVIDER);
+    }
   });
-  return { lens_set: lensSet, providers, unavailable_line: driver.unavailableAnswerLine(unavailable) };
+  const rest = unavailable.filter(u => !(isPlain(u) && hostLenses.includes(u.lens)));
+  return { lens_set: lensSet, host_lenses: hostLenses, providers, unavailable_line: driver.unavailableAnswerLine(rest) };
 }
 
 function emptyHatPlan(state) {
-  return { state, strings: [], refused: [], lens_set: [], providers: [], unavailable_line: '' };
+  return { state, strings: [], refused: [], lens_set: [], host_lenses: [], host_searches: [], providers: [], unavailable_line: '' };
 }
 
 function planOutput(ledger, plan, refusedShown, extra) {
@@ -1434,7 +1478,7 @@ function planFirst(roomResolved, lr, map, deps) {
     if (rec.strings.length === 0) continue;
 
     const lp = lensPlanOf(hat, roomResolved, deps);
-    if (lp.lens_set.length === 0) {
+    if (lp.lens_set.length === 0 && lp.host_lenses.length === 0) {
       rec.state = 'not_planned:no_available_provider';
       rec.strings = [];
       rec.unavailable_line = lp.unavailable_line;
@@ -1442,6 +1486,8 @@ function planFirst(roomResolved, lr, map, deps) {
     }
     rec.state = 'planned';
     rec.lens_set = lp.lens_set;
+    rec.host_lenses = lp.host_lenses;
+    rec.host_searches = hostSearchesOf(rec);
     rec.providers = lp.providers;
     rec.unavailable_line = lp.unavailable_line;
   }
@@ -1567,6 +1613,7 @@ function planEdit(roomResolved, lr, map, args, deps) {
     if (c.q_hash === edit.q_hash_replaced) { refuse('string_unchanged'); continue; }
     if (rec.strings.some((s, i) => i !== at && s.q_hash === c.q_hash)) { refuse('duplicate_string'); continue; }
     rec.strings[at] = { text: c.text, q_hash: c.q_hash, handle: c.handle, qualifier: c.qualifier, edited: true };
+    rec.host_searches = hostSearchesOf(rec);
     accepted.push({ hat: edit.hat, q_hash: c.q_hash });
   }
 
@@ -1874,6 +1921,7 @@ const ARTIFACT_LABELS = Object.freeze({
   found_summary: 'summary: ',
   reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
   prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
+  host_web_limit: 'Provider host-web: the assistant ran the web search. Code cannot prove that it searched exactly the approved string.',
   section_rulings: '## Rulings',
   ruling_value: 'ruling: ',
   ruling_side_hat: 'side hat: ',
@@ -2125,6 +2173,7 @@ function buildArtifact(record, readings, packs) {
     }
   }
   if (!anySource) push(L.none);
+  if (RESEARCH_HATS.some(hat => packs[hat] && packs[hat].items.some(it => it.provider === HOST_WEB_PROVIDER))) push(L.host_web_limit);
   if (anyString) push(L.prompt_rule);
   return out.join('\n') + '\n';
 }
@@ -3092,6 +3141,7 @@ const PACK_ITEM_MAX = 10;
 const PACK_TITLE_MAX = 300;
 const PACK_URL_MAX = 500;
 const PACK_SUMMARY_MAX = 600;
+const PACK_DOI_MAX = 200;
 const FETCH_ORDER = Object.freeze(['white', 'black', 'yellow', 'green']);
 
 /**
@@ -3130,6 +3180,65 @@ function validateApproved(plan, approved) {
     }
   }
   return { ok: true };
+}
+
+// ---- Phase 400.2-19: the results file of the host web search (--host-results) ----
+const HOST_RESULTS_SCHEMA = 'mos.persona-host-results/1';
+const HOST_RESULTS_KEYS = Object.freeze(['schema', 'run_id', 'plan_seq', 'searches']);
+const HOST_SEARCH_KEYS = Object.freeze(['hat', 'lens', 'q_hash', 'string', 'results']);
+const HOST_RESULT_KEYS = Object.freeze(['url', 'title', 'snippet']);
+const HOST_SEARCHES_MAX = 40;
+const HOST_RESULTS_PER_SEARCH_MAX = 10;
+const HOST_STRING_MAX = 2000;
+
+const hostKey = (hat, lens, qHash) => hat + '|' + lens + '|' + qHash;
+
+/**
+ * Check the host results file against the plan and the approved file. Pure. A refusal is for the whole call: nothing is
+ * fetched. A result is accepted only for a (hat, lens, q_hash) that the plan lists as a host search, that the approved
+ * file approved for that hat, and whose string equals the exact host string of the plan.
+ * Order for each entry: hat, keys and shapes, approval, plan membership, string, duplicate.
+ * @returns {{ok: true, index: Map<string, Object>} | {ok: false, reason: string}}
+ */
+function validateHostResults(plan, approved, doc) {
+  const bad = (reason) => ({ ok: false, reason });
+  if (!isPlain(doc)) return bad('schema_invalid:root');
+  for (const k of Object.keys(doc)) if (!HOST_RESULTS_KEYS.includes(k)) return bad('unknown_key:' + safeKeyName(k));
+  if (doc.schema !== HOST_RESULTS_SCHEMA) return bad('schema_invalid:schema');
+  if (!isPlain(plan) || doc.run_id !== plan.run_id) return bad('schema_invalid:run_id');
+  if (!Number.isInteger(doc.plan_seq)) return bad('schema_invalid:plan_seq');
+  if (!Array.isArray(doc.searches) || doc.searches.length > HOST_SEARCHES_MAX) return bad('schema_invalid:searches');
+  if (doc.plan_seq !== plan.plan_seq) return bad('plan_seq_stale');
+  const index = new Map();
+  for (const e of doc.searches) {
+    if (!isPlain(e)) return bad('schema_invalid:searches');
+    for (const k of Object.keys(e)) if (!HOST_SEARCH_KEYS.includes(k)) return bad('unknown_key:' + safeKeyName(k));
+    if (typeof e.hat !== 'string' || e.hat.length > 20) return bad('schema_invalid:hat');
+    if (e.hat === 'red' || e.hat === 'blue') return bad('hat_never_searches');
+    if (!RESEARCH_HATS.includes(e.hat)) return bad('unknown_key:' + safeKeyName(e.hat));
+    if (typeof e.lens !== 'string' || e.lens.length > 20) return bad('schema_invalid:lens');
+    if (typeof e.q_hash !== 'string' || e.q_hash.length > 100) return bad('schema_invalid:q_hash');
+    if (typeof e.string !== 'string' || e.string.length > HOST_STRING_MAX) return bad('schema_invalid:string');
+    if (!Array.isArray(e.results) || e.results.length > HOST_RESULTS_PER_SEARCH_MAX) return bad('schema_invalid:results');
+    for (const r of e.results) {
+      if (!isPlain(r)) return bad('schema_invalid:results');
+      for (const k of Object.keys(r)) if (!HOST_RESULT_KEYS.includes(k)) return bad('schema_invalid:results');
+      if (typeof r.url !== 'string' || r.url.length > PACK_URL_MAX) return bad('schema_invalid:results');
+      if (typeof r.title !== 'string' || r.title.length > PACK_TITLE_MAX) return bad('schema_invalid:results');
+      if (typeof r.snippet !== 'string' || r.snippet.length > PACK_SUMMARY_MAX) return bad('schema_invalid:results');
+    }
+    const a = isPlain(approved) && isPlain(approved.hats) ? approved.hats[e.hat] : null;
+    if (!isPlain(a) || a.decision !== 'approve' || !Array.isArray(a.q_hashes) || !a.q_hashes.includes(e.q_hash)) return bad('host_result_not_approved');
+    const rec = plan.hats && plan.hats[e.hat];
+    const searches = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.host_searches) ? rec.host_searches : [];
+    const want = searches.find(h => isPlain(h) && h.lens === e.lens && h.q_hash === e.q_hash);
+    if (!want) return bad('host_result_not_in_plan');
+    if (e.string !== want.text) return bad('host_string_mismatch');
+    const key = hostKey(e.hat, e.lens, e.q_hash);
+    if (index.has(key)) return bad('schema_invalid:searches');
+    index.set(key, e);
+  }
+  return { ok: true, index };
 }
 
 /** One operation of a provider, as the pack keeps it. Reads the driver record only; copies no query text. */
@@ -3236,7 +3345,30 @@ function newStringRecord(s, dbPresent) {
     wire_attempts: [],
     recovery_action: null,
     substitute_calls: 0,
+    // Phase 400.2-19: url -> DOI of the findings that the provider gave (the wirer call carries no DOI). Used for the
+    // pack only, so that the overlap measure can match one paper found through two providers.
+    dois: Object.create(null),
+    // Phase 400.2-19: one entry for each host search of the string: {lens, state, reason, items, refused}.
+    host: [],
   };
+}
+
+/**
+ * One wire call of a finding, with the target fixed to the section of the personas, and the attempt kept on the string
+ * record. DESIGN 4.4: a finding informs the section of the personas, never a section named after the search string. The
+ * research leg of Bono files each finding under its string; the wrapper fixes the target before the write.
+ */
+function wireAndRecord(record, wireFn, dbArg, p) {
+  let res = null;
+  const decision = Object.assign({}, isPlain(p && p.decision) ? p.decision : {}, { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' });
+  const params = Object.assign({}, p, { decision });
+  try { res = wireFn(dbArg, params); } catch (e) { res = null; }
+  const f = isPlain(p && p.finding) ? p.finding : {};
+  record.wire_attempts.push({
+    finding: { title: f.title, url: f.url, source: f.source, evidence_tier: f.evidence_tier, summary: f.summary, retrieved_at: f.retrieved_at },
+    result: { ok: !!(res && res.ok === true), node_id: res && typeof res.node_id === 'string' ? res.node_id : null, reason: res && typeof res.reason === 'string' ? res.reason : null },
+  });
+  return res;
 }
 
 /**
@@ -3245,7 +3377,7 @@ function newStringRecord(s, dbPresent) {
  * No Brain function and no Brain lens reach the leg; the room-corpus substitute of the recovery path returns nothing.
  * @returns {Promise<Array<{q_hash: string, text: string, record: Object, result: Object}>>}
  */
-async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps) {
+async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIndex) {
   const d = deps || {};
   const cellFanout = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs'));
   const personaResearch = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'persona-research.cjs'));
@@ -3301,34 +3433,74 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps) {
           record.providers = Array.isArray(result.providers) ? result.providers.map(providerRecord) : [];
           record.research_mode = typeof result.research_mode === 'string' ? result.research_mode.slice(0, 60) : null;
           record.findings = Array.isArray(result.findings) ? result.findings.length : 0;
+          for (const f of (Array.isArray(result.findings) ? result.findings : [])) {
+            if (isPlain(f) && typeof f.url === 'string' && typeof f.doi === 'string' && f.doi.length > 0) record.dois[f.url] = f.doi.slice(0, PACK_DOI_MAX);
+          }
           record.recovery_action = isPlain(result.recovery) && typeof result.recovery.action === 'string' ? result.recovery.action.slice(0, 40) : null;
         }
         return result;
       },
-      wireAcceptFn: (dbArg, p) => {
-        let res = null;
-        // DESIGN 4.4: a finding informs the section of the personas, never a section named after the search string.
-        // The research leg of Bono files each finding under its string; the wrapper fixes the target before the write.
-        const decision = Object.assign({}, isPlain(p && p.decision) ? p.decision : {}, { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' });
-        const params = Object.assign({}, p, { decision });
-        try { res = wireFn(dbArg, params); } catch (e) { res = null; }
-        const f = isPlain(p && p.finding) ? p.finding : {};
-        record.wire_attempts.push({
-          finding: { title: f.title, url: f.url, source: f.source, evidence_tier: f.evidence_tier, summary: f.summary, retrieved_at: f.retrieved_at },
-          result: { ok: !!(res && res.ok === true), node_id: res && typeof res.node_id === 'string' ? res.node_id : null, reason: res && typeof res.reason === 'string' ? res.reason : null },
-        });
-        return res;
-      },
+      wireAcceptFn: (dbArg, p) => wireAndRecord(record, wireFn, dbArg, p),
     };
     return dispatchFn({ subdomain: cell.subdomain, hat, handle: cell.handle }, ctx);
   };
 
-  await cellFanout.runCellFanout({
-    subdomains: strings.map(s => s.text),
-    hats: [hat],
-    dispatchCell,
-    selfCritique: (reading) => ({ keep: true, cell: reading }),
-  });
+  const hostLenses = Array.isArray(rec.host_lenses) ? rec.host_lenses : [];
+  if (frozen.length === 0 && hostLenses.length > 0) {
+    // A hat whose only providers are host searches: the door has no lens to run, and nothing failed.
+    for (const s of strings) records.get(s.text).ok = true;
+  } else {
+    await cellFanout.runCellFanout({
+      subdomains: strings.map(s => s.text),
+      hats: [hat],
+      dispatchCell,
+      selfCritique: (reading) => ({ keep: true, cell: reading }),
+    });
+  }
+  // Phase 400.2-19: the host web search results, for the strings that the door fetched. A host search with no entry in
+  // the results file did not run (provider_unavailable:host_web); an entry with no result ran and found nothing.
+  for (const s of strings) {
+    const record = records.get(s.text);
+    record.host = [];
+    if (hostLenses.length === 0 || record.handle_changed || record.thrown || record.ok !== true) continue;
+    const sessionId = 'persona-' + hat + '-' + String(record.q_hash).replace(/^sha256:/, '').slice(0, 12);
+    for (const lens of hostLenses) {
+      const entry = hostIndex instanceof Map ? hostIndex.get(hostKey(hat, lens, record.q_hash)) : undefined;
+      if (!entry) {
+        record.providers.push({ provider: HOST_WEB_PROVIDER, lens, operation_state: 'not_executed', reason: 'provider_unavailable:host_web', items: 0, cache_hit: false });
+        record.host.push({ lens, state: 'not_executed', reason: 'provider_unavailable:host_web', items: 0, refused: 0 });
+        continue;
+      }
+      const strip = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'evidence-claim.cjs')).stripInjectionSpans;
+      const tiers = driver._internal.SOURCE_TO_TIER;
+      const lensToSource = driver._internal.LENS_TO_SOURCE;
+      const domainLenses = driver._internal.DOMAIN_LENSES || {};
+      const tier = tiers[domainLenses[lens] ? domainLenses[lens].label : lensToSource[lens]] || 'None';
+      const seenUrls = new Set();
+      const kept = [];
+      let refused = 0;
+      for (const r of entry.results) {
+        if (!driver.domainLensAccepts(lens, r.url)) { refused += 1; continue; }
+        if (seenUrls.has(r.url)) continue;
+        seenUrls.add(r.url);
+        kept.push(r);
+      }
+      for (const r of kept) {
+        record.findings += 1;
+        if (!db) continue;
+        wireAndRecord(record, wireFn, db, {
+          finding: { title: strip(r.title).slice(0, PACK_TITLE_MAX), source: HOST_WEB_PROVIDER, url: r.url, retrieved_at: nowOf(d).toISOString(), evidence_tier: tier, summary: strip(r.snippet).slice(0, PACK_SUMMARY_MAX) },
+          decision: { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' },
+          roomDir: roomResolved,
+          sessionId,
+          topic: record.text,
+        });
+      }
+      const state = kept.length > 0 ? 'executed_with_results' : 'executed_empty';
+      record.providers.push({ provider: HOST_WEB_PROVIDER, lens, operation_state: state, reason: null, items: kept.length, cache_hit: false });
+      record.host.push({ lens, state, reason: null, items: kept.length, refused });
+    }
+  }
   return strings.map(s => ({ q_hash: s.q_hash, text: s.text, record: records.get(s.text), result: stringState(records.get(s.text)) }));
 }
 
@@ -3352,6 +3524,8 @@ function packItems(fetched) {
         retrieved_at: typeof f.retrieved_at === 'string' ? f.retrieved_at : '',
         q_hash: s.q_hash,
       });
+      const doi = typeof f.url === 'string' && s.record.dois ? s.record.dois[f.url] : undefined;
+      if (typeof doi === 'string' && doi.length > 0) items[items.length - 1].doi = doi;
       if (items.length >= PACK_ITEM_MAX) return items;
     }
   }
@@ -3412,6 +3586,18 @@ async function cmdRunResearch(args, deps) {
   if (!valid.ok) return valid;
   const approved = ar.value;
 
+  // Phase 400.2-19: the results of the host web search, when the command passes a file. No file: every host search is
+  // not run. A file that does not fit the plan and the approved file refuses the whole call before any fetch.
+  let hostIndex = new Map();
+  if (args.hostResultsPath !== undefined && args.hostResultsPath !== null) {
+    if (typeof args.hostResultsPath !== 'string' || args.hostResultsPath.length === 0) return { ok: false, reason: 'host_results_file_missing' };
+    const hr = readJsonFile(args.hostResultsPath);
+    if (!hr.ok) return { ok: false, reason: hr.reason === 'file_unreadable' ? 'host_results_file_missing' : hr.reason };
+    const hv = validateHostResults(plan, approved, hr.value);
+    if (!hv.ok) return hv;
+    hostIndex = hv.index;
+  }
+
   // Decisions that need no fetch, then the queue of approved hats.
   const results = {};
   const queue = [];
@@ -3431,7 +3617,9 @@ async function cmdRunResearch(args, deps) {
     const lp = lensPlanOf(hat, roomResolved, deps);
     const wantLenses = (Array.isArray(rec.lens_set) ? rec.lens_set : []).map(e => e && e.lens);
     const sameSet = lp.lens_set.length === wantLenses.length && lp.lens_set.every((e, i) => e.lens === wantLenses[i])
-      && lp.providers.length === rec.providers.length && lp.providers.every((p, i) => p === rec.providers[i]);
+      && lp.providers.length === rec.providers.length && lp.providers.every((p, i) => p === rec.providers[i])
+      && lp.host_lenses.length === (Array.isArray(rec.host_lenses) ? rec.host_lenses : []).length
+      && lp.host_lenses.every((l, i) => l === rec.host_lenses[i]);
     if (!sameSet) { results[hat] = { state: 'failed', reason: 'provider_set_changed', fetched: [] }; continue; }
     queue.push({ hat, rec, strings: rec.strings.filter(s => entry.q_hashes.includes(s.q_hash)) });
   }
@@ -3451,7 +3639,7 @@ async function cmdRunResearch(args, deps) {
         const job = queue.find(q => q.hat === hat);
         if (!job) continue;
         try {
-          const fetched = await fetchHatStrings(hat, job.rec, job.strings, roomResolved, db, deps);
+          const fetched = await fetchHatStrings(hat, job.rec, job.strings, roomResolved, db, deps, hostIndex);
           results[hat] = Object.assign(hatResearchState(fetched.map(f => Object.assign({ state: f.result.state, partial: f.result.partial, failed_providers: f.result.failed_providers }, {})), 'approve'), { fetched });
         } catch (e) {
           results[hat] = { state: 'failed', reason: 'thrown', fetched: [] };
@@ -3507,6 +3695,7 @@ async function cmdRunResearch(args, deps) {
       wired: f.record.wire_attempts.filter(a => a.result.ok).length,
       substitute_calls: f.record.substitute_calls,
       recovery_action: f.record.recovery_action,
+      host: f.record.host.map(h => Object.assign({}, h)),
     }));
   }
   return {
@@ -3678,7 +3867,7 @@ function main(argv, deps) {
       break;
     case 'run-research':
       missing = need(['room', 'run', 'approved']);
-      if (!missing.length) result = cmdRunResearch({ roomDir: flags.room, runId: flags.run, approvedPath: flags.approved }, deps);
+      if (!missing.length) result = cmdRunResearch({ roomDir: flags.room, runId: flags.run, approvedPath: flags.approved, hostResultsPath: typeof flags['host-results'] === 'string' && flags['host-results'].length ? flags['host-results'] : undefined }, deps);
       break;
     case 'check':
       missing = need(['room', 'run']);
@@ -3741,6 +3930,10 @@ module.exports = {
   cmdPlanResearch,
   cmdRunResearch,
   validateApproved,
+  validateHostResults,
+  hostSearchText,
+  hostSearchesOf,
+  HOST_WEB_PROVIDER,
   stringState,
   hatResearchState,
   handlesNeeded,

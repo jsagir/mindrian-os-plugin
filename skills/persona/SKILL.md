@@ -283,6 +283,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - each exact string of `strings`, word for word, one on each line (mark an edited string as edited);
    - the `providers` that will receive the string;
    - the `unavailable_line`, when it is not empty;
+   - each entry of `host_searches`, when the list is not empty: its `label` word for word (`web search by the assistant`, `AskNature (through web search)` or `Kaggle datasets (through web search)`) and its exact `text`, word for word. These searches are run by the assistant with the web search tool of the host, not by a provider of the door. Add this sentence, word for word: Code cannot prove that the assistant searched exactly that string.;
    - this sentence, word for word: A failed provider may be asked again with the same string.
 
    The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider once, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
@@ -309,13 +310,21 @@ These cards cover the searches that the door sends. Each reading hat may also se
    {"schema": "mos.persona-approved/1", "run_id": "<run_id>", "plan_seq": 1, "hats": {"white": {"decision": "approve", "q_hashes": ["<q_hash>"], "providers": ["<provider>"]}, "black": {"decision": "refuse", "q_hashes": [], "providers": []}}}
    ```
 
-4. **Fetch.** Call the door once, then remove the private directory:
+4. **Host web search.** Run this point only when an approved hat has entries in `host_searches` (the provider `host-web` is in its `providers`). The door is a script and cannot call the web search tool of the host, so the assistant runs it. For each hat with an approve answer, and for each entry of `plan.hats.<hat>.host_searches` whose `q_hash` is in the approved `q_hashes` of that hat: run the web search tool of the host (WebSearch in Claude Code, or the equivalent tool of another host) with the `text` of the entry, exactly and unchanged. Search no string that was not approved. Write the results file into a new private directory (`mktemp -d`), never into the inbox:
 
-   ```bash
-   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" run-research --room "<room dir>" --run "<run_id>" --approved "<tmp dir>/approved.json"
+   ```json
+   {"schema": "mos.persona-host-results/1", "run_id": "<run_id>", "plan_seq": 1, "searches": [{"hat": "white", "lens": "industry", "q_hash": "<q_hash of the entry>", "string": "<the text of the entry, unchanged>", "results": [{"url": "<url>", "title": "<title>", "snippet": "<snippet>"}]}]}
    ```
 
-   The door fetches only the approved strings from the approved providers, files the findings as proposed evidence and seals the evidence files of the hats. A refusal gives a reason: map it to one plain sentence and stop this step.
+   Write one entry for each search that ran, with at most 10 results from the tool and no other text. When a search ran and found nothing, write `"results": []`: that is an honest empty answer. When the host has no web search tool, or a search failed, write no entry for it and do not guess: the door then reports the provider as not run (`provider_unavailable:host_web`), never as empty. Use the `plan_seq` of the newest plan. When no search ran at all, write no file and pass no `--host-results` flag.
+
+5. **Fetch.** Call the door once, then remove the private directories (the approved file and the host results file):
+
+   ```bash
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/persona-hats.cjs" run-research --room "<room dir>" --run "<run_id>" --approved "<tmp dir>/approved.json" --host-results "<tmp dir>/host-results.json"
+   ```
+
+   The door fetches only the approved strings from the approved providers, files the findings (and the approved host results) as proposed evidence and seals the evidence files of the hats. A host result is accepted only for an approved string and the exact host string of the plan; a result off the site of an AskNature or Kaggle search is refused and counted. A refusal gives a reason: map it to one plain sentence and stop this step.
    - `step_out_of_order:plan_research`: the plan step did not run yet.
    - `plan_changed`: the plan changed after the cards; plan again and show the cards again.
    - `plan_seq_stale`: the approved file does not match the newest plan; write it again from the newest plan.
@@ -324,8 +333,11 @@ These cards cover the searches that the door sends. Each reading hat may also se
    - `provider_list_mismatch`: the providers differ from the card; no search was sent.
    - `hat_never_searches`: red and blue never search.
    - `approved_file_missing`: the approved file was not found; write it again.
+   - `host_results_file_missing`: the host results file was not found; write it again, or run the door again with no `--host-results` flag.
+   - `host_result_not_approved`: a host result is for a string or a hat that was not approved; no search was sent by the door.
+   - `host_result_not_in_plan`, `host_string_mismatch`: a host result does not match a host search of the plan, or its string was changed; no search was sent by the door.
 
-5. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
+6. **Print the research lines.** From the output, print one line for each of white, black, yellow and green: `Research <hat>: <state>`, then ` (<reason>)` when `reasons.<hat>` is not null, then `, <n> evidence items` from `evidence_items.<hat>`. When a string of `strings.<hat>` has a `host` entry with the state `not_executed`, print one more line: `Host web search not run for <hat> (<lens>): provider_unavailable:host_web.` Then print the two counts of `counts` (`strings_approved`, `strings_refused`). Add no judgment of the findings. A hat with a refused or deferred card gets no door evidence; its reading still runs. Continue with Step 6.
 
 ### Step 6 -- Readings
 

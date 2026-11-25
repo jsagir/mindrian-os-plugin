@@ -3,6 +3,9 @@
 // Phase 400.2-15: the offline preparation of the overlap spike (PS-06). It runs the real door path of the deep run up
 // to the plan step: start, write-persona, accept-persona, the handles file, plan-research. It then writes an approved
 // file in which every decision is "defer", and it prints the 4 strings with their providers and the next commands.
+// Plan 19 adds the new providers to the print: arXiv (all four hats), AskNature (green) and Kaggle datasets (white), and
+// the host web search that stands in for a web lens when no Tavily key is set (host-web, with the exact host strings and
+// a host results file to fill). The print names the providers and sends nothing.
 // It makes no fetch and sends no request. The one live call, run-research, is the hand of the owner (400.2-SPIKE-RUN.md).
 // It lives under tests/ and does not ship: package.json ships scripts/ only.
 const fs = require('node:fs');
@@ -121,20 +124,26 @@ function prepare(opts, deps) {
   for (const hat of ALL_HATS) hatDirs[hat] = map.hats[hat];
 
   const strings = [];
+  const hostSearches = [];
   const unavailable = {};
   const approved = { schema: 'mos.persona-approved/1', run_id: res.run_id, plan_seq: plan.plan.plan_seq, hats: {} };
   for (const hat of RESEARCH) {
     const rec = plan.plan.hats[hat];
     if (rec.state !== 'planned') continue;
     unavailable[hat] = rec.unavailable_line || '';
-    for (const s of rec.strings) strings.push({ hat, text: s.text, q_hash: s.q_hash, providers: rec.providers.slice(), lenses: rec.lens_set.map(e => e.lens) });
+    for (const s of rec.strings) strings.push({ hat, text: s.text, q_hash: s.q_hash, providers: rec.providers.slice(), lenses: rec.lens_set.map(e => e.lens).concat(rec.host_lenses || []) });
+    for (const h of (rec.host_searches || [])) hostSearches.push({ hat, lens: h.lens, label: h.label, q_hash: h.q_hash, text: h.text });
     approved.hats[hat] = { decision: 'defer', q_hashes: rec.strings.map(s => s.q_hash), providers: rec.providers.slice() };
   }
   const approvedPath = path.join(work, 'approved.json');
   writeJson(approvedPath, approved);
+  // The host results file starts empty: an empty list means that no host web search ran, so every host search is
+  // reported as not run (provider_unavailable:host_web), never as empty. An entry is added only for a search that ran.
+  const hostResultsPath = path.join(work, 'host-results.json');
+  writeJson(hostResultsPath, { schema: 'mos.persona-host-results/1', run_id: res.run_id, plan_seq: plan.plan.plan_seq, searches: [] });
 
   const commands = {
-    run_research: 'MINDRIAN_HOME=' + shq(home) + ' node ' + shq(DOOR_PATH) + ' run-research --room ' + shq(roomDir) + ' --run ' + res.run_id + ' --approved ' + shq(approvedPath),
+    run_research: 'MINDRIAN_HOME=' + shq(home) + ' node ' + shq(DOOR_PATH) + ' run-research --room ' + shq(roomDir) + ' --run ' + res.run_id + ' --approved ' + shq(approvedPath) + ' --host-results ' + shq(hostResultsPath),
     collect: RESEARCH.map(hat => 'cp ' + shq(path.join(hatDirs[hat], 'evidence.json')) + ' ' + shq(path.join(packs, hat + '.json'))),
     overlap: 'node tests/lib-4002-hat-overlap.cjs --packs ' + shq(packs) + ' --out ' + RECORD_REL,
   };
@@ -147,6 +156,15 @@ function prepare(opts, deps) {
   lines.push('The strings that run-research sends, and the providers that receive each one:');
   for (const s of strings) lines.push('  ' + s.hat.padEnd(7) + '| ' + s.text + ' | ' + s.providers.join(', '));
   for (const hat of Object.keys(unavailable)) if (unavailable[hat]) lines.push('  ' + hat + ': ' + unavailable[hat]);
+  lines.push('');
+  lines.push('Providers: openalex and arxiv need no key. With TAVILY_API_KEY set, the industry lens goes through Tavily, AskNature (green) and Kaggle datasets (white) go through Tavily with a site filter (providers tavily, asknature, kaggle). With no Tavily key those web lenses become the host web search (provider host-web).');
+  if (hostSearches.length > 0) {
+    lines.push('Host web searches (the assistant runs them with its own web search tool; the door cannot):');
+    for (const h of hostSearches) lines.push('  ' + h.hat.padEnd(7) + '| ' + h.label + ' | ' + h.text);
+    lines.push('Host results file: ' + hostResultsPath + ' (starts with no search entries; fill it only for searches that you ran; code cannot prove that the host searched exactly that string).');
+  } else {
+    lines.push('Host web searches: none. The Tavily key is set, so no web lens needs the host web search.');
+  }
   lines.push('');
   lines.push('Approved file (every decision is "defer"): ' + approvedPath);
   lines.push('Change "defer" to "approve" for each hat you accept. A hat left on "defer" is not searched.');
@@ -171,6 +189,8 @@ function prepare(opts, deps) {
     approved_path: approvedPath,
     packs_dir: packs,
     strings,
+    host_searches: hostSearches,
+    host_results_path: hostResultsPath,
     unavailable,
     commands,
     text: lines.join('\n') + '\n',
