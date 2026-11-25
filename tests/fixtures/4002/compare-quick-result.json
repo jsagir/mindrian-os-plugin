@@ -1,0 +1,33 @@
+{
+  "schema": "mos.persona-quick/1",
+  "synthetic": true,
+  "note": "One quick result written in one context for the recorded comparison of plan 400.2-16. The token @sq0, @sq1 and @sq2 stand for the sub-question ids of the run. The test fills them in and drops the keys synthetic and note before the door reads the file.",
+  "hats": {
+    "white": { "positions": [
+      { "sub_question": "@sq0", "value": "favours", "line": "Some buyers reorder." },
+      { "sub_question": "@sq1", "value": "no_position" },
+      { "sub_question": "@sq2", "value": "mixed", "line": "Costs are not all known." }
+    ] },
+    "red": { "positions": [
+      { "sub_question": "@sq0", "value": "favours", "line": "Regular buyers will like it." },
+      { "sub_question": "@sq1", "value": "opposes", "line": "A late box feels like a broken promise." },
+      { "sub_question": "@sq2", "value": "no_position" }
+    ] },
+    "black": { "positions": [
+      { "sub_question": "@sq0", "value": "mixed", "line": "Few buyers have ordered twice." },
+      { "sub_question": "@sq1", "value": "opposes", "line": "A failed dye batch has no slack." },
+      { "sub_question": "@sq2", "value": "opposes", "line": "Costs grow with each subscriber." }
+    ] },
+    "yellow": { "positions": [
+      { "sub_question": "@sq0", "value": "favours", "line": "Regular buyers pay first." },
+      { "sub_question": "@sq1", "value": "mixed", "line": "A pause rule may help." },
+      { "sub_question": "@sq2", "value": "mixed", "line": "Planned batches may cut waste." }
+    ] },
+    "green": { "positions": [
+      { "sub_question": "@sq0", "value": "alternative_offered", "line": "Sell the first boxes as a season share." },
+      { "sub_question": "@sq1", "value": "alternative_offered", "line": "Name a ship window." },
+      { "sub_question": "@sq2", "value": "no_position" }
+    ], "provocations": ["What if buyers chose the colours?"] },
+    "blue": { "skipped": ["No search was run, by design."] }
+  }
+}

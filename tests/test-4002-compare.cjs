@@ -359,6 +359,178 @@ check('K6. compare writes only compare.md in the deep run folder; both run recor
   assert.deepEqual(door.SUBCOMMANDS, names);
 });
 
+// ---------------------------------------------------------------------------
+// Task 3: the recorded comparison on the fixture room. Inputs are fixture files written in one context: no agent
+// runs, no web fetch. The door evidence comes from a fixture envelope through the seam _fetchCorpusEnvelope.
+// ---------------------------------------------------------------------------
+const FX = path.join(ROOT, 'tests', 'fixtures', '4002');
+const fixture = (name) => JSON.parse(fs.readFileSync(path.join(FX, name), 'utf8'));
+const GOLDEN = path.join(FX, 'compare-golden.md');
+const COMPARE_SQ = ['Who would pay for a monthly box first?', 'What breaks when the box ships late?', 'Which cost grows with each new subscriber?'];
+const COMPARE_HANDLES = { white: 'subscription box retention', black: 'subscription cancellation causes', yellow: 'craft club membership', green: 'advance season sales' };
+
+function copyDir(from, to) {
+  fs.mkdirSync(to, { recursive: true });
+  for (const e of fs.readdirSync(from, { withFileTypes: true })) {
+    if (e.isDirectory()) copyDir(path.join(from, e.name), path.join(to, e.name));
+    else fs.copyFileSync(path.join(from, e.name), path.join(to, e.name));
+  }
+}
+function fillTokens(value, ids, own) {
+  if (typeof value === 'string') {
+    const sq = /^@sq([0-9])$/.exec(value);
+    if (sq) return ids[Number(sq[1])];
+    const o = /^@own:([0-9]+)$/.exec(value);
+    if (o) return own[Number(o[1])];
+    return value;
+  }
+  if (Array.isArray(value)) return value.map(v => fillTokens(v, ids, own));
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const k of Object.keys(value)) out[k] = fillTokens(value[k], ids, own);
+    return out;
+  }
+  return value;
+}
+
+/** One full deep run and one full quick run of one brief on a copy of the fixture room. Returns what the legs read. */
+async function recordedRuns() {
+  const fam = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'families.cjs'));
+  const seEnv = require(path.join(ROOT, 'lib', 'core', 'recovery', 'stage-envelope.cjs'));
+  const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+  const evidence = fixture('compare-evidence.json');
+  const readings = fixture('compare-readings.json');
+  const quickFx = fixture('compare-quick-result.json');
+  const room = path.join(mkTmp('fx'), 'tidewater-room');
+  copyDir(path.join(FX, 'compare-room'), room);
+  roomDbMod.closeRoomDb(roomDbMod.openRoomDb(room));
+  const env = makeEnv(0);
+  const brief = briefOf({
+    target: 'solution-design/box-offer.md',
+    governing_question: 'Should the cooperative move to a fixed monthly subscription box?',
+    sub_questions: COMPARE_SQ,
+  });
+  const saved = { TAVILY_API_KEY: process.env.TAVILY_API_KEY, PATENTSVIEW_API_KEY: process.env.PATENTSVIEW_API_KEY };
+  delete process.env.TAVILY_API_KEY;
+  delete process.env.PATENTSVIEW_API_KEY;
+  try {
+    // Deep run.
+    const res = door.cmdStart({ roomDir: room, briefPath: writeJson('brief', 'brief.json', brief), mode: 'deep' }, env.opts());
+    assert.equal(res.ok, true, JSON.stringify(res));
+    assert.deepEqual(res.to_build, HATS);
+    for (const h of res.to_build) fs.writeFileSync(path.join(res.hats[h].dir, 'persona.json'), JSON.stringify(validSpec(h)), 'utf8');
+    assert.equal(door.cmdWritePersona({ roomDir: room, runId: res.run_id }, env.opts()).ok, true);
+    const answer = {};
+    for (const h of HATS) answer[h] = { decision: 'accept' };
+    const a = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeJson('answer', 'answer.json', { schema: 'mos.persona-accept/1', run_id: res.run_id, hats: answer }) }, env.opts());
+    assert.equal(a.ok && a.accept_done, true, JSON.stringify(a));
+    for (const h of ['white', 'black', 'yellow', 'green']) {
+      fs.writeFileSync(path.join(res.hats[h].dir, 'handles.json'), JSON.stringify({ schema: 'mos.persona-handles/1', hat: h, handles: [{ handle: COMPARE_HANDLES[h], why: 'It names the field of the problem.' }] }), 'utf8');
+    }
+    const planned = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, env.opts());
+    assert.equal(planned.ok, true, JSON.stringify(planned));
+    assert.deepEqual(planned.planned, ['white', 'black', 'yellow', 'green']);
+    const approvedHats = {};
+    for (const h of planned.planned) approvedHats[h] = { decision: 'approve', q_hashes: planned.plan.hats[h].strings.map(x => x.q_hash), providers: planned.plan.hats[h].providers.slice() };
+    const approvedPath = writeJson('approved', 'approved.json', { schema: 'mos.persona-approved/1', run_id: res.run_id, plan_seq: planned.plan_seq, hats: approvedHats });
+    let fetchCalls = 0;
+    const seam = async (args) => {
+      fetchCalls += 1;
+      const h = planned.planned.find(hat => planned.plan.hats[hat].strings.some(x => x.q_hash === fam.qHash(args.query)));
+      assert.ok(h, 'the fetched string is a string of the plan');
+      const items = evidence.by_hat[h].map(it => ({ title: it.title, url: it.url, abstract: it.abstract }));
+      return seEnv.makeStageEnvelope({ stage: 'retrieval', engine: args.source, status: 'ok', payload: { results: items }, output: items });
+    };
+    const rr = await door.cmdRunResearch({ roomDir: room, runId: res.run_id, approvedPath }, env.opts({ _fetchCorpusEnvelope: seam, _sleep: async () => {} }));
+    assert.equal(rr.ok, true, JSON.stringify(rr));
+    const ids = ledgerOf(res).sub_questions.map(x => x.id);
+    for (const h of READ_HATS) {
+      const own = ['white', 'black', 'yellow', 'green'].includes(h) ? JSON.parse(fs.readFileSync(path.join(res.hats[h].dir, 'evidence.json'), 'utf8')).items.map(x => x.id) : [];
+      const body = fillTokens(readings.readings[h], ids, own);
+      fs.writeFileSync(path.join(res.hats[h].dir, 'reading.json'), JSON.stringify(Object.assign({ schema: 'mos.persona-reading/1', run_id: res.run_id, hat: h }, body)), 'utf8');
+    }
+    fs.writeFileSync(path.join(res.hats.blue.dir, 'reading.json'), JSON.stringify(Object.assign({ schema: 'mos.persona-reading/1', run_id: res.run_id, hat: 'blue' }, readings.blue)), 'utf8');
+    const c = door.cmdCheck({ roomDir: room, runId: res.run_id }, env.opts());
+    assert.equal(c.ok, true, JSON.stringify(c));
+    assert.deepEqual(c.not_run, [], 'every fixture reading passes check');
+    const countsPath = path.join(res.inbox_dir, 'counts.json');
+    fs.writeFileSync(countsPath, JSON.stringify({ agent_runs: 16, stops: 4, cards: 11 }), 'utf8');
+    const deepMerge = await door.cmdMerge({ roomDir: room, runId: res.run_id, countsPath }, env.opts());
+    assert.equal(deepMerge.ok, true, JSON.stringify(deepMerge));
+
+    // Quick run of the same brief.
+    const qbrief = Object.assign({}, brief, { mode: 'quick', triage: { recommended: 'quick', reason: 'A fast look.' } });
+    const qres = door.cmdStart({ roomDir: room, briefPath: writeJson('brief', 'brief.json', qbrief), mode: 'quick' }, env.opts());
+    assert.equal(qres.ok, true, JSON.stringify(qres));
+    const qids = ledgerOf(qres).sub_questions.map(x => x.id);
+    assert.deepEqual(qids, ids);
+    const quickBody = fillTokens(quickFx, qids, []);
+    delete quickBody.synthetic;
+    delete quickBody.note;
+    quickBody.run_id = qres.run_id;
+    const quickPath = path.join(qres.inbox_dir, 'quick-result.json');
+    fs.writeFileSync(quickPath, JSON.stringify(quickBody), 'utf8');
+    const qCounts = path.join(qres.inbox_dir, 'counts.json');
+    fs.writeFileSync(qCounts, JSON.stringify({ agent_runs: 0, stops: 1, cards: 1 }), 'utf8');
+    const quickMerge = await door.cmdMerge({ roomDir: room, runId: qres.run_id, quickResultPath: quickPath, countsPath: qCounts }, env.opts());
+    assert.equal(quickMerge.ok, true, JSON.stringify(quickMerge));
+    const cmp = door.cmdCompare({ roomDir: room, deepRunId: res.run_id, quickRunId: qres.run_id }, env.opts());
+    assert.equal(cmp.ok, true, JSON.stringify(cmp));
+    return { room, res, qres, deepMerge, quickMerge, cmp, fetchCalls, text: fs.readFileSync(cmp.file, 'utf8'), evidence };
+  } finally {
+    for (const k of Object.keys(saved)) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
+  }
+}
+
+check('K7. a full deep run through the fixture envelope and a full quick run of one brief give a compare.md that is byte-equal to the golden file', async () => {
+  const r = await recordedRuns();
+  assert.equal(r.fetchCalls, 4, 'one string for each researching hat went through the seam');
+  assert.equal(r.deepMerge.not_run.length, 0);
+  // On the second sub-question black opposes while yellow favours and green offers an alternative: two known hat pairs.
+  assert.deepEqual(r.deepMerge.tensions.map(x => x.pair.join('+')), ['black+green', 'black+yellow']);
+  assert.equal(new Set(r.deepMerge.tensions.map(x => x.sub_question)).size, 1, 'all on one of the three sub-questions');
+  // The quick result changes yellow to mixed on that sub-question, so only the pair of black and green is left.
+  assert.deepEqual(r.quickMerge.tensions.map(x => x.pair.join('+')), ['black+green']);
+  const fx = r.evidence;
+  const items = Object.values(fx.by_hat).reduce((a, l) => a + l.length, 0);
+  assert.ok(r.text.split('\n').includes('door evidence items: ' + items));
+  assert.ok(r.text.split('\n').includes('self-found sources: 1'));
+  assert.ok(r.text.split('\n').includes('agent runs: 16 (reported by the command)'));
+  for (const line of r.text.split('\n')) assert.equal(/\b(score|scores|winner|better|worse|wins|diff|differences?)\b/i.test(line), false, line);
+  if (!fs.existsSync(GOLDEN) && process.env.MOS_WRITE_GOLDEN === '1') fs.writeFileSync(GOLDEN, r.text, 'utf8');
+  assert.ok(fs.existsSync(GOLDEN), 'the golden file exists (write it once with MOS_WRITE_GOLDEN=1 and read it line by line)');
+  assert.equal(r.text, fs.readFileSync(GOLDEN, 'utf8'));
+});
+
+check('K8. the fixture envelope uses only example.org and example.com; the fixture room holds a made-up venture; the readings cite no URL outside the envelope and their own lists', async () => {
+  const ev = fixture('compare-evidence.json');
+  assert.equal(ev.synthetic, true);
+  const urls = new Set();
+  for (const list of Object.values(ev.by_hat)) for (const it of list) {
+    const host = new URL(it.url).hostname;
+    assert.ok(host === 'example.org' || host === 'example.com', host);
+    urls.add(it.url);
+  }
+  const state = fs.readFileSync(path.join(FX, 'compare-room', 'STATE.md'), 'utf8');
+  assert.ok(state.includes('venture: Tidewater Loom Collective'));
+  assert.equal(/Harbor|Mindrian/i.test(state), false);
+  const readings = fixture('compare-readings.json');
+  assert.equal(readings.synthetic, true);
+  const quick = fixture('compare-quick-result.json');
+  assert.equal(quick.synthetic, true);
+  const own = new Set();
+  for (const r of Object.values(readings.readings)) for (const f of r.self_found_sources || []) own.add(f.url);
+  for (const f of Object.values(readings.readings)) {
+    for (const m of JSON.stringify(f).match(/https?:\/\/[^\s"'\\]+/g) || []) assert.ok(urls.has(m) || own.has(m), 'url outside the envelope: ' + m);
+  }
+  for (const m of JSON.stringify(quick).match(/https?:\/\/[^\s"'\\]+/g) || []) assert.fail('a quick result holds no URL: ' + m);
+  for (const u of own) assert.ok(new URL(u).hostname === 'example.com');
+  // The room has 2 sections with one artifact each and one target artifact.
+  for (const rel of ['problem-definition/core-problem.md', 'market-analysis/size.md', 'solution-design/box-offer.md']) assert.ok(fs.existsSync(path.join(FX, 'compare-room', rel)), rel);
+  // The door never sent a request in these legs: the only fetch is the seam of K7.
+  assert.equal(DOOR_PATH.endsWith('persona-hats.cjs'), true);
+});
+
 (async () => {
   let passed = 0;
   let failed = 0;

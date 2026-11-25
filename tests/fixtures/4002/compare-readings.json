@@ -1,0 +1,171 @@
+{
+  "schema": "mos.persona-compare-readings/1",
+  "synthetic": true,
+  "note": "Six readings written in one context for the recorded comparison of plan 400.2-16. The tokens @sq0, @sq1 and @sq2 stand for the sub-question ids of the run. The token @own:N stands for the id of item N of the own door pack. The test fills them in. They are not the work of isolated agents.",
+  "readings": {
+    "white": {
+      "positions": [
+        {
+          "sub_question": "@sq0",
+          "value": "favours",
+          "line": "The room shows a few regular buyers who already reorder."
+        },
+        {
+          "sub_question": "@sq1",
+          "value": "no_position"
+        },
+        {
+          "sub_question": "@sq2",
+          "value": "mixed",
+          "line": "Shipping cost per box is known, dye cost per box is not."
+        }
+      ],
+      "evidence": [
+        {
+          "source": "@own:1",
+          "tier": "door",
+          "note": "The table gives the shipping cost of a two skein box."
+        }
+      ],
+      "missing_data": [
+        "What a regular buyer would pay each month."
+      ]
+    },
+    "red": {
+      "positions": [
+        {
+          "sub_question": "@sq0",
+          "value": "favours",
+          "line": "Regular buyers will like it."
+        },
+        {
+          "sub_question": "@sq1",
+          "value": "opposes",
+          "line": "A late box would feel like a broken promise."
+        },
+        {
+          "sub_question": "@sq2",
+          "value": "no_position"
+        }
+      ]
+    },
+    "black": {
+      "positions": [
+        {
+          "sub_question": "@sq0",
+          "value": "mixed",
+          "line": "Only about one in ten has ordered twice, so the first payers are few."
+        },
+        {
+          "sub_question": "@sq1",
+          "value": "opposes",
+          "line": "A fixed monthly date leaves no room for a dye batch that fails."
+        },
+        {
+          "sub_question": "@sq2",
+          "value": "opposes",
+          "line": "Shipping and dye cost grow with each subscriber while the price stays fixed."
+        }
+      ],
+      "evidence": [
+        {
+          "source": "@own:0",
+          "tier": "door",
+          "disposition": "disconfirming",
+          "note": "A box with late shipments closed in the case."
+        },
+        {
+          "source": "@own:1",
+          "tier": "door",
+          "disposition": "confirming",
+          "note": "The study names first quarter cancellation as common."
+        }
+      ],
+      "steelman": "The best case is that planned dye batches cut waste and make income steady."
+    },
+    "yellow": {
+      "positions": [
+        {
+          "sub_question": "@sq0",
+          "value": "favours",
+          "line": "Regular buyers are the natural first payers of a monthly box."
+        },
+        {
+          "sub_question": "@sq1",
+          "value": "favours",
+          "line": "A pause rule keeps a member through one late month."
+        },
+        {
+          "sub_question": "@sq2",
+          "value": "mixed",
+          "line": "Planned batches may cut waste, but the saving is not measured here."
+        }
+      ],
+      "evidence": [
+        {
+          "source": "@own:0",
+          "tier": "door",
+          "disposition": "confirming",
+          "note": "The yarn club kept most members for a year."
+        },
+        {
+          "source": "@own:1",
+          "tier": "door",
+          "disposition": "confirming",
+          "note": "Batches that follow open orders waste less dye."
+        }
+      ]
+    },
+    "green": {
+      "positions": [
+        {
+          "sub_question": "@sq0",
+          "value": "alternative_offered",
+          "line": "Sell the first boxes as a season share, paid in advance."
+        },
+        {
+          "sub_question": "@sq1",
+          "value": "alternative_offered",
+          "line": "Name a ship window, not a ship date."
+        },
+        {
+          "sub_question": "@sq2",
+          "value": "no_position"
+        }
+      ],
+      "provocations": [
+        "What if the buyers chose the colours by vote?",
+        "What if each box paid for the next dye batch?"
+      ],
+      "evidence": [
+        {
+          "source": "@own:0",
+          "tier": "door",
+          "note": "Farms sell a share of the season before it starts."
+        }
+      ],
+      "self_search_strings": [
+        "season ticket sales before opening night"
+      ],
+      "self_found_sources": [
+        {
+          "url": "https://example.com/synthetic/green/found-season-tickets",
+          "title": "Synthetic page on season ticket sales",
+          "search_string": "season ticket sales before opening night",
+          "summary": "A made-up page on how small theatres sell seats ahead of the season."
+        }
+      ]
+    }
+  },
+  "blue": {
+    "skipped": [
+      "White gave no position on the second question."
+    ],
+    "thin": [
+      "The red hat gave only short lines."
+    ],
+    "ask_next": [
+      "Ask what a regular buyer would pay each month."
+    ]
+  }
+}
