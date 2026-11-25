@@ -2,7 +2,7 @@
   "schema": "mos.decision-advisor-table/1",
   "table_version": "399-v0",
   "data_scope": "v0 job-only data",
-  "_note": "Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.",
+  "_note": "Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. A deprecated scope command is replaced by the command it redirects to, so no row offers a retired name. Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.",
   "provider": "gemini",
   "model": "gemini-decision-1",
   "question_template": "serves_job_v1",
@@ -17,6 +17,8 @@
     "recorded_sha256": "b05c5ac8603b02b73311b84a8cb5268b659949d3066488fecd44e0d903d8772f",
     "registry_labels_sha256": "ac348594020a79c582293c008bbbddb005a83219a4c74e2bb06bce74d07fa214",
     "scope_sha256": "58716020f371395d58c59dab4f63bb1338a16110f69b9efeecc69d45c6810397",
+    "live_scope_sha256": "1c597ae8e61b904dc4696a03f80a6b17839721488629eb406da18e0237a6170e",
+    "deprecated_resolved": 3,
     "recorded_at": "2026-11-24"
   },
   "calibration": {
@@ -343,8 +345,8 @@
         "calibrated": 1
       },
       {
-        "command": "/mos:mva-report",
-        "calibrated": 0.303
+        "command": "/mos:session-report",
+        "calibrated": 0.256
       },
       {
         "command": "/mos:intel-pipeline",

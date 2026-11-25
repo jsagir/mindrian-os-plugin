@@ -142,6 +142,10 @@ for (const f of ['commands/mva-brief.md', 'skills/mva-brief/SKILL.md']) {
 // ---- Test 6 ----
 const ALLOWED_PREFIX = ['.planning/', 'dist/'];
 const ALLOWED_FILE = new Set([
+  // Phase 399 and 400 (owner item O-12): the two stubs stay on the run-step list and are labelled while they exist.
+  // These files record that list, the recorded model run and the description baseline. The advisor table offers neither name.
+  'data/run-step-capabilities.json', 'tests/fixtures/399/recorded-job-command-yes-no.json', 'tests/fixtures/400/description-bytes-baseline.json',
+  'tests/test-400-capability-cynefin-labels.cjs', 'tests/test-400-job-sentences.cjs', 'tests/test-400-review-lists.cjs',
   'CHANGELOG.md',
   'evals/eureka/211-room-report.md',
   'commands/mva-brief.md',

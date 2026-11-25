@@ -106,13 +106,19 @@ check('B4 rows: 13 job-only keys, scope commands only, sorted, calibrated values
   const keys = Object.keys(table.rows);
   assert.equal(keys.length, 13);
   const ys = new Set(table.calibration.breakpoints.map((b) => b[1]));
-  const scopeSet = new Set(scope.commands);
+  // A deprecated scope command gives its seat to the command that replaced it (resolveDeprecated).
+  const live = require(path.join(ROOT, 'scripts', 'build-decision-advisor-table.cjs')).resolveDeprecated(scope.commands, path.join(ROOT, 'commands'));
+  assert.equal(table.built_from.deprecated_resolved, live.resolved);
+  const scopeSet = new Set(live.commands);
   for (const k of keys) {
     assert.match(k, /^[a-z-]+\|\*\|\*$/);
     const row = table.rows[k];
     assert.ok(row.length > 0 && row.length <= table.row_depth);
     for (let i = 0; i < row.length; i += 1) {
       assert.ok(scopeSet.has(row[i].command), 'out of scope: ' + row[i].command);
+      const cf = path.join(ROOT, 'commands', row[i].command.replace(/^\/mos:/, '') + '.md');
+      // A scope command without a commands/ file (a skill-only capability) has no deprecation flag to read.
+      if (fs.existsSync(cf)) assert.ok(!/^deprecated:\s*true\s*$/m.test(fs.readFileSync(cf, 'utf8')), 'a row offers a deprecated command: ' + row[i].command);
       assert.ok(ys.has(row[i].calibrated), 'raw value in row: ' + row[i].calibrated);
       assert.deepEqual(Object.keys(row[i]).sort(), ['calibrated', 'command']);
       if (i > 0) {

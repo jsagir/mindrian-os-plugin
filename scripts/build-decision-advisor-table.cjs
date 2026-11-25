@@ -96,6 +96,35 @@ function readJson(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
 
+// A deprecated command is never offered. Its scope seat goes to the command that replaced it
+// (frontmatter deprecated_redirect), so the advisor names the live command. A deprecated command
+// with no replacement leaves the scope. A redirect with a subcommand ("rooms organize") names its
+// command by the first word. Read from commands/<name>.md at build time.
+function resolveDeprecated(commands, commandsDir) {
+  const out = [];
+  const seen = new Set();
+  let resolved = 0;
+  for (const c of commands) {
+    let name = c;
+    const file = path.join(commandsDir, c.replace(/^\/mos:/, '') + '.md');
+    if (fs.existsSync(file)) {
+      const text = fs.readFileSync(file, 'utf8');
+      const end = text.indexOf('\n---', 3);
+      const fm = end > 0 ? text.slice(0, end) : '';
+      if (/^deprecated:\s*true\s*$/m.test(fm)) {
+        const m = fm.match(/^deprecated_redirect:\s*"?([a-z0-9-]+)/m);
+        name = m ? '/mos:' + m[1] : null;
+        resolved += 1;
+      }
+    }
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      out.push(name);
+    }
+  }
+  return { commands: out, resolved };
+}
+
 function buildTable(opts) {
   const o = Object.assign(defaults(), opts || {});
   if (!fs.existsSync(o.recordedPath)) {
@@ -128,7 +157,8 @@ function buildTable(opts) {
   const points = pairs.map((pr) => [pr.p, served.has(pr.command) && served.get(pr.command).has(pr.job) ? 1 : 0]);
   const breakpoints = fitIsotonic(points).map(([x, y]) => [x, round3(y)]);
 
-  const scopeSet = new Set(scope.commands);
+  const live = resolveDeprecated(scope.commands, o.commandsDir || path.join(ROOT, 'commands'));
+  const scopeSet = new Set(live.commands);
   const jobs = Array.from(new Set(pairs.map((pr) => pr.job))).sort();
   for (const j of jobs) {
     if (!vocabIds.has(j)) throw new Error('recorded job not in vocabulary: ' + j);
@@ -151,6 +181,7 @@ function buildTable(opts) {
       'Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither ' +
       'definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. ' +
       'The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. ' +
+      'A deprecated scope command is replaced by the command it redirects to, so no row offers a retired name. ' +
       'Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.',
     provider: recorded.provider,
     model: recorded.model,
@@ -162,6 +193,8 @@ function buildTable(opts) {
       recorded_sha256: sha256(recordedBytes),
       registry_labels_sha256: sha256(labelLines.join('\n')),
       scope_sha256: sha256(scope.commands.join('\n')),
+      live_scope_sha256: sha256(live.commands.join('\n')),
+      deprecated_resolved: live.resolved,
       recorded_at: recorded.recorded_at,
     },
     calibration: {
@@ -246,4 +279,4 @@ function main(argv) {
 }
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
-module.exports = { fitIsotonic, applyCalibration, buildTable, serialize };
+module.exports = { fitIsotonic, applyCalibration, buildTable, serialize, resolveDeprecated };

@@ -146,6 +146,8 @@ check('Test 2: lib/conversation/operator.cjs keeps transitionViaMVAOption (Phase
   const EXEMPT_FILE = new Set([
     'CHANGELOG.md',
     'data/command-deprecations.json',
+    // Phase 399: the book inventory snapshot records that this one name is not in the registry; the test pins that row.
+    'data/run-step-capabilities.json', 'tests/test-399-run-steps.cjs',
     'data/command-irreversibility-ledger.json', // add-only ledger, keeps its rows
     'tests/test-389-retire-option.cjs',
     'tests/test-389-stale-text.cjs',
