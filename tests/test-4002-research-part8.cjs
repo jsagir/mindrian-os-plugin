@@ -66,6 +66,17 @@ function acmeScreen() {
   return door.roomIdentityScreen(room, ['notes/reading.md']);
 }
 
+const SPIKE_RECORD = path.join(__dirname, 'fixtures', '4002', 'spike-overlap-record.json');
+// The tables are spike_checked only when the spike record exists with a pass decision (plan 400.2-15).
+function expectedTablesStatus() {
+  try {
+    const rec = JSON.parse(fs.readFileSync(SPIKE_RECORD, 'utf8'));
+    return rec && rec.decision === 'pass' ? 'spike_checked' : 'provisional';
+  } catch (e) {
+    return 'provisional';
+  }
+}
+
 check('E1. the qualifier table, the lens table and the status', () => {
   const Q = ops.HAT_RESEARCH_QUALIFIER;
   const L = ops.HAT_RESEARCH_LENSES;
@@ -93,7 +104,7 @@ check('E1. the qualifier table, the lens table and the status', () => {
   }
   assert.ok(Object.isFrozen(Q) && Object.isFrozen(L));
   for (const k of keys) assert.ok(Object.isFrozen(L[k]));
-  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, 'provisional');
+  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, expectedTablesStatus());
 });
 
 check('E2. IDENTITY_STOP_LIST is frozen, lower case, without duplicates, and holds the context words', () => {

@@ -48,7 +48,18 @@ check('A1. the preprint lens maps to the arxiv source, a keyless Academic source
   assert.deepEqual(research.sourceGateStatus('arxiv').unmet, []);
 });
 
-check('A2. HAT_RESEARCH_LENSES of white, black, yellow and green include preprint; the tables stay provisional', () => {
+const SPIKE_RECORD = path.join(__dirname, 'fixtures', '4002', 'spike-overlap-record.json');
+// The tables are spike_checked only when the spike record exists with a pass decision (plan 400.2-15).
+function expectedTablesStatus() {
+  try {
+    const rec = JSON.parse(fs.readFileSync(SPIKE_RECORD, 'utf8'));
+    return rec && rec.decision === 'pass' ? 'spike_checked' : 'provisional';
+  } catch (e) {
+    return 'provisional';
+  }
+}
+
+check('A2. HAT_RESEARCH_LENSES of white, black, yellow and green include preprint; the table status follows the spike record', () => {
   const L = ops.HAT_RESEARCH_LENSES;
   for (const hat of RESEARCH) {
     assert.ok(L[hat].includes('preprint'), hat);
@@ -56,7 +67,7 @@ check('A2. HAT_RESEARCH_LENSES of white, black, yellow and green include preprin
   }
   assert.equal(L.red, undefined);
   assert.equal(L.blue, undefined);
-  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, 'provisional');
+  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, expectedTablesStatus());
   const map = driver._internal.LENS_TO_SOURCE;
   for (const hat of RESEARCH) for (const lens of L[hat]) assert.ok(Object.prototype.hasOwnProperty.call(map, lens), hat + ':' + lens);
 });
@@ -513,6 +524,7 @@ check('W11. the spike preparation prints the new providers offline: arxiv for ev
   https.request = () => { blocked += 1; throw new Error('network blocked'); };
   let keyless;
   let keyed;
+  const recordBefore = fs.existsSync(SPIKE_RECORD) ? fs.readFileSync(SPIKE_RECORD, 'utf8') : null;
   try {
     keyless = await fx.withEnvAsync(NO_KEYS, async () => prepare.prepare({ dir: mk() }, { now: new Date('2026-11-25T10:20:30.000Z') }));
     keyed = await fx.withEnvAsync(KEYS, async () => prepare.prepare({ dir: mk() }, { now: new Date('2026-11-25T10:20:30.000Z') }));
@@ -542,8 +554,9 @@ check('W11. the spike preparation prints the new providers offline: arxiv for ev
   assert.deepEqual(byHat(keyed, 'green'), ['openalex', 'arxiv', 'patents', 'asknature']);
   assert.deepEqual(keyed.host_searches, []);
   assert.ok(keyed.text.includes('asknature') && keyed.text.includes('kaggle'));
-  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, 'provisional');
-  assert.equal(fs.existsSync(path.join(__dirname, 'fixtures', '4002', 'spike-overlap-record.json')), false, 'no spike record is written');
+  assert.equal(ops.HAT_RESEARCH_TABLES_STATUS, expectedTablesStatus());
+  const recordAfter = fs.existsSync(SPIKE_RECORD) ? fs.readFileSync(SPIKE_RECORD, 'utf8') : null;
+  assert.equal(recordAfter, recordBefore, 'the preparation writes no spike record and does not change one');
   assert.ok(os.tmpdir().length > 0);
 });
 

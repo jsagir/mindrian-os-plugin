@@ -1,0 +1,122 @@
+{
+  "schema": "mos.persona-spike-overlap/1",
+  "date": "2026-11-25",
+  "handle": "battery recycling",
+  "strings": {
+    "white": "battery recycling data statistics",
+    "black": "battery recycling failure cases",
+    "yellow": "battery recycling success cases",
+    "green": "battery recycling analogous solutions"
+  },
+  "providers": {
+    "white": [
+      "arxiv",
+      "host-web",
+      "openalex"
+    ],
+    "black": [
+      "arxiv",
+      "host-web",
+      "openalex"
+    ],
+    "yellow": [
+      "arxiv",
+      "host-web",
+      "openalex"
+    ],
+    "green": [
+      "arxiv",
+      "host-web",
+      "openalex"
+    ]
+  },
+  "providers_not_executed": {
+    "white": [],
+    "black": [],
+    "yellow": [],
+    "green": []
+  },
+  "research_states": {
+    "white": "ran_with_results",
+    "black": "ran_with_results",
+    "yellow": "ran_with_results",
+    "green": "ran_with_results"
+  },
+  "item_counts": {
+    "white": 10,
+    "black": 10,
+    "yellow": 10,
+    "green": 5
+  },
+  "shares": [
+    {
+      "pair": [
+        "white",
+        "black"
+      ],
+      "shared": 0,
+      "size_a": 10,
+      "size_b": 10,
+      "share": 0,
+      "state": "ok"
+    },
+    {
+      "pair": [
+        "white",
+        "yellow"
+      ],
+      "shared": 0,
+      "size_a": 10,
+      "size_b": 10,
+      "share": 0,
+      "state": "ok"
+    },
+    {
+      "pair": [
+        "white",
+        "green"
+      ],
+      "shared": 0,
+      "size_a": 10,
+      "size_b": 5,
+      "share": 0,
+      "state": "ok"
+    },
+    {
+      "pair": [
+        "black",
+        "yellow"
+      ],
+      "shared": 2,
+      "size_a": 10,
+      "size_b": 10,
+      "share": 0.2,
+      "state": "ok"
+    },
+    {
+      "pair": [
+        "black",
+        "green"
+      ],
+      "shared": 1,
+      "size_a": 10,
+      "size_b": 5,
+      "share": 0.2,
+      "state": "ok"
+    },
+    {
+      "pair": [
+        "yellow",
+        "green"
+      ],
+      "shared": 1,
+      "size_a": 10,
+      "size_b": 5,
+      "share": 0.2,
+      "state": "ok"
+    }
+  ],
+  "threshold": 0.5,
+  "decision": "pass",
+  "limit_note": "A hat has 5 URLs or fewer for one string: the lens run returns 5 findings or fewer for each call. The shares are over small sets."
+}
