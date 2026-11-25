@@ -573,6 +573,63 @@ check('G18. NEGATIVE: with the artifact file gone the ruling is still stored and
   for (const k of ['ruling_value', 'ruling_side_hat', 'ruling_date']) assert.equal(typeof L[k], 'string', k);
 });
 
+check('G19. WR-09 NEGATIVE: two navigators who rule on two runs of one room at the same time both keep their ruling (Cowork); a held lock gives a typed refusal', async () => {
+  const room = makeRoom();
+  const a = mkRun({ room, pos: ONE });
+  const b = mkRun({ room, now: LATER, pos: ONE, subQuestions: ['Who pays last?', 'What breaks at the start?'] });
+  const ma = await doMerge(a);
+  const mb = await doMerge(b);
+  const ta = ma.tensions[0];
+  const tb = mb.tensions[0];
+  assert.ok(ta && tb && ta.id !== tb.id);
+  const store = storePath(room);
+  // Writer B runs to the end while writer A is between its read of the store and its write of the store.
+  const realOpen = fs.openSync;
+  const realRename = fs.renameSync;
+  let fired = false;
+  let bOut = null;
+  const interleave = () => {
+    if (fired) return;
+    fired = true;
+    bOut = doRule(b, [{ tension_id: tb.id, ruling: 'side_b' }]);
+  };
+  let aOut;
+  try {
+    fs.openSync = function (p, ...rest) {
+      if (typeof p === 'string' && p === store + '.lock') interleave();
+      return realOpen.call(fs, p, ...rest);
+    };
+    fs.renameSync = function (from, to) {
+      if (to === store) interleave();
+      return realRename.call(fs, from, to);
+    };
+    aOut = doRule(a, [{ tension_id: ta.id, ruling: 'side_a' }]);
+  } finally {
+    fs.openSync = realOpen;
+    fs.renameSync = realRename;
+  }
+  assert.equal(fired, true);
+  assert.equal(bOut && bOut.ok, true, JSON.stringify(bOut));
+  assert.equal(aOut.ok, true, JSON.stringify(aOut));
+  const kept = readStore(room).rulings;
+  assert.deepEqual(Object.keys(kept).sort(), [ta.id, tb.id].sort(), 'no ruling is lost: the last rename does not win');
+  assert.equal(kept[ta.id].ruling, 'side_a');
+  assert.equal(kept[tb.id].ruling, 'side_b');
+  assert.equal(fs.existsSync(store + '.lock'), false, 'the lock is released');
+  // A lock that another writer holds now: a typed refusal, nothing written.
+  fs.writeFileSync(store + '.lock', 'held', 'utf8');
+  const before = fs.readFileSync(store, 'utf8');
+  const busy = door.cmdRecordRuling({ roomDir: a.room, runId: a.res.run_id, answerPath: writeAnswer(a, [{ tension_id: ta.id, ruling: 'defer', reopen: true }]) }, Object.assign(a.env.opts(), { _lockWaitMs: 50 }));
+  assert.deepEqual(busy, { ok: false, reason: 'rulings_store_busy' });
+  assert.equal(fs.readFileSync(store, 'utf8'), before);
+  // A stale lock (older than the stale age) is removed and the write goes on.
+  const old = new Date(Date.now() - 10 * 60 * 1000);
+  fs.utimesSync(store + '.lock', old, old);
+  const reopen = door.cmdRecordRuling({ roomDir: a.room, runId: a.res.run_id, answerPath: writeAnswer(a, [{ tension_id: ta.id, ruling: 'defer', reopen: true }]) }, Object.assign(a.env.opts(), { _lockWaitMs: 50 }));
+  assert.equal(reopen.ok, true, JSON.stringify(reopen));
+  assert.deepEqual(Object.keys(readStore(room).rulings), [tb.id]);
+});
+
 (async () => {
   for (const t of queue) {
     try {

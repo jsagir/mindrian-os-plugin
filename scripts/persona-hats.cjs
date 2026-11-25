@@ -119,6 +119,49 @@ function atomicWriteJson(target, obj, mode) {
   }
 }
 
+// WR-09: a room-wide store (the rulings store, the handles store) can have two writers in one shared Cowork room.
+// Each write takes an exclusive lock file, re-reads the store under the lock, merges by key and renames.
+const STORE_LOCK_STALE_MS = 30000;
+const STORE_LOCK_WAIT_MS = 2000;
+
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/**
+ * Run fn while holding the lock file <file>.lock (created with the flag wx). A lock older than the stale age is
+ * removed. When the lock stays held past the wait time the result is {ok: false, reason: 'store_busy'}.
+ * The test seam deps._lockWaitMs sets the wait time. fn returns the result; an exception of fn passes through.
+ */
+function withStoreLock(file, deps, fn) {
+  const lock = file + '.lock';
+  const waitMs = deps && Number.isInteger(deps._lockWaitMs) && deps._lockWaitMs >= 0 ? deps._lockWaitMs : STORE_LOCK_WAIT_MS;
+  const started = Date.now();
+  let fd = null;
+  for (;;) {
+    try {
+      fd = fs.openSync(lock, 'wx', 0o600);
+      break;
+    } catch (e) {
+      if (!e || e.code !== 'EEXIST') throw e;
+    }
+    let st = null;
+    try { st = fs.statSync(lock); } catch (e) { st = null; }
+    if (st && Date.now() - st.mtimeMs > STORE_LOCK_STALE_MS) {
+      try { fs.rmSync(lock, { force: true }); } catch (e) { /* a lock that stays ends in store_busy */ }
+    }
+    if (Date.now() - started >= waitMs) return { ok: false, reason: 'store_busy' };
+    if (st) sleepSync(Math.min(25, Math.max(1, waitMs)));
+  }
+  try { fs.writeSync(fd, String(process.pid)); } catch (e) { /* the lock is the file, not its text */ }
+  try { fs.closeSync(fd); } catch (e) { /* ignore */ }
+  try {
+    return fn();
+  } finally {
+    try { fs.rmSync(lock, { force: true }); } catch (e) { /* a stale lock is removed by the next writer */ }
+  }
+}
+
 function homeDirOf(deps) {
   return (deps && deps.homeDir) || process.env.MINDRIAN_HOME || path.join(os.homedir(), '.mindrian');
 }
@@ -1324,16 +1367,21 @@ function readHandlesStore(roomDir, briefHash) {
   return out;
 }
 
-function writeHandlesStore(roomResolved, briefHash, updates) {
-  const current = readHandlesStore(roomResolved, briefHash);
-  const hats = {};
-  for (const hat of RESEARCH_HATS) {
-    const e = updates[hat] || current.hats[hat];
-    if (e) hats[hat] = { persona_sha256: e.persona_sha256, brief_hash: briefHash, handles: e.handles.slice() };
-  }
+function writeHandlesStore(roomResolved, briefHash, updates, deps) {
   const file = handlesStorePath(roomResolved, briefHash);
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  atomicWriteJson(file, { schema: HANDLES_STORE_SCHEMA, brief_hash: briefHash, hats });
+  // WR-09: read, merge by hat and rename under the lock of the store file.
+  const written = withStoreLock(file, deps, () => {
+    const current = readHandlesStore(roomResolved, briefHash);
+    const hats = {};
+    for (const hat of RESEARCH_HATS) {
+      const e = updates[hat] || current.hats[hat];
+      if (e) hats[hat] = { persona_sha256: e.persona_sha256, brief_hash: briefHash, handles: e.handles.slice() };
+    }
+    atomicWriteJson(file, { schema: HANDLES_STORE_SCHEMA, brief_hash: briefHash, hats });
+    return { ok: true };
+  });
+  if (!written.ok) throw Object.assign(new Error('handles store busy'), { code: 'handles_store_busy' });
 }
 
 /** SHA-256 of the persona file of each researching hat, null for a hat that has none. */
@@ -1587,7 +1635,7 @@ function planFirst(roomResolved, lr, map, deps) {
   const approved = planned.reduce((n, h) => n + planHats[h].strings.length, 0);
 
   try {
-    if (Object.keys(storeUpdates).length > 0) writeHandlesStore(roomResolved, ledger.brief_hash, storeUpdates);
+    if (Object.keys(storeUpdates).length > 0) writeHandlesStore(roomResolved, ledger.brief_hash, storeUpdates, deps);
     if (planned.length > 0) {
       const planPath = path.join(map.scratch_root, 'plan.json');
       atomicWriteJson(planPath, plan, 0o600);
@@ -2914,7 +2962,10 @@ function cmdRecordRuling(args, deps) {
 
   const now = nowOf(deps);
   const nowIso = now.toISOString();
-  const nextStore = Object.assign({}, store.rulings);
+  // WR-09: the changes are kept by key and merged into the store as it is under the lock, so a concurrent writer of
+  // another tension does not lose its ruling.
+  const setEntries = {};
+  const removedIds = [];
   let storeChanged = false;
   const recorded = [];
   const deferred = [];
@@ -2922,7 +2973,11 @@ function cmdRecordRuling(args, deps) {
   for (const e of answer.rulings) {
     const t = byId[e.tension_id];
     if (e.reopen === true) {
-      if (Object.prototype.hasOwnProperty.call(nextStore, e.tension_id)) { delete nextStore[e.tension_id]; storeChanged = true; }
+      if (Object.prototype.hasOwnProperty.call(store.rulings, e.tension_id) || Object.prototype.hasOwnProperty.call(setEntries, e.tension_id)) {
+        delete setEntries[e.tension_id];
+        removedIds.push(e.tension_id);
+        storeChanged = true;
+      }
       t.state = 'open';
       delete t.ruling;
       delete t.ruled_at;
@@ -2934,7 +2989,7 @@ function cmdRecordRuling(args, deps) {
       deferred.push(e.tension_id);
     } else {
       const sq = ledger.sub_questions.find(s => s.id === t.sub_question);
-      nextStore[e.tension_id] = {
+      setEntries[e.tension_id] = {
         ruling: e.ruling,
         reason: typeof e.reason === 'string' ? e.reason.trim() : '',
         ruled_at: nowIso,
@@ -2955,7 +3010,16 @@ function cmdRecordRuling(args, deps) {
   try {
     if (storeChanged) {
       fs.mkdirSync(path.dirname(rulingsStorePath(roomResolved)), { recursive: true });
-      atomicWriteJson(rulingsStorePath(roomResolved), { schema: RULINGS_SCHEMA, rulings: nextStore });
+      const written = withStoreLock(rulingsStorePath(roomResolved), deps, () => {
+        const fresh = readRulingsStore(roomResolved);
+        if (!fresh.ok) return fresh;
+        const nextStore = Object.assign({}, fresh.rulings);
+        for (const id of removedIds) delete nextStore[id];
+        for (const id of Object.keys(setEntries)) nextStore[id] = setEntries[id];
+        atomicWriteJson(rulingsStorePath(roomResolved), { schema: RULINGS_SCHEMA, rulings: nextStore });
+        return { ok: true };
+      });
+      if (!written.ok) return { ok: false, reason: written.reason === 'store_busy' ? 'rulings_store_busy' : written.reason };
     }
     markStep(ledger, 'record_ruling', 'done', now);
     writeLedger(lr.dir, ledger);
