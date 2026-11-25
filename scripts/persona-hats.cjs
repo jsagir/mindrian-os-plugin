@@ -3662,11 +3662,15 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIn
       const seenUrls = new Set();
       const kept = [];
       let refused = 0;
-      for (const r of entry.results) {
-        if (!driver.domainLensAccepts(lens, r.url)) { refused += 1; continue; }
-        if (seenUrls.has(r.url)) continue;
-        seenUrls.add(r.url);
-        kept.push(r);
+      for (const raw of entry.results) {
+        if (!driver.domainLensAccepts(lens, raw.url)) { refused += 1; continue; }
+        // IN-11: a host URL keeps its origin and path only. The query and the fragment can carry up to 500 characters
+        // of text that every hat would read in the White package.
+        const url = hostResultUrl(raw.url);
+        if (url === null) { refused += 1; continue; }
+        if (seenUrls.has(url)) continue;
+        seenUrls.add(url);
+        kept.push(Object.assign({}, raw, { url }));
       }
       for (const r of kept) {
         record.findings += 1;
@@ -3689,6 +3693,14 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIn
     }
   }
   return strings.map(s => ({ q_hash: s.q_hash, text: s.text, record: records.get(s.text), result: stringState(records.get(s.text)) }));
+}
+
+/** IN-11: the origin and the path of a host result URL, or null when it is not an http or https URL. */
+function hostResultUrl(u) {
+  let parsed;
+  try { parsed = new URL(String(u)); } catch (e) { return null; }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+  return (parsed.origin + parsed.pathname).slice(0, PACK_URL_MAX);
 }
 
 /** The wired findings of the string results, as pack items: title, URL, tier, provider, summary. No verdict field. */
