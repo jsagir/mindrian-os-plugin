@@ -211,6 +211,159 @@ check('F12. no new top-level require in lib/core/persona-ops.cjs', () => {
   assert.equal(count(fs.readFileSync(OPS_PATH, 'utf8')), baseCount);
 });
 
+// ---------------------------------------------------------------------------
+// Task 2: HAT_DISCIPLINE, notices, writeReasonedPersona (legs F6 to F10)
+// ---------------------------------------------------------------------------
+
+const BLUE_FIXED = 'Blue hat. Read the process only. Say what was skipped, which hat was thin, and what to ask next. Add no content: no fact, no risk, no idea, no recommendation, no position on the target. You are not the judge.';
+
+function goodSpec(hat, over) {
+  return Object.assign({
+    schema: 'mos.persona-spec/1',
+    hat,
+    focus: 'Read the hand-off between a studio and its client as the place where trust is won or lost.',
+    hat_questions: ['What does the room say about the hand-off?', 'Which claim has no source yet?', 'What would change the answer?'],
+    must_not_judge: ['The founder as a person.'],
+    room_sources: ['problem-definition/core-problem.md', 'market-analysis/size.md'],
+  }, over || {});
+}
+
+function listing(room) {
+  const dir = path.join(room, 'personas');
+  try { return fs.readdirSync(dir).sort(); } catch (e) { return null; }
+}
+
+// F6
+check('F6. HAT_DISCIPLINE holds the six fixed texts; blue is the owner rule only', () => {
+  const { HAT_GOVERNANCE } = require(path.join(ROOT, 'lib', 'core', 'bono', 'hat-governance.cjs'));
+  const D = ops.HAT_DISCIPLINE;
+  assert.ok(D && typeof D === 'object');
+  assert.deepEqual(Object.keys(D).sort(), HATS.slice().sort());
+  assert.ok(Object.isFrozen(D));
+  for (const hat of ['white', 'red', 'black', 'yellow', 'green']) {
+    assert.ok(D[hat].includes(ops.HAT_DEFINITIONS[hat].perspective), hat + ' perspective');
+    assert.ok(D[hat].includes(HAT_GOVERNANCE[hat].discipline), hat + ' discipline');
+    for (const rule of HAT_GOVERNANCE[hat].rules) assert.ok(D[hat].includes(rule), hat + ' rule: ' + rule);
+  }
+  assert.equal(D.blue, BLUE_FIXED);
+  assert.ok(!D.blue.includes(HAT_GOVERNANCE.blue.discipline));
+  for (const rule of HAT_GOVERNANCE.blue.rules) assert.ok(!D.blue.includes(rule));
+  assert.ok(Object.keys(ops).includes('HAT_DISCIPLINE'), 'enumerable on the exports');
+});
+
+// F7
+check('F7. the two notices are fixed text', () => {
+  assert.equal(ops.DEEP_NOTICE, 'Deep review: six isolated hats, own research, own reading.');
+  assert.equal(ops.QUICK_NOTICE, 'Fast look: six hats in one pass, one context, no research. This is not an independent review.');
+});
+
+// F8
+check('F8. writeReasonedPersona writes one proposed persona file with the fixed keys and body', () => {
+  const room = makeRoom();
+  const fp = ops.roomFingerprint(room);
+  const res = ops.writeReasonedPersona(room, 'white', goodSpec('white'), { fingerprint: fp, now: new Date('2026-11-25T10:00:00Z') });
+  assert.equal(res.ok, true, JSON.stringify(res));
+  assert.equal(res.file, 'personas/white-harbor-light-studio.md');
+  const text = fs.readFileSync(path.join(room, res.file), 'utf8');
+  const m = text.match(/^---\n([\s\S]*?)\n---\n/);
+  assert.ok(m, 'frontmatter present');
+  const keys = m[1].split('\n').filter((l) => /^[a-z_]+:/.test(l)).map((l) => l.split(':')[0]);
+  for (const k of ['hat', 'hat_label', 'domain', 'perspective', 'generated_from', 'generated_date', 'disclaimer', 'built_by', 'persona_status', 'room_fingerprint', 'persona_schema']) {
+    assert.ok(keys.includes(k), 'key ' + k);
+  }
+  for (const k of ['preview_notice', 'room_hash', 'accepted_at']) assert.ok(!keys.includes(k), 'no key ' + k);
+  assert.ok(!keys.some((k) => /handle/.test(k)), 'no handle key');
+  const fm = require(OPS_PATH).listPersonas(room).find((p) => p.hat === 'white');
+  assert.equal(fm.domain, 'harbor-light-studio');
+  assert.match(m[1], /built_by: persona-analyst/);
+  assert.match(m[1], /persona_status: proposed/);
+  assert.ok(m[1].includes(fp));
+  assert.match(m[1], /persona_schema: 1/);
+  assert.match(m[1], /generated_date: 2026-11-25/);
+  assert.match(m[1], /  - problem-definition/);
+  assert.match(m[1], /  - market-analysis/);
+  assert.ok(text.includes(ops.HAT_DISCIPLINE.white), 'fixed discipline in body');
+  const spec = goodSpec('white');
+  assert.ok(text.includes(spec.focus));
+  for (const q of spec.hat_questions) assert.ok(text.includes(q));
+  for (const l of spec.must_not_judge) assert.ok(text.includes(l));
+  assert.ok(!text.includes(ops.PREVIEW_NOTICE));
+  assert.ok(!/QUICK PREVIEW/.test(text));
+  // the file reads back as proposed, current fingerprint: unaccepted
+  assert.equal(ops.personaFreshness(room).hats.white.state, 'unaccepted');
+  // no stray temporary files
+  assert.ok(!listing(room).some((f) => /tmp/i.test(f)), 'no temp file left');
+});
+
+// F9
+check('F9. an older file of the same hat is removed; other hats stay; list and invoke read the new file', () => {
+  const room = makeRoom();
+  const fp = ops.roomFingerprint(room);
+  writeHatFile(room, 'white-old-domain.md', { hat: 'white', domain: 'old-domain', preview_notice: '"QUICK PREVIEW"' });
+  writeHatFile(room, 'white-another.md', { hat: 'white', domain: 'another' });
+  writeHatFile(room, 'red-old-domain.md', { hat: 'red', domain: 'old-domain' });
+  const res = ops.writeReasonedPersona(room, 'white', goodSpec('white'), { fingerprint: fp });
+  assert.equal(res.ok, true, JSON.stringify(res));
+  const files = listing(room);
+  assert.ok(files.includes('white-harbor-light-studio.md'));
+  assert.ok(!files.includes('white-old-domain.md'));
+  assert.ok(!files.includes('white-another.md'));
+  assert.ok(files.includes('red-old-domain.md'), 'other hats stay');
+  assert.ok(files.includes('ROOM.md'), 'non-hat files stay');
+  const mine = ops.listPersonas(room).filter((p) => p.hat === 'white');
+  assert.equal(mine.length, 1);
+  assert.equal(mine[0].domain, 'harbor-light-studio');
+  assert.equal(mine[0].filename, 'white-harbor-light-studio.md');
+  assert.ok(mine[0].hat_label && mine[0].disclaimer);
+  const inv = ops.invokePersona(room, 'white');
+  assert.ok(inv.persona && inv.persona.includes(goodSpec('white').focus));
+  // a second write for the same hat replaces the file and still leaves one
+  const again = ops.writeReasonedPersona(room, 'white', goodSpec('white', { focus: 'A second focus.' }), { fingerprint: fp });
+  assert.equal(again.ok, true);
+  assert.equal(listing(room).filter((f) => f.startsWith('white-')).length, 1);
+});
+
+// F10
+check('F10. NEGATIVE: a bad spec is refused with a named reason and nothing is written', () => {
+  const room = makeRoom();
+  const fp = ops.roomFingerprint(room);
+  writeHatFile(room, 'white-old-domain.md', { hat: 'white', domain: 'old-domain' });
+  const before = listing(room);
+  const beforeText = fs.readFileSync(path.join(room, 'personas', 'white-old-domain.md'), 'utf8');
+  const cases = [];
+  for (const k of ['research_handles', 'handles', 'brief', 'evidence', 'verdict']) {
+    cases.push([goodSpec('white', { [k]: 'x' }), 'forbidden_key:' + k]);
+  }
+  cases.push([goodSpec('white', { surprise: 1 }), 'unknown_key:surprise']);
+  cases.push([goodSpec('red'), 'hat_mismatch']);
+  cases.push([goodSpec('white', { hat_questions: ['a', 'b'] }), 'schema_invalid:hat_questions']);
+  cases.push([goodSpec('white', { hat_questions: ['1', '2', '3', '4', '5', '6', '7', '8'] }), 'schema_invalid:hat_questions']);
+  cases.push([goodSpec('white', { room_sources: ['../outside.md'] }), 'source_outside_room']);
+  cases.push([goodSpec('white', { room_sources: ['/etc/passwd'] }), 'source_outside_room']);
+  cases.push([goodSpec('white', { room_sources: ['personas/white-old-domain.md'] }), 'source_under_personas']);
+  cases.push([goodSpec('white', { hat_questions: ['See http://example.com', 'b', 'c'] }), 'url_in_text']);
+  cases.push([goodSpec('white', { focus: 'Look at https://example.com now' }), 'url_in_text']);
+  cases.push([goodSpec('white', { must_not_judge: ['Check www.example.com'] }), 'url_in_text']);
+  cases.push([goodSpec('white', { focus: 'x'.repeat(401) }), 'schema_invalid:focus']);
+  cases.push([goodSpec('white', { must_not_judge: [] }), 'schema_invalid:must_not_judge']);
+  cases.push([goodSpec('white', { room_sources: [] }), 'schema_invalid:room_sources']);
+  cases.push([goodSpec('white', { schema: 'other/1' }), 'schema_invalid:schema']);
+  cases.push([null, 'schema_invalid:spec']);
+  for (const [spec, reason] of cases) {
+    const res = ops.writeReasonedPersona(room, 'white', spec, { fingerprint: fp });
+    assert.equal(res.ok, false, reason + ' was accepted');
+    assert.equal(res.reason, reason);
+    assert.deepEqual(listing(room), before, 'nothing written for ' + reason);
+  }
+  assert.equal(fs.readFileSync(path.join(room, 'personas', 'white-old-domain.md'), 'utf8'), beforeText, 'older file untouched');
+  const unknownHat = ops.writeReasonedPersona(room, 'purple', goodSpec('purple'), { fingerprint: fp });
+  assert.equal(unknownHat.ok, false);
+  assert.equal(unknownHat.reason, 'unknown_hat');
+  const badFp = ops.writeReasonedPersona(room, 'white', goodSpec('white'), { fingerprint: 'nothex' });
+  assert.equal(badFp.ok, false);
+  assert.equal(badFp.reason, 'fingerprint_invalid');
+});
+
 for (const r of tmpRoots) {
   try { fs.rmSync(r, { recursive: true, force: true }); } catch (_) { /* ignore */ }
 }
