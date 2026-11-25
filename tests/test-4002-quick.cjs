@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-04: quick mode as a code path. quickLook, the two additive route fields and the MCP quick path.
-// Legs Q1 to Q6 (task 1) and Q7, Q8 (task 2). Legs Q9 and Q10 come in plan 16.
+// Legs Q1 to Q6 (task 1) and Q7, Q8 (task 2). Legs Q9 to Q16 (plan 16): the quick run record through merge.
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -190,6 +190,302 @@ check('Q8. persona --parallel is kept; the generate-personas suggested-next name
   assert.ok(body.includes('Deep review runs in Claude Code as /mos:persona --parallel.'));
 });
 
-for (const r of tmpRoots) fs.rmSync(r, { recursive: true, force: true });
-console.log('\n' + passed + ' passed, ' + failed + ' failed');
-process.exit(failed === 0 ? 0 : 1);
+// ---------------------------------------------------------------------------
+// Plan 16: the quick run record through merge (Q9 to Q16). The legs are async: they run after the sync legs.
+// ---------------------------------------------------------------------------
+const crypto = require('node:crypto');
+const DOOR_PATH = path.join(ROOT, 'scripts', 'persona-hats.cjs');
+const door = require(DOOR_PATH);
+const NOW = new Date('2026-11-25T10:20:30.000Z');
+const asyncLegs = [];
+function checkAsync(label, fn) { asyncLegs.push({ label, fn }); }
+
+function mkTmp(label) {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-4002-quick-' + label + '-'));
+  tmpRoots.push(d);
+  return d;
+}
+function counterHex() {
+  let n = 0;
+  return (len) => crypto.createHash('sha256').update('quick-seam-' + (n += 1)).digest('hex').slice(0, len);
+}
+let stamp = 0;
+function mkEnv(extra) {
+  const env = { homeDir: mkTmp('home'), tmpDir: mkTmp('tmp') };
+  env.opts = (more) => Object.assign({ homeDir: env.homeDir, tmpDir: env.tmpDir, now: new Date(NOW.getTime() + 1000 * (stamp += 1)), randomHex: counterHex() }, extra || {}, more || {});
+  return env;
+}
+function briefFile(mode) {
+  const p = path.join(mkTmp('brief'), 'brief.json');
+  fs.writeFileSync(p, JSON.stringify({
+    schema: 'mos.persona-brief/1', target: 'room',
+    governing_question: 'Should the studio move to a fixed monthly retainer model for new clients?',
+    sub_questions: ['Who pays first?', 'What breaks at the hand-off?'],
+    reading_list: ['problem-definition/core-problem.md', 'market-analysis/size.md'],
+    mode, triage: { recommended: mode, reason: 'A pricing change.' },
+  }), 'utf8');
+  return p;
+}
+function startRun(mode, room, env) {
+  const res = door.cmdStart({ roomDir: room || makeRoom(), briefPath: briefFile(mode), mode }, env.opts());
+  assert.equal(res.ok, true, JSON.stringify(res));
+  const ledgerPath = path.join(res.review_dir, 'run.json');
+  const run = { res, room: room, env, ledgerPath, ledger: () => JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) };
+  run.ids = run.ledger().sub_questions.map(x => x.id);
+  return run;
+}
+// pos: {hat: [value, value]}; a hat that is not in pos gets no_position on both sub-questions.
+function quickResultOf(run, pos, over) {
+  const hats = {};
+  for (const hat of ['white', 'red', 'black', 'yellow', 'green']) {
+    const vals = (pos && pos[hat]) || ['no_position', 'no_position'];
+    hats[hat] = { positions: run.ids.map((id, i) => (vals[i] === 'no_position' ? { sub_question: id, value: 'no_position' } : { sub_question: id, value: vals[i], line: 'quick ' + hat + ' line ' + i })) };
+  }
+  hats.green.provocations = ['What if the client owns the hand-off?'];
+  hats.blue = { skipped: ['No search was run, by design.'], thin: ['The red hat gave only short lines.'], ask_next: ['Ask who pays first.'] };
+  return Object.assign({ schema: 'mos.persona-quick/1', run_id: run.res.run_id, hats }, over || {});
+}
+function writeQuick(run, obj) {
+  const p = path.join(run.res.inbox_dir, 'quick-result.json');
+  fs.writeFileSync(p, typeof obj === 'string' ? obj : JSON.stringify(obj), 'utf8');
+  return p;
+}
+function mergeQuick(run, obj, extraOpts) {
+  const quickResultPath = writeQuick(run, obj);
+  const countsPath = path.join(run.res.inbox_dir, 'counts.json');
+  fs.writeFileSync(countsPath, JSON.stringify({ agent_runs: 0, stops: 1, cards: 1 }), 'utf8');
+  return door.cmdMerge({ roomDir: run.room, runId: run.res.run_id, quickResultPath, countsPath }, run.env.opts(extraOpts));
+}
+const artifactOf = (run) => fs.readFileSync(path.join(run.res.review_dir, path.basename(run.res.review_dir) + '.md'), 'utf8');
+const ONE_TENSION = { yellow: ['favours', 'no_position'], black: ['opposes', 'no_position'] };
+
+checkAsync('Q9. NEGATIVE: a quick result with evidence, a self-search key, a blue position or another forbidden key is refused by name; nothing is written', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const cases = [
+    ['white', 'evidence', [{ source: 'x', tier: 't' }], 'forbidden_key:evidence'],
+    ['black', 'self_found_sources', [], 'forbidden_key:self_found_sources'],
+    ['yellow', 'self_search_strings', ['a string'], 'forbidden_key:self_search_strings'],
+    ['red', 'none_found', true, 'forbidden_key:none_found'],
+    ['white', 'missing_data', ['x'], 'forbidden_key:missing_data'],
+    ['black', 'justification', 'x', 'forbidden_key:justification'],
+    ['green', 'verdict', 'x', 'forbidden_key:verdict'],
+    ['blue', 'positions', [], 'forbidden_key:positions'],
+  ];
+  for (const [hat, key, value, reason] of cases) {
+    const run = startRun('quick', room, env);
+    const obj = quickResultOf(run, ONE_TENSION);
+    obj.hats[hat][key] = value;
+    const bytes = fs.readFileSync(run.ledgerPath);
+    const out = await mergeQuick(run, obj);
+    assert.equal(out.ok, false, hat + ' ' + key);
+    assert.equal(out.reason, reason, hat + ' ' + key);
+    assert.deepEqual(fs.readFileSync(run.ledgerPath), bytes, 'ledger unchanged for ' + key);
+    assert.equal(fs.existsSync(path.join(run.res.review_dir, path.basename(run.res.review_dir) + '.md')), false, 'no artifact for ' + key);
+    assert.equal(fs.existsSync(door.runMapPath(env.homeDir, run.res.run_id)), true, 'run map kept for ' + key);
+  }
+});
+
+checkAsync('Q10. two different quick results give different tension lists: one tension, then none with one same-position entry', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const a = startRun('quick', room, env);
+  const outA = await mergeQuick(a, quickResultOf(a, ONE_TENSION));
+  assert.equal(outA.ok, true, JSON.stringify(outA));
+  assert.equal(outA.tensions.length, 1);
+  assert.deepEqual(outA.tensions[0].pair, ['black', 'yellow']);
+  assert.equal(outA.tensions[0].state, 'open');
+  assert.deepEqual(outA.same_position, []);
+  const b = startRun('quick', room, env);
+  const outB = await mergeQuick(b, quickResultOf(b, { yellow: ['favours', 'no_position'], black: ['favours', 'no_position'] }));
+  assert.equal(outB.ok, true, JSON.stringify(outB));
+  assert.deepEqual(outB.tensions, []);
+  assert.equal(outB.same_position.length, 1);
+  assert.deepEqual(outB.same_position[0].hats, ['black', 'yellow']);
+  assert.equal(outB.same_position[0].value, 'favours');
+});
+
+checkAsync('Q11. the quick artifact starts with QUICK_NOTICE and the fixed quick label; the record has mode quick, the deep position fields and check skipped', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const run = startRun('quick', room, env);
+  const out = await mergeQuick(run, quickResultOf(run, ONE_TENSION));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const lines = artifactOf(run).split('\n');
+  assert.equal(lines[0], ops.QUICK_NOTICE);
+  assert.equal(lines[1], 'Quick mode: one context, no research. Checks that need evidence were not run.');
+  assert.deepEqual(out.notice_lines.slice(0, 2), lines.slice(0, 2));
+  assert.equal(Object.keys(out)[1], 'notice_lines');
+  assert.equal(lines.some(l => l === ops.DEEP_NOTICE), false);
+  const rec = run.ledger();
+  assert.equal(rec.mode, 'quick');
+  assert.equal(rec.steps.check.state, 'skipped');
+  assert.equal(rec.steps.merge.state, 'done');
+  assert.equal(typeof rec.timestamps.merged_at, 'string');
+  for (const id of run.ids) {
+    for (const hat of ['white', 'red', 'black', 'yellow', 'green']) {
+      assert.deepEqual(Object.keys(rec.positions[id][hat] || { value: 0, line: 0 }).sort(), ['line', 'value']);
+    }
+  }
+  assert.equal(rec.positions[run.ids[0]].black.value, 'opposes');
+  assert.equal(rec.positions[run.ids[0]].black.line, 'quick black line 0');
+  for (const hat of ['white', 'red', 'black', 'yellow', 'green', 'blue']) {
+    assert.equal(rec.hats[hat].reading, 'ran', hat);
+    assert.equal(rec.hats[hat].evidence_items || 0, 0);
+    assert.ok(['fresh', 'fixed_discipline'].includes(rec.hats[hat].persona), hat);
+  }
+  for (const hat of ['red', 'blue']) assert.equal(rec.hats[hat].research, 'never_searches', hat);
+  for (const hat of ['white', 'black', 'yellow', 'green']) assert.equal(rec.hats[hat].research, 'not_applicable', hat);
+  assert.deepEqual(rec.audit, { edited_strings: [], cards: 1, stops: 1, agent_runs: 0, reported_by: 'command' });
+  const walk = (v) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') for (const k of Object.keys(v)) { assert.equal(/score|rank|winner|average|consensus|confidence/i.test(k), false, k); walk(v[k]); }
+  };
+  walk(rec);
+  assert.equal(JSON.stringify(rec).includes(env.tmpDir), false, 'no scratch path');
+  assert.equal(fs.existsSync(door.runMapPath(env.homeDir, run.res.run_id)), false, 'run map deleted');
+});
+
+checkAsync('Q12. NEGATIVE: a quick result file on a deep run, and no quick result file on a quick run, are mode_mismatch', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const deep = startRun('deep', room, env);
+  const p = path.join(mkTmp('qr'), 'q.json');
+  fs.writeFileSync(p, JSON.stringify({ schema: 'mos.persona-quick/1', run_id: deep.res.run_id, hats: {} }), 'utf8');
+  const a = await door.cmdMerge({ roomDir: room, runId: deep.res.run_id, quickResultPath: p }, env.opts());
+  assert.deepEqual(a, { ok: false, reason: 'mode_mismatch' });
+  const quick = startRun('quick', room, env);
+  const b = await door.cmdMerge({ roomDir: room, runId: quick.res.run_id }, env.opts());
+  assert.deepEqual(b, { ok: false, reason: 'mode_mismatch' });
+  assert.equal(quick.ledger().steps.merge, undefined);
+  // A second merge of a finished quick run is refused like a deep one.
+  const ok = await mergeQuick(quick, quickResultOf(quick, ONE_TENSION));
+  assert.equal(ok.ok, true, JSON.stringify(ok));
+  const again = await door.cmdMerge({ roomDir: room, runId: quick.res.run_id, quickResultPath: p }, env.opts());
+  assert.equal(again.ok, false);
+});
+
+checkAsync('Q13. a quick run writes no hat session log, calls the persistence function 0 times and makes 0 seam calls and 0 requests', async () => {
+  const room = makeRoom();
+  const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+  roomDbMod.closeRoomDb(roomDbMod.openRoomDb(room));
+  const env = mkEnv();
+  const run = startRun('quick', room, env);
+  let seam = 0;
+  let persist = 0;
+  let requests = 0;
+  const origPersist = ops.persistPersonaFindings;
+  const savedFetch = globalThis.fetch;
+  const savedHttp = [http.request, https.request];
+  ops.persistPersonaFindings = function () { persist += 1; return origPersist.apply(this, arguments); };
+  globalThis.fetch = function () { requests += 1; throw new Error('fetch blocked in test'); };
+  http.request = function () { requests += 1; throw new Error('blocked'); };
+  https.request = function () { requests += 1; throw new Error('blocked'); };
+  let out;
+  try {
+    out = await mergeQuick(run, quickResultOf(run, ONE_TENSION), { _fetchCorpusEnvelope: async () => { seam += 1; throw new Error('no fetch in quick'); } });
+  } finally {
+    ops.persistPersonaFindings = origPersist;
+    globalThis.fetch = savedFetch;
+    http.request = savedHttp[0];
+    https.request = savedHttp[1];
+  }
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(persist, 0);
+  assert.equal(seam, 0);
+  assert.equal(requests, 0);
+  assert.deepEqual(out.session_log, {});
+  assert.equal(fs.existsSync(path.join(room, '.mindrian', 'hats')), false, 'no hat state folder');
+  const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+  const db = navigation.openRoomDbForCaller(room);
+  try {
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'HatState'").get().n, 0);
+  } finally {
+    navigation.closeRoomDbForCaller(db);
+  }
+});
+
+checkAsync('Q14. record-ruling accepts a ruling for a tension of a merged quick run; the quick artifact keeps its first line', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const run = startRun('quick', room, env);
+  const out = await mergeQuick(run, quickResultOf(run, ONE_TENSION));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const ap = path.join(mkTmp('ruling'), 'ruling.json');
+  fs.writeFileSync(ap, JSON.stringify({ schema: 'mos.persona-ruling-answer/1', run_id: run.res.run_id, rulings: [{ tension_id: out.tensions[0].id, ruling: 'side_a' }] }), 'utf8');
+  const r = door.cmdRecordRuling({ roomDir: room, runId: run.res.run_id, answerPath: ap }, env.opts());
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.equal(r.recorded.length, 1);
+  assert.equal(r.recorded[0].side_hat, 'black');
+  assert.deepEqual(r.artifact, { state: 'updated' });
+  const lines = artifactOf(run).split('\n');
+  assert.equal(lines[0], ops.QUICK_NOTICE);
+  assert.ok(lines.includes('## Rulings'));
+  assert.equal(run.ledger().tensions[0].state, 'settled');
+  assert.equal(run.ledger().steps.record_ruling.state, 'done');
+  // A record-ruling call before merge is still out of order for a quick run.
+  const early = startRun('quick', room, env);
+  const e = door.cmdRecordRuling({ roomDir: room, runId: early.res.run_id, answerPath: ap }, env.opts());
+  assert.equal(e.ok, false);
+  assert.equal(e.reason, 'step_out_of_order:merge');
+});
+
+checkAsync('Q15. NEGATIVE: a URL or an evidence claim id in a quick line is citation_outside_sources; quick has no source to cite', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  for (const text of ['see https://example.org/page for the numbers', 'per EvidenceClaim:persona-white-0123456789ab:xyz']) {
+    const run = startRun('quick', room, env);
+    const obj = quickResultOf(run, ONE_TENSION);
+    obj.hats.black.positions[0].line = text;
+    const out = await mergeQuick(run, obj);
+    assert.equal(out.ok, false);
+    assert.equal(out.reason, 'citation_outside_sources');
+    assert.equal(run.ledger().steps.merge, undefined);
+  }
+});
+
+checkAsync('Q16. NEGATIVE: a wrong run id, an unknown hat, an unknown key and a missing position are refused; a hat left out is listed as not run', async () => {
+  const room = makeRoom();
+  const env = mkEnv();
+  const bad = [
+    [(o) => { o.run_id = '20260101-000000-abcd'; }, 'schema_invalid:run_id'],
+    [(o) => { o.hats.purple = { positions: [] }; }, 'schema_invalid:hat'],
+    [(o) => { o.extra = 1; }, 'unknown_key:extra'],
+    [(o) => { o.hats.white.positions.pop(); }, 'schema_invalid:positions'],
+    [(o) => { o.hats.white.positions[0].value = 'alternative_offered'; }, 'schema_invalid:positions[0].value'],
+    [(o) => { o.hats.white.note = 'x'; }, 'unknown_key:note'],
+  ];
+  for (const [mutate, reason] of bad) {
+    const run = startRun('quick', room, env);
+    const obj = quickResultOf(run, ONE_TENSION);
+    mutate(obj);
+    const out = await mergeQuick(run, obj);
+    assert.equal(out.ok, false);
+    assert.equal(out.reason, reason);
+  }
+  const run = startRun('quick', room, env);
+  const obj = quickResultOf(run, ONE_TENSION);
+  delete obj.hats.white;
+  const out = await mergeQuick(run, obj);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.deepEqual(out.not_run.map(x => x.hat), ['white']);
+  assert.ok(artifactOf(run).split('\n').includes('Not run: white.'));
+  assert.ok(artifactOf(run).split('\n').includes('white: not_run:not_in_quick_result'));
+  assert.equal(door.validateQuickResult === undefined, false, 'validateQuickResult is exported');
+});
+
+(async () => {
+  for (const t of asyncLegs) {
+    try {
+      await t.fn();
+      passed += 1;
+      console.log('ok: ' + t.label);
+    } catch (e) {
+      failed += 1;
+      console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  for (const r of tmpRoots) fs.rmSync(r, { recursive: true, force: true });
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
+  process.exit(failed === 0 ? 0 : 1);
+})();

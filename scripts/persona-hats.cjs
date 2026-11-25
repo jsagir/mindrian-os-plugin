@@ -1932,6 +1932,26 @@ function deepNoticeLines(ledger) {
   return lines;
 }
 
+/**
+ * The notice lines of a quick run: the quick notice, the fixed quick label, then the hats that did not run.
+ * The text of both fixed lines is a constant (QUICK_NOTICE, the quick_label of ARTIFACT_LABELS).
+ */
+function quickNoticeLines(ledger) {
+  const lines = [ops.QUICK_NOTICE, ARTIFACT_LABELS.quick_label];
+  const hats = isPlain(ledger && ledger.hats) ? ledger.hats : {};
+  const missing = HATS.filter(hat => {
+    const st = hats[hat] && typeof hats[hat].reading === 'string' ? hats[hat].reading : '';
+    return st.indexOf('not_run') === 0 || st.indexOf('rejected') === 0;
+  });
+  if (missing.length) lines.push('Not run: ' + missing.join(', ') + '.');
+  return lines;
+}
+
+/** The notice lines of a run record, by mode. */
+function noticeLinesOf(ledger) {
+  return ledger && ledger.mode === 'quick' ? quickNoticeLines(ledger) : deepNoticeLines(ledger);
+}
+
 /** The full door pack of a hat for the artifact: items and strings, plain objects only. */
 function readPackForArtifact(file) {
   const r = readJsonFile(file, { noSymlink: true });
@@ -1974,7 +1994,7 @@ function buildArtifact(record, readings, packs) {
     return fillLabel('position', { hat, value: p.value }) + oneLine(p.line);
   };
 
-  deepNoticeLines(record).forEach(push);
+  noticeLinesOf(record).forEach(push);
   push('');
   push(L.section_brief);
   field('brief_target', record.target);
@@ -2250,6 +2270,10 @@ async function cmdMerge(args, deps) {
   const lr = readLedger(roomResolved, args.runId);
   if (!lr.ok) return lr;
   const ledger = lr.ledger;
+  // A quick run merges with a quick result file and a deep run without one (plan 16).
+  const hasQuickFile = typeof args.quickResultPath === 'string' && args.quickResultPath.length > 0;
+  if ((ledger.mode === 'quick') !== hasQuickFile && (ledger.mode === 'quick' || ledger.mode === 'deep')) return { ok: false, reason: 'mode_mismatch' };
+  if (ledger.mode === 'quick') return mergeQuickRun(roomResolved, lr, args, deps);
   if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
   if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
   const order = requireStep(ledger, 'check');
@@ -2408,6 +2432,152 @@ async function cmdMerge(args, deps) {
     hats: hatsOut,
     not_run: notRun,
     session_log: sessionLog,
+    cleanup: cleaned ? 'done' : 'failed',
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quick run record (plan 16): merge with a quick result file
+// ---------------------------------------------------------------------------
+
+const QUICK_SCHEMA = 'mos.persona-quick/1';
+const QUICK_RESULT_KEYS = Object.freeze(['schema', 'run_id', 'hats']);
+const QUICK_HAT_KEYS = Object.freeze(['positions', 'provocations', 'skipped', 'thin', 'ask_next']);
+// Quick mode has no research and no search of any kind (owner answer 1 of the second card): these keys are refused by name.
+const QUICK_FORBIDDEN_KEYS = Object.freeze(['evidence', 'self_search_strings', 'self_found_sources', 'justification', 'verdict', 'none_found', 'missing_data']);
+
+/**
+ * Check a quick result (S-7) against the closed schema. The positions and the closed value lists are those of the
+ * reading of the hat (validateReading); a key that names evidence or a search is refused by name; no URL and no
+ * evidence claim id may stand in any string, because a quick run has no source to cite. Pure. Never echoes text.
+ * @param {*} result The parsed file.
+ * @param {{runId: string, subQuestionIds: string[]}} ctx
+ * @returns {{ok: true, readings: Object} | {ok: false, reason: string, hat?: string}}
+ */
+function validateQuickResult(result, ctx) {
+  const c = ctx || {};
+  const fail = (reason, hat) => (hat ? { ok: false, reason, hat } : { ok: false, reason });
+  if (!isPlain(result)) return fail('schema_invalid:quick_result');
+  for (const k of Object.keys(result)) {
+    if (!QUICK_RESULT_KEYS.includes(k)) return fail('unknown_key:' + safeKeyName(k));
+  }
+  if (result.schema !== QUICK_SCHEMA) return fail('schema_invalid:schema');
+  if (result.run_id !== c.runId) return fail('schema_invalid:run_id');
+  if (!isPlain(result.hats) || Object.keys(result.hats).length === 0) return fail('schema_invalid:hats');
+  for (const hat of Object.keys(result.hats)) {
+    if (!HATS.includes(hat)) return fail('schema_invalid:hat');
+  }
+  const readings = {};
+  for (const hat of HATS) {
+    if (!Object.prototype.hasOwnProperty.call(result.hats, hat)) continue;
+    const entry = result.hats[hat];
+    if (!isPlain(entry)) return fail('schema_invalid:hats.' + hat, hat);
+    for (const k of Object.keys(entry)) {
+      if (QUICK_FORBIDDEN_KEYS.includes(k)) return fail('forbidden_key:' + k, hat);
+      if (!QUICK_HAT_KEYS.includes(k)) return fail('unknown_key:' + safeKeyName(k), hat);
+    }
+    const reading = Object.assign({ schema: 'mos.persona-reading/1', run_id: c.runId, hat }, entry);
+    const checked = validateReading(hat, reading, { runId: c.runId, subQuestionIds: c.subQuestionIds });
+    if (!checked.ok) return fail(checked.reason, hat);
+    const cite = citationCheck(hat, reading, {});
+    if (!cite.ok) return fail(cite.reason, hat);
+    readings[hat] = reading;
+  }
+  return { ok: true, readings };
+}
+
+/**
+ * Step merge (quick mode). It validates the quick result, builds the positions table, makes the same tension call
+ * and the same same-position rule as deep, marks settled tensions from the rulings store, files the artifact with
+ * the quick notice first and the run record, and deletes the scratch tree. It makes no check (check is recorded as
+ * skipped), no research and no session log: a one-context pass never enters the persistent state of a hat (P-10).
+ */
+async function mergeQuickRun(roomResolved, lr, args, deps) {
+  const ledger = lr.ledger;
+  if (ledger.steps.merge) return { ok: false, reason: 'step_already_done:merge' };
+  const homeDir = homeDirOf(deps);
+  const map = readRunMap(homeDir, ledger.run_id, roomResolved);
+  if (!map) return { ok: false, reason: 'run_map_missing' };
+  const counts = readCounts(args.countsPath);
+  if (!counts.ok) return counts;
+  const rulings = readRulingsStore(roomResolved);
+  if (!rulings.ok) return rulings;
+  const read = readJsonFile(args.quickResultPath, { noSymlink: true });
+  if (!read.ok) return { ok: false, reason: read.reason };
+  const subQuestionIds = ledger.sub_questions.map(s => s.id);
+  const checked = validateQuickResult(read.value, { runId: ledger.run_id, subQuestionIds });
+  if (!checked.ok) return { ok: false, reason: checked.reason };
+  const readings = checked.readings;
+  const now = nowOf(deps);
+
+  const positions = {};
+  for (const sq of ledger.sub_questions) positions[sq.id] = {};
+  for (const hat of READ_HATS) {
+    if (!readings[hat]) continue;
+    for (const p of readings[hat].positions) {
+      positions[p.sub_question][hat] = { value: p.value, line: typeof p.line === 'string' ? p.line : '' };
+    }
+  }
+  const tensionResult = await computeTensions(roomResolved, ledger, positions);
+  if (!tensionResult.ok) return tensionResult;
+  markSettled(tensionResult.tensions, rulings.rulings);
+  const samePosition = computeSamePosition(ledger, positions);
+
+  for (const hat of HATS) {
+    const entry = ledger.hats[hat];
+    entry.research = hat === 'red' || hat === 'blue' ? 'never_searches' : 'not_applicable';
+    entry.reading = readings[hat] ? 'ran' : 'not_run:not_in_quick_result';
+    if (hat === 'blue') continue;
+    entry.rule_lines = [];
+    entry.evidence_items = 0;
+    entry.positions_taken = readings[hat] ? readings[hat].positions.filter(p => p.value !== 'no_position').length : 0;
+    entry.self_search_strings = [];
+    entry.self_found_sources = 0;
+  }
+  const sources = {};
+  for (const hat of HATS) sources[hat] = 0;
+  ledger.positions = positions;
+  ledger.tensions = tensionResult.tensions;
+  ledger.same_position = samePosition;
+  ledger.sources = sources;
+  ledger.quick_result_sha256 = read.sha256;
+  ledger.audit = counts.counts
+    ? { edited_strings: [], cards: counts.counts.cards, stops: counts.counts.stops, agent_runs: counts.counts.agent_runs, reported_by: 'command' }
+    : { edited_strings: [], cards: null, stops: null, agent_runs: null, reported_by: 'not_reported' };
+  ledger.timestamps.merged_at = now.toISOString();
+  markStep(ledger, 'check', 'skipped', now);
+  markStep(ledger, 'merge', 'done', now);
+
+  const artifactPath = path.join(lr.dir, path.basename(lr.dir) + '.md');
+  try {
+    atomicWriteText(artifactPath, buildArtifact(ledger, readings, {}));
+    fs.copyFileSync(args.quickResultPath, path.join(lr.dir, 'quick-result.json'));
+    writeLedger(lr.dir, ledger);
+  } catch (e) {
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  const cleaned = cleanupRun(map, homeDir, ledger.run_id);
+
+  const hatsOut = {};
+  const notRun = [];
+  for (const hat of HATS) {
+    const e = ledger.hats[hat];
+    hatsOut[hat] = { reading: e.reading, evidence_items: 0, self_found_sources: 0 };
+    if (e.reading !== 'ran') notRun.push({ hat, reason: String(e.reading).replace(/^(not_run|rejected):/, ''), state: e.reading });
+  }
+  return {
+    ok: true,
+    notice_lines: quickNoticeLines(ledger),
+    run_id: ledger.run_id,
+    artifact: artifactPath,
+    review_dir: lr.dir,
+    tensions: ledger.tensions,
+    open: ledger.tensions.filter(t => t.state === 'open'),
+    settled: ledger.tensions.filter(t => t.state === 'settled'),
+    same_position: samePosition,
+    hats: hatsOut,
+    not_run: notRun,
+    session_log: {},
     cleanup: cleaned ? 'done' : 'failed',
   };
 }
@@ -2582,7 +2752,8 @@ function cmdRecordRuling(args, deps) {
   const lr = readLedger(roomResolved, args.runId);
   if (!lr.ok) return lr;
   const ledger = lr.ledger;
-  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  // A quick run has the same record of tensions as a deep run, so a ruling works for both (plan 16).
+  if (ledger.mode !== 'deep' && ledger.mode !== 'quick') return { ok: false, reason: 'mode_not_deep' };
   const order = requireStep(ledger, 'merge');
   if (order) return { ok: false, reason: order };
   const read = readJsonFile(args.answerPath, { noSymlink: true });
@@ -3397,7 +3568,7 @@ function main(argv, deps) {
       break;
     case 'merge':
       missing = need(['room', 'run']);
-      if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined }, deps);
+      if (!missing.length) result = cmdMerge({ roomDir: flags.room, runId: flags.run, countsPath: typeof flags.counts === 'string' && flags.counts.length ? flags.counts : undefined, quickResultPath: typeof flags['quick-result'] === 'string' && flags['quick-result'].length ? flags['quick-result'] : undefined }, deps);
       break;
     case 'record-ruling':
       missing = need(['room', 'run', 'answer']);
@@ -3462,6 +3633,9 @@ module.exports = {
   positionMarker,
   buildArtifact,
   deepNoticeLines,
+  quickNoticeLines,
+  noticeLinesOf,
+  validateQuickResult,
   ARTIFACT_LABELS,
   validateReading,
   perHatRules,
