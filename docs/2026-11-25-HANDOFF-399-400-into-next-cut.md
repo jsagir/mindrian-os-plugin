@@ -32,3 +32,11 @@
 - The session-start hook says "You are Larry." with no scope, while the runtime core in the output style is scoped (quick 261125-rtc). Codex as PM and the engineer both recommend scoping the hook line. Owner decision pending.
 - The 401 frontmatter fix (253 of 256 files) and the rename of the agent to `/m:os-Theo_Local` touch the same files as Phase 400's job keys. Order: merge 399 and 400 first, then 401, then the rename.
 - npm: publishing with a stored bypass token ends around January 2027 (GitHub changelog of 2026-07-08). `scripts/release.sh` step 9.5 must move to staged publishing or trusted publishing before then.
+
+## Update 2026-11-25 (later the same day): label rulings closed, Phase 400.2 inserted
+
+- All 20 vocabulary sentences are ruled (307a951ea, f8adbdecc). funding keeps plan-execution. personas is ruled validate-idea with explore, with its One job sentence in `data/section-job-canon.json` (5f72e954b). The capability labels are approved and keep the status provisional until a later pass.
+- The owner approved the rest of the open human items to proceed, which closes the order rule (WR-04, WR-09) as accepted. Still to apply: the relay provider id (IN-04).
+- `bash tests/run-all-400.sh` passed on 5f72e954b.
+- NEW, owner ruling: **Phase 400.2, the persona, hats and research bundle, must be part of the next cut too.** Scope: `.planning/phases/400.2-*/400.2-CONTEXT.md`, seed SEED-149. It is not planned or built yet. Its design runs with the EGM method (elephant draft, goldfish reviews), inside GSD with owner sign-off. Phases 399, 400 and 400.1 carry a pointer to it in their CONTEXT files.
+- Effect on the steps above: the cut waits for 400.2, or the owner rules that 400.2 moves to the cut after. `.planning/` is ignored, so the 400.2 files travel only when force-added.
