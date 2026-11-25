@@ -7,7 +7,15 @@ layer: "loop"
 hitl_shape: "F.1"
 hitl_why: "Discovery resolves to a single next move the navigator confirms."
 body_shape_detail: Six conversation movements as nested nodes; synthesis as a batch write
-serves_jtbd: ["explore"]
+serves_jtbd: ["explore", "find-problem"]
+job_when: "I have a new client or product that I do not yet understand"
+job_want: "to work through a guided conversation one question at a time"
+job_so: "base later design decisions on strategy instead of guesswork"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","disorder"]
+move_type: "analyze"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you have a client or a product and need to understand it before you design or build, /mos:discover runs a guided one-question-at-a-time conversation across six movements and lands a Discovery Brief plus a scaffolded Data Room. It does not design the site; it makes every later decision strategic instead of arbitrary."
 interactive_first_reward: reframe_question
 ui_reference: skills/ui-system/SKILL.md

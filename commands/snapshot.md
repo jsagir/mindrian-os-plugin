@@ -11,6 +11,10 @@ hitl_why: "It offers one snapshot action to approve or defer."
 interactive_first_reward: live_deliverable
 argument-hint: '[<room-path>] [--open]'
 serves_jtbd: ["prepare-pitch", "audit-room"]
+job_when: "I need a frozen copy of my room for someone outside the team"
+job_want: "to package everything into a portable read-only bundle"
+job_so: "share the room as it stands without risk of edits"
+job_sentence_status: "provisional"
 teaching: "When you need a frozen Data Room artifact to share with someone outside the team, /mos:snapshot packages everything into a portable bundle. Read-only by design."
 # Phase 237-05: declares the server-executable join the chain-step dispatcher consumes.
 executable:

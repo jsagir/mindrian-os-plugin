@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "A synthetic expert panel is generated as an independent set consulted in any order."
 serves_jtbd: ["find-bottleneck", "connect-domains"]
+job_when: "a gap in my research may connect to people named in my papers"
+job_want: "to find the authors in my local papers who link to that gap"
+job_so: "contact the right people with a sourced reason"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 interactive_first_reward: instant_brief
 teaching: "When a documented gap may connect to people named in your research papers, /mos:rs-experts searches the selected room's local paper corpus and shows source-linked authors. It does not verify their current expertise or availability."
 # --- Phase 122 workflow-layer frontmatter ---

@@ -20,6 +20,14 @@ hitl_why: "A multi-stage pipeline is picked on a single F.1 next-move card first
 interactive_first_reward: schema_preview
 argument-hint: '[pipeline-name] [--list] [--from-problem-type <x>] [--from-framework <x>]'
 serves_jtbd: ["plan-execution"]
+job_when: "several methods should run as a chain instead of one at a time"
+job_want: "to run them in sequence with each output feeding the next"
+job_so: "get a connected result without handing work between steps"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you want several methodologies chained instead of run one-by-one, /mos:pipeline executes a multi-step pipeline with the room as the connecting tissue. Week 7 pattern."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: meta

@@ -29,6 +29,14 @@ hitl_why: "Deep research plans are reviewed and edited on an F.6 card before any
 interactive_first_reward: methodology_reframe
 argument-hint: "[topic | url]"
 serves_jtbd: ["explore", "understand-market"]
+job_when: "I need fresh evidence from the web on a question in my room"
+job_want: "to gather sourced findings and match each to a place in my room"
+job_so: "file only the findings I approve"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you need fresh evidence from the web cross-referenced with the Brain methodology graph, /mos:research runs the dual-source pull. Public signal plus calibrated framework. Now it also extracts your room context first, surfaces each finding with a candidate filing location, and wires accepted findings as typed graph data other commands can consume. The plan-run mode is the one place research plans run: quick and deep research runs, fetching only under a grant you approved, and filing findings only on your approval."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

@@ -1,0 +1,74 @@
+---
+id: SEED-149
+status: planted
+planted: 2026-11-25
+planted_during: work/400-job-sentences-cynefin-layer (owner label review, personas section job)
+trigger_when: now. Owner ruling 2026-11-25: this is part of the next cut, as an inserted phase after 400.1
+scope: medium
+---
+
+# SEED-149: The persona, hats and research bundle
+
+`/mos:persona` works with the six hats AND with research. The six hat personas are produced from the room, each hat makes its own research, then each hat does its persona work from its own perspective. Owner rulings 2026-11-25.
+
+## Why This Matters
+
+- The `personas/` section holds the six De Bono hat lenses that `/mos:persona` generates, not customer personas. Its section job was ruled validate-idea with explore as second job (data/section-job-canon.json, personas row, with the One job sentence; commit 5f72e954b).
+- Owner: the hats serve any time a multi-perspective view is needed, research included, not only a test of one artifact.
+- Today `/mos:persona` dispatches persona-analyst once per hat with `web_scope: null`: the six lenses reason over the room only. The hat-scoped research leg exists already and only `/mos:bono` uses it (agents/persona-analyst.md role (a), lib/core/bono/cell-fanout.cjs, lib/core/bono/persona-research.cjs).
+
+## Model: elephant-goldfish (EGM)
+
+Owner: EGM is a good model of persona work. Source: `~/.claude/plugins/marketplaces/egm` (read 2026-11-25 by a read-only agent; no code was run).
+
+Rules that carry over:
+- Isolation: no hat reads another hat before the synthesis.
+- Fresh context per persona. A same-context run is a different thing and must say so.
+- Withheld context: a hat does not see the conversation or Larry's view of the target. It gets an explicit brief.
+- A persona is its stance, what it checks, and what it must NOT judge.
+- A hat that failed is "not run", never "no objection".
+- A settled tension is not re-opened by a later run.
+
+Rules that do NOT carry over:
+- Zero context. A hat needs the room; withhold the conversation and the other hats, not the room.
+- Fixed persona files. Here the personas are produced from the room (owner ruling).
+- Loop until clean. Six hats never reach zero tension; the disagreement is the product.
+- Severity ranks and auto-fix. Only the navigator confirms a venture claim (Part 9).
+- Dedup that merges findings. Two hats that agree are a convergence signal and stay attributed.
+
+## Design (owner order, fixed)
+
+0. Brief. Larry writes the target, the governing question and the reading list of room paths. The navigator confirms.
+1. Produce. Six fresh persona-analyst agents each build one hat persona from the room. Fixed part: the hat discipline. Room part: focus, the hat questions, the generic research handles. No hat sees another hat.
+2. Research. Each hat makes its own research through the existing Bono leg. White = data, Black = failure cases, Green = innovation, Yellow = success cases. Red and Blue make no web call.
+3. Persona work. Each hat analyses the target with its own research only; a hat cannot cite another hat's sources.
+4. Synthesis. Larry merges the readings with the existing tension map. The navigator rules on each tension. Every claim stays proposed until a human confirms it.
+
+## Owner rulings (2026-11-25)
+
+- Lifetime: the six personas are built once and reused until the room changes.
+- Two modes, each with its own identity. Deep: six isolated hats, own research, own analysis. Quick: all six hats in one pass, no research, named as a fast look and not as an independent review.
+- Approval: one card per researching hat with its exact search strings (four cards per deep run).
+- Synthesis: Larry. Blue stays a sixth independent reader, not the judge.
+- Reuse: no new agent. The wiring reuses the persona-analyst research leg of /mos:bono (Part 7).
+- Process: a formal GSD phase with owner sign-off; the design document is drafted and reviewed with the EGM method (elephant draft, goldfish reviews).
+- Release: part of the next cut. Phases 399, 400 and 400.1 carry a pointer to it.
+
+## First checks (agent findings, NOT verified by a run)
+
+1. Web query gate. Code comments say `auditQueryString` gates the Bono web leg. The agent read lib/core/research-corpus.cjs as running it for the brain-cypher source only; web sources rely on the grant card plus `auditWebCredential`. If true, reuse without the card leaves a web query with no content check. Confirm in code first.
+2. Research handle. `genericDomainHandle` cuts a label to six words. A label taken from room text can carry a venture name. Check before any query leaves the machine (Part 8).
+3. Persona files. `/mos:persona --parallel` expects persona files; the step that writes reasoned ones was not found (the default generate mode routes to --parallel, only the template preview writes files).
+4. `personaDispatchCell` sets stance to supports when any evidence exists; Black's disconfirming-first rule may not pass without the fuller agent step.
+5. `web_scope` changes go through the generated connector registry, not by hand.
+
+## Open questions
+
+- May a hat read the whole room, or only the reading list of the brief?
+- Is HAT_GOVERNANCE allowed outside the Bono debate (the file states a debate-only scope)?
+- Which path holds persona files: `personas/` (persona-ops.cjs) or `room/team/ai-personas/*` (commands/persona.md `produces`)?
+- Do evidence claims from hat research file into `personas/` or into the section of the subdomain?
+
+## Gate
+
+Tri-polar: CLI, Desktop and Cowork. Part 8 on every search; Part 9 on every claim; Part 11 shape declaration for the new gates.

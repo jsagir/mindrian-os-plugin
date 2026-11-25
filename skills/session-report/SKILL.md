@@ -13,6 +13,10 @@ hitl_why: "A read-only conversation-flow report that emits a structured artifact
 interactive_first_reward: methodology_reframe
 argument-hint: "(no args -- reads the conversation you just had)"
 serves_jtbd: ["audit-room"]
+job_when: "I finished a conversation and wonder whether it reached a conclusion"
+job_want: "to get a structured report of which steps and gates fired"
+job_so: "forward a clean account of the session instead of a chat log"
+job_sentence_status: "provisional"
 teaching: "When you have finished a conversation with Larry and want to see whether it fired the right things at the right time -- did it reach a conclusion or circle, did it elevate across frames, did the gates fire -- run /mos:session-report. It emits a clean structured report you can forward, not a chat log. The tester-cohort report surface (2026-07-01 standup promise)."
 disable-model-invocation: false
 allowed-tools: ""

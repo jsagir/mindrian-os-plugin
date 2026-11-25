@@ -42,7 +42,15 @@ body_shape: "methodology"
 layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The value-map and customer-profile fits are assessed as an independent set, an unordered basket."
-serves_jtbd: ["validate-idea", "prepare-pitch"]
+serves_jtbd: ["validate-idea", "prepare-pitch", "decide-pursue"]
+job_when: "I have a value proposition but no proof that it holds"
+job_want: "to test it in order against the gates a value proposition must pass"
+job_so: "learn which gate it fails before customers show me"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Setup: checking business-model/problem-definition/market-analysis
 # for existing work previews the three-gate structure before the navigator

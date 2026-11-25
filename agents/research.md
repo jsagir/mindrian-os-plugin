@@ -1,6 +1,11 @@
 ---
 name: research
 description: Gather and verify external intelligence via Tavily + Brain cross-reference. Files sourced artifacts with provenance.
+serves_jtbd: ["understand-market"]
+job_when: "my room needs outside evidence on a market, a technology or a claim"
+job_want: "to gather and verify external sources and file them with provenance"
+job_so: "build on claims that each carry a source"
+job_sentence_status: "provisional"
 model: inherit
 color: blue
 # 391: host-read tools list; plugin-scoped MCP names per card C1 of 391-DECISION.md. Quick 261108-es3 removed the allowed-tools key: the host does not recognize or apply it for plugin agents (SEED-147).

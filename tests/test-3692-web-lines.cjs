@@ -334,14 +334,14 @@ async function main() {
   });
 
   // ---- W10 ----
-  await leg('W10 egress policy: six non-web lines; a research override is ignored as override_unknown_line:research', async function () {
+  await leg('W10 egress policy: seven non-web lines (399-05 added decision_advisor); a research override is ignored as override_unknown_line:research', async function () {
     const dir = mkRoomDir();
     const names = Object.keys(egressPolicy.loadEgressPolicy(dir).lines).sort().join(',');
     fs.mkdirSync(path.join(dir, '.mindrian'), { recursive: true });
     fs.writeFileSync(path.join(dir, '.mindrian', 'egress-policy.json'), JSON.stringify({ lines: { research: false } }));
     const pol = egressPolicy.loadEgressPolicy(dir);
     const ignoredOk = pol.ignored.indexOf('override_unknown_line:research') !== -1;
-    return (names === 'citation_check,entity_extraction,judge_jev,prose,theo,vector_model_download' && ignoredOk)
+    return (names === 'citation_check,decision_advisor,entity_extraction,judge_jev,prose,theo,vector_model_download' && ignoredOk)
       || ('lines=' + names + ' ignored=' + JSON.stringify(pol.ignored));
   });
 

@@ -26,6 +26,14 @@ hitl_why: "The recalled cross-domain pairs become a research plan the navigator 
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 9, argued in full): first delivery at commands/eureka.md:216, the ranked cross-domain opportunity table with the weak-signal tail flagged, over the navigator's own room content.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains", "explore"]
+job_when: "my room holds ideas from different fields that might combine"
+job_want: "to research the most promising cross field pairs"
+job_so: "file the pairs that the evidence supports as fundable opportunities"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you want to see where your room's ideas cross-pollinate into fundable opportunities, /mos:eureka recalls cross-domain pairs from your room's graph, researches them as a perspective of the research planner, and files the supported ones only on your yes."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

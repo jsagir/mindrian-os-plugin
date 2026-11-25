@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Reverse-salient bottlenecks are listed as an independent set the navigator prioritizes in any order."
 serves_jtbd: ["find-bottleneck"]
+job_when: "progress feels stuck and I cannot say where"
+job_want: "to name the component that lags behind the rest"
+job_so: "put my effort where it unblocks the whole venture"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex","disorder"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: mapping the system boundaries previews the Reverse
 # Salient structure before the navigator invests in the full bottleneck hunt).

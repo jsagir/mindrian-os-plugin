@@ -9,6 +9,10 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Shape F / De Stijl render contract every surface renders through; a presentation substrate, not a triggered reach."
+job_when: "I read output from many different commands"
+job_want: "to see every screen in the same zones, shapes, marks and colors"
+job_so: "read any result quickly because its layout is familiar"
+job_sentence_status: "provisional"
 ---
 
 # UI Ruling System

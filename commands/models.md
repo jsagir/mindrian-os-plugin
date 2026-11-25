@@ -11,6 +11,10 @@ hitl_why: "The routing profile offers a single next-move selection."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 24): first delivery at commands/models.md:88, the resolved profile/model routing table, a configuration-state readout of the plugin's own operator settings.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["compare-options"]
+job_when: "different kinds of work in my room may need different models"
+job_want: "to see and switch which model handles which kind of work"
+job_so: "balance quality and cost for each task"
+job_sentence_status: "provisional"
 teaching: "When you want to see or switch which model routes which kind of work, /mos:models opens the routing profile. Different tasks deserve different models."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools:

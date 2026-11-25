@@ -1,0 +1,104 @@
+{
+  "schema": "mos.cynefin-domains/1",
+  "status": "provisional",
+  "_note": "Phase 400 (O-05): labels provisional; the PwS-Book navigating-complexity chapter is the label source; only headings and sha256 hashes of book lines are stored here, never book text. Card wording and host notes await owner confirmation (O-03).",
+  "_ruling": "O-13 (owner card 2026-11-24): the two-stage card wording and the disorder and chaotic host notes are accepted as written.",
+  "label_source": {
+    "book": "PwS-Book",
+    "path": "chapters/navigating-complexity.md",
+    "ruling": "O-05"
+  },
+  "domains": [
+    {
+      "id": "clear",
+      "name": "Clear",
+      "verb_order": ["sense", "categorize", "respond"],
+      "posture": "Follow the known practice: write the procedure and do it.",
+      "move_type": "categorize",
+      "glossary_id": "clear-domain-questions",
+      "book_heading": "Cynefin sorts situations by cause and effect",
+      "quote_sha256": "f81212c05b06a981d5b6d898cd6f4fd2ee1f3d0f9969d4213a0fcd88482d84f5"
+    },
+    {
+      "id": "complicated",
+      "name": "Complicated",
+      "verb_order": ["sense", "analyze", "respond"],
+      "posture": "Ask an expert, then ask a second expert who disagrees.",
+      "move_type": "analyze",
+      "glossary_id": "complicated-domain-questions",
+      "book_heading": "Cynefin sorts situations by cause and effect",
+      "quote_sha256": "ad3b3560cd62ac26edbf38452e43d6fbc0b5c3347df39858fc4e9805631b47cf"
+    },
+    {
+      "id": "complex",
+      "name": "Complex",
+      "verb_order": ["probe", "sense", "respond"],
+      "posture": "Run small, safe-to-fail probes and watch what grows.",
+      "move_type": "probe",
+      "glossary_id": "complex-domain-questions",
+      "book_heading": "Cynefin sorts situations by cause and effect",
+      "quote_sha256": "31a0392721be0e055b88a45cc64ff955f3cba463accabfce0611081f1f51fbca"
+    },
+    {
+      "id": "chaotic",
+      "name": "Chaotic",
+      "verb_order": ["act", "sense", "respond"],
+      "posture": "Act first to make the situation stable, then look again.",
+      "move_type": "act",
+      "glossary_id": "chaotic-domain-questions",
+      "book_heading": "Cynefin sorts situations by cause and effect",
+      "quote_sha256": "e6beaa36d04abda6a3905e0b1deb8d938f46be538d8009853e6c88dead40dec6"
+    },
+    {
+      "id": "disorder",
+      "name": "Disorder",
+      "verb_order": ["slice", "place"],
+      "posture": "Slice the situation into parts and place each part in its own domain.",
+      "move_type": "slice",
+      "glossary_id": "confused-domain-questions",
+      "book_heading": "Cynefin sorts situations by cause and effect",
+      "quote_sha256": "642936ea608e0b1e4126828f5ad41483a2fb5ac8e9ac79283e54a3d1b4c16c37"
+    }
+  ],
+  "host_notes": {
+    "disorder": {
+      "text": "Cause and effect domain: disorder. The navigator cannot tell which domain applies. The book's move for disorder is to slice: break the situation into parts and place each part in its own domain before choosing a move. The host model decides how to use the shortlist.",
+      "ruling": "O-03",
+      "book_heading": "Each domain asks for a different order of verbs",
+      "quote_sha256": "8e49b3437fd5d9c882d7503a37b82066a841cc799ae6f58421f0fe9868df3715"
+    },
+    "chaotic": {
+      "text": "Cause and effect domain: chaotic. No command on this install is an act-first move, so there is no strong pick. Act to make the situation stable first, then look again.",
+      "finding": "F-04"
+    }
+  },
+  "card": {
+    "kind": "cause_effect_domain",
+    "question_source": {
+      "book_heading": "Question 1: who can see cause and effect?",
+      "quote_sha256": "d9eaab5f20dfb319d10bbaca4a6ab86e9952ce0de50af0f3da62469ab9804f2a"
+    },
+    "no_answer": "store_nothing",
+    "_no_answer_note": "Closing a dialog with no answer, a reject or a defer stores nothing.",
+    "stages": [
+      {
+        "stage": 1,
+        "header": "Who can see cause and effect here, before you act?",
+        "options": [
+          { "id": "ce-anyone", "label": "Everyone can see it", "domain": "clear" },
+          { "id": "ce-trained", "label": "Only trained people can see it", "domain": "complicated" },
+          { "id": "ce-nobody", "label": "Nobody can see it before we act", "domain": null, "next_stage": 2 },
+          { "id": "ce-cannot-tell", "label": "We cannot answer: people give different answers", "domain": "disorder" }
+        ]
+      },
+      {
+        "stage": 2,
+        "header": "Is there time to try small, safe probes first?",
+        "options": [
+          { "id": "ce-probe", "label": "Yes: we can try safe probes and watch", "domain": "complex" },
+          { "id": "ce-act", "label": "No: we must act now to make it stable", "domain": "chaotic" }
+        ]
+      }
+    ]
+  }
+}

@@ -295,7 +295,8 @@ async function main() {
   await check('C1. the mark names the order rule and the ledger build; it is in the full fingerprint only', () => {
     const mark = NM.selectorMark();
     assert.strictEqual(typeof LEDGER.built_at, 'string', 'the ledger file has built_at');
-    assert.strictEqual(mark, 'order ' + NM.SELECTOR_ORDER + ', ledger built ' + LEDGER.built_at);
+    // Phase 399 plan 07: the mark names the advisor table build.
+    assert.strictEqual(mark, 'order ' + NM.SELECTOR_ORDER + ', ledger built ' + LEDGER.built_at + ', advisor table ' + (function () { const A = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'shortlist.cjs')); return A.advisorEnabled() ? A.tableMeta().version : 'off'; })()); // advisor is opt-in
     const basis = B.recordBasis(sectionPath, null, []);
     assert.strictEqual(basis.selector, mark);
     const lines = ['MINTO.md', 'FEYNMAN.md', 'BRAIN.md', 'CONTEXT.md', 'ROOM.md'].map((f) => {

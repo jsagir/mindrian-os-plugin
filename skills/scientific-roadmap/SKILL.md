@@ -32,6 +32,14 @@ hitl_stages:
     mode: "parallel"
 hitl_why: "An entry gate confirms what must be delivered and picks the starting step, the first four steps walk in order with an approve-reject-defer gate on each, a systems pass gate runs before paths are enumerated at a harvest scope, limiters are interrogated as an any-order basket, the ranking is ratified at a decision gate, the hypothesis plan is reviewed before research runs, and filing is an any-order basket."
 serves_jtbd: ["find-bottleneck", "validate-idea"]
+job_when: "I know what I must deliver but not how to get there"
+job_want: "to find the limits that are only assumed and rank them by what they unlock"
+job_so: "turn the top limits into testable hypotheses"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Reward before investment: the entry gate shows the navigator what Theo's steps and
 # the room's bound inputs look like before any step is walked.
 interactive_first_reward: schema_preview

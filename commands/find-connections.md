@@ -9,6 +9,14 @@ hitl_why: "Candidate connections across the room are returned as an independent 
 # Phase 267.3-04, ruled in 267.3-CLASSIFICATION.md (Row 8): first delivery at commands/find-connections.md:88, the aha moments: unexpected cross-domain links and the analogy handed back in the navigator's own terms.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["connect-domains"]
+job_when: "I suspect my work touches a pattern in another field"
+job_want: "to trace links between my room and other fields"
+job_so: "find connections I did not know to look for"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you suspect your work touches a pattern in another field, /mos:find-connections traces cross-domain links through the graph. Surfaces the connections you did not know to look for."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

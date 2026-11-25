@@ -86,8 +86,9 @@ function auditRecord(provider) {
   };
 }
 // 369.2-05, ruling 2026-10-05: the web lines are not policy-gated; the Part 8 fence is the Theo line only.
-const LINES = ['vector_model_download', 'judge_jev', 'citation_check', 'prose', 'theo', 'entity_extraction'];
-const DEFAULTS = { vector_model_download: false, judge_jev: false, citation_check: false, prose: true, theo: true, entity_extraction: false };
+// Phase 399 plan 05: decision_advisor line added, default false (I-11).
+const LINES = ['vector_model_download', 'judge_jev', 'citation_check', 'prose', 'theo', 'entity_extraction', 'decision_advisor'];
+const DEFAULTS = { vector_model_download: false, judge_jev: false, citation_check: false, prose: true, theo: true, entity_extraction: false, decision_advisor: false };
 
 (async function main() {
   await leg('E0 the reader module loads', function () {
@@ -100,13 +101,13 @@ const DEFAULTS = { vector_model_download: false, judge_jev: false, citation_chec
   }
 
   // ----- E1 -----
-  await leg('E1 loadEgressPolicy returns the six non-web lines with the planning defaults (369.2-05)', function () {
+  await leg('E1 loadEgressPolicy returns the seven non-web lines with the planning defaults (369.2-05)', function () {
     const room = mkRoom();
     const p = egress.loadEgressPolicy(room);
     const names = Object.keys(p.lines).sort().join(',');
     const defaultsOk = LINES.every(function (l) { return egress.lineAllowed(p, l) === DEFAULTS[l]; });
     const fileCount = Object.keys(require(path.join(REPO_ROOT, 'data/egress-policy.json')).lines).length;
-    return (names === LINES.slice().sort().join(',') && defaultsOk && fileCount === 6 && p.offline === false && Array.isArray(p.ignored) && p.ignored.length === 0) ||
+    return (names === LINES.slice().sort().join(',') && defaultsOk && fileCount === 7 && p.offline === false && Array.isArray(p.ignored) && p.ignored.length === 0) ||
       JSON.stringify({ names: names, defaultsOk: defaultsOk, fileCount: fileCount, ignored: p.ignored });
   });
   await leg('E1b a line with no entry (or a null line) is never allowed', function () {

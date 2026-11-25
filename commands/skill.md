@@ -11,6 +11,10 @@ hitl_why: "It proposes materializing one confirmed SyntheticExpert into a skill 
 interactive_first_reward: schema_preview
 argument-hint: "[expert]"
 serves_jtbd: ["explore"]
+job_when: "a confirmed expert persona lives in my knowledge graph"
+job_want: "to turn that persona into a skill I can talk to in the room"
+job_so: "consult the expert with the confirmed record as its source"
+job_sentence_status: "provisional"
 teaching: "When you have a CONFIRMED SyntheticExpert in the graph and you want to talk to it as a persona anywhere in the room, /mos:skill projects that node's props (hat, name, beautiful question, research approach, evidence tier, provenance) into a room-scoped skills/<expert>/SKILL.md through the SHIPPED build-new-surface.cjs generator (kind=skill, --from-expert). The confirmed node is the source of truth; the skill is its projection."
 allowed-tools:
   - Read

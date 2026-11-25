@@ -3,6 +3,10 @@ name: ingest-methodology
 description: Maintainer pipeline to add a methodology to the remote Brain safely
 help_jtbd: "Add a new methodology to the Brain so every user can reach it - without ever leaking user data."
 serves_jtbd: ["build"]
+job_when: "I maintain the method library and have a new method"
+job_want: "to run the full intake pipeline with its data boundary check"
+job_so: "make the method reachable for every user with no user data egress"
+job_sentence_status: "provisional"
 teaching: "Maintainer-only. When you want to teach the Brain a new methodology, /mos:ingest-methodology runs the 7-step pipeline - encode, Part-8 boundary gate, graph write, vector write, trigger + chain, register, local refresh - so the framework is reachable by every user and operable Local-Only, with zero user-data egress."
 body_shape: "action-report"
 layer: "graph"

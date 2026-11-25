@@ -1,0 +1,34 @@
+{
+  "schema": "mos.problem-axes-wording/1",
+  "_note": "Phase 400 plan 11 (AX-01, AX-02). level_wording: the Well-defined test of the definition level. v1 is the shipped default and equals the Well-defined signal cell of the Axis 1 table in references/methodology/problem-types.md. v2 is the reworded test of F-07 and O-02 (a stated, measurable target makes a problem Well-defined, and also wicked when the target is disputed and fixes shift it); it is provisional because F-07 measured it on the same cases it was fitted on, so it ships only behind MINDRIAN_LEVEL_WORDING=v2. wicked_cutoff: F-06 found the raw wicked answer says yes too readily at 0.5, so a wicked probability becomes yes or no only through a stored fitted cut-off; scripts/derive-wicked-cutoff.cjs fits it at dev time and writes only the value, counts and file hashes. Local data only: no level or wicked question is sent anywhere (Canon Part 8).",
+  "level_wording": {
+    "flag_env": "MINDRIAN_LEVEL_WORDING",
+    "default_version": "v1",
+    "versions": {
+      "v1": {
+        "well_defined": "Clear parameters, specific constraints",
+        "wicked_note": null,
+        "status": "shipped"
+      },
+      "v2": {
+        "well_defined": "A specific measurable target, or a closed set of known options with known measures. This holds even when the parties dispute it. A general wish to improve does not count.",
+        "wicked_note": "A well-defined problem can also be wicked: when the target is disputed and each fix shifts the problem.",
+        "status": "provisional",
+        "basis": "F-07, fitted on the same cases; fresh cases deferred"
+      }
+    }
+  },
+  "wicked_cutoff": {
+    "state": "ruled",
+    "value": 0.9,
+    "fitted_on": null,
+    "sources": null,
+    "status": "provisional",
+    "rule": "a wicked probability becomes yes only at or above a stored cut-off: fitted from labels, or ruled by the owner and provisional until a fit replaces it; with no stored cut-off the answer is unknown (null); never a raw 0.5 cut (F-06)",
+    "ruled_on": {
+      "method": "provisional conservative policy choice; a false yes is weighted worse because the wicked label changes the posture of the product (F-06); not fitted from labels",
+      "decided_by": "Codex and Fable 5.2, delegated by the owner",
+      "decided_at": "2026-11-25"
+    }
+  }
+}

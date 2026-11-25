@@ -13,6 +13,10 @@ hitl_why: "Help offers one next move on where to go next."
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: F.1 Next Move (11 families as 3 sequential cards via AskUserQuestion, max 4 questions x 4 options per call)
 serves_jtbd: ["explore"]
+job_when: "the number of available commands feels overwhelming"
+job_want: "to choose from a short set of command families and run the one I pick"
+job_so: "find the right move without reading the full list"
+job_sentence_status: "provisional"
 teaching: "When the surface feels overwhelming, /mos:help is a selector: 11 command families across 3 cards, each family's commands are the options, and the one you pick runs. Add --list for the full text view, or /mos:help <family-id> for one family's full command list."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Read Glob Bash AskUserQuestion Skill

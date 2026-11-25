@@ -9,6 +9,14 @@ hitl_why: "It presents the reverse-salient explanation and one next move to take
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 12): first delivery at commands/rs-explain.md:70, the Larry-voiced NL explanation triangulated across room.db, Aura and the methodology Brain.
 interactive_first_reward: methodology_reframe
 serves_jtbd: ["find-bottleneck"]
+job_when: "I have a question about a lagging component that an earlier analysis found"
+job_want: "to ask in plain language and get an answer grounded in my graph"
+job_so: "understand the finding without reading the raw analysis"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When you have a question about a Reverse Salient discovery, /mos:rs-explain takes natural language in and returns a Larry-voiced explanation grounded in the graph. Bidirectional NL to graph and back."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

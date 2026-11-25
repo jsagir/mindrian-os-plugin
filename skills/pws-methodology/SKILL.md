@@ -9,6 +9,10 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 connector:
   excluded: true
   reason: "Ambient always-on infra. The Tier 0 methodology reference fallback loaded as context; a passive reference substrate, not a problem-state-triggered reach."
+job_when: "my problem calls for a method and I cannot tell which one fits"
+job_want: "to have the problem routed to the fitting framework in conversation"
+job_so: "use the right method without a catalogue of names"
+job_sentence_status: "provisional"
 ---
 
 # PWS Methodology -- Framework Routing

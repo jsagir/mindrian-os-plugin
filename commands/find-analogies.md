@@ -7,6 +7,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "Cross-domain analogies are returned as an unordered set of candidates to pick from in any order."
 serves_jtbd: ["connect-domains"]
+job_when: "the answer to my problem might already exist in another field"
+job_want: "to match the structure of my problem against solutions from other fields"
+job_so: "borrow a proven structure instead of inventing one"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Step 1-2 flow: the abstracted functional pattern previews the
 # SAPPhIRE/TRIZ candidate structure before the navigator invests in the

@@ -9,6 +9,10 @@ hitl_why: "It offers a single timeline-refresh action to approve or defer."
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: "[--all | --section <slug>]"
 serves_jtbd: ["validate-idea", "audit-room"]
+job_when: "the timeline of plain explanations in a section feels stale"
+job_want: "to rebuild its automatic part from the memory event log while my own prose stays untouched"
+job_so: "follow how my understanding of the section grew"
+job_sentence_status: "provisional"
 teaching: "When a section's FEYNMAN.md timeline feels stale, /mos:feynman-timeline-refresh rebuilds the auto-section from the memory event log. Human-authored prose stays byte-preserved."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion

@@ -12,6 +12,14 @@ argument-hint: "[venture sentence]"
 # Phase 389 plan 09 (owner D5 and D8, 2026-11-08): soft-alias stub for one release, forwarding to the Seed depth of /mos:structure-argument.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["explore"]
+job_when: "I can describe my venture in one sentence but have no argument behind it"
+job_want: "to turn that sentence into a first argument pyramid"
+job_so: "see the premises my venture rests on"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "structure-argument"
 deprecated_removal: "v2.0.0-beta.86"

@@ -73,7 +73,10 @@ const EXPECTED_FRONTMATTER = [
 ok('frontmatter block is byte-unchanged against the pre-plan snapshot', function () {
   const m = doc.match(/^---\n[\s\S]*?\n---/);
   assert.ok(m, 'a YAML frontmatter block must open the file');
-  assert.equal(m[0], EXPECTED_FRONTMATTER, 'frontmatter must be byte-identical to the snapshot captured before this plan ran');
+  // Phase 400 (plan 400-03, O-11) adds the 4 job sentence keys as own frontmatter lines; drop them
+  // before the compare. Every other frontmatter byte stays pinned.
+  const fmNoJob = m[0].split('\n').filter((l) => !/^(job_when|job_want|job_so|job_sentence_status):/.test(l)).join('\n');
+  assert.equal(fmNoJob, EXPECTED_FRONTMATTER, 'frontmatter must be byte-identical to the snapshot captured before this plan ran');
 });
 
 ok('frontmatter carries no layer: key and no hitl_shape key', function () {

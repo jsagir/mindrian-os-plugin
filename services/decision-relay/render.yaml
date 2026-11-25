@@ -1,0 +1,117 @@
+# Render Blueprint for the MindrianOS decision relay (Phase 400, RL-04; owner ruling O-08).
+#
+# CONFIG PLUS DOC. Committing this file provisions nothing and deploys nothing. Every step that
+# creates, pays for, keys or deploys the service is OWNER-GATED and listed in README.md beside
+# this file. No agent applies this Blueprint, calls a Render API or installs the Render CLI.
+#
+# THIS IS A CUSTOM BLUEPRINT PATH. The file lives at services/decision-relay/render.yaml, not at
+# the repo root. Render: "By default, Render looks for the render.yaml file at the root of your
+# repo, but you can define your Blueprint file anywhere" (render.com/docs/infrastructure-as-code).
+# The owner enters services/decision-relay/render.yaml in the Blueprint Path field.
+#
+# Field names checked on 2026-11-24 against the Blueprint YAML Reference,
+# render.com/docs/blueprint-spec: type, name, runtime, plan, region, buildCommand, startCommand,
+# healthCheckPath, numInstances, autoDeployTrigger (and the deprecated autoDeploy), buildFilter
+# (paths, ignoredPaths), envVars (key, value, sync). rootDir is a real field and is left out on
+# purpose (see below).
+#
+# NO SECRET VALUE IS EVER WRITTEN HERE. GEMINI_API_KEY and RELAY_OPERATOR_TOKEN_SHA256 carry
+# sync: false and no value: Render prompts for them in the Dashboard when the Blueprint is
+# created. tests/test-400-relay-packaging.cjs (K2) refuses a value line on either of them and
+# any line with a long hex run or a Google key prefix.
+
+services:
+  - type: web
+    name: decision-relay
+    runtime: node
+    # Owner confirms at deploy (owner-gated). 0.5c-512mb is the smallest paid web plan in the
+    # Blueprint reference plan table and Render's default for a new web service. Never free: a
+    # free web service sleeps when idle, and the first call after that waits on a cold start.
+    # Confirm the plan id and its price on Render before the first deploy.
+    plan: 0.5c-512mb
+    # Owner confirms at deploy (owner-gated). oregon is the region of the Theo service; it cannot
+    # be changed after the service is created.
+    region: oregon
+    # ONE INSTANCE (assumption A3, unverified). The caps live in memory in limits.cjs, so two
+    # instances would each keep their own counters and double every cap. Render: "If you omit
+    # this field: Render uses 1 for a new service"; it is set anyway so the intent is visible.
+    numInstances: 1
+    # NO rootDir, ON PURPOSE (Pitfall 10). Render: "Files outside your service's root directory
+    # are not available to the service at build time or at runtime" (render.com/docs/monorepo-support).
+    # The relay requires the shared labels-only validator and adapter from lib/core/decision-advisor/
+    # and reads data/job-vocabulary.json and data/command-registry.json at run time. A rootDir of
+    # services/decision-relay would hide all of them and the relay would fail at start. With no
+    # rootDir the service root is the repo root, and buildFilter below limits what triggers a build.
+    #
+    # A NO-INSTALL BUILD (assumption A2, unverified). The relay uses Node built-ins only and has
+    # no dependency. npm ci would install the plugin's root dependencies for nothing. If Render
+    # refuses this build command, the fallback is npm ci --omit=dev --ignore-scripts (time only).
+    buildCommand: node --version
+    startCommand: node services/decision-relay/server.cjs
+    # Answered by server.cjs with 200 and exactly {"status":"ok"}. Liveness only: no catalog
+    # hash, no counts, no version. The catalog hash goes on POST /v1/decide replies to a caller
+    # that passed the caller check only (x-mindrian-catalog), never here (the Theo health posture).
+    healthCheckPath: /health
+    # AUTO DEPLOY OFF. Every deploy is an owner step, from the release commit (Pitfall 12: the
+    # relay validates against the catalog of the commit it runs, so a deploy from another commit
+    # refuses current clients with catalog_skew). autoDeployTrigger is the current field; Render:
+    # "off: Disable auto-deploys. Equivalent to the deprecated setting autoDeploy: false ... If you
+    # include both, autoDeployTrigger takes precedence." The string is quoted because a bare off
+    # is a boolean in YAML 1.1. autoDeploy: false stays for a reader of an older reference.
+    autoDeployTrigger: "off"
+    autoDeploy: false
+    # Paths relative to the repo root (Render: "Build filter paths ... are always relative to the
+    # repo's root directory"). They decide when a build triggers; with auto deploy off they matter
+    # for a later owner choice to turn auto deploy on. The list covers every file the relay loads
+    # or reads: tests/test-400-relay-packaging.cjs (K3) runs a full request in a child process,
+    # records every repo file it required or read, and fails if one is not covered here.
+    # An allowlist fails in the silent direction (a missed input does not rebuild), which is why
+    # K3 exists. Extend this list in the same commit that adds a relay input.
+    buildFilter:
+      paths:
+        - services/decision-relay/**
+        - lib/core/decision-advisor/**
+        - lib/core/problem-axes.cjs
+        - lib/core/install-id.cjs
+        - data/job-vocabulary.json
+        - data/command-registry.json
+    envVars:
+      # PINNED, ON PURPOSE (Pitfall 11). Render reads NODE_VERSION first, then .node-version,
+      # .nvmrc, then package.json engines (render.com/docs/node-version). The repo engines line is
+      # >=22.18.0 with no upper bound, and Render: "An unbounded range (such as >=20) always
+      # resolves to the latest release of Node.js". A new Render service otherwise starts on
+      # Node 24. The relay is tested on Node 22.
+      - key: NODE_VERSION
+        value: "22"
+      # Read by clientAddressOf in server.cjs (the Theo rate-limit pattern). Render ends TLS at a
+      # proxy, so the socket peer is the proxy. 1 means: trust the last X-Forwarded-For entry.
+      # Too low: every caller shares the proxy address and one address cap. Too high: a caller
+      # forges entries and mints a fresh address bucket per request. UNVERIFIED against the live
+      # Render chain (review IN-08): before user traffic, read the xff_shape log line of one
+      # request (an entry count, never an address) and set this value from it.
+      - key: RELAY_PROXY_HOPS
+        value: "1"
+      # User traffic stays off (O-10). Only the exact value on turns it on, and only after the
+      # owner confirms the paid Gemini tier (F-09) and gives a separate ruling.
+      - key: RELAY_USER_TRAFFIC
+        value: "off"
+      # =====================================================================================
+      # Set by the owner in the Render Dashboard. No value in the repo, ever.
+      # =====================================================================================
+      # Read by relay.cjs through config.cjs KEY_ENV; sent in one x-goog-api-key header only.
+      - key: GEMINI_API_KEY
+        sync: false
+      # Comma-separated sha256 hex of operator tokens. The token itself never leaves the owner's
+      # machine; README.md shows how to mint one and hash it locally.
+      - key: RELAY_OPERATOR_TOKEN_SHA256
+        sync: false
+
+# DELIBERATELY ABSENT, so a reader can tell "omitted on purpose" from "forgotten":
+#
+# PORT: Render sets it for every web service; server.cjs reads it (default 10000).
+# RELAY_HOST: server.cjs binds 0.0.0.0 by default, which Render requires. The variable exists
+#   only so a local test can bind 127.0.0.1.
+# The cap variables (RELAY_MAX_BODY_BYTES, RELAY_INSTALL_DAILY_QUESTIONS and the rest): their
+#   config.cjs defaults are the proposed values. The owner sets one in the Dashboard to change it;
+#   README.md lists each with its default.
+# rootDir (left out): see the NO rootDir comment above.

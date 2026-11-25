@@ -10,6 +10,10 @@ hitl_why: "It offers one dogfood-flush action to approve or defer."
 interactive_first_reward: "--none (diagnostic surface)"
 argument-hint: ""
 serves_jtbd: ["audit-room"]
+job_when: "the venture room of the plugin lags behind my latest edits"
+job_want: "to drain the pending update queue and refresh its live status"
+job_so: "see the current state of the plugin venture right away"
+job_sentence_status: "provisional"
 teaching: "When you want the plugin's own venture room to reflect your latest edits immediately, /mos:dogfood-flush drains the PostToolUse queue and regenerates the Live (auto) section in STATE.md. The automatic SessionStart drain handles the steady-state case."
 disable-model-invocation: false
 allowed-tools: Bash(node *), AskUserQuestion

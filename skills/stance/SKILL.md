@@ -4,6 +4,14 @@ description: Flip Larry's conversational stance (research / tell-act / ask / red
 license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, Change Date 2030-04-16 to Apache License 2.0).
 help_jtbd: "Flip Larry's conversational stance with one reversible cycle-and-confirm pick."
 serves_jtbd: ["navigate"]
+job_when: "the way the conversation talks to me no longer fits this session"
+job_want: "to switch between pulling evidence, deciding fast, asking questions or challenging me"
+job_so: "get the kind of help that fits the moment"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 argument-hint: "[]"
 body_shape: F.0
 layer: "prompt"

@@ -8,6 +8,14 @@ layer: "loop"
 hitl_shape: "F.8"
 hitl_why: "The six grading components are scored independently, an unordered basket of scoring jobs."
 serves_jtbd: ["audit-room"]
+job_when: "I need a quick read on how well my room frames its problem"
+job_want: "to score the room on the core parts of problem discovery"
+job_so: "see the weakest part right away"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you want a fast read on problem-discovery quality, /mos:grade scores the room on six components in under a minute. The lightweight cousin of /mos:deep-grade."
 # Per docs/reward-before-investment-rule.md line 64-66: show anonymized calibration distribution before requiring content. Remediation tracked as follow-up phase.
 interactive_first_reward: calibration_distribution_preview

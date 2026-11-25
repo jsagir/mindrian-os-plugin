@@ -125,6 +125,26 @@ function rebuildPool(nest, jobUsed) {
     arr(led).forEach((entry) => arr(entry && entry.items).forEach((i) => { if (i && typeof i.id === 'string') pool.add(strip(i.id)); }));
   }
   if (nest.face && nest.face.keyed === true && nest.face.asked === true) arr(nest.face.commands).forEach((x) => { if (x && x.name) pool.add(strip(x.name)); });
+  // Phase 399-07: a strong decision-advisor pick that serves the job also enters the pool (next-move.cjs composeNextMove),
+  // unless the top of the table row is a tie, when the advisor abstains. Same public functions the selector calls.
+  if (jobUsed) {
+    try {
+      const A = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'shortlist.cjs'));
+      const PR = require(path.join(ROOT, 'lib', 'core', 'decision-advisor', 'present.cjs'));
+      let level = null;
+      try { level = require(path.join(ROOT, 'lib', 'core', 'problem-axes.cjs')).readRoomAxes(nest.roomDir).definition_level || null; } catch (_e) { level = null; }
+      const sl = A.advisorEnabled() ? A.lookupShortlist({ jobId: jobUsed, definitionLevel: level, lastCommand: null, exclude: [] }) : null;
+      if (sl && sl.state === 'ok' && !PR.isTopTie(sl)) {
+        const reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8')).commands;
+        arr(sl.options).forEach((o) => {
+          if (!isObj(o) || o.band !== 'strong' || typeof o.command !== 'string') return;
+          const n = strip(o.command);
+          const e = arr(reg).find((c) => c && typeof c.command === 'string' && strip(c.command) === n);
+          if (e && arr(e.serves_jtbd).indexOf(jobUsed) !== -1) pool.add(n);
+        });
+      }
+    } catch (_e) { /* an unreadable advisor adds nothing */ }
+  }
   const cap = capability();
   return Array.from(pool).filter((n) => { const k = cap(n, { kind: 'command' }); return !!k && k.known !== false; }).sort();
 }

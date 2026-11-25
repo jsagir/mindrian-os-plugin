@@ -11,6 +11,10 @@ hitl_why: "A rendered view offers one next move on what to open next."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 23): first delivery at commands/visualize.md:55, a soft-alias stub passing through /mos:dashboard --mermaid's output verbatim (router sub-case).
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room", "prepare-pitch"]
+job_when: "I need a diagram of how the parts of my room connect"
+job_want: "to open the knowledge graph viewer with diagram output"
+job_so: "show the structure of the venture to others at a glance"
+job_sentence_status: "provisional"
 deprecated: true
 deprecated_redirect: "dashboard --mermaid"
 deprecated_removal: "v1.14.0"

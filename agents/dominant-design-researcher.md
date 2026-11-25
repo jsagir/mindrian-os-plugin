@@ -33,6 +33,10 @@ connector:
   reason: "Invoked BY commands/dominant-designs.md's deep-dive research fan-out as one of up to four parallel per-lane fetch workers, strictly AFTER the navigator's gate-card approval; it is never a problem-state-triggered reach itself and never reaches a Decision-Gate fork (it returns structured data only), so a declared interaction shape does not apply to it by construction."
 layer: "loop"
 layer_why: "Fetches ONE lane's approved queries and returns sourced claim rows in a single bounded pass; a worker's own cycle invoked by dominant-designs.md's fan-out, not the graph that dispatches it."
+job_when: "I study whether a technology field is converging on a dominant design"
+job_want: "to gather sourced evidence for one approved evidence lane"
+job_so: "judge the convergence from cited claims, not impressions"
+job_sentence_status: "provisional"
 ---
 
 # Dominant Design Researcher

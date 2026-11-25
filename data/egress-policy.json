@@ -1,6 +1,6 @@
 {
   "schema": "mos.egress-policy/1",
-  "note": "Every non-web line the research planner can send anything out on. The web search lines (OpenAlex, Tavily, patents) are not policy lines (navigator ruling 2026-10-05): the one gate there is the run grant card showing the exact strings, and the audit ledger records every string. The older web paths (Semantic Scholar, grants.gov, research-speaker) follow the same rule since the owner decision of 2026-11-06: an approval card, a credential check and the audit record. A room file at .mindrian/egress-policy.json can only turn lines off, never on. Endpoints only, never keys.",
+  "note": "Every non-web line the research planner can send anything out on. The web search lines (OpenAlex, Tavily, patents) are not policy lines (navigator ruling 2026-10-05): the one gate there is the run grant card showing the exact strings, and the audit ledger records every string. The older web paths (Semantic Scholar, grants.gov, research-speaker) follow the same rule since the owner decision of 2026-11-06: an approval card, a credential check and the audit record. A room file at .mindrian/egress-policy.json can only turn lines off, never on. The decision_advisor line (Phase 399) is not a research planner line; it gates the dev-time decision transport, scripts/decision-advisor-transport.cjs. Endpoints only, never keys.",
   "lines": {
     "vector_model_download": {
       "endpoint": "huggingface.co",
@@ -37,6 +37,13 @@
       "default": false,
       "scope": "off inside this pipeline; its own producer owns its own line",
       "providers": ["anthropic_haiku"]
+    },
+    "decision_advisor": {
+      "endpoint": "Gemini Decision (gemini-decision-1, Decisions API v1beta, Google AI host); Jev-compatible /v1/systemone (hosted Jev or a self-hosted Kev on loopback); the owner's decision relay (POST <base>/v1/decide, Phase 400 services/decision-relay, gated by this line by name)",
+      "default": false,
+      "scope": "labels only (D-03): job id, job summary, definition level, command names and registry teaching text; off until the owner rules on user access (Phase 399 Deferred)",
+      "providers": ["gemini_decision", "jev_decision", "decision_relay"],
+      "paths": { "gemini_decision": "/v1beta/decisions", "jev_decision": "/v1/systemone", "decision_relay": "/v1/decide" }
     }
   }
 }

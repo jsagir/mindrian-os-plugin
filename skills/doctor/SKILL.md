@@ -13,6 +13,10 @@ hitl_why: "It surfaces one diagnosed repair for a single approve-or-defer decisi
 interactive_first_reward: "--none (diagnostic surface)"
 body_shape_detail: per-class status rows with [before → after] pattern, summary totals, F.1 Next Move selector when drift detected without --fix
 serves_jtbd: ["audit-room"]
+job_when: "something about my install feels off"
+job_want: "to diagnose install drift, room identity gaps and display problems, with an optional repair"
+job_so: "get back to my work on a sound setup"
+job_sentence_status: "provisional"
 teaching: "When something feels off with the install, /mos:doctor diagnoses install-state drift, ROOM.md gaps, statusline visibility, and UI compliance. Optionally repairs with --fix."
 allowed-tools: Bash Read AskUserQuestion
 # --- Phase 172-06 CIRS R1 exclude (Canon Part 11) ---

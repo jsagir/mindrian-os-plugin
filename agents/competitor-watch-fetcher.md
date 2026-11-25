@@ -27,6 +27,10 @@ connector:
   reason: "Invoked BY commands/scout.md's Step 4b competitor fan-out as one of up to 5 parallel per-competitor watch workers; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (CLAUDE.md Part 11's render-only/pure-capability exemption)."
 layer: "loop"
 layer_why: "Searches for ONE competitor's recent developments and checks them against supplied claims in a single bounded pass; a worker's own cycle invoked by scout.md's fan-out, not the graph that dispatches it (WD-6)."
+job_when: "my claims about a tracked competitor may be out of date"
+job_want: "to search public sources for its recent funding, launches, pivots and acquisitions"
+job_so: "correct my claims before they mislead a decision"
+job_sentence_status: "provisional"
 ---
 
 # Competitor Watch Fetcher

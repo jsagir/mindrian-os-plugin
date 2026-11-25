@@ -9,6 +9,14 @@ hitl_shape: "F.1"
 hitl_why: "Creating a project offers one next move to confirm and enter it."
 argument-hint: "[name]"
 serves_jtbd: ["explore"]
+job_when: "I am starting a new venture and have no room for it yet"
+job_want: "to create the room structure and register it"
+job_so: "file work in the right place from the start"
+job_sentence_status: "provisional"
+fits_domains: ["complex"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you are starting a new venture, /mos:new-project creates the room scaffolding and registers it in the room registry. The first move of every Mindrian journey."
 # Per docs/reward-before-investment-rule.md line 56-58 remediation: first sentence -> Instant Brief pipeline (this phase's deliverable). Room creation is option 2 of the 3-option footer (Phase 119 wires fully in beta.18).
 interactive_first_reward: instant_brief

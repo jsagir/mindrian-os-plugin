@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 'use strict';
+// Phase 399 plan 07: the NM legs pin the 369.25 and 395 selector order with stub commands (X, Y, A, B). The decision
+// advisor is one more sort key and pool source since 399-07, so the pinned selector runs with the advisor off.
+process.env.MINDRIAN_DECISION_ADVISOR = 'off';
 /*
  * Phase 369.25 plan 18 -- the reader-facing brief and the one next-move composition (pure renderers).
  *

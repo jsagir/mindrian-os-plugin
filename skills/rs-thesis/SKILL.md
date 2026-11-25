@@ -10,6 +10,14 @@ hitl_why: "The reverse-salient thesis is assembled through ordered stages, a fix
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 14): first delivery at commands/rs-thesis.md:55, a lookup of an already-computed thesis by discovery_id, a rendered log rather than fresh analysis.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["find-bottleneck"]
+job_when: "I ran a lagging component discovery earlier and a meeting on it is coming"
+job_want: "to read back its thesis in plain language"
+job_so: "revisit the finding before I discuss it"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "analyze"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you ran a Reverse Salient discovery earlier and want the thesis read back, /mos:rs-thesis surfaces the analytic conclusion in plain language. Best for revisiting old findings before a meeting."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

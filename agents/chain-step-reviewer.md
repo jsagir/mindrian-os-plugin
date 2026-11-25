@@ -35,6 +35,10 @@ connector:
   reason: "Invoked BY a chain step's reviewer declaration as an independent critic; it is never a problem-state-triggered reach itself, and it never reaches a Decision-Gate fork (it returns structured data only), so it is exempt from an hitl_shape declaration by construction (Canon Part 11's render-only/pure-capability exemption)."
 layer: graph
 layer_why: "Reviews one completed step's output inside a chain's multi-step coordination; it is dispatched BY the chain's shared-state contract (SHARED-10), not a standalone loop of its own."
+job_when: "an automatic chain step has finished its work"
+job_want: "to have an independent reviewer check its output against the acceptance criteria of that step"
+job_so: "trust the chain result because a different reviewer did the checking"
+job_sentence_status: "provisional"
 ---
 
 # Chain Step Reviewer

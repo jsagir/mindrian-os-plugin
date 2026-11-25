@@ -10,6 +10,10 @@ hitl_shape: "F.8"
 hitl_why: "Integrations are configured as an independent set the navigator connects in any order."
 argument-hint: "[brain|velma|graph]"
 serves_jtbd: ["explore"]
+job_when: "optional integrations such as a meeting source or a transcription service are not yet connected"
+job_want: "to walk through their configuration step by step"
+job_so: "let the room pull in more of my work"
+job_sentence_status: "provisional"
 teaching: "When you want to wire optional integrations like Velma or a meeting source, /mos:setup walks you through configuration. MindrianOS works without them; they make it work harder. Theo, the teaching graph, is part of MindrianOS and needs no setup."
 allowed-tools:
   - Read

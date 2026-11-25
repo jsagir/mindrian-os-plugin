@@ -24,6 +24,10 @@ connector:
   reason: "Ambient always-on infra. The ONE spine that READS the connector registry and dispatches reaches; the orchestrator itself is the dispatcher, never a dispatched reach, so it is excluded by construction."
 hitl_shape: "F.0"
 hitl_why: "Every dispatched reach is offered through the room-proactive APPROVE/REJECT/DEFER mini-gate (F.0) before the resolved command fires; the dispatched reach's own connector.surface governs only what happens after APPROVE."
+job_when: "a signal in my room suggests a useful next reach"
+job_want: "to see one proposed reach as a decision with its reason"
+job_so: "approve, reject or defer it and have the result filed"
+job_sentence_status: "provisional"
 ---
 
 # Intelligence Orchestrator -- The Reach Dispatcher

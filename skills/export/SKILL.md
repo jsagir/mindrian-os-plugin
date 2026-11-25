@@ -14,6 +14,10 @@ hitl_why: "Export offers a single next move to confirm the export scope."
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 11, argued in full): first delivery at commands/export.md:68, a filed, shareable HTML artifact of the whole Data Room, the "filed document" leg of live_deliverable's own definition.
 interactive_first_reward: live_deliverable
 serves_jtbd: ["prepare-pitch"]
+job_when: "I need to share a view of my room with someone outside it"
+job_want: "to package the view as a self-contained web page"
+job_so: "let them read it with nothing to install"
+job_sentence_status: "provisional"
 teaching: "When you need to share a Data Room view with someone outside the room, /mos:export packages it as a De Stijl HTML artifact. Investor-ready, no install required on their side."
 ui_reference: skills/ui-system/SKILL.md
 allowed-tools: Bash Read Write AskUserQuestion

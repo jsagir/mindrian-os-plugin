@@ -8,6 +8,10 @@ license: BSL-1.1. See LICENSE for complete terms (Business Source License 1.1, C
 connector:
   excluded: true
   reason: "Ambient always-on infra. Assembles conversational context every turn; a continuous substrate skill with no discrete problem-state trigger."
+job_when: "I return to my work after a break"
+job_want: "to have my preferences, venture context and recent topics carried across sessions"
+job_so: "pick up where I left off without explaining myself again"
+job_sentence_status: "provisional"
 ---
 
 # Context Engine -- Session Continuity

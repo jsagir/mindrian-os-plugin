@@ -28,6 +28,10 @@ hitl_shape: "F.8"
 hitl_why: "Grant and funding matches are surfaced as an independent set reviewed in any order."
 layer: "loop"
 layer_why: "Scans grants and funding matches in one pass and surfaces them as an F.8 unordered basket; a single agent's cycle to a stopping condition."
+job_when: "my room signals a funding gap, a deadline or a matching domain"
+job_want: "to scan grants and funding opportunities that fit my venture"
+job_so: "apply in time to the funding that matches my work"
+job_sentence_status: "provisional"
 ---
 
 <!-- Phase 95.6 D-10: external-signal access (WebSearch + mcp__tavily-mcp__*) declared explicitly via the tools list; no Brain access needed (grant discovery is a public-signal scan, not a methodology lookup); no implicit MCP inheritance. -->

@@ -18,6 +18,10 @@ paths:
 connector:
   excluded: true
   reason: "Ambient always-on infra. The passive room-listening skill runs every turn to capture insights; an always-on capture substrate with no discrete trigger."
+job_when: "I work in an active room and add new material"
+job_want: "to have each item filed in the right section with the room structure kept intact"
+job_so: "find every piece later where it belongs"
+job_sentence_status: "provisional"
 ---
 
 # Room Passive -- Awareness + Filing Intelligence

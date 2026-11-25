@@ -7,7 +7,7 @@
     {
       "role": "posture",
       "path": "data/command-registry.json",
-      "digest": "41e1a31c79700684f6556cd00d8ec822f777bf10e539b7d973465f911ceb8006",
+      "digest": "0619204b21ba9087bfd5df880217665e39505809078a3a2f475f493d2456b846",
       "source_count": 113
     },
     {
@@ -54,12 +54,12 @@
     {
       "role": "cli_agent",
       "path": "agents/larry-extended.md",
-      "digest": "fdf1627e76f70685c11253e15fcc4b654071fee22c658508a1f705a82770632b"
+      "digest": "85f65d1f067ee234febfee29f2320361ce39a011d5bca5e102b809fcd08ef8c4"
     },
     {
       "role": "personality_skill",
       "path": "skills/larry-personality/SKILL.md",
-      "digest": "5ae8c0a34652cca808fe9d6ab09b997f52623b7f866caa723285263d113a0ac6"
+      "digest": "a32d039d56ac81fb10cd0f093788a8556514134431aa6b11d26538fadb6dd39b"
     },
     {
       "role": "desktop_cowork_wire",

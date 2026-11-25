@@ -13,6 +13,14 @@ hitl_why: "The six thinking hats fire in a fixed sequence where the order is the
 # /mos:bono.
 interactive_first_reward: reframe_question
 serves_jtbd: ["explore", "compare-options"]
+job_when: "my team keeps looking at a problem from the same angle"
+job_want: "to rotate through distinct thinking perspectives one at a time"
+job_so: "catch the views we keep missing"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: true
+cynefin_label_status: "provisional"
 teaching: "When the team keeps wearing the same hat and missing perspectives, /mos:think-hats rotates them through de Bono's six. The discomfort is the point; that is where the new thought lives. Each hat can become a research lane: black for counterevidence, yellow for prior successes, white for missing facts."
 # --- Phase 122 workflow-layer frontmatter ---
 kind: methodology

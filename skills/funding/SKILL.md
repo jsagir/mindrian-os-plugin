@@ -12,6 +12,14 @@ hitl_why: "Grant-lifecycle candidates are surfaced as an independent set the nav
 # Phase 267.3-06, ruled in 267.3-CLASSIFICATION.md (Row 13, navigator-ruled NEEDS-RULING): first delivery at commands/funding.md:57, a stage/deadline/staleness tracking report of the navigator's own pipeline, not the Tavily-sourced discovery flow the rule doc's worked example names.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["prepare-pitch", "decide-pursue"]
+job_when: "I am chasing several grants and investors at once"
+job_want: "to track each one from first sighting to final decision"
+job_so: "run funding as a steady process instead of a one off effort"
+job_sentence_status: "provisional"
+fits_domains: ["clear"]
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When you need to track grants and investors as a real pipeline, /mos:funding manages the lifecycle from spotted to applied to decided. Funding is a process, not a one-shot event."
 allowed-tools: Read Write Bash Glob AskUserQuestion
 # --- Phase 143.3 connector frontmatter ---

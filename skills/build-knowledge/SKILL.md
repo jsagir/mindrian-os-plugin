@@ -11,6 +11,14 @@ hitl_stages:
     mode: "ordered"
 hitl_why: "The DIKW ladder is climbed in a fixed order (F.9) along a dependency path (F.2) where each rung needs the one below."
 serves_jtbd: ["explore"]
+job_when: "my room holds a lot of data but little that I can act on"
+job_want: "to sort it into data, information, knowledge and wisdom"
+job_so: "see what I can decide now and what is still raw"
+job_sentence_status: "provisional"
+fits_domains: ["complicated"]
+move_type: "slice"
+move_type_weak: false
+cynefin_label_status: "provisional"
 # Phase 265-13 reward-before-investment backfill (field only; grounded in the
 # shipped Session Flow: naming climbing-up or climbing-down surfaces the DIKW
 # ladder structure before the navigator invests further).

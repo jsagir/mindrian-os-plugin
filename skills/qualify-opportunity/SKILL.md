@@ -11,7 +11,15 @@ hitl_shape: "F.1"
 hitl_why: "Opportunity qualification is a material navigator decision; nothing files without approval."
 # Phase 267.3-07, ruled in 267.3-CLASSIFICATION.md (Row 7): first delivery at commands/qualify-opportunity.md:58, the F.1 card's Q1..Q8 rubric verdict lines showing why the candidate qualified, before the file/skip verb picker.
 interactive_first_reward: methodology_reframe
-serves_jtbd: ["explore"]
+serves_jtbd: ["explore", "decide-pursue"]
+job_when: "a candidate opportunity has surfaced and I must decide whether it qualifies"
+job_want: "to see which tests it passed and failed before I accept or skip it"
+job_so: "make the call myself and learn the tests"
+job_sentence_status: "provisional"
+fits_domains: ["complicated","complex"]
+move_type: "probe"
+move_type_weak: false
+cynefin_label_status: "provisional"
 teaching: "When the harvest sensor surfaces a candidate, /mos:qualify-opportunity puts the decision where it belongs: with you. The card shows WHY the candidate qualified (the Q1..Q8 rubric verdicts plus machine-readiness components), so you learn the qualification tests while you decide. Rejection teaches as much as approval - a Skip becomes graph data the ranker learns from."
 allowed-tools: Read Bash AskUserQuestion
 # --- Phase 219-04 connector frontmatter (born-wired, Canon Part 11 CIRS R1 / D-10) ---

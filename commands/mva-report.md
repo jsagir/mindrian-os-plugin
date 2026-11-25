@@ -11,6 +11,14 @@ argument-hint: "(no args -- reads the conversation you just had)"
 # Phase 389 plan 11 (owner D7 and D8, 2026-11-08): soft-alias stub for one release, forwarding to /mos:session-report.
 interactive_first_reward: "--none (diagnostic surface)"
 serves_jtbd: ["audit-room"]
+job_when: "a working conversation just ended and I need a record of it"
+job_want: "to get a clean structured report of what we covered"
+job_so: "pick up the work later without rereading the whole conversation"
+job_sentence_status: "provisional"
+fits_domains: []
+move_type: "categorize"
+move_type_weak: false
+cynefin_label_status: "provisional"
 deprecated: true
 deprecated_redirect: "session-report"
 deprecated_removal: "v2.0.0-beta.86"

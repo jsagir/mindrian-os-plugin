@@ -1,0 +1,36 @@
+{
+  "_note": "Phase 400 plan 11 (W8, W9): a synthetic sample for scripts/derive-wicked-cutoff.cjs. Made-up case ids, wicked probabilities and one-labeller label lines; no research case. _expected was computed by hand: the candidates are the midpoints between consecutive distinct sorted probabilities; 0.55 and 0.675 both give 1 error; 0.675 sits in the wider gap (0.60 to 0.75), so it wins. A raw 0.5 cut gives 2 false yes (Q04, Q06).",
+  "answers": {
+    "total_input_tokens": 0,
+    "answers": {
+      "Q01": { "text": "fixture sentence alpha", "wicked_p": 0.1 },
+      "Q02": { "text": "fixture sentence alpha", "wicked_p": 0.2 },
+      "Q03": { "text": "fixture sentence alpha", "wicked_p": 0.3 },
+      "Q04": { "text": "fixture sentence alpha", "wicked_p": 0.52 },
+      "Q05": { "text": "fixture sentence alpha", "wicked_p": 0.58 },
+      "Q06": { "text": "fixture sentence alpha", "wicked_p": 0.6 },
+      "Q07": { "text": "fixture sentence alpha", "wicked_p": 0.75 },
+      "Q08": { "text": "fixture sentence alpha", "wicked_p": 0.86 },
+      "Q09": { "text": "fixture sentence alpha", "wicked_p": 0.88 },
+      "Q10": { "text": "fixture sentence alpha", "wicked_p": 0.92 },
+      "Q11": { "text": "fixture sentence alpha", "wicked_p": 0.95 },
+      "Q12": { "text": "fixture sentence alpha", "wicked_p": 0.99 }
+    }
+  },
+  "labels": [
+    "# fixture labels, one labeller",
+    "Q01 Un no",
+    "Q02 Ill no",
+    "Q03 Well no",
+    "Q04 Ill no",
+    "Q05 Ill yes",
+    "Q06 Well no",
+    "Q07 Ill yes",
+    "Q08 Un yes",
+    "Q09 Ill yes",
+    "Q10 Well yes",
+    "Q11 Ill yes",
+    "Q12 Un yes"
+  ],
+  "_expected": { "value": 0.675, "cases": 12, "wicked_yes": 7, "false_yes": 0, "missed": 1 }
+}
