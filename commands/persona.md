@@ -199,7 +199,7 @@ Deep mode only. Quick mode never builds a persona.
 
    The door writes the status `accepted` into a persona file only for an accept answer. A refused or deferred hat is reported as not run: it takes no part in the reading steps. A deferred file stays for the next run.
 
-5. **Rebuild.** The output field `to_rebuild` lists each hat with its guidance line. For each one, dispatch one new builder run (the same contract, plus the guidance line as one more input line), call `write-persona` again, and show the card again for that hat only. The door refuses a third rebuild of one hat (`rebuild_limit`): then only accept and refuse are left. Repeat until `accept_done` is true.
+5. **Rebuild.** The output field `to_rebuild` lists each hat with its guidance line. For each one, dispatch one new builder run (the same contract, plus the guidance line as one more input line), call `write-persona` again, and show the card again for that hat only. The door refuses a third rebuild of one hat (`rebuild_limit`): then only accept and refuse are left. The door consumes each spec file: a builder that writes no new spec gives `build_failed` for that hat, and the old file is not proposed again. The door refuses an answer for a hat that is not proposed (`not_proposed:<hat>`) and a persona file that changed after the door wrote it (`persona_file_changed:<hat>`). Repeat until `accept_done` is true.
 
 ### The builder contract
 

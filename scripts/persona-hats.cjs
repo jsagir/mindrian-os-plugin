@@ -455,6 +455,14 @@ function cmdStart(args, deps) {
     } else if (state === 'unaccepted') {
       toAccept.push(hat);
       hatsLedger[hat] = { persona: 'proposed', rebuilds: 0 };
+      // WR-01: the accept step binds to the bytes of the proposed file as start saw them.
+      try {
+        hatsLedger[hat].persona_file = freshness.hats[hat].file;
+        hatsLedger[hat].persona_file_sha256 = sha256Hex(fs.readFileSync(path.join(roomResolved, 'personas', freshness.hats[hat].file)));
+      } catch (e) {
+        delete hatsLedger[hat].persona_file;
+        delete hatsLedger[hat].persona_file_sha256;
+      }
     } else {
       toBuild.push(hat);
       hatsLedger[hat] = { persona: 'pending_build', rebuilds: 0 };
@@ -601,7 +609,10 @@ function cmdWritePersona(args, deps) {
     if (!inside) {
       reason = 'run_map_missing';
     } else {
-      const r = readJsonFile(path.join(dir, 'persona.json'), { noSymlink: true });
+      const specPath = path.join(dir, 'persona.json');
+      const r = readJsonFile(specPath, { noSymlink: true });
+      // WR-01: the spec is consumed. A rebuild whose builder writes no new spec fails; it never re-proposes the old one.
+      try { fs.rmSync(specPath, { force: true }); } catch (e) { /* the scratch tree is removed at merge */ }
       if (!r.ok) {
         reason = r.reason === 'file_unreadable' ? 'no_spec_file' : r.reason;
       } else {
@@ -611,13 +622,22 @@ function cmdWritePersona(args, deps) {
         else reason = w.reason;
       }
     }
+    let fileSha = null;
+    if (!reason) {
+      try { fileSha = sha256Hex(fs.readFileSync(path.join(roomResolved, proposedFile))); } catch (e) { reason = 'persona_file_unreadable'; }
+    }
     if (reason) {
       entry.persona = 'build_failed';
       entry.persona_reason = reason;
+      delete entry.persona_file;
+      delete entry.persona_file_sha256;
       results[hat] = { state: 'build_failed:' + reason };
     } else {
       entry.persona = 'proposed';
       delete entry.persona_reason;
+      // WR-01: the door binds the accept step to the exact bytes it wrote.
+      entry.persona_file = path.basename(proposedFile);
+      entry.persona_file_sha256 = fileSha;
       results[hat] = { state: 'proposed', file: proposedFile, spec_sha256: entry.spec_sha256 };
     }
   }
@@ -726,9 +746,18 @@ function cmdAcceptPersona(args, deps) {
   const found = {};
   for (const hat of Object.keys(answer.hats)) {
     if (!allowed.includes(hat)) return { ok: false, reason: 'no_proposed_file:' + hat };
+    // WR-01: only a hat whose current build is proposed can be answered; pending_build and build_failed cannot.
+    if (!ledger.hats[hat] || ledger.hats[hat].persona !== 'proposed') return { ok: false, reason: 'not_proposed:' + hat };
     const f = findProposedFile(roomResolved, hat);
     if (!f) return { ok: false, reason: 'no_proposed_file:' + hat };
     if (f.fingerprint !== ledger.room_fingerprint) return { ok: false, reason: 'persona_file_changed:' + hat };
+    // WR-01: the file must be the one the door wrote (or the one start saw), byte for byte.
+    let fileSha = null;
+    try { fileSha = sha256Hex(fs.readFileSync(f.abs)); } catch (e) { fileSha = null; }
+    const want = ledger.hats[hat].persona_file_sha256;
+    if (typeof want !== 'string' || fileSha !== want || (ledger.hats[hat].persona_file && ledger.hats[hat].persona_file !== f.file)) {
+      return { ok: false, reason: 'persona_file_changed:' + hat };
+    }
     if (answer.hats[hat].decision === 'rebuild' && (ledger.hats[hat].rebuilds || 0) >= REBUILD_LIMIT) {
       return { ok: false, reason: 'rebuild_limit', hat };
     }
