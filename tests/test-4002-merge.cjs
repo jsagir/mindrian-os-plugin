@@ -338,6 +338,241 @@ check('M10. merge confirms nothing: no lens_finding node, and the door source ho
   assert.equal(src.includes('onAccept'), false);
 });
 
+// ---------------------------------------------------------------------------
+// Task 2: the review artifact
+// ---------------------------------------------------------------------------
+
+const FULL_POS = {
+  white: ['favours', 'opposes'], red: ['favours', 'no_position'], black: ['opposes', 'opposes'],
+  yellow: ['favours', 'favours'], green: ['alternative_offered', 'no_position'],
+};
+
+check('M11. the artifact starts with the deep notice; four hats not planned give the research line', async () => {
+  const run = mkRun({ pos: FULL_POS });
+  const out = await doMerge(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const lines = artifactLines(out);
+  assert.equal(lines[0], ops.DEEP_NOTICE);
+  assert.equal(lines[1], 'Research not run for: white (no_valid_handle), black (no_valid_handle), yellow (no_valid_handle), green (no_valid_handle).');
+  assert.deepEqual(out.notice_lines.slice(0, 2), lines.slice(0, 2));
+  assert.equal(Object.keys(out)[1], 'notice_lines');
+  assert.deepEqual(door.deepNoticeLines(run.ledger()), out.notice_lines);
+});
+
+check('M12. the section order is fixed and black is first under each sub-question of the dissent register', async () => {
+  const run = mkRun({ pos: FULL_POS });
+  const out = await doMerge(run);
+  const lines = artifactLines(out).map(l => l.trimEnd());
+  const L = door.ARTIFACT_LABELS;
+  const at = (label) => {
+    const i = lines.indexOf(label);
+    assert.ok(i >= 0, 'missing section ' + label);
+    return i;
+  };
+  const order = [L.section_brief, L.section_dissent, L.section_tensions, L.section_same, L.section_not_run, L.section_rules, L.section_lists, L.section_sources].map(at);
+  assert.deepEqual(order, order.slice().sort((a, b) => a - b));
+  const dis = at(L.section_dissent);
+  const end = at(L.section_tensions);
+  const subs = lines.map((l, i) => ({ l, i })).filter(x => x.i > dis && x.i < end && x.l.indexOf('### ') === 0);
+  assert.equal(subs.length, 2);
+  for (const s of subs) assert.equal(lines[s.i + 1].indexOf('black '), 0, lines[s.i + 1]);
+});
+
+// The strings of the input files. Call before merge: merge deletes the scratch directories.
+function inputStrings(run) {
+  const set = new Set(['true', 'false', 'unknown']);
+  const add = (v) => {
+    if (typeof v === 'string') set.add(v.replace(/[\x00-\x1f\x7f]+/g, ' ').trim());
+    else if (Array.isArray(v)) v.forEach(add);
+    else if (v && typeof v === 'object') Object.values(v).forEach(add);
+    else if (typeof v === 'boolean') set.add(String(v));
+  };
+  for (const h of HATS) {
+    set.add(h);
+    for (const name of ['reading.json', 'evidence.json', 'shared-white.json']) {
+      const p = path.join(run.res.hats[h].dir, name);
+      if (fs.existsSync(p)) add(JSON.parse(fs.readFileSync(p, 'utf8')));
+    }
+  }
+  const ledger = run.ledger();
+  add(ledger.hats);
+  add(ledger.target);
+  add(ledger.brief.governing_question);
+  add(ledger.sub_questions);
+  return { set, add };
+}
+
+function expandedLabels() {
+  const values = ['favours', 'opposes', 'mixed', 'no_position', 'alternative_offered'];
+  const out = [];
+  for (const v of Object.values(door.ARTIFACT_LABELS)) {
+    let variants = [v];
+    if (v.includes('{hat}')) variants = HATS.map(h => v.split('{hat}').join(h));
+    for (const x of variants) {
+      if (x.includes('{value}')) for (const val of values) out.push(x.split('{value}').join(val).trimEnd());
+      else out.push(x.trimEnd());
+    }
+  }
+  return out.filter(x => x.length > 0).sort((a, b) => b.length - a.length);
+}
+
+check('M13. adds nothing: every line is a fixed label or a label and one field of the inputs', async () => {
+  const run = mkRun({
+    pos: FULL_POS,
+    packs: { black: [packItem(1)] },
+    readingOver: { black: { self_search_strings: ['retainer failure cases'], self_found_sources: [{ url: 'https://example.org/b', title: 'B title', search_string: 'retainer failure cases', summary: 'B summary.' }] } },
+  });
+  const inputs = inputStrings(run);
+  const out = await doMerge(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const allowed = inputs.set;
+  inputs.add(run.ledger().hats);
+  inputs.add(run.ledger().tensions);
+  const labels = expandedLabels();
+  const notice = new Set(door.deepNoticeLines(run.ledger()));
+  const hatSet = new Set(HATS);
+  const bad = [];
+  for (const raw of artifactLines(out)) {
+    const line = raw.trimEnd();
+    if (line === '') continue;
+    if (notice.has(line)) continue;
+    if (labels.includes(line)) continue;
+    let ok = false;
+    for (const lab of labels) {
+      if (line.indexOf(lab) !== 0) continue;
+      const rest = line.slice(lab.length).trim();
+      if (rest === '' || allowed.has(rest) || rest.split(', ').every(p => hatSet.has(p)) || rest.split(' and ').every(p => hatSet.has(p))) { ok = true; break; }
+    }
+    if (!ok) bad.push(line);
+  }
+  assert.deepEqual(bad, []);
+  const text = fs.readFileSync(out.artifact, 'utf8');
+  assert.ok(text.includes('https://example.org/item1'));
+  assert.ok(text.includes('openalex'));
+  assert.ok(text.includes('https://example.org/b'));
+});
+
+check('M14. the three-pair line is present once; the Blue rule line is present only when Blue ran', async () => {
+  const run = mkRun({ pos: FULL_POS });
+  const out = await doMerge(run);
+  const text = fs.readFileSync(out.artifact, 'utf8');
+  const three = 'The tension map knows three hat pairs: yellow and black, green and black, red and white. Opposite positions of any other pair are shown in the dissent register only.';
+  assert.equal(text.split(three).length - 1, 1);
+  const blue = 'Blue is checked against the owner rule, not against the debate judge rule.';
+  assert.equal(text.split(blue).length - 1, 1);
+  const run2 = mkRun({ pos: FULL_POS, noBlue: true });
+  const out2 = await doMerge(run2);
+  assert.equal(fs.readFileSync(out2.artifact, 'utf8').includes(blue), false);
+});
+
+check('M15. self-found sources and reported strings get their fixed labels; the prompt-rule line follows the strings', async () => {
+  const strings = ['retainer churn studies', 'agency retainer pricing', 'studio hand-off failure'];
+  const found = [
+    { url: 'https://example.org/one', title: 'First source', search_string: strings[0], summary: 'First summary.' },
+    { url: 'https://example.org/two', title: 'Second source', search_string: strings[1], summary: 'Second summary.' },
+  ];
+  const run = mkRun({ pos: FULL_POS, readingOver: { black: { self_search_strings: strings, self_found_sources: found } } });
+  const out = await doMerge(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const lines = artifactLines(out).map(l => l.trimEnd());
+  const L = door.ARTIFACT_LABELS;
+  assert.equal(L.found_by_hat, 'Found by the hat, not approved on a card, not wired to the room graph:');
+  assert.equal(L.reported_strings, 'Search strings the hat reports it sent (not approved on a card):');
+  const iFound = lines.indexOf(L.found_by_hat);
+  const iStr = lines.indexOf(L.reported_strings);
+  assert.ok(iFound > 0 && iStr > iFound);
+  const between = lines.slice(iFound + 1, iStr);
+  for (const f of found) {
+    assert.ok(between.some(l => l.endsWith(f.url)), f.url);
+    assert.ok(between.some(l => l.endsWith(f.title)), f.title);
+    assert.ok(between.some(l => l.endsWith(f.search_string)), f.search_string);
+    assert.ok(between.some(l => l.endsWith(f.summary)), f.summary);
+  }
+  const rule = "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.";
+  const after = lines.slice(iStr + 1);
+  for (const s of strings) assert.ok(after.some(l => l.endsWith(s)), s);
+  assert.equal(lines.filter(l => l === rule).length, 1);
+  assert.ok(lines.indexOf(rule) > iStr);
+  const rec = run.ledger();
+  assert.deepEqual(rec.hats.black.self_search_strings, strings);
+  assert.equal(rec.hats.black.self_found_sources, 2);
+
+  const quiet = mkRun({ pos: FULL_POS });
+  const out2 = await doMerge(quiet);
+  const text2 = fs.readFileSync(out2.artifact, 'utf8');
+  assert.equal(text2.includes(rule), false);
+  assert.equal(text2.includes(L.found_by_hat), false);
+});
+
+check('M16. readings are copied, the artifact has the run folder name, and each hat with position lines gets a session log entry', async () => {
+  const run = mkRun({ pos: FULL_POS });
+  const fpBefore = ops.roomArtifactIndex(run.room).fingerprint;
+  const out = await doMerge(run);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  // The filed review is not an input of the room fingerprint, so the six personas stay fresh after a run.
+  assert.equal(ops.roomArtifactIndex(run.room).fingerprint, fpBefore);
+  for (const h of HATS) assert.equal(ops.personaFreshness(run.room).hats[h].state, 'fresh', h);
+  assert.equal(out.artifact, path.join(run.res.review_dir, path.basename(run.res.review_dir) + '.md'));
+  for (const h of HATS) {
+    const copy = path.join(run.res.review_dir, 'readings', h + '.json');
+    assert.equal(fs.existsSync(copy), true, h);
+  }
+  const logOf = (hat) => {
+    const dir = path.join(run.room, '.mindrian', 'hats', hat, 'session-log');
+    if (!fs.existsSync(dir)) return null;
+    return fs.readdirSync(dir).map(f => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n');
+  };
+  const section = (text, from, to) => {
+    const a = text.indexOf(from);
+    const b = text.indexOf(to, a);
+    return text.slice(a + from.length, b).split('\n').map(s => s.trim()).filter(Boolean);
+  };
+  for (const h of READ_HATS) {
+    const text = logOf(h);
+    assert.ok(text, 'log of ' + h);
+    const expected = FULL_POS[h].map((v, i) => (v === 'no_position' ? null : '- ' + lineOf(h, i))).filter(Boolean);
+    assert.deepEqual(section(text, '### Findings', '### Concerns'), expected, h);
+    assert.deepEqual(section(text, '### Concerns', '### Opportunities'), [], h);
+    assert.deepEqual(section(text, '### Opportunities', '---'), [], h);
+    assert.ok(text.includes('**Focus:** room'));
+  }
+  assert.equal(logOf('blue'), null);
+  assert.deepEqual(Object.keys(out.session_log).sort(), READ_HATS.slice().sort());
+});
+
+check('M17. the router runs merge as a subcommand, waits for the tension call and prints one JSON object', async () => {
+  const { spawnSync } = require('node:child_process');
+  const run = mkRun({ pos: { yellow: ['favours', 'favours'], black: ['opposes', 'favours'] } });
+  const env2 = Object.assign({}, process.env, { MINDRIAN_HOME: run.env.homeDir });
+  const usage = spawnSync(process.execPath, [DOOR_PATH, 'merge', '--room', run.room], { env: env2, encoding: 'utf8' });
+  assert.equal(usage.status, 2);
+  const countsPath = writeCounts(run, { agent_runs: 8, stops: 3, cards: 4 });
+  const res = spawnSync(process.execPath, [DOOR_PATH, 'merge', '--room', run.room, '--run', run.res.run_id, '--counts', countsPath], { env: env2, encoding: 'utf8' });
+  assert.equal(res.status, 0, res.stderr);
+  const parsed = JSON.parse(res.stdout);
+  assert.equal(parsed.ok, true, res.stdout);
+  assert.equal(parsed.tensions.length, 1);
+  assert.equal(parsed.cleanup, 'done');
+  assert.equal(run.ledger().audit.agent_runs, 8);
+});
+
+check('M18. NEGATIVE: a counts file with an unknown key or a bad number is refused before anything is written', async () => {
+  const run = mkRun({ pos: { yellow: ['favours', 'favours'] } });
+  const before = run.ledger();
+  for (const bad of [{ agent_runs: 1, stops: 1, cards: 1, extra: 1 }, { agent_runs: -1, stops: 1, cards: 1 }, { agent_runs: 1, stops: 'x', cards: 1 }, { agent_runs: 1, stops: 1 }]) {
+    const out = await doMerge(run, bad);
+    assert.equal(out.ok, false);
+    assert.ok(/^counts_invalid:/.test(out.reason), out.reason);
+  }
+  assert.deepEqual(run.ledger(), before);
+  assert.equal(fs.existsSync(run.res.hats.white.dir), true);
+  // No counts file at all: the audit says so and does not claim the command reported.
+  const out = await door.cmdMerge({ roomDir: run.room, runId: run.res.run_id }, run.env.opts());
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(run.ledger().audit.reported_by, 'not_reported');
+  assert.equal(run.ledger().audit.agent_runs, null);
+});
+
 (async () => {
   for (const t of queue) {
     try {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Phase 400.2-07: the not-run states of the check step. Legs N1 to N4 (plan 08 adds the merge legs).
+// Phase 400.2-07: the not-run states of the check step (legs N1 to N3, N8). Phase 400.2-08 adds the merge legs N4 to N7.
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -197,8 +197,8 @@ check('N3. a schema fault and a citation fault are rejected with a reason and re
   assert.equal(JSON.stringify(out).includes('EvidenceClaim:s9'), false);
 });
 
-// N4
-check('N4. the router runs plan-research and check as subcommands and prints one JSON object', () => {
+// N8
+check('N8. the router runs plan-research and check as subcommands and prints one JSON object', () => {
   const run = runToResearchClosed();
   const room = run.room;
   const env = run.env;
@@ -217,8 +217,111 @@ check('N4. the router runs plan-research and check as subcommands and prints one
   assert.equal(usage.status, 2);
 });
 
-for (const d of tmpRoots) {
-  try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+// ---------------------------------------------------------------------------
+// Plan 08 legs: what the merge says about a hat that did not run (async: the tension call is a promise)
+// ---------------------------------------------------------------------------
+
+const asyncLegs = [];
+function acheck(label, fn) {
+  asyncLegs.push({ label, fn });
 }
-console.log(passed + ' passed, ' + failed + ' failed');
-process.exit(failed ? 1 : 0);
+
+function writeBlue(run) {
+  writeReading(run, 'blue', { schema: 'mos.persona-reading/1', run_id: run.res.run_id, hat: 'blue', skipped: ['No search was run for green.'], thin: ['The red hat gave only short lines.'], ask_next: ['Ask who pays first.'] });
+}
+
+// Readings for the given hats, then check, then merge. Returns {run, out, lines}.
+async function mergeWith(opts) {
+  const o = opts || {};
+  const run = runToResearchClosed();
+  for (const h of READ_HATS) {
+    if ((o.skip || []).includes(h)) continue;
+    const value = (o.values || {})[h];
+    const over = value ? { positions: run.ids.map(id => ({ sub_question: id, value, line: 'A ' + h + ' line.' })) } : undefined;
+    writeReading(run, h, validReading(h, run, over));
+  }
+  if (!(o.skip || []).includes('blue')) writeBlue(run);
+  const c = doCheck(run);
+  assert.equal(c.ok, true, JSON.stringify(c));
+  const out = await door.cmdMerge({ roomDir: run.room, runId: run.res.run_id }, run.env.opts());
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const lines = fs.readFileSync(out.artifact, 'utf8').split('\n').map(l => l.trimEnd());
+  return { run, out, lines };
+}
+
+function between(lines, from, to) {
+  const a = lines.indexOf(from);
+  const b = lines.indexOf(to);
+  assert.ok(a >= 0 && b > a, 'sections ' + from + ' and ' + to);
+  return lines.slice(a + 1, b);
+}
+
+// N4
+acheck('N4. NEGATIVE: a hat with no reading file is in the not-run section with its reason and in no dissent, tension or same-position line', async () => {
+  const L = door.ARTIFACT_LABELS;
+  const values = { white: 'opposes', red: 'favours', black: 'opposes', yellow: 'favours' };
+  const control = await mergeWith({ values });
+  assert.ok(control.out.tensions.some(t => t.pair.join('+') === 'red+white'), 'with white present the red and white tension exists');
+  const { run, out, lines } = await mergeWith({ skip: ['white'], values });
+  assert.ok(between(lines, L.section_not_run, L.section_rules).includes('white: not_run:no_reading_file'));
+  const dissent = between(lines, L.section_dissent, L.section_tensions);
+  assert.equal(dissent.some(l => l.indexOf('white ') === 0), false);
+  const rec = run.ledger();
+  assert.equal(rec.positions[run.ids[0]].white, undefined);
+  assert.equal(out.tensions.length, 4);
+  assert.equal(out.tensions.some(t => t.pair.includes('white')), false);
+  assert.equal(rec.same_position.some(e => e.hats.includes('white')), false);
+  assert.equal(between(lines, L.section_same, L.section_not_run).some(l => l.indexOf('white') !== -1), false);
+  assert.equal(JSON.stringify(rec.tensions).includes('white'), false);
+});
+
+// N5
+acheck('N5. a merge of 4 hats names the 2 missing hats in the notice line and in the not-run section', async () => {
+  const L = door.ARTIFACT_LABELS;
+  const { out, lines } = await mergeWith({ skip: ['white', 'green'] });
+  assert.ok(out.notice_lines.includes('Not run: white, green.'), JSON.stringify(out.notice_lines));
+  assert.ok(lines.includes('Not run: white, green.'));
+  const section = between(lines, L.section_not_run, L.section_rules);
+  assert.ok(section.includes('white: not_run:no_reading_file'));
+  assert.ok(section.includes('green: not_run:no_reading_file'));
+  assert.deepEqual(out.not_run.map(n => n.hat), ['white', 'green']);
+});
+
+// N6
+acheck('N6. with no Blue reading the artifact has no skipped, thin or ask_next list and names blue as not run', async () => {
+  const L = door.ARTIFACT_LABELS;
+  const { out, lines } = await mergeWith({ skip: ['blue'] });
+  assert.ok(between(lines, L.section_not_run, L.section_rules).includes('blue: not_run:no_reading_file'));
+  for (const l of lines) {
+    assert.equal(/^blue (skipped|thin|ask_next):/.test(l), false, l);
+  }
+  assert.equal(lines.includes(L.blue_rule), false);
+  assert.ok(out.notice_lines.includes('Not run: blue.'));
+});
+
+// N7
+acheck('N7. with no White reading the artifact holds the fixed line about red and white', async () => {
+  const fixed = 'White did not run, so no red and white tension can exist.';
+  const without = await mergeWith({ skip: ['white'] });
+  assert.equal(without.lines.filter(l => l === fixed).length, 1);
+  const withWhite = await mergeWith({});
+  assert.equal(withWhite.lines.includes(fixed), false);
+});
+
+(async () => {
+  for (const t of asyncLegs) {
+    try {
+      await t.fn();
+      passed += 1;
+      console.log('ok: ' + t.label);
+    } catch (e) {
+      failed += 1;
+      console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  for (const d of tmpRoots) {
+    try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+  }
+  console.log(passed + ' passed, ' + failed + ' failed');
+  process.exit(failed ? 1 : 0);
+})();
