@@ -176,6 +176,18 @@ Use these entry points:
 Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
 <!-- GSD:workflow-end -->
 
+## GSD with EGM (elephant-goldfish) for design work
+
+Owner ruling 2026-11-25, first used on Phase 400.2. GSD stays the formal frame of a phase (CONTEXT, plan, execute, verify, owner sign-off). The EGM method runs the design step inside it, before `/gsd-plan-phase`. Use it for a phase that changes behaviour across more than one surface or touches Part 8, Part 9 or Part 11; a small fix through `/gsd-quick` does not need it.
+
+1. **Owner scope first.** The phase CONTEXT.md holds the owner rulings. They are locked: a reviewer may say that a design fails a ruling, never that the ruling is wrong.
+2. **Elephant.** One deep-context agent verifies every risk in code and writes `<phase>-RESEARCH.md` (facts with file and line) and `<phase>-DESIGN.md`. A guess is marked as a guess.
+3. **Goldfish.** Fresh reviewers (the `egm:*` agents) get the design, the reading list and nothing from the conversation. They run in parallel and do not read each other.
+4. **Resolve.** Each Blocker and Major gets one outcome: fixed in the design, contested with checkable evidence, or sent to the owner. A reviewer that failed is "not run", never "no findings".
+5. **Plan.** Only then `/gsd-plan-phase`. The planner reads the reviewed design, not the conversation.
+
+Why: the session that writes a design agrees with it; a reviewer with no context does not. On 400.2 the elephant step found that the research leg it meant to reuse had no approval check and no caller, before any code was written. Not yet measured: whether the method is faster or cheaper than a plain GSD phase. Record agent runs, tokens and findings per phase in the phase SUMMARY so the claim can be checked.
+
 ## QA and RCA Reporting
 
 When QA-ing a feature or investigating a defect, write findings to the MindrianOS RCA standard (`docs/RCA-TEMPLATE.md`); do not improvise a bug report.
