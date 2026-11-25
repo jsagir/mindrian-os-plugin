@@ -76,7 +76,7 @@ function sortedList(job) {
 }
 
 check('T1. for each recorded job, every live-scope command that carries the job label and has a recorded pair is in the row', () => {
-  assert.equal(recordedJobs.length, 13);
+  assert.equal(recordedJobs.length, 20);
   const missing = [];
   for (const job of recordedJobs) {
     const row = rowOf(job);

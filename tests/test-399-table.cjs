@@ -102,9 +102,9 @@ check('B3 header fields and frozen thresholds', () => {
   assert.equal(table.shortlist_k, 3);
 });
 
-check('B4 rows: 13 job-only keys, scope commands only, sorted, calibrated values only', () => {
+check('B4 rows: 20 job-only keys, scope commands only, sorted, calibrated values only', () => {
   const keys = Object.keys(table.rows);
-  assert.equal(keys.length, 13);
+  assert.equal(keys.length, 20);
   const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8'));
   const ys = new Set(table.calibration.breakpoints.map((b) => b[1]));
   // A deprecated scope command gives its seat to the command that replaced it (resolveDeprecated).

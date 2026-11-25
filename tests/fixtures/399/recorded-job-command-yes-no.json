@@ -4,7 +4,7 @@
  "model": "gemini-decision-1",
  "question_type": "yes_no",
  "question_template": "serves_job_v1",
- "recorded_at": "2026-11-24",
+ "recorded_at": "2026-11-25",
  "conditioned_on": {
   "definition_level": null,
   "last_command": null
@@ -14,16 +14,6 @@
    "job": "audit-room",
    "command": "/mos:act",
    "p": 0.471
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:admin",
-   "p": 0.058
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:agentshield",
-   "p": 0.16
   },
   {
    "job": "audit-room",
@@ -57,11 +47,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:brain-derive",
-   "p": 0.847
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:build-knowledge",
    "p": 0.88
   },
@@ -87,21 +72,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:correct-reference-now",
-   "p": 0.303
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:dashboard",
-   "p": 0.88
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:deck",
-   "p": 0.118
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:deep-grade",
    "p": 0.932
   },
@@ -117,11 +87,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.271
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:diffusion",
    "p": 0.048
   },
@@ -132,16 +97,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:doctor",
-   "p": 0.679
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:dogfood-flush",
-   "p": 0.177
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:dominant-designs",
    "p": 0.084
   },
@@ -149,11 +104,6 @@
    "job": "audit-room",
    "command": "/mos:eureka",
    "p": 0.093
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.107
   },
   {
    "job": "audit-room",
@@ -179,16 +129,6 @@
    "job": "audit-room",
    "command": "/mos:explore-trends",
    "p": 0.076
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:export",
-   "p": 0.227
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.383
   },
   {
    "job": "audit-room",
@@ -232,38 +172,13 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:graph",
-   "p": 0.707
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:hat-briefing",
    "p": 0.144
   },
   {
    "job": "audit-room",
-   "command": "/mos:heal",
-   "p": 0.778
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:help",
-   "p": 0.414
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:hmi-status",
-   "p": 0.35
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:ignite",
    "p": 0.183
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:ingest-methodology",
-   "p": 0.066
   },
   {
    "job": "audit-room",
@@ -297,26 +212,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:memory",
-   "p": 0.568
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.389
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:models",
-   "p": 0.101
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:mos",
-   "p": 0.803
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:mos-reason",
    "p": 0.507
   },
@@ -342,18 +237,8 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:new-surface",
-   "p": 0.044
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:onboard",
    "p": 0.109
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:operator",
-   "p": 0.162
   },
   {
    "job": "audit-room",
@@ -377,16 +262,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:present",
-   "p": 0.598
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:publish",
-   "p": 0.195
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:qualify-opportunity",
    "p": 0.175
   },
@@ -404,16 +279,6 @@
    "job": "audit-room",
    "command": "/mos:research",
    "p": 0.397
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:room",
-   "p": 0.691
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:rooms",
-   "p": 0.134
   },
   {
    "job": "audit-room",
@@ -447,11 +312,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.3
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:scientific-roadmap",
    "p": 0.057
   },
@@ -467,48 +327,8 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:session-report",
-   "p": 0.177
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:setup",
-   "p": 0.086
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:show",
-   "p": 0.828
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:skill",
-   "p": 0.149
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:snapshot",
-   "p": 0.422
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:speakers",
-   "p": 0.224
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:splash",
-   "p": 0.01
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:stance",
    "p": 0.416
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:status",
-   "p": 0.826
   },
   {
    "job": "audit-room",
@@ -537,11 +357,6 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:update",
-   "p": 0.25
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:user-needs",
    "p": 0.049
   },
@@ -557,38 +372,378 @@
   },
   {
    "job": "audit-room",
-   "command": "/mos:vault",
-   "p": 0.294
-  },
-  {
-   "job": "audit-room",
-   "command": "/mos:visualize",
-   "p": 0.492
-  },
-  {
-   "job": "audit-room",
    "command": "/mos:whitespace",
    "p": 0.94
   },
   {
-   "job": "audit-room",
-   "command": "/mos:wiki",
-   "p": 0.503
+   "job": "build",
+   "command": "/mos:act",
+   "p": 0.43
+  },
+  {
+   "job": "build",
+   "command": "/mos:analyze-needs",
+   "p": 0.1
+  },
+  {
+   "job": "build",
+   "command": "/mos:analyze-systems",
+   "p": 0.209
+  },
+  {
+   "job": "build",
+   "command": "/mos:analyze-timing",
+   "p": 0.034
+  },
+  {
+   "job": "build",
+   "command": "/mos:auto-explore",
+   "p": 0.661
+  },
+  {
+   "job": "build",
+   "command": "/mos:beautiful-question",
+   "p": 0.434
+  },
+  {
+   "job": "build",
+   "command": "/mos:bono",
+   "p": 0.204
+  },
+  {
+   "job": "build",
+   "command": "/mos:build-knowledge",
+   "p": 0.131
+  },
+  {
+   "job": "build",
+   "command": "/mos:build-thesis",
+   "p": 0.157
+  },
+  {
+   "job": "build",
+   "command": "/mos:causal",
+   "p": 0.082
+  },
+  {
+   "job": "build",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.328
+  },
+  {
+   "job": "build",
+   "command": "/mos:compare-ventures",
+   "p": 0.094
+  },
+  {
+   "job": "build",
+   "command": "/mos:deep-grade",
+   "p": 0.126
+  },
+  {
+   "job": "build",
+   "command": "/mos:diagnose",
+   "p": 0.178
+  },
+  {
+   "job": "build",
+   "command": "/mos:diagnostics",
+   "p": 0.108
+  },
+  {
+   "job": "build",
+   "command": "/mos:diffusion",
+   "p": 0.247
+  },
+  {
+   "job": "build",
+   "command": "/mos:discover",
+   "p": 0.522
+  },
+  {
+   "job": "build",
+   "command": "/mos:dominant-designs",
+   "p": 0.13
+  },
+  {
+   "job": "build",
+   "command": "/mos:eureka",
+   "p": 0.156
+  },
+  {
+   "job": "build",
+   "command": "/mos:explain-decision",
+   "p": 0.076
+  },
+  {
+   "job": "build",
+   "command": "/mos:explore-domains",
+   "p": 0.267
+  },
+  {
+   "job": "build",
+   "command": "/mos:explore-futures",
+   "p": 0.235
+  },
+  {
+   "job": "build",
+   "command": "/mos:explore-opportunity",
+   "p": 0.204
+  },
+  {
+   "job": "build",
+   "command": "/mos:explore-trends",
+   "p": 0.109
+  },
+  {
+   "job": "build",
+   "command": "/mos:file-meeting",
+   "p": 0.266
+  },
+  {
+   "job": "build",
+   "command": "/mos:find-analogies",
+   "p": 0.219
+  },
+  {
+   "job": "build",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.166
+  },
+  {
+   "job": "build",
+   "command": "/mos:find-connections",
+   "p": 0.274
+  },
+  {
+   "job": "build",
+   "command": "/mos:funding",
+   "p": 0.273
+  },
+  {
+   "job": "build",
+   "command": "/mos:futures",
+   "p": 0.683
+  },
+  {
+   "job": "build",
+   "command": "/mos:grade",
+   "p": 0.095
+  },
+  {
+   "job": "build",
+   "command": "/mos:grade-grant",
+   "p": 0.415
+  },
+  {
+   "job": "build",
+   "command": "/mos:hat-briefing",
+   "p": 0.192
+  },
+  {
+   "job": "build",
+   "command": "/mos:ignite",
+   "p": 0.964
+  },
+  {
+   "job": "build",
+   "command": "/mos:intel-pipeline",
+   "p": 0.232
+  },
+  {
+   "job": "build",
+   "command": "/mos:jtbd",
+   "p": 0.472
+  },
+  {
+   "job": "build",
+   "command": "/mos:leadership",
+   "p": 0.101
+  },
+  {
+   "job": "build",
+   "command": "/mos:lean-canvas",
+   "p": 0.165
+  },
+  {
+   "job": "build",
+   "command": "/mos:macro-trends",
+   "p": 0.134
+  },
+  {
+   "job": "build",
+   "command": "/mos:map-unknowns",
+   "p": 0.309
+  },
+  {
+   "job": "build",
+   "command": "/mos:mos-reason",
+   "p": 0.242
+  },
+  {
+   "job": "build",
+   "command": "/mos:mullins",
+   "p": 0.046
+  },
+  {
+   "job": "build",
+   "command": "/mos:mva-brief",
+   "p": 0.614
+  },
+  {
+   "job": "build",
+   "command": "/mos:mva-report",
+   "p": 0.041
+  },
+  {
+   "job": "build",
+   "command": "/mos:new-project",
+   "p": 0.936
+  },
+  {
+   "job": "build",
+   "command": "/mos:onboard",
+   "p": 0.901
+  },
+  {
+   "job": "build",
+   "command": "/mos:opportunities",
+   "p": 0.179
+  },
+  {
+   "job": "build",
+   "command": "/mos:organize",
+   "p": 0.539
+  },
+  {
+   "job": "build",
+   "command": "/mos:persona",
+   "p": 0.198
+  },
+  {
+   "job": "build",
+   "command": "/mos:pipeline",
+   "p": 0.327
+  },
+  {
+   "job": "build",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.105
+  },
+  {
+   "job": "build",
+   "command": "/mos:radar",
+   "p": 0.301
+  },
+  {
+   "job": "build",
+   "command": "/mos:reanalyze",
+   "p": 0.133
+  },
+  {
+   "job": "build",
+   "command": "/mos:research",
+   "p": 0.24
+  },
+  {
+   "job": "build",
+   "command": "/mos:root-cause",
+   "p": 0.081
+  },
+  {
+   "job": "build",
+   "command": "/mos:rs-experts",
+   "p": 0.269
+  },
+  {
+   "job": "build",
+   "command": "/mos:rs-explain",
+   "p": 0.102
+  },
+  {
+   "job": "build",
+   "command": "/mos:rs-fetch",
+   "p": 0.208
+  },
+  {
+   "job": "build",
+   "command": "/mos:rs-thesis",
+   "p": 0.053
+  },
+  {
+   "job": "build",
+   "command": "/mos:scenario-plan",
+   "p": 0.22
+  },
+  {
+   "job": "build",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.537
+  },
+  {
+   "job": "build",
+   "command": "/mos:score-innovation",
+   "p": 0.197
+  },
+  {
+   "job": "build",
+   "command": "/mos:scout",
+   "p": 0.087
+  },
+  {
+   "job": "build",
+   "command": "/mos:stance",
+   "p": 0.063
+  },
+  {
+   "job": "build",
+   "command": "/mos:structure-argument",
+   "p": 0.134
+  },
+  {
+   "job": "build",
+   "command": "/mos:suggest-next",
+   "p": 0.536
+  },
+  {
+   "job": "build",
+   "command": "/mos:systems-thinking",
+   "p": 0.209
+  },
+  {
+   "job": "build",
+   "command": "/mos:think-hats",
+   "p": 0.124
+  },
+  {
+   "job": "build",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.362
+  },
+  {
+   "job": "build",
+   "command": "/mos:user-needs",
+   "p": 0.166
+  },
+  {
+   "job": "build",
+   "command": "/mos:validate",
+   "p": 0.132
+  },
+  {
+   "job": "build",
+   "command": "/mos:validate-proposition",
+   "p": 0.118
+  },
+  {
+   "job": "build",
+   "command": "/mos:whitespace",
+   "p": 0.687
   },
   {
    "job": "compare-options",
    "command": "/mos:act",
    "p": 0.437
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:admin",
-   "p": 0.01
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:agentshield",
-   "p": 0.035
   },
   {
    "job": "compare-options",
@@ -622,11 +777,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:brain-derive",
-   "p": 0.601
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:build-knowledge",
    "p": 0.323
   },
@@ -652,21 +802,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:correct-reference-now",
-   "p": 0.025
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:dashboard",
-   "p": 0.055
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:deck",
-   "p": 0.124
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:deep-grade",
    "p": 0.076
   },
@@ -682,11 +817,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.057
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:diffusion",
    "p": 0.369
   },
@@ -697,16 +827,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:doctor",
-   "p": 0.014
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:dogfood-flush",
-   "p": 0.011
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:dominant-designs",
    "p": 0.179
   },
@@ -714,11 +834,6 @@
    "job": "compare-options",
    "command": "/mos:eureka",
    "p": 0.134
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.355
   },
   {
    "job": "compare-options",
@@ -744,16 +859,6 @@
    "job": "compare-options",
    "command": "/mos:explore-trends",
    "p": 0.123
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:export",
-   "p": 0.073
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.02
   },
   {
    "job": "compare-options",
@@ -797,38 +902,13 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:graph",
-   "p": 0.3
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:hat-briefing",
    "p": 0.136
   },
   {
    "job": "compare-options",
-   "command": "/mos:heal",
-   "p": 0.028
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:help",
-   "p": 0.181
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:hmi-status",
-   "p": 0.143
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:ignite",
    "p": 0.164
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:ingest-methodology",
-   "p": 0.096
   },
   {
    "job": "compare-options",
@@ -862,26 +942,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:memory",
-   "p": 0.031
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.166
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:models",
-   "p": 0.083
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:mos",
-   "p": 0.21
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:mos-reason",
    "p": 0.23
   },
@@ -907,18 +967,8 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:new-surface",
-   "p": 0.023
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:onboard",
    "p": 0.045
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:operator",
-   "p": 0.141
   },
   {
    "job": "compare-options",
@@ -942,16 +992,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:present",
-   "p": 0.299
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:publish",
-   "p": 0.048
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:qualify-opportunity",
    "p": 0.255
   },
@@ -969,16 +1009,6 @@
    "job": "compare-options",
    "command": "/mos:research",
    "p": 0.288
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:room",
-   "p": 0.286
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:rooms",
-   "p": 0.01
   },
   {
    "job": "compare-options",
@@ -1012,11 +1042,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.029
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:scientific-roadmap",
    "p": 0.111
   },
@@ -1032,48 +1057,8 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:session-report",
-   "p": 0.061
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:setup",
-   "p": 0.019
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:show",
-   "p": 0.728
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:skill",
-   "p": 0.065
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:snapshot",
-   "p": 0.072
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:speakers",
-   "p": 0.046
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:splash",
-   "p": 0.01
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:stance",
    "p": 0.055
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:status",
-   "p": 0.096
   },
   {
    "job": "compare-options",
@@ -1102,11 +1087,6 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:update",
-   "p": 0.012
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:user-needs",
    "p": 0.134
   },
@@ -1122,38 +1102,13 @@
   },
   {
    "job": "compare-options",
-   "command": "/mos:vault",
-   "p": 0.032
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:visualize",
-   "p": 0.36
-  },
-  {
-   "job": "compare-options",
    "command": "/mos:whitespace",
    "p": 0.072
-  },
-  {
-   "job": "compare-options",
-   "command": "/mos:wiki",
-   "p": 0.129
   },
   {
    "job": "connect-domains",
    "command": "/mos:act",
    "p": 0.348
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:admin",
-   "p": 0.01
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:agentshield",
-   "p": 0.023
   },
   {
    "job": "connect-domains",
@@ -1187,11 +1142,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:brain-derive",
-   "p": 0.059
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:build-knowledge",
    "p": 0.219
   },
@@ -1217,21 +1167,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:correct-reference-now",
-   "p": 0.01
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:dashboard",
-   "p": 0.028
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:deck",
-   "p": 0.285
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:deep-grade",
    "p": 0.075
   },
@@ -1247,11 +1182,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.066
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:diffusion",
    "p": 0.206
   },
@@ -1262,16 +1192,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:doctor",
-   "p": 0.01
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:dogfood-flush",
-   "p": 0.01
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:dominant-designs",
    "p": 0.097
   },
@@ -1279,11 +1199,6 @@
    "job": "connect-domains",
    "command": "/mos:eureka",
    "p": 0.884
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.187
   },
   {
    "job": "connect-domains",
@@ -1309,16 +1224,6 @@
    "job": "connect-domains",
    "command": "/mos:explore-trends",
    "p": 0.23
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:export",
-   "p": 0.015
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.039
   },
   {
    "job": "connect-domains",
@@ -1362,38 +1267,13 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:graph",
-   "p": 0.863
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:hat-briefing",
    "p": 0.052
   },
   {
    "job": "connect-domains",
-   "command": "/mos:heal",
-   "p": 0.067
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:help",
-   "p": 0.061
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:hmi-status",
-   "p": 0.041
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:ignite",
    "p": 0.273
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:ingest-methodology",
-   "p": 0.1
   },
   {
    "job": "connect-domains",
@@ -1427,26 +1307,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:memory",
-   "p": 0.046
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.086
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:models",
-   "p": 0.159
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:mos",
-   "p": 0.27
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:mos-reason",
    "p": 0.212
   },
@@ -1472,18 +1332,8 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:new-surface",
-   "p": 0.032
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:onboard",
    "p": 0.04
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:operator",
-   "p": 0.067
   },
   {
    "job": "connect-domains",
@@ -1507,16 +1357,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:present",
-   "p": 0.081
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:publish",
-   "p": 0.015
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:qualify-opportunity",
    "p": 0.079
   },
@@ -1534,16 +1374,6 @@
    "job": "connect-domains",
    "command": "/mos:research",
    "p": 0.506
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:room",
-   "p": 0.177
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:rooms",
-   "p": 0.034
   },
   {
    "job": "connect-domains",
@@ -1577,11 +1407,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.028
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:scientific-roadmap",
    "p": 0.175
   },
@@ -1597,48 +1422,8 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:session-report",
-   "p": 0.054
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:setup",
-   "p": 0.032
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:show",
-   "p": 0.612
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:skill",
-   "p": 0.202
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:snapshot",
-   "p": 0.016
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:speakers",
-   "p": 0.065
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:splash",
-   "p": 0.012
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:stance",
    "p": 0.12
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:status",
-   "p": 0.056
   },
   {
    "job": "connect-domains",
@@ -1667,11 +1452,6 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:update",
-   "p": 0.01
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:user-needs",
    "p": 0.06
   },
@@ -1687,38 +1467,13 @@
   },
   {
    "job": "connect-domains",
-   "command": "/mos:vault",
-   "p": 0.116
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:visualize",
-   "p": 0.763
-  },
-  {
-   "job": "connect-domains",
    "command": "/mos:whitespace",
    "p": 0.311
-  },
-  {
-   "job": "connect-domains",
-   "command": "/mos:wiki",
-   "p": 0.127
   },
   {
    "job": "decide-pursue",
    "command": "/mos:act",
    "p": 0.483
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:admin",
-   "p": 0.016
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:agentshield",
-   "p": 0.106
   },
   {
    "job": "decide-pursue",
@@ -1752,11 +1507,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:brain-derive",
-   "p": 0.861
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:build-knowledge",
    "p": 0.652
   },
@@ -1782,21 +1532,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:correct-reference-now",
-   "p": 0.022
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:dashboard",
-   "p": 0.088
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:deck",
-   "p": 0.239
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:deep-grade",
    "p": 0.697
   },
@@ -1812,11 +1547,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.07
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:diffusion",
    "p": 0.934
   },
@@ -1827,16 +1557,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:doctor",
-   "p": 0.01
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:dogfood-flush",
-   "p": 0.078
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:dominant-designs",
    "p": 0.87
   },
@@ -1844,11 +1564,6 @@
    "job": "decide-pursue",
    "command": "/mos:eureka",
    "p": 0.869
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.765
   },
   {
    "job": "decide-pursue",
@@ -1874,16 +1589,6 @@
    "job": "decide-pursue",
    "command": "/mos:explore-trends",
    "p": 0.704
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:export",
-   "p": 0.206
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.035
   },
   {
    "job": "decide-pursue",
@@ -1927,38 +1632,13 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:graph",
-   "p": 0.432
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:hat-briefing",
    "p": 0.538
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:heal",
-   "p": 0.023
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:help",
-   "p": 0.107
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:hmi-status",
-   "p": 0.107
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:ignite",
    "p": 0.808
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:ingest-methodology",
-   "p": 0.053
   },
   {
    "job": "decide-pursue",
@@ -1992,26 +1672,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:memory",
-   "p": 0.067
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.64
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:models",
-   "p": 0.048
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:mos",
-   "p": 0.409
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:mos-reason",
    "p": 0.57
   },
@@ -2037,18 +1697,8 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:new-surface",
-   "p": 0.032
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:onboard",
    "p": 0.05
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:operator",
-   "p": 0.194
   },
   {
    "job": "decide-pursue",
@@ -2072,16 +1722,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:present",
-   "p": 0.489
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:publish",
-   "p": 0.074
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:qualify-opportunity",
    "p": 0.981
   },
@@ -2099,16 +1739,6 @@
    "job": "decide-pursue",
    "command": "/mos:research",
    "p": 0.829
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:room",
-   "p": 0.634
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:rooms",
-   "p": 0.113
   },
   {
    "job": "decide-pursue",
@@ -2142,11 +1772,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.044
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:scientific-roadmap",
    "p": 0.354
   },
@@ -2162,48 +1787,8 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:session-report",
-   "p": 0.099
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:setup",
-   "p": 0.053
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:show",
-   "p": 0.74
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:skill",
-   "p": 0.146
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:snapshot",
-   "p": 0.21
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:speakers",
-   "p": 0.071
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:splash",
-   "p": 0.02
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:stance",
    "p": 0.608
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:status",
-   "p": 0.333
   },
   {
    "job": "decide-pursue",
@@ -2232,11 +1817,6 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:update",
-   "p": 0.027
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:user-needs",
    "p": 0.904
   },
@@ -2252,38 +1832,378 @@
   },
   {
    "job": "decide-pursue",
-   "command": "/mos:vault",
-   "p": 0.36
-  },
-  {
-   "job": "decide-pursue",
-   "command": "/mos:visualize",
-   "p": 0.458
-  },
-  {
-   "job": "decide-pursue",
    "command": "/mos:whitespace",
    "p": 0.673
   },
   {
-   "job": "decide-pursue",
-   "command": "/mos:wiki",
-   "p": 0.727
+   "job": "design-solution",
+   "command": "/mos:act",
+   "p": 0.612
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:analyze-needs",
+   "p": 0.194
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:analyze-systems",
+   "p": 0.618
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:analyze-timing",
+   "p": 0.174
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:auto-explore",
+   "p": 0.322
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:beautiful-question",
+   "p": 0.824
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:bono",
+   "p": 0.713
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:build-knowledge",
+   "p": 0.572
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:build-thesis",
+   "p": 0.149
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:causal",
+   "p": 0.296
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.869
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:compare-ventures",
+   "p": 0.767
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:deep-grade",
+   "p": 0.219
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:diagnose",
+   "p": 0.335
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:diagnostics",
+   "p": 0.296
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:diffusion",
+   "p": 0.564
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:discover",
+   "p": 0.564
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:dominant-designs",
+   "p": 0.754
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:eureka",
+   "p": 0.433
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:explain-decision",
+   "p": 0.197
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:explore-domains",
+   "p": 0.406
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:explore-futures",
+   "p": 0.548
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:explore-opportunity",
+   "p": 0.327
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:explore-trends",
+   "p": 0.553
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:file-meeting",
+   "p": 0.151
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:find-analogies",
+   "p": 0.761
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.134
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:find-connections",
+   "p": 0.688
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:funding",
+   "p": 0.034
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:futures",
+   "p": 0.745
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:grade",
+   "p": 0.111
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:grade-grant",
+   "p": 0.523
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:hat-briefing",
+   "p": 0.643
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:ignite",
+   "p": 0.552
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:intel-pipeline",
+   "p": 0.542
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:jtbd",
+   "p": 0.309
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:leadership",
+   "p": 0.104
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:lean-canvas",
+   "p": 0.704
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:macro-trends",
+   "p": 0.549
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:map-unknowns",
+   "p": 0.682
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:mos-reason",
+   "p": 0.789
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:mullins",
+   "p": 0.139
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:mva-brief",
+   "p": 0.425
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:mva-report",
+   "p": 0.145
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:new-project",
+   "p": 0.081
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:onboard",
+   "p": 0.045
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:opportunities",
+   "p": 0.149
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:organize",
+   "p": 0.213
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:persona",
+   "p": 0.732
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:pipeline",
+   "p": 0.732
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.107
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:radar",
+   "p": 0.545
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:reanalyze",
+   "p": 0.237
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:research",
+   "p": 0.489
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:root-cause",
+   "p": 0.386
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:rs-experts",
+   "p": 0.245
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:rs-explain",
+   "p": 0.156
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:rs-fetch",
+   "p": 0.469
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:rs-thesis",
+   "p": 0.174
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:scenario-plan",
+   "p": 0.495
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.833
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:score-innovation",
+   "p": 0.455
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:scout",
+   "p": 0.119
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:stance",
+   "p": 0.28
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:structure-argument",
+   "p": 0.334
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:suggest-next",
+   "p": 0.54
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:systems-thinking",
+   "p": 0.78
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:think-hats",
+   "p": 0.782
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.609
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:user-needs",
+   "p": 0.629
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:validate",
+   "p": 0.476
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:validate-proposition",
+   "p": 0.41
+  },
+  {
+   "job": "design-solution",
+   "command": "/mos:whitespace",
+   "p": 0.38
   },
   {
    "job": "explore",
    "command": "/mos:act",
    "p": 0.493
-  },
-  {
-   "job": "explore",
-   "command": "/mos:admin",
-   "p": 0.143
-  },
-  {
-   "job": "explore",
-   "command": "/mos:agentshield",
-   "p": 0.25
   },
   {
    "job": "explore",
@@ -2317,11 +2237,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:brain-derive",
-   "p": 0.289
-  },
-  {
-   "job": "explore",
    "command": "/mos:build-knowledge",
    "p": 0.72
   },
@@ -2347,21 +2262,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:correct-reference-now",
-   "p": 0.318
-  },
-  {
-   "job": "explore",
-   "command": "/mos:dashboard",
-   "p": 0.483
-  },
-  {
-   "job": "explore",
-   "command": "/mos:deck",
-   "p": 0.616
-  },
-  {
-   "job": "explore",
    "command": "/mos:deep-grade",
    "p": 0.326
   },
@@ -2377,11 +2277,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.313
-  },
-  {
-   "job": "explore",
    "command": "/mos:diffusion",
    "p": 0.509
   },
@@ -2392,16 +2287,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:doctor",
-   "p": 0.146
-  },
-  {
-   "job": "explore",
-   "command": "/mos:dogfood-flush",
-   "p": 0.156
-  },
-  {
-   "job": "explore",
    "command": "/mos:dominant-designs",
    "p": 0.491
   },
@@ -2409,11 +2294,6 @@
    "job": "explore",
    "command": "/mos:eureka",
    "p": 0.758
-  },
-  {
-   "job": "explore",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.667
   },
   {
    "job": "explore",
@@ -2439,16 +2319,6 @@
    "job": "explore",
    "command": "/mos:explore-trends",
    "p": 0.801
-  },
-  {
-   "job": "explore",
-   "command": "/mos:export",
-   "p": 0.275
-  },
-  {
-   "job": "explore",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.201
   },
   {
    "job": "explore",
@@ -2492,38 +2362,13 @@
   },
   {
    "job": "explore",
-   "command": "/mos:graph",
-   "p": 0.706
-  },
-  {
-   "job": "explore",
    "command": "/mos:hat-briefing",
    "p": 0.309
   },
   {
    "job": "explore",
-   "command": "/mos:heal",
-   "p": 0.39
-  },
-  {
-   "job": "explore",
-   "command": "/mos:help",
-   "p": 0.7
-  },
-  {
-   "job": "explore",
-   "command": "/mos:hmi-status",
-   "p": 0.368
-  },
-  {
-   "job": "explore",
    "command": "/mos:ignite",
    "p": 0.441
-  },
-  {
-   "job": "explore",
-   "command": "/mos:ingest-methodology",
-   "p": 0.246
   },
   {
    "job": "explore",
@@ -2557,26 +2402,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:memory",
-   "p": 0.502
-  },
-  {
-   "job": "explore",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.513
-  },
-  {
-   "job": "explore",
-   "command": "/mos:models",
-   "p": 0.522
-  },
-  {
-   "job": "explore",
-   "command": "/mos:mos",
-   "p": 0.778
-  },
-  {
-   "job": "explore",
    "command": "/mos:mos-reason",
    "p": 0.827
   },
@@ -2602,18 +2427,8 @@
   },
   {
    "job": "explore",
-   "command": "/mos:new-surface",
-   "p": 0.175
-  },
-  {
-   "job": "explore",
    "command": "/mos:onboard",
    "p": 0.302
-  },
-  {
-   "job": "explore",
-   "command": "/mos:operator",
-   "p": 0.705
   },
   {
    "job": "explore",
@@ -2637,16 +2452,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:present",
-   "p": 0.472
-  },
-  {
-   "job": "explore",
-   "command": "/mos:publish",
-   "p": 0.191
-  },
-  {
-   "job": "explore",
    "command": "/mos:qualify-opportunity",
    "p": 0.434
   },
@@ -2664,16 +2469,6 @@
    "job": "explore",
    "command": "/mos:research",
    "p": 0.706
-  },
-  {
-   "job": "explore",
-   "command": "/mos:room",
-   "p": 0.602
-  },
-  {
-   "job": "explore",
-   "command": "/mos:rooms",
-   "p": 0.229
   },
   {
    "job": "explore",
@@ -2707,11 +2502,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.252
-  },
-  {
-   "job": "explore",
    "command": "/mos:scientific-roadmap",
    "p": 0.355
   },
@@ -2727,48 +2517,8 @@
   },
   {
    "job": "explore",
-   "command": "/mos:session-report",
-   "p": 0.438
-  },
-  {
-   "job": "explore",
-   "command": "/mos:setup",
-   "p": 0.247
-  },
-  {
-   "job": "explore",
-   "command": "/mos:show",
-   "p": 0.605
-  },
-  {
-   "job": "explore",
-   "command": "/mos:skill",
-   "p": 0.701
-  },
-  {
-   "job": "explore",
-   "command": "/mos:snapshot",
-   "p": 0.15
-  },
-  {
-   "job": "explore",
-   "command": "/mos:speakers",
-   "p": 0.334
-  },
-  {
-   "job": "explore",
-   "command": "/mos:splash",
-   "p": 0.379
-  },
-  {
-   "job": "explore",
    "command": "/mos:stance",
    "p": 0.729
-  },
-  {
-   "job": "explore",
-   "command": "/mos:status",
-   "p": 0.738
   },
   {
    "job": "explore",
@@ -2797,11 +2547,6 @@
   },
   {
    "job": "explore",
-   "command": "/mos:update",
-   "p": 0.241
-  },
-  {
-   "job": "explore",
    "command": "/mos:user-needs",
    "p": 0.626
   },
@@ -2817,38 +2562,13 @@
   },
   {
    "job": "explore",
-   "command": "/mos:vault",
-   "p": 0.521
-  },
-  {
-   "job": "explore",
-   "command": "/mos:visualize",
-   "p": 0.757
-  },
-  {
-   "job": "explore",
    "command": "/mos:whitespace",
    "p": 0.751
-  },
-  {
-   "job": "explore",
-   "command": "/mos:wiki",
-   "p": 0.796
   },
   {
    "job": "file-meeting",
    "command": "/mos:act",
    "p": 0.235
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:admin",
-   "p": 0.031
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:agentshield",
-   "p": 0.013
   },
   {
    "job": "file-meeting",
@@ -2882,11 +2602,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:brain-derive",
-   "p": 0.48
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:build-knowledge",
    "p": 0.502
   },
@@ -2912,21 +2627,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:correct-reference-now",
-   "p": 0.422
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:dashboard",
-   "p": 0.226
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:deck",
-   "p": 0.239
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:deep-grade",
    "p": 0.066
   },
@@ -2942,11 +2642,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.167
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:diffusion",
    "p": 0.052
   },
@@ -2957,16 +2652,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:doctor",
-   "p": 0.218
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:dogfood-flush",
-   "p": 0.083
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:dominant-designs",
    "p": 0.055
   },
@@ -2974,11 +2659,6 @@
    "job": "file-meeting",
    "command": "/mos:eureka",
    "p": 0.542
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.04
   },
   {
    "job": "file-meeting",
@@ -3004,16 +2684,6 @@
    "job": "file-meeting",
    "command": "/mos:explore-trends",
    "p": 0.059
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:export",
-   "p": 0.175
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.107
   },
   {
    "job": "file-meeting",
@@ -3057,38 +2727,13 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:graph",
-   "p": 0.267
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:hat-briefing",
    "p": 0.623
   },
   {
    "job": "file-meeting",
-   "command": "/mos:heal",
-   "p": 0.091
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:help",
-   "p": 0.557
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:hmi-status",
-   "p": 0.141
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:ignite",
    "p": 0.302
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:ingest-methodology",
-   "p": 0.131
   },
   {
    "job": "file-meeting",
@@ -3122,26 +2767,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:memory",
-   "p": 0.342
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.155
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:models",
-   "p": 0.239
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:mos",
-   "p": 0.402
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:mos-reason",
    "p": 0.267
   },
@@ -3167,18 +2792,8 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:new-surface",
-   "p": 0.098
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:onboard",
    "p": 0.129
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:operator",
-   "p": 0.19
   },
   {
    "job": "file-meeting",
@@ -3202,16 +2817,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:present",
-   "p": 0.229
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:publish",
-   "p": 0.123
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:qualify-opportunity",
    "p": 0.083
   },
@@ -3229,16 +2834,6 @@
    "job": "file-meeting",
    "command": "/mos:research",
    "p": 0.472
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:room",
-   "p": 0.205
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:rooms",
-   "p": 0.127
   },
   {
    "job": "file-meeting",
@@ -3272,11 +2867,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.797
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:scientific-roadmap",
    "p": 0.045
   },
@@ -3292,48 +2882,8 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:session-report",
-   "p": 0.701
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:setup",
-   "p": 0.869
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:show",
-   "p": 0.451
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:skill",
-   "p": 0.23
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:snapshot",
-   "p": 0.233
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:speakers",
-   "p": 0.599
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:splash",
-   "p": 0.024
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:stance",
    "p": 0.072
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:status",
-   "p": 0.315
   },
   {
    "job": "file-meeting",
@@ -3362,11 +2912,6 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:update",
-   "p": 0.087
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:user-needs",
    "p": 0.065
   },
@@ -3382,38 +2927,13 @@
   },
   {
    "job": "file-meeting",
-   "command": "/mos:vault",
-   "p": 0.381
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:visualize",
-   "p": 0.137
-  },
-  {
-   "job": "file-meeting",
    "command": "/mos:whitespace",
    "p": 0.209
-  },
-  {
-   "job": "file-meeting",
-   "command": "/mos:wiki",
-   "p": 0.103
   },
   {
    "job": "find-bottleneck",
    "command": "/mos:act",
    "p": 0.681
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:admin",
-   "p": 0.125
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:agentshield",
-   "p": 0.238
   },
   {
    "job": "find-bottleneck",
@@ -3447,11 +2967,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:brain-derive",
-   "p": 0.282
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:build-knowledge",
    "p": 0.476
   },
@@ -3477,21 +2992,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:correct-reference-now",
-   "p": 0.036
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:dashboard",
-   "p": 0.618
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:deck",
-   "p": 0.157
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:deep-grade",
    "p": 0.484
   },
@@ -3507,11 +3007,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.119
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:diffusion",
    "p": 0.296
   },
@@ -3522,16 +3017,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:doctor",
-   "p": 0.374
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:dogfood-flush",
-   "p": 0.263
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:dominant-designs",
    "p": 0.26
   },
@@ -3539,11 +3024,6 @@
    "job": "find-bottleneck",
    "command": "/mos:eureka",
    "p": 0.117
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.632
   },
   {
    "job": "find-bottleneck",
@@ -3569,16 +3049,6 @@
    "job": "find-bottleneck",
    "command": "/mos:explore-trends",
    "p": 0.141
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:export",
-   "p": 0.043
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.193
   },
   {
    "job": "find-bottleneck",
@@ -3622,38 +3092,13 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:graph",
-   "p": 0.816
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:hat-briefing",
    "p": 0.132
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:heal",
-   "p": 0.508
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:help",
-   "p": 0.14
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:hmi-status",
-   "p": 0.529
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:ignite",
    "p": 0.156
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:ingest-methodology",
-   "p": 0.097
   },
   {
    "job": "find-bottleneck",
@@ -3687,26 +3132,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:memory",
-   "p": 0.203
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.331
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:models",
-   "p": 0.288
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:mos",
-   "p": 0.719
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:mos-reason",
    "p": 0.72
   },
@@ -3732,18 +3157,8 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:new-surface",
-   "p": 0.06
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:onboard",
    "p": 0.095
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:operator",
-   "p": 0.202
   },
   {
    "job": "find-bottleneck",
@@ -3767,16 +3182,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:present",
-   "p": 0.617
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:publish",
-   "p": 0.11
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:qualify-opportunity",
    "p": 0.243
   },
@@ -3794,16 +3199,6 @@
    "job": "find-bottleneck",
    "command": "/mos:research",
    "p": 0.347
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:room",
-   "p": 0.515
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:rooms",
-   "p": 0.068
   },
   {
    "job": "find-bottleneck",
@@ -3837,11 +3232,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.075
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:scientific-roadmap",
    "p": 0.418
   },
@@ -3857,48 +3247,8 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:session-report",
-   "p": 0.527
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:setup",
-   "p": 0.161
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:show",
-   "p": 0.934
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:skill",
-   "p": 0.114
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:snapshot",
-   "p": 0.091
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:speakers",
-   "p": 0.145
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:splash",
-   "p": 0.016
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:stance",
    "p": 0.219
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:status",
-   "p": 0.796
   },
   {
    "job": "find-bottleneck",
@@ -3927,11 +3277,6 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:update",
-   "p": 0.413
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:user-needs",
    "p": 0.543
   },
@@ -3947,38 +3292,13 @@
   },
   {
    "job": "find-bottleneck",
-   "command": "/mos:vault",
-   "p": 0.125
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:visualize",
-   "p": 0.762
-  },
-  {
-   "job": "find-bottleneck",
    "command": "/mos:whitespace",
    "p": 0.449
-  },
-  {
-   "job": "find-bottleneck",
-   "command": "/mos:wiki",
-   "p": 0.251
   },
   {
    "job": "find-problem",
    "command": "/mos:act",
    "p": 0.357
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:admin",
-   "p": 0.028
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:agentshield",
-   "p": 0.087
   },
   {
    "job": "find-problem",
@@ -4012,11 +3332,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:brain-derive",
-   "p": 0.117
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:build-knowledge",
    "p": 0.563
   },
@@ -4042,21 +3357,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:correct-reference-now",
-   "p": 0.052
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:dashboard",
-   "p": 0.165
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:deck",
-   "p": 0.114
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:deep-grade",
    "p": 0.09
   },
@@ -4072,11 +3372,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.098
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:diffusion",
    "p": 0.223
   },
@@ -4087,16 +3382,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:doctor",
-   "p": 0.075
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:dogfood-flush",
-   "p": 0.054
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:dominant-designs",
    "p": 0.29
   },
@@ -4104,11 +3389,6 @@
    "job": "find-problem",
    "command": "/mos:eureka",
    "p": 0.655
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.285
   },
   {
    "job": "find-problem",
@@ -4134,16 +3414,6 @@
    "job": "find-problem",
    "command": "/mos:explore-trends",
    "p": 0.649
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:export",
-   "p": 0.027
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.066
   },
   {
    "job": "find-problem",
@@ -4187,38 +3457,13 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:graph",
-   "p": 0.618
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:hat-briefing",
    "p": 0.117
   },
   {
    "job": "find-problem",
-   "command": "/mos:heal",
-   "p": 0.102
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:help",
-   "p": 0.155
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:hmi-status",
-   "p": 0.392
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:ignite",
    "p": 0.756
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:ingest-methodology",
-   "p": 0.229
   },
   {
    "job": "find-problem",
@@ -4252,26 +3497,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:memory",
-   "p": 0.126
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.318
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:models",
-   "p": 0.072
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:mos",
-   "p": 0.301
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:mos-reason",
    "p": 0.737
   },
@@ -4297,18 +3522,8 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:new-surface",
-   "p": 0.027
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:onboard",
    "p": 0.052
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:operator",
-   "p": 0.221
   },
   {
    "job": "find-problem",
@@ -4332,16 +3547,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:present",
-   "p": 0.095
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:publish",
-   "p": 0.011
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:qualify-opportunity",
    "p": 0.423
   },
@@ -4359,16 +3564,6 @@
    "job": "find-problem",
    "command": "/mos:research",
    "p": 0.598
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:room",
-   "p": 0.687
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:rooms",
-   "p": 0.023
   },
   {
    "job": "find-problem",
@@ -4402,11 +3597,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.038
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:scientific-roadmap",
    "p": 0.204
   },
@@ -4422,48 +3612,8 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:session-report",
-   "p": 0.174
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:setup",
-   "p": 0.03
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:show",
-   "p": 0.807
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:skill",
-   "p": 0.198
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:snapshot",
-   "p": 0.063
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:speakers",
-   "p": 0.104
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:splash",
-   "p": 0.02
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:stance",
    "p": 0.213
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:status",
-   "p": 0.293
   },
   {
    "job": "find-problem",
@@ -4492,11 +3642,6 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:update",
-   "p": 0.035
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:user-needs",
    "p": 0.888
   },
@@ -4512,38 +3657,1108 @@
   },
   {
    "job": "find-problem",
-   "command": "/mos:vault",
-   "p": 0.042
-  },
-  {
-   "job": "find-problem",
-   "command": "/mos:visualize",
-   "p": 0.623
-  },
-  {
-   "job": "find-problem",
    "command": "/mos:whitespace",
    "p": 0.647
   },
   {
-   "job": "find-problem",
-   "command": "/mos:wiki",
-   "p": 0.44
+   "job": "model-business",
+   "command": "/mos:act",
+   "p": 0.629
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:analyze-needs",
+   "p": 0.468
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:analyze-systems",
+   "p": 0.595
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:analyze-timing",
+   "p": 0.204
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:auto-explore",
+   "p": 0.692
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:beautiful-question",
+   "p": 0.62
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:bono",
+   "p": 0.556
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:build-knowledge",
+   "p": 0.342
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:build-thesis",
+   "p": 0.5
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:causal",
+   "p": 0.209
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.628
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:compare-ventures",
+   "p": 0.577
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:deep-grade",
+   "p": 0.32
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:diagnose",
+   "p": 0.217
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:diagnostics",
+   "p": 0.157
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:diffusion",
+   "p": 0.347
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:discover",
+   "p": 0.77
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:dominant-designs",
+   "p": 0.325
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:eureka",
+   "p": 0.264
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:explain-decision",
+   "p": 0.109
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:explore-domains",
+   "p": 0.246
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:explore-futures",
+   "p": 0.4
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:explore-opportunity",
+   "p": 0.364
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:explore-trends",
+   "p": 0.357
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:file-meeting",
+   "p": 0.282
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:find-analogies",
+   "p": 0.274
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.297
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:find-connections",
+   "p": 0.508
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:funding",
+   "p": 0.117
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:futures",
+   "p": 0.351
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:grade",
+   "p": 0.078
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:grade-grant",
+   "p": 0.253
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:hat-briefing",
+   "p": 0.155
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:ignite",
+   "p": 0.508
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:intel-pipeline",
+   "p": 0.608
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:jtbd",
+   "p": 0.273
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:leadership",
+   "p": 0.17
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:lean-canvas",
+   "p": 0.977
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:macro-trends",
+   "p": 0.519
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:map-unknowns",
+   "p": 0.357
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:mos-reason",
+   "p": 0.313
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:mullins",
+   "p": 0.657
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:mva-brief",
+   "p": 0.473
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:mva-report",
+   "p": 0.23
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:new-project",
+   "p": 0.276
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:onboard",
+   "p": 0.167
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:opportunities",
+   "p": 0.22
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:organize",
+   "p": 0.131
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:persona",
+   "p": 0.435
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:pipeline",
+   "p": 0.758
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.096
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:radar",
+   "p": 0.128
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:reanalyze",
+   "p": 0.151
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:research",
+   "p": 0.31
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:root-cause",
+   "p": 0.076
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:rs-experts",
+   "p": 0.053
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:rs-explain",
+   "p": 0.235
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:rs-fetch",
+   "p": 0.29
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:rs-thesis",
+   "p": 0.108
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:scenario-plan",
+   "p": 0.177
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.127
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:score-innovation",
+   "p": 0.223
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:scout",
+   "p": 0.079
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:stance",
+   "p": 0.093
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:structure-argument",
+   "p": 0.295
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:suggest-next",
+   "p": 0.649
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:systems-thinking",
+   "p": 0.741
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:think-hats",
+   "p": 0.385
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.447
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:user-needs",
+   "p": 0.567
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:validate",
+   "p": 0.484
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:validate-proposition",
+   "p": 0.725
+  },
+  {
+   "job": "model-business",
+   "command": "/mos:whitespace",
+   "p": 0.394
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:act",
+   "p": 0.343
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:analyze-needs",
+   "p": 0.034
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:analyze-systems",
+   "p": 0.188
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:analyze-timing",
+   "p": 0.048
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:auto-explore",
+   "p": 0.313
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:beautiful-question",
+   "p": 0.124
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:bono",
+   "p": 0.231
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:build-knowledge",
+   "p": 0.387
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:build-thesis",
+   "p": 0.247
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:causal",
+   "p": 0.08
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.3
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:compare-ventures",
+   "p": 0.14
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:deep-grade",
+   "p": 0.039
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:diagnose",
+   "p": 0.101
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:diagnostics",
+   "p": 0.078
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:diffusion",
+   "p": 0.06
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:discover",
+   "p": 0.316
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:dominant-designs",
+   "p": 0.056
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:eureka",
+   "p": 0.159
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:explain-decision",
+   "p": 0.062
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:explore-domains",
+   "p": 0.084
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:explore-futures",
+   "p": 0.522
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:explore-opportunity",
+   "p": 0.091
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:explore-trends",
+   "p": 0.123
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:file-meeting",
+   "p": 0.187
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:find-analogies",
+   "p": 0.089
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.128
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:find-connections",
+   "p": 0.124
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:funding",
+   "p": 0.608
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:futures",
+   "p": 0.169
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:grade",
+   "p": 0.022
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:grade-grant",
+   "p": 0.121
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:hat-briefing",
+   "p": 0.098
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:ignite",
+   "p": 0.336
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:intel-pipeline",
+   "p": 0.235
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:jtbd",
+   "p": 0.368
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:leadership",
+   "p": 0.072
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:lean-canvas",
+   "p": 0.385
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:macro-trends",
+   "p": 0.106
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:map-unknowns",
+   "p": 0.206
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:mos-reason",
+   "p": 0.313
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:mullins",
+   "p": 0.191
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:mva-brief",
+   "p": 0.059
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:mva-report",
+   "p": 0.065
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:new-project",
+   "p": 0.273
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:onboard",
+   "p": 0.091
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:opportunities",
+   "p": 0.59
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:organize",
+   "p": 0.037
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:persona",
+   "p": 0.17
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:pipeline",
+   "p": 0.243
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.028
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:radar",
+   "p": 0.035
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:reanalyze",
+   "p": 0.051
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:research",
+   "p": 0.155
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:root-cause",
+   "p": 0.036
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:rs-experts",
+   "p": 0.02
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:rs-explain",
+   "p": 0.061
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:rs-fetch",
+   "p": 0.105
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:rs-thesis",
+   "p": 0.046
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:scenario-plan",
+   "p": 0.227
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.061
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:score-innovation",
+   "p": 0.05
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:scout",
+   "p": 0.084
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:stance",
+   "p": 0.153
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:structure-argument",
+   "p": 0.067
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:suggest-next",
+   "p": 0.182
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:systems-thinking",
+   "p": 0.532
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:think-hats",
+   "p": 0.122
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.071
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:user-needs",
+   "p": 0.025
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:validate",
+   "p": 0.115
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:validate-proposition",
+   "p": 0.1
+  },
+  {
+   "job": "model-finances",
+   "command": "/mos:whitespace",
+   "p": 0.107
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:act",
+   "p": 0.56
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:analyze-needs",
+   "p": 0.082
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:analyze-systems",
+   "p": 0.425
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:analyze-timing",
+   "p": 0.198
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:auto-explore",
+   "p": 0.17
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:beautiful-question",
+   "p": 0.854
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:bono",
+   "p": 0.811
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:build-knowledge",
+   "p": 0.672
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:build-thesis",
+   "p": 0.111
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:causal",
+   "p": 0.808
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.905
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:compare-ventures",
+   "p": 0.589
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:deep-grade",
+   "p": 0.11
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:diagnose",
+   "p": 0.192
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:diagnostics",
+   "p": 0.391
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:diffusion",
+   "p": 0.234
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:discover",
+   "p": 0.194
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:dominant-designs",
+   "p": 0.224
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:eureka",
+   "p": 0.669
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:explain-decision",
+   "p": 0.311
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:explore-domains",
+   "p": 0.385
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:explore-futures",
+   "p": 0.631
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:explore-opportunity",
+   "p": 0.28
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:explore-trends",
+   "p": 0.666
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:file-meeting",
+   "p": 0.321
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:find-analogies",
+   "p": 0.723
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.764
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:find-connections",
+   "p": 0.711
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:funding",
+   "p": 0.052
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:futures",
+   "p": 0.707
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:grade",
+   "p": 0.13
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:grade-grant",
+   "p": 0.12
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:hat-briefing",
+   "p": 0.564
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:ignite",
+   "p": 0.14
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:intel-pipeline",
+   "p": 0.298
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:jtbd",
+   "p": 0.45
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:leadership",
+   "p": 0.41
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:lean-canvas",
+   "p": 0.337
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:macro-trends",
+   "p": 0.365
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:map-unknowns",
+   "p": 0.375
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:mos-reason",
+   "p": 0.564
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:mullins",
+   "p": 0.379
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:mva-brief",
+   "p": 0.209
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:mva-report",
+   "p": 0.133
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:new-project",
+   "p": 0.046
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:onboard",
+   "p": 0.052
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:opportunities",
+   "p": 0.19
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:organize",
+   "p": 0.119
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:persona",
+   "p": 0.95
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:pipeline",
+   "p": 0.146
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.264
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:radar",
+   "p": 0.063
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:reanalyze",
+   "p": 0.885
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:research",
+   "p": 0.491
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:root-cause",
+   "p": 0.407
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:rs-experts",
+   "p": 0.586
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:rs-explain",
+   "p": 0.584
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:rs-fetch",
+   "p": 0.292
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:rs-thesis",
+   "p": 0.61
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:scenario-plan",
+   "p": 0.448
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.176
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:score-innovation",
+   "p": 0.364
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:scout",
+   "p": 0.455
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:stance",
+   "p": 0.961
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:structure-argument",
+   "p": 0.471
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:suggest-next",
+   "p": 0.903
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:systems-thinking",
+   "p": 0.643
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:think-hats",
+   "p": 0.927
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.886
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:user-needs",
+   "p": 0.221
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:validate",
+   "p": 0.152
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:validate-proposition",
+   "p": 0.14
+  },
+  {
+   "job": "navigate",
+   "command": "/mos:whitespace",
+   "p": 0.756
   },
   {
    "job": "plan-execution",
    "command": "/mos:act",
    "p": 0.599
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:admin",
-   "p": 0.033
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:agentshield",
-   "p": 0.027
   },
   {
    "job": "plan-execution",
@@ -4577,11 +4792,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:brain-derive",
-   "p": 0.198
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:build-knowledge",
    "p": 0.364
   },
@@ -4607,21 +4817,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:correct-reference-now",
-   "p": 0.277
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:dashboard",
-   "p": 0.252
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:deck",
-   "p": 0.332
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:deep-grade",
    "p": 0.219
   },
@@ -4637,11 +4832,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.078
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:diffusion",
    "p": 0.225
   },
@@ -4652,16 +4842,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:doctor",
-   "p": 0.044
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:dogfood-flush",
-   "p": 0.059
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:dominant-designs",
    "p": 0.139
   },
@@ -4669,11 +4849,6 @@
    "job": "plan-execution",
    "command": "/mos:eureka",
    "p": 0.144
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.21
   },
   {
    "job": "plan-execution",
@@ -4699,16 +4874,6 @@
    "job": "plan-execution",
    "command": "/mos:explore-trends",
    "p": 0.165
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:export",
-   "p": 0.071
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.084
   },
   {
    "job": "plan-execution",
@@ -4752,38 +4917,13 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:graph",
-   "p": 0.287
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:hat-briefing",
    "p": 0.339
   },
   {
    "job": "plan-execution",
-   "command": "/mos:heal",
-   "p": 0.062
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:help",
-   "p": 0.305
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:hmi-status",
-   "p": 0.082
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:ignite",
    "p": 0.591
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:ingest-methodology",
-   "p": 0.145
   },
   {
    "job": "plan-execution",
@@ -4817,26 +4957,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:memory",
-   "p": 0.194
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.23
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:models",
-   "p": 0.139
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:mos",
-   "p": 0.518
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:mos-reason",
    "p": 0.591
   },
@@ -4862,18 +4982,8 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:new-surface",
-   "p": 0.032
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:onboard",
    "p": 0.073
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:operator",
-   "p": 0.248
   },
   {
    "job": "plan-execution",
@@ -4897,16 +5007,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:present",
-   "p": 0.627
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:publish",
-   "p": 0.06
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:qualify-opportunity",
    "p": 0.09
   },
@@ -4924,16 +5024,6 @@
    "job": "plan-execution",
    "command": "/mos:research",
    "p": 0.208
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:room",
-   "p": 0.29
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:rooms",
-   "p": 0.078
   },
   {
    "job": "plan-execution",
@@ -4967,11 +5057,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.19
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:scientific-roadmap",
    "p": 0.515
   },
@@ -4987,48 +5072,8 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:session-report",
-   "p": 0.067
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:setup",
-   "p": 0.079
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:show",
-   "p": 0.738
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:skill",
-   "p": 0.115
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:snapshot",
-   "p": 0.066
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:speakers",
-   "p": 0.097
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:splash",
-   "p": 0.015
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:stance",
    "p": 0.245
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:status",
-   "p": 0.29
   },
   {
    "job": "plan-execution",
@@ -5057,11 +5102,6 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:update",
-   "p": 0.088
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:user-needs",
    "p": 0.198
   },
@@ -5077,38 +5117,13 @@
   },
   {
    "job": "plan-execution",
-   "command": "/mos:vault",
-   "p": 0.162
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:visualize",
-   "p": 0.231
-  },
-  {
-   "job": "plan-execution",
    "command": "/mos:whitespace",
    "p": 0.152
-  },
-  {
-   "job": "plan-execution",
-   "command": "/mos:wiki",
-   "p": 0.235
   },
   {
    "job": "prepare-pitch",
    "command": "/mos:act",
    "p": 0.397
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:admin",
-   "p": 0.024
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:agentshield",
-   "p": 0.03
   },
   {
    "job": "prepare-pitch",
@@ -5142,11 +5157,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:brain-derive",
-   "p": 0.673
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:build-knowledge",
    "p": 0.725
   },
@@ -5172,21 +5182,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:correct-reference-now",
-   "p": 0.267
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:dashboard",
-   "p": 0.365
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:deck",
-   "p": 0.962
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:deep-grade",
    "p": 0.194
   },
@@ -5202,11 +5197,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.571
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:diffusion",
    "p": 0.614
   },
@@ -5217,16 +5207,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:doctor",
-   "p": 0.026
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:dogfood-flush",
-   "p": 0.046
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:dominant-designs",
    "p": 0.719
   },
@@ -5234,11 +5214,6 @@
    "job": "prepare-pitch",
    "command": "/mos:eureka",
    "p": 0.567
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.126
   },
   {
    "job": "prepare-pitch",
@@ -5264,16 +5239,6 @@
    "job": "prepare-pitch",
    "command": "/mos:explore-trends",
    "p": 0.694
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:export",
-   "p": 0.917
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.323
   },
   {
    "job": "prepare-pitch",
@@ -5317,38 +5282,13 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:graph",
-   "p": 0.641
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:hat-briefing",
    "p": 0.89
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:heal",
-   "p": 0.035
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:help",
-   "p": 0.294
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:hmi-status",
-   "p": 0.081
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:ignite",
    "p": 0.409
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:ingest-methodology",
-   "p": 0.095
   },
   {
    "job": "prepare-pitch",
@@ -5382,26 +5322,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:memory",
-   "p": 0.173
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.252
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:models",
-   "p": 0.17
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:mos",
-   "p": 0.436
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:mos-reason",
    "p": 0.875
   },
@@ -5427,18 +5347,8 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:new-surface",
-   "p": 0.017
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:onboard",
    "p": 0.044
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:operator",
-   "p": 0.261
   },
   {
    "job": "prepare-pitch",
@@ -5462,16 +5372,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:present",
-   "p": 0.957
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:publish",
-   "p": 0.771
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:qualify-opportunity",
    "p": 0.068
   },
@@ -5489,16 +5389,6 @@
    "job": "prepare-pitch",
    "command": "/mos:research",
    "p": 0.737
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:room",
-   "p": 0.625
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:rooms",
-   "p": 0.19
   },
   {
    "job": "prepare-pitch",
@@ -5532,11 +5422,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.168
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:scientific-roadmap",
    "p": 0.166
   },
@@ -5552,48 +5437,8 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:session-report",
-   "p": 0.184
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:setup",
-   "p": 0.497
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:show",
-   "p": 0.748
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:skill",
-   "p": 0.564
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:snapshot",
-   "p": 0.888
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:speakers",
-   "p": 0.135
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:splash",
-   "p": 0.528
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:stance",
    "p": 0.808
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:status",
-   "p": 0.53
   },
   {
    "job": "prepare-pitch",
@@ -5622,11 +5467,6 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:update",
-   "p": 0.248
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:user-needs",
    "p": 0.754
   },
@@ -5642,38 +5482,378 @@
   },
   {
    "job": "prepare-pitch",
-   "command": "/mos:vault",
-   "p": 0.799
-  },
-  {
-   "job": "prepare-pitch",
-   "command": "/mos:visualize",
-   "p": 0.49
-  },
-  {
-   "job": "prepare-pitch",
    "command": "/mos:whitespace",
    "p": 0.402
   },
   {
-   "job": "prepare-pitch",
-   "command": "/mos:wiki",
-   "p": 0.772
+   "job": "protect-assets",
+   "command": "/mos:act",
+   "p": 0.272
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:analyze-needs",
+   "p": 0.113
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:analyze-systems",
+   "p": 0.177
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:analyze-timing",
+   "p": 0.093
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:auto-explore",
+   "p": 0.27
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:beautiful-question",
+   "p": 0.259
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:bono",
+   "p": 0.386
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:build-knowledge",
+   "p": 0.198
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:build-thesis",
+   "p": 0.208
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:causal",
+   "p": 0.142
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.4
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:compare-ventures",
+   "p": 0.178
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:deep-grade",
+   "p": 0.123
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:diagnose",
+   "p": 0.163
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:diagnostics",
+   "p": 0.137
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:diffusion",
+   "p": 0.174
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:discover",
+   "p": 0.299
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:dominant-designs",
+   "p": 0.217
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:eureka",
+   "p": 0.143
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:explain-decision",
+   "p": 0.172
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:explore-domains",
+   "p": 0.228
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:explore-futures",
+   "p": 0.265
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:explore-opportunity",
+   "p": 0.156
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:explore-trends",
+   "p": 0.252
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:file-meeting",
+   "p": 0.63
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:find-analogies",
+   "p": 0.253
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.104
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:find-connections",
+   "p": 0.148
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:funding",
+   "p": 0.134
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:futures",
+   "p": 0.314
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:grade",
+   "p": 0.074
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:grade-grant",
+   "p": 0.365
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:hat-briefing",
+   "p": 0.133
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:ignite",
+   "p": 0.433
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:intel-pipeline",
+   "p": 0.718
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:jtbd",
+   "p": 0.41
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:leadership",
+   "p": 0.105
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:lean-canvas",
+   "p": 0.264
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:macro-trends",
+   "p": 0.214
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:map-unknowns",
+   "p": 0.471
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:mos-reason",
+   "p": 0.329
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:mullins",
+   "p": 0.187
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:mva-brief",
+   "p": 0.191
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:mva-report",
+   "p": 0.082
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:new-project",
+   "p": 0.362
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:onboard",
+   "p": 0.066
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:opportunities",
+   "p": 0.191
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:organize",
+   "p": 0.11
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:persona",
+   "p": 0.408
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:pipeline",
+   "p": 0.254
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.235
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:radar",
+   "p": 0.278
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:reanalyze",
+   "p": 0.334
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:research",
+   "p": 0.199
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:root-cause",
+   "p": 0.13
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:rs-experts",
+   "p": 0.063
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:rs-explain",
+   "p": 0.121
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:rs-fetch",
+   "p": 0.288
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:rs-thesis",
+   "p": 0.167
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:scenario-plan",
+   "p": 0.224
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.074
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:score-innovation",
+   "p": 0.435
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:scout",
+   "p": 0.747
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:stance",
+   "p": 0.129
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:structure-argument",
+   "p": 0.173
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:suggest-next",
+   "p": 0.237
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:systems-thinking",
+   "p": 0.212
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:think-hats",
+   "p": 0.16
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.178
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:user-needs",
+   "p": 0.058
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:validate",
+   "p": 0.111
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:validate-proposition",
+   "p": 0.258
+  },
+  {
+   "job": "protect-assets",
+   "command": "/mos:whitespace",
+   "p": 0.204
   },
   {
    "job": "surface-contradiction",
    "command": "/mos:act",
    "p": 0.455
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:admin",
-   "p": 0.056
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:agentshield",
-   "p": 0.12
   },
   {
    "job": "surface-contradiction",
@@ -5707,11 +5887,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:brain-derive",
-   "p": 0.659
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:build-knowledge",
    "p": 0.446
   },
@@ -5737,21 +5912,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:correct-reference-now",
-   "p": 0.416
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:dashboard",
-   "p": 0.373
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:deck",
-   "p": 0.14
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:deep-grade",
    "p": 0.146
   },
@@ -5767,11 +5927,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.21
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:diffusion",
    "p": 0.079
   },
@@ -5782,16 +5937,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:doctor",
-   "p": 0.337
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:dogfood-flush",
-   "p": 0.195
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:dominant-designs",
    "p": 0.137
   },
@@ -5799,11 +5944,6 @@
    "job": "surface-contradiction",
    "command": "/mos:eureka",
    "p": 0.156
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.303
   },
   {
    "job": "surface-contradiction",
@@ -5829,16 +5969,6 @@
    "job": "surface-contradiction",
    "command": "/mos:explore-trends",
    "p": 0.235
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:export",
-   "p": 0.064
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.137
   },
   {
    "job": "surface-contradiction",
@@ -5882,38 +6012,13 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:graph",
-   "p": 0.165
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:hat-briefing",
    "p": 0.425
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:heal",
-   "p": 0.38
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:help",
-   "p": 0.135
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:hmi-status",
-   "p": 0.313
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:ignite",
    "p": 0.127
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:ingest-methodology",
-   "p": 0.091
   },
   {
    "job": "surface-contradiction",
@@ -5947,26 +6052,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:memory",
-   "p": 0.216
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.916
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:models",
-   "p": 0.07
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:mos",
-   "p": 0.252
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:mos-reason",
    "p": 0.711
   },
@@ -5992,18 +6077,8 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:new-surface",
-   "p": 0.095
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:onboard",
    "p": 0.098
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:operator",
-   "p": 0.18
   },
   {
    "job": "surface-contradiction",
@@ -6027,16 +6102,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:present",
-   "p": 0.27
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:publish",
-   "p": 0.036
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:qualify-opportunity",
    "p": 0.141
   },
@@ -6054,16 +6119,6 @@
    "job": "surface-contradiction",
    "command": "/mos:research",
    "p": 0.168
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:room",
-   "p": 0.733
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:rooms",
-   "p": 0.052
   },
   {
    "job": "surface-contradiction",
@@ -6097,11 +6152,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.075
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:scientific-roadmap",
    "p": 0.26
   },
@@ -6117,48 +6167,8 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:session-report",
-   "p": 0.297
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:setup",
-   "p": 0.072
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:show",
-   "p": 0.454
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:skill",
-   "p": 0.096
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:snapshot",
-   "p": 0.069
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:speakers",
-   "p": 0.107
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:splash",
-   "p": 0.025
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:stance",
    "p": 0.096
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:status",
-   "p": 0.566
   },
   {
    "job": "surface-contradiction",
@@ -6187,11 +6197,6 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:update",
-   "p": 0.321
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:user-needs",
    "p": 0.422
   },
@@ -6207,38 +6212,378 @@
   },
   {
    "job": "surface-contradiction",
-   "command": "/mos:vault",
-   "p": 0.067
-  },
-  {
-   "job": "surface-contradiction",
-   "command": "/mos:visualize",
-   "p": 0.222
-  },
-  {
-   "job": "surface-contradiction",
    "command": "/mos:whitespace",
    "p": 0.16
   },
   {
-   "job": "surface-contradiction",
-   "command": "/mos:wiki",
-   "p": 0.528
+   "job": "temporal-correction",
+   "command": "/mos:act",
+   "p": 0.065
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:analyze-needs",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:analyze-systems",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:analyze-timing",
+   "p": 0.012
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:auto-explore",
+   "p": 0.07
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:beautiful-question",
+   "p": 0.058
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:bono",
+   "p": 0.034
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:build-knowledge",
+   "p": 0.099
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:build-thesis",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:causal",
+   "p": 0.051
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:challenge-assumptions",
+   "p": 0.041
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:compare-ventures",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:deep-grade",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:diagnose",
+   "p": 0.039
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:diagnostics",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:diffusion",
+   "p": 0.042
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:discover",
+   "p": 0.031
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:dominant-designs",
+   "p": 0.011
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:eureka",
+   "p": 0.015
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:explain-decision",
+   "p": 0.025
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:explore-domains",
+   "p": 0.045
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:explore-futures",
+   "p": 0.021
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:explore-opportunity",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:explore-trends",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:file-meeting",
+   "p": 0.051
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:find-analogies",
+   "p": 0.039
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:find-bottlenecks",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:find-connections",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:funding",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:futures",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:grade",
+   "p": 0.017
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:grade-grant",
+   "p": 0.012
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:hat-briefing",
+   "p": 0.011
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:ignite",
+   "p": 0.058
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:intel-pipeline",
+   "p": 0.296
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:jtbd",
+   "p": 0.248
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:leadership",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:lean-canvas",
+   "p": 0.021
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:macro-trends",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:map-unknowns",
+   "p": 0.066
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:mos-reason",
+   "p": 0.058
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:mullins",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:mva-brief",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:mva-report",
+   "p": 0.014
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:new-project",
+   "p": 0.017
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:onboard",
+   "p": 0.03
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:opportunities",
+   "p": 0.022
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:organize",
+   "p": 0.046
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:persona",
+   "p": 0.013
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:pipeline",
+   "p": 0.24
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:qualify-opportunity",
+   "p": 0.025
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:radar",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:reanalyze",
+   "p": 0.068
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:research",
+   "p": 0.088
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:root-cause",
+   "p": 0.081
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:rs-experts",
+   "p": 0.013
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:rs-explain",
+   "p": 0.019
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:rs-fetch",
+   "p": 0.023
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:rs-thesis",
+   "p": 0.016
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:scenario-plan",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:scientific-roadmap",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:score-innovation",
+   "p": 0.011
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:scout",
+   "p": 0.05
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:stance",
+   "p": 0.012
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:structure-argument",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:suggest-next",
+   "p": 0.159
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:systems-thinking",
+   "p": 0.017
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:think-hats",
+   "p": 0.022
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:trending-to-absurd",
+   "p": 0.011
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:user-needs",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:validate",
+   "p": 0.016
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:validate-proposition",
+   "p": 0.01
+  },
+  {
+   "job": "temporal-correction",
+   "command": "/mos:whitespace",
+   "p": 0.01
   },
   {
    "job": "understand-market",
    "command": "/mos:act",
    "p": 0.589
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:admin",
-   "p": 0.01
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:agentshield",
-   "p": 0.01
   },
   {
    "job": "understand-market",
@@ -6272,11 +6617,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:brain-derive",
-   "p": 0.133
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:build-knowledge",
    "p": 0.522
   },
@@ -6302,21 +6642,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:correct-reference-now",
-   "p": 0.01
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:dashboard",
-   "p": 0.046
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:deck",
-   "p": 0.095
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:deep-grade",
    "p": 0.121
   },
@@ -6332,11 +6657,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.051
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:diffusion",
    "p": 0.845
   },
@@ -6347,16 +6667,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:doctor",
-   "p": 0.01
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:dogfood-flush",
-   "p": 0.017
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:dominant-designs",
    "p": 0.882
   },
@@ -6364,11 +6674,6 @@
    "job": "understand-market",
    "command": "/mos:eureka",
    "p": 0.413
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.05
   },
   {
    "job": "understand-market",
@@ -6394,16 +6699,6 @@
    "job": "understand-market",
    "command": "/mos:explore-trends",
    "p": 0.55
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:export",
-   "p": 0.051
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.016
   },
   {
    "job": "understand-market",
@@ -6447,38 +6742,13 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:graph",
-   "p": 0.73
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:hat-briefing",
    "p": 0.071
   },
   {
    "job": "understand-market",
-   "command": "/mos:heal",
-   "p": 0.024
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:help",
-   "p": 0.35
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:hmi-status",
-   "p": 0.039
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:ignite",
    "p": 0.406
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:ingest-methodology",
-   "p": 0.065
   },
   {
    "job": "understand-market",
@@ -6512,26 +6782,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:memory",
-   "p": 0.026
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.048
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:models",
-   "p": 0.055
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:mos",
-   "p": 0.499
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:mos-reason",
    "p": 0.376
   },
@@ -6557,18 +6807,8 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:new-surface",
-   "p": 0.01
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:onboard",
    "p": 0.018
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:operator",
-   "p": 0.052
   },
   {
    "job": "understand-market",
@@ -6592,16 +6832,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:present",
-   "p": 0.217
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:publish",
-   "p": 0.038
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:qualify-opportunity",
    "p": 0.123
   },
@@ -6619,16 +6849,6 @@
    "job": "understand-market",
    "command": "/mos:research",
    "p": 0.907
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:room",
-   "p": 0.236
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:rooms",
-   "p": 0.01
   },
   {
    "job": "understand-market",
@@ -6662,11 +6882,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.038
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:scientific-roadmap",
    "p": 0.085
   },
@@ -6682,48 +6897,8 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:session-report",
-   "p": 0.031
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:setup",
-   "p": 0.026
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:show",
-   "p": 0.673
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:skill",
-   "p": 0.268
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:snapshot",
-   "p": 0.085
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:speakers",
-   "p": 0.058
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:splash",
-   "p": 0.011
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:stance",
    "p": 0.053
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:status",
-   "p": 0.096
   },
   {
    "job": "understand-market",
@@ -6752,11 +6927,6 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:update",
-   "p": 0.015
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:user-needs",
    "p": 0.58
   },
@@ -6772,38 +6942,13 @@
   },
   {
    "job": "understand-market",
-   "command": "/mos:vault",
-   "p": 0.074
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:visualize",
-   "p": 0.268
-  },
-  {
-   "job": "understand-market",
    "command": "/mos:whitespace",
    "p": 0.37
-  },
-  {
-   "job": "understand-market",
-   "command": "/mos:wiki",
-   "p": 0.383
   },
   {
    "job": "validate-idea",
    "command": "/mos:act",
    "p": 0.534
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:admin",
-   "p": 0.032
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:agentshield",
-   "p": 0.116
   },
   {
    "job": "validate-idea",
@@ -6837,11 +6982,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:brain-derive",
-   "p": 0.141
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:build-knowledge",
    "p": 0.434
   },
@@ -6867,21 +7007,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:correct-reference-now",
-   "p": 0.052
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:dashboard",
-   "p": 0.059
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:deck",
-   "p": 0.247
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:deep-grade",
    "p": 0.699
   },
@@ -6897,11 +7022,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:dial-memory-refresh",
-   "p": 0.057
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:diffusion",
    "p": 0.895
   },
@@ -6912,16 +7032,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:doctor",
-   "p": 0.071
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:dogfood-flush",
-   "p": 0.025
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:dominant-designs",
    "p": 0.838
   },
@@ -6929,11 +7039,6 @@
    "job": "validate-idea",
    "command": "/mos:eureka",
    "p": 0.793
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:eureka-portfolio",
-   "p": 0.344
   },
   {
    "job": "validate-idea",
@@ -6959,16 +7064,6 @@
    "job": "validate-idea",
    "command": "/mos:explore-trends",
    "p": 0.569
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:export",
-   "p": 0.048
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:feynman-timeline-refresh",
-   "p": 0.054
   },
   {
    "job": "validate-idea",
@@ -7012,38 +7107,13 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:graph",
-   "p": 0.358
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:hat-briefing",
    "p": 0.636
   },
   {
    "job": "validate-idea",
-   "command": "/mos:heal",
-   "p": 0.048
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:help",
-   "p": 0.069
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:hmi-status",
-   "p": 0.272
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:ignite",
    "p": 0.448
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:ingest-methodology",
-   "p": 0.095
   },
   {
    "job": "validate-idea",
@@ -7077,26 +7147,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:memory",
-   "p": 0.062
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:memory-cortex-reach",
-   "p": 0.654
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:models",
-   "p": 0.085
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:mos",
-   "p": 0.438
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:mos-reason",
    "p": 0.86
   },
@@ -7122,18 +7172,8 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:new-surface",
-   "p": 0.03
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:onboard",
    "p": 0.069
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:operator",
-   "p": 0.124
   },
   {
    "job": "validate-idea",
@@ -7157,16 +7197,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:present",
-   "p": 0.382
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:publish",
-   "p": 0.104
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:qualify-opportunity",
    "p": 0.4
   },
@@ -7184,16 +7214,6 @@
    "job": "validate-idea",
    "command": "/mos:research",
    "p": 0.873
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:room",
-   "p": 0.79
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:rooms",
-   "p": 0.033
   },
   {
    "job": "validate-idea",
@@ -7227,11 +7247,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:scheduled-tasks",
-   "p": 0.062
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:scientific-roadmap",
    "p": 0.856
   },
@@ -7247,48 +7262,8 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:session-report",
-   "p": 0.215
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:setup",
-   "p": 0.042
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:show",
-   "p": 0.601
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:skill",
-   "p": 0.267
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:snapshot",
-   "p": 0.089
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:speakers",
-   "p": 0.097
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:splash",
-   "p": 0.01
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:stance",
    "p": 0.767
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:status",
-   "p": 0.099
   },
   {
    "job": "validate-idea",
@@ -7317,11 +7292,6 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:update",
-   "p": 0.068
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:user-needs",
    "p": 0.831
   },
@@ -7337,23 +7307,8 @@
   },
   {
    "job": "validate-idea",
-   "command": "/mos:vault",
-   "p": 0.052
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:visualize",
-   "p": 0.366
-  },
-  {
-   "job": "validate-idea",
    "command": "/mos:whitespace",
    "p": 0.595
-  },
-  {
-   "job": "validate-idea",
-   "command": "/mos:wiki",
-   "p": 0.225
   }
  ]
 }

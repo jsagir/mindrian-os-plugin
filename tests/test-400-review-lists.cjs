@@ -266,7 +266,7 @@ const PINNED_COUNTS = {
   'sentences-agents': 17,
   'sentences-mcp-tools': 63,
   'framework-statements': 184,
-  'band-0.70-0.89': 127,
+  'band-0.70-0.89': 134,
 };
 
 const exists = fs.existsSync(REVIEW);

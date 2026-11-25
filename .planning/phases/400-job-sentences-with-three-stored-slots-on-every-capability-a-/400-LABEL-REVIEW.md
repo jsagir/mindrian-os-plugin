@@ -46,9 +46,9 @@ Doubtful labels (399-LABEL-REVIEW.md section 2). The registry still carries them
 - ids (doubtful-labels): audit-room|/mos:admin, compare-options|/mos:deep-grade, compare-options|/mos:models, validate-idea|/mos:dial-memory-refresh, validate-idea|/mos:feynman-timeline-refresh
 - count (doubtful-labels): 5
 
-The 0.70 to 0.89 band: command pairs from the recorded 399 run with 0.70 <= p < 0.90, where the registry serves_jtbd of the command does not hold the job. The rule and the sample of 30 pairs are in 399-LABEL-REVIEW.md section 7. This phase does not change the band.
+The 0.70 to 0.89 band: command pairs from the recorded 399 run with 0.70 <= p < 0.90, where the registry serves_jtbd of the command does not hold the job. The rule and the sample of 30 pairs are in 399-LABEL-REVIEW.md section 7. This phase does not change the band. The count was recomputed after the run of 2026-11-25 (the recorded run of the persona phase, plan 18: 20 jobs, 73 commands for each job): it was 127 on the run of 2026-11-24.
 
-- count (band-0.70-0.89): 127
+- count (band-0.70-0.89): 134
 
 ## 3. Capability sentences
 
