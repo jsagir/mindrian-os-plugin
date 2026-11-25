@@ -140,6 +140,103 @@ check('E6. the counts view of the screen holds no token', () => {
   assert.deepEqual(Object.keys(s.counts()).sort(), ['ran', 'tokens_checked', 'venture_name_found']);
 });
 
+check('E7. NEGATIVE: the content fence runs first on the raw handle', () => {
+  const s = acmeScreen();
+  for (const h of ['mail me@example.com now', 'budget $5M plan', 'Tel Aviv logistics']) {
+    const r = door.checkHandle(h, s);
+    assert.equal(r.ok, false, h);
+    assert.equal(r.reason, 'egress_violation', h);
+  }
+});
+
+check('E8. NEGATIVE: a handle that is not of the generic shape is refused and never normalised', () => {
+  const s = acmeScreen();
+  for (const h of ['Battery recycling', 'battery, recycling', 'one two three four five', 'battery  recycling', ' battery', '', 'a-b']) {
+    const r = door.checkHandle(h, s);
+    assert.equal(r.ok, false, JSON.stringify(h));
+    assert.equal(r.reason, 'handle_not_generic_shape', JSON.stringify(h));
+    assert.equal(Object.prototype.hasOwnProperty.call(r, 'handle'), false);
+  }
+  assert.equal(door.checkHandle(42, s).reason, 'handle_not_generic_shape');
+});
+
+check('E9. NEGATIVE: a handle with a digit is refused', () => {
+  const s = acmeScreen();
+  for (const h of ['battery 2030', 'covid19 supply', 'top 10 lists']) {
+    const r = door.checkHandle(h, s);
+    assert.equal(r.ok, false, h);
+    assert.equal(r.reason, 'handle_has_digit', h);
+  }
+});
+
+check('E10. NEGATIVE: a handle with a room name is refused', () => {
+  const s = acmeScreen();
+  for (const h of ['acme battery', 'robotics battery', 'levi supply', 'orbitex supply chain', 'supply dana']) {
+    const r = door.checkHandle(h, s);
+    assert.equal(r.ok, false, h);
+    assert.equal(r.reason, 'room_identity_word', h);
+  }
+  // the room directory token
+  const room = makeRoom('quillfeather', ACME_STATE, {});
+  const s2 = door.roomIdentityScreen(room, []);
+  assert.equal(door.checkHandle('quillfeather pricing', s2).reason, 'room_identity_word');
+  assert.equal(door.checkHandle('battery recycling', s).ok, true);
+});
+
+check('E11. the stop-list and the full-name rule', () => {
+  const s = door.roomIdentityScreen(makeRoom('room', '---\nventure: Zenith Bakery\n---\n'), []);
+  assert.equal(s.ran, true);
+  assert.equal(door.checkHandle('clean room design', s).ok, true);
+  const gobio = door.roomIdentityScreen(makeRoom('r4', '---\nventure: Go Bio\n---\n'), []);
+  assert.equal(door.checkHandle('go bio sensors', gobio).reason, 'room_identity_word');
+  assert.equal(door.checkHandle('bio sensors', gobio).ok, true);
+});
+
+check('E12. NEGATIVE: a screen that did not run refuses every handle', () => {
+  const none = door.roomIdentityScreen(makeRoom('r5', 'no name here\n'), []);
+  assert.equal(none.ran, false);
+  assert.equal(door.checkHandle('battery recycling', none).reason, 'identity_screen_unavailable');
+  assert.equal(door.checkHandle('battery recycling', null).reason, 'identity_screen_unavailable');
+  assert.equal(door.checkHandle('battery recycling', undefined).reason, 'identity_screen_unavailable');
+  // an earlier check still wins on its own reason
+  assert.equal(door.checkHandle('battery 2030', none).reason, 'handle_has_digit');
+});
+
+check('E13. composeString joins the handle and the fixed qualifier', () => {
+  const r = door.composeString('black', 'battery recycling');
+  assert.equal(r.ok, true);
+  assert.equal(r.text, 'battery recycling failure cases');
+  assert.equal(r.handle, 'battery recycling');
+  assert.equal(r.qualifier, 'failure cases');
+  assert.match(r.q_hash, /^sha256:[0-9a-f]{64}$/);
+  assert.ok(r.text.split(' ').length <= 6);
+  const gdh = require(path.join(ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs')).genericDomainHandle;
+  assert.equal(gdh(r.text), r.text);
+  const fam = require(path.join(ROOT, 'lib', 'core', 'research-planner', 'families.cjs'));
+  assert.equal(r.q_hash, fam.qHash(r.text));
+  assert.equal(door.composeString('green', 'grid storage').text, 'grid storage analogous solutions');
+  assert.equal(door.composeString('red', 'grid storage').reason, 'hat_never_searches');
+  assert.equal(door.composeString('blue', 'grid storage').reason, 'hat_never_searches');
+  assert.equal(door.composeString('purple', 'grid storage').reason, 'hat_never_searches');
+});
+
+check('E14. NEGATIVE: a refusal object holds ok false and reason only, never the text', () => {
+  const s = acmeScreen();
+  const probes = ['mail secretprobe@example.com', 'Secretprobe Words', 'secretprobe 2031', 'acme secretprobe'];
+  for (const h of probes) {
+    const r = door.checkHandle(h, s);
+    assert.equal(r.ok, false);
+    assert.deepEqual(Object.keys(r).sort(), ['ok', 'reason']);
+    assert.equal(JSON.stringify(r).toLowerCase().includes('secretprobe'), false, h);
+  }
+  const c = door.composeString('red', 'secretprobe words');
+  assert.deepEqual(Object.keys(c).sort(), ['ok', 'reason']);
+  assert.equal(JSON.stringify(c).includes('secretprobe'), false);
+  const long = door.composeString('white', 'one two three four five six');
+  assert.equal(long.ok, false);
+  assert.deepEqual(Object.keys(long).sort(), ['ok', 'reason']);
+});
+
 check('F11. invokePersona stays at line 550 of persona-ops.cjs', () => {
   const lines = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'persona-ops.cjs'), 'utf8').split('\n');
   assert.ok(lines[549].startsWith('function invokePersona('), lines[549]);

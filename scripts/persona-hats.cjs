@@ -2288,6 +2288,72 @@ function roomIdentityScreen(roomDir, readingList) {
   return screen;
 }
 
+/** True when the handle tokens hold a screened word or the full venture name (DESIGN 8, match rule). */
+function handleHitsScreen(handleTokens, screen) {
+  for (const t of handleTokens) {
+    if (t.length >= IDENTITY_MIN_LETTERS && !IDENTITY_STOP_LIST.includes(t) && screen.has(t)) return true;
+  }
+  const v = screen.ventureTokens;
+  if (v.length > 0 && v.length <= handleTokens.length) {
+    for (let i = 0; i + v.length <= handleTokens.length; i += 1) {
+      let same = true;
+      for (let j = 0; j < v.length; j += 1) {
+        if (handleTokens[i + j] !== v[j]) { same = false; break; }
+      }
+      if (same) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The four checks on a proposed handle, in a fixed order (DESIGN 4.5): the content fence on the raw text, the
+ * generic shape, the digits rule, the room identity screen. A refusal holds ok false and reason only: the refused
+ * text is never returned and never written.
+ * @param {*} rawHandle
+ * @param {object} screen - the result of roomIdentityScreen
+ * @returns {{ok: true, handle: string} | {ok: false, reason: string}}
+ */
+function checkHandle(rawHandle, screen) {
+  if (typeof rawHandle !== 'string') return { ok: false, reason: 'handle_not_generic_shape' };
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  try {
+    rs.auditQueryString(rawHandle, 'persona-hats');
+  } catch (e) {
+    return { ok: false, reason: 'egress_violation' };
+  }
+  const gdh = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs')).genericDomainHandle;
+  const words = rawHandle.length > 0 ? rawHandle.split(' ') : [];
+  if (rawHandle !== gdh(rawHandle) || words.length < 1 || words.length > 4) return { ok: false, reason: 'handle_not_generic_shape' };
+  if (/[0-9]/.test(rawHandle)) return { ok: false, reason: 'handle_has_digit' };
+  if (!screen || screen.ran !== true || typeof screen.has !== 'function') return { ok: false, reason: 'identity_screen_unavailable' };
+  if (handleHitsScreen(identityTokens(rawHandle), screen)) return { ok: false, reason: 'room_identity_word' };
+  return { ok: true, handle: rawHandle };
+}
+
+/**
+ * Compose the search string of a hat: handle + one space + the fixed qualifier (checks 5 to 7 of DESIGN 4.5).
+ * The caller passes a handle that checkHandle accepted.
+ * @param {string} hat - white, black, yellow or green
+ * @param {string} handle
+ * @returns {{ok: true, text: string, handle: string, qualifier: string, q_hash: string} | {ok: false, reason: string}}
+ */
+function composeString(hat, handle) {
+  const table = ops.HAT_RESEARCH_QUALIFIER;
+  if (typeof hat !== 'string' || !Object.prototype.hasOwnProperty.call(table, hat)) return { ok: false, reason: 'hat_never_searches' };
+  if (typeof handle !== 'string') return { ok: false, reason: 'handle_not_generic_shape' };
+  const qualifier = table[hat];
+  const text = handle + ' ' + qualifier;
+  const gdh = require(path.join(REPO_ROOT, 'lib', 'core', 'bono', 'cell-fanout.cjs')).genericDomainHandle;
+  if (text.split(' ').length > 6 || text !== gdh(text)) return { ok: false, reason: 'handle_not_generic_shape' };
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  const lq = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'lane-queries.cjs'));
+  const audited = lq.auditEditedQuery(text, { auditFn: (s) => rs.auditQueryString(s, 'persona-hats') });
+  if (!audited.ok) return { ok: false, reason: audited.reason };
+  const fam = require(path.join(REPO_ROOT, 'lib', 'core', 'research-planner', 'families.cjs'));
+  return { ok: true, text, handle, qualifier, q_hash: fam.qHash(text) };
+}
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -2406,4 +2472,6 @@ module.exports = {
   sweepScratch,
   IDENTITY_STOP_LIST,
   roomIdentityScreen,
+  checkHandle,
+  composeString,
 };
