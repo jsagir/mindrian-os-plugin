@@ -419,7 +419,7 @@ check('P12. the Blue ledger holds integers and state names only', () => {
   })(blue, 'root');
   for (const t of ['secret', 'must not travel', 'private note']) assert.equal(text.includes(t), false, t);
   const bh = blue.hats.black;
-  assert.deepEqual(Object.keys(bh), ['persona', 'research', 'reading', 'evidence_items', 'positions_taken', 'rule_lines', 'self_found_sources', 'self_search_strings']);
+  assert.deepEqual(Object.keys(bh), ['persona', 'research', 'reading', 'evidence_items', 'positions_taken', 'rule_lines', 'self_found_sources', 'self_search_strings', 'door_items']);
   assert.equal(bh.evidence_items, 1);
   assert.equal(bh.self_found_sources, 1);
   assert.equal(bh.self_search_strings, 1);
@@ -568,6 +568,13 @@ acheck('P17. FS-9: a reported string with a venture token or an email address ad
     const blueText = fs.readFileSync(path.join(run.ctx.res.hats.blue.dir, 'ledger.json'), 'utf8');
     assert.equal(blueText.includes('harbor'), false);
     assert.equal(blueText.includes('jane@'), false);
+    // The merge judges again and the artifact prints the line under "Rule lines" (the merge deletes the scratch tree: it runs last).
+    const merged = await fx.doMerge(run.ctx);
+    assert.equal(merged.ok, true, JSON.stringify(merged));
+    const artifact = fs.readFileSync(merged.artifact, 'utf8').split('\n');
+    assert.ok(artifact.includes('black: self_search_room_detail_suspected:1'), 'the artifact prints the black line');
+    assert.ok(artifact.includes('green: self_search_room_detail_suspected:1'), 'the artifact prints the green line');
+    assert.deepEqual(fx.ledgerOf(run.ctx).hats.black.rule_lines.filter(l => l.startsWith('self_search')), ['self_search_room_detail_suspected:1']);
     // The pure function.
     const screen = door.roomIdentityScreen(run.ctx.room, []);
     assert.equal(screen.ran, true);

@@ -1614,6 +1614,38 @@ function packSets(file) {
   return { ids, urls };
 }
 
+const SELF_SEARCH_SUSPECTED_LINE = 'self_search_room_detail_suspected';
+const SELF_SEARCH_PARTIAL_LINE = 'self_search_screen_partial';
+
+/**
+ * FS-9, the after-the-fact screen of the search strings that a hat reports it sent. A string is suspected when the
+ * content fence of check 1 refuses it (an email address, a phone number and the other fenced patterns) or when a
+ * token of it is a screened word of the room identity screen (a venture token, a team file name, a proper noun of the
+ * reading list) or when the full venture name is in it. The screen cannot stop a send: the search is over when this
+ * runs. It returns counts only and never a string. When the identity screen did not run, only the fence is used and
+ * screen_partial is true.
+ * @param {string[]} strings
+ * @param {object} [screen] - the result of roomIdentityScreen
+ * @returns {{checked: number, suspected: number, screen_partial: boolean}}
+ */
+function screenReportedStrings(strings, screen) {
+  const list = Array.isArray(strings) ? strings.filter(x => typeof x === 'string') : [];
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  const screenRan = Boolean(screen) && screen.ran === true && typeof screen.has === 'function';
+  let suspected = 0;
+  for (const text of list) {
+    let hit = false;
+    try {
+      rs.auditQueryString(text, 'persona-hats');
+    } catch (e) {
+      hit = true;
+    }
+    if (!hit && screenRan && handleHitsScreen(identityTokens(text), screen)) hit = true;
+    if (hit) suspected += 1;
+  }
+  return { checked: list.length, suspected, screen_partial: !screenRan };
+}
+
 /**
  * Read and judge the reading file of one hat: schema, citation boundary, rule lines. Used by check
  * and again by merge, so both steps decide from the same code. Reads the file bytes once.
@@ -1652,8 +1684,15 @@ function judgeReading(hat, dir, ctx) {
     return out;
   }
   const rules = perHatRules(hat, reading, { researchState: ctx.researchState });
+  // FS-9: the after-the-fact screen of the strings that the hat reports. It adds rule lines and never drops the reading.
+  const lines = rules.lines.slice();
+  if (RESEARCH_HATS.includes(hat) && Array.isArray(reading.self_search_strings) && reading.self_search_strings.length > 0) {
+    const screened = screenReportedStrings(reading.self_search_strings, ctx.screen);
+    if (screened.suspected > 0) lines.push(SELF_SEARCH_SUSPECTED_LINE + ':' + screened.suspected);
+    if (screened.screen_partial) lines.push(SELF_SEARCH_PARTIAL_LINE);
+  }
   rec.reading = 'ran';
-  rec.rule_lines = rules.lines;
+  rec.rule_lines = lines;
   out.none_found_basis = rules.none_found_basis || null;
   rec.evidence_items = Array.isArray(reading.evidence) ? reading.evidence.length : 0;
   rec.positions_taken = reading.positions.filter(p => p.value !== 'no_position').length;
@@ -1685,6 +1724,8 @@ function cmdCheck(args, deps) {
 
   const subQuestionIds = ledger.sub_questions.map(s => s.id);
   const now = nowOf(deps);
+  // One identity screen for the whole step: the after-the-fact screen of the reported search strings (FS-9) uses it.
+  const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
   const notRun = [];
   const perHat = {};
   const personaNotRun = (persona) => {
@@ -1705,7 +1746,7 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs });
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs, screen });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
     }
@@ -1727,6 +1768,14 @@ function cmdCheck(args, deps) {
   const research = isPlain(ledger.research) ? ledger.research : {};
   const intOf = (v) => (Number.isInteger(v) && v >= 0 ? v : 0);
 
+  // The count of items in the sealed door pack of a hat (the research side of "which hat was thin"); a pack that
+  // differs from its seal counts as 0, so a hat cannot raise the number by writing its own pack.
+  const doorItemsOf = (hat) => {
+    if (!RESEARCH_HATS.includes(hat)) return 0;
+    const d = hatDirOf(map, hat);
+    if (!d || packTamper(hat, d, ledger.packs) !== null) return 0;
+    return Math.min(packSets(path.join(d, 'evidence.json')).ids.length, 999);
+  };
   const ledgerBlue = { schema: 'mos.persona-blue-ledger/1', run_id: ledger.run_id, hats: {}, sub_questions: subQuestionIds.length, strings_approved: intOf(research.strings_approved), strings_refused: intOf(research.strings_refused) };
   for (const hat of HATS) {
     const e = ledger.hats[hat];
@@ -1740,6 +1789,7 @@ function cmdCheck(args, deps) {
       rule_lines: isBlue ? 0 : perHat[hat].rule_lines.length,
       self_found_sources: isBlue ? 0 : perHat[hat].self_found_sources,
       self_search_strings: isBlue ? 0 : perHat[hat].self_search_strings.length,
+      door_items: doorItemsOf(hat),
     };
   }
   const bluePath = path.join(blueDir, 'ledger.json');
@@ -2213,6 +2263,7 @@ async function cmdMerge(args, deps) {
 
   const subQuestionIds = ledger.sub_questions.map(s => s.id);
   const now = nowOf(deps);
+  const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
 
   // 1. Judge each reading again. P-7: a file whose hash differs from the one of check is rejected.
   const verdict = {};
@@ -2223,7 +2274,7 @@ async function cmdMerge(args, deps) {
       verdict[hat] = { state: entry.reading };
       continue;
     }
-    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs });
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs, screen });
     if (judged.rec.reading_sha256 !== entry.reading_sha256) {
       verdict[hat] = { state: 'rejected:changed_after_check' };
     } else if (judged.rec.reading !== 'ran') {
@@ -3350,6 +3401,7 @@ module.exports = {
   validateReading,
   perHatRules,
   citationCheck,
+  screenReportedStrings,
   READING_VALUES,
   validateBrief,
   briefHashOf,
