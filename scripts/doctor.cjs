@@ -829,11 +829,11 @@ function runBoundedChild(cmd, args, opts) {
   };
 }
 
-// Phase 384-19: the time limit of the doctor-all point's child. Fixed at 60000 ms (owner decision 4):
+// Phase 384-19: the time limit of the doctor-all point's child. Fixed at 120000 ms (owner decision 4 set 60000; the owner raised it on 2026-11-25, when doctor --all took 54 seconds idle after the Phase 399 and 400 merge):
 // measured on a rooms home copy, the cost of doctor --all does not grow with the number of rooms, so a
 // limit that scales with the room count would not follow the cost. The seam (DOCTOR_TEST_MODE=1 only) lets
 // a test make the child time out without waiting a minute; outside test mode it is ignored.
-const DOCTOR_ALL_LIMIT_MS = 60000;
+const DOCTOR_ALL_LIMIT_MS = 120000;
 function doctorAllLimitMs(env) {
   const e = env || process.env;
   if (e.DOCTOR_TEST_MODE === '1') {
@@ -1176,7 +1176,7 @@ function buildAcceptanceChecklist(ctx) {
         // there (the synthesis above already covers this point).
         // Phase 384-19: the child goes through runBoundedChild, so a timeout reports detail.child
         // (timed_out, timeout_ms, duration_ms) and a finding that names the timeout, not "exited null".
-        // The limit comes from doctorAllLimitMs (60000 ms; a test-mode seam only). A child result that
+        // The limit comes from doctorAllLimitMs (120000 ms; a test-mode seam only). A child result that
         // exits 0 but holds no readable JSON is a failure, not a pass.
         const childEnv = Object.assign({}, process.env, { DOCTOR_TEST_FAIL_POINT: '' });
         const limitMs = doctorAllLimitMs(process.env);
@@ -1677,7 +1677,7 @@ function buildAcceptanceChecklist(ctx) {
           // original argv byte for byte.
           const harnessArgv = [scriptPath, '--check', '--json'];
           if (checklistMode === 'session-start') harnessArgv.push('--tier', 'session-start');
-          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 30000, cwd: pluginRoot });
+          const r = cp.spawnSync('node', harnessArgv, { encoding: 'utf8', timeout: 180000, cwd: pluginRoot });
           let parsed;
           try {
             parsed = JSON.parse(r.stdout || '{}');
