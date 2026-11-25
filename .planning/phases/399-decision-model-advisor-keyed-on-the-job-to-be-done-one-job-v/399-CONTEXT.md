@@ -59,3 +59,7 @@ Phase number 399 (397 and 398 are taken on the unpushed branch work/397-translat
 - F6 No GEMINI_API_KEY in this environment.
 </content>
 </invoke>
+
+## Aware of Phase 400.2 (added 2026-11-25)
+
+The personas section job is ruled validate-idea with explore (data/section-job-canon.json). Phase 400.2 (the persona, hats and research bundle, SEED-149) changes what /mos:persona does, so its serves_jtbd label (prepare-pitch today) is reviewed there. 400.2 is part of the next cut with 399 and 400.

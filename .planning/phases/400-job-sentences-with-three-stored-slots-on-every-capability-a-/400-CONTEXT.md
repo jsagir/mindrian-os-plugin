@@ -142,3 +142,7 @@ S5 Label review carry-over (produce review lists; the owner rules)
 - No GEMINI_API_KEY on this machine: use the recorded research outputs; tests use fixtures and a
   capture server, never the network.
 - No em dashes. PwS with a lowercase w.
+
+## Aware of Phase 400.2 (added 2026-11-25)
+
+Phase 400.2 (the persona, hats and research bundle, SEED-149) re-checks the job sentence, fits_domains and move_type of /mos:persona, /mos:bono and /mos:think-hats after the bundle lands. It is part of the next cut with 399 and 400. The personas section job and its One job sentence were ruled in this phase's label review (commit 5f72e954b).

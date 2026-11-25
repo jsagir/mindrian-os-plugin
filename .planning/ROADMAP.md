@@ -4300,6 +4300,17 @@ Plans:
 - [x] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [x] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
 
+### Phase 400.2: Persona, hats and research bundle: persona builds six hat personas from the room, each hat runs its own research through the existing Bono leg and then does its persona work in isolation, with deep and quick modes, one approval card per researching hat, and Larry as the synthesizer (SEED-149, EGM method, part of the next cut) (INSERTED)
+
+**Goal:** /mos:persona works with the six hats and with research: six hat personas built from the room, each hat with its own approved research through the existing Bono leg, each hat's persona work done in isolation, Larry as the synthesizer, deep and quick modes. Owner-signed scope: 400.2-CONTEXT.md (SEED-149). Design work runs with the EGM method. Part of the next cut with 399 and 400.
+**Requirements**: TBD
+**Depends on:** Phase 400
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.2 to break down)
+
 ### Phase 400.1: Efficiency research: verify the 2026-11-24 efficiency findings and close the open checks before phases 401-404 are planned (preloaded skills, deferral on Desktop and Cowork, stdout handling, card-fire false blocks, omitClaudeMd on plugin agents, unscoped tool names, Theo step coverage and payload size, recipe pilot design) (INSERTED)
 
 **Goal:** [Urgent work - to be planned]

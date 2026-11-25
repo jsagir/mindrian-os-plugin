@@ -200,3 +200,11 @@ The owner answered the five human items on the sign-off page (saved answers, 202
 | 5 | Provisional labels | Edited, then approved after the edit | CLOSED IN PART. 7 vocabulary sentences ruled (307a951ea, ef5ef3421). Personas: the owner accepted the draft on 2026-11-25, so the section job stays understand-market (source jev-probe-draft-gloss) with no "One job" sentence; data/section-job-canon.json is unchanged. Funding: the owner kept plan-execution on 2026-11-25; data unchanged. The other 13 vocabulary sentences were ruled as written by Fable 5.2 under the owner's delegation ("you rule, I close it off"), so all 20 are ruled. STILL PROVISIONAL: the capability sentences, the MCP tool sentences, fits_domains and move_type. Nobody has read them one by one, and provisional labels do not block a cut. |
 
 Also on 2026-11-25: the branch was merged into main after v2.0.0-beta.89 (f9148bf5c), and the advisor table stopped offering deprecated commands (a6d2e63ab). The O-12 commands stay on the run-step list.
+
+### Later the same day (supersedes row 5 where they differ)
+
+- Personas: the owner replaced the earlier "accept the draft" answer. The section holds the six hat lenses of /mos:persona, not customer personas. The section job is validate-idea with explore as the second job, and the One job sentence is in data/section-job-canon.json (5f72e954b).
+- Funding keeps plan-execution.
+- All 20 vocabulary sentences are ruled (7 reworded by the owner, 13 as written under delegation). The capability labels are approved and keep the status provisional until a later pass.
+- Phase 400.2 (the persona, hats and research bundle, SEED-149) is inserted and is part of the next cut.
+- Two sessions made the same rulings in parallel on 2026-11-25 (local main and PR 12). This merge reconciles them; the code of local main wins for data/egress-policy.json and the two tests.
