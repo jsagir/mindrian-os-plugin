@@ -856,15 +856,34 @@ check('E30. NEGATIVE: a pack rewritten after check is rejected by merge and is n
   assert.equal(fs.readFileSync(out.artifact, 'utf8').includes('ForgedTitle'), false);
 });
 
-check('E31. NEGATIVE: a ledger with no sealed packs rejects every reading', () => {
+check('E31. NEGATIVE: a run map with no sealed packs rejects every reading (the seal lives in the private run map, WR-03)', () => {
   const { room, env, res } = closedRun();
   for (const h of HATS) writeReading(res, h, readingOf(res, h));
-  const l = ledgerOf(res);
-  delete l.packs;
-  fs.writeFileSync(path.join(res.review_dir, 'run.json'), JSON.stringify(l), 'utf8');
+  const mapFile = path.join(env.homeDir, 'persona-hats', 'runs', res.run_id + '.json');
+  const m = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+  delete m.packs;
+  fs.writeFileSync(mapFile, JSON.stringify(m), { encoding: 'utf8', mode: 0o600 });
   const out = door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env));
   assert.equal(out.ok, true, JSON.stringify(out));
   for (const h of READ_HATS) assert.equal(out.hats[h].reading, 'rejected:packs_not_sealed', h);
+});
+
+check('E31b. WR-03 NEGATIVE: a hat that forges its pack AND rewrites the seal in run.json inside the room is still rejected', () => {
+  const { room, env, res } = closedRun();
+  const mapFile = path.join(env.homeDir, 'persona-hats', 'runs', res.run_id + '.json');
+  const m = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+  assert.ok(m.packs && typeof m.packs.shared_white === 'string', 'the seal is in the private run map');
+  if (process.platform !== 'win32') assert.equal(fs.statSync(mapFile).mode & 0o777, 0o600, 'the run map stays private');
+  for (const h of HATS) writeReading(res, h, readingOf(res, h));
+  forgePack(res, 'white', 'evidence.json');
+  writeReading(res, 'white', readingOf(res, 'white', { evidence: [{ source: FORGED.id, tier: 'T2', note: 'A forged fact.' }] }));
+  const l = ledgerOf(res);
+  l.packs.evidence.white = sha(path.join(res.hats.white.dir, 'evidence.json'));
+  fs.writeFileSync(path.join(res.review_dir, 'run.json'), JSON.stringify(l), 'utf8');
+  const out = door.cmdCheck({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(out.hats.white.reading, 'rejected:pack_changed_after_research');
+  assert.equal(out.hats.black.reading, 'ran');
 });
 
 check('E32. sealRunPacks is the one door function that a research step calls after it writes the packs', () => {

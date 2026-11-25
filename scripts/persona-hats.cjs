@@ -1215,7 +1215,8 @@ function packFileHash(file) {
 }
 
 /**
- * Record the hashes of the packs now on disk in the ledger (not written to disk here). The research step calls
+ * Record the hashes of the packs now on disk in the run map and, as a record copy, in the ledger (neither is
+ * written to disk here: the caller writes the run map with writeRunMap, then the ledger). The research step calls
  * this right after it writes the packs: the five copies of shared-white.json must be equal, and evidence.json
  * must exist for white, black, yellow and green. A pack that is rewritten later no longer matches.
  * @returns {{ok: true} | {ok: false, reason: string}}
@@ -1238,8 +1239,17 @@ function sealPacks(ledger, map) {
     if (h === null) return { ok: false, reason: 'pack_missing:' + hat };
     evidence[hat] = h;
   }
-  ledger.packs = { schema: PACKS_SCHEMA, shared_white: shared, evidence };
+  // WR-03: the seal that check and merge compare against lives in the private run map (mode 0600, under the
+  // MindrianOS home), which no agent gets. The ledger copy in the room is for the record only and is never compared.
+  const seal = { schema: PACKS_SCHEMA, shared_white: shared, evidence };
+  ledger.packs = JSON.parse(JSON.stringify(seal));
+  map.packs = seal;
   return { ok: true };
+}
+
+/** Write the private run map back (mode 0600). The caller writes it after sealPacks and before the ledger. */
+function writeRunMap(homeDir, map) {
+  atomicWriteJson(runMapPath(homeDir, map.run_id), map, 0o600);
 }
 
 /** Seal the packs of one run and write the ledger. For a research step that writes packs on its own. */
@@ -1253,6 +1263,7 @@ function sealRunPacks(args, deps) {
   const sealed = sealPacks(lr.ledger, map);
   if (!sealed.ok) return sealed;
   try {
+    writeRunMap(homeDirOf(deps), map);
     writeLedger(lr.dir, lr.ledger);
   } catch (e) {
     return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
@@ -1577,6 +1588,7 @@ function planFirst(roomResolved, lr, map, deps) {
       }
       const sealed = sealPacks(ledger, map);
       if (!sealed.ok) return sealed;
+      writeRunMap(homeDirOf(deps), map);
     }
   } catch (e) {
     return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
@@ -1848,7 +1860,7 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs, screen });
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
     }
@@ -1875,7 +1887,7 @@ function cmdCheck(args, deps) {
   const doorItemsOf = (hat) => {
     if (!RESEARCH_HATS.includes(hat)) return 0;
     const d = hatDirOf(map, hat);
-    if (!d || packTamper(hat, d, ledger.packs) !== null) return 0;
+    if (!d || packTamper(hat, d, map.packs) !== null) return 0;
     return Math.min(packSets(path.join(d, 'evidence.json')).ids.length, 999);
   };
   const ledgerBlue = { schema: 'mos.persona-blue-ledger/1', run_id: ledger.run_id, hats: {}, sub_questions: subQuestionIds.length, strings_approved: intOf(research.strings_approved), strings_refused: intOf(research.strings_refused) };
@@ -2407,7 +2419,7 @@ async function cmdMerge(args, deps) {
       verdict[hat] = { state: entry.reading };
       continue;
     }
-    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: ledger.packs, screen });
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
     if (judged.rec.reading_sha256 !== entry.reading_sha256) {
       verdict[hat] = { state: 'rejected:changed_after_check' };
     } else if (judged.rec.reading !== 'ran') {
@@ -2466,7 +2478,7 @@ async function cmdMerge(args, deps) {
   const sources = {};
   for (const hat of HATS) {
     // A pack that differs from its sealed hash is not shown: its hat could have written the items itself.
-    const sealed = RESEARCH_HATS.includes(hat) && packTamper(hat, hatDirOf(map, hat), ledger.packs) === null;
+    const sealed = RESEARCH_HATS.includes(hat) && packTamper(hat, hatDirOf(map, hat), map.packs) === null;
     packs[hat] = sealed ? readPackForArtifact(path.join(hatDirOf(map, hat), 'evidence.json')) : { items: [], strings: [] };
     sources[hat] = packs[hat].items.length;
   }
@@ -3727,6 +3739,7 @@ async function cmdRunResearch(args, deps) {
   if (!sealed.ok) return sealed;
   markStep(ledger, 'run_research', 'done', now);
   try {
+    writeRunMap(homeDirOf(deps), map);
     writeLedger(lr.dir, ledger);
   } catch (e) {
     return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
