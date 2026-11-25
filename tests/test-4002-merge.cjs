@@ -2,7 +2,7 @@
 'use strict';
 // Phase 400.2-08: the merge step of the door (scripts/persona-hats.cjs cmdMerge).
 // Legs M1 to M10 (task 1: positions, tensions, same-position lines, run record) and
-// M11 to M16 (task 2: the review artifact, the notices, the session log); M17 and M18 are extra legs (router, counts file).
+// M11 to M16 (task 2: the review artifact, the notices, the session log); M17 and M18 are extra legs (router, counts file); plan 13 adds M19 to M21.
 // Every leg passes homeDir, tmpDir, now and randomHex as options. No test sends a network request.
 const fs = require('node:fs');
 const os = require('node:os');
@@ -576,6 +576,132 @@ check('M18. NEGATIVE: a counts file with an unknown key or a bad number is refus
   assert.equal(run.ledger().audit.agent_runs, null);
 });
 
+// ---------------------------------------------------------------------------
+// Plan 13: the artifact, the notices and the Blue ledger against real research packs (real run-research)
+// The plan names these legs M17 to M19; M17 and M18 are taken by plan 08 (router, counts file), so they are M19 to M21.
+// ---------------------------------------------------------------------------
+
+const fx = require(path.join(__dirname, 'fixtures', 'persona-run-4002.cjs'));
+
+/** Write the five readings and the Blue reading, check, merge. */
+async function finish(ctx, over) {
+  const o = over || {};
+  for (const h of fx.READ_HATS) fx.writeReading(ctx, h, fx.readingOf(ctx, h, o[h]));
+  fx.writeReading(ctx, 'blue', fx.blueReadingOf(ctx));
+  const c = fx.doCheck(ctx);
+  assert.equal(c.ok, true, JSON.stringify(c));
+  const m = await fx.doMerge(ctx);
+  assert.equal(m.ok, true, JSON.stringify(m));
+  return { check: c, merge: m, lines: fs.readFileSync(m.artifact, 'utf8').split('\n') };
+}
+
+/** The lines of the section "Sources by hat", split by hat heading. */
+function sourceSections(lines) {
+  const from = lines.indexOf('## Sources by hat');
+  assert.ok(from >= 0, 'the sources section exists');
+  let to = lines.length;
+  for (let i = from + 1; i < lines.length; i += 1) { if (lines[i].startsWith('## ')) { to = i; break; } }
+  const out = {};
+  let hat = null;
+  for (const l of lines.slice(from + 1, to)) {
+    if (l.startsWith('### ')) { hat = l.slice(4); out[hat] = []; } else if (hat) out[hat].push(l);
+  }
+  return out;
+}
+
+check('M19. the sources by hat lists each door item with id, title, URL, tier, provider and cache mark from its pack; the run record counts equal the pack items', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const { ctx } = await fx.researched();
+    const packs = {};
+    for (const h of fx.RESEARCH) packs[h] = fx.packOf(ctx, h);
+    const { lines } = await finish(ctx);
+    const sections = sourceSections(lines);
+    assert.deepEqual(Object.keys(sections), fx.RESEARCH);
+    for (const h of fx.RESEARCH) {
+      assert.ok(packs[h].items.length >= 1, h);
+      const want = [];
+      for (const it of packs[h].items) {
+        want.push('id: ' + it.id, 'title: ' + it.title, 'url: ' + it.url, 'tier: ' + it.tier, 'provider: ' + it.provider);
+      }
+      const got = sections[h].filter(l => /^(id|title|url|tier|provider): /.test(l));
+      assert.deepEqual(got, want, h);
+      const marks = sections[h].filter(l => l.startsWith('cache_hit: '));
+      assert.equal(marks.length, packs[h].items.length, h);
+      for (const m of marks) assert.ok(m === 'cache_hit: true' || m === 'cache_hit: false', h + ' ' + m);
+    }
+    const ledger = fx.ledgerOf(ctx);
+    for (const h of fx.RESEARCH) assert.equal(ledger.sources[h], packs[h].items.length, h);
+    assert.equal(ledger.sources.red, 0);
+    assert.equal(ledger.sources.blue, 0);
+    // The White package is listed once, under white; the copies in the other directories add no line.
+    const whiteIds = new Set(packs.white.items.map(i => i.id));
+    for (const h of ['black', 'yellow', 'green']) {
+      for (const l of sections[h]) if (l.startsWith('id: ')) assert.equal(whiteIds.has(l.slice(4)), false, h);
+    }
+  });
+});
+
+check('M20. the notice names each hat whose research was declined or failed with the stored reason; with White declined the White package is empty', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const ctx = fx.planned();
+    const blackTexts = ctx.plan.hats.black.strings.map(s => s.text);
+    const seam = fx.makeSeam((a) => (blackTexts.includes(a.query) ? fx.failEnv(a.source, 'http_error') : null));
+    const hats = Object.assign(fx.approveAll(ctx.plan, ['yellow']), { yellow: { decision: 'refuse', q_hashes: [], providers: [] } });
+    const out = await fx.go(ctx, fx.approvedFile(ctx, hats), seam);
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.hats.yellow, 'declined');
+    assert.equal(out.hats.black, 'failed');
+    const done = await finish(ctx);
+    assert.ok(done.lines.includes('Research not run for: yellow (declined).'), done.lines.slice(0, 6).join(' | '));
+    assert.ok(done.lines.includes('Research failed for: black (provider_failed:http_error).'), done.lines.slice(0, 6).join(' | '));
+    assert.ok(done.merge.notice_lines.includes('Research not run for: yellow (declined).'));
+    assert.ok(done.merge.notice_lines.includes('Research failed for: black (provider_failed:http_error).'));
+    assert.equal(done.lines.filter(l => l.startsWith('Research not run for')).length, 1);
+
+    // White declined: the line names white and the shared package has zero items.
+    const ctx2 = fx.planned();
+    const hats2 = Object.assign(fx.approveAll(ctx2.plan, ['white']), { white: { decision: 'refuse', q_hashes: [], providers: [] } });
+    const out2 = await fx.go(ctx2, fx.approvedFile(ctx2, hats2), fx.makeSeam());
+    assert.equal(out2.ok, true, JSON.stringify(out2));
+    // The merge deletes the scratch tree, so the packs are read before it.
+    for (const h of fx.READ_HATS) assert.equal(fx.packOf(ctx2, h, 'shared-white.json').items.length, 0, h);
+    assert.equal(fx.packOf(ctx2, 'white').research_state, 'declined');
+    const done2 = await finish(ctx2);
+    assert.ok(done2.lines.includes('Research not run for: white (declined).'), done2.lines.slice(0, 6).join(' | '));
+    assert.equal(fx.ledgerOf(ctx2).sources.white, 0);
+  });
+});
+
+check('M21. the Blue ledger counts the approved and refused strings from the plan and the approved file, and the door items of each hat from its pack', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const ctx = fx.planned();
+    const hats = Object.assign(fx.approveAll(ctx.plan, ['yellow']), { yellow: { decision: 'refuse', q_hashes: [], providers: [] } });
+    const out = await fx.go(ctx, fx.approvedFile(ctx, hats), fx.makeSeam());
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.deepEqual(out.counts, { strings_approved: 6, strings_refused: 2 });
+    for (const h of fx.READ_HATS) fx.writeReading(ctx, h, fx.readingOf(ctx, h));
+    const c = fx.doCheck(ctx);
+    assert.equal(c.ok, true, JSON.stringify(c));
+    const blue = JSON.parse(fs.readFileSync(c.blue_ledger, 'utf8'));
+    assert.equal(blue.strings_approved, 6);
+    assert.equal(blue.strings_refused, 2);
+    for (const h of fx.RESEARCH) assert.equal(blue.hats[h].door_items, fx.packOf(ctx, h).items.length, h);
+    assert.equal(blue.hats.yellow.door_items, 0);
+    assert.equal(blue.hats.yellow.research, 'declined');
+    assert.ok(blue.hats.white.door_items >= 1);
+    assert.equal(blue.hats.red.door_items, 0);
+    assert.equal(blue.hats.blue.door_items, 0);
+    // The reading evidence count stays what the reading holds: these readings cite nothing.
+    assert.equal(blue.hats.white.evidence_items, 0);
+    // Counts and state names only.
+    (function walk(v, key) {
+      if (typeof v === 'string') assert.ok(v.length <= 60 && !v.includes('http'), key);
+      else if (typeof v === 'number') assert.ok(Number.isInteger(v) && v >= 0, key);
+      else if (v && typeof v === 'object') for (const k of Object.keys(v)) walk(v[k], k);
+    })(blue, 'root');
+  });
+});
+
 (async () => {
   for (const t of queue) {
     try {
@@ -587,6 +713,7 @@ check('M18. NEGATIVE: a counts file with an unknown key or a bad number is refus
       console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
     }
   }
+  fx.cleanup();
   for (const d of tmpRoots) {
     try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
   }

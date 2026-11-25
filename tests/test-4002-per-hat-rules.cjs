@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-07: the reading schema (S-6 with FS-4) and the per-hat rules (DESIGN 4.7 with FS-10, FS-11).
-// Legs P1 to P10 (task 1: pure functions) and P11 to P14 (task 2: check and the Blue ledger).
+// Legs P1 to P10 (task 1: pure functions), P11 to P14 (task 2: check and the Blue ledger), P15 to P17 (plan 13: real research states).
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -481,8 +481,140 @@ check('P14. a White reading with zero evidence and research not planned has whit
   assert.deepEqual(out.hats.yellow.rule_lines, ['yellow_value_not_evidence_backed']);
 });
 
-for (const d of tmpRoots) {
-  try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+// ---------------------------------------------------------------------------
+// Plan 13: rule lines against real research states (a real run-research, then check)
+// ---------------------------------------------------------------------------
+
+const fx = require(path.join(__dirname, 'fixtures', 'persona-run-4002.cjs'));
+const asyncLegs = [];
+function acheck(label, fn) {
+  asyncLegs.push({ label, fn });
 }
-console.log(passed + ' passed, ' + failed + ' failed');
-process.exit(failed ? 1 : 0);
+
+/** Write the five readings (over[hat] overrides) and the Blue reading, then check. */
+function readAndCheck(ctx, over) {
+  const o = over || {};
+  for (const h of fx.READ_HATS) fx.writeReading(ctx, h, fx.readingOf(ctx, h, o[h]));
+  fx.writeReading(ctx, 'blue', fx.blueReadingOf(ctx));
+  const out = fx.doCheck(ctx);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  return out;
+}
+
+// P15
+acheck('P15. FS-10: yellow none_found has basis door_search_empty after a ran_empty search; after a failed search the same reading has none_found_without_search', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const emptied = await fx.researched({ behave: (a) => fx.emptyEnv(a.source) });
+    assert.equal(emptied.out.hats.yellow, 'ran_empty');
+    const outEmpty = readAndCheck(emptied.ctx, { yellow: { none_found: true } });
+    assert.equal(outEmpty.hats.yellow.reading, 'ran', JSON.stringify(outEmpty.hats.yellow));
+    assert.equal(outEmpty.hats.yellow.none_found_basis, 'door_search_empty');
+    assert.equal(outEmpty.hats.yellow.rule_lines.includes('none_found_without_search'), false);
+    assert.equal(fx.ledgerOf(emptied.ctx).hats.yellow.none_found_basis, 'door_search_empty');
+
+    const failed = await fx.researched({ behave: (a) => fx.failEnv(a.source, 'http_error') });
+    assert.equal(failed.out.hats.yellow, 'failed');
+    const outFailed = readAndCheck(failed.ctx, { yellow: { none_found: true } });
+    assert.equal(outFailed.hats.yellow.reading, 'ran', JSON.stringify(outFailed.hats.yellow));
+    assert.ok(outFailed.hats.yellow.rule_lines.includes('none_found_without_search'), JSON.stringify(outFailed.hats.yellow.rule_lines));
+    assert.equal(outFailed.hats.yellow.none_found_basis, undefined);
+    // A failed door search does not become "found nothing": with its own reported search the basis is the hat's own report.
+    const outOwn = readAndCheck(failed.ctx, { yellow: { none_found: true, self_search_strings: ['subscription pricing studies'] } });
+    assert.equal(outOwn.hats.yellow.none_found_basis, 'self_reported_search');
+    assert.equal(outOwn.hats.yellow.rule_lines.includes('none_found_without_search'), false);
+  });
+});
+
+// P16
+acheck('P16. FS-11: with White declined, white_no_evidence appears only when the white reading has zero evidence entries', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const declineWhite = (plan) => Object.assign(fx.approveAll(plan, ['white']), { white: { decision: 'refuse', q_hashes: [], providers: [] } });
+    const run = await fx.researched({ hats: declineWhite });
+    assert.equal(run.out.hats.white, 'declined');
+    assert.equal(fx.packOf(run.ctx, 'white').items.length, 0);
+    for (const h of fx.READ_HATS) assert.equal(fx.packOf(run.ctx, h, 'shared-white.json').items.length, 0, h);
+    const url = 'https://self-found.example.net/white-page';
+    const withEvidence = readAndCheck(run.ctx, { white: { evidence: [{ source: url, tier: 'self_found', note: 'Found by the hat.' }], self_search_strings: ['grid storage costs'], self_found_sources: [{ url, title: 'A page', search_string: 'grid storage costs', summary: 'A summary.' }] } });
+    assert.equal(withEvidence.hats.white.reading, 'ran', JSON.stringify(withEvidence.hats.white));
+    assert.equal(withEvidence.hats.white.rule_lines.includes('white_no_evidence'), false, JSON.stringify(withEvidence.hats.white.rule_lines));
+    const without = readAndCheck(run.ctx, { white: { evidence: [] } });
+    assert.equal(without.hats.white.reading, 'ran');
+    assert.ok(without.hats.white.rule_lines.includes('white_no_evidence'), JSON.stringify(without.hats.white.rule_lines));
+  });
+});
+
+// P17
+acheck('P17. FS-9: a reported string with a venture token or an email address adds one rule line; clean strings add none; no reading is rejected', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const run = await fx.researched();
+    const out = readAndCheck(run.ctx, {
+      white: { self_search_strings: ['grid storage costs', 'battery recycling rates'] },
+      black: { self_search_strings: ['retainer pricing at harbor studios', 'supply chain failures'] },
+      green: { self_search_strings: ['mail jane@example.com now'] },
+    });
+    for (const h of fx.READ_HATS) assert.equal(out.hats[h].reading, 'ran', h + ' ' + JSON.stringify(out.hats[h]));
+    assert.deepEqual(out.hats.black.rule_lines.filter(l => l.startsWith('self_search_room_detail_suspected')), ['self_search_room_detail_suspected:1']);
+    assert.deepEqual(out.hats.green.rule_lines.filter(l => l.startsWith('self_search_room_detail_suspected')), ['self_search_room_detail_suspected:1']);
+    assert.deepEqual(out.hats.white.rule_lines.filter(l => l.startsWith('self_search')), []);
+    assert.deepEqual(out.hats.yellow.rule_lines.filter(l => l.startsWith('self_search')), []);
+    assert.deepEqual(out.hats.red.rule_lines.filter(l => l.startsWith('self_search')), []);
+    // The screen ran (the room has a venture name): no partial line.
+    for (const h of fx.READ_HATS) assert.equal(out.hats[h].rule_lines.includes('self_search_screen_partial'), false, h);
+    // The strings stay in the run record, whatever the screen said.
+    const ledger = fx.ledgerOf(run.ctx);
+    assert.deepEqual(ledger.hats.black.self_search_strings, ['retainer pricing at harbor studios', 'supply chain failures']);
+    assert.deepEqual(ledger.hats.green.self_search_strings, ['mail jane@example.com now']);
+    // A suspected string is not sent to the Blue hat: the Blue ledger holds the count of strings, not the text.
+    const blueText = fs.readFileSync(path.join(run.ctx.res.hats.blue.dir, 'ledger.json'), 'utf8');
+    assert.equal(blueText.includes('harbor'), false);
+    assert.equal(blueText.includes('jane@'), false);
+    // The pure function.
+    const screen = door.roomIdentityScreen(run.ctx.room, []);
+    assert.equal(screen.ran, true);
+    assert.deepEqual(door.screenReportedStrings(['grid storage costs', 'harbor pricing', 'mail jane@example.com now'], screen), { checked: 3, suspected: 2, screen_partial: false });
+    assert.deepEqual(door.screenReportedStrings([], screen), { checked: 0, suspected: 0, screen_partial: false });
+    assert.deepEqual(JSON.stringify(door.screenReportedStrings(['harbor pricing'], screen)).includes('harbor'), false);
+  });
+});
+
+// P17b
+acheck('P17b. FS-9: in a room with no venture name the identity screen cannot run; the fence still runs and self_search_screen_partial is added once', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const room = fx.harborRoom();
+    fs.writeFileSync(path.join(room, 'STATE.md'), '---\nstage: seed\n---\n\nNo name here.\n', 'utf8');
+    const env = fx.envOf();
+    const res = fx.runToAccepted(room, env);
+    const plan = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, fx.opts(env));
+    assert.equal(plan.ok, true, JSON.stringify(plan));
+    const ctx = { room, env, res, ids: fx.ledgerOf({ res }).sub_questions.map(s => s.id) };
+    const out = readAndCheck(ctx, {
+      black: { self_search_strings: ['retainer pricing', 'mail jane@example.com now'] },
+      white: { self_search_strings: ['grid storage costs'] },
+    });
+    for (const h of fx.READ_HATS) assert.equal(out.hats[h].reading, 'ran', h);
+    assert.equal(out.hats.black.rule_lines.filter(l => l === 'self_search_screen_partial').length, 1);
+    assert.deepEqual(out.hats.black.rule_lines.filter(l => l.startsWith('self_search_room_detail_suspected')), ['self_search_room_detail_suspected:1']);
+    assert.equal(out.hats.white.rule_lines.filter(l => l === 'self_search_screen_partial').length, 1);
+    assert.equal(out.hats.red.rule_lines.includes('self_search_screen_partial'), false);
+    assert.equal(out.hats.green.rule_lines.includes('self_search_screen_partial'), false, 'a hat with no reported string has no partial line');
+  });
+});
+
+(async () => {
+  for (const t of asyncLegs) {
+    try {
+      await t.fn();
+      passed += 1;
+      console.log('ok: ' + t.label);
+    } catch (e) {
+      failed += 1;
+      console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  fx.cleanup();
+  for (const d of tmpRoots) {
+    try { fs.rmSync(d, { recursive: true, force: true }); } catch (_) { /* ignore */ }
+  }
+  console.log(passed + ' passed, ' + failed + ' failed');
+  process.exit(failed ? 1 : 0);
+})();

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-07: the citation boundary with self-found sources (owner answer 1, FS-5).
-// Legs H1 to H7. Plan 09 adds H8 and H9 (the dispatch contracts of the command); plan 13 adds legs.
+// Legs H1 to H7. Plan 09 adds H8 and H9 (the dispatch contracts of the command); plan 13 adds H10 to H13 (real packs).
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -190,5 +190,119 @@ check('H9. the reader contract passes red the White copy and no evidence file of
   assert.ok(!/shared-white|evidence\.json/.test(blue), 'Blue gets no White copy and no evidence file');
 });
 
-console.log(passed + ' passed, ' + failed + ' failed');
-process.exit(failed ? 1 : 0);
+// ---------------------------------------------------------------------------
+// Plan 13: the boundary with real door evidence (a real run-research, then check)
+// ---------------------------------------------------------------------------
+
+const fx = require(path.join(__dirname, 'fixtures', 'persona-run-4002.cjs'));
+const asyncLegs = [];
+function acheck(label, fn) {
+  asyncLegs.push({ label, fn });
+}
+
+const SELF_URL_WHITE = 'https://self-found.example.net/white-page';
+const SELF_URL_BLACK = 'https://self-found.example.net/black-page';
+function foundBy(url, searchString) {
+  return { url, title: 'A page', search_string: searchString, summary: 'A summary.' };
+}
+
+/** Run the research for all four hats, write the five readings (over(ctx) gives overrides by hat) and the Blue reading, then check. */
+async function runAndCheck(over, researchOptions) {
+  const { ctx } = await fx.researched(researchOptions);
+  const o = typeof over === 'function' ? over(ctx) : (over || {});
+  for (const h of fx.READ_HATS) fx.writeReading(ctx, h, fx.readingOf(ctx, h, o[h]));
+  fx.writeReading(ctx, 'blue', fx.blueReadingOf(ctx));
+  const out = fx.doCheck(ctx);
+  assert.equal(out.ok, true, JSON.stringify(out));
+  return { ctx, out };
+}
+
+// H10
+acheck('H10. NEGATIVE: after a real run-research, a black reading that cites a yellow item id, or a yellow URL in a position line, is rejected in check', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const yellowItem = (ctx) => fx.packOf(ctx, 'yellow').items[0];
+    const r1 = await runAndCheck((ctx) => ({
+      black: { evidence: [{ source: yellowItem(ctx).id, tier: 'Academic', disposition: 'disconfirming' }] },
+    }));
+    assert.equal(r1.out.hats.black.reading, 'rejected:citation_outside_sources', JSON.stringify(r1.out.hats.black));
+    assert.ok(r1.out.not_run.some(n => n.hat === 'black'));
+    assert.equal(r1.out.hats.white.reading, 'ran');
+    assert.equal(JSON.stringify(r1.out).includes(yellowItem(r1.ctx).id), false, 'the refused id is not echoed');
+    // The same run, a yellow URL in a black position line.
+    const url = yellowItem(r1.ctx).url;
+    const black = fx.readingOf(r1.ctx, 'black', { positions: r1.ctx.ids.map(id => ({ sub_question: id, value: 'opposes', line: 'See ' + url + ' for the data.' })) });
+    fx.writeReading(r1.ctx, 'black', black);
+    const out2 = fx.doCheck(r1.ctx);
+    assert.equal(out2.hats.black.reading, 'rejected:citation_outside_sources', JSON.stringify(out2.hats.black));
+    // Control: the item id of black's own pack is allowed.
+    const own = fx.packOf(r1.ctx, 'black').items[0];
+    fx.writeReading(r1.ctx, 'black', fx.readingOf(r1.ctx, 'black', { evidence: [{ source: own.id, tier: own.tier, disposition: 'disconfirming' }] }));
+    assert.equal(fx.doCheck(r1.ctx).hats.black.reading, 'ran');
+  });
+});
+
+// H11
+acheck('H11. a black reading that cites a White package id passes; a red reading has no evidence key and passes', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const { ctx, out } = await runAndCheck((c) => {
+      const w = fx.packOf(c, 'white').items[0];
+      return { black: { evidence: [{ source: w.id, tier: w.tier, disposition: 'disconfirming' }] } };
+    });
+    assert.equal(out.hats.black.reading, 'ran', JSON.stringify(out.hats.black));
+    assert.equal(out.hats.red.reading, 'ran', JSON.stringify(out.hats.red));
+    // The White package that black reads is the White pack, byte for byte; red has no evidence file of its own.
+    assert.equal(fs.readFileSync(path.join(ctx.res.hats.black.dir, 'shared-white.json'), 'utf8'), fs.readFileSync(path.join(ctx.res.hats.white.dir, 'evidence.json'), 'utf8'));
+    assert.equal(fs.existsSync(path.join(ctx.res.hats.red.dir, 'evidence.json')), false);
+    assert.equal(fs.existsSync(path.join(ctx.res.hats.red.dir, 'shared-white.json')), true);
+  });
+});
+
+// H12
+acheck('H12. a black reading that cites its own pack id and its own self-found url in one evidence list passes', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const { out } = await runAndCheck((c) => {
+      const own = fx.packOf(c, 'black').items[0];
+      return { black: {
+        evidence: [{ source: own.id, tier: own.tier, disposition: 'disconfirming' }, { source: SELF_URL_BLACK, tier: 'self_found', disposition: 'confirming' }],
+        self_search_strings: ['grid storage costs'],
+        self_found_sources: [foundBy(SELF_URL_BLACK, 'grid storage costs')],
+      } };
+    });
+    assert.equal(out.hats.black.reading, 'ran', JSON.stringify(out.hats.black));
+    assert.equal(out.hats.black.evidence_items, 2);
+    assert.equal(out.hats.black.self_found_sources, 1);
+  });
+});
+
+// H13
+acheck('H13. NEGATIVE: the self-found url of white is not in the allowed set of black (FS-11); black citing it is rejected', async () => {
+  await fx.withEnvAsync(fx.NO_KEYS, async () => {
+    const { ctx, out } = await runAndCheck({
+      white: { evidence: [{ source: SELF_URL_WHITE, tier: 'self_found' }], self_search_strings: ['grid storage costs'], self_found_sources: [foundBy(SELF_URL_WHITE, 'grid storage costs')] },
+      black: { evidence: [{ source: SELF_URL_WHITE, tier: 'self_found', disposition: 'disconfirming' }] },
+    });
+    assert.equal(out.hats.white.reading, 'ran', JSON.stringify(out.hats.white));
+    assert.equal(out.hats.black.reading, 'rejected:citation_outside_sources', JSON.stringify(out.hats.black));
+    // The shared package holds door evidence only: the self-found url of white is in no pack.
+    for (const h of fx.READ_HATS) {
+      const file = path.join(ctx.res.hats[h].dir, 'shared-white.json');
+      assert.equal(fs.readFileSync(file, 'utf8').includes(SELF_URL_WHITE), false, h);
+    }
+  });
+});
+
+(async () => {
+  for (const t of asyncLegs) {
+    try {
+      await t.fn();
+      passed += 1;
+      console.log('ok: ' + t.label);
+    } catch (e) {
+      failed += 1;
+      console.log('FAIL: ' + t.label + ' -- ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  fx.cleanup();
+  console.log(passed + ' passed, ' + failed + ' failed');
+  process.exit(failed ? 1 : 0);
+})();
