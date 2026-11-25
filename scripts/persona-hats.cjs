@@ -40,7 +40,7 @@ const crypto = require('crypto');
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
 
-const SUBCOMMANDS = Object.freeze(['status', 'start']);
+const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
@@ -551,6 +551,209 @@ function cmdStart(args, deps) {
 }
 
 // ---------------------------------------------------------------------------
+// write-persona
+// ---------------------------------------------------------------------------
+
+/**
+ * Read the persona spec of each hat that waits for a build and write one proposed persona file
+ * for it. A missing or refused spec gives build_failed for that hat only. A hat that is not
+ * waiting for a build is not touched.
+ */
+function cmdWritePersona(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  const order = requireStep(ledger, 'start');
+  if (order) return { ok: false, reason: order };
+  if (ledger.mode !== 'deep') return { ok: false, reason: 'mode_not_deep' };
+  const map = readRunMap(homeDirOf(deps), ledger.run_id, roomResolved);
+  if (!map || !map.hats || typeof map.scratch_root !== 'string') return { ok: false, reason: 'run_map_missing' };
+
+  const now = nowOf(deps);
+  const results = {};
+  for (const hat of HATS) {
+    const entry = ledger.hats[hat];
+    if (!entry || entry.persona !== 'pending_build') continue;
+    const dir = map.hats[hat];
+    const inside = typeof dir === 'string' && (() => {
+      const rel = path.relative(map.scratch_root, dir);
+      return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+    })();
+    let reason = null;
+    let proposedFile = null;
+    if (!inside) {
+      reason = 'run_map_missing';
+    } else {
+      const r = readJsonFile(path.join(dir, 'persona.json'), { noSymlink: true });
+      if (!r.ok) {
+        reason = r.reason === 'file_unreadable' ? 'no_spec_file' : r.reason;
+      } else {
+        entry.spec_sha256 = r.sha256;
+        const w = ops.writeReasonedPersona(roomResolved, hat, r.value, { fingerprint: ledger.room_fingerprint, now });
+        if (w.ok) proposedFile = w.file;
+        else reason = w.reason;
+      }
+    }
+    if (reason) {
+      entry.persona = 'build_failed';
+      entry.persona_reason = reason;
+      results[hat] = { state: 'build_failed:' + reason };
+    } else {
+      entry.persona = 'proposed';
+      delete entry.persona_reason;
+      results[hat] = { state: 'proposed', file: proposedFile, spec_sha256: entry.spec_sha256 };
+    }
+  }
+  if (!ledger.steps.write_persona) markStep(ledger, 'write_persona', 'done', now);
+  writeLedger(lr.dir, ledger);
+  return { ok: true, run_id: ledger.run_id, hats: results };
+}
+
+// ---------------------------------------------------------------------------
+// accept-persona
+// ---------------------------------------------------------------------------
+
+const ACCEPT_KEYS = ['schema', 'run_id', 'hats'];
+const ACCEPT_HAT_KEYS = ['decision', 'guidance'];
+const DECISIONS = ['accept', 'rebuild', 'refuse', 'defer'];
+const REBUILD_LIMIT = 2;
+const RESOLVED = ['fresh', 'built_accepted', 'refused', 'build_failed'];
+
+/** Check the answer file (P-3). Never repairs an answer. @returns {string|null} the named reason */
+function answerRefusal(answer, runId) {
+  if (!answer || typeof answer !== 'object' || Array.isArray(answer)) return 'schema_invalid:answer';
+  for (const k of Object.keys(answer)) {
+    if (!ACCEPT_KEYS.includes(k)) return 'schema_invalid:unknown_key:' + k;
+  }
+  if (answer.schema !== 'mos.persona-accept/1') return 'schema_invalid:schema';
+  if (answer.run_id !== runId) return 'schema_invalid:run_id';
+  if (!answer.hats || typeof answer.hats !== 'object' || Array.isArray(answer.hats)) return 'schema_invalid:hats';
+  for (const hat of Object.keys(answer.hats)) {
+    if (!HATS.includes(hat)) return 'schema_invalid:hats.' + hat;
+    const d = answer.hats[hat];
+    if (!d || typeof d !== 'object' || Array.isArray(d)) return 'schema_invalid:hats.' + hat;
+    for (const k of Object.keys(d)) {
+      if (!ACCEPT_HAT_KEYS.includes(k)) return 'schema_invalid:hats.' + hat + '.' + k;
+    }
+    if (!DECISIONS.includes(d.decision)) return 'schema_invalid:hats.' + hat + '.decision';
+    if (d.guidance !== undefined && (typeof d.guidance !== 'string' || d.guidance.length > 200)) return 'schema_invalid:hats.' + hat + '.guidance';
+  }
+  return null;
+}
+
+/** Find the proposed persona file of a hat. @returns {{file: string, abs: string, fingerprint: string}|null} */
+function findProposedFile(roomResolved, hat) {
+  const dir = path.join(roomResolved, 'personas');
+  let names = [];
+  try { names = fs.readdirSync(dir).filter(n => n.startsWith(hat + '-') && n.endsWith('.md')).sort(); } catch (e) { return null; }
+  for (const name of names) {
+    let text;
+    try { text = fs.readFileSync(path.join(dir, name), 'utf8'); } catch (e) { continue; }
+    const m = /^---\n([\s\S]*?)\n---/.exec(text);
+    if (!m) continue;
+    const lines = m[1].split('\n');
+    if (!lines.includes('built_by: persona-analyst') || !lines.includes('persona_status: proposed')) continue;
+    const fpLine = lines.find(l => l.startsWith('room_fingerprint:')) || '';
+    return { file: name, abs: path.join(dir, name), fingerprint: fpLine.slice('room_fingerprint:'.length).trim().replace(/^"|"$/g, '') };
+  }
+  return null;
+}
+
+/**
+ * The ONLY writer of the accepted status in the repository. It changes the 2 frontmatter lines of
+ * one persona file (status and accepted_at) through a temporary file and a rename. It runs only
+ * from cmdAcceptPersona, after a navigator answer file named the hat.
+ * @returns {{ok: true} | {ok: false, reason: string}}
+ */
+function markAccepted(absFile, nowIso) {
+  let text;
+  try { text = fs.readFileSync(absFile, 'utf8'); } catch (e) { return { ok: false, reason: 'persona_file_unreadable' }; }
+  const m = /^---\n([\s\S]*?)\n---/.exec(text);
+  if (!m) return { ok: false, reason: 'not_proposed' };
+  const lines = m[1].split('\n');
+  const at = lines.indexOf('persona_status: proposed');
+  if (at === -1) return { ok: false, reason: 'not_proposed' };
+  lines.splice(at, 1, 'persona_status: accepted', 'accepted_at: "' + nowIso + '"');
+  const next = '---\n' + lines.join('\n') + '\n---' + text.slice(m[0].length);
+  const tmp = path.join(path.dirname(absFile), '.' + path.basename(absFile) + '.' + process.pid + '.' + crypto.randomBytes(4).toString('hex') + '.tmp');
+  try {
+    fs.writeFileSync(tmp, next, 'utf8');
+    fs.renameSync(tmp, absFile);
+  } catch (e) {
+    try { fs.rmSync(tmp, { force: true }); } catch (_) { /* ignore */ }
+    return { ok: false, reason: 'write_failed:' + (e && e.code ? e.code : 'error') };
+  }
+  return { ok: true };
+}
+
+/**
+ * Apply the answer of Stop 2. It checks the whole answer first and applies it after, so a refused
+ * answer changes nothing. The step accept_persona is done only when every hat of to_build and
+ * to_accept is resolved. An empty hats object only closes a run whose hats are all resolved.
+ */
+function cmdAcceptPersona(args, deps) {
+  const roomResolved = roomDirCheck(args && args.roomDir);
+  if (!roomResolved) return { ok: false, reason: 'room_not_found' };
+  const lr = readLedger(roomResolved, args.runId);
+  if (!lr.ok) return lr;
+  const ledger = lr.ledger;
+  const order = requireStep(ledger, 'write_persona');
+  if (order) return { ok: false, reason: order };
+  const read = readJsonFile(args.answerPath);
+  if (!read.ok) return { ok: false, reason: read.reason };
+  const answer = read.value;
+  const bad = answerRefusal(answer, ledger.run_id);
+  if (bad) return { ok: false, reason: bad };
+
+  const allowed = HATS.filter(h => ledger.to_build.includes(h) || ledger.to_accept.includes(h));
+  const found = {};
+  for (const hat of Object.keys(answer.hats)) {
+    if (!allowed.includes(hat)) return { ok: false, reason: 'no_proposed_file:' + hat };
+    const f = findProposedFile(roomResolved, hat);
+    if (!f) return { ok: false, reason: 'no_proposed_file:' + hat };
+    if (f.fingerprint !== ledger.room_fingerprint) return { ok: false, reason: 'persona_file_changed:' + hat };
+    if (answer.hats[hat].decision === 'rebuild' && (ledger.hats[hat].rebuilds || 0) >= REBUILD_LIMIT) {
+      return { ok: false, reason: 'rebuild_limit', hat };
+    }
+    found[hat] = f;
+  }
+
+  const now = nowOf(deps);
+  const out = {};
+  const toRebuild = [];
+  let failure = null;
+  for (const hat of HATS) {
+    if (!answer.hats[hat]) continue;
+    const decision = answer.hats[hat].decision;
+    const entry = ledger.hats[hat];
+    if (decision === 'accept') {
+      const w = markAccepted(found[hat].abs, now.toISOString());
+      if (!w.ok) { failure = w.reason + ':' + hat; break; }
+      entry.persona = 'built_accepted';
+      delete entry.persona_reason;
+    } else if (decision === 'rebuild') {
+      entry.rebuilds = (entry.rebuilds || 0) + 1;
+      entry.persona = 'pending_build';
+      delete entry.persona_reason;
+      toRebuild.push({ hat, guidance: answer.hats[hat].guidance || '' });
+    } else {
+      entry.persona = 'refused';
+      if (decision === 'defer') entry.persona_reason = 'deferred';
+      else delete entry.persona_reason;
+    }
+    out[hat] = { decision, persona: entry.persona };
+  }
+
+  const pending = allowed.filter(h => !RESOLVED.includes(ledger.hats[h].persona));
+  if (!failure && pending.length === 0 && !ledger.steps.accept_persona) markStep(ledger, 'accept_persona', 'done', now);
+  writeLedger(lr.dir, ledger);
+  if (failure) return { ok: false, reason: failure };
+  return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: Boolean(ledger.steps.accept_persona) };
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -574,6 +777,14 @@ function main(argv, deps) {
     case 'start':
       missing = need(['room', 'brief']);
       if (!missing.length) result = cmdStart({ roomDir: flags.room, briefPath: flags.brief, mode: flags.mode }, deps);
+      break;
+    case 'write-persona':
+      missing = need(['room', 'run']);
+      if (!missing.length) result = cmdWritePersona({ roomDir: flags.room, runId: flags.run }, deps);
+      break;
+    case 'accept-persona':
+      missing = need(['room', 'run', 'answer']);
+      if (!missing.length) result = cmdAcceptPersona({ roomDir: flags.room, runId: flags.run, answerPath: flags.answer }, deps);
       break;
     default:
       missing = ['subcommand'];
@@ -603,6 +814,8 @@ module.exports = {
   atomicWriteJson,
   cmdStatus,
   cmdStart,
+  cmdWritePersona,
+  cmdAcceptPersona,
   validateBrief,
   briefHashOf,
   subQuestionId,

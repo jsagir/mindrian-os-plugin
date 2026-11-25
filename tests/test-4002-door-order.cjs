@@ -332,10 +332,190 @@ check('D14. status writes nothing and reports the room state', () => {
   assert.equal(res.open_runs.length, 1);
 });
 
+// ---------------------------------------------------------------------------
+// Task 2 legs: write-persona and accept-persona
+// ---------------------------------------------------------------------------
+
+function validSpec(hat, over) {
+  return Object.assign({
+    schema: 'mos.persona-spec/1',
+    hat,
+    focus: 'Look at the ' + hat + ' side of the retainer question.',
+    hat_questions: ['What does the room show?', 'What is missing?', 'What would change the view?'],
+    must_not_judge: ['The price level.'],
+    room_sources: ['problem-definition/core-problem.md'],
+  }, over || {});
+}
+
+function writeSpec(res, hat, spec) {
+  fs.writeFileSync(path.join(res.hats[hat].dir, 'persona.json'), typeof spec === 'string' ? spec : JSON.stringify(spec), 'utf8');
+}
+
+function writeAnswer(res, hats, over) {
+  const dir = mkTmp('answer');
+  const p = path.join(dir, 'answer.json');
+  fs.writeFileSync(p, JSON.stringify(Object.assign({ schema: 'mos.persona-accept/1', run_id: res.run_id, hats }, over || {})), 'utf8');
+  return p;
+}
+
+function writeFresh(room, hat) {
+  const fp = ops.roomFingerprint(room);
+  put(room, 'personas/' + hat + '-venture.md', ['---', 'hat: ' + hat, 'built_by: persona-analyst', 'persona_status: accepted', 'room_fingerprint: "' + fp + '"', '---', '', '# ' + hat, ''].join('\n'));
+}
+
+function personaFileOf(room, hat) {
+  const f = fs.readdirSync(path.join(room, 'personas')).filter(n => n.startsWith(hat + '-') && n.endsWith('.md'));
+  assert.equal(f.length, 1, hat + ' files: ' + f.join(','));
+  return path.join(room, 'personas', f[0]);
+}
+
+function fmValue(file, key) {
+  const m = new RegExp('^' + key + ': (.*)$', 'm').exec(fs.readFileSync(file, 'utf8'));
+  return m ? m[1].replace(/^"|"$/g, '') : null;
+}
+
+// D5
+check('D5. write-persona for an unknown run is run_not_found; accept before write is out of order', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const miss = door.cmdWritePersona({ roomDir: room, runId: '20261125-102030-abcd' }, opts(env));
+  assert.equal(miss.ok, false);
+  assert.equal(miss.reason, 'run_not_found');
+  const res = startDeep(room, env);
+  const early = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, {}) }, opts(env));
+  assert.equal(early.ok, false);
+  assert.equal(early.reason, 'step_out_of_order:write_persona');
+});
+
+// D6
+check('D6. write-persona proposes valid specs and names each failure for that hat only', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  writeFresh(room, 'yellow');
+  writeFresh(room, 'blue');
+  const yellowBefore = fs.readFileSync(personaFileOf(room, 'yellow'), 'utf8');
+  const res = startDeep(room, env);
+  assert.deepEqual(res.to_build, ['white', 'red', 'black', 'green']);
+  writeSpec(res, 'white', validSpec('white'));
+  writeSpec(res, 'black', validSpec('black'));
+  writeSpec(res, 'green', validSpec('green', { handles: ['x'] }));
+  const out = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(out.hats.white.state, 'proposed');
+  assert.equal(out.hats.black.state, 'proposed');
+  assert.equal(out.hats.red.state, 'build_failed:no_spec_file');
+  assert.equal(out.hats.green.state, 'build_failed:forbidden_key:handles');
+  assert.equal(fmValue(personaFileOf(room, 'white'), 'persona_status'), 'proposed');
+  assert.equal(fs.readFileSync(personaFileOf(room, 'yellow'), 'utf8'), yellowBefore);
+  const ledger = readLedgerOf(res);
+  assert.equal(ledger.steps.write_persona.state, 'done');
+  assert.equal(ledger.hats.yellow.persona, 'fresh');
+  assert.equal(ledger.hats.red.persona, 'build_failed');
+  const whiteBytes = fs.readFileSync(path.join(res.hats.white.dir, 'persona.json'));
+  assert.equal(ledger.hats.white.spec_sha256, crypto.createHash('sha256').update(whiteBytes).digest('hex'));
+  assert.equal(ledger.hats.red.spec_sha256, undefined);
+});
+
+// D7
+check('D7. accept writes accepted only after a navigator answer, in one function of the door', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  for (const h of HATS) writeSpec(res, h, validSpec(h));
+  door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  const whiteFile = personaFileOf(room, 'white');
+  assert.equal(fmValue(whiteFile, 'persona_status'), 'proposed');
+  assert.equal(ops.personaFreshness(room).hats.white.state, 'unaccepted');
+  const out = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, { white: { decision: 'accept' } }) }, opts(env));
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(fmValue(whiteFile, 'persona_status'), 'accepted');
+  assert.ok(fmValue(whiteFile, 'accepted_at'));
+  assert.equal(ops.personaFreshness(room).hats.white.state, 'fresh');
+  assert.equal(fmValue(personaFileOf(room, 'red'), 'persona_status'), 'proposed');
+  assert.equal(readLedgerOf(res).hats.white.persona, 'built_accepted');
+  const opsSrc = fs.readFileSync(OPS_PATH, 'utf8');
+  assert.equal(opsSrc.includes('persona_status: accepted'), false);
+  const doorSrc = fs.readFileSync(DOOR_PATH, 'utf8');
+  assert.equal(doorSrc.split('persona_status: accepted').length - 1, 1);
+});
+
+// D8
+check('D8. rebuild, refuse and defer are recorded and leave the file proposed', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  for (const h of HATS) writeSpec(res, h, validSpec(h));
+  door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  const rb = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, { white: { decision: 'rebuild', guidance: 'Look harder at the hand-off.' }, red: { decision: 'refuse' }, black: { decision: 'defer' } }) }, opts(env));
+  assert.equal(rb.ok, true, JSON.stringify(rb));
+  assert.deepEqual(rb.to_rebuild, [{ hat: 'white', guidance: 'Look harder at the hand-off.' }]);
+  let ledger = readLedgerOf(res);
+  assert.equal(ledger.hats.white.rebuilds, 1);
+  assert.equal(ledger.hats.red.persona, 'refused');
+  assert.equal(ledger.hats.black.persona, 'refused');
+  assert.equal(ledger.hats.black.persona_reason, 'deferred');
+  assert.equal(ledger.steps.accept_persona, undefined);
+  assert.equal(fmValue(personaFileOf(room, 'red'), 'persona_status'), 'proposed');
+  assert.equal(fmValue(personaFileOf(room, 'black'), 'persona_status'), 'proposed');
+  // rebuild round 2 and 3: the third is refused
+  for (let round = 2; round <= 3; round += 1) {
+    writeSpec(res, 'white', validSpec('white', { focus: 'Rebuild round ' + round }));
+    const w = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+    assert.equal(w.hats.white.state, 'proposed', JSON.stringify(w));
+    assert.deepEqual(Object.keys(w.hats), ['white']);
+    const again = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, { white: { decision: 'rebuild', guidance: 'again' } }) }, opts(env));
+    if (round === 2) assert.equal(again.ok, true, JSON.stringify(again));
+    else { assert.equal(again.ok, false); assert.equal(again.reason, 'rebuild_limit'); }
+  }
+  ledger = readLedgerOf(res);
+  assert.equal(ledger.hats.white.rebuilds, 2);
+});
+
+// D15
+check('D15. a hat outside to_build and to_accept, a bad key or a bad decision is refused', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  writeFresh(room, 'yellow');
+  const res = startDeep(room, env);
+  for (const h of ['white', 'red', 'black', 'green', 'blue']) writeSpec(res, h, validSpec(h));
+  door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  const call = (answerPath) => door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath }, opts(env));
+  const out = call(writeAnswer(res, { yellow: { decision: 'accept' } }));
+  assert.equal(out.ok, false);
+  assert.equal(out.reason, 'no_proposed_file:yellow');
+  assert.ok(String(call(writeAnswer(res, { white: { decision: 'accept' } }, { extra: 1 })).reason).startsWith('schema_invalid'));
+  assert.ok(String(call(writeAnswer(res, { white: { decision: 'accept', note: 'x' } })).reason).startsWith('schema_invalid'));
+  assert.ok(String(call(writeAnswer(res, { white: { decision: 'approve' } })).reason).startsWith('schema_invalid'));
+  assert.ok(String(call(writeAnswer(res, { white: { decision: 'accept' } }, { run_id: '20200101-000000-abcd' })).reason).startsWith('schema_invalid'));
+  assert.equal(fmValue(personaFileOf(room, 'white'), 'persona_status'), 'proposed');
+  assert.equal(readLedgerOf(res).hats.white.persona, 'proposed');
+});
+
+// D16
+check('D16. accept_persona is done only when every hat is resolved', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = startDeep(room, env);
+  for (const h of ['white', 'red', 'black', 'yellow', 'green']) writeSpec(res, h, validSpec(h));
+  const w = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(w.hats.blue.state, 'build_failed:no_spec_file');
+  const call = (hats) => door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, hats) }, opts(env));
+  let out = call({ white: { decision: 'accept' }, red: { decision: 'accept' }, black: { decision: 'accept' } });
+  assert.equal(out.ok, true, JSON.stringify(out));
+  assert.equal(readLedgerOf(res).steps.accept_persona, undefined);
+  assert.deepEqual(out.pending.sort(), ['green', 'yellow']);
+  out = call({ yellow: { decision: 'accept' }, green: { decision: 'defer' } });
+  assert.equal(out.ok, true, JSON.stringify(out));
+  const ledger = readLedgerOf(res);
+  assert.equal(ledger.steps.accept_persona.state, 'done');
+  assert.ok(ledger.steps.accept_persona.seq > ledger.steps.write_persona.seq);
+  assert.deepEqual(out.pending, []);
+});
+
 // D0
 check('D0. SUBCOMMANDS is frozen and lists the door subcommands of this plan', () => {
   assert.ok(Object.isFrozen(door.SUBCOMMANDS));
-  for (const s of ['status', 'start']) assert.ok(door.SUBCOMMANDS.includes(s), s);
+  for (const s of ['status', 'start', 'write-persona', 'accept-persona']) assert.ok(door.SUBCOMMANDS.includes(s), s);
   const src = fs.readFileSync(DOOR_PATH, 'utf8');
   assert.equal(/^(const|let|var)\b.*require\(['"]\.\.\/lib\/core\/bono/m.test(src), false);
 });
