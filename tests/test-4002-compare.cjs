@@ -267,7 +267,7 @@ check('K3. compare.md holds no word of score, winner, better, worse, wins or dif
     if (line.indexOf('|') !== 0 || line.indexOf('---') !== -1 || line.indexOf('| hat |') === 0) continue;
     for (const cell of line.slice(1, -1).split(' | ').map(c => c.trim())) assert.equal(/^[0-9][0-9.,]*$/.test(cell), false, 'numeric cell ' + cell);
   }
-  assert.equal(/—|–/.test(text), false, 'no em dash or en dash');
+  assert.equal(/\u2014|\u2013/.test(text), false, 'no em dash or en dash');
 });
 
 check('K4. each mode block shows the counts with the mark reported by the command; the wall time is merged_at minus started_at of that record', async () => {

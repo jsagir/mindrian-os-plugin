@@ -312,7 +312,7 @@ check('C19. the six-agent dispatch with the hand-narrated tension map is gone', 
   assert.ok(!body.includes('[PARALLEL] Dispatching 6'), 'no six-agent dispatch block');
   assert.ok(!/Build the Tension Map/.test(body), 'no hand-built tension map step');
   assert.ok(!/compute-hsi/.test(body), 'the old HSI trigger line is removed');
-  assert.ok(!/[–—]/.test(text), 'no em dash and no en dash');
+  assert.ok(!/[\u2013\u2014]/.test(text), 'no em dash and no en dash');
 });
 
 // ---------------------------------------------------------------------------
