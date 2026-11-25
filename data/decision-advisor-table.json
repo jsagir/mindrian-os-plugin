@@ -2,7 +2,7 @@
   "schema": "mos.decision-advisor-table/1",
   "table_version": "399-v0",
   "data_scope": "v0 job-only data",
-  "_note": "Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. A deprecated scope command is replaced by the command it redirects to, so no row offers a retired name. Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.",
+  "_note": "Phase 399 I-05 and I-06. v0 job-only data: every row is keyed <job>|*|* because the recorded run conditions on neither definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. A deprecated scope command is replaced by the command it redirects to, so no row offers a retired name. A command that carries the job label stays in its row below the row depth, with its true calibrated value (Phase 400.2, owner ruling 2026-11-25). Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.",
   "provider": "gemini",
   "model": "gemini-decision-1",
   "question_template": "serves_job_v1",
@@ -145,6 +145,26 @@
       {
         "command": "/mos:diagnostics",
         "calibrated": 0.128
+      },
+      {
+        "command": "/mos:explain-decision",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:jtbd",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:session-report",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:rooms",
+        "calibrated": 0.023
       }
     ],
     "compare-options|*|*": [
@@ -195,6 +215,18 @@
       {
         "command": "/mos:diffusion",
         "calibrated": 0.098
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:scenario-plan",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:deep-grade",
+        "calibrated": 0.023
       }
     ],
     "connect-domains|*|*": [
@@ -245,6 +277,14 @@
       {
         "command": "/mos:explain-decision",
         "calibrated": 0.128
+      },
+      {
+        "command": "/mos:whitespace",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:rs-experts",
+        "calibrated": 0.023
       }
     ],
     "decide-pursue|*|*": [
@@ -295,6 +335,26 @@
       {
         "command": "/mos:validate-proposition",
         "calibrated": 0.929
+      },
+      {
+        "command": "/mos:user-needs",
+        "calibrated": 0.9
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:diagnose",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:grade-grant",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:funding",
+        "calibrated": 0.07
       }
     ],
     "explore|*|*": [
@@ -345,6 +405,62 @@
       {
         "command": "/mos:explore-domains",
         "calibrated": 0.278
+      },
+      {
+        "command": "/mos:explore-futures",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:research",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:suggest-next",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:ignite",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:leadership",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:opportunities",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:qualify-opportunity",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:scout",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:structure-argument",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:discover",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:new-project",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:onboard",
+        "calibrated": 0.07
       }
     ],
     "file-meeting|*|*": [
@@ -445,6 +561,18 @@
       {
         "command": "/mos:act",
         "calibrated": 0.167
+      },
+      {
+        "command": "/mos:scientific-roadmap",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:rs-experts",
+        "calibrated": 0.098
+      },
+      {
+        "command": "/mos:rs-thesis",
+        "calibrated": 0.07
       }
     ],
     "find-problem|*|*": [
@@ -495,6 +623,26 @@
       {
         "command": "/mos:diagnose",
         "calibrated": 0.321
+      },
+      {
+        "command": "/mos:explore-domains",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.278
+      },
+      {
+        "command": "/mos:whitespace",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:futures",
+        "calibrated": 0.098
       }
     ],
     "plan-execution|*|*": [
@@ -545,6 +693,10 @@
       {
         "command": "/mos:systems-thinking",
         "calibrated": 0.098
+      },
+      {
+        "command": "/mos:intel-pipeline",
+        "calibrated": 0.07
       }
     ],
     "prepare-pitch|*|*": [
@@ -595,6 +747,18 @@
       {
         "command": "/mos:stance",
         "calibrated": 0.321
+      },
+      {
+        "command": "/mos:build-thesis",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:grade-grant",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:funding",
+        "calibrated": 0.023
       }
     ],
     "surface-contradiction|*|*": [
@@ -645,6 +809,10 @@
       {
         "command": "/mos:causal",
         "calibrated": 0.128
+      },
+      {
+        "command": "/mos:rs-fetch",
+        "calibrated": 0.07
       }
     ],
     "understand-market|*|*": [
@@ -695,6 +863,30 @@
       {
         "command": "/mos:bono",
         "calibrated": 0.278
+      },
+      {
+        "command": "/mos:analyze-timing",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:explore-trends",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:scout",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:trending-to-absurd",
+        "calibrated": 0.128
+      },
+      {
+        "command": "/mos:explore-domains",
+        "calibrated": 0.07
+      },
+      {
+        "command": "/mos:radar",
+        "calibrated": 0.07
       }
     ],
     "validate-idea|*|*": [
@@ -745,6 +937,26 @@
       {
         "command": "/mos:think-hats",
         "calibrated": 0.389
+      },
+      {
+        "command": "/mos:persona",
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:scientific-roadmap",
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:lean-canvas",
+        "calibrated": 0.333
+      },
+      {
+        "command": "/mos:structure-argument",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:score-innovation",
+        "calibrated": 0.278
       }
     ]
   }
