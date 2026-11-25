@@ -1109,8 +1109,8 @@ function stringsOfReading(reading) {
 }
 
 /**
- * The citation boundary (FS-5). The allowed set of a hat is its own pack ids and urls, the White ids and
- * urls, and the urls of the reading's own self_found_sources. Any other URL or EvidenceClaim id in any
+ * The citation boundary (FS-5). The allowed set of a researching hat is its own pack ids and urls, the White ids and
+ * urls, and the urls of the reading's own self_found_sources; red and blue have an empty set (WR-02). Any other URL or EvidenceClaim id in any
  * string field gives rejected:citation_outside_sources. Pure. Never echoes the refused text.
  * @returns {{ok: true} | {ok: false, reason: 'citation_outside_sources', state: string, why: string}}
  */
@@ -1118,8 +1118,11 @@ function citationCheck(hat, reading, ctx) {
   const c = ctx || {};
   const refuse = (why) => ({ ok: false, reason: 'citation_outside_sources', state: 'rejected:citation_outside_sources', why });
   const r = isPlain(reading) ? reading : {};
-  const ids = new Set([].concat(c.ownIds || [], c.whiteIds || []));
-  const urls = new Set([].concat(c.ownUrls || [], c.whiteUrls || []));
+  // WR-02 (owner second card: "Red still gives no evidence"): a hat that does not research cites nothing, not even
+  // the White package it reads. Its allowed set is empty whatever sets the caller passes.
+  const cites = RESEARCH_HATS.includes(hat);
+  const ids = new Set(cites ? [].concat(c.ownIds || [], c.whiteIds || []) : []);
+  const urls = new Set(cites ? [].concat(c.ownUrls || [], c.whiteUrls || []) : []);
   if (RESEARCH_HATS.includes(hat) && Array.isArray(r.self_found_sources)) {
     for (const it of r.self_found_sources) {
       if (isPlain(it) && typeof it.url === 'string') urls.add(it.url);

@@ -118,6 +118,21 @@ check('H5. NEGATIVE: a red reading and a blue reading with self-found sources or
   }
 });
 
+// H5b (WR-02)
+check('H5b. WR-02 NEGATIVE: red gives no evidence: a red line that cites a White id or a White URL is rejected, even with the White sets passed', () => {
+  const red = (line) => ({ schema: 'mos.persona-reading/1', run_id: RUN, hat: 'red', positions: SQ.map(id => ({ sub_question: id, value: 'favours', line })) });
+  for (const line of ['see ' + WHITE_ID + ' for the fact', 'see https://white.example.org/w for the fact', 'see ' + OWN_ID]) {
+    const r = red(line);
+    assert.equal(door.validateReading('red', r, CTX).ok, true);
+    const out = cite('red', r);
+    assert.equal(out.ok, false, line);
+    assert.equal(out.state, 'rejected:citation_outside_sources', line);
+  }
+  assert.deepEqual(cite('red', red('A gut feeling, no source.')), { ok: true });
+  // the same White id is still allowed for a researching hat
+  assert.deepEqual(cite('black', black({ positions: SQ.map(id => ({ sub_question: id, value: 'opposes', line: 'see ' + WHITE_ID })) })), { ok: true });
+});
+
 // H6
 check('H6. both violation strings of validateCitations map to rejected:citation_outside_sources', () => {
   const outside = black({ evidence: [{ source: 'EvidenceClaim:s1:nope', tier: 'T2', disposition: 'disconfirming' }] });
