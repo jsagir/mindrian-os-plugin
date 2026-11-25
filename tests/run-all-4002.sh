@@ -4,7 +4,7 @@ set -u
 cd "$(dirname "$0")/.." || exit 1
 FAIL=0
 # Loop 1: the phase tests. Each plan appends its test files here.
-for t in tests/test-4002-job-statements.cjs tests/test-4002-job-reach.cjs tests/test-4002-persona-freshness.cjs; do
+for t in tests/test-4002-job-statements.cjs tests/test-4002-job-reach.cjs tests/test-4002-persona-freshness.cjs tests/test-4002-quick.cjs; do
   echo "--- 400.2: $t ---"
   if node "$t"; then echo ">>> 400.2: $t: PASSED"; else echo ">>> 400.2: $t: FAILED"; FAIL=1; break; fi
 done
