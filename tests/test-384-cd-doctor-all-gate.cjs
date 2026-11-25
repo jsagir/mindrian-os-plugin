@@ -10,7 +10,7 @@
  *                deferred by the owner): the point stays ok true. Passes before and after the port.
  *   mechanism M1 a timeout is named in the finding with the limit, not "exited null".
  *             M2 exit 0 with no JSON in the child output fails the point as unreadable.
- *             M3 doctorAllLimitMs: 60000 by default, the seam works only in test mode.
+ *             M3 doctorAllLimitMs: 120000 by default, the seam works only in test mode.
  *             M4 the two seams are ignored outside test mode.
  *             M5 a non-zero exit gives "doctor --all exited N".
  *
@@ -139,11 +139,11 @@ function mechanismGroup() {
   const okFn = typeof lim === 'function';
   check('M3 doctorAllLimitMs is exported', okFn);
   if (okFn) {
-    check('M3 default is 60000', lim({}) === 60000, String(lim({})));
+    check('M3 default is 120000', lim({}) === 120000, String(lim({})));
     check('M3 test-mode seam gives 300', lim({ DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '300' }) === 300);
-    check('M3 seam without test mode gives 60000', lim({ DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '300' }) === 60000);
+    check('M3 seam without test mode gives 120000', lim({ DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: '300' }) === 120000);
     const bad = ['abc', '0', '-5'].map((v) => lim({ DOCTOR_TEST_MODE: '1', DOCTOR_TEST_DOCTOR_ALL_LIMIT_MS: v }));
-    check('M3 bad value in test mode gives 60000', bad.every((v) => v === 60000), bad.join(','));
+    check('M3 bad value in test mode gives 120000', bad.every((v) => v === 120000), bad.join(','));
   }
 
   // M4
