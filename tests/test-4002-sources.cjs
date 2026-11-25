@@ -528,6 +528,21 @@ check('W9c. IN-03 NEGATIVE: a hand-edited ledger brief_hash that is not SHA-256 
   });
 });
 
+check('W9d. IN-06: an invalid handles file is shown as refused and is counted in strings_refused', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const room = fx.harborRoom();
+    const env = fx.envOf();
+    const res = fx.runToAccepted(room, env);
+    for (const h of ['white', 'black', 'yellow']) fx.writeHandles(res, h, fx.GOOD[h]);
+    fs.writeFileSync(path.join(res.hats.green.dir, 'handles.json'), JSON.stringify({ schema: 'mos.persona-handles/1', hat: 'green', handles: [] }), 'utf8');
+    const out = door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, fx.opts(env));
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.ok(out.refused_shown.some(r => r.hat === 'green' && r.reason === 'schema_invalid:handles'), JSON.stringify(out.refused_shown));
+    const l = JSON.parse(fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8'));
+    assert.equal(l.research.strings_refused, out.refused_shown.length, 'every refusal shown is counted');
+  });
+});
+
 check('W10. red and blue never search; every host string passes the egress audit; an edit recomputes the host strings; the room identity screen still refuses a room word', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();

@@ -1611,6 +1611,7 @@ function planFirst(roomResolved, lr, map, deps) {
       } else if (f.reason !== 'no_file') {
         rec.refused.push({ reason: f.reason });
         refusedShown.push({ hat, text: null, reason: f.reason });
+        refusedCount += 1; // IN-06: every refusal shown on the card is counted
         consumed.push(hat);
       }
     }
