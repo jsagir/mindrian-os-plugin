@@ -1,32 +1,29 @@
-# Website handoff: the Larry pin in the get-mindrian skill (quick 261125-rtc)
+# Website handoff: the rooms-folder setting in the get-mindrian skill (quick 261125-rtc)
 
-For the website session. This file covers the plugin and the marketplace only. No file of the website repo was changed by the session that wrote this: its working tree held uncommitted work, and its copy is claim-gated.
+For the website session. Revised the same day. The first version of this file proposed lines that name Larry. The website owner ruling of 2026-11-18 ("Theo is the mos avatar not larry") rules those out, so they are withdrawn.
 
-## (a) What needs no change on the website
+## (a) What needs no change
 
-- The setup sentence (`AGENT_SENTENCE`, claim C-83) and `SETUP_SOURCE_URL` name the raw address of the skill. The address did not move. The site keeps no copy of the procedure (/install.md redirects to the address), so the new procedure is what an agent reads from the moment of the marketplace push.
-- Marketplace commit: ff0cfaf on master, pushed 2026-11-25. Checked the same day: the raw address serves the text "Larry pin".
-- sha256 of the served files: SKILL.md 6fda8ad9f77418ad7c1b8576edb921404365f8f71d796035dfe4e619d06c5f9f; references/commands.md fe160e282f95f24deaf8169309db605b64e47cc40a5b76f14437e13c117e0033; references/troubleshooting.md d6e55becd0b7b0a266ce8f6a0ce79e1fc9f5fcdb6c8e67d53f97b646a3116f11.
+- The setup sentence (`AGENT_SENTENCE`, claim C-83) and `SETUP_SOURCE_URL` name the raw address of the skill. The address did not move, and the site keeps no copy of the procedure.
+- The skill at that address is marketplace commit a6e71b4d165c936a713991c791a99444f44dcf04 (pushed 2026-11-25).
 
-## (b) What the install now does that the site copy does not say
+## (b) What was changed, on a local branch
 
-1. The install writes one more setting: `"agent": "mos:larry-extended"` in `<rooms folder>/.claude/settings.json`, after it shows the change and gets a yes. Nothing outside the rooms folder changes. One command takes it out again (`undo`).
-2. The check a person can see, after the restart: a reply opens with one colored square and `Larry | MindrianOS`.
+- Worktree `/home/jsagi/dev/mw-261125-install-trust`, branch `quick/261125-install-trust-rooms-setting`, commit bf3e07af, from `book-site` HEAD. The dirty tree of `/home/jsagi/dev/mindrian-website` was not touched.
+- The trust part of the install chooser gains one line: "It also asks before it changes a setting in your rooms folder. Your other folders and your own settings stay as they are." Claim C-99, register row SRC-32, which now names the commit above and holds one more needle.
+- Gate IC8 of `check-site-install-chooser.mjs` learns the line, with one negative control.
+- Gates run on the branch: the chooser source clauses 5/5, check-site-sources 28/28, check-claims 18 pass 0 fail, check-docs-copy 35/35, check-copy 4/4, check-site-copy-sweep 5/5, tsc clean.
 
-## (c) Proposed copy for /docs/install (each line needs a claim; needles are verbatim from SKILL.md at ff0cfaf)
+## (c) What the website session still has to do
 
-- Done state, a fourth step after `/mos:onboard`: "Larry answers. His reply opens with a colored square and `Larry | MindrianOS`."
-  Needle: "every Larry reply opens with one colored square (🟦 🟥 🟨 ⬛ or ⬜) and the label `Larry | MindrianOS`"
-- Trust line, one added sentence: "It also asks before it sets Larry as the agent of your rooms folder, and it changes nothing outside that folder."
-  Needle: "Your other folders and your own Claude Code settings stay as they are, and one command takes it out again."
-- Help line, one row: "Claude answers without Larry? Start Claude Code in your rooms folder, or run `claude --agent mos:larry-extended`."
-  Needle: "`claude --agent mos:larry-extended` starts Larry for that one session, whatever the settings say."
+1. Review bf3e07af and merge it into `book-site`.
+2. Run the rendered clauses IC2 to IC10 and the browser clauses against a served build. They were not run.
+3. Deploy. Nothing was deployed.
 
 ## (d) Not verified
 
-- What the live site serves today. `curl` to mindrian-os.com failed from this machine (no HTTP answer), and a search-tool read of /docs/install returned a page with the `npx @mindrian_os/cli` steps and no setup sentence. The website branch `book-site` was 519 commits ahead of its remote. So the chooser page that carries the setup sentence may not be deployed.
-- The Desktop path. The skill change touches route A (Claude Code in a terminal) only.
+- What the live site serves today. Requests to mindrian-os.com got no HTTP answer from this machine, and a search-tool read of /docs/install returned a page with the `npx @mindrian_os/cli` steps and no setup sentence. `book-site` was 519 commits ahead of its remote.
 
-## (e) The plugin side
+## (e) A naming fact the two sessions should share
 
-- Main commit 2086ed966 (local main, not pushed, in the beta.88 CHANGELOG): the forced output style carries a runtime core, so MindrianOS operates when the Larry agent does not load. It reaches users with the beta.88 cut.
+The site calls the avatar Theo. The product replies open with `Larry | MindrianOS`, the install skill speaks of "Larry's sign", and the pin value is `mos:larry-extended`. The owner asked on 2026-11-25 to rename the agent to `/m:os-Theo_Local` (open decision O-6 of this quick).
