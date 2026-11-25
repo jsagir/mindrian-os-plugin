@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-// Phase 400.2-06: the command contract of /mos:persona (PL-05). Legs C1 to C12 (plan 06);
-// later plans add legs. The test reads commands/persona.md as text and checks what the
+// Phase 400.2-06: the command contract of /mos:persona (PL-05). Legs C1 to C12 (plan 06); C13 to C19 (plan 09:
+// the reader contract, the Blue contract, steps 4 to 9, Stop 4); later plans add legs. The test reads commands/persona.md as text and checks what the
 // command promises: stages, tools, modes, the refusal sentence, the builder contract,
 // the door calls, the cards and the fire symbols.
 const fs = require('node:fs');
@@ -167,12 +167,150 @@ check('C11. Stop 2: accept, rebuild (one line of guidance, 2 rebuilds at most), 
   assert.ok(/F\.8/.test(stop), 'shape F.8');
 });
 
-check('C12. while web_scope is null the body holds none of the five fire symbols', () => {
-  assert.ok(/^ {2}web_scope: null/m.test(frontmatter), 'web_scope is null in this plan');
-  for (const sym of ['fetchCorpus', 'seedGrounding', 'perRingResearch', 'tavily-search', 'WebSearch']) {
+check('C12. connector.web_scope is green in the command and in the connector registry; the body names no door fetch symbol', () => {
+  assert.ok(/^ {2}web_scope: green$/m.test(frontmatter), 'web_scope is green in the command');
+  assert.equal((frontmatter.match(/web_scope:/g) || []).length, 1, 'one web_scope key');
+  const reg = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'connector-registry.json'), 'utf8'));
+  const entry = reg.connectors.find((c) => c && c.surface === '/mos:persona');
+  assert.ok(entry, 'the entry of /mos:persona');
+  assert.equal(entry.web_scope, 'green', 'web_scope is green in the registry');
+  // The door does the fetch of the cards; the command names no symbol of the old fetch path.
+  for (const sym of ['fetchCorpus', 'seedGrounding', 'perRingResearch', 'tavily-search']) {
     assert.ok(!body.includes(sym), 'body holds ' + sym);
   }
+  assert.ok(body.includes('WebSearch'), 'the first web tool is named, so the declaration is not less than the command');
   assert.ok(!/run_in_background/.test(text), 'no background-execution parameter');
+});
+
+// ---------------------------------------------------------------------------
+// Plan 09: the reader contract, the Blue contract, steps 4 to 9 and Stop 4
+// ---------------------------------------------------------------------------
+
+const READER_START = '<!-- contract:reader:start -->';
+const READER_END = '<!-- contract:reader:end -->';
+const BLUE_START = '<!-- contract:blue:start -->';
+const BLUE_END = '<!-- contract:blue:end -->';
+const BLUE_FIXED = 'Blue hat. Read the process only. Say what was skipped, which hat was thin, and what to ask next. Add no content: no fact, no risk, no idea, no recommendation, no position on the target. You are not the judge.';
+const NO_WEB = 'this step makes no web search: do not call WebSearch or WebFetch.';
+
+function block(start, end) {
+  const a = text.indexOf(start);
+  const b = text.indexOf(end);
+  assert.ok(a >= 0 && b > a, start + ' markers present and ordered');
+  assert.equal(text.split(start).length - 1, 1, 'one start marker');
+  return text.slice(a + start.length, b);
+}
+const readerBlock = () => block(READER_START, READER_END);
+const blueBlock = () => block(BLUE_START, BLUE_END);
+const hatLine = (b, hat) => {
+  const line = b.split('\n').find((l) => l.startsWith('- ' + hat + ':'));
+  assert.ok(line, 'a key line for ' + hat);
+  return line;
+};
+
+check('C13. the reader contract: role, five line ranges, citation sentence, FS-3, the self lists, the bans, the keys of each hat', () => {
+  const b = readerBlock();
+  assert.ok(b.includes('You read the target as one hat, alone.'), 'role line');
+  for (const range of ['lines 98 to 100', 'lines 105, 132 and 140 to 155', 'lines 111 to 119', 'lines 131 and 135', 'lines 58 and 64']) {
+    assert.ok(b.includes(range), 'override range: ' + range);
+  }
+  assert.ok(b.includes('read no file under `personas/` except your own persona file'), 'override of lines 98 to 100');
+  assert.ok(b.includes('write one JSON file in your directory; your reply is the word done and the file path'), 'override of the output lines');
+  assert.ok(b.includes('you are one hat'), 'override of all-hat mode');
+  assert.ok(b.includes('you may cite an evidence item of your own pack or of the White package by its id, or a source that you found yourself and listed in self_found_sources'), 'the citation sentence');
+  assert.ok(b.includes(FS3), 'FS-3 word for word');
+  assert.ok(b.includes('List every search string you sent in self_search_strings and every source you used in self_found_sources.'), 'the sentence about the two lists');
+  assert.ok(/Do not call brain_search or brain_query/.test(b), 'both Brain tools banned');
+  assert.ok(/Do not read the directory of another hat/.test(b), 'no read of another hat directory');
+  assert.ok(b.includes('mos.persona-reading/1'), 'reading schema id');
+  assert.ok(b.includes('`reading.json`'), 'the output file');
+  const common = b.split('\n').find((l) => l.startsWith('Keys of every hat:'));
+  assert.ok(common, 'common key line');
+  for (const k of ['schema', 'run_id', 'hat', 'positions']) assert.ok(common.includes('`' + k + '`'), 'common key ' + k);
+  const SELF = ['self_search_strings', 'self_found_sources'];
+  const want = {
+    white: ['evidence', 'missing_data', 'nothing_missing'].concat(SELF),
+    black: ['evidence', 'steelman'].concat(SELF),
+    yellow: ['evidence', 'none_found'].concat(SELF),
+    green: ['provocations', 'evidence'].concat(SELF),
+  };
+  for (const hat of Object.keys(want)) {
+    const line = hatLine(b, hat);
+    for (const k of want[hat]) assert.ok(line.includes('`' + k + '`'), hat + ' key ' + k);
+  }
+  const red = hatLine(b, 'red');
+  assert.ok(red.includes('`positions` only'), 'red holds positions only');
+  for (const k of ['evidence', 'self_search_strings', 'self_found_sources', 'justification']) assert.ok(!red.includes('`' + k + '`'), 'red names no ' + k + ' key');
+  assert.ok(!/sentinel|validation_requests/i.test(b), 'no sentinel and no validation_requests key');
+});
+
+check('C14. the reader contract: WebSearch and WebFetch for white, black, yellow and green; red makes no search; the Brain tools stay banned', () => {
+  const b = readerBlock();
+  assert.ok(/White, black, yellow and green may use WebSearch and WebFetch/.test(b), 'four hats may search');
+  assert.ok(/Red makes no search and gives no evidence and no justification/.test(b), 'red makes no search');
+  assert.ok(b.toLowerCase().includes(NO_WEB.toLowerCase()), 'red rule: the step makes no web search');
+  assert.ok(!/Tavily/i.test(b), 'no Tavily tool is offered');
+});
+
+check('C15. the Blue contract: fixed text, three output keys, no search, both Brain bans, ledger.json; no evidence file and no reading of another hat', () => {
+  const b = blueBlock();
+  assert.ok(b.includes(BLUE_FIXED), 'Blue fixed text of DESIGN 4.6 word for word');
+  for (const k of ['skipped', 'thin', 'ask_next']) assert.ok(b.includes('`' + k + '`'), 'output key ' + k);
+  assert.ok(/skipped`, `thin` and `ask_next` only/.test(b), 'those three keys only');
+  assert.ok(/no search/i.test(b), 'the words no search');
+  assert.ok(/Do not call brain_search or brain_query/.test(b), 'both Brain bans');
+  assert.ok(b.includes('`ledger.json`'), 'names ledger.json');
+  assert.ok(!/evidence\.json|shared-white|EvidenceClaim/.test(b), 'names no evidence file');
+  assert.ok(!/reading of (an|any)\s*(other|another)\s*hat|readings of (the )?other hats/i.test(b), 'no reading of another hat');
+  assert.ok(b.includes(FS3), 'FS-3 is in every contract');
+  assert.ok(b.includes('lines 58 and 64'), 'the override list names lines 58 and 64');
+});
+
+check('C16. the body calls the door for plan-research, check, merge and record-ruling; Larry prints notice_lines first and adds nothing; code checks the filed artifact', () => {
+  for (const sub of ['plan-research', 'check', 'merge', 'record-ruling']) {
+    const re = new RegExp('node "\\$\\{CLAUDE_PLUGIN_ROOT\\}/scripts/persona-hats\\.cjs" ' + sub + ' ');
+    assert.ok(re.test(body), 'door call: ' + sub);
+  }
+  assert.ok(/print the `notice_lines`/i.test(body), 'print notice_lines');
+  assert.ok(/notice_lines[^\n]*first/i.test(body), 'first');
+  assert.ok(/dissent register[^\n]*before the tensions/i.test(body), 'dissent register before the tensions');
+  assert.ok(/add no fact, no risk, no idea and no recommendation/i.test(body), 'add nothing');
+  assert.ok(/code checks the filed artifact[^\n]*not the (spoken )?(text|words)/i.test(body), 'code checks the filed artifact and not the spoken text');
+  // The headings of the cycle are in order.
+  const heads = ['### Step 4', '### Step 5', '### Step 6', '### The reader contract', '### Step 7', '### The Blue contract', '### Step 8', '### Step 9'];
+  const at = heads.map((h) => body.indexOf('\n' + h));
+  assert.ok(at.every((i) => i >= 0), 'every heading exists: ' + JSON.stringify(at));
+  assert.deepEqual(at.slice().sort((x, y) => x - y), at, 'headings in order');
+  // The pinned strings of the earlier suites stay.
+  assert.ok(body.includes('subagent_type: persona-analyst'), 'subagent_type');
+  assert.ok(body.includes('CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS'), 'the concurrency cap name');
+  assert.ok(body.includes("resolveModel(roomPath, 'persona-analyst')"), 'resolveModel call form');
+  assert.ok(/one message/i.test(section('### Step 6')), 'five agents in one message');
+  assert.ok(/--counts/.test(section('### Step 8')) && /counts\.json/.test(section('### Step 8')), 'the counts file');
+});
+
+check('C17. Stop 4 offers side_a, side_b, both hold and defer with an optional reason; a settled tension is not asked again; consecutive calls above 4', () => {
+  const stop = section('### Step 9');
+  for (const a of ['side_a', 'side_b', 'both hold', 'defer']) assert.ok(stop.includes(a), 'answer: ' + a);
+  assert.ok(/reason/i.test(stop), 'optional reason line');
+  assert.ok(/settled tension is not asked again/i.test(stop), 'a settled tension is not asked again');
+  assert.ok(/more than 4 open tensions/i.test(stop) && /consecutive/i.test(stop), 'consecutive calls');
+  assert.ok(/F\.5/.test(stop), 'shape F.5');
+  assert.ok(/reopen/.test(stop), 'only the navigator re-opens');
+  assert.ok(/mos\.persona-ruling-answer\/1/.test(stop), 'the answer schema id');
+});
+
+check('C18. every claim of a hat stays proposed until the navigator confirms it', () => {
+  assert.ok(/every claim of a hat stays proposed until the navigator confirms it/i.test(body));
+});
+
+check('C19. the six-agent dispatch with the hand-narrated tension map is gone', () => {
+  assert.ok(!body.includes('Hat 1: White'), 'no Hat 1: White status block');
+  assert.ok(!body.includes('Emergent (parallel-only)'), 'no Emergent (parallel-only) heading');
+  assert.ok(!body.includes('[PARALLEL] Dispatching 6'), 'no six-agent dispatch block');
+  assert.ok(!/Build the Tension Map/.test(body), 'no hand-built tension map step');
+  assert.ok(!/compute-hsi/.test(body), 'the old HSI trigger line is removed');
+  assert.ok(!/[–—]/.test(text), 'no em dash and no en dash');
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

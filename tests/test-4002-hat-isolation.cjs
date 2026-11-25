@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 // Phase 400.2-07: the citation boundary with self-found sources (owner answer 1, FS-5).
-// Legs H1 to H7. Plan 09 and plan 13 add legs.
+// Legs H1 to H7. Plan 09 adds H8 and H9 (the dispatch contracts of the command); plan 13 adds legs.
+const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 
@@ -145,6 +146,48 @@ check('H7. a final slash or a final full stop does not matter; any other differe
   assert.equal(src(BLACK_URL + '/').ok, true);
   assert.equal(src(BLACK_URL + '.').ok, true);
   assert.equal(src(BLACK_URL + 'x').ok, false);
+});
+
+// ---------------------------------------------------------------------------
+// Plan 09: the dispatch contracts of commands/persona.md (owner answer 1)
+// ---------------------------------------------------------------------------
+
+const CMD_TEXT = fs.readFileSync(path.join(ROOT, 'commands', 'persona.md'), 'utf8');
+const FS3 = 'Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.';
+const NO_WEB = 'this step makes no web search: do not call WebSearch or WebFetch.';
+function contract(name) {
+  const a = CMD_TEXT.indexOf('<!-- contract:' + name + ':start -->');
+  const b = CMD_TEXT.indexOf('<!-- contract:' + name + ':end -->');
+  assert.ok(a >= 0 && b > a, 'contract block ' + name);
+  return CMD_TEXT.slice(a, b);
+}
+
+// H8
+check('H8. every contract holds both Brain bans and FS-3; the builder, Blue and the red rule say the step makes no web search', () => {
+  for (const name of ['builder', 'reader', 'blue']) {
+    const c = contract(name);
+    assert.ok(/Do not call brain_search or brain_query/.test(c), name + ': both Brain bans');
+    assert.ok(c.includes(FS3), name + ': FS-3 word for word');
+    assert.ok(c.toLowerCase().includes(NO_WEB.toLowerCase()), name + ': the step makes no web search');
+  }
+  // The four searching hats may use the two web tools in the reader contract only.
+  assert.ok(/White, black, yellow and green may use WebSearch and WebFetch/.test(contract('reader')));
+  for (const name of ['builder', 'blue']) {
+    assert.ok(!/may use WebSearch/.test(contract(name)), name + ' allows no web tool');
+  }
+  const red = contract('reader').split('\n').filter((l) => /red/i.test(l) && /no web search/.test(l));
+  assert.ok(red.length >= 1, 'the red rule line');
+});
+
+// H9
+check('H9. the reader contract passes red the White copy and no evidence file of its own; the Blue contract passes the ledger and no White copy', () => {
+  const reader = contract('reader');
+  assert.ok(/red: `shared-white\.json` only/i.test(reader), 'red gets shared-white.json only');
+  assert.ok(/red has no `evidence\.json`/i.test(reader), 'red has no evidence file');
+  assert.ok(/white, black, yellow and green: `shared-white\.json` and `evidence\.json`/i.test(reader), 'the other four get both files');
+  const blue = contract('blue');
+  assert.ok(blue.includes('`ledger.json`'), 'Blue gets ledger.json');
+  assert.ok(!/shared-white|evidence\.json/.test(blue), 'Blue gets no White copy and no evidence file');
 });
 
 console.log(passed + ' passed, ' + failed + ' failed');

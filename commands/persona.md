@@ -47,7 +47,7 @@ connector:
   hierarchy_rank: 3
   filing: fileEvidenceWithReadback
   plan_gated: false
-  web_scope: null
+  web_scope: green
   surface: F.1
 # --- Phase 130-03 lens-engine client frontmatter ---
 lens_type: cognitive
@@ -75,7 +75,7 @@ allowed-tools:
 
 Generate persistent De Bono Six Thinking Hat perspective lenses from your room data.
 
-This command is a thin lens-engine client. The `--parallel` analyze path rotates the six-hats lens set in `parallel` rotation mode through `lib/core/lens-engine.cjs` (all six hats speak simultaneously, so later hats are not biased by earlier ones), persists each finding as a `memory_event` per Canon Part 9, and builds the tension map via `lib/core/synthesizers/tension-map.cjs`. The engine owns the rotation loop, the synthesizer dispatch, and the memory_event emission.
+This command is a thin lens-engine client. The deep path (`--parallel`) runs through the door script `scripts/persona-hats.cjs`. After the isolated readings, the door rotates the six-hats lens set in `parallel` rotation mode through `lib/core/lens-engine.cjs`, once for each sub-question, and builds the tension map via `lib/core/synthesizers/tension-map.cjs`. The engine owns the rotation loop and the synthesizer dispatch. The door writes no lens-finding node: the filed review artifact is the record. Each ruling of the navigator on a tension is logged as one `decision_captured` memory event (Canon Part 9).
 
 ## Important Distinction
 
@@ -118,7 +118,7 @@ On such a surface the fast look is the `analyze-perspectives` action of the `roo
 
 **Unattended callers get quick mode only.** When this command runs without a navigator present (inside `/mos:act`, `chain_run`, or any caller that cannot answer a card), run quick mode and show no card. Larry writes the brief itself, with the triage reason "unattended caller", and starts the door with `--mode quick`.
 
-## The deep cycle, steps 1 to 3
+## The deep cycle
 
 The door is one script. Every call prints one JSON object. A refusal is data: `{"ok": false, "reason": "..."}`. Print the reason in one plain sentence and stop that step; never repeat the same call unchanged. Navigator text and room text reach the door only through a JSON file, never as argv text. The door refuses a step that comes out of order.
 
@@ -215,16 +215,153 @@ Inputs: the hat, its fixed discipline, the room path, and the path of your own d
 
 Reads: the room sections. Do not read `personas/`. Do not read the directory of another hat.
 
-Bans: Do not call brain_search or brain_query. This step makes no web search: use no web tool.
+Bans: Do not call brain_search or brain_query. This step makes no web search: do not call WebSearch or WebFetch.
 
 Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
 
 Output: one file, `persona.json`, in your own directory, with exactly these keys: `schema` (the text `mos.persona-spec/1`), `hat` (your hat), `focus` (a string of 400 characters or fewer), `hat_questions` (3 to 7 strings, each 240 characters or fewer), `must_not_judge` (1 to 5 strings, each 200 characters or fewer) and `room_sources` (1 to 40 room-relative paths of the files you read, none under `personas/`). Write no URL in any string. These keys are forbidden: `research_handles`, `handles`, `brief`, `evidence`, `verdict`. Your reply is the word done and the file path.
 <!-- contract:builder:end -->
 
-### Steps after acceptance
+### Step 4 -- Plan the research
 
-The reading and tension steps follow acceptance. They are in the `parallel` subcommand below and they run with the accepted persona files.
+Deep mode only. Call the door:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>"
+```
+
+In this build the door plans no handle search, so every hat that researches is `not_planned`. Print one line from the `hats` field of the output: `Research not run for: `, then each hat whose state starts with `not_planned:` as `<hat> (<reason>)`, in the order white, black, yellow, green, then a full stop. Print nothing when no hat is in that state. The merge repeats this line in its `notice_lines`. The door refuses a second `plan-research` call.
+
+### Step 5 -- Research
+
+The door marks this step as skipped in the output of Step 4. Make no call and no fetch here.
+
+### Step 6 -- Readings
+
+Dispatch one fresh `persona-analyst` agent for each of white, red, black, yellow and green. Dispatch all of them in one message, with the Agent tool and `subagent_type: persona-analyst`. Skip a hat whose persona was refused, deferred or failed to build in Step 3: the door reports it as not run, with its reason. Resolve the model once with `resolveModel(roomPath, 'persona-analyst')` from `lib/core/model-profiles.cjs` (the argument order is `roomDir`, then `agentType`). Do not pass any manual background-execution parameter to the Agent tool call. The platform caps concurrent subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); five is far below the cap, and the standing rule is to clamp to 20.
+
+Each agent gets the reader contract below, then these lines and nothing else: its hat, the brief (the target, the governing question, the sub-questions with their ids and the reading list), the room path, the name of its persona file (`hats.<hat>.persona`) and its own directory (`hats.<hat>.dir`). It gets no other hat, no other directory and no part of this conversation. Do not read the file of a hat in the main context.
+
+```
+[DEEP] Reading as separate hats: {hats}
+  Model: {resolved model}
+  Waiting for all readers to finish...
+```
+
+### The reader contract
+
+Copy this block, word for word, at the head of the prompt of each reader agent. It is the only control on what a reader reads, searches and writes.
+
+<!-- contract:reader:start -->
+You read the target as one hat, alone. You are one hat.
+
+Agent file overrides. This dispatch replaces these instructions of the persona-analyst agent file:
+- lines 98 to 100 (run `persona list` first): read no file under `personas/` except your own persona file.
+- lines 105, 132 and 140 to 155 (start with the disclaimer; markdown output): write one JSON file in your directory; your reply is the word done and the file path.
+- lines 111 to 119 (all-hat mode): you are one hat.
+- lines 131 and 135 (use only facts of the room): you may cite an evidence item of your own pack or of the White package by its id, or a source that you found yourself and listed in self_found_sources.
+- lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the web rule and the bans below.
+
+Inputs: the brief (the target, the governing question, the sub-questions with their ids, the reading list), your own persona file, the files of the reading list, and your own directory. There is no conversation, no view of Larry and no other hat in this dispatch.
+
+Files in your own directory: white, black, yellow and green: `shared-white.json` and `evidence.json`. red: `shared-white.json` only; red has no `evidence.json`. The file `shared-white.json` is the White package. Read it. Cite an item of it only if you are not red.
+
+Web rule: White, black, yellow and green may use WebSearch and WebFetch to validate and build their case. Red makes no search and gives no evidence and no justification. For red, this step makes no web search: do not call WebSearch or WebFetch.
+
+Search rule: Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it. List every search string you sent in self_search_strings and every source you used in self_found_sources.
+
+Bans: Do not call brain_search or brain_query. Do not read the directory of another hat. Write no URL and no `EvidenceClaim:` id in any text field unless you may cite it.
+
+Output: one file, `reading.json`, in your own directory, with a closed list of keys. Your reply is the word done and the file path.
+
+Keys of every hat: `schema` (the text `mos.persona-reading/1`), `run_id`, `hat` (your hat) and `positions`: one entry for each sub-question id of the brief, each `{sub_question, value, line}`, with `line` of 300 characters or fewer (a `no_position` value needs no line). The value is `favours`, `opposes`, `mixed` or `no_position`; for green it is `alternative_offered` or `no_position`.
+- white: `evidence`, `missing_data` (strings of 200 characters or fewer) or `nothing_missing` (true), `self_search_strings`, `self_found_sources`.
+- red: `positions` only. Each line is 25 words or fewer.
+- black: `evidence` (each item has a `disposition`, `disconfirming` or `confirming`; the first item is disconfirming), `steelman` (400 characters or fewer), `self_search_strings`, `self_found_sources`.
+- yellow: `evidence`, `none_found` (true only when you found no source after a search), `self_search_strings`, `self_found_sources`.
+- green: `provocations` (1 to 7 strings of 300 characters or fewer), `evidence` (no `disposition`), `self_search_strings`, `self_found_sources`.
+
+Each item of `evidence` is `{source, tier, disposition?, note}`. The `source` is an item id of your own pack, an item id of the White package, or the url of a source in your self_found_sources; an item that cites a self-found source has the tier `self_found`. The `note` is 300 characters or fewer. The list `self_search_strings` holds 0 to 50 strings of 200 characters or fewer. The list `self_found_sources` holds 0 to 30 items of `{url, title, search_string, summary}`: the url starts with http or https, and the search_string is one of your self_search_strings.
+<!-- contract:reader:end -->
+
+### Step 7 -- Check the readings, then Blue
+
+1. Check the readings:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" check --room "<room dir>" --run "<run_id>"
+   ```
+
+   The output field `not_run` is a list of `{hat, reason, state}`. Print one line `Not run: <hat> (<reason>)` for each entry. The door checks each reading from its file bytes: the closed keys, the citation boundary and the rules of the hat. It never repairs a reading. The field `blue_ledger` is the path of the counts-only ledger of Blue.
+
+2. Dispatch one fresh `persona-analyst` agent for blue, with the Blue contract below, the brief, the name of its persona file and its own directory (`hats.blue.dir`). The model is the one of Step 6. Skip Blue when its persona was refused, deferred or failed to build; the door reports it as not run. Blue writes `reading.json` into its directory before Step 8.
+
+### The Blue contract
+
+Copy this block, word for word, at the head of the prompt of the Blue agent.
+
+<!-- contract:blue:start -->
+You read the process of this run as the blue hat, alone. You are one hat.
+
+Blue fixed text: Blue hat. Read the process only. Say what was skipped, which hat was thin, and what to ask next. Add no content: no fact, no risk, no idea, no recommendation, no position on the target. You are not the judge.
+
+Agent file overrides. This dispatch replaces these instructions of the persona-analyst agent file:
+- lines 98 to 100 (run `persona list` first): read no file under `personas/` except your own persona file.
+- lines 105, 132 and 140 to 155 (start with the disclaimer; markdown output): write one JSON file in your directory; your reply is the word done and the file path.
+- lines 111 to 119 (all-hat mode): you are one hat.
+- lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the Blue fixed text and the bans below.
+
+Inputs: the brief (the target, the governing question, the sub-questions with their ids), your own persona file, and `ledger.json` in your own directory. The ledger holds counts and state names only. There is nothing else in this dispatch.
+
+Search rule: no search. This step makes no web search: do not call WebSearch or WebFetch. Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
+
+Bans: Do not call brain_search or brain_query. Do not read the directory of another hat.
+
+Output: one file, `reading.json`, in your own directory, with the keys `schema` (the text `mos.persona-reading/1`), `run_id`, `hat` (the text `blue`), and then `skipped`, `thin` and `ask_next` only. Each of the three is a list of 0 to 7 strings of 200 characters or fewer. Each `thin` entry names a hat. Your reply is the word done and the file path.
+<!-- contract:blue:end -->
+
+### Step 8 -- Merge and narrate
+
+1. Write the counts file `counts.json` into the inbox directory of the run. It holds these three whole numbers and no other key: `agent_runs` (the agent runs of this run: builders, rebuilds, readers and Blue), `stops` (the stops shown so far; Stop 4 is not counted, because it follows the merge) and `cards` (the questions shown so far across those stops).
+
+   ```json
+   {"agent_runs": 7, "stops": 2, "cards": 7}
+   ```
+
+2. Call the door:
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" merge --room "<room dir>" --run "<run_id>" --counts "<inbox_dir>/counts.json"
+   ```
+
+   The door judges each reading again, builds the positions table, calls the lens engine once for each sub-question, files the review artifact and the run record in the review folder, and deletes the scratch tree. The output holds `notice_lines`, `artifact` (the path of the filed review), `tensions`, `open`, `settled`, `same_position`, `hats` and `not_run`.
+
+3. Narrate the filed artifact on the screen under three rules.
+   - Print the `notice_lines` of the output first, each on its own line, word for word, before any other text.
+   - Say the dissent register before the tensions: for each sub-question, black first, then the other hats that ran, each line with its hat named. Then say the tensions, the same-position lines, the hats that did not run, and the sources.
+   - Add no fact, no risk, no idea and no recommendation. Say what the artifact says and attribute each line to its hat. Do not merge two lines into one. Do not say who is right.
+
+   Code checks the filed artifact and not the spoken text. If you add a word that is not in the artifact, nothing catches it, and the navigator cannot tell it from a finding of a hat. Every claim of a hat stays proposed until the navigator confirms it. The merge confirms nothing and files no claim as a fact of the venture. Say "proposed" when you restate a claim of a hat.
+
+### Step 9 -- Stop 4: the rulings
+
+Ask a ruling for each tension of the `open` list of the merge output. A settled tension is not asked again: the artifact shows its stored ruling next to the new lines, and only the navigator can re-open it. When `open` is empty, show no card and say that no tension is open.
+
+1. Show the rulings card (shape F.5, Branches) with one AskUserQuestion call. One question for each open tension: the sub-question, the pair, and the two lines of the pair, each with its hat. The `pair` is sorted by name: `side_a` is the first hat of the pair, `side_b` is the second. The answers are `side_a` (the first hat holds), `side_b` (the second hat holds), both hold, and defer. Offer the four answers as options. The navigator may add one optional reason line of 280 characters or fewer in the free-text field. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess); with more than 4 open tensions, use consecutive calls with no other step between them.
+
+2. Write the answer file into a new private directory (`mktemp -d`), not into the inbox: the merge deleted the inbox with the scratch tree. Navigator text reaches the door only through this JSON file. Use the tension ids of the merge output. A ruling that is `side_a`, `side_b` or `both_hold` goes into the rulings store of the room. A `defer` is not stored, so the next run asks the tension again.
+
+   ```json
+   {"schema": "mos.persona-ruling-answer/1", "run_id": "<run_id>", "rulings": [{"tension_id": "<id>", "ruling": "side_a", "reason": "one line"}]}
+   ```
+
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" record-ruling --room "<room dir>" --run "<run_id>" --answer "<tmp dir>/ruling.json"
+   ```
+
+3. Print what the output says: the rulings recorded, the tensions deferred, and `memory_event` (`logged`, or `not_logged` with its reason; the ruling is stored either way). A ruling is the answer of the navigator on a pair of hats. It confirms no claim about the venture.
+
+4. To re-open a settled tension, only when the navigator asks for it, add an entry for its id with `"reopen": true` (and `"ruling": "defer"`). The door removes its key from the store, and the next run asks it again. Do this for no other reason.
 
 ## Quick mode
 
@@ -291,122 +428,14 @@ Returns all six hat perspectives on the artifact. Highlights where hats DISAGREE
 
 ### parallel
 
-Dispatch all 6 persona-analyst agents simultaneously for maximum-speed multi-perspective analysis.
+`--parallel` is the old spelling of deep mode. It starts the deep cycle above at the triage step and runs it to the rulings of Step 9.
 
 ```
 /mos:persona --parallel
 /mos:persona --parallel path/to/artifact.md
 ```
 
-Unlike `analyze` (which runs hats sequentially in a single context), `--parallel` spawns 6 independent persona-analyst agents -- one per De Bono hat -- running simultaneously. Each agent operates in its own context window with full room access.
-
-The reading and tension steps below follow acceptance (step 3 of the deep cycle above). `--parallel` is the old spelling of deep mode; the whole cycle runs first, and these steps run with the accepted persona files.
-
-**Prerequisites:** Same as `generate` -- room must have 2+ populated sections and personas must already exist (run `/mos:persona generate` first if needed).
-
-**How it works:**
-
-1. **Check personas exist** -- read `room/personas/` for all 6 hat files. If missing, prompt: "Generate personas first with `/mos:persona generate`."
-
-2. **Resolve model per agent** using `lib/core/model-profiles.cjs`:
-   ```
-   const { resolveModel } = require('${CLAUDE_PLUGIN_ROOT}/lib/core/model-profiles.cjs');
-   const model = resolveModel(roomPath, 'persona-analyst');
-   ```
-   The signature is `resolveModel(roomDir, agentType)`. Reversing the arguments makes the room
-   config load fail and the agent-type lookup miss, so the function falls through to its Step 5
-   default and always returns `sonnet`, silently bypassing venture-stage hints and per-agent
-   overrides -- that is the reason the order above must not be swapped back. All 6 agents share
-   the same model resolution since they perform equivalent work. The venture stage determines
-   whether persona analysis runs on a budget or quality tier.
-
-3. **Dispatch all 6 agents in one message** using the Agent tool with `subagent_type: persona-analyst`
-   (the explicit type string, not a file path -- an Agent tool call that cannot resolve a
-   `subagent_type` is a hard error listing available agents since 2.1.235). Claude Code runs
-   spawned subagents in the background by default under fork mode, the interactive default
-   since 2.1.232 -- do NOT pass any manual background-execution parameter to the Agent tool
-   call; the platform removes that kind of parameter from the Agent tool entirely once fork
-   mode is on (code.claude.com/docs/en/sub-agents). The platform caps concurrent subagents at
-   20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); 6 is already well under the cap, but clamp to 20
-   as the standing rule so a future author does not reintroduce an unbounded fan-out here.
-
-   Each agent receives:
-   - Hat color and persona file path
-   - Room path and room context summary from STATE.md
-   - Artifact path (if provided) for focused analysis
-   - Instructions from `agents/persona-analyst.md` (the `subagent_type: persona-analyst` invocation)
-
-   ```
-   [PARALLEL] Dispatching 6 persona-analyst agents
-
-     Hat 1: White (Facts & Data)       [running]
-     Hat 2: Red (Emotions & Intuition) [running]
-     Hat 3: Black (Risks & Dangers)    [running]
-     Hat 4: Yellow (Benefits & Opps)   [running]
-     Hat 5: Green (Creativity & Alts)  [running]
-     Hat 6: Blue (Process & Meta)      [running]
-
-     Model: {resolved model} (all agents)
-     Target: {artifact name or "full room analysis"}
-     Waiting for all agents to complete...
-   ```
-
-4. **Collect and synthesize** -- as each agent returns its perspective:
-   - Parse key insights from each hat's analysis
-   - Each agent's output follows the Single Hat format from `agents/persona-analyst.md`
-
-5. **Build the Tension Map** -- after all 6 return, the lens-engine's `tension-map` synthesizer (`lib/core/synthesizers/tension-map.cjs`) pairs the opposing-stance findings; Larry narrates its output:
-   - **Disagreements:** where hats reach opposite conclusions (e.g., Yellow sees opportunity where Black sees fatal risk)
-   - **Convergences:** where 2+ hats independently reach the same conclusion (stronger signal than sequential analysis)
-   - **Unresolved tensions:** questions no hat fully addresses
-   - **Emergent patterns:** connections that only become visible when all 6 perspectives arrive independently (not possible in sequential analysis where later hats are influenced by earlier ones)
-
-6. **Trigger post-parallel cascade:**
-   - If any hat's analysis surfaces a CONTRADICTS or CONVERGES cross-reference, note it for HSI recomputation
-   - Run `"${CLAUDE_PLUGIN_ROOT}/scripts/compute-hsi.py" room` if cross-references found
-
-7. **Present combined output:**
-   ```
-   [PARALLEL] Complete -- 6 perspectives analyzed simultaneously
-
-   ## Six-Hat Parallel Analysis: {Venture Name}
-
-   ### White (Facts & Data)
-   {Key insight from white agent}
-
-   ### Red (Emotions & Intuition)
-   {Key insight from red agent}
-
-   ### Black (Risks & Dangers)
-   {Key insight from black agent}
-
-   ### Yellow (Benefits & Opportunities)
-   {Key insight from yellow agent}
-
-   ### Green (Creativity & Alternatives)
-   {Key insight from green agent}
-
-   ### Blue (Process & Meta)
-   {Key insight from blue agent}
-
-   ---
-
-   ## Tension Map (Cross-Agent Synthesis)
-
-   **Disagreements:**
-   - {Hat A} vs {Hat B}: {specific tension}
-
-   **Convergences:**
-   - {Hat A} + {Hat B}: {shared observation}
-
-   **Emergent (parallel-only):**
-   - {Pattern visible only because agents ran independently}
-
-   **Unresolved:**
-   - {The question that no hat fully addresses}
-   ```
-
-**Why parallel instead of sequential?** Sequential analysis (via `analyze`) lets each hat build on the previous one. Parallel analysis gives INDEPENDENT perspectives -- later hats are not biased by earlier ones. This produces more genuine disagreements and stronger convergence signals. Use `analyze` for deep facilitated thinking; use `--parallel` for unbiased multi-perspective stress-testing.
+With an artifact path, the path is the target of the brief (a room-relative path of one file). With no path, the target is the whole room. The cycle needs the room precondition of the door: 2 or more sections with 1 or more artifact each. Personas that are not fresh are built and accepted first (Step 3). The readings, the merge and the rulings are Steps 4 to 9 above. Use `analyze` (quick mode) for a fast single-context look; use deep mode for independent readings.
 
 ### The template preview, and what it is not
 
