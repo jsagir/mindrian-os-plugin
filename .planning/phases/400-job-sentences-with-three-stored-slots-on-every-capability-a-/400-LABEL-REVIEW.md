@@ -48,7 +48,7 @@ Doubtful labels (399-LABEL-REVIEW.md section 2). The registry still carries them
 
 The 0.70 to 0.89 band: command pairs from the recorded 399 run with 0.70 <= p < 0.90, where the registry serves_jtbd of the command does not hold the job. The rule and the sample of 30 pairs are in 399-LABEL-REVIEW.md section 7. This phase does not change the band.
 
-- count (band-0.70-0.89): 132
+- count (band-0.70-0.89): 127
 
 ## 3. Capability sentences
 

@@ -31,17 +31,24 @@ const taxonomy = read('lib/hmi/jtbd-taxonomy.json');
 const jobsOf = new Map(registry.commands.map((c) => [c.command, c.serves_jtbd || []]));
 const pairKey = (p) => p.job + ' on ' + p.command;
 
-check('L0. rulings file has the schema, the date and the expected counts (26, 2, 5, 6)', () => {
+check('L0. rulings file has the schema, the date and the expected counts (26, 2, 5, 6, owner_direct 8)', () => {
   assert.equal(rulings.schema, 'mos.job-label-rulings/1');
   assert.equal(rulings.ruled_at, '2026-11-24');
   assert.equal(rulings.accepted.length, 26);
   assert.equal(rulings.held.length, 2);
   assert.equal(rulings.doubtful_existing.length, 5);
   assert.equal(rulings.taxonomy_disagreements.length, 6);
+  // Phase 400.2: owner_direct holds the 8 owner rulings of 2026-11-25 for /mos:persona, apart from the D-07 list.
+  assert.equal(rulings.owner_direct.length, 8);
+  for (const p of rulings.owner_direct) {
+    assert.equal(p.command, '/mos:persona');
+    assert.equal(p.ruled_at, '2026-11-25');
+    assert.ok(p.job);
+  }
 });
 
-check('L1. every accepted pair is in the registry serves_jtbd of its command', () => {
-  const miss = rulings.accepted.filter((p) => !(jobsOf.get(p.command) || []).includes(p.job)).map(pairKey);
+check('L1. every accepted pair and every owner_direct pair is in the registry serves_jtbd of its command', () => {
+  const miss = rulings.accepted.concat(rulings.owner_direct || []).filter((p) => !(jobsOf.get(p.command) || []).includes(p.job)).map(pairKey);
   assert.deepEqual(miss, []);
 });
 
@@ -57,7 +64,7 @@ check('L3. every doubtful existing pair is still in the registry', () => {
   for (const p of rulings.doubtful_existing) assert.equal(p.status, 'owner_review_not_changed');
 });
 
-check('L4. taxonomy disagreements: each live one is listed; resolved ones are accepted pairs; open count equals live count', () => {
+check('L4. taxonomy disagreements: each live one is listed; resolved ones are accepted or owner_direct pairs; open count equals live count', () => {
   const live = [];
   for (const e of taxonomy.entries) {
     for (const h of e.methodology_hooks || []) {
@@ -67,18 +74,18 @@ check('L4. taxonomy disagreements: each live one is listed; resolved ones are ac
   const listed = new Set(rulings.taxonomy_disagreements.map(pairKey));
   const unlisted = live.filter((p) => !listed.has(pairKey(p))).map(pairKey);
   assert.deepEqual(unlisted, []);
-  const accepted = new Set(rulings.accepted.map(pairKey));
+  const accepted = new Set(rulings.accepted.concat(rulings.owner_direct || []).map(pairKey));
   const resolved = rulings.taxonomy_disagreements.filter((p) => p.status === 'resolved_by_accepted');
-  for (const p of resolved) assert.ok(accepted.has(pairKey(p)), 'resolved item is not an accepted pair: ' + pairKey(p));
+  for (const p of resolved) assert.ok(accepted.has(pairKey(p)), 'resolved item is not an accepted or owner_direct pair: ' + pairKey(p));
   const open = rulings.taxonomy_disagreements.filter((p) => p.status === 'open_owner_review');
   assert.equal(open.length + resolved.length, rulings.taxonomy_disagreements.length);
   assert.equal(open.length, live.length);
-  assert.equal(resolved.length, 1);
+  assert.equal(resolved.length, 2);
 });
 
 check('L5. every job is in the closed vocabulary and every command is a registry command', () => {
   const ids = new Set(vocab.ids);
-  const all = [].concat(rulings.accepted, rulings.held, rulings.doubtful_existing, rulings.taxonomy_disagreements);
+  const all = [].concat(rulings.accepted, rulings.owner_direct || [], rulings.held, rulings.doubtful_existing, rulings.taxonomy_disagreements);
   const badJobs = all.filter((p) => !ids.has(p.job)).map(pairKey);
   const badCmds = all.filter((p) => !jobsOf.has(p.command)).map(pairKey);
   assert.deepEqual(badJobs, []);

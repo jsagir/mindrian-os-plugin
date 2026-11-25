@@ -17,10 +17,10 @@ hitl_why: "Synthetic experts are generated as an independent set (F.8) then thei
 # filename and disclaimer: the structure of the six lenses is handed over before
 # the navigator commits to a generate or a parallel run.
 interactive_first_reward: schema_preview
-serves_jtbd: ["prepare-pitch"]
-job_when: "my room needs fresh perspectives I cannot supply alone"
-job_want: "to generate personas from my room data who each argue from a different stance"
-job_so: "decide which of their arguments hold"
+serves_jtbd: ["validate-idea", "explore", "decide-pursue", "surface-contradiction", "compare-options", "prepare-pitch", "find-problem", "navigate", "audit-room"]
+job_when: "I am about to build on a claim that only I have examined"
+job_want: "to have it checked from several independent sides with fresh evidence"
+job_so: "find where it breaks before it costs me"
 job_sentence_status: "provisional"
 fits_domains: ["complicated","complex","disorder"]
 move_type: "analyze"
@@ -77,6 +77,20 @@ This command is a thin lens-engine client. The `--parallel` analyze path rotates
 **think-hats** is an INTERACTIVE METHODOLOGY SESSION. It walks you through the six hats in sequence as a facilitated exercise.
 
 **persona** creates PERSISTENT PERSPECTIVE LENSES from your room data. Each persona file lives in your `personas/` section and can be invoked at any time to analyze artifacts, challenge assumptions, or provide a specific viewpoint.
+
+## When to use it
+
+These nine situations are equal. None of them ranks above another.
+
+- When I am about to build on a claim that only I have examined, I want to have it checked from several independent sides with fresh evidence, so I can find where it breaks before it costs me.
+- When I research a question and keep finding what I already expected, I want to send separate lines of inquiry at it from opposing stances, so I can see evidence I would never have searched for.
+- When I must commit to an opportunity or drop it and feeling and fact are tangled, I want to pull apart the facts, the upside, the risks and my gut reaction, so I can see which one is driving me.
+- When everything in my room seems to agree, I want to have it read by perspectives that did not write it, so I can find the tensions I have stopped noticing.
+- When each option in front of me has someone arguing for it, I want to judge every option on the same sides, so I can compare them without the loudest voice winning.
+- When I am about to face an investor, a partner or a customer, I want to hear the hardest questions from each kind of listener before they ask them, so I can answer in the room and not afterwards.
+- When my hypothesis is still fuzzy and I am about to put numbers on it, I want to look at it from each side in turn, so I can sharpen it into a hypothesis worth the analysis.
+- When my team argues in circles because each person defends a position, I want to make everyone look at one side at a time, so I can move the discussion forward.
+- When new evidence arrives that could change my case, I want to see how it lands from each side, so I can update what I believe without overreacting.
 
 ## Subcommands
 

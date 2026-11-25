@@ -15,7 +15,7 @@
   "row_depth": 12,
   "built_from": {
     "recorded_sha256": "b05c5ac8603b02b73311b84a8cb5268b659949d3066488fecd44e0d903d8772f",
-    "registry_labels_sha256": "ac348594020a79c582293c008bbbddb005a83219a4c74e2bb06bce74d07fa214",
+    "registry_labels_sha256": "03b79c4ad6317e1b0fb387c64e58765457637f71d73294093dcd38c80534b1f6",
     "scope_sha256": "58716020f371395d58c59dab4f63bb1338a16110f69b9efeecc69d45c6810397",
     "live_scope_sha256": "1c597ae8e61b904dc4696a03f80a6b17839721488629eb406da18e0237a6170e",
     "deprecated_resolved": 3,
@@ -47,7 +47,7 @@
       ],
       [
         0.418,
-        0.119
+        0.128
       ],
       [
         0.661,
@@ -59,11 +59,19 @@
       ],
       [
         0.688,
-        0.256
+        0.278
       ],
       [
         0.771,
-        0.303
+        0.321
+      ],
+      [
+        0.84,
+        0.333
+      ],
+      [
+        0.845,
+        0.367
       ],
       [
         0.88,
@@ -108,15 +116,15 @@
       },
       {
         "command": "/mos:reanalyze",
-        "calibrated": 0.303
+        "calibrated": 0.367
       },
       {
         "command": "/mos:scout",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:grade",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:intel-pipeline",
@@ -124,61 +132,61 @@
       },
       {
         "command": "/mos:act",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:bono",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:causal",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:diagnostics",
-        "calibrated": 0.119
+        "calibrated": 0.128
       }
     ],
     "compare-options|*|*": [
       {
         "command": "/mos:bono",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:compare-ventures",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:intel-pipeline",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:explore-futures",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:score-innovation",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:act",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:explain-decision",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:opportunities",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:persona",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:pipeline",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:auto-explore",
@@ -216,27 +224,27 @@
       },
       {
         "command": "/mos:explore-domains",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:futures",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:intel-pipeline",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:beautiful-question",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:bono",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:explain-decision",
-        "calibrated": 0.119
+        "calibrated": 0.128
       }
     ],
     "decide-pursue|*|*": [
@@ -291,52 +299,52 @@
     ],
     "explore|*|*": [
       {
-        "command": "/mos:beautiful-question",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:explore-trends",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:find-connections",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:futures",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:mos-reason",
-        "calibrated": 0.303
-      },
-      {
         "command": "/mos:persona",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:think-hats",
-        "calibrated": 0.303
+        "calibrated": 0.367
       },
       {
         "command": "/mos:trending-to-absurd",
-        "calibrated": 0.303
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:beautiful-question",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:explore-trends",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:find-connections",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:futures",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:mos-reason",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:think-hats",
+        "calibrated": 0.321
       },
       {
         "command": "/mos:bono",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:build-knowledge",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:eureka",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:explore-domains",
-        "calibrated": 0.256
+        "calibrated": 0.278
       }
     ],
     "file-meeting|*|*": [
@@ -346,7 +354,7 @@
       },
       {
         "command": "/mos:session-report",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:intel-pipeline",
@@ -358,23 +366,23 @@
       },
       {
         "command": "/mos:build-knowledge",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:eureka",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:hat-briefing",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:pipeline",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:research",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:auto-explore",
@@ -403,36 +411,36 @@
         "calibrated": 0.929
       },
       {
-        "command": "/mos:analyze-systems",
-        "calibrated": 0.303
-      },
-      {
         "command": "/mos:intel-pipeline",
-        "calibrated": 0.303
+        "calibrated": 0.367
       },
       {
         "command": "/mos:systems-thinking",
-        "calibrated": 0.303
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:analyze-systems",
+        "calibrated": 0.321
       },
       {
         "command": "/mos:bono",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:grade-grant",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:mos-reason",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:root-cause",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:rs-explain",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:act",
@@ -473,58 +481,58 @@
         "calibrated": 0.389
       },
       {
-        "command": "/mos:analyze-needs",
-        "calibrated": 0.303
+        "command": "/mos:bono",
+        "calibrated": 0.367
       },
       {
-        "command": "/mos:bono",
-        "calibrated": 0.303
+        "command": "/mos:rs-fetch",
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:analyze-needs",
+        "calibrated": 0.321
       },
       {
         "command": "/mos:diagnose",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:explore-domains",
-        "calibrated": 0.303
+        "calibrated": 0.321
       }
     ],
     "plan-execution|*|*": [
       {
         "command": "/mos:pipeline",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:act",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:challenge-assumptions",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:explore-futures",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:ignite",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:map-unknowns",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:mos-reason",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:scientific-roadmap",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:suggest-next",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:build-knowledge",
@@ -565,28 +573,28 @@
         "calibrated": 0.389
       },
       {
-        "command": "/mos:macro-trends",
-        "calibrated": 0.303
+        "command": "/mos:mos-reason",
+        "calibrated": 0.367
       },
       {
-        "command": "/mos:mos-reason",
-        "calibrated": 0.303
+        "command": "/mos:validate-proposition",
+        "calibrated": 0.367
       },
       {
         "command": "/mos:pipeline",
-        "calibrated": 0.303
+        "calibrated": 0.333
+      },
+      {
+        "command": "/mos:macro-trends",
+        "calibrated": 0.321
       },
       {
         "command": "/mos:rs-thesis",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:stance",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:think-hats",
-        "calibrated": 0.303
+        "calibrated": 0.321
       }
     ],
     "surface-contradiction|*|*": [
@@ -596,47 +604,47 @@
       },
       {
         "command": "/mos:challenge-assumptions",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:reanalyze",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:think-hats",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:mos-reason",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:persona",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:structure-argument",
-        "calibrated": 0.256
+        "calibrated": 0.278
       },
       {
         "command": "/mos:act",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:analyze-systems",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:beautiful-question",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:build-knowledge",
-        "calibrated": 0.119
+        "calibrated": 0.128
       },
       {
         "command": "/mos:causal",
-        "calibrated": 0.119
+        "calibrated": 0.128
       }
     ],
     "understand-market|*|*": [
@@ -657,36 +665,36 @@
         "calibrated": 0.389
       },
       {
-        "command": "/mos:auto-explore",
-        "calibrated": 0.303
-      },
-      {
         "command": "/mos:diffusion",
-        "calibrated": 0.303
-      },
-      {
-        "command": "/mos:explore-opportunity",
-        "calibrated": 0.303
+        "calibrated": 0.367
       },
       {
         "command": "/mos:macro-trends",
-        "calibrated": 0.303
+        "calibrated": 0.367
       },
       {
         "command": "/mos:mullins",
-        "calibrated": 0.303
+        "calibrated": 0.367
+      },
+      {
+        "command": "/mos:auto-explore",
+        "calibrated": 0.321
+      },
+      {
+        "command": "/mos:explore-opportunity",
+        "calibrated": 0.321
       },
       {
         "command": "/mos:pipeline",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:systems-thinking",
-        "calibrated": 0.303
+        "calibrated": 0.321
       },
       {
         "command": "/mos:bono",
-        "calibrated": 0.256
+        "calibrated": 0.278
       }
     ],
     "validate-idea|*|*": [

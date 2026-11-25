@@ -1,6 +1,6 @@
 {
   "schema": "mos.job-label-rulings/1",
-  "_note": "Owner ruling of 2026-11-24 (Phase 399, D-07). 26 accepted command job labels are applied by scripts/apply-job-labels.cjs. 2 held pairs and 5 doubtful existing labels are listed for owner review and are not changed. Taxonomy hooks that disagree with the registry are resolved by an accepted label or stay open for owner review (I-02, no guess). The proposals came from a Gemini Decision run kept in the private research trail. Labels only, no probability. Hyphens only.",
+  "_note": "Owner ruling of 2026-11-24 (Phase 399, D-07). 26 accepted command job labels are applied by scripts/apply-job-labels.cjs. 2 held pairs and 5 doubtful existing labels are listed for owner review and are not changed. Taxonomy hooks that disagree with the registry are resolved by an accepted label or stay open for owner review (I-02, no guess). The proposals came from a Gemini Decision run kept in the private research trail. Labels only, no probability. Hyphens only. The owner_direct pairs are owner rulings of 2026-11-25 (Phase 400.2) and are not proposals of the Phase 399 model run.",
   "ruled_at": "2026-11-24",
   "accepted": [
     {
@@ -108,6 +108,48 @@
       "command": "/mos:whitespace"
     }
   ],
+  "owner_direct": [
+    {
+      "job": "validate-idea",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "explore",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "decide-pursue",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "surface-contradiction",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "compare-options",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "find-problem",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "navigate",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    },
+    {
+      "job": "audit-room",
+      "command": "/mos:persona",
+      "ruled_at": "2026-11-25"
+    }
+  ],
   "held": [
     {
       "job": "surface-contradiction",
@@ -161,7 +203,7 @@
     {
       "job": "surface-contradiction",
       "command": "/mos:persona",
-      "status": "open_owner_review"
+      "status": "resolved_by_accepted"
     },
     {
       "job": "surface-contradiction",
