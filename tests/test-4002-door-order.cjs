@@ -667,6 +667,34 @@ asyncLegs.push({
   },
 });
 
+// D22 (plan 12)
+asyncLegs.push({
+  label: 'D22. run-research with no plan is out of order, with one approved file or none, and writes nothing',
+  fn: async () => {
+    const room = makeRoom();
+    const env = makeEnv();
+    const res = runToAccepted(room, env);
+    const approved = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'mos-4002-d22-')), 'approved.json');
+    tmpRoots.push(path.dirname(approved));
+    fs.writeFileSync(approved, JSON.stringify({ schema: 'mos.persona-approved/1', run_id: res.run_id, plan_seq: 1, hats: {} }), 'utf8');
+    let calls = 0;
+    const seam = async () => { calls += 1; return {}; };
+    const out = await door.cmdRunResearch({ roomDir: room, runId: res.run_id, approvedPath: approved }, opts(env, { _fetchCorpusEnvelope: seam }));
+    assert.deepEqual(out, { ok: false, reason: 'step_out_of_order:plan_research' });
+    const none = await door.cmdRunResearch({ roomDir: room, runId: res.run_id }, opts(env, { _fetchCorpusEnvelope: seam }));
+    assert.deepEqual(none, { ok: false, reason: 'step_out_of_order:plan_research' });
+    assert.equal(calls, 0);
+    const l = readLedgerOf(res);
+    assert.equal(l.steps.run_research, undefined);
+    assert.equal(fs.existsSync(path.join(res.hats.white.dir, 'evidence.json')), false);
+    // After a plan with no planned hat the step is skipped and a later call is refused.
+    assert.equal(door.cmdPlanResearch({ roomDir: room, runId: res.run_id }, opts(env)).ok, true);
+    const again = await door.cmdRunResearch({ roomDir: room, runId: res.run_id, approvedPath: approved }, opts(env, { _fetchCorpusEnvelope: seam }));
+    assert.deepEqual(again, { ok: false, reason: 'step_already_done:run_research' });
+    assert.equal(calls, 0);
+  },
+});
+
 (async () => {
   for (const t of asyncLegs) {
     try {

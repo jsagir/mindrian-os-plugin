@@ -3,7 +3,8 @@
 // Phase 400.2-10: the Part 8 controls on a door search string (scripts/persona-hats.cjs checkHandle, composeString,
 // roomIdentityScreen, IDENTITY_STOP_LIST; lib/core/persona-ops.cjs research tables). Legs E1 to E14.
 // Phase 400.2-11 adds legs E15 to E27 (the planning branch of plan-research, the handles store, the edit path) and the
-// pack-hash legs E28 to E31. Plan 12 adds legs. No test sends a network request.
+// pack-hash legs E28 to E32. Plan 12 adds legs E28r to E34r (run-research, the approval binding; the plan names them E28 to E34).
+// No test sends a network request.
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
@@ -863,6 +864,232 @@ check('E32. sealRunPacks is the one door function that a research step calls aft
   // copies of the White package that differ cannot be sealed
   forgePack(res, 'red', 'shared-white.json');
   assert.deepEqual(door.sealRunPacks({ roomDir: room, runId: res.run_id }, opts(env)), { ok: false, reason: 'shared_white_copies_differ' });
+});
+
+// ---------------------------------------------------------------------------
+// Plan 12: run-research, the approval binding (legs E28r to E34r; the plan names them E28 to E34, and E28 to E32 are taken)
+// ---------------------------------------------------------------------------
+
+const seEnv = require(path.join(ROOT, 'lib', 'core', 'recovery', 'stage-envelope.cjs'));
+const roomDbMod = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+const FULL_KEYS = { TAVILY_API_KEY: 'dummy-value', PATENTSVIEW_API_KEY: 'dummy-value' };
+
+async function withEnvAsync(patch, fn) {
+  const saved = {};
+  for (const k of Object.keys(patch)) saved[k] = process.env[k];
+  for (const k of Object.keys(patch)) { if (patch[k] === null) delete process.env[k]; else process.env[k] = patch[k]; }
+  try { return await fn(); } finally {
+    for (const k of Object.keys(saved)) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
+  }
+}
+function okEnv(source, items) {
+  return seEnv.makeStageEnvelope({ stage: 'retrieval', engine: source, status: 'ok', payload: { results: items }, output: items });
+}
+/** A recording stand-in for the fetch of the corpus. Default: 2 items for each call, URLs that differ by source and query. */
+function makeSeam(perCall) {
+  const calls = [];
+  const fn = async (args) => {
+    calls.push({ source: args.source, query: args.query });
+    const n = perCall || 2;
+    const items = [];
+    for (let i = 1; i <= n; i += 1) {
+      items.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About the field, item ' + i + '.' });
+    }
+    return okEnv(args.source, items);
+  };
+  return { fn, calls };
+}
+function makeDb(room) {
+  roomDbMod.closeRoomDb(roomDbMod.openRoomDb(room));
+}
+function approvedFile(res, hats, over) {
+  return writeJsonTmp('approved', 'approved.json', Object.assign({ schema: 'mos.persona-approved/1', run_id: res.run_id, plan_seq: 1, hats }, over || {}));
+}
+function approveHat(plan, hat, hashes) {
+  const p = plan.hats[hat];
+  return { decision: 'approve', q_hashes: hashes || p.strings.map(s => s.q_hash), providers: p.providers.slice() };
+}
+function approveAll(plan, skip) {
+  const hats = {};
+  for (const hat of RESEARCH) if (!(skip || []).includes(hat)) hats[hat] = approveHat(plan, hat);
+  return hats;
+}
+function researchRun(ctx, approvedPath, seam, extra) {
+  return door.cmdRunResearch({ roomDir: ctx.room, runId: ctx.res.run_id, approvedPath }, opts(ctx.env, Object.assign({ _fetchCorpusEnvelope: seam.fn, _sleep: async () => {} }, extra || {})));
+}
+function textsOf(plan, hat) {
+  return plan.hats[hat].strings.map(s => s.text);
+}
+
+check('E28r. NEGATIVE: run-research with no plan is refused and fetches nothing', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const room = harborRoom();
+    const env = envOf();
+    const { res } = runToAccepted(room, env);
+    const seam = makeSeam();
+    const out = await door.cmdRunResearch({ roomDir: room, runId: res.run_id, approvedPath: approvedFile(res, {}) }, opts(env, { _fetchCorpusEnvelope: seam.fn }));
+    assert.deepEqual(out, { ok: false, reason: 'step_out_of_order:plan_research' });
+    assert.equal(seam.calls.length, 0);
+    assert.equal(ledgerOf(res).steps.run_research, undefined);
+  });
+});
+
+check('E29r. NEGATIVE: an approved file that does not match the plan is refused as a whole and nothing is fetched', async () => {
+  await withEnvAsync(FULL_KEYS, async () => {
+    const ctx = planWithHandles();
+    const p = ctx.out.plan;
+    const w = p.hats.white;
+    const bogus = 'sha256:' + 'f'.repeat(64);
+    const good = (hat) => approveHat(p, hat);
+    const cases = [
+      ['string_not_in_plan', { white: { decision: 'approve', q_hashes: [bogus], providers: w.providers } }, {}],
+      ['too_many_strings', { white: { decision: 'approve', q_hashes: [w.strings[0].q_hash, w.strings[1].q_hash, bogus], providers: w.providers } }, {}],
+      ['provider_list_mismatch', { white: { decision: 'approve', q_hashes: [w.strings[0].q_hash], providers: w.providers.concat(['patents']) } }, {}],
+      ['provider_list_mismatch', { white: { decision: 'approve', q_hashes: [w.strings[0].q_hash], providers: w.providers.slice(0, 1) } }, {}],
+      ['provider_list_mismatch', { white: { decision: 'approve', q_hashes: [w.strings[0].q_hash], providers: w.providers.slice().reverse() } }, {}],
+      ['hat_never_searches', { white: good('white'), red: { decision: 'approve', q_hashes: [], providers: [] } }, {}],
+      ['hat_never_searches', { white: good('white'), blue: { decision: 'refuse', q_hashes: [], providers: [] } }, {}],
+      ['unknown_key:extra', { white: good('white') }, { extra: 1 }],
+      ['unknown_key:extra', { white: Object.assign({ extra: 1 }, good('white')) }, {}],
+      ['schema_invalid:run_id', { white: good('white') }, { run_id: '20200101-000000-abcd' }],
+      ['schema_invalid:schema', { white: good('white') }, { schema: 'mos.persona-approved/2' }],
+      ['schema_invalid:decision', { white: Object.assign({}, good('white'), { decision: 'maybe' }) }, {}],
+    ];
+    for (const c of cases) {
+      const seam = makeSeam();
+      const out = await researchRun(ctx, approvedFile(ctx.res, c[1], c[2]), seam);
+      assert.deepEqual(out, { ok: false, reason: c[0] }, JSON.stringify(c));
+      assert.equal(seam.calls.length, 0, c[0]);
+    }
+    assert.equal(ledgerOf(ctx.res).steps.run_research, undefined);
+    assert.equal(fs.existsSync(path.join(ctx.res.hats.white.dir, 'evidence.json')), false);
+  });
+});
+
+check('E29r2. NEGATIVE: an approved file of an older plan is refused as plan_seq_stale', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const ctx = planWithHandles();
+    const old = ctx.out.plan.hats.black.strings[0];
+    const edited = edit(ctx, [{ hat: 'black', q_hash_replaced: old.q_hash, text: 'lithium recycling failure cases' }]);
+    assert.equal(edited.plan.plan_seq, 2);
+    const seam = makeSeam();
+    const stale = await researchRun(ctx, approvedFile(ctx.res, approveAll(ctx.out.plan), { plan_seq: 1 }), seam);
+    assert.deepEqual(stale, { ok: false, reason: 'plan_seq_stale' });
+    // the replaced hash of the old plan is also not in the new plan
+    const stale2 = await researchRun(ctx, approvedFile(ctx.res, approveAll(ctx.out.plan), { plan_seq: 2 }), seam);
+    assert.deepEqual(stale2, { ok: false, reason: 'string_not_in_plan' });
+    assert.equal(seam.calls.length, 0);
+  });
+});
+
+check('E30r. a refused or deferred hat is declined and not fetched; the others are fetched', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const ctx = planWithHandles();
+    makeDb(ctx.room);
+    const p = ctx.out.plan;
+    const hats = approveAll(p, ['black', 'yellow']);
+    hats.black = { decision: 'refuse', q_hashes: [], providers: [] };
+    hats.yellow = { decision: 'defer', q_hashes: [], providers: [] };
+    const seam = makeSeam();
+    const out = await researchRun(ctx, approvedFile(ctx.res, hats), seam);
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.hats.black, 'declined');
+    assert.equal(out.hats.yellow, 'declined');
+    assert.equal(out.reasons.black, null);
+    assert.equal(out.reasons.yellow, 'deferred');
+    assert.equal(out.hats.white, 'ran_with_results');
+    assert.equal(out.hats.green, 'ran_with_results');
+    const queries = seam.calls.map(c => c.query);
+    for (const hat of ['black', 'yellow']) for (const t of textsOf(p, hat)) assert.equal(queries.includes(t), false, t);
+    for (const hat of ['white', 'green']) for (const t of textsOf(p, hat)) assert.equal(queries.includes(t), true, t);
+    for (const hat of ['black', 'yellow']) {
+      const pack = JSON.parse(fs.readFileSync(path.join(ctx.res.hats[hat].dir, 'evidence.json'), 'utf8'));
+      assert.equal(pack.research_state, 'declined');
+      assert.deepEqual(pack.items, []);
+      assert.deepEqual(pack.strings, []);
+    }
+    const l = ledgerOf(ctx.res);
+    assert.equal(l.hats.black.research, 'declined');
+    assert.equal(l.hats.yellow.research, 'declined');
+    assert.equal(l.hats.yellow.research_reason, 'deferred');
+    assert.equal(l.steps.run_research.state, 'done');
+  });
+});
+
+check('E31r. a planned hat that the approved file does not name is declined with reason no_answer', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const ctx = planWithHandles();
+    makeDb(ctx.room);
+    const p = ctx.out.plan;
+    const seam = makeSeam();
+    const out = await researchRun(ctx, approvedFile(ctx.res, approveAll(p, ['green'])), seam);
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.hats.green, 'declined');
+    assert.equal(out.reasons.green, 'no_answer');
+    for (const t of textsOf(p, 'green')) assert.equal(seam.calls.some(c => c.query === t), false);
+    assert.equal(ledgerOf(ctx.res).hats.green.research_reason, 'no_answer');
+  });
+});
+
+check('E32r. a provider set that changed since the plan fails that hat with provider_set_changed and fetches nothing for it', async () => {
+  await withEnvAsync(FULL_KEYS, async () => {
+    const ctx = planWithHandles();
+    makeDb(ctx.room);
+    const p = ctx.out.plan;
+    assert.deepEqual(p.hats.yellow.providers, ['tavily', 'openalex']);
+    // At run time the industry lens (tavily) is gone for the hat whose table starts with it.
+    const seamPre = (set) => (set[0] === 'industry'
+      ? { available: set.slice(1), unavailable: [{ lens: 'industry', provider: 'tavily', reason: 'no_key', needs: 'TAVILY_API_KEY' }] }
+      : { available: set.slice(), unavailable: [] });
+    const seam = makeSeam();
+    const out = await researchRun(ctx, approvedFile(ctx.res, approveAll(p)), seam, { preflightLenses: seamPre });
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.equal(out.hats.yellow, 'failed');
+    assert.equal(out.reasons.yellow, 'provider_set_changed');
+    for (const t of textsOf(p, 'yellow')) assert.equal(seam.calls.some(c => c.query === t), false, t);
+    for (const hat of ['white', 'black', 'green']) {
+      assert.equal(out.hats[hat], 'ran_with_results', hat);
+      for (const t of textsOf(p, hat)) assert.equal(seam.calls.some(c => c.query === t), true, t);
+    }
+    assert.equal(ledgerOf(ctx.res).hats.yellow.research, 'failed');
+    assert.equal(ledgerOf(ctx.res).hats.yellow.research_reason, 'provider_set_changed');
+  });
+});
+
+check('E33r. the approved subset is honoured: one of two planned strings reaches the fetch', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const ctx = planWithHandles();
+    makeDb(ctx.room);
+    const p = ctx.out.plan;
+    const seam = makeSeam();
+    const hats = { white: approveHat(p, 'white', [p.hats.white.strings[0].q_hash]) };
+    const out = await researchRun(ctx, approvedFile(ctx.res, hats), seam);
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.deepEqual(seam.calls.map(c => c.query), [p.hats.white.strings[0].text]);
+    assert.equal(out.hats.white, 'ran_with_results');
+    const pack = JSON.parse(fs.readFileSync(path.join(ctx.res.hats.white.dir, 'evidence.json'), 'utf8'));
+    assert.deepEqual(pack.strings.map(s => s.q_hash), [p.hats.white.strings[0].q_hash]);
+    // the other string of white and the other hats count as refused strings
+    const l = ledgerOf(ctx.res);
+    assert.equal(l.research.strings_approved, 1);
+    assert.equal(l.research.strings_refused, 7);
+  });
+});
+
+check('E34r. two approved strings give two rounds for the hat and at most 10 items', async () => {
+  await withEnvAsync(NO_KEYS, async () => {
+    const ctx = planWithHandles();
+    makeDb(ctx.room);
+    const p = ctx.out.plan;
+    const seam = makeSeam(8);
+    const out = await researchRun(ctx, approvedFile(ctx.res, { white: approveHat(p, 'white') }), seam);
+    assert.equal(out.ok, true, JSON.stringify(out));
+    assert.deepEqual(seam.calls.map(c => c.query).sort(), textsOf(p, 'white').slice().sort());
+    const pack = JSON.parse(fs.readFileSync(path.join(ctx.res.hats.white.dir, 'evidence.json'), 'utf8'));
+    assert.equal(pack.strings.length, 2);
+    assert.equal(pack.items.length, 10);
+    assert.ok(pack.items.length <= 10);
+  });
 });
 
 check('F11. invokePersona stays at line 550 of persona-ops.cjs', () => {
