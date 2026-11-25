@@ -464,6 +464,22 @@ check('C30. the command text matches the door: the resend budget is 2 for each f
   assert.ok(/both `to_build` and `to_accept` are empty/.test(step3), 'the skip rule is named');
 });
 
+check('C31. CR-01: each persona-agent dispatch (Step 4 handles, Step 6 readers, Step 7 Blue) names the door field of the persona file, never the persona state word', () => {
+  // The start output field hats.<hat>.persona is a state word (fresh, missing, stale, unaccepted, preview_only),
+  // never a file name. The door prints the file name itself: persona_files.<hat> in the accept-persona output that
+  // closed Step 3, and hats.<hat>.persona_file in the start output when Step 3 had nothing to build or accept.
+  const parts = {
+    'Step 4': section('### Step 4'),
+    'Step 6': section('### Step 6'),
+    'Step 7': section('### Step 7'),
+  };
+  for (const [name, s] of Object.entries(parts)) {
+    assert.ok(/`persona_files\.(<hat>|blue)`/.test(s), name + ' names persona_files of the accept-persona output');
+    assert.ok(/`hats\.(<hat>|blue)\.persona_file`/.test(s), name + ' names hats.<hat>.persona_file of the start output');
+    assert.ok(!/`hats\.(<hat>|blue)\.persona`/.test(s), name + ' does not give the state word as the persona file');
+  }
+});
+
 check('Z1. the personas one_job_note says "is wired by Phase 400.2" and not "not wired yet"; the two job ids are unchanged', () => {
   const canon = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'section-job-canon.json'), 'utf8'));
   const list = Array.isArray(canon.sections) ? canon.sections : (Array.isArray(canon) ? canon : null);

@@ -534,7 +534,13 @@ function cmdStart(args, deps) {
       return { ok: true, run_id: runId, mode, review_dir: reviewDir, inbox_dir: inboxDir, quick };
     }
     const hatsOut = {};
-    for (const hat of HATS) hatsOut[hat] = { persona: freshness.hats[hat].state, dir: hatDirs[hat], discipline: ops.HAT_DISCIPLINE[hat] };
+    // CR-01: persona is a state word, never a file name. persona_file is the room-relative file name a hat agent
+    // gets, or null when the hat has no usable file yet (it is built or rebuilt in Step 3).
+    for (const hat of HATS) {
+      const fh = freshness.hats[hat];
+      const usable = (fh.state === 'fresh' || fh.state === 'unaccepted') && typeof fh.file === 'string';
+      hatsOut[hat] = { persona: fh.state, persona_file: usable ? 'personas/' + fh.file : null, dir: hatDirs[hat], discipline: ops.HAT_DISCIPLINE[hat] };
+    }
     // With nothing to build or accept the command goes straight to the handle agents; else accept-persona lists them.
     const handlesList = toBuild.length === 0 && toAccept.length === 0 ? handlesNeeded(roomResolved, ledger) : [];
     return {
@@ -760,7 +766,24 @@ function cmdAcceptPersona(args, deps) {
   writeLedger(lr.dir, ledger);
   if (failure) return { ok: false, reason: failure };
   const acceptDone = Boolean(ledger.steps.accept_persona);
-  return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: acceptDone, handles_needed: acceptDone ? handlesNeeded(roomResolved, ledger) : [] };
+  return { ok: true, run_id: ledger.run_id, hats: out, to_rebuild: toRebuild, pending, accept_done: acceptDone, persona_files: personaFilesOf(roomResolved, ledger), handles_needed: acceptDone ? handlesNeeded(roomResolved, ledger) : [] };
+}
+
+/**
+ * CR-01: the room-relative persona file of each hat that a hat agent may read: a usable persona in the ledger (fresh
+ * or built_accepted) and an accepted file with the current fingerprint on disk. Any other hat gives null.
+ * @returns {Object<string, string|null>}
+ */
+function personaFilesOf(roomResolved, ledger) {
+  const fr = ops.personaFreshness(roomResolved);
+  const out = {};
+  for (const hat of HATS) {
+    const e = ledger && isPlain(ledger.hats) ? ledger.hats[hat] : null;
+    const f = fr.hats[hat];
+    const usable = e && PERSONA_USABLE.includes(e.persona) && f && f.state === 'fresh' && typeof f.file === 'string';
+    out[hat] = usable ? 'personas/' + f.file : null;
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------

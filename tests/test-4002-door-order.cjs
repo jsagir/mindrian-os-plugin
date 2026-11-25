@@ -514,6 +514,35 @@ check('D16. accept_persona is done only when every hat is resolved', () => {
   assert.deepEqual(out.pending, []);
 });
 
+// D22 (CR-01)
+check('D22. CR-01: the door prints the persona file name: hats.<hat>.persona_file in start, persona_files in accept-persona', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  writeFresh(room, 'yellow');
+  const res = startDeep(room, env);
+  assert.equal(res.ok, true, JSON.stringify(res));
+  assert.equal(res.hats.yellow.persona, 'fresh');
+  assert.equal(res.hats.yellow.persona_file, 'personas/yellow-venture.md');
+  assert.ok(fs.statSync(path.join(room, res.hats.yellow.persona_file)).isFile());
+  assert.equal(res.hats.white.persona, 'missing');
+  assert.equal(res.hats.white.persona_file, null);
+  for (const h of ['white', 'red', 'black', 'green', 'blue']) writeSpec(res, h, validSpec(h));
+  const w = door.cmdWritePersona({ roomDir: room, runId: res.run_id }, opts(env));
+  assert.equal(w.ok, true, JSON.stringify(w));
+  const answer = { white: { decision: 'accept' }, red: { decision: 'accept' }, black: { decision: 'accept' }, green: { decision: 'refuse' }, blue: { decision: 'accept' } };
+  const a = door.cmdAcceptPersona({ roomDir: room, runId: res.run_id, answerPath: writeAnswer(res, answer) }, opts(env));
+  assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.accept_done, true);
+  assert.ok(a.persona_files && typeof a.persona_files === 'object', 'persona_files in the accept-persona output');
+  assert.deepEqual(Object.keys(a.persona_files), HATS);
+  assert.equal(a.persona_files.green, null, 'a refused hat has no persona file');
+  for (const h of ['white', 'red', 'black', 'yellow', 'blue']) {
+    const f = a.persona_files[h];
+    assert.ok(typeof f === 'string' && f.startsWith('personas/' + h + '-'), h + ': ' + f);
+    assert.equal(fmValue(path.join(room, f), 'persona_status'), 'accepted', h);
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Plan 07 legs: plan-research (the no-plan branch) and check order
 // ---------------------------------------------------------------------------

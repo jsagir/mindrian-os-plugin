@@ -226,7 +226,7 @@ Deep mode only. The door plans a search only from handles that a hat proposed. L
 
 1. **Handles.** The list `handles_needed` names the researching hats (white, black, yellow, green) that have a fresh or accepted persona and no stored handles for this brief. Take it from the `accept-persona` output that closed Step 3 (`accept_done` is true). When Step 3 had nothing to build and nothing to accept, the `start` output already holds the same list. Dispatch one handle agent for each hat of `handles_needed`, all in one message, with the Agent tool and `subagent_type: persona-analyst`. When the list is empty, dispatch none and go to point 2. Red and blue never get a handle agent. Resolve the model once with `resolveModel(roomPath, 'persona-analyst')` from `lib/core/model-profiles.cjs` (the argument order is `roomDir`, then `agentType`). Do not pass any manual background-execution parameter to the Agent tool call. Clamp the fan-out to 20 agents, which is more than the 4 researching hats.
 
-   Each agent gets the handle contract below, then these lines and nothing else: its hat, the brief (the target, the governing question and the sub-questions with their ids), the name of its persona file under `personas/` (for a hat built in this run, the `file` field of the `write-persona` output; for any other hat, the `file` field of the `status` output) and its own directory (`hats.<hat>.dir`). It gets no room section, no other hat and no other directory.
+   Each agent gets the handle contract below, then these lines and nothing else: its hat, the brief (the target, the governing question and the sub-questions with their ids), the name of its persona file (`persona_files.<hat>` of the `accept-persona` output that closed Step 3; when Step 3 had nothing to build and nothing to accept, `hats.<hat>.persona_file` of the `start` output) and its own directory (`hats.<hat>.dir`). It gets no room section, no other hat and no other directory.
 
    ```
    [DEEP] Proposing search handles: {hats of handles_needed}
@@ -343,7 +343,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
 
 Dispatch one fresh `persona-analyst` agent for each of white, red, black, yellow and green. Dispatch all of them in one message, with the Agent tool and `subagent_type: persona-analyst`. Skip a hat whose persona was refused, deferred or failed to build in Step 3: the door reports it as not run, with its reason. Resolve the model once with `resolveModel(roomPath, 'persona-analyst')` from `lib/core/model-profiles.cjs` (the argument order is `roomDir`, then `agentType`). Do not pass any manual background-execution parameter to the Agent tool call. The platform caps concurrent subagents at 20 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`); five is far below the cap, and the standing rule is to clamp to 20.
 
-Each agent gets the reader contract below, then these lines and nothing else: its hat, the brief (the target, the governing question, the sub-questions with their ids and the reading list), the room path, the name of its persona file (`hats.<hat>.persona`) and its own directory (`hats.<hat>.dir`). It gets no other hat, no other directory and no part of this conversation. Do not read the file of a hat in the main context.
+Each agent gets the reader contract below, then these lines and nothing else: its hat, the brief (the target, the governing question, the sub-questions with their ids and the reading list), the room path, the name of its persona file (`persona_files.<hat>` of the `accept-persona` output that closed Step 3; when Step 3 had nothing to build and nothing to accept, `hats.<hat>.persona_file` of the `start` output) and its own directory (`hats.<hat>.dir`). The `persona` field of a hat in the `start` output is a state word, not a file name. It gets no other hat, no other directory and no part of this conversation. Do not read the file of a hat in the main context.
 
 ```
 [DEEP] Reading as separate hats: {hats}
@@ -397,7 +397,7 @@ Each item of `evidence` is `{source, tier, disposition?, note}`. The `source` is
 
    The output field `not_run` is a list of `{hat, reason, state}`. Print one line `Not run: <hat> (<reason>)` for each entry. The door checks each reading from its file bytes: the closed keys, the citation boundary and the rules of the hat. It never repairs a reading. The field `blue_ledger` is the path of the counts-only ledger of Blue.
 
-2. Dispatch one fresh `persona-analyst` agent for blue, with the Blue contract below, the brief, the name of its persona file and its own directory (`hats.blue.dir`). The model is the one of Step 6. Skip Blue when its persona was refused, deferred or failed to build; the door reports it as not run. Blue writes `reading.json` into its directory before Step 8.
+2. Dispatch one fresh `persona-analyst` agent for blue, with the Blue contract below, the brief, the name of its persona file (`persona_files.blue` of the `accept-persona` output that closed Step 3; when Step 3 had nothing to build and nothing to accept, `hats.blue.persona_file` of the `start` output) and its own directory (`hats.blue.dir`). The model is the one of Step 6. Skip Blue when its persona was refused, deferred or failed to build; the door reports it as not run. Blue writes `reading.json` into its directory before Step 8.
 
 ### The Blue contract
 
