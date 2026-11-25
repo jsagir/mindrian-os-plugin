@@ -577,6 +577,44 @@ check('D23. WR-01 NEGATIVE: a failed rebuild does not re-propose the old spec; a
   assert.equal(fmValue(redFile, 'persona_status'), 'proposed');
 });
 
+// D28 (IN-05)
+check('D28. IN-05 NEGATIVE: a flag whose value is missing is a usage error (exit 2); the next flag is never taken as its value', () => {
+  const room = makeRoom();
+  const env = makeEnv();
+  const res = runToAccepted(room, env);
+  const call = (argv) => {
+    const saveOut = process.stdout.write;
+    const saveErr = process.stderr.write;
+    const saveCode = process.exitCode;
+    let code;
+    let result;
+    try {
+      process.stdout.write = () => true;
+      process.stderr.write = () => true;
+      result = door.main(argv, opts(env));
+      code = process.exitCode;
+    } finally {
+      process.stdout.write = saveOut;
+      process.stderr.write = saveErr;
+      process.exitCode = saveCode;
+    }
+    return { code, result };
+  };
+  const before = fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8');
+  const edited = call(['plan-research', '--edited', '--room', room, '--run', res.run_id]);
+  assert.equal(edited.code, 2, 'the empty --edited is a usage error');
+  assert.equal(edited.result, undefined);
+  assert.equal(fs.readFileSync(path.join(res.review_dir, 'run.json'), 'utf8'), before, 'nothing was planned');
+  assert.equal(call(['status', '--room']).code, 2);
+  // before IN-05 the room flag took '--mode' as its value and the call gave room_not_found with exit 0
+  const stolen = call(['status', '--room', '--mode', room]);
+  assert.equal(stolen.code, 2, 'the next flag is not a value');
+  assert.equal(stolen.result, undefined);
+  const ok = call(['status', '--room', room]);
+  assert.equal(ok.code, 0);
+  assert.equal(ok.result.ok, true);
+});
+
 // D26 (WR-10)
 check('D26. WR-10 NEGATIVE: a brief target under personas/ is refused, and a reading-list or target link that resolves into personas/ is refused', () => {
   const room = makeRoom();

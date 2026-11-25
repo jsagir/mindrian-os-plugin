@@ -75,8 +75,14 @@ function parseFlags(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (typeof a === 'string' && a.indexOf('--') === 0) {
-      flags[a.slice(2)] = argv[i + 1];
-      i += 1;
+      const v = argv[i + 1];
+      // IN-05: a flag with no value, or one followed by another flag, has the value true (a usage error in main).
+      if (typeof v !== 'string' || v.indexOf('--') === 0) {
+        flags[a.slice(2)] = true;
+      } else {
+        flags[a.slice(2)] = v;
+        i += 1;
+      }
     } else {
       positional.push(a);
     }
@@ -4020,6 +4026,12 @@ function main(argv, deps) {
     return undefined;
   }
   const { flags } = parseFlags(args.slice(1));
+  const noValue = Object.keys(flags).filter(k => flags[k] === true);
+  if (noValue.length) {
+    process.stderr.write(USAGE + '\nmissing value: ' + noValue.map(k => '--' + safeKeyName(k)).join(', ') + '\n');
+    process.exitCode = 2;
+    return undefined;
+  }
   const need = (names) => names.filter(n => typeof flags[n] !== 'string' || flags[n].length === 0);
   let missing = [];
   let result;
