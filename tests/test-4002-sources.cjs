@@ -469,6 +469,30 @@ check('W9. a host result off asknature.org or off kaggle.com/datasets is refused
   });
 });
 
+check('W9b. WR-05 NEGATIVE: a host answer whose every result is off the site is a failed search (provider_failed:host_off_site), never ran_empty', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const ctx = fx.planned();
+    const make = (hat, h) => (h.lens === 'nature'
+      ? [{ url: 'https://example.org/off', title: 'Off site', snippet: 'Off.' }, { url: 'https://asknature.org.evil.example/x', title: 'Suffix trick', snippet: 'Off.' }]
+      : []);
+    const first = ctx.plan.hats.green.strings[0].q_hash;
+    const hats = { green: fx.approveHat(ctx.plan, 'green', [first]) };
+    const searches = entriesFor(ctx.plan, make, ['green']).filter(e => e.q_hash === first);
+    assert.ok(searches.some(e => e.lens === 'nature'), 'green has a nature host search');
+    const out = await goHost(ctx, fx.approvedFile(ctx, hats), hostFile(ctx, searches), captureSeam());
+    assert.equal(out.ok, true, JSON.stringify(out));
+    const g = out.strings.green[0].host.find(h => h.lens === 'nature');
+    assert.equal(g.state, 'not_executed');
+    assert.equal(g.reason, 'provider_failed:host_off_site');
+    assert.equal(g.refused, 2);
+    assert.equal(g.items, 0);
+    assert.notEqual(out.hats.green, 'ran_empty', 'the host ignored the site limit: the approved search did not run as approved');
+    assert.equal(out.hats.green, 'failed');
+    assert.equal(out.reasons.green, 'provider_failed:host_off_site');
+    assert.equal(fx.ledgerOf(ctx).hats.green.research, 'failed');
+  });
+});
+
 check('W10. red and blue never search; every host string passes the egress audit; an edit recomputes the host strings; the room identity screen still refuses a room word', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();

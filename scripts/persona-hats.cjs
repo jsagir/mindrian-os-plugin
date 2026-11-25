@@ -3567,9 +3567,13 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIn
           topic: record.text,
         });
       }
-      const state = kept.length > 0 ? 'executed_with_results' : 'executed_empty';
-      record.providers.push({ provider: HOST_WEB_PROVIDER, lens, operation_state: state, reason: null, items: kept.length, cache_hit: false });
-      record.host.push({ lens, state, reason: null, items: kept.length, refused });
+      // WR-05: when every result is off the site, the host ignored the site limit and the approved search did not run
+      // as approved. That is a failed provider, never an honest empty answer.
+      const offSite = kept.length === 0 && refused > 0;
+      const state = kept.length > 0 ? 'executed_with_results' : (offSite ? 'not_executed' : 'executed_empty');
+      const reason = offSite ? 'provider_failed:host_off_site' : null;
+      record.providers.push({ provider: HOST_WEB_PROVIDER, lens, operation_state: state, reason, items: kept.length, cache_hit: false });
+      record.host.push({ lens, state, reason, items: kept.length, refused });
     }
   }
   return strings.map(s => ({ q_hash: s.q_hash, text: s.text, record: records.get(s.text), result: stringState(records.get(s.text)) }));
