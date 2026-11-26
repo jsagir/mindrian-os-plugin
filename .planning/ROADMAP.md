@@ -4310,6 +4310,7 @@ Plans:
 **Canon parts:** 8 (local only, no room content to Theo), 9, 11 (check ids are not invocable surfaces), 7 (reuse SENSOR_REGISTRY id pattern and section-job canon, no second selector)
 **Scope (navigator, after EGM Stage 8, 2026-11-26):** the re-scoped transport slice only. Per-nest routing, an applies_when predicate table and a precompiled routing record are OUT (EGM S1, S2, S8). Supersedes 400.4 plan 13.
 **Success criteria:**
+
 1. Two adapters over one transport-independent run(input) core (from 400.4 plan 12): the invariant tier (admin-command-gate, first-install-router) stays a command hook and runs first; the routable tier (brain-derivation-drain, auto-explore-drain, jtbd-update, intent-classifier) runs through ONE mcp_tool UserPromptSubmit hook into the MindrianOS MCP server, in today's fixed order.
 2. Every mcp_tool result is the JSON hookSpecificOutput.additionalContext shape; a test fails if plain text is ever returned (spike: plain text is silently dropped).
 3. The hook tool is declared EXCLUDED with a reason in the connector registry (Part 11), counted in the tool budget, and a direct model call of it is harmless (read-only result or refused).
@@ -4317,6 +4318,7 @@ Plans:
 5. Inside the server, each routable check runs under plan 13's per-check deadline with skipped_deadline; no queue or worker; the whole tool answers inside the hook timeout.
 6. Output parity: the combined context equals what the six separate hooks produced on the parity cases; a block from admin-command-gate still blocks.
 7. Measured on the QA-shaped fixture under load: 20 consecutive prompts with no UserPromptSubmit timeout; p95 hook overhead reported.
+
 **Plans:** 0 plans
 
 Plans:
@@ -4344,7 +4346,7 @@ Plans:
 11. UserPromptSubmit hooks that open room.db finish inside their budget while room.db is locked for 10 s, with a typed room_db_busy outcome (part A); each of the six scripts exports run(input, opts) with a recorded golden (plan 12, the base for Phase 400.5, which owns the transport change).
 12. The statusline cue, the F.1 card and suggest_next name the same next move for the session's own room and goal job, worded with the move's job phrase (QA-F12).
 
-**Plans:** 8/13 plans executed
+**Plans:** 9/13 plans executed
 
 Plans:
 
@@ -4355,7 +4357,7 @@ Plans:
 - [x] 400.4-05 (wave 2; [QA-F8])
 - [x] 400.4-06 (wave 2; [QA-F9])
 - [x] 400.4-07 (wave 2; [QA-F10])
-- [ ] 400.4-08 (wave 3; [QA-F1])
+- [x] 400.4-08 (wave 3; [QA-F1])
 - [ ] 400.4-09 (wave 4; [QA-F2, QA-F3])
 - [x] 400.4-10 (wave 2; [QA-F11])
 - [ ] 400.4-11 (wave 6; [QA-F1, QA-F2, QA-F3, QA-F4, QA-F5, QA-F6, QA-F7, QA-F8, QA-F9, QA-F10, QA-F11])
