@@ -37,9 +37,70 @@ const NAV_PATH = path.join(REPO, 'lib', 'core', 'navigation.cjs');
 // ---------------------------------------------------------------- roles
 
 function runRole(role, args) {
-  // ROLE_SLOT: Task 2 adds the holder and worker roles.
+  if (role === 'holder') return roleHolder(args[0], Number(args[1]));
+  if (role === 'worker') return roleWorker(args[0], args[1], args[2]);
   process.stderr.write('unknown role ' + role + ' ' + args.join(' ') + '\n');
   process.exit(9);
+}
+
+// Role holder: BEGIN IMMEDIATE plus one write, hold on its own timer, commit.
+// The write goes into the existing nodes table (the room.db the parent made).
+// A raw DatabaseSync with timeout 0: the holder is the writer and never waits.
+function roleHolder(dbPath, holdMs) {
+  const { DatabaseSync } = require('node:sqlite');
+  let db;
+  try {
+    db = new DatabaseSync(dbPath, { timeout: 0 });
+    db.exec('BEGIN IMMEDIATE');
+    // One write into an existing table (no new schema, Phase 108 D-05); a
+    // non-indexer type, so the rebuild wipe (Artifact, Section) leaves it alone.
+    db.prepare('INSERT OR REPLACE INTO nodes (id, type, properties) VALUES (?, ?, ?)').run('t367-holder', 'T367Holder', '{}');
+  } catch (e) {
+    process.send({ held: false, message: String(e && e.message) }, () => process.exit(3));
+    return;
+  }
+  process.send({ held: true });
+  setTimeout(() => {
+    try { db.exec('COMMIT'); } catch (_e) { /* the parent sees no committed_at */ }
+    const committedAt = Date.now();
+    try { db.close(); } catch (_e) { /* ignore */ }
+    process.send({ committed_at: committedAt }, () => process.exit(0));
+  }, Number.isFinite(holdMs) && holdMs > 0 ? holdMs : 1500);
+}
+
+// Role worker: one index call on the room while the holder holds the write lock.
+async function roleWorker(mode, roomDir, file) {
+  const lg = require(LG_PATH);
+  let conn = null;
+  let startAt = null;
+  try {
+    ({ conn } = await lg.openGraph(roomDir));
+    if (mode === 'indexArtifact') {
+      startAt = Date.now();
+      await lg.indexArtifact(conn, roomDir, file);
+    } else if (mode === 'rebuildGraph') {
+      startAt = Date.now();
+      await lg.rebuildGraph(conn, roomDir);
+    } else if (mode === 'batch') {
+      const nav = require(NAV_PATH);
+      const content = lg._readArtifactContent(file); // read before the transaction
+      startAt = Date.now();
+      nav.withRoomTx(conn, () => lg.indexArtifactsBatch(conn, roomDir, [{ abs: file, content }], undefined));
+    } else {
+      throw new Error('unknown worker mode ' + mode);
+    }
+    const endAt = Date.now();
+    try { await lg.closeGraph(conn); } catch (_e) { /* ignore */ }
+    process.send({ ok: true, start_at: startAt, end_at: endAt }, () => process.exit(0));
+  } catch (e) {
+    if (conn) { try { await lg.closeGraph(conn); } catch (_e) { /* ignore */ } }
+    process.send({
+      ok: false,
+      errcode: e && typeof e.errcode === 'number' ? e.errcode : null,
+      message: String(e && e.message).slice(0, 300),
+      start_at: startAt,
+    }, () => process.exit(2));
+  }
 }
 
 // ---------------------------------------------------------------- harness
@@ -204,8 +265,115 @@ async function groupBatch() {
 
 // ---------------------------------------------------------------- group ac11
 
+const HOLD_MS = 1500;
+
+// Fork this file in a role. Returns {child, next(pred, timeoutMs), done}.
+function forkRole(args) {
+  const { fork } = require('node:child_process');
+  const child = fork(__filename, ['--role', ...args], { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+  const msgs = [];
+  const waiters = [];
+  let stderr = '';
+  child.stderr.on('data', (d) => { stderr += String(d); });
+  child.on('message', (m) => {
+    msgs.push(m);
+    for (const w of waiters.slice()) w();
+  });
+  const exited = new Promise((resolve) => child.on('exit', (code) => { resolve(code); for (const w of waiters.slice()) w(); }));
+  let exitCode;
+  exited.then((c) => { exitCode = c; });
+  function next(pred, timeoutMs) {
+    return new Promise((resolve) => {
+      const t = setTimeout(() => { remove(); resolve(null); }, timeoutMs);
+      const w = () => {
+        const hit = msgs.find(pred);
+        if (hit) { clearTimeout(t); remove(); resolve(hit); return; }
+        if (exitCode !== undefined) { clearTimeout(t); remove(); resolve(null); }
+      };
+      function remove() { const i = waiters.indexOf(w); if (i >= 0) waiters.splice(i, 1); }
+      waiters.push(w);
+      w();
+    });
+  }
+  return { child, next, exited, stderr: () => stderr };
+}
+
+async function killAndAwait(h) {
+  if (!h) return;
+  if (h.child.exitCode === null && h.child.signalCode === null) {
+    try { h.child.kill('SIGKILL'); } catch (_e) { /* ignore */ }
+  }
+  await h.exited;
+}
+
+// One AC11 run: a holder holds BEGIN IMMEDIATE for HOLD_MS; the worker runs mode.
+async function ac11Run(mode) {
+  const lg = require(LG_PATH);
+  const room = mkRoom('ac11-' + mode);
+  const file = put(room, 'problem-definition/target.md', '# target\n\nAC11 ' + mode + '\n');
+  {
+    const { db } = await lg.openGraph(room); // room.db with the lazygraph schema before the fork
+    await lg.closeGraph(db);
+  }
+  const dbPath = path.join(room, '.mindrian', 'room.db');
+  let holder = null;
+  let worker = null;
+  try {
+    holder = forkRole(['holder', dbPath, String(HOLD_MS)]);
+    const held = await holder.next((m) => m && 'held' in m, 10000);
+    if (!held || held.held !== true) return { setupError: 'the holder did not hold the lock: ' + JSON.stringify(held) + ' ' + holder.stderr() };
+    worker = forkRole(['worker', mode, room, file]);
+    const result = await worker.next((m) => m && 'ok' in m, 30000);
+    const committed = await holder.next((m) => m && 'committed_at' in m, 10000);
+    if (!result) return { setupError: 'the worker sent no result: ' + worker.stderr() };
+    let nodeExists = false;
+    try {
+      const { db } = await lg.openGraph(room);
+      nodeExists = db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE id = 'problem-definition/target' AND type = 'Artifact'").get().n === 1;
+      await lg.closeGraph(db);
+    } catch (_e) { nodeExists = false; }
+    return { result, committedAt: committed ? committed.committed_at : null, nodeExists };
+  } finally {
+    await killAndAwait(worker);
+    await killAndAwait(holder);
+  }
+}
+
+function waitedAndSucceeded(run) {
+  const r = run.result;
+  return r.ok === true && typeof run.committedAt === 'number' &&
+    r.start_at < run.committedAt && run.committedAt <= r.end_at;
+}
+
+function describeRun(run) {
+  if (run.setupError) return run.setupError;
+  const r = run.result;
+  return JSON.stringify({ ok: r.ok, errcode: r.errcode, message: r.message, start_at: r.start_at, end_at: r.end_at,
+    committed_at: run.committedAt, waited_ms: (r.end_at && r.start_at) ? r.end_at - r.start_at : null });
+}
+
 async function groupAc11() {
-  // AC11_SLOT: Task 2 adds I1, I2 and I3.
+  // I3: the runner path that Phase 367 owns (withRoomTx BEGIN IMMEDIATE around indexArtifactsBatch).
+  {
+    const run = await ac11Run('batch');
+    console.log('  I3 run: ' + describeRun(run));
+    check('I3 batch in withRoomTx waits for the holder and succeeds (R9 closed on the runner path)',
+      !run.setupError && waitedAndSucceeded(run), describeRun(run));
+    check('I3 the Artifact node exists after the worker ends', !run.setupError && run.nodeExists === true);
+  }
+  // I1 and I2: the lazygraph index path; BEGIN IMMEDIATE there is plan 400.3-06 (owner ruling C10).
+  for (const [label, mode] of [['I1 indexArtifact', 'indexArtifact'], ['I2 rebuildGraph', 'rebuildGraph']]) {
+    const run = await ac11Run(mode);
+    console.log('  ' + label + ' run: ' + describeRun(run));
+    if (run.setupError) { check(label + ' setup', false, run.setupError); continue; }
+    if (waitedAndSucceeded(run)) {
+      check(label + ' waits for the holder and succeeds', true);
+    } else if (run.result.ok === false && typeof run.result.errcode === 'number' && (run.result.errcode & 255) === 5) {
+      known(label + ' busy under a concurrent writer', 'errcode ' + run.result.errcode + '; BEGIN IMMEDIATE on the index path is plan 400.3-06 (owner ruling C10)');
+    } else {
+      check(label + ' waits and succeeds, or fails with errcode & 255 === 5', false, describeRun(run));
+    }
+  }
 }
 
 // ---------------------------------------------------------------- main
