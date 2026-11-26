@@ -206,8 +206,66 @@ async function groupLock() {
     JSON.stringify({ INDEX_BUSY_MS: graphOps.INDEX_BUSY_MS, INDEX_LOCK_WAIT_MS: graphOps.INDEX_LOCK_WAIT_MS }));
 }
 
+// ---------------------------------------------------------------------------
+// Group backfill (B1-B3)
+// ---------------------------------------------------------------------------
+function mkManyRoom(parent, name, n) {
+  const room = mkRoom(parent, name);
+  const files = [];
+  for (let i = 0; i < n; i++) {
+    const f = path.join(room, 'sec', 'f' + i + '.md');
+    fs.writeFileSync(f, ARTIFACT.replace('A note', 'Note ' + i));
+    files.push(f);
+  }
+  return { room, files };
+}
+async function groupBackfill() {
+  console.log('\n-- group backfill --');
+  const root = mkRoot('backfill');
+  const fn = graphOps.indexArtifactsStopOnBusy;
+  if (typeof fn !== 'function') {
+    check('B1-B3 graphOps.indexArtifactsStopOnBusy exists', false, typeof fn);
+    return;
+  }
+
+  // B1
+  const m = mkManyRoom(root, 'b1', 20);
+  {
+    let h = null;
+    try {
+      h = await startHolder(m.room);
+      const r = await timed(() => fn(m.room, m.files, { busyMs: graphOps.INDEX_BUSY_MS }));
+      check('B1 a held foreign write: indexed 0, stopped room_db_busy, in less than 1500 ms (measured ' + r.ms.toFixed(0) + ' ms)',
+        !r.err && r.result && r.result.indexed === 0 && r.result.stopped === 'room_db_busy' && r.ms < 1500,
+        errInfo(r.err) + ' ' + JSON.stringify(r.result));
+    } catch (e) { check('B1 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // B2
+  {
+    const r = await timed(() => fn(m.room, m.files, { busyMs: graphOps.INDEX_BUSY_MS }));
+    let rows = 0;
+    for (let i = 0; i < 20; i++) rows += artifactRows(m.room, 'sec/f' + i);
+    check('B2 no holder: indexed 20, stopped null, 20 Artifact rows',
+      !r.err && r.result && r.result.indexed === 20 && r.result.stopped === null && rows === 20,
+      errInfo(r.err) + ' ' + JSON.stringify(r.result) + ' rows=' + rows);
+  }
+
+  // B3
+  {
+    const m3 = mkManyRoom(root, 'b3', 3);
+    const files = [m3.files[0], path.join(m3.room, 'sec', 'missing.md'), m3.files[2]];
+    const r = await timed(() => fn(m3.room, files, { busyMs: graphOps.INDEX_BUSY_MS }));
+    check('B3 a missing file does not stop the loop: indexed 2, stopped null',
+      !r.err && r.result && r.result.indexed === 2 && r.result.stopped === null,
+      errInfo(r.err) + ' ' + JSON.stringify(r.result));
+  }
+}
+
 async function main() {
   if (GROUP === 'lock' || GROUP === 'all') await groupLock();
+  if (GROUP === 'backfill' || GROUP === 'all') await groupBackfill();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
