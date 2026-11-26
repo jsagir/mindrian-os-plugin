@@ -230,7 +230,7 @@ arm('I1 ROOM.md present, purpose or first heading present, CONTEXT.md job_id (ro
 // 369.25-07 RE-MEASURED: the root ROOM.md gained one icm_self line (`  room_id: "<uuid>"`, 50 bytes) because birth now commits the
 // identity and the map projects it: root 35 lines 1042 bytes became 36 lines 1092 bytes (wc -l, wc -c on a fresh release
 // fixture room born offline); room b's root 41/1158 became 42/1208. No nest changes (nests are not rooms).
-// 400.3.1 RE-MEASURED: 35922a28b (389-09) renamed mva-brief to structure-argument in the venture family's default_methodologies
+// 400.3.1 RE-MEASURED: 35922a28b (389-09) replaced the retired brief command with structure-argument in the venture family's default_methodologies
 // (data/room-blueprints.json); every core nest's ROOM.md lists it, +9 bytes each (room a 11 core nests, room b A, B, C).
 const A_I2 = { // [lines, bytes] ; wikilinks are 0 in every nest of room a
   '.': [36, 1092], assets: [21, 709], 'business-model': [44, 1476], 'competitive-analysis': [44, 1501], 'financial-model': [44, 1429],
@@ -346,7 +346,7 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // that has a FEYNMAN.md grows by 46 bytes (wc -c per file, room a: 573 585 575 559 561 575 577 581 575 561 573 became
 // 619 631 621 605 607 621 623 627 621 607 619). Each value below is that nest's ROOM.md + FEYNMAN.md (wc -c), e.g.
 // business-model 1467 + 619 = 2086. BRAIN.md is not one of the I7 load files, so the face adds nothing here.
-// 400.3.1 RE-MEASURED: 35922a28b (389-09) renamed mva-brief to structure-argument in the venture family's
+// 400.3.1 RE-MEASURED: 35922a28b (389-09) replaced the retired brief command with structure-argument in the venture family's
 // default_methodologies (data/room-blueprints.json), which every core nest's ROOM.md frontmatter lists: +9 bytes per core
 // nest ROOM.md (e.g. business-model 1476 + 619 = 2095). assets, references, team and the root carry no such line.
 const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
