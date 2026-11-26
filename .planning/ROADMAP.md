@@ -4322,6 +4322,17 @@ Plans:
 
 - [ ] TBD (run /gsd-plan-phase 400.1 to break down)
 
+### Phase 400.3: Timeouts that lie: hook budgets, room-db contention and filing that never reaches the graph (INSERTED)
+
+**Goal:** Every artifact filed into a room reaches the local graph on every platform, and no hook is killed by its own lock wait or reports success after a failed step. P0: index on MCP filing, room-root detection instead of the /rooms/ path rule, honest partial/busy status, graph-index survives write.lock, the two block-on-timeout guards answer before the host kills them. P1: hook-safe room.db opener and ordered PostToolUse opens, post-write cascade off the foreground, Stop-gate wait inside its budget, room auto-create never deletes a registered room. P2: six smaller kill-state fixes. Plans 01-02 first (PwS Academy Windows filing bug). Source: 400.3-PROPOSAL.md (verified against b0b71ecc5); native Windows timing still unmeasured. Overlaps Phase 402 (card-fire fix, hook consolidation).
+**Requirements**: TBD
+**Depends on:** Phase 400
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.3 to break down)
+
 ### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
 
 **Goal:** [To be planned]
