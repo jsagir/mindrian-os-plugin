@@ -172,6 +172,8 @@ const ALLOWED_DIRECT_IMPORT = [
   // a measurement harness for a derived threshold file, not graph state (Canon Part
   // 9). It makes no network or Brain call (Canon Part 8).
   /^scripts\/eureka-portfolio-calibrate\.cjs$/,
+  // Phase 367 catch-up indexer: generated index of room files
+  /^scripts\/graph-catchup\.cjs$/,
 ];
 
 function isAllowedPath(p) {

@@ -33,8 +33,13 @@ PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # must not hang and must not error. LOCAL-only (Canon Part 8): this only reads
 # a local transcript path; no network, no Brain.
 HOOK_STDIN="$(cat 2>/dev/null || true)"
+# Phase 367 design 5.3: the same parse also reads cwd and session_id (one line each, \r and \n removed).
+HOOK_CWD=""
+HOOK_SESSION=""
 if [ -n "$HOOK_STDIN" ]; then
-  TRANSCRIPT_PATH="$(printf '%s' "$HOOK_STDIN" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);process.stdout.write(j.transcript_path||'')}catch(_){process.stdout.write('')}})" 2>/dev/null || true)"
+  HOOK_PARSED="$(printf '%s' "$HOOK_STDIN" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const c=v=>typeof v==='string'?v.replace(/[\r\n]/g,''):'';try{const j=JSON.parse(d);process.stdout.write(c(j.transcript_path)+'\n'+c(j.cwd)+'\n'+c(j.session_id)+'\n')}catch(_){process.stdout.write('\n\n\n')}})" 2>/dev/null || true)"
+  TRANSCRIPT_PATH=""
+  { IFS= read -r TRANSCRIPT_PATH; IFS= read -r HOOK_CWD; IFS= read -r HOOK_SESSION; } <<< "$HOOK_PARSED" || true
   if [ -n "$TRANSCRIPT_PATH" ]; then
     export MINDRIAN_TRANSCRIPT_PATH="$TRANSCRIPT_PATH"
     if [ "${MINDRIAN_MEMORY_DEBUG:-}" = "1" ]; then
@@ -46,6 +51,9 @@ fi
 # Quick 261118-vbv: the Part 8 telemetry drain writes the rows the Part 8 hook queued (via
 # part8-egress-ontology and navigation.cjs). Self-bounded (4 s); never changes this hook. LOCAL only.
 printf '%s' "$HOOK_STDIN" | node "${SCRIPT_DIR}/part8-egress-telemetry-drain.cjs" --stop >/dev/null 2>&1 || true
+# Phase 367 design 5.3 and Goldfish R5 IR-B2: one detached catch-up run per Stop, on both branches below.
+# The whole subshell is detached from the hook pipes, so the hook reaches EOF while the runner works.
+( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "${HOOK_CWD:-$PWD}" --session "${HOOK_SESSION:-}" --trigger stop || true ) </dev/null >/dev/null 2>&1 &
 
 # Phase 198-09 (SPEC-5, D-05/D-06) -- thin Stop adapter under the flag.
 # BEGIN-MCP-FIRST-STOP-THIN-ADAPTER
