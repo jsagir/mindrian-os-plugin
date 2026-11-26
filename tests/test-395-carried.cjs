@@ -236,7 +236,9 @@ async function main() {
       assert.ok(r.goal_job && typeof r.goal_job === 'object', 'goal_job is in the reply for ' + where);
       assert.strictEqual(r.goal_job.state, 'not_set', where);
       assert.strictEqual(r.goal_job.id, null, where);
-      assert.deepStrictEqual(r.goal_job.offers, expectedOffers, where);
+      // Phase 400.4 QA-F1: offers carry id, label and sentence; offer_ids keeps the ids.
+      assert.deepStrictEqual(r.goal_job.offer_ids, expectedOffers, where);
+      assert.deepStrictEqual(r.goal_job.offers.map((o) => o.id), expectedOffers, where);
       assert.strictEqual(typeof r.goal_job.how_to, 'string', where);
       assert.ok(r.goal_job.how_to.indexOf('No goal job ranks the next move.') === 0, 'how_to starts with the state: ' + where);
     }
@@ -245,10 +247,12 @@ async function main() {
   await check('A2. the offers are job ids of the vocabulary, explore left out, at most ' + OFFERS_MAX, async () => {
     const r = await call(suggestNext, { section: SEC });
     assert.ok(registry.JOB_VOCABULARY.indexOf('explore') !== -1, 'precondition: explore is in the vocabulary');
-    assert.ok(r.goal_job.offers.length > 0 && r.goal_job.offers.length <= OFFERS_MAX, 'count: ' + r.goal_job.offers.length);
-    assert.ok(r.goal_job.offers.indexOf('explore') === -1, 'explore is not offered');
-    r.goal_job.offers.forEach((id) => assert.ok(registry.isDeclaredJob(id), id + ' is in the job vocabulary'));
-    assert.ok(r.goal_job.offers.indexOf(JOB_A) !== -1 && r.goal_job.offers.indexOf(JOB_B) !== -1, 'the two jobs of this test are offered');
+    // Phase 400.4 QA-F1: offers carry id, label and sentence; offer_ids keeps the ids.
+    const ids = r.goal_job.offer_ids;
+    assert.ok(ids.length > 0 && ids.length <= OFFERS_MAX, 'count: ' + ids.length);
+    assert.ok(ids.indexOf('explore') === -1, 'explore is not offered');
+    ids.forEach((id) => assert.ok(registry.isDeclaredJob(id), id + ' is in the job vocabulary'));
+    assert.ok(ids.indexOf(JOB_A) !== -1 && ids.indexOf(JOB_B) !== -1, 'the two jobs of this test are offered');
   });
 
   await check('A3. the how_to sentence names each step and the limit of a closed dialog', async () => {
@@ -319,7 +323,8 @@ async function main() {
       const where = JSON.stringify(args);
       assert.strictEqual(r.goal_job.state, 'set', where);
       assert.strictEqual(r.goal_job.id, JOB_A, where);
-      assert.deepStrictEqual(r.goal_job.offers, expectedOffers, where);
+      // Phase 400.4 QA-F1: offers carry id, label and sentence; offer_ids keeps the ids.
+      assert.deepStrictEqual(r.goal_job.offer_ids, expectedOffers, where);
       assert.ok(r.goal_job.how_to.indexOf('The goal job of this room ranks the next move in every nest: ' + JOB_A + '. To change it:') === 0, 'how_to: ' + r.goal_job.how_to.slice(0, 120));
       assert.ok(r.goal_job.how_to.indexOf('No goal job ranks') === -1, where);
       assert.deepStrictEqual(cardFromSentence(r.goal_job.how_to).approving, ['rewrite-jtbd']);
