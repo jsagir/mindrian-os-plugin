@@ -4307,6 +4307,7 @@ Plans:
 **Depends on:** Phase 400
 **Canon parts:** 8 (no new egress; Eureka excerpt stays local), 9 (unratified counts never mixed into ratified lists), 11 (no new surface), 7 (reuse existing data files)
 **Success criteria:**
+
 1. `suggest_next` `goal_job.offers` carry id, label and sentence from data/job-vocabulary.json; the strategy_goal card shows the plain job label.
 2. With a goal job set and no active nest, `suggest_next` returns a ranked primary (nest picked from data/section-job-canon.json) and says so.
 3. With a stored domain and the advisor off, the next move carries a domain note; with the advisor on, alternatives follow the advisor shortlist order.
@@ -4318,11 +4319,12 @@ Plans:
 9. Cause-and-effect card options carry one-line descriptions.
 10. A cold-start replay on a copy of a large room passes all of the above.
 11. UserPromptSubmit runs as ONE dispatcher process (six checks in-process, parity with the six separate hooks) that answers inside its 3 s budget while room.db is locked for 10 s; room.db hooks report a typed room_db_busy outcome.
-**Plans:** 13 plans in 5 waves
+
+**Plans:** 1/13 plans executed
 
 Plans:
 
-- [ ] 400.4-01 (wave 1; [QA-F5])
+- [x] 400.4-01 (wave 1; [QA-F5])
 - [ ] 400.4-02 (wave 2; [QA-F4])
 - [ ] 400.4-03 (wave 2; [QA-F6])
 - [ ] 400.4-04 (wave 3; [QA-F7])
