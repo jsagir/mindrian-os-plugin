@@ -1,0 +1,83 @@
+# Base census at b0b71ecc5 (phase 400.4, plan 01). One line per test: path, then PASS, MISSING, or FAIL plus the first failing line.
+# Measured with HOME and MINDRIAN_ROOMS_HOME set to fresh temp dirs, node v22.23.1, after npm ci --ignore-scripts, before any code edit.
+tests/test-399-adapter.cjs PASS
+tests/test-399-advisor-fence.cjs PASS
+tests/test-399-bench.cjs PASS
+tests/test-399-capability-labels.cjs PASS
+tests/test-399-egress-line.cjs PASS
+tests/test-399-job-labels.cjs PASS
+tests/test-399-job-vocabulary.cjs PASS
+tests/test-399-one-selector-fence.cjs PASS
+tests/test-399-problem-axes.cjs PASS
+tests/test-399-run-steps.cjs PASS
+tests/test-399-selection-log.cjs PASS
+tests/test-399-selector-advisor.cjs PASS
+tests/test-399-table.cjs PASS
+tests/test-399-transport-capture.cjs PASS
+tests/test-399-workflow-advisor.cjs PASS
+tests/test-400-advisor-consumers.cjs PASS
+tests/test-400-advisor-domain.cjs PASS
+tests/test-400-capability-cynefin-labels.cjs PASS
+tests/test-400-cause-effect-axis.cjs PASS
+tests/test-400-cynefin-domains.cjs PASS
+tests/test-400-description-budget.cjs PASS
+tests/test-400-domain-gate.cjs PASS
+tests/test-400-domain-store.cjs PASS
+tests/test-400-domain-suggest-next.cjs PASS
+tests/test-400-job-sentence-lib.cjs PASS
+tests/test-400-job-sentences.cjs PASS
+tests/test-400-job-vocabulary-sentences.cjs PASS
+tests/test-400-labels-only-domain.cjs PASS
+tests/test-400-problem-axes-wording.cjs PASS
+tests/test-400-relay-fence.cjs PASS
+tests/test-400-relay-packaging.cjs PASS
+tests/test-400-relay-server.cjs PASS
+tests/test-400-relay-transport.cjs PASS
+tests/test-400-relay.cjs PASS
+tests/test-400-review-lists.cjs PASS
+tests/test-400-selection-domain.cjs PASS
+tests/test-395-measure.cjs PASS
+tests/test-395-carried.cjs PASS
+tests/test-395-truth-and-cost.cjs PASS
+tests/test-395-truth-fixes.cjs PASS
+tests/test-395-job-shown.cjs FAIL FAIL: B2. suggest_next, a nest with no job and candidates: offers and how_to_set_job -- the offers include validate-idea
+tests/test-261125-runtime-core-forced-style.cjs PASS
+tests/test-spine-navigates-decide.cjs PASS
+tests/test-149-requirement-nodes.cjs PASS
+tests/test-363-filing.cjs PASS
+tests/test-149-navigable.cjs PASS
+tests/test-navigation-perf-10k.cjs PASS
+tests/test-356-label-sheet.cjs PASS
+tests/test-251-skeleton-split.cjs PASS
+tests/test-3551-tri-polar.cjs FAIL FAIL: AssertionError [ERR_ASSERTION]: hooks.json[PreToolUse] must be unchanged from BASE_NON_STOP (timeout and onFailure aside)
+tests/test-150-orphans.cjs PASS
+tests/test-209-engine-arm-contract.cjs PASS
+tests/test-372-omitted.cjs PASS
+tests/test-347-ranked-set-exclusion.cjs PASS
+tests/test-navigation-neighborhood.cjs PASS
+tests/test-navigation-insights.cjs PASS
+tests/test-navigation-acceptance.cjs PASS
+tests/test-353-turn-budget.cjs PASS
+tests/test-347-context-focus.cjs PASS
+tests/test-legd-recency-golden.cjs PASS
+tests/test-150-cortex-local-query.cjs PASS
+tests/test-eureka-graph-projection.cjs PASS
+lib/core/navigation/engine-projection.test.cjs PASS
+lib/workflow/command-resolver.test.cjs FAIL AssertionError [ERR_ASSERTION]: Red Teaming must remain command-less for this assertion to be meaningful
+lib/memory/suggest-next-workflow.test.cjs FAIL AssertionError [ERR_ASSERTION]: Six Thinking Hats resolves to /mos:hat-briefing first
+lib/memory/chain-recommender.test.cjs PASS
+lib/memory/framework-chain-composer.test.cjs PASS
+lib/memory/workflow-layer-e2e.test.cjs FAIL AssertionError [ERR_ASSERTION]: build-command-registry.cjs must contain no write-Cypher
+lib/memory/navigation-hook-resolver.test.cjs PASS
+tests/test-198-chain-run-halt.test.cjs PASS
+tests/test-show-share-sensor.cjs PASS
+tests/test-205-sens10-circularity.cjs FAIL AssertionError [ERR_ASSERTION]: SENS-10 is the LAST registry entry (append, not insert)
+tests/test-publish-needs-flow.cjs PASS
+tests/test-261029-qef-hook-timeouts.cjs FAIL FAIL A1 shape: only timeout and onFailure differ from a13ab61f1
+tests/test-391-hooks-contract.cjs PASS
+tests/test-385-hook-unwire.cjs PASS
+tests/test-270-tool-schema-budget.cjs PASS
+tests/test-355-naming-honesty.cjs PASS
+tests/test-36925-brief.cjs PASS
+tests/test-395-job-statements.cjs PASS
+tests/run-all-400.sh PASS

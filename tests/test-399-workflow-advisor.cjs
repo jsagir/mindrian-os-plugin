@@ -77,7 +77,14 @@ check('W1 no options, and undefined options, deep-equal the base output for 3 ch
     assert.deepStrictEqual(a, b);
     assert.deepEqual(indexOnlyProps(a), []);
     for (const s of a) {
-      assert.deepEqual(Object.keys(s).sort(), ['command', 'framework', 'optional', 'step']);
+      // Phase 400.4-01 (QA-F5): a name in no registry key, no command id and no data/framework-names.json entry
+      // now carries unresolved true and a reason. Any other step keeps the four base keys.
+      if (s.unresolved === true) {
+        assert.equal(s.reason, 'unknown_framework_name');
+        assert.deepEqual(Object.keys(s).sort(), ['command', 'framework', 'optional', 'reason', 'step', 'unresolved']);
+      } else {
+        assert.deepEqual(Object.keys(s).sort(), ['command', 'framework', 'optional', 'step']);
+      }
     }
     // Even with the advisor on, options without a job id change nothing.
     withEnv(ON(T_PICK), () => {
@@ -146,7 +153,9 @@ check('W4 zero commands keeps command null and optional, with no basis; one comm
   assert.ok(one, 'fixture: a framework with one command exists');
   const wf = withEnv(ON(T_PICK), () => resolver.composeWorkflow(['No Such Framework 399', one[0]], { jobId: JOB }));
   assert.equal(wf[0].command, null);
-  assert.equal(wf[0].optional, true);
+  // Phase 400.4-01 (QA-F5): the fake name is unknown, so it is unresolved (optional false), not a silent optional step.
+  assert.equal(wf[0].unresolved, true);
+  assert.equal(wf[0].optional, false);
   assert.equal('command_basis' in wf[0], false);
   assert.equal('ranked_commands' in wf[0], false);
   assert.equal(wf[1].command, one[1][0]);
