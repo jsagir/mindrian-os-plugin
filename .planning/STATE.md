@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: "Completed 400.4-14-PLAN.md (QA-F12 one voice: shared nextMoveForGoalJob for suggest_next and decide(), per-session cue records in plain words, hook block and cue keyed to the session room, next_move line in the NAV block; runner PASSED=86 FAILED=0 KNOWN=9; Phase 400.4 plan 11 next; plan 13 moved to Phase 400.5)"
-last_updated: "2026-11-26T14:43:18.809Z"
-last_activity: "2026-11-26 - Completed 400.4-14 (QA-F12 one voice for the cue, the NAV block and suggest_next)"
+stopped_at: "Completed 400.4-11-PLAN.md (cold-start replay on a QA-shaped room, legs A1-A11 and A13, 13 ok; SEED-170 and SEED-171 filed; final hook pass matches the recorded base lines; runner PASSED=87 FAILED=0 KNOWN=9; Phase 400.4 plans 01-12 and 14 done, plan 13 moved to Phase 400.5; ready for phase verification)"
+last_updated: "2026-11-26T14:58:02.584Z"
+last_activity: "2026-11-26 - Completed 400.4-11 (cold-start replay acceptance and close-out of Phase 400.4)"
 progress:
   total_phases: 170
-  completed_phases: 50
+  completed_phases: 51
   total_plans: 935
-  completed_plans: 814
-  percent: 29
+  completed_plans: 815
+  percent: 30
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
@@ -7451,6 +7451,7 @@ Progress: [█████████░] 86%
 | Phase 400.4 P10 | 2h | 3 tasks | 13 files |
 | Phase 400.4 P04 | 50min | 4 tasks | 8 files |
 | Phase 400.4 P12 | 25min | 3 tasks | 14 files |
+| Phase 400.4 P11 | 50min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -9214,6 +9215,7 @@ Progress: [█████████░] 86%
 - [Phase 383]: 383-05: no-room memory and missing-tools sentences sit in the second Operating invisibly bullet, not on the Operating policy line (D7h freeze); larry-extended body is 12740 B of the 12752 B cap, so plan 06 must cut as much as it adds
 - [Phase 383]: 383-06: check-card-fire.cjs unchanged (F1 to F3 green at HEAD); QA383-05 is a doctrine-wording fix. larry-extended SEED-117 sentence shortened to fit the 12752 B body cap (12735 B now); Give not Show to pass D7h.
 - [Phase 383]: [383-07] Reply length is a shadow voice-length row (counts only, never blocks); promotion is a human edit after a reviewed window
+- [Phase 400.4]: [400.4-11] seeds filed as SEED-170 and SEED-171 to avoid collisions with other sessions; budget test passed unchanged so no AFTER record was added
 
 ### Pending Todos
 
@@ -9461,8 +9463,8 @@ Progress: [█████████░] 86%
 **Phase 399 plan 10 (2026-11-24, hand-written):** three commits, a2a2b4bc5 (scripts/bench-decision-routing.cjs, tests/test-399-bench.cjs: top-3 recall, AUC, ECE, Brier, 5 folds by command, a view without the 26 circular D-07 labels, 4 shuffled option orders for Jev and 1 for Gemini, provider mode refuses with egress_line_off), 49a7982a7 (runner runs 5 phase-owned checks) and dda98c8f1 (dash check in the vocabulary test as escapes). Decision: the advisor stays opt-in; the numbers (73.6% per-command top-3 recall excluding the 26 labels, 31.9% random; ECE 0.027) are internal and partly circular. Gates: doctor acceptance 25/25, drift 0 findings, connector OK, shape 55 WARN, 395/36925/3696 failures match base. NEXT: owner README refresh and release-ceremony wiring of the table check.
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-26T14:43:18.723Z
-Stopped at: Completed 400.4-14-PLAN.md (QA-F12 one voice: shared nextMoveForGoalJob for suggest_next and decide(), per-session cue records in plain words, hook block and cue keyed to the session room, next_move line in the NAV block; runner PASSED=86 FAILED=0 KNOWN=9; Phase 400.4 plan 11 next; plan 13 moved to Phase 400.5)
+Last session: 2026-11-26T14:57:57.615Z
+Stopped at: Completed 400.4-11-PLAN.md (cold-start replay on a QA-shaped room, legs A1-A11 and A13, 13 ok; SEED-170 and SEED-171 filed; final hook pass matches the recorded base lines; runner PASSED=87 FAILED=0 KNOWN=9; Phase 400.4 plans 01-12 and 14 done, plan 13 moved to Phase 400.5; ready for phase verification)
 
 **Quick 261108-asx (2026-11-08, hand-written; no gsd-tools state write used):** Phase 391 has 8 plans, summaries 01 to 06 (391-04 ended at owner cards C1 to C6, PENDING; 391-07 and 391-08 wait for owner tokens). Phase 389 has 14 plans, summaries 01 to 05 (389-02 ended at owner cards D1 to D11, PENDING; 389-06 to 389-13 are gated on owner tokens). Phase 390 has 5 plans, all with summaries (Wave 0 complete; 390-05 ended at group answers G1 to G6, PENDING; no cut executed). Release: v2.0.0-beta.81 is cut (tag 8455416a5 on origin, npm latest); repo is 2.0.0-beta.82 in progress; Phase 383 shipped partial, plan 383-11 (Windows retest) pending the owner; website step skipped on purpose. The frontmatter `stopped_at` above is the newer pointer.
 
