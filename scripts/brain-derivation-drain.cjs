@@ -261,6 +261,36 @@ async function runDrain(roomDir, opts) {
   }
 }
 
+// ---------- Phase 400.4 plan 10 (QA-F11): write-lock gate ----------
+// room.db opens with a 5 s busy wait but this hook has a 3 s host budget. Check the write lock first with one
+// busy wait of up to HOOK_BUSY_MS (750 ms). After the first busy the process cap drops to 0, so the second try
+// is a no-wait re-probe (the one retry). When room.db stays busy: one stderr note, exit 0, nothing written.
+// Returns true when the caller must stop. A room with no room.db, or a probe that cannot run, does not stop.
+function roomDbIsBusyForHook(roomDir) {
+  try {
+    const busyCap = require('../lib/core/hook-busy-cap.cjs');
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+    const navigation = require('../lib/core/navigation.cjs');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const reasonSink = [];
+      const handle = navigation.openRoomDbForCaller(roomDir, {
+        busyMs: busyCap.HOOK_BUSY_MS,
+        probeWrite: true,
+        reasonSink: reasonSink,
+      });
+      if (handle) {
+        navigation.closeRoomDbForCaller(handle);
+        return false;
+      }
+      if (!reasonSink.includes('room_db_busy')) return false;
+    }
+    process.stderr.write('[brain-derivation-drain] room_db_busy: room.db is locked by another process; this prompt skips brain-derivation-drain.\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
@@ -285,6 +315,8 @@ async function runDrain(roomDir, opts) {
       process.exit(0);
       return;
     }
+    // QA-F11: gate before any child is spawned. The cap is module state, so a spawned child keeps the 5 s wait.
+    if (roomDbIsBusyForHook(roomDir)) { process.exit(0); return; }
     await runDrain(roomDir, args);
     process.exit(0);
   } catch (_e) {

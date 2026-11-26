@@ -167,6 +167,37 @@ function selectTopFinding(findings, ledgerEntries) {
   return capped[0];
 }
 
+
+// ---------- Phase 400.4 plan 10 (QA-F11): write-lock gate ----------
+// room.db opens with a 5 s busy wait but this hook has a 3 s host budget. Check the write lock first with one
+// busy wait of up to HOOK_BUSY_MS (750 ms). After the first busy the process cap drops to 0, so the second try
+// is a no-wait re-probe (the one retry). When room.db stays busy: one stderr note, exit 0, nothing written.
+// Returns true when the caller must stop. A room with no room.db, or a probe that cannot run, does not stop.
+function roomDbIsBusyForHook(roomDir) {
+  try {
+    const busyCap = require('../lib/core/hook-busy-cap.cjs');
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+    const navigation = require('../lib/core/navigation.cjs');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const reasonSink = [];
+      const handle = navigation.openRoomDbForCaller(roomDir, {
+        busyMs: busyCap.HOOK_BUSY_MS,
+        probeWrite: true,
+        reasonSink: reasonSink,
+      });
+      if (handle) {
+        navigation.closeRoomDbForCaller(handle);
+        return false;
+      }
+      if (!reasonSink.includes('room_db_busy')) return false;
+    }
+    process.stderr.write('[auto-explore-drain] room_db_busy: room.db is locked by another process; this prompt skips auto-explore-drain.\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 // ---------- Main flow ----------
 
 function main() {
@@ -191,6 +222,9 @@ function main() {
 
   const top = selectTopFinding(findings, ledger);
   if (!top) return emitEmpty();
+
+  // QA-F11: nothing has been written yet; stop here when room.db is write-locked.
+  if (roomDbIsBusyForHook(roomDir)) return emitEmpty();
 
   // Resolve operator + tier (defensive defaults; downstream dispatcher enforces).
   const operator = String(process.env.MINDRIAN_OPERATOR || 'AUTONOMOUS');
