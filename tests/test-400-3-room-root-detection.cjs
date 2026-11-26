@@ -355,9 +355,13 @@ async function groupCascade() {
         const t0 = msNow();
         const c10 = await run(r10, path.join(r10, 'sec', 'a.md'));
         const ms = msNow() - t0;
-        check('C10 a held SQLite write transaction gives graphIndex error room_db_busy after 600-2500 ms (measured ' + ms.toFixed(0) + ' ms)',
-          c10.graphIndex && c10.graphIndex.status === 'error' && c10.graphIndex.reason === 'room_db_busy' && ms >= 600 && ms < 2500,
+        check('C10 a held SQLite write transaction gives graphIndex error room_db_busy in less than 2500 ms (measured ' + ms.toFixed(0) + ' ms)',
+          c10.graphIndex && c10.graphIndex.status === 'error' && c10.graphIndex.reason === 'room_db_busy' && ms < 2500,
           JSON.stringify(c10.graphIndex));
+        // Plan contract: the busy wait is used (600 ms or more). Kept as its own arm so a conflict with the code
+        // stays visible and is not hidden inside the reason check.
+        check('C10 the index waited 600 ms or more for the SQLite lock (measured ' + ms.toFixed(0) + ' ms)', ms >= 600,
+          'lazygraph indexArtifact reads inside a deferred BEGIN before its first INSERT; SQLite returns SQLITE_BUSY at once on that upgrade in WAL mode');
       } catch (e) { check('C10 fixture', false, e.message); }
       await stopDbLockHolder(h);
     }
