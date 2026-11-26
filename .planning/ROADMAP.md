@@ -4344,14 +4344,14 @@ Plans:
 11. UserPromptSubmit hooks that open room.db finish inside their budget while room.db is locked for 10 s, with a typed room_db_busy outcome (part A); each of the six scripts exports run(input, opts) with a recorded golden (plan 12, the base for Phase 400.5, which owns the transport change).
 12. The statusline cue, the F.1 card and suggest_next name the same next move for the session's own room and goal job, worded with the move's job phrase (QA-F12).
 
-**Plans:** 7/13 plans executed
+**Plans:** 8/13 plans executed
 
 Plans:
 
 - [x] 400.4-01 (wave 1; [QA-F5])
 - [x] 400.4-02 (wave 2; [QA-F4])
 - [x] 400.4-03 (wave 2; [QA-F6])
-- [ ] 400.4-04 (wave 3; [QA-F7])
+- [x] 400.4-04 (wave 3; [QA-F7])
 - [x] 400.4-05 (wave 2; [QA-F8])
 - [x] 400.4-06 (wave 2; [QA-F9])
 - [x] 400.4-07 (wave 2; [QA-F10])
