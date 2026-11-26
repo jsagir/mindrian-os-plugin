@@ -220,20 +220,107 @@ async function main() {
 
 
   // ---- R1 to R5 ----------------------------------------------------------------------------------------------
+  await leg('R1 rowForJob reads the stored row as data, flag independent', async () => {
+    assert.equal(typeof SL.rowForJob, 'function');
+    withEnv({ MINDRIAN_DECISION_ADVISOR: null, MINDRIAN_DECISION_ADVISOR_TABLE: null }, () => {
+      const row = SL.rowForJob(PITCH);
+      const stored = TABLE.rows[PITCH + '|*|*'];
+      assert.deepEqual(row.map((x) => x.command), stored.map((x) => x.command));
+      for (const x of row) {
+        assert.deepEqual(Object.keys(x).sort(), ['band', 'command']);
+        assert.ok(['strong', 'possible', 'weak'].includes(x.band));
+      }
+      assert.equal(SL.rowForJob('nope'), null);
+      assert.equal(SL.rowForJob(undefined), null);
+      assert.equal(process.env.MINDRIAN_DECISION_ADVISOR, undefined);
+    });
+    // a temp table path is honored
+    const tmp = path.join(iso.home, 'one-row-table.json');
+    const t2 = JSON.parse(JSON.stringify(TABLE));
+    t2.rows[PITCH + '|*|*'] = [{ command: '/mos:persona', calibrated: 0.9 }];
+    fs.writeFileSync(tmp, JSON.stringify(t2));
+    withEnv({ MINDRIAN_DECISION_ADVISOR_TABLE: tmp }, () => {
+      const row = SL.rowForJob(PITCH);
+      assert.deepEqual(row, [{ command: '/mos:persona', band: 'strong' }]);
+    });
+  });
 
   const cap = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'capability.cjs'));
   const runnableOnMcp = (name) => { try { const c = cap.capabilityFor(name, { kind: 'command' }); return !!(c && c.known !== false && c.mcp === 'runnable'); } catch (_e) { return false; } };
   const reasonSentence = 'No section of data/section-job-canon.json is mapped to the goal job ' + PITCH + ', so this is a room-level move for the job.';
 
   let r2reply = null;
+  await leg('R2 goal prepare-pitch, flag unset: a room-level move from the stored job row', async () => {
+    await setGoal(PITCH);
+    const r = await withEnv({ MINDRIAN_DECISION_ADVISOR: null, MINDRIAN_DECISION_ADVISOR_TABLE: null }, () => pull());
+    r2reply = r;
+    assert.ok(r.next_move.primary, JSON.stringify(r.next_move));
+    assert.equal(r.next_move_source, 'room_level');
+    assert.equal(r.nest_source, 'goal_job_room_level');
+    assert.ok(!('nest_section' in r));
+    assert.equal(r.next_move.room_level_source, 'decision_advisor_table');
+    assert.equal(r.reason_detail, reasonSentence);
+    const first = TABLE.rows[PITCH + '|*|*'].map((x) => x.command.replace(/^\/mos:/, '')).find(runnableOnMcp);
+    assert.ok(first, 'the row has a runnable command on this install');
+    assert.equal(r.next_move.primary.command, first);
+    assert.ok(Array.isArray(r.next_move.alternatives));
+    const mj = sensors._internal.methodJobFor ? sensors._internal.methodJobFor(r.next_move.primary) : require(path.join(ROOT, 'lib', 'core', 'framework-jobs.cjs')).methodJobForCommand(r.next_move.primary.command);
+    if (mj) assert.deepEqual(r.next_move.method_job, mj); else assert.ok(!('method_job' in r.next_move));
+    assert.ok(r.next_move.primary.why.indexOf('room-level') !== -1);
+  });
+
+  await leg('R3 table without the row: the command registry names the move', async () => {
+    const tmp = path.join(iso.home, 'no-pitch-table.json');
+    const t3 = JSON.parse(JSON.stringify(TABLE));
+    delete t3.rows[PITCH + '|*|*'];
+    fs.writeFileSync(tmp, JSON.stringify(t3));
+    const r = await withEnv({ MINDRIAN_DECISION_ADVISOR: null, MINDRIAN_DECISION_ADVISOR_TABLE: tmp }, () => pull());
+    assert.equal(r.next_move_source, 'room_level');
+    assert.equal(r.next_move.room_level_source, 'command_registry');
+    const first = REG.filter((c) => c.visibility !== 'admin' && Array.isArray(c.serves_jtbd) && c.serves_jtbd.includes(PITCH))
+      .map((c) => c.command.replace(/^\/mos:/, '')).find(runnableOnMcp);
+    assert.ok(first);
+    assert.equal(r.next_move.primary.command, first);
+  });
+
+  await leg('R4 no runnable command anywhere: no_active_nest with the second reason_detail', async () => {
+    const NM = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'next-move.cjs'));
+    assert.equal(typeof NM.roomLevelMoveForJob, 'function');
+    const none = NM.roomLevelMoveForJob({ roomDir, jobId: PITCH, surface: 'mcp', capabilityFor: () => ({ known: false }) });
+    assert.equal(none.primary, null);
+    assert.deepEqual(none.alternatives, []);
+    const real = NM.roomLevelMoveForJob;
+    NM.roomLevelMoveForJob = () => ({ primary: null, alternatives: [], outcomes_differ: false, room_level_source: null });
+    try {
+      const r = await pull();
+      assert.equal(r.next_move.primary, null);
+      assert.equal(r.next_move_reason, 'no_active_nest');
+      assert.equal(r.reason_detail, 'No section of data/section-job-canon.json is mapped to the goal job ' + PITCH + ', and no runnable command serves it.');
+    } finally {
+      NM.roomLevelMoveForJob = real;
+    }
+  });
 
 
-
-
+  await leg('R5 the advisor stays off; no advisor key, no calibrated number', async () => {
+    assert.equal(process.env.MINDRIAN_DECISION_ADVISOR, undefined);
+    const s = SL.lookupShortlist({ jobId: PITCH });
+    assert.equal(s.state, 'off');
+    const r = r2reply;
+    assert.ok(!('advisor' in r.next_move));
+    assert.equal(PR.hasRawNumber(r.next_move), false);
+    assert.equal(JSON.stringify(r.next_move).indexOf('calibrated'), -1);
+  });
 
   // ---- G9 ----------------------------------------------------------------------------------------------------
 
   // ---- file hygiene ------------------------------------------------------------------------------------------
+  await leg('dash guard on the files of this plan', async () => {
+    for (const f of ['lib/core/section-registry.cjs', 'lib/core/decision-advisor/shortlist.cjs', 'lib/core/feyminto/next-move.cjs', 'lib/mcp/tools/sensors.cjs', 'tests/test-400.4-goal-job-nest.cjs']) {
+      const t = fs.readFileSync(path.join(ROOT, f), 'utf8');
+      assert.ok(t.indexOf(EM) === -1 && t.indexOf(EN) === -1, f);
+    }
+  });
 
   console.log('test-400.4-goal-job-nest: ' + passed + ' passed, ' + failed + ' failed');
   if (failed > 0) process.exit(1);
