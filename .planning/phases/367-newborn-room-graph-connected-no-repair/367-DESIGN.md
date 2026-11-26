@@ -1,19 +1,19 @@
 ---
 phase: 367
 title: "The graph writes itself: one catch-up runner for files and answered cards, on every surface"
-status: DESIGN r6 (after Goldfish rounds 1-4; reports 367-GOLDFISH-REPORT-R1.md to -R4.md)
+status: DESIGN r7 (after Goldfish rounds 1-5, cap reached; reports 367-GOLDFISH-REPORT-R1.md to -R5.md)
 date: 2026-11-26
 canon_parts: [3, 8, 9, 11]
 absorbs: SEED-101; the record half of Phase 280 / SEED-008
 depends_on: none hard. 400.3-01/02/02b are soft: stand-ins (section 4) are swapped when they land
-base: origin/main 2cc89212f
+base: origin/main 2179801e2
 owner_rulings:
   OR-1: "A CLI card answer (AskUserQuestion) is the human's approve: it lands as a confirmed decision node" (owner card 2026-11-26; changes the locked HITL rule for this one input)
   OR-2: "Run it end to end: full Goldfish work, apply the fix, register it as a GSD phase" (owner 2026-11-26)
   OR-3: home Phase 367
 ---
 
-# 367 Design r6: the graph writes itself
+# 367 Design r7: the graph writes itself
 
 ## 1. Goals and non-goals
 
@@ -25,7 +25,8 @@ Goals:
   `<room>/.mindrian/room.db` as an Artifact node with no model tool call: on the CLI at every turn
   end and session start; on Desktop and Cowork at every governed mindrian-os tool call (5.3).
 - G2 Every card the navigator answers in the terminal lands as one confirmed decision (OR-1), from a
-  host-attested record only.
+  host-attested record only, in the session's bound room, or, with no binding, in the room that holds
+  the working folder. With neither, or with a true cross-room conflict, nothing lands (counted).
 - G3 Honest status: a room status file and doctor counts show what is behind and why.
 
 Non-goals: claim extraction, baskets and cards from transcript text; the filing contract check;
@@ -101,8 +102,9 @@ New backfill set, stated exactly: today's set PLUS the root files, MINUS top-lev
 `_readArtifactContent`, and a SYNCHRONOUS `indexArtifactsBatch(conn, roomDir, items, canonCtx)`;
 `items` are `{abs, content}` already read by the runner, and `_indexArtifactBody` gains an optional
 `content` so nothing is read inside the transaction. Each item runs in a SAVEPOINT; it returns
-`{indexed: [abs], failed: [{abs, code}]}` with `code` one of `parse_error`, `read_error`, `node_write`.
-A transaction-level SQLite error (`SQLITE_FULL`, `SQLITE_IOERR`, busy) is thrown, not returned.
+`{indexed: [abs], failed: [{abs, code: 'node_write'}]}`. A transaction-level SQLite error is thrown,
+not returned: `err.errcode` 5 BUSY, 6 LOCKED, 10 IOERR, 11 CORRUPT, 13 FULL. Read and parse failures
+happen before the transaction (step 7) and are counted `files_failed` there.
 
 ### 5.2 One run
 
@@ -112,10 +114,13 @@ A transaction-level SQLite error (`SQLITE_FULL`, `SQLITE_IOERR`, busy) is thrown
 2. Room set (files are idempotent, so every candidate is safe to catch up): `resolveRoomRoot(cwd)`
    (`lib/core/room-root.cjs:59`, walk-up for `.room-root`, `''` when none); the session's bound room
    when `--session` is given (`resolveMcpSessionRoom({sessionId, noFloor: true})`, source
-   `session.primary` only); every `--room`; the registry active room
-   (`lib/core/resolve-active-room.cjs`). Deduplicated by realpath. Each must hold `.mindrian/room.db`
-   before any open (`openGraph` would create it, `lazygraph-ops.cjs:440-463`); a room without one is
-   `room_db_missing`. The rooms share the run budget, cwd room first.
+   `session.primary` only: the result is used only when `source === 'session.primary'`, because the
+   resolver falls back to the registry with source `reg.active`, `resolve-active-room.cjs:510-522`);
+   the `--room` value when it holds `.room-root` or is a registered room; the registry active room
+   (`lib/core/resolve-active-room.cjs` `resolveActiveRoomDir`). Deduplicated by realpath. A candidate
+   without `.mindrian/room.db` gets nothing: no lock, no mkdir, no status file, no cache (one stderr
+   line `room_db_missing`). `openGraph` is never called before this check (it would create room.db,
+   `lazygraph-ops.cjs:440-463`). The rooms share the run budget, cwd room first.
 3. Worker caps: `lowerWorkerPriority()` and `armBackstop(30000)`, moved from
    `scripts/gsd-graph-derive-drain.cjs:896-923` to `lib/core/bg-worker.cjs` (the drain re-exports them
    for its `_test` at `:1037-1038`). `armBackstop` cannot interrupt the synchronous loop; the per-file
@@ -147,7 +152,7 @@ A transaction-level SQLite error (`SQLITE_FULL`, `SQLITE_IOERR`, busy) is thrown
 10. `closeGraph`; write the final status WHILE still holding the job lock; then release it:
     `{schema: 1, state, reason, run_id, trigger, started_at, last_run_at, files_seen, files_indexed,
     files_vanished, files_failed, id_collisions, cards_recorded, cards_rejected, cards_skipped,
-    cards_held, remaining}`. State: `complete`, `partial`, `deferred`, `failed`. Reasons:
+    cards_failed, remaining}`. State: `complete`, `partial`, `deferred`, `failed`. Reasons:
     `write_lock_held`, `lock_io_error`, `room_db_busy`, `room_db_missing`, `index_failed`,
     `budget_exhausted`, `legacy_schema`. The worse state wins (failed > deferred > partial > complete).
 
@@ -160,17 +165,21 @@ Test seams: `--run-seam <n>` exits after batch n; `--hold-ms <n>` sleeps before 
 
 Spawn rule: `process.execPath`, `env: process.env`, `detached: true`, `stdio: 'ignore'`,
 `windowsHide: true`, `child.on('error', noop)`, `child.unref()` (the same as the detached spawns at
-`lib/core/ambient-trigger.cjs:342-347`). In bash the repo idiom `( node ... >/dev/null 2>&1 || true ) &`.
+`lib/core/ambient-trigger.cjs:342-347`). In bash the whole group is detached from the hook's pipes:
+`( node ... || true ) </dev/null >/dev/null 2>&1 &`, so the subshell holds no hook stdout or stderr
+(the P-5 failure recorded in `tests/test-261030-8vd-onstop-wait.cjs:13-16`).
 
 CLI Stop, `scripts/on-stop`: the stdin parse at `:37` also reads `cwd` and `session_id` into
 `HOOK_CWD` and `HOOK_SESSION` (empty when absent). Right after the Part 8 drain line (`:48`), before
 the MCP-first branch, so both branches spawn:
-`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "${HOOK_CWD:-$PWD}" --session "${HOOK_SESSION:-}" --trigger stop >/dev/null 2>&1 || true ) &`.
-No variable set later in the script is used (`set -euo pipefail` at `:22`). The line count rises above
-the `hook-adapter-audit.cjs:75` budget of 680; per the rule at `:63-65` it becomes 700.
+`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "${HOOK_CWD:-$PWD}" --session "${HOOK_SESSION:-}" --trigger stop || true ) </dev/null >/dev/null 2>&1 &`
+(the runner treats an empty `--session` as no session).
+No variable set later in the script is used (`set -euo pipefail` at `:22`). The `hook-adapter-audit.cjs:75`
+budget (680; on-stop measures 679 by `split('\n').length`) is re-based by its own rule at `:63-65`
+(the smallest multiple of 10 at least the measured count + 20) to the count measured after the edit.
 
 CLI SessionStart, `scripts/session-start`, after the heal net (`:132`):
-`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "$PWD" --room "${ROOM_DIR:-$PWD}" --trigger session_start >/dev/null 2>&1 || true ) &`
+`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "$PWD" --room "${ROOM_DIR:-}" --trigger session_start || true ) </dev/null >/dev/null 2>&1 &`
 (no guard: the runner exits when there is no room). Matcher unchanged.
 
 Desktop, Cowork and CLI MCP calls: `lib/mcp/graph-catchup-spawn.cjs` exports `installCatchupWrapper(s)`
@@ -183,16 +192,23 @@ The wrapper:
   original return value (the RegisteredTool); config is untouched, so the wire snapshots
   `tests/fixtures/267/wire-snapshot-zod3.json` and `zod4.json` stay byte-identical;
 - for a tool outside the governed set, registers the original handler unwrapped;
-- for a governed tool, runs the handler and in `finally` schedules `setImmediate(maybeSpawn)`, with
-  `extra` taken as the LAST argument (a tool with no input schema gets `(extra)` only);
+- for a governed tool, the wrapped handler is `(...a) => Promise.resolve().then(() => handler(...a))
+  .finally(() => setImmediate(() => maybeSpawn(a[a.length - 1])))` and returns that same promise, so
+  the spawn starts only after the handler's write settles (an async rejection still spawns); `extra`
+  is the LAST argument (a tool with no input schema gets `(extra)` only);
 - governed set: every tool that writes the room or reads its context. A census test
-  (`tests/test-367-governed-census.cjs`) asserts that every registered tool name is in exactly one of
-  `GOVERNED` or `PURE_READ`, so a new write tool cannot ship unlisted. `status_read` is in
+  (`tests/test-367-governed-census.cjs`) lists the tools with the `wireSnapshot` helper of
+  `tests/helpers/mcp-wire-267.cjs`, once per surface (CLI, Desktop, Cowork HTTP), and asserts that
+  every name in the union is in exactly one of `GOVERNED` or `PURE_READ`, so a new write tool cannot
+  ship unlisted. `status_read` is in
   `PURE_READ` (the statusline queries it on every render, `mindrian-mcp-server.cjs:459-461`);
 - room: `resolveEffectiveSessionId(undefined, extra)` (`lib/core/session-binding.cjs:176-182`), then
-  `resolveMcpWriteRoom({sessionId, walkUp: true})` (`lib/mcp/session-room.cjs:243-321`); spawn when it
-  answers `ok: true`, for its `dir`. This follows the writes on every surface, Cowork flag-OFF
-  included (a session-less write already lands in the registry room there);
+  `classifyMcpWriteRoom({sessionId, ctx: {fallbackRoomDir: serverRoomDir, surface}})`, a new
+  side-effect-free function factored out of `resolveMcpWriteRoom` (`lib/mcp/session-room.cjs:285-377`):
+  the same resolution and refusal rule, with no readiness probe, no recovery gate mint
+  (`:325-338`) and no stderr token (`:313-322`); `resolveMcpWriteRoom` calls it, so the two cannot
+  drift. Spawn only when it answers `ok: true` and `source` is not `'cwd'`. This follows the writes on
+  every surface, Cowork flag-OFF included (a session-less write already lands in the registry room);
 - debounce: a module-level map `room -> {last, pending, timer}` (timer unref'd); a call within 10 s
   of the last spawn sets `pending`, and one trailing spawn runs when the window ends;
   `flushPending()` spawns every pending room at once;
@@ -211,17 +227,21 @@ Hook `scripts/card-answer-ledger.cjs`, PostToolUse, matcher `AskUserQuestion`, t
 - It records only a `tool_response` with a non-empty `answers` object (the transcript shape
   `toolUseResult = {questions, answers: {<question>: <label or free text>}, annotations}`) and a
   `tool_use_id`; otherwise nothing is written (a counter in `~/.mindrian/card-answers/skipped.count`).
-- Room: `resolveRoomRoot(stdin.cwd)`. When the stdin session has a `session.primary` binding
-  (`resolveMcpSessionRoom({sessionId: stdin.session_id, noFloor: true})`) that differs from the cwd
-  room, nothing is written (counted): the card does not show the room, so a mismatch is not trusted.
-  No room, nothing written. Never the registry active room.
-- Room key, from `<room>/.room-root` (`{room, born}`, `room-birth.cjs:1137-1141`):
-  `sha256(room + ':' + born)`, stable across a move or a rename; without `born` it falls back to
-  `sha256(realpath(room))`. One function, `lib/core/room-key.cjs`, in hook, runner and doctor.
+- Room: the session binding first: `resolveMcpSessionRoom({sessionId: stdin.session_id, noFloor:
+  true})`, used only when `source === 'session.primary'`. With no binding, `resolveRoomRoot(stdin.cwd)`.
+  When both exist and differ, the binding wins if the cwd room is the bound room or one of its
+  descendants (the write guard's ancestor rule, `session-binding.cjs:111-139`); any other conflict
+  writes nothing (counted). Neither, nothing written. Never the registry active room.
+- Room key: `sha256(realpath(room))`, one helper in `lib/core/room-key.cjs` for hook, runner and
+  doctor. A copied room gets a different key (a `.room-root`-based key would be shared by a `cp -r`
+  copy, `room-birth.cjs:1137-1145`; `room-auto-create.cjs:206` even writes an empty `.room-root`). A
+  room moved before its spool drains strands those files (kept, counted pending by the doctor).
 - It opens no room.db. Per answered question it creates one spool file with flag `wx` (0600):
   `~/.mindrian/card-answers/<room key>/<tool_use_id>.<q_index>.json` (dir 0700) holding
   `{v: 1, room_key, tool_use_id, q_index, session_id, header, labels, question, chosen, answered_at,
-  mac}`; `question` and `chosen` are cut to 500 chars. `wx` makes each write atomic and a repeat a
+  mac}`; `q_index` is the index in `tool_input.questions` (two questions with the same text keep their
+  own index); `question` and `chosen` are cut to 500 chars, `header` and each label to 200 (the
+  `lib/mcp/gate-raised.cjs:44-45` caps). `wx` makes each write atomic and a repeat a
   no-op. `mac` = HMAC-SHA256 over the canonical JSON of the other fields (keys sorted, UTF-8).
 - Key `~/.mindrian/card-key`: created atomically (a temp file, `link` to the final name, unlink the
   temp; `EEXIST` means another hook won, then re-read). Read with the guards of
@@ -231,17 +251,23 @@ Hook `scripts/card-answer-ledger.cjs`, PostToolUse, matcher `AskUserQuestion`, t
   their mac; they stay in place, never deleted, counted `cards_rejected`.
 
 Runner drain (step 6), holding the room's job lock:
-1. Open with `navigation.openRoomDbForCaller(roomDir)` (the `lib/mcp/tools/gate.cjs:1765` door); first
+1. First a read-only open (`openRoomDbReadOnlyForCaller`, `spine-events.cjs:523-535`) and
    `PRAGMA table_info(nodes)`: no `review_status` column (legacy 3-column rooms,
-   `navigation/CONTEXT.md:41-45`) means every file stays in the spool, counted `legacy_schema`.
+   `navigation/CONTEXT.md:41-45`) means every file stays in the spool, counted `legacy_schema`, and the
+   write door is not opened (it would migrate the room, `room-db.cjs:307-334`). Else open with
+   `navigation.openRoomDbForCaller(roomDir)` (the `lib/mcp/tools/gate.cjs:1765` door); a `null`
+   handle keeps every file, reason `room_db_busy`.
 2. Per spool file: verify the mac and that `room_key` equals this room's key; a failure is counted
    `cards_rejected` and the file is left in place.
-3. Gate cards: match `header` plus the ordered option `labels` against this room's `gate_raised`
-   memory_event rows (`lib/core/room-projection.cjs:424-484`; stored contract `header`,
-   `options[].label`, `gate_id`, `lib/core/gate-raised.cjs:73-110`). When a gate matches AND
-   `decision:gate:<gate_id>` exists, skip (counted `cards_skipped`). When a gate matches and no gate
-   decision exists yet, record the card decision (OR-1: the human answered). A later `gate_answer`
-   for that gate can add `decision:gate:<id>` (known limit; both confirmed by the same human act).
+3. Gate cards: a new navigation read `findRaisedGatesByCard(db, header, labels)` selects ALL
+   `memory_event` rows labelled `gate_raised` (no TTL, no answered filter; stored contract `header`,
+   `options[].label`, `gate_id`, `lib/mcp/gate-raised.cjs:73-110`) whose capped `header` and ordered
+   labels equal the spool values. For a match: when `navigation.readGateAnswerAnchor(db,
+   gate_id).found` (`navigation.cjs:693`; it covers approve, reject, defer and mirrors), skip
+   (counted `cards_skipped`). When no anchor exists and the spool file is younger than 10 minutes,
+   leave it for a later run (the model usually calls `gate_answer` within that time). When no anchor
+   exists after 10 minutes, record the card decision (OR-1: the human answered); a still later
+   `gate_answer` can add a second record (known limit).
 4. Id `REASONING_NODE_ID('decision:card', tool_use_id + ':' + q_index)` (null check). If the node
    exists, unlink the spool file: never re-confirm, never rewrite.
 5. Else, holding `write.lock`, in one `withRoomTx`: `writeReasoningNode(db, {nodeId, nodeType:
@@ -249,10 +275,11 @@ Runner drain (step 6), holding the room's job lock:
    'card:' + tool_use_id, origin: 'card_answered'})` (the `gate.cjs:816-822` precedent; no
    `answeredVia`, so `ANSWERED_VIA_VALUES` stays two values); then `confirmNode(db, nodeId,
    resolveByUser(roomDir), 'card_answered:' + tool_use_id)`. Either returning `ok: false`, or the audit
-   event throwing (`transitions.cjs:301`), throws inside the transaction (both roll back) and adds 1
-   to the sidecar `<file>.attempts`. After 5 attempts the file moves to `<room key>/held/` (counted
-   `cards_held`, never deleted). `confirmNode` writes its own audit memory_event
-   (`transitions.cjs:289-297`); no event type is added.
+   event throwing (`transitions.cjs:301`), throws inside the transaction (both roll back); the file
+   stays in the spool and is counted `cards_failed`. A lock or transaction-level error is a room
+   outcome (`write_lock_held`, `room_db_busy`), not a card failure. Nothing is ever moved or deleted
+   except by step 6. `confirmNode` writes its own audit memory_event (`transitions.cjs:289-297`); no
+   event type is added.
 6. After the commit, unlink the spool file. A crash before the unlink replays it; step 4 makes the
    replay a no-op.
 
@@ -264,8 +291,15 @@ file copied from another room cannot mint a confirmed decision; only host-hook f
 for this room do.
 
 Spike S0 (blocking slice b): capture real PostToolUse stdin for AskUserQuestion (answered, "Other",
-cancelled) on this host; confirm `tool_use_id`, `cwd`, `session_id` and the `tool_response` shape; pin
-the hook fixtures.
+cancelled, and one gate card the model rendered) on this host; confirm `tool_use_id`, `cwd`,
+`session_id`, the `tool_response` shape, whether the gate `header` reaches the card verbatim, and
+whether hook stdin `session_id` equals the `CLAUDE_CODE_SESSION_ID` the MCP server got; pin the hook
+fixtures. If the gate header does not carry over, the gate skip falls back to the 10-minute wait.
+
+Spike S1 (blocking slice c): on a Windows Desktop host and in Cowork, spawn the runner with
+`--hold-ms 5000` from the MCP server, end the request or the window, and check that the status file
+reaches its final state. If the child does not survive, the declared fallback is a `worker_threads`
+runner inside the server (no stdio block; it shares the server's lifetime).
 
 ## 7. Doctor
 
@@ -274,9 +308,10 @@ the hook fixtures.
 substrate allowlist entry; the module requires no lazygraph code). New integer fields, outside
 `totals`, not summed, `null` when unknown (no status file, legacy schema), never 0 for unknown:
 `room_files_without_artifact_node` (an id-set compare, no hashing), `card_ledger_pending`,
-`card_ledger_held`, `catchup_state` (0 complete, 1 partial, 2 deferred, 3 failed, 4 running,
-5 run_pid_dead via `job-lock.cjs` `read`), `catchup_age_s`. The check warns when `catchup_state` is 3
-or 5, or `card_ledger_held > 0`. No strings in the payload (T-343-02).
+`card_ledger_oldest_age_s`, `catchup_state` (0 complete, 1 partial, 2 deferred, 3 failed, 4 running,
+5 run_pid_dead when `job-lock.cjs` `read` gives `alive === false || pid_start_match === false`),
+`catchup_age_s`. The check warns when `catchup_state` is 3 or 5, or a spool file is older than 24 h.
+No strings in the payload (T-343-02). The module has no direct lazygraph require.
 
 ## 8. Substrate gate
 
@@ -296,12 +331,15 @@ room files". Every slice gates on `node scripts/check-substrate.cjs --diff` exit
 | b | `scripts/graph-catchup.cjs`, `lib/core/bg-worker.cjs`, `lib/core/room-key.cjs`, `lib/core/private-key-file.cjs`, `scripts/card-answer-ledger.cjs`, `tests/fixtures/367/` (S0 captures) | C |
 | b | `scripts/gsd-graph-derive-drain.cjs` (require `bg-worker.cjs`), `lib/mcp/answer-route.cjs` (use `private-key-file.cjs`) | M |
 | b | `scripts/on-stop` (stdin parse + 1 spawn line), `scripts/session-start` (1 spawn line after :132), `hooks/hooks.json` (PostToolUse AskUserQuestion group) | M |
-| b | `lib/mcp/hook-adapter-audit.cjs` (on-stop budget 680 -> 700) | M |
+| b | `lib/mcp/hook-adapter-audit.cjs` (on-stop budget re-based by its `:63-65` rule to the measured count) | M |
+| b | `tests/test-261029-qef-hook-timeouts.cjs` (a `P367` block `added: [{event: 'PostToolUse', sub: 'card-answer-ledger.cjs', timeout: 3}]` in `EXPECTED` and A1 `addedAll`; a `TABLE` row `['PostToolUse', 'card-answer-ledger.cjs', 3]`) | M |
 | b | `tests/test-389-hook-unwire.cjs` (`expected`: `PostToolUse` 9 -> 10, `PostToolUse:AskUserQuestion` 0 -> 1, `total` 41 -> 42) | M |
 | b | `scripts/isolate-larry-voice.cjs` (`MOS_NO_GRAPH_CATCHUP` under `HOOK_SWITCHES['hooks/run-hook.cmd session-start']` `:494`; the new child in that entry's evidence; re-pin its five evidence lines `:437-441`), `tests/test-359-prose-budget.cjs` (re-base the session-start sha) | M |
 | b | `scripts/check-substrate.cjs` (allowlist) | M |
 | b | `tests/test-367-catchup-cli.cjs` (AC1, AC3, AC5, AC10), `tests/test-367-card-ledger.cjs` (AC4, AC7) | C |
 | c | `lib/mcp/graph-catchup-spawn.cjs`, `tests/test-367-governed-census.cjs` | C |
+| c | `lib/mcp/session-room.cjs` (`classifyMcpWriteRoom` factored out; `resolveMcpWriteRoom` calls it) | M |
+| b | `lib/core/navigation.cjs` (export `findRaisedGatesByCard`; it lives in `lib/core/navigation/room-projection.cjs`) | M |
 | c | `scripts/mindrian-mcp-server.cjs` (install after :241; `flushPending()` in `exitAfterTeardown`) | M |
 | c | `lib/core/doctor/room-graph-integrity-module.cjs`, `tests/test-343-room-graph-integrity.cjs` (new fields) | M |
 | c | `tests/test-367-catchup-mcp.cjs` (AC2, AC6, AC8) | C |
@@ -335,8 +373,9 @@ memory-and-findings.md.
   `cwd` and the process cwd inside the room gives the same result.
 - AC2 (c) MCP no reminder: `installCatchupWrapper` on a test `McpServer`; a bound session:
   `room_bind`, 2 x `artifact_file`, one file written by another process, then `context_assemble`,
-  wait 11 s: all 3 Artifact ids exist. A session-less leg (Cowork flag-OFF) writing to the registry
-  room also spawns.
+  wait 11 s: all 3 Artifact ids exist. A leg where `artifact_file` is the LAST call also has its id
+  after 11 s. The bound leg registers a session (`registerStdioProcessSession`); a session-less leg
+  (Cowork flag-OFF) writing to the registry room also spawns.
 - AC3 (b) Missed run: kill with `--run-seam 1`; delete the cache; the next trigger ends `complete`
   with the id set of `listContentArtifacts`; a second run gives `files_indexed: 0`.
 - AC4 (b) OR-1: a fixture PostToolUse stdin for an answered card through the real hook, then the
@@ -344,9 +383,12 @@ memory-and-findings.md.
   text holding the question and the chosen label. Each negative leg gives 0 new decisions: no
   `answers`; no `tool_use_id`; a bad mac; a spool file copied from another room; a fabricated pair in
   a transcript file; `stop_gate_check` with a model-supplied `transcript_path`; a card matching a gate
-  whose `decision:gate:<id>` exists; a cwd room that differs from the session's bound room. A card
-  matching a gate with no gate decision gives 1 card decision. Replaying a spool file gives no new
-  node and no rewrite. A `confirmNode` refusal 5 times moves the file to `held/`.
+  whose answer anchor exists (approve, and a reject leg); a cwd room in a different room tree than the
+  session's bound room. A card matching a gate with no anchor gives 0 decisions before 10 minutes and
+  1 card decision after. Bound session with cwd outside any room: the decision lands in the bound room.
+  Bound to a parent with cwd in its sub-room: it lands in the parent. Replaying a spool file gives no
+  new node and no rewrite. A forced `confirmNode` refusal keeps the file and counts `cards_failed`. A
+  copied room folder: a card answered in the source and a run for the copy gives 0 decisions in the copy.
 - AC5 (b) Honest failure: hold `write.lock`; the run ends `deferred`, reason `write_lock_held`,
   `last_run_at - started_at < 2000` ms; the next run ends `complete`; the doctor reports
   `room_files_without_artifact_node = 0`.
@@ -355,8 +397,10 @@ memory-and-findings.md.
 - AC7 (b) Two rooms: the registry's active room is B; a card answered with `cwd` in room A and no
   session binding lands in A only.
 - AC8 (c) Spawn safety: `--hold-ms 5000` keeps the runner alive; the wrapped tool returns before it
-  ends; MCP stdout carries no runner byte; on-stop returns while it runs; the wire snapshots are
-  byte-identical; 100 `status_read` calls give 0 spawns; a handler that throws still spawns.
+  ends; MCP stdout carries no runner byte; `on-stop` and `session-start` run with piped stdout and
+  stderr reach EOF in under 2 s while the runner is still alive; the wire snapshots are
+  byte-identical; 100 `status_read` calls give 0 spawns; a handler that throws and an async rejection
+  both still spawn; the wrapper mints 0 gates.
 - AC9 (d) Prose: `/(every|each) substantive turn/i` finds nothing in `agents/`, `skills/`,
   `references/personality/`, `output-styles/`, `data/harness-policies/`, `dist/`; the new sentences are
   present; `node scripts/run-harness.cjs --check`, `tests/test-359-prose-budget.cjs`,
@@ -398,9 +442,9 @@ memory-and-findings.md.
   included); its response shape for this tool is ASSUMED from transcripts until spike S0. If it does
   not fire, OR-1 falls back to the gate route and the owner is told.
 - A detached child on native Windows or in the Cowork sandbox may not survive a host kill
-  (UNVERIFIED); the dirty token and the next trigger recover.
+  (UNVERIFIED; spike S1); the next trigger recovers.
 - A late `gate_answer` after an answered gate card can add a second confirmed decision for one human act (both linked by `header`).
-- A room whose `.room-root` has no `born` uses the path key: moving it before its spool drains strands those files (counted as pending for an unknown key by the doctor in a follow-up).
+- A room moved or renamed before its card spool drains strands those files (kept on disk, counted pending).
 - `computeHash` is a 32-bit compare; a collision leaves one file unindexed until its next change.
 - The confidence floor of the section ledger moves between rebuilds (RCA 395-tests-after-beta93);
   not touched here.
