@@ -7450,7 +7450,7 @@ Progress: [█████████░] 86%
 | Phase 400.4 P06 | 35min | 2 tasks | 4 files |
 | Phase 400.4 P10 | 2h | 3 tasks | 13 files |
 | Phase 400.4 P04 | 50min | 4 tasks | 8 files |
-| Phase 400.4 P12 | 1h | 3 tasks | 14 files |
+| Phase 400.4 P12 | 25min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
