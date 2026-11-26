@@ -4346,11 +4346,13 @@ Plans:
 **Goal:** Every artifact filed into a room reaches the local graph on every platform, and no hook is killed by its own lock wait or reports success after a failed step. P0: index on MCP filing, room-root detection instead of the /rooms/ path rule, honest partial/busy status, graph-index survives write.lock, the two block-on-timeout guards answer before the host kills them. P1: hook-safe room.db opener and ordered PostToolUse opens, post-write cascade off the foreground, Stop-gate wait inside its budget, room auto-create never deletes a registered room. P2: six smaller kill-state fixes. Plans 01-02 first (PwS Academy Windows filing bug). Source: 400.3-PROPOSAL.md (verified against b0b71ecc5); native Windows timing still unmeasured. Overlaps Phase 402 (card-fire fix, hook consolidation).
 **Requirements**: TBD
 **Depends on:** Phase 400
-**Plans:** 0 plans
+**Plans:** 3 plans (01-02b this round; 03-16 of the proposal not yet planned)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 400.3 to break down)
+- [ ] 400.3-01-PLAN.md - BASE, shared lock backoff, openGraph busyMs and mustExist, artifact_file indexes the filed artifact with honest graph_index and partial (wave 1)
+- [ ] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
+- [ ] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
 
 ### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
 
