@@ -65,7 +65,7 @@ const UN = 'user-needs';
 
 const capabilityFor = () => ({ known: true, cli: 'runnable', mcp: 'runnable', label: 'runnable (test)' });
 const sel = (state, options, extra) => Object.assign({
-  state, key_used: '*', no_strong_pick: state === 'no_strong_pick', top_tie: options.length ? 1 : 0, table_version: '400.4-vT',
+  state, key_used: '*', no_strong_pick: state === 'no_strong_pick', top_tie: options.length ? 1 : 0, table_version: '400-4-vT',
   options: options.map((o, i) => ({ command: '/mos:' + o[0], band: o[1], rank: i + 1, calibrated: o[2] })),
 }, extra || {});
 const ledger = (names) => [{ source: 'section_ledger', items: names.map((n) => ({ id: '/mos:' + n })) }];
