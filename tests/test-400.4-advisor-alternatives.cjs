@@ -3,7 +3,7 @@
 // Phase 400.4 plan 02 (QA-F4): with the decision advisor on and a shortlist state ok or no_strong_pick, the alternatives
 // of composeNextMove are the shortlist options in order, minus the primary; ledger moves follow. The primary is unchanged.
 //
-// Legs N1 to N7:
+// Legs N1 to N8:
 //   N1 the QA repro: advisor rank 2 (analyze-systems) is offered; the ledger move follows it.
 //   N2 a shortlist whose only option is the primary: the alternatives equal the base alternatives.
 //   N3 an option that is not a command on this install, or that ran to a verified result, is never offered.
@@ -11,6 +11,7 @@
 //   N5 advisor off: the output equals the base output byte for byte.
 //   N6 the primary equals the base primary for the same input (advisor on).
 //   N7 an advisor alternative lists 'the decision advisor' in its sources; no why string holds a decimal number.
+//   N8 the chaotic domain (effect no_fit) keeps the base alternatives.
 // The base is lib/core/feyminto/next-move.cjs at b0b71ecc5, read from git (the precedent of test-400-advisor-consumers).
 // Node built-ins only. No network. Never reads a real room. Hyphens only in this file.
 const assert = require('node:assert/strict');
@@ -183,6 +184,16 @@ check('N7 an advisor alternative names the decision advisor; no why string holds
     assert.equal(/\d\.\d/.test(JSON.stringify(m.alternatives.map((x) => x.why))), false);
     const t = NM.toTierCandidates(m);
     assert.deepEqual(t[0].items.map((i) => i.id), [BQ, AS, CA], 'decide() gets the same alternatives');
+  });
+});
+
+check('N8 the chaotic domain (effect no_fit) keeps the base alternatives: the table is not an order there', () => {
+  withEnv(ON, () => {
+    const chaotic = sel('no_strong_pick', [[BQ, 'strong', 0.95], [AS, 'strong', 0.9]], { domain: { id: 'chaotic', effect: 'no_fit', fits: [] } });
+    const base = NM0.composeNextMove(input({ advisorShortlist: chaotic }));
+    const m = NM.composeNextMove(input({ advisorShortlist: chaotic }));
+    assert.equal(m.advisor.domain.effect, 'no_fit');
+    assert.deepEqual(alts(m), alts(base));
   });
 });
 
