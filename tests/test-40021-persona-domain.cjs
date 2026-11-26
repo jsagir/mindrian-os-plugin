@@ -126,6 +126,24 @@ check('D9. invokePersona sorts the files and prefers a built persona over a prev
   assert.ok(out.persona.includes('# built'), out.persona);
 });
 
+check('D10. N2: only a line that starts with venture: names the venture (venture_stage: and an inline venture: do not)', () => {
+  const room = bornRoom('cold-room', undefined, 'cold-room-name');
+  put(room, 'STATE.md', '---\nventure_stage: Pre-Opportunity\nnote: the venture: is open\n---\n# Data Room State\n');
+  assert.deepEqual(ops.roomVentureNameOf(room), { name: 'cold-room-name', source: 'room_md' });
+  put(room, 'STATE.md', 'venture:   \nventure: Tidepool\n');
+  assert.deepEqual(ops.roomVentureNameOf(room), { name: 'Tidepool', source: 'venture_line' }, 'an empty venture: line is skipped');
+});
+
+check('D11. N1: with no STATE.md the screen still runs on the ROOM.md icm_self.room name; a room that states no name gives no screen', () => {
+  const room = bornRoom('dir-x', undefined, 'stated-room');
+  fs.rmSync(path.join(room, 'STATE.md'));
+  assert.equal(door.roomIdentityScreen(room, []).ran, true);
+  const bare = bornRoom('dir-y', '');
+  fs.rmSync(path.join(bare, 'STATE.md'));
+  fs.rmSync(path.join(bare, 'ROOM.md'));
+  assert.equal(door.roomIdentityScreen(bare, []).ran, false, 'a directory name is not a stated name');
+});
+
 for (const r of tmpRoots) { try { fs.rmSync(r, { recursive: true, force: true }); } catch (_) { /* ignore */ } }
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed === 0 ? 0 : 1);

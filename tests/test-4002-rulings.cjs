@@ -178,8 +178,8 @@ check('G1. merge creates no store; record-ruling side_a writes one key with its 
   const r = doRule(run, [{ tension_id: t.id, ruling: 'side_a', reason: 'Black has the better case.' }]);
   assert.equal(r.ok, true, JSON.stringify(r));
   const store = readStore(run.room);
-  // Phase 400.2.1 (S6): the door writes schema 2 (the optional delegated key); it still reads schema 1.
-  assert.equal(store.schema, 'mos.persona-tension-rulings/2');
+  // Phase 400.2.1 (S6, N3): a store with no delegated entry stays schema 1; schema 2 only when one is delegated.
+  assert.equal(store.schema, 'mos.persona-tension-rulings/1');
   assert.deepEqual(Object.keys(store.rulings), [t.id]);
   const e = store.rulings[t.id];
   assert.deepEqual(Object.keys(e).sort(), ['lines', 'pair', 'reason', 'ruled_at', 'ruling', 'run_id', 'sub_question_text'].sort());
@@ -707,7 +707,7 @@ check('G22. 400.2.1 S6: a later run renders a delegated settled tension with "(d
   fs.writeFileSync(storePath(room), JSON.stringify(st), 'utf8');
   assert.equal(door.readRulingsStore(room).ok, true);
   assert.equal(doRule(b, [{ tension_id: id, ruling: 'delegated', larry_pick: 'side_a', navigator_confirmed: true }]).ok, true);
-  assert.equal(readStore(room).schema, 'mos.persona-tension-rulings/2');
+  assert.equal(readStore(room).schema, 'mos.persona-tension-rulings/2', 'a delegated entry upgrades the store to schema 2');
   const st2 = readStore(room);
   st2.schema = 'mos.persona-tension-rulings/1';
   fs.writeFileSync(storePath(room), JSON.stringify(st2), 'utf8');
@@ -716,6 +716,18 @@ check('G22. 400.2.1 S6: a later run renders a delegated settled tension with "(d
   st2.rulings[id].delegated = false;
   fs.writeFileSync(storePath(room), JSON.stringify(st2), 'utf8');
   assert.deepEqual(door.readRulingsStore(room), { ok: false, reason: 'rulings_store_invalid' }, 'delegated is always true when present');
+});
+
+check('G23. 400.2.1 N3: the store is schema 1 with no delegated entry, schema 2 while one is delegated, and schema 1 again after it is reopened', async () => {
+  const run = mkRun({ pos: TWO });
+  const out = await doMerge(run);
+  const [t1, t2] = out.tensions;
+  assert.equal(doRule(run, [{ tension_id: t1.id, ruling: 'side_a' }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/1');
+  assert.equal(doRule(run, [{ tension_id: t2.id, ruling: 'delegated', larry_pick: 'both_hold', navigator_confirmed: true }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/2');
+  assert.equal(doRule(run, [{ tension_id: t2.id, ruling: 'defer', reopen: true }]).ok, true);
+  assert.equal(readStore(run.room).schema, 'mos.persona-tension-rulings/1');
 });
 
 (async () => {

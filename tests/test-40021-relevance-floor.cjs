@@ -76,6 +76,37 @@ check('R1e. a yellow none_found after a door search with only below-floor result
   assert.notEqual(r2.none_found_basis, 'door_search_empty');
 });
 
+check('R1f. owner ruling "Keep, loosen a bit": a reversed adjacent content pair counts', () => {
+  const t = door.handleTermsOf('black', 'formal verification specification gap failure cases');
+  assert.deepEqual(t, ['formal', 'verification', 'specification', 'gap']);
+  assert.equal(door.meetsRelevanceFloor(t, { title: 'Specification and verification of the ASOS kernel', summary: '' }), true);
+  assert.equal(door.meetsRelevanceFloor(t, { title: 'Hairy Black Holes in a Box', summary: '' }), false);
+});
+
+check('R1g. the dropped count is in the check and merge outputs and in the review, for each hat whose door search ran', async () => {
+  await fx.withEnvAsync(NO_KEYS, async () => {
+    const ctx = fx.planned();
+    const seam = fx.makeSeam((a) => (a.source === 'openalex' ? fx.okEnv(a.source, [
+      { title: 'Battery recycling at scale', url: 'https://example.org/on/1', abstract: 'Rates.' },
+      { title: 'Hairy Black Holes in a Box', url: 'https://example.org/off/1', abstract: 'Gravity.' },
+    ]) : fx.emptyEnv(a.source)));
+    const s1 = ctx.plan.hats.white.strings.find(s => s.handle === 'battery recycling');
+    const out = await fx.go(ctx, fx.approvedFile(ctx, { white: fx.approveHat(ctx.plan, 'white', [s1.q_hash]) }), seam);
+    assert.equal(out.dropped_below_floor.white, 1);
+    assert.equal(fx.ledgerOf(ctx).hats.white.dropped_below_floor, 1);
+    const run = Object.assign({}, ctx, { ids: fx.ledgerOf(ctx).sub_questions.map(x => x.id) });
+    for (const h of fx.READ_HATS) fx.writeReading(run, h, fx.readingOf(run, h));
+    fx.writeReading(run, 'blue', fx.blueReadingOf(run));
+    const c = fx.doCheck(run);
+    assert.deepEqual(c.dropped_below_floor, { white: 1, black: 0, yellow: 0, green: 0 });
+    const m = await fx.doMerge(run);
+    assert.equal(m.ok, true, JSON.stringify(m));
+    assert.deepEqual(m.dropped_below_floor, { white: 1, black: 0, yellow: 0, green: 0 });
+    const lines = fs.readFileSync(m.artifact, 'utf8').split('\n');
+    assert.ok(lines.includes(door.ARTIFACT_LABELS.dropped_below_floor + '1'), 'the review names the count');
+  });
+});
+
 check('R2. a run whose findings are all off-topic wires nothing, names the state below_relevance_floor and counts the drop', async () => {
   await fx.withEnvAsync(NO_KEYS, async () => {
     const ctx = fx.planned();

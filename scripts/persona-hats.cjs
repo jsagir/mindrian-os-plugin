@@ -37,6 +37,9 @@
  *   record-ruling --room <dir> --run <id> --answer <file>  (the navigator ruling on a tension; the only writer of the rulings store)
  *   compare --room <dir> --deep <id> --quick <id>  (one merged deep run and one merged quick run of one brief, side by side)
  *
+ * Maintenance subcommand (not a step of a run, not in SUBCOMMANDS):
+ *   disarm-reader-screen [--run <id>]          (the off switch of the reader search screen: removes the marker of a run, or all)
+ *
  * Every subcommand prints one JSON object. A refusal is data: {ok: false, reason}
  * with exit code 0. Exit code 2 is a usage error (unknown subcommand, missing flag).
  *
@@ -53,15 +56,26 @@ const crypto = require('crypto');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const ops = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-ops.cjs'));
+// Phase 400.2.1: the identity screen, the light ledger read and the reader search marker live in one small module, so
+// the reader search guard hook does not load this door.
+const screenMod = require(path.join(REPO_ROOT, 'lib', 'core', 'persona-reader-screen.cjs'));
+const {
+  readJsonFile, reviewsDirOf, findRunDir, readLedger,
+  IDENTITY_STOP_LIST, IDENTITY_MIN_LETTERS, identityTokens, readVentureName, teamFileBaseNames, properNounCandidates,
+  roomIdentityScreen, handleHitsScreen, screenSearchText,
+  READER_MARKER_SCHEMA, READER_MARKER_MAX_AGE_MS, READER_MARKER_RE, DISARM_COMMAND,
+  readerMarkerDir, removeReaderMarker, liveReaderMarkers, readerSearchVerdict,
+} = screenMod;
 
 const SUBCOMMANDS = Object.freeze(['status', 'start', 'write-persona', 'accept-persona', 'plan-research', 'run-research', 'check', 'merge', 'record-ruling', 'compare']);
 const USAGE = 'usage: persona-hats.cjs <' + SUBCOMMANDS.join('|') + '> --room <dir> ...';
+// Round 3: the off switch of the reader search screen (owner ruling "Fail closed, plus an off switch").
+const DISARM_SUBCOMMAND = 'disarm-reader-screen';
+const DISARM_USAGE = 'usage: persona-hats.cjs disarm-reader-screen [--run <run_id>]';
 
 const HATS = Object.freeze(Object.keys(ops.HAT_DEFINITIONS));
-const RUN_ID_RE = /^\d{8}-\d{6}-[0-9a-f]{4}$/;
 const SCRATCH_RE = /^mos-persona-(\d{8}-\d{6}-[0-9a-f]{4})-[0-9a-f]{16}$/;
 const SCRATCH_MAX_AGE_MS = 24 * 3600 * 1000;
-const MAX_JSON_BYTES = 262144;
 const BRIEF_KEYS = ['schema', 'target', 'governing_question', 'sub_questions', 'reading_list', 'mode', 'triage'];
 const TRIAGE_KEYS = ['recommended', 'reason'];
 
@@ -88,35 +102,6 @@ function parseFlags(argv) {
     }
   }
   return { flags, positional };
-}
-
-/**
- * Read one JSON file. Never throws. Refuses a file that is too large.
- * @returns {{ok: true, value: *, sha256: string} | {ok: false, reason: string}}
- */
-function readJsonFile(p, options) {
-  const o = options || {};
-  let st;
-  try {
-    st = o.noSymlink ? fs.lstatSync(p) : fs.statSync(p);
-  } catch (e) {
-    return { ok: false, reason: 'file_unreadable' };
-  }
-  if (!st.isFile()) return { ok: false, reason: o.noSymlink ? 'not_a_regular_file' : 'file_unreadable' };
-  if (st.size > MAX_JSON_BYTES) return { ok: false, reason: 'file_too_large' };
-  let bytes;
-  try {
-    bytes = fs.readFileSync(p);
-  } catch (e) {
-    return { ok: false, reason: 'file_unreadable' };
-  }
-  let value;
-  try {
-    value = JSON.parse(bytes.toString('utf8'));
-  } catch (e) {
-    return { ok: false, reason: 'schema_invalid:json' };
-  }
-  return { ok: true, value, sha256: crypto.createHash('sha256').update(bytes).digest('hex') };
 }
 
 /** Write JSON through a temporary file in the same directory and a rename. */
@@ -340,40 +325,6 @@ function slugOf(question) {
 // Ledger (S-8): only this door writes run.json
 // ---------------------------------------------------------------------------
 
-function reviewsDirOf(roomResolved) {
-  return path.join(roomResolved, 'personas', 'hat-reviews');
-}
-
-function findRunDir(roomResolved, runId) {
-  if (typeof runId !== 'string' || !RUN_ID_RE.test(runId)) return null;
-  let entries;
-  try {
-    entries = fs.readdirSync(reviewsDirOf(roomResolved), { withFileTypes: true });
-  } catch (e) {
-    return null;
-  }
-  for (const e of entries) {
-    if (e.isDirectory() && e.name.startsWith(runId + '-') && fs.existsSync(path.join(reviewsDirOf(roomResolved), e.name, 'run.json'))) {
-      return path.join(reviewsDirOf(roomResolved), e.name);
-    }
-  }
-  return null;
-}
-
-/** Read the ledger of a run. @returns {{ok: true, dir, ledger} | {ok: false, reason}} */
-function readLedger(roomDir, runId) {
-  const roomResolved = path.resolve(roomDir);
-  const dir = findRunDir(roomResolved, runId);
-  if (!dir) return { ok: false, reason: 'run_not_found' };
-  const r = readJsonFile(path.join(dir, 'run.json'));
-  if (!r.ok) return { ok: false, reason: 'ledger_invalid' };
-  const l = r.value;
-  if (!l || l.schema !== 'mos.persona-run/1' || l.run_id !== runId || !l.steps || !l.hats) return { ok: false, reason: 'ledger_invalid' };
-  // IN-03: brief_hash names a store file; a hand-edited value must not reach a path.
-  if (typeof l.brief_hash !== 'string' || !/^[0-9a-f]{64}$/.test(l.brief_hash)) return { ok: false, reason: 'ledger_invalid' };
-  return { ok: true, dir, ledger: l };
-}
-
 function writeLedger(dir, ledger) {
   atomicWriteJson(path.join(dir, 'run.json'), ledger);
 }
@@ -399,24 +350,22 @@ function runMapPath(homeDir, runId) {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 400.2.1 (S5): the reader search marker. Owner ruling 2026-11-26 ("A: screen with a hook"). While a marker
-// exists, scripts/persona-reader-search-guard-hook.cjs screens each WebSearch query and each WebFetch URL with the
-// door identity screen of the room of the run, before the text leaves the machine. run-research writes the marker (and
-// plan-research when it skips run-research), merge removes it, and a marker older than READER_MARKER_MAX_AGE_MS is
-// stale: the hook ignores it and removes it, so a crashed run does not screen forever. The marker holds the run id, the
-// room path and two times; it holds no screen token.
+// Phase 400.2.1 (S5): the reader search marker. Owner rulings 2026-11-26: "A: screen with a hook" and "Fail closed,
+// plus an off switch". While a marker exists, scripts/persona-reader-search-guard-hook.cjs screens each WebSearch query
+// and each WebFetch url with the identity screen of the room of the run (lib/core/persona-reader-screen.cjs). run-research
+// writes the marker (and plan-research when it skips run-research), merge removes it, disarm-reader-screen removes it on
+// the navigator's request, and a marker older than READER_MARKER_MAX_AGE_MS is stale. The marker holds no screen token.
 // ---------------------------------------------------------------------------
 
-const READER_MARKER_SCHEMA = 'mos.persona-reader-search-marker/1';
-const READER_MARKER_MAX_AGE_MS = 2 * 60 * 60 * 1000;
-const READER_MARKER_RE = /^(\d{8}-\d{6}-[0-9a-f]{4})\.json$/;
-
-function readerMarkerDir(homeDir) {
-  return path.join(homeDir, 'persona-hats', 'reader-search');
-}
-
-/** Write the marker of a run. Never throws. @returns {string} armed, or not_armed:<reason> */
-function writeReaderMarker(homeDir, runId, roomResolved, now) {
+/**
+ * Write the marker of a run. Never throws. Round 3 (M2): the screen is armed only when the room identity screen runs
+ * (the room states a name); otherwise no marker is written and the state is not_armed:no_room_name.
+ * @returns {string} armed, or not_armed:<reason>
+ */
+function writeReaderMarker(homeDir, runId, roomResolved, now, readingList) {
+  let ran = false;
+  try { ran = roomIdentityScreen(roomResolved, readingList).ran === true; } catch (e) { ran = false; }
+  if (!ran) return 'not_armed:no_room_name';
   try {
     const dir = readerMarkerDir(homeDir);
     ensurePrivateDir(dir);
@@ -434,74 +383,26 @@ function writeReaderMarker(homeDir, runId, roomResolved, now) {
   }
 }
 
-/** Remove the marker of a run. @returns {boolean} true when no marker is left */
-function removeReaderMarker(homeDir, runId) {
-  try { fs.rmSync(path.join(readerMarkerDir(homeDir), runId + '.json'), { force: true }); return true; } catch (e) { return false; }
-}
-
 /**
- * The live markers. A marker that is not valid, is past expires_at, or is older than the maximum age is stale: it is
- * removed and not returned. @returns {Array<{run_id: string, room: string}>}
+ * Round 3 (owner ruling "Fail closed, plus an off switch"): the off switch of the reader search screen. It removes the
+ * marker of one run (--run <id>), or every marker when no run is named. It is a maintenance subcommand, not a step of
+ * a run: it writes no ledger, and the merge of a disarmed run says that the screen was removed before the merge.
+ * @returns {{ok: true, removed: string[]} | {ok: false, reason: string}}
  */
-function liveReaderMarkers(homeDir, now) {
-  const dir = readerMarkerDir(homeDir);
+function cmdDisarmReaderScreen(args, deps) {
+  const home = homeDirOf(deps);
+  const runId = args && typeof args.runId === 'string' ? args.runId : null;
+  if (runId !== null && !READER_MARKER_RE.test(runId + '.json')) return { ok: false, reason: 'run_id_invalid' };
   let names = [];
-  try { names = fs.readdirSync(dir); } catch (e) { return []; }
-  const t = (now instanceof Date ? now : new Date()).getTime();
-  const out = [];
+  try { names = fs.readdirSync(readerMarkerDir(home)); } catch (e) { names = []; }
+  const removed = [];
   for (const name of names) {
     const m = READER_MARKER_RE.exec(name);
-    if (!m) continue;
-    const r = readJsonFile(path.join(dir, name), { noSymlink: true });
-    const v = r.ok ? r.value : null;
-    const created = v && typeof v.created_at === 'string' ? Date.parse(v.created_at) : NaN;
-    const expires = v && typeof v.expires_at === 'string' ? Date.parse(v.expires_at) : NaN;
-    const valid = isPlain(v) && v.schema === READER_MARKER_SCHEMA && v.run_id === m[1] && typeof v.room === 'string'
-      && Number.isFinite(created) && Number.isFinite(expires);
-    if (!valid || t > expires || t - created > READER_MARKER_MAX_AGE_MS) {
-      try { fs.rmSync(path.join(dir, name), { force: true }); } catch (e) { /* the next call removes it */ }
-      continue;
-    }
-    out.push({ run_id: v.run_id, room: v.room });
+    if (!m || (runId !== null && m[1] !== runId)) continue;
+    if (removeReaderMarker(home, m[1])) removed.push(m[1]);
+    else return { ok: false, reason: 'remove_failed', removed };
   }
-  return out;
-}
-
-/**
- * Screen one search text with the door controls: the content fence, then the room identity screen (DESIGN 8). It is
- * the screen of screenReportedStrings and of the reader search hook. It returns a reason only, never a token.
- * @returns {string|null} egress_violation, room_identity_word, or null
- */
-function screenSearchText(text, screen) {
-  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
-  try {
-    rs.auditQueryString(String(text), 'persona-hats');
-  } catch (e) {
-    return 'egress_violation';
-  }
-  const screenRan = Boolean(screen) && screen.ran === true && typeof screen.has === 'function';
-  if (screenRan && handleHitsScreen(identityTokens(text), screen)) return 'room_identity_word';
-  return null;
-}
-
-/**
- * The verdict of the reader search hook for one text: the first live marker whose screen hits the text. The ledger
- * of each live run gives the reading list of the screen. A marker whose run ledger cannot be read is removed.
- * @returns {{block: boolean, reason: string|null, markers: number}}
- */
-function readerSearchVerdict(text, homeDir, now) {
-  const markers = liveReaderMarkers(homeDir, now);
-  for (const mk of markers) {
-    const lr = readLedger(mk.room, mk.run_id);
-    if (!lr.ok || lr.ledger.steps.merge) {
-      removeReaderMarker(homeDir, mk.run_id);
-      continue;
-    }
-    const screen = roomIdentityScreen(mk.room, lr.ledger.brief && lr.ledger.brief.reading_list);
-    const reason = screenSearchText(text, screen);
-    if (reason) return { block: true, reason, markers: markers.length };
-  }
-  return { block: false, reason: null, markers: markers.length };
+  return { ok: true, removed: removed.sort() };
 }
 
 function ensurePrivateDir(dir) {
@@ -1868,7 +1769,7 @@ function planFirst(roomResolved, lr, map, deps) {
   markStep(ledger, 'plan_research', 'done', now);
   if (planned.length === 0) markStep(ledger, 'run_research', 'skipped', now);
   // Phase 400.2.1 (S5): with run-research skipped, the readings come next, so the reader search screen is armed here.
-  const armed = planned.length === 0 ? writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now) : null;
+  const armed = planned.length === 0 ? writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now, ledger.brief && ledger.brief.reading_list) : null;
   if (armed) ledger.reader_search_screen = armed;
   try {
     writeLedger(lr.dir, ledger);
@@ -2085,6 +1986,16 @@ function judgeReading(hat, dir, ctx) {
  * counts-only ledger of Blue (S-9). It reads no file of the Blue directory and writes only ledger.json
  * there.
  */
+/** Round 3 (S4): the dropped count of each researching hat from the run record (0 when its door search did not run). */
+function droppedCountsOf(ledger) {
+  const out = {};
+  for (const hat of RESEARCH_HATS) {
+    const e = ledger && isPlain(ledger.hats) ? ledger.hats[hat] : null;
+    out[hat] = e && Number.isInteger(e.dropped_below_floor) ? e.dropped_below_floor : 0;
+  }
+  return out;
+}
+
 function cmdCheck(args, deps) {
   const roomResolved = roomDirCheck(args && args.roomDir);
   if (!roomResolved) return { ok: false, reason: 'room_not_found' };
@@ -2209,7 +2120,7 @@ function cmdCheck(args, deps) {
     states[hat] = { reading: perHat[hat].reading, rule_lines: perHat[hat].rule_lines, evidence_items: perHat[hat].evidence_items, self_found_sources: perHat[hat].self_found_sources };
     if (ledger.hats[hat].none_found_basis) states[hat].none_found_basis = ledger.hats[hat].none_found_basis;
   }
-  return { ok: true, run_id: ledger.run_id, hats: states, not_run: notRun, blue_ledger: bluePath };
+  return { ok: true, run_id: ledger.run_id, hats: states, not_run: notRun, blue_ledger: bluePath, dropped_below_floor: droppedCountsOf(ledger) };
 }
 
 // ---------------------------------------------------------------------------
@@ -2279,6 +2190,8 @@ const ARTIFACT_LABELS = Object.freeze({
   reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
   prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
   reader_screen_rule: "A hat's own searches passed the reader search screen of the door before they left the machine. The screen blocks room words; it cannot catch a figure or a detail with no screened word.",
+  reader_screen_lapsed: "The reader search screen of this run expired or was removed before the merge. No code screened the own searches of the hats after that point.",
+  dropped_below_floor: 'door results dropped by the relevance floor: ',
   host_web_limit: 'Provider host-web: the assistant ran the web search. Code cannot prove that it searched exactly the approved string.',
   section_rulings: '## Rulings',
   ruling_value: 'ruling: ',
@@ -2509,9 +2422,14 @@ function buildArtifact(record, readings, packs) {
     const pack = packs[hat] || { items: [], strings: [] };
     const found = readings[hat] && Array.isArray(readings[hat].self_found_sources) ? readings[hat].self_found_sources : [];
     const strings = readings[hat] && Array.isArray(readings[hat].self_search_strings) ? readings[hat].self_search_strings : [];
-    if (pack.items.length === 0 && found.length === 0 && strings.length === 0) continue;
+    // Round 3 (S4, owner ruling "Keep, loosen a bit"): the count of door results that the relevance floor dropped, for
+    // each hat whose door search ran (the run record holds it from run-research).
+    const hatRec = isPlain(record.hats) && isPlain(record.hats[hat]) ? record.hats[hat] : {};
+    const dropped = Number.isInteger(hatRec.dropped_below_floor) ? hatRec.dropped_below_floor : null;
+    if (pack.items.length === 0 && found.length === 0 && strings.length === 0 && dropped === null) continue;
     anySource = true;
     field('heading', hat);
+    if (dropped !== null) field('dropped_below_floor', String(dropped));
     for (const it of pack.items) {
       field('source_id', it.id);
       field('source_title', it.title);
@@ -2538,7 +2456,12 @@ function buildArtifact(record, readings, packs) {
   if (!anySource) push(L.none);
   if (RESEARCH_HATS.some(hat => packs[hat] && packs[hat].items.some(it => it.provider === HOST_WEB_PROVIDER))) push(L.host_web_limit);
   // Phase 400.2.1 (S5): a run whose reader search screen was armed says so; an older run keeps the prompt-rule line.
-  if (anyString) push(record.reader_search_screen === 'armed' ? L.reader_screen_rule : L.prompt_rule);
+  // Round 3 (M2): armed and live at the merge: the screen line; armed but expired or removed: the lapsed line; never
+  // armed (no room name, or an older run): the prompt-rule line, which says that no code checked the searches.
+  if (anyString) {
+    const st = record.reader_search_screen;
+    push(st === 'armed' ? L.reader_screen_rule : (st === 'lapsed' ? L.reader_screen_lapsed : L.prompt_rule));
+  }
   return out.join('\n') + '\n';
 }
 
@@ -2790,6 +2713,8 @@ async function cmdMerge(args, deps) {
     ? { edited_strings: edited, cards: counts.counts.cards, stops: counts.counts.stops, agent_runs: counts.counts.agent_runs, reported_by: 'command' }
     : { edited_strings: edited, cards: null, stops: null, agent_runs: null, reported_by: 'not_reported' };
   ledger.timestamps.merged_at = now.toISOString();
+  // Round 3 (M2): an armed screen whose marker expired or was removed before the merge did not screen the whole run.
+  if (ledger.reader_search_screen === 'armed' && !liveReaderMarkers(homeDir, now).some(m => m.run_id === ledger.run_id)) ledger.reader_search_screen = 'lapsed';
   markStep(ledger, 'merge', 'done', now);
 
   // 5. The artifact, the copies of the readings, the session log, the run record, then the cleanup.
@@ -2846,6 +2771,7 @@ async function cmdMerge(args, deps) {
     same_position: samePosition,
     hats: hatsOut,
     not_run: notRun,
+    dropped_below_floor: droppedCountsOf(ledger),
     session_log: sessionLog,
     cleanup: cleaned ? 'done' : 'failed',
   };
@@ -3002,9 +2928,9 @@ async function mergeQuickRun(roomResolved, lr, args, deps) {
 // ---------------------------------------------------------------------------
 
 const RULINGS_FILE = 'tension-rulings.json';
-// Phase 400.2.1 (S6): schema 2 adds the optional entry key delegated (always true). The door reads schema 1 and schema 2
-// and writes schema 2. A door of an older plugin version refuses a schema 2 store (rulings_store_invalid): the break is
-// recorded in the phase SUMMARY.
+// Phase 400.2.1 (S6): schema 2 adds the optional entry key delegated (always true). The door reads schema 1 and schema 2.
+// It writes schema 2 only when an entry is delegated, else schema 1 (round 3, N3). A door of an older plugin version
+// refuses a schema 2 store (rulings_store_invalid): the break is recorded in the phase SUMMARY.
 const RULINGS_SCHEMA = 'mos.persona-tension-rulings/2';
 const RULINGS_SCHEMA_V1 = 'mos.persona-tension-rulings/1';
 const RULING_ANSWER_SCHEMA = 'mos.persona-ruling-answer/1';
@@ -3273,7 +3199,10 @@ function cmdRecordRuling(args, deps) {
         const nextStore = Object.assign({}, fresh.rulings);
         for (const id of removedIds) delete nextStore[id];
         for (const id of Object.keys(setEntries)) nextStore[id] = setEntries[id];
-        atomicWriteJson(rulingsStorePath(roomResolved), { schema: RULINGS_SCHEMA, rulings: nextStore });
+        // Round 3 (N3): schema 2 only when an entry is delegated, so a store with no delegation stays readable by an
+        // older door.
+        const anyDelegated = Object.keys(nextStore).some(id => nextStore[id].delegated === true);
+        atomicWriteJson(rulingsStorePath(roomResolved), { schema: anyDelegated ? RULINGS_SCHEMA : RULINGS_SCHEMA_V1, rulings: nextStore });
         return { ok: true };
       });
       if (!written.ok) return { ok: false, reason: written.reason === 'store_busy' ? 'rulings_store_busy' : written.reason };
@@ -3341,156 +3270,6 @@ function cmdRecordRuling(args, deps) {
 // ---------------------------------------------------------------------------
 // Phase 400.2-10: the Part 8 controls on a door search string (PS-01)
 // ---------------------------------------------------------------------------
-
-// Generic words that are common in room and venture names and are valid domain words. A token on this list is never
-// a screened word (the full-venture-name rule still applies). "clean room design" is not refused in a room named room.
-const IDENTITY_STOP_LIST = Object.freeze([
-  'room', 'venture', 'project', 'company', 'startup', 'labs', 'group', 'systems', 'solutions', 'technologies',
-  'global', 'health', 'energy', 'data', 'market', 'platform', 'network', 'digital', 'research', 'design', 'care',
-  'food', 'water', 'power', 'cloud', 'mobile', 'smart', 'green', 'blue', 'open', 'new', 'test', 'demo',
-]);
-
-const IDENTITY_MIN_LETTERS = 4;
-const IDENTITY_FILE_CAP = 200;
-const IDENTITY_READ_CAP = 262144;
-const UNKNOWN_VENTURE = 'unknown venture';
-
-/** Lower-case a text and split it on every character outside a-z and 0-9. */
-function identityTokens(text) {
-  return String(text == null ? '' : text).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-}
-
-/**
- * The venture name, from the one room-name function of persona-ops (roomVentureNameOf), the same name as the persona
- * domain (Phase 400.2.1, S3). The screen needs a name that the room states: a STATE.md venture line, a real heading or
- * the ROOM.md icm_self.room name. A name from the directory or the fallback, or no readable STATE.md, gives null, so
- * the screen does not run (DESIGN 8).
- */
-const SCREEN_NAME_SOURCES = Object.freeze(['venture_line', 'heading', 'room_md']);
-function readVentureName(roomResolved) {
-  let state = '';
-  try {
-    state = fs.readFileSync(path.join(roomResolved, 'STATE.md'), 'utf8');
-  } catch (e) {
-    return null;
-  }
-  const named = ops.roomVentureNameOf(roomResolved, state);
-  return SCREEN_NAME_SOURCES.includes(named.source) ? named.name : null;
-}
-
-/** Base names (no extension) of the files under team/, to a depth of 3. */
-function teamFileBaseNames(roomResolved) {
-  const out = [];
-  function walk(dir, depth) {
-    if (depth > 3 || out.length >= IDENTITY_FILE_CAP) return;
-    let entries;
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch (e) {
-      return;
-    }
-    for (const ent of entries) {
-      if (out.length >= IDENTITY_FILE_CAP) return;
-      if (ent.isDirectory()) walk(path.join(dir, ent.name), depth + 1);
-      else if (ent.isFile()) out.push(path.basename(ent.name, path.extname(ent.name)));
-    }
-  }
-  walk(path.join(roomResolved, 'team'), 1);
-  return out;
-}
-
-/**
- * Proper-noun candidates of a text: a word that starts with a capital letter and is not the first word of a line
- * (a heading or a list item counts as a line) or of a sentence. A limit that the card covers: an abbreviation such
- * as "Dr." ends a sentence for this rule.
- */
-function properNounCandidates(text) {
-  const out = [];
-  const lines = String(text).split(/\r?\n/);
-  for (const line of lines) {
-    const re = /[A-Za-z][A-Za-z0-9'’]*/g;
-    let m;
-    while ((m = re.exec(line)) !== null) {
-      const before = line.slice(0, m.index).replace(/[\s"'“”‘’(\[\]*_`>#-]+$/, '');
-      const first = before === '' || /[.!?]$/.test(before);
-      if (!first && /^[A-Z]/.test(m[0])) out.push(m[0]);
-    }
-  }
-  return out;
-}
-
-/**
- * The room identity screen (DESIGN 8). It collects the names of the room that must not enter a search string.
- * It returns {ran, venture_name_found, tokens_checked} as visible fields. The token set, the venture tokens and the
- * methods are not enumerable, so no serialised form holds a token.
- * @param {string} roomDir
- * @param {string[]} [readingList] - room-relative paths of the reading-list files
- */
-function roomIdentityScreen(roomDir, readingList) {
-  const roomResolved = path.resolve(roomDir);
-  const ventureName = readVentureName(roomResolved);
-  const ventureTokens = ventureName ? identityTokens(ventureName) : [];
-  const found = ventureName !== null && ventureTokens.length > 0 && ventureName.toLowerCase().trim() !== UNKNOWN_VENTURE;
-  const tokens = new Set();
-  if (found) {
-    for (const t of ventureTokens) tokens.add(t);
-    for (const t of identityTokens(path.basename(roomResolved))) tokens.add(t);
-    for (const name of teamFileBaseNames(roomResolved)) for (const t of identityTokens(name)) tokens.add(t);
-    const list = Array.isArray(readingList) ? readingList : [];
-    let realRoom = null;
-    try { realRoom = fs.realpathSync(roomResolved); } catch (e) { realRoom = null; }
-    for (const rel of list) {
-      if (typeof rel !== 'string' || rel.length === 0 || rel.length > 300) continue;
-      try {
-        const abs = path.resolve(roomResolved, rel.replace(/\\/g, '/'));
-        const back = path.relative(roomResolved, abs);
-        if (back === '' || back.startsWith('..') || path.isAbsolute(back)) continue;
-        const real = fs.realpathSync(abs);
-        const inside = realRoom ? path.relative(realRoom, real) : '..';
-        if (inside === '' || inside.startsWith('..') || path.isAbsolute(inside)) continue;
-        if (!fs.statSync(real).isFile()) continue;
-        const buf = fs.readFileSync(real);
-        const text = buf.slice(0, IDENTITY_READ_CAP).toString('utf8');
-        for (const cand of properNounCandidates(text)) for (const t of identityTokens(cand)) tokens.add(t);
-      } catch (e) {
-        // An unreadable reading-list file adds no token. The card stays the final control.
-      }
-    }
-  }
-  const screen = {
-    ran: found,
-    venture_name_found: found,
-    tokens_checked: found ? tokens.size : 0,
-  };
-  const hidden = {
-    counts: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
-    has: (token) => found && tokens.has(String(token).toLowerCase()),
-    ventureTokens: found ? ventureTokens.slice() : [],
-    toJSON: () => ({ ran: screen.ran, venture_name_found: screen.venture_name_found, tokens_checked: screen.tokens_checked }),
-  };
-  for (const k of Object.keys(hidden)) {
-    Object.defineProperty(screen, k, { value: hidden[k], enumerable: false, writable: false, configurable: false });
-  }
-  return screen;
-}
-
-/** True when the handle tokens hold a screened word or the full venture name (DESIGN 8, match rule). */
-function handleHitsScreen(handleTokens, screen) {
-  for (const t of handleTokens) {
-    if (t.length >= IDENTITY_MIN_LETTERS && !IDENTITY_STOP_LIST.includes(t) && screen.has(t)) return true;
-  }
-  const v = screen.ventureTokens;
-  if (v.length > 0 && v.length <= handleTokens.length) {
-    for (let i = 0; i + v.length <= handleTokens.length; i += 1) {
-      let same = true;
-      for (let j = 0; j < v.length; j += 1) {
-        if (handleTokens[i + j] !== v[j]) { same = false; break; }
-      }
-      if (same) return true;
-    }
-  }
-  return false;
-}
 
 /**
  * The four checks on a proposed handle, in a fixed order (DESIGN 4.5): the content fence on the raw text, the
@@ -3793,7 +3572,8 @@ function newStringRecord(s, dbPresent) {
 // Phase 400.2.1 (S4), INTERIM: the relevance floor of a door finding. A lexical floor cannot keep a paraphrase and cannot
 // drop every homonym; a semantic reranker is the full fix. The handle words are the words of the approved string minus
 // the hat qualifier and minus the closed list of function words below, in their order, each with a final s removed.
-// A finding passes when its title, or its summary, holds two handle words next to each other once the function words
+// A finding passes when its title, or its summary, holds two handle words next to each other (in either order, round 3)
+// once the function words
 // of that text are removed (each text is checked on its own, so a pair never joins the end of the title and the start
 // of the summary), or when title and summary hold every handle word. A one-word handle needs that word.
 // Each dropped finding is counted and listed in the run output.
@@ -3831,7 +3611,11 @@ function meetsRelevanceFloor(terms, finding) {
   for (const words of [title, summary]) {
     for (let i = 0; i + 1 < words.length; i += 1) pairs.add(words[i] + ' ' + words[i + 1]);
   }
-  for (let i = 0; i + 1 < terms.length; i += 1) if (pairs.has(terms[i] + ' ' + terms[i + 1])) return true;
+  // Round 3 (owner ruling "Keep, loosen a bit"): a reversed adjacent pair counts too, so "specification and
+  // verification" keeps a result for the handle words "verification specification".
+  for (let i = 0; i + 1 < terms.length; i += 1) {
+    if (pairs.has(terms[i] + ' ' + terms[i + 1]) || pairs.has(terms[i + 1] + ' ' + terms[i])) return true;
+  }
   return false;
 }
 
@@ -4189,6 +3973,10 @@ async function cmdRunResearch(args, deps) {
 
   for (const hat of RESEARCH_HATS) {
     ledger.hats[hat].research = results[hat].state;
+    // Round 3 (S4): the dropped count of each hat whose door search ran, for every later output and the review.
+    if (Array.isArray(results[hat].fetched) && results[hat].fetched.length > 0) {
+      ledger.hats[hat].dropped_below_floor = results[hat].fetched.reduce((n, f) => n + (Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0), 0);
+    } else delete ledger.hats[hat].dropped_below_floor;
     if (results[hat].reason) ledger.hats[hat].research_reason = results[hat].reason;
     else delete ledger.hats[hat].research_reason;
   }
@@ -4213,7 +4001,7 @@ async function cmdRunResearch(args, deps) {
   markStep(ledger, 'run_research', 'done', now);
   // Phase 400.2.1 (S5): the readings come next; arm the reader search screen until merge. The ledger keeps the state,
   // so the review artifact says whether the own searches of the hats passed the screen.
-  const readerScreen = writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now);
+  const readerScreen = writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now, ledger.brief && ledger.brief.reading_list);
   ledger.reader_search_screen = readerScreen;
   try {
     writeRunMap(homeDirOf(deps), map);
@@ -4408,6 +4196,14 @@ function cmdCompare(args, deps) {
 function main(argv, deps) {
   const args = Array.isArray(argv) ? argv : [];
   const sub = args[0];
+  // Round 3: the maintenance subcommand disarm-reader-screen [--run <id>] is not a step of a run (not in SUBCOMMANDS).
+  if (sub === DISARM_SUBCOMMAND) {
+    const { flags } = parseFlags(args.slice(1));
+    if (flags.run === true) { process.stderr.write(DISARM_USAGE + '\nmissing value: --run\n'); process.exitCode = 2; return undefined; }
+    const result = cmdDisarmReaderScreen({ runId: typeof flags.run === 'string' ? flags.run : null }, deps);
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+    return result;
+  }
   if (SUBCOMMANDS.indexOf(sub) === -1) {
     process.stderr.write(USAGE + '\n');
     process.exitCode = 2;
@@ -4586,6 +4382,8 @@ module.exports = {
   stringState,
   hatResearchState,
   READER_MARKER_MAX_AGE_MS,
+  DISARM_SUBCOMMAND,
+  cmdDisarmReaderScreen,
   readerMarkerDir,
   writeReaderMarker,
   removeReaderMarker,

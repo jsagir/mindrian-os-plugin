@@ -24,13 +24,26 @@
  * screens every WebSearch and WebFetch call of this machine (ASSUMED: the hook
  * input has no reliable field that names the subagent).
  *
+ * For WebFetch the path and the query of the url are screened, raw and decoded
+ * (plus to a space, then decodeURIComponent); the host is not screened, and a
+ * closed list of well-known organisation and vendor words is skipped.
+ *
+ * Owner ruling 2026-11-26: "Fail closed, plus an off switch". hooks.json gives
+ * this hook onFailure block, and the off switch is the door subcommand
+ *   node scripts/persona-hats.cjs disarm-reader-screen [--run <run_id>]
+ *
  * Signaling:
  *   exit 0 = ALLOW: no live marker, a tool that is not WebSearch or WebFetch,
  *            no text to screen, or the text passes the screen.
  *   exit 2 = BLOCK: the text holds a room detail (reason room_identity_word or
  *            egress_violation), or the screen could not run while a marker
  *            file exists (reason reader_search_screen_unavailable, fail closed).
- * The message names the reason only. It never prints the text or a token.
+ * The message names the reason, the run id and the off switch. It never prints
+ * the text or a screen token.
+ *
+ * Require graph: node built-ins and lib/core/persona-reader-screen.cjs only
+ * (which loads rs-egress-prompts.cjs for the content fence). The hook does not
+ * load the door.
  *
  * The hook opens no network connection. It reads local files only and removes
  * stale markers. No em-dashes.
@@ -40,7 +53,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const DOOR_PATH = path.join(__dirname, 'persona-hats.cjs');
+const SCREEN_PATH = path.join(__dirname, '..', 'lib', 'core', 'persona-reader-screen.cjs');
 
 function homeDir() {
   return process.env.MINDRIAN_HOME || path.join(os.homedir(), '.mindrian');
@@ -48,8 +61,9 @@ function homeDir() {
 
 function allow() { process.exit(0); }
 
-function block(reason) {
-  process.stderr.write('Canon Part 8 (hat reader search): the search text holds a room detail or could not be screened (reason ' + reason + '). The request was blocked and nothing was sent. Search with general words of the field, with no venture name, person name, figure or other room detail.\n');
+function block(reason, runId) {
+  const run = typeof runId === 'string' && /^\d{8}-\d{6}-[0-9a-f]{4}$/.test(runId) ? runId : '<run_id>';
+  process.stderr.write('Canon Part 8 (hat reader search, run ' + run + '): the search text holds a room detail or could not be screened (reason ' + reason + '). The request was blocked and nothing was sent. Search with general words of the field, with no venture name, person name, figure or other room detail. To stop this screen, run: node "' + path.join(__dirname, 'persona-hats.cjs') + '" disarm-reader-screen --run ' + run + '\n');
   process.exit(2);
 }
 
@@ -75,18 +89,18 @@ function main() {
 
   let verdict;
   try {
-    const door = require(DOOR_PATH);
-    verdict = door.readerSearchVerdict(text, homeDir(), new Date());
+    const screen = require(SCREEN_PATH);
+    verdict = screen.readerSearchVerdict(tool, text, homeDir(), new Date());
   } catch (_) {
-    return block('reader_search_screen_unavailable');
+    return block('reader_search_screen_unavailable', null);
   }
-  if (!verdict || typeof verdict.block !== 'boolean') return block('reader_search_screen_unavailable');
-  if (verdict.block) return block(String(verdict.reason || 'room_identity_word'));
+  if (!verdict || typeof verdict.block !== 'boolean') return block('reader_search_screen_unavailable', null);
+  if (verdict.block) return block(String(verdict.reason || 'room_identity_word'), verdict.run_id);
   return allow();
 }
 
 try {
   main();
 } catch (_) {
-  block('reader_search_screen_unavailable');
+  block('reader_search_screen_unavailable', null);
 }

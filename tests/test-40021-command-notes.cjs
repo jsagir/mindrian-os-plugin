@@ -51,6 +51,8 @@ check('T7. S5: the reader contract and the search card name the reader search sc
   assert.ok(text.includes('Those searches pass the reader search screen (a hook) before they leave the machine'));
   assert.ok(section('### Step 5').includes('Reader search screen: <reader_search_screen>.'));
   assert.equal(text.includes('Those searches follow a prompt rule only'), false);
+  assert.ok(section('### Step 5').includes('disarm-reader-screen --run <run_id>'), 'the off switch is named');
+  assert.ok(section('### Step 5').includes('not_armed:no_room_name'));
 });
 check('T6. the skill mirror carries the same notes', () => {
   for (const s of ['Worktree note:', 'Larry decides', '`plain_lines`', '`coverage` list', '`guidance` sentence', 'Reader search screen: <reader_search_screen>.']) assert.ok(mirror.includes(s), s);

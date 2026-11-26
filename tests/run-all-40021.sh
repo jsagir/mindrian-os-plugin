@@ -4,7 +4,7 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 FAIL=0
-for t in tests/test-40021-persona-domain.cjs tests/test-40021-relevance-floor.cjs tests/test-40021-blue-coverage.cjs tests/test-40021-handle-guidance.cjs tests/test-40021-command-notes.cjs tests/test-40021-reader-search-hook.cjs tests/test-4002-rulings.cjs tests/test-4002-quick.cjs tests/test-386-web-credential-hook.cjs tests/test-391-hooks-contract.cjs tests/test-389-hook-unwire.cjs; do
+for t in tests/test-40021-persona-domain.cjs tests/test-40021-relevance-floor.cjs tests/test-40021-blue-coverage.cjs tests/test-40021-handle-guidance.cjs tests/test-40021-command-notes.cjs tests/test-40021-reader-search-hook.cjs tests/test-4002-rulings.cjs tests/test-4002-quick.cjs tests/test-386-web-credential-hook.cjs tests/test-391-hooks-contract.cjs tests/test-389-hook-unwire.cjs tests/test-369-hook-require-graph.cjs; do
   echo "--- 400.2.1: $t ---"
   if node "$t"; then echo ">>> 400.2.1: $t: PASSED"; else echo ">>> 400.2.1: $t: FAILED"; FAIL=1; fi
 done

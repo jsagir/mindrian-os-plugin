@@ -98,7 +98,7 @@ check('the census dropped by exactly one command (UserPromptSubmit one less) and
   assert.deepStrictEqual(now, expected);
 });
 
-check('the first-install router group stays in UserPromptSubmit and exactly two commands carry onFailure block', () => {
+check('the first-install router group stays in UserPromptSubmit and exactly three commands carry onFailure block', () => {
   const doc = loadHooks();
   const router = commandsOf(doc, 'UserPromptSubmit').filter((c) => c.command.includes('first-install-router.cjs'));
   assert.strictEqual(router.length, 1, 'router commands ' + router.length);
@@ -106,7 +106,8 @@ check('the first-install router group stays in UserPromptSubmit and exactly two 
   for (const ev of Object.keys(doc.hooks || {})) {
     for (const c of commandsOf(doc, ev)) if (c.onFailure === 'block') blockers++;
   }
-  assert.strictEqual(blockers, 2, 'commands with onFailure block: ' + blockers);
+  // Phase 400.2.1 (owner ruling 2026-11-26, "Fail closed, plus an off switch"): the reader search guard is the third.
+  assert.strictEqual(blockers, 3, 'commands with onFailure block: ' + blockers);
 });
 
 check('scripts/mva-detect.cjs and its smoke test do not exist', () => {
