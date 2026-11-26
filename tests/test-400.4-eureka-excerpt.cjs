@@ -177,7 +177,83 @@ leg('E5 no reader: output equals base and omissions keep six keys', () => {
   } finally { db.close(); }
 });
 
-// E6_E7_MARKER
+// E6 and E7: the tool wiring, on a real bound isolated room.
+asyncLegs.push((async () => {
+  const iso = require('./helpers/isolated-home-36925.cjs');
+  const savedEnv = {
+    HOME: process.env.HOME, USERPROFILE: process.env.USERPROFILE,
+    MINDRIAN_ROOMS_HOME: process.env.MINDRIAN_ROOMS_HOME, CLAUDE_ACTIVE_ROOM: process.env.CLAUDE_ACTIVE_ROOM,
+  };
+  const isolated = iso.mkIsolatedHome('400.4-excerpt');
+  try {
+    const born = iso.birthFixtureRoom({ iso: isolated, slug: 'excerpt-room', sessionId: 'excerpt-birth' });
+    const nav = require('../lib/core/navigation.cjs');
+    const session = 'excerpt-bound-session';
+    const artDir = path.join(born.roomDir, 'market-analysis', 'note-b');
+    fs.mkdirSync(artDir, { recursive: true });
+    const body = 'The key note body. ' + 'x'.repeat(6000);
+    fs.writeFileSync(path.join(artDir, 'note-b.md'), '---\ntitle: Note B\n---\n\n' + body);
+    const wdb = nav.openRoomDbForCaller(born.roomDir);
+    try {
+      // Fill every NOT NULL column that has no default, so the insert survives schema growth.
+      const row = { id: 'market-analysis/note-b/note-b', type: 'Artifact',
+        properties: JSON.stringify({ title: 'Note B', section: 'market-analysis', content_hash: 'h' }) };
+      for (const c of wdb.prepare('PRAGMA table_info(nodes)').all()) {
+        if (c.notnull && c.dflt_value === null && !(c.name in row)) {
+          row[c.name] = c.name === 'source_path' ? 'market-analysis/note-b/note-b.md' : (/_at$/.test(c.name) ? '2026-11-26T00:00:00Z' : 'system');
+        }
+      }
+      const cols = Object.keys(row);
+      wdb.prepare('INSERT INTO nodes (' + cols.join(',') + ') VALUES (' + cols.map(() => '?').join(',') + ')').run(...cols.map((k) => row[k]));
+    } finally { nav.closeRoomDbForCaller(wdb); }
+    require('../lib/core/session-binding.cjs').writeSessionBinding(session, {
+      bound: [born.slug], primary: born.slug, sticky: true,
+    }, { home: isolated.roomsHome });
+    process.env.MINDRIAN_ROOMS_HOME = isolated.roomsHome;
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+
+    // Spy on the reader. The tool calls it through the module object.
+    const realRead = containment.readContainedTextExcerpt;
+    let readCalls = 0;
+    containment.readContainedTextExcerpt = function spy() { readCalls += 1; return realRead.apply(this, arguments); };
+    delete require.cache[require.resolve('../lib/mcp/tools/eureka-graph-projection.cjs')];
+    const tool = require('../lib/mcp/tools/eureka-graph-projection.cjs');
+    const captured = new Map();
+    tool.register({ registerTool(name, config, handler) { captured.set(name, { config, handler }); } }, {});
+    const registered = captured.get('eureka_graph_project');
+    const dbPath = path.join(born.roomDir, '.mindrian', 'room.db');
+    try {
+      // E6
+      const before = sha(fs.readFileSync(dbPath));
+      const res = (await registered.handler({ node_ids: ['market-analysis/note-b/note-b'] }, { sessionId: session })).structuredContent;
+      assert.equal(res.ok, true, JSON.stringify(res));
+      assert.equal(res.snapshot.nodes[0].text, body.slice(0, 4000));
+      assert.equal(res.text_from_file.nodes, 1);
+      assert.equal(res.projection_omissions.empty_text_nodes, 0);
+      assert.ok(readCalls >= 1);
+      assert.equal(sha(fs.readFileSync(dbPath)), before, 'room.db bytes unchanged');
+      process.stdout.write('PASS E6 handler carries the file excerpt, room.db unchanged\n');
+
+      // E7
+      fs.writeFileSync(path.join(born.roomDir, 'GUARDRAIL.md'), 'sealed\n');
+      readCalls = 0;
+      const sealed = (await registered.handler({ node_ids: ['market-analysis/note-b/note-b'] }, { sessionId: session })).structuredContent;
+      assert.equal(sealed.ok, false);
+      assert.equal(sealed.reason, 'room_sealed');
+      assert.equal(readCalls, 0, 'no file read before the sealed refusal');
+      process.stdout.write('PASS E7 sealed room refused before any file read\n');
+    } finally {
+      containment.readContainedTextExcerpt = realRead;
+    }
+  } catch (e) {
+    process.stdout.write('FAIL E6/E7: ' + (e && e.message ? e.message.split('\n')[0] : e) + '\n');
+    process.exitCode = 1;
+    legFailures.push('E6/E7');
+  } finally {
+    isolated.cleanup();
+    for (const [k, v] of Object.entries(savedEnv)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
+  }
+})());
 
 function finish() {
   fs.rmSync(tmpRoot, { recursive: true, force: true });
