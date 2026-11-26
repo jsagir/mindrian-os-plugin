@@ -5,7 +5,7 @@
 //
 // Legs D1 to D5:
 //   D1 each of the 6 data options has a description of 1 to 120 characters, no digit, no em dash, no en dash;
-//      card.description_status is provisional.
+//      card.description_status is approved (owner ruling 2026-11-26).
 //   D2 normalizeOptions returns {id, label, description} in data order for stage 1 and for stage 2.
 //   D3 gate_render for kind cause_effect_domain replaces the caller's descriptions with the data strings;
 //      card.recommended is null on both stages.
@@ -70,7 +70,7 @@ async function main() {
       assert.ok(!/[0-9–—]/.test(o.description), o.id + ' holds a digit or a dash');
       assert.equal(o.description, WANT[o.id], o.id + ' wording');
     }
-    assert.equal(DATA.card.description_status, 'provisional');
+    assert.equal(DATA.card.description_status, 'approved');
   });
 
   await leg('D2 normalizeOptions returns id, label and description in data order on both stages', async () => {

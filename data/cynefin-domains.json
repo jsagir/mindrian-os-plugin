@@ -78,8 +78,8 @@
       "book_heading": "Question 1: who can see cause and effect?",
       "quote_sha256": "d9eaab5f20dfb319d10bbaca4a6ab86e9952ce0de50af0f3da62469ab9804f2a"
     },
-    "description_status": "provisional",
-    "_description_note": "Planner wording, Phase 400.4 QA-F10; provisional until the owner rules on card wording.",
+    "description_status": "approved",
+    "_description_note": "Planner wording, Phase 400.4 QA-F10; approved by the owner 2026-11-26 (card in session jsagi-42).",
     "no_answer": "store_nothing",
     "_no_answer_note": "Closing a dialog with no answer, a reject or a defer stores nothing.",
     "stages": [
