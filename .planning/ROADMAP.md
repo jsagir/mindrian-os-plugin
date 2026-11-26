@@ -4300,6 +4300,42 @@ Plans:
 - [x] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [x] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
 
+### Phase 400.4: Cold-start QA fixes from the 2026-11-26 live run: plain job labels and sentences in goal-job offers and the goal card, a set goal job picks a nest, domain note with the advisor off, advisor shortlist drives the alternatives, framework-name aliases, capped cortex context leg, two-way neighbourhood, honest gap scan with isolated-note check, Eureka file excerpts, cause-and-effect card descriptions (INSERTED)
+
+**Goal:** A cold user on a large, unratified room gets a plain-worded job choice, a ranked next move once a job is set, a context pull inside a stated budget, real neighbours, and an honest gap report (QA source: `400.4-QA-SOURCE.md`, findings F1-F10, root causes verified against installed v2.0.0-beta.91).
+**Requirements**: QA-F1 to QA-F11 (see 400.4-QA-SOURCE.md and 400.4-QA-SOURCE-F11-hook-timeouts.md); advisor default-on is OUT of scope (owner ruling 2026-11-24)
+**Depends on:** Phase 400
+**Canon parts:** 8 (no new egress; Eureka excerpt stays local), 9 (unratified counts never mixed into ratified lists), 11 (no new surface), 7 (reuse existing data files)
+**Success criteria:**
+1. `suggest_next` `goal_job.offers` carry id, label and sentence from data/job-vocabulary.json; the strategy_goal card shows the plain job label.
+2. With a goal job set and no active nest, `suggest_next` returns a ranked primary (nest picked from data/section-job-canon.json) and says so.
+3. With a stored domain and the advisor off, the next move carries a domain note; with the advisor on, alternatives follow the advisor shortlist order.
+4. composeWorkflow resolves "Beautiful Question", "beautiful-question" and plural forms; an unknown name returns `unresolved: true` with a reason.
+5. context_assemble cortex leg is capped by a budget parameter, reports the cap in `_meta.omitted`, and the estimate matches the real reply size within 5%.
+6. Neighbourhood traversal walks edges in both directions; a section focus returns its notes.
+7. whitespace_scan reports `unratified_unsupported` and `isolated_artifacts` separately from the ratified unsupported list.
+8. Eureka graph projection carries a bounded local file excerpt for artifact nodes without text.
+9. Cause-and-effect card options carry one-line descriptions.
+10. A cold-start replay on a copy of a large room passes all of the above.
+11. UserPromptSubmit runs as ONE dispatcher process (six checks in-process, parity with the six separate hooks) that answers inside its 3 s budget while room.db is locked for 10 s; room.db hooks report a typed room_db_busy outcome.
+**Plans:** 13 plans in 5 waves
+
+Plans:
+
+- [ ] 400.4-01 (wave 1; [QA-F5])
+- [ ] 400.4-02 (wave 2; [QA-F4])
+- [ ] 400.4-03 (wave 2; [QA-F6])
+- [ ] 400.4-04 (wave 3; [QA-F7])
+- [ ] 400.4-05 (wave 2; [QA-F8])
+- [ ] 400.4-06 (wave 2; [QA-F9])
+- [ ] 400.4-07 (wave 2; [QA-F10])
+- [ ] 400.4-08 (wave 3; [QA-F1])
+- [ ] 400.4-09 (wave 4; [QA-F2, QA-F3])
+- [ ] 400.4-10 (wave 2; [QA-F11])
+- [ ] 400.4-11 (wave 5; [QA-F1, QA-F2, QA-F3, QA-F4, QA-F5, QA-F6, QA-F7, QA-F8, QA-F9, QA-F10, QA-F11])
+- [ ] 400.4-12 (wave 3; [QA-F11])
+- [ ] 400.4-13 (wave 4; [QA-F11])
+
 ### Phase 400.2: Persona, hats and research bundle: persona builds six hat personas from the room, each hat runs its own research through the existing Bono leg and then does its persona work in isolation, with deep and quick modes, one approval card per researching hat, and Larry as the synthesizer (SEED-149, EGM method, part of the next cut) (INSERTED)
 
 **Goal:** /mos:persona works with the six hats and with research: six hat personas built from the room, each hat with its own approved research through the existing Bono leg, each hat's persona work done in isolation, Larry as the synthesizer, deep and quick modes. Owner-signed scope: 400.2-CONTEXT.md (SEED-149). Design work runs with the EGM method. Part of the next cut with 399 and 400.

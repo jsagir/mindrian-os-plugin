@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 400 executing (plan 01/15 done); Phase 400.1 efficiency research running; Phase 399 COMPLETE, not pushed, owner push-gate review pending
-last_updated: "2026-11-24T09:30:00.000Z"
-last_activity: "2026-11-24 - Phase 400 plan 01 executed (job-sentence module, description budget guard, 20 provisional vocabulary sentences, frontmatter writer, registry job_sentence field); phases 400.1 and 401-404 added; Phase 399 complete: verification passed, review fixes applied (WR-01..08, IN-01, IN-04); Phase 399 plan 10 executed (routing benchmark, internal only, circular and excluding-26 views, option shuffles, phase gates reported); plan 09 executed (ground-truth label, selection_observations, recordSelectionOutcome wired into closeOffer and gate_answer, overrule state, K5-K7 legs); plan 08 executed (composeWorkflow advisor ranking inside the one door, framework_run and act --chain pass job and level, one-selector fence); plan 07 executed (advisor key and pool source in composeNextMove, abstain on tie, band words in suggest_next); plan 06 executed (73-command run-step scope, v0 job-only calibrated table, shortlist lookup); plan 05 executed (decision_advisor egress line off, transport script, capture-server proof); plan 04 executed (adapter, labels-only validator, Gemini and Jev shapes, fence); plan 03 executed (2 agent + 4 MCP tool labels, recorded fixture, 399-LABEL-REVIEW.md); plan 02 executed (26 job labels applied, data/job-label-rulings.json); plan 01 executed (data/job-vocabulary.json, lib/core/problem-axes.cjs); earlier: 2026-11-08 recorded 391/389/390 progress; v2.0.0-beta.81 cut (tag 8455416a5), repo 2.0.0-beta.82 in progress; 383-11 pending the owner"
+stopped_at: Completed 389-01-PLAN.md (MVA caller proof, baseline, stale text fixed; Phase 389 plans 02 to 14 next)
+last_updated: "2026-11-26T06:42:57.497Z"
+last_activity: "2026-11-08 - Completed quick task 261108-ekl: beta.81 install-test defects"
 progress:
-  total_phases: 154
-  completed_phases: 41
-  total_plans: 814
-  completed_plans: 685
-  percent: 27
+  total_phases: 167
+  completed_phases: 49
+  total_plans: 899
+  completed_plans: 783
+  percent: 29
 ---
 
 <!-- NOTE (267-01 execute-plan, 2026-09-24, resync-clobber pattern, same class as every other
