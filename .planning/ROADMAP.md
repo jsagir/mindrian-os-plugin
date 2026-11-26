@@ -4366,6 +4366,17 @@ Plans:
 - [ ] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
 - [ ] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
 
+### Phase 400.3.1: Red tests on main: four pins moved by later work (INSERTED)
+
+**Goal:** The four test files red on main pass again with every moved pin traced to the commit that moved it, and no product code changes. Test 12 reads a planning file now force-added; X5 census 65 to 67; 353 L2 band re-pinned for the beta.90 and beta.92 ledger rebuilds (MOVING); vi3 byte pins for the 389-09 venture-family rename and I8c for the beta.66 ledger rebuild. SEED-172 carries the release-time gate, the part-6 cap and a ledger seam.
+**Requirements**: none (test-only)
+**Depends on:** none
+**Plans:** 1 plan
+
+Plans:
+
+- [x] 400.3.1-01-PLAN.md - re-pin the four tests with causes cited; EGM goldfish review resolved (400.3.1-CONTEXT.md)
+
 ### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
 
 **Goal:** [To be planned]

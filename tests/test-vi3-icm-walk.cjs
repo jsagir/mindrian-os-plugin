@@ -230,10 +230,12 @@ arm('I1 ROOM.md present, purpose or first heading present, CONTEXT.md job_id (ro
 // 369.25-07 RE-MEASURED: the root ROOM.md gained one icm_self line (`  room_id: "<uuid>"`, 50 bytes) because birth now commits the
 // identity and the map projects it: root 35 lines 1042 bytes became 36 lines 1092 bytes (wc -l, wc -c on a fresh release
 // fixture room born offline); room b's root 41/1158 became 42/1208. No nest changes (nests are not rooms).
+// 400.3.1 RE-MEASURED: 35922a28b (389-09) renamed mva-brief to structure-argument in the venture family's default_methodologies
+// (data/room-blueprints.json); every core nest's ROOM.md lists it, +9 bytes each (room a 11 core nests, room b A, B, C).
 const A_I2 = { // [lines, bytes] ; wikilinks are 0 in every nest of room a
-  '.': [36, 1092], assets: [21, 709], 'business-model': [44, 1467], 'competitive-analysis': [44, 1492], 'financial-model': [44, 1420],
-  funding: [44, 1526], 'legal-ip': [44, 1429], 'market-analysis': [44, 1477], 'opportunity-bank': [44, 1523], 'problem-definition': [44, 1507],
-  references: [21, 1031], 'solution-design': [44, 1474], strategy: [44, 1574], 'team-execution': [44, 1415], team: [21, 681],
+  '.': [36, 1092], assets: [21, 709], 'business-model': [44, 1476], 'competitive-analysis': [44, 1501], 'financial-model': [44, 1429],
+  funding: [44, 1535], 'legal-ip': [44, 1438], 'market-analysis': [44, 1486], 'opportunity-bank': [44, 1532], 'problem-definition': [44, 1516],
+  references: [21, 1031], 'solution-design': [44, 1483], strategy: [44, 1583], 'team-execution': [44, 1424], team: [21, 681],
 };
 arm('I2 ROOM.md lines, bytes, wikilinks, over-60 flag (room a table, room b root and three nests)', () => {
   const rep = report('a');
@@ -243,9 +245,9 @@ arm('I2 ROOM.md lines, bytes, wikilinks, over-60 flag (room a table, room b root
   });
   const b = report('b');
   eq(nest(b, '.').I2, { lines: 42, bytes: 1208, wikilinks: 3, over_60_lines: false }, 'b root I2');
-  eq(nest(b, 'problem-definition').I2, { lines: 54, bytes: 1764, wikilinks: 4, over_60_lines: false }, 'b A I2');
-  eq(nest(b, 'market-analysis').I2, { lines: 65, bytes: 1708, wikilinks: 0, over_60_lines: true }, 'b B I2 (over 60 lines)');
-  eq(nest(b, 'solution-design').I2, { lines: 44, bytes: 1464, wikilinks: 0, over_60_lines: false }, 'b C I2');
+  eq(nest(b, 'problem-definition').I2, { lines: 54, bytes: 1773, wikilinks: 4, over_60_lines: false }, 'b A I2');
+  eq(nest(b, 'market-analysis').I2, { lines: 65, bytes: 1717, wikilinks: 0, over_60_lines: true }, 'b B I2 (over 60 lines)');
+  eq(nest(b, 'solution-design').I2, { lines: 44, bytes: 1473, wikilinks: 0, over_60_lines: false }, 'b C I2');
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -344,11 +346,14 @@ arm('I6 per face: present, edit-surface marker, governing_thought_placeholder (r
 // that has a FEYNMAN.md grows by 46 bytes (wc -c per file, room a: 573 585 575 559 561 575 577 581 575 561 573 became
 // 619 631 621 605 607 621 623 627 621 607 619). Each value below is that nest's ROOM.md + FEYNMAN.md (wc -c), e.g.
 // business-model 1467 + 619 = 2086. BRAIN.md is not one of the I7 load files, so the face adds nothing here.
+// 400.3.1 RE-MEASURED: 35922a28b (389-09) renamed mva-brief to structure-argument in the venture family's
+// default_methodologies (data/room-blueprints.json), which every core nest's ROOM.md frontmatter lists: +9 bytes per core
+// nest ROOM.md (e.g. business-model 1476 + 619 = 2095). assets, references, team and the root carry no such line.
 const A_I7_AUTHORED = { // authored bytes, CONTEXT.md excluded
-  '.': 1825, assets: 709, 'business-model': 2086, 'competitive-analysis': 2123, 'financial-model': 2041,
-  funding: 2131, 'legal-ip': 2036, 'market-analysis': 2098, 'opportunity-bank': 2146,
-  'problem-definition': 2134, references: 1031, 'solution-design': 2095, strategy: 2181,
-  'team-execution': 2034, team: 681,
+  '.': 1825, assets: 709, 'business-model': 2095, 'competitive-analysis': 2132, 'financial-model': 2050,
+  funding: 2140, 'legal-ip': 2045, 'market-analysis': 2107, 'opportunity-bank': 2155,
+  'problem-definition': 2143, references: 1031, 'solution-design': 2104, strategy: 2190,
+  'team-execution': 2043, team: 681,
 };
 function contextBytes(dir, k) {
   const f = path.join(dir, k === '.' ? '' : k, 'CONTEXT.md');
@@ -369,21 +374,23 @@ arm('I7 bytes and approximate tokens of the loaded files, the 8000 flag, the FEY
     eq(n.I7.feynman_body_tokens, A_FEYNMAN_TOKENS[k] === undefined ? null : A_FEYNMAN_TOKENS[k], 'a ' + k + ' feynman_body_tokens');
     eq(n.I7.feynman_over_1500, A_FEYNMAN_TOKENS[k] === undefined ? null : false, 'a ' + k + ' feynman_over_1500');
   });
-  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1507, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 627, 'BRIEF.md': null }, 'a problem-definition I7 files (369.25-17: 581 + the 46 byte room_id line)');
+  eq(nest(a, 'problem-definition').I7.files, { 'ROOM.md': 1516, 'CONTEXT.md': contextBytes(A_DIR, 'problem-definition'), 'MINTO.md': null, 'FEYNMAN.md': 627, 'BRIEF.md': null }, 'a problem-definition I7 files (369.25-17: 581 + the 46 byte room_id line; 400.3.1: ROOM.md +9)');
   const b = report('b');
   const A = nest(b, 'problem-definition').I7;
   // 369.25-16 MOVING: room b's CONTEXT.md share is measured at test time too (part 7 moved it by 862 bytes). Authored
   // bytes (CONTEXT.md excluded) = 8552 for nest A (old pin 13227 less its then-CONTEXT 4675) and 33904 for nest B,
   // each measured 2026-10-06 against the v2 writer; the equality of both to the old pins is checked by this arm passing.
-  const bExpA = 8552 + contextBytes(B_DIR, 'problem-definition');
+  // 400.3.1 RE-MEASURED: nest A's ROOM.md +9 bytes (35922a28b, the venture family rename), 8552 -> 8561.
+  const bExpA = 8561 + contextBytes(B_DIR, 'problem-definition');
   eq([A.bytes, A.approx_tokens, A.over_8000_tokens], [bExpA, Math.ceil(bExpA / 4), false], 'b A I7');
   eq([A.feynman_body_tokens, A.feynman_over_1500], [1600, true], 'b A FEYNMAN body: 6400 bytes after the frontmatter -> 1600 tokens, over 1500');
   eq(A.files['BRIEF.md'], 32, 'b A BRIEF bytes');
   const B = nest(b, 'market-analysis').I7;
   // 369.25-15 RE-MEASURED: nest B's seeded FEYNMAN.md grew 113 -> 575 bytes, so ROOM 1708 + MINTO 83 + FEYNMAN 575 + BRIEF 32000 = 34366 (wc -c; was 33904)
   // 369.25-17 RE-MEASURED: birth stamped room_id into it, 575 -> 621 bytes, so 1708 + 83 + 621 + 32000 = 34412 (wc -c)
-  const bExpB = 34412 + contextBytes(B_DIR, 'market-analysis');
-  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 34412 + CONTEXT at test time)');
+  // 400.3.1 RE-MEASURED: ROOM.md 1708 -> 1717 (35922a28b), so 1717 + 83 + 621 + 32000 = 34421 (wc -c)
+  const bExpB = 34421 + contextBytes(B_DIR, 'market-analysis');
+  eq([B.bytes, B.approx_tokens, B.over_8000_tokens], [bExpB, Math.ceil(bExpB / 4), true], 'b B I7 (BRIEF 32000 bytes; authored 34421 + CONTEXT at test time)');
   // 369.25-07 RE-MEASURED: b root ROOM 1208 + MINTO 733 = 1941 bytes (wc -c), ceil(1941 / 4) = 486 tokens (was 1891 / 473)
   eq([nest(b, '.').I7.bytes, nest(b, '.').I7.approx_tokens], [1941, 486], 'b root I7');
 });
@@ -467,17 +474,19 @@ const A_NAMES = { 'business-model': 3, 'competitive-analysis': 6, 'financial-mod
 // and the same without the -v filter (any line). BEFORE (room a): BRAIN.md missing in all 11 core nests (brain_md false). AFTER: the
 // birth face is present (brain_query_count 0, asked false, not_asked_reason at_birth), restated 0 in every nest, and the section-2
 // names it points at on tagged lines are in A_TAGGED. Room b A and C are hand-written BRAIN.md files with no source tags: A keeps
-// restated 2 of 3, C keeps 0; room b B now has the birth face (tagged 2).
-const A_TAGGED = { 'business-model': 3, 'competitive-analysis': 1, 'financial-model': 3, funding: 0, 'legal-ip': 1, 'market-analysis': 2,
+// restated 2 of 3, C keeps 0; room b B now has the birth face (tagged 3 since the beta.66 ledger; was 2).
+const A_TAGGED = { 'business-model': 3, 'competitive-analysis': 1, 'financial-model': 3, funding: 0, 'legal-ip': 1, 'market-analysis': 3,
   'opportunity-bank': 1, 'problem-definition': 1, 'solution-design': 3, strategy: 3, 'team-execution': 0 };
 // MOVING 2026-10-06 (369.25 cut pre-step): the Jev-scored section-command ledger is rebuilt at every cut, and its candidate order is not
 // deterministic across builds; opportunity-bank tagged moved 0 to 1 at the beta.63 rebuild, the other ten nests were re-measured equal
 // (measured on a freshly born room: walkRoom I8c tagged per nest).
+// 400.3.1 MOVING: market-analysis tagged 2 to 3 in room a and room b B (bisect: first bad at d88810a78, the beta.66 ledger
+// rebuild); the other ten room a nests re-measured equal on the beta.92 ledger. SEED-172: run this arm at release time.
 arm('I8c BRAIN.md present, brain_query_count, CONTEXT section-2 command names, the ones BRAIN.md restates without a source tag', () => {
   const b = report('b');
   eq(nest(b, 'problem-definition').I8c, { brain_md: true, brain_query_count: 3, context_command_names: 3, restated: 2, tagged: 0, asked: null, not_asked_reason: null }, 'b A I8c');
   eq(nest(b, 'solution-design').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0, tagged: 0, asked: null, not_asked_reason: null }, 'b C I8c');
-  eq(nest(b, 'market-analysis').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0, tagged: 2, asked: false, not_asked_reason: 'at_birth' }, 'b B I8c (the birth face)');
+  eq(nest(b, 'market-analysis').I8c, { brain_md: true, brain_query_count: 0, context_command_names: 3, restated: 0, tagged: 3, asked: false, not_asked_reason: 'at_birth' }, 'b B I8c (the birth face)');
   const a = report('a');
   Object.keys(A_NAMES).forEach((k) => {
     eq(nest(a, k).I8c, { brain_md: true, brain_query_count: 0, context_command_names: A_NAMES[k], restated: 0, tagged: A_TAGGED[k], asked: false, not_asked_reason: 'at_birth' }, 'a ' + k + ' I8c');
@@ -674,7 +683,8 @@ arm('M4 a room with no room.db reports `room.db: missing` and still walks the fi
   eq([rep.room.room_db, rep.room.room_node, rep.room.identity_rows_total, rep.room.identity_keys_present, rep.room.identity_ready],
     ['missing', null, null, null, null], 'room block without a db (369.25-14: the seven-key fields replace the substring counters)');
   eq([rep.room.room_id, rep.room.identity_ready], [null, null], 'room block without a db: no room id, identity not judged');
-  eq(nest(rep, 'problem-definition').I2, { lines: 54, bytes: 1764, wikilinks: 4, over_60_lines: false }, 'the files are still walked');
+  // 400.3.1 RE-MEASURED: +9 bytes (35922a28b venture family rename).
+  eq(nest(rep, 'problem-definition').I2, { lines: 54, bytes: 1773, wikilinks: 4, over_60_lines: false }, 'the files are still walked');
   eq(nest(rep, 'problem-definition').I8a, { minto_sources: 3, in_room_md: 2, absent_from_room_md: 1 }, 'I8a still measured');
   const text = mod().renderText(rep);
   check(/room\.db: missing/.test(text), 'the text does not say room.db: missing');
