@@ -504,6 +504,11 @@ function buildCtxBar(pct) {
   return '\u{1F4CA} ' + col + blocks + '\x1b[0m ' + used + '%';
 }
 
+// QA-F12: the cue inputs are plain variables, not rowState fields, so the status line field parity (hooks/status.ts
+// STATUS_FIELDS) is untouched. Set once per run in the stdin handler.
+let cueSessionId = '';
+let cueGoalJobSet;
+
 function buildCockpitLine(rowState, roomName, ctxPct) {
   if (!cockpitRenderer || !cockpitSignals) return '';
   try {
@@ -515,6 +520,10 @@ function buildCockpitLine(rowState, roomName, ctxPct) {
       brainConnected: rowState && rowState.brain_tier === 'BRAIN',
       who: rowState && rowState.who,
       agentLabel: rowState && rowState.agent_label,
+      // QA-F12 D4: the cue is the record of this statusline's own session (stdin session_id); goalJobSet picks the
+      // plain sentence when the session has no record.
+      sessionId: cueSessionId,
+      goalJobSet: cueGoalJobSet,
     };
     const cockpitState = cockpitSignals.collectSignals(signalOpts);
     cockpitState.bar = buildCtxBar(ctxPct); // Tier-4 visual gauge (this file owns 📊; renderer just places it)
@@ -630,6 +639,7 @@ process.stdin.on('end', () => {
     // Phase 121.5-03: Two-row state object passed to lib/statusline/
     // two-row-renderer.cjs. Filled out as we collect state below; the
     // final emission delegates to renderStatusline(state) when room is set.
+    cueSessionId = (typeof data.session_id === 'string') ? data.session_id : '';
     const rowState = {
       current_version: 'unknown',
       brain_tier: 'LOCAL',
@@ -828,6 +838,12 @@ process.stdin.on('end', () => {
             rowState.jtbd = jtbdCurrent.jtbd;
           }
         } catch (_e) { /* graceful fallback */ }
+
+        // QA-F12 D3: does this room have a ratified goal job? Picks 'set a goal job' vs 'no move for this job yet'.
+        try {
+          const goalState = require('../lib/hmi/jtbd-state.cjs');
+          cueGoalJobSet = goalState.getGoal(roomDir) !== null;
+        } catch (_e) { /* leave undefined: the cue shows '--' */ }
 
         // MindrianOS plugin brand (brain emoji) + current version +
         // persistent /mos:update hint. The green circle plus the

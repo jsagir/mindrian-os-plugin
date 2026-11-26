@@ -197,6 +197,157 @@ async function groupV() {
   });
 }
 
+
+// ---- group C ------------------------------------------------------------------------------------------------
+async function groupC() {
+  const os = require('node:os');
+  const { spawnSync } = require('node:child_process');
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), '4004-14c-'));
+  const realHome = process.env.HOME;
+  const realRooms = process.env.MINDRIAN_ROOMS_HOME;
+  process.env.HOME = home;
+  process.env.USERPROFILE = home;
+  process.env.MINDRIAN_ROOMS_HOME = path.join(home, 'rooms');
+  fs.mkdirSync(process.env.MINDRIAN_ROOMS_HOME, { recursive: true });
+  const cache = require(path.join(ROOT, 'lib', 'statusline', 'next-move-cache.cjs'));
+  const signals = require(path.join(ROOT, 'lib', 'statusline', 'cockpit-signals.cjs'));
+  const NM = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'next-move.cjs'));
+  const cueDir = path.join(home, '.mindrian', 'next-move');
+  const globalFile = path.join(home, '.mindrian', 'next-move.json');
+  const PHRASE = 'an idea feels too clean and nobody has argued against it';
+  const STOP = ['and', 'or', 'but', 'with', 'the', 'a', 'an', 'to', 'of', 'for', 'in', 'on', 'that'];
+  const rm = () => { fs.rmSync(path.join(home, '.mindrian'), { recursive: true, force: true }); };
+  try {
+    await leg('C1 formatMoveCue and shortJobPhrase: command words, job phrase, 48 characters, whole words', async () => {
+      assert.equal(cache.formatMoveCue('/mos:challenge-assumptions', PHRASE), 'challenge assumptions: an idea feels too clean');
+      assert.equal(cache.shortJobPhrase('/mos:challenge-assumptions', PHRASE), 'an idea feels too clean');
+      assert.equal(cache.formatMoveCue('/mos:challenge-assumptions', null), 'challenge assumptions');
+      assert.equal(cache.formatMoveCue('', PHRASE), '');
+      const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8')).commands;
+      let n = 0;
+      registry.forEach((c) => {
+        const when = c && c.job_sentence && c.job_sentence.when;
+        if (typeof when !== 'string' || !c.command) return;
+        const cue = cache.formatMoveCue(c.command, when);
+        n += 1;
+        assert.ok(cue.length <= cache.CUE_MAX, c.command + ' cue too long: ' + cue);
+        const phrase = cache.shortJobPhrase(c.command, when);
+        if (phrase) {
+          assert.ok(when.indexOf(phrase) === 0, c.command + ' phrase is not a whole-word start of the job phrase');
+          const next = when.charAt(phrase.length);
+          assert.ok(next === '' || next === ' ', c.command + ' phrase ends inside a word');
+          const last = phrase.split(' ').pop().toLowerCase();
+          assert.ok(STOP.indexOf(last) === -1, c.command + ' phrase ends on a stop word: ' + phrase);
+        }
+      });
+      assert.ok(n > 20, 'checked ' + n + ' registry commands');
+    });
+
+    await leg('C2 persistFromDecision writes the session record, not the global file', async () => {
+      rm();
+      const decision = { decision_trace: { selector_next_move: { command: '/mos:challenge-assumptions', job_id: 'validate-idea', job_when: PHRASE, nest_source: 'goal_job_map', nest_section: 'x' } } };
+      assert.equal(cache.persistFromDecision(decision, { sessionId: 'S1', room: 'room-a' }), true);
+      const rec = JSON.parse(fs.readFileSync(path.join(cueDir, 'S1.json'), 'utf8'));
+      assert.equal(rec.room, 'room-a');
+      assert.equal(rec.command, '/mos:challenge-assumptions');
+      assert.equal(rec.job_id, 'validate-idea');
+      assert.equal(rec.job_when, PHRASE);
+      assert.equal(rec.source, 'selector');
+      assert.equal(rec.next_move, cache.formatMoveCue('/mos:challenge-assumptions', PHRASE));
+      assert.equal(typeof rec.ts, 'number');
+      assert.ok(!fs.existsSync(globalFile), 'the global file is not written');
+    });
+
+    await leg('C3 readNextMove: own record, other session, global fallback, 24 h freshness', async () => {
+      rm();
+      cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:build-thesis', job_id: 'decide-pursue', job_when: null } } }, { sessionId: 'S1', room: 'a' });
+      cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:find-analogies', job_id: 'connect-domains', job_when: null } } }, { sessionId: 'S2', room: 'b' });
+      cache.persistNextMove({ command: '/mos:mullins', jtbd: null });
+      const cueOf = (c) => cache.formatMoveCue(c, NM.jobWhenFor(c));
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), cueOf('/mos:build-thesis'));
+      assert.equal(cache.readNextMove({ sessionId: 'S2' }), cueOf('/mos:find-analogies'));
+      assert.ok(cueOf('/mos:build-thesis').indexOf('build thesis') === 0);
+      assert.equal(cache.readNextMove({ sessionId: 'S3' }), 'mullins', 'no record: the global cue');
+      const old = Date.now() - 25 * 3600 * 1000;
+      const f1 = path.join(cueDir, 'S1.json');
+      const r1 = JSON.parse(fs.readFileSync(f1, 'utf8'));
+      r1.ts = old;
+      fs.writeFileSync(f1, JSON.stringify(r1));
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), 'mullins', 'a 25 h old record is ignored: the global cue');
+      const g = JSON.parse(fs.readFileSync(globalFile, 'utf8'));
+      g.ts = old;
+      fs.writeFileSync(globalFile, JSON.stringify(g));
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), null, 'a 25 h old global gives null');
+    });
+
+    await leg('C4 never a skill name; plain sentences; the ratification cue wins over them', async () => {
+      rm();
+      const only = { fire_skill: 'context-engine', offer_next_step: null };
+      cache.persistFromDecision(only, { sessionId: 'S1', room: 'a' });
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), cache.NO_GOAL_CUE);
+      assert.equal(cache.NO_GOAL_CUE, 'set a goal job');
+      cache.persistFromDecision(Object.assign({ decision_trace: { selector_next_move: { command: null, job_id: 'find-problem', job_when: null } } }, only), { sessionId: 'S1', room: 'a' });
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), cache.NO_MOVE_CUE);
+      assert.equal(cache.NO_MOVE_CUE, 'no move for this job yet');
+      cache.persistFromDecision(only, { sessionId: 'S1', room: null, roomless: true });
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), cache.NO_ROOM_CUE);
+      assert.equal(cache.NO_ROOM_CUE, 'no room for this session');
+      cache.persistFromDecision(only, { sessionId: 'S1', room: 'a', fallbackProvider: () => 'ratify weak (1 open)' });
+      assert.equal(cache.readNextMove({ sessionId: 'S1' }), 'ratify weak (1 open)');
+      // legacy global path: no skill name either
+      cache.persistFromDecision(only, {});
+      assert.equal(fs.existsSync(globalFile), false, 'no global file with only a skill');
+      fs.readdirSync(cueDir).forEach((f) => assert.ok(fs.readFileSync(path.join(cueDir, f), 'utf8').indexOf('context-engine') === -1));
+    });
+
+    await leg('C5 an unsafe session id writes nothing outside the cue folder and reads the global fallback', async () => {
+      rm();
+      cache.persistNextMove({ command: '/mos:mullins', jtbd: null });
+      const long = 'a'.repeat(200);
+      ['../x', 'a/b', long, '', null].forEach((bad) => {
+        assert.equal(cache.sessionCuePath(bad), null, 'unsafe: ' + String(bad).slice(0, 10));
+        cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:build-thesis', job_id: 'x', job_when: null } } }, { sessionId: bad, room: 'a' });
+        assert.equal(cache.readNextMove({ sessionId: bad }), cache.readNextMove());
+      });
+      assert.ok(!fs.existsSync(path.join(home, '.mindrian', 'x.json')));
+      assert.ok(!fs.existsSync(path.join(cueDir, 'a')));
+      assert.ok(!fs.existsSync(cueDir) || fs.readdirSync(cueDir).length === 0, 'no record written for an unsafe id');
+      assert.equal(cache.sessionCuePath('S_1-x'), path.join(cueDir, 'S_1-x.json'));
+    });
+
+    await leg('C6 scripts/context-monitor prints the cue of its own stdin session', async () => {
+      rm();
+      cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:build-thesis', job_id: 'decide-pursue', job_when: null } } }, { sessionId: 'S1', room: 'a' });
+      cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:find-analogies', job_id: 'connect-domains', job_when: null } } }, { sessionId: 'S2', room: 'b' });
+      const run = (sid) => {
+        const r = spawnSync('node', [path.join(ROOT, 'scripts', 'context-monitor')], {
+          input: JSON.stringify({ session_id: sid, model: { display_name: 'Sonnet' }, workspace: { current_dir: home }, context_window: { used_percentage: 10, remaining_percentage: 90, context_window_size: 200000 } }),
+          cwd: home, env: Object.assign({}, process.env, { HOME: home, USERPROFILE: home, MINDRIAN_ROOMS_HOME: path.join(home, 'rooms') }), encoding: 'utf8', timeout: 20000,
+        });
+        return String(r.stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
+      };
+      assert.ok(run('S1').indexOf('build thesis') !== -1, 'S1 cue: ' + run('S1'));
+      assert.ok(run('S1').indexOf('find analogies') === -1);
+      assert.ok(run('S2').indexOf('find analogies') !== -1, 'S2 cue');
+      assert.ok(run('S2').indexOf('build thesis') === -1);
+    });
+
+    await leg('C7 deriveNextMove: -- when unknown, plain sentences by goal state, a fresh record wins', async () => {
+      rm();
+      assert.equal(signals.deriveNextMove({}), '--');
+      assert.equal(signals.deriveNextMove({ goalJobSet: false }), 'set a goal job');
+      assert.equal(signals.deriveNextMove({ goalJobSet: true }), 'no move for this job yet');
+      cache.persistFromDecision({ decision_trace: { selector_next_move: { command: '/mos:build-thesis', job_id: 'x', job_when: null } } }, { sessionId: 'S1', room: 'a' });
+      assert.equal(signals.deriveNextMove({ sessionId: 'S1', jtbd: 'explore', governingThought: 'a thought', goalJobSet: false }), cache.formatMoveCue('/mos:build-thesis', NM.jobWhenFor('/mos:build-thesis')));
+      assert.equal(signals.deriveNextMove({ sessionId: 'S9', jtbd: 'explore' }), 'explore');
+    });
+  } finally {
+    if (realHome === undefined) delete process.env.HOME; else process.env.HOME = realHome;
+    if (realRooms === undefined) delete process.env.MINDRIAN_ROOMS_HOME; else process.env.MINDRIAN_ROOMS_HOME = realRooms;
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   if (want('V')) await groupV();
   if (want('C') && typeof groupC === 'function') await groupC();
