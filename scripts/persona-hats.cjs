@@ -398,6 +398,112 @@ function runMapPath(homeDir, runId) {
   return path.join(homeDir, 'persona-hats', 'runs', runId + '.json');
 }
 
+// ---------------------------------------------------------------------------
+// Phase 400.2.1 (S5): the reader search marker. Owner ruling 2026-11-26 ("A: screen with a hook"). While a marker
+// exists, scripts/persona-reader-search-guard-hook.cjs screens each WebSearch query and each WebFetch URL with the
+// door identity screen of the room of the run, before the text leaves the machine. run-research writes the marker (and
+// plan-research when it skips run-research), merge removes it, and a marker older than READER_MARKER_MAX_AGE_MS is
+// stale: the hook ignores it and removes it, so a crashed run does not screen forever. The marker holds the run id, the
+// room path and two times; it holds no screen token.
+// ---------------------------------------------------------------------------
+
+const READER_MARKER_SCHEMA = 'mos.persona-reader-search-marker/1';
+const READER_MARKER_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const READER_MARKER_RE = /^(\d{8}-\d{6}-[0-9a-f]{4})\.json$/;
+
+function readerMarkerDir(homeDir) {
+  return path.join(homeDir, 'persona-hats', 'reader-search');
+}
+
+/** Write the marker of a run. Never throws. @returns {string} armed, or not_armed:<reason> */
+function writeReaderMarker(homeDir, runId, roomResolved, now) {
+  try {
+    const dir = readerMarkerDir(homeDir);
+    ensurePrivateDir(dir);
+    const at = now instanceof Date ? now : new Date();
+    atomicWriteJson(path.join(dir, runId + '.json'), {
+      schema: READER_MARKER_SCHEMA,
+      run_id: runId,
+      room: roomResolved,
+      created_at: at.toISOString(),
+      expires_at: new Date(at.getTime() + READER_MARKER_MAX_AGE_MS).toISOString(),
+    }, 0o600);
+    return 'armed';
+  } catch (e) {
+    return 'not_armed:' + (e && e.code ? e.code : 'error');
+  }
+}
+
+/** Remove the marker of a run. @returns {boolean} true when no marker is left */
+function removeReaderMarker(homeDir, runId) {
+  try { fs.rmSync(path.join(readerMarkerDir(homeDir), runId + '.json'), { force: true }); return true; } catch (e) { return false; }
+}
+
+/**
+ * The live markers. A marker that is not valid, is past expires_at, or is older than the maximum age is stale: it is
+ * removed and not returned. @returns {Array<{run_id: string, room: string}>}
+ */
+function liveReaderMarkers(homeDir, now) {
+  const dir = readerMarkerDir(homeDir);
+  let names = [];
+  try { names = fs.readdirSync(dir); } catch (e) { return []; }
+  const t = (now instanceof Date ? now : new Date()).getTime();
+  const out = [];
+  for (const name of names) {
+    const m = READER_MARKER_RE.exec(name);
+    if (!m) continue;
+    const r = readJsonFile(path.join(dir, name), { noSymlink: true });
+    const v = r.ok ? r.value : null;
+    const created = v && typeof v.created_at === 'string' ? Date.parse(v.created_at) : NaN;
+    const expires = v && typeof v.expires_at === 'string' ? Date.parse(v.expires_at) : NaN;
+    const valid = isPlain(v) && v.schema === READER_MARKER_SCHEMA && v.run_id === m[1] && typeof v.room === 'string'
+      && Number.isFinite(created) && Number.isFinite(expires);
+    if (!valid || t > expires || t - created > READER_MARKER_MAX_AGE_MS) {
+      try { fs.rmSync(path.join(dir, name), { force: true }); } catch (e) { /* the next call removes it */ }
+      continue;
+    }
+    out.push({ run_id: v.run_id, room: v.room });
+  }
+  return out;
+}
+
+/**
+ * Screen one search text with the door controls: the content fence, then the room identity screen (DESIGN 8). It is
+ * the screen of screenReportedStrings and of the reader search hook. It returns a reason only, never a token.
+ * @returns {string|null} egress_violation, room_identity_word, or null
+ */
+function screenSearchText(text, screen) {
+  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
+  try {
+    rs.auditQueryString(String(text), 'persona-hats');
+  } catch (e) {
+    return 'egress_violation';
+  }
+  const screenRan = Boolean(screen) && screen.ran === true && typeof screen.has === 'function';
+  if (screenRan && handleHitsScreen(identityTokens(text), screen)) return 'room_identity_word';
+  return null;
+}
+
+/**
+ * The verdict of the reader search hook for one text: the first live marker whose screen hits the text. The ledger
+ * of each live run gives the reading list of the screen. A marker whose run ledger cannot be read is removed.
+ * @returns {{block: boolean, reason: string|null, markers: number}}
+ */
+function readerSearchVerdict(text, homeDir, now) {
+  const markers = liveReaderMarkers(homeDir, now);
+  for (const mk of markers) {
+    const lr = readLedger(mk.room, mk.run_id);
+    if (!lr.ok || lr.ledger.steps.merge) {
+      removeReaderMarker(homeDir, mk.run_id);
+      continue;
+    }
+    const screen = roomIdentityScreen(mk.room, lr.ledger.brief && lr.ledger.brief.reading_list);
+    const reason = screenSearchText(text, screen);
+    if (reason) return { block: true, reason, markers: markers.length };
+  }
+  return { block: false, reason: null, markers: markers.length };
+}
+
 function ensurePrivateDir(dir) {
   fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   if (process.platform !== 'win32') fs.chmodSync(dir, 0o700);
@@ -1761,6 +1867,9 @@ function planFirst(roomResolved, lr, map, deps) {
   ledger.research = { strings_approved: approved, strings_refused: refusedCount };
   markStep(ledger, 'plan_research', 'done', now);
   if (planned.length === 0) markStep(ledger, 'run_research', 'skipped', now);
+  // Phase 400.2.1 (S5): with run-research skipped, the readings come next, so the reader search screen is armed here.
+  const armed = planned.length === 0 ? writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now) : null;
+  if (armed) ledger.reader_search_screen = armed;
   try {
     writeLedger(lr.dir, ledger);
   } catch (e) {
@@ -1770,7 +1879,7 @@ function planFirst(roomResolved, lr, map, deps) {
   for (const hat of consumed) {
     try { fs.rmSync(path.join(hatDirOf(map, hat), 'handles.json'), { force: true }); } catch (e) { /* the scratch tree is removed at merge */ }
   }
-  return planOutput(ledger, plan, refusedShown);
+  return planOutput(ledger, plan, refusedShown, armed ? { reader_search_screen: armed } : undefined);
 }
 
 /** Check the shape of the edited-strings file (S-3b). @returns {string|null} a reason */
@@ -1907,19 +2016,10 @@ const SELF_SEARCH_PARTIAL_LINE = 'self_search_screen_partial';
  */
 function screenReportedStrings(strings, screen) {
   const list = Array.isArray(strings) ? strings.filter(x => typeof x === 'string') : [];
-  const rs = require(path.join(REPO_ROOT, 'lib', 'core', 'rs-egress-prompts.cjs'));
   const screenRan = Boolean(screen) && screen.ran === true && typeof screen.has === 'function';
   let suspected = 0;
-  for (const text of list) {
-    let hit = false;
-    try {
-      rs.auditQueryString(text, 'persona-hats');
-    } catch (e) {
-      hit = true;
-    }
-    if (!hit && screenRan && handleHitsScreen(identityTokens(text), screen)) hit = true;
-    if (hit) suspected += 1;
-  }
+  // Phase 400.2.1 (S5): one screen function for this after-the-fact count and for the reader search hook.
+  for (const text of list) if (screenSearchText(text, screen)) suspected += 1;
   return { checked: list.length, suspected, screen_partial: !screenRan };
 }
 
@@ -2178,6 +2278,7 @@ const ARTIFACT_LABELS = Object.freeze({
   found_summary: 'summary: ',
   reported_strings: 'Search strings the hat reports it sent (not approved on a card):',
   prompt_rule: "A hat's own searches follow a prompt rule only. No code checked them before they left the machine.",
+  reader_screen_rule: "A hat's own searches passed the reader search screen of the door before they left the machine. The screen blocks room words; it cannot catch a figure or a detail with no screened word.",
   host_web_limit: 'Provider host-web: the assistant ran the web search. Code cannot prove that it searched exactly the approved string.',
   section_rulings: '## Rulings',
   ruling_value: 'ruling: ',
@@ -2436,7 +2537,8 @@ function buildArtifact(record, readings, packs) {
   }
   if (!anySource) push(L.none);
   if (RESEARCH_HATS.some(hat => packs[hat] && packs[hat].items.some(it => it.provider === HOST_WEB_PROVIDER))) push(L.host_web_limit);
-  if (anyString) push(L.prompt_rule);
+  // Phase 400.2.1 (S5): a run whose reader search screen was armed says so; an older run keeps the prompt-rule line.
+  if (anyString) push(record.reader_search_screen === 'armed' ? L.reader_screen_rule : L.prompt_rule);
   return out.join('\n') + '\n';
 }
 
@@ -2566,6 +2668,8 @@ function cleanupRun(map, homeDir, runId) {
     }
   }
   try { fs.rmSync(runMapPath(homeDir, runId), { force: true }); } catch (e) { ok = false; }
+  // Phase 400.2.1 (S5): the run is closed, so the reader search screen of this run stops.
+  if (!removeReaderMarker(homeDir, runId)) ok = false;
   return ok;
 }
 
@@ -4107,6 +4211,10 @@ async function cmdRunResearch(args, deps) {
   const sealed = sealPacks(ledger, map);
   if (!sealed.ok) return sealed;
   markStep(ledger, 'run_research', 'done', now);
+  // Phase 400.2.1 (S5): the readings come next; arm the reader search screen until merge. The ledger keeps the state,
+  // so the review artifact says whether the own searches of the hats passed the screen.
+  const readerScreen = writeReaderMarker(homeDirOf(deps), ledger.run_id, roomResolved, now);
+  ledger.reader_search_screen = readerScreen;
   try {
     writeRunMap(homeDirOf(deps), map);
     writeLedger(lr.dir, ledger);
@@ -4157,6 +4265,7 @@ async function cmdRunResearch(args, deps) {
     evidence_items: itemsOut,
     dropped_below_floor: droppedOut,
     plain_lines: plainLines,
+    reader_search_screen: readerScreen,
     counts: { strings_approved: ledger.research.strings_approved, strings_refused: ledger.research.strings_refused },
   };
 }
@@ -4476,6 +4585,13 @@ module.exports = {
   HOST_WEB_PROVIDER,
   stringState,
   hatResearchState,
+  READER_MARKER_MAX_AGE_MS,
+  readerMarkerDir,
+  writeReaderMarker,
+  removeReaderMarker,
+  liveReaderMarkers,
+  screenSearchText,
+  readerSearchVerdict,
   REFUSAL_GUIDANCE,
   NATURE_GUIDANCE,
   handleTermsOf,

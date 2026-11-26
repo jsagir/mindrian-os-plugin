@@ -90,7 +90,14 @@ const P370 = {
   ],
 };
 const HOOK_BUDGET_REVIEW_MS = 150;
-const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length;
+// Phase 400.2.1 S5 (owner ruling 2026-11-26, "A: screen with a hook"): one PreToolUse entry was ADDED on purpose, the
+// reader search guard of /mos:persona on WebSearch and WebFetch. It carries no onFailure key and fails closed inside.
+const P40021 = {
+  added: [
+    { event: 'PreToolUse', sub: 'persona-reader-search-guard-hook.cjs', timeout: 5 },
+  ],
+};
+const EXPECTED = 46 - P385.removed.length - P389.removed.length + P386.added.length + P370.added.length + P40021.added.length;
 
 let failed = 0;
 function check(name, fn) {
@@ -131,6 +138,7 @@ const TABLE = [
   ['PreToolUse', 'card-before-answer-hook.cjs', 3],
   ['PreToolUse', 'web-credential-guard-hook.cjs', 5],
   ['PreToolUse', 'review-contract-hook.cjs', 3],
+  ['PreToolUse', 'persona-reader-search-guard-hook.cjs', 5],
   ['PostToolUse', 'run-hook.cmd" post-write', 5],
   ['PostToolUse', 'frontmatter-schema-validator.cjs', 5],
   ['PostToolUse', 'async-artifact-auto-commit.cjs', 5],
@@ -199,7 +207,7 @@ check('A1 shape: only timeout and onFailure differ from ' + BASE_SHA, () => {
   }
   // Plan 386-36 and plan 370-06: take the deliberate additions (P386, P370) out of the
   // current document before the comparison, because the base commit does not hold them.
-  const addedAll = P386.added.concat(P370.added);
+  const addedAll = P386.added.concat(P370.added).concat(P40021.added);
   const current = JSON.parse(JSON.stringify(doc));
   for (const ev of Object.keys(current.hooks || {})) {
     current.hooks[ev] = (current.hooks[ev] || []).filter((group) => !(group.hooks || []).some((h) =>

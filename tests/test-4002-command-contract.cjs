@@ -33,6 +33,8 @@ const body = fmMatch ? text.slice(fmMatch[0].length) : text;
 
 // The fixed prompt rule FS-3, word for word (400.2-01 PHASE RULES R-9).
 const FS3 = 'Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.';
+// Phase 400.2.1 (S5): the reader contract says that a hook screens the own searches of the hats while the run is open.
+const FS3_READER = 'Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. While this run is open, a hook of the plugin also screens each WebSearch query and each WebFetch url for room words before it leaves the machine, and blocks a search that holds one.';
 const BUILDER_START = '<!-- contract:builder:start -->';
 const BUILDER_END = '<!-- contract:builder:end -->';
 const S2_FORBIDDEN_KEYS = ['research_handles', 'handles', 'brief', 'evidence', 'verdict'];
@@ -220,7 +222,8 @@ check('C13. the reader contract: role, five line ranges, citation sentence, FS-3
   assert.ok(b.includes('write one JSON file in your directory; your reply is the word done and the file path'), 'override of the output lines');
   assert.ok(b.includes('you are one hat'), 'override of all-hat mode');
   assert.ok(b.includes('you may cite an evidence item of your own pack or of the White package by its id, or a source that you found yourself and listed in self_found_sources'), 'the citation sentence');
-  assert.ok(b.includes(FS3), 'FS-3 word for word');
+  assert.ok(b.includes(FS3_READER), 'FS-3 of the reader, with the screen hook sentence, word for word');
+  assert.ok(!b.includes(FS3), 'the reader contract no longer says that no code checks the search');
   assert.ok(b.includes('List every search string you sent in self_search_strings and every source you used in self_found_sources.'), 'the sentence about the two lists');
   assert.ok(/Do not call brain_search or brain_query/.test(b), 'both Brain tools banned');
   assert.ok(/Do not read the directory of another hat/.test(b), 'no read of another hat directory');
@@ -321,7 +324,8 @@ check('C19. the six-agent dispatch with the hand-narrated tension map is gone', 
 
 const HANDLES_START = '<!-- contract:handles:start -->';
 const HANDLES_END = '<!-- contract:handles:end -->';
-const FIXED_CARDS_SENTENCE = 'These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches follow a prompt rule only: no code checks them before they leave the machine. The review lists every string a hat reports and every source it found, under their own label.';
+// Phase 400.2.1 (S5): the own searches of the hats now pass the reader search screen hook (owner ruling 2026-11-26).
+const FIXED_CARDS_SENTENCE = 'These cards cover the searches that the door sends. Each reading hat may also search the web on its own to validate and build its case. Those searches pass the reader search screen (a hook) before they leave the machine: a search that holds a room word is blocked. The screen cannot catch a figure or a detail that holds no screened word. The review lists every string a hat reports and every source it found, under their own label.';
 const FAILED_PROVIDER = 'A failed provider may be asked again with the same string.';
 
 check('C20. the handle contract: role, override list, inputs with "no room section", handle rule, green rule, web ban, both Brain bans, FS-3, the S-3a keys', () => {

@@ -46,8 +46,14 @@ check('T4. S8: the Blue contract names the coverage list', () => {
 check('T5. S10: the search card shows the guidance sentence of a refused handle', () => {
   assert.ok(text.includes('and the `guidance` sentence when the entry has one'));
 });
+check('T7. S5: the reader contract and the search card name the reader search screen hook; Step 5 prints its state', () => {
+  assert.ok(text.includes('While this run is open, a hook of the plugin also screens each WebSearch query and each WebFetch url for room words before it leaves the machine, and blocks a search that holds one.'));
+  assert.ok(text.includes('Those searches pass the reader search screen (a hook) before they leave the machine'));
+  assert.ok(section('### Step 5').includes('Reader search screen: <reader_search_screen>.'));
+  assert.equal(text.includes('Those searches follow a prompt rule only'), false);
+});
 check('T6. the skill mirror carries the same notes', () => {
-  for (const s of ['Worktree note:', 'Larry decides', '`plain_lines`', '`coverage` list', '`guidance` sentence']) assert.ok(mirror.includes(s), s);
+  for (const s of ['Worktree note:', 'Larry decides', '`plain_lines`', '`coverage` list', '`guidance` sentence', 'Reader search screen: <reader_search_screen>.']) assert.ok(mirror.includes(s), s);
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

@@ -237,6 +237,16 @@
         ]
       },
       {
+        "matcher": "^(?:WebSearch|WebFetch)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/persona-reader-search-guard-hook.cjs\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
         "matcher": "Write",
         "hooks": [
           {

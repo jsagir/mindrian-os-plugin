@@ -83,15 +83,17 @@ check('no command in any hooks.json event runs mva-detect.cjs', () => {
   assert.strictEqual(hits.length, 0, 'still run mva-detect.cjs: ' + hits.join(', '));
 });
 
-check('the census dropped by exactly one command (UserPromptSubmit one less) and gained the plan 370-06 review hook (PreToolUse one more), every other count equal', () => {
+check('the census dropped by exactly one command (UserPromptSubmit one less) and gained the plan 370-06 review hook and the 400.2.1 reader search guard (PreToolUse two more), every other count equal', () => {
   const now = census();
   // Plan 370-06 (owner answers O6B and O8, 2026-11-08) then ADDED one PreToolUse command on purpose
   // (the review contract hook, matcher Write, timeout 3, log-only). It is a deliberate change: total
   // and PreToolUse are one higher, and the two onFailure block commands stay the same.
+  // Phase 400.2.1 (S5, owner ruling 2026-11-26 "A: screen with a hook") ADDED one more PreToolUse command on purpose:
+  // the reader search guard of /mos:persona (matcher WebSearch and WebFetch, timeout 5, no onFailure key).
   const expected = Object.assign({}, BEFORE, {
-    total: BEFORE.total - 1 + 1,
+    total: BEFORE.total - 1 + 1 + 1,
     UserPromptSubmit: BEFORE.UserPromptSubmit - 1,
-    PreToolUse: BEFORE.PreToolUse + 1,
+    PreToolUse: BEFORE.PreToolUse + 1 + 1,
   });
   assert.deepStrictEqual(now, expected);
 });
