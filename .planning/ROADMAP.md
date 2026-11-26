@@ -4320,7 +4320,7 @@ Plans:
 10. A cold-start replay on a copy of a large room passes all of the above.
 11. UserPromptSubmit runs as ONE dispatcher process (six checks in-process, parity with the six separate hooks) that answers inside its 3 s budget while room.db is locked for 10 s; room.db hooks report a typed room_db_busy outcome.
 
-**Plans:** 5/13 plans executed
+**Plans:** 6/13 plans executed
 
 Plans:
 
@@ -4330,7 +4330,7 @@ Plans:
 - [ ] 400.4-04 (wave 3; [QA-F7])
 - [x] 400.4-05 (wave 2; [QA-F8])
 - [x] 400.4-06 (wave 2; [QA-F9])
-- [ ] 400.4-07 (wave 2; [QA-F10])
+- [x] 400.4-07 (wave 2; [QA-F10])
 - [ ] 400.4-08 (wave 3; [QA-F1])
 - [ ] 400.4-09 (wave 4; [QA-F2, QA-F3])
 - [ ] 400.4-10 (wave 2; [QA-F11])
