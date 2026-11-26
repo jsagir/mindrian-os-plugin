@@ -1,19 +1,19 @@
 ---
 phase: 367
 title: "The graph writes itself: one catch-up runner for files and answered cards, on every surface"
-status: DESIGN r5 (after Goldfish rounds 1-3; reports 367-GOLDFISH-REPORT-R1.md, -R2.md, -R3.md)
+status: DESIGN r6 (after Goldfish rounds 1-4; reports 367-GOLDFISH-REPORT-R1.md to -R4.md)
 date: 2026-11-26
 canon_parts: [3, 8, 9, 11]
 absorbs: SEED-101; the record half of Phase 280 / SEED-008
 depends_on: none hard. 400.3-01/02/02b are soft: stand-ins (section 4) are swapped when they land
-base: origin/main 5cc571e21
+base: origin/main 2cc89212f
 owner_rulings:
   OR-1: "A CLI card answer (AskUserQuestion) is the human's approve: it lands as a confirmed decision node" (owner card 2026-11-26; changes the locked HITL rule for this one input)
   OR-2: "Run it end to end: full Goldfish work, apply the fix, register it as a GSD phase" (owner 2026-11-26)
   OR-3: home Phase 367
 ---
 
-# 367 Design r5: the graph writes itself
+# 367 Design r6: the graph writes itself
 
 ## 1. Goals and non-goals
 
@@ -34,7 +34,7 @@ and the `key_decisions` merge (a `/gsd-quick` follow-up with a reproduction); re
 deleted files; scaffold files as Artifacts (5.1); `meetings/`, `team/`, `references/` and files
 deeper than one nested level (the existing `discoverSections` rule); top-level sub-rooms (each is
 caught up by its own trigger); cross-machine concurrency on a shared or synced folder (one machine
-writes a room at a time); resume-only sessions get no SessionStart run (the first Stop covers them).
+writes a room at a time); resume-only sessions get no SessionStart run (the first Stop covers them); a change to the RULE 10 large room leg (AC10 bounds the runner instead).
 
 ## 2. Root causes (PROVEN unless marked)
 
@@ -80,248 +80,293 @@ Stand-ins until 400.3-01 lands (each marked `// until 400.3-01` in code; a plann
 
 ### 5.1 One shared artifact set
 
-`lib/core/section-registry.cjs` (no dependencies, not banned by the substrate gate, owner of
-`isIndexableArtifactFile`) gains `listContentArtifacts(roomDir)`: the `rebuildGraph` passes byte for
-byte (`discoverSections(resolved).all`, the flat files, one nested level skipping `.room-root`
-children, the root files with an isFile check; `lazygraph-ops.cjs:727-811`) MINUS scaffold files
-(`scaffold-predicate.cjs` `isScaffoldFile`, the rule `graph-backfill.cjs` `_artifactsToIndex`
-already applies at `:367-399`) and MINUS top-level sub-rooms (a section folder holding `.room-root`).
-Return: `[{rel, abs, id}]` sorted by `rel`, where `id` is `getArtifactId` (moved here and
-re-exported by lazygraph-ops). On an id collision the order `.md`, `.docx`, `.html`, `.htm` wins;
-the others are returned in `collisions`. `graph-backfill.cjs` `_artifactsToIndex` calls it. The
-runner and the doctor call it. `rebuildGraph` keeps its own scope in this phase (it still indexes
-scaffold files; the test states the difference set is exactly the scaffold files and sub-room files).
+New module `lib/core/content-artifacts.cjs` (requires `section-registry.cjs` at the top and
+`scaffold-predicate.cjs` lazily inside the function, the `graph-backfill.cjs:372-374` pattern, so no
+load-time cycle through `scaffold-template-index.cjs` -> `room-birth.cjs` -> `section-registry.cjs`).
+`section-registry.cjs` is not changed.
 
-`lazygraph-ops.cjs` exports `computeHash` (md5 cut to 8 hex chars, a 32-bit compare, `:419-421`),
-`_readArtifactContent` and a SYNCHRONOUS `indexArtifactsBatch(conn, roomDir, files, canonCtx)` that
-runs `_indexArtifactBody` per file inside a SAVEPOINT and returns
-`{indexed: [rel], failed: [{rel, code}]}`; a failing file rolls back its own savepoint only.
+`listContentArtifacts(roomDir)` returns `{files: [{rel, abs, id}], collisions: [{rel, id}]}` sorted
+by `rel`: the passes of `rebuildGraph` (`discoverSections(resolved).all`, the flat files, one nested
+level skipping `.room-root` children, the root files; `lazygraph-ops.cjs:727-811`) with an isFile
+check on every pass (a directory named `x.md` is skipped), MINUS scaffold files (`isScaffoldFile`)
+and MINUS files of a top-level section folder holding `.room-root`. `id` is `getArtifactId`, moved to
+`content-artifacts.cjs` and re-exported by lazygraph-ops (pure `path` code). On an id collision the
+order `.md`, `.docx`, `.html`, `.htm` wins.
+
+`graph-backfill.cjs` `_artifactsToIndex` becomes `listContentArtifacts(root).files.map(f => f.abs)`.
+New backfill set, stated exactly: today's set PLUS the root files, MINUS top-level sub-room files.
+`rebuildGraph` keeps its own scope in this phase.
+
+`lazygraph-ops.cjs` exports `computeHash` (md5 cut to 8 hex chars; a 32-bit compare, `:419-421`),
+`_readArtifactContent`, and a SYNCHRONOUS `indexArtifactsBatch(conn, roomDir, items, canonCtx)`;
+`items` are `{abs, content}` already read by the runner, and `_indexArtifactBody` gains an optional
+`content` so nothing is read inside the transaction. Each item runs in a SAVEPOINT; it returns
+`{indexed: [abs], failed: [{abs, code}]}` with `code` one of `parse_error`, `read_error`, `node_write`.
+A transaction-level SQLite error (`SQLITE_FULL`, `SQLITE_IOERR`, busy) is thrown, not returned.
 
 ### 5.2 One run
 
-`scripts/graph-catchup.cjs --cwd <dir> --reason stop|session_start|mcp_call [--run-seam <n>] [--hold-ms <n>]`
+`scripts/graph-catchup.cjs --cwd <dir> [--session <id>] --trigger stop|session_start|mcp_call [--room <dir>]... [--run-seam <n>] [--hold-ms <n>]`
 
 1. Kill switch `MOS_NO_GRAPH_CATCHUP=1` exits 0.
-2. Guard (section 4). On no room: exit 0, nothing written (`room_not_resolved` is counted only when
-   a room was resolved but has no room.db: `room_db_missing`).
-3. Worker caps: `lowerWorkerPriority()` and `armBackstop(30000)` (export them from
-   `scripts/gsd-graph-derive-drain.cjs:896, 919` into `lib/core/bg-worker.cjs`; the drain requires
-   them back).
-4. Runner lock: `job-lock.cjs` `acquire('<room>/.mindrian/graph-catchup.lock', {job:
-   'graph-catchup', heartbeatMs: 5000})` (per path; reclaims a dead pid at once). On `held` or
-   `recovering`: bump the dirty token (step 9) and exit 0.
+2. Room set (files are idempotent, so every candidate is safe to catch up): `resolveRoomRoot(cwd)`
+   (`lib/core/room-root.cjs:59`, walk-up for `.room-root`, `''` when none); the session's bound room
+   when `--session` is given (`resolveMcpSessionRoom({sessionId, noFloor: true})`, source
+   `session.primary` only); every `--room`; the registry active room
+   (`lib/core/resolve-active-room.cjs`). Deduplicated by realpath. Each must hold `.mindrian/room.db`
+   before any open (`openGraph` would create it, `lazygraph-ops.cjs:440-463`); a room without one is
+   `room_db_missing`. The rooms share the run budget, cwd room first.
+3. Worker caps: `lowerWorkerPriority()` and `armBackstop(30000)`, moved from
+   `scripts/gsd-graph-derive-drain.cjs:896-923` to `lib/core/bg-worker.cjs` (the drain re-exports them
+   for its `_test` at `:1037-1038`). `armBackstop` cannot interrupt the synchronous loop; the per-file
+   deadline check is the real bound. A backstop exit skips the final status, so the doctor reads
+   `run_pid_dead`.
+4. Per room: `job-lock.cjs` `acquire('<room>/.mindrian/graph-catchup.lock', {job: 'graph-catchup'})`.
+   `held` or `recovering`: skip the room (the next trigger catches up; the tree is the source).
+   `error`: the room ends `failed`, reason `lock_io_error`.
 5. Status file `<room>/.mindrian/graph-catchup.json` (atomic rename, 0600): `{schema: 1, state:
-   'running', run_id, pid, started_at}`.
-6. Cards: drain the card ledger (section 6).
-7. Files: open room.db once with `openGraph` (after the guard), build the canon context once. Walk
-   `listContentArtifacts` from the cursor. Per file: `fstat` on the read fd; when the cache entry
+   'running', run_id, pid, started_at}` (ISO 8601 with ms).
+6. Cards: drain this room's card spool (section 6).
+7. Files: `openGraph` once (after the guard), the canon context once. Walk `listContentArtifacts`
+   from the first `rel` greater than the cursor (lexical). Per file: `statSync`; when the cache entry
    `[mtimeMs, size, ino]` matches, skip; else read with `_readArtifactContent`, hash with
-   `computeHash`, compare with `json_extract(properties,'$.content_hash')` for its id. A match
-   refreshes the cache entry; a difference or a missing node joins the batch. A file gone since the
+   `computeHash`, compare with `json_extract(properties,'$.content_hash')`. A match refreshes the cache
+   entry; a difference or a missing node joins the batch with its content. A file gone since the
    listing is counted `files_vanished`.
-8. Batches of at most 10 files: `acquireLock`, `withRoomTx` (`navigation/room-change-log.cjs:188-205`,
-   `BEGIN IMMEDIATE`) around `indexArtifactsBatch`, `releaseLock`. Cache entries update only for
-   indexed files; the cache is written atomically after each batch. A file that fails 2 runs in a row
-   is quarantined (`quarantined` list in the cache, counted) and the cursor moves past it. On
-   `write_lock_held` the cursor is persisted and the run ends `deferred`.
-9. Dirty token: every refused spawn increments `<room>/.mindrian/graph-catchup.dirty` (a counter in
-   the file, written with an atomic rename). The holder records the token at start; after releasing
-   the job lock it re-reads it; when it grew, it re-acquires and runs one more pass (at most 3 passes
-   per run). The claim is "recovered at the next pass or the next trigger", not "never lost".
-10. Budget: 15 s wall per run, all passes together, over files examined. On the budget the cursor
-    is persisted and the run ends `partial` with `remaining`. A full pass resets the cursor and
-    prunes cache entries for files not listed.
-11. `closeGraph`, release the job lock, write the final status: `{schema: 1, state, reason, run_id,
-    trigger, started_at, last_run_at, files_seen, files_indexed, files_vanished, files_quarantined,
-    id_collisions, cards_recorded, cards_rejected, cards_skipped, remaining}`. State: `complete`,
-    `partial`, `deferred`, `failed`. Reasons: `write_lock_held`, `lock_io_error`, `room_db_busy`,
-    `room_db_missing`, `index_failed`, `budget_exhausted`, `ledger_invalid`, `legacy_schema`. When
-    files and cards disagree the worse state wins (failed > deferred > partial > complete).
+8. Batches end at 10 files or 250 ms of collected work: `acquireLock`, `withRoomTx`
+   (`navigation/room-change-log.cjs:188-205`, `BEGIN IMMEDIATE`) around `indexArtifactsBatch`,
+   `releaseLock(roomDir, handle)`. A `failed` file is counted (`files_failed`) and retried next run;
+   the cursor moves on. A thrown transaction error ends the room `failed`, reason `index_failed`, and
+   counts against no file. `acquireLock` throws: a live holder, a cross-host claim or the recovery
+   mutex is `write_lock_held` (cursor persisted, state `deferred`); the "could not be acquired after
+   retry" message and any other throw are `lock_io_error`. Cache entries update only for indexed
+   files; the cache is written atomically after each batch.
+9. Budget: 15 s wall per run over all rooms, over files examined. On the budget the cursor is
+   persisted and the room ends `partial` with `remaining`. A full pass resets the cursor and prunes
+   entries of files not listed.
+10. `closeGraph`; write the final status WHILE still holding the job lock; then release it:
+    `{schema: 1, state, reason, run_id, trigger, started_at, last_run_at, files_seen, files_indexed,
+    files_vanished, files_failed, id_collisions, cards_recorded, cards_rejected, cards_skipped,
+    cards_held, remaining}`. State: `complete`, `partial`, `deferred`, `failed`. Reasons:
+    `write_lock_held`, `lock_io_error`, `room_db_busy`, `room_db_missing`, `index_failed`,
+    `budget_exhausted`, `legacy_schema`. The worse state wins (failed > deferred > partial > complete).
 
-Cache file `<room>/.mindrian/graph-catchup-cache.json`: `{schema: 1, cursor: <rel or null>,
-entries: {<rel>: [mtimeMs, size, ino, hash, fails]}, quarantined: [<rel>]}`.
+Cache `<room>/.mindrian/graph-catchup-cache.json`: `{schema: 1, cursor: <rel or null>, entries:
+{<rel>: [mtimeMs, size, ino, hash]}}`.
 
-Seams (tests only): `--run-seam <n>` exits after batch n; `--hold-ms <n>` sleeps before step 6.
+Test seams: `--run-seam <n>` exits after batch n; `--hold-ms <n>` sleeps before step 6.
 
 ### 5.3 How it is started
 
-Spawn rule everywhere: `process.execPath` (with `ELECTRON_RUN_AS_NODE=1` when
-`process.versions.electron` is set), `detached: true`, `stdio: 'ignore'`, `windowsHide: true`,
-`child.on('error', noop)`, `child.unref()`. In bash the repo idiom
-`( node ... >/dev/null 2>&1 || true ) &` (`session-start:1813-1818`).
+Spawn rule: `process.execPath`, `env: process.env`, `detached: true`, `stdio: 'ignore'`,
+`windowsHide: true`, `child.on('error', noop)`, `child.unref()` (the same as the detached spawns at
+`lib/core/ambient-trigger.cjs:342-347`). In bash the repo idiom `( node ... >/dev/null 2>&1 || true ) &`.
 
-| Surface | Trigger | Site |
-|---|---|---|
-| CLI | Stop, both branches | `scripts/on-stop`, one line right after the Part 8 drain line (`:48`), before the MCP-first branch: `( node "$SCRIPT_DIR/graph-catchup.cjs" --cwd "$WORK_DIR" --reason stop >/dev/null 2>&1 || true ) &`. The runner resolves the room itself, so the line needs no `ROOM_DIR`. The on-stop line budget (`lib/mcp/hook-adapter-audit.cjs:75`, 680) is raised to 682 with the reason |
-| CLI | SessionStart (startup, clear, compact) | `scripts/session-start`, after the heal net (`:132`), guarded by `[ -d "$ROOM_DIR" ]`; matcher unchanged |
-| Desktop, Cowork (and CLI MCP calls) | governed tool calls on a bound room | `installCatchupWrapper(s)` from `lib/mcp/graph-catchup-spawn.cjs`, called in `scripts/mindrian-mcp-server.cjs` right after `new McpServer(...)` (`:232-241`) and before `registerRouterTools` (`:256`) |
+CLI Stop, `scripts/on-stop`: the stdin parse at `:37` also reads `cwd` and `session_id` into
+`HOOK_CWD` and `HOOK_SESSION` (empty when absent). Right after the Part 8 drain line (`:48`), before
+the MCP-first branch, so both branches spawn:
+`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "${HOOK_CWD:-$PWD}" --session "${HOOK_SESSION:-}" --trigger stop >/dev/null 2>&1 || true ) &`.
+No variable set later in the script is used (`set -euo pipefail` at `:22`). The line count rises above
+the `hook-adapter-audit.cjs:75` budget of 680; per the rule at `:63-65` it becomes 700.
+
+CLI SessionStart, `scripts/session-start`, after the heal net (`:132`):
+`( node "${SCRIPT_DIR}/graph-catchup.cjs" --cwd "$PWD" --room "${ROOM_DIR:-$PWD}" --trigger session_start >/dev/null 2>&1 || true ) &`
+(no guard: the runner exits when there is no room). Matcher unchanged.
+
+Desktop, Cowork and CLI MCP calls: `lib/mcp/graph-catchup-spawn.cjs` exports `installCatchupWrapper(s)`
+and `flushPending()`. `scripts/mindrian-mcp-server.cjs` calls `installCatchupWrapper(s)` once right
+after `new McpServer(...)` (`:232-241`), before `registerRouterTools` (`:256`), and `flushPending()`
+inside `exitAfterTeardown` before its close loop (`:350-366`).
 
 The wrapper:
-- replaces `s.registerTool` once per server instance, forwarding `(name, config, handler)` unchanged
-  (config untouched: the wire snapshots `tests/fixtures/267/wire-snapshot-zod3.json` and `zod4.json`
-  stay byte-identical), and wraps only `handler`, forwarding every argument;
-- runs the handler, then in `finally` schedules `setImmediate(maybeSpawn)` (a throw still spawns);
-- fires only for the governed set (writes and room context): `room_bind`, `context_assemble`,
-  `room_startup`, `stop_gate_check`, `artifact_file`, `claim_write`, `graph_write`, `memory_event`,
-  `gate_answer`, `meeting`, `research_run`, `room_content`, `methodology`, `analysis`,
-  `intelligence`; never `status_read` (the statusline queries it on every render,
-  `mindrian-mcp-server.cjs:459-461`) or other pure reads;
-- finds the room with `resolveEffectiveSessionId(undefined, extra)` (`session-binding.cjs:176-182`)
-  and `resolveMcpSessionRoom({sessionId, noFloor: true})` (`session-room.cjs:158-203`), and spawns
-  only when `source === 'session.primary'`. Cowork flag-OFF (stateless HTTP) has no session
-  binding: it is caught up by the next CLI or Desktop trigger, stated as a limit;
-- debounce: a module-level map `room -> {last, pending, timer}`; a call within 10 s of the last
-  spawn sets `pending` and one trailing spawn runs when the window ends; on teardown
-  (`mindrian-mcp-server.cjs:350-366, 377-390`) a pending room gets its dirty token bumped instead;
+- replaces `s.registerTool` per server instance, forwards `(name, config, handler)` and returns the
+  original return value (the RegisteredTool); config is untouched, so the wire snapshots
+  `tests/fixtures/267/wire-snapshot-zod3.json` and `zod4.json` stay byte-identical;
+- for a tool outside the governed set, registers the original handler unwrapped;
+- for a governed tool, runs the handler and in `finally` schedules `setImmediate(maybeSpawn)`, with
+  `extra` taken as the LAST argument (a tool with no input schema gets `(extra)` only);
+- governed set: every tool that writes the room or reads its context. A census test
+  (`tests/test-367-governed-census.cjs`) asserts that every registered tool name is in exactly one of
+  `GOVERNED` or `PURE_READ`, so a new write tool cannot ship unlisted. `status_read` is in
+  `PURE_READ` (the statusline queries it on every render, `mindrian-mcp-server.cjs:459-461`);
+- room: `resolveEffectiveSessionId(undefined, extra)` (`lib/core/session-binding.cjs:176-182`), then
+  `resolveMcpWriteRoom({sessionId, walkUp: true})` (`lib/mcp/session-room.cjs:243-321`); spawn when it
+  answers `ok: true`, for its `dir`. This follows the writes on every surface, Cowork flag-OFF
+  included (a session-less write already lands in the registry room there);
+- debounce: a module-level map `room -> {last, pending, timer}` (timer unref'd); a call within 10 s
+  of the last spawn sets `pending`, and one trailing spawn runs when the window ends;
+  `flushPending()` spawns every pending room at once;
 - never throws into a tool result (try/catch, stderr only).
 
 Bash and subagent writes need no own trigger: the runner diffs the tree at the next Stop.
 
 ## 6. Card answers (OR-1), host-attested
 
-Trust rule: only a line written by the host hook counts. The runner never reads a transcript and
+Trust rule: only a record written by the host hook counts. The runner never reads a transcript and
 never takes a path from an MCP argument for decisions.
 
-Hook `scripts/card-answer-ledger.cjs`, PostToolUse, matcher `AskUserQuestion`, timeout 3 s. It reuses
-the stdin parse of `scripts/operator-update.cjs:164-176` (`tool_name`, `tool_input`, `tool_response`).
-- It records only a `tool_response` that carries a non-empty `answers` object (the shape the
-  transcript shows: `toolUseResult = {questions, answers: {<question>: <label or free text>},
-  annotations}`); anything else (a cancel, an error, no answers) writes nothing.
-- Room: `resolveRoomRoot(stdin.cwd)`; no room, nothing written. Never the registry active room.
-- room key: `sha256(realpath(room))`, the same function (`lib/core/room-key.cjs`) in hook, runner and
-  doctor.
-- It opens no room.db. It appends one line per answered question to
-  `~/.mindrian/card-answers/<room key>.jsonl` (dir 0700, file 0600):
-  `{v: 1, room_key, tool_use_id, q_index, session_id, question, chosen, answered_at, mac}`;
-  `question` and `chosen` are cut to 500 chars each. `mac` = HMAC-SHA256 over the canonical JSON of
-  the other fields (keys sorted, UTF-8) with the key in `~/.mindrian/card-key`.
-- Key: created with flag `wx` (0600), re-read when it exists; read with the guards of
-  `lib/mcp/answer-route.cjs` `readControlToken` (`:52-71`: lstat, no symlink, owner, 0600), factored
-  to `lib/core/private-key-file.cjs` and used by both.
+Hook `scripts/card-answer-ledger.cjs`, PostToolUse, matcher `AskUserQuestion`, timeout 3 s. It reads
+`tool_name`, `tool_input`, `tool_response` with the camelCase fallbacks of
+`scripts/operator-update.cjs:164-166` (not its registry guard at `:168-171`).
+- It records only a `tool_response` with a non-empty `answers` object (the transcript shape
+  `toolUseResult = {questions, answers: {<question>: <label or free text>}, annotations}`) and a
+  `tool_use_id`; otherwise nothing is written (a counter in `~/.mindrian/card-answers/skipped.count`).
+- Room: `resolveRoomRoot(stdin.cwd)`. When the stdin session has a `session.primary` binding
+  (`resolveMcpSessionRoom({sessionId: stdin.session_id, noFloor: true})`) that differs from the cwd
+  room, nothing is written (counted): the card does not show the room, so a mismatch is not trusted.
+  No room, nothing written. Never the registry active room.
+- Room key, from `<room>/.room-root` (`{room, born}`, `room-birth.cjs:1137-1141`):
+  `sha256(room + ':' + born)`, stable across a move or a rename; without `born` it falls back to
+  `sha256(realpath(room))`. One function, `lib/core/room-key.cjs`, in hook, runner and doctor.
+- It opens no room.db. Per answered question it creates one spool file with flag `wx` (0600):
+  `~/.mindrian/card-answers/<room key>/<tool_use_id>.<q_index>.json` (dir 0700) holding
+  `{v: 1, room_key, tool_use_id, q_index, session_id, header, labels, question, chosen, answered_at,
+  mac}`; `question` and `chosen` are cut to 500 chars. `wx` makes each write atomic and a repeat a
+  no-op. `mac` = HMAC-SHA256 over the canonical JSON of the other fields (keys sorted, UTF-8).
+- Key `~/.mindrian/card-key`: created atomically (a temp file, `link` to the final name, unlink the
+  temp; `EEXIST` means another hook won, then re-read). Read with the guards of
+  `lib/mcp/answer-route.cjs` `readControlToken` (`:52-71`: lstat, no symlink, `O_NOFOLLOW`, owner uid,
+  no group or other bits; skipped on win32), factored to `lib/core/private-key-file.cjs` and used by
+  both (the header sentence at `answer-route.cjs:30` is updated). A lost key makes pending files fail
+  their mac; they stay in place, never deleted, counted `cards_rejected`.
 
 Runner drain (step 6), holding the room's job lock:
-1. Claim: rename `<room key>.jsonl` to `<room key>.claimed.<pid>.jsonl`; a claimed file of a dead
-   pid is taken over. No cap: an approval is never dropped.
-2. Per line: verify the mac and that `room_key` equals this room's key; on failure append to
-   `<room key>.rejected.jsonl` and count `cards_rejected`.
-3. Skip (count `cards_skipped`): a line whose `question` matches a gate card recorded in this room's
-   gate records (`gate_list` data; the CLI renders gate cards through AskUserQuestion,
-   `lib/mcp/gate-render.cjs:18-23, 470-475`, and `gate_answer` already mints `decision:gate:<id>`,
-   `gate.cjs:816-845`). The exact match field is pinned in the plan (UNVERIFIED which field).
-4. Id `REASONING_NODE_ID('decision:card', tool_use_id + ':' + q_index)` (null check). If a node
-   with that id exists (`SELECT review_status`), skip: never re-confirm, never rewrite.
+1. Open with `navigation.openRoomDbForCaller(roomDir)` (the `lib/mcp/tools/gate.cjs:1765` door); first
+   `PRAGMA table_info(nodes)`: no `review_status` column (legacy 3-column rooms,
+   `navigation/CONTEXT.md:41-45`) means every file stays in the spool, counted `legacy_schema`.
+2. Per spool file: verify the mac and that `room_key` equals this room's key; a failure is counted
+   `cards_rejected` and the file is left in place.
+3. Gate cards: match `header` plus the ordered option `labels` against this room's `gate_raised`
+   memory_event rows (`lib/core/room-projection.cjs:424-484`; stored contract `header`,
+   `options[].label`, `gate_id`, `lib/core/gate-raised.cjs:73-110`). When a gate matches AND
+   `decision:gate:<gate_id>` exists, skip (counted `cards_skipped`). When a gate matches and no gate
+   decision exists yet, record the card decision (OR-1: the human answered). A later `gate_answer`
+   for that gate can add `decision:gate:<id>` (known limit; both confirmed by the same human act).
+4. Id `REASONING_NODE_ID('decision:card', tool_use_id + ':' + q_index)` (null check). If the node
+   exists, unlink the spool file: never re-confirm, never rewrite.
 5. Else, holding `write.lock`, in one `withRoomTx`: `writeReasoningNode(db, {nodeId, nodeType:
-   'decision', epistemicType: 'decision', text: question + ' -> ' + chosen (cut to 500),
-   sourcePath: 'card:' + tool_use_id, origin: 'card_answered', answeredVia: 'host_hook'})` (the
-   `gate.cjs:816-822` precedent); then `confirmNode(db, nodeId, resolveByUser(roomDir),
-   'card_answered:' + tool_use_id + ' via host_hook')`. If either returns `ok: false`, throw inside
-   the transaction (both roll back) and count `confirm_refused:<reason>`; the line goes back to the
-   ledger for the next run. `confirmNode` writes its own audit memory_event
-   (`transitions.cjs:289-297`); no extra event type is added.
-6. Legacy 3-column rooms (`navigation/CONTEXT.md:41-45`): the line is kept in the ledger (never
-   dropped), counted `legacy_schema`.
-7. After the transaction, unlink the claimed file. A crash before the unlink replays lines; step 4
-   makes replay a no-op.
+   'decision', epistemicType: 'decision', text: question + ' -> ' + chosen (cut to 500), sourcePath:
+   'card:' + tool_use_id, origin: 'card_answered'})` (the `gate.cjs:816-822` precedent; no
+   `answeredVia`, so `ANSWERED_VIA_VALUES` stays two values); then `confirmNode(db, nodeId,
+   resolveByUser(roomDir), 'card_answered:' + tool_use_id)`. Either returning `ok: false`, or the audit
+   event throwing (`transitions.cjs:301`), throws inside the transaction (both roll back) and adds 1
+   to the sidecar `<file>.attempts`. After 5 attempts the file moves to `<room key>/held/` (counted
+   `cards_held`, never deleted). `confirmNode` writes its own audit memory_event
+   (`transitions.cjs:289-297`); no event type is added.
+6. After the commit, unlink the spool file. A crash before the unlink replays it; step 4 makes the
+   replay a no-op.
 
 The same question answered twice gives two confirmed decisions; supersession stays a human act.
-Retention: the rejected file and claimed files are removed after 30 days; they hold card text
-outside the room and are local only (Part 8 holds).
 
 Threat model: a model with an unrestricted shell can forge any local file, key included; no local
-design stops that. This design guarantees that transcript text, MCP arguments, room files and a
-line copied from another room cannot mint a confirmed decision; only host-hook lines with a valid
-mac for this room do.
+design stops that. This design guarantees that transcript text, MCP arguments, room files and a spool
+file copied from another room cannot mint a confirmed decision; only host-hook files with a valid mac
+for this room do.
 
 Spike S0 (blocking slice b): capture real PostToolUse stdin for AskUserQuestion (answered, "Other",
-cancelled) on this host and pin the hook test fixtures; the hook is defensive either way.
+cancelled) on this host; confirm `tool_use_id`, `cwd`, `session_id` and the `tool_response` shape; pin
+the hook fixtures.
 
 ## 7. Doctor
 
-`lib/core/doctor/room-graph-integrity-module.cjs` keeps its read-only contract: room.db only through
-`openRoomDbReadOnlyForCaller`; files through `section-registry.cjs` `listContentArtifacts` (no
-substrate allowlist entry). New integer fields (outside `totals`, not summed): 
-`room_files_without_artifact_node` (an id-set compare, no hashing), `artifact_id_collisions`,
-`card_ledger_pending`, `card_ledger_rejected`, `catchup_state` (enum: 0 complete, 1 partial,
-2 deferred, 3 failed, 4 running, 5 run_pid_dead), `catchup_age_s`. No strings in the payload
-(T-343-02).
+`lib/core/doctor/room-graph-integrity-module.cjs` keeps its read-only contract: room.db through
+`openRoomDbReadOnlyForCaller`; files through `content-artifacts.cjs` `listContentArtifacts` (no
+substrate allowlist entry; the module requires no lazygraph code). New integer fields, outside
+`totals`, not summed, `null` when unknown (no status file, legacy schema), never 0 for unknown:
+`room_files_without_artifact_node` (an id-set compare, no hashing), `card_ledger_pending`,
+`card_ledger_held`, `catchup_state` (0 complete, 1 partial, 2 deferred, 3 failed, 4 running,
+5 run_pid_dead via `job-lock.cjs` `read`), `catchup_age_s`. The check warns when `catchup_state` is 3
+or 5, or `card_ledger_held > 0`. No strings in the payload (T-343-02).
 
 ## 8. Substrate gate
 
 Only `scripts/graph-catchup.cjs` joins `ALLOWED_DIRECT_IMPORT` (`check-substrate.cjs:63-175`), as
 `/^scripts\/graph-catchup\.cjs$/` with a comment: "Phase 367 catch-up indexer: generated index of
-room files". Every slice gates on `node scripts/check-substrate.cjs --diff` (staged files) exiting 0.
+room files". Every slice gates on `node scripts/check-substrate.cjs --diff` exiting 0.
 
 ## 9. Files (C create, M modify); order a -> b -> c -> d, each green before the next
 
 | Slice | File | Action |
 |---|---|---|
-| a | `lib/core/lazygraph-ops.cjs` (BEGIN IMMEDIATE :628, :738; exports; `indexArtifactsBatch`; `getArtifactId` re-export) | M |
-| a | `lib/core/section-registry.cjs` (`listContentArtifacts`, `getArtifactId`) | M |
-| a | `lib/core/graph-backfill.cjs` (`_artifactsToIndex` calls the shared walker) | M |
-| a | `tests/test-367-begin-immediate.cjs` (AC11), `tests/test-367-artifact-set.cjs` (walker vs rebuild difference = scaffold + sub-room files; collisions; backfill parity) | C |
-| b | `scripts/graph-catchup.cjs`, `lib/core/bg-worker.cjs`, `lib/core/room-key.cjs`, `lib/core/private-key-file.cjs`, `scripts/card-answer-ledger.cjs`, `tests/fixtures/367/` | C |
+| a | `lib/core/content-artifacts.cjs` | C |
+| a | `lib/core/lazygraph-ops.cjs` (BEGIN IMMEDIATE :628, :738; exports; `indexArtifactsBatch`; `_indexArtifactBody` content param; `getArtifactId` re-export) | M |
+| a | `lib/core/graph-backfill.cjs` (`_artifactsToIndex` via the walker) | M |
+| a | `tests/test-367-begin-immediate.cjs` (AC11), `tests/test-367-artifact-set.cjs` (walker vs rebuild difference = scaffold + sub-room files; collisions; isFile; the new backfill set) | C |
+| a | `tests/test-sqlite-ops.cjs:391` (pins 21 exports, red at base with 30): re-base to the new count | M |
+| b | `scripts/graph-catchup.cjs`, `lib/core/bg-worker.cjs`, `lib/core/room-key.cjs`, `lib/core/private-key-file.cjs`, `scripts/card-answer-ledger.cjs`, `tests/fixtures/367/` (S0 captures) | C |
 | b | `scripts/gsd-graph-derive-drain.cjs` (require `bg-worker.cjs`), `lib/mcp/answer-route.cjs` (use `private-key-file.cjs`) | M |
-| b | `scripts/on-stop` (1 line), `scripts/session-start` (spawn after :132), `hooks/hooks.json` (PostToolUse AskUserQuestion group) | M |
-| b | `lib/mcp/hook-adapter-audit.cjs` (on-stop budget 680 -> 682), `tests/test-389-hook-unwire.cjs` (expected: `PostToolUse` 9 -> 10, `PostToolUse:AskUserQuestion: 1`, total 42), `tests/test-359-prose-budget.cjs` (re-base the session-start sha), `scripts/isolate-larry-voice.cjs` (declare the new child in `STARTUP_CONTAINMENT`, `MOS_NO_GRAPH_CATCHUP` in `HOOK_SWITCHES`), `tests/test-3696-isolation.cjs` | M |
+| b | `scripts/on-stop` (stdin parse + 1 spawn line), `scripts/session-start` (1 spawn line after :132), `hooks/hooks.json` (PostToolUse AskUserQuestion group) | M |
+| b | `lib/mcp/hook-adapter-audit.cjs` (on-stop budget 680 -> 700) | M |
+| b | `tests/test-389-hook-unwire.cjs` (`expected`: `PostToolUse` 9 -> 10, `PostToolUse:AskUserQuestion` 0 -> 1, `total` 41 -> 42) | M |
+| b | `scripts/isolate-larry-voice.cjs` (`MOS_NO_GRAPH_CATCHUP` under `HOOK_SWITCHES['hooks/run-hook.cmd session-start']` `:494`; the new child in that entry's evidence; re-pin its five evidence lines `:437-441`), `tests/test-359-prose-budget.cjs` (re-base the session-start sha) | M |
 | b | `scripts/check-substrate.cjs` (allowlist) | M |
 | b | `tests/test-367-catchup-cli.cjs` (AC1, AC3, AC5, AC10), `tests/test-367-card-ledger.cjs` (AC4, AC7) | C |
-| c | `lib/mcp/graph-catchup-spawn.cjs` | C |
-| c | `scripts/mindrian-mcp-server.cjs` (one call after :241) | M |
-| c | `lib/core/doctor/room-graph-integrity-module.cjs`, `tests/test-343-room-graph-integrity.cjs` (new integer fields) | M |
-| c | `scripts/release-lib/large-room-leg.cjs` (third child: the runner, AC12) | M |
+| c | `lib/mcp/graph-catchup-spawn.cjs`, `tests/test-367-governed-census.cjs` | C |
+| c | `scripts/mindrian-mcp-server.cjs` (install after :241; `flushPending()` in `exitAfterTeardown`) | M |
+| c | `lib/core/doctor/room-graph-integrity-module.cjs`, `tests/test-343-room-graph-integrity.cjs` (new fields) | M |
 | c | `tests/test-367-catchup-mcp.cjs` (AC2, AC6, AC8) | C |
-| d | `agents/larry-extended.md` (:72, :166), `references/personality/memory-and-findings.md` (:81), `references/personality/agent-operations.md` (:15), `skills/larry-personality/SKILL.md` (:192), `output-styles/destijl.md` (:23), `data/harness-policies/memory-write-policy.json` (:27), `tests/fixtures/3696-persona-h/*` | M |
-| d | `tests/test-359-prose-budget.cjs` (re-base the larry-extended and SKILL shas), `tests/test-3696-operation-doctrine.cjs` (D2 requires the pointer line instead of the per-turn line) | M |
-| d | dist bundles: `node scripts/build-dist-bundles.cjs` (never hand edits) | M |
+| d | the seven prose sites below; `tests/test-359-prose-budget.cjs` (re-base larry-extended and SKILL shas); `tests/test-3696-operation-doctrine.cjs` (D2 reads the new sentence); `tests/test-261125-runtime-core-forced-style.cjs` (unchanged; must pass) | M |
+| d | dist bundles: `node scripts/build-dist-bundles.cjs` | M |
 | d | `tests/test-367-prose.cjs` (AC9) | C |
-| all | `367-CONTEXT.md`; `docs/MINDRIAN-CANON.md` Appendix D (`:786`) entry for OR-1; `docs/CANON-PHASE-MAP.md` row for 367 | M |
+| all | `367-CONTEXT.md`; `docs/MINDRIAN-CANON.md` Appendix D (`:786`): new entry "OR-1 (Phase 367, owner card 2026-11-26): an AskUserQuestion card the navigator answered in the CLI is the human approve; its decision lands confirmed through confirmNode, from a host-hook record only"; `docs/CANON-PHASE-MAP.md` row for 367 | M |
 
-`lib/mcp/runtime-instructions.cjs` is NOT changed: it holds no per-turn rule and sits at its
-2000-byte budget.
+`tests/fixtures/3696-persona-h/*` (an immutable base snapshot) and `lib/mcp/runtime-instructions.cjs`
+(no per-turn rule; 2000-byte budget) are NOT changed.
 
-Pointer text replacing the per-turn rule: "Room files and answered cards are recorded by code. You
-record meaning: file claims through the gate."
+Prose: only the per-turn sentence changes; every other sentence on the line stays byte-identical.
+- `agents/larry-extended.md:72`: "each substantive turn recorded silently" -> "room files and answered cards recorded by code".
+- `agents/larry-extended.md:166`: "Fire `memory_event` silently on every substantive turn." -> "Room files and answered cards are recorded by code; fire `memory_event` silently when a turn holds meaning worth keeping."
+- `references/personality/memory-and-findings.md:81`: "`memory_event` fires silently on every substantive turn" -> "`memory_event` fires silently when a turn holds meaning worth keeping (room files and answered cards are recorded by code)".
+- `references/personality/agent-operations.md:15`: "`memory_event` fires silently on every substantive turn;" -> "room files and answered cards are recorded by code; `memory_event` fires silently when a turn holds meaning worth keeping;".
+- `skills/larry-personality/SKILL.md:192`: "`memory_event` fires silently on every substantive turn and is never narrated." -> "Room files and answered cards are recorded by code; `memory_event` fires silently when a turn holds meaning worth keeping and is never narrated."
+- `output-styles/destijl.md:23`: "and record each substantive turn (`memory_event`)" -> "and record meaning worth keeping (`memory_event`); room files and answered cards are recorded by code" (keeps `memory_event` and `context_assemble`, which `tests/test-261125-runtime-core-forced-style.cjs:26` needs).
+- `data/harness-policies/memory-write-policy.json:27`: "D4 (memory_event fires silently on every substantive turn;" -> "D4 (memory_event fires silently when a turn holds meaning worth keeping; room files and answered cards are recorded by code;".
+
+The policy identifiers that `tests/test-298-policies-schema.cjs:309-357` needs stay in SKILL.md and
+memory-and-findings.md.
 
 ## 10. Acceptance (detached runs are polled until the status file leaves `running`, cap 30 s)
 
 - AC1 (b) CLI no reminder: a room born by `lib/core/navigation/room-birth.cjs` under a temp
-  `MINDRIAN_ROOMS_HOME/<slug>/`; session start run first. Files `problem-definition/a.md` (Write
-  path), `market-analysis/b.md` (shell write), `solution-design/c/c.md` (simulated subagent).
-  The real `on-stop` with a Stop stdin whose `cwd` is the room. Then the three Artifact ids exist and
-  `files_indexed >= 3`.
+  `MINDRIAN_ROOMS_HOME/<slug>/`; session start run first. Files `problem-definition/a.md`,
+  `market-analysis/b.md` (shell write), `solution-design/c/c.md` (simulated subagent). The real
+  `on-stop` runs with its process cwd OUTSIDE the room and a Stop stdin whose `cwd` is the room: the
+  three Artifact ids exist and `files_indexed >= 3` (the stdin cwd is used). A second leg with no stdin
+  `cwd` and the process cwd inside the room gives the same result.
 - AC2 (c) MCP no reminder: `installCatchupWrapper` on a test `McpServer`; a bound session:
   `room_bind`, 2 x `artifact_file`, one file written by another process, then `context_assemble`,
-  then wait 11 s. All 3 Artifact ids exist.
+  wait 11 s: all 3 Artifact ids exist. A session-less leg (Cowork flag-OFF) writing to the registry
+  room also spawns.
 - AC3 (b) Missed run: kill with `--run-seam 1`; delete the cache; the next trigger ends `complete`
   with the id set of `listContentArtifacts`; a second run gives `files_indexed: 0`.
 - AC4 (b) OR-1: a fixture PostToolUse stdin for an answered card through the real hook, then the
   runner: 1 decision node, `review_status = 'confirmed'`, `confirmed_by = resolveByUser(roomDir)`,
-  text containing the question and the chosen label. Each negative leg gives 0 new decisions: a
-  cancelled card (no `answers`); a bad mac; a valid line copied into another room's ledger; a
-  fabricated AskUserQuestion pair in a transcript file; a `stop_gate_check` call with a model-supplied
-  `transcript_path`; a card that matches a recorded gate card. Replaying the same line gives no new
-  node and no rewrite.
+  text holding the question and the chosen label. Each negative leg gives 0 new decisions: no
+  `answers`; no `tool_use_id`; a bad mac; a spool file copied from another room; a fabricated pair in
+  a transcript file; `stop_gate_check` with a model-supplied `transcript_path`; a card matching a gate
+  whose `decision:gate:<id>` exists; a cwd room that differs from the session's bound room. A card
+  matching a gate with no gate decision gives 1 card decision. Replaying a spool file gives no new
+  node and no rewrite. A `confirmNode` refusal 5 times moves the file to `held/`.
 - AC5 (b) Honest failure: hold `write.lock`; the run ends `deferred`, reason `write_lock_held`,
-  `last_run_at - started_at < 2000 ms`; the next run ends `complete`; the doctor reports
+  `last_run_at - started_at < 2000` ms; the next run ends `complete`; the doctor reports
   `room_files_without_artifact_node = 0`.
-- AC6 (c) Doctor: one unindexed file gives `room_files_without_artifact_node = 1`; a run killed with
-  `--hold-ms` gives `catchup_state = 5`.
-- AC7 (b) Two rooms and the registry: the registry's active room is B; a card answered with `cwd` in
-  room A lands in A only.
+- AC6 (c) Doctor: one unindexed file gives `room_files_without_artifact_node = 1`; a run killed during
+  `--hold-ms` gives `catchup_state = 5`; no status file gives `catchup_state = null`.
+- AC7 (b) Two rooms: the registry's active room is B; a card answered with `cwd` in room A and no
+  session binding lands in A only.
 - AC8 (c) Spawn safety: `--hold-ms 5000` keeps the runner alive; the wrapped tool returns before it
   ends; MCP stdout carries no runner byte; on-stop returns while it runs; the wire snapshots are
-  byte-identical; 100 `status_read` calls give 0 spawns.
-- AC9 (d) Prose: regex `/(every|each) substantive turn/i` finds nothing in `agents/`, `skills/`,
-  `references/personality/`, `output-styles/`, `data/harness-policies/`, `dist/`; the pointer line is
+  byte-identical; 100 `status_read` calls give 0 spawns; a handler that throws still spawns.
+- AC9 (d) Prose: `/(every|each) substantive turn/i` finds nothing in `agents/`, `skills/`,
+  `references/personality/`, `output-styles/`, `data/harness-policies/`, `dist/`; the new sentences are
   present; `node scripts/run-harness.cjs --check`, `tests/test-359-prose-budget.cjs`,
-  `lib/mcp/no-instructions.test.cjs` and the test-189 policy tests pass.
+  `tests/test-261125-runtime-core-forced-style.cjs`, `tests/test-298-policies-schema.cjs`,
+  `tests/test-3696-operation-doctrine.cjs` and the test-189 policy tests pass.
 - AC10 (b) Large room: 2,000 generated files, empty cache, up-to-date graph: `complete` with
-  `files_indexed: 0` within 4 runs; then one warm run's `last_run_at - started_at` is under 1000 ms.
-- AC11 (a) 517: process A holds `BEGIN IMMEDIATE` (an `--hold` child that signals on a pipe), process
-  B starts `indexArtifact` after the signal, A commits after 300 ms; B succeeds (at base B fails with
-  errcode 517).
-- AC12 (c) Release: `scripts/release-lib/large-room-leg.cjs` runs the runner as a third child on its
-  fixture; one cold run stays under 15 s wall, 600 s CPU and 1024 MB RSS (the RULE 10 limits).
+  `files_indexed: 0` within 4 runs; one warm run's `last_run_at - started_at` is under 1000 ms; the
+  longest `BEGIN IMMEDIATE` hold in the run is under 500 ms.
+- AC11 (a) 517: process A holds `BEGIN IMMEDIATE` (a child that signals on a pipe), process B starts
+  `indexArtifact` after the signal, A commits after 300 ms; B succeeds (at base B fails with 517).
 
 ## 11. Alternatives considered
 
@@ -334,8 +379,11 @@ record meaning: file claims through the gate."
 | Parse card answers from the transcript | The model can write the transcript file; a cancelled card also has a tool_result |
 | Mint the decision as confirmed at insert | Skips the confirm chokepoint and its audit row |
 | A `card_answered` event type | `confirmNode` already writes the audit event; it would also change the pinned `EVENT_TYPES` size (`test-353-filing-gate.cjs:145`, `test-4002-rulings.cjs:375`) |
-| A shared queue module from the Part 8 queue | A refactor of a boundary module the need does not require; one reader per room needs only an inline claim |
-| A new pid lock | Reinvents `job-lock.cjs` (per path, dead-pid reclaim, recovery) and its race fixes |
+| A shared queue module from the Part 8 queue; a claim-by-rename ledger | A refactor of a boundary module the need does not require; a rename leaves a lost-line window; one `wx` spool file per answer is atomic and dedupes for free |
+| A new pid lock; a dirty token; quarantine | Reinvents `job-lock.cjs`; a refused spawn loses nothing because every run diffs the whole tree; quarantine adds a state with no exit and SAVEPOINT already contains a bad file |
+| Spawn only for `session.primary` | Misses Cowork flag-OFF, where a session-less write already lands in the registry room; following `resolveMcpWriteRoom` matches the writes |
+| Walker in `section-registry.cjs` | A load-time require cycle through `scaffold-template-index.cjs` -> `room-birth.cjs` |
+| A runner child in the RULE 10 large room leg | Touches the release gate, its receipt and four consumers; AC10 bounds the runner |
 | Four explicit MCP sites | Desktop calls bind and context only at first activation (`runtime-instructions.cjs`); one wrapper covers every governed call |
 | Wrapper on every tool | `status_read` runs on every statusline render: a sweep every 10 s in an idle window |
 | Tree-watcher file events; a Bash matcher | Directory-only contract (`lib/mcp/tree-watcher.cjs:5-12`); Stop already diffs the tree |
@@ -351,6 +399,8 @@ record meaning: file claims through the gate."
   not fire, OR-1 falls back to the gate route and the owner is told.
 - A detached child on native Windows or in the Cowork sandbox may not survive a host kill
   (UNVERIFIED); the dirty token and the next trigger recover.
+- A late `gate_answer` after an answered gate card can add a second confirmed decision for one human act (both linked by `header`).
+- A room whose `.room-root` has no `born` uses the path key: moving it before its spool drains strands those files (counted as pending for an unknown key by the doctor in a follow-up).
 - `computeHash` is a 32-bit compare; a collision leaves one file unindexed until its next change.
 - The confidence floor of the section ledger moves between rebuilds (RCA 395-tests-after-beta93);
   not touched here.
