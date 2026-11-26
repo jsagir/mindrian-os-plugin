@@ -512,10 +512,15 @@ leg('R4b', 'type_excluded count equals the chain_state rows among the first topK
   }
 });
 
-leg('R4c', 'room141_default and explicit_focus have no type_excluded entry', async () => {
-  for (const name of ['room141_default', 'explicit_focus']) {
-    assert.equal(findEntry(G[name]._meta.omitted, 'legC', 'type_excluded'), undefined, name);
-  }
+// Phase 400.4 QA-F7: two-way walk. claim:sup-1 now reaches the 3 chain_state records through inbound
+// SOURCED_FROM and FEEDS_INTO edges, so explicit_focus reports the exclusion; room141_default still has none.
+leg('R4c', 'room141_default has no type_excluded entry; explicit_focus reports 3 chain_state rows (QA-F7)', async () => {
+  assert.equal(findEntry(G.room141_default._meta.omitted, 'legC', 'type_excluded'), undefined, 'room141_default');
+  assert.deepStrictEqual(
+    findEntry(G.explicit_focus._meta.omitted, 'legC', 'type_excluded'),
+    { leg: 'legC', reason: 'type_excluded', count: 3, detail: 'chain_state' },
+    'explicit_focus'
+  );
 });
 
 leg('R4d', 'a chain_state focus keeps the carve-out and reports no exclusion', async () => {
