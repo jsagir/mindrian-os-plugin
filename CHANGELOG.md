@@ -1,7 +1,14 @@
 ## [Unreleased] -- v2.0.0-beta.92 (in progress)
 
 ### Added
-- 
+- **Six thinking hats that each do their own research (Phase 400.2).** `/mos:persona` has a deep mode. Each of the five reading hats gets a persona built from your room, does its own research and gives its own reading in isolation. Blue then reports what was skipped and what to ask next. You approve every search on a card before it leaves your machine, and you rule on each tension the hats disagree on. A tension you have ruled stays settled in later runs. Quick mode is still available as a fast look in one pass, and it says so. <!-- 400.2 -->
+- **AskNature for the Green hat (Phase 400.2).** Green proposes a short nature-terms phrase of its own, for example "organisms that recover metals", and searches it on asknature.org only. <!-- 400.2 PS-09 -->
+
+### Fixed
+- **An empty room no longer reads as ready for the hats, and accepted personas are no longer lost (Phase 400.2.1).** The room check counted the files MindrianOS writes itself (BRIEF, MINTO and the like) as your work. A new room looked full, and every background refresh of those files marked the personas you had just accepted as out of date. Only your own files count now. <!-- 400.2.1 P0 -->
+
+### Known
+- **Deep mode still has open items (Phase 400.2.1, next cut).** Persona file names use a generic domain, Green can pull off-topic papers, a hat's own web searches are screened only after they are sent, and there is no "Larry decides" ruling yet. <!-- 400.2.1 P1 -->
 
 ## [2.0.0-beta.91] - 2026-11-25
 
