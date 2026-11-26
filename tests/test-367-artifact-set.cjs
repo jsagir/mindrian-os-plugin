@@ -19,7 +19,9 @@
  *      lazygraph-ops re-export is the same function object.
  *   W5 sub-rooms: a nested child with .room-root is skipped; a top-level
  *      section folder with .room-root contributes no file.
- *   W6 backfill set: (slot, plan 367-01 Task 2 adds it).
+ *   W6 backfill set: graph-backfill.cjs _artifactsToIndex delegates to
+ *      listContentArtifacts (source check); the set holds the root files and
+ *      no file of a top-level sub-room.
  *   W7 lazy load: requiring content-artifacts.cjs does not load
  *      scaffold-predicate.cjs; section-registry.cjs is byte-unchanged
  *      against the plan BASE.
@@ -38,6 +40,7 @@ const { spawnSync } = require('node:child_process');
 const REPO = path.resolve(__dirname, '..');
 const CA_PATH = path.join(REPO, 'lib', 'core', 'content-artifacts.cjs');
 const LG_PATH = path.join(REPO, 'lib', 'core', 'lazygraph-ops.cjs');
+const BACKFILL_PATH = path.join(REPO, 'lib', 'core', 'graph-backfill.cjs');
 
 // The plan BASE (git rev-parse HEAD at the start of plan 367-01 Task 1).
 const PLAN_BASE = process.env.MOS_367_01_BASE || 'b0fb5a1abc9753f10bd2b6480ba80901812a85f0';
@@ -213,7 +216,22 @@ async function main() {
     assert.ok(rels.includes('problem-definition/deep/deep.md'), 'plain nested child kept');
   });
 
-  // W6 slot: plan 367-01 Task 2 adds the backfill-set arm here.
+  await scenario('W6 backfill set: _artifactsToIndex delegates to listContentArtifacts', async () => {
+    const src = fs.readFileSync(BACKFILL_PATH, 'utf8');
+    const start = src.indexOf('function _artifactsToIndex(');
+    assert.ok(start >= 0, '_artifactsToIndex exists');
+    const end = src.indexOf('\nfunction ', start + 1);
+    const body = src.slice(start, end < 0 ? src.length : end);
+    assert.ok(body.includes('listContentArtifacts('), 'the body calls listContentArtifacts(');
+    assert.ok(!body.includes('readdirSync('), 'the body holds no readdirSync(');
+    const { listContentArtifacts } = loadCA();
+    const fx = buildW1Fixture();
+    const notes = put(fx.root, 'notes.md');
+    const set = listContentArtifacts(fx.root).files.map((f) => f.abs);
+    assert.ok(set.includes(notes), 'the root file notes.md is in the backfill set');
+    const subDir = path.join(fx.root, 'subroom-top') + path.sep;
+    assert.ok(!set.some((f) => f.startsWith(subDir)), 'no file of the top-level sub-room');
+  });
 
   await scenario('W7 lazy scaffold load; section-registry.cjs unchanged since BASE', async () => {
     const code = 'require(' + JSON.stringify(CA_PATH) + ');' +
