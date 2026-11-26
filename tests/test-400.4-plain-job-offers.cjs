@@ -132,6 +132,72 @@ async function main() {
     }
   });
 
+  const offer = registry.jobOffer(JOB);
+  const wantLabel = SET_LABEL + ': ' + offer.label.replace(/\.$/, '');
+
+  await leg('P5 the goal card shows the plain job label and the job sentence', async () => {
+    const r = await call(render, { header: 'Set the job', kind: 'strategy_goal', approving: ['rewrite-jtbd'], options: goalCard(JSON.stringify({ jtbd: JOB })) });
+    assert.equal(r.ok, true, JSON.stringify(r));
+    const set = r.card.options.find((o) => o.id === 'rewrite-jtbd');
+    const defer = r.card.options.find((o) => o.id === 'defer');
+    assert.equal(set.label, wantLabel);
+    assert.equal(set.description, offer.sentence);
+    assert.equal(defer.label, 'Not now');
+    assert.ok(!defer.description);
+    assert.equal(set.preview, JSON.stringify({ jtbd: JOB }));
+    const body = JSON.stringify(r);
+    assert.ok(body.indexOf(wantLabel) !== -1 && body.indexOf(offer.sentence) !== -1, 'the text rung shows label and sentence');
+  });
+
+  await leg('P6 gate_answer still writes the goal; caller description kept; bad previews keep the old label', async () => {
+    assert.equal(jtbdState.getGoal(roomDir), null, 'precondition: no goal');
+    const r = await call(render, { header: 'Set the job', kind: 'strategy_goal', approving: ['rewrite-jtbd'], options: goalCard(JSON.stringify({ jtbd: JOB })) });
+    const done = await call(answer, { gate_id: r.gate_id, chosen: ['rewrite-jtbd'], verdict: 'approve' });
+    assert.equal(done.ok, true, JSON.stringify(done));
+    assert.equal(done.strategy_ratification.goal_written, true, JSON.stringify(done.strategy_ratification));
+    assert.equal(jtbdState.getGoal(roomDir).jtbd, JOB);
+
+    const kept = await call(render, { header: 'Set the job', kind: 'strategy_goal', approving: ['rewrite-jtbd'],
+      options: goalCard(JSON.stringify({ jtbd: JOB }), { description: 'My own words.' }) });
+    const keptOpt = kept.card.options.find((o) => o.id === 'rewrite-jtbd');
+    assert.equal(keptOpt.label, wantLabel);
+    assert.equal(keptOpt.description, 'My own words.');
+
+    for (const preview of [JSON.stringify({ jtbd: 'not-a-job' }), JSON.stringify({ jtbd: 'explore' }), 'not json', JSON.stringify({ jtbd: 7 }), JSON.stringify({ rung: 'Wicked' })]) {
+      const x = await call(render, { header: 'Set the job', kind: 'strategy_goal', approving: ['rewrite-jtbd'], options: goalCard(preview) });
+      assert.equal(x.ok, true, JSON.stringify(x));
+      const o = x.card.options.find((q) => q.id === 'rewrite-jtbd');
+      assert.equal(o.label, SET_LABEL, preview);
+      assert.ok(!o.description, preview);
+    }
+  });
+
+  await leg('P7 other labels, a general card and a mirror render are unchanged', async () => {
+    const drift = [
+      { id: 'keep-jtbd', label: 'Keep the ratified job', description: 'Keep it.', preview: JSON.stringify({ jtbd: JOB }) },
+      { id: 'rewrite-jtbd', label: 'Rewrite the job', description: 'Rewrite it.', preview: JSON.stringify({ jtbd: JOB }) },
+      { id: 'climb', label: 'Climb the ladder', description: 'Up.' },
+      { id: 'defer', label: 'Defer', description: 'Later.' },
+    ];
+    const a = await call(render, { header: 'Drift', kind: 'strategy_goal', options: drift });
+    assert.equal(a.ok, true, JSON.stringify(a));
+    assert.deepEqual(a.card.options.map((o) => [o.id, o.label, o.description]), drift.map((o) => [o.id, o.label, o.description]));
+    const gen = await call(render, { header: 'General', options: [{ id: 'rewrite-jtbd', label: SET_LABEL, preview: JSON.stringify({ jtbd: JOB }) }, { id: 'no', label: 'No' }] });
+    assert.equal(gen.ok, true, JSON.stringify(gen));
+    assert.equal(gen.card.options.find((o) => o.id === 'rewrite-jtbd').label, SET_LABEL);
+    const gs = JSON.stringify(gen.card.options);
+    assert.ok(gs.indexOf(offer.sentence) === -1);
+    // A mirror render takes its card from the room record: the label there is whatever was recorded, so a mirror of a
+    // card with the plain label shows that label once, never twice.
+    const src = await call(render, { header: 'Set the job', kind: 'strategy_goal', approving: ['rewrite-jtbd'], options: goalCard(JSON.stringify({ jtbd: JOB })) });
+    assert.equal(src.ok, true);
+    const m = await call(render, { mirror_of: src.gate_id, options: src.card.options.map((o) => ({ id: o.id, label: o.label })) });
+    if (m.ok === true) {
+      const lab = m.card.options.find((o) => o.id === 'rewrite-jtbd').label;
+      assert.equal(lab, wantLabel);
+    }
+  });
+
   await leg('P8 no em dash or en dash in the files of this plan', async () => {
     const files = ['lib/core/section-registry.cjs', 'lib/mcp/tools/sensors.cjs', 'lib/mcp/tools/gate.cjs', 'tests/test-400.4-plain-job-offers.cjs']
       .map((f) => path.join(ROOT, f));
