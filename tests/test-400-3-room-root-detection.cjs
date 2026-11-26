@@ -45,6 +45,9 @@ function check(label, cond, detail) {
   else { failed += 1; console.log('FAIL: ' + label + (detail !== undefined ? ' :: ' + detail : '')); }
 }
 function skip(label) { console.log('SKIP: ' + label + ' (POSIX arm on win32)'); }
+// KNOWN-OPEN: an owner-accepted open item (2026-11-26). It is measured and printed every run, never counted as a pass.
+let knownOpen = 0;
+function known(label, detail) { knownOpen += 1; console.log('KNOWN-OPEN: ' + label + (detail !== undefined ? ' :: ' + detail : '')); }
 
 const ROOTS = [];
 process.on('exit', () => {
@@ -358,10 +361,11 @@ async function groupCascade() {
         check('C10 a held SQLite write transaction gives graphIndex error room_db_busy in less than 2500 ms (measured ' + ms.toFixed(0) + ' ms)',
           c10.graphIndex && c10.graphIndex.status === 'error' && c10.graphIndex.reason === 'room_db_busy' && ms < 2500,
           JSON.stringify(c10.graphIndex));
-        // Plan contract: the busy wait is used (600 ms or more). Kept as its own arm so a conflict with the code
-        // stays visible and is not hidden inside the reason check.
-        check('C10 the index waited 600 ms or more for the SQLite lock (measured ' + ms.toFixed(0) + ' ms)', ms >= 600,
-          'lazygraph indexArtifact reads inside a deferred BEGIN before its first INSERT; SQLite returns SQLITE_BUSY at once on that upgrade in WAL mode');
+        // Owner ruling 2026-11-26 (option A): the arm is "busy is reported within 750 ms". The plan's 600 ms wait floor
+        // conflicts with BASE code: lazygraph indexArtifact reads inside a deferred BEGIN before its first INSERT, and in
+        // WAL mode SQLite returns SQLITE_BUSY at once on that read-to-write upgrade (measured 1-3 ms). BEGIN IMMEDIATE,
+        // which would use the busy wait, moves to plan 400.3-06.
+        check('C10 busy is reported within 750 ms (measured ' + ms.toFixed(0) + ' ms)', ms <= 750);
       } catch (e) { check('C10 fixture', false, e.message); }
       await stopDbLockHolder(h);
     }
@@ -457,11 +461,18 @@ function groupHook() {
         h = await startWriteLockHolder(r1, 10000);
         const h5 = postWrite(path.join(r1, 'sec', 'd.md'), r1, home);
         const side = readSide(r1);
-        check('H5 a held write.lock: advisory index failed, cascade_status index_failed, reason write_lock_held',
-          h5.status === 0 && h5.advisory === 'post-write: index failed for d.md (index only)' && !!side && side.cascade_status === 'index_failed'
-            && side.graph_index && side.graph_index.reason === 'write_lock_held',
-          JSON.stringify({ advisory: h5.advisory, side }));
-        check('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms)', h5.ms < 3000);
+        // Owner ruling 2026-11-26 (option A): H5 is a KNOWN-OPEN item that plan 400.3-08 (cascade off the foreground) fixes.
+        // post-write runs the minto-debouncer enqueue in the foreground with its retry loop, so under a held write.lock the
+        // hook takes 10-14 s (unchanged BASE post-write: 10.8 s), past the 5 s hook budget; by the time the index runs the
+        // 10 s holder has released the lock, so "indexed" is the true outcome. What this arm still asserts: the advisory and
+        // the side-channel record agree (no success word after a failure).
+        const agree = h5.status === 0 && !!side && (
+          (h5.advisory === 'post-write: indexed d.md (index only)' && side.cascade_status === 'indexed')
+          || (h5.advisory === 'post-write: index failed for d.md (index only)' && side.cascade_status === 'index_failed'
+            && side.graph_index && side.graph_index.reason === 'write_lock_held'));
+        check('H5 a held write.lock: the advisory and the side-channel record agree', agree, JSON.stringify({ advisory: h5.advisory, side }));
+        if (h5.ms < 3000) check('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms)', true);
+        else known('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms); fixed by plan 400.3-08');
       } catch (e) { check('H5 fixture', false, e.message); }
       await stopChild(h);
     }
@@ -607,7 +618,7 @@ async function main() {
   if (GROUP === 'unit' || GROUP === 'all') groupUnit();
   if (GROUP === 'cascade' || GROUP === 'all') await groupCascade();
   if (GROUP === 'hook' || GROUP === 'all') await groupHook();
-  console.log('\n' + passed + ' passed, ' + failed + ' failed');
+  console.log('\n' + passed + ' passed, ' + failed + ' failed, ' + knownOpen + ' known-open');
   process.exit(failed === 0 ? 0 : 1);
 }
 main().catch((e) => { console.error('FAIL: harness error ' + (e && e.stack || e)); process.exit(1); });
