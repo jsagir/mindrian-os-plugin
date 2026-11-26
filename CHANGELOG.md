@@ -1,7 +1,7 @@
 ## [Unreleased] -- v2.0.0-beta.94 (in progress)
 
 ### Added
-- 
+- **The room graph writes itself in Claude Code (Phase 367).** At every turn end and every session start, MindrianOS catches the room's local graph up with the room's files: a file written by a shell command or by a subagent now reaches the graph too, with no reminder and no tool call. The catch-up runs in the background, never blocks the turn, and writes a short status the doctor can read. Desktop and Cowork, and answered cards as decisions, follow in a later beta. <!-- 367-01..06 -->
 
 ### Unchanged
 - **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
