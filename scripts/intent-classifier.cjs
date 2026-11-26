@@ -42,7 +42,11 @@ if (require.main === module) {
 // scripts/resolve-room read), used only when that folder holds .mindrian. An inherited MOS_MINTO_DRAIN_ROOM
 // still wins, as before. The same block caps every room.db wait of this process at HOOK_BUSY_MS, so the
 // classifier answers inside its host budget while room.db is write-locked by another process.
-if (require.main === module) {
+//
+// Phase 400.4 plan 12 (QA-F11 part B base): the block is now mintoDrainFirst(), called at the start of runTurn(), so
+// require() of this file has no side effect and run(input, opts) does the same drain first in-process. The CLI main
+// at the end of the file calls runTurn() when this file is the main module.
+function mintoDrainFirst() {
   try {
     const hookBusyCap = require('../lib/core/hook-busy-cap.cjs');
     hookBusyCap.setHookBusyCap(hookBusyCap.HOOK_BUSY_MS);
@@ -68,6 +72,13 @@ if (require.main === module) {
 }
 
 const fs = require('node:fs');
+const hookIo = require('../lib/core/hook-io.cjs');
+
+// Phase 400.4 plan 12: every stdout write of this file goes through OUT. The default writes the process stream (the CLI).
+// run() swaps in a hook-io sink for the turn and restores the default in a finally block, so run() never writes to the
+// process streams. This file has no stderr write and no console call; a future one must use a sink err, never the process.
+const DEFAULT_OUT = function (text) { process.stdout.write(text); };
+let OUT = DEFAULT_OUT;
 const path = require('node:path');
 const os = require('node:os');
 const crypto = require('node:crypto');
@@ -460,12 +471,15 @@ function extractCwd(raw) {
 // Phase 83 main() reads it again, but readStdinSync of fd 0 returns ''
 // on second call (EOF) -- which is fine because main() also early-
 // exits on empty message. We pass the raw stdin in via module scope.
-const STDIN_RAW = readStdinSync();
-const STDIN_MESSAGE = extractMessage(STDIN_RAW);
+// Phase 400.4 plan 12: the per-turn input is state set by setTurnInput(raw), not a read at module load. The CLI main
+// calls setTurnInput(readStdinSync()); run(input) calls setTurnInput(input). At module load the values are empty, so
+// require() reads no stdin. Phase 91-02 reasoning is unchanged: one parse of the payload per turn, shared by all uses.
+let STDIN_RAW = '';
+let STDIN_MESSAGE = '';
 // reach-sensor-relevance-gap A1: the real Claude session UUID from the hook
 // payload (empty string when absent). resolveSessionId prefers this over the
 // env/hash fallback so the CLI read key matches the MCP room_bind write key.
-const STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
+let STDIN_SESSION_ID = '';
 
 // Phase 360 (D-06): the verdict comes from the ONE shared classifier in
 // lib/hmi/turn-text.cjs (SPEC R4); it judges exactly the same text the
@@ -483,10 +497,20 @@ function harnessVerdict(text) {
     return tt.classifyUserPromptText(text) === 'harness';
   } catch (_e) { return false; }
 }
-const TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
-// Phase 360 (N-1): the hook stdin's cwd, read once at module init (same
-// STDIN_RAW, no second parse of a different shape than extractSessionId's).
-const STDIN_CWD = extractCwd(STDIN_RAW);
+let TURN_IS_HARNESS = false;
+// Phase 360 (N-1): the hook stdin's cwd, set once per turn from the same payload (no second parse of a different
+// shape than extractSessionId's).
+let STDIN_CWD;
+
+function setTurnInput(raw) {
+  STDIN_RAW = typeof raw === 'string' ? raw : '';
+  STDIN_MESSAGE = extractMessage(STDIN_RAW);
+  STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
+  TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
+  STDIN_CWD = extractCwd(STDIN_RAW);
+  // A binding read memoized for an earlier turn must not answer this turn (a long-lived process runs many turns).
+  SESSION_BINDING_CACHE = null;
+}
 
 // WR-03 fix (360-REVIEW.md): the picker-suppression guard below, the zero-score gate,
 // and the F.8 binding gate each independently called session-binding.cjs's
@@ -577,10 +601,10 @@ function emitStrictModeOverride(strictMatch, activeSlug, roomsRoot) {
   };
 
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text.
-    try { process.stdout.write(overrideWarning + '\n'); } catch (_e2) {}
+    try { OUT(overrideWarning + '\n'); } catch (_e2) {}
   }
 
   // Persist a Section-8 decision-trace edge so /mos:explain-decision
@@ -897,10 +921,10 @@ function main() {
     systemMessage: systemMessage
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (preserves pre-retrofit behavior).
-    process.stdout.write(warning + '\n');
+    OUT(warning + '\n');
   }
   return 0;
 }
@@ -1009,7 +1033,7 @@ function injectGraphFindings(injectionStart) {
   for (let i = 0; i < top.length; i++) {
     lines.push((i + 1) + '. ' + formatFinding(top[i].ins));
   }
-  process.stdout.write(lines.join('\n') + '\n');
+  OUT(lines.join('\n') + '\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -3211,10 +3235,10 @@ function emitBindingGate(args) {
     systemMessage: systemMessage,
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (never throws back into the hook).
-    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+    try { OUT(additionalContext + '\n'); } catch (_) {}
   }
   // T-dia-02: stamp the dedicated, never-rotated per-(session, off-scope room)
   // marker so bindingGateAlreadyOffered's suppression survives arbitrarily many
@@ -3486,10 +3510,10 @@ function emitNoMatchGate(args) {
     systemMessage: systemMessage,
   };
   try {
-    process.stdout.write(JSON.stringify(envelope) + '\n');
+    OUT(JSON.stringify(envelope) + '\n');
   } catch (_e) {
     // Last-resort fallback: raw text (never throws back into the hook).
-    try { process.stdout.write(additionalContext + '\n'); } catch (_) {}
+    try { OUT(additionalContext + '\n'); } catch (_) {}
   }
   return true;
 }
@@ -3716,6 +3740,10 @@ module.exports = {
   // Phase 395-05: exported for tests/test-395-carried.cjs.
   sectionForSelector: sectionForSelector,
   NAV_HARD_TIMEOUT_MS: NAV_HARD_TIMEOUT_MS,
+  // Phase 400.4 plan 12: the in-process entry point and its two parts.
+  run: run,
+  setTurnInput: setTurnInput,
+  runTurn: runTurn,
 };
 
 // 369.6-12 (D-16, D-34, R-06): the static per-turn voice and operation line. One line from the one constant
@@ -3727,14 +3755,20 @@ function emitVoiceReminder() {
   try {
     const identity = require(path.join(__dirname, '..', 'lib', 'hmi', 'larry-identity.cjs'));
     if (identity.shouldEmitVoiceReminder(STDIN_MESSAGE, process.env)) {
-      process.stdout.write(identity.REMINDER_LINE + '\n');
+      OUT(identity.REMINDER_LINE + '\n');
     }
   } catch (_) {
     // Fail-silent.
   }
 }
 
-if (require.main === module) {
+// runTurn() -- one turn of the classifier. Returns a Promise of the exit code, resolved after the navigation engine block
+// has settled (bounded by NAV_HARD_TIMEOUT_MS inside emitEngineDecisionBlock). Order: the MINTO drain first, then the
+// classifier, the voice line, the graph findings, and the navigation engine block last. Never calls process.exit.
+async function runTurn() {
+  mintoDrainFirst();
+  // The engine closure below can run after the turn was abandoned; it keeps the writer of THIS turn.
+  const emit = OUT;
 try {
   const injectionStart = Date.now();
   const code = main();
@@ -4100,7 +4134,7 @@ try {
         }
         persistDecisionTrace(roomDir, sessionId, traceEntry);
         if (block && block.length > 0) {
-          try { process.stdout.write(block + '\n'); } catch (_) {}
+          try { emit(block + '\n'); } catch (_) {}
         }
         // Idempotent on a suppressed turn (writes the SAME hash back).
         if (navBlockHashLocal) {
@@ -4113,13 +4147,56 @@ try {
   } catch (_) { /* engine block is fire-and-forget */ }
   // Wait for engine to settle (bounded by NAV_HARD_TIMEOUT_MS) before
   // exiting so the additionalContext write lands before stdout closes.
-  navP.then(function () {
-    process.exit(typeof code === 'number' ? code : 0);
-  }, function () {
-    process.exit(typeof code === 'number' ? code : 0);
-  });
+  await navP.then(function () {}, function () {});
+  return typeof code === 'number' ? code : 0;
 } catch (_) {
   // Fail-silent on any unexpected error. Classifier is advisory.
-  process.exit(0);
+  return 0;
 }
+}
+
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// input is the raw stdin text. opts is {argv, deadlineAt}: deadlineAt (epoch ms) is advisory; when it passes, run resolves
+// with the output written so far. Resolves {code, stdout, stderr}. Never calls process.exit, never reads fd 0, never
+// writes to the process streams, never rejects. Runs are serialized (the turn state is module state).
+let RUN_CHAIN = Promise.resolve();
+function run(input, opts) {
+  const job = RUN_CHAIN.then(function () { return runOnce(input, opts); });
+  RUN_CHAIN = job.then(function () {}, function () {});
+  return job;
+}
+
+async function runOnce(input, opts) {
+  const sink = hookIo.makeSink();
+  const prevOut = OUT;
+  OUT = function (text) { sink.out(text); };
+  let timer = null;
+  try {
+    setTurnInput(input);
+    const deadlineAt = opts && Number.isFinite(opts.deadlineAt) ? opts.deadlineAt : null;
+    let turn = runTurn();
+    if (deadlineAt !== null) {
+      const waitMs = Math.max(0, deadlineAt - Date.now());
+      turn = Promise.race([turn, new Promise(function (resolve) {
+        timer = setTimeout(function () { resolve(0); }, waitMs);
+        if (timer && typeof timer.unref === 'function') timer.unref();
+      })]);
+    }
+    const code = await turn;
+    return sink.take(typeof code === 'number' ? code : 0);
+  } catch (_e) {
+    return sink.take(0);
+  } finally {
+    if (timer) clearTimeout(timer);
+    OUT = prevOut;
+  }
+}
+
+if (require.main === module) {
+  setTurnInput(readStdinSync());
+  runTurn().then(function (code) {
+    process.exit(typeof code === 'number' ? code : 0);
+  }, function () {
+    process.exit(0);
+  });
 }

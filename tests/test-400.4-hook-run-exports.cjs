@@ -197,6 +197,22 @@ function report(o) {
   origExit.call(process, 0);
 }
 process.on('uncaughtException', (e) => { report({ fatal: 'uncaught ' + String(e && e.stack || e), trips, writes }); });
+// X7 spies: record the order of the MINTO drain call and of the first sink write.
+const events = [];
+if (process.env.X7_SPY === '1') {
+  const rootDir = require('node:path').resolve(require('node:path').dirname(scriptPath), '..');
+  const hookIo = require(rootDir + '/lib/core/hook-io.cjs');
+  const origMake = hookIo.makeSink;
+  hookIo.makeSink = function () {
+    const sk = origMake.apply(this, arguments);
+    const o = sk.out;
+    sk.out = function (t) { if (events[events.length - 1] !== 'out') events.push('out'); return o.apply(this, arguments); };
+    return sk;
+  };
+  const minto = require(rootDir + '/scripts/minto-drain-on-prompt.cjs');
+  const origDrain = minto.drainOnPrompt;
+  minto.drainOnPrompt = function (room) { events.push('drain:' + room); return origDrain.apply(this, arguments); };
+}
 (async () => {
   const before = listeners();
   let mod = null;
@@ -212,13 +228,18 @@ process.on('uncaughtException', (e) => { report({ fatal: 'uncaught ' + String(e 
     return report({ reqErr, hasRun: !!(mod && typeof mod.run === 'function'), trips: reqTrips, writes: reqWrites, before, afterRequire, stdin });
   }
   if (reqErr || !mod || typeof mod.run !== 'function') return report({ reqErr, hasRun: false, trips: reqTrips, writes: reqWrites });
+  if (mode === 'run2') {
+    const first = await mod.run(input, { argv: argv });
+    const empty = await mod.run('', { argv: argv });
+    return report({ first, empty, trips, writes });
+  }
   trips.length = 0; writes.length = 0;
   const t0 = Date.now();
   let result = null;
   let err = null;
   try { result = await mod.run(input, { argv: argv, deadlineAt: null }); } catch (e) { err = String(e && e.stack || e); }
   const ms = Date.now() - t0;
-  report({ result, err, trips, writes, ms, hasRun: true, afterRequire, afterRun: listeners() });
+  report({ result, err, trips, writes, ms, hasRun: true, afterRequire, afterRun: listeners(), events, drainEnvAfter: process.env.MOS_MINTO_DRAIN_ROOM === undefined ? null : process.env.MOS_MINTO_DRAIN_ROOM });
 })().catch((e) => report({ fatal: String(e && e.stack || e), trips, writes }));
 `;
 const DRIVER_PATH = path.join(WORK, 'driver.cjs');
@@ -354,8 +375,40 @@ function legs() {
   }
 }
 
+// X7: intent-classifier run() drains the MINTO room first, then classifies.
+function legX7() {
+  const s = SCRIPTS.find((x) => x.id === 'intent-classifier');
+  if (!s) return;
+  const c = CASES.find((x) => x.id === 'E3');
+  // (a) MOS_MINTO_DRAIN_ROOM unset: run() finds the room itself (plan 10).
+  const fxA = freshCopy('room');
+  try {
+    const d = runDriver('run', s, c.input(fxA), [], fxA, { X7_SPY: '1' });
+    const ev = (d && d.events) || [];
+    const drainIdx = ev.findIndex((e) => e.startsWith('drain:'));
+    const outIdx = ev.indexOf('out');
+    check('X7 intent-classifier: run() with no MOS_MINTO_DRAIN_ROOM drains the room it finds, before the first output',
+      !!d && !d.err && drainIdx === 0 && ev[0] === 'drain:' + fxA.roomDir && outIdx > drainIdx, brief({ ev, roomDir: fxA.roomDir, err: d && d.err, fatal: d && d.fatal }));
+  } finally { fxA.cleanup(); }
+  // (b) MOS_MINTO_DRAIN_ROOM set: it wins, and the value is deleted after the read.
+  const fxB = freshCopy('room');
+  try {
+    const d = runDriver('run', s, c.input(fxB), [], fxB, { X7_SPY: '1', MOS_MINTO_DRAIN_ROOM: fxB.roomDir });
+    const ev = (d && d.events) || [];
+    check('X7 intent-classifier: MOS_MINTO_DRAIN_ROOM wins, drains first, and is deleted after the read',
+      !!d && !d.err && ev[0] === 'drain:' + fxB.roomDir && ev.indexOf('out') > 0 && d.drainEnvAfter === null, brief({ ev, env: d && d.drainEnvAfter }));
+  } finally { fxB.cleanup(); }
+  // (c) two runs in one process keep their own turn state (no stale input from the first run).
+  const fxC = freshCopy('room');
+  try {
+    const d = runDriver('run2', s, c.input(fxC), [], fxC, {});
+    check('X7 intent-classifier: an empty run after a full run in the same process prints nothing (no stale input)',
+      !!d && !d.fatal && d.first && d.first.stdout.length > 0 && d.empty && d.empty.stdout === '' && d.empty.code === 0, brief(d));
+  } finally { fxC.cleanup(); }
+}
+
 if (CAPTURE) capture();
-else legs();
+else { legs(); legX7(); }
 
 console.log(failures === 0 ? 'ALL PASS' : 'FAILURES: ' + failures);
 process.exit(failures === 0 ? 0 : 1);
