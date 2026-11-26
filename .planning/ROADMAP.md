@@ -4330,6 +4330,17 @@ Plans:
 - [x] 400.2-17-PLAN.md - owner review list 400.2-OWNER-REVIEW.md with drift test, cost counts for Phase 400.1, phase gates (wave 17)
 - [x] 400.2-18-PLAN.md - recorded advisor run: prepared by an agent, live labels-only call OWNER-GATED, pins after the run; irreversibility re-score OWNER-GATED; not autonomous (wave 18, last)
 
+### Phase 400.2.1: Persona deep-run defects from the first live run (CRITICAL bug fix) (INSERTED)
+
+**Goal:** The first live deep run of /mos:persona (run 20261126-064225-17e6, room riemann-claim-hats, 2026-11-26) works without hand repair. P0: `status` stops counting ICM scaffold files, so room_ok is false on a room with no real artifact; `accept-persona` returns the real file name in persona_files.<hat> that Steps 4 and 6 read. P1: persona domain from the room purpose or brief target, not data-room-state; a relevance floor on door evidence (green pulled black holes and privacy law); a pre-send screen for reader self-searches (names left the machine before the check flagged them); a delegated ruling value for "Larry decides". P2: Kaggle off-site message, Blue per-sub-question coverage, nature-handle guidance, a note on dispatching from outside a git worktree (the worktree path guard blocked all four handle agents). Owner ruling 2026-11-26: "need to put it in gsd as bug fix critical next". Source: .planning/debug/persona-deep-first-live-run-defects.md (kind qa-sweep).
+**Requirements**: TBD
+**Depends on:** Phase 400.2
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.2.1 to break down)
+
 ### Phase 400.1: Efficiency research: verify the 2026-11-24 efficiency findings and close the open checks before phases 401-404 are planned (preloaded skills, deferral on Desktop and Cowork, stdout handling, card-fire false blocks, omitClaudeMd on plugin agents, unscoped tool names, Theo step coverage and payload size, recipe pilot design) (INSERTED)
 
 **Goal:** [Urgent work - to be planned]
