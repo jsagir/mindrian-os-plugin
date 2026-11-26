@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.92 (in progress)
+## [2.0.0-beta.93] - 2026-11-26
 
 ### Added
 - **Six thinking hats that each do their own research (Phase 400.2).** `/mos:persona` has a deep mode. Each of the five reading hats gets a persona built from your room, does its own research and gives its own reading in isolation. Blue then reports what was skipped and what to ask next. You approve every search on a card before it leaves your machine, and you rule on each tension the hats disagree on. A tension you have ruled stays settled in later runs. Quick mode is still available as a fast look in one pass, and it says so. <!-- 400.2 -->
