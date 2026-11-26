@@ -2142,6 +2142,7 @@ const ARTIFACT_LABELS = Object.freeze({
   tension_state: 'state: ',
   tension_id: 'tension id: ',
   settled_on: 'settled on {date}: {ruling}',
+  settled_on_delegated: 'settled on {date}: {ruling} (delegated to Larry)',
   stored_line: 'stored {hat}: ',
   no_tension: 'The tension map found no tension.',
   three_pairs: 'The tension map knows three hat pairs: yellow and black, green and black, red and white. Opposite positions of any other pair are shown in the dissent register only.',
@@ -2334,7 +2335,7 @@ function buildArtifact(record, readings, packs) {
       field('tension_pair', t.pair.join(' and '));
       for (const hat of t.pair) push(posLine(sq.id, hat));
       if (t.state === 'settled' && isPlain(t.stored_lines)) {
-        push(fillLabel('settled_on', { date: String(t.ruled_at).slice(0, 10), ruling: t.ruling }));
+        push(fillLabel(t.delegated === true ? 'settled_on_delegated' : 'settled_on', { date: String(t.ruled_at).slice(0, 10), ruling: t.ruling }));
         for (const hat of t.pair) field('stored_line', typeof t.stored_lines[hat] === 'string' ? t.stored_lines[hat] : '', { hat });
       }
       field('tension_state', t.state);
@@ -2897,14 +2898,18 @@ async function mergeQuickRun(roomResolved, lr, args, deps) {
 // ---------------------------------------------------------------------------
 
 const RULINGS_FILE = 'tension-rulings.json';
-const RULINGS_SCHEMA = 'mos.persona-tension-rulings/1';
+// Phase 400.2.1 (S6): schema 2 adds the optional entry key delegated (always true). The door reads schema 1 and schema 2
+// and writes schema 2. A door of an older plugin version refuses a schema 2 store (rulings_store_invalid): the break is
+// recorded in the phase SUMMARY.
+const RULINGS_SCHEMA = 'mos.persona-tension-rulings/2';
+const RULINGS_SCHEMA_V1 = 'mos.persona-tension-rulings/1';
 const RULING_ANSWER_SCHEMA = 'mos.persona-ruling-answer/1';
 // Phase 400.2.1 (S6): delegated means the navigator hands the ruling to Larry. The entry then holds larry_pick (one of
 // STORED_RULINGS). The store keeps the pick as the ruling and adds delegated: true, so the record shows who decided.
 const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer', 'delegated']);
 const STORED_RULINGS = Object.freeze(['side_a', 'side_b', 'both_hold']);
 const RULING_ANSWER_KEYS = Object.freeze(['schema', 'run_id', 'rulings']);
-const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen', 'larry_pick']);
+const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen', 'larry_pick', 'navigator_confirmed']);
 const STORE_ENTRY_KEYS = Object.freeze(['ruling', 'reason', 'ruled_at', 'run_id', 'sub_question_text', 'pair', 'lines']);
 const MAX_RULINGS_PER_ANSWER = 75;
 const TENSION_ID_RE = /^[0-9a-f]{64}$/;
@@ -2950,11 +2955,14 @@ function readRulingsStore(roomDir) {
   if (!r.ok || !isPlain(r.value)) return { ok: false, reason: 'rulings_store_invalid' };
   const v = r.value;
   const keys = Object.keys(v);
-  if (keys.length !== 2 || !keys.includes('schema') || !keys.includes('rulings') || v.schema !== RULINGS_SCHEMA || !isPlain(v.rulings)) {
+  const known = v.schema === RULINGS_SCHEMA || v.schema === RULINGS_SCHEMA_V1;
+  if (keys.length !== 2 || !keys.includes('schema') || !keys.includes('rulings') || !known || !isPlain(v.rulings)) {
     return { ok: false, reason: 'rulings_store_invalid' };
   }
   for (const id of Object.keys(v.rulings)) {
     if (!TENSION_ID_RE.test(id) || !storeEntryValid(v.rulings[id])) return { ok: false, reason: 'rulings_store_invalid' };
+    // A schema 1 store has no delegated key.
+    if (v.schema === RULINGS_SCHEMA_V1 && Object.prototype.hasOwnProperty.call(v.rulings[id], 'delegated')) return { ok: false, reason: 'rulings_store_invalid' };
   }
   return { ok: true, rulings: v.rulings };
 }
@@ -2990,8 +2998,13 @@ function rulingAnswerRefusal(answer, runId) {
     }
     if (typeof e.tension_id !== 'string' || !TENSION_ID_RE.test(e.tension_id)) return at + '.tension_id';
     if (!RULING_VALUES.includes(e.ruling)) return at + '.ruling';
-    if (e.ruling === 'delegated' && e.reopen !== true && !STORED_RULINGS.includes(e.larry_pick)) return at + '.larry_pick';
+    // Phase 400.2.1 (S6): larry_pick is checked whenever it is present. A delegated ruling needs a valid pick and the
+    // confirmation of the navigator: Larry picks, the navigator confirms, and only then the door stores the ruling.
+    if (e.larry_pick !== undefined && !STORED_RULINGS.includes(e.larry_pick)) return at + '.larry_pick';
+    if (e.ruling === 'delegated' && e.larry_pick === undefined) return at + '.larry_pick';
     if (e.ruling !== 'delegated' && e.larry_pick !== undefined) return at + '.larry_pick';
+    if (e.navigator_confirmed !== undefined && (e.ruling !== 'delegated' || e.navigator_confirmed !== true)) return at + '.navigator_confirmed';
+    if (e.ruling === 'delegated' && e.navigator_confirmed !== true) return 'delegated_not_confirmed';
     if (e.reason !== undefined && (typeof e.reason !== 'string' || e.reason.length > 280)) return at + '.reason';
     if (e.reopen !== undefined && typeof e.reopen !== 'boolean') return at + '.reopen';
     if (seen.has(e.tension_id)) return 'schema_invalid:duplicate_tension';
@@ -3081,6 +3094,8 @@ function cmdRecordRuling(args, deps) {
   const bad = rulingAnswerRefusal(read.value, ledger.run_id);
   if (bad) return { ok: false, reason: bad };
   const answer = read.value;
+  // Phase 400.2.1 (S6): a quick run has no navigator card for a delegated ruling, so it takes none.
+  if (ledger.mode === 'quick' && answer.rulings.some(e => e.ruling === 'delegated')) return { ok: false, reason: 'delegated_not_in_quick_mode' };
 
   const tensions = Array.isArray(ledger.tensions) ? ledger.tensions : [];
   const byId = {};
@@ -3194,7 +3209,7 @@ function cmdRecordRuling(args, deps) {
             run_id: ledger.run_id,
             sub_question_id: t.sub_question,
             pair: t.pair.slice(),
-            dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling,
+            dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling + (r.delegated === true ? ':delegated' : ''),
           }, r.delegated === true ? { delegated: true } : {}), { now: () => now.getTime() });
           if (res && res.ok) logged += 1; else if (!failure) failure = 'event_refused:' + safeKeyName(res && res.reason);
         }

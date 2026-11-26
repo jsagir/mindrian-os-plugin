@@ -21,13 +21,16 @@ function section(head) {
   return text.slice(at, next === -1 ? undefined : next);
 }
 
-check('T1. S9: the capability rule tells the orchestrator to dispatch the hat agents from outside a git worktree', () => {
-  assert.ok(/Worktree note: dispatch the hat agents from a session whose working directory is not inside a git worktree\./.test(text));
+check('T1. S9: the capability rule says, as a condition, to dispatch from a cwd outside any git work tree when a worktree path guard refuses a hat Write', () => {
+  assert.ok(text.includes("Worktree note: if a hat agent's Write is refused by a worktree path guard, dispatch from a cwd outside any git work tree."));
 });
 check('T2. S6: Step 9 offers the delegated ruling in the free-text field and names larry_pick and the delegated flag', () => {
   const s = section('### Step 9');
   assert.ok(s.includes('Or type "Larry decides" to hand this ruling to Larry.'));
   assert.ok(s.includes('"ruling": "delegated"') && s.includes('"larry_pick"'));
+  assert.ok(s.includes('Larry picks, the navigator confirms.'));
+  assert.ok(s.includes('"navigator_confirmed": true'));
+  assert.ok(s.includes('Never write a delegated entry without that yes'));
   assert.ok(s.includes('delegated: true'));
   assert.ok(s.includes('delegated to Larry: yes'));
   for (const a of ['side_a', 'side_b', 'both hold', 'defer']) assert.ok(s.includes(a), a);
