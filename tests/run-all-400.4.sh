@@ -5,7 +5,8 @@
 # A test in the KNOWN table fails at base b0b71ecc5. It counts as KNOWN only when its output still holds the base failing
 # line (needle). A KNOWN test that fails with another line is FAILED. A KNOWN test that passes is PASSED.
 # A test-400.4 file is never KNOWN. Base results: tests/fixtures/400.4/baseline-b0b71ecc5.txt.
-# Tests run with HOME and MINDRIAN_ROOMS_HOME set to fresh temp dirs (never the real rooms).
+# Tests run with HOME and MINDRIAN_ROOMS_HOME set to fresh temp dirs (never the real rooms) and with stdin from /dev/null
+# (a test that reads stdin would hang when the runner starts with an open pipe or socket as stdin).
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
@@ -42,7 +43,7 @@ run_one() {
   local label="$1" key="$2"; shift 2
   local out rc
   echo "--- 400.4: $label ---"
-  out=$(timeout 900 "$@" 2>&1); rc=$?
+  out=$(timeout 900 "$@" 2>&1 </dev/null); rc=$?
   printf '%s\n' "$out"
   if [ "$rc" -eq 0 ]; then
     echo ">>> 400.4: $label: PASSED"; PASSED=$((PASSED + 1))
