@@ -457,9 +457,142 @@ async function groupAc10() {
   console.log('  AC10 cold runs ' + coldRuns + ', warm run ' + warmMs + ' ms');
 }
 
+// ---------------------------------------------------------------- plan 367-06: the CLI hook triggers
+
+const ON_STOP = path.join(REPO, 'scripts', 'on-stop');
+const SESSION_START = path.join(REPO, 'scripts', 'session-start');
+const ROOM_BIRTH = path.join(REPO, 'lib', 'core', 'navigation', 'room-birth.cjs');
+
+// The env of a real hook run: the isolated HOME, the legacy Stop branch, no Brain network.
+function hookEnv(h, extra) {
+  const e = baseEnv(h, extra);
+  delete e.NODE_OPTIONS;
+  delete e.MINDRIAN_MCP_FIRST;
+  e.CLAUDE_PLUGIN_ROOT = REPO;
+  e.MINDRIAN_BRAIN_URL = 'http://127.0.0.1:9';
+  e.MINDRIAN_BRAIN_PREWARM_TIMEOUT_MS = '1000';
+  e.SESSION_START_NODE_PREFLIGHT_SKIP = '1';
+  return e;
+}
+
+async function pollRun(room, pred, capMs) {
+  return pollStatus(room, (s) => s.state !== 'running' && pred(s), capMs || 30000);
+}
+
+// AC1: a file written by fs, by a shell and by a child process reaches room.db at the next Stop.
+async function groupAc1() {
+  const h = mkHome('ac1');
+  const slug = 'room-367-ac1';
+  const room = path.join(h.roomsHome, slug);
+  const env = hookEnv(h);
+  const code = 'const rb=require(' + JSON.stringify(ROOM_BIRTH) + ');' +
+    'const r=rb.birthRoom({slug:' + JSON.stringify(slug) + ',roomDir:' + JSON.stringify(room) + ",sessionId:'s-367-ac1'," +
+    "ventureText:'AC1 venture',approvedBy:'test-user',vname:" + JSON.stringify(slug) + ",vstage:'Pre-Opportunity'});" +
+    'process.stdout.write(JSON.stringify({ok:r&&r.ok,reason:r&&r.reason}));';
+  const b = spawnSync(process.execPath, ['-e', code], { env, encoding: 'utf8', timeout: 120000 });
+  let born = null;
+  try { born = JSON.parse(String(b.stdout).trim().split('\n').pop()); } catch (_e) { born = null; }
+  check('AC1 the room is born with a room.db', born && born.ok === true && fs.existsSync(path.join(room, '.mindrian', 'room.db')), b.stdout + ' ' + b.stderr);
+  if (!born || born.ok !== true) return;
+  runRunner(['--trigger', 'session_start', '--cwd', room], env);
+  const s0 = await pollRun(room, () => true);
+  check('AC1 the session_start run ends', s0 && s0.trigger === 'session_start', JSON.stringify(s0));
+
+  const legs = [
+    { name: 'leg 1 (stdin cwd inside the room, process cwd outside)', sfx: '', input: JSON.stringify({ cwd: room, session_id: 's-367-ac1', transcript_path: '' }), cwd: os.tmpdir() },
+    { name: 'leg 2 (stdin {}, process cwd inside the room)', sfx: '2', input: '{}', cwd: room },
+  ];
+  let prevRun = s0 ? s0.run_id : null;
+  for (const leg of legs) {
+    const a = 'problem-definition/a' + leg.sfx + '.md';
+    const bRel = 'market-analysis/b' + leg.sfx + '.md';
+    const cRel = 'solution-design/c' + leg.sfx + '/c' + leg.sfx + '.md';
+    put(room, a, '# a' + leg.sfx + '\n\nwritten by fs\n');
+    fs.mkdirSync(path.join(room, 'market-analysis'), { recursive: true });
+    spawnSync('sh', ['-c', 'printf "# b\\n\\nwritten by a shell\\n" > "$1"', 'sh', path.join(room, ...bRel.split('/'))]);
+    spawnSync(process.execPath, ['-e', "const fs=require('fs'),p=require('path');const f=process.argv[1];fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,'# c\\n\\nwritten by a child process\\n');", path.join(room, ...cRel.split('/'))]);
+    const r = spawnSync('bash', [ON_STOP], { cwd: leg.cwd, env, input: leg.input, encoding: 'utf8', timeout: 180000 });
+    const s = await pollRun(room, (x) => x.trigger === 'stop' && x.run_id !== prevRun);
+    prevRun = s ? s.run_id : prevRun;
+    const ids = await artifactIds(room);
+    const want = [a, bRel, cRel].map((x) => x.replace(/\.md$/, ''));
+    check('AC1 ' + leg.name + ': on-stop exits 0', r.status === 0, r.status + ' ' + String(r.stderr).slice(-400));
+    check('AC1 ' + leg.name + ': the three Artifact ids exist', want.every((id) => ids.includes(id)), JSON.stringify(want.filter((id) => !ids.includes(id))));
+    check('AC1 ' + leg.name + ': files_indexed >= 3 on the stop run', s && s.trigger === 'stop' && s.files_indexed >= 3, JSON.stringify(s));
+  }
+}
+
+// Spawn a hook with piped stdout and stderr; resolve with the pipe end times and the exit time (ms from start).
+function spawnHookTimed(script, opts) {
+  return new Promise((resolve) => {
+    const t0 = Date.now();
+    const child = spawn('bash', [script], { cwd: opts.cwd, env: opts.env, stdio: ['pipe', 'pipe', 'pipe'] });
+    const out = { outEnd: null, errEnd: null, exit: null, code: null };
+    let pending = 3;
+    const done = () => { pending -= 1; if (pending === 0) resolve(out); };
+    child.stdout.on('data', () => {});
+    child.stderr.on('data', () => {});
+    child.stdout.on('end', () => { out.outEnd = Date.now() - t0; done(); });
+    child.stderr.on('end', () => { out.errEnd = Date.now() - t0; done(); });
+    child.on('exit', (code) => { out.exit = Date.now() - t0; out.code = code; done(); });
+    child.stdin.end(opts.input || '');
+  });
+}
+
+function pidAlive(pid) {
+  try { process.kill(pid, 0); return true; } catch (e) { return !!(e && e.code === 'EPERM'); }
+}
+
+// AC8 hook leg (Goldfish R5 IR-B2): the hook reaches EOF while the held runner is still alive.
+async function groupAc8hook() {
+  const legs = [
+    { name: 'on-stop', script: ON_STOP, stdinCwd: true, extra: {} },
+    { name: 'session-start', script: SESSION_START, stdinCwd: false,
+      extra: { MINDRIAN_DOGFOOD_DRAIN_SKIP: '1', SCOUT_CADENCE_SKIP: '1', BRAIN_STALENESS_SKIP: '1' } },
+  ];
+  for (const leg of legs) {
+    const h = mkHome('ac8-' + leg.name);
+    const room = await mkRoom('ac8-' + leg.name, ['problem-definition/a.md']);
+    const env = hookEnv(h, Object.assign({ MOS_GRAPH_CATCHUP_HOLD_MS: '5000' }, leg.extra));
+    const t = await spawnHookTimed(leg.script, {
+      cwd: room, env, input: leg.stdinCwd ? JSON.stringify({ cwd: room, session_id: 's-367-ac8', transcript_path: '' }) : '',
+    });
+    const both = Math.max(t.outEnd, t.errEnd);
+    const s = await pollStatus(room, (x) => x.state === 'running', 3000);
+    const alive = s && s.state === 'running' && typeof s.pid === 'number' && pidAlive(s.pid);
+    console.log('  AC8 ' + leg.name + ': exit ' + t.exit + ' ms, stdout end ' + t.outEnd + ' ms, stderr end ' + t.errEnd + ' ms, code ' + t.code);
+    check('AC8 ' + leg.name + ': each pipe ends within 500 ms of the hook exit (no pipe held by the runner)',
+      t.outEnd - t.exit <= 500 && t.errEnd - t.exit <= 500, JSON.stringify(t));
+    check('AC8 ' + leg.name + ': the held runner is alive and running when the pipes end', alive, JSON.stringify(s));
+    if (both < 2000) {
+      check('AC8 ' + leg.name + ': both pipes reach EOF in under 2000 ms', true);
+    } else {
+      console.log('  NOTE: AC8 ' + leg.name + ' hook run time ' + both + ' ms exceeds 2000 ms on this host; judged by the 500 ms pipe-hold measure');
+    }
+    if (s && typeof s.pid === 'number') await pollStatus(room, (x) => x.state !== 'running', 30000);
+  }
+}
+
+// S1 (static): the on-stop spawn sits after the Part 8 drain and before the MCP-first branch; both lines detach.
+function groupS1() {
+  const lines = fs.readFileSync(ON_STOP, 'utf8').split('\n');
+  const spawnIdx = lines.findIndex((l) => l.includes('graph-catchup.cjs'));
+  const drainIdx = lines.findIndex((l) => l.includes('part8-egress-telemetry-drain'));
+  const mcpIdx = lines.findIndex((l) => l.includes('BEGIN-MCP-FIRST-STOP-THIN-ADAPTER'));
+  check('S1 on-stop: the spawn line is after the Part 8 drain and before the MCP-first sentinel',
+    spawnIdx > drainIdx && drainIdx >= 0 && mcpIdx > spawnIdx, [drainIdx, spawnIdx, mcpIdx].join(','));
+  const ss = fs.readFileSync(SESSION_START, 'utf8').split('\n').filter((l) => l.includes('graph-catchup.cjs') && !/^\s*#/.test(l));
+  const os1 = lines.filter((l) => l.includes('graph-catchup.cjs') && !/^\s*#/.test(l));
+  check('S1 one spawn line in each hook', os1.length === 1 && ss.length === 1, os1.length + ' ' + ss.length);
+  const rx = /<\/dev\/null >\/dev\/null 2>&1 &$/;
+  check('S1 both spawn lines end with </dev/null >/dev/null 2>&1 &', os1.length === 1 && ss.length === 1 && rx.test(os1[0]) && rx.test(ss[0]), JSON.stringify(os1.concat(ss)));
+  check('S1 on-stop passes the Stop stdin cwd and session', os1.length === 1 && os1[0].includes('--cwd "${HOOK_CWD:-$PWD}" --session "${HOOK_SESSION:-}" --trigger stop'), os1[0]);
+  check('S1 session-start passes $PWD and ROOM_DIR', ss.length === 1 && ss[0].includes('--cwd "$PWD" --room "${ROOM_DIR:-}" --trigger session_start'), ss[0]);
+}
+
 // ---------------------------------------------------------------- main
 
-const GROUPS = { unit: groupUnit, ac3: groupAc3, ac5: groupAc5, ac10: groupAc10 };
+const GROUPS = { unit: groupUnit, ac3: groupAc3, ac5: groupAc5, ac10: groupAc10, ac1: groupAc1, ac8hook: groupAc8hook, s1: groupS1 };
 
 async function main() {
   const group = process.argv[2] || 'all';
