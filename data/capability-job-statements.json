@@ -1,0 +1,75 @@
+{
+  "schema": "mos.capability-job-statements/1",
+  "_note": "Nine ruled statements of /mos:persona, owner ruling 2026-11-25. They are equals: no main statement, and the list order has no rank meaning. The frontmatter slots of commands/persona.md (job_when, job_want, job_so) hold the validate-idea statement as a technical placeholder only; it is not ranked above the others. Hyphens only.",
+  "ruled_at": "2026-11-25",
+  "capabilities": [
+    {
+      "surface": "/mos:persona",
+      "jobs": [
+        {
+          "job_id": "validate-idea",
+          "when": "I am about to build on a claim that only I have examined",
+          "want": "to have it checked from several independent sides with fresh evidence",
+          "so": "find where it breaks before it costs me",
+          "status": "ruled"
+        },
+        {
+          "job_id": "explore",
+          "when": "I research a question and keep finding what I already expected",
+          "want": "to send separate lines of inquiry at it from opposing stances",
+          "so": "see evidence I would never have searched for",
+          "status": "ruled"
+        },
+        {
+          "job_id": "decide-pursue",
+          "when": "I must commit to an opportunity or drop it and feeling and fact are tangled",
+          "want": "to pull apart the facts, the upside, the risks and my gut reaction",
+          "so": "see which one is driving me",
+          "status": "ruled"
+        },
+        {
+          "job_id": "surface-contradiction",
+          "when": "everything in my room seems to agree",
+          "want": "to have it read by perspectives that did not write it",
+          "so": "find the tensions I have stopped noticing",
+          "status": "ruled"
+        },
+        {
+          "job_id": "compare-options",
+          "when": "each option in front of me has someone arguing for it",
+          "want": "to judge every option on the same sides",
+          "so": "compare them without the loudest voice winning",
+          "status": "ruled"
+        },
+        {
+          "job_id": "prepare-pitch",
+          "when": "I am about to face an investor, a partner or a customer",
+          "want": "to hear the hardest questions from each kind of listener before they ask them",
+          "so": "answer in the room and not afterwards",
+          "status": "ruled"
+        },
+        {
+          "job_id": "find-problem",
+          "when": "my hypothesis is still fuzzy and I am about to put numbers on it",
+          "want": "to look at it from each side in turn",
+          "so": "sharpen it into a hypothesis worth the analysis",
+          "status": "ruled"
+        },
+        {
+          "job_id": "navigate",
+          "when": "my team argues in circles because each person defends a position",
+          "want": "to make everyone look at one side at a time",
+          "so": "move the discussion forward",
+          "status": "ruled"
+        },
+        {
+          "job_id": "audit-room",
+          "when": "new evidence arrives that could change my case",
+          "want": "to see how it lands from each side",
+          "so": "update what I believe without overreacting",
+          "status": "ruled"
+        }
+      ]
+    }
+  ]
+}

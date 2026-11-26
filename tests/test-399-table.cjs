@@ -102,9 +102,10 @@ check('B3 header fields and frozen thresholds', () => {
   assert.equal(table.shortlist_k, 3);
 });
 
-check('B4 rows: 13 job-only keys, scope commands only, sorted, calibrated values only', () => {
+check('B4 rows: 20 job-only keys, scope commands only, sorted, calibrated values only', () => {
   const keys = Object.keys(table.rows);
-  assert.equal(keys.length, 13);
+  assert.equal(keys.length, 20);
+  const registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8'));
   const ys = new Set(table.calibration.breakpoints.map((b) => b[1]));
   // A deprecated scope command gives its seat to the command that replaced it (resolveDeprecated).
   const live = require(path.join(ROOT, 'scripts', 'build-decision-advisor-table.cjs')).resolveDeprecated(scope.commands, path.join(ROOT, 'commands'));
@@ -113,7 +114,13 @@ check('B4 rows: 13 job-only keys, scope commands only, sorted, calibrated values
   for (const k of keys) {
     assert.match(k, /^[a-z-]+\|\*\|\*$/);
     const row = table.rows[k];
-    assert.ok(row.length > 0 && row.length <= table.row_depth);
+    assert.ok(row.length > 0);
+    // Phase 400.2: entries below row_depth are free to exist only when they carry the job label in the registry.
+    const job = k.split('|')[0];
+    for (let j = table.row_depth; j < row.length; j += 1) {
+      const rc = registry.commands.find((c) => c.command === row[j].command);
+      assert.ok(rc && Array.isArray(rc.serves_jtbd) && rc.serves_jtbd.includes(job), 'unlabelled entry below row depth: ' + row[j].command);
+    }
     for (let i = 0; i < row.length; i += 1) {
       assert.ok(scopeSet.has(row[i].command), 'out of scope: ' + row[i].command);
       const cf = path.join(ROOT, 'commands', row[i].command.replace(/^\/mos:/, '') + '.md');

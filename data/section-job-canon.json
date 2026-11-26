@@ -104,7 +104,7 @@
       "vocabulary_extension": false,
       "source": "owner-ruling-2026-11-25",
       "one_job": "hold the six thinking-hat lenses built from this room, each able to research its own side, so any research question, artifact or decision can be seen from every hat before the room relies on it.",
-      "one_job_note": "personas/ holds the six De Bono hat lenses that /mos:persona generates, not customer personas. The section has no contract template (it is not a scaffold section), so its One job sentence lives here. Replaces the jev-probe-draft-gloss label understand-market. Hat-scoped research inside /mos:persona is not wired yet (web_scope is null); the wiring is a follow-up phase that reuses the persona-analyst research leg of /mos:bono."
+      "one_job_note": "personas/ holds the six De Bono hat lenses that /mos:persona generates, not customer personas. The section has no contract template (it is not a scaffold section), so its One job sentence lives here. Replaces the jev-probe-draft-gloss label understand-market. Hat-scoped research inside /mos:persona is wired by Phase 400.2: the four researching hats search through approved cards, and web_scope is green."
     }
   }
 }

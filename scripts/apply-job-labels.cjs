@@ -142,6 +142,12 @@ function runCheck() {
     if (!jobs) misses.push('MISSING COMMAND ' + p.command + ' (accepted ' + p.job + ')');
     else if (!jobs.includes(p.job)) misses.push('MISSING ACCEPTED ' + p.job + ' on ' + p.command);
   }
+  const ownerDirect = Array.isArray(rulings.owner_direct) ? rulings.owner_direct : [];
+  for (const p of ownerDirect) {
+    const jobs = byCmd.get(p.command);
+    if (!jobs) misses.push('MISSING COMMAND ' + p.command + ' (owner_direct ' + p.job + ')');
+    else if (!jobs.includes(p.job)) misses.push('MISSING OWNER_DIRECT ' + p.job + ' on ' + p.command);
+  }
   for (const p of rulings.held) {
     const jobs = byCmd.get(p.command) || [];
     if (jobs.includes(p.job)) misses.push('HELD PAIR PRESENT ' + p.job + ' on ' + p.command);
@@ -150,7 +156,7 @@ function runCheck() {
     for (const m of misses) console.error(m);
     process.exit(1);
   }
-  console.log('apply-job-labels --check: ' + rulings.accepted.length + ' accepted present, ' + rulings.held.length + ' held absent');
+  console.log('apply-job-labels --check: ' + rulings.accepted.length + ' accepted present, ' + ownerDirect.length + ' owner_direct present, ' + rulings.held.length + ' held absent');
 }
 
 switch (process.argv[2]) {

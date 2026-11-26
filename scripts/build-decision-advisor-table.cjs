@@ -23,6 +23,10 @@
  *   --check               rebuild in memory and byte-compare (0 equal, 1 drift, 3 recorded input absent)
  *   --print-calibration   print the calibration breakpoints only
  *
+ * Row rule: a row holds the first ROW_DEPTH commands by calibrated value, then every later command that carries the job
+ * label in the registry serves_jtbd, in the same sort order, with its true calibrated value (Phase 400.2, owner ruling
+ * 2026-11-25). An unlabelled command below ROW_DEPTH stays out. No value, band or threshold changes.
+ *
  * Zero network. No model call. Dev-time only.
  */
 
@@ -170,7 +174,9 @@ function buildTable(opts) {
       .filter((pr) => pr.job === job && scopeSet.has(pr.command))
       .map((pr) => ({ command: pr.command, calibrated: applyCalibration(breakpoints, pr.p) }));
     list.sort((a, b) => b.calibrated - a.calibrated || (a.command < b.command ? -1 : 1));
-    rows[job + '|*|*'] = list.slice(0, ROW_DEPTH);
+    // Row rule (Phase 400.2, owner ruling 2026-11-25): the first ROW_DEPTH entries, then every later entry whose
+    // command carries the job label in the registry, in list order, with its true calibrated value.
+    rows[job + '|*|*'] = list.filter((e, i) => i < ROW_DEPTH || (served.has(e.command) && served.get(e.command).has(job)));
   }
 
   return {
@@ -182,6 +188,7 @@ function buildTable(opts) {
       'definition level nor last command. The key order and the fallback order are built for finer rows; they are not live. ' +
       'The values are calibrated by a monotone step function; no raw probability and no accuracy metric is stored. ' +
       'A deprecated scope command is replaced by the command it redirects to, so no row offers a retired name. ' +
+      'A command that carries the job label stays in its row below the row depth, with its true calibrated value (Phase 400.2, owner ruling 2026-11-25). ' +
       'Rebuild: node scripts/build-decision-advisor-table.cjs. Check: node scripts/build-decision-advisor-table.cjs --check.',
     provider: recorded.provider,
     model: recorded.model,

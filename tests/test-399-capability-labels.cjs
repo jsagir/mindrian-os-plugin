@@ -119,12 +119,12 @@ check('F2. fixture header values', () => {
   assert.equal(fixture.model, 'gemini-decision-1');
   assert.equal(fixture.question_type, 'yes_no');
   assert.equal(fixture.question_template, 'serves_job_v1');
-  assert.equal(fixture.recorded_at, '2026-11-24');
+  assert.equal(fixture.recorded_at, '2026-11-25');
   assert.deepEqual(fixture.conditioned_on, { definition_level: null, last_command: null });
 });
 
-check('F3. every pair: keys job, command, p; vocabulary job; /mos: command; p in [0,1] with at most 3 decimals; sorted; 1469 pairs', () => {
-  assert.equal(fixture.pairs.length, 1469);
+check('F3. every pair: keys job, command, p; vocabulary job; /mos: command; p in [0,1] with at most 3 decimals; sorted; 1460 pairs', () => {
+  assert.equal(fixture.pairs.length, 1460);
   let prev = null;
   for (const x of fixture.pairs) {
     assert.deepEqual(Object.keys(x), ['job', 'command', 'p']);

@@ -2308,15 +2308,23 @@
       "body_shape": "C (Room Card)",
       "layer": "graph",
       "serves_jtbd": [
-        "prepare-pitch"
+        "validate-idea",
+        "explore",
+        "decide-pursue",
+        "surface-contradiction",
+        "compare-options",
+        "prepare-pitch",
+        "find-problem",
+        "navigate",
+        "audit-room"
       ],
       "teaching": "When you need fresh perspectives on the room, /mos:persona generates Six-Hats lenses from your room data. Each persona argues from a different stance; you decide what holds.",
-      "jtbd_label": "Prepare Pitch",
-      "jtbd_summary": "Prepare for an investor / partner / customer meeting.",
+      "jtbd_label": "Validate Idea",
+      "jtbd_summary": "Test if an idea / hypothesis / claim holds up under scrutiny.",
       "job_sentence": {
-        "when": "my room needs fresh perspectives I cannot supply alone",
-        "want": "to generate personas from my room data who each argue from a different stance",
-        "so": "decide which of their arguments hold",
+        "when": "I am about to build on a claim that only I have examined",
+        "want": "to have it checked from several independent sides with fresh evidence",
+        "so": "find where it breaks before it costs me",
         "status": "provisional"
       },
       "fits_domains": [
