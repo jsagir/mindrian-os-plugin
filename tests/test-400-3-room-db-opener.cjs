@@ -298,8 +298,105 @@ async function groupDoor() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Group consumers (T1-T3)
+// ---------------------------------------------------------------------------
+async function groupConsumers() {
+  console.log('\n-- group consumers --');
+  // A ready room: the real room birth of tests/helpers/isolated-home-36925.cjs (identity, sentinel and registry
+  // entry inside this test's HOME), then one write-door open, so the room is stamped.
+  const H = require(path.join(__dirname, 'helpers', 'isolated-home-36925.cjs'));
+  function readyIdentityRoom(label) {
+    seq += 1;
+    const b = H.birthFixtureRoom({ iso: { home: HOME, roomsHome: ROOMS_HOME }, slug: 'r4003-' + label + '-' + seq });
+    const room = b.roomDir;
+    closeRoomDb(openRoomDb(room));
+    return room;
+  }
+
+  // T1
+  {
+    const room = readyIdentityRoom('t1');
+    const { runDerivation } = require(path.join(ROOT, 'lib', 'core', 'graph-derivation.cjs'));
+    const before = countOf(room, 'nodes');
+    let h = null;
+    try {
+      h = await startHolder(room);
+      let err = null;
+      let res = null;
+      try {
+        res = runDerivation({
+          roomDir: room,
+          deriveFn: () => [{ edge_type: 'INFORMS', source: 'sec/a', target: 'sec/b', reason: 'stub' }],
+          artifactPairs: [],
+        });
+        if (res && typeof res.then === 'function') res = await res;
+      } catch (e) { err = e; }
+      await stopHolder(h);
+      h = null;
+      const after = countOf(room, 'nodes');
+      check('T1 runDerivation on a ready room under a held foreign write throws RoomDbBusyError and writes no node',
+        err instanceof RoomDbBusyError && after === before, errInfo(err) + ' nodes ' + before + '->' + after + ' res=' + JSON.stringify(res && res.trace));
+    } catch (e) { check('T1 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // T2
+  {
+    const room = readyIdentityRoom('t2');
+    const { runGraphRefine } = require(path.join(ROOT, 'lib', 'core', 'graph-refine-loop.cjs'));
+    const beforeN = countOf(room, 'nodes');
+    const beforeE = countOf(room, 'edges');
+    let h = null;
+    try {
+      h = await startHolder(room);
+      let err = null;
+      let res = null;
+      try {
+        res = runGraphRefine(room, {
+          focusNodeId: 'refine-focus-4003',
+          proposeFn: () => [{ from: 'refine-focus-4003', to: 'other-4003', type: 'INFORMS', reason: 'stub' }],
+          getNeighborhoodFn: () => [],
+          factCheckFn: () => ({ verified: true, reason: 'stub' }),
+          dryRun: false,
+          approve: true,
+        });
+      } catch (e) { err = e; }
+      await stopHolder(h);
+      h = null;
+      const afterN = countOf(room, 'nodes');
+      const afterE = countOf(room, 'edges');
+      check('T2 runGraphRefine on a ready room under a held foreign write throws RoomDbBusyError and writes no node or edge',
+        err instanceof RoomDbBusyError && afterN === beforeN && afterE === beforeE,
+        errInfo(err) + ' nodes ' + beforeN + '->' + afterN + ' edges ' + beforeE + '->' + afterE + ' res=' + JSON.stringify(res));
+    } catch (e) { check('T2 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // T3
+  {
+    const room = readyIdentityRoom('t3');
+    const readiness = require(path.join(ROOT, 'lib', 'core', 'room-readiness.cjs'));
+    let h = null;
+    try {
+      h = await startHolder(room);
+      let r = null;
+      let err = null;
+      try { r = readiness.readinessFor(room, 'governed_write', { roomsHome: ROOMS_HOME }); } catch (e) { err = e; }
+      await stopHolder(h);
+      h = null;
+      const ok = !!r && ((r.state === 'ready' && r.reason === null) || (r.reason === 'room_db_unreadable' && r.cause === 'busy'));
+      const badCause = !!r && ['not_a_database', 'cannot_open', 'io', 'other'].indexOf(r.cause) !== -1;
+      check('T3 readinessFor governed_write under a held foreign write is ready or room_db_unreadable with cause busy, never a broken cause',
+        !err && ok && !badCause, errInfo(err) + ' ' + JSON.stringify(r));
+    } catch (e) { check('T3 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+}
+
 async function main() {
   if (GROUP === 'door' || GROUP === 'all') await groupDoor();
+  if (GROUP === 'consumers' || GROUP === 'all') await groupConsumers();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
