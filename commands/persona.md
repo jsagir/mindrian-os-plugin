@@ -113,6 +113,8 @@ These nine situations are equal. None of them ranks above another.
 
 Deep mode needs two things: the Agent tool (one separate agent run for each hat) and a local shell (the door script `scripts/persona-hats.cjs`). Check both before step 1.
 
+Worktree note: dispatch the hat agents from a session whose working directory is not inside a git worktree. A host hook that guards worktree paths (for example a worktree path guard) refuses a write outside the git root of the session, and the run directories of the hats are outside the room and the repository, so every builder, handle and reader write is blocked. If the session is in a worktree, change to the room directory or to the home directory before Step 3.
+
 When the Agent tool or the shell is missing (Claude Desktop through MCP, or a Cowork session with no shell), do not start deep mode. Say this sentence, word for word, and offer the fast look:
 
 > Deep review needs separate agents and a local shell. It runs in Claude Code. Here I can give the fast look, which is one pass and not an independent review.
@@ -245,7 +247,7 @@ Deep mode only. The door plans a search only from handles that a hat proposed. L
    node "${CLAUDE_PLUGIN_ROOT}/scripts/persona-hats.cjs" plan-research --room "<room dir>" --run "<run_id>"
    ```
 
-   The output holds `hats` (for each hat: `planned`, `not_planned:<reason>`, or `never_searches` for red and blue), `planned` (the list of planned hats), `plan_seq`, `plan` (the plan with the exact strings and providers of each hat) and `refused_shown` (a list of `{hat, text, reason}`: the handles and edits that the door refused). The door refuses a second `plan-research` call that has no `--edited` file.
+   The output holds `hats` (for each hat: `planned`, `not_planned:<reason>`, or `never_searches` for red and blue), `planned` (the list of planned hats), `plan_seq`, `plan` (the plan with the exact strings and providers of each hat) and `refused_shown` (a list of `{hat, text, reason}`, with `lens` for the nature handle of green and `guidance` when the door has a fix sentence for the reason: the handles and edits that the door refused). The door refuses a second `plan-research` call that has no `--edited` file.
 
 3. Print one line from the `hats` field: `Research not run for: `, then each hat whose state starts with `not_planned:` as `<hat> (<reason>)`, in the order white, black, yellow, green, then a full stop. Print nothing when no hat is in that state. The merge repeats this line in its `notice_lines`.
 
@@ -296,7 +298,7 @@ These cards cover the searches that the door sends. Each reading hat may also se
 
    The sentence is the fixed text of the card. It means that the door may send the same approved string again to the same provider up to 2 times for each failed lens run, when that source fails in passing (Tier 1 recovery). It never sends another string and never asks another provider.
 
-   Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, and the reason. These handles or edits were refused by the door and will never be sent.
+   Show the entries of `refused_shown` next to the cards: the hat, the text when it is not null, the reason, and the `guidance` sentence when the entry has one (for example how many words a handle may have). These handles or edits were refused by the door and will never be sent.
 
    The answers for each hat are approve, edit, refuse and defer. Offer three options (approve, edit, refuse); a free-text answer such as "later" is defer. One AskUserQuestion call takes 4 questions or fewer (ASSUMED, a guess), and there are 4 researching hats at most.
 

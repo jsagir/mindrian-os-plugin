@@ -1604,6 +1604,26 @@ function cmdPlanResearch(args, deps) {
   return planFirst(roomResolved, lr, map, deps);
 }
 
+// Phase 400.2.1 (S10): one fixed sentence that says how to fix a refused handle, by reason (and by lens for the nature
+// handle of Green). A reason with no entry gets no guidance key. The sentences hold no handle text.
+const REFUSAL_GUIDANCE = Object.freeze({
+  handle_not_generic_shape: 'A handle is 1 to 4 lower-case words, with letters and spaces only; the door adds the qualifier of the hat. Shorten it, then edit the string on the card or run the handles step again.',
+  handle_has_digit: 'A handle holds no digit. Write the number as a general word, or leave it out.',
+  room_identity_word: 'A handle holds no name or word of the room (the venture, a team file, or a proper noun of the reading list). Use the general word of the field instead.',
+  egress_violation: 'The text did not pass the egress check of the door. Remove every name, address, number or other room detail.',
+});
+const NATURE_GUIDANCE = Object.freeze({
+  handle_not_generic_shape: 'A nature handle is 1 to 6 lower-case words, with letters and spaces only and no qualifier, for example "organisms that recover metals". Shorten it; until then Green has no AskNature search in this run.',
+});
+
+/** Add the guidance sentence of a refusal to a refused_shown entry. @returns {Object} the entry */
+function withGuidance(entry) {
+  const table = entry && entry.lens === NATURE_LENS ? Object.assign({}, REFUSAL_GUIDANCE, NATURE_GUIDANCE) : REFUSAL_GUIDANCE;
+  const g = entry && typeof entry.reason === 'string' && Object.prototype.hasOwnProperty.call(table, entry.reason) ? table[entry.reason] : null;
+  if (g) entry.guidance = g;
+  return entry;
+}
+
 function planFirst(roomResolved, lr, map, deps) {
   const ledger = lr.ledger;
   const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
@@ -1652,7 +1672,7 @@ function planFirst(roomResolved, lr, map, deps) {
       const s = c.ok ? composeString(hat, c.handle) : c;
       if (!s.ok) {
         rec.refused.push({ reason: s.reason });
-        refusedShown.push({ hat, text: typeof raw === 'string' ? raw.slice(0, SHOWN_TEXT_MAX) : null, reason: s.reason });
+        refusedShown.push(withGuidance({ hat, text: typeof raw === 'string' ? raw.slice(0, SHOWN_TEXT_MAX) : null, reason: s.reason }));
         refusedCount += 1;
         continue;
       }
@@ -1686,7 +1706,7 @@ function planFirst(roomResolved, lr, map, deps) {
         const s = c.ok ? composeNatureString(c.handle) : c;
         if (!s.ok) {
           rec.nature = { state: 'not_planned:' + s.reason };
-          refusedShown.push({ hat, lens: NATURE_LENS, text: natureRaw.slice(0, SHOWN_TEXT_MAX), reason: s.reason });
+          refusedShown.push(withGuidance({ hat, lens: NATURE_LENS, text: natureRaw.slice(0, SHOWN_TEXT_MAX), reason: s.reason }));
           refusedCount += 1;
         } else {
           rec.nature = { state: 'planned', lens: NATURE_LENS, text: s.text, q_hash: s.q_hash, handle: s.handle };
@@ -1810,7 +1830,7 @@ function planEdit(roomResolved, lr, map, args, deps) {
   const refusedShown = [];
   const accepted = [];
   for (const edit of er.value.edits) {
-    const refuse = (reason) => refusedShown.push({ hat: edit.hat.slice(0, 20), text: edit.text.slice(0, SHOWN_TEXT_MAX), reason });
+    const refuse = (reason) => refusedShown.push(withGuidance({ hat: edit.hat.slice(0, 20), text: edit.text.slice(0, SHOWN_TEXT_MAX), reason }));
     if (!RESEARCH_HATS.includes(edit.hat)) { refuse('hat_never_searches'); continue; }
     const rec = plan.hats[edit.hat];
     const at = isPlain(rec) && rec.state === 'planned' && Array.isArray(rec.strings) ? rec.strings.findIndex(s => s.q_hash === edit.q_hash_replaced) : -1;
@@ -4425,6 +4445,8 @@ module.exports = {
   HOST_WEB_PROVIDER,
   stringState,
   hatResearchState,
+  REFUSAL_GUIDANCE,
+  NATURE_GUIDANCE,
   handleTermsOf,
   meetsRelevanceFloor,
   offSiteLine,
