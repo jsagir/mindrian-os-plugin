@@ -62,7 +62,7 @@ Commands:
   visualize graph [roomDir]      Generate knowledge graph Mermaid diagram
   visualize chain [roomDir]      Generate methodology chain Mermaid diagram
   visualize mermaid [roomDir] [type]  Output raw Mermaid syntax to stdout
-  cascade [roomDir] [filePath]       Run intelligence cascade on a filed artifact
+  cascade [roomDir] [filePath] [--index-only]  Run intelligence cascade on a filed artifact (--index-only: graph-index only)
   bank-opportunity [roomDir] <json>   Bank an opportunity from conversation (room or scratchpad)
   record-decision --room DIR --key KEY --decision approve|reject|defer [--reason "..."] [--source-artifact ID] [--target-artifact ID]
                                      Record user decision on a proactive intelligence finding
@@ -574,13 +574,21 @@ async function main() {
     }
 
     case 'cascade': {
+      // Phase 400.3 plan 02 (revision W1): --index-only (set only by the
+      // post-write .room-root fallback) narrows the cascade to graph-index.
+      // Spliced out before the positional arguments are read (the --raw idiom).
+      const indexOnlyAt = argv.indexOf('--index-only');
+      const indexOnly = indexOnlyAt !== -1;
+      if (indexOnly) argv.splice(indexOnlyAt, 1);
       const cascadeRoomDir = argv[1] || './room';
       const cascadeFilePath = argv[2] || null;
       const cascade = require('../lib/core/intelligence-cascade.cjs');
-      const cascadeResult = await cascade.runCascade(cascadeRoomDir, {
+      const cascadeOpts = {
         trigger: 'cli-hook',
         filePath: cascadeFilePath
-      });
+      };
+      if (indexOnly) cascadeOpts.indexOnly = true;
+      const cascadeResult = await cascade.runCascade(cascadeRoomDir, cascadeOpts);
       if (raw) {
         process.stdout.write(JSON.stringify(cascadeResult));
       } else {

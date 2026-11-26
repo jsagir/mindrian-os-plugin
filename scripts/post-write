@@ -28,6 +28,9 @@ detect_room_section() {
   dir=$(dirname "$file_path")
   local hops=0
   while [ "$dir" != "/" ] && [ "$dir" != "." ] && [ "$hops" -lt 12 ]; do
+    # Phase 400.3 plan 02 (review minor design 8): stop at a drive root
+    # (X: or X:/) and at a UNC share root (//host/share).
+    if [[ $dir =~ $DRIVE_ROOT_RE ]] || [[ $dir =~ $UNC_SHARE_ROOT_RE ]]; then break; fi
     if [ -e "$dir/.room-root" ]; then
       # dir is the room root. section = first path component under dir.
       local rel="${file_path#$dir/}"
@@ -40,7 +43,10 @@ detect_room_section() {
       fi
       return 1
     fi
-    dir=$(dirname "$dir")
+    local parent
+    parent=$(dirname "$dir")
+    [ "$parent" = "$dir" ] && break
+    dir="$parent"
     hops=$((hops + 1))
   done
   return 1
@@ -69,6 +75,10 @@ detect_room_section() {
 #    additionalContext prefixes:
 #       ^post-write: cascade complete
 #       ^queued MINTO regen
+#    Phase 400.3 plan 02 (D-07): the 2 index-only advisories
+#    ("post-write: indexed <file> (index only)" and
+#    "post-write: index failed for <file> (index only)") are honest status
+#    lines, not room-proactive triggers.
 # ---------------------------------------------------------------------------
 
 # Emit a Claude Code 2.x compliant PostToolUse advisory envelope.
@@ -88,6 +98,10 @@ emit_post_tool_use_envelope() {
 #   failed   - the output has an error key, or it is not JSON at all
 #   skipped  - the cascade returned skipped true (path outside a room, etc.)
 #   complete - the cascade ran
+#   indexed / index_failed - Phase 400.3 plan 02 (D-07): an index-only run
+#              (mode "index-only") whose graph index did or did not land
+#   pending  - written by the caller before the node call (D-11), never
+#              returned here
 # Prints one word. Never fails.
 cascade_status_of() {
   local out="$1"
@@ -95,9 +109,10 @@ cascade_status_of() {
   word=$(printf '%s' "$out" | jq -r 'if type != "object" then "failed"
     elif has("error") then "failed"
     elif .skipped == true then "skipped"
+    elif .mode == "index-only" then (if ((.graphIndex.status // "") == "ok") then "indexed" else "index_failed" end)
     else "complete" end' 2>/dev/null) || word="failed"
   case "$word" in
-    failed|skipped|complete) printf '%s' "$word" ;;
+    failed|skipped|complete|indexed|index_failed) printf '%s' "$word" ;;
     *) printf 'failed' ;;
   esac
 }
@@ -112,6 +127,9 @@ write_cascade_side_channel() {
   local cascade_output="$4"
   local session_id="$5"
   local cascade_status="${6:-complete}"
+  # Phase 400.3 plan 02 (D-11): optional pending id. Only the pending record
+  # carries the key pending_id; every final record keeps the 8 keys of before.
+  local pending_id="${7:-}"
 
   [ -z "$room_dir" ] && return 0
   [ -z "$cascade_output" ] && return 0
@@ -132,6 +150,7 @@ write_cascade_side_channel() {
     --arg sec "$section" \
     --arg sid "$session_id" \
     --arg st "$cascade_status" \
+    --arg pid "$pending_id" \
     --argjson cascade "$cascade_output" \
     '{
       timestamp: $ts,
@@ -143,7 +162,7 @@ write_cascade_side_channel() {
       git_commit: ($cascade.gitCommit // null),
       graph_index: ($cascade.graphIndex // null),
       proactive_intelligence: ($cascade.proactiveIntelligence // null)
-    }' 2>/dev/null) || return 0
+    } + (if $pid == "" then {} else {pending_id: $pid} end)' 2>/dev/null) || return 0
 
   # Atomic write via mktemp inside SIDE_DIR (same-filesystem invariant) +
   # mv -f. POSIX-portable form: no `-p` flag (BSD/macOS divergence; the
@@ -184,6 +203,36 @@ if [[ -z "$FILE_PATH" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
+# Phase 400.3 plan 02 (D-01, D-03 amended, D-06, D-10, D-11, review B-1 and
+# M-6, revision W1): one walk path for every walk below.
+#
+# A native Windows hook gets a backslash path (C:\Users\u\MindrianRooms\x\a.md
+# or \\host\share\...). bash dirname of such a string is '.', so no walk ever
+# started. WALK_PATH is FILE_PATH with every backslash turned into '/', only
+# for the drive form and the UNC form; a POSIX path never changes. Bash
+# builtins only (D-06: no new child). The Git Bash path converter is not used: its /c/... form
+# reads as a folder on the current drive in native Windows node.
+#
+# Behaviour change on Windows (review minor design 12): stamp, MINTO enqueue
+# and recompile below now also fire for a backslash path.
+#
+# Node stays the only room resolver (review B-1): FILE_PATH goes raw to the
+# cascade, and the final side-channel record goes to the roomDir node reports.
+# The Linux runs prove the walks on Linux path-string proxies only; native
+# Windows is UNMEASURED.
+# ---------------------------------------------------------------------------
+DRIVE_FORM_RE='^[A-Za-z]:\\'
+UNC_FORM_RE='^\\\\'
+DRIVE_ROOT_RE='^[A-Za-z]:/?$'
+UNC_SHARE_ROOT_RE='^//[^/]+/[^/]+/?$'
+WALK_PATH="$FILE_PATH"
+if [[ "$FILE_PATH" == *\\* ]]; then
+  if [[ $FILE_PATH =~ $DRIVE_FORM_RE ]] || [[ $FILE_PATH =~ $UNC_FORM_RE ]]; then
+    WALK_PATH="${FILE_PATH//\\//}"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Phase 88-04: triple-fire on room section writes.
 #
 # Fires BEFORE the existing cascade block so the freshness wires land even
@@ -205,7 +254,7 @@ fi
 # break the hook. The final `exit 0` at the bottom of this script is the
 # soft-fail guarantee.
 # ---------------------------------------------------------------------------
-if ROOM_SECTION_INFO=$(detect_room_section "$FILE_PATH" 2>/dev/null); then
+if ROOM_SECTION_INFO=$(detect_room_section "$WALK_PATH" 2>/dev/null); then
   ROOM_DIR="${ROOM_SECTION_INFO%|*}"
   SECTION="${ROOM_SECTION_INFO##*|}"
   BASENAME=$(basename "$FILE_PATH")
@@ -261,16 +310,36 @@ fi
 PLUGIN_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 room_dir=""
 
-# Walk up from FILE_PATH looking for STATE.md to find room root
+# Walk up from WALK_PATH looking for STATE.md to find room root
 # Runs for ALL file types (binary and markdown) so room_dir is available
-check_dir=$(dirname "$FILE_PATH")
+# Phase 400.3 plan 02: the walk starts from WALK_PATH (same string as
+# FILE_PATH on POSIX), keeps STATE.md as its only marker and no hop cap, and
+# also stops at a drive root, a UNC share root, and when dirname returns the
+# folder itself (review minor design 8).
+check_dir=$(dirname "$WALK_PATH")
 while [ "$check_dir" != "/" ] && [ "$check_dir" != "." ]; do
+  if [[ $check_dir =~ $DRIVE_ROOT_RE ]] || [[ $check_dir =~ $UNC_SHARE_ROOT_RE ]]; then break; fi
   if [ -f "$check_dir/STATE.md" ]; then
     room_dir="$check_dir"
     break
   fi
-  check_dir=$(dirname "$check_dir")
+  next_dir=$(dirname "$check_dir")
+  [ "$next_dir" = "$check_dir" ] && break
+  check_dir="$next_dir"
 done
+
+# Phase 400.3 plan 02 (revision W1, D-10): the .room-root fallback. A new
+# shell room (lib/core/room-auto-create.cjs) holds .room-root and room.db
+# before it holds STATE.md, so the walk above finds nothing. Only then, and
+# only when detect_room_section found a room folder that already holds
+# .mindrian/room.db, the room is indexed with graph-index only. No third walk
+# (review M-6): ROOM_DIR comes from detect_room_section above. No hook creates
+# room.db (D-10). A STATE.md room keeps the same node command line as before.
+CASCADE_INDEX_ONLY=""
+if [ -z "$room_dir" ] && [ -n "${ROOM_DIR:-}" ] && [ -f "${ROOM_DIR}/.mindrian/room.db" ]; then
+  room_dir="$ROOM_DIR"
+  CASCADE_INDEX_ONLY=1
+fi
 
 # -- Delegate intelligence cascade to shared module (works on all surfaces) --
 # The shared module (lib/core/intelligence-cascade.cjs) handles:
@@ -278,8 +347,19 @@ done
 #   - Markdown cascade: classify-insight, graph-index, HSI, reverse salients, hsi-to-graph, presentation
 # This keeps CLI hooks and MCP tools using identical intelligence logic.
 if [ -n "$room_dir" ]; then
+  # Phase 400.3 plan 02 (D-11): a pending record first, so a host kill
+  # during the node call leaves 'pending', never a stale 'indexed'.
+  PENDING_ID="$$-$RANDOM"
+  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" '{}' "$SESSION_ID" pending "$PENDING_ID"
+
   # Run cascade in foreground so we can capture and report status
-  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
+  CASCADE_OUTPUT=$(node "${PLUGIN_ROOT}/scripts/mindrian-tools.cjs" cascade "$room_dir" "$FILE_PATH" --raw ${CASCADE_INDEX_ONLY:+--index-only} 2>/dev/null) || CASCADE_OUTPUT='{"error":"cascade failed"}'
+
+  # Phase 400.3 plan 02 (review B-1): node is the only room resolver. The
+  # final record goes to the roomDir node reports, so the record and the
+  # index are always in the same room.
+  FINAL_ROOM_DIR=$(printf '%s' "$CASCADE_OUTPUT" | jq -r 'if type == "object" then (.roomDir // empty) else empty end' 2>/dev/null) || FINAL_ROOM_DIR=""
+  [ -z "$FINAL_ROOM_DIR" ] && FINAL_ROOM_DIR="$room_dir"
 
   # 88.1-03: systemMessage retrofit. Derive a tight one-line status reporting
   # which section fired the regen/recompile cascade plus the triggering
@@ -295,6 +375,11 @@ if [ -n "$room_dir" ]; then
     SM_TEXT="post-write: cascade skipped for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
   elif [ "$CASCADE_STATUS" = "failed" ]; then
     SM_TEXT="post-write: cascade failed for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
+  elif [ "$CASCADE_STATUS" = "indexed" ]; then
+    # Phase 400.3 plan 02 (D-07): an index-only run never says cascade complete.
+    SM_TEXT="post-write: indexed ${WALK_PATH##*/} (index only)"
+  elif [ "$CASCADE_STATUS" = "index_failed" ]; then
+    SM_TEXT="post-write: index failed for ${WALK_PATH##*/} (index only)"
   elif [ "$SM_SECTION" = "unknown" ]; then
     SM_TEXT="post-write: cascade complete for $(basename "$FILE_PATH" 2>/dev/null || echo file)"
   else
@@ -305,7 +390,15 @@ if [ -n "$room_dir" ]; then
   # The full cascade payload (classification + gitCommit + graphIndex +
   # proactiveIntelligence) goes into <roomDir>/.mindrian/last-cascade.json.
   # Stdout is ONLY the schema-valid envelope advisory.
-  write_cascade_side_channel "$room_dir" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT" "$SESSION_ID" "$CASCADE_STATUS"
+  write_cascade_side_channel "$FINAL_ROOM_DIR" "$FILE_PATH" "${SECTION:-unknown}" "$CASCADE_OUTPUT" "$SESSION_ID" "$CASCADE_STATUS"
+  # Review B-1: when node indexed another room, remove this run's pending
+  # record from room_dir (only when it still holds this run's pending_id).
+  if [ "$FINAL_ROOM_DIR" != "$room_dir" ]; then
+    LEFT_PENDING=$(jq -r '.pending_id // empty' "$room_dir/.mindrian/last-cascade.json" 2>/dev/null) || LEFT_PENDING=""
+    if [ -n "$LEFT_PENDING" ] && [ "$LEFT_PENDING" = "$PENDING_ID" ]; then
+      rm -f "$room_dir/.mindrian/last-cascade.json" 2>/dev/null || true
+    fi
+  fi
   emit_post_tool_use_envelope "$SM_TEXT"
 fi
 
