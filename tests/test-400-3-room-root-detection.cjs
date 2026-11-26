@@ -431,6 +431,8 @@ function groupHook() {
       check('H2 a backslash path: the bash walk finds the room (skipped record) and detect_room_section got WALK_PATH (minto-queue.json)',
         h2.status === 0 && !!side && side.cascade_status === 'skipped' && fs.existsSync(path.join(r2, '.mindrian', 'minto-queue.json')),
         JSON.stringify({ status: h2.status, side, queue: fs.existsSync(path.join(r2, '.mindrian', 'minto-queue.json')) }));
+      // Fix round (coordinator item 1): every advisory names the file by the WALK_PATH basename.
+      check('H2 the skipped advisory names a.md, not the whole backslash string', h2.advisory === 'post-write: cascade skipped for a.md', JSON.stringify(h2.advisory));
     } else skip('H2');
 
     // H3
@@ -471,7 +473,7 @@ function groupHook() {
           || (h5.advisory === 'post-write: index failed for d.md (index only)' && side.cascade_status === 'index_failed'
             && side.graph_index && side.graph_index.reason === 'write_lock_held'));
         check('H5 a held write.lock: the advisory and the side-channel record agree', agree, JSON.stringify({ advisory: h5.advisory, side }));
-        if (h5.ms < 3000) check('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms)', true);
+        if (h5.ms < 3000) check('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms)', h5.ms < 3000 && agree);
         else known('H5 spawn wall time under 3000 ms (measured ' + h5.ms.toFixed(0) + ' ms); fixed by plan 400.3-08');
       } catch (e) { check('H5 fixture', false, e.message); }
       await stopChild(h);
@@ -610,6 +612,64 @@ function groupHook() {
     {
       const h15 = postWrite('\\\\?\\C:\\Users\\u\\MindrianRooms\\x\\sec\\a.md', wincwd, home);
       check('H15 the long-path prefix form: exit 0 and stdout empty (stated skip)', h15.status === 0 && h15.stdout === '', JSON.stringify(h15.stdout));
+    }
+
+    // H16 (fix round item 1, POSIX proxy): a backslash-form write of a section ROOM.md is a system file. It must not
+    // queue a MINTO regen and must not recompile references (BASENAME comes from WALK_PATH).
+    if (POSIX) {
+      const r16 = mkR1(path.join(wincwd, 'C:', 'Users', 'u', 'MindrianRooms', 'r16'), { db: true });
+      const h16 = postWrite('C:\\Users\\u\\MindrianRooms\\r16\\sec\\ROOM.md', wincwd, home);
+      const queue = fs.existsSync(path.join(r16, '.mindrian', 'minto-queue.json'));
+      const stamps = fs.existsSync(path.join(r16, '.mindrian', 'recompile-stamps.json'));
+      check('H16 a backslash ROOM.md write queues no MINTO regen and runs no recompile', h16.status === 0 && !queue && !stamps,
+        JSON.stringify({ status: h16.status, queue, stamps, advisory: h16.advisory }));
+    } else skip('H16');
+
+    // H17 (fix round item 2, D-11): a host kill while the foreground debouncer waits on a held write.lock leaves a
+    // pending record for the new file, never the earlier indexed record.
+    {
+      const rq = mkR1(path.join(MR, 'rq'), { db: true });
+      fs.writeFileSync(path.join(rq, 'sec', 'q1.md'), ARTIFACT);
+      fs.writeFileSync(path.join(rq, 'sec', 'q2.md'), ARTIFACT);
+      const q1 = postWrite(path.join(rq, 'sec', 'q1.md'), rq, home);
+      check('H17 the first Write says indexed', q1.advisory === IDX('q1.md'), JSON.stringify(q1.advisory));
+      let h = null;
+      try {
+        h = await startWriteLockHolder(rq, 20000);
+        const q2 = postWrite(path.join(rq, 'sec', 'q2.md'), rq, home, { timeout: 3000 });
+        const side = readSide(rq);
+        check('H17 a kill during the debouncer wait leaves a pending record for q2, not the earlier indexed record',
+          !!side && side.cascade_status === 'pending' && typeof side.file_path === 'string' && /q2\.md$/.test(side.file_path),
+          JSON.stringify({ signal: q2.signal, ms: Math.round(q2.ms), side }));
+      } catch (e) { check('H17 fixture', false, e.message); }
+      await stopChild(h);
+    }
+
+    // H5b (fix round item 3): a holder that outlives the foreground debouncer and the index wait reaches the
+    // index failed advisory for real.
+    {
+      fs.writeFileSync(path.join(r1, 'sec', 'd2.md'), ARTIFACT);
+      let h = null;
+      try {
+        h = await startWriteLockHolder(r1, 30000);
+        const h5b = postWrite(path.join(r1, 'sec', 'd2.md'), r1, home);
+        const side = readSide(r1);
+        console.log('400.3-02 H5b post-write under a 30 s write.lock holder: ' + h5b.ms.toFixed(0) + ' ms');
+        check('H5b advisory index failed, cascade_status index_failed, reason write_lock_held',
+          h5b.status === 0 && h5b.advisory === 'post-write: index failed for d2.md (index only)' && !!side && side.cascade_status === 'index_failed'
+            && side.graph_index && side.graph_index.reason === 'write_lock_held',
+          JSON.stringify({ advisory: h5b.advisory, side }));
+      } catch (e) { check('H5b fixture', false, e.message); }
+      await stopChild(h);
+    }
+
+    // H18 (fix round item 4): a room folder name with glob characters. detect_room_section strips the room prefix
+    // with a quoted pattern, so the shell-room fallback still finds the section.
+    {
+      const sg = mkR1(path.join(MR, 'shell[x]'), { state: false, roomMd: false, secRoomMd: false, db: true });
+      const h18 = postWrite(path.join(sg, 'sec', 'a.md'), sg, home);
+      check('H18 a shell room named shell[x] is indexed', h18.advisory === IDX('a.md') && artifactRows(sg, 'sec/a') === 1,
+        JSON.stringify({ advisory: h18.advisory, rows: artifactRows(sg, 'sec/a') }));
     }
   })();
 }

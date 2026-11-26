@@ -243,6 +243,10 @@ async function groupPrimitives() {
         [withErrcode(5), 'room_db_busy'],
         [withErrcode(517), 'room_db_busy'],
         [new Error('database is locked'), 'room_db_busy'],
+        // Fix round (coordinator item 5): SQLITE_LOCKED (primary code 6) is a lock, not an unknown failure.
+        [withErrcode(6), 'room_db_busy'],
+        [withErrcode(262), 'room_db_busy'],
+        [new Error('database table is locked'), 'room_db_busy'],
         [new Error('no such table: nodes'), 'index_failed'],
         [null, 'index_failed'],
         ['x', 'index_failed'],
@@ -265,6 +269,10 @@ async function groupPrimitives() {
       check('P7 indexArtifact {mustExist:true} on a room with no room.db rejects as room_db_missing and creates no room.db',
         !!err && c(err) === 'room_db_missing' && !fs.existsSync(path.join(room, '.mindrian', 'room.db')),
         err ? c(err) + ' ' + err.message : 'resolved');
+      // Fix round (coordinator item 5): the room.db check runs before the write.lock, so no .mindrian folder is
+      // created (acquireLock would mkdir it) and there is no lock wait.
+      check('P7 indexArtifact {mustExist:true} creates no .mindrian folder (the check runs before the lock)',
+        !fs.existsSync(path.join(room, '.mindrian')));
     }
   }
 
