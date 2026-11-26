@@ -4341,7 +4341,7 @@ Plans:
 8. Eureka graph projection carries a bounded local file excerpt for artifact nodes without text.
 9. Cause-and-effect card options carry one-line descriptions.
 10. A cold-start replay on a copy of a large room passes all of the above.
-11. UserPromptSubmit runs as ONE dispatcher process (six checks in-process, parity with the six separate hooks) that answers inside its 3 s budget while room.db is locked for 10 s; room.db hooks report a typed room_db_busy outcome.
+11. UserPromptSubmit hooks that open room.db finish inside their budget while room.db is locked for 10 s, with a typed room_db_busy outcome (part A); each of the six scripts exports run(input, opts) with a recorded golden (plan 12, the base for Phase 400.5, which owns the transport change).
 12. The statusline cue, the F.1 card and suggest_next name the same next move for the session's own room and goal job, worded with the move's job phrase (QA-F12).
 
 **Plans:** 7/13 plans executed
@@ -4358,9 +4358,10 @@ Plans:
 - [ ] 400.4-08 (wave 3; [QA-F1])
 - [ ] 400.4-09 (wave 4; [QA-F2, QA-F3])
 - [x] 400.4-10 (wave 2; [QA-F11])
-- [ ] 400.4-11 (wave 5; [QA-F1, QA-F2, QA-F3, QA-F4, QA-F5, QA-F6, QA-F7, QA-F8, QA-F9, QA-F10, QA-F11])
+- [ ] 400.4-11 (wave 6; [QA-F1, QA-F2, QA-F3, QA-F4, QA-F5, QA-F6, QA-F7, QA-F8, QA-F9, QA-F10, QA-F11])
 - [ ] 400.4-12 (wave 3; [QA-F11])
-- [ ] 400.4-13 (wave 4; [QA-F11])
+- [ ] 400.4-14 (wave 5; [QA-F12])
+- [-] 400.4-13 moved to Phase 400.5 (superseded)
 
 ### Phase 400.2: Persona, hats and research bundle: persona builds six hat personas from the room, each hat runs its own research through the existing Bono leg and then does its persona work in isolation, with deep and quick modes, one approval card per researching hat, and Larry as the synthesizer (SEED-149, EGM method, part of the next cut) (INSERTED)
 
