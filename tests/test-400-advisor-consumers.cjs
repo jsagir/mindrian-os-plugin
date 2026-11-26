@@ -148,6 +148,9 @@ function composeInput(extra) {
 }
 const order = (m) => (m.primary ? [m.primary.command] : []).concat(m.alternatives.map((a) => a.command));
 const sansAdvisor = (m) => { const o = Object.assign({}, m); delete o.advisor; return JSON.stringify(o); };
+// Phase 400.4 QA-F4: alternatives follow the advisor shortlist, so the advisor-on alternatives differ from the 399 ones.
+// sansAlt drops the alternatives and outcomes_differ; every other key (primary, why, advisor, provenance) is still compared.
+const sansAlt = (m) => { const o = Object.assign({}, m); delete o.alternatives; delete o.outcomes_differ; return JSON.stringify(o); };
 function nest(roomDir) {
   return { section: 'problem-definition', job: { id: NM_JOB }, roomDir, face: { keyed: false }, runs: [], need: { counterevidence: 0, assumptions: 0 } };
 }
@@ -195,9 +198,11 @@ check('X2 advisor on and no stored domain: both consumers equal the 399 modules 
   domainReads = 0;
   withEnv(ON, () => {
     const cur = nestMove(NM, ROOMS.none.nm);
-    assert.equal(JSON.stringify(cur), JSON.stringify(nestMove(NM0, ROOMS.none.nm)));
+    // Phase 400.4 QA-F4: alternatives follow the advisor shortlist (the 399 module offered think-hats from the ledger first).
+    assert.equal(sansAlt(cur), sansAlt(nestMove(NM0, ROOMS.none.nm)));
+    assert.deepEqual(cur.alternatives.map((a) => a.command), cur.advisor.options.map((o) => o.command.replace(/^\/mos:/, '')).filter((n) => n !== cur.primary.command).slice(0, 2));
     assert.ok(cur.advisor, 'the advisor block is present with the advisor on');
-    assert.equal(JSON.stringify(NM.composeNextMove(composeInput())), JSON.stringify(NM0.composeNextMove(composeInput())));
+    assert.equal(sansAlt(NM.composeNextMove(composeInput())), sansAlt(NM0.composeNextMove(composeInput()))); // Phase 400.4 QA-F4: alternatives follow the advisor shortlist.
     assert.deepEqual(order(NM.composeNextMove(composeInput())), ['opportunities', 'beautiful-question', 'bono']);
     const opts = RES.advisorOptsForRoom(ROOMS.none.wf);
     assert.deepStrictEqual(opts, RES0.advisorOptsForRoom(ROOMS.none.wf));
@@ -272,7 +277,7 @@ check('X5 disorder: the order equals X2, and the note is present', () => {
 
     const n = nestMove(NM, ROOMS.disorder.nm);
     const n2 = nestMove(NM0, ROOMS.disorder.nm);
-    assert.equal(sansAdvisor(n), sansAdvisor(n2), 'nest order equals the 399 order');
+    assert.equal(sansAdvisor(Object.assign({}, n, { alternatives: [], outcomes_differ: false })), sansAdvisor(Object.assign({}, n2, { alternatives: [], outcomes_differ: false })), 'nest primary equals the 399 primary'); // Phase 400.4 QA-F4: alternatives follow the advisor shortlist.
     assert.equal(n.advisor.domain_note, CY.host_notes.disorder.text);
 
     const opts = RES.advisorOptsForRoom(ROOMS.disorder.wf);
