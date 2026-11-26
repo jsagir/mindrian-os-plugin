@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 400.4-08-PLAN.md (QA-F1 plain job labels and sentences in goal_job.offers and the goal card; runner PASSED=83 FAILED=0 KNOWN=9; Phase 400.4 plans 09 and 11 to 14 next)
-last_updated: "2026-11-26T13:51:50.142Z"
-last_activity: "2026-11-26 - Completed 400.4-08 (QA-F1 plain job labels and sentences in goal_job.offers and the goal card)"
+stopped_at: Completed 400.4-12-PLAN.md (QA-F11 base: run(input, opts) exports of the six UserPromptSubmit scripts, golden captured before the edits; runner PASSED=84 FAILED=0 KNOWN=9; Phase 400.4 plans 09, 11 and 14 next; plan 13 moved to Phase 400.5)
+last_updated: "2026-11-26T14:10:00.000Z"
+last_activity: "2026-11-26 - Completed 400.4-12 (QA-F11 base: run(input, opts) exports for the six UserPromptSubmit scripts)"
 progress:
   total_phases: 170
   completed_phases: 50
   total_plans: 935
-  completed_plans: 811
+  completed_plans: 812
   percent: 29
 ---
 
@@ -7450,6 +7450,7 @@ Progress: [█████████░] 86%
 | Phase 400.4 P06 | 35min | 2 tasks | 4 files |
 | Phase 400.4 P10 | 2h | 3 tasks | 13 files |
 | Phase 400.4 P04 | 50min | 4 tasks | 8 files |
+| Phase 400.4 P12 | 1h | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -9460,8 +9461,8 @@ Progress: [█████████░] 86%
 **Phase 399 plan 10 (2026-11-24, hand-written):** three commits, a2a2b4bc5 (scripts/bench-decision-routing.cjs, tests/test-399-bench.cjs: top-3 recall, AUC, ECE, Brier, 5 folds by command, a view without the 26 circular D-07 labels, 4 shuffled option orders for Jev and 1 for Gemini, provider mode refuses with egress_line_off), 49a7982a7 (runner runs 5 phase-owned checks) and dda98c8f1 (dash check in the vocabulary test as escapes). Decision: the advisor stays opt-in; the numbers (73.6% per-command top-3 recall excluding the 26 labels, 31.9% random; ECE 0.027) are internal and partly circular. Gates: doctor acceptance 25/25, drift 0 findings, connector OK, shape 55 WARN, 395/36925/3696 failures match base. NEXT: owner README refresh and release-ceremony wiring of the table check.
 
 Last activity: 2026-10-19 - beta.71 cut in progress: Theo command-layer sync applied and verified by the navigator; quicks gct, k22, kl4, ksf landed; Codex's Phase 371 reviewed (371-CLAUDE-RELEASE-REVIEW.md, BLOCK then fixed by ksf); Codex's eureka-adapter wave held in stash@{0} until the cut; SEED-134 (Holonic Focus and Discovery Architecture) planted as critical next with ICM and Neo4j consults and a four-seat council on mindrian-eureka. Earlier: 2026-10-13 - RELEASED v2.0.0-beta.67 (tag at origin, npm latest and next, marketplace synced, website version pushed; post-release doctor --acceptance 24/24 after the eval refresh); placeholder now 2.0.0-beta.68; the cut needed four runs, each stop a real gate: Theo command-layer sync, registry-drift deprecation door (quick 261013-60k), section-command-ledger rebuild, then the post-publish eval refresh
-Last session: 2026-11-26T13:51:50.058Z
-Stopped at: Completed 400.4-08-PLAN.md (QA-F1 plain job labels and sentences in goal_job.offers and the goal card; runner PASSED=83 FAILED=0 KNOWN=9; Phase 400.4 plans 09 and 11 to 14 next)
+Last session: 2026-11-26T14:10:00.000Z
+Stopped at: Completed 400.4-12-PLAN.md (QA-F11 base: run(input, opts) exports of the six UserPromptSubmit scripts, golden captured before the edits; runner PASSED=84 FAILED=0 KNOWN=9; Phase 400.4 plans 09, 11 and 14 next; plan 13 moved to Phase 400.5)
 
 **Quick 261108-asx (2026-11-08, hand-written; no gsd-tools state write used):** Phase 391 has 8 plans, summaries 01 to 06 (391-04 ended at owner cards C1 to C6, PENDING; 391-07 and 391-08 wait for owner tokens). Phase 389 has 14 plans, summaries 01 to 05 (389-02 ended at owner cards D1 to D11, PENDING; 389-06 to 389-13 are gated on owner tokens). Phase 390 has 5 plans, all with summaries (Wave 0 complete; 390-05 ended at group answers G1 to G6, PENDING; no cut executed). Release: v2.0.0-beta.81 is cut (tag 8455416a5 on origin, npm latest); repo is 2.0.0-beta.82 in progress; Phase 383 shipped partial, plan 383-11 (Windows retest) pending the owner; website step skipped on purpose. The frontmatter `stopped_at` above is the newer pointer.
 
