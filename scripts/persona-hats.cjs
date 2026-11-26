@@ -3554,6 +3554,8 @@ function stringState(record) {
   if (withResults.length === 0) return make('ran_empty', null, partial);
   if (r.db_present !== true) return make('fetched_not_wired:no_db', 'no_db', partial);
   if (attempts.length > 0) return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
+  // Phase 400.2.1 (S4): every finding was below the relevance floor, so none was wired.
+  if (Number.isInteger(r.dropped_below_floor) && r.dropped_below_floor > 0) return make('fetched_not_wired:below_relevance_floor', 'below_relevance_floor', partial);
   if (!Number.isInteger(r.findings) || r.findings === 0) return make('fetched_not_wired:filtered', 'filtered', partial);
   return make('fetched_not_wired:wire_failed', 'wire_failed', partial);
 }
@@ -3608,12 +3610,57 @@ function newStringRecord(s, dbPresent) {
   };
 }
 
+// Phase 400.2.1 (S4): the relevance floor of a door finding. The handle words are the words of the approved string minus
+// the hat qualifier, in their order, each with a final s removed. A finding is wired only when its title and summary hold
+// two handle words next to each other in the handle order (for example "black box" for the handle "black box model
+// validation"), or every handle word. A one-word handle needs that word. The floor is lexical and local: it drops a
+// result such as "Hairy Black Holes in a Box" for "black box model validation", and it can also drop a relevant result
+// that uses other words. Each dropped finding is counted and listed in the run output.
+const DROPPED_SHOWN_MAX = 10;
+
+/** One word, with a final s removed, for a plural-tolerant compare. */
+function relevanceStem(w) {
+  return w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w;
+}
+
+/** The handle words of an approved string, in order (see above). Pure. @returns {string[]} */
+function handleTermsOf(hat, text) {
+  const qual = identityTokens(ops.HAT_RESEARCH_QUALIFIER[hat] || '');
+  let words = identityTokens(text);
+  // The qualifier is the last words of a normal string (composeString); the nature string has none.
+  if (qual.length > 0 && words.length > qual.length && words.slice(-qual.length).join(' ') === qual.join(' ')) words = words.slice(0, -qual.length);
+  return words.map(relevanceStem);
+}
+
+/** True when the finding meets the relevance floor. No handle words: no floor. Pure. */
+function meetsRelevanceFloor(terms, finding) {
+  if (!Array.isArray(terms) || terms.length === 0) return true;
+  const f = isPlain(finding) ? finding : {};
+  const words = identityTokens(String(f.title || '') + ' ' + String(f.summary || '')).map(relevanceStem);
+  const have = new Set(words);
+  if (terms.every(t => have.has(t))) return true;
+  const pairs = new Set();
+  for (let i = 0; i + 1 < words.length; i += 1) pairs.add(words[i] + ' ' + words[i + 1]);
+  for (let i = 0; i + 1 < terms.length; i += 1) if (pairs.has(terms[i] + ' ' + terms[i + 1])) return true;
+  return false;
+}
+
 /**
  * One wire call of a finding, with the target fixed to the section of the personas, and the attempt kept on the string
  * record. DESIGN 4.4: a finding informs the section of the personas, never a section named after the search string. The
  * research leg of Bono files each finding under its string; the wrapper fixes the target before the write.
  */
 function wireAndRecord(record, wireFn, dbArg, p) {
+  // Phase 400.2.1 (S4): a finding below the relevance floor is not wired. It is counted and listed, never dropped silently.
+  if (Array.isArray(record.terms) && !meetsRelevanceFloor(record.terms, p && p.finding)) {
+    const f0 = isPlain(p && p.finding) ? p.finding : {};
+    record.dropped_below_floor = (record.dropped_below_floor || 0) + 1;
+    if (!Array.isArray(record.dropped)) record.dropped = [];
+    if (record.dropped.length < DROPPED_SHOWN_MAX) {
+      record.dropped.push({ title: String(typeof f0.title === 'string' ? f0.title : '').slice(0, PACK_TITLE_MAX), url: String(typeof f0.url === 'string' ? f0.url : '').slice(0, PACK_URL_MAX) });
+    }
+    return { ok: false, reason: 'below_relevance_floor' };
+  }
   let res = null;
   const decision = Object.assign({}, isPlain(p && p.decision) ? p.decision : {}, { target_section: PERSONA_TARGET_SECTION, target_kind: 'local' });
   const params = Object.assign({}, p, { decision });
@@ -3645,7 +3692,13 @@ async function fetchHatStrings(hat, rec, strings, roomResolved, db, deps, hostIn
   const extractFn = typeof d.extractContext === 'function' ? d.extractContext : extractor.extractContext;
   const frozen = (Array.isArray(rec.lens_set) ? rec.lens_set : []).map(e => ({ lens: e.lens, weight: e.weight }));
   const records = new Map();
-  for (const s of strings) records.set(s.text, newStringRecord(s, db !== null && db !== undefined));
+  for (const s of strings) {
+    const r = newStringRecord(s, db !== null && db !== undefined);
+    r.terms = handleTermsOf(hat, s.text);
+    r.dropped_below_floor = 0;
+    r.dropped = [];
+    records.set(s.text, r);
+  }
 
   const dispatchCell = async (cell) => {
     const record = records.get(cell.subdomain);
@@ -3978,6 +4031,8 @@ async function cmdRunResearch(args, deps) {
   const reasons = {};
   const stringsOut = {};
   const itemsOut = {};
+  const droppedOut = {};
+  const plainLines = [];
   for (const hat of HATS) {
     if (!RESEARCH_HATS.includes(hat)) { hats[hat] = 'never_searches'; continue; }
     hats[hat] = results[hat].state;
@@ -3993,7 +4048,16 @@ async function cmdRunResearch(args, deps) {
       substitute_calls: f.record.substitute_calls,
       recovery_action: f.record.recovery_action,
       host: f.record.host.map(h => Object.assign({}, h)),
+      dropped_below_floor: Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0,
+      dropped: Array.isArray(f.record.dropped) ? f.record.dropped.map(d => Object.assign({}, d)) : [],
     }, f.nature === true ? { nature: true } : {}));
+    // Phase 400.2.1 (S4): the findings that the relevance floor kept out of the room graph and the pack.
+    droppedOut[hat] = results[hat].fetched.reduce((n, f) => n + (Number.isInteger(f.record.dropped_below_floor) ? f.record.dropped_below_floor : 0), 0);
+    for (const f of results[hat].fetched) {
+      for (const h of f.record.host) {
+        if (h.reason === 'provider_failed:host_off_site') plainLines.push(offSiteLine(hat, h.lens, h.refused));
+      }
+    }
   }
   return {
     ok: true,
@@ -4004,8 +4068,23 @@ async function cmdRunResearch(args, deps) {
     strings: stringsOut,
     nature: natureState,
     evidence_items: itemsOut,
+    dropped_below_floor: droppedOut,
+    plain_lines: plainLines,
     counts: { strings_approved: ledger.research.strings_approved, strings_refused: ledger.research.strings_refused },
   };
+}
+
+/**
+ * Phase 400.2.1 (S7): the plain sentence for a host search whose every result was off the site of its lens. Fixed text;
+ * it holds the hat, the lens, the site and a count, and never a search string or a result.
+ */
+function offSiteLine(hat, lens, refused) {
+  const driver = require(path.join(REPO_ROOT, 'lib', 'lens-engine', 'source-lens-driver.cjs'));
+  const dl = (driver._internal.DOMAIN_LENSES || {})[lens];
+  const site = dl && Array.isArray(dl.domains) && dl.domains.length > 0 ? dl.domains[0] + (dl.pathPrefix || '') : 'the site of the lens';
+  const label = dl ? dl.label : lens;
+  const n = Number.isInteger(refused) ? refused : 0;
+  return 'The ' + label + ' search of ' + hat + ' found no page on ' + site + ': the host web search gave ' + n + ' result' + (n === 1 ? '' : 's') + ' from other sites, and the door refused them. This search counts as not run, not as an empty answer.';
 }
 
 // ---------------------------------------------------------------------------
@@ -4310,6 +4389,9 @@ module.exports = {
   HOST_WEB_PROVIDER,
   stringState,
   hatResearchState,
+  handleTermsOf,
+  meetsRelevanceFloor,
+  offSiteLine,
   handlesNeeded,
   readHandlesStore,
   sealPacks,

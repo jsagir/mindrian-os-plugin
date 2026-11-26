@@ -927,7 +927,7 @@ function makeSeam(perCall) {
     const n = perCall || 2;
     const items = [];
     for (let i = 1; i <= n; i += 1) {
-      items.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About the field, item ' + i + '.' });
+      items.push({ title: 'Title ' + i + ' of ' + args.source, url: 'https://example.org/' + args.source + '/' + i + '/' + fam.qHash(args.query).slice(7, 15), abstract: 'About ' + args.query + ', item ' + i + '.' });
     }
     return okEnv(args.source, items);
   };
