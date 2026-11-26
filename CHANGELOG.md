@@ -3,6 +3,9 @@
 ### Added
 - 
 
+### Unchanged
+- **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
+
 ## [2.0.0-beta.93] - 2026-11-26
 
 ### Added
