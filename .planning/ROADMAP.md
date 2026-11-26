@@ -4303,7 +4303,7 @@ Plans:
 ### Phase 400.4: Cold-start QA fixes from the 2026-11-26 live run: plain job labels and sentences in goal-job offers and the goal card, a set goal job picks a nest, domain note with the advisor off, advisor shortlist drives the alternatives, framework-name aliases, capped cortex context leg, two-way neighbourhood, honest gap scan with isolated-note check, Eureka file excerpts, cause-and-effect card descriptions (INSERTED)
 
 **Goal:** A cold user on a large, unratified room gets a plain-worded job choice, a ranked next move once a job is set, a context pull inside a stated budget, real neighbours, and an honest gap report (QA source: `400.4-QA-SOURCE.md`, findings F1-F10, root causes verified against installed v2.0.0-beta.91).
-**Requirements**: QA-F1 to QA-F11 (see 400.4-QA-SOURCE.md and 400.4-QA-SOURCE-F11-hook-timeouts.md); advisor default-on is OUT of scope (owner ruling 2026-11-24)
+**Requirements**: QA-F1 to QA-F12 (see 400.4-QA-SOURCE.md, 400.4-QA-SOURCE-F11-hook-timeouts.md, CONTEXT ADDENDUM 3); advisor default-on is OUT of scope (owner ruling 2026-11-24)
 **Depends on:** Phase 400
 **Canon parts:** 8 (no new egress; Eureka excerpt stays local), 9 (unratified counts never mixed into ratified lists), 11 (no new surface), 7 (reuse existing data files)
 **Success criteria:**
@@ -4319,6 +4319,7 @@ Plans:
 9. Cause-and-effect card options carry one-line descriptions.
 10. A cold-start replay on a copy of a large room passes all of the above.
 11. UserPromptSubmit runs as ONE dispatcher process (six checks in-process, parity with the six separate hooks) that answers inside its 3 s budget while room.db is locked for 10 s; room.db hooks report a typed room_db_busy outcome.
+12. The statusline cue, the F.1 card and suggest_next name the same next move for the session's own room and goal job, worded with the move's job phrase (QA-F12).
 
 **Plans:** 7/13 plans executed
 
