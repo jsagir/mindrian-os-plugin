@@ -288,7 +288,7 @@ if ROOM_SECTION_INFO=$(detect_room_section "$WALK_PATH" 2>/dev/null); then
   # Fix round item 2 (D-11): the pending record goes in before the foreground
   # debouncer, which can wait about 11-14 s on a held write.lock. Only a room
   # that can reach the cascade (STATE.md or an existing room.db) gets it.
-  if [ -f "$ROOM_DIR/STATE.md" ] || [ -f "$ROOM_DIR/.mindrian/room.db" ]; then
+  if [ -f "$ROOM_DIR/STATE.md" ] || { [ -f "$ROOM_DIR/.mindrian/room.db" ] && [ -s "$ROOM_DIR/.mindrian/room.db" ]; }; then
     write_cascade_side_channel "$ROOM_DIR" "$FILE_PATH" "${SECTION:-unknown}" '{}' "$SESSION_ID" pending "$PENDING_ID"
     EARLY_PENDING_DIR="$ROOM_DIR"
   fi
@@ -370,7 +370,8 @@ done
 # (review M-6): ROOM_DIR comes from detect_room_section above. No hook creates
 # room.db (D-10). A STATE.md room keeps the same node command line as before.
 CASCADE_INDEX_ONLY=""
-if [ -z "$room_dir" ] && [ -n "${ROOM_DIR:-}" ] && [ -f "${ROOM_DIR}/.mindrian/room.db" ]; then
+# plan 400.3-06a: a 0-byte room.db is no room.db, the bash twin of roomDbPresent in lib/core/room-root.cjs.
+if [ -z "$room_dir" ] && [ -n "${ROOM_DIR:-}" ] && { [ -f "${ROOM_DIR}/.mindrian/room.db" ] && [ -s "${ROOM_DIR}/.mindrian/room.db" ]; }; then
   room_dir="$ROOM_DIR"
   CASCADE_INDEX_ONLY=1
 fi

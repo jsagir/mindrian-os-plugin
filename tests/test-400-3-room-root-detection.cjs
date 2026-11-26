@@ -722,6 +722,21 @@ function groupHook() {
       } catch (e) { check('H19 fixture', false, e.message); }
       await stopDbLockHolder(h);
     }
+
+    // H20 (plan 400.3-06a, D-10): a 0-byte room.db is no room.db. A shell room with .room-root, a 0-byte
+    // .mindrian/room.db and no STATE.md: no record, no advisory, and the file stays 0 bytes.
+    {
+      const r20 = mkR1(path.join(MR, 'r20'), { state: false, roomMd: false, secRoomMd: false, db: false });
+      fs.mkdirSync(path.join(r20, '.mindrian'), { recursive: true });
+      fs.writeFileSync(path.join(r20, '.mindrian', 'room.db'), '');
+      const h20 = postWrite(path.join(r20, 'sec', 'a.md'), r20, home);
+      let size = -1;
+      try { size = fs.statSync(path.join(r20, '.mindrian', 'room.db')).size; } catch (_e) { size = -1; }
+      const side = fs.existsSync(path.join(r20, '.mindrian', 'last-cascade.json'));
+      check('H20 a 0-byte room.db: exit 0, stdout empty, room.db stays 0 bytes, no last-cascade.json',
+        h20.status === 0 && h20.stdout === '' && size === 0 && !side,
+        JSON.stringify({ status: h20.status, stdout: h20.stdout, size, side: readSide(r20) }));
+    }
   })();
 }
 

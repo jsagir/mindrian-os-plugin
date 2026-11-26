@@ -263,9 +263,156 @@ async function groupBackfill() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Group presence (E1-E6)
+// ---------------------------------------------------------------------------
+// A room with .room-root, sec/a.md and a 0-byte .mindrian/room.db (no write door ran).
+function mkZeroRoom(parent, name, opts) {
+  const o = opts || {};
+  const room = path.join(parent, name);
+  fs.mkdirSync(path.join(room, 'sec'), { recursive: true });
+  fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+  fs.writeFileSync(path.join(room, '.room-root'), '');
+  if (o.state) fs.writeFileSync(path.join(room, 'STATE.md'), '# State\n');
+  fs.writeFileSync(path.join(room, 'sec', 'a.md'), ARTIFACT);
+  fs.writeFileSync(dbPathOf(room), '');
+  return room;
+}
+function sizeOf(p) { try { return fs.statSync(p).size; } catch (_e) { return -1; } }
+// The tests/test-276-busy-timeout-propagation.cjs bare seed: only the identity table, so the graph schema of
+// openGraph initSchema has real write work to contend over.
+function seedBareIdentityRoom(room) {
+  fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+  const raw = new DatabaseSync(dbPathOf(room), { timeout: 0 });
+  raw.exec('PRAGMA journal_mode = WAL');
+  raw.exec('CREATE TABLE IF NOT EXISTS identity (key TEXT PRIMARY KEY, value TEXT, updated_at TEXT)');
+  raw.close();
+}
+function roomDbFdCount() {
+  let n = 0;
+  for (const fd of fs.readdirSync('/proc/self/fd')) {
+    try { if (fs.readlinkSync('/proc/self/fd/' + fd).endsWith('room.db')) n += 1; } catch (_e) { /* closed in between */ }
+  }
+  return n;
+}
+
+async function groupPresence() {
+  console.log('\n-- group presence --');
+  const root = mkRoot('presence');
+  const roomRoot = require(path.join(ROOT, 'lib', 'core', 'room-root.cjs'));
+  const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+  const present = roomRoot.roomDbPresent;
+
+  // E1
+  if (typeof present !== 'function') {
+    check('E1 roomRoot.roomDbPresent exists', false, typeof present);
+  } else {
+    const none = path.join(root, 'e1-none');
+    fs.mkdirSync(none, { recursive: true });
+    const zero = mkZeroRoom(root, 'e1-zero');
+    const dir = path.join(root, 'e1-dir');
+    fs.mkdirSync(path.join(dir, '.mindrian', 'room.db'), { recursive: true });
+    const real = mkRoom(root, 'e1-real');
+    let threw = false;
+    let odd = [];
+    try { odd = [present(null), present(42), present(''), present(undefined)]; } catch (_e) { threw = true; }
+    check('E1 roomDbPresent: false with no .mindrian, false for 0 bytes, false for a folder, true for a real room.db, never throws',
+      present(none) === false && present(zero) === false && present(dir) === false && present(real) === true
+        && !threw && odd.every((v) => v === false),
+      JSON.stringify({ none: present(none), zero: present(zero), dir: present(dir), real: present(real), threw, odd }));
+  }
+
+  // E2
+  {
+    const room = mkZeroRoom(root, 'e2');
+    let openErr = null;
+    try { const g = await lazygraph.openGraph(room, { mustExist: true }); await lazygraph.closeGraph(g.db); } catch (e) { openErr = e; }
+    let idxErr = null;
+    try { await graphOps.indexArtifact(room, path.join(room, 'sec', 'a.md'), { mustExist: true }); } catch (e) { idxErr = e; }
+    check('E2 a 0-byte room.db: openGraph mustExist rejects ROOM_DB_MISSING, indexArtifact mustExist gives room_db_missing, the file stays 0 bytes, no write.lock',
+      !!openErr && openErr.code === 'ROOM_DB_MISSING' && !!idxErr && graphOps.classifyIndexError(idxErr) === 'room_db_missing'
+        && sizeOf(dbPathOf(room)) === 0 && !fs.existsSync(path.join(room, '.mindrian', 'write.lock')),
+      JSON.stringify({ open: errInfo(openErr), idx: errInfo(idxErr), size: sizeOf(dbPathOf(room)), lock: fs.existsSync(path.join(room, '.mindrian', 'write.lock')) }));
+  }
+
+  // E3
+  {
+    const room = mkZeroRoom(root, 'e3');
+    let err = null;
+    let tables = [];
+    try {
+      const g = await lazygraph.openGraph(room);
+      tables = g.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((r) => r.name);
+      await lazygraph.closeGraph(g.db);
+    } catch (e) { err = e; }
+    check('E3 openGraph with no option on a 0-byte room.db still opens and creates the graph schema',
+      !err && tables.indexOf('nodes') !== -1 && tables.indexOf('edges') !== -1, errInfo(err) + ' ' + JSON.stringify(tables));
+  }
+
+  // E4
+  if (process.platform !== 'linux' || !fs.existsSync('/proc/self/fd')) {
+    skip('E4', 'Linux /proc/self/fd arm');
+  } else {
+    const room = path.join(root, 'e4');
+    fs.mkdirSync(room, { recursive: true });
+    seedBareIdentityRoom(room);
+    let h = null;
+    try {
+      h = await startHolder(room);
+      const before = roomDbFdCount();
+      let rejects = 0;
+      for (let i = 0; i < 5; i++) {
+        try { const g = await lazygraph.openGraph(room, { busyMs: 100 }); await lazygraph.closeGraph(g.db); } catch (_e) { rejects += 1; }
+      }
+      const after = roomDbFdCount();
+      check('E4 5 busy openGraph calls reject and leak no room.db handle (fd before ' + before + ', after ' + after + ')',
+        rejects === 5 && after === before, JSON.stringify({ rejects, before, after }));
+    } catch (e) { check('E4 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // E5
+  {
+    const home = path.join(root, 'home5');
+    fs.mkdirSync(home, { recursive: true });
+    const KEYS = ['HOME', 'USERPROFILE', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_BRAIN_URL', 'CLAUDE_ACTIVE_ROOM', 'CLAUDE_ROOM_DIR'];
+    const SAVED = {};
+    for (const k of KEYS) SAVED[k] = process.env[k];
+    process.env.HOME = home;
+    process.env.USERPROFILE = home;
+    process.env.MINDRIAN_ROOMS_HOME = path.join(home, 'MindrianRooms');
+    process.env.MINDRIAN_BRAIN_URL = 'http://127.0.0.1:9';
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+    delete process.env.CLAUDE_ROOM_DIR;
+    try {
+      const room = mkZeroRoom(path.join(home, 'MindrianRooms'), 'e5', { state: true });
+      const cascade = require(path.join(ROOT, 'lib', 'core', 'intelligence-cascade.cjs'));
+      const res = await cascade.runCascade(room, { trigger: 'cli-hook', filePath: path.join(room, 'sec', 'a.md') });
+      check('E5 runCascade on a .room-root room with a 0-byte room.db: skipped room_db_missing, the file stays 0 bytes',
+        res.skipped === true && res.skipReason === 'room_db_missing' && res.graphIndex && res.graphIndex.status === 'skipped'
+          && res.graphIndex.reason === 'room_db_missing' && sizeOf(dbPathOf(room)) === 0,
+        JSON.stringify({ skipped: res.skipped, skipReason: res.skipReason, graphIndex: res.graphIndex, size: sizeOf(dbPathOf(room)) }));
+    } finally {
+      for (const k of KEYS) { if (SAVED[k] === undefined) delete process.env[k]; else process.env[k] = SAVED[k]; }
+    }
+  }
+
+  // E6
+  {
+    const room = mkZeroRoom(root, 'e6');
+    const sink = [];
+    const db = navigation.openRoomDbForCaller(room, { reasonSink: sink });
+    if (db) { try { require(path.join(ROOT, 'lib', 'core', 'room-db.cjs')).closeRoomDb(db); } catch (_e) { /* tolerant */ } }
+    check('E6 openRoomDbForCaller on a 0-byte room.db: null, reason no_room_db, the file stays 0 bytes',
+      db === null && sink.indexOf('no_room_db') !== -1 && sizeOf(dbPathOf(room)) === 0,
+      JSON.stringify({ db: db === null ? null : 'handle', sink, size: sizeOf(dbPathOf(room)) }));
+  }
+}
+
 async function main() {
   if (GROUP === 'lock' || GROUP === 'all') await groupLock();
   if (GROUP === 'backfill' || GROUP === 'all') await groupBackfill();
+  if (GROUP === 'presence' || GROUP === 'all') await groupPresence();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
