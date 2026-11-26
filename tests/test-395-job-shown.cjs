@@ -93,7 +93,8 @@ async function main() {
   const freeDir = path.join(roomDir, FREE);
   fs.mkdirSync(freeDir);
   fs.writeFileSync(path.join(freeDir, 'ROOM.md'), '---\nstatement: "Notes from the field."\n---\n# Field notes\n', 'utf8');
-  fs.writeFileSync(path.join(freeDir, 'BRAIN.md'), '---\nface: feyminto-theo\nasked: true\nsuggested_commands: "root-cause:runnable:runnable,validate:runnable:runnable,explore-domains:runnable:runnable"\n---\n# Theo face\n', 'utf8');
+  const FREE_FACE = ['root-cause', 'validate', 'explore-domains'];
+  fs.writeFileSync(path.join(freeDir, 'BRAIN.md'), '---\nface: feyminto-theo\nasked: true\nsuggested_commands: "' + FREE_FACE.map((n) => n + ':runnable:runnable').join(',') + '"\n---\n# Theo face\n', 'utf8');
 
   const sensors = require(path.join(ROOT, 'lib', 'mcp', 'tools', 'sensors.cjs'));
   const sFake = fakeServer();
@@ -165,12 +166,20 @@ async function main() {
     assert.ok(!Object.prototype.hasOwnProperty.call(r.next_move, 'how_to_set_job'));
   });
 
+  // B2 derives the offers from the registry labels of the 3 face commands, the way C1 does (RCA
+  // .planning/debug/395-tests-after-beta93.md). It does not pin that GOAL_JOB is in the top 3: the 399-02 label ruling
+  // (e03cff108) added decide-pursue to /mos:validate, and on the id tie break decide-pursue and understand-market now
+  // come before validate-idea. D2 sets GOAL_JOB through the card; it does not need GOAL_JOB to be an offer.
   await check('B2. suggest_next, a nest with no job and candidates: offers and how_to_set_job', async () => {
     const r = await call(suggestNext, { section: FREE });
     assert.strictEqual(r.next_move.job, null);
     assert.strictEqual(r.next_move.job_state, 'job_unknown');
     assert.ok(r.next_move.job_offers.length > 0 && r.next_move.job_offers.length <= 3, JSON.stringify(r.next_move.job_offers));
-    assert.ok(r.next_move.job_offers.some((o) => o.id === GOAL_JOB), 'the offers include ' + GOAL_JOB);
+    const count = new Map();
+    FREE_FACE.forEach((n) => servesOf(n).forEach((j) => { if (j && j !== 'explore') count.set(j, (count.get(j) || 0) + 1); }));
+    const expected = Array.from(count.entries())
+      .sort((a, b) => (b[1] - a[1]) || (a[0] < b[0] ? -1 : 1)).slice(0, 3).map(([id, served]) => ({ id: id, served_by: served }));
+    assert.deepStrictEqual(r.next_move.job_offers, expected, 'the offers are the jobs that the most face commands serve');
     r.next_move.job_offers.forEach((o) => assert.ok(registry.isDeclaredJob(o.id), o.id + ' is in the job vocabulary'));
     assert.strictEqual(typeof r.next_move.how_to_set_job, 'string');
     ['gate_render', '"strategy_goal"', 'rewrite-jtbd', 'gate_answer', 'goal_written'].forEach((w) => {
