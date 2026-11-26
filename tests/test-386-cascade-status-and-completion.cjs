@@ -17,6 +17,8 @@
  *   W4 post-write then detector on a skipped or failed cascade records no completion
  *   W5 the detector run twice on one complete record records 1 completion
  *   W6 a new cascade record with a matching pattern records a new completion (pin)
+ *   W7 Phase 400.3 plan 02b: a 'work-db' room (work layout plus room.db) writes cascade_status indexed,
+ *      the advisory 'post-write: indexed a.md (index only)', and records no completion
  */
 const fs = require('node:fs');
 const os = require('node:os');
@@ -39,6 +41,8 @@ function check(label, cond, detail) {
 
 // layout 'work' = no /room/ or /rooms/ in the path (cascade skips).
 // layout 'rooms' = a real cascade can run.
+// layout 'work-db' = Phase 400.3 plan 02b (D-01, D-07, D-10): the 'work' layout plus room.db. A .room-root room
+// with an existing room.db outside /room/ and /rooms/ is indexed (index only); a room without room.db stays skipped.
 function mkRoom(layout) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 't386-15-'));
   TMPS.push(tmp);
@@ -49,6 +53,7 @@ function mkRoom(layout) {
   const base = layout === 'rooms'
     ? path.join(tmp, 'rooms', 'venture')
     : path.join(tmp, 'work', 'venture');
+  // Phase 400.3 plan 02b: layout 'work-db' uses the 'work' path (see the room.db bootstrap below).
   const secDir = path.join(base, 'market-analysis', 'x');
   fs.mkdirSync(secDir, { recursive: true });
   fs.mkdirSync(path.join(base, '.mindrian'), { recursive: true });
@@ -66,6 +71,10 @@ function mkRoom(layout) {
     current: { jtbd: 'understand-market', confidence: 0.9, entered_at: new Date().toISOString(), evidence: ['t'], expires_at: null },
     history: [],
   }));
+  if (layout === 'work-db') {
+    const { openRoomDb, closeRoomDb } = require(path.join(REPO, 'lib', 'core', 'room-db.cjs'));
+    closeRoomDb(openRoomDb(base));
+  }
   const env = Object.assign({}, process.env, { HOME: home, MINDRIAN_ROOMS_HOME: roomsHome });
   delete env.CLAUDE_ACTIVE_ROOM;
   delete env.CLAUDE_ROOM_DIR;
@@ -186,6 +195,21 @@ function failingNodeEnv(fx) {
   writeRecord(fx, 'complete', '2026-11-06T10:00:05Z');
   runDetector(fx);
   check('W6 a new cascade record is counted as a new completion', completions(fx) === 2, 'count=' + completions(fx));
+}
+
+// W7: Phase 400.3 plan 02b (D-01, D-07, D-10). An index-only run is never a completed cascade.
+{
+  const fx = mkRoom('work-db');
+  const r = runPostWrite(fx);
+  const c = readCascade(fx);
+  check('W7 a work-db room writes cascade_status indexed',
+    r.status === 0 && c && c.cascade_status === 'indexed',
+    'status=' + r.status + ' cascade_status=' + (c && c.cascade_status));
+  check('W7 the advisory is the index-only line and says neither queued nor complete',
+    r.advisory === 'post-write: indexed a.md (index only)' && !/queued/i.test(r.advisory) && !/complete/i.test(r.advisory),
+    'advisory words=' + r.advisory.split(/\s+/).slice(0, 4).join(' '));
+  runDetector(fx);
+  check('W7 an indexed record records no completion', completions(fx) === 0, 'count=' + completions(fx));
 }
 
 process.exit(failed ? 1 : 0);
