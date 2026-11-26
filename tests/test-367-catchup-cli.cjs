@@ -278,14 +278,188 @@ async function groupUnit() {
     check('U7 drain _test re-exports lowerWorkerPriority and armBackstop from bg-worker.cjs', c.stdout === 'true', c.stdout + ' ' + c.stderr);
   }
 
-  // UNIT2_SLOT: Task 2 adds U8-U11.
+  // U8 vanished, unreadable, changed (same size) and colliding files.
+  {
+    const h = mkHome('u8');
+    const room = await mkRoom('u8', ['problem-definition/a.md', 'problem-definition/b.md', 'problem-definition/c.md']);
+    put(room, 'problem-definition/a.html', '<p>a</p>');
+    const canChmod = process.platform !== 'win32' && !(typeof process.getuid === 'function' && process.getuid() === 0);
+    const cAbs = path.join(room, 'problem-definition', 'c.md');
+    if (canChmod) fs.chmodSync(cAbs, 0o000);
+    const pre = path.join(mkTmp('u8-pre'), 'vanish.cjs');
+    fs.writeFileSync(pre, "const ca=require(" + JSON.stringify(CA_PATH) + "),p=require('node:path'),orig=ca.listContentArtifacts;" +
+      "ca.listContentArtifacts=function(room){const r=orig(room);const abs=p.join(room,'problem-definition','zz-gone.md');" +
+      "r.files.push({rel:'problem-definition/zz-gone.md',abs:abs,id:'problem-definition/zz-gone'});return r;};\n");
+    const env = baseEnv(h);
+    runRunner(['--cwd', room, '--trigger', 'stop'], env, ['-r', pre]);
+    const s1 = readStatus(room);
+    check('U8 a file gone since the listing is files_vanished', s1 && s1.files_vanished === 1, JSON.stringify(s1));
+    check('U8 two files with one id give id_collisions 1', s1 && s1.id_collisions === 1, JSON.stringify(s1));
+    if (canChmod) {
+      check('U8 an unreadable file is files_failed', s1 && s1.files_failed === 1 && s1.files_indexed === 2, JSON.stringify(s1));
+      const cache = readJson(cachePath(room));
+      check('U8 the unreadable file is not in the cache', cache && !('problem-definition/c.md' in cache.entries), JSON.stringify(cache && Object.keys(cache.entries)));
+    } else {
+      console.log('SKIP: U8 unreadable arm (win32 or root)');
+    }
+    const bAbs = path.join(room, 'problem-definition', 'b.md');
+    const oldBody = fs.readFileSync(bAbs, 'utf8');
+    const newBody = oldBody.replace('body', 'BODY');
+    fs.writeFileSync(bAbs, newBody);
+    const t = new Date(Date.now() + 5000);
+    fs.utimesSync(bAbs, t, t);
+    runRunner(['--cwd', room, '--trigger', 'stop'], env);
+    const s2 = readStatus(room);
+    const lg = require(LG_PATH);
+    const { db } = await lg.openGraph(room, { mustExist: true });
+    const row = db.prepare("SELECT json_extract(properties,'$.content_hash') AS h FROM nodes WHERE id = 'problem-definition/b'").get();
+    await lg.closeGraph(db);
+    check('U8 a changed file (same size) is re-indexed by its hash', newBody.length === oldBody.length && s2 && s2.files_indexed === 1 && row && row.h === lg.computeHash(newBody),
+      JSON.stringify(s2) + ' ' + JSON.stringify(row));
+    if (canChmod) fs.chmodSync(cAbs, 0o600);
+  }
+
+  // U9 and U10: the lock mapping on the 400.3-01 base, through a preload stub of acquireLockWithBackoff.
+  for (const [label, message, wantState, wantReason] of [
+    ['U9 "after retry"', 'SQLite write lock could not be acquired after retry (roomDir=x)', 'failed', 'lock_io_error'],
+    ['U10 "held by PID"', 'SQLite write lock held by PID 1', 'deferred', 'write_lock_held'],
+  ]) {
+    const h = mkHome('u9');
+    const room = await mkRoom('u9', ['problem-definition/new.md']);
+    const pre = path.join(mkTmp('u9-pre'), 'lock.cjs');
+    fs.writeFileSync(pre, "const wl=require(" + JSON.stringify(path.join(REPO, 'lib', 'core', 'write-lock.cjs')) + ");" +
+      "wl.acquireLockWithBackoff=function(){const e=new Error(" + JSON.stringify(message) + ");e.code='WRITE_LOCK_HELD';throw e;};\n");
+    const r = runRunner(['--cwd', room, '--trigger', 'stop'], baseEnv(h), ['-r', pre]);
+    const s = readStatus(room);
+    check(label + ' ends ' + wantState + ', reason ' + wantReason, r.status === 0 && s && s.state === wantState && s.reason === wantReason, JSON.stringify(s) + ' ' + r.stderr);
+  }
+
+  // U11 room.db gone after the guard: openGraph mustExist ends the room failed and creates no room.db.
+  {
+    const h = mkHome('u11');
+    const room = await mkRoom('u11', ['problem-definition/a.md']);
+    const job = runRunnerAsync(['--cwd', room, '--trigger', 'stop', '--hold-ms', '2000'], baseEnv(h));
+    const running = await pollStatus(room, (s) => s.state === 'running', 30000);
+    for (const sfx of ['', '-wal', '-shm']) {
+      try { fs.unlinkSync(path.join(room, '.mindrian', 'room.db' + sfx)); } catch (_e) { /* absent */ }
+    }
+    await job.done;
+    const s = readStatus(room);
+    check('U11 the run was running when room.db was removed', running && running.state === 'running');
+    check('U11 the room ends failed, reason room_db_missing', s && s.state === 'failed' && s.reason === 'room_db_missing', JSON.stringify(s));
+    check('U11 no room.db exists after the run', !fs.existsSync(path.join(room, '.mindrian', 'room.db')));
+  }
 }
 
-// GROUPS_SLOT: Task 2 adds ac3, ac5 and ac10.
+function sectionFiles(n) {
+  const out = [];
+  for (let i = 0; i < n; i += 1) out.push('problem-definition/f' + String(i).padStart(3, '0') + '.md');
+  return out;
+}
+
+// ---------------------------------------------------------------- group ac3 (AC3)
+
+async function groupAc3() {
+  const h = mkHome('ac3');
+  const room = await mkRoom('ac3', sectionFiles(25));
+  const env = baseEnv(h);
+  const r1 = runRunner(['--cwd', room, '--trigger', 'stop', '--run-seam', '1'], env);
+  const s1 = readStatus(room);
+  const ids1 = await artifactIds(room);
+  check('AC3 --run-seam 1 ends the run after batch 1 (status stays running, 10 nodes)', r1.status === 0 && s1 && s1.state === 'running' && ids1.length === 10,
+    JSON.stringify(s1) + ' ids ' + ids1.length);
+  try { fs.unlinkSync(cachePath(room)); } catch (_e) { /* absent */ }
+  runRunner(['--cwd', room, '--trigger', 'stop'], env);
+  const s2 = await pollStatus(room, (s) => s.state !== 'running', 30000);
+  const ids2 = await artifactIds(room);
+  check('AC3 the next run ends complete', s2 && s2.state === 'complete', JSON.stringify(s2));
+  check('AC3 the Artifact id set equals the listContentArtifacts id set', sameSet(ids2, listingIds(room)),
+    JSON.stringify({ graph: ids2.length, listed: listingIds(room).length }));
+  runRunner(['--cwd', room, '--trigger', 'stop'], env);
+  const s3 = readStatus(room);
+  check('AC3 a second run reports files_indexed 0', s3 && s3.state === 'complete' && s3.files_indexed === 0, JSON.stringify(s3));
+}
+
+// ---------------------------------------------------------------- group ac5 (AC5)
+
+async function groupAc5() {
+  const h = mkHome('ac5');
+  const room = await mkRoom('ac5', ['problem-definition/n1.md', 'problem-definition/n2.md', 'problem-definition/n3.md']);
+  const env = baseEnv(h);
+  const holder = fork(WL_HOLDER, [room, 'hold', '4000'], { stdio: ['ignore', 'ignore', 'ignore', 'ipc'] });
+  const exited = new Promise((resolve) => holder.on('exit', resolve));
+  try {
+    const acquired = await new Promise((resolve) => {
+      const t = setTimeout(() => resolve(null), 10000);
+      holder.on('message', (m) => { if (m && m.acquired) { clearTimeout(t); resolve(m); } });
+    });
+    check('AC5 the holder holds write.lock', acquired && acquired.acquired === true, JSON.stringify(acquired));
+    runRunner(['--cwd', room, '--trigger', 'stop'], env);
+    const s = readStatus(room);
+    const dt = s ? Date.parse(s.last_run_at) - Date.parse(s.started_at) : null;
+    check('AC5 the run ends deferred, reason write_lock_held', s && s.state === 'deferred' && s.reason === 'write_lock_held', JSON.stringify(s));
+    check('AC5 last_run_at - started_at < 2000 ms', dt !== null && dt < 2000, String(dt));
+    const cache = readJson(cachePath(room));
+    check('AC5 the cache cursor is persisted', cache && cache.schema === 1 && 'cursor' in cache, JSON.stringify(cache));
+  } finally {
+    await exited;
+  }
+  runRunner(['--cwd', room, '--trigger', 'stop'], env);
+  const s2 = readStatus(room);
+  const ids = await artifactIds(room);
+  check('AC5 after the holder exits the next run ends complete', s2 && s2.state === 'complete', JSON.stringify(s2));
+  check('AC5 every listed id has an Artifact node', listingIds(room).every((id) => ids.includes(id)), JSON.stringify(ids));
+}
+
+// ---------------------------------------------------------------- group ac10 (AC10)
+
+async function groupAc10() {
+  const h = mkHome('ac10');
+  const room = await mkRoom('ac10', []);
+  let seed = 367;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  for (let s = 0; s < 20; s += 1) {
+    for (let i = 0; i < 100; i += 1) {
+      const size = 200 + Math.floor(rnd() * 1800);
+      const head = '# s' + s + ' f' + i + '\n\n';
+      put(room, 'sec' + String(s).padStart(2, '0') + '/f' + String(i).padStart(3, '0') + '.md', head + 'x'.repeat(Math.max(0, size - head.length)) + '\n');
+    }
+  }
+  check('AC10 the fixture lists 2000 files', listingIds(room).length === 2000, String(listingIds(room).length));
+  const env = baseEnv(h);
+  const trace = path.join(mkTmp('ac10-trace'), 'tx.jsonl');
+  let s = null;
+  let upRuns = 0;
+  for (; upRuns < 10; upRuns += 1) {
+    runRunner(['--cwd', room, '--trigger', 'stop', '--trace-tx', trace], env, [], 120000);
+    s = readStatus(room);
+    if (s && s.state === 'complete') { upRuns += 1; break; }
+  }
+  check('AC10 the graph is brought up to date (complete)', s && s.state === 'complete', JSON.stringify(s) + ' runs ' + upRuns);
+  const txs = fs.existsSync(trace) ? fs.readFileSync(trace, 'utf8').trim().split('\n').map((l) => JSON.parse(l)) : [];
+  const maxTx = txs.reduce((m, t) => Math.max(m, t.tx_ms), 0);
+  check('AC10 the longest BEGIN IMMEDIATE hold of an indexing run is under 500 ms', txs.length > 0 && maxTx < 500, 'max ' + maxTx + ' ms over ' + txs.length + ' batches');
+  console.log('  AC10 up-to-date runs ' + upRuns + ', batches ' + txs.length + ', max tx ' + maxTx + ' ms');
+  try { fs.unlinkSync(cachePath(room)); } catch (_e) { /* absent */ }
+  let cold = null;
+  let coldRuns = 0;
+  for (; coldRuns < 4; coldRuns += 1) {
+    runRunner(['--cwd', room, '--trigger', 'stop'], env, [], 120000);
+    cold = readStatus(room);
+    if (cold && cold.state === 'complete') { coldRuns += 1; break; }
+  }
+  check('AC10 with an empty cache the runner reaches complete with files_indexed 0 within 4 runs',
+    cold && cold.state === 'complete' && cold.files_indexed === 0, JSON.stringify(cold) + ' runs ' + coldRuns);
+  runRunner(['--cwd', room, '--trigger', 'stop'], env, [], 120000);
+  const warm = readStatus(room);
+  const warmMs = warm ? Date.parse(warm.last_run_at) - Date.parse(warm.started_at) : null;
+  check('AC10 one warm run takes under 1000 ms', warm && warm.state === 'complete' && warmMs !== null && warmMs < 1000, String(warmMs));
+  console.log('  AC10 cold runs ' + coldRuns + ', warm run ' + warmMs + ' ms');
+}
 
 // ---------------------------------------------------------------- main
 
-const GROUPS = { unit: groupUnit };
+const GROUPS = { unit: groupUnit, ac3: groupAc3, ac5: groupAc5, ac10: groupAc10 };
 
 async function main() {
   const group = process.argv[2] || 'all';

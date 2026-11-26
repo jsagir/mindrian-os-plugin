@@ -314,7 +314,15 @@ async function _filesLeg(room, ctx, counters) {
     const flush = () => {
       if (batch.length === 0) return { ok: true };
       const lock = takeWriteLock(room);
-      if (!lock.ok) return { ok: false, state: lock.reason === 'write_lock_held' ? 'deferred' : 'failed', reason: lock.reason };
+      if (!lock.ok) {
+        if (lock.reason === 'write_lock_held') {
+          // Deferred: persist the cursor (the last committed point) and the
+          // entries refreshed so far; the next trigger resumes from there.
+          _saveCache(room, cache);
+          return { ok: false, state: 'deferred', reason: lock.reason };
+        }
+        return { ok: false, state: 'failed', reason: lock.reason };
+      }
       let result;
       const t0 = Date.now();
       try {
