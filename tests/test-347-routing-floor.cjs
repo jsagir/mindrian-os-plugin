@@ -35,8 +35,9 @@ function ok(label) {
 }
 
 // ---- Behavior 1: the additive floor. ----
+// Phase 400.4-01: the chain names the exact framework "Lean Canvas"; the slug "lean-canvas" now resolves by normalization and gains resolved_via.
 function test1Floor() {
-  const wf = resolver.composeWorkflow(['lean-canvas', 'Red Teaming']);
+  const wf = resolver.composeWorkflow(['Lean Canvas', 'Red Teaming']);
   assert.strictEqual(wf.length, 2, 'two steps in, two steps out');
   for (const step of wf) {
     const keys = Object.keys(step).sort();
@@ -44,7 +45,7 @@ function test1Floor() {
       'an undeclared step carries exactly the four keys it carries today');
   }
   assert.strictEqual(wf[0].step, 1);
-  assert.strictEqual(wf[0].framework, 'lean-canvas');
+  assert.strictEqual(wf[0].framework, 'Lean Canvas');
   assert.strictEqual(wf[1].step, 2);
   assert.strictEqual(wf[1].framework, 'Red Teaming');
   // No declaration anywhere in the chain -> no routing_warnings property at
@@ -61,7 +62,7 @@ function test1Floor() {
 function test2Shapes() {
   const wf = resolver.composeWorkflow([
     {
-      framework: 'lean-canvas',
+      framework: 'Lean Canvas',
       on_pass: 'step-3',
       on_fail: null,
       fan_out: ['step-a', 'step-b'],
@@ -89,10 +90,10 @@ function test2Shapes() {
 // ---- Behavior 3: a malformed value is dropped, never thrown, and reported. ----
 function test3Malformed() {
   const wf = resolver.composeWorkflow([
-    { framework: 'lean-canvas', fan_out: 'not-an-array', on_pass: 42.5, fan_in: { reducer: 'merge' } },
+    { framework: 'Lean Canvas', fan_out: 'not-an-array', on_pass: 42.5, fan_in: { reducer: 'merge' } },
   ]);
   const step = wf[0];
-  assert.strictEqual(step.framework, 'lean-canvas', 'the step still resolves despite malformed routing');
+  assert.strictEqual(step.framework, 'Lean Canvas', 'the step still resolves despite malformed routing');
   assert.strictEqual(Object.prototype.hasOwnProperty.call(step, 'fan_out'), false, 'a non-array fan_out is dropped');
   assert.strictEqual(Object.prototype.hasOwnProperty.call(step, 'fan_in'), false, 'a fan_in missing `from` is dropped');
   // on_pass: 42.5 is a number, and the validator accepts any number as a
@@ -112,9 +113,9 @@ function test3Malformed() {
 
 // ---- Behavior 4: posture and routing are orthogonal axes. ----
 function test4Orthogonal() {
-  const bare = resolver.composeWorkflow(['lean-canvas']);
+  const bare = resolver.composeWorkflow(['Lean Canvas']);
   const routed = resolver.composeWorkflow([
-    { framework: 'lean-canvas', on_pass: 'step-2', fan_out: ['a', 'b'] },
+    { framework: 'Lean Canvas', on_pass: 'step-2', fan_out: ['a', 'b'] },
   ]);
   const verdictBare = resolver.validateChainAutonomy(bare);
   const verdictRouted = resolver.validateChainAutonomy(routed);

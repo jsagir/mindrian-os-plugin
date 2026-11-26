@@ -78,6 +78,8 @@
       "book_heading": "Question 1: who can see cause and effect?",
       "quote_sha256": "d9eaab5f20dfb319d10bbaca4a6ab86e9952ce0de50af0f3da62469ab9804f2a"
     },
+    "description_status": "approved",
+    "_description_note": "Planner wording, Phase 400.4 QA-F10; approved by the owner 2026-11-26 (card in session jsagi-42).",
     "no_answer": "store_nothing",
     "_no_answer_note": "Closing a dialog with no answer, a reject or a defer stores nothing.",
     "stages": [
@@ -85,18 +87,18 @@
         "stage": 1,
         "header": "Who can see cause and effect here, before you act?",
         "options": [
-          { "id": "ce-anyone", "label": "Everyone can see it", "domain": "clear" },
-          { "id": "ce-trained", "label": "Only trained people can see it", "domain": "complicated" },
-          { "id": "ce-nobody", "label": "Nobody can see it before we act", "domain": null, "next_stage": 2 },
-          { "id": "ce-cannot-tell", "label": "We cannot answer: people give different answers", "domain": "disorder" }
+          { "id": "ce-anyone", "label": "Everyone can see it", "description": "Cause and effect are plain to see, so a known practice tells you what to do.", "domain": "clear" },
+          { "id": "ce-trained", "label": "Only trained people can see it", "description": "Cause and effect can be found, but it takes expert analysis to see them.", "domain": "complicated" },
+          { "id": "ce-nobody", "label": "Nobody can see it before we act", "description": "Cause and effect show only after you act; the next question asks if there is time to test.", "domain": null, "next_stage": 2 },
+          { "id": "ce-cannot-tell", "label": "We cannot answer: people give different answers", "description": "People disagree about what kind of situation this is, so it first needs slicing into parts.", "domain": "disorder" }
         ]
       },
       {
         "stage": 2,
         "header": "Is there time to try small, safe probes first?",
         "options": [
-          { "id": "ce-probe", "label": "Yes: we can try safe probes and watch", "domain": "complex" },
-          { "id": "ce-act", "label": "No: we must act now to make it stable", "domain": "chaotic" }
+          { "id": "ce-probe", "label": "Yes: we can try safe probes and watch", "description": "There is time to run small, safe-to-fail tests and learn from what happens.", "domain": "complex" },
+          { "id": "ce-act", "label": "No: we must act now to make it stable", "description": "There is no time to test: act first to make things stable, then look again.", "domain": "chaotic" }
         ]
       }
     ]

@@ -9,7 +9,7 @@
 // gate rendered a byte-identical payload across materially different turns.
 //
 // This suite is a SUBPROCESS test: the child pipes a distinctive message on stdin (so the
-// module-scope STDIN_MESSAGE is set at load), requires the classifier, and calls the
+// module-scope STDIN_MESSAGE is set by setTurnInput after load), requires the classifier, and calls the
 // exported deriveConversationSeed with a stubbed history. It asserts:
 //   (1) the current turn text is now PRESENT in the seed (the fix), and is the freshest
 //       (tail) line so resolveSeedNode + the sensor text-scan prefer it;
@@ -31,6 +31,8 @@ const CLASSIFIER = path.join(REPO_ROOT, 'scripts', 'intent-classifier.cjs');
 // the exported deriveConversationSeed against a stubbed history. Prints one JSON line.
 const CHILD = `
   const mod = require(${JSON.stringify(CLASSIFIER)});
+  // Phase 400.4 plan 12: require() no longer reads stdin; the turn input is set explicitly (the CLI main does the same).
+  mod.setTurnInput(require('node:fs').readFileSync(0, 'utf8'));
   const HISTORY = { prior: 'we were mapping the v1.14 sprint action items', current: null };
   const navStub = {
     getSessionHistory: function () {

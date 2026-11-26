@@ -42,6 +42,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { checkAdminIdentity } = require('./check-admin-identity.cjs');
+const { HookExit, makeSink, finishCli } = require('../lib/core/hook-io.cjs');
 
 const COMMANDS_DIR = path.join(__dirname, '..', 'commands');
 
@@ -53,18 +54,20 @@ function readStdinSync() {
   }
 }
 
-function allow() { process.exit(0); }
+// Phase 400.4 plan 12: allow() and block() no longer touch the process. They write to the run sink and throw HookExit,
+// which run() catches. The CLI main at the bottom sends the result to the process streams and exits.
+function allow() { throw new HookExit(0); }
 
-// block -- render the 3-line "Command not found" error to stderr and exit 2.
+// block -- render the 3-line "Command not found" error to the sink (stderr) and exit 2.
 // Mirrors the exact prose the command bodies used to render, so the user-facing
 // message is identical whether the code gate or the prose fallback fires.
-function block(commandName) {
+function block(sink, commandName) {
   const msg =
     'x Command not found: ' + commandName + '\n' +
     '  Why: Not an admin user\n' +
     '  Fix: /mos:help';
-  process.stderr.write(msg + '\n');
-  process.exit(2);
+  sink.err(msg + '\n');
+  throw new HookExit(2);
 }
 
 // extractFrontmatter -- return the text of the FIRST --- ... --- YAML block, or
@@ -133,8 +136,7 @@ function detectInvokedCommand(prompt) {
   return parts[parts.length - 1]; // 'mos:admin' -> 'admin', 'admin' -> 'admin'
 }
 
-function main() {
-  const raw = readStdinSync();
+function main(raw, sink) {
   if (!raw || !raw.trim()) return allow();
 
   let payload;
@@ -164,15 +166,30 @@ function main() {
     return allow();
   }
   if (verdict && verdict.admin === false) {
-    return block(invoked);
+    return block(sink, invoked);
   }
   return allow();
 }
 
-try {
-  main();
-} catch (_) {
-  // Fail-open on any unexpected error: the command-body prose remains as the
-  // defense-in-depth backstop.
-  process.exit(0);
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// input is the raw stdin text. opts is {argv, deadlineAt} and is not used by this hook. Resolves {code, stdout, stderr}.
+// Never calls process.exit, never reads fd 0, never writes to the process streams, never rejects.
+// Fail-open: any unexpected error resolves code 0 with no output, as the CLI always did.
+async function run(input, opts) { // eslint-disable-line no-unused-vars
+  const sink = makeSink();
+  try {
+    main(typeof input === 'string' ? input : '', sink);
+    return sink.take(0);
+  } catch (e) {
+    if (e instanceof HookExit) return sink.take(e.code);
+    // Fail-open on any unexpected error: the command-body prose remains as the
+    // defense-in-depth backstop.
+    return makeSink().take(0);
+  }
+}
+
+module.exports = { run };
+
+if (require.main === module) {
+  run(readStdinSync(), { argv: process.argv.slice(2) }).then(finishCli);
 }

@@ -153,7 +153,9 @@ function runHook(room, switchOff) {
     status: res.status,
     stdout: res.stdout || '',
     capture: readJson(room.captureFile) || {},
-    statusCue: readJson(path.join(room.iso.home, '.mindrian', 'next-move.json')),
+    // QA-F12 D4 / plan 400.4-14: the cue is one record per session; the old global file is the fallback.
+    statusCue: readJson(path.join(room.iso.home, '.mindrian', 'next-move', SESSION + '.json'))
+      || readJson(path.join(room.iso.home, '.mindrian', 'next-move.json')),
     lastOffer: history && Array.isArray(history.history) && history.history.length ? history.history[history.history.length - 1] : null,
     lastTrace,
   };

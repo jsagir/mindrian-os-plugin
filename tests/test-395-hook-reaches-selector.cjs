@@ -35,6 +35,7 @@ const PRELOAD_SOURCE = [
   '    try {',
   '      fs.writeFileSync(outFile, JSON.stringify({',
   "        section: pick(ctx, 'section'),",
+  "        sectionFallback: pick(ctx, 'sectionFallback'),",
   "        surface: pick(ctx, 'surface'),",
   "        sectionPath: pick(ctx, 'sectionPath'),",
   "        roomDir: pick(ctx, 'roomDir'),",
@@ -130,7 +131,8 @@ try {
   });
 
   check('2. the hook gives decide() the section slug and the surface cli', () => {
-    assert.strictEqual(cap1.section, SEC, 'ctx.section');
+    // QA-F12 D2 / plan 400.4-14: the hook now gives decide() the session focus as ctx.section and the old active-section guess as ctx.sectionFallback.
+    assert.strictEqual(cap1.sectionFallback, SEC, 'ctx.sectionFallback');
     assert.strictEqual(cap1.surface, 'cli', 'ctx.surface');
     assert.strictEqual(cap1.sectionPath, path.join(r1.roomDir, SEC), 'ctx.sectionPath stays the absolute path');
     assert.strictEqual(cap1.roomDir, r1.roomDir, 'ctx.roomDir');
@@ -174,7 +176,8 @@ try {
   check('6. with no active-section.json the section with the newest MINTO.md reaches the selector', () => {
     assert.ok(!fs.existsSync(path.join(r2.roomDir, '.mindrian', 'active-section.json')), 'precondition: no active-section.json');
     assert.ok(out2.capture, 'decide() was called');
-    assert.strictEqual(cap2.section, 'market-analysis', 'ctx.section');
+    // QA-F12 D2 / plan 400.4-14: the hook now gives decide() the session focus as ctx.section and the old active-section guess as ctx.sectionFallback.
+    assert.strictEqual(cap2.sectionFallback, 'market-analysis', 'ctx.sectionFallback');
     assert.strictEqual(cap2.surface, 'cli', 'ctx.surface');
     assert.ok(typeof want2.primary === 'string', 'precondition: the selector has a primary on market-analysis');
     assert.strictEqual(cap2.tierCandidatesSource, 'feyminto_face', 'ctx.tierCandidatesSource');

@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "captured_at_base": "before the plan 400.4-12 edits",
+  "masks": [
+    "the fixture copy root path -> <ROOT>",
+    "node process warning lines (a line that starts with (node:PID), and the --trace-warnings hint) are dropped (the CLI shows them, a sink never does)",
+    "ISO timestamps -> <TS>",
+    "a number followed by ms -> <N>ms"
+  ],
+  "results": {
+    "admin-command-gate": {
+      "E1": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 2,
+        "stdout": "",
+        "stderr": "x Command not found: admin\n  Why: Not an admin user\n  Fix: /mos:help\n"
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "intent-classifier": {
+      "E1": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless asked, and claim only what ran. Run the room and Theo silently, speak as the navigator's own knowledge, and end on the suggested step in plain words.\n",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless asked, and claim only what ran. Run the room and Theo silently, speak as the navigator's own knowledge, and end on the suggested step in plain words.\n## NAVIGATION DECISION (engine v1)\n\nfire_skill: null\nsuppress_skills: []\noffer_next_step: null\npersona_updates: null\ntier_mode: tier_0\nbrain_md_recommended_marker_rendered: false\nactivated_skills: [larry-personality, context-engine, room-passive, room-proactive]\nrouting_source: legacy\n\nWhy: Tier 0 fallback: no quadruple available for sectionPath. Arbitration: not-applicable/ask_and_hedged/GUIDED.\n",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 0,
+        "stdout": "## NAVIGATION DECISION (engine v1)\n\nfire_skill: null\nsuppress_skills: []\noffer_next_step: null\npersona_updates: null\ntier_mode: tier_0\nbrain_md_recommended_marker_rendered: false\nactivated_skills: [larry-personality, context-engine, room-passive, room-proactive]\nrouting_source: legacy\n\nWhy: Tier 0 fallback: no quadruple available for sectionPath. Arbitration: not-applicable/ask_and_hedged/GUIDED.\n",
+        "stderr": ""
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless asked, and claim only what ran. Run the room and Theo silently, speak as the navigator's own knowledge, and end on the suggested step in plain words.\n## NAVIGATION DECISION (engine v1)\n\nfire_skill: null\nsuppress_skills: []\noffer_next_step: null\npersona_updates: null\ntier_mode: tier_0\nbrain_md_recommended_marker_rendered: false\nactivated_skills: [larry-personality, context-engine, room-passive, room-proactive]\nrouting_source: legacy\n\nWhy: Tier 0 fallback: no quadruple available for sectionPath. Arbitration: not-applicable/ask_and_hedged/GUIDED.\n",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "Voice reminder: open with one move glyph and Larry | MindrianOS. Use 2 to 8 sentences, at most one question, no framework list unless asked, and claim only what ran. Run the room and Theo silently, speak as the navigator's own knowledge, and end on the suggested step in plain words.\n",
+        "stderr": ""
+      }
+    },
+    "first-install-router": {
+      "E1": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "{\"continue\":true,\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"[first-install-router] bucket=ambiguous outcome=larry. Continue as plain Larry conversation. Do NOT render a menu or a command list -- the reward-before-investment rule requires a real reward to land before any investment ask, and a menu this early is itself an investment ask.\"}}",
+        "stderr": ""
+      }
+    },
+    "brain-derivation-drain": {
+      "E1": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "jtbd-update": {
+      "E1": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "auto-explore-drain": {
+      "E1": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      },
+      "E2": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      },
+      "E3": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      },
+      "E4": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      },
+      "E5": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      },
+      "E6": {
+        "code": 0,
+        "stdout": "{\"continue\":true}",
+        "stderr": ""
+      }
+    }
+  }
+}

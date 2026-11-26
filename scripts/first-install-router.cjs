@@ -81,6 +81,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
+const { HookExit, makeSink, finishCli } = require('../lib/core/hook-io.cjs');
 
 const HOOK_EVENT_NAME = 'UserPromptSubmit';
 const STDIN_TIMEOUT_MS = 200;
@@ -156,14 +157,20 @@ const ENVELOPE_ALLOWED = new Set([
   'suppressOutput', 'systemMessage', 'hookSpecificOutput',
 ]);
 
+// Phase 400.4 plan 12: the envelope goes to the sink of the current run() and the run ends with HookExit(0). The sink is
+// module state because main() is synchronous, so two runs never interleave. The old code wrote process.stdout and called
+// process.exit(0) here. Any catch block around an emit call must rethrow HookExit (see _deliverVerifyInsight).
+let _sink = null;
+let _input = null;
+
 function emitEnvelope(envelope) {
   const filtered = {};
   for (const k of Object.keys(envelope || {})) {
     if (ENVELOPE_ALLOWED.has(k)) filtered[k] = envelope[k];
   }
   if (filtered.continue === undefined) filtered.continue = true;
-  try { process.stdout.write(JSON.stringify(filtered)); } catch (_e) { /* swallow */ }
-  process.exit(0);
+  if (_sink) _sink.out(JSON.stringify(filtered));
+  throw new HookExit(0);
 }
 
 function emitEmpty() {
@@ -179,10 +186,6 @@ function emitContinueWithContext(additionalContext) {
     },
   });
 }
-
-process.on('uncaughtException', () => {
-  try { emitEmpty(); } catch (_e) { process.exit(0); }
-});
 
 // ---------- Stdin read (200ms budget) ----------
 
@@ -906,7 +909,8 @@ function _deliverVerifyInsight(payload) {
     if (!written || parts.length === 0) return false;
     emitContinueWithContext(parts.join('\n\n'));
     return true;
-  } catch (_e) {
+  } catch (e) {
+    if (e instanceof HookExit) throw e; // the emit above ends the run; do not swallow it
     return false;
   }
 }
@@ -915,7 +919,7 @@ function _deliverVerifyInsight(payload) {
 
 function main() {
   const t0 = Date.now();
-  const raw = readStdinSync();
+  const raw = _input; // the stdin text of the current run (null when none), set by run()
   const payload = safeParseJSON(raw);
   const prompt = (payload && typeof payload.prompt === 'string') ? payload.prompt : null;
 
@@ -991,15 +995,42 @@ function main() {
   return emitEmpty();
 }
 
-if (require.main === module) {
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// input is the raw stdin text ('' when none). opts is {argv, deadlineAt} and is not used by this hook. Resolves
+// {code, stdout, stderr}. Never calls process.exit, never reads fd 0, never writes to the process streams, never rejects.
+// NEVER blocks and never exits non-zero: any error resolves the fail-open envelope {"continue":true} with code 0.
+async function run(input, opts) { // eslint-disable-line no-unused-vars
+  const sink = makeSink();
+  _sink = sink;
+  _input = typeof input === 'string' && input.length > 0 ? input : null;
   try {
     main();
-  } catch (_e) {
-    emitEmpty();
+    return sink.take(0);
+  } catch (e) {
+    if (e instanceof HookExit) return sink.take(e.code);
+    const fallback = makeSink();
+    fallback.out(JSON.stringify({ continue: true }));
+    return fallback.take(0);
+  } finally {
+    _sink = null;
+    _input = null;
   }
+}
+
+if (require.main === module) {
+  // Last-resort net: an uncaught exception still ends with the {continue:true} envelope and exit 0.
+  process.on('uncaughtException', () => {
+    try {
+      const r = makeSink();
+      r.out(JSON.stringify({ continue: true }));
+      finishCli(r.take(0));
+    } catch (_e) { process.exit(0); }
+  });
+  run(readStdinSync(), { argv: process.argv.slice(2) }).then(finishCli);
 }
 
 module.exports = {
   PHASES,
   isValidTransition,
+  run,
 };

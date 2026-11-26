@@ -165,7 +165,11 @@ check('N2 a job and no strong pick: the selector output equals advisor-off; advi
   const inputs = { jobId: JOB, jobFit: {}, sources: src([A, B], [A]), face: face([A, B]), advisorShortlist: sel('no_strong_pick', [[B, 'possible', 0.6], [A, 'weak', 0.2]]) };
   const on = compose(inputs);
   const off = withEnv(OFF, () => compose(inputs));
-  assert.equal(sansAdvisor(on), sansAdvisor(off));
+  // Phase 400.4 QA-F4: alternatives follow the advisor shortlist, and an advisor alternative names the advisor in its sources.
+  // The primary, the why and the order equal advisor-off; only the alternative source label differs.
+  assert.equal(JSON.stringify(on.primary), JSON.stringify(off.primary));
+  assert.deepEqual(order(on), order(off));
+  assert.equal(on.why, off.why);
   assert.equal(on.advisor.state, 'no_strong_pick');
   assert.equal(Object.prototype.hasOwnProperty.call(off, 'advisor'), false);
 });
@@ -186,7 +190,10 @@ check('N4 a strong pick that serves the job enters the pool with the advisor lab
   const c = all.find((x) => x.command === C);
   assert.ok(c, 'C is offered');
   assert.deepEqual(c.sources.filter((s) => s === 'the decision advisor'), ['the decision advisor']);
-  assert.equal(all.some((x) => x.command === D), false, 'D is not added');
+  // Phase 400.4 QA-F4: alternatives follow the advisor shortlist, so D (a command on this install that does not serve the
+  // job) may be offered as an alternative after the others. It never enters the pool as a job source and is never primary.
+  assert.notEqual(m.primary.command, D, 'D is never the primary');
+  all.filter((x) => x.command === D).forEach((x) => assert.equal(x.sources.indexOf('the nest job'), -1, 'D does not serve the job'));
 });
 
 check('N5 when the ledger rating differs, the ledger order wins over a strong advisor pick', () => {
@@ -231,9 +238,14 @@ check('G1 a 3-way tie at the top: the selector output is byte-identical to advis
   ].forEach((base, i) => {
     const on = compose(Object.assign({ advisorShortlist: tie }, base));
     const off = withEnv(OFF, () => compose(base));
-    assert.equal(sansAdvisor(on), sansAdvisor(off), 'case ' + i);
-    // The tied commands are not added to the pool as an advisor source.
-    assert.equal(JSON.stringify(on).indexOf('the decision advisor'), -1, 'no advisor label in case ' + i);
+    // Phase 400.4 QA-F4: alternatives follow the advisor shortlist. Under a tie the tied group is listed in public order,
+    // minus the primary, then the order the other keys give. The primary and the why equal advisor-off.
+    assert.equal(JSON.stringify(on.primary), JSON.stringify(off.primary), 'case ' + i);
+    assert.equal(on.why, off.why, 'case ' + i);
+    const expected = [A, B, C].filter((n) => n !== off.primary.command).concat(order(off).slice(1).filter((n) => [A, B, C].indexOf(n) === -1)).slice(0, 2);
+    assert.deepEqual(order(on).slice(1), expected, 'case ' + i);
+    // The tied commands are not added to the pool as an advisor source: the primary carries no advisor label.
+    assert.equal(JSON.stringify(on.primary).indexOf('the decision advisor'), -1, 'no advisor label on the primary in case ' + i);
   });
 });
 
@@ -254,9 +266,9 @@ check('G3 a unique top above a tie: the top is promoted; the tied pair keeps the
   assert.deepEqual(offOrder, [X, B, A]);
   const m = compose(Object.assign({ advisorShortlist: sel('ok', [[C, 'strong', 1], [A, 'strong', 0.9], [B, 'strong', 0.9]]) }, base));
   assert.equal(m.primary.command, C, 'the unique top is promoted');
-  // A and B tie at 0.9: B stays ahead of A, as the contract order gives (not alphabetical, not rank).
+  // A and B tie at 0.9. Phase 400.4 QA-F4: alternatives follow the advisor shortlist, so A then B (the shortlist order).
   const rest = order(m).slice(1);
-  assert.deepEqual(rest, [B, A]);
+  assert.deepEqual(rest, [A, B]);
 });
 
 check('G4 the kill switch gives output equal to the pre-advisor selector (no advisor key, same order)', () => {

@@ -248,7 +248,9 @@ check('case 11: scope boundary held -- dial-reach-orchestrator.cjs and admin-com
     'lib/hmi/dial-reach-orchestrator.cjs':
       '2efb5d605f6b85511acace85d28ead048a32c3bcc6979c46ae85cfeded6867cf',
     'scripts/admin-command-gate.cjs':
-      '2407b7853e5e95fcdb39d7455448bcc2df8574b3ac6825dc1b13bf69aa79a670',
+    // Phase 400.4 plan 12 re-pinned this file on purpose: admin-command-gate.cjs gained run(input, opts) and a require.main guard
+    // (pre-phase hash 2407b785...). Phase 311's own scope boundary (no change in phase 311) still holds; the new hash is the 400.4-12 result.
+      '61960d6c2593438d165bbac5e97fb94dd4cb641e423b497b7efc602a8081d705',
   };
   for (const [rel, expected] of Object.entries(pins)) {
     const abs = path.resolve(__dirname, '..', rel);

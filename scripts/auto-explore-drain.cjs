@@ -34,6 +34,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { HookExit, makeSink, finishCli } = require('../lib/core/hook-io.cjs');
 const store = require('../lib/memory/explored-materials-store.cjs');
 const agent = require('../lib/agents/auto-explore-agent.cjs');
 const { isMaterialHeldForStampedCard } = require('../lib/core/sensors/sensor-room-delta.cjs');
@@ -47,24 +48,21 @@ const ENVELOPE_ALLOWED = new Set([
 const HOOK_EVENT_NAME = 'UserPromptSubmit';
 const MAX_FINDINGS_PER_TURN = 1;
 
-function emitEnvelope(envelope) {
+// Phase 400.4 plan 12: emitEnvelope writes the envelope to the run sink and throws HookExit(0), which run() catches.
+// It no longer touches the process (it was process.stdout.write plus process.exit(0)).
+function emitEnvelope(sink, envelope) {
   const filtered = {};
   for (const k of Object.keys(envelope || {})) {
     if (ENVELOPE_ALLOWED.has(k)) filtered[k] = envelope[k];
   }
   if (filtered.continue === undefined) filtered.continue = true;
-  process.stdout.write(JSON.stringify(filtered));
-  process.exit(0);
+  sink.out(JSON.stringify(filtered));
+  throw new HookExit(0);
 }
 
-function emitEmpty() {
-  emitEnvelope({ continue: true });
+function emitEmpty(sink) {
+  emitEnvelope(sink, { continue: true });
 }
-
-// Backstop: any uncaught exception lands here and the envelope still emits.
-process.on('uncaughtException', () => {
-  try { emitEmpty(); } catch (_e) { process.exit(0); }
-});
 
 // ---------- Room resolution ----------
 
@@ -167,20 +165,51 @@ function selectTopFinding(findings, ledgerEntries) {
   return capped[0];
 }
 
+
+// ---------- Phase 400.4 plan 10 (QA-F11): write-lock gate ----------
+// room.db opens with a 5 s busy wait but this hook has a 3 s host budget. Check the write lock first with one
+// busy wait of up to HOOK_BUSY_MS (750 ms). After the first busy the process cap drops to 0, so the second try
+// is a no-wait re-probe (the one retry). When room.db stays busy: one stderr note, exit 0, nothing written.
+// Returns true when the caller must stop. A room with no room.db, or a probe that cannot run, does not stop.
+function roomDbIsBusyForHook(roomDir, sink) {
+  try {
+    const busyCap = require('../lib/core/hook-busy-cap.cjs');
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+    const navigation = require('../lib/core/navigation.cjs');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const reasonSink = [];
+      const handle = navigation.openRoomDbForCaller(roomDir, {
+        busyMs: busyCap.HOOK_BUSY_MS,
+        probeWrite: true,
+        reasonSink: reasonSink,
+      });
+      if (handle) {
+        navigation.closeRoomDbForCaller(handle);
+        return false;
+      }
+      if (!reasonSink.includes('room_db_busy')) return false;
+    }
+    sink.err('[auto-explore-drain] room_db_busy: room.db is locked by another process; this prompt skips auto-explore-drain.\n');
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
 // ---------- Main flow ----------
 
-function main() {
+function main(sink) {
   let roomDir;
   let roomSlug;
   try {
     roomDir = resolveRoomDir();
     roomSlug = roomSlugFromDir(roomDir);
   } catch (_e) {
-    return emitEmpty();
+    return emitEmpty(sink);
   }
 
   const findings = readFindingFiles(roomDir);
-  if (findings.length === 0) return emitEmpty();
+  if (findings.length === 0) return emitEmpty(sink);
 
   let ledger = [];
   try {
@@ -190,7 +219,10 @@ function main() {
   }
 
   const top = selectTopFinding(findings, ledger);
-  if (!top) return emitEmpty();
+  if (!top) return emitEmpty(sink);
+
+  // QA-F11: nothing has been written yet; stop here when room.db is write-locked.
+  if (roomDbIsBusyForHook(roomDir, sink)) return emitEmpty(sink);
 
   // Resolve operator + tier (defensive defaults; downstream dispatcher enforces).
   const operator = String(process.env.MINDRIAN_OPERATOR || 'AUTONOMOUS');
@@ -205,10 +237,10 @@ function main() {
       tier: tier,
     });
   } catch (_e) {
-    return emitEmpty();
+    return emitEmpty(sink);
   }
 
-  if (!surface || !surface.surfaced) return emitEmpty();
+  if (!surface || !surface.surfaced) return emitEmpty(sink);
 
   // Phase 117-05 telemetry: emit auto_explore_finding_surfaced before
   // additionalContext writes. Use the populated finding from surface so
@@ -264,7 +296,7 @@ function main() {
 
   const directive = composeDirective(top, surface.bq_line || '');
 
-  return emitEnvelope({
+  return emitEnvelope(sink, {
     continue: true,
     hookSpecificOutput: {
       hookEventName: HOOK_EVENT_NAME,
@@ -273,8 +305,33 @@ function main() {
   });
 }
 
-try {
-  main();
-} catch (_e) {
-  emitEmpty();
+// run(input, opts) -- the in-process entry point (Phase 400.4 plan 12, QA-F11 part B base).
+// This hook reads no stdin and no argv; input and opts are accepted for the common contract. It resolves
+// {code, stdout, stderr}. Never calls process.exit, never reads fd 0, never writes to the process streams, never rejects.
+// ALWAYS code 0; any error resolves the fail-open envelope {"continue":true}.
+async function run(input, opts) { // eslint-disable-line no-unused-vars
+  const sink = makeSink();
+  try {
+    main(sink);
+    return sink.take(0);
+  } catch (e) {
+    if (e instanceof HookExit) return sink.take(e.code);
+    const fallback = makeSink();
+    fallback.out(JSON.stringify({ continue: true }));
+    return fallback.take(0);
+  }
+}
+
+module.exports = { run };
+
+if (require.main === module) {
+  // Backstop: any uncaught exception lands here and the envelope still emits.
+  process.on('uncaughtException', () => {
+    try {
+      const r = makeSink();
+      r.out(JSON.stringify({ continue: true }));
+      finishCli(r.take(0));
+    } catch (_e) { process.exit(0); }
+  });
+  run('', { argv: process.argv.slice(2) }).then(finishCli);
 }
