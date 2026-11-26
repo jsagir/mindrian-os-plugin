@@ -211,7 +211,9 @@ ok('writer: routed offer_next_step wins, provider is NEVER consulted', function 
   });
 });
 
-ok('writer: fire_skill wins over provider (case 2 unchanged)', function () {
+// QA-F12 D3 (owner decision 2026-11-26): the cue never shows a skill name. A fired skill no longer wins; the
+// ratification provider is consulted and its cue is the one written.
+ok('writer: fire_skill is never persisted; the provider cue wins (QA-F12 D3)', function () {
   const tmpHome = track(fs.mkdtempSync(path.join(os.tmpdir(), 'mos-ratif-home-')));
   withEnv({ HOME: tmpHome }, function () {
     let called = 0;
@@ -219,8 +221,8 @@ ok('writer: fire_skill wins over provider (case 2 unchanged)', function () {
       { offer_next_step: null, fire_skill: 'map-unknowns' },
       { fallbackProvider: function () { called += 1; return 'ratify weak (1 open)'; } }
     );
-    assert.equal(called, 0, 'provider not consulted when a skill fires');
-    assert.equal(nextMoveCache.readNextMove(), 'map unknowns', 'fire_skill cue wins');
+    assert.equal(called, 1, 'provider consulted when only a skill fires');
+    assert.equal(nextMoveCache.readNextMove(), 'ratify weak (1 open)', 'the provider cue wins, not the skill name');
   });
 });
 

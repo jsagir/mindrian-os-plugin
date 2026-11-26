@@ -353,7 +353,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/run-hook.cmd\" intent-classifier",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/intent-classifier.cjs\"",
             "timeout": 5
           }
         ]

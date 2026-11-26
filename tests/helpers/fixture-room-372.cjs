@@ -41,7 +41,8 @@ const MARKER_PREFIX = 'OMIT372-';
 const SOURCE_TAG = 'omit-372';
 const FOCUS_ID = 'section:omit-372';
 const CHAIN_FOCUS_ID = 'chain:omit-372:focus';
-const RAW_COUNT_DEPTH2 = 16;
+// Phase 400.4 QA-F7: two-way walk. Depth 2 gains 2 rows, both chain:omit-372:focus reached by an inbound hop (via chain:omit-372:1 and via claim:sup-1); was 16.
+const RAW_COUNT_DEPTH2 = 16 + 2;
 const RAW_COUNT_DEPTH1 = 14;
 const CHAIN_IN_DEFAULT_TOPK = 3;
 const GOLDEN_PATH = path.join(REPO_ROOT, 'tests', 'fixtures', '372', 'golden-pre-change.json');
