@@ -168,7 +168,7 @@ leg('E5 no reader: output equals base and omissions keep six keys', () => {
     const emptyOpts = projection.projectEngineSnapshot(db, req, {});
     assert.equal(noReader.snapshot_id, emptyOpts.snapshot_id);
     assert.deepEqual(noReader.snapshot.nodes, emptyOpts.snapshot.nodes);
-    assert.equal(noReader.snapshot.nodes[0].text, '');
+    assert.equal(noReader.snapshot.nodes.find((n) => n.id === ART_ID).text, '');
     assert.deepEqual(Object.keys(noReader.snapshot.meta.omissions).sort(), [
       'edges_truncated', 'empty_text_nodes', 'excluded_system_nodes', 'missing_nodes', 'requested_nodes', 'text_truncated_nodes',
     ]);
