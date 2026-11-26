@@ -196,6 +196,7 @@ function report(o) {
   fs.writeSync(1, JSON.stringify(o) + '\\n');
   origExit.call(process, 0);
 }
+process.on('uncaughtException', (e) => { report({ fatal: 'uncaught ' + String(e && e.stack || e), trips, writes }); });
 (async () => {
   const before = listeners();
   let mod = null;
@@ -219,7 +220,6 @@ function report(o) {
   const ms = Date.now() - t0;
   report({ result, err, trips, writes, ms, hasRun: true, afterRequire, afterRun: listeners() });
 })().catch((e) => report({ fatal: String(e && e.stack || e), trips, writes }));
-process.on('uncaughtException', (e) => { report({ fatal: 'uncaught ' + String(e && e.stack || e), trips, writes }); });
 `;
 const DRIVER_PATH = path.join(WORK, 'driver.cjs');
 fs.writeFileSync(DRIVER_PATH, DRIVER);
