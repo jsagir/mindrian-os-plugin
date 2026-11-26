@@ -3239,7 +3239,13 @@ function identityTokens(text) {
   return String(text == null ? '' : text).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 }
 
-/** The venture name, read with the two rules of extractDomainSignals (venture: line, else the first heading). */
+/**
+ * The venture name, from the one room-name function of persona-ops (roomVentureNameOf), the same name as the persona
+ * domain (Phase 400.2.1, S3). The screen needs a name that the room states: a STATE.md venture line, a real heading or
+ * the ROOM.md icm_self.room name. A name from the directory or the fallback, or no readable STATE.md, gives null, so
+ * the screen does not run (DESIGN 8).
+ */
+const SCREEN_NAME_SOURCES = Object.freeze(['venture_line', 'heading', 'room_md']);
 function readVentureName(roomResolved) {
   let state = '';
   try {
@@ -3247,11 +3253,8 @@ function readVentureName(roomResolved) {
   } catch (e) {
     return null;
   }
-  const m = state.match(/venture:\s*(.+)/i);
-  if (m) return m[1].trim();
-  const h = state.match(/^#\s+(.+)/m);
-  if (h) return h[1].trim();
-  return null;
+  const named = ops.roomVentureNameOf(roomResolved, state);
+  return SCREEN_NAME_SOURCES.includes(named.source) ? named.name : null;
 }
 
 /** Base names (no extension) of the files under team/, to a depth of 3. */
