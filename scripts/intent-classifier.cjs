@@ -35,10 +35,36 @@ if (require.main === module) {
 // node start does both jobs in the same order: the drain first, then the
 // classifier. The wrapper exports MOS_MINTO_DRAIN_ROOM only for a room with a
 // .mindrian folder; it is deleted here so no child inherits it.
-if (require.main === module && typeof process.env.MOS_MINTO_DRAIN_ROOM === 'string' && process.env.MOS_MINTO_DRAIN_ROOM) {
-  const mintoDrainRoom = process.env.MOS_MINTO_DRAIN_ROOM;
+//
+// Phase 400.4 plan 10 (QA-F11): the bash wrapper (scripts/intent-classifier) is no longer on the hook path;
+// hooks/hooks.json calls this file with node directly (no cmd, no bash step). So this file finds the drain
+// room itself when MOS_MINTO_DRAIN_ROOM is not set: the active room (the same registry the wrapper's
+// scripts/resolve-room read), used only when that folder holds .mindrian. An inherited MOS_MINTO_DRAIN_ROOM
+// still wins, as before. The same block caps every room.db wait of this process at HOOK_BUSY_MS, so the
+// classifier answers inside its host budget while room.db is write-locked by another process.
+if (require.main === module) {
+  try {
+    const hookBusyCap = require('../lib/core/hook-busy-cap.cjs');
+    hookBusyCap.setHookBusyCap(hookBusyCap.HOOK_BUSY_MS);
+  } catch (_e) { /* the 5 s wait stays */ }
+  let mintoDrainRoom = (typeof process.env.MOS_MINTO_DRAIN_ROOM === 'string') ? process.env.MOS_MINTO_DRAIN_ROOM : '';
   delete process.env.MOS_MINTO_DRAIN_ROOM;
-  try { require('./minto-drain-on-prompt.cjs').drainOnPrompt(mintoDrainRoom); } catch (_e) { /* soft-fail */ }
+  if (!mintoDrainRoom) {
+    try {
+      // The chokepoint reads MINDRIAN_ROOMS_HOME; bridge this script's older MINDRIAN_ROOMS_ROOT name first.
+      if (process.env.MINDRIAN_ROOMS_ROOT && !process.env.MINDRIAN_ROOMS_HOME) {
+        process.env.MINDRIAN_ROOMS_HOME = process.env.MINDRIAN_ROOMS_ROOT;
+      }
+      const found = require('../lib/core/resolve-active-room.cjs').resolveActiveRoomDir();
+      if (typeof found === 'string' && found.length > 0
+        && require('node:fs').existsSync(require('node:path').join(found, '.mindrian'))) {
+        mintoDrainRoom = found;
+      }
+    } catch (_e) { mintoDrainRoom = ''; }
+  }
+  if (mintoDrainRoom) {
+    try { require('./minto-drain-on-prompt.cjs').drainOnPrompt(mintoDrainRoom); } catch (_e) { /* soft-fail */ }
+  }
 }
 
 const fs = require('node:fs');

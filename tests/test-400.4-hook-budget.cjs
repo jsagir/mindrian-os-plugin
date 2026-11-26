@@ -4,6 +4,7 @@
 // K2: each hook says room_db_busy on stderr.
 // K3: the room tree and the row counts are unchanged after the hooks ran (nothing written).
 // K4: with no lock each hook exits 0 and does not say room_db_busy.
+// K5: intent-classifier.cjs exits 0 within 5,000 ms under the same lock and prints its normal output (plain text).
 // Everything runs in an isolated HOME under the OS temp dir. Nothing touches ~/MindrianRooms.
 
 const fs = require('node:fs');
@@ -162,16 +163,25 @@ async function main() {
       check('K2 ' + hk.name + ' says room_db_busy on stderr', /room_db_busy/.test(r.stderr), r.stderr.slice(-300));
     }
 
+    // K3 snapshot: taken after the three writing hooks gave up and BEFORE intent-classifier runs (the classifier
+    // writes its own decision trace files into the room, which is not a room.db write and not part of K3).
+    var hashMid = roomTreeHash(fx.roomDir);
+    var countsMid = JSON.stringify(rowCounts(fx.roomDir));
+
+    // ---- K5: intent-classifier.cjs under the same lock ----
+    const ic = await runHook('scripts/intent-classifier.cjs', [], fx.env, fx.roomDir, stdin, 9000);
+    console.log('INFO intent-classifier measured ' + ic.ms + ' ms (code ' + ic.code + ')');
+    check('K5 intent-classifier exits 0 within ' + CLASSIFIER_BUDGET_MS + ' ms under the lock',
+      ic.code === 0 && ic.ms <= CLASSIFIER_BUDGET_MS, 'code=' + ic.code + ' ms=' + ic.ms + ' stderr=' + ic.stderr.slice(-300));
+    // The classifier prints plain additionalContext text (the voice reminder first), not a JSON envelope.
+    check('K5 intent-classifier prints its normal output on stdout (the voice reminder)', /^Voice reminder:/.test(ic.stdout), 'stdout=' + ic.stdout.slice(0, 200));
   } finally {
     await stopChild(lock);
   }
 
   // ---- K3: nothing written ----
-  quiesce(fx.roomDir);
-  const hashAfter = roomTreeHash(fx.roomDir);
-  const countsAfter = JSON.stringify(rowCounts(fx.roomDir));
-  check('K3 room tree hash is unchanged after the hooks gave up', hashBefore === hashAfter);
-  check('K3 row counts of nodes, edges and event tables are unchanged', countsBefore === countsAfter, countsBefore + ' vs ' + countsAfter);
+  check('K3 room tree hash is unchanged after the hooks gave up', hashBefore === hashMid);
+  check('K3 row counts of nodes, edges and event tables are unchanged', countsBefore === countsMid, countsBefore + ' vs ' + countsMid);
 
   fx.iso.cleanup();
   console.log(failures === 0 ? 'ALL PASS test-400.4-hook-budget' : 'FAILED ' + failures);
