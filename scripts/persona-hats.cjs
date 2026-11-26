@@ -1141,7 +1141,9 @@ function perHatRules(hat, reading, ctx) {
         lines.push('none_found_with_evidence');
       } else {
         const own = Array.isArray(r.self_search_strings) ? r.self_search_strings : [];
-        if (c.researchState === 'ran_empty') out.none_found_basis = 'door_search_empty';
+        // Phase 400.2.1 (S4): a door search whose results were all below the relevance floor ran and found nothing usable.
+        const floorOnly = c.researchState === 'fetched_not_wired' && c.researchReason === 'below_relevance_floor';
+        if (c.researchState === 'ran_empty' || floorOnly) out.none_found_basis = 'door_search_empty';
         else if (own.length >= 1) out.none_found_basis = 'self_reported_search';
         else lines.push('none_found_without_search');
         if (out.none_found_basis) {
@@ -1958,7 +1960,7 @@ function judgeReading(hat, dir, ctx) {
     rec.reading = cite.state;
     return out;
   }
-  const rules = perHatRules(hat, reading, { researchState: ctx.researchState });
+  const rules = perHatRules(hat, reading, { researchState: ctx.researchState, researchReason: ctx.researchReason });
   // FS-9: the after-the-fact screen of the strings that the hat reports. It adds rule lines and never drops the reading.
   const lines = rules.lines.slice();
   if (RESEARCH_HATS.includes(hat) && Array.isArray(reading.self_search_strings) && reading.self_search_strings.length > 0) {
@@ -2025,7 +2027,7 @@ function cmdCheck(args, deps) {
     } else if (!dir) {
       rec.reading = 'not_run:no_reading_file';
     } else {
-      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
+      const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, researchReason: entry.research_reason, packs: map.packs, screen });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
       if (judged.value && Array.isArray(judged.value.positions)) {
@@ -2611,7 +2613,7 @@ async function cmdMerge(args, deps) {
       verdict[hat] = { state: entry.reading };
       continue;
     }
-    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
+    const judged = judgeReading(hat, hatDirOf(map, hat), { runId: ledger.run_id, subQuestionIds, researchState: entry.research, researchReason: entry.research_reason, packs: map.packs, screen });
     if (judged.rec.reading_sha256 !== entry.reading_sha256) {
       verdict[hat] = { state: 'rejected:changed_after_check' };
     } else if (judged.rec.reading !== 'ran') {
@@ -3669,17 +3671,24 @@ function newStringRecord(s, dbPresent) {
   };
 }
 
-// Phase 400.2.1 (S4): the relevance floor of a door finding. The handle words are the words of the approved string minus
-// the hat qualifier, in their order, each with a final s removed. A finding is wired only when its title and summary hold
-// two handle words next to each other in the handle order (for example "black box" for the handle "black box model
-// validation"), or every handle word. A one-word handle needs that word. The floor is lexical and local: it drops a
-// result such as "Hairy Black Holes in a Box" for "black box model validation", and it can also drop a relevant result
-// that uses other words. Each dropped finding is counted and listed in the run output.
+// Phase 400.2.1 (S4), INTERIM: the relevance floor of a door finding. A lexical floor cannot keep a paraphrase and cannot
+// drop every homonym; a semantic reranker is the full fix. The handle words are the words of the approved string minus
+// the hat qualifier and minus the closed list of function words below, in their order, each with a final s removed.
+// A finding passes when its title, or its summary, holds two handle words next to each other once the function words
+// of that text are removed (each text is checked on its own, so a pair never joins the end of the title and the start
+// of the summary), or when title and summary hold every handle word. A one-word handle needs that word.
+// Each dropped finding is counted and listed in the run output.
+const RELEVANCE_FUNCTION_WORDS = Object.freeze(['of', 'the', 'a', 'an', 'in', 'on', 'for', 'to', 'and', 'or', 'that', 'with', 'by', 'from', 'before', 'after']);
 const DROPPED_SHOWN_MAX = 10;
 
 /** One word, with a final s removed, for a plural-tolerant compare. */
 function relevanceStem(w) {
   return w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w;
+}
+
+/** The content words of a text, in order and stemmed: the function words are removed. Pure. */
+function contentWords(text) {
+  return identityTokens(text).filter(w => !RELEVANCE_FUNCTION_WORDS.includes(w)).map(relevanceStem);
 }
 
 /** The handle words of an approved string, in order (see above). Pure. @returns {string[]} */
@@ -3688,18 +3697,21 @@ function handleTermsOf(hat, text) {
   let words = identityTokens(text);
   // The qualifier is the last words of a normal string (composeString); the nature string has none.
   if (qual.length > 0 && words.length > qual.length && words.slice(-qual.length).join(' ') === qual.join(' ')) words = words.slice(0, -qual.length);
-  return words.map(relevanceStem);
+  return contentWords(words.join(' '));
 }
 
 /** True when the finding meets the relevance floor. No handle words: no floor. Pure. */
 function meetsRelevanceFloor(terms, finding) {
   if (!Array.isArray(terms) || terms.length === 0) return true;
   const f = isPlain(finding) ? finding : {};
-  const words = identityTokens(String(f.title || '') + ' ' + String(f.summary || '')).map(relevanceStem);
-  const have = new Set(words);
+  const title = contentWords(String(f.title || ''));
+  const summary = contentWords(String(f.summary || ''));
+  const have = new Set(title.concat(summary));
   if (terms.every(t => have.has(t))) return true;
   const pairs = new Set();
-  for (let i = 0; i + 1 < words.length; i += 1) pairs.add(words[i] + ' ' + words[i + 1]);
+  for (const words of [title, summary]) {
+    for (let i = 0; i + 1 < words.length; i += 1) pairs.add(words[i] + ' ' + words[i + 1]);
+  }
   for (let i = 0; i + 1 < terms.length; i += 1) if (pairs.has(terms[i] + ' ' + terms[i + 1])) return true;
   return false;
 }
@@ -3716,7 +3728,8 @@ function wireAndRecord(record, wireFn, dbArg, p) {
     record.dropped_below_floor = (record.dropped_below_floor || 0) + 1;
     if (!Array.isArray(record.dropped)) record.dropped = [];
     if (record.dropped.length < DROPPED_SHOWN_MAX) {
-      record.dropped.push({ title: String(typeof f0.title === 'string' ? f0.title : '').slice(0, PACK_TITLE_MAX), url: String(typeof f0.url === 'string' ? f0.url : '').slice(0, PACK_URL_MAX) });
+      const strip = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation', 'evidence-claim.cjs')).stripInjectionSpans;
+      record.dropped.push({ title: strip(typeof f0.title === 'string' ? f0.title : '').slice(0, PACK_TITLE_MAX), url: String(typeof f0.url === 'string' ? f0.url : '').slice(0, PACK_URL_MAX) });
     }
     return { ok: false, reason: 'below_relevance_floor' };
   }
