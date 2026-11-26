@@ -204,6 +204,12 @@ async function main() {
 
   // ---- G6 to G8: the domain note -----------------------------------------------------------------------------
   const NOTE = 'Cause and effect domain: complex (probe, then sense, then respond). The decision advisor is off, so these moves are not ordered by the domain.';
+  await leg('G7a no domain stored: no domain_note', async () => {
+    await setGoal('find-problem');
+    const r = await pull({ section: 'problem-definition' });
+    assert.ok(!('domain_note' in r.next_move));
+    assert.equal(sensors._internal.domainNoteFor(roomDir), null);
+  });
   const baseReply = await pull({ section: 'problem-definition' });
 
   const db = navigation.openRoomDbForCaller(roomDir);
@@ -216,8 +222,37 @@ async function main() {
     navigation.closeRoomDbForCaller(db);
   }
 
+  await leg('G6 advisor off, domain complex stored: domain_note set, moves byte-identical', async () => {
+    const r = await pull({ section: 'problem-definition' });
+    assert.equal(r.next_move.domain_note, NOTE);
+    const strip = (nm) => { const c = JSON.parse(JSON.stringify(nm)); delete c.domain_note; return c; };
+    assert.deepEqual(strip(r.next_move), strip(baseReply.next_move));
+    assert.deepEqual(r.next_move.primary, baseReply.next_move.primary);
+    assert.deepEqual(r.next_move.alternatives, baseReply.next_move.alternatives);
+  });
 
+  await leg('G7b advisor on with the domain stored: no domain_note', async () => {
+    await withEnv({ MINDRIAN_DECISION_ADVISOR: 'on' }, async () => {
+      const r = await pull({ section: 'problem-definition' });
+      assert.ok(!('domain_note' in r.next_move), JSON.stringify(Object.keys(r.next_move)));
+    });
+  });
 
+  await leg('G8 none paths carry domain_note when a domain is stored and the advisor is off', async () => {
+    // no_active_nest (no goal job mapped, no section)
+    const pd = path.join(roomDir, 'problem-definition');
+    const moved = path.join(iso.home, 'moved-pd-g8');
+    fs.renameSync(pd, moved);
+    try {
+      const r1 = await pull();
+      assert.equal(r1.next_move_reason, 'no_active_nest');
+      assert.equal(r1.next_move.domain_note, NOTE);
+    } finally { fs.renameSync(moved, pd); }
+    // nest_not_found
+    const r2 = await pull({ section: 'no-such-section' });
+    assert.equal(r2.next_move_reason, 'nest_not_found');
+    assert.equal(r2.next_move.domain_note, NOTE);
+  });
 
   // ---- R1 to R5 ----------------------------------------------------------------------------------------------
   await leg('R1 rowForJob reads the stored row as data, flag independent', async () => {
@@ -301,6 +336,11 @@ async function main() {
     }
   });
 
+  await leg('G8b the room-level path carries domain_note (domain stored, advisor off)', async () => {
+    const r = await pull();
+    assert.equal(r.next_move_source, 'room_level');
+    assert.equal(r.next_move.domain_note, NOTE);
+  });
 
   await leg('R5 the advisor stays off; no advisor key, no calibrated number', async () => {
     assert.equal(process.env.MINDRIAN_DECISION_ADVISOR, undefined);
@@ -313,6 +353,25 @@ async function main() {
   });
 
   // ---- G9 ----------------------------------------------------------------------------------------------------
+  await leg('G9 advisor on: each option with a job statement carries method_job; no raw number', async () => {
+    await setGoal('find-problem');
+    await withEnv({ MINDRIAN_DECISION_ADVISOR: 'on' }, async () => {
+      const r = await pull({ section: 'problem-definition' });
+      const adv = r.next_move.advisor;
+      assert.ok(adv && Array.isArray(adv.options) && adv.options.length > 0, JSON.stringify(adv));
+      const FJ = require(path.join(ROOT, 'lib', 'core', 'framework-jobs.cjs'));
+      let withJob = 0;
+      let withoutJob = 0;
+      for (const o of adv.options) {
+        const mj = FJ.methodJobForCommand(o.command);
+        if (mj) { assert.deepEqual(o.method_job, mj, o.command); withJob += 1; } else { assert.ok(!('method_job' in o), o.command); withoutJob += 1; }
+        assert.ok('command' in o && 'band' in o && 'rank' in o, 'other keys stay: ' + o.command);
+      }
+      assert.ok(withJob + withoutJob === adv.options.length);
+      console.log('  G9 options with a job statement: ' + withJob + ', without: ' + withoutJob);
+      assert.equal(PR.hasRawNumber(adv), false);
+    });
+  });
 
   // ---- file hygiene ------------------------------------------------------------------------------------------
   await leg('dash guard on the files of this plan', async () => {
