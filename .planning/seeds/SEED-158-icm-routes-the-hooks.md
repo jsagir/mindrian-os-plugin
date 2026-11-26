@@ -1,7 +1,7 @@
 ---
 id: SEED-158
 title: The room's ICM structure routes the hooks (one prompt hook, the nest declares its checks)
-status: dormant
+status: promoted as re-scoped (Phase 400.5, 2026-11-26): transport slice only; per-nest routing RETIRED after EGM review (.planning/egm/seed-158/)
 planted: 2026-11-26
 planted_by: navigator idea in the Phase 400.4 session ("maybe the room's ICM structure can be a hook workflow orchestrator"; "a lot relies on the ICM anyway: the local graph, FeyMinto, the JTBD")
 trigger: Phase 402 (hook consolidation) planning, after the mcp_tool UserPromptSubmit spike result (400.4 session, scratchpad mcp-hook-spike) is known

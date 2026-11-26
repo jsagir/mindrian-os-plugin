@@ -4300,6 +4300,29 @@ Plans:
 - [x] 400-14-PLAN.md - plugin relay client behind the off line, O-10 operator release run with audit, release-run bridge to the table pipeline (wave 14)
 - [x] 400-15-PLAN.md - owner review file 400-LABEL-REVIEW.md and the phase gates (wave 15)
 
+### Phase 400.5: Prompt hooks inside the running server (SEED-158 re-scoped, CRITICAL, lands before the next cut): admin gate and install router stay command hooks; the four routable checks run through one mcp_tool hook into the MindrianOS MCP server with the JSON additionalContext contract, a Part 11 EXCLUDED hook tool, a first-prompt fallback and in-server deadlines; supersedes 400.4 plan 13 (INSERTED)
+
+**CRITICAL PATH: must land before the next release cut (owner ruling 2026-11-26).** Order: 400.4 (minus its plan 13) -> 400.5 -> cut.
+**Goal:** Prompt-time help (the F.1 card, the statusline cue, the per-turn navigation context) is produced inside the already-running MindrianOS server, so a cold user on a loaded machine gets it every prompt without a cold start or a cross-process lock wait, while the safety checks stay command hooks that nothing can switch off.
+**Source:** SEED-158 (promoted), EGM review in `.planning/egm/seed-158/` (zoom_out, comprehension, critic, intermediate zoom out reports), spike `400.4-SPIKE-mcp-tool-hook.md`.
+**Requirements**: HR-01 to HR-07 (the seven success criteria; EGM findings S3-S5 carried)
+**Depends on:** Phase 400.4 plans 01-12 and 14 (plan 12's run() exports are the shared base); supersedes 400.4 plan 13 (the command dispatcher).
+**Canon parts:** 8 (local only, no room content to Theo), 9, 11 (check ids are not invocable surfaces), 7 (reuse SENSOR_REGISTRY id pattern and section-job canon, no second selector)
+**Scope (navigator, after EGM Stage 8, 2026-11-26):** the re-scoped transport slice only. Per-nest routing, an applies_when predicate table and a precompiled routing record are OUT (EGM S1, S2, S8). Supersedes 400.4 plan 13.
+**Success criteria:**
+1. Two adapters over one transport-independent run(input) core (from 400.4 plan 12): the invariant tier (admin-command-gate, first-install-router) stays a command hook and runs first; the routable tier (brain-derivation-drain, auto-explore-drain, jtbd-update, intent-classifier) runs through ONE mcp_tool UserPromptSubmit hook into the MindrianOS MCP server, in today's fixed order.
+2. Every mcp_tool result is the JSON hookSpecificOutput.additionalContext shape; a test fails if plain text is ever returned (spike: plain text is silently dropped).
+3. The hook tool is declared EXCLUDED with a reason in the connector registry (Part 11), counted in the tool budget, and a direct model call of it is harmless (read-only result or refused).
+4. First-prompt behavior is stated and tested for a cold connect (about 3.2 s measured): the routable checks fall back to the command dispatcher, or skip with a typed note shown on the next turn; never a silent loss of the NAV block.
+5. Inside the server, each routable check runs under plan 13's per-check deadline with skipped_deadline; no queue or worker; the whole tool answers inside the hook timeout.
+6. Output parity: the combined context equals what the six separate hooks produced on the parity cases; a block from admin-command-gate still blocks.
+7. Measured on the QA-shaped fixture under load: 20 consecutive prompts with no UserPromptSubmit timeout; p95 hook overhead reported.
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 400.5 after the EGM Stage 8 verdict is folded into CONTEXT)
+
 ### Phase 400.4: Cold-start QA fixes from the 2026-11-26 live run: plain job labels and sentences in goal-job offers and the goal card, a set goal job picks a nest, domain note with the advisor off, advisor shortlist drives the alternatives, framework-name aliases, capped cortex context leg, two-way neighbourhood, honest gap scan with isolated-note check, Eureka file excerpts, cause-and-effect card descriptions (INSERTED)
 
 **Goal:** A cold user on a large, unratified room gets a plain-worded job choice, a ranked next move once a job is set, a context pull inside a stated budget, real neighbours, and an honest gap report (QA source: `400.4-QA-SOURCE.md`, findings F1-F10, root causes verified against installed v2.0.0-beta.91).
