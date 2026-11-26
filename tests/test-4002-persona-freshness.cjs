@@ -392,6 +392,38 @@ check('F10b. WR-06 NEGATIVE: a line break, a control character or a leading # in
   assert.equal(text.split('## Fixed Discipline').length - 1, 1, 'one Fixed Discipline heading');
 });
 
+// F13, F14 (Phase 400.2.1 P0, S1 and S2): the index and the fingerprint ignore the scaffold MindrianOS writes itself
+const SCAFFOLD_SET = ['ROOM.md', 'STATE.md', 'CONTEXT.md', 'MINTO.md', 'BRIEF.md', 'BRAIN.md', 'USER.md'];
+function makeScaffoldOnlyRoom() {
+  const room = fs.mkdtempSync(path.join(os.tmpdir(), 'mos-4002-scaffold-'));
+  tmpRoots.push(room);
+  put(room, 'STATE.md', '# Room\nventure: Harbor Light Studio\n');
+  for (const sec of ['problem-definition', 'market-analysis', 'solution-design']) {
+    for (const b of SCAFFOLD_SET) put(room, sec + '/' + b, '# ' + b + '\nwritten by the system\n');
+  }
+  return room;
+}
+
+check('F13. S1: a room whose sections hold only scaffold files has no indexed artifact', () => {
+  const room = makeScaffoldOnlyRoom();
+  const idx = ops.roomArtifactIndex(room);
+  for (const [sec, list] of Object.entries(idx.sections)) assert.deepEqual(list, [], sec + ' lists scaffold: ' + list.join(','));
+  put(room, 'problem-definition/core-problem.md', '# Core problem\nReal content.\n');
+  assert.deepEqual(ops.roomArtifactIndex(room).sections['problem-definition'], ['problem-definition/core-problem.md']);
+});
+
+check('F14. S2: a system rewrite of MINTO, BRIEF, BRAIN, CONTEXT, STATE or USER keeps the fingerprint; a content edit changes it', () => {
+  const room = makeScaffoldOnlyRoom();
+  put(room, 'problem-definition/core-problem.md', '# Core problem\nReal content.\n');
+  const base = ops.roomFingerprint(room);
+  for (const sec of ['problem-definition', 'market-analysis']) {
+    for (const b of SCAFFOLD_SET) put(room, sec + '/' + b, '# ' + b + '\nregenerated at ' + Date.now() + '\n');
+  }
+  assert.equal(ops.roomFingerprint(room), base, 'scaffold rewrite moved the fingerprint');
+  put(room, 'problem-definition/core-problem.md', '# Core problem\nEdited content.\n');
+  assert.notEqual(ops.roomFingerprint(room), base, 'content edit');
+});
+
 for (const r of tmpRoots) {
   try { fs.rmSync(r, { recursive: true, force: true }); } catch (_) { /* ignore */ }
 }
