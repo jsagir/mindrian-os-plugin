@@ -422,7 +422,7 @@ Agent file overrides. This dispatch replaces these instructions of the persona-a
 - lines 111 to 119 (all-hat mode): you are one hat.
 - lines 58 and 64 (the web leg and the Blue synthesis lines): replaced by the Blue fixed text and the bans below.
 
-Inputs: the brief (the target, the governing question, the sub-questions with their ids), your own persona file, and `ledger.json` in your own directory. The ledger holds counts and state names only. There is nothing else in this dispatch.
+Inputs: the brief (the target, the governing question, the sub-questions with their ids), your own persona file, and `ledger.json` in your own directory. The ledger holds counts and state names only. Its `coverage` list gives, for each sub-question id, the count of hats with a position, the count with `no_position`, and the state of each reading hat (`covered`, `no_position` or `not_run`): use it to say which sub-question a hat did not cover. There is nothing else in this dispatch.
 
 Search rule: no search. This step makes no web search: do not call WebSearch or WebFetch. Put no venture name, person name, figure or other room detail in a search string. This is a rule for you. No code checks it.
 

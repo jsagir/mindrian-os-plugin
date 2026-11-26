@@ -1985,6 +1985,8 @@ function cmdCheck(args, deps) {
   const screen = roomIdentityScreen(roomResolved, ledger.brief && ledger.brief.reading_list);
   const notRun = [];
   const perHat = {};
+  // Phase 400.2.1 (S8): the positions of each hat that ran, by sub-question id, for the coverage of the Blue ledger.
+  const positionsOf = {};
   const personaNotRun = (persona) => {
     if (persona === 'refused') return 'not_run:persona_refused';
     if (persona === 'build_failed') return 'not_run:persona_build_failed';
@@ -2006,6 +2008,10 @@ function cmdCheck(args, deps) {
       const judged = judgeReading(hat, dir, { runId: ledger.run_id, subQuestionIds, researchState: entry.research, packs: map.packs, screen });
       Object.assign(rec, judged.rec);
       if (judged.none_found_basis) entry.none_found_basis = judged.none_found_basis;
+      if (judged.value && Array.isArray(judged.value.positions)) {
+        positionsOf[hat] = {};
+        for (const p of judged.value.positions) if (isPlain(p) && typeof p.sub_question === 'string') positionsOf[hat][p.sub_question] = p.value;
+      }
     }
     if (rec.reading !== 'ran') notRun.push({ hat, reason: rec.reading.replace(/^(not_run|rejected):/, '') + '', state: rec.reading });
     entry.reading = rec.reading;
@@ -2049,6 +2055,20 @@ function cmdCheck(args, deps) {
       door_items: doorItemsOf(hat),
     };
   }
+  // Phase 400.2.1 (S8): coverage of each sub-question. For each id: the count of hats with a position, the count with
+  // no_position, and the state of each reading hat (covered, no_position or not_run). No position value and no line.
+  ledgerBlue.coverage = subQuestionIds.map((id) => {
+    const byHat = {};
+    let positions = 0;
+    let noPosition = 0;
+    for (const hat of READ_HATS) {
+      const ran = perHat[hat].reading === 'ran' && positionsOf[hat];
+      const v = ran ? positionsOf[hat][id] : undefined;
+      if (!ran || v === undefined) byHat[hat] = 'not_run';
+      else if (v === 'no_position') { byHat[hat] = 'no_position'; noPosition += 1; } else { byHat[hat] = 'covered'; positions += 1; }
+    }
+    return { sub_question: id, positions, no_position: noPosition, by_hat: byHat };
+  });
   const bluePath = path.join(blueDir, 'ledger.json');
   try {
     atomicWriteJson(bluePath, ledgerBlue);
