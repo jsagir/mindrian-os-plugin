@@ -1,6 +1,6 @@
 {
   "snapshot_note": "The job statements of each :Framework, read from Theo through lib/core/brain-client.cjs query (a fixed bucketed read). Owner ruling 22: only the job statements and their status marks are carried, no other Theo text. Ruling 21: a draft is shown as a draft and does not steer selection. Rulings 27 and 28: each statement carries one pws_backed mark; in this version the mark is shown and does not steer. Refresh with: node scripts/refresh-framework-names.cjs --live",
-  "snapshot_date": "2026-11-25",
+  "snapshot_date": "2026-11-26",
   "source": "theo brain_query (bucketed, fixed Cypher) via lib/core/brain-client.cjs query",
   "source_sha256": "1cc914d7266cba1a001d549214504ec4af1cfb03fb699eef9f194fbe0aa506c5",
   "counts": {
