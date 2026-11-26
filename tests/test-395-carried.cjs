@@ -123,6 +123,7 @@ const PRELOAD_SOURCE = [
   '    try {',
   '      fs.writeFileSync(outFile, JSON.stringify({',
   "        section: pick(ctx, 'section'),",
+  "        sectionFallback: pick(ctx, 'sectionFallback'),",
   "        surface: pick(ctx, 'surface'),",
   "        sectionPath: pick(ctx, 'sectionPath'),",
   "        tierCandidatesSource: pick(ctx, 'tierCandidatesSource'),",
@@ -475,7 +476,8 @@ async function main() {
     const normal = runHook(iso2, room2, 't395c-normal', 0);
     assert.strictEqual(normal.status, 0, 'hook exit code, normal clock');
     assert.ok(normal.capture, 'decide() was called, normal clock');
-    assert.strictEqual(normal.capture.section, SEC, 'normal clock: ctx.section is the slug');
+    // QA-F12 D2 / plan 400.4-14: the hook now gives decide() the session focus as ctx.section and the old active-section guess as ctx.sectionFallback.
+    assert.strictEqual(normal.capture.sectionFallback, SEC, 'normal clock: ctx.sectionFallback is the slug');
     assert.strictEqual(normal.capture.tierCandidatesSource, 'feyminto_face', 'normal clock: the selector ran');
     const late = runHook(iso2, room2, 't395c-late', 5000);
     assert.strictEqual(late.status, 0, 'hook exit code, budget used');
@@ -483,6 +485,7 @@ async function main() {
     assert.ok(late.capture, 'decide() was called, budget used');
     assert.strictEqual(late.capture.sectionPath, path.join(room2, SEC), 'budget used: the section in focus is the same');
     assert.strictEqual(late.capture.section, UNSET, 'budget used: ctx.section is not set');
+    assert.strictEqual(late.capture.sectionFallback, UNSET, 'budget used: ctx.sectionFallback is not set');
     assert.strictEqual(late.capture.surface, 'cli', 'budget used: ctx.surface stays');
     assert.strictEqual(late.capture.tierCandidatesSource, UNSET, 'budget used: the selector did not run');
   });

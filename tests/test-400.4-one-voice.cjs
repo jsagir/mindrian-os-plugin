@@ -348,6 +348,175 @@ async function groupC() {
   }
 }
 
+// ---- group H ------------------------------------------------------------------------------------------------
+async function groupH() {
+  const { spawnSync } = require('node:child_process');
+  const jtbdState = require(path.join(ROOT, 'lib', 'hmi', 'jtbd-state.cjs'));
+  const NM = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'next-move.cjs'));
+  const cache = require(path.join(ROOT, 'lib', 'statusline', 'next-move-cache.cjs'));
+  const rar = require(path.join(ROOT, 'lib', 'core', 'resolve-active-room.cjs'));
+  const binding = require(path.join(ROOT, 'lib', 'core', 'session-binding.cjs'));
+  const HOOK = path.join(ROOT, 'scripts', 'intent-classifier.cjs');
+  const MONITOR = path.join(ROOT, 'scripts', 'context-monitor');
+  const BLOCK_HEAD = '## NAVIGATION DECISION';
+  const UNCHANGED = '[NAV DECISION unchanged - prior block stands]';
+
+  const iso = H.mkIsolatedHome('4004-14h');
+  const mk = (slug) => {
+    const b = H.birthFixtureRoom({ iso, slug, vname: 'Quokka Labs', ventureText: 'Quokka Labs onboarding platform' });
+    if (!b || b.ok !== true) throw new Error('fixture birth failed: ' + JSON.stringify(b));
+    return fs.realpathSync(b.roomDir);
+  };
+  const A = mk('room-a');
+  const B = mk('room-b');
+  const C = mk('room-c');
+  const regPath = path.join(iso.roomsHome, '.rooms', 'registry.json');
+  const setActive = (slug) => {
+    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    reg.active = slug;
+    fs.writeFileSync(regPath, JSON.stringify(reg, null, 2));
+  };
+  const home = iso.roomsHome;
+  const env = () => Object.assign({}, iso.env, {
+    MINDRIAN_ROOMS_ROOT: iso.roomsHome, MOS_NAV_TEST_DISABLE_DRAIN: '1', MINDRIAN_COPILOT_INJECT_FINDINGS: '0',
+    MINDRIAN_VOICE_REMINDER: '0', CLAUDE_PLUGIN_ROOT: ROOT,
+  });
+  delete process.env.MINDRIAN_NAV_NO_SUPPRESS;
+  const runHook = (sid, cwd, prompt) => {
+    const t0 = Date.now();
+    const r = spawnSync(process.execPath, [HOOK], {
+      input: JSON.stringify({ prompt: prompt || 'what should I work on next for this venture', session_id: sid, cwd, hook_event_name: 'UserPromptSubmit' }),
+      env: env(), encoding: 'utf8', cwd: iso.home, timeout: 30000,
+    });
+    return { status: r.status, out: String(r.stdout || ''), err: String(r.stderr || ''), ms: Date.now() - t0 };
+  };
+  const nextMoveLine = (out) => { const m = out.match(/^next_move: .*$/m); return m ? m[0] : null; };
+  const traceFile = (roomDir, sid) => path.join(roomDir, '.mindrian', 'decision-traces', sid + '.json');
+  const lastTrace = (roomDir, sid) => {
+    try { const d = JSON.parse(fs.readFileSync(traceFile(roomDir, sid), 'utf8')); return d.traces[d.traces.length - 1]; } catch (_e) { return null; }
+  };
+  const suggestPrimary = async (roomDir, sid) => {
+    const sensors = require(path.join(ROOT, 'lib', 'mcp', 'tools', 'sensors.cjs'));
+    const f = fakeServer({ getClientCapabilities() { return {}; } });
+    sensors.register(f.server, { fallbackRoomDir: roomDir });
+    const h = f.registered.find((r) => r.name === 'suggest_next').handler;
+    // suggest_next runs as a separate MCP session bound to the room, so it answers for that room.
+    const mcpSid = 'mcp-' + sid;
+    binding.writeSessionBinding(mcpSid, { bound: [path.basename(roomDir)], primary: path.basename(roomDir), sticky: false }, { home });
+    const res = await h({}, { sessionId: mcpSid });
+    return JSON.parse(res.content[0].text);
+  };
+
+  await leg('H1 resolveSessionRoom: binding, then the cwd room, then reg.active; no cwd means today\'s answer', async () => {
+    setActive('room-c');
+    binding.writeSessionBinding('sess-h1a', { bound: ['room-a'], primary: 'room-a', sticky: false }, { home });
+    const inB = path.join(B, 'problem-definition');
+    const outside = iso.home;
+    const r1 = rar.resolveSessionRoom({ sessionId: 'sess-h1a', home, cwd: inB });
+    assert.equal(r1.slug, 'room-a'); assert.equal(r1.source, 'session.primary');
+    const r2 = rar.resolveSessionRoom({ sessionId: 'sess-h1b', home, cwd: inB });
+    assert.equal(r2.slug, 'room-b'); assert.equal(r2.source, 'cwd.room_root');
+    assert.equal(fs.realpathSync(r2.abs_path), B);
+    const r3 = rar.resolveSessionRoom({ sessionId: 'sess-h1b', home, cwd: outside });
+    assert.equal(r3.slug, 'room-c'); assert.equal(r3.source, 'reg.active');
+    const bare = rar.resolveSessionRoom({ sessionId: 'sess-h1b', home });
+    assert.equal(bare.slug, 'room-c'); assert.equal(bare.source, 'reg.active');
+    const bound = rar.resolveSessionRoom({ sessionId: 'sess-h1a', home });
+    assert.equal(bound.slug, 'room-a');
+    // an empty cwd never starts a walk from process.cwd()
+    const savedCwd = process.cwd();
+    try {
+      process.chdir(B);
+      const r4 = rar.resolveSessionRoom({ sessionId: 'sess-h1b', home, cwd: '' });
+      assert.equal(r4.source, 'reg.active', 'process.cwd() inside room B is never read');
+    } finally { process.chdir(savedCwd); }
+  });
+
+  await leg('H2 the hook block is for the cwd room, names the suggest_next move with its job phrase', async () => {
+    setActive('room-b');
+    jtbdState.setGoal(A, { jtbd: 'find-problem' });
+    const sid = 'sess-h2';
+    const sg = await suggestPrimary(A, sid);
+    assert.ok(sg.next_move.primary, JSON.stringify(sg.next_move));
+    const Cmd = sg.next_move.primary.command;
+    const P = cache.shortJobPhrase(Cmd, NM.jobWhenFor(Cmd));
+    const r = runHook(sid, A, null);
+    console.log('  H2 hook run time ms: ' + r.ms);
+    assert.equal(r.status, 0, r.err);
+    const line = nextMoveLine(r.out);
+    assert.ok(line, 'a next_move line in the block: ' + r.out.slice(0, 600));
+    const m = line.match(/^next_move: (?:\/mos:)?(\S+)(?: \| (.*))?$/);
+    assert.ok(m, line);
+    assert.equal(m[1], strip(Cmd));
+    assert.equal(m[2] || '', P);
+    assert.ok(r.out.indexOf('room-b') === -1, 'no line names room B');
+    assert.ok(fs.existsSync(traceFile(A, sid)), 'the decision trace is under room A');
+    assert.ok(!fs.existsSync(traceFile(B, sid)), 'and not under room B');
+    assert.equal(lastTrace(A, sid).room_source, 'cwd.room_root');
+  });
+
+  await leg('H3 the cue record carries room A, the move and its phrase; context-monitor prints it', async () => {
+    const sid = 'sess-h2';
+    const sg = await suggestPrimary(A, sid);
+    const Cmd = sg.next_move.primary.command;
+    const rec = JSON.parse(fs.readFileSync(path.join(iso.home, '.mindrian', 'next-move', sid + '.json'), 'utf8'));
+    assert.equal(rec.room, 'room-a');
+    assert.equal(strip(rec.command), strip(Cmd));
+    const want = cache.formatMoveCue(Cmd, NM.jobWhenFor(Cmd));
+    assert.equal(rec.next_move, want);
+    const mon = spawnSync('node', [MONITOR], {
+      input: JSON.stringify({ session_id: sid, model: { display_name: 'Sonnet' }, workspace: { current_dir: iso.home }, context_window: { used_percentage: 10, remaining_percentage: 90, context_window_size: 200000 } }),
+      cwd: iso.home, env: env(), encoding: 'utf8', timeout: 20000,
+    });
+    const text = String(mon.stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
+    assert.ok(text.indexOf(want) !== -1, 'statusline holds "' + want + '": ' + text);
+  });
+
+  await leg('H4 repeat is suppressed; a new goal job, a new room each give the full block again', async () => {
+    const sid = 'sess-h4';
+    setActive('room-b');
+    jtbdState.setGoal(A, { jtbd: 'find-problem' });
+    const first = runHook(sid, A, null);
+    assert.ok(first.out.indexOf(BLOCK_HEAD) !== -1, 'first turn: full block ' + first.out.slice(0, 300));
+    const again = runHook(sid, A, null);
+    assert.ok(again.out.indexOf(UNCHANGED) !== -1, 'second turn: unchanged marker ' + again.out.slice(0, 300));
+    jtbdState.setGoal(A, { jtbd: 'prepare-pitch' });
+    const changedJob = runHook(sid, A, null);
+    assert.ok(changedJob.out.indexOf(BLOCK_HEAD) !== -1, 'new goal job: full block');
+    const sg = await suggestPrimary(A, sid);
+    assert.equal(nextMoveLine(changedJob.out).replace(/^next_move: (\/mos:)?/, '').split(' ')[0], strip(sg.next_move.primary.command));
+    // a turn in room B (unbound, reg.active B), then back in A
+    const inB = runHook(sid, B, null);
+    assert.ok(inB.out.indexOf(BLOCK_HEAD) !== -1 || inB.out.indexOf(UNCHANGED) === -1, 'room B turn is a full block');
+    const backInA = runHook(sid, A, null);
+    assert.ok(backInA.out.indexOf(BLOCK_HEAD) !== -1, 'return to room A: full block, not the marker: ' + backInA.out.slice(0, 200));
+    jtbdState.setGoal(A, { jtbd: 'find-problem' });
+  });
+
+  await leg('H5 a binding to room A wins over a cwd inside room B', async () => {
+    const sid = 'sess-h5';
+    setActive('room-c');
+    binding.writeSessionBinding(sid, { bound: ['room-a'], primary: 'room-a', sticky: false }, { home });
+    const r = runHook(sid, B, null);
+    assert.equal(r.status, 0, r.err);
+    assert.ok(fs.existsSync(traceFile(A, sid)), 'trace under the bound room A');
+    assert.ok(!fs.existsSync(traceFile(B, sid)), 'none under room B');
+    assert.equal(lastTrace(A, sid).room_source, 'session.primary');
+  });
+
+  await leg('H6 with no registry active room and cwd inside room A the block still renders for A', async () => {
+    const sid = 'sess-h6';
+    const reg = JSON.parse(fs.readFileSync(regPath, 'utf8'));
+    reg.active = null;
+    fs.writeFileSync(regPath, JSON.stringify(reg, null, 2));
+    const r = runHook(sid, A, null);
+    assert.equal(r.status, 0, r.err);
+    assert.ok(r.out.indexOf(BLOCK_HEAD) !== -1, 'a full block: ' + r.out.slice(0, 300));
+    assert.ok(fs.existsSync(traceFile(A, sid)));
+    assert.ok(r.out.indexOf('room-b') === -1 && r.out.indexOf('room-c') === -1);
+  });
+}
+
 async function main() {
   if (want('V')) await groupV();
   if (want('C') && typeof groupC === 'function') await groupC();
@@ -355,5 +524,4 @@ async function main() {
   console.log('test-400.4-one-voice: ' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
-// GROUP_C_AND_H_HERE
 main().catch((e) => { console.log('FAIL: fatal -- ' + (e && e.stack || e)); process.exit(1); });

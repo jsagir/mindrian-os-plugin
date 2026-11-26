@@ -501,6 +501,9 @@ let TURN_IS_HARNESS = false;
 // Phase 360 (N-1): the hook stdin's cwd, set once per turn from the same payload (no second parse of a different
 // shape than extractSessionId's).
 let STDIN_CWD;
+// Phase 400.4 plan 14 (QA-F12 D1): which leg of resolveSessionRoom answered the NAV block site this turn
+// ('session.primary', 'cwd.room_root', 'reg.active'), for the decision trace. Reset every turn by setTurnInput.
+let TURN_ROOM_SOURCE = null;
 
 function setTurnInput(raw) {
   STDIN_RAW = typeof raw === 'string' ? raw : '';
@@ -508,6 +511,7 @@ function setTurnInput(raw) {
   STDIN_SESSION_ID = extractSessionId(STDIN_RAW);
   TURN_IS_HARNESS = harnessVerdict(STDIN_MESSAGE);
   STDIN_CWD = extractCwd(STDIN_RAW);
+  TURN_ROOM_SOURCE = null;
   // A binding read memoized for an earlier turn must not answer this turn (a long-lived process runs many turns).
   SESSION_BINDING_CACHE = null;
 }
@@ -1137,6 +1141,20 @@ function sectionSlugForEngine(roomDir, sectionPath) {
 // NAV_HARD_TIMEOUT_MS timer cannot stop the selector after it starts. When the hook has already used that budget
 // before it builds the context for decide(), no section is given, so decide() does not start the selector and runs as
 // it did before Phase 395-03. The same rule as shouldSkipReachPenalties: a missing or non-finite clock never skips.
+// Phase 400.4 plan 14: the section the session's focus node sits in (the same read suggest_next uses), as a slug whose
+// folder exists in the room; undefined when there is no focus. Never throws.
+function focusSectionSlug(roomDb, navigationMod, roomDir, sessionId) {
+  try {
+    if (!roomDb || !navigationMod || typeof navigationMod.resolveFocusSection !== 'function') return undefined;
+    const focus = navigationMod.resolveFocusSection(roomDb, sessionId);
+    if (focus && focus.ok === true && typeof focus.section === 'string' && /^[a-z0-9-]+$/.test(focus.section)
+        && fs.existsSync(path.join(roomDir, focus.section))) {
+      return focus.section;
+    }
+  } catch (_e) { /* no focus */ }
+  return undefined;
+}
+
 function sectionForSelector(roomDir, sectionPath, elapsedMs) {
   if (shouldSkipReachPenalties(elapsedMs)) return undefined;
   return sectionSlugForEngine(roomDir, sectionPath);
@@ -1198,8 +1216,13 @@ function resolveSessionRoomDir(sessionId, machineWideDir, opts) {
         sessionId: sessionId,
         home: home,
         requireOwnership: requireOwnership,
+        // Phase 400.4 plan 14 (QA-F12 D1): the hook stdin cwd, an opt-in leg below the binding.
+        cwd: (opts && typeof opts.cwd === 'string') ? opts.cwd : undefined,
       });
-      if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) return r.abs_path;
+      if (r && typeof r.abs_path === 'string' && r.abs_path.length > 0) {
+        if (opts && opts.recordSource === true) TURN_ROOM_SOURCE = typeof r.source === 'string' ? r.source : null;
+        return r.abs_path;
+      }
       if (requireOwnership) return null;
     }
   } catch (_) { /* fall through to the machine-wide value */ }
@@ -1320,10 +1343,25 @@ function formatEngineDecisionBlock(decision, routing, offerLine) {
     'fire_skill: ' + fireSkill,
     'suppress_skills: ' + suppressSkills,
     'offer_next_step: ' + offer,
-    'persona_updates: ' + persona,
-    'tier_mode: ' + tierMode,
-    'brain_md_recommended_marker_rendered: ' + recommended,
   ];
+  // Phase 400.4 plan 14 (QA-F12 D2, PD-1): one line that names the selector's move, so the block names the same move
+  // as suggest_next also when the offer abstains. 'next_move: <command> | <job phrase>'; no line when the selector
+  // named nothing (the trace key is null).
+  try {
+    const sm = trace.selector_next_move;
+    if (sm && typeof sm === 'object') {
+      if (typeof sm.command === 'string' && sm.command) {
+        const cue = require(path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs'));
+        const phrase = cue.shortJobPhrase(sm.command, sm.job_when);
+        lines.push('next_move: ' + sm.command + (phrase ? ' | ' + phrase : ''));
+      } else if (typeof sm.job_id === 'string' && sm.job_id) {
+        lines.push('next_move: none for goal job ' + sm.job_id);
+      }
+    }
+  } catch (_e) { /* the line is optional */ }
+  lines.push('persona_updates: ' + persona);
+  lines.push('tier_mode: ' + tierMode);
+  lines.push('brain_md_recommended_marker_rendered: ' + recommended);
   // Phase 91-03: append router output (routing_source + activated_skills)
   // when the caller has computed it. Two new lines summarize which
   // activation set won (engine vs legacy vs mixed) and which skills are
@@ -1916,7 +1954,11 @@ function renderEngineDecisionWithDial(decision, routing, offerLine, ctx) {
 
   let hash = null;
   try {
-    hash = crypto.createHash('sha256').update(finalBlock, 'utf8').digest('hex');
+    // Phase 400.4 plan 14 (QA-F12 D5, PD-8): the hash covers the turn key (room slug, goal job id, selector command,
+    // offer command) plus the block, so a changed room, goal job or top move always gives the full block again.
+    // Without a turn key the hash is the block alone, as before.
+    const hashInput = (ctx && typeof ctx.turnKey === 'string') ? (ctx.turnKey + '\n' + finalBlock) : finalBlock;
+    hash = crypto.createHash('sha256').update(hashInput, 'utf8').digest('hex');
     if (ctx && typeof ctx.onBlockHash === 'function') {
       ctx.onBlockHash(hash, Buffer.byteLength(finalBlock, 'utf8'));
     }
@@ -2467,6 +2509,7 @@ function runNavigationEngine(roomDir, sessionId) {
         }
       }
 
+      const selectorGuard = shouldSkipReachPenalties(Date.now() - startedAt) === true;
       const context = {
         quadruple: quadruple,
         brainAvailable: brainAvailable,
@@ -2476,7 +2519,11 @@ function runNavigationEngine(roomDir, sessionId) {
         operator: operatorState,
         sectionPath: sectionPath, // scope + the [[wikilink]] target the grounded reason needs
         // Phase 395-03: the selector inputs. section is the slug decide() joins to roomDir; the hook runs in Claude Code only.
-        section: sectionForSelector(roomDir, sectionPath, Date.now() - startedAt),
+        // Phase 400.4 plan 14 (QA-F12 D2, PD-3): the session's focus section is the nest; with none, decide() uses the
+        // goal-job nest, then sectionFallback (the old active-section guess). The time guard gives no selector at all.
+        section: selectorGuard ? undefined : focusSectionSlug(roomDb, navigationMod, roomDir, sessionId),
+        sectionFallback: sectionForSelector(roomDir, sectionPath, Date.now() - startedAt),
+        selectorSkipped: selectorGuard,
         surface: 'cli',
         problemType: userPersona && userPersona.problem_type, // rankForSelector input (null when unknown)
         jtbd: jtbd,
@@ -2611,17 +2658,26 @@ function runNavigationEngine(roomDir, sessionId) {
           // is LAZY -- the research/ scan runs only when the engine abstained, and the
           // scanner require is loaded inside the provider body so the common routed
           // path never pays for it.
+          let priorCueRoom = null;
           try {
             const nextMoveCache = require(
               path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs')
             );
+            // Phase 400.4 plan 14 (QA-F12 D1, D4, D5): the room of the session's own cue record BEFORE this turn's
+            // write (so a changed room re-emits the full block), then the per-session write with the room slug.
+            try {
+              const priorCue = sessionId ? nextMoveCache.readSessionCue(sessionId) : null;
+              priorCueRoom = priorCue && typeof priorCue.room === 'string' ? priorCue.room : null;
+            } catch (_priorErr) { priorCueRoom = null; }
             nextMoveCache.persistFromDecision(decision, {
+              sessionId: STDIN_SESSION_ID || sessionId,
+              room: path.basename(roomDir),
               fallbackProvider: function () {
                 try {
                   const ratNext = require(
                     path.join(__dirname, '..', 'lib', 'statusline', 'ratification-next.cjs')
                   );
-                  const r = ratNext.scanRatificationNext();
+                  const r = ratNext.scanRatificationNext(roomDir);
                   return r && typeof r.cue === 'string' ? r.cue : null;
                 } catch (_scanErr) { return null; }
               },
@@ -2858,6 +2914,8 @@ function runNavigationEngine(roomDir, sessionId) {
             // relevantNodes/cortexNodes. Presence-only LOCAL fields; never a
             // Brain wire (Part 8). Absent -> null -> buildDialSlotContext {}.
             room_context: context.roomContext || null,
+            // Phase 400.4 plan 14 (D5): the room of this session's cue record before this turn wrote it.
+            prior_cue_room: priorCueRoom,
           });
         })
         .catch(function () { resolve(null); })
@@ -3807,11 +3865,22 @@ try {
     // Every uncertain case (no ownership recorded, owner is me, owner's process
     // is gone, no session id, any fault) still inherits exactly as before, which
     // is what keeps the tier-0 single-session user whole.
+    //
+    // Phase 400.4 plan 14 (QA-F12 D1): the session's room, in this order: the session binding (session.primary), the
+    // room whose .room-root sentinel is at or above the hook stdin cwd, then the registry active room with the
+    // ownership gate. The site no longer skips when the registry has no active room: a bound session or a cwd inside a
+    // room still gets its block. With no room at all the block is skipped and the cue says so.
     const machineWideDir = resolveActiveRoomDir();
-    const sessionId = machineWideDir ? resolveSessionId(machineWideDir) : null;
-    const roomDir = machineWideDir
-      ? resolveSessionRoomDir(sessionId, machineWideDir, { requireOwnership: true })
-      : null;
+    const sessionId = resolveSessionId(machineWideDir || '');
+    const roomDir = resolveSessionRoomDir(sessionId, machineWideDir, {
+      requireOwnership: true, cwd: STDIN_CWD, recordSource: true,
+    });
+    if (!roomDir && STDIN_SESSION_ID) {
+      try {
+        require(path.join(__dirname, '..', 'lib', 'statusline', 'next-move-cache.cjs'))
+          .persistFromDecision(null, { sessionId: STDIN_SESSION_ID, room: null, roomless: true });
+      } catch (_roomlessErr) { /* the cue is optional */ }
+    }
     if (roomDir) {
       // Phase 159-02 (HOW-4, DCW-01/04): the turn-start consumer. Fire BEFORE the
       // new turn's dial render, reading the PRIOR turn's persisted f1_closer_payload
@@ -4053,6 +4122,8 @@ try {
           turn: turnNo,
           at: new Date().toISOString(),
           elapsed_ms: out.elapsed_ms,
+          // Phase 400.4 plan 14 (QA-F12 D1): which leg named this session's room (the cwd leg or the binding).
+          room_source: TURN_ROOM_SOURCE,
         });
         if (routing && typeof routing === 'object') {
           traceEntry.routing_source = routing.source;
@@ -4093,7 +4164,21 @@ try {
         // render seam captures {hash, bytes} via onBlockHash so this closure
         // can persist them onto the SAME decision trace + write the sidecar
         // AFTER the block is composed, without adding a second render pass.
-        const prevNavHash = process.env.MINDRIAN_NAV_NO_SUPPRESS
+        // Phase 400.4 plan 14 (QA-F12 D5): a changed room (the room of the prior cue record differs from this turn's
+        // room) never suppresses. The turn key below adds the goal job and the move to the hash.
+        const roomSlugForKey = path.basename(roomDir);
+        const roomChanged = typeof out.prior_cue_room === 'string' && out.prior_cue_room !== roomSlugForKey;
+        const traceForKey = (out.decision && out.decision.decision_trace) || {};
+        const smForKey = traceForKey.selector_next_move && typeof traceForKey.selector_next_move === 'object'
+          ? traceForKey.selector_next_move : {};
+        const turnKey = [
+          roomSlugForKey,
+          typeof smForKey.job_id === 'string' ? smForKey.job_id : '',
+          typeof smForKey.command === 'string' ? smForKey.command : '',
+          (out.decision && out.decision.offer_next_step && typeof out.decision.offer_next_step.command === 'string')
+            ? out.decision.offer_next_step.command : '',
+        ].join('|');
+        const prevNavHash = (process.env.MINDRIAN_NAV_NO_SUPPRESS || roomChanged)
           ? null
           : readNavBlockHash(roomDir, sessionId);
         let navBlockHashLocal = null;
@@ -4117,6 +4202,7 @@ try {
             reach_penalties: out.reach_penalties,
             onRenderNote: function (note) { traceEntry.dial_render_note = note; },
             prevBlockHash: prevNavHash,
+            turnKey: turnKey,
             onBlockHash: function (hash, bytes) {
               navBlockHashLocal = hash;
               navBlockBytesLocal = bytes;
