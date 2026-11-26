@@ -15,7 +15,7 @@
 // G. suggest_next with a goal job set sends a shorter how_to (cold check 395-05, MA3).
 //
 // Parts A and B read data/command-registry.json and data/section-command-ledger.json and pick command names at run
-// time. Parts C to G use a real born fixture room under an isolated temporary home
+// time; check B3 reads a fixture ledger, because the shipped ledger is rebuilt at each release. Parts C to G use a real born fixture room under an isolated temporary home
 // (tests/helpers/isolated-home-36925.cjs) and the real registered tool handlers with a fake session id. No network.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -235,9 +235,14 @@ async function main() {
     assert.strictEqual(NM.JOB_FIT_STRONG, 1.5);
   });
 
-  await check('B2. the level of every counted ledger row is the level these limits give, and each level is in the ledger', () => {
+  // B2 reads the shipped ledger and B3 reads a fixture ledger (RCA .planning/debug/395-tests-after-beta93.md).
+  // Each release rebuild of data/section-command-ledger.json calibrates confidence_floor again over 12 labeled turns
+  // (scripts/build-section-command-ledger.cjs calibrateFloor). The floor moved between 0.3 and 0.7 at 6 rebuilds. At
+  // 0.7 no counted row has a score in [0.5, 1.5) (counted levels 16, 0, 9 at eed3cd1b3). Thus "each level is in the
+  // shipped ledger" is a fact of one rebuild, not a property of the limits. B2 keeps the agreement over every counted
+  // shipped row. B3 proves each level, both limits and both count rules on rows that sit on the limits.
+  await check('B2. the level of every counted row of the shipped ledger is the level these limits give', () => {
     const floor = typeof LEDGER.confidence_floor === 'number' ? LEDGER.confidence_floor : null;
-    const seen = [0, 0, 0];
     let jobs = 0;
     Object.keys(LEDGER.rows).forEach((key) => {
       if (!/\|\*\|\*$/.test(key)) return;
@@ -247,9 +252,7 @@ async function main() {
         if (!r || typeof r.command !== 'string' || typeof r.score !== 'number') return;
         const counted = typeof r.confidence === 'number' ? (floor === null || r.confidence >= floor) : r.source === 'ground-truth';
         if (!counted) return;
-        const level = r.score >= 1.5 ? 2 : (r.score < 0.5 ? 0 : 1);
-        want[strip(r.command)] = level;
-        seen[level] += 1;
+        want[strip(r.command)] = r.score >= 1.5 ? 2 : (r.score < 0.5 ? 0 : 1);
       });
       const got = {};
       NM.jobFitFor(job).forEach((v, k) => { got[k] = v; });
@@ -257,10 +260,30 @@ async function main() {
       jobs += 1;
     });
     assert.ok(jobs >= 10, 'the ledger has job rows: ' + jobs);
-    assert.ok(seen[0] > 0 && seen[1] > 0 && seen[2] > 0, 'each level is in the ledger: ' + seen.join(', '));
-    const scores = [];
-    Object.keys(LEDGER.rows).forEach((key) => LEDGER.rows[key].forEach((r) => { if (r && typeof r.score === 'number') scores.push(r.score); }));
-    assert.ok(scores.some((s) => s >= 0.4 && s < 0.5) && scores.some((s) => s >= 1.5 && s < 1.6), 'the ledger has scores next to both limits, so a moved limit changes a level');
+  });
+
+  await check('B3. a fixture ledger with rows on both limits: each level, the floor and the ground-truth rule', () => {
+    const row = (command, score, confidence, source) => Object.assign({ command: '/mos:' + command, framework: 'Fixture', score: score, source: source || 'framework-matched' },
+      confidence === undefined ? {} : { confidence: confidence });
+    const rows = [
+      row('fx-poor-edge', 0.49, 0.9),
+      row('fx-partial-low', 0.5, 0.7),
+      row('fx-partial-high', 1.49, 0.8),
+      row('fx-strong-edge', 1.5, 0.75),
+      row('fx-under-floor', 1.9, 0.69),
+      row('fx-ground-truth', 0.1, undefined, 'ground-truth'),
+      row('fx-no-confidence', 1.9, undefined),
+    ];
+    const asObj = (m) => { const o = {}; m.forEach((v, k) => { o[k] = v; }); return o; };
+    const withFloor = { confidence_floor: 0.7, rows: { 'fixture-job|*|*': rows } };
+    assert.deepStrictEqual(asObj(NM.jobFitFor('fixture-job', withFloor)), {
+      'fx-poor-edge': 0, 'fx-partial-low': 1, 'fx-partial-high': 1, 'fx-strong-edge': 2, 'fx-ground-truth': 0,
+    }, 'floor 0.7: 0.49 is poor, 0.5 and 1.49 are partial, 1.5 is strong; a confidence at the floor counts, under it not; no confidence counts only as ground truth');
+    const noFloor = { rows: { 'fixture-job|*|*': rows } };
+    assert.deepStrictEqual(asObj(NM.jobFitFor('fixture-job', noFloor)), {
+      'fx-poor-edge': 0, 'fx-partial-low': 1, 'fx-partial-high': 1, 'fx-strong-edge': 2, 'fx-under-floor': 2, 'fx-ground-truth': 0,
+    }, 'no floor: every row with a confidence counts');
+    assert.deepStrictEqual(asObj(NM.jobFitFor('other-job', withFloor)), {}, 'a job with no row has no rating');
   });
 
   // ---- the fixture room: born, no goal ----

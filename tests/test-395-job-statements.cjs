@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
-// Phase 399 plan 07: this test pins the primary of the 395 selector (fixture primaries root-cause and macro-trends).
-// The decision advisor is one more sort key since 399-07, so the pinned selector runs with the advisor off.
+// Phase 399 plan 07: part F reads the primary of the 395 selector. The decision advisor is one more sort key since
+// 399-07, so the selector runs with the advisor off. Part F takes each primary from the selector at run time and does
+// not pin a command name (RCA .planning/debug/395-tests-after-beta93.md).
 process.env.MINDRIAN_DECISION_ADVISOR = 'off';
 // Phase 395-10: the job statements of Theo ship as data (owner rulings 21, 22 and 25 to 28). Plain Node script.
 // Exit 0 when all checks pass, 1 when one fails. One line per check: "ok:" or "FAIL:".
@@ -463,6 +464,46 @@ async function main() {
   const NM = require(path.join(ROOT, 'lib', 'core', 'feyminto', 'next-move.cjs'));
   const nests = fs.readdirSync(roomDir).filter((d) => /^[a-z0-9-]+$/.test(d) && fs.statSync(path.join(roomDir, d)).isDirectory()).sort();
 
+  // RCA .planning/debug/395-tests-after-beta93.md: the selector primary of a nest is a fact of the shipped data. Each
+  // release rebuild of data/section-command-ledger.json calibrates its confidence floor again; at eed3cd1b3 the floor
+  // moved from 0.3 to 0.7, root-cause (score 1.7, confidence 0.55) stopped counting, and the primary of
+  // problem-definition became beautiful-question. So part F does not pin a primary. The selector names the primary
+  // of each nest first (F5 proves that no selection file reads the jobs file), and the jobs file of part F gives the
+  // first framework of each primary a synthetic statement: ruled for the F1 nest, a draft for the F2 nest, and ruled
+  // for each other nest. Every value that F1 and F2 assert is still a fixed synthetic value or that derived name.
+  const REG_FW = new Map();
+  JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'command-registry.json'), 'utf8')).commands.forEach((c) => {
+    if (c && typeof c.command === 'string' && Array.isArray(c.frameworks)) REG_FW.set(c.command.replace(/^\/mos:/, ''), c.frameworks.filter((f) => typeof f === 'string'));
+  });
+  const fwsOf = (cmd) => (cmd ? REG_FW.get(String(cmd).replace(/^\/mos:/, '')) || [] : []);
+  FJ.setJobsPath(path.join(TMP, 'absent.json'));
+  const primaries = {};
+  nests.forEach((n) => {
+    const m = NM.nextMoveForSection({ roomDir, sectionDir: path.join(roomDir, n), surface: 'mcp' });
+    primaries[n] = m && m.primary ? m.primary.command : null;
+  });
+  const withFw = nests.filter((n) => fwsOf(primaries[n]).length > 0);
+  const pick = (list, preferred) => (list.indexOf(preferred) !== -1 ? preferred : (list[0] || null));
+  const RULED_NEST = pick(withFw, 'problem-definition');
+  const P1 = RULED_NEST ? primaries[RULED_NEST] : null;
+  const FW1 = fwsOf(P1)[0] || null;
+  const DRAFT_NEST = pick(withFw.filter((n) => n !== RULED_NEST && primaries[n] !== P1 && fwsOf(primaries[n]).indexOf(FW1) === -1), 'market-analysis');
+  const P2 = DRAFT_NEST ? primaries[DRAFT_NEST] : null;
+  const FW2 = fwsOf(P2)[0] || null;
+  const reserved = new Set(fwsOf(P1).concat(fwsOf(P2)));
+  const fRows = ROWS.filter((r) => !reserved.has(r.name) && !reserved.has(r.alias_of)).map(clone);
+  if (FW1) fRows.push(Object.assign(clone(ROWS[0]), { name: FW1 }));
+  if (FW2) fRows.push(Object.assign(clone(ROWS[2]), { name: FW2 }));
+  nests.forEach((n) => {
+    const fw = fwsOf(primaries[n])[0];
+    if (!fw || fwsOf(P2).indexOf(fw) !== -1 || fRows.some((r) => r.name === fw)) return;
+    fRows.push({ name: fw, alias_of: '', pws_jtbd: 'Synthetic ruled job for the nest ' + n + '.', pws_jtbd_extra: [], pws_jtbd_drafts: [], pws_jtbd_draft_confidence: '', pws_jtbd_draft_by: '', pws_jtbd_basis: '' });
+  });
+  const fBuilt = FJ.buildJobsSnapshot({ rows: fRows, date: '2026-11-16' });
+  const fPath = path.join(TMP, 'framework-jobs-part-f.json');
+  fs.writeFileSync(fPath, JSON.stringify(fBuilt, null, 2) + '\n');
+  console.log('part F: ruled ' + RULED_NEST + ' (' + P1 + ', ' + FW1 + '), draft ' + DRAFT_NEST + ' (' + P2 + ', ' + FW2 + ')');
+
   async function pull(jobsPath) {
     FJ.setJobsPath(jobsPath);
     const out = {};
@@ -475,20 +516,25 @@ async function main() {
     }
     return out;
   }
-  const withData = await pull(goodPath);
+  const withData = await pull(fPath);
   const without = await pull(path.join(TMP, 'absent.json'));
 
   await check('F1. suggest_next names the ruled statement of the method behind the primary', () => {
-    const r = withData['problem-definition'].reply;
-    assert.strictEqual(r.next_move.primary.command, 'root-cause', 'precondition: the fixture primary');
-    assert.deepStrictEqual([r.next_move.method_job.framework, r.next_move.method_job.status, r.next_move.method_job.statement], ['Root Cause Analysis', 'ruled', 'Synthetic ruled job one for the test.']);
+    assert.ok(RULED_NEST && FW1, 'precondition: a nest whose primary has a framework in data/command-registry.json');
+    assert.ok(FJ.validateJobsSnapshot(fBuilt).valid, 'precondition: the jobs file of part F validates');
+    const r = withData[RULED_NEST].reply;
+    assert.strictEqual(r.next_move.primary.command, P1, 'precondition: suggest_next and the selector name the same primary');
+    assert.deepStrictEqual([r.next_move.method_job.framework, r.next_move.method_job.status, r.next_move.method_job.statement], [FW1, 'ruled', 'Synthetic ruled job one for the test.']);
     assert.strictEqual(r.next_move.method_job.note, FJ.RULED_BY_RULE_NOTE, 'a statement a model drafted says so');
     assert.deepStrictEqual([r.next_move.method_job.pws_backed, r.next_move.method_job.backing], [true, FJ.BACKED_NOTE]);
   });
 
   await check('F2. suggest_next marks a draft as a draft', () => {
-    const r = withData['market-analysis'].reply;
-    assert.strictEqual(r.next_move.primary.command, 'macro-trends', 'precondition: the fixture primary');
+    assert.ok(DRAFT_NEST && FW2, 'precondition: a second nest whose primary has another framework');
+    const r = withData[DRAFT_NEST].reply;
+    assert.strictEqual(r.next_move.primary.command, P2, 'precondition: suggest_next and the selector name the same primary');
+    assert.strictEqual(r.next_move.method_job.framework, FW2);
+    assert.strictEqual(r.next_move.method_job.statement, 'Synthetic draft main for the test.');
     assert.strictEqual(r.next_move.method_job.status, 'draft');
     assert.match(r.next_move.method_job.note, /^Draft: .*not confirmed/);
     assert.deepStrictEqual([r.next_move.method_job.pws_backed, r.next_move.method_job.backing], [true, FJ.BACKED_NOTE], 'backed and still a draft');

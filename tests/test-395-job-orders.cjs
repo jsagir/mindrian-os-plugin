@@ -13,7 +13,8 @@
 //   - Parts A, B and D call composeNextMove with a stub capability function and the `jobFit` input, so they do not
 //     read the ledger. They read data/command-registry.json to learn which command serves which job; the command
 //     names are picked from the registry at run time, not written here.
-//   - Part C reads data/section-command-ledger.json and picks its commands from it at run time.
+//   - Part C reads data/section-command-ledger.json and picks its commands from it at run time. When a release rebuild
+//     leaves no pair for a check, that check uses a fixture ledger with the same job and commands (see Part C).
 //   - Part E uses a real born fixture room under an isolated temporary home
 //     (tests/helpers/isolated-home-36925.cjs). No network.
 const fs = require('node:fs');
@@ -137,26 +138,56 @@ function main() {
     }
     return null;
   }
+  // RCA .planning/debug/395-tests-after-beta93.md: each release rebuild of the ledger calibrates confidence_floor
+  // again (it moved between 0.3 and 0.7 at 6 rebuilds), so a pair that one build holds can be absent from the next.
+  // At floor 0.7 (eed3cd1b3) no counted row has a partial score, and C2 found no pair. Each C check takes its pair from
+  // the shipped ledger file when the file holds it, and then the rating is read from the file. When the file does not
+  // hold it, the check writes a fixture ledger with the same job and 2 commands of the same serves status, and passes
+  // it in the ledgerDoc input. The order assertion is the same on both paths. The line "C<n> reads ..." names the path.
+  const FIXTURE_FLOOR = 0.7;
+  function anyPair() {
+    for (const row of rows) {
+      for (const a of row.items) {
+        const b = row.items.find((x) => strip(x.command) !== strip(a.command) && serves(strip(x.command), row.job) === serves(strip(a.command), row.job));
+        if (b) return { job: row.job, a: strip(a.command), b: strip(b.command) };
+      }
+    }
+    return null;
+  }
+  function pairFor(label, live, fixtureA, fixtureB) {
+    if (live) {
+      console.log(label + ' reads the shipped ledger file: job ' + live.job + ', ' + live.a + ' before ' + live.b);
+      return { p: live, extra: {} };
+    }
+    const p = anyPair();
+    assert.ok(p, 'the shipped ledger has a row with 2 commands of the same serves status');
+    const doc = { confidence_floor: FIXTURE_FLOOR, rows: { [p.job + '|*|*']: [
+      Object.assign({ command: '/mos:' + p.a, framework: 'Fixture', source: 'framework-matched' }, fixtureA),
+      Object.assign({ command: '/mos:' + p.b, framework: 'Fixture', source: 'framework-matched' }, fixtureB),
+    ] } };
+    console.log(label + ' reads a fixture ledger (the shipped file holds no such pair): job ' + p.job + ', ' + p.a + ' before ' + p.b);
+    return { p: p, extra: { ledgerDoc: doc } };
+  }
 
   check('C1. ledger file: a counted strong score is before a counted poor score with more sources', () => {
-    const p = findPair((r) => counted(r) && r.score >= 1.5, (r) => counted(r) && r.score < 0.5);
-    assert.ok(p, 'the ledger holds no row with a counted strong and a counted poor command of the same serves status');
-    const m = compose({ jobId: p.job, sources: src([p.b, p.a], [p.b]) });
+    const { p, extra } = pairFor('C1', findPair((r) => counted(r) && r.score >= 1.5, (r) => counted(r) && r.score < 0.5),
+      { score: 1.8, confidence: 0.9 }, { score: 0.2, confidence: 0.9 });
+    const m = compose(Object.assign({ jobId: p.job, sources: src([p.b, p.a], [p.b]) }, extra));
     assert.deepStrictEqual(order(m), [p.a, p.b], 'job ' + p.job);
   });
 
   check('C2. ledger file: a counted strong score is before a counted partial score with more sources', () => {
-    const p = findPair((r) => counted(r) && r.score >= 1.5, (r) => counted(r) && r.score >= 0.5 && r.score < 1.5);
-    assert.ok(p, 'the ledger holds no row with a counted strong and a counted partial command of the same serves status');
-    const m = compose({ jobId: p.job, sources: src([p.b, p.a], [p.b]) });
+    const { p, extra } = pairFor('C2', findPair((r) => counted(r) && r.score >= 1.5, (r) => counted(r) && r.score >= 0.5 && r.score < 1.5),
+      { score: 1.8, confidence: 0.9 }, { score: 1.0, confidence: 0.9 });
+    const m = compose(Object.assign({ jobId: p.job, sources: src([p.b, p.a], [p.b]) }, extra));
     assert.deepStrictEqual(order(m), [p.a, p.b], 'job ' + p.job);
   });
 
   check('C3. ledger file: a low score under the confidence floor is not used as a poor rating', () => {
-    assert.ok(floor !== null, 'the ledger has a confidence floor');
-    const p = findPair((r) => typeof r.confidence === 'number' && r.confidence < floor && r.score < 0.5, (r) => counted(r) && r.score < 0.5);
-    assert.ok(p, 'the ledger holds no row with a low score under the floor and a counted poor command of the same serves status');
-    const m = compose({ jobId: p.job, sources: src([p.b, p.a], [p.b]) });
+    const live = floor === null ? null
+      : findPair((r) => typeof r.confidence === 'number' && r.confidence < floor && r.score < 0.5, (r) => counted(r) && r.score < 0.5);
+    const { p, extra } = pairFor('C3', live, { score: 0.2, confidence: FIXTURE_FLOOR - 0.2 }, { score: 0.2, confidence: 0.9 });
+    const m = compose(Object.assign({ jobId: p.job, sources: src([p.b, p.a], [p.b]) }, extra));
     assert.deepStrictEqual(order(m), [p.a, p.b], 'job ' + p.job);
   });
 
