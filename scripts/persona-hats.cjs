@@ -2140,6 +2140,7 @@ const ARTIFACT_LABELS = Object.freeze({
   ruling_value: 'ruling: ',
   ruling_side_hat: 'side hat: ',
   ruling_date: 'ruled on: ',
+  ruling_delegated: 'delegated to Larry: yes',
   quick_label: 'Quick mode: one context, no research. Checks that need evidence were not run.',
 });
 
@@ -2856,10 +2857,12 @@ async function mergeQuickRun(roomResolved, lr, args, deps) {
 const RULINGS_FILE = 'tension-rulings.json';
 const RULINGS_SCHEMA = 'mos.persona-tension-rulings/1';
 const RULING_ANSWER_SCHEMA = 'mos.persona-ruling-answer/1';
-const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer']);
+// Phase 400.2.1 (S6): delegated means the navigator hands the ruling to Larry. The entry then holds larry_pick (one of
+// STORED_RULINGS). The store keeps the pick as the ruling and adds delegated: true, so the record shows who decided.
+const RULING_VALUES = Object.freeze(['side_a', 'side_b', 'both_hold', 'defer', 'delegated']);
 const STORED_RULINGS = Object.freeze(['side_a', 'side_b', 'both_hold']);
 const RULING_ANSWER_KEYS = Object.freeze(['schema', 'run_id', 'rulings']);
-const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen']);
+const RULING_ENTRY_KEYS = Object.freeze(['tension_id', 'ruling', 'reason', 'reopen', 'larry_pick']);
 const STORE_ENTRY_KEYS = Object.freeze(['ruling', 'reason', 'ruled_at', 'run_id', 'sub_question_text', 'pair', 'lines']);
 const MAX_RULINGS_PER_ANSWER = 75;
 const TENSION_ID_RE = /^[0-9a-f]{64}$/;
@@ -2872,7 +2875,11 @@ function rulingsStorePath(roomResolved) {
 function storeEntryValid(e) {
   if (!isPlain(e)) return false;
   const keys = Object.keys(e);
-  if (keys.length !== STORE_ENTRY_KEYS.length || !STORE_ENTRY_KEYS.every(k => keys.includes(k))) return false;
+  // Phase 400.2.1 (S6): one optional key, delegated, which is always true when present. A store without it stays valid.
+  const hasDelegated = keys.includes('delegated');
+  if (hasDelegated && e.delegated !== true) return false;
+  const want = STORE_ENTRY_KEYS.length + (hasDelegated ? 1 : 0);
+  if (keys.length !== want || !STORE_ENTRY_KEYS.every(k => keys.includes(k))) return false;
   if (!STORED_RULINGS.includes(e.ruling)) return false;
   if (typeof e.reason !== 'string' || e.reason.length > 280) return false;
   if (typeof e.ruled_at !== 'string' || !ISO_RE.test(e.ruled_at)) return false;
@@ -2918,6 +2925,7 @@ function markSettled(tensions, stored) {
     t.state = 'settled';
     t.ruling = e.ruling;
     t.ruled_at = e.ruled_at;
+    if (e.delegated === true) t.delegated = true; else delete t.delegated;
     t.stored_lines = { [t.pair[0]]: typeof e.lines[t.pair[0]] === 'string' ? e.lines[t.pair[0]] : '', [t.pair[1]]: typeof e.lines[t.pair[1]] === 'string' ? e.lines[t.pair[1]] : '' };
   }
 }
@@ -2940,6 +2948,8 @@ function rulingAnswerRefusal(answer, runId) {
     }
     if (typeof e.tension_id !== 'string' || !TENSION_ID_RE.test(e.tension_id)) return at + '.tension_id';
     if (!RULING_VALUES.includes(e.ruling)) return at + '.ruling';
+    if (e.ruling === 'delegated' && e.reopen !== true && !STORED_RULINGS.includes(e.larry_pick)) return at + '.larry_pick';
+    if (e.ruling !== 'delegated' && e.larry_pick !== undefined) return at + '.larry_pick';
     if (e.reason !== undefined && (typeof e.reason !== 'string' || e.reason.length > 280)) return at + '.reason';
     if (e.reopen !== undefined && typeof e.reopen !== 'boolean') return at + '.reopen';
     if (seen.has(e.tension_id)) return 'schema_invalid:duplicate_tension';
@@ -2982,6 +2992,7 @@ function applyRulingsToArtifactText(text, tensions) {
       lines.push(L.tension_id + t.id);
       lines.push(L.ruling_value + t.ruling);
       lines.push(L.ruling_side_hat + (t.ruling === 'side_a' ? t.pair[0] : (t.ruling === 'side_b' ? t.pair[1] : L.none)));
+      if (t.delegated === true) lines.push(L.ruling_delegated);
       lines.push(L.ruling_date + String(t.ruled_at).slice(0, 10));
     });
   }
@@ -3063,6 +3074,7 @@ function cmdRecordRuling(args, deps) {
       delete t.ruling;
       delete t.ruled_at;
       delete t.stored_lines;
+      delete t.delegated;
       reopened.push(e.tension_id);
     } else if (e.ruling === 'defer') {
       t.ruling = 'defer';
@@ -3070,21 +3082,24 @@ function cmdRecordRuling(args, deps) {
       deferred.push(e.tension_id);
     } else {
       const sq = ledger.sub_questions.find(s => s.id === t.sub_question);
-      setEntries[e.tension_id] = {
-        ruling: e.ruling,
+      const delegated = e.ruling === 'delegated';
+      const ruling = delegated ? e.larry_pick : e.ruling;
+      setEntries[e.tension_id] = Object.assign({
+        ruling,
         reason: typeof e.reason === 'string' ? e.reason.trim() : '',
         ruled_at: nowIso,
         run_id: ledger.run_id,
         sub_question_text: sq ? sq.text : '',
         pair: t.pair.slice(),
         lines: Object.assign({}, t.lines),
-      };
+      }, delegated ? { delegated: true } : {});
       storeChanged = true;
       t.state = 'settled';
-      t.ruling = e.ruling;
+      t.ruling = ruling;
       t.ruled_at = nowIso;
+      if (delegated) t.delegated = true; else delete t.delegated;
       delete t.stored_lines;
-      recorded.push({ tension_id: e.tension_id, ruling: e.ruling, side_hat: e.ruling === 'side_a' ? t.pair[0] : (e.ruling === 'side_b' ? t.pair[1] : null) });
+      recorded.push(Object.assign({ tension_id: e.tension_id, ruling, side_hat: ruling === 'side_a' ? t.pair[0] : (ruling === 'side_b' ? t.pair[1] : null) }, delegated ? { delegated: true } : {}));
     }
   }
 
@@ -3129,7 +3144,8 @@ function cmdRecordRuling(args, deps) {
       try {
         for (const r of recorded) {
           const t = byId[r.tension_id];
-          const res = navigation.logMemoryEvent(db, 'decision_captured', {
+          // Phase 400.2.1 (S6): a delegated ruling adds one boolean, delegated: true. Other events keep their key list.
+          const res = navigation.logMemoryEvent(db, 'decision_captured', Object.assign({
             source: 'persona-hats',
             tension_id: r.tension_id,
             ruling: r.ruling,
@@ -3137,7 +3153,7 @@ function cmdRecordRuling(args, deps) {
             sub_question_id: t.sub_question,
             pair: t.pair.slice(),
             dedupe_key: 'persona-ruling:' + r.tension_id + ':' + r.ruling,
-          }, { now: () => now.getTime() });
+          }, r.delegated === true ? { delegated: true } : {}), { now: () => now.getTime() });
           if (res && res.ok) logged += 1; else if (!failure) failure = 'event_refused:' + safeKeyName(res && res.reason);
         }
       } catch (e) {
