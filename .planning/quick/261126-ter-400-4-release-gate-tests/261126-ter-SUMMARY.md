@@ -14,7 +14,7 @@ Two test-only edits remove the two run-all-366 failures that Phase 400.4 caused 
 ## Task 1: dash characters in the card-descriptions test (75df94618)
 
 - Root cause: line 70 of `tests/test-400.4-card-descriptions.cjs` held literal U+2013 and U+2014 characters inside the regex. Test 6 of `tests/test-389-renames.cjs` bans those characters in every file.
-- Fix: the regex is now `/[0-9–—]/`. The assertion matches the same characters. The file holds no dash character.
+- Fix: the regex is now `backslash-u2013 + backslash-u2014`. The assertion matches the same characters. The file holds no dash character.
 - Proof: `grep -cP "[\x{2013}\x{2014}]"` prints 0. The card test prints PASSED=5 FAILED=0. Test 389 prints 43 passed, 0 failed, including Test 6.
 
 ## Task 2: test-270 budget line in test-374 B9 (d8d9586f1)
@@ -28,7 +28,12 @@ Two test-only edits remove the two run-all-366 failures that Phase 400.4 caused 
 
 ## Run-all-366
 
-See the final report for the result of `bash tests/run-all-366.sh` (recorded in the report that accompanies this file).
+Run with temp HOME and MINDRIAN_ROOMS_HOME, stdin /dev/null: PASSED=78 FAILED=2 SKIPPED=1 KNOWN=1. Test 374 B9, test-400.4 and test-389 Test 6 no longer fail. The two remaining failures are not caused by this task:
+
+- 380 face panel group (typecheck, installed layout, shots harness, face panel): ENV GAP in the temp HOME. No declaration file for the mod, claude not logged in, Playwright browser missing.
+- test-389-retire-brief Test 6: tests/test-vi3-icm-walk.cjs names mva-brief. That file came from commit fb2cf83b4 (400.3.1), already on main. This task did not touch it.
+
+Not run on a plain origin/main checkout (work limited to this worktree). The diff against origin/main is two test files plus planning docs.
 
 ## Deviations from Plan
 
