@@ -4409,10 +4409,10 @@ Plans:
 
 ### Phase 400.1: Efficiency research: verify the 2026-11-24 efficiency findings and close the open checks before phases 401-404 are planned (preloaded skills, deferral on Desktop and Cowork, stdout handling, card-fire false blocks, omitClaudeMd on plugin agents, unscoped tool names, Theo step coverage and payload size, recipe pilot design) (INSERTED)
 
-**Goal:** [Urgent work - to be planned]
+**Goal:** Research only: verify the 2026-11-24 efficiency study and close checks K1 to K9, so 401 to 404 are planned on proven numbers. Written: 400.1-RESEARCH.md (baseline about 31k tokens per session; findings F1 frontmatter split and F2 session-start cap). Open: owner-run items L-CW1 and L-DT1; the separate Cowork leg L-CW1 is superseded by the chat and Cowork merge (docs/CLAUDE-SURFACE-MODEL.md) and both fold into the Phase 405 slice 0 spikes
 **Requirements**: TBD
 **Depends on:** Phase 400
-**Plans:** 0 plans
+**Plans:** 0 plans (research written 2026-11; owner items carried by Phase 405 slice 0)
 
 Plans:
 
@@ -4444,9 +4444,9 @@ Plans:
 
 ### Phase 401: Efficiency A: hygiene and cheap context cuts (stale pre-Theo Brain references and mcp-server-brain removal, expired commands, shared includes for repeated blocks, schema and nav-block trims, description cap, size test)
 
-**Goal:** [To be planned]
+**Goal:** Hygiene and cheap context cuts on proven numbers (inputs: .planning/phases/400.1-efficiency-research-verify-the-2026-11-24-efficiency-finding/400.1-RESEARCH.md section "401"): F1 frontmatter split test and fix first; 115 files with the unscoped mindrian-brain tool name; remove mcp-server-brain/ and its 53 referencing files (R4); strip repeated $schema (4,332 B); shared includes for repeated blocks; description cap; size test
 **Requirements**: TBD
-**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
+**Depends on:** Phase 400.1 (research). Plans that do not touch Phase 405 files may run any time; the overlapping plans (shared includes, description cap, tool description bytes) run after the Phase 405 foundation is merged (OR-9, .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md)
 **Plans:** 0 plans
 
 Plans:
@@ -4455,9 +4455,9 @@ Plans:
 
 ### Phase 402: Efficiency B: lighter runtime (hot-18 alwaysLoad with deferral checked on Desktop and Cowork, Eureka tools on enable, preloaded-skill trim, hook process consolidation, card-fire stale-gate fix, opt-in process skills)
 
-**Goal:** [To be planned]
+**Goal:** Lighter runtime on proven numbers (inputs: .planning/phases/400.1-efficiency-research-verify-the-2026-11-24-efficiency-finding/400.1-RESEARCH.md section "402"): per-tool alwaysLoad for the hot 18 tools with the rest deferred (about 15.5k tokens saved; needs a declared Claude Code floor of 2.1.285), checked on the Desktop Code tab and the merged Desktop chat (the surface model replaced "Desktop and Cowork"); one JSON object per hook output (K3); card-fire stale-gate fix without continue:false (K4); hard cap on session-start output below 10,000 characters (F2); Eureka tools on enable; hook process consolidation; opt-in process skills
 **Requirements**: TBD
-**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
+**Depends on:** Phase 400.1 (research); Phase 405 foundation merged (the alwaysLoad change must agree with the 405 .mcpb manifest, the surface fingerprint and spike SP3) (OR-9, .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md)
 **Plans:** 0 plans
 
 Plans:
@@ -4466,9 +4466,9 @@ Plans:
 
 ### Phase 403: Efficiency C: isolated lens agents (omitClaudeMd read-only reviewers, lens-worker evaluator fetcher with modes, generic review loop with synthesizer and convergence rules)
 
-**Goal:** [To be planned]
+**Goal:** Isolated lens agents (inputs: .planning/phases/400.1-efficiency-research-verify-the-2026-11-24-efficiency-finding/400.1-RESEARCH.md section "403"): run the K5 probe first; omitClaudeMd and tools limits on plugin agents (placed before any "# ---" line, F1); read-only reviewers; one lens-worker with modes (evaluator, fetcher); a generic review loop with a synthesizer and convergence rules. Agents load only in local Claude Code (CLI, local Desktop Code tab), so this phase has no Desktop chat leg
 **Requirements**: TBD
-**Depends on:** Phase TBD
+**Depends on:** Phase 400.1 (research); Phase 401 plan F1 (frontmatter split). Independent of Phase 405; may run any time (.planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md)
 **Plans:** 0 plans
 
 Plans:
@@ -4477,9 +4477,9 @@ Plans:
 
 ### Phase 404: Efficiency D: methodology commands as thin Theo recipes (shim step tool, recipe script, labelled local fallback, draft steps shown, pilots challenge-assumptions and root-cause, scenario evals, rollout)
 
-**Goal:** [To be planned]
+**Goal:** Methodology commands as thin Theo recipes that run in the terminal AND in the Desktop chat (inputs: .planning/phases/400.1-efficiency-research-verify-the-2026-11-24-efficiency-finding/400.1-RESEARCH.md section "404" and K8): a shim step tool that fails closed on any key other than framework; a field whitelist (29 KB to 6.4 KB per call); labelled local fallback for the 8 frameworks without Theo steps (R1); draft notice for the 29 draft frameworks (R2); recipe steps run inside the local room server so they work through the Desktop bridge; pilots challenge-assumptions and root-cause; scenario evals through Jev; rollout
 **Requirements**: TBD
-**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
+**Depends on:** Phase 400.1 (research, K7 and K8); Phase 405 foundation merged (bridge, write receipts, click-proof decisions, Theo cards); the overlapping parts of 401 and 402 (OR-9, .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md)
 **Plans:** 0 plans
 
 Plans:
@@ -4488,9 +4488,9 @@ Plans:
 
 ### Phase 405: MindrianOS on the Claude Desktop platform: the merged chat (chat plus Cowork, cloud with the device bridge) and the Desktop Code tab, beside the CLI (surface truth, honest no-room refusal, write receipts, click-proof decisions, one-click .mcpb extension, Theo cards)
 
-**Goal:** MindrianOS is first-class in three places (Claude Code CLI, Desktop Code tab, Desktop chat) per docs/CLAUDE-SURFACE-MODEL.md; owner rulings OR-1 to OR-10 in 405-CONTEXT.md
+**Goal:** MindrianOS is first-class in three places (Claude Code CLI, Desktop Code tab, Desktop chat) per docs/CLAUDE-SURFACE-MODEL.md; owner rulings OR-1 to OR-10 in 405-CONTEXT.md. Foundation: surface truth, honest no-room refusal, write receipts, click-proof decisions, the one-click .mcpb extension, Theo cards, release. End slice: /mos commands work in chat (after Phase 404)
 **Requirements**: TBD
-**Depends on:** Phase 367 plans 11 and 12 on origin/main (PA-1); order with 401, 402 and 404 per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md
+**Depends on:** Phase 367 plans 11 and 12 on origin/main (PA-1) for the foundation build; slice 0 (spikes) also closes the Phase 400.1 owner items; the end slice depends on Phase 404 (OR-9, .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md)
 **Plans:** 0 plans (EGM design in review on branch work/405-desktop; slice 0 spikes are planned first)
 
 Plans:
