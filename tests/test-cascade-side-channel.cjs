@@ -90,6 +90,10 @@ const TRIGGER_PREFIXES = [
   // prefixes only).
   'post-write: indexed ',
   'post-write: index failed for ',
+  // Phase 400.3 plan 03 (OR-6, D-07): a full cascade with 1 or more failed
+  // steps outside a section. An honest status prefix, not a room-proactive
+  // trigger (the section form keeps the 'queued MINTO regen for ' prefix).
+  'post-write: cascade partial for ',
 ];
 
 let passed = 0;

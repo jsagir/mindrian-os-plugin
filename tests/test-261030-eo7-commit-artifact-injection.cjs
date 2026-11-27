@@ -20,7 +20,8 @@
  *   C. a room path with a space, `$(` and backticks reaches scripts/git-ops as
  *      data: the commit lands in that room and no marker appears;
  *   D1-D3. soft-fail contract: a non-string message, a PATH without bash, and
- *      a room without git keep their old results;
+ *      a room without git give their honest results (plan 400.3-03b, review B1:
+ *      failed invalid_message, failed spawn_failed, skipped not_a_repo);
  *   E. source pins: 5 execSync call sites stay, commitArtifact holds the only
  *      execFileSync call, no msgArg, module.exports unchanged.
  *
@@ -167,7 +168,8 @@ leg('D1. a truthy non-string message keeps the soft-fail result', () => {
   } finally {
     process.chdir(base);
   }
-  assert.deepEqual(res, { committed: false, message: 'git not enabled' });
+  // Plan 400.3-03b (review B1): the honest soft-fail result names the reason.
+  assert.deepEqual(res, { committed: false, failed: true, reason: 'invalid_message', message: 'failed: invalid_message' });
   assert.equal(git(room, ['rev-parse', 'HEAD']).trim(), before, 'HEAD must not move');
   assert.deepEqual(fs.readdirSync(cwd), []);
 });
@@ -188,10 +190,11 @@ leg('D2. a PATH without bash keeps the soft-fail result', () => {
     env: { PATH: emptyBin, HOME: base, GIT_CONFIG_GLOBAL: GLOBAL_CFG, GIT_CONFIG_NOSYSTEM: '1' },
   });
   assert.equal(out.status, 0, 'child node must exit 0: ' + out.stderr);
-  assert.deepEqual(JSON.parse(out.stdout), { committed: false, message: 'git not enabled' });
+  // Plan 400.3-03b (review B1): the honest soft-fail result names the reason.
+  assert.deepEqual(JSON.parse(out.stdout), { committed: false, failed: true, reason: 'spawn_failed', message: 'failed: spawn_failed' });
 });
 
-leg('D3. a room without git returns committed true (script exits 0, unchanged)', () => {
+leg('D3. a room without git returns skipped not_a_repo', () => {
   const plain = path.join(base, 'plain');
   fs.mkdirSync(path.join(plain, 'sec'), { recursive: true });
   const probe = spawnSync('git', ['-C', plain, 'rev-parse', '--git-dir'], { encoding: 'utf8' });
@@ -206,7 +209,8 @@ leg('D3. a room without git returns committed true (script exits 0, unchanged)',
   } finally {
     process.chdir(base);
   }
-  assert.deepEqual(res, { committed: true, message: 'm' });
+  // Plan 400.3-03b (review B1): a room without git is skipped, never committed.
+  assert.deepEqual(res, { committed: false, skipped: true, reason: 'not_a_repo', message: 'skipped: not_a_repo' });
   assert.deepEqual(fs.readdirSync(cwd), []);
 });
 

@@ -15,7 +15,11 @@
  * Windows path forms are covered by path.win32 unit arms and by Linux proxies of the bash walks. Native
  * Windows is UNMEASURED.
  *
- * Groups: unit (U1-U9), cascade (C1-C10), hook (H1-H15, H8w).
+ * Groups: unit (U1-U9), cascade (C1-C10, C10b), hook (H1-H20, H8w).
+ *
+ * Plan 400.3-06a adds C10 floor, C10b, H19 and H20 (OR-2, OR-4, C10, D-10).
+ * Timing arm H6 (wave 2 Goldfish W2-CD-06): a breach runs the arm once more on a fresh room; the arm fails only on
+ * 2 breaches and prints the wall time with the load average (tests/helpers/timing-arm-4003.cjs).
  * Usage: node tests/test-400-3-room-root-detection.cjs [unit|cascade|hook|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -128,11 +132,26 @@ function stopChild(handle) {
     try { handle.child.kill(); } catch (_e) { resolve(); }
   });
 }
-function startDbLockHolder(roomDir) {
+// Plan 400.3-06a: optional holdMs and mode ('commit' or 'rollback') end the hold on the holder's own timer, and the
+// ready mode must be exactly 'BEGIN IMMEDIATE + write'.
+function startDbLockHolder(roomDir, holdMs, mode) {
   return new Promise((resolve, reject) => {
-    const child = fork(DB_LOCK_HOLDER, [roomDir], { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });
+    const args = [roomDir];
+    if (holdMs) { args.push(String(holdMs)); args.push(mode || 'rollback'); }
+    const child = fork(DB_LOCK_HOLDER, args, { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });
+    // Plan 400.3-06a: a timed holder can exit during a synchronous busy wait; a late 'release' then fails with EPIPE.
+    child.on('error', () => { /* the holder is gone */ });
     let settled = false;
-    child.on('message', (msg) => { if (msg && msg.ready && !settled) { settled = true; resolve({ child }); } });
+    child.on('message', (msg) => {
+      if (!msg || !msg.ready || settled) return;
+      settled = true;
+      if (msg.mode !== 'BEGIN IMMEDIATE + write') {
+        try { child.kill(); } catch (_e) { /* gone */ }
+        reject(new Error('room-db-lock-holder-236 mode is ' + JSON.stringify(msg.mode) + ', not BEGIN IMMEDIATE + write'));
+        return;
+      }
+      resolve({ child });
+    });
     child.on('exit', (code) => { if (!settled) { settled = true; reject(new Error('room-db-lock-holder-236 exited ' + code + ' before ready')); } });
   });
 }
@@ -140,7 +159,7 @@ function stopDbLockHolder(handle) {
   return new Promise((resolve) => {
     if (!handle || !handle.child || handle.child.exitCode !== null) return resolve();
     handle.child.once('exit', () => resolve());
-    try { handle.child.send('release'); } catch (_e) { handle.child.kill(); }
+    try { handle.child.send('release', (err) => { if (err) { try { handle.child.kill(); } catch (_e) { /* gone */ } } }); } catch (_e) { handle.child.kill(); }
   });
 }
 
@@ -366,7 +385,25 @@ async function groupCascade() {
         // WAL mode SQLite returns SQLITE_BUSY at once on that read-to-write upgrade (measured 1-3 ms). BEGIN IMMEDIATE,
         // which would use the busy wait, moves to plan 400.3-06.
         check('C10 busy is reported within 750 ms (measured ' + ms.toFixed(0) + ' ms)', ms <= 750);
+        // Plan 400.3-06a (OR-4): with BEGIN IMMEDIATE the busy wait of graph-ops INDEX_BUSY_MS really runs.
+        check('C10 wait floor: the busy wait really ran (measured ' + ms.toFixed(0) + ' ms)', ms >= 450);
       } catch (e) { check('C10 fixture', false, e.message); }
+      await stopDbLockHolder(h);
+    }
+
+    // C10b (plan 400.3-06a, C10): a short foreign write is waited out, and the index lands.
+    {
+      const r10b = mkR1(path.join(home, 'MindrianRooms', 'r10b'), { db: true });
+      let h = null;
+      try {
+        h = await startDbLockHolder(r10b, 300, 'commit');
+        const t0 = msNow();
+        const c10b = await run(r10b, path.join(r10b, 'sec', 'a.md'));
+        const ms = msNow() - t0;
+        check('C10b a 300 ms foreign write is waited out: graphIndex ok and the Artifact row sec/a (measured ' + ms.toFixed(0) + ' ms)',
+          c10b.graphIndex && c10b.graphIndex.status === 'ok' && artifactRows(r10b, 'sec/a') === 1,
+          JSON.stringify(c10b.graphIndex));
+      } catch (e) { check('C10b fixture', false, e.message); }
       await stopDbLockHolder(h);
     }
   } finally {
@@ -384,6 +421,9 @@ function hookEnv(home, extra) {
   for (const k of ['CLAUDE_ACTIVE_ROOM', 'CLAUDE_ROOM_DIR', 'CLAUDE_CODE_SESSION_ID', 'MINDRIAN_ACTIVE_SESSION_ID', 'MINDRIAN_MCP_FIRST']) delete env[k];
   return env;
 }
+// Wave 2 Goldfish W2-CD-06: H6 is a timing arm (tests/helpers/timing-arm-4003.cjs).
+const timingArm = require(path.join(__dirname, 'helpers', 'timing-arm-4003.cjs'));
+
 function postWrite(filePath, cwd, home, opts) {
   const o = opts || {};
   const t0 = msNow();
@@ -479,15 +519,25 @@ function groupHook() {
       await stopChild(h);
     }
 
-    // H6
+    // H6 (wave 2 Goldfish W2-CD-06: the full cascade has step timeouts, so a loaded machine can give partial; one
+    // retry on a fresh room, fail on 2 breaches; the wall time is printed with the load average)
     {
-      const y = path.join(root, 'rooms', 'y');
-      mkR1(y, { roomMd: false });
-      const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
-      const side = readSide(y);
-      check('H6 a legacy /rooms/ room keeps the full cascade: complete, classification set, queued MINTO advisory',
-        h6.status === 0 && !!side && side.cascade_status === 'complete' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0,
-        JSON.stringify({ advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification }));
+      let h6n = 0;
+      const t = timingArm.timedSync('H6 a legacy /rooms/ room keeps the full cascade: complete, classification set, queued MINTO advisory', 'cascade complete', () => {
+        h6n += 1;
+        const y = path.join(root, 'rooms', h6n === 1 ? 'y' : 'y' + h6n);
+        mkR1(y, { roomMd: false });
+        const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
+        const side = readSide(y);
+        // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
+        // W2R-01: the functional part never retries; only the known load signature (an honest graph-index
+        // write_lock_held partial under a held lock) may run once more.
+        const funcOk = h6.status === 0 && !!side && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
+          && (side.cascade_status === 'complete' || /write_lock_held/.test(h6.advisory));
+        const ok = funcOk && side.cascade_status === 'complete' && h6.advisory.indexOf('; cascade partial: ') === -1;
+        return { value: h6.ms, funcOk, ok, detail: { advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification } };
+      });
+      check(t.label, t.ok, t.detail);
     }
 
     // H7 timing (D-06)
@@ -670,6 +720,37 @@ function groupHook() {
       const h18 = postWrite(path.join(sg, 'sec', 'a.md'), sg, home);
       check('H18 a shell room named shell[x] is indexed', h18.advisory === IDX('a.md') && artifactRows(sg, 'sec/a') === 1,
         JSON.stringify({ advisory: h18.advisory, rows: artifactRows(sg, 'sec/a') }));
+    }
+
+    // H19 (plan 400.3-06a, smoke arm): post-write reaches the index call after about 300 ms, so the BASE result
+    // depends on timing; the in-process arms W1, W3 and C10b carry the RED proof.
+    {
+      const r19 = mkR1(path.join(MR, 'r19'), { db: true });
+      fs.writeFileSync(path.join(r19, 'sec', 'h19.md'), ARTIFACT);
+      let h = null;
+      try {
+        h = await startDbLockHolder(r19, 300, 'commit');
+        const h19 = postWrite(path.join(r19, 'sec', 'h19.md'), r19, home);
+        check('H19 a 300 ms foreign SQLite write: post-write says indexed and room.db holds sec/h19 (measured ' + h19.ms.toFixed(0) + ' ms)',
+          h19.advisory === IDX('h19.md') && artifactRows(r19, 'sec/h19') === 1,
+          JSON.stringify({ advisory: h19.advisory, rows: artifactRows(r19, 'sec/h19'), side: readSide(r19) }));
+      } catch (e) { check('H19 fixture', false, e.message); }
+      await stopDbLockHolder(h);
+    }
+
+    // H20 (plan 400.3-06a, D-10): a 0-byte room.db is no room.db. A shell room with .room-root, a 0-byte
+    // .mindrian/room.db and no STATE.md: no record, no advisory, and the file stays 0 bytes.
+    {
+      const r20 = mkR1(path.join(MR, 'r20'), { state: false, roomMd: false, secRoomMd: false, db: false });
+      fs.mkdirSync(path.join(r20, '.mindrian'), { recursive: true });
+      fs.writeFileSync(path.join(r20, '.mindrian', 'room.db'), '');
+      const h20 = postWrite(path.join(r20, 'sec', 'a.md'), r20, home);
+      let size = -1;
+      try { size = fs.statSync(path.join(r20, '.mindrian', 'room.db')).size; } catch (_e) { size = -1; }
+      const side = fs.existsSync(path.join(r20, '.mindrian', 'last-cascade.json'));
+      check('H20 a 0-byte room.db: exit 0, stdout empty, room.db stays 0 bytes, no last-cascade.json',
+        h20.status === 0 && h20.stdout === '' && size === 0 && !side,
+        JSON.stringify({ status: h20.status, stdout: h20.stdout, size, side: readSide(r20) }));
     }
   })();
 }

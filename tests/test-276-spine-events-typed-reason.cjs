@@ -140,7 +140,9 @@ function makePendingMigrationRoom(roomDir) {
   seedFullRoom(roomDir);
   const dbPath = roomDbPath(roomDir);
   const raw = new DatabaseSync(dbPath, { timeout: 0 });
+  // Plan 400.3-06b: a pending migration is now a user_version that does not match the stamp.
   raw.prepare('DELETE FROM identity WHERE key = ?').run('phase_109_session_focus_v1');
+  raw.exec('PRAGMA user_version = 0');
   raw.close();
 }
 
@@ -308,7 +310,9 @@ async function runGetterAssertions() {
   // completion, which re-satisfies the sentinel).
   {
     const raw = new DatabaseSync(roomDbPath(roomHistory), { timeout: 0 });
+    // Plan 400.3-06b: a pending migration is now a user_version that does not match the stamp.
     raw.prepare('DELETE FROM identity WHERE key = ?').run('phase_109_session_focus_v1');
+    raw.exec('PRAGMA user_version = 0');
     raw.close();
   }
 

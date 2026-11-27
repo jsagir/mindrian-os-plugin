@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # git-ops -- Git operations for room version control
 # All operations are guarded by is-enabled check.
-# When git is not enabled for a room, every subcommand exits 0 silently.
+# When git is not enabled for a room, every subcommand except commit exits 0
+# silently. Plan 400.3-03b (review B1, B2, owner answer OA-4): the commit
+# subcommand commits only when the room root has its own repository and only
+# the given path; it exits 3 with a 'skipped:' word on stderr (not_a_repo,
+# not_own_repo, no_file, nothing_to_commit) and 1 with a 'failed:' word
+# (add_failed, commit_failed). Every bash caller uses `|| true`.
 #
 # Subcommands:
 #   is-enabled <room_path>
@@ -16,6 +21,11 @@
 # Defaults to $PWD.
 
 set -euo pipefail
+# Wave 2 re-review W2R-07: a room's git must never follow an inherited git
+# context (a parent hook or a git alias can export these), and a file name
+# with *, ?, [ or a leading : must never match other files.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
+export GIT_LITERAL_PATHSPECS=1
 
 # Parse workspace dir -- if first arg is a directory and second arg is a known subcommand
 WORK_DIR="$PWD"
@@ -48,6 +58,53 @@ is_git_enabled() {
     return 0
   fi
   return 1
+}
+
+# Plan 400.3-03b (owner answer OA-4): true only when the room root is the top
+# level of its own repository. A room inside an enclosing work tree is not.
+# Wave 2 Goldfish W2-D-03 / W2-CD-02: no path compare. Git Bash prints
+# --show-toplevel as C:/... while pwd -P prints /c/..., so a string compare
+# skipped every room on native Windows. An empty --show-prefix inside a work
+# tree means the room folder is the top level, in any path form.
+is_own_repo() {
+  local room_path="${1:-}"
+  if ! is_git_enabled "$room_path"; then
+    return 1
+  fi
+  local inside prefix
+  inside=$(git -C "$room_path" rev-parse --is-inside-work-tree 2>/dev/null) || return 1
+  [ "$inside" = "true" ] || return 1
+  prefix=$(git -C "$room_path" rev-parse --show-prefix 2>/dev/null) || return 1
+  [ -z "$prefix" ]
+}
+
+# Wave 2 Goldfish W2-D-03: the physical path of a folder (symlinks resolved).
+real_dir() {
+  local d="${1:-}"
+  if command -v realpath >/dev/null 2>&1; then
+    realpath "$d" 2>/dev/null && return 0
+  fi
+  (cd "$d" 2>/dev/null && pwd -P)
+}
+
+# Wave 2 Goldfish W2-D-03: the file path relative to the room root, with the
+# symlinks of both sides resolved (the folder of the file, not the file, so a
+# symlinked file is staged as a link). Empty when the file is not in the room.
+room_rel_path() {
+  local room_path="${1:-}" file_path="${2:-}"
+  local room_real dir_real base
+  room_real=$(real_dir "$room_path") || return 1
+  dir_real=$(real_dir "$(dirname "$file_path")") || return 1
+  base=$(basename "$file_path")
+  [ -n "$room_real" ] && [ -n "$dir_real" ] || return 1
+  if [ "$dir_real" = "$room_real" ]; then
+    printf '%s\n' "$base"
+    return 0
+  fi
+  case "$dir_real/" in
+    "$room_real"/*) printf '%s\n' "${dir_real#"$room_real"/}/$base" ;;
+    *) return 1 ;;
+  esac
 }
 
 case "$SUBCMD" in
@@ -95,29 +152,59 @@ GITATTR
     ROOM_PATH="${1:-}"
     FILE_PATH="${2:-}"
     MSG="${3:-}"
-    # Guard: exit 0 silently if git is not enabled
+    # Plan 400.3-03b (review B1, B2, owner answer OA-4): commit only when the
+    # room root has its own repository, and only the given path. Every other
+    # case exits 3 with a 'skipped:' word; a failed step exits 1 with a
+    # 'failed:' word. Nothing is staged or committed in an enclosing repository.
     if ! is_git_enabled "$ROOM_PATH"; then
-      exit 0
+      echo "skipped: not_a_repo" >&2
+      exit 3
+    fi
+    if ! is_own_repo "$ROOM_PATH"; then
+      echo "skipped: not_own_repo" >&2
+      exit 3
     fi
     if [ -z "$FILE_PATH" ]; then
-      exit 0
+      echo "skipped: no_file" >&2
+      exit 3
+    fi
+    # Wave 2 Goldfish W2-D-03: the pathspec is relative to the room root (the
+    # top level), with symlinks resolved on both sides. A file outside the
+    # room fails as add_failed, the same word as BASE.
+    if ! rel_path=$(room_rel_path "$ROOM_PATH" "$FILE_PATH") || [ -z "$rel_path" ]; then
+      echo "failed: add_failed" >&2
+      exit 1
     fi
     # Auto-generate message if not provided
     if [ -z "$MSG" ]; then
       # Extract section name and filename for provenance
-      rel_path="${FILE_PATH#"$ROOM_PATH"/}"
       section=$(echo "$rel_path" | cut -d'/' -f1)
       filename=$(basename "$FILE_PATH" .md)
       MSG="${section}: ${filename}"
     fi
-    # Stage the specific file
-    git -C "$ROOM_PATH" add "$FILE_PATH" 2>/dev/null || true
-    # Commit (--no-verify for auto-commits, || true for empty commits)
-    git -C "$ROOM_PATH" commit -m "$MSG" --no-verify 2>/dev/null || true
+    # Stage the specific file only (pathspec).
+    if ! git -C "$ROOM_PATH" add -- "$rel_path" 2>/dev/null; then
+      echo "failed: add_failed" >&2
+      exit 1
+    fi
+    # No staged change for that path: nothing to commit.
+    if git -C "$ROOM_PATH" diff --cached --quiet -- "$rel_path" 2>/dev/null; then
+      echo "skipped: nothing_to_commit" >&2
+      exit 3
+    fi
+    # Commit that path only (--no-verify for auto-commits); a change staged
+    # elsewhere in the repository stays staged and is not in this commit.
+    if ! git -C "$ROOM_PATH" commit --no-verify -m "$MSG" -- "$rel_path" >/dev/null 2>&1; then
+      echo "failed: commit_failed" >&2
+      exit 1
+    fi
     # Check auto_push setting
     auto_push=$("${SCRIPT_DIR}/git-ops" get-auto-push "$ROOM_PATH" 2>/dev/null || echo "off")
     if [ "$auto_push" = "auto" ]; then
-      "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" 2>/dev/null &
+      # Wave 2 Goldfish W2-D-02: the background push gets no pipe of the
+      # caller. A child that keeps stdout or stderr open makes the caller
+      # (commitArtifact, spawnSync) wait for the network push.
+      "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" >/dev/null 2>&1 </dev/null &
     fi
     ;;
 
@@ -131,8 +218,9 @@ GITATTR
     if ! git -C "$ROOM_PATH" remote get-url origin >/dev/null 2>&1; then
       exit 0
     fi
-    # Push in background, non-blocking
-    git -C "$ROOM_PATH" push origin HEAD 2>/dev/null &
+    # Push in background, non-blocking. Wave 2 Goldfish W2-D-02: no pipe of
+    # the caller stays open, so the caller does not wait for the network.
+    git -C "$ROOM_PATH" push origin HEAD >/dev/null 2>&1 </dev/null &
     echo "pushed"
     ;;
 

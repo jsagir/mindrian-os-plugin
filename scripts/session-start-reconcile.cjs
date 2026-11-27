@@ -52,6 +52,43 @@ function openRoomDb(roomDir) {
   } catch (_) { return null; }
 }
 
+
+// Plan 400.3-06c (review B-b, M3): run one block's runner call. With a handle, the call runs inside one
+// navigation.withRoomTx (one wait for the write lock, all or nothing); a busy throw trips the process cap
+// (noteBusy), writes 'session-start-reconcile: <block> room_db_busy: skipped' and gives { busy: true }. With no
+// handle the call runs as at BASE, outside withRoomTx. Any other throw goes to the block's own catch.
+function inRoomTx(db, blockName, fn) {
+  if (!db) return { value: fn() };
+  try {
+    var navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
+    return { value: navigation.withRoomTx(db, fn) };
+  } catch (e) {
+    // Wave 2 Goldfish W2-CD-03: the one busy test (lib/core/hook-busy-cap.cjs isBusyError).
+    if (!require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).isBusyError(e)) throw e;
+    try { require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
+    process.stderr.write('session-start-reconcile: ' + blockName + ' room_db_busy: skipped\n');
+    return { busy: true };
+  }
+}
+
+// Wave 2 Goldfish W2-D-04: blocks 1 and 2 read FEYNMAN.md, render from room.db (reads need no write lock in WAL)
+// and write the file OUTSIDE the transaction; their only room.db writes are memory events, which the runner puts
+// in a sink. The events are logged in one short withRoomTx after the render, so the write lock is held for the
+// inserts only, not for the file reads and the render. No event: no transaction, no wait.
+function refreshWithEventSink(db, blockName, runRefresh) {
+  if (!db) return { value: runRefresh(null) };
+  var sink = [];
+  var value = runRefresh(sink);
+  if (sink.length === 0) return { value: value };
+  var navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
+  var logged = inRoomTx(db, blockName, function () {
+    for (var i = 0; i < sink.length; i += 1) {
+      try { navigation.logMemoryEvent(db, sink[i].type, sink[i].payload); } catch (_) { /* as the runner: a log failure does not undo the landed write */ }
+    }
+  });
+  return logged.busy ? { value: value, busy: true } : { value: value };
+}
+
 // Block 1: feynman timeline refresh (Phase 124). Plugin root form: pluginRootForNode.
 function refreshTimeline(ctx) {
   try {
@@ -59,8 +96,10 @@ function refreshTimeline(ctx) {
     if (!roomDir) return;
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/timeline-runner.cjs');
-    var result = runner.refreshAll(roomDir, { db: db });
-    if (db) { try { db.close(); } catch (_) {} }
+    var run;
+    try { run = refreshWithEventSink(db, 'refreshTimeline', function (sink) { return runner.refreshAll(roomDir, sink ? { db: db, eventSink: sink } : { db: db }); }); }
+    finally { if (db) { try { db.close(); } catch (_) {} } }
+    var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
       process.stderr.write('feynman-timeline-refresh: ' + result.refreshed.length + ' section(s) refreshed\n');
     }
@@ -76,8 +115,10 @@ function refreshDialMemory(ctx) {
     if (!roomDir) return;
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/dial-memory-runner.cjs');
-    var result = runner.refreshAll(roomDir, { db: db });
-    if (db) { try { db.close(); } catch (_) {} }
+    var run;
+    try { run = refreshWithEventSink(db, 'refreshDialMemory', function (sink) { return runner.refreshAll(roomDir, sink ? { db: db, eventSink: sink } : { db: db }); }); }
+    finally { if (db) { try { db.close(); } catch (_) {} } }
+    var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
       process.stderr.write('dial-memory-refresh: ' + result.refreshed.length + ' section(s) refreshed\n');
     }
@@ -103,8 +144,12 @@ function reconcileGsdPlanning(ctx) {
         reconcileOpts.planningDir = path.join(pluginRoot, '.planning');
       }
     } catch (_) {}
-    var result = runner.reconcilePlanningArtifacts(roomDir, reconcileOpts);
-    try { db.close(); } catch (_) {}
+    // Wave 2 Goldfish W2-D-04: read every planning file before the transaction (the Phase 367 rule).
+    if (typeof runner.preparePlanningArtifacts === 'function') reconcileOpts.prepared = runner.preparePlanningArtifacts(roomDir, reconcileOpts);
+    var run;
+    try { run = inRoomTx(db, 'reconcileGsdPlanning', function () { return runner.reconcilePlanningArtifacts(roomDir, reconcileOpts); }); }
+    finally { try { db.close(); } catch (_) {} }
+    var result = run.value;
     if (result && result.upserted > 0) {
       process.stderr.write('gsd-planning-reconcile: ' + result.upserted + ' artifact node(s) upserted, '
         + result.requirement_nodes + ' requirement node(s), ' + result.edges + ' lineage edge(s)\n');
@@ -131,8 +176,12 @@ function reconcileMemoryCortex(ctx) {
         reconcileOpts.sectionRoot = pluginRoot;
       }
     } catch (_) {}
-    var result = runner.reconcileMemoryArtifacts(roomDir, reconcileOpts);
-    try { db.close(); } catch (_) {}
+    // Wave 2 Goldfish W2-D-04: read and parse every memory file before the transaction (the Phase 367 rule).
+    if (typeof runner.prepareMemoryArtifacts === 'function') reconcileOpts.prepared = runner.prepareMemoryArtifacts(roomDir, reconcileOpts);
+    var run;
+    try { run = inRoomTx(db, 'reconcileMemoryCortex', function () { return runner.reconcileMemoryArtifacts(roomDir, reconcileOpts); }); }
+    finally { try { db.close(); } catch (_) {} }
+    var result = run.value;
     if (result && result.upserted > 0) {
       process.stderr.write('memory-cortex-reconcile: ' + result.upserted + ' memory node(s) upserted, '
         + (result.unchanged || 0) + ' unchanged, '
@@ -174,6 +223,11 @@ function ctxFromEnv(env) {
 }
 
 if (require.main === module) {
+  // Plan 400.3-06c: the process cap keeps the 5000 ms wait for the first block and trips to 0 after the first busy.
+  try {
+    var busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+    busyCap.setHookBusyCap(busyCap.DEFAULT_BUSY_MS);
+  } catch (_) { /* the default wait stays */ }
   try { runAll(ctxFromEnv(process.env)); } catch (_) { /* best effort: never fail session start */ }
   process.exitCode = 0;
 }

@@ -354,7 +354,11 @@ async function mechanism() {
   // an empty room.db, so that blocks 3 and 4 get past their no-database return and reach the missing runner module
   fs.mkdirSync(path.join(tmpRoom, '.mindrian'), { recursive: true });
   const { DatabaseSync } = require('node:sqlite');
-  new DatabaseSync(path.join(tmpRoom, '.mindrian', 'room.db')).close();
+  // Plan 400.3-06c, owner ruling D-10: a 0-byte room.db is no room.db, so the empty database gets a real header
+  // (journal_mode WAL writes it) and blocks 3 and 4 still get past their no-database return.
+  const m3db = new DatabaseSync(path.join(tmpRoom, '.mindrian', 'room.db'));
+  m3db.exec('PRAGMA journal_mode = WAL');
+  m3db.close();
   const child = cp.spawnSync(process.execPath, [recPath], {
     cwd: tmpRoom, encoding: 'utf8', timeout: 60000,
     env: Object.assign({}, process.env, { ACTIVE_ROOM_FOR_RECONCILE: tmpRoom, PLUGIN_ROOT_FOR_NODE_RECONCILE: bogus, PLUGIN_ROOT_RECONCILE: bogus, HOME: tmpRoom }),

@@ -39,6 +39,9 @@
  *
  * Usage:
  *   const child = fork('tests/helpers/room-db-lock-holder-236.cjs', [roomDir]);
+ *   const child = fork('tests/helpers/room-db-lock-holder-236.cjs', [roomDir, '300', 'commit']);
+ *
+ * Plan 400.3-06a: optional argv[3] holdMs and argv[4] mode ('commit' or 'rollback', default 'rollback') end the hold on the holder's own timer, because a parent inside a synchronous busy wait cannot send 'release'.
  *
  * No em-dashes anywhere in this file (CLAUDE.md HARD RULE).
  */
@@ -47,6 +50,9 @@ const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
 const roomDir = process.argv[2];
+const holdMsArg = process.argv[3];
+const holdMs = (typeof holdMsArg === 'string' && /^[1-9][0-9]*$/.test(holdMsArg)) ? parseInt(holdMsArg, 10) : null;
+const endMode = process.argv[4] === 'commit' ? 'commit' : 'rollback';
 
 if (!roomDir) {
   process.stderr.write('room-db-lock-holder-236: no roomDir argument\n');
@@ -113,6 +119,16 @@ if (typeof process.send === 'function') {
 } else {
   process.stderr.write('room-db-lock-holder-236: no IPC channel (fork required)\n');
   release(3);
+}
+
+// Plan 400.3-06a: a timed hold ends on this process's own timer (COMMIT or ROLLBACK), then exits 0.
+if (holdMs !== null) {
+  setTimeout(() => {
+    if (endMode === 'commit') {
+      try { db.exec('COMMIT'); } catch (_e) { /* fall back to release */ }
+    }
+    release(0);
+  }, holdMs);
 }
 
 // Safety valve: never outlive a parent that died mid-test.

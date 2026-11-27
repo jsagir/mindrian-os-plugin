@@ -81,7 +81,36 @@ detect_room_section() {
 #    ("post-write: indexed <file> (index only)" and
 #    "post-write: index failed for <file> (index only)") are honest status
 #    lines, not room-proactive triggers.
+#    Phase 400.3 plan 03 (OR-6, D-07): a partial cascade in a section keeps the
+#    'queued MINTO regen' prefix on purpose (skills/room-proactive/SKILL.md
+#    still reads last-cascade.json) and adds '; cascade partial: <steps>
+#    failed'; outside a section, "post-write: cascade partial for <file>
+#    (<steps> failed)" is an honest status line, not a room-proactive trigger.
 # ---------------------------------------------------------------------------
+
+# Phase 400.3 plan 03 (OR-6, D-07): the failed step names of a partial cascade,
+# graph-index first (with its typed reason when it has one), then the other
+# failed keys in output order, at most 3 names, then ' and <n> more'.
+# Soft-fails to the word 'steps'. Never fails.
+cascade_partial_steps_of() {
+  local out="$1"
+  local names
+  names=$(printf '%s' "$out" | jq -r '
+    def stepname($k): {"graphIndex":"graph-index","classification":"classify","gitCommit":"git-commit",
+      "artifactId":"artifact-id","deriveEnqueue":"derive-enqueue","hsiBridge":"hsi-bridge",
+      "computeState":"compute-state","buildGraph":"build-graph","proactiveIntelligence":"analyze-room",
+      "opportunityExtraction":"opportunity-extraction","binaryAsset":"file-asset"}[$k] // $k;
+    . as $o
+    | [keys_unsorted[] | select(($o[.] | type) == "object" and $o[.].status == "error")] as $f
+    | ((if ($f | index("graphIndex")) != null then ["graphIndex"] else [] end) + ($f - ["graphIndex"])) as $ord
+    | [$ord[] | if . == "graphIndex" and (($o.graphIndex.reason | type) == "string")
+                then "graph-index (" + $o.graphIndex.reason + ")" else stepname(.) end] as $n
+    | if ($n | length) == 0 then "steps"
+      elif ($n | length) <= 3 then ($n | join(", "))
+      else ($n[0:3] | join(", ")) + " and " + (($n | length) - 3 | tostring) + " more" end' 2>/dev/null) || names="steps"
+  [ -z "$names" ] && names="steps"
+  printf '%s' "$names"
+}
 
 # Emit a Claude Code 2.x compliant PostToolUse advisory envelope.
 # Empty input -> silent (zero bytes). Non-empty -> single JSON line.
@@ -102,6 +131,8 @@ emit_post_tool_use_envelope() {
 #   complete - the cascade ran
 #   indexed / index_failed - Phase 400.3 plan 02 (D-07): an index-only run
 #              (mode "index-only") whose graph index did or did not land
+#   partial  - Phase 400.3 plan 03 (OR-6, D-07): a full cascade that ran with
+#              1 or more failed steps (a step entry with status "error")
 #   pending  - written by the caller before the node call (D-11), never
 #              returned here
 # Prints one word. Never fails.
@@ -112,9 +143,10 @@ cascade_status_of() {
     elif has("error") then "failed"
     elif .skipped == true then "skipped"
     elif .mode == "index-only" then (if ((.graphIndex.status // "") == "ok") then "indexed" else "index_failed" end)
+    elif ([.[] | select(type == "object" and .status == "error")] | length) > 0 then "partial"
     else "complete" end' 2>/dev/null) || word="failed"
   case "$word" in
-    failed|skipped|complete|indexed|index_failed) printf '%s' "$word" ;;
+    failed|skipped|complete|indexed|index_failed|partial) printf '%s' "$word" ;;
     *) printf 'failed' ;;
   esac
 }
@@ -288,7 +320,7 @@ if ROOM_SECTION_INFO=$(detect_room_section "$WALK_PATH" 2>/dev/null); then
   # Fix round item 2 (D-11): the pending record goes in before the foreground
   # debouncer, which can wait about 11-14 s on a held write.lock. Only a room
   # that can reach the cascade (STATE.md or an existing room.db) gets it.
-  if [ -f "$ROOM_DIR/STATE.md" ] || [ -f "$ROOM_DIR/.mindrian/room.db" ]; then
+  if [ -f "$ROOM_DIR/STATE.md" ] || { [ -f "$ROOM_DIR/.mindrian/room.db" ] && [ -s "$ROOM_DIR/.mindrian/room.db" ]; }; then
     write_cascade_side_channel "$ROOM_DIR" "$FILE_PATH" "${SECTION:-unknown}" '{}' "$SESSION_ID" pending "$PENDING_ID"
     EARLY_PENDING_DIR="$ROOM_DIR"
   fi
@@ -370,7 +402,8 @@ done
 # (review M-6): ROOM_DIR comes from detect_room_section above. No hook creates
 # room.db (D-10). A STATE.md room keeps the same node command line as before.
 CASCADE_INDEX_ONLY=""
-if [ -z "$room_dir" ] && [ -n "${ROOM_DIR:-}" ] && [ -f "${ROOM_DIR}/.mindrian/room.db" ]; then
+# plan 400.3-06a: a 0-byte room.db is no room.db, the bash twin of roomDbPresent in lib/core/room-root.cjs.
+if [ -z "$room_dir" ] && [ -n "${ROOM_DIR:-}" ] && { [ -f "${ROOM_DIR}/.mindrian/room.db" ] && [ -s "${ROOM_DIR}/.mindrian/room.db" ]; }; then
   room_dir="$ROOM_DIR"
   CASCADE_INDEX_ONLY=1
 fi
@@ -423,6 +456,14 @@ if [ -n "$room_dir" ]; then
     SM_TEXT="post-write: indexed ${FILE_BASE} (index only)"
   elif [ "$CASCADE_STATUS" = "index_failed" ]; then
     SM_TEXT="post-write: index failed for ${FILE_BASE} (index only)"
+  elif [ "$CASCADE_STATUS" = "partial" ]; then
+    # Phase 400.3 plan 03 (OR-6, D-07): name the failed steps.
+    PARTIAL_STEPS=$(cascade_partial_steps_of "$CASCADE_OUTPUT")
+    if [ "$SM_SECTION" = "unknown" ]; then
+      SM_TEXT="post-write: cascade partial for ${FILE_BASE} (${PARTIAL_STEPS} failed)"
+    else
+      SM_TEXT="queued MINTO regen for ${SM_SECTION}, recompiled references (${SM_BASENAME}); cascade partial: ${PARTIAL_STEPS} failed"
+    fi
   elif [ "$SM_SECTION" = "unknown" ]; then
     SM_TEXT="post-write: cascade complete for ${FILE_BASE}"
   else

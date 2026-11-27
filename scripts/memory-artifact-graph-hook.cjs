@@ -44,6 +44,15 @@
  * resolve room; lazy node:sqlite open; best-effort; exit 0 always), swapping the
  * strict .planning gate for the strict six-basename memory gate.
  *
+ * Plan 400.3-06c: the hook opens room.db through the one script opener
+ * (feynman-timeline-refresh-command.cjs resolveRoomDb) with the hook cap of
+ * 750 ms, and runs the whole reconcile inside one navigation.withRoomTx. So N
+ * memory files cost 1 wait, not N waits, and the reconcile lands all or
+ * nothing (review B-b). The run then holds the write lock for its whole
+ * length; tests/test-400-3-room-db-scripts.cjs K6 measures that hold (review
+ * M4). Canon Part 9: no new SQLite open site; the writes still go through
+ * navigation.cjs. On a held lock the hook writes a typed room_db_busy line.
+ *
  * NO em-dashes anywhere (CLAUDE.md HARD RULE). Pure CJS, node built-ins + the
  * memory reconcile-runner.
  */
@@ -145,6 +154,11 @@ function resolvePluginRoot() {
 }
 
 function runHook() {
+  // Plan 400.3-06c: the hook process waits at most the hook cap (750 ms) for room.db.
+  try {
+    const busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+    busyCap.setHookBusyCap(busyCap.HOOK_BUSY_MS);
+  } catch (_e) { /* the default wait stays */ }
   const input = readStdin();
   const tool = String((input && input.tool_name) || '');
   if (tool !== 'Write' && tool !== 'Edit' && tool !== 'MultiEdit') return;
@@ -163,23 +177,52 @@ function runHook() {
   // repository causes no room work.
   if (!isInsideRoom(filePath, roomDir)) return;
 
-  // Open room.db so the reconcile can upsert. Lazy-require node:sqlite so an
-  // environment without it degrades to a silent no-op (Tier 0).
+  // Plan 400.3-06c: the reconcile runs in reconcileRoom (one wait per run, one transaction).
+  const out = reconcileRoom(roomDir, {});
+  const result = out && out.result;
+  // MED-04: log only when genuine work happened (upserted > 0). An unchanged
+  // room (all no-op re-projections) emits nothing, so the line is honest and an
+  // idempotent re-run no longer claims it "did work". The unchanged count is
+  // surfaced for observability of the idempotence invariant.
+  if (out && out.ok === true && result && result.upserted > 0) {
+    try {
+      process.stderr.write('[memory-artifact-graph-hook] ' + result.upserted +
+        ' memory node(s) upserted, ' + (result.unchanged || 0) + ' unchanged, ' +
+        result.decision_nodes + ' decision node(s), ' + result.edges + ' cortex edge(s)\n');
+    } catch (_e) { /* swallow logger error */ }
+  } else if (out && out.reason === 'room_db_busy') {
+    try {
+      process.stderr.write('[memory-artifact-graph-hook] room_db_busy: memory files not reconciled now; the session-start reconcile files them later\n');
+    } catch (_e) { /* swallow logger error */ }
+  } else if (out && out.reason === 'reconcile_failed') {
+    try {
+      process.stderr.write('[memory-artifact-graph-hook] error: ' + String(out.detail || '').slice(0, 200) + '\n');
+    } catch (_e) { /* swallow logger error */ }
+  }
+}
+
+
+/**
+ * reconcileRoom(roomDir, opts) -> { ok: true, result } | { ok: false, reason, detail? }
+ * Plan 400.3-06c (review B-b): open room.db through the one script opener and run
+ * the whole memory reconcile inside one navigation.withRoomTx, so a held lock
+ * costs one wait. opts.busyMs: a non-negative integer, else the hook cap of the
+ * process. Reasons: 'no_room_db' (missing, 0-byte or unopenable room.db: no
+ * reconcile, as at BASE), 'room_db_busy', 'reconcile_failed'. Never throws.
+ */
+function reconcileRoom(roomDir, opts) {
+  const o = opts && typeof opts === 'object' ? opts : {};
+  const busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+  const busyMs = (Number.isInteger(o.busyMs) && o.busyMs >= 0) ? o.busyMs : busyCap.capBusyMs(busyCap.DEFAULT_BUSY_MS);
   let db = null;
   try {
-    const dbPath = path.join(roomDir, '.mindrian', 'room.db');
-    if (!fs.existsSync(dbPath)) return;
-    const sqlite = require('node:sqlite');
-    db = new sqlite.DatabaseSync(dbPath);
-  } catch (_e) {
-    db = null;
-  }
-  if (!db) return;
-
+    db = require('./feynman-timeline-refresh-command.cjs').resolveRoomDb(roomDir, { busyMs: busyMs });
+  } catch (_e) { db = null; }
+  if (!db) return { ok: false, reason: 'no_room_db' };
   try {
     const pluginRoot = resolvePluginRoot();
     const runner = require(path.join(pluginRoot, 'lib', 'core', 'memory', 'reconcile-memory-runner.cjs'));
-
+    const navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
     // Dog-food: when the active room IS the plugin workspace, reconcile the
     // plugin's OWN per-folder memory files (PLUGIN_ROOT as the section root, not
     // ROOM_DIR). Same resolved-path compare as the session-start slot.
@@ -189,33 +232,26 @@ function runHook() {
         reconcileOpts.sectionRoot = pluginRoot;
       }
     } catch (_e) { /* keep the default sectionRoot */ }
-
-    // Call the SAME idempotent reconcile the session-start slot calls. The full
-    // pass is the chokepoint; because it is idempotent, the hook write + a later
-    // session-start reconcile never duplicate (D-01 belt-and-suspenders).
-    const result = runner.reconcileMemoryArtifacts(roomDir, reconcileOpts);
-    // MED-04: log only when genuine work happened (upserted > 0). An unchanged
-    // room (all no-op re-projections) emits nothing, so the line is honest and an
-    // idempotent re-run no longer claims it "did work". The unchanged count is
-    // surfaced for observability of the idempotence invariant.
-    if (result && result.upserted > 0) {
-      try {
-        process.stderr.write('[memory-artifact-graph-hook] ' + result.upserted +
-          ' memory node(s) upserted, ' + (result.unchanged || 0) + ' unchanged, ' +
-          result.decision_nodes + ' decision node(s), ' + result.edges + ' cortex edge(s)\n');
-      } catch (_e) { /* swallow logger error */ }
-    }
+    // Call the SAME idempotent reconcile the session-start slot calls, inside one
+    // transaction (D-01 belt-and-suspenders: a later session-start never duplicates).
+    // Wave 2 Goldfish W2-D-04: read and parse every memory file BEFORE the
+    // transaction (the Phase 367 read-before-tx rule), so the write lock is held
+    // for the inserts only, not for the file reads.
+    if (typeof runner.prepareMemoryArtifacts === 'function') reconcileOpts.prepared = runner.prepareMemoryArtifacts(roomDir, reconcileOpts);
+    const result = navigation.withRoomTx(db, () => runner.reconcileMemoryArtifacts(roomDir, reconcileOpts));
+    return { ok: true, result: result };
   } catch (err) {
-    try {
-      process.stderr.write('[memory-artifact-graph-hook] error: ' +
-        String(err && err.message ? err.message : err).slice(0, 200) + '\n');
-    } catch (_e) { /* swallow logger error */ }
+    if (busyCap.isBusyError(err)) {  // wave 2 Goldfish W2-CD-03: the one busy test
+      try { busyCap.noteBusy(); } catch (_e) { /* tolerant */ }
+      return { ok: false, reason: 'room_db_busy' };
+    }
+    return { ok: false, reason: 'reconcile_failed', detail: String(err && err.message ? err.message : err).slice(0, 200) };
   } finally {
     try { db.close(); } catch (_e) { /* graceful close */ }
   }
 }
 
-module.exports = { isMemoryMarkdown: isMemoryMarkdown, resolveRoomDir: resolveRoomDir, isInsideRoom: isInsideRoom };
+module.exports = { isMemoryMarkdown: isMemoryMarkdown, resolveRoomDir: resolveRoomDir, isInsideRoom: isInsideRoom, reconcileRoom: reconcileRoom };
 
 // CLI entry -- the PostToolUse hook contract. ALWAYS exit 0; never block the write.
 if (require.main === module) {

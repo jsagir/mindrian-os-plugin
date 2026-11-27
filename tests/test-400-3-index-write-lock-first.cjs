@@ -1,0 +1,459 @@
+#!/usr/bin/env node
+'use strict';
+/*
+ * Phase 400.3 plan 06a: the index path takes the SQLite write lock first, so its busy wait is real and bounded.
+ *
+ * Owner rulings covered: OR-2 (BEGIN IMMEDIATE at the indexArtifact and rebuildGraph owned sites), OR-4 (the
+ * index busy wait of 500 ms keeps the C10 bound of 750 ms), C10, D-10 (no index call fills a 0-byte room.db),
+ * D-11 (bounded busy wait), and the OR-7 follow-ups of the index-path files (the 750 ms constants, the
+ * openGraph handle leak on busy, a 0-byte room.db that passes mustExist).
+ *
+ * Canon Part 8: fixture rooms only under mkdtemp roots; no network.
+ * Native Windows is UNMEASURED.
+ *
+ * Groups: lock (W1-W6), backfill (B1-B3), presence (E1-E9; E7 wave 2 Goldfish W2-D-09, E8 and E9 W2-CD-10).
+ * Usage: node tests/test-400-3-index-write-lock-first.cjs [lock|backfill|presence|all]   (default all)
+ *
+ * Node built-ins only. Hyphens only.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { fork } = require('node:child_process');
+const { DatabaseSync } = require('node:sqlite');
+
+const ROOT = path.resolve(__dirname, '..');
+const DB_LOCK_HOLDER = path.join(__dirname, 'helpers', 'room-db-lock-holder-236.cjs');
+const HOLDER_MODE = 'BEGIN IMMEDIATE + write';
+
+const GROUPS = ['lock', 'backfill', 'presence', 'all'];
+const GROUP = process.argv[2] || 'all';
+if (GROUPS.indexOf(GROUP) === -1) {
+  console.error('usage: node tests/test-400-3-index-write-lock-first.cjs [lock|backfill|presence|all]');
+  process.exit(2);
+}
+
+let passed = 0;
+let failed = 0;
+function check(label, cond, detail) {
+  if (cond) { passed += 1; console.log('PASS: ' + label); }
+  else { failed += 1; console.log('FAIL: ' + label + (detail !== undefined ? ' :: ' + detail : '')); }
+}
+function skip(label, why) { console.log('SKIP: ' + label + ' (' + why + ')'); }
+
+const ROOTS = [];
+process.on('exit', () => {
+  for (const r of ROOTS) { try { fs.rmSync(r, { recursive: true, force: true }); } catch (_e) { /* best effort */ } }
+});
+function mkRoot(label) {
+  const r = fs.mkdtempSync(path.join(os.tmpdir(), '4003-06a-' + label + '-'));
+  ROOTS.push(r);
+  return r;
+}
+function msNow() { return Number(process.hrtime.bigint()) / 1e6; }
+
+const graphOps = require(path.join(ROOT, 'lib', 'core', 'graph-ops.cjs'));
+const lazygraph = require(path.join(ROOT, 'lib', 'core', 'lazygraph-ops.cjs'));
+const { openRoomDb, closeRoomDb } = require(path.join(ROOT, 'lib', 'core', 'room-db.cjs'));
+
+const ARTIFACT = '---\ntitle: A note\n---\n\n# A note\n\nOne prose line for the index.\n';
+
+// A room seeded through the real write door (openRoomDb then closeRoomDb), plus sec/a.md.
+function mkRoom(parent, name) {
+  const room = path.join(parent, name);
+  fs.mkdirSync(path.join(room, 'sec'), { recursive: true });
+  fs.writeFileSync(path.join(room, '.room-root'), '');
+  fs.writeFileSync(path.join(room, 'sec', 'a.md'), ARTIFACT);
+  const db = openRoomDb(room);
+  closeRoomDb(db);
+  return room;
+}
+function dbPathOf(room) { return path.join(room, '.mindrian', 'room.db'); }
+function artifactRows(room, id) {
+  const p = dbPathOf(room);
+  if (!fs.existsSync(p)) return -1;
+  const db = new DatabaseSync(p, { readOnly: true });
+  try {
+    if (id === undefined) return db.prepare("SELECT COUNT(*) AS n FROM nodes WHERE type = 'Artifact'").get().n;
+    return db.prepare("SELECT id FROM nodes WHERE type = 'Artifact' AND id = ?").all(id).length;
+  } finally { db.close(); }
+}
+
+// The holder of tests/helpers/room-db-lock-holder-236.cjs. holdMs and mode end the hold on the holder's own
+// timer (plan 400.3-06a), because this process is inside a synchronous busy wait when the hold must end.
+function startHolder(room, holdMs, mode) {
+  return new Promise((resolve, reject) => {
+    const args = [room];
+    if (holdMs) { args.push(String(holdMs)); args.push(mode || 'rollback'); }
+    const child = fork(DB_LOCK_HOLDER, args, { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });
+    // A timed holder can exit while this process is inside a synchronous busy wait; a late send then fails with EPIPE.
+    child.on('error', () => { /* the holder is gone */ });
+    let settled = false;
+    child.on('message', (msg) => {
+      if (settled || !msg || !msg.ready) return;
+      settled = true;
+      if (msg.mode !== HOLDER_MODE) {
+        try { child.kill(); } catch (_e) { /* gone */ }
+        reject(new Error('holder mode is ' + JSON.stringify(msg.mode) + ', not ' + JSON.stringify(HOLDER_MODE)));
+        return;
+      }
+      resolve({ child });
+    });
+    child.on('exit', (code) => { if (!settled) { settled = true; reject(new Error('room-db-lock-holder-236 exited ' + code + ' before ready')); } });
+  });
+}
+function stopHolder(h) {
+  return new Promise((resolve) => {
+    if (!h || !h.child || h.child.exitCode !== null || h.child.signalCode !== null) return resolve();
+    h.child.once('exit', () => resolve());
+    try { h.child.send('release', (err) => { if (err) { try { h.child.kill(); } catch (_e) { /* gone */ } } }); }
+    catch (_e) { try { h.child.kill(); } catch (_e2) { resolve(); } }
+  });
+}
+async function timed(fn) {
+  const t0 = msNow();
+  let result;
+  let err = null;
+  try { result = await fn(); } catch (e) { err = e; }
+  return { result, err, ms: msNow() - t0 };
+}
+function errInfo(e) { return e ? JSON.stringify({ message: e.message, code: e.code, errcode: e.errcode }) : 'no error'; }
+
+// ---------------------------------------------------------------------------
+// Group lock (W1-W6)
+// ---------------------------------------------------------------------------
+async function groupLock() {
+  console.log('\n-- group lock --');
+  const root = mkRoot('lock');
+
+  // W1
+  {
+    const room = mkRoom(root, 'w1');
+    let h = null;
+    try {
+      h = await startHolder(room, 300, 'commit');
+      const r = await timed(() => graphOps.indexArtifact(room, path.join(room, 'sec', 'a.md'), { mustExist: true, busyMs: graphOps.INDEX_BUSY_MS }));
+      check('W1 a 300 ms foreign write: the index waits and succeeds (measured ' + r.ms.toFixed(0) + ' ms)',
+        !r.err && r.result && r.result.success === true && r.ms >= 150 && artifactRows(room, 'sec/a') === 1,
+        errInfo(r.err) + ' rows=' + artifactRows(room, 'sec/a'));
+    } catch (e) { check('W1 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // W2
+  {
+    const room = mkRoom(root, 'w2');
+    let h = null;
+    try {
+      h = await startHolder(room);
+      const r = await timed(() => graphOps.indexArtifact(room, path.join(room, 'sec', 'a.md'), { mustExist: true, busyMs: graphOps.INDEX_BUSY_MS }));
+      check('W2 a held foreign write: room_db_busy after 450-750 ms (measured ' + r.ms.toFixed(0) + ' ms)',
+        !!r.err && graphOps.classifyIndexError(r.err) === 'room_db_busy' && r.ms >= 450 && r.ms < 750,
+        errInfo(r.err));
+    } catch (e) { check('W2 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // W3
+  {
+    const room = mkRoom(root, 'w3');
+    let h = null;
+    try {
+      h = await startHolder(room, 300, 'commit');
+      const r = await timed(() => graphOps.indexArtifact(room, path.join(room, 'sec', 'a.md')));
+      check('W3 the default busy wait waits out a 300 ms foreign write (measured ' + r.ms.toFixed(0) + ' ms)',
+        !r.err && r.result && r.result.success === true && artifactRows(room, 'sec/a') === 1, errInfo(r.err));
+    } catch (e) { check('W3 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // W4
+  {
+    const room = mkRoom(root, 'w4');
+    let h = null;
+    try {
+      h = await startHolder(room, 300, 'commit');
+      const r = await timed(() => graphOps.rebuildGraph(room));
+      check('W4 rebuildGraph waits out a 300 ms foreign write (measured ' + r.ms.toFixed(0) + ' ms)',
+        !r.err && r.result && r.result.success === true, errInfo(r.err));
+    } catch (e) { check('W4 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // W5
+  {
+    const room = mkRoom(root, 'w5');
+    let err = null;
+    let db = null;
+    try {
+      const g = await lazygraph.openGraph(room);
+      db = g.db;
+      g.conn.exec('BEGIN IMMEDIATE');
+      await lazygraph.indexArtifact(g.conn, room, path.join(room, 'sec', 'a.md'));
+      await lazygraph.rebuildGraph(g.conn, room);
+      g.conn.exec('COMMIT');
+    } catch (e) {
+      err = e;
+      try { if (db) db.exec('ROLLBACK'); } catch (_e) { /* none open */ }
+    }
+    if (db) await lazygraph.closeGraph(db);
+    check('W5 indexArtifact and rebuildGraph compose inside a caller transaction', !err && artifactRows(room, 'sec/a') === 1, errInfo(err));
+  }
+
+  // W6
+  check('W6 INDEX_BUSY_MS is 500, INDEX_LOCK_WAIT_MS is 750, and INDEX_BUSY_MS is below the C10 bound of 750 ms',
+    graphOps.INDEX_BUSY_MS === 500 && graphOps.INDEX_LOCK_WAIT_MS === 750 && graphOps.INDEX_BUSY_MS < 750,
+    JSON.stringify({ INDEX_BUSY_MS: graphOps.INDEX_BUSY_MS, INDEX_LOCK_WAIT_MS: graphOps.INDEX_LOCK_WAIT_MS }));
+}
+
+// ---------------------------------------------------------------------------
+// Group backfill (B1-B3)
+// ---------------------------------------------------------------------------
+function mkManyRoom(parent, name, n) {
+  const room = mkRoom(parent, name);
+  const files = [];
+  for (let i = 0; i < n; i++) {
+    const f = path.join(room, 'sec', 'f' + i + '.md');
+    fs.writeFileSync(f, ARTIFACT.replace('A note', 'Note ' + i));
+    files.push(f);
+  }
+  return { room, files };
+}
+async function groupBackfill() {
+  console.log('\n-- group backfill --');
+  const root = mkRoot('backfill');
+  const fn = graphOps.indexArtifactsStopOnBusy;
+  if (typeof fn !== 'function') {
+    check('B1-B3 graphOps.indexArtifactsStopOnBusy exists', false, typeof fn);
+    return;
+  }
+
+  // B1
+  const m = mkManyRoom(root, 'b1', 20);
+  {
+    let h = null;
+    try {
+      h = await startHolder(m.room);
+      const r = await timed(() => fn(m.room, m.files, { busyMs: graphOps.INDEX_BUSY_MS }));
+      check('B1 a held foreign write: indexed 0, stopped room_db_busy, in less than 1500 ms (measured ' + r.ms.toFixed(0) + ' ms)',
+        !r.err && r.result && r.result.indexed === 0 && r.result.stopped === 'room_db_busy' && r.ms < 1500,
+        errInfo(r.err) + ' ' + JSON.stringify(r.result));
+    } catch (e) { check('B1 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // B2
+  {
+    const r = await timed(() => fn(m.room, m.files, { busyMs: graphOps.INDEX_BUSY_MS }));
+    let rows = 0;
+    for (let i = 0; i < 20; i++) rows += artifactRows(m.room, 'sec/f' + i);
+    check('B2 no holder: indexed 20, stopped null, 20 Artifact rows',
+      !r.err && r.result && r.result.indexed === 20 && r.result.stopped === null && rows === 20,
+      errInfo(r.err) + ' ' + JSON.stringify(r.result) + ' rows=' + rows);
+  }
+
+  // B3
+  {
+    const m3 = mkManyRoom(root, 'b3', 3);
+    const files = [m3.files[0], path.join(m3.room, 'sec', 'missing.md'), m3.files[2]];
+    const r = await timed(() => fn(m3.room, files, { busyMs: graphOps.INDEX_BUSY_MS }));
+    check('B3 a missing file does not stop the loop: indexed 2, stopped null',
+      !r.err && r.result && r.result.indexed === 2 && r.result.stopped === null,
+      errInfo(r.err) + ' ' + JSON.stringify(r.result));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Group presence (E1-E7)
+// ---------------------------------------------------------------------------
+// A room with .room-root, sec/a.md and a 0-byte .mindrian/room.db (no write door ran).
+function mkZeroRoom(parent, name, opts) {
+  const o = opts || {};
+  const room = path.join(parent, name);
+  fs.mkdirSync(path.join(room, 'sec'), { recursive: true });
+  fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+  fs.writeFileSync(path.join(room, '.room-root'), '');
+  if (o.state) fs.writeFileSync(path.join(room, 'STATE.md'), '# State\n');
+  fs.writeFileSync(path.join(room, 'sec', 'a.md'), ARTIFACT);
+  fs.writeFileSync(dbPathOf(room), '');
+  return room;
+}
+function sizeOf(p) { try { return fs.statSync(p).size; } catch (_e) { return -1; } }
+// The tests/test-276-busy-timeout-propagation.cjs bare seed: only the identity table, so the graph schema of
+// openGraph initSchema has real write work to contend over.
+function seedBareIdentityRoom(room) {
+  fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+  const raw = new DatabaseSync(dbPathOf(room), { timeout: 0 });
+  raw.exec('PRAGMA journal_mode = WAL');
+  raw.exec('CREATE TABLE IF NOT EXISTS identity (key TEXT PRIMARY KEY, value TEXT, updated_at TEXT)');
+  raw.close();
+}
+function roomDbFdCount() {
+  let n = 0;
+  for (const fd of fs.readdirSync('/proc/self/fd')) {
+    try { if (fs.readlinkSync('/proc/self/fd/' + fd).endsWith('room.db')) n += 1; } catch (_e) { /* closed in between */ }
+  }
+  return n;
+}
+
+async function groupPresence() {
+  console.log('\n-- group presence --');
+  const root = mkRoot('presence');
+  const roomRoot = require(path.join(ROOT, 'lib', 'core', 'room-root.cjs'));
+  const navigation = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));
+  const present = roomRoot.roomDbPresent;
+
+  // E1
+  if (typeof present !== 'function') {
+    check('E1 roomRoot.roomDbPresent exists', false, typeof present);
+  } else {
+    const none = path.join(root, 'e1-none');
+    fs.mkdirSync(none, { recursive: true });
+    const zero = mkZeroRoom(root, 'e1-zero');
+    const dir = path.join(root, 'e1-dir');
+    fs.mkdirSync(path.join(dir, '.mindrian', 'room.db'), { recursive: true });
+    const real = mkRoom(root, 'e1-real');
+    let threw = false;
+    let odd = [];
+    try { odd = [present(null), present(42), present(''), present(undefined)]; } catch (_e) { threw = true; }
+    check('E1 roomDbPresent: false with no .mindrian, false for 0 bytes, false for a folder, true for a real room.db, never throws',
+      present(none) === false && present(zero) === false && present(dir) === false && present(real) === true
+        && !threw && odd.every((v) => v === false),
+      JSON.stringify({ none: present(none), zero: present(zero), dir: present(dir), real: present(real), threw, odd }));
+  }
+
+  // E2
+  {
+    const room = mkZeroRoom(root, 'e2');
+    let openErr = null;
+    try { const g = await lazygraph.openGraph(room, { mustExist: true }); await lazygraph.closeGraph(g.db); } catch (e) { openErr = e; }
+    let idxErr = null;
+    try { await graphOps.indexArtifact(room, path.join(room, 'sec', 'a.md'), { mustExist: true }); } catch (e) { idxErr = e; }
+    check('E2 a 0-byte room.db: openGraph mustExist rejects ROOM_DB_MISSING, indexArtifact mustExist gives room_db_missing, the file stays 0 bytes, no write.lock',
+      !!openErr && openErr.code === 'ROOM_DB_MISSING' && !!idxErr && graphOps.classifyIndexError(idxErr) === 'room_db_missing'
+        && sizeOf(dbPathOf(room)) === 0 && !fs.existsSync(path.join(room, '.mindrian', 'write.lock')),
+      JSON.stringify({ open: errInfo(openErr), idx: errInfo(idxErr), size: sizeOf(dbPathOf(room)), lock: fs.existsSync(path.join(room, '.mindrian', 'write.lock')) }));
+  }
+
+  // E3
+  {
+    const room = mkZeroRoom(root, 'e3');
+    let err = null;
+    let tables = [];
+    try {
+      const g = await lazygraph.openGraph(room);
+      tables = g.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((r) => r.name);
+      await lazygraph.closeGraph(g.db);
+    } catch (e) { err = e; }
+    check('E3 openGraph with no option on a 0-byte room.db still opens and creates the graph schema',
+      !err && tables.indexOf('nodes') !== -1 && tables.indexOf('edges') !== -1, errInfo(err) + ' ' + JSON.stringify(tables));
+  }
+
+  // E4
+  if (process.platform !== 'linux' || !fs.existsSync('/proc/self/fd')) {
+    skip('E4', 'Linux /proc/self/fd arm');
+  } else {
+    const room = path.join(root, 'e4');
+    fs.mkdirSync(room, { recursive: true });
+    seedBareIdentityRoom(room);
+    let h = null;
+    try {
+      h = await startHolder(room);
+      const before = roomDbFdCount();
+      let rejects = 0;
+      for (let i = 0; i < 5; i++) {
+        try { const g = await lazygraph.openGraph(room, { busyMs: 100 }); await lazygraph.closeGraph(g.db); } catch (_e) { rejects += 1; }
+      }
+      const after = roomDbFdCount();
+      check('E4 5 busy openGraph calls reject and leak no room.db handle (fd before ' + before + ', after ' + after + ')',
+        rejects === 5 && after === before, JSON.stringify({ rejects, before, after }));
+    } catch (e) { check('E4 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // E5
+  {
+    const home = path.join(root, 'home5');
+    fs.mkdirSync(home, { recursive: true });
+    const KEYS = ['HOME', 'USERPROFILE', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_BRAIN_URL', 'CLAUDE_ACTIVE_ROOM', 'CLAUDE_ROOM_DIR'];
+    const SAVED = {};
+    for (const k of KEYS) SAVED[k] = process.env[k];
+    process.env.HOME = home;
+    process.env.USERPROFILE = home;
+    process.env.MINDRIAN_ROOMS_HOME = path.join(home, 'MindrianRooms');
+    process.env.MINDRIAN_BRAIN_URL = 'http://127.0.0.1:9';
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+    delete process.env.CLAUDE_ROOM_DIR;
+    try {
+      const room = mkZeroRoom(path.join(home, 'MindrianRooms'), 'e5', { state: true });
+      const cascade = require(path.join(ROOT, 'lib', 'core', 'intelligence-cascade.cjs'));
+      const res = await cascade.runCascade(room, { trigger: 'cli-hook', filePath: path.join(room, 'sec', 'a.md') });
+      check('E5 runCascade on a .room-root room with a 0-byte room.db: skipped room_db_missing, the file stays 0 bytes',
+        res.skipped === true && res.skipReason === 'room_db_missing' && res.graphIndex && res.graphIndex.status === 'skipped'
+          && res.graphIndex.reason === 'room_db_missing' && sizeOf(dbPathOf(room)) === 0,
+        JSON.stringify({ skipped: res.skipped, skipReason: res.skipReason, graphIndex: res.graphIndex, size: sizeOf(dbPathOf(room)) }));
+    } finally {
+      for (const k of KEYS) { if (SAVED[k] === undefined) delete process.env[k]; else process.env[k] = SAVED[k]; }
+    }
+  }
+
+  // E6
+  {
+    const room = mkZeroRoom(root, 'e6');
+    const sink = [];
+    const db = navigation.openRoomDbForCaller(room, { reasonSink: sink });
+    if (db) { try { require(path.join(ROOT, 'lib', 'core', 'room-db.cjs')).closeRoomDb(db); } catch (_e) { /* tolerant */ } }
+    check('E6 openRoomDbForCaller on a 0-byte room.db: null, reason no_room_db, the file stays 0 bytes',
+      db === null && sink.indexOf('no_room_db') !== -1 && sizeOf(dbPathOf(room)) === 0,
+      JSON.stringify({ db: db === null ? null : 'handle', sink, size: sizeOf(dbPathOf(room)) }));
+  }
+
+  // E7 (wave 2 Goldfish W2-D-09): the window between the presence check and the open. roomDbPresent is made to say
+  // true while room.db is gone (the file was removed after the check). openGraph {mustExist: true} opens with a file:
+  // URI mode=rw, so it throws ROOM_DB_MISSING and creates no room.db (D-10).
+  {
+    const room = path.join(root, 'e7');
+    fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+    const real = roomRoot.roomDbPresent;
+    roomRoot.roomDbPresent = () => true;
+    let err = null;
+    let h = null;
+    try { h = await lazygraph.openGraph(room, { mustExist: true, busyMs: 100 }); } catch (e) { err = e; } finally { roomRoot.roomDbPresent = real; }
+    if (h) { try { await lazygraph.closeGraph(h); } catch (_e) { /* closed */ } }
+    check('E7 the file is gone after the presence check: openGraph mustExist throws ROOM_DB_MISSING and creates no room.db',
+      !h && !!err && err.code === 'ROOM_DB_MISSING' && sizeOf(dbPathOf(room)) === -1,
+      JSON.stringify({ handle: !!h, code: err && err.code, message: err && err.message, size: sizeOf(dbPathOf(room)) }));
+  }
+
+  // E8 (wave 2 Goldfish W2-CD-10): the spine-event writers use the one presence rule (roomDbPresent), so a 0-byte
+  // room.db is no room.db: logSpineRead returns no_room_db and the file stays 0 bytes.
+  {
+    const room = mkZeroRoom(root, 'e8');
+    const spine = require(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'));
+    let r = null;
+    let err = null;
+    try { r = spine.logSpineRead(room, { surface: 'cli', section: 'sec' }); } catch (e) { err = e; }
+    check('E8 logSpineRead on a 0-byte room.db: reason no_room_db and the file stays 0 bytes',
+      !err && !!r && r.ok === false && r.reason === 'no_room_db' && sizeOf(dbPathOf(room)) === 0,
+      JSON.stringify({ r, err: err && err.message, size: sizeOf(dbPathOf(room)) }));
+  }
+  // E9 (W2-CD-10): resolveRoomDb of scripts/feynman-timeline-refresh-command.cjs has one presence check, not two.
+  {
+    const src = fs.readFileSync(path.join(ROOT, 'scripts', 'feynman-timeline-refresh-command.cjs'), 'utf8');
+    const fn = (src.match(/function resolveRoomDb\([\s\S]*?\n\}/) || [''])[0];
+    const spineSrc = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'), 'utf8');
+    const has = (spineSrc.match(/function _hasRoomDb\([\s\S]*?\n\}/) || [''])[0];
+    check('E9 one presence rule: resolveRoomDb calls roomDbPresent only, and spine-events _hasRoomDb calls roomDbPresent',
+      fn.length > 0 && /roomDbPresent\(/.test(fn) && !/safeIsFile\(/.test(fn) && /roomDbPresent\(/.test(has) && !/statSync/.test(has),
+      JSON.stringify({ resolveRoomDb: fn.slice(0, 160), hasRoomDb: has.slice(0, 160) }));
+  }
+}
+
+async function main() {
+  if (GROUP === 'lock' || GROUP === 'all') await groupLock();
+  if (GROUP === 'backfill' || GROUP === 'all') await groupBackfill();
+  if (GROUP === 'presence' || GROUP === 'all') await groupPresence();
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
+  process.exit(failed === 0 ? 0 : 1);
+}
+main().catch((e) => { console.error('FAIL: harness error ' + (e && e.stack || e)); process.exit(1); });
