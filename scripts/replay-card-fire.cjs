@@ -397,7 +397,9 @@ function materializeEnvelope(env, dir, sessionId, mods) {
 /**
  * runCliStop(ctx, mods) -- mirror scripts/check-card-fire.cjs's main()
  * exactly, minus stdin/stdout/the intercept log: loadRegistry ->
- * deriveTurnSignals -> read both counters -> classifyCardFire -> the SAME
+ * deriveTurnSignals -> the stop_hook_active true terminal pass (quick
+ * 261127-k4f, 402 K4-R4: clear both counters, consume, pass) -> read both
+ * counters -> classifyCardFire -> the SAME
  * degrade/intercept/pass bookkeeping (bump-or-clear both counters,
  * consumeReachedGatesForVerdict on every TERMINAL verdict). A defensive
  * `predicate-error` reason (classifyCardFire's own catch-all) is reported as
@@ -408,6 +410,18 @@ function runCliStop(ctx, mods) {
   const registry = checkCardFire.loadRegistry();
   const turn = checkCardFire.deriveTurnSignals(ctx);
   const ctxHash = checkCardFire.turnContextHash(turn);
+  if (ctx && ctx.stop_hook_active === true) {
+    checkCardFire.clearRetryCount(ctxHash);
+    checkCardFire.clearSessionCount(turn.session_id);
+    checkCardFire.consumeReachedGatesForVerdict(turn, { intercept: false, degrade: false, reason: 'stop-hook-active-pass' });
+    return {
+      class: 'pass',
+      reason: 'stop-hook-active-pass',
+      degrade: false,
+      preceding_user_text_source: turn.preceding_user_text_source,
+      preceding_user_is_meta: turn.preceding_user_is_meta,
+    };
+  }
   turn.retry_count = checkCardFire.readRetryCount(ctxHash);
   turn.session_count = checkCardFire.readSessionCount(turn.session_id);
 

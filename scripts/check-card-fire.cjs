@@ -16,9 +16,13 @@
  * the navigator.
  *
  * Hook class: this runs on the Stop event (hooks/hooks.json Stop block), NOT PostToolUse.
- * The block route is a JSON envelope `{ decision:'block', continue:false, ... }` written
+ * The block route is a JSON envelope `{ decision:'block', reason, systemMessage }` written
  * to stdout on exit 0 -- a valid Stop-block path (the Claude Code Stop hook honors a
- * decision:'block' envelope to re-prompt the turn). It is NOT an exit-2 block; earlier
+ * decision:'block' envelope to re-prompt the turn). Quick 261127-k4f (402 K4-R1): the
+ * envelope carries NO continue key. The host code (Claude Code 2.1.332) ends the turn on
+ * continue:false before it reads a block, so the old `continue:false` gave a block with
+ * no re-prompt and no card (1 gate gave 3 blocks on 3 user turns and 0 cards in the
+ * plan's host record). It is NOT an exit-2 block; earlier
  * drafts of this header and 179-CONTEXT called it an "exit-2 PostToolUse interceptor" --
  * that was doc drift, reconciled here (IN-01) to match the shipped Stop-block-on-exit-0
  * route.
@@ -330,6 +334,16 @@ const ALLOWED_ENVELOPE_KEYS = new Set([
   'suppressOutput',
   'systemMessage',
 ]);
+
+// Quick 261127-k4f (402 K4-R2, K4-R3): the 2 fixed person-facing strings of the
+// block envelope. The host shows `reason` to the person ("Stop hook error: <reason>")
+// and to the model ("Stop hook feedback: <reason>"), so it is a calm descriptive
+// phrase: at most 80 characters, plain words, no tool name, no slug, no instruction
+// to the model. It is never built from the transcript, the verdict or a slug. The
+// same text is a literal in scripts/on-stop (the flag-on route); the 402 envelope
+// test asserts that both are equal.
+const CARD_FIRE_BLOCK_REASON = 'rendering your choices as a selectable card';
+const CARD_FIRE_BLOCK_SYSTEM_MESSAGE = 'Re-rendering your choices as a selectable card...';
 
 // ---------------------------------------------------------------------------
 // loadRegistry() -- read the render-coverage registry. Pure local read; never throws
@@ -819,7 +833,8 @@ function classifyCardFire(turn, registry) {
 // classifyCardFire verdict.
 //   - degrade  -> { continue: true, suppressOutput: true } (log + allow; no loop).
 //   - intercept-> the decision:block-on-exit-0 block: { decision:'block', reason,
-//                 systemMessage, continue:false }.
+//                 systemMessage } with NO continue key (quick 261127-k4f, 402 K4-R1:
+//                 continue:false made the host end the turn, so the card never came).
 //   - neither  -> { continue: true, suppressOutput: true } (nothing to do).
 // Returns a key-filtered envelope. Never throws.
 //
@@ -869,11 +884,10 @@ function buildEnforcementEnvelope(verdict) {
       decision: 'block',
       // CR-06: calm, human-safe `reason` (never the internal slug -- see the branch note
       // above). The slug is preserved for telemetry in the LOCAL intercept log instead.
-      reason: 'rendering your choices as a selectable card',
+      reason: CARD_FIRE_BLOCK_REASON,
       // FIXED human-facing line (never interpolated from transcript content or the reason
       // slug; T-m9g-01). Retained from the original Finding 1 fix as the second calm surface.
-      systemMessage: 'Re-rendering your choices as a selectable card...',
-      continue: false,
+      systemMessage: CARD_FIRE_BLOCK_SYSTEM_MESSAGE,
     };
   } else {
     raw = { continue: true, suppressOutput: true };
@@ -955,25 +969,41 @@ function retryStoreLockPath() {
   return retryFilePath() + '.lock';
 }
 
-// The bounded-wait sizing. Named constants, not magic numbers, so the total
-// worst-case wait is legible at a glance: 300 attempts * 20ms = ~6000ms.
+// The bounded-wait sizing (quick 261127-k4f, 402 K4-R5; folds in 400.3-09).
 //
-// Justification for affording the wait at all: Phase 241 verified against
-// real Claude Code documentation that the platform's default Stop-hook
-// timeout is 600 SECONDS per hook command, not the ~3000ms this file's own
-// older comments assumed and never checked. A worst-case wait of about six
-// seconds sits comfortably (~100x) inside the real budget, so fencing here
-// is never a latency risk in production.
+// The row: the card-fire Stop hook has a 5 s timeout in hooks/hooks.json. The
+// host ends the hook at 5 s, before it prints its envelope. The older note here
+// sized the wait against the host default for a row with no timeout; this row has
+// its own timeout, so that sizing did not hold (12.3 s to 12.6 s measured at 300).
 //
-// Tuning note: an initial 50-attempt (~1s) budget, sized before this file's
-// own concurrency was measured, produced occasional (D-12) fence-exhaustion
-// degrades under 20-process x 10-bump real contention (2-3 exhaustions per
-// run, each landing one increment via the unfenced path instead of the
-// fenced one -- safe per D-12, but not exact). Widening to 300 attempts
-// (~6s) was verified against 24+ consecutive 20x10 runs with zero
-// exhaustions and an exact count every time (238-05-SUMMARY.md has the
-// trial log). 6s worst case is still far inside the 600s hook budget.
-const RETRY_LOCK_MAX_ATTEMPTS = 300;
+// The formula: T = U + N x attempts x sleep. T is the wall time of 1 hook run
+// with the lock held by another live process for the whole run. N = 2: each
+// route of main() makes 2 fenced calls (bump or clear of the per-gate counter,
+// and of the session counter). U is all other work of the run (process start,
+// registry, transcript read, the failed acquires, timer overshoot, the 2
+// unfenced writes of D-12 and the log write).
+//
+// The split of the 4,000 ms limit (1,000 ms stay free under the 5 s row): the
+// sleep part is at most 3,000 ms (arithmetic) and U is at most 1,000 ms (a
+// measured maximum that tests/test-402-card-fire-lock-wait.cjs asserts on every
+// run). Value: 2 x 75 x 20 ms = 3,000 ms.
+//
+// Measured (this machine, 12 CPU, Node 22.23.1, WSL2; lock held by a live
+// holder for the whole run; 20 counted runs per route, 4 hook processes in
+// parallel):
+//   attempts 300: T max 12,503 / 12,632 / 12,335 / 12,371 ms (intercept / degrade /
+//                 pass / stop_hook_active pass), above the 5 s row on every route.
+//   attempts  75: T max  3,135 /  3,128 /  3,150 /  3,274 ms; U max 274 ms.
+//   Free lock (design 402 R15 item 5): T max 41 ms.
+//
+// The contention case (20 processes x 10 bumps on 1 file, tests/test-238-
+// retry-counter-fence.cjs, not edited): exact
+// 200, 40 and 10 in 20 of 20 runs at 75 attempts (this run). Design 402 R15 item 7:
+// exact in 20 of 20 at 300, 100, 75, 50, 25 and 10 attempts; first loss at 5. At 75
+// attempts 1 call waits up to 1,500 ms, more than 4 times the whole contention case
+// (177 to 351 ms). If a run is not exact: do not raise the value; the one allowed
+// step is 1 fenced call per route (N = 1, 150 attempts).
+const RETRY_LOCK_MAX_ATTEMPTS = 75;
 const RETRY_LOCK_SLEEP_MS = 20;
 
 // RETRY_LOCK_STALE_THRESHOLD_MS -- mirrors lib/core/write-lock.cjs's own
@@ -1359,6 +1389,9 @@ function appendInterceptLog(turn, verdict) {
       ran_entries: Array.isArray(t.ran_entries) ? t.ran_entries : [],
       matched_glyph_span: matchedGlyphSpan(outputText),
       output_text: outputText.slice(0, INTERCEPT_LOG_TEXT_CAP),
+      // Quick 261127-k4f (402 K4-R4): the host Stop field, true, false or null when
+      // stdin has no boolean. The next measure reads from here whether the host sends it.
+      stop_hook_active: t.stop_hook_active === true || t.stop_hook_active === false ? t.stop_hook_active : null,
     };
     const fp = interceptLogPath();
     fs.mkdirSync(path.dirname(fp), { recursive: true });
@@ -1409,6 +1442,15 @@ function appendInterceptLog(turn, verdict) {
 // re-checked. Consuming there would make MAX_FORCE_RETRIES unreachable and silently
 // turn the force-fire into a single-shot -- a reverse regression on the Phase 209
 // guarantee, which is exactly as bad as the over-enforcement this fix removes.
+//
+// Quick 261127-k4f (402 K4-R4): the record is now spent on the continued Stop. The
+// block has no continue key (K4-R1), so the host re-prompts the model and sends the
+// next Stop with stop_hook_active true. main() treats that Stop as a terminal pass and
+// calls this function, so 1 gate record forces 1 block in 1 chain of continued Stops.
+// No forced flag and no new side-file function. Open case, by decision: a person stops
+// the continued turn before its Stop arrives and types again inside TURN_FRESH_MS; then
+// the record can block 1 more time (the present behaviour of a Stop without the key,
+// pinned by leg X1 of tests/test-402-card-fire-envelope.cjs). The 2 ceilings bound it.
 //
 // Best-effort like every other side-file helper here: a missing module, a missing
 // export, or any fs fault degrades to a silent 0. A consumption fault must NEVER
@@ -1805,6 +1847,25 @@ function main() {
   const turn = deriveTurnSignals(env);
   const sessionId = turn.session_id;
   const ctxHash = turnContextHash(turn);
+  // Quick 261127-k4f (402 K4-R4, P5): record the host field for the log (true, false or
+  // null when stdin has no boolean).
+  turn.stop_hook_active = env.stop_hook_active === true || env.stop_hook_active === false
+    ? env.stop_hook_active : null;
+  // K4-R4: stop_hook_active true is a TERMINAL pass. The host sets it on the Stop that
+  // follows a block, and it advises a Stop hook to return success while it is true. The
+  // pass runs AFTER deriveTurnSignals and the 2 key lines above, so it can clear both
+  // counters and consume the reached-gate records; a return before them would clear no
+  // counter, let the session counter climb toward MAX_SESSION_INTERCEPTS, and let a
+  // fresh mint force again on a later turn. Only the boolean true starts this pass;
+  // false, a missing key and any other value keep the route below.
+  if (env.stop_hook_active === true) {
+    const verdict = { intercept: false, degrade: false, reason: 'stop-hook-active-pass' };
+    appendInterceptLog(turn, verdict);
+    clearRetryCount(ctxHash);
+    clearSessionCount(sessionId);
+    consumeReachedGatesForVerdict(turn, verdict);
+    return silentSuccess();
+  }
   // Feed BOTH counters into the predicate: the per-gate counter (per-gate UX granularity) and
   // the SESSION-wide counter (the CR-04 content-independent convergence floor). The predicate
   // degrades if EITHER ceiling is reached.
@@ -1859,6 +1920,11 @@ function main() {
 module.exports = {
   MAX_FORCE_RETRIES,
   MAX_SESSION_INTERCEPTS,
+  // Quick 261127-k4f (402 K4-R2, K4-R3, K4-R5): additive exports read by the 402 tests.
+  CARD_FIRE_BLOCK_REASON,
+  CARD_FIRE_BLOCK_SYSTEM_MESSAGE,
+  RETRY_LOCK_MAX_ATTEMPTS,
+  RETRY_LOCK_SLEEP_MS,
   SESSION_KEY_PREFIX,
   RETRY_TTL_MS,
   TRANSCRIPT_TAIL_BYTES: turnText.TRANSCRIPT_TAIL_BYTES,
