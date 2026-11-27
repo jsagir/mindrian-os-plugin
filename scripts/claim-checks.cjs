@@ -20,6 +20,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
+const flagFileRead = require(path.join(__dirname, '..', 'lib', 'core', 'flag-file-read.cjs'));
 
 const BOOLEAN_FLAGS = new Set(['json', 'resolves-dispute']);
 const REQUIRED_RECORD_FLAGS = ['claim', 'against', 'against-kind', 'rung', 'method', 'result'];
@@ -27,21 +28,18 @@ const REQUIRED_RECORD_FLAGS = ['claim', 'against', 'against-kind', 'rung', 'meth
 // Quick 261127-bnd: --against-file and --words-file give the text in a file,
 // so an instruction line never puts a person's words on a shell command line.
 // The read rule: a regular file, at most 65536 bytes, UTF-8, one byte order
-// mark removed, one line break at the end removed. Null for a refused file.
+// mark removed, one line break at the end removed, no NUL byte. Null for a
+// refused file.
 const TEXT_FILE_MAX_BYTES = 65536;
 
+// Follow-up after the independent verification: the read itself is the shared
+// rule of lib/core/flag-file-read.cjs (a regular file, at most cap + 1 bytes read
+// from the open file, never the stat size, no NUL byte).
 function readTextFile(p) {
-  if (typeof p !== 'string' || p === '') return null;
-  try {
-    const st = fs.statSync(p);
-    if (!st.isFile() || st.size > TEXT_FILE_MAX_BYTES) return null;
-    let t = fs.readFileSync(p, 'utf8');
-    if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
-    t = t.replace(/\r?\n$/, '');
-    return t === '' ? null : t;
-  } catch (_) {
-    return null;
-  }
+  const r = flagFileRead.readFlagFileText(p, TEXT_FILE_MAX_BYTES);
+  if (!r.ok) return null;
+  const t = r.text.replace(/\r?\n$/, '');
+  return t === '' ? null : t;
 }
 
 function fileInputError(msg) {

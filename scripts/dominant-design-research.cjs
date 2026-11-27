@@ -61,6 +61,7 @@ const path = require('path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 const laneQueries = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'lane-queries.cjs'));
+const flagFileRead = require(path.join(REPO_ROOT, 'lib', 'core', 'flag-file-read.cjs'));
 const evidencePack = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'evidence-pack.cjs'));
 const theoStructure = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'theo-structure.cjs'));
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
@@ -508,7 +509,11 @@ function cmdFilePack(flags) {
       return { code: 2, err: 'file-pack: give --header-file or --room-label and --stage, not both' };
     }
     let header;
-    try { header = readJsonFile(flags['header-file']); } catch (_e) { header = undefined; }
+    // Follow-up after the independent verification: the shared read rule of
+    // lib/core/flag-file-read.cjs (a regular file, at most 65536 bytes read from
+    // the open file, never the stat size, no NUL byte), so a FIFO cannot hang.
+    const hr = flagFileRead.readFlagFileText(flags['header-file'], flagFileRead.FLAG_FILE_MAX_BYTES);
+    try { header = hr.ok ? JSON.parse(hr.text) : undefined; } catch (_e) { header = undefined; }
     if (typeof header !== 'object' || header === null || Array.isArray(header)) {
       return { code: 2, err: 'file-pack: --header-file needs a readable file that holds a JSON object' };
     }

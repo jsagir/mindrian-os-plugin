@@ -27,20 +27,43 @@ const BOOLEAN_FLAGS = new Set(['json', 'relocate']);
 // Quick 261127-bnd: --text-file and --account-file give the text in a file,
 // so an instruction line never puts a person's words on a shell command line.
 // The read rule: a regular file, at most 65536 bytes, UTF-8, one byte order
-// mark removed, one line break at the end removed. Null for a refused file.
+// mark removed, one line break at the end removed, no NUL byte. Null for a
+// refused file.
 const TEXT_FILE_MAX_BYTES = 65536;
 
+// Follow-up after the independent verification: the read is the rule of
+// lib/core/flag-file-read.cjs (a regular file, a symlink to a regular file
+// allowed, an O_NONBLOCK open checked again with fstat, at most cap + 1 bytes
+// read from the open file, never the stat size, no NUL byte). This file keeps a
+// copy of that rule and does not require the module, because
+// tests/test-358-b2-cli.cjs L13 pins the require list of this script to node
+// built-ins, navigation.cjs and frame-provenance.cjs.
 function readTextFile(p) {
-  if (typeof p !== 'string' || p === '') return null;
+  if (typeof p !== 'string' || p === '' || p.indexOf('\u0000') !== -1) return null;
+  let fd = null;
   try {
-    const st = fs.statSync(p);
-    if (!st.isFile() || st.size > TEXT_FILE_MAX_BYTES) return null;
-    let t = fs.readFileSync(p, 'utf8');
+    if (!fs.statSync(p).isFile()) return null;
+    const c = fs.constants || {};
+    fd = fs.openSync(p, (c.O_RDONLY || 0) | (c.O_NONBLOCK || 0) | (c.O_NOCTTY || 0));
+    if (!fs.fstatSync(fd).isFile()) return null;
+    const buf = Buffer.alloc(TEXT_FILE_MAX_BYTES + 1);
+    let got = 0;
+    while (got < buf.length) {
+      const n = fs.readSync(fd, buf, got, buf.length - got, null);
+      if (n === 0) break;
+      got += n;
+    }
+    if (got > TEXT_FILE_MAX_BYTES) return null;
+    const bytes = buf.subarray(0, got);
+    if (bytes.indexOf(0) !== -1) return null;
+    let t = bytes.toString('utf8');
     if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
     t = t.replace(/\r?\n$/, '');
     return t === '' ? null : t;
   } catch (_) {
     return null;
+  } finally {
+    if (fd !== null) { try { fs.closeSync(fd); } catch (_) { /* the result stands */ } }
   }
 }
 

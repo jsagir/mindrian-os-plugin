@@ -752,13 +752,12 @@ async function main() {
         const bkPath = argv[bkFileAt + 1];
         const bkRest = argv.slice(1).filter((_a, i) => i + 1 !== bkFileAt && i + 1 !== bkFileAt + 1);
         bkRoom = bkRest[0] || null;
-        let bkText = null;
-        try {
-          const bkStat = require('fs').statSync(bkPath);
-          if (bkStat.isFile() && bkStat.size <= 65536) bkText = require('fs').readFileSync(bkPath, 'utf8');
-        } catch (_e) { bkText = null; }
-        if (bkText === null) error('bank-opportunity --file needs a readable JSON file of at most 65536 bytes');
-        if (bkText.charCodeAt(0) === 0xfeff) bkText = bkText.slice(1);
+        // Follow-up after the independent verification: the shared read rule of
+        // lib/core/flag-file-read.cjs (a regular file, at most 65536 bytes read
+        // from the open file, never the stat size, no NUL byte).
+        const bkRead = require('../lib/core/flag-file-read.cjs').readFlagFileText(bkPath, 65536);
+        if (!bkRead.ok) error('bank-opportunity --file needs a readable JSON file of at most 65536 bytes with no NUL byte');
+        const bkText = bkRead.text;
         try { bkData = JSON.parse(bkText); } catch (_e) { error('bank-opportunity --file holds text that is not JSON'); }
       } else {
         if (argv[2]) {

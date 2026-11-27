@@ -38,6 +38,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const navigation = require('../lib/core/navigation.cjs');
+const flagFileRead = require('../lib/core/flag-file-read.cjs');
 const closeLoop = require('../lib/core/close-loop-writer.cjs');
 const supersession = require('../lib/core/temporal/supersession.cjs');
 const expertLibrary = require('../lib/core/expert-library.cjs');
@@ -145,15 +146,18 @@ function resolveRoom(value) {
 }
 
 // Input files (payload, hats, spec): size cap, one BOM stripped, JSON.parse in a try.
+// Quick 261127-bnd follow-up: the read is the shared rule of
+// lib/core/flag-file-read.cjs (a regular file, at most MAX_INPUT_BYTES + 1 bytes
+// read from the open file, never the stat size, no NUL byte). The refusal codes
+// stay: a NUL byte is text that is not JSON.
 function readInput(file, kind) {
-  let st;
-  try { st = fs.statSync(path.resolve(file)); } catch (_e) { throw new Refusal(kind + '_unreadable'); }
-  if (!st.isFile()) throw new Refusal(kind + '_unreadable');
-  if (st.size > MAX_INPUT_BYTES) throw new Refusal(kind + '_too_large');
-  let text;
-  try { text = fs.readFileSync(path.resolve(file), 'utf8'); } catch (_e) { throw new Refusal(kind + '_unreadable'); }
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  try { return JSON.parse(text); } catch (e) { throw new Refusal(kind + '_not_json', { detail: scalar(e && e.message, 120) }); }
+  const r = flagFileRead.readFlagFileText(path.resolve(String(file)), MAX_INPUT_BYTES);
+  if (!r.ok) {
+    if (r.reason === 'too_large') throw new Refusal(kind + '_too_large');
+    if (r.reason === 'nul_byte') throw new Refusal(kind + '_not_json', { detail: 'the file holds a NUL byte' });
+    throw new Refusal(kind + '_unreadable');
+  }
+  try { return JSON.parse(r.text); } catch (e) { throw new Refusal(kind + '_not_json', { detail: scalar(e && e.message, 120) }); }
 }
 
 function nodeStatus(db, id) {

@@ -126,10 +126,29 @@ while [[ $# -gt 0 ]]; do
 done
 # Quick 261127-bnd: the file form reads the name and the context from files.
 # The text is data: it is never put in a command line or a program text.
+# Quick 261127-bnd follow-up: the one read rule of a file flag, the same body in
+# scripts/create-speaker-profile, scripts/research-speaker and scripts/room-registry.
+# A regular file only ([[ -f ]] follows a symlink, so a symlink to a regular file
+# stays allowed as before; a FIFO is never opened). At most 65536 bytes: head -c
+# reads 65537 bytes from the open file, so the stat size is never trusted and the
+# time does not grow with the file size. A NUL byte is refused. It prints the
+# bytes; a refusal prints nothing and returns 1.
+_mos_flag_file_read() {
+  local f="${1:-}" max=65536 n z
+  [[ -n "$f" && -f "$f" && -r "$f" ]] || return 1
+  n=$(head -c $((max + 1)) -- "$f" 2>/dev/null | wc -c) || return 1
+  n="${n//[[:space:]]/}"
+  [[ -n "$n" && "$n" -le "$max" ]] || return 1
+  z=$(head -c $((max + 1)) -- "$f" 2>/dev/null | tr -cd '\000' | wc -c) || return 1
+  z="${z//[[:space:]]/}"
+  [[ "$z" == 0 ]] || return 1
+  head -c "$max" -- "$f"
+}
 _rs_file_text() {
   local f="$1" t
-  [[ -n "$f" && -f "$f" && -r "$f" ]] || return 1
-  t=$(tr '\r\n' '  ' < "$f") || return 1
+  t=$(_mos_flag_file_read "$f") || return 1
+  t="${t//$'\r'/ }"
+  t="${t//$'\n'/ }"
   t="${t#"${t%%[![:space:]]*}"}"
   t="${t%"${t##*[![:space:]]}"}"
   [[ -n "$t" ]] || return 1
@@ -137,11 +156,11 @@ _rs_file_text() {
 }
 if [[ "$FILE_FORM" == true ]]; then
   if ! DISPLAY_NAME=$(_rs_file_text "$NAME_FILE"); then
-    echo "ERROR: --name-file needs a readable file that is not empty: ${NAME_FILE}" >&2
+    echo "ERROR: --name-file needs a readable file that is not empty (a regular file, at most 65536 bytes, no NUL byte): ${NAME_FILE}" >&2
     exit 1
   fi
   if ! PROJECT_CONTEXT=$(_rs_file_text "$CONTEXT_FILE"); then
-    echo "ERROR: --context-file needs a readable file that is not empty: ${CONTEXT_FILE}" >&2
+    echo "ERROR: --context-file needs a readable file that is not empty (a regular file, at most 65536 bytes, no NUL byte): ${CONTEXT_FILE}" >&2
     exit 1
   fi
 fi

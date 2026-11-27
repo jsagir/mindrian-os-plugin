@@ -24,6 +24,7 @@
 const fs = require('fs');
 const path = require('path');
 const navigation = require('../lib/core/navigation.cjs');
+const flagFileRead = require('../lib/core/flag-file-read.cjs');
 const { searchLocalExperts } = require('../lib/core/rs-local-expert-search.cjs');
 
 let egressPrompts = null;
@@ -53,18 +54,14 @@ function parseArgs(argv) {
 
 const TOPIC_FILE_MAX_BYTES = 65536;
 
+// Follow-up after the independent verification: the read itself is the shared
+// rule of lib/core/flag-file-read.cjs (a regular file, at most cap + 1 bytes read
+// from the open file, never the stat size, no NUL byte).
 function readTopicFile(p) {
-  if (typeof p !== 'string' || p === '') return null;
-  try {
-    const st = fs.statSync(p);
-    if (!st.isFile() || st.size > TOPIC_FILE_MAX_BYTES) return null;
-    let t = fs.readFileSync(p, 'utf8');
-    if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
-    t = t.replace(/\r?\n$/, '').trim();
-    return t === '' ? null : t;
-  } catch (_) {
-    return null;
-  }
+  const r = flagFileRead.readFlagFileText(p, TOPIC_FILE_MAX_BYTES);
+  if (!r.ok) return null;
+  const t = r.text.replace(/\r?\n$/, '').trim();
+  return t === '' ? null : t;
 }
 
 function printError(what, why, fix) {
