@@ -21,6 +21,9 @@
  *   G5  the same unchanged file again: skipped nothing_to_commit.
  *   G6  own repository with no commit identity: failed commit_failed (BASE: committed true).
  *   G7  the exit codes and stderr words of scripts/git-ops commit; is-enabled keeps its BASE output.
+ *   G8  wave 2 Goldfish W2-D-02: own repository, auto_push auto, a remote whose push hangs 20 s (a pre-push hook):
+ *       commitArtifact returns committed within the 5,000 ms post-write budget (BASE: the background push kept
+ *       the stdout pipe, so the call waited for the push and timed out as spawn_failed).
  * Usage: node tests/test-400-3-git-commit-honest.cjs
  *
  * Node built-ins only. Hyphens only.
@@ -172,6 +175,33 @@ check('G6 a failed commit: {committed: false, failed: true, reason: commit_faile
   check('G7 is-enabled keeps its BASE output: true for G1 and G3, false for G2',
     e1.stdout === 'true' && e1.status === 0 && e3.stdout === 'true' && e3.status === 0 && e2.stdout === 'false' && e2.status === 1,
     J({ e1, e2, e3 }));
+}
+
+// G8: own repository, auto_push auto, a remote whose push hangs for 20 s.
+{
+  const ws = path.join(W, 'ws-g8');
+  const g8 = path.join(ws, 'g8');
+  initRepo(g8);
+  const remote = path.join(W, 'remote-g8.git');
+  execFileSync('git', ['init', '-q', '--bare', remote], { stdio: ['ignore', 'pipe', 'pipe'] });
+  git(g8, ['remote', 'add', 'origin', remote]);
+  fs.writeFileSync(path.join(g8, '.git', 'hooks', 'pre-push'), '#!/bin/sh\nsleep 20\n', { mode: 0o755 });
+  fs.mkdirSync(path.join(ws, '.rooms'), { recursive: true });
+  fs.writeFileSync(path.join(ws, '.rooms', 'registry.json'), JSON.stringify({ rooms: { g8: { path: g8, auto_push: 'auto' } } }));
+  const ap = spawnSync('bash', [GIT_OPS_SCRIPT, 'get-auto-push', g8], { encoding: 'utf8', cwd: ws });
+  const g8f = writeFile(g8, 'sec/g8.md', '# G8\n');
+  const cwd0 = process.cwd();
+  process.chdir(ws);
+  const t0 = Date.now();
+  let r8 = null;
+  try { r8 = gitOps.commitArtifact(g8, g8f, 'm8'); } finally { process.chdir(cwd0); }
+  const ms8 = Date.now() - t0;
+  let g8files = [];
+  try { g8files = headFiles(g8); } catch (_e) { g8files = []; }
+  console.log('400.3-w2 G8 commitArtifact wall ms with a hanging auto push: ' + ms8);
+  check('G8 auto_push auto with a hanging remote: committed true within 5000 ms; HEAD lists only sec/g8.md',
+    !!r8 && r8.committed === true && ms8 < 5000 && J(g8files) === J(['sec/g8.md']),
+    J({ r8, ms8, g8files, autoPushFromWs: String(ap.stdout).trim() }));
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

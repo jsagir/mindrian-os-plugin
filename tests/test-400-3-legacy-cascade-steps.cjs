@@ -14,7 +14,9 @@
  * Canon Part 8: fixture rooms and fixture repositories only, under one mkdtemp root; no remote; MINDRIAN_BRAIN_URL
  * points at a closed loopback port. Native Windows is UNMEASURED.
  *
- * Arms: A1-A6.
+ * Arms: A1-A7. A7 (wave 2 Goldfish W2-D-02): post-write on an own-git legacy room with auto_push auto and a
+ * remote whose push hangs 20 s: the hook answers inside the 5,000 ms budget, the commit lands, the advisory is the
+ * BASE queued line and cascade_status is complete (BASE: the background push held the pipe; partial, git-commit failed).
  * Usage: node tests/test-400-3-legacy-cascade-steps.cjs
  *
  * Node built-ins only. Hyphens only.
@@ -214,6 +216,29 @@ async function main() {
       + '; own-git p50=' + g.p50.toFixed(0) + ' max=' + g.max.toFixed(0) + ' (load average ' + load + ')');
     check('A6 each max under 4000 ms and each own-git run made exactly 1 commit',
       n.max < 4000 && g.max < 4000 && commitsOk, J({ noGit: noGit.map(Math.round), ownGit: ownGit.map(Math.round), commitCounts }));
+  }
+
+  // A7: own-git legacy room, auto_push auto, a remote whose push hangs for 20 s.
+  {
+    const pt = pluginTree('a7');
+    const roomDir = makeRoom(path.join(W, 'a7'), 'y', true);
+    const remote = path.join(W, 'remote-a7.git');
+    execFileSync('git', ['init', '-q', '--bare', remote], { stdio: ['ignore', 'pipe', 'pipe'] });
+    git(roomDir, ['remote', 'add', 'origin', remote]);
+    fs.writeFileSync(path.join(roomDir, '.git', 'hooks', 'pre-push'), '#!/bin/sh\nsleep 20\n', { mode: 0o755 });
+    const regDir = path.join(HOME, '.rooms');
+    fs.mkdirSync(regDir, { recursive: true });
+    fs.writeFileSync(path.join(regDir, 'registry.json'), JSON.stringify({ rooms: { y: { path: roomDir, auto_push: 'auto' } } }));
+    let r = null;
+    try { r = runPostWrite(pt, roomDir); } finally { fs.rmSync(regDir, { recursive: true, force: true }); }
+    sleep(1500);
+    const side = readSide(roomDir);
+    const n = countCommits(roomDir);
+    console.log('400.3-w2 A7 legacy post-write wall ms with a hanging auto push: ' + Math.round(r.ms));
+    check('A7 auto_push auto with a hanging remote: post-write under 5000 ms, 1 commit, advisory the BASE queued line, cascade_status complete',
+      r.status === 0 && r.ms < 5000 && n === 1 && !!side && side.cascade_status === 'complete'
+        && r.advisory === 'queued MINTO regen for sec, recompiled references (a.md)',
+      J({ status: r.status, ms: Math.round(r.ms), commits: n, cascade_status: side && side.cascade_status, advisory: r.advisory }));
   }
 
   console.log('\n' + passed + ' passed, ' + failed + ' failed');

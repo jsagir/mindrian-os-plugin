@@ -156,7 +156,10 @@ GITATTR
     # Check auto_push setting
     auto_push=$("${SCRIPT_DIR}/git-ops" get-auto-push "$ROOM_PATH" 2>/dev/null || echo "off")
     if [ "$auto_push" = "auto" ]; then
-      "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" 2>/dev/null &
+      # Wave 2 Goldfish W2-D-02: the background push gets no pipe of the
+      # caller. A child that keeps stdout or stderr open makes the caller
+      # (commitArtifact, spawnSync) wait for the network push.
+      "${SCRIPT_DIR}/git-ops" push "$ROOM_PATH" >/dev/null 2>&1 </dev/null &
     fi
     ;;
 
@@ -170,8 +173,9 @@ GITATTR
     if ! git -C "$ROOM_PATH" remote get-url origin >/dev/null 2>&1; then
       exit 0
     fi
-    # Push in background, non-blocking
-    git -C "$ROOM_PATH" push origin HEAD 2>/dev/null &
+    # Push in background, non-blocking. Wave 2 Goldfish W2-D-02: no pipe of
+    # the caller stays open, so the caller does not wait for the network.
+    git -C "$ROOM_PATH" push origin HEAD >/dev/null 2>&1 </dev/null &
     echo "pushed"
     ;;
 
