@@ -984,26 +984,37 @@ function retryStoreLockPath() {
 // unfenced writes of D-12 and the log write).
 //
 // The split of the 4,000 ms limit (1,000 ms stay free under the 5 s row): the
-// sleep part is at most 3,000 ms (arithmetic) and U is at most 1,000 ms (a
-// measured maximum that tests/test-402-card-fire-lock-wait.cjs asserts on every
-// run). Value: 2 x 75 x 20 ms = 3,000 ms.
+// sleep part is at most 2,000 ms (arithmetic) and U is at most 2,000 ms (4,000
+// minus the sleep part). tests/test-402-card-fire-lock-wait.cjs asserts T and U
+// on every run, on a quiet machine and under a made load (1 busy worker for
+// each CPU core). Value: 2 x 50 x 20 ms = 2,000 ms.
+//
+// Why 50 and not 75 (design 402 section 7.1, K4-R5 fixed fallback; addendum
+// 402-K4F-PLAN-ADDENDUM.md, last section): at 75 the sleep part was 3,000 ms and
+// U had 1,000 ms. On the staging branch, under load from other work, 1 run had
+// T 4,613 ms and U 1,613 ms. A person's machine is not always quiet, so U gets
+// 2,000 ms. The invariant is T, not U.
 //
 // Measured (this machine, 12 CPU, Node 22.23.1, WSL2; lock held by a live
 // holder for the whole run; 20 counted runs per route, 4 hook processes in
-// parallel):
-//   attempts 300: T max 12,503 / 12,632 / 12,335 / 12,371 ms (intercept / degrade /
-//                 pass / stop_hook_active pass), above the 5 s row on every route.
-//   attempts  75: T max  3,135 /  3,128 /  3,150 /  3,274 ms; U max 274 ms.
+// parallel; T max is over 5 test runs, routes intercept / degrade / pass /
+// stop_hook_active pass):
+//   attempts 300: T max 12,503 / 12,632 / 12,335 / 12,371 ms, above the 5 s row.
+//   attempts  75: T max  3,135 /  3,128 /  3,150 /  3,274 ms (quiet); under the
+//                 made load T max per test run 3,136 to 3,315 ms (the made load
+//                 did not reproduce the staging failure in 5 of 5 runs).
+//   attempts  50: quiet T max 2,229 / 2,152 / 2,229 / 2,162 ms; made load
+//                 T max 2,240 / 2,148 / 2,206 / 2,157 ms; U max 240 ms.
 //   Free lock (design 402 R15 item 5): T max 41 ms.
 //
 // The contention case (20 processes x 10 bumps on 1 file, tests/test-238-
-// retry-counter-fence.cjs, not edited): exact
-// 200, 40 and 10 in 20 of 20 runs at 75 attempts (this run). Design 402 R15 item 7:
-// exact in 20 of 20 at 300, 100, 75, 50, 25 and 10 attempts; first loss at 5. At 75
-// attempts 1 call waits up to 1,500 ms, more than 4 times the whole contention case
-// (177 to 351 ms). If a run is not exact: do not raise the value; the one allowed
-// step is 1 fenced call per route (N = 1, 150 attempts).
-const RETRY_LOCK_MAX_ATTEMPTS = 75;
+// retry-counter-fence.cjs, not edited): exact 200, 40 and 10 in 20 of 20 runs
+// at 50 attempts (this run). Design 402 R15 item 7: exact in 20 of 20 at 300,
+// 100, 75, 50, 25 and 10 attempts; first loss at 5. At 50 attempts 1 call waits
+// up to 1,000 ms, more than 2 times the whole contention case (177 to 351 ms).
+// If a run is not exact: do not raise the value; the one allowed step is 1
+// fenced call per route (N = 1, 100 attempts).
+const RETRY_LOCK_MAX_ATTEMPTS = 50;
 const RETRY_LOCK_SLEEP_MS = 20;
 
 // RETRY_LOCK_STALE_THRESHOLD_MS -- mirrors lib/core/write-lock.cjs's own
