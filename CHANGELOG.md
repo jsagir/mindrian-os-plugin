@@ -6,6 +6,8 @@
 ### Fixed
 - **A filed artifact now reaches the room's graph without a manual index (Phase 400.3, plans 01-02b).** Filing through Desktop and Cowork indexes the artifact and says honestly when the index did not land (busy, locked or missing graph). In Claude Code, a write into a room in the default rooms folder is indexed too; before, only rooms whose path held /room/ or /rooms/ were. Measured on Linux; native Windows is not measured yet. <!-- 400.3-01, 400.3-02, 400.3-02b -->
 
+- **The first minutes in a new room read plainly and answer honestly (Phase 400.4, fixes from the 2026-11-26 cold-start run).** Jobs show as plain words with a one-line sentence, on the goal card and in every suggestion, and the goal job picks the section to work in. Decision cards explain each option as cause and effect. The status line cue, the next-move block and the suggested next step now say the same thing. The room's neighbourhood view follows links in both directions, the gap scan says what it checked, the context estimate states its real size, and Eureka projections carry a short excerpt of each file. A busy room database no longer stalls a prompt hook: the hook gives up early, says so, and writes nothing. <!-- 400.4-01..12, 400.4-14 -->
+
 ### Unchanged
 - **The /m:os face panel stays in the plugin, for the Claude Code terminal.** It sends the framework name, the problem type and an optional short excerpt of your own words to Theo, and `/mos-words` turns the excerpt off. Desktop and Cowork do not draw it in this beta (Phase 380).
 
