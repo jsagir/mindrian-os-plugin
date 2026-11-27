@@ -15,8 +15,9 @@
  *
  * Native Windows is UNMEASURED.
  *
- * Groups: door (O1-O9), consumers (T1-T3), hookcap (K1, owner answer OA-3).
- * Usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|all]   (default all)
+ * Groups: door (O1-O9), consumers (T1-T3), hookcap (K1, owner answer OA-3), probe (P1-P3, wave 2 Goldfish W2-CD-04:
+ * openRoomDbForCaller {probeWrite} delegates to openRoomDb {writeProbe: true}; spine-events keeps no own probe).
+ * Usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|probe|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
  */
@@ -32,8 +33,8 @@ const DB_LOCK_HOLDER = path.join(__dirname, 'helpers', 'room-db-lock-holder-236.
 const HOLDER_MODE = 'BEGIN IMMEDIATE + write';
 
 const GROUP = process.argv[2] || 'all';
-if (['door', 'consumers', 'hookcap', 'all'].indexOf(GROUP) === -1) {
-  console.error('usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|all]');
+if (['door', 'consumers', 'hookcap', 'probe', 'all'].indexOf(GROUP) === -1) {
+  console.error('usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|probe|all]');
   process.exit(2);
 }
 
@@ -443,10 +444,51 @@ async function groupHookcap() {
   await stopHolder(h);
 }
 
+async function groupProbe() {
+  console.log('\n-- group probe --');
+  const spine = require(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'));
+  const seen = [];
+  const realOpen = roomDbMod.openRoomDb;
+  roomDbMod.openRoomDb = function spyOpen(dir, opts) { seen.push(opts ? Object.assign({}, opts) : null); return realOpen.apply(this, arguments); };
+  try {
+    // P1: a held write lock.
+    const room = readyRoom('p1');
+    let h = null;
+    try {
+      h = await startHolder(room);
+      seen.length = 0;
+      const sink = [];
+      const t0 = msNow();
+      const db = spine.openRoomDbForCaller(room, { busyMs: 200, probeWrite: true, reasonSink: sink });
+      const ms = msNow() - t0;
+      if (db) { try { closeRoomDb(db); } catch (_e) { /* closed */ } }
+      check('P1 probeWrite under a held write: null, reason room_db_busy, and openRoomDb got {writeProbe: true, busyMs: 200} (measured ' + ms.toFixed(0) + ' ms)',
+        db === null && JSON.stringify(sink) === JSON.stringify(['room_db_busy']) && seen.length === 1 && !!seen[0] && seen[0].writeProbe === true && seen[0].busyMs === 200,
+        JSON.stringify({ db: db === null ? null : 'handle', sink, seen }));
+    } catch (e) { check('P1 fixture', false, e.message); }
+    await stopHolder(h);
+    // P2: no lock.
+    seen.length = 0;
+    const sink2 = [];
+    const db2 = spine.openRoomDbForCaller(readyRoom('p2'), { probeWrite: true, reasonSink: sink2 });
+    check('P2 probeWrite on a free room: a handle, no reason, and openRoomDb got {writeProbe: true}',
+      !!db2 && sink2.length === 0 && seen.length === 1 && !!seen[0] && seen[0].writeProbe === true, JSON.stringify({ sink2, seen }));
+    if (db2) { try { closeRoomDb(db2); } catch (_e) { /* closed */ } }
+  } finally {
+    roomDbMod.openRoomDb = realOpen;
+  }
+  // P3: no own probe in spine-events.
+  const src = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'), 'utf8');
+  const fn = (src.match(/function openRoomDbForCaller\([\s\S]*?\n\}/) || [''])[0];
+  check('P3 openRoomDbForCaller has no BEGIN IMMEDIATE of its own and passes writeProbe: true',
+    fn.length > 0 && fn.indexOf('BEGIN IMMEDIATE') === -1 && /writeProbe\s*[:=]\s*true/.test(fn), fn.slice(0, 200));
+}
+
 async function main() {
   if (GROUP === 'door' || GROUP === 'all') await groupDoor();
   if (GROUP === 'consumers' || GROUP === 'all') await groupConsumers();
   if (GROUP === 'hookcap' || GROUP === 'all') await groupHookcap();
+  if (GROUP === 'probe' || GROUP === 'all') await groupProbe();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
