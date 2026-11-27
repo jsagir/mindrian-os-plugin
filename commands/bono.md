@@ -132,7 +132,7 @@ The SUPERSEDES chain is written by phase 7's supersede path (D-04: the SUPERSEDE
 
 `--version-log` renders `walkSupersedesChain(db, newestConclusionId)` as a chain-order list: newest first, one line per conclusion with its `created_at` and a governing-thought snippet. A first run renders a single-entry log and ZERO SUPERSEDES edges (no false chain on a first run).
 
-Run it as `node "${CLAUDE_PLUGIN_ROOT}/scripts/close-loop.cjs" version-log --room <roomDir> --topic "<topic>"`. It prints the chain newest first and names any same-topic conclusion left off the chain. It writes nothing.
+Write a JSON object with the one key `topic` (its value is the topic text) to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/topic.json`, with the Write tool; the topic never goes on a command line. Then run `node "${CLAUDE_PLUGIN_ROOT}/scripts/close-loop.cjs" version-log --room <roomDir> --topic-file "<dir>/topic.json"`. It prints the chain newest first and names any same-topic conclusion left off the chain. It writes nothing. Then remove that directory, also when the person declines.
 
 #### Hard rules (in-body)
 

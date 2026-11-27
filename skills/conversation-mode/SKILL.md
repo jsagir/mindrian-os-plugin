@@ -157,9 +157,9 @@ When you identify a well-defined problem + mirror solution pair during Mode 2 co
 
 1. Extract from the user's own words: problem statement, proposed solution, domain
 2. Confirm with the user: "I am catching a pattern: [problem]. And a potential approach: [solution]. Want me to bank that?"
-3. If user confirms, run:
+3. If user confirms, write this JSON to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/opportunity.json`, with the Write tool; the words never go on a command line: `{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}`. Run the command below. Then remove that directory, also when the person declines.
    ```bash
-   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" bank-opportunity '{"problem":"<extracted>","mirror_solution":"<extracted>","domain":"<detected>","evidence":"conversation with user","source_framework":"conversation","knight_position":"uncertainty","confidence":0.5}'
+   node "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/mindrian-tools.cjs" bank-opportunity --file "<dir>/opportunity.json"
    ```
 4. Tell the user: "Banked. You have [N] opportunities captured so far."
 5. Do NOT bank vague ideas. Only bank when both problem AND solution are articulated clearly enough to seed a room section.

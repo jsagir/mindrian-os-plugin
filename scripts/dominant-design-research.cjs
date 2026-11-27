@@ -41,7 +41,9 @@
  *     given (--out must end in .valid.json).
  *   file-pack --pack <dir> --room <roomDir> --domain-slug <slug>
  *              --date <YYYY-MM-DD> [--session <id>] [--room-label <text>]
- *              [--stage <text>] [--json]
+ *              [--stage <text>] [--header-file <file.json>] [--json]
+ *     --header-file (quick 261127-bnd) holds {"room_label": "...", "stage": "..."}
+ *     in place of the 2 flags; an instruction file uses this form only.
  *     Processes every *.valid.json in the pack dir in LANE_IDS order,
  *     writes lane artifacts, files sourced evidence through the Part 9
  *     door with readback, and prints a 4-zone report (JSON with --json).
@@ -496,6 +498,23 @@ function renderFilingReport(packResult, opts) {
 }
 
 function cmdFilePack(flags) {
+  // Quick 261127-bnd: --header-file gives the room label and the stage in a JSON
+  // file, so an instruction line never puts them on a shell command line. Every
+  // refusal comes before filePack runs, so a refused call writes nothing.
+  let roomLabel = flags['room-label'];
+  let stage = flags.stage;
+  if (flags['header-file'] !== undefined) {
+    if (flags['room-label'] !== undefined || flags.stage !== undefined) {
+      return { code: 2, err: 'file-pack: give --header-file or --room-label and --stage, not both' };
+    }
+    let header;
+    try { header = readJsonFile(flags['header-file']); } catch (_e) { header = undefined; }
+    if (typeof header !== 'object' || header === null || Array.isArray(header)) {
+      return { code: 2, err: 'file-pack: --header-file needs a readable file that holds a JSON object' };
+    }
+    roomLabel = typeof header.room_label === 'string' ? header.room_label : undefined;
+    stage = typeof header.stage === 'string' ? header.stage : undefined;
+  }
   const opts = {
     pack: flags.pack,
     room: flags.room,
@@ -512,8 +531,8 @@ function cmdFilePack(flags) {
   }
   const roomDirBasename = (typeof flags.room === 'string' && flags.room.length > 0) ? path.basename(flags.room) : 'no room';
   const text = renderFilingReport(result, {
-    roomLabel: flags['room-label'],
-    stage: flags.stage,
+    roomLabel: roomLabel,
+    stage: stage,
     roomDirBasename: roomDirBasename,
   });
   return { code: 0, text: text };
