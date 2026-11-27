@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # git-ops -- Git operations for room version control
 # All operations are guarded by is-enabled check.
-# When git is not enabled for a room, every subcommand exits 0 silently.
+# When git is not enabled for a room, every subcommand except commit exits 0
+# silently. Plan 400.3-03b (review B1, B2, owner answer OA-4): the commit
+# subcommand commits only when the room root has its own repository and only
+# the given path; it exits 3 with a 'skipped:' word on stderr (not_a_repo,
+# not_own_repo, no_file, nothing_to_commit) and 1 with a 'failed:' word
+# (add_failed, commit_failed). Every bash caller uses `|| true`.
 #
 # Subcommands:
 #   is-enabled <room_path>
@@ -50,6 +55,19 @@ is_git_enabled() {
   return 1
 }
 
+# Plan 400.3-03b (owner answer OA-4): true only when the room root is the top
+# level of its own repository. A room inside an enclosing work tree is not.
+is_own_repo() {
+  local room_path="${1:-}"
+  if ! is_git_enabled "$room_path"; then
+    return 1
+  fi
+  local top here
+  top=$(git -C "$room_path" rev-parse --show-toplevel 2>/dev/null) || return 1
+  here=$(cd "$room_path" && pwd -P) || return 1
+  [ -n "$top" ] && [ "$top" = "$here" ]
+}
+
 case "$SUBCMD" in
   is-enabled)
     ROOM_PATH="${1:-}"
@@ -95,12 +113,21 @@ GITATTR
     ROOM_PATH="${1:-}"
     FILE_PATH="${2:-}"
     MSG="${3:-}"
-    # Guard: exit 0 silently if git is not enabled
+    # Plan 400.3-03b (review B1, B2, owner answer OA-4): commit only when the
+    # room root has its own repository, and only the given path. Every other
+    # case exits 3 with a 'skipped:' word; a failed step exits 1 with a
+    # 'failed:' word. Nothing is staged or committed in an enclosing repository.
     if ! is_git_enabled "$ROOM_PATH"; then
-      exit 0
+      echo "skipped: not_a_repo" >&2
+      exit 3
+    fi
+    if ! is_own_repo "$ROOM_PATH"; then
+      echo "skipped: not_own_repo" >&2
+      exit 3
     fi
     if [ -z "$FILE_PATH" ]; then
-      exit 0
+      echo "skipped: no_file" >&2
+      exit 3
     fi
     # Auto-generate message if not provided
     if [ -z "$MSG" ]; then
@@ -110,10 +137,22 @@ GITATTR
       filename=$(basename "$FILE_PATH" .md)
       MSG="${section}: ${filename}"
     fi
-    # Stage the specific file
-    git -C "$ROOM_PATH" add "$FILE_PATH" 2>/dev/null || true
-    # Commit (--no-verify for auto-commits, || true for empty commits)
-    git -C "$ROOM_PATH" commit -m "$MSG" --no-verify 2>/dev/null || true
+    # Stage the specific file only (pathspec).
+    if ! git -C "$ROOM_PATH" add -- "$FILE_PATH" 2>/dev/null; then
+      echo "failed: add_failed" >&2
+      exit 1
+    fi
+    # No staged change for that path: nothing to commit.
+    if git -C "$ROOM_PATH" diff --cached --quiet -- "$FILE_PATH" 2>/dev/null; then
+      echo "skipped: nothing_to_commit" >&2
+      exit 3
+    fi
+    # Commit that path only (--no-verify for auto-commits); a change staged
+    # elsewhere in the repository stays staged and is not in this commit.
+    if ! git -C "$ROOM_PATH" commit --no-verify -m "$MSG" -- "$FILE_PATH" >/dev/null 2>&1; then
+      echo "failed: commit_failed" >&2
+      exit 1
+    fi
     # Check auto_push setting
     auto_push=$("${SCRIPT_DIR}/git-ops" get-auto-push "$ROOM_PATH" 2>/dev/null || echo "off")
     if [ "$auto_push" = "auto" ]; then
