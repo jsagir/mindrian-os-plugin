@@ -11,7 +11,16 @@
  * Canon Part 8: fixture repositories only, under one mkdtemp root; no remote, no network.
  * Native Windows is UNMEASURED.
  *
- * Arms: G1-G7.
+ * Arms:
+ *   G1  own repository, a new file: committed true; HEAD lists only that file.
+ *   G2  no repository above the room: skipped not_a_repo; no .git appears (BASE: committed true).
+ *   G3  a room inside an enclosing repository with a change staged there: skipped not_own_repo; the parent gets
+ *       no commit and its staged change stays staged (BASE: the parent got a commit of both files).
+ *   G4  own repository with another change staged: committed true; HEAD lists only the given file; the other
+ *       change stays staged.
+ *   G5  the same unchanged file again: skipped nothing_to_commit.
+ *   G6  own repository with no commit identity: failed commit_failed (BASE: committed true).
+ *   G7  the exit codes and stderr words of scripts/git-ops commit; is-enabled keeps its BASE output.
  * Usage: node tests/test-400-3-git-commit-honest.cjs
  *
  * Node built-ins only. Hyphens only.
