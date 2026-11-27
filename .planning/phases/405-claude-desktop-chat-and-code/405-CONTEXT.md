@@ -61,3 +61,4 @@ method: GSD frame with EGM design step (project CLAUDE.md, owner ruling 2026-11-
 - OR-8 (O7, 2026-11-27, owner's words "No key now, will add later"): ship theo-context (https://theo-context.onrender.com/mcp) inside the plugin with no key now; a key may be added later. The install-time entitlement stays as it is. Part 8 still binds (the egress matchers are extended to the plugin-prefixed tool names).
 - OR-9 (O6, card "After 405 base"): order is 405 foundation, then the overlapping parts of 401 and 402, then 404 recipes with chat as a named target, then the 405 end slice ("commands work in chat").
 - Owner approved pushing branch work/405-desktop (card 2026-11-27).
+- OR-10 (O8, card 2026-11-27 "Refuse saves"): when room.db was written by a newer MindrianOS, an older copy (for example a stale extension) refuses writes with `room_schema_newer` and one update line; reads stay allowed.

@@ -4446,7 +4446,7 @@ Plans:
 
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase TBD
+**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
 **Plans:** 0 plans
 
 Plans:
@@ -4457,7 +4457,7 @@ Plans:
 
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase TBD
+**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
 **Plans:** 0 plans
 
 Plans:
@@ -4479,9 +4479,20 @@ Plans:
 
 **Goal:** [To be planned]
 **Requirements**: TBD
-**Depends on:** Phase TBD
+**Depends on:** order per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md (OR-9)
 **Plans:** 0 plans
 
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 404 to break down)
+
+### Phase 405: MindrianOS on the Claude Desktop platform: the merged chat (chat plus Cowork, cloud with the device bridge) and the Desktop Code tab, beside the CLI (surface truth, honest no-room refusal, write receipts, click-proof decisions, one-click .mcpb extension, Theo cards)
+
+**Goal:** MindrianOS is first-class in three places (Claude Code CLI, Desktop Code tab, Desktop chat) per docs/CLAUDE-SURFACE-MODEL.md; owner rulings OR-1 to OR-10 in 405-CONTEXT.md
+**Requirements**: TBD
+**Depends on:** Phase 367 plans 11 and 12 on origin/main (PA-1); order with 401, 402 and 404 per .planning/phases/405-claude-desktop-chat-and-code/401-405-WORKFLOW.md
+**Plans:** 0 plans (EGM design in review on branch work/405-desktop; slice 0 spikes are planned first)
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 405 after the EGM round is clean)
