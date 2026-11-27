@@ -37,3 +37,10 @@ None waiting. O11 (remote route for ChatGPT web and mobile) stays unruled; defau
 - NEXT: one narrow Goldfish round on 401-DESIGN.md (attack points in its section 10).
 - Owner items O1 to O7 for the next owner card (each with a recommendation in 401-DESIGN.md section 9): O1 keep the name mcp-server-brain in history and guard checks (yes); O2 /mos:admin runs one file in that folder: move it to scripts/ (move); O3 delete 2 one-time migration scripts and make the 2 Brain write tools answer "retired" (yes); O4 remove the retired Pinecone tool from 3 agent tool lists (yes); O5 remove 6 expired commands after the 405 foundation, 113 to 107 (yes); O6 description limit 300 B (300 B); O7 move the nav-block trims to Phase 402 (yes).
 - Facts worth keeping: `stamp-firing-block --check` exits 1 today with 11 pending files (cause unverified); lib/memory/brain-server-resolution.test.cjs is red today (3 of 5); measured tool surface 86,250 B against the test-270 pin 85,599.
+
+## Update: Phase 402 design is written (2026-11-27 late)
+- `.planning/phases/402-lighter-runtime/`: 402-CONTEXT.md, 402-RESEARCH.md, 402-DESIGN.md (r1, not reviewed; 11 slices). Group A now on branch work/402-cardfire-startcap (K4 plus 400.3-09; F2 cap). Group B after the 405 foundation, spike SP9 and a floor re-read. Group C also needs 400.5 plan 02 on main.
+- NEXT: one Goldfish round on 402-DESIGN.md (reading list in its section 13).
+- Owner items (recommendations in 402-DESIGN.md section 12): 1 hot list of 23 tools in place of 18 (accept); 2 keep the Eureka tools listed and deferred (keep); 3 host below the floor: doctor warning only (doctor only); 4 opt-in process skills: narrow (narrow).
+- Fix for 405: design section 6 SP9 probe uses a guessed "deferral mark"; the correct mark is `_meta["anthropic/alwaysLoad"]: true` on the up-front tools, with no server-level key.
+- Facts: measured deferral saving is about 13.7k tokens (not 15.5k); the 400.1 research expires 2026-12-08; test-127-00 has 2 failures at base (bin/ paths), not a 402 item.
