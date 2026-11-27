@@ -1,0 +1,152 @@
+{
+  "label": "base",
+  "arm": "contention",
+  "smoke": true,
+  "head": "171a8675031590372c5f572a567b7816700ecb7a",
+  "claude_version": "2.1.332 (Claude Code)",
+  "node": "v22.23.1",
+  "cores": 12,
+  "H": 6,
+  "host_command": "claude -p --input-format stream-json --output-format stream-json --verbose --include-hook-events --replay-user-messages --plugin-dir <repo root> --setting-sources project --model haiku --tools \"\" --session-id <uuid> --debug-file <scratch>/host-debug.log",
+  "removed_env_keys": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_SESSION_ID",
+    "MINDRIAN_BRAIN_KEY",
+    "MINDRIAN_EUREKA_ROOT",
+    "MOS_LIVE_LOAD"
+  ],
+  "plugins": [
+    {
+      "name": "mos",
+      "is_repo_root": true
+    },
+    {
+      "name": "cc-plugin-agents-md",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-telemetry",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-privacy",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-plugin-authoring",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-easel",
+      "is_repo_root": false
+    }
+  ],
+  "seed_missed_turn": false,
+  "prompts": [
+    {
+      "i": 1,
+      "token": "t4005-46d991-1",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 161,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": null,
+      "wall_ms": 18848
+    },
+    {
+      "i": 2,
+      "token": "t4005-46d991-2",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 133,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": null,
+      "wall_ms": 4487
+    }
+  ],
+  "per_hook": {
+    "node \"${CLAUDE_PLUGIN_ROOT}/scripts/intent-classifier.cjs\"": {
+      "runs": 2,
+      "cancels": 0,
+      "p95_duration_ms": 160
+    }
+  },
+  "summary": {
+    "prompts_sent": 2,
+    "results": 2,
+    "cancel_total": 0,
+    "prompts_with_runs_below_H": 0,
+    "runs_source": "s2_hook_started",
+    "p50_overhead_ms": 133,
+    "p95_overhead_ms": 161,
+    "skip_note_prompts": [],
+    "loadavg_min": 1.45,
+    "loadavg_max": 1.8,
+    "io_pressure_avg10_max": 1.25,
+    "writer": {
+      "cycles": 0,
+      "busy": 0,
+      "other": 0
+    },
+    "host_pids": 1,
+    "session_ids": [
+      "own"
+    ],
+    "real_rooms_touched": false,
+    "unmapped_attachments": 0
+  },
+  "sources": {
+    "s1_path": "<HOME>/.claude/projects/-tmp-mos-load-400-5-AUEvm3-rooms-load-room-400-5/<UUID>.jsonl",
+    "s2_subtypes_seen": [
+      "hook_response",
+      "hook_started"
+    ],
+    "s2_field_names": [
+      "exit_code",
+      "hook_event",
+      "hook_id",
+      "hook_name",
+      "outcome",
+      "output",
+      "session_id",
+      "stderr",
+      "stdout",
+      "subtype",
+      "type",
+      "uuid"
+    ],
+    "s3_sample_masked": [
+      "2026-11-27T11:16:08.518Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/admin-command-gate.cjs\"] (plugin mos@inline) finished with status 0 (24ms)",
+      "2026-11-27T11:16:08.533Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/auto-explore-drain.cjs\"] (plugin mos@inline) finished with status 0 (38ms)",
+      "2026-11-27T11:16:08.533Z [DEBUG] \"Hook UserPromptSubmit (UserPromptSubmit) success:\\n{\\\"continue\\\":true}\""
+    ],
+    "s3_unmapped_cancels": 0,
+    "s4_turns": 0
+  },
+  "trace_turns": null,
+  "marker_after": null,
+  "flags": {
+    "host_started": true,
+    "prompt_timeout": false,
+    "foreign_session": false,
+    "transcript_found": true
+  },
+  "loadavg_start": "1.80 1.60 1.52 3/1481 843421",
+  "verdict": "PASS",
+  "first_not_ok": null
+}
