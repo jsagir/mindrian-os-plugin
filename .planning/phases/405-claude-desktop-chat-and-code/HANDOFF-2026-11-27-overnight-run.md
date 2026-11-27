@@ -44,3 +44,10 @@ None waiting. O11 (remote route for ChatGPT web and mobile) stays unruled; defau
 - Owner items (recommendations in 402-DESIGN.md section 12): 1 hot list of 23 tools in place of 18 (accept); 2 keep the Eureka tools listed and deferred (keep); 3 host below the floor: doctor warning only (doctor only); 4 opt-in process skills: narrow (narrow).
 - Fix for 405: design section 6 SP9 probe uses a guessed "deferral mark"; the correct mark is `_meta["anthropic/alwaysLoad"]: true` on the up-front tools, with no server-level key.
 - Facts: measured deferral saving is about 13.7k tokens (not 15.5k); the 400.1 research expires 2026-12-08; test-127-00 has 2 failures at base (bin/ paths), not a 402 item.
+
+## Update: 401 F1 plan is written, staged (2026-11-27 late)
+- A hook (worktree path guard) stops a session whose cwd is the 405 worktree from writing into another worktree. The planner did not bypass it. The plan is staged at `.planning/phases/401-hygiene-and-cheap-context-cuts/401-F1-PLAN-staged.md` with `401-F1-PLAN-staged.README.md` (baselines, red-before tests, 8 risks).
+- NEXT: start a session with cwd /home/jsagi/dev/MindrianOS-Plugin-401f1, copy the staged plan to `.planning/quick/261127-f1a-frontmatter-split-fix/261127-f1a-PLAN.md`, then run the executor there with `NODE_PATH=/home/jsagi/dev/MindrianOS-Plugin/node_modules` (the worktree has no node_modules; the pre-commit hook needs them). Same rule for the 402 small-fix branch: run its planner and executor with cwd /home/jsagi/dev/MindrianOS-Plugin-402small.
+- Measured: 253 of 255 surface files offend (383 lines); host-read keys today: hitl_shape 197 of 210, hitl_stages 29 of 34, allowed-tools 118 of 227.
+- OWNER NOTE before a release: after F1, allowed-tools becomes host-read in 109 more files (Bash in 105, Write in 91). The plan lists it in its SUMMARY; the owner reads it before the cut.
+- Red before F1 (not caused by it): harness manifest check (decide_engine digest), tests/test-3696-voice-first-budget.cjs V7, tests/test-201-harness-manifest.cjs, tests/test-234-dist-bundle.cjs.
