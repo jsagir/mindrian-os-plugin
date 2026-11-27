@@ -109,7 +109,8 @@ fs.writeFileSync(PRELOAD, [
   'const oc = net.Socket.prototype.connect;',
   'net.Socket.prototype.connect = function () { bump(); return oc.apply(this, arguments); };',
   "for (const m of [http, https]) for (const k of ['request', 'get']) { const o = m[k]; m[k] = function () { bump(); return o.apply(this, arguments); }; }",
-  "process.on('exit', () => { try { fs.writeFileSync(process.env.T386_COUNT_FILE, String(n)); } catch (_) { /* best effort */ } });",
+  // Plan 400.3-05a: the hook runs as a parent and an --inner child, both load the preload; each appends, the reader sums.
+  "process.on('exit', () => { try { fs.appendFileSync(process.env.T386_COUNT_FILE, String(n) + '\\n'); } catch (_) { /* best effort */ } });",
   'const orig = Module._load;',
   'const mode = process.env.T386_FAIL;',
   'Module._load = function (request) {',
@@ -136,7 +137,7 @@ function runHook(toolName, toolInput, opts) {
     input: stdin, encoding: 'utf8', env: env, timeout: 20000,
   });
   let count = null;
-  try { count = parseInt(fs.readFileSync(countFile, 'utf8'), 10); } catch (_) { count = null; }
+  try { count = fs.readFileSync(countFile, 'utf8').split('\n').filter(Boolean).reduce((a, l) => a + parseInt(l, 10), 0); } catch (_) { count = null; }
   const r = { code: res.status, stderr: res.stderr || '', stdout: res.stdout || '', count: count, home: home };
   runs.push(r);
   return r;
