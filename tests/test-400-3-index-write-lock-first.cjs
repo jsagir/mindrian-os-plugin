@@ -11,7 +11,7 @@
  * Canon Part 8: fixture rooms only under mkdtemp roots; no network.
  * Native Windows is UNMEASURED.
  *
- * Groups: lock (W1-W6), backfill (B1-B3), presence (E1-E7; E7 wave 2 Goldfish W2-D-09).
+ * Groups: lock (W1-W6), backfill (B1-B3), presence (E1-E9; E7 wave 2 Goldfish W2-D-09, E8 and E9 W2-CD-10).
  * Usage: node tests/test-400-3-index-write-lock-first.cjs [lock|backfill|presence|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -423,6 +423,29 @@ async function groupPresence() {
     check('E7 the file is gone after the presence check: openGraph mustExist throws ROOM_DB_MISSING and creates no room.db',
       !h && !!err && err.code === 'ROOM_DB_MISSING' && sizeOf(dbPathOf(room)) === -1,
       JSON.stringify({ handle: !!h, code: err && err.code, message: err && err.message, size: sizeOf(dbPathOf(room)) }));
+  }
+
+  // E8 (wave 2 Goldfish W2-CD-10): the spine-event writers use the one presence rule (roomDbPresent), so a 0-byte
+  // room.db is no room.db: logSpineRead returns no_room_db and the file stays 0 bytes.
+  {
+    const room = mkZeroRoom(root, 'e8');
+    const spine = require(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'));
+    let r = null;
+    let err = null;
+    try { r = spine.logSpineRead(room, { surface: 'cli', section: 'sec' }); } catch (e) { err = e; }
+    check('E8 logSpineRead on a 0-byte room.db: reason no_room_db and the file stays 0 bytes',
+      !err && !!r && r.ok === false && r.reason === 'no_room_db' && sizeOf(dbPathOf(room)) === 0,
+      JSON.stringify({ r, err: err && err.message, size: sizeOf(dbPathOf(room)) }));
+  }
+  // E9 (W2-CD-10): resolveRoomDb of scripts/feynman-timeline-refresh-command.cjs has one presence check, not two.
+  {
+    const src = fs.readFileSync(path.join(ROOT, 'scripts', 'feynman-timeline-refresh-command.cjs'), 'utf8');
+    const fn = (src.match(/function resolveRoomDb\([\s\S]*?\n\}/) || [''])[0];
+    const spineSrc = fs.readFileSync(path.join(ROOT, 'lib', 'core', 'navigation', 'spine-events.cjs'), 'utf8');
+    const has = (spineSrc.match(/function _hasRoomDb\([\s\S]*?\n\}/) || [''])[0];
+    check('E9 one presence rule: resolveRoomDb calls roomDbPresent only, and spine-events _hasRoomDb calls roomDbPresent',
+      fn.length > 0 && /roomDbPresent\(/.test(fn) && !/safeIsFile\(/.test(fn) && /roomDbPresent\(/.test(has) && !/statSync/.test(has),
+      JSON.stringify({ resolveRoomDb: fn.slice(0, 160), hasRoomDb: has.slice(0, 160) }));
   }
 }
 

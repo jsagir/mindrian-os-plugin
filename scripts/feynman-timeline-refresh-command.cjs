@@ -111,8 +111,8 @@ function resolveActiveRoom(rootsOverride) {
  */
 function resolveRoomDb(roomDir, opts) {
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
-  if (!safeIsFile(dbPath)) return null;
   try {
+    // Wave 2 Goldfish W2-CD-10: one presence check (roomDbPresent covers the missing, 0-byte and non-file cases).
     if (!require(path.join(REPO_ROOT, 'lib', 'core', 'room-root.cjs')).roomDbPresent(roomDir)) return null;
     const busyCap = require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs'));
     const o = opts && typeof opts === 'object' ? opts : {};
