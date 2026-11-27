@@ -1,0 +1,31 @@
+---
+phase: 405
+round: 4 (narrow)
+reviewer: egm-implementation-readiness (model: fable)
+target: 405-DESIGN.md r4.1
+counts: {blocker: 0, major: 13, nit: 16}
+verdicts: {slice_0: NOT READY, build_slices: NOT READY}
+note: "Saved by the main session. 22 round-3 items confirmed FIXED; partly fixed: R3B4, R3M4, R3M8, R3M9, R3M21."
+---
+
+# 405 GOLDFISH R4: implementation readiness
+
+## Majors, slice 0 (text edits in section 6 and file table row 0)
+- IR4-M1 (6 SP4, SP5; slices 1, 6): "FP = answered by the slice 1 fingerprint" but slice 1 is a build slice after slice 0, and slices 1 and 6 depend on SP5 and SP4. Fix: SP4 and SP5 run in slice 0 on the SP7 probe extension (it prints pid, ppid, parent exe, env); the slice 1 fingerprint is a later confirmation; order SP7 then SP4.
+- IR4-M2 (6): legs with no If rule or pass test: SP1 (plugin hooks in the merged chat; quit mid-call), SP2 (kill between file and row; the claim_write key after a Desktop restart named in 3.3 and R18 is missing), SP5 (hooks.json, MCP Apps, loads extensions), SP6 e (prompts as slash commands), SP7 (install channel, Code tab loads it, quit survival not classed as runtime, bridge or information). Fix: one line per leg: If A, If B, or "record only, no design change".
+- IR4-M3 (6, 8 row 0): the probe location (work/367-spike-kits; .planning/spikes/012 is not in this worktree), the pack tool for SP7 (tools/mcpb comes in slice 5a) and the macOS machine are unnamed. Fix: branch and folder (for example .planning/spikes/405-* on work/405-desktop), pack command and pinned version, and the macOS rule (required, or "Windows verdict now, macOS leg open until slice 5a LIVE").
+- IR4-M4 (3.7a, SP7 size leg, AC5a.11): gates 4,500 files and 180 MB are GUESS copies of the plugin gates; the payload is the plugin tree plus about 121 packages plus three sqlite-vec packages, measured only "in slice 5a first". Fix: a slice 0 offline task stages the real payload (Step 6.8 copy, npm ci --omit=dev --ignore-scripts --no-bin-links, minus next, react, react-dom), prints files, MB unpacked, MB packed, and feeds the SP7 size leg; gates set from the measurement.
+
+## Majors, build slices
+- IR4-M5 (3.0 hookless definition, slices 2, 4): the second arm (no CLAUDE_CODE_SESSION_ID and a non Claude Code client name) makes every test through tests/helpers/mcp-wire-267.cjs hookless (it deletes the session id :64 and sends clientInfo mcp-wire-267 :191). Fix: (a) enforcement in 3.2, 3.5, 3.8 keys on the marker only, second arm for reporting; or (b) keep it and add a slice 4a fixture migration with the count from a run, and state what the 367 pinned tests do.
+- IR4-M6 (slice 2a, AC2a.2, section 9): tests are "found by running the suites with the rule on" but the rule lands in slice 2 after 2a; no command runs the 117 files; 3.2 lists tests/test-367-*.cjs and tests/test-400-3-*.cjs but section 9 runs two 367 files and no 400-3 file. Fix: a discovery method (rule behind a local patch, a named script runs every file from the grep list and prints failures), that runner in the suites step, one list in 3.2 and section 9.
+- IR4-M7 (3.2 room birth vs G2, 3.5, 3.8, AC2.1, AC2.3): birth rules contradict (registry condition, cloud_session, "only in a room the registry knows", "creating needs the Code tab", room_create with click proof on P4). Fix: one rule for birth on P4 (before slice 4b refused with which reason; after 4b allowed with app_nonce under the rooms home); a one-line truth table for cloud_session and registry; align AC2.1 and AC2.3.
+- IR4-M8 (3.2a hookless_place, not_a_room): MINDRIAN_LAUNCHER lives in the server env, not the shell of a command; a pinned folder with no room.db gets "run adopt" and adopt refuses (not_a_room), no next step. Fix: say which component gives hookless_place and how the fixture makes it; give not_a_room a message and next step, or let register accept a .room-root folder with no room.db.
+- IR4-M9 (3.11, AC3.9, OR-10): openRoomDb(roomDir, opts) (room-db.cjs:311) has no read or write mode, always creates the folder (:330), runs the schema chain on every unstamped open (:371-381), and has about 155 direct call sites in 77 files. Fix: the signal (opts.intent 'write' set by openRoomDbForCaller with probeWrite, plus the direct callers, or "the check is in openRoomDbForCaller only"); the error type and code; position before the chain; the chain and stamp rule when this version is below writer_version_max.
+- IR4-M10 (3.7a signing): certificate source, owner and storage unnamed. Fix: "unsigned in 405, R16 stands, no signing step", or an owner item.
+- IR4-M11 (slice 9 AC9.4): the link is a GitHub release asset; repository visibility is a GUESS. Fix: check with gh repo view; if private, a named host or the owner.
+- IR4-M12 (slice 9 AC9.5 vs file table): AC9.5 says "release artifact", the file table says "RULE 5 new place". RESOLVED by OR-12: one paragraph after the UI shell paragraph, numbered list unchanged.
+- IR4-M13 (slice 9 AC9.7, RULE 10): mcpb_chat_leg has no shape, flag, verdict in scripts/release-lib/real-room-gate.sh (WARN for missing desktop_verified at :146-150), or file rows. Fix: shape {os, extension_version, chat_reached, read_at}, the command, WARN or refuse, the two files.
+
+## Nits
+N1 map rows for AC4b.5, AC9.9; N2 R6 says 104, 3.2 says 117; N3 stray code fence in section 9; N4 run-all-405.sh `own` skips a missing 405 test forever (slice 9 needs SKIPPED = dropped slices only); N5 name the shared helper path; N6 lib/core/mcp-dep-heal.cjs (not lib/mcp); N7 one definition for isMaterialApproval incl. recovery and Eureka opt-in; N8 text for human_confirmation_required and "the gate stays open"; N9 name the gate-ledger mint file, the request _meta key, and that extra reaches the mint; N10 receipt read_back type, failure shape, read-back after COMMIT; N11 manifest_version, user_config.rooms_home type and title, tools/mcpb package and version; N12 Step 6.8b dry-run, abort or warn, audited opt-out (RULE 4, 7); N13 the mechanism that skips AC9.3, AC9.4; N14 slice 10 Part 8 review owner and pass rule (data/theo-tool-classes.json already has the names); N15 the workflow's "about 20 min" is too low for eight spikes on two systems; N16 LIVE spike steps are owner checkpoints that return NEEDS_HUMAN.
