@@ -38,9 +38,11 @@ Evaluate every feature through all three surfaces before it ships - a feature th
 
 | Surface | Interaction | What Matters Most |
 |---------|-------------|-------------------|
-| **Claude Code CLI** | Hooks fire, scripts run, `/mos:*` commands | Hook reliability, script execution, context budget, file output |
-| **Claude Desktop** | Conversational: users talk to Larry | Larry personality, natural-language discoverability |
-| **Cowork** | Multi-user, persistent agents, shared `00_Context/` | Shared room state, concurrent access, export quality |
+| **Claude Code CLI** | The full local runtime: hooks fire, scripts run, `/mos:*` commands, the local MCP server and the room on disk | Hook reliability, script execution, context budget, file output |
+| **Claude Desktop Code tab** | A local session is full Claude Code on the machine, the same as the CLI; a cloud session is a fresh repo clone on an Anthropic VM, with no room | Local-session parity with the CLI; a cloud session says "no room" honestly |
+| **Claude Desktop chat** (formerly chat plus Cowork) | One Claude that runs in Anthropic's cloud; users talk to Larry; hooks, agents and local MCP servers do not load in chat; the room is reachable only through the open Desktop app | Larry personality, natural-language discoverability, an honest "no room" state, a read-back after every bridged write |
+
+Full model (six surfaces, which plugin parts load where, where the room is reachable, UNVERIFIED items, recheck date): docs/CLAUDE-SURFACE-MODEL.md. MindrianOS runs in full only in local Claude Code (the CLI, or a local Desktop Code-tab session).
 
 ---
 
@@ -96,7 +98,7 @@ A commercial Claude Code + Cowork plugin delivering Mindrian's PWS (Personal Wis
 - **Plugin format**: conform to Claude Code plugin structure (commands/, skills/, agents/, hooks/, .mcp.json, settings.json, plugin.json).
 - **No server infrastructure**: runs entirely in Claude's environment; only the optional Brain MCP is remote.
 - **Brain IP protection**: the teaching graph, grading intelligence, and mode-engine calibration are proprietary, served via MCP, never distributed.
-- **Three surfaces**: every feature works across CLI, Desktop, and Cowork without surface-specific code.
+- **Three surfaces**: every feature is checked on the Claude Code CLI, the Desktop Code tab and the Desktop chat (formerly chat plus Cowork); only local Claude Code runs the full plugin, so a surface without the room says so instead of failing without a word (docs/CLAUDE-SURFACE-MODEL.md).
 
 <!-- GSD:project-end -->
 
