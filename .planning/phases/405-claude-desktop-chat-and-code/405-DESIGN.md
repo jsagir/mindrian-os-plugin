@@ -1,44 +1,50 @@
 ---
 phase: 405
 title: "MindrianOS first-class on the Desktop merged chat and the Desktop Code tab, beside the CLI"
-status: DESIGN r4.1 (r4 after the round-3 implementation-readiness review, kept as 405-DESIGN-r4.md; r4.1 folds in the round-3 codebase-details review; earlier versions 405-DESIGN-r3.md, -r2.md, -r1.md; resolutions in 405-GOLDFISH-REPORT-R1.md, -R2.md, -R3.md)
+status: DESIGN r5 (after Goldfish round 4 and the 401-405 program review; applies OR-11 to OR-22; r4.1 kept as 405-DESIGN-r4.1.md; earlier versions -r4, -r3, -r2, -r1; resolutions in 405-GOLDFISH-REPORT-R1.md to -R4.md). r5.1 is reserved for 405-GENUI-RESEARCH.md (OR-19), not yet written when r5 was written.
 date: 2026-11-27
 canon_parts: [3, 7, 8, 9, 11, 12]
-base: main as of branch work/405-desktop 704abc5a1. Build starts only after 367-11 and 367-12 reach origin/main (PA-1 condition 1); never branch from work/367-graph-writes-itself.
-inputs: 405-CONTEXT.md (OR-1 to OR-10 LOCKED; PA-1, PA-2), 405-RESEARCH.md (R#), 405-HATS.md, 405-BRIDGES.md (B#; S = secondary source), Goldfish R1 and R2 reviews and reports, claude-surface-radar.md, docs/CLAUDE-SURFACE-MODEL.md, 367-DESIGN.md section 13 (branch)
-rules: GUESS marks a guess. Ids in brackets point to the Goldfish reports (GB#, GM# round 1; R2B#, R2M# round 2; R3B#, R3M# round 3).
+base: branch work/405-desktop at fb7c0dfd8, 7 commits behind origin/main on 2026-11-27. Rebase onto origin/main before slice 0 is planned. Build starts only after 367-11 and 367-12 (not 13 or 14) reach origin/main (PA-1 condition 1; program C23).
+inputs: 405-CONTEXT.md (OR-1 to OR-22 LOCKED; PA-1, PA-2), 405-RESEARCH.md, 405-HATS.md, 405-BRIDGES.md, 401-405-PROGRAM.md (sections 2c, 2d, 3), Goldfish reports R1 to R4, docs/CLAUDE-SURFACE-MODEL.md, .claude/skills/mindrian-mcp-app/SKILL.md
+read-with: a section or row marked "as r4.1" carries the text of 405-DESIGN-r4.1.md, which is part of this design; the planner reads both.
+rules: GUESS marks a guess. S marks a secondary source. Ids in brackets point to the Goldfish reports (R4B#, R4M# for round 4) and to the program review (C#).
 ---
 
-# 405 DESIGN r4.1
+# 405 DESIGN r5
 
 ## 1. Goals
 
-OR-2: first-class in the CLI, the Desktop Code tab and the Desktop merged chat. "First-class" means three testable things on each place:
-1. Where the room is reachable, every room capability that can run there runs there. The chat needs two installs a person can finish without editing JSON: the Customize plugin (skills, Theo cards) and the `.mcpb` extension (the room server) [DC2-N9].
+OR-2: first-class in the CLI, the Desktop Code tab and the Desktop merged chat. "First-class" means:
+1. Where the room is reachable, every room capability that can run there runs there. The chat needs two installs a person can finish without editing JSON: the Customize plugin (skills, theo-context) and the `.mcpb` extension (the room server).
 2. The named room writers (3.3) return a receipt read back from disk, or a typed failure, and a retry after a lost response never writes twice.
 3. Where the room is not reachable, nothing is written, and the reply gives a typed reason, one step back to a place with the room, and full Theo method cards.
+4. In the chat, decisions, method steps and next moves appear as small cards that a newcomer understands without the chat above them (3.12, OR-13, OR-17, OR-18).
 
 Goals:
-- G1 Correct capability facts for the local Code tab with the smallest change, plus a read-only surface fingerprint (3.1).
-- G2 Positive-evidence write rule, narrow scope (OR-5): a write through a boot-fallback or operator pin, and every write, bind or birth on a hookless place, happens only in a room this computer's registry knows (3.2) [GB2, R3B5, R3M12]. `/mos:rooms adopt` registers a folder (3.2a). The wider CLI scope is owner item O9.
-- G3 Receipts with read-back on six writers; one idempotency rule per writer, reusing existing keys (3.3) [R2M6].
-- G4 Part 8 in chat: theo-context is the chat method route (OR-7, OR-8); no room content to any Theo server, stated in the instructions and in two tool texts (3.6) [R2M2, R2M3].
-- G5 One-click chat install (OR-6): a `.mcpb` extension of the room server, built at release, with proof that Desktop loaded it and that the chat reached it (3.7) [R2M12].
-- G6 A human proof for every material approval on hookless places (3.5, OR-4) [R2B1].
-- G8 Ordered schema floor (OR-10): a copy older than the newest writer of a room refuses writes with `room_schema_newer` and one update line; reads stay allowed (3.11).
-- G7 Theo framework cards are the default method experience in the merged chat and the Desktop Code tab, and in places with no room (3.10, OR-7, OR-8).
+- G1 Correct capability facts for the local Code tab, plus a read-only surface fingerprint (3.1).
+- G2 Registered rooms only, everywhere (OR-11): every room write, bind or birth on every place and every room source lands only in a room this computer's registry knows; a doctor step finds unregistered rooms and offers to register them (3.2, 3.2a, 3.2b).
+- G3 Receipts with read-back on six writers; one idempotency rule per writer (3.3).
+- G4 Part 8 in chat: theo-context is the chat method route (OR-7, OR-8, OR-13); no room content to any Theo server (3.6).
+- G5 One-click chat install: a `.mcpb` extension, a checked release artifact (OR-6, OR-12) (3.7).
+- G6 A human click proof for every material approval on a hookless place (OR-4) (3.5).
+- G7 Theo framework cards as the default method experience in the chat and the Code tab, and where there is no room (3.10).
+- G8 Ordered schema floor (OR-10) (3.11).
+- G9 Three chat components built once as MCP Apps on the one MindrianOS server: the MCP App renderer of the existing Shape F contract (OR-21), each led by its job statement (OR-20) and passing the Feynman card rule (OR-13, OR-18), host-neutral (OR-22) (3.12).
 
 ## 2. Non-goals
 
 - A remote room server (Part 9).
-- Any change to the 367 runner, its trigger or its tests. PA-1 allows a postCall list; 405 has no duty that needs it [GM12].
-- A presence row, `next_move` in receipts, a new memory_event type [GM12].
-- A 6-value place enum, a statusline detector change, or a drift test [GM9].
-- A guard line in skills [GB6]. The fence is the server rule of 3.2; no slice changes the room scripts in r3 (correction, DC2-N3). Reopened only by SP1 (section 6).
-- Rewriting skills for chat. The skill bridge is Phase 404 recipes (B1.2). OR-9 sets the order: 405 foundation (slices 0 to 9), then the overlapping parts of 401 and 402, then 404 with chat as a named target, then the 405 end slice 11 ("commands work in chat"). The server's existing MCP prompts (lib/mcp/prompts.cjs, 9 `server.registerPrompt` calls, :101 to :398) are an interim front door; whether the merged chat lists them as slash commands is UNVERIFIED (S only; SP6 leg) [IR2-N1, DC2-N10]. B1.3 (a local script runner) is rejected.
-- `alwaysLoad` timing (Phase 402).
-- Website edits (OR-3); the get-mindrian route B text (raised to the owner by jsagi-42).
-- Signed egress B2.2 (OR-7).
+- Any change to the 367 runner, its trigger or its tests. PA-1's postCall list is not used.
+- A presence row, `next_move` in receipts, a new memory_event type.
+- A 6-value place enum, a statusline detector change.
+- A guard line in skills. The fence is the server rule (3.2). Reopened only by SP1.
+- Helper agents in the chat (OR-13). The chat runs one step per card in the main thread (program C9).
+- A CopilotKit dependency in the plugin (OR-18). ~/dev/theo-context-copilotkit is a style reference only.
+- `alwaysLoad` and deferral changes (Phase 402); 405 supplies the deferral leg SP9 (OR-16).
+- A Cowork test (OR-16: L-CW1 dropped; the owner account has the merged chat).
+- Signed egress B2.2 (OR-7). Signing the extension (3.7a: unsigned in 405).
+- Website edits (OR-3).
+- A ChatGPT product (OR-22). The package stays host-neutral (3.12.1) so the owner can try it; SP10 records what loads.
 
 ## 3. The design
 
@@ -47,367 +53,326 @@ Goals:
 | Place | Who spawns the room server | Hooks | Room |
 |---|---|---|---|
 | P1 CLI | Claude Code | yes | yes |
-| P2 local Code tab | Claude Code inside Desktop | yes (R0) | yes |
+| P2 local Code tab | Claude Code inside Desktop | yes | yes |
 | P3 cloud Code session, Projects cloud thread, cloud scheduled task | Claude Code in an Anthropic VM, only for a synced plugin | yes, in the VM | no |
 | P4 merged chat with bridge (also web or mobile with a linked computer) | the Desktop app (the `.mcpb` extension; fallback a config server) | no | yes, while Desktop is open |
 | P5 any chat with no bridge | nobody | no | no |
 
-P2 uses the 367 CLI hook path on main (scripts/on-stop:56, scripts/session-start:135). The statement "Desktop and Cowork (MCP only, no hooks)" (367-CONTEXT:35) is wrong for P2; recorded in 405-RESEARCH section 0 only.
+P2 uses the 367 CLI hook path on main (scripts/on-stop:56, scripts/session-start:135). "Desktop and Cowork (MCP only, no hooks)" (367-CONTEXT:35) is wrong for P2; recorded in 405-RESEARCH section 0 only.
 
-"Hookless place" in this design means: the server process has the launcher marker `MINDRIAN_LAUNCHER=mcpb` (or `bridge` for the fallback), or it has no `CLAUDE_CODE_SESSION_ID` and `readClientIdentity` is not a Claude Code name. The marker is the primary signal because it is set by our own manifest, not detected [R2B5].
+"Hookless place" [R4M5, CD4-M1]: a server process with the launcher marker `MINDRIAN_LAUNCHER=mcpb` (or `bridge` for the fallback). Every enforcement in this design keys on the marker only. The second signal (no `CLAUDE_CODE_SESSION_ID` and a non-Claude-Code client name from `readClientIdentity`) is for reporting in the fingerprint only, because the wire-test helper tests/helpers/mcp-wire-267.cjs deletes the session id (:64) and sends clientInfo `mcp-wire-267` (:191), and an in-process test has no server object (surface-detect.cjs:250). The marker is read per call from `process.env` (no process cache), so the HTTP daemon is not affected.
 
 ### 3.1 Capability facts and fingerprint (G1)
 
-- No production code reads `capabilities.hooks` (navigation-engine.cjs:1598 passes `ctx.arbitration_inputs`, set by nothing); the live consumer of the capability map is lib/mcp/capability-registry.cjs:50-56 (`apps`). No new enum.
-- After SP5: if the local Code tab sets a non-empty `CLAUDE_CODE_ENTRYPOINT` other than `cli`, rule 4 of lib/mcp/surface-detect.cjs:65-69 treats it as Claude Code with `apps: true` kept. Else no change.
-- `cloud_session` (boolean) in `status_read`, only from a marker SP3 proves.
-- Fingerprint (B3.1) in `status_read.fingerprint`: `{surface, transport, host (readClientIdentity, surface-detect.cjs:250-270), protocol_version, client_capabilities, parent: {ppid, exe}, platform, node_version, sqlite_timeout_ok, session_id_present, plugin_root_present, launcher, cloud_session?, host_hash}`.
-  - Parent executable method, computed once at server start and cached, never inside a status_read call [R2M18]: Linux `/proc/<ppid>/comm`; macOS `ps -o comm= -p <ppid>` (spawnSync, 500 ms); Windows `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter 'ProcessId=<ppid>').Name"` (spawnSync, 1500 ms). Timeout or error gives `unknown`. The start is not delayed: the probe runs after the transport connects.
-  - `host_hash` = sha256 of hostname plus a salt in `~/.mindrian/desktop/host-salt` (32 random bytes, mode 0600, created on first use).
-  - `sqlite_timeout_ok`: `node:sqlite` loads and a `timeout` option is honored on a temp database (a 2-connection lock test, 200 ms).
-  - No room content, no path under the rooms home. On the CLI it stays local; on P4 the tool result reaches the cloud model, like every tool result, so it holds only hashes, names and versions [CD3-N6].
-- Expected value to confirm (S: coral#2734): Desktop local stdio sends clientInfo `claude-ai` 0.1.0 and declares no elicitation.
+Unchanged from r4.1: no production reader of `capabilities.hooks` (navigation-engine.cjs:1598); the live consumer of the capability map is lib/mcp/capability-registry.cjs:50-56 (`apps`). After SP5: if the local Code tab sets a non-empty `CLAUDE_CODE_ENTRYPOINT` other than `cli`, rule 4 of surface-detect.cjs:65-69 treats it as Claude Code with `apps: true`. `cloud_session` only from a marker SP3 proves. Fingerprint fields `{surface, transport, host, protocol_version, client_capabilities, parent: {ppid, exe}, platform, node_version, sqlite_timeout_ok, session_id_present, plugin_root_present, launcher, cloud_session?, host_hash}`; parent probe once at start per OS (Linux `/proc/<ppid>/comm`; macOS `ps -o comm= -p <ppid>`, 500 ms; Windows PowerShell `Get-CimInstance Win32_Process`, 1500 ms; else `unknown`); host salt `~/.mindrian/desktop/host-salt` (0600). On P4 the result reaches the cloud model, so it holds only hashes, names and versions.
 
-### 3.2 Positive-evidence write rule (G2) [GB2, R2M15, DC2-N1]
+### 3.2 Registered rooms only, everywhere (G2, OR-11) [R4B1, CD4-B1]
 
-Helper `isRegisteredLocalRoom(dir)` in lib/mcp/session-room.cjs. Registry reader [R3M14]: a new export `listRegisteredRoomPaths(home)` in lib/core/resolve-active-room.cjs that reads the registry (`readRegistry`, :83-92, stays private) and maps every slug through the exported `registryRoomPath(home, slug, reg)` (:123-160, :610; it handles array and object registries, abs_path, relative paths and Windows drive paths, :151-154). Archived and parked rooms count as registered (they are the person's rooms). Rule: true when realpath(dir) equals the realpath of one of those paths. No room.db term: readiness owns a missing room.db (the 369.25 HEAL-02 path, session-room.cjs:347-386, stays as is) [R3B5]. tests/test-248-resolver-census.cjs is checked unchanged (the new export is not a resolver leg).
+Helper `isRegisteredLocalRoom(dir)` in lib/mcp/session-room.cjs: true when realpath(dir) equals the realpath of one of `listRegisteredRoomPaths(home)` (new export in lib/core/resolve-active-room.cjs; it maps every slug of the private `readRegistry` (:83-92) through the exported `registryRoomPath` (:123-160)). Archived and parked rooms count. No room.db term (readiness owns a missing room.db, HEAL-02, session-room.cjs:347-386).
 
-Where it runs [R3B5, decided inside PA-1]: in `resolveMcpWriteRoom`, AFTER `classifyMcpWriteRoom` returns ok, never inside classify. So classify, the 367 spawn decision (graph-catchup-spawn.cjs:179-181) and census rows C4 and C5 (tests/test-367-governed-census.cjs:119-139) stay unchanged. A spawn for an unregistered folder does nothing harmful: the runner refuses a candidate without room.db (367-DESIGN 5.2 step 2).
+Where it runs [CD4-B1]: a new wrapper `authorizeMcpWriteRoom(opts)` in lib/mcp/session-room.cjs. It calls `resolveMcpWriteRoom(opts)` unchanged, then applies, in order: (1) the registry check, (2) the schema floor of 3.11. The 12 write call sites and room_bind call the wrapper instead of `resolveMcpWriteRoom`: chain.cjs:983, claim-verify.cjs:102, claim.cjs:132, gate.cjs:1172 and :1747, graph.cjs:237 and :279, question.cjs:138, research.cjs:120, startup.cjs:28, views.cjs:564, tool-router.cjs:115, and room_bind (tool-router.cjs:2272) [CD4-M1]. `resolveMcpWriteRoom`, `classifyMcpWriteRoom`, the 367 spawn rule and the 367 census (rows C4 and C5 call `resolveMcpWriteRoom` directly, tests/test-367-governed-census.cjs:112-139) stay unchanged.
 
-Scope [R3M12; OR-5 locks only the pin case]: the check applies when (a) the source is `boot-fallback` (a MINDRIAN_ROOM pin or the default `<cwd>/room`, mindrian-mcp-server.cjs:190), or (b) the source is an operator pin (`isOperatorPinnedRoom`, session-room.cjs:264), or (c) the place is hookless (3.0), for every source. On P1 and P2 other sources (`session.primary`, `room-root`, a workspace-registry room) keep today's behaviour; widening is owner item O9. A refusal keeps the existing shape `{ok: false, dir, slug, source, refusal: {ok: false, reason: 'no_local_room_here', message, route_back}}` with `dir` and `slug` set to the resolved values (unlike classify's own refusal, which has `dir: null, slug: null`, 367 session-room.cjs:274-281) [CD3-N1].
-- Called in `room_bind` (tool-router.cjs:2272) before a binding file is written, with the same scope rule (c) for hookless places.
-- Room birth (`prepareRoomCreation` and the approve leg, lib/mcp/startup-operations.cjs:44-86): `destination()` already refuses a path outside the rooms home (:18-28) [CD3-N2]; new is only the condition: allowed when the rooms home has a registry, or when none exists and `cloud_session` is not true. R2 stays for the no-marker case.
-- Order: `writePathRefusal` first (views.cjs:559), then `no_local_room_here`.
-- Texts (one place, session-room.cjs):
-  - `route_back`: "This place has no MindrianOS room. Open the Code tab in Claude Desktop on the computer that holds your rooms (Local), or use Claude Code there. Framework cards from Theo still work here: ask Larry about any method."
-  - `message` for an unregistered existing room (OR-5): "Register this folder as a room with /mos:rooms adopt, then retry."
-  - On a hookless place, both texts add: "Creating or adopting a room needs the Code tab or Claude Code." [R2M11]
-- Fixture migration [R2M15, R3M21]: with the narrow scope only tests that write through a boot-fallback or operator pin, or that run a hookless marker, need a registered room. `MINDRIAN_ROOM|fallbackRoomDir` matches 117 test files, six of them shared helpers that spawn children (mcp-wire-267, harness-383, b1-358-child, b2-358-child, one-week-365-child, eureka-installed-layout-387); slice 2a migrates those six first. Reuse, do not add (Part 7): extract `birthFixtureRoom` from tests/helpers/isolated-home-36925.cjs:73-98 into a shared helper (fixture-room-3551.cjs:61-76, fixture-room-369.cjs:124, fixture-room-2401.cjs:293 and oracle-381.cjs:165 do the same; the planner picks one). The writing tests are found by running the suites with the rule on, not by grep alone. No test-mode bypass. Suites that must stay green: tests/test-367-*.cjs, tests/test-400-3-*.cjs (the real file names), tests/test-desktop-stdio-session-binding.cjs, tests/test-room-state-no-registry-regression.cjs, tests/run-all-369.1.sh.
+Scope (OR-11): every source (`session.primary`, `room-root`, `reg.active`, `boot-fallback` including the default `<cwd>/room`, `cwd`, operator pins at session-room.cjs:231) on every place. A refusal: `{ok: false, dir, slug, source, refusal: {ok: false, reason: 'no_local_room_here', message, route_back}}`.
 
-### 3.2a `/mos:rooms adopt <path>` (OR-5) [R2M11, R3B1]
+Room birth, one rule [R4M7] (room_create, startup-operations.cjs:44-86; `destination()` already keeps the path under the rooms home, :18-28):
 
-The fix line names a command that does not exist today (commands/rooms.md:5). `scripts/resolve-room --adopt` is not usable: when a central registry exists it returns the active room and exits 0 (scripts/resolve-room:50-78), and its adopt branch (:122-178) needs a legacy `room/` or `rooms/` subfolder and writes a workspace registry `<path>/.rooms/registry.json`, never `<rooms home>/.rooms/registry.json`, which `isRegisteredLocalRoom` reads (IR3-B1).
+| Condition | Result |
+|---|---|
+| `cloud_session` true | refused `no_local_room_here` |
+| P1, P2 (no marker) | allowed after the existing F.0 approval; the birth writes the registry entry (navigation.birthRoom), so the new room is registered |
+| P4 (marker), before slice 4b | refused `human_confirmation_required`, message "Creating a room needs a click on the room card. Until that card ships, create the room in the Code tab or Claude Code." |
+| P4 (marker), after slice 4b | allowed only with `answered_via: app_nonce` from the Shape F card (3.5, 3.12) |
 
-Design: a new subcommand `scripts/room-registry register <slug> <absolute path>` (not `create`, which also sets the room active and parks the previous one, scripts/room-registry:502-511 [R3B1]) that writes only the registry entry, never changes the active room, with the same entry shape and absolute-path handling as `create` (scripts/room-registry:459-478: an absolute path is kept as given; a Windows drive path only on msys or cygwin), and no scaffold step. `/mos:rooms adopt <path>` calls it.
-- Slug rule: the folder basename, lowercased; every run of characters outside `[a-z0-9-]` becomes `-`; leading and trailing `-` removed; at most 64 characters; `--slug <s>` overrides. No automatic suffix.
-- Typed refusals (literal reasons, exit 3, nothing written): `path_not_absolute`; `not_a_room` (no `.mindrian/room.db`); `no_room_root` (no `.room-root`); `already_registered` (the realpath equals a registered path); `slug_taken`; `hookless_place` (from `/mos:rooms adopt` when `MINDRIAN_LAUNCHER` is set or no shell runs).
-- The registry-leak guard of `create` (`_registry_leak_guard`, :458) runs before any write.
-- HITL F.1 (one yes after a shown summary: slug, path, "registered in place, nothing moved"), declared in commands/rooms.md frontmatter; born wired.
-- Files: scripts/room-registry (`register`), commands/rooms.md (argument-hint gains `adopt`, a subcommand section), skills/rooms mirror.
+A missing registry does not block a birth; the birth creates it.
 
-### 3.3 Receipts and idempotency (G3) [GB3, GB7, R2M6, R2M13]
+Texts (one place, session-room.cjs) [R4M8]:
+- Folder with room.db and `.room-root`, not registered (`message`): "This room is not in your room list yet. Register it with /mos:rooms adopt <path>, then retry."
+- Folder without room.db (`message`): "This folder is not a room yet. Create a room with /mos:rooms new, or point to an existing room."
+- `route_back` (no registered room reachable here): "This place has no MindrianOS room. Open the Code tab in Claude Desktop on the computer that holds your rooms (Local), or use Claude Code there. Framework cards from Theo still work here: ask Larry about any method."
+- On a hookless place both texts add: "Adopting or creating a room needs the Code tab or Claude Code."
 
-Writers with a receipt: artifact_file (views.cjs:537), claim_write (claim.cjs:97), memory_event (graph.cjs:260), graph_write (graph.cjs:217), gate_answer approve (gate.cjs:1612), room_create approve (receipt extended, startup-operations.cjs:85-86). Others are DEGRADED in the doctor.
+### 3.2a `room-registry register` and `/mos:rooms adopt` (OR-5, OR-11)
 
-Receipt: `{room_id, room_slug, host_hash, cloud_session, read_back, file: {path (relative to the room), sha256, bytes} | null, rows: [{table, id}], change_observed: {epoch, from_seq, through_seq}, idempotency: {key_kind, key, replayed}, reason?}`.
-- `file.sha256` hashes the bytes read back after `injectArtifactId` (views.cjs:287-292).
-- `rows`: one generic `readBackRows(db, expect)` behind navigation.cjs, extracted from file-evidence-readback.cjs:118-148.
-- `change_observed`: `readChangeLogMeta` (navigation.cjs:681) before and after; named "observed" because it can include 367 runner rows [DC2-N7].
-- `host_hash` and `cloud_session` let a reader see which computer wrote it; a VM write is already refused by 3.2 when SP3 gives a marker, and GM4 stays conditional on SP3 [R2M13].
+New subcommand `scripts/room-registry register <slug> <absolute path>`: writes only the central registry entry (same shape and absolute-path handling as `create`, :459-478), status `active-registered` is not used; the entry gets the registry's normal `status: "parked"` value so the active room does not change (GUESS on the status name: the planner reads the registry schema at :502-511 and uses the existing non-active value) [CD4-N10]. No scaffold, no activation. The leak guard `_registry_leak_guard` (:235-274, :458) runs first; it refuses temp roots, so fixtures set `MINDRIAN_ALLOW_TMP_ROOM=1` [CD4-N10].
+- Slug: folder basename, lowercased, runs outside `[a-z0-9-]` become `-`, trimmed, at most 64 characters; `--slug` overrides.
+- Typed refusals (exit 3, nothing written): `path_not_absolute`; `not_a_room` (no `.mindrian/room.db`; message: the "not a room yet" text of 3.2); `no_room_root`; `already_registered`; `slug_taken`. `hookless_place` is not an adopt refusal: adopt runs in a shell; the hookless text lives in the server refusal of 3.2 [R4M8].
+- `/mos:rooms adopt <path>`: shows slug, path and "registered in place, nothing moved", one yes (F.1 declared), then calls `register`. Born wired.
 
-One idempotency rule per writer (reuse first, Part 7):
+### 3.2b Unregistered-room finder (OR-11)
 
-| Writer | Key | Existing or new |
-|---|---|---|
-| memory_event | `dedupe_key`, 60 s (graph.cjs:269-270) | existing; receipt reports `window_s: 60` |
-| claim_write | node id `CLAIM_NODE_ID(sessionId, segment or text)` (typed-claim.cjs:114-121, :217-219) | existing; receipt reports `key_scope: session`. On P4 the session is the stdio process key, so a retry after a Desktop restart can duplicate (R18; SP2 leg) [R3M15] |
-| gate_answer approve, room_create approve | `gate_id` replay (`_lookupAnswerAnchor`, `_answerWithoutLiveGate`, gate.cjs:657-718) [CD3-N5] | existing; receipt reports `replayed` |
-| graph_write | the natural key (source, target, type): `writeEdge` upserts ON CONFLICT(source, target, type) (lib/core/navigation/edges.cjs:1104-1116), so a retry writes one row [R3M13] | existing; receipt reports it |
-| artifact_file | `client_write_id` (new optional string, 1 to 64 chars) | new |
+OR-11 makes existing unregistered CLI rooms refuse writes. The fix path:
+- Doctor module `lib/core/doctor/unregistered-rooms-module.cjs`. check(): lists candidate rooms that are not in the central registry: (a) the cwd room (`.room-root` walk-up), (b) rooms in workspace registries `<path>/.rooms/registry.json` reachable from the session binding files under `<rooms home>/.rooms/sessions/`, (c) folders with `.room-root` and `.mindrian/room.db` directly under the rooms home, (d) the `MINDRIAN_ROOM` pin. Each row: path, why found, suggested slug. fix(): an F.8 basket (choose several) of `register` calls; nothing runs without the person's choice.
+- SessionStart notice (CLI and Code tab): when the cwd room is unregistered, one line in the session-start context: "This room is not registered, so MindrianOS will not save here. Run /mos:rooms adopt <path>." (inside the coordinator's 2000-char budget, sessionstart-coordinator.cjs).
+- `/mos:doctor` lists the count; `/mos:rooms adopt` handles one.
 
-New table `write_keys` (artifact_file only), added by a new migration module in the room-db chain (lib/core/room-db.cjs requires; the schema stamp is the source hash, room-db.cjs:270-281, so the chain re-runs once per room):
-`write_keys(client_write_id TEXT PRIMARY KEY, tool TEXT NOT NULL, payload_sha256 TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('pending','done')), owner_pid INTEGER, owner_host_hash TEXT, artifact_id TEXT, receipt_json TEXT, created_at TEXT NOT NULL)`. Retention [CD3-N4]: `done` rows older than 30 days are deleted at the first write open of a day. Migration module: `lib/core/migrations/405-write-keys-and-meta.cjs`, required by lib/core/room-db.cjs and added to the `_schemaStamp` specs (room-db.cjs:285-294) [IR3-N2]; it also creates `mos_meta` (3.11).
-Payload hash [R3M2]: `payload_sha256` = sha256 of the UTF-8 JSON of the tool arguments with `client_write_id`, `room` and `_meta` removed and object keys sorted at every level (arrays keep their order; strings as given).
+Fixture migration grows (OR-11) [R4M6, CD4-M6]:
+- Slice 2a adds the rule behind a temporary switch `MINDRIAN_REGISTRY_RULE=enforce` (default off), and a discovery runner `scripts/dev/405-find-unregistered-writers.cjs` that runs every test file named by `grep -l -E 'MINDRIAN_ROOM|fallbackRoomDir|room-root|room_bind'` under tests/ with the switch on, and prints each failing file. The six shared helpers are migrated first (mcp-wire-267, harness-383, b1-358-child, b2-358-child, one-week-365-child, eureka-installed-layout-387). The shared helper is `birthFixtureRoom`, extracted from tests/helpers/isolated-home-36925.cjs:73-98 into tests/helpers/registered-room.cjs.
+- Slice 2 removes the switch: the rule is always on. No test-mode bypass remains.
+- One suite list (3.2 and section 9 agree): bash tests/run-all-267.sh, run-all-358.sh, run-all-365.sh, run-all-369.1.sh, run-all-383.sh, run-all-387.sh; every tests/test-400-3-*.cjs (14 files); tests/test-367-*.cjs; tests/test-desktop-stdio-session-binding.cjs; tests/test-room-state-no-registry-regression.cjs.
+- Other phases (program C18): a new test that writes must use tests/helpers/registered-room.cjs; the slice 2a scan test fails a writing test that does not.
 
-Stale-versus-live rule for `pending` [R3B2]: the row also stores `owner_pid INTEGER`, `owner_host_hash TEXT` and `created_at`. A `pending` row is stale when `owner_host_hash` equals this computer's `host_hash` and `ownerProcessAlive(owner_pid)` is false (lib/core/resolve-active-room.cjs:220, the existing liveness check), or when `created_at` is older than 120 s. Otherwise it is live.
+### 3.3 Receipts and idempotency (G3)
 
-Sequence for artifact_file: (1) BEGIN IMMEDIATE; select the key: `done` with the same payload hash returns the stored receipt with `replayed: true`; `done` or `pending` with a different hash returns `client_write_id_conflict`; live `pending` with the same hash returns `write_in_progress`; stale `pending` with the same hash is taken over (UPDATE owner_pid, owner_host_hash, created_at WHERE the old owner values still match) and the call resumes at step 2; absent inserts `pending`; COMMIT. (2) Write the file (outside the transaction, as today, views.cjs:284). The `artifact_id` is chosen at step 1 and stored in the pending row; a resume reuses it (the fallback id includes today's date, views.cjs:298, so it must not be recomputed) [R3M22]. (3) One BEGIN IMMEDIATE over the row writes of fileArtifact (logMemoryEvent, the claim node, linkThingToFramework; views.cjs:278-415) and the `done` update with `receipt_json`. Each writer must accept a caller's open transaction (the `db.isTransaction` check of typed-claim.cjs:231); slice 3 lists every writer on this path that does not and adds the check. (4) The index (views.cjs:588-597) runs after `done`, outside the transaction, as today; its result is added to the returned receipt, not to the stored one. A crash between steps leaves a `pending` row that becomes stale by the rule above; the next call with the same id and payload takes it over, reuses the stored `artifact_id`, and resumes at step 2 (the file write overwrites the same path, views.cjs:283-284). A crash after step 3 leaves `done`: the retry replays.
-
-Tool text: the six descriptions gain "Returns a receipt read back from disk." (39 bytes); artifact_file also gains "Pass client_write_id; if a call returns nothing, repeat it with the same id." (75 bytes). Measured byte deltas go into the tests/test-270-tool-schema-budget.cjs AFTER constant in slice 3 [R2M19]. Part 12: a receipt is shown to the person only on failure.
+Unchanged from r4.1 (receipt shape, `readBackRows`, `change_observed`, the per-writer key table, `write_keys` for artifact_file only with owner_pid, owner_host_hash, artifact_id, the canonical payload hash, the 120 s stale rule, the four-step sequence, the migration module `lib/core/migrations/405-write-keys-and-meta.cjs` in the `_schemaStamp` specs), with these r5 changes:
+- Liveness check [CD4-N2]: `ownerProcessAlive` (resolve-active-room.cjs:220) is not exported; use `isAlive(pid)` of lib/core/session-presence.cjs:68 (exported, the same check).
+- Failure in the same live process [CD4-M5]: every validation that can refuse (the checks at views.cjs:255-275, `assertRealpathContained`, the section and filename guards) runs before step 1. A typed failure in step 2 or 3 (for example `writeFileContained` throws, views.cjs:282-284) deletes the `pending` row in the same handler before it returns. So a retry in the same process proceeds.
+- Receipt and the 400.3 status words [program C19]: top-level `ok` and `partial` keep their 400.3 meaning (the file landed; an index or claim leg failed). `receipt.read_back` is a boolean about the file and the rows only. On failure the receipt carries `reason` (`read_back_mismatch`). The read-back runs after COMMIT of step 3. A replay returns the stored receipt and the stored `graph_index` with `replayed: true` [IR4-N10].
+- `client_write_id` sits on one schema (artifact_file) [CD4-N3].
 
 ### 3.4 Hook duties on P4
 
-| CLI hook duty | P4 in r3 |
-|---|---|
-| Graph catch-up | 367 wrapper as built (PA-1) |
-| Context at start | room_bind result carries the context summary from the lib/mcp/tools/context.cjs builder, called as a function (one spawn) |
-| Per-turn memory row, navigation block | CUT (no consumer) |
-| Stop close-out | stop_gate_check, pull |
-| card-before-answer | 3.5 |
-| Part 8 | 3.6 |
-| Voice, card-fire, admin, auto-explore, JTBD, derive drains | MISSING, listed by the doctor module (3.7) |
+As r4.1: graph catch-up by the 367 wrapper; context summary in the room_bind result; per-turn memory row CUT; Stop close-out by stop_gate_check. Program C17: after Phase 400.5 the per-turn navigation block is one server tool; the next-move card (3.12 C3) shows what that tool returns once it exists, else suggest_next.
 
-### 3.5 Human proof for material approvals (G6, OR-4) [R2B1]
+### 3.5 Human click proof for material approvals (G6, OR-4)
 
-Existing protection: an elicitation card refuses a relayed answer to a dismissed dialog (`card_pending`, gate.cjs:1652-1675); `answered_via` records `browser_nonce` or `mcp_relayed` (answer-route.cjs:39). r4.1 adds a third value `app_nonce` (the app-card proof) to `ANSWERED_VIA_VALUES` and to lib/core/navigation/room-projection.cjs, so the two proofs stay apart [CD3-N7].
+Kept from r4.1: attested = `browser_nonce` or `app_nonce`, or the existing elicitation equality; one predicate in two places, `isMaterialLive(live, gateId)` before gate.cjs:1724 (it needs the gate id: the Eureka opt-in is found by `EUREKA_OPTIN_GATE_PREFIX`, gate.cjs:1736) [CD4-N7] and `isMaterialSubject(live, subjectRow)` after the room.db open at gate.cjs:1795 and before `withRoomTx` [CD4-N6]; the OR-4 interim exception for ordinary approvals. Refusal text [IR4-N8]: `human_confirmation_required`, message "This choice changes your room, so it needs your click on the card. Nothing was saved; the card is still open."
 
-Rule in gate_answer approve, on a hookless place (3.0): an approve is "attested" only when `answeredVia` is `browser_nonce` or `app_nonce`, or `live.renderer === 'elicitation'` and the relayed choice equals the accepted dialog choice (the existing check). Any other renderer (`text`, `none`, `askuserquestion`; gate-render.cjs:717-721 records `none` when elicitation is declared without `elicitInput`) is not attested. An unattested approve is refused `human_confirmation_required` when its effect is material. Material, by effect, computed before any write [DC2-M5, IR2-M3, R3M1]. Literal predicate: `isMaterialApproval(live, subjectRow) = live.kind === 'material_step' || isTruthClaimPromotion(live, subjectRow) || isGoalGateRatification(live)`, where `isTruthClaimPromotion` uses the eligibility of gate.cjs:238-255 (subject type claim or opportunity, review_status proposed or needs_evidence) [IR3-N7]. `material_step` minters (one AC4.1 row each): lib/mcp/approval-gate.cjs:102, lib/mcp/never-do-gate.cjs:186, lib/mcp/room-readiness-gate.cjs:103 and :143, lib/mcp/tools/chain.cjs:589, lib/mcp/tools/research.cjs:14 (grant, deep_plan, basket), lib/mcp/eureka-capability-jobs.cjs:288, lib/mcp/startup-operations.cjs:55 (room birth). The bullets below name the same set by purpose:
-- room birth: `live.roomCreation === true` (startup-operations.cjs:55, :61; gate.cjs:1724);
-- promotion of a TRUTH_CLAIM_TYPES subject other than the gate's own decision node (transitions.cjs:47: claim, CausalClaim, assumption, decision, opportunity, SyntheticExpert): the subject paths at gate.cjs:238 (claim or opportunity) and :250 (needs_evidence), and goal-gate ratification (lib/core/strategy/goal-gate.cjs:241);
-- resume of a halted material step (`material_step`, gate.cjs:1098, :1710-1730);
-- research egress approvals (research_run grant and search-string gates) and spawn-class approvals (the Eureka pair-screen approval card).
-Everything else is "ordinary" and passes with `answered_via: mcp_relayed` (OR-4 interim). The predicate lives in lib/mcp/tools/gate.cjs and runs in two places [R3M16], because gate_answer returns early for some kinds before the room is open:
-- `isMaterialLive(live)`, before gate.cjs:1724: true for `live.roomCreation`, `live.recovery` (the recovery card, :1730-1732, `_answerRecoveryGate`), the Eureka opt-in (:1736-1738) and `live.kind === 'material_step'`. Research grants and the pair screen are `material_step` gates minted by lib/mcp/approval-gate.cjs:44, so they are covered here.
-- `isMaterialSubject(live, subjectRow)`, after the room.db open (after :1747) and before `_promoteCardSubject` (:856) and the goal gate (:894): the truth-claim promotion and goal-gate cases.
-An ordinary approve still confirms the gate's own decision node (a TRUTH_CLAIM_TYPES member, transitions.cjs:47; gate.cjs:840); that is the OR-4 interim exception, stated here [CD3-N8].
+r5 changes:
+- Enforcement keys on the marker only (3.0) [R4M5].
+- Minters (one AC4.1 row each) [CD4-N4, CD4-N5]: approval-gate.cjs:44 `mintApprovalGate` (called by research.cjs:229, :402, :436), never-do-gate.cjs:183, room-readiness-gate.cjs:103 and :140/:143, the recovery card (session-room.cjs:333-357), chain.cjs:589, tools/eureka-capability-jobs.cjs:321, startup-operations.cjs:55, tool-router.cjs:1882, sensors.cjs:737, canon-release.cjs:286.
+- One render path [CD4-M4]: on a hookless place a material card is always shown by gate_render. gate_render is extended to show an already minted gate by id without a bound room (needed for first-room birth). Every minting tool above returns, on a hookless place, `next: "call gate_render with gate_id <id>"` and the gate id, not the card view. Only the gate_render result carries the nonce, in `_meta` under `mindrian/app_nonce`. gate_render already declares the decision view (gate.cjs:1415), so no other tool's registration or wire snapshot changes.
+- `app_nonce` consumers [CD4-M3]: room-birth.cjs:1363 (store `app_nonce`, not `mcp_relayed`), answer-route.cjs:110-113 `confirmReason` (used at gate.cjs:257, :842, :903), cause-effect.cjs:33-37; plus ANSWERED_VIA_VALUES and room-projection.cjs.
+- Store `lib/mcp/app-nonce-store.cjs`; request key: the app returns the nonce in `tools/call` `_meta` under `mindrian/app_nonce`; `extra` reaches the check because gate_answer reads `extra._meta` (as `routeOf` does today) [IR4-N9]. `appRouteOf(gateId, meta)` beside `routeOf` (unchanged). Order at gate.cjs:1630: `browser_nonce`, `app_nonce`, `mcp_relayed`.
+- If SP6 = B (no app render, or the model can read result `_meta`): the refusal stays; slice 11 and any recipe halt in chat return to the owner (program C10, E8).
 
-Target route (OR-4): the existing MCP App decision card with a click proof (B3.2). Reuse [R3M18]: lib/mcp/gate-app.cjs already registers `ui://mindrian-os/decision/v1.html` (decision.html) and attaches it to gate_render (gate.cjs:1415), gate_answer (:1615) and chain_run (chain.cjs:949). r4.1 extends decision.html and gate-app.cjs; no new view.
-- Mint at the shared mint [R3M17]: the nonce is minted where every card is minted (the gate-ledger mint used by `gateRender.renderGate`, which approval-gate.cjs `mintApprovalGate`, startup-operations.cjs `mintCard` :29-43 and chain_run reach), not in the gate_render handler. Every tool result that carries a minted card returns the nonce in `_meta` under `mindrian/app_nonce`: gate_render, chain_run, room_create, research_run, the Eureka tools. GUESS: the host does not show result `_meta` to the model; SP6 leg c tests it.
-- Store: `lib/mcp/app-nonce-store.cjs` (in-memory Map `gate_id -> {tag_sha256, binding_key, expires_at, used}`), single-use, 10 min TTL, binding key = `resolveEffectiveSessionId(undefined, extra)`. Restart gives `card_expired`; another binding gives `card_binding_mismatch`.
-- Check: `appRouteOf(gateId, meta)` in answer-route.cjs, separate from `routeOf` (answer-route.cjs:88-105, unchanged). At gate.cjs:1630 the answer channel becomes: `routeOf(...) === 'browser_nonce'` gives `browser_nonce`; else `appRouteOf(...)` true gives `app_nonce`; else `mcp_relayed`. The `card_pending` check (:1661) treats `app_nonce` like `browser_nonce`.
-- When this lands (SP6 = A), on a hookless place every material card renders through the decision app card.
+### 3.6 Part 8 and Theo in chat (G4)
 
-### 3.6 Part 8 and Theo in chat (G4) [R2M2, R2M3, DC2-N8]
+As r4.1 (THEO line 150 bytes, served 1999 bytes; pins re-based; shim only in the fallback), plus:
+- OR-13 and program C8: a recipe in the chat takes its steps from theo-context (`framework_steps`, `framework_walkthrough`) with generic handles only; the guarded mindrian-brain route stays for the CLI and the Code tab. The step tool home for 404 in the chat is the mindrian-os server (the framework player of 3.12), which shows Theo's steps and files through artifact_file; it does not call theo-mcp, so a one-click extension gets no route to the guarded Brain (program C7, decision 1 kept).
+- Instructions budget [program C14]: 1 byte remains after slice 7. No other phase may add to the instructions; component rules live in tool descriptions and the view.
 
-- OR-7 and OR-8: theo-context is the chat method route, shipped in the plugin key-free (3.10). Part 8 binds: no room content to any Theo server.
-- Chat Brain route decided [R2M2]: option (c). In chat the method route is theo-context. The guarded mindrian-brain shim runs where it runs today (CLI, local Code tab) and in the config fallback only. The shim ACs (lexicon union, sanitize) move to slice 5b and are built only with the fallback. If SP7 shows one manifest can hold two servers, the shim may ride in the extension (SP7 two-server leg, If A).
-- Instructions THEO line, final for r3 (lib/mcp/runtime-instructions.cjs:38): "THEO: method via Theo card tools, else guarded mindrian-brain brain_*, when available; no room content to any Theo server. Never invent a Theo result." (150 bytes; keeps "when available"). LOOP line: "After filing use stop_gate_check; status_read on request." becomes "After filing use stop_gate_check.". Served length with both applied in memory: 1999 bytes (measured on 704abc5a1; budget 2000, cap 2048). BOUNDARIES byte-identical (checked). New sha256 of the THEO line: 2a39766a01b70418df84f43517722da05809d444cfd56ff723cb492aabe04b8a.
-- Pins that move with it [R2B3]: tests/test-359-prose-budget.cjs:88 `MCP_THEO` re-based with a dated comment citing OR-7 (check B5 :230-233); data/harness-policies/contract-parity-larry.json:46 phrase replaced; the header comment of runtime-instructions.cjs:25-27 ("exactly 2000 bytes") updated to 1999; harness manifest regenerated (data/harness-manifest.json). tests/test-3696-operation-doctrine.cjs:327 needs no change (the "Instructions returned are not execution" sentence stays).
-- If the merged chat does not forward server instructions (SP6 canary leg = B) [R2M3]: the sentence "No room content to any Theo server." goes into the room_bind result text and the room_list description (36 bytes).
-- Residual R4: Part 8 in chat holds by text (OR-7 accepted trade).
+### 3.7 Chat install path (G5, OR-6, OR-12)
 
-### 3.7 Chat install path (G5, OR-6)
-
-#### 3.7a The `.mcpb` extension (primary)
-
-- Entry point: `scripts/mcpb-entry.cjs` sets `MINDRIAN_LAUNCHER=mcpb` and requires `scripts/mindrian-mcp-server.cjs` [R2B5]. The collision guard and the heartbeat key on this marker only; the CLI plugin server (no marker) is unchanged.
-- Dependency self-heal [R3M19]: the server runs `ensureDepsPresent` at module scope before any require (mindrian-mcp-server.cjs:89-114), checking every package.json dependency (mcp-dep-heal.cjs:502-514, :548-553), and starts a detached npm install when one is missing. With the marker, the heal never installs: a missing package serves the install responder with the typed reason `extension_payload_incomplete`. Because `next`, `react` and `react-dom` are removed from the payload, the heal's name list on a marked process is the payload set, not package.json (written into the extension at build time as `mcpb-deps.json`).
-- Payload [R2B2]: the full `mos-desktop` payload (the Step 6.8 copy), with nothing extra dropped, because the server reads `commands/*.md` (tool-router.cjs:749-767, :1918), `agents/` (review-contract.cjs:173-180), `skills/ui-system/...css` (app-views.cjs:46, lib/ui/design-system.cjs:10) and `references/` at run time, and a miss there is silent. Plus `node_modules` and `scripts/mcpb-entry.cjs`. A slice 5a test scans the server's require graph and its `path.join(<root>, '<folder>'...)` reads and fails if a read folder is missing from the payload.
-- Bundled dependencies [R3B4, IR3-N6]: two separate `npm ci` runs. (a) The payload: in the staging directory of the extension, `npm ci --ignore-scripts --omit=dev --no-bin-links` from the root `npm-shrinkwrap.json`, then remove `next`, `react`, `react-dom` and every package reachable only from them, then the Step 6.7 reachability prune. These three serve only the UI shell that the Desktop copy already drops (`lib/ui-shell/dist`, build-desktop-artifact.cjs:94; scripts/build-ui-shell.cjs:89 lists them as the shell's runtime packages); the AC5a.3 scan proves no kept file requires them. A rough count from the shrinkwrap gives 121 of 146 packages left (flat approximation, GUESS on hoisting). (b) The pack tool: in `tools/mcpb/`, `npm ci` from its own lockfile.
-- Native module [R2M14, R3M11]: `sqlite-vec` 0.1.9 loads its library through `getLoadablePath()` (lib/core/semantic-index/vector-store.cjs:122-127) from a per-OS optional package. The shrinkwrap pins `sqlite-vec-darwin-arm64`, `sqlite-vec-darwin-x64` and `sqlite-vec-windows-x64`, each 0.1.9 (npm-shrinkwrap.json `packages` entries with `os` and `cpu`). The build fetches each with `npm pack <name>@0.1.9` into a temp folder, checks the tarball against the shrinkwrap `integrity` value, and extracts it into `node_modules/<name>/` of the staging tree. The three shrinkwrap entries (npm-shrinkwrap.json:1629-1702) give the tarball URLs and integrity hashes; the build fetches by those entries [CD3-N9]. The vector leg loads or degrades through the existing fallback `cjs-fallback` (lib/core/doctor/class-s-eureka-smoke.cjs:209), not a new reason.
-- Payload check [R2B4, R3B4]: a separate `checkMcpbPayload` in scripts/release-lib/build-mcpb.cjs. It allows `@scope` segments, refuses symlinks and `.bin`. Numeric gates, measured in slice 5a first (CD3-N11) and then against SP7's real extension limits: at most 4,500 files, at most 180 MB unpacked, at most 60 MB packed, deflate ratio at most 50:1 per file (GUESS: the first two copy the plugin gates of build-desktop-artifact.cjs; the packed figure is a target). SP7 size leg: If B (a gate cannot be met, or the installer limit is lower) goes to the owner with the measured numbers; the bundling route of SP7 (single-file JS bundle) is the recommended answer.
-- Manifest (mcpb spec, S): `server.mcp_config.command: node`, `server.mcp_config.args: ["${__dirname}/scripts/mcpb-entry.cjs"]` (UNVERIFIED against the spec, CD3-N10), `name: mindrian-os`, `display_name: Larry | MindrianOS`, `version` = release version, `server.type: node`, `entry_point: scripts/mcpb-entry.cjs`, `mcp_config.env: {MINDRIAN_MCP_FIRST: "desktop", MINDRIAN_LAUNCHER: "mcpb", MINDRIAN_ROOMS_HOME: "${user_config.rooms_home}"}` [IR2-N9], `compatibility.runtimes.node: ">=22.18.0"`, `user_config.rooms_home` (default `${HOME}/MindrianRooms`). If `user_config.rooms_home` differs from the home the registry is in, the doctor shows `rooms_home_mismatch` [DC2-N6].
-- Runtime: Desktop's built-in Node may be Electron-embedded [R2M1]. SP7 checks `require('node:sqlite')` with `timeout` honored, `process.execPath`, and the 367 detached runner (graph-catchup-spawn.cjs:140 spawns `process.execPath`) started from inside the extension. Any failure is SP7 = B, which returns to the owner (below).
-- Code-tab collision: with the marker and `CLAUDE_CODE_ENTRYPOINT` set, the server serves the install responder's one status tool only.
-- Proof: each marked start writes `~/.mindrian/desktop/heartbeat.json` `{time, ppid, parent_exe, version, launcher}` = `desktop_loaded`. The first `tools/call` on a marked process whose client is not Claude Code writes `chat_reached: {time, client}` into the same file [R2M12]. The doctor reports both.
-- Drift reporting [R2M7]: `status_read` and the `room_list` result carry `install_versions: {this_server, plugin_active, extension}` and `version_drift: true|false`. The write refusal for an older copy is the ordered schema floor of 3.11 (OR-10).
-- Signing [DC2-N4]: the artifact is signed with `mcpb sign` if the CLI supports it (S); else unsigned is a named residual (R16).
-- Doctor: `lib/core/doctor/desktop-bridge-module.cjs`, reusing `buildInitializeTransaction` (lib/core/doctor/mcp-surface-module.cjs:98) and `listToolsOverStdio` (:130) [IR2-N2]. States: `extension_missing`, `extension_version_drift`, `config_present_never_loaded`, `loaded_never_reached_by_chat`, `server_start_timeout`, `rooms_home_mismatch`, `theo_context_unreachable` (3.10), plus the fallback states. Lists the P4 MISSING duties. Registered in data/doctor-modules.json; documented in commands/doctor.md.
-- `/mos:setup` [IR2-N8]: the Desktop (stdio) branch (commands/setup.md:68-83, which writes a `mindrian-os` config entry with a `MINDRIAN_ROOM` pin) is replaced by "install the extension" text plus the extension link. The pin route is removed (it would be refused under OR-5).
-
-SP7 = B (the extension is not reached, or its runtime fails the sqlite or spawn legs) [R2M8]: the build of 3.7a stops; the result goes to the owner as NEEDS_HUMAN with the evidence: "The one-click extension cannot run MindrianOS safely on Desktop's built-in runtime. Keep the extension with a system-Node requirement (not one click), or use the config route?" No design line changes the OR-6 artifact without that answer.
-
-#### 3.7b The config route (fallback; built only after the SP7 = B owner answer chooses it)
-
-Unchanged from r2 (405-DESIGN-r2.md 3.7b): `/mos:setup desktop`, entries `mindrian-os-bridge` and `mindrian-brain-bridge` with `MINDRIAN_LAUNCHER=bridge`, dispatch shims registered in data/deployment-surfaces.json, per-OS paths, WSL refusal, heartbeat, fallback doctor states `config_missing`, `entry_missing`, `launcher_unresolved`, `version_drift`. The shim changes of 3.6 ride with it.
+3.7a as r4.1 with these r5 changes:
+- Output folder [program C15]: the build writes to `$HOME/.mindrian/release-out/<v>/mindrian-os-<v>.mcpb` and `mindrian-os.mcpb`, outside the repo. `dist/` stays a tracked generated tree; no `.gitignore` change.
+- Pack tool [R4M3]: the official `@anthropic-ai/mcpb` CLI (S: modelcontextprotocol/mcpb README), version pinned on the day slice 0 is planned (`npm view @anthropic-ai/mcpb version`, recorded in 405-SPIKES.md), installed in `.planning/spikes/405-desktop/pack/` for slice 0 and in `tools/mcpb/` (own lockfile) for slice 5a. Manifest fields: `manifest_version` as the pinned CLI's `init` writes it; `user_config.rooms_home: {type: directory, title: "Rooms folder", default: "${HOME}/MindrianRooms"}` [IR4-N11]. Field names UNVERIFIED until the pinned CLI's `validate` runs in slice 0.
+- Payload [CD4-N9]: `ajv` stays (build-ui-shell.cjs:89 lists it, but the server uses it too; the AC5a.3 scan decides); the shrinkwrap holds six sqlite-vec entries (darwin-arm64, darwin-x64, linux-arm64, linux-x64, windows-x64, plus the root); the extension bundles darwin-arm64, darwin-x64 and windows-x64; the degrade path is `cjs-fallback` (class-s-eureka-smoke.cjs:196).
+- Numeric gates [R4M4]: set from the slice 0 offline measurement (6, task 0.1): gate = measured value plus 25 percent, capped at 4,500 files and 180 MB unpacked; the packed size is recorded, not gated, until SP7 finds the installer limit.
+- Signing [IR4-M10]: unsigned in 405. R16 stands. No signing step, no certificate.
+- Download host [IR4-M11]: the plugin repository is public (gh repo view, 2026-11-27, coordinator fact), so the release-asset tag URL of AC9.4 works for users; the r4.1 GUESS is closed.
+- Dependency heal path: lib/core/mcp-dep-heal.cjs [CD4-N8].
+- 3.7b (config fallback) unchanged: built only after an SP7 = B owner answer.
 
 ### 3.8 Bridge threat model
 
-Assets: room files, room.db, the rooms home and registry, `~/.mindrian/desktop/*`, the `.mcpb` artifact.
-Actors: the cloud model; injected content in the cloud context; a linked web or mobile session; a local process in the user's home; a forged extension file [DC2-N4].
+As r4.1, with: Path-choosing row: room_create on P4 follows the birth table of 3.2. Process-spawning row, one Eureka rule [program C4]: Eureka engine start and `/mos:eureka enable` need a local Claude Code session; on a marked process both refuse `local_session_required`; a chat-only user sees the reason and the Code-tab route. Install files row: unsigned extension (R16).
 
-| Tool class on P4 | Examples | Default in r3 | Residual |
-|---|---|---|---|
-| Read | room_list, graph_query, context_assemble, room_artifact | registered rooms only (3.2) | injected text can pull room content into the cloud context |
-| Governed write | the six of 3.3, others | registered room only; receipt; idempotency (3.3) | an injected call can write into a registered room; receipts disclose |
-| Path-choosing | room_create | material approval needs a click proof (3.5); destination under the rooms home | first-room birth fence depends on SP3 (R2) |
-| Process-spawning | Eureka engine, research_run deep, the 367 runner | Eureka engine starts on a hookless place are refused `local_session_required`, except through an attested pair-screen approval (3.5) [R2M10]; research_run deep refused off Claude Code (today); the runner takes no MCP path argument | none new |
-| Network | research_run quick, theo-context, brain_* (fallback only) | research egress approvals are material (3.5); theo-context by text (3.6) | R4 |
-| Install files | `mindrian-os.mcpb`, heartbeat, host-salt | signed if the CLI supports it; heartbeat and salt mode 0600 | R16 unsigned extension |
+### 3.9 Per-conversation binding on a shared process
 
-### 3.9 Per-conversation binding on a shared process [R2M17]
-
-Decided by SP4, run on the extension, not on a config server [IR2-M4]:
-- One process for all P4 conversations: each tool whose handler calls `resolveMcpWriteRoom` requires an optional `room` argument (slug) equal to the bound room on a marked process, else `room_mismatch`. The tools (12 call sites on main, IR2-N3; re-listed from post-367 main at plan time): chain_run (chain.cjs:983), claim_verify (claim-verify.cjs:102), claim_write (claim.cjs:132), gate_answer (gate.cjs:1172, :1747), memory_event and graph_write (graph.cjs:237, :279), question_set (question.cjs:138), research_run (research.cjs:120), room_startup (startup.cjs:28), artifact_file (views.cjs:564), the tool-router write sites (tool-router.cjs:115). Snapshot diff: one optional `room` property on each of those schemas. room_bind states "shared by every chat on this computer".
-- One process per conversation: nothing is added.
+As r4.1, decided by SP4 (now run in slice 0 on the probe extension). If SP4 = A, the `room` argument rule applies on the wrapper's 13 callers; 404 recipe writes must carry `room` (program 2d item 4).
 
 ### 3.10 Theo framework cards (G7; OR-7, OR-8)
 
-Facts: theo-context is a remote Streamable HTTP MCP server; on this dev machine ~/.claude.json has `theo-context: {type: http, url: https://theo-context.onrender.com/mcp}` with no auth header (key names read only). This account's claude.ai connector Theo-Claude exposes the same tool names (UNVERIFIED same URL; not called). The Part 8 code already lists both as Theo routes (part8-egress-guard.cjs:845-867, brain-response-sanitize.cjs:134, :245).
+As r4.1, with: the mos-desktop copy's plugin.json name is `mos` (program C6), so its tool prefix is expected to be `mcp__plugin_mos_theo-context__`; AC10.2 keeps the `mos-desktop` row only as a harmless extra; SP8 records the real prefix. In the chat the observed prefix of a bridged local server is `mcp__remote-devices__<server>__<tool>` (field evidence; S-level until SP7); the egress hooks do not run in the chat anyway (R4). The literal `pws-brain-mcp` stays in all three matchers (program C5; owner ruling 2026-11-18). Slice 10 Part 8 review [IR4-N14]: the reviewer is the slice executor plus one egm-codebase-details pass; pass rule: every theo-context tool name in data/theo-tool-classes.json is class `content` or `refused`, none `operational` by bare name.
 
-Design (answers DC2-M4: install, entitlement, check, render):
-1. Ship it (OR-8, key-free now): plugin `.mcp.json` gains `"theo-context": {"type": "http", "url": "https://theo-context.onrender.com/mcp"}`, no header, no `alwaysLoad`. Effect on P1 and P2: every CLI and Code-tab session opens a remote connection to theo-context (R14) [CD3-N15]. tests/test-114-mcp-alwaysload.sh and the 369.1 desktop-artifact test must stay green. The Part 8 review of slice 10 lists the theo-context tool names against data/theo-tool-classes.json so no tool is classed operational by its bare name alone [CD3-N14]. The `mos-desktop` copy carries the same file. The install-time entitlement is unchanged (OR-8).
-2. Where the plugin route does not reach (SP8 = B, or no plugin): a claude.ai custom connector with the same URL. The step text (room_list description, 173 bytes, measured) is: "If no Theo framework card tools are connected, tell the person once how to add them: Settings > Connectors > Add custom connector, URL https://theo-context.onrender.com/mcp." The same text is in `/mos:setup` and the extension onboarding [IR3-N3].
-3. Routing rule: the THEO line of 3.6. A method question = which framework, its steps, a walkthrough, a lens or a play. Arguments are generic handles only.
-4. Part 8 matchers [R3M5]: the plugin prefix `(?:plugin_[A-Za-z0-9_-]+_)?` today covers only mindrian-brain and pws-brain-mcp (hooks/hooks.json:208, :332), and the same string is mirrored as `BRAIN_SHAPED_TOOL_MATCHER` (lib/core/brain-response-sanitize.cjs:151). New literal for all three places: `mcp__(?:(?:plugin_[A-Za-z0-9_-]+_)?(?:mindrian-brain|pws-brain-mcp|[Tt]heo-context)__.*|[Tt]heo__.*|[Tt]heo-context__.*|claude_ai_[Tt]heo[A-Za-z0-9_-]*__.*|claude_ai_PWS_[Bb]rain__.*|[A-Za-z0-9_-]+__brain_[a-z0-9_]+)`. Checked with node: it matches `mcp__theo-context__framework_walkthrough`, `mcp__plugin_mos_theo-context__framework_steps`, `mcp__plugin_mos-desktop_theo-context__x`, `mcp__plugin_mos_mindrian-brain__brain_ask`, `mcp__claude_ai_Theo-Claude__x`, and not `mcp__plugin_mos_mindrian-os__room_list`. Pinned files that move with it: tests/test-260906-gr1-brain-shaped-tool-gate.cjs, tests/test-396-theo-route-matrix.cjs, tests/test-396-bypass-5-theo-tool-arms.cjs, scripts/part8-egress-guard-hook.test.cjs, tests/test-brain-response-sanitize.cjs, tests/fixtures/392-part8-replay/route-matrix.json.
-5. No-room places: the route_back text of 3.2 ends with the cards sentence.
-6. Check [R3M6]: a new doctor module `lib/core/doctor/theo-context-module.cjs` (independent of slice 5a) prints `theo-context reachable: yes | no (<reason>)` from an initialize-only probe (5 s) that reuses the HTTP MCP initialize of lib/core/brain-client.cjs:260-300 [CD3-N13] and `configured: plugin | user | none`; `status_read.theo_cards.configured_in_plugin`. Render: SP8 records a card rendering in the merged chat and the Code tab.
+### 3.11 Ordered schema floor (G8, OR-10) [R4M9, CD4-M2]
 
-### 3.11 Ordered schema floor (G8, OR-10) [R2M7]
+- Table `mos_meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)`, key `writer_version_max` (semver with prerelease order, `semver` package).
+- MCP writers: the floor is checked in `authorizeMcpWriteRoom` (3.2) through the read-only door (`navigation.openRoomDbReadOnlyForCaller`), before any writer opens room.db. Refusal `room_schema_newer` with the update line. A successful authorize raises `writer_version_max` when this version is higher (one UPSERT through navigation.cjs).
+- Hook and script writers: the floor is checked by a helper `assertWriteFloor(roomDir)` in lib/core/room-db.cjs, called at the named hook write sites: scripts/graph-catchup.cjs (367 runner), scripts/post-write, scripts/on-stop (STATE persist), scripts/gsd-graph-derive-drain.cjs, scripts/memory-artifact-graph-hook.cjs, scripts/gsd-artifact-graph-hook.cjs. A hook that meets the floor skips its write and logs one stderr line; it never fails. The other direct `openRoomDb` callers (about 155 sites in 77 files) are a named residual (R20), listed by the slice 3 plan from a grep.
+- Migration chain [R4M9]: `openRoomDb` (room-db.cjs:311) reads `mos_meta.writer_version_max` before the chain (:371-381) when the table exists; if it is higher than this version, the open skips the chain and the stamp (no ping-pong of `user_version`). Opening is still allowed (reads work). The folder creation at :330 is unchanged.
+- Error type: `RoomSchemaNewerError` with `code: 'room_schema_newer'`, thrown by `assertWriteFloor`, mapped to the typed refusal in the MCP layer.
 
-Why: the room-db schema stamp is a source hash (room-db.cjs:270-281), not an ordered version, so two copies of different versions re-run each other's migrations and nothing stops an older copy writing a room a newer one shaped.
-- Table `mos_meta(key TEXT PRIMARY KEY, value TEXT NOT NULL)`, created by the migration of 3.3. Key `writer_version_max` holds the highest plugin version that opened the room for write (plugin.json `version`, semver with prerelease order, compared with the `semver` package already in package.json).
-- Check in one place: the write-open path of lib/core/room-db.cjs (`openRoomDb` when the caller opens for write; `navigation.openRoomDbForCaller` with `probeWrite` reaches it). If this copy's version is lower than `writer_version_max`, the open for write returns the typed reason `room_schema_newer` and no write happens; a read-only open is never refused. After a successful write open, `writer_version_max` is raised to this version when higher.
-- Update line (one string): "This room was saved by a newer MindrianOS (<writer_version_max>). Update this copy (<this version>) to save here; reading still works."
-- Hooks: a CLI hook that meets `room_schema_newer` skips its write and logs one stderr line; it never fails the hook.
-- A room with no `mos_meta` row (older rooms) is not refused; the first write sets the row.
+### 3.12 Chat components (G9; OR-13, OR-17 to OR-22)
+
+#### 3.12.1 Technology and host neutrality (OR-18, OR-22)
+
+MCP Apps (SEP-1865, `ui://` resources, `_meta.ui.resourceUri`) on the one MindrianOS server, built once, in the repo pattern of .claude/skills/mindrian-mcp-app/SKILL.md (plain HTML in lib/mcp/app-html/, `loadTemplate`, two-function registration, CSP inside the resource `_meta`, bundled fonts, Larry identity header). The host list (Claude web and Desktop, ChatGPT, VS Code Copilot, CopilotKit through MCPAppsMiddleware) is S only; the Desktop chat render is checked by SP6. No CopilotKit dependency in the plugin.
+
+Host-neutral rules (OR-22), checked by tests/test-405-card-text.cjs and a grep test:
+- H1 A view calls only the ext-apps client API; a host-specific call (for example a Claude-only bridge call) is allowed only behind a feature check with a working fallback.
+- H2 A card makes sense without any Claude plugin skill: every word the card needs is in the tool result or the view.
+- H3 Every component has a plain-text fallback: the tool result `content[0].text` is a complete answer on its own (the repo's `textResponse` pattern), so a host without MCP Apps still gets a useful reply.
+
+#### 3.12.2 One interaction contract: the Shape F family (OR-21; owner answer "the mindrian f-shapes can help": yes)
+
+The contract module already exists. Each renderer in lib/hmi returns one object `{zones: {header, body, signals, footer}, contract: {shape, keyboard, verbs, mode, recommended, ...}}`: F.0 lib/hmi/shape-f0-renderer.cjs:38 (return :56; exactly 3 verbs Approve, Reject with reason, Defer), F.1 shape-f1-renderer.cjs:134 (return :187-205; open vocabulary next move, `standingOptions`), F.2 shape-f2-renderer.cjs:78 (return :111; path control), F.3 shape-f3-renderer.cjs:35 (return :45; closed depth list Shallow, Medium, Deep, Extreme, Back), F.4 shape-f4-renderer.cjs:41 (return :51; insight extraction: Key insights, +contradictions, +actions, Create artifact draft, Back), F.5 shape-f5-renderer.cjs:98 (return :133; branch resolution), F.8 shape-f8-renderer.cjs:69 (return :117; multi-select with `multiSelect`), F.9 shape-f9-renderer.cjs:107 (ordered cascade). The dispatcher picks the renderer by shape: lib/hmi/selector-dispatcher.cjs:771-893. Capture files exist for F.1, F.3, F.4, F.8, F.9 (lib/hmi/f1-pick-capture-cli.cjs and the others); parity tests exist for F.3 and F.4 (lib/hmi/shape-f3-parity.test.cjs, shape-f4-parity.test.cjs).
+
+Declared shapes (coordinator count from disk, 2026-11-27): F.0 36, F.1 77, F.2 2, F.3 4, F.5 4, F.8 69, F.9 18 invocable surfaces.
+
+One data contract, three renderers: (1) terminal text (`zones`), (2) the AskUserQuestion card (`contract.verbs`, `recommended`), (3) the MCP App view (new in 405). The chat components are not new card designs; they are the MCP App renderer of these objects.
+
+What the declared `hitl_shape` gives the chat for free: which renderer to use, the closed vocabularies (F.0, F.3, F.4), the verb list and the recommended verb, select mode (F.8 multi, F.9 ordered), and the HITL reason (`hitl_why`). What is missing for the chat: (a) a step-progress model (step n of N, done and current) for the framework player; (b) a stable option id per verb for click answers (verbs are labels today, GUESS; the decision card uses option ids from gate-render.cjs); (c) a definition field for F3 of the Feynman rules. 405 adds these as optional contract fields: `contract.progress: {step, of, title}`, `contract.verb_ids`, `zones.defs: [{term, plain}]`. They are additive, so the terminal and AskUserQuestion renderers ignore them.
+
+Ownership (OR-21): 405 owns the MCP App renderer of the contract and the three optional fields. Phase 404 owns recipes emitting shapes, and any CLI rendering change that follows from recipes (CLI changes are 404 scope; 405 does not redesign the CLI rendering). The hats and persona phases (399, 400, 400.2) own their own shape emitters, on the same contract.
+
+Gate cards and the contract: gate_render builds its card in lib/mcp/gate-render.cjs (options with ids, ranks, previews) and decision.html reads `card.selectMode` and `card.options` (decision.html:101-127). Whether gate cards are built from the lib/hmi renderer objects is UNVERIFIED; slice 12 reads both and adds one adapter `shapeToAppCard(rendered)` in lib/mcp/shape-app-adapter.cjs if they differ, so the view reads one shape.
+
+Parity AC (OR-21): tests/test-405-shape-parity.cjs renders one fixture object per shape (F.0, F.1, F.3, F.4, F.8, F.9) through the terminal renderer, the AskUserQuestion contract and the MCP App adapter, and asserts the same options in the same order, the same labels and the same recommended choice (the model of shape-f3-parity.test.cjs).
+
+#### 3.12.3 The three components (OR-20 order: job, then Feynman, then research rules)
+
+| | C1 Decision card | C2 Framework player | C3 Next-move card |
+|---|---|---|---|
+| Shapes | F.0, F.8, F.9 and the gate kinds | a step view; controls F.2 (path), F.3 (depth), F.5 (branch); end F.4 (insight extraction) | F.1 |
+| Job statement (person's words) | "When my work reaches a real choice between options, I want to see the options with their descriptions, ranks and previews on one card, so I can choose with the trade-offs in view." (data/mcp-tool-job-sentences.json:233-238, gate_render, status provisional) | "When I have chosen a thinking method or a sequence of them, I want to get the step plan and halt at any step that would change my work, so I can approve each material step before it runs." (data/mcp-tool-job-sentences.json:215-220, framework_run, provisional) | "When I finish a piece of work and am not sure what comes next, I want to get one suggested next move for my room, so I can keep momentum without guessing." (data/mcp-tool-job-sentences.json:365-370, suggest_next, provisional) |
+| The one question the card answers for a person who does not know the method | "What am I choosing between, and what happens if I pick each one?" | "What do I do in this step, and why does it matter?" | "What is the one useful thing to do now?" |
+| Left out on purpose | the method name as a heading, scores and grades (Part 12), ranks shown as numbers, more than 3 options on F.1-style choices (MAX_K 3) | the full method, later steps' detail, Theo source metadata, other frameworks | the reasoning trail, the candidate list beyond 2 alternates, any room data the move does not need |
+| Tool and view | gate_render, gate_answer, chain_run; `decision/v2.html` (extends decision.html, gate-app.cjs) | new render-only tool `framework_play`; `framework-player/v1.html` | suggest_next (sensors.cjs:466) gains `_meta`; `next-move/v1.html` |
+| Foundation or end slice | foundation (slices 4b, 12) | foundation slice 13 plays one framework from theo-context steps; end slice 11 runs 404 recipes through it | foundation slice 14 |
+
+C2 contract (`framework_play`): input `{framework, steps: [{n, title, prompt}] (copied from a theo-context result by the model), step, plain_line}`; renders `contract.progress`; no room write; filing is a separate artifact_file call with a receipt. Born wired, `hitl_shape: none` ("render-only; no write, no fork"). Census (PA-2): PURE_READ 7 becomes 8 ("framework_play is render-only"); test-270 tool count 76 becomes 77, measured. It is the chat step surface for 404 (program 2d item 1).
+
+C3: a click sends the move text into the chat as the person's message (ext-apps message API, SP6f); no write.
+
+Conflicts recorded (OR-20: job and Feynman win over research rules): none yet; r5.1 lists any conflict between a GENUI rule and the job or Feynman rules here.
+
+#### 3.12.4 Feynman card rule (OR-13, OR-18)
+
+Theo canon chapter "feynman" (canon_search of 2026-11-27, recorded in OR-13): SYNTHESIS "Simplicity isn't the coat of paint you put on an idea once the real work is done. Simplicity is a test"; CONCEPT names the failure mode, the Curse of Knowledge. Each rule is checked by lib/mcp/card-text-rules.cjs through tests/test-405-card-text.cjs over every template string and every fixture card of C1, C2 and C3:
+
+| Rule | Testable form |
+|---|---|
+| F1 One idea per card | exactly one heading and one primary action element |
+| F2 Plain words | no term from data/card-plain-words.json `banned` (for example ICM, DIKW, LazyGraph, epistemic, ontology, node, edge) in visible text |
+| F3 A term is defined at first use | every word in `defined_terms` (for example Data Room, gate, framework) has a one-line plain definition (`zones.defs`) the first time it appears |
+| F4 Stands alone | no text refers to the chat above it ("as above", "as I said", "earlier"); the heading names the decision, framework or move |
+| F5 Short | a sentence at most 20 words; the card body at most 60 words; an option label at most 6 words |
+| F6 Say it back | a "In one sentence:" line of at most 20 words (`plain_line`) |
+| F7 No bare acronym | every all-capital token of 2 or more letters is in the glossary and expanded on the card |
+| F8 House style | hyphens only, no em dash; De Stijl tokens; Larry identity header |
+
+Theo's own step text in C2 is shown as Theo gave it, folded after 60 words ("Show the full step"); F1 to F8 apply to MindrianOS chrome and to `plain_line`. Authored Feynman steps in Theo are a Theo-side follow-up.
+
+#### 3.12.5 GENUI rules (to fold in from 405-GENUI-RESEARCH.md, OR-19)
+
+The file did not exist when r5 was written. r5.1 adds each rule with its source, marks every rule with only a secondary source UNVERIFIED until SP6, and records any conflict with 3.12.3 or 3.12.4 (OR-20).
+
+| GENUI rule id | Rule | Applies to | Source | Status |
+|---|---|---|---|---|
+| G-1 to G-15 | placeholder | C1, C2, C3 | 405-GENUI-RESEARCH.md | to fold in (r5.1) |
+
+### 3.13 Contracts to other phases (program 2d)
+
+What 405 gives 404: (1) step surface in chat = `framework_play` on the mindrian-os server (3.12 C2); (2) the receipt shape of 3.3 with the 400.3 `ok` and `partial` rule; (3) `isMaterialLive`/`isMaterialSubject` with a `material_step` row for a recipe halt, and SP6 = B returns the chat recipe gate to the owner; (4) the `room` rule of 3.9 if SP4 = A; (5) typed refusals passed through unchanged: `no_local_room_here`, `human_confirmation_required`, `local_session_required`, `room_schema_newer`, `write_in_progress`; (6) `fingerprint.launcher` for the no-agent path; (7) the Theo route rule of 3.6.
+What 405 needs from 402: the served instructions (1,999 bytes) and the six receipt writers, the three component tools and the instruction-named tools stay loaded up front (program C3); the marked extension's tool list is the same on every machine (C4); hook rows :208 and :332 stay in place.
+What 405 needs from 400.5: the name and class of its new tool (census, count pin, hot set, extension payload); its hook targets the plugin server, never a marked process.
 
 ## 4. Answers to the three hats questions
 
-1. On P4 the room server runs on the user's computer, spawned by Desktop from the `.mcpb` extension (SP7 confirms; the config route is field-observed, A1 and A2). A write proves itself with the receipt of 3.3 (fresh read of file and rows, host hash, observed change range) and a retry rule per writer.
-2. The governed tool call triggers the 367 detached runner (PA-1, as built); 405 adds no wrapper duty. SP7 checks the runner spawn from inside the extension.
-3. A no-room place refuses every write, bind and birth outside the registry with a route back that ends with "Framework cards from Theo still work here", and theo-context serves the method. OR-6 adds a third artifact, kept in the release lockstep (slice 9).
+1. On P4 the room server runs on the user's computer from the `.mcpb` extension (SP7 confirms). A write proves itself with the receipt of 3.3 and a retry rule per writer.
+2. The governed tool call triggers the 367 detached runner (PA-1); SP7 checks the spawn from inside the extension.
+3. A no-room place refuses every write, bind and birth outside the registry with a route back that ends with the Theo cards sentence; theo-context serves the method as cards.
 
 ## 5. Alternatives
 
-| Option | Verdict |
-|---|---|
-| A. claude_desktop_config.json entries via `/mos:setup desktop` | FALLBACK, only after the SP7 = B owner answer |
-| B. `.mcpb` extension | CHOSEN (OR-6) |
-| C. Remote room connector | REJECT (Part 9, infrastructure) |
-| D. Remote Control | route-back text only |
-| E. Customize plugin alone | carries skills and theo-context; no local server in chat (radar Q1) |
-| F. Explicit room per write | only if SP4 shows a shared process (3.9) |
-| G. Do nothing | REJECT (OR-2) |
-| H. CI emulated host (MCPJam, S) | optional in slice 8 |
+As r4.1. Added row: I. CopilotKit React components in the plugin: REJECT (OR-18; they render only inside an app that embeds CopilotKit).
 
-## 6. Spikes (slice 0)
+## 6. Spikes (slice 0, plannable now) [R4M1 to R4M4; OR-16]
 
-Records go to 405-SPIKES.md (raw output, verdict, design line changed). FP = answered by the slice 1 fingerprint on tester installs.
+Location: `.planning/spikes/405-desktop/` on work/405-desktop (after the rebase). The spike 012 probe is copied in, read-only, with `git show work/367-spike-kits:.planning/spikes/012-detached-runner-survival/<file>`; the copy is extended, not edited in place. Probe: `probe-server.cjs`, a stdio MCP server using the repo's pinned `@modelcontextprotocol/sdk` and `@modelcontextprotocol/ext-apps` (installed in the spike folder by `npm ci` from a small lockfile), with tools `s1_where` (hostname hash, pid, ppid, parent exe, homedir hash, platform, clientInfo, declared capabilities, env key names, `require('node:sqlite')` with `timeout` test, `process.execPath`), `s1_hold` (20 s), `s1_write` (file plus one SQLite row, sha256; seams: read-only dir, 30 s sleep after write, exit between file and row), `s1_spawn` (the 367 detached-child test), `s1_card` (a `ui://` card with a nonce in result `_meta` and an app-originated `tools/call`), and 40 dummy tools for the deferral leg (half with a deferral `_meta` mark, GUESS on the mark name, taken from 400.1-RESEARCH.md:263).
 
-| Id | Question | Cheapest test | If A then | If B then |
+Machines: the owner's Windows Desktop runs every LIVE leg now. macOS rule: Windows verdicts decide slice 0; every macOS leg stays "open until slice 5a LIVE"; no design line depends on a macOS-only result. LIVE legs are owner checkpoints: the spike executor returns NEEDS_HUMAN with exact click steps and waits. Estimate: about 2 to 3 hours of owner time in one session (OR-16), GUESS [IR4-N15, N16].
+
+Tasks in order: 0.0 rebase; 0.1 offline payload measurement (no Desktop: stage the Step 6.8 copy from `npm pack`, `npm ci --omit=dev --ignore-scripts --no-bin-links`, remove next, react, react-dom, add the three sqlite-vec packages; print files, MB unpacked, MB packed with the pinned mcpb CLI); 0.2 pin the mcpb CLI and run `mcpb init`/`validate` on the probe; 0.3 SP7; 0.4 SP4 and SP5 (on the SP7 probe extension, then the Code tab); 0.5 SP6; 0.6 SP9 (deferral); 0.7 SP1; 0.8 SP2; 0.9 SP8; 0.10 SP3 (one cloud Code session); 0.11 SP10 (optional, owner).
+
+| Id | Leg | If A | If B |
+|---|---|---|---|
+| SP7a | extension reached through the bridge (tool prefix, parent exe) | 3.7a as written | NEEDS_HUMAN: owner chooses extension with system Node, or config fallback (3.7b) |
+| SP7b | runtime: node:sqlite with timeout, process.execPath, detached spawn survives | 3.7a as written | NEEDS_HUMAN (as SP7a) |
+| SP7c | installer accepts @scope paths | as written | single-file JS bundle in tools/mcpb, sqlite-vec kept as files; re-test |
+| SP7d | size: the 0.1 payload installs | gates set from 0.1 | NEEDS_HUMAN with the numbers |
+| SP7e | two servers in one manifest | the shim may ride in the extension | shim only in 3.7b |
+| SP7f | install channel (drag, double-click, Settings) | record only, no design change | record only |
+| SP7g | local Code tab loads the extension | collision guard needed (as designed) | collision guard kept, harmless |
+| SP7h | extension child survives a Desktop quit | record only (367 recovers on the next call) | record only |
+| SP4 | one process per conversation or per app | per app: build 3.9 | per conversation: drop 3.9 |
+| SP5a | Code tab CLAUDE_CODE_ENTRYPOINT and CLAUDE_CODE_SESSION_ID | non-empty, not `cli`: 3.1 rule | `cli` or empty: no 3.1 change |
+| SP5b | hooks.json fires in the Code tab | as designed (P2 has hooks) | NEEDS_HUMAN: P2 row of 3.0 is wrong |
+| SP5c | MCP Apps render in the Code tab | record only | record only |
+| SP6a | bridged `ui://` card renders in the merged chat | slices 4b, 12 to 14 as designed | NEEDS_HUMAN: components and click proof need another route; slice 11 returns to the owner |
+| SP6b | app-originated `tools/call` carries `_meta` | as designed | NEEDS_HUMAN (as SP6a) |
+| SP6c | the model cannot read result `_meta` | as designed | NEEDS_HUMAN (as SP6a) |
+| SP6d | instructions forwarded (canary) | no tool-text copy | AC7.4 copies the Part 8 sentence |
+| SP6e | MCP prompts listed as slash commands | record only | record only |
+| SP6f | ext-apps message API from a view into the chat | C3 click sends the move | C3 shows a copyable line instead |
+| SP9 | deferral (OR-16): which tools the chat and the Code tab call without a search; does a deferral mark change it | record only for 405; feeds Phase 402 | record only |
+| SP1a | Customize plugin server bridged | doctor note | no change |
+| SP1b | plugin hooks fire in the merged chat | record only | record only |
+| SP1c | skill bash sees CLAUDE_PLUGIN_ROOT in the sandbox | reopen the skills guard (stamp-firing-block mechanism) | no change |
+| SP1d | Desktop quit mid-call | record only | record only |
+| SP2a | write lands after a lost response | 3.3 as designed | slice 3 returns to EGM (journal design) |
+| SP2b | exit between file and row | 3.3 resume as designed | slice 3 returns to EGM |
+| SP2c | claim_write retry after a Desktop restart | record only (R18) | record only |
+| SP8 | plugin remote server in chat, web, mobile; card renders; real prefix | plugin route is the default | connector step is the chat route |
+| SP3 | cloud Code session marker and disk | `cloud_session` from it | R2 stays |
+| SP10 (OR-22, owner-run, optional for the 405 verdict) | connect the server or the extension to the ChatGPT desktop chat by the route the GENUI research section 7 names; record which tools and views load | record only | record only. If ChatGPT reaches only remote servers, no remote room route is designed (Part 9, 3.8); owner item O11 for a later phase |
+
+## 7. Slices (build order, OR-9, OR-14)
+
+Order: OR-14 runs Phase 401 F1 right after the beta.95 cut, before the 405 build. 405 foundation = slices 0 to 10 and 12 to 14 (10 before 9; 12 to 14 before 9); then the overlapping parts of 401 and 402; then 404 with chat as a target; then end slice 11. Slices 4b, 5a, 5b, 6, 12 to 14 are built or dropped by spike verdicts; slice 9 releases what was built.
+
+Common gates (every code slice): as r4.1 (run-all-405.sh, connector registry, shape declaration, orchestration projection, render coverage, harness manifest and runner, doctor acceptance, instructions tests, test-270, mirror check when a command source changes, 367 census and catchup groups unchanged).
+
+| # | Slice | Depends on | Acceptance criteria (r5 changes; unchanged ACs as r4.1) | Extra gates |
 |---|---|---|---|---|
-| SP1 | Is a Customize-installed plugin server bridged; do plugin hooks fire in the merged chat; is CLAUDE_PLUGIN_ROOT set in the sandbox; Desktop quit mid-call | spike 012 probe as a Customize plugin; one hook that touches a file; one skill that prints `$CLAUDE_PLUGIN_ROOT` and `hostname`; 20 s hold, quit at 5 s | A: plugin server bridged: doctor note only (3.7a stays, OR-6) [IR2-M4] | B: not bridged: no change. Either way: if skill bash sees CLAUDE_PLUGIN_ROOT in the VM, reopen GB6 with scripts/stamp-firing-block.cjs |
-| SP2 | Bridged write: lands, lost response, kill between file and row | probe with seams (read-only dir, 30 s sleep after write, kill between file and row); quit Desktop in the sleep | A: write lands, model sees no result: 3.3 retry rule as designed | B: write does not land: slice 3 is blocked and the design returns to EGM for a journal design [IR2-M4] |
-| SP3 | Cloud Code session marker and disk | one cloud session with the plugin synced; log env and homedir | A: marker: `cloud_session` from it; birth refused on it | B: no marker: R2 stays named |
-| SP4 (FP) | One extension process per conversation or per app | two merged chats; fingerprint pid and parent | A: per app: build 3.9 | B: per conversation: drop 3.9 |
-| SP5 (FP for env) | Code tab: CLAUDE_CODE_ENTRYPOINT, CLAUDE_CODE_SESSION_ID, hooks.json, MCP Apps, does it load extensions | local Code tab: echo variables, server start line (mindrian-mcp-server.cjs:658), session-start context | A: entrypoint non-empty, not `cli`: 3.1 rule | B: `cli` or empty: no 3.1 change |
-| SP6 | App card proof: (a) bridged `ui://` renders; (b) app-originated call carries `_meta` the model cannot set; (c) the model cannot read the gate_render result `_meta`; (d) instructions canary forwarded; (e) MCP prompts listed as slash commands | probe app with a nonce in result `_meta`; ask the model to quote it; click; compare; a canary token in the instructions; list slash commands | A (a to c pass): build the app card (slice 4b); (d) pass: no tool-text copy | B: any of a to c fails: the refusal stays (OR-4 interim) and the card proof is redesigned; (d) fails: copy the Part 8 sentence into room_bind and room_list |
-| SP7 (required) | Extension: bridged (prefix, parent); runtime (`node:sqlite` with `timeout`, `process.execPath`, the 367 detached runner from inside); `@scope` paths accepted by the installer; size and file limits; two servers in one manifest; install channel; Code tab loads it; quit survival | pack the probe plus a node_modules payload as `.mcpb`; install on Windows and macOS; run the legs; read the fingerprint | A: all legs pass: 3.7a as written; 3.7b not built. Two-server leg A: the shim may ride in the extension | B: any runtime or bridge leg fails: NEEDS_HUMAN to the owner with the evidence (3.7a end) [R2M8]. `@scope` refused: single-file bundle of JS dependencies in tools/mcpb, native sqlite-vec kept as files, then re-test. Size leg B (a 3.7a gate cannot be met or the installer limit is lower): to the owner with the measured numbers [R3B4]. Two-server leg B: shim only in the fallback |
-| SP8 | Plugin `.mcp.json` remote server in the merged chat, web, mobile, cloud Code; card renders | theo-context entry in the probe plugin; method question in each place; screenshot | A: plugin route is the default | B: the claude.ai connector step is the chat route |
+| 0 | Spikes (6) | rebase | each task and leg: raw output in 405-SPIKES.md, verdict, If line applied as a dated r5.x note; 0.1 prints files, MB unpacked, MB packed | none |
+| 1 | Capability facts and fingerprint | SP5 | AC1.0 to AC1.4 as r4.1; AC1.5 the reporting arm never changes enforcement (a wire-267 fixture is not hookless) | wire snapshots unchanged |
+| 2a | Rule behind a switch and fixture migration | 367 on main | AC2a.1 the discovery runner lists failing files with the switch on; AC2a.2 after migration the runner lists none; AC2a.3 the suites of 3.2b are green with the switch on; AC2a.4 tests/test-405-fixture-helper-scan.cjs | none |
+| 2 | Rule on everywhere, wrapper, adopt, finder | 2a | AC2.1 every source on a CLI fixture and a marked fixture, per caller (13): unregistered refused with the right text of 3.2; AC2.2 registered writes on every source; AC2.3 the birth table of 3.2, one row per condition; AC2.4 write_path_disabled first; AC2.5 census C4 and C5 unchanged (they call resolveMcpWriteRoom); AC2.6 register and adopt with the five typed refusals and `MINDRIAN_ALLOW_TMP_ROOM=1` fixtures; AC2.7 the finder lists (a) to (d) candidates from fixtures and its fix basket registers only the chosen rows; AC2.8 the SessionStart line for an unregistered cwd room, within the coordinator budget; AC2.9 the switch is gone | mirror check; shape declaration; doctor doc parity |
+| 3 | Receipts and idempotency | 2 | as r4.1, plus AC3.10 a write that fails in step 2 in the same process removes `pending` and a retry succeeds; AC3.11 `ok`, `partial`, `read_back` and `replayed` combine as 3.3 states; AC3.9 (OR-10) through the wrapper and through `assertWriteFloor` at each named hook site; AC3.12 `openRoomDb` skips the chain and the stamp when `writer_version_max` is higher | wire snapshot: `client_write_id` on 1 schema |
+| 4 | Material-approval rule and PA-2 leg | 3 | as r4.1 with one AC4.1 row per minter of 3.5 (incl. canon-release :286, tool-router :1882, sensors :737) and the marker-only rule | 367 files unchanged |
+| 4b | Click proof on the decision card | 4, SP6a-c = A | as r4.1 plus: AC4b.4 on a marked fixture every minter returns `next: call gate_render` and no card view; gate_render shows a minted gate without a bound room; only its result carries the nonce. AC4b.5 room-birth.cjs, confirmReason and cause-effect store or read `app_nonce` (one row each) | house rules; render coverage |
+| 5a | `.mcpb` extension | 1, SP7 = A | as r4.1 with the output folder outside the repo, gates from task 0.1, unsigned | test-341-shrinkwrap-no-dev; doctor doc parity |
+| 5b | Config fallback | SP7 = B and the owner | as r2 | as r2 |
+| 6 | Shared binding | SP4 = A | as r4.1 on the wrapper's callers | wire snapshots |
+| 7 | Instructions and room_bind context | 3 | as r4.1 | harness manifest |
+| 8 | Parity and live proof | 1-7, 12-14 | as r4.1 plus the three components on the CLI fixture (text fallback) and a marked fixture (view) | none |
+| 9 | Release | 1 to 10, 12 to 14 as built or dropped | as r4.1 with: AC9.3 output to `$HOME/.mindrian/release-out/<v>/`, no dist/ change; AC9.5 (OR-12) RULE 5 gains one paragraph after the UI shell paragraph ("a release artifact checked by verify-release --mcpb, not a numbered place"), the numbered list unchanged; release-process.md stops restating a count; AC9.7 [R4M13] `node scripts/real-room-run.cjs --mcpb-chat-verified win|mac` writes `mcpb_chat_leg: {os, extension_version, chat_reached, read_at}` into the receipt; scripts/release-lib/real-room-gate.sh prints a WARN when it is missing (the `desktop_verified` pattern, :146-150), never a refusal; AC9.10 Step 6.8b has a `--dry-run` print and an audited opt-out `--no-mcpb` (RULE 4) [IR4-N12]; AC9.11 Step 9.8 `verify-release --mcpb` failing after publish prints a WARN with the recovery line (re-run Step 9.x), never aborts [CD4-N12]; AC9.8 skip mechanism: `MOS_405_NO_EXTENSION=1` set by the slice 5a outcome note skips AC9.3 and AC9.4 with a logged reason [IR4-N13] | release gates |
+| 10 | Theo cards | 7, SP8 | as r4.1 with the 3.10 r5 notes | Part 8 review per 3.10 |
+| 12 | Shape F renderer and decision card (C1; 3.12.2) | 4b | AC12.0 tests/test-405-shape-parity.cjs: one fixture object per shape (F.0, F.1, F.3, F.4, F.8, F.9) renders through the terminal renderer, the AskUserQuestion contract and the MCP App adapter with the same options in the same order, the same labels and the same recommended choice; the optional fields `progress`, `verb_ids`, `defs` are ignored by the two existing renderers. AC12.1 decision/v2.html renders F.0, F.8, F.9 and the gate kinds from fixture shape objects; AC12.2 the text fallback of each is a complete answer; AC12.3 tests/test-405-card-text.cjs passes F1 to F8 on every fixture card; AC12.5 host-neutral rules H1 to H3 (a grep test for host-specific calls without a guard; each fixture's text fallback stands alone). AC12.4 the house-rule tests (test-gpt-plugin-ui.cjs, test-larry-theo-face-apps.cjs at widths 390 and 960); LIVE: one F.1 and one F.8 card answered by click in the merged chat | URI bump; render coverage; house rules |
+| 13 | Framework player (C2) | 12, SP6a = A | AC13.1 `framework_play` registered with the view, render-only, born wired, `hitl_shape: none`; AC13.2 one step per card with `contract.progress`; controls are the F.2 (path), F.3 (depth) and F.5 (branch) renderer objects; the last card is an F.4 insight-extraction card; Theo step text folded after 60 words; AC13.3 the text fallback names the framework, the step and the plain line; AC13.4 card-text test passes; AC13.5 PURE_READ 7 to 8 and test-270 76 to 77 with the measured bytes and a dated doc block; LIVE: a theo-context framework played step by step in the merged chat and the Code tab | wire snapshots; test-270; census leg (PA-2) |
+| 14 | Next-move card (C3) | 12, SP6a = A | AC14.1 suggest_next declares the next-move view, fed by the F.1 renderer object (shape-f1-renderer.cjs:134); AC14.2 one move plus at most two alternates (MAX_K 3); AC14.3 a click sends the move text (SP6f = A) or shows a copyable line (SP6f = B); no write; AC14.4 card-text test passes; LIVE: one next move chosen by click | wire snapshot: suggest_next `_meta` only; test-270 |
+| 11 | End slice: commands work in chat | 404 with chat as target; SP6 = A | AC11.1 the 404 pilots run in the merged chat as framework-player cards, one step per card, no helper agents, steps from theo-context, results filed with receipts; every card passes the card-text test; a recipe halt uses the Shape F card. LIVE | 404 gates |
 
-## 7. Slices (build order, OR-9)
-
-Order (OR-9): slices 0 to 10 are the 405 foundation (slice 10 builds before slice 9 so theo-context ships in the 405 release, OR-8) [R3M7]; then the overlapping parts of Phases 401 and 402; then Phase 404 with chat as a target; then slice 11. Slices 4b, 5a, 5b and 6 are built or dropped by their spike verdicts; slice 9 releases what was built [IR3-N5].
-
-Common gates for every code slice: `bash tests/run-all-405.sh`; `node scripts/build-connector-registry.cjs --check`; `node scripts/check-shape-declaration.cjs`; `node scripts/build-orchestration-projection.cjs --check`; `node scripts/check-render-coverage.cjs`; `node scripts/build-harness-manifest.cjs --check`; `node scripts/run-harness.cjs --check`; `node scripts/doctor.cjs --acceptance`; `node lib/mcp/no-instructions.test.cjs`; `node tests/test-359-prose-budget.cjs`; `node tests/test-270-tool-schema-budget.cjs`; `node scripts/build-skill-mirrors.cjs --check` when a command source changes [R2M19]; `tests/test-367-governed-census.cjs` and `tests/test-367-catchup-mcp.cjs` (groups ac2, ac8mcp) unchanged and green.
-
-| # | Slice | Depends on | Acceptance criteria | Extra gates |
-|---|---|---|---|---|
-| 0 | Spikes | none | each SP: raw output, verdict, If line applied. LIVE | none |
-| 1 | Capability facts and fingerprint (3.1) | SP5 for the rule | AC1.0 fingerprint keys present on a stdio fixture; no rooms-home path, no room text. AC1.1 env table maps the SP5 Code-tab value. AC1.2 parent probe per OS from fixtures (Linux `/proc`, macOS `ps`, Windows command string) with timeout gives `unknown`; status_read makes no spawn. AC1.3 host-salt created 0600; host_hash stable across calls. AC1.4 `sqlite_timeout_ok` true on the test runtime | wire snapshots unchanged |
-| 2a | Fixture migration | 367 on main | AC2a.1 the extracted `birthFixtureRoom` helper is shared (no new register helper); tests/test-405-fixture-helper-scan.cjs fails when a test that sets `MINDRIAN_ROOM` or `fallbackRoomDir` and writes does not use the helper (allowlist for read-only tests). AC2a.2 the suites step of run-all-405.sh is green before the rule lands | none |
-| 2 | Positive-evidence rule (3.2) and `/mos:rooms adopt` (3.2a) | 2a | AC2.1 in scope (boot-fallback default and pin, operator pin, and every source on a hookless fixture), per caller (12 sites plus room_bind, room_create): an unregistered target is refused inside `refusal` with `no_local_room_here`, `message`, `route_back`, `dir` and `slug` set; no file or room.db under the test HOME. AC2.1b out of scope on a CLI fixture (session.primary, room-root, a workspace-registry room): writes as today. AC2.1c census rows C4 and C5 and the HEAL-02 path give today's results. AC2.2 a registered room writes on every source; relative registry paths resolve. AC2.3 `cloud_session` true refuses birth. AC2.4 write_path_disabled first. AC2.5 hookless fixture: both texts carry the Code-tab sentence. AC2.6 `room-registry register` writes only the central registry entry with the absolute path; `/mos:rooms adopt` uses it, never resolve-room; the slug rule and the six typed refusals of 3.2a each from a fixture; F.1 declared; a fixture with an existing central registry and an unregistered room ends registered (the IR3-B1 case) | mirror check; shape declaration; connector registry |
-| 3 | Receipts and idempotency (3.3) | 2 | AC3.1 six writers return the receipt (frontmatter fixture hash, rows, observed range, host_hash). AC3.2 seam (`MINDRIAN_TEST_MODE=1`, gate.cjs:1638 convention) alters the file: `read_back_mismatch`, file kept [IR2-N4]. AC3.3 artifact_file: same id twice gives one file, one node and one `mcp_client_event_logged` row, `replayed: true`; a crash after step 2 resumes with the stored artifact_id; a crash after step 3 replays; graph_write twice gives one edge (upsert); same id with another payload gives `client_write_id_conflict`; a `pending` row gives `write_in_progress`; a crash fixture resumes. AC3.4 memory_event, claim_write, gate_answer, room_create report their existing key. AC3.5 the migration adds `write_keys` and `mos_meta` once per room and is in the `_schemaStamp` specs. AC3.7 payload hash: the same arguments in another key order give the same hash; `client_write_id`, `room` and `_meta` do not change it. AC3.8 stale rule: a `pending` row with a dead owner pid on this host, or older than 120 s, is taken over and the call completes; a live owner gives `write_in_progress`. AC3.9 (OR-10) a fixture room with `writer_version_max` above this version refuses artifact_file, claim_write and a hook write with `room_schema_newer` and the update line; room_list and graph_query on it still answer; an equal or higher version writes and raises the row. AC3.6 fileEvidenceWithReadback callers unchanged | wire snapshots: `client_write_id` on 2 schemas and description text on 6, nothing else; test-270 AFTER updated with the measured delta |
-| 4 | Material-approval rule (3.5) and PA-2 leg | 3 | AC4.1 hookless fixture, one row per material path, including the recovery card and the Eureka opt-in (refused before :1724): each `material_step` minter of 3.5 (approval-gate :102, never-do-gate :186, room-readiness-gate :103 and :143, chain :589, research :14 grant, deep_plan and basket, eureka-capability-jobs :288, startup-operations :55), claim and opportunity promotion (gate.cjs:238-255, proposed and needs_evidence), goal-gate ratification (goal-gate.cjs:241) and per renderer (`text`, `none`, `askuserquestion`): refused `human_confirmation_required`. AC4.2 an ordinary card passes with `mcp_relayed`. AC4.3 CLI fixture unchanged. AC4.4 Eureka engine start on a marked process refused `local_session_required`. AC4.5 new tests/test-405-census-bridge.cjs: env `MINDRIAN_MCP_FIRST=desktop`, `MINDRIAN_LAUNCHER=mcpb`, no `CLAUDE_CODE_ENTRYPOINT`; tools added by 405 = 0, so GOVERNED 69 and PURE_READ 7 are unchanged (PA-2) [R2M16] | 367 files unchanged |
-| 4b | App click-proof card (3.5) | 4, SP6 = A | AC4b.1 nonce single-use, bound to gate and binding, 10 min TTL; `card_expired` after a restart fixture; `card_binding_mismatch`. AC4b.2 a nonce copied into tool arguments records `mcp_relayed`. AC4b.3 `routeOf` byte-unchanged. AC4b.4 on a hookless fixture, each minting tool (gate_render, chain_run, room_create, research_run, the Eureka tools) returns the decision app card resource `ui://mindrian-os/decision/v1.html` and a nonce in result `_meta` only; on the CLI it renders as today. AC4b.5 `app_nonce` is in ANSWERED_VIA_VALUES and room-projection; the gate.cjs:1630 order is browser_nonce, app_nonce, mcp_relayed | mindrian-mcp-app house rules; render coverage |
-| 5a | `.mcpb` extension (3.7a) | 1, SP7 = A | AC5a.1 build from a fixture pack; manifest validates (mcpb CLI) with version, entry, runtimes, env incl. `${user_config.rooms_home}`. AC5a.2 checkMcpbPayload passes; no `.bin`, no symlink. AC5a.3 run-time read scan: every folder the server reads is in the payload. AC5a.4 the unpacked extension passes `depsPresent` offline against `mcpb-deps.json`, answers initialize and tools/list offline, and a removed package gives `extension_payload_incomplete` with no npm process started; and one call per class gives the same result as the plugin copy: artifact_file, room_list, an app view resource, a router tool that reads commands/. AC5a.5 the three sqlite-vec packages are present with integrity matching the shrinkwrap; the vector leg loads on the build host or degrades through `cjs-fallback`. AC5a.10 the staged payload has no `next`, `react` or `react-dom` folder, and the AC5a.3 scan finds no kept file that requires them. AC5a.11 checkMcpbPayload numeric gates of 3.7a, with the measured counts printed. AC5a.6 marker rules: CLI fixture without the marker serves the full list and writes no heartbeat; with marker and CLAUDE_CODE_ENTRYPOINT one status tool. AC5a.7 heartbeat and `chat_reached`; doctor states from fixtures. AC5a.8 `install_versions` and `version_drift` in status_read and room_list. AC5a.9 setup's Desktop branch no longer writes a pinned config entry. LIVE Windows and macOS: click install, restart, merged chat lists room tools, doctor `desktop_loaded` and `chat_reached` true | tools/mcpb walled (test-341-shrinkwrap-no-dev green); doctor doc parity; mirror check |
-| 5b | Config fallback and shim (3.7b, 3.6) | SP7 = B and the owner's answer | r2 ACs 5b.1 to 5b.5 (405-DESIGN-r2.md) | r2 gates |
-| 6 | Shared-binding rule (3.9) | SP4 = A | AC6.1 marked fixture: each listed tool without `room` or with another slug refused `room_mismatch`. AC6.2 room_bind states the shared scope | wire snapshots: optional `room` on the listed tools; test-270 AFTER |
-| 7 | Instructions and room_bind context (3.4, 3.6) | 3 (tests in tests/test-405-instructions-bind.cjs) | AC7.0 the exact THEO and LOOP strings of 3.6; served length 1999 (or measured at plan time, at most 2000); BOUNDARIES identical; test-359 MCP_THEO re-based with a dated OR-7 comment; contract-parity-larry.json:46 updated; `node scripts/run-harness.cjs --policy contract-parity-larry` green; header comment updated. AC7.1 room_bind carries the context summary with one 367 spawn. AC7.2 docs/CLAUDE-SURFACE-MODEL.md matrix updated. AC7.3 405-WEBSITE-HANDOFF.md updated. AC7.4 (only if SP6 d = B) the Part 8 sentence in room_bind and room_list | harness manifest regenerated |
-| 8 | Parity and live proof | 1-7 | AC8.1 one fixture room through CLI and marked fixtures; the matrix printed. LIVE Windows and macOS: bind, file, receipt on failure only, doctor shows the node; a cloud Code session refuses with the cards sentence | none |
-| 9 | Release (3.7a) [R2B6, R3B3, R3B6, R3M4] | 1 to 10 as built or dropped | AC9.1 build-desktop-artifact --check green. AC9.2 CHANGELOG. AC9.3 Step 6.8b builds `dist/mindrian-os-<v>.mcpb` and `dist/mindrian-os.mcpb` before the tag (reversible: a new `mos_rollback_mcpb` deletes both on every abort path after Step 6.8b, beside mos_restore_plugin_files and mos_rollback_marketplace in scripts/release-lib/desktop-copy-gate.sh:101-136) [R3M20]; then `scripts/verify-release --mcpb dist/mindrian-os-<v>.mcpb` (new mode: the file exists and its manifest version equals plugin.json, else exit 1). The default verify-release (Steps 2 and 6.5, and inside doctor --acceptance at 6.6 and 9.8, release.sh:82-90) does not check the extension. Step 9.8 also runs `verify-release --mcpb`. `dist/` is in .gitignore [IR3-N4]. AC9.4 Step 9.x, after the push: `gh release view v<v> >/dev/null 2>&1 || gh release create v<v> --verify-tag --notes-file <CHANGELOG section> $( [[ <v> == *-* ]] && echo --prerelease )` (needs gh auth and network after the push), then `gh release upload v<v> dist/mindrian-os-<v>.mcpb dist/mindrian-os.mcpb --clobber`. Step 9.x warns and never aborts (the Step 9.6c precedent); RULE 7 recovery is a re-run of the step. The setup link is the tag URL `https://github.com/jsagir/mindrian-os-plugin/releases/download/v<v>/mindrian-os.mcpb`, printed by the doctor for the installed version (a betas-safe link; `latest` skips prereleases). GUESS: the repository is public. AC9.5 RULE 5 treatment follows owner item O10 (design default until ruled: a release artifact checked by `verify-release --mcpb`, the UI shell assets precedent at RELEASE-CEREMONY-RULING-SYSTEM.md:52, not a lockstep place); in either case .claude/includes/release-process.md stops restating a count ("every place in RULE 5"). AC9.6 tests/fixtures/341-release-step-block-hashes.txt and 310-release-step-block-hashes.txt re-based with navigator authorization. AC9.7 `real-room-run.cjs --desktop-verified win|mac` receipt gains `mcpb_chat_leg`. AC9.8 if SP7 = B and the owner chose no extension, slices 9 and 5a ship nothing for the extension and AC9.3, AC9.4 are skipped with a logged reason. AC9.9 a beta first (RULE 6). tests/test-405-release-steps.cjs checks the release.sh step text, the `--mcpb` mode on fixtures and the gh command line in dry-run | release gates |
-| 10 | Theo cards (3.10) | 7, SP8 (builds before 9) | AC10.1 `.mcp.json` theo-context entry, no header, no secret; the mos-desktop copy carries it. AC10.2 the new literal of 3.10 item 4 in hooks/hooks.json (:208 and :332) and BRAIN_SHAPED_TOOL_MATCHER (brain-response-sanitize.cjs:151, compiled at :160), the three byte-identical (tests/test-396-theo-route-matrix.cjs:140-142); the six pinned tests and the route-matrix fixture updated; egress and sanitize matchers match `mcp__theo-context__x`, `mcp__plugin_mos_theo-context__x`, `mcp__plugin_mos-desktop_theo-context__x` and every earlier name. AC10.3 doctor probe sends one `initialize` only (fixture server asserts bodies); states yes, no (timeout), no (http_<code>), no (dns); configured plugin, user, none. AC10.4 room_list connect line (173 bytes) and route_back cards sentence. AC10.5 status_read.theo_cards. LIVE: a card in the merged chat and the Code tab; phone or web with no linked computer: no-room refusal plus a card | wire snapshot: room_list description only; test-270 AFTER for the description delta; Part 8 review of the matchers |
-| 11 | End slice: commands work in chat (OR-9) | Phase 404 with chat as target | AC11.1 the 404 pilot recipes (challenge-assumptions, root-cause) run from the merged chat through the extension and file a receipt. LIVE | 404 gates |
-
-## 8. File table
+## 8. File table (r5 rows; unchanged rows as r4.1)
 
 | Slice | Create | Modify |
 |---|---|---|
-| 0 | 405-SPIKES.md; probe changes on work/367-spike-kits (coordinate) | none |
-| 1 | tests/test-405-capability-facts.cjs, tests/fixtures/405/env.json, tests/run-all-405.sh | lib/mcp/surface-detect.cjs, lib/mcp/tools/status.cjs, scripts/mindrian-mcp-server.cjs (start-time parent probe) |
-| 2a | the shared helper extracted from tests/helpers/isolated-home-36925.cjs (birthFixtureRoom), tests/test-405-fixture-helper-scan.cjs | the six child-spawning helpers first, then the writing tests found by running the suites with the rule on |
-| 2 | tests/test-405-registered-room.cjs, tests/test-405-rooms-adopt.cjs | lib/mcp/session-room.cjs, lib/core/resolve-active-room.cjs (new export listRegisteredRoomPaths), lib/mcp/tool-router.cjs (room_bind), lib/mcp/startup-operations.cjs, scripts/room-registry (`register`), commands/rooms.md, skills/rooms/SKILL.md (mirror), the connector registry source as the builder requires |
-| 3 | lib/core/navigation/write-keys.cjs (artifact_file only), lib/core/migrations/405-write-keys-and-meta.cjs, tests/test-405-receipt.cjs | lib/core/room-db.cjs (require the migration, `_schemaStamp` specs, the OR-10 write-open check), lib/core/navigation/file-evidence-readback.cjs, lib/core/navigation.cjs, lib/mcp/tools/views.cjs, claim.cjs, graph.cjs, gate.cjs, lib/mcp/startup-operations.cjs, tests/fixtures/267/wire-snapshot-zod3.json and zod4.json, tests/test-270-tool-schema-budget.cjs |
-| 4 | tests/test-405-gate-human-check.cjs, tests/test-405-census-bridge.cjs | lib/mcp/tools/gate.cjs (isMaterialApproval), the Eureka start tools (local_session_required) |
-| 4b | lib/mcp/app-nonce-store.cjs, tests/test-405-app-card.cjs | lib/mcp/gate-app.cjs and decision.html (extend), the gate-ledger mint, lib/mcp/answer-route.cjs (appRouteOf, app_nonce), lib/core/navigation/room-projection.cjs, lib/mcp/tools/gate.cjs (:1630, :1661), the minting tools' result `_meta` (chain.cjs, startup.cjs, research.cjs, the Eureka tools) |
-| 5a | scripts/mcpb-entry.cjs, tools/mcpb/package.json, tools/mcpb/package-lock.json, tools/mcpb/manifest.template.json, scripts/release-lib/build-mcpb.cjs, lib/core/doctor/desktop-bridge-module.cjs, tests/test-405-mcpb.cjs, tests/test-405-mcpb-runtime-reads.cjs | scripts/mindrian-mcp-server.cjs (marker, heartbeat, chat_reached), lib/mcp/mcp-dep-heal.cjs (no install with the marker; payload name list), lib/mcp/tools/status.cjs, lib/mcp/tools/room.cjs, data/doctor-modules.json, commands/doctor.md, commands/setup.md, skills/setup/SKILL.md |
-| 5b | as r2 | as r2 |
-| 6 | tests/test-405-shared-binding.cjs | the tool files of 3.9, lib/mcp/tool-router.cjs, tests/test-270-tool-schema-budget.cjs, wire snapshots |
-| 7 | tests/test-405-instructions-bind.cjs | lib/mcp/runtime-instructions.cjs, tests/test-359-prose-budget.cjs, data/harness-policies/contract-parity-larry.json, data/harness-manifest.json, lib/mcp/tool-router.cjs, docs/CLAUDE-SURFACE-MODEL.md, 405-WEBSITE-HANDOFF.md |
-| 8 | tests/test-405-parity.cjs | none |
-| 9 | tests/test-405-release-steps.cjs | scripts/release.sh (Step 6.8b, Step 9.x, rollback, Step 9.8 `--mcpb`), scripts/verify-release (`--mcpb` mode), .gitignore (`dist/`), scripts/release-lib/desktop-copy-gate.sh (mos_rollback_mcpb), docs/RELEASE-CEREMONY-RULING-SYSTEM.md (RULE 5 new place), .claude/includes/release-process.md (count removed), tests/fixtures/341-release-step-block-hashes.txt, tests/fixtures/310-release-step-block-hashes.txt, scripts/real-room-run.cjs, CHANGELOG.md |
-| 10 | tests/test-405-theo-cards.cjs, tests/fixtures/405/theo-probe-server.cjs, lib/core/doctor/theo-context-module.cjs | .mcp.json, hooks/hooks.json (rows :208 and :332), lib/core/brain-response-sanitize.cjs (BRAIN_SHAPED_TOOL_MATCHER), tests/test-260906-gr1-brain-shaped-tool-gate.cjs, tests/test-396-theo-route-matrix.cjs, tests/test-396-bypass-5-theo-tool-arms.cjs, scripts/part8-egress-guard-hook.test.cjs, tests/test-brain-response-sanitize.cjs, tests/fixtures/392-part8-replay/route-matrix.json, data/doctor-modules.json, lib/mcp/tools/room.cjs, lib/mcp/session-room.cjs, lib/mcp/tools/status.cjs, commands/setup.md, skills/setup/SKILL.md, tests/test-270-tool-schema-budget.cjs |
-| 11 | per Phase 404 plan | per Phase 404 plan |
+| 0 | .planning/spikes/405-desktop/ (probe-server.cjs, package.json, lockfile, card.html, README), 405-SPIKES.md | none |
+| 2a | scripts/dev/405-find-unregistered-writers.cjs, tests/helpers/registered-room.cjs, tests/test-405-fixture-helper-scan.cjs | lib/mcp/session-room.cjs (rule behind the switch), the six shared helpers, the writing tests the runner lists |
+| 2 | lib/core/doctor/unregistered-rooms-module.cjs, tests/test-405-registered-room.cjs, tests/test-405-rooms-adopt.cjs, tests/test-405-unregistered-finder.cjs | lib/mcp/session-room.cjs (`authorizeMcpWriteRoom`), lib/core/resolve-active-room.cjs (export), the 13 callers: lib/mcp/tools/chain.cjs, claim-verify.cjs, claim.cjs, gate.cjs, graph.cjs, question.cjs, research.cjs, startup.cjs, views.cjs, lib/mcp/tool-router.cjs; lib/mcp/startup-operations.cjs; scripts/room-registry (`register`); scripts/sessionstart-coordinator.cjs (notice); commands/rooms.md, commands/doctor.md and mirrors; data/doctor-modules.json |
+| 3 | as r4.1 | as r4.1 plus lib/core/room-db.cjs (`assertWriteFloor`, chain skip), the six named hook write sites, lib/core/session-presence.cjs (use of isAlive) |
+| 4b | lib/mcp/app-nonce-store.cjs, tests/test-405-app-card.cjs | lib/mcp/gate-app.cjs, lib/mcp/app-html/decision.html, lib/mcp/tools/gate.cjs (gate_render by id without a room; :1630), lib/mcp/answer-route.cjs, lib/core/navigation/room-birth.cjs, lib/core/navigation/cause-effect.cjs, lib/core/navigation/room-projection.cjs, the minters of 3.5 (`next` reply) |
+| 5a | as r4.1 (no dist/ entry) | as r4.1 minus .gitignore |
+| 9 | tests/test-405-release-steps.cjs | scripts/release.sh, scripts/verify-release, scripts/release-lib/desktop-copy-gate.sh, docs/RELEASE-CEREMONY-RULING-SYSTEM.md (one paragraph), .claude/includes/release-process.md, scripts/real-room-run.cjs, scripts/release-lib/real-room-gate.sh, both step-hash fixtures, CHANGELOG.md |
+| 12 | lib/mcp/app-html/decision-v2.html (or decision.html edited in place with the URI bump), lib/mcp/shape-app-adapter.cjs, lib/mcp/card-text-rules.cjs, data/card-plain-words.json, tests/test-405-card-text.cjs, tests/test-405-shape-parity.cjs | lib/mcp/gate-app.cjs, lib/mcp/app-views.cjs, the lib/hmi renderers of F.0, F.1, F.3, F.4, F.8, F.9 (optional fields only), tests/test-gpt-plugin-ui.cjs, tests/test-larry-theo-face-apps.cjs |
+| 13 | lib/mcp/app-html/framework-player.html, lib/mcp/tools/framework-play.cjs, tests/test-405-framework-player.cjs | lib/mcp/app-views.cjs, tests/test-270-tool-schema-budget.cjs, wire snapshots, tests/test-405-census-bridge.cjs |
+| 14 | lib/mcp/app-html/next-move.html, tests/test-405-next-move.cjs | lib/mcp/tools/sensors.cjs (suggest_next `_meta`), lib/mcp/app-views.cjs, tests/test-270-tool-schema-budget.cjs, wire snapshots |
 
-Part 11: no new tool name. New invocable surface: the `adopt` subcommand of `/mos:rooms` (F.1 declared, born wired).
+Part 11: one new tool (`framework_play`, render-only, born wired); no new shape (the Shape F family is reused, OR-21); one new subcommand (`/mos:rooms adopt`, F.1); one new doctor fix basket (F.8).
 
-## 9. AC-to-test map and tests/run-all-405.sh [IR2-N7]
+## 9. AC-to-test map and tests/run-all-405.sh
 
-| AC | Test file |
-|---|---|
-| AC1.0-AC1.4 | tests/test-405-capability-facts.cjs |
-| AC2a.1 | tests/test-405-fixture-helper-scan.cjs |
-| AC2a.2 | tests/run-all-405.sh step "suites" |
-| AC2.1-AC2.5 | tests/test-405-registered-room.cjs |
-| AC2.6 | tests/test-405-rooms-adopt.cjs |
-| AC3.1-AC3.9 | tests/test-405-receipt.cjs |
-| AC4.1-AC4.4 | tests/test-405-gate-human-check.cjs |
-| AC4.5 | tests/test-405-census-bridge.cjs |
-| AC4b.1-AC4b.4 | tests/test-405-app-card.cjs |
-| AC5a.1-AC5a.2, AC5a.4-AC5a.11 | tests/test-405-mcpb.cjs |
-| AC5a.3 | tests/test-405-mcpb-runtime-reads.cjs |
-| AC6.1-AC6.2 | tests/test-405-shared-binding.cjs |
-| AC7.0-AC7.4 | tests/test-405-instructions-bind.cjs (AC7.0 also runs lib/mcp/no-instructions.test.cjs, tests/test-359-prose-budget.cjs and `node scripts/run-harness.cjs --policy contract-parity-larry`; AC7.2 and AC7.3 check the two doc files for the named lines) |
-| AC8.1 | tests/test-405-parity.cjs |
-| AC9.1-AC9.8 | tests/test-405-release-steps.cjs, tests/run-all-341.sh |
-| AC10.1-AC10.5 | tests/test-405-theo-cards.cjs |
+Map: as r4.1, plus AC2.7 tests/test-405-unregistered-finder.cjs; AC4b.5 tests/test-405-app-card.cjs; AC9.9 to AC9.11 tests/test-405-release-steps.cjs; AC12.0 tests/test-405-shape-parity.cjs; AC12.x tests/test-405-card-text.cjs and the house-rule tests; AC13.x tests/test-405-framework-player.cjs; AC14.x tests/test-405-next-move.cjs [IR4-N1].
 
-tests/run-all-405.sh (contents; the 405 tests skip with a printed reason when their slice has not landed):
-
-```bash
-#!/usr/bin/env bash
-# Phase 405 floor. Run from the repo root. A 405 test whose slice has not landed SKIPs;
-# a pinned neighbour that is missing FAILs (PA-1 condition 4 cannot pass by skip).
-set -u
-PASS=0; FAIL=0; SKIP=0
-own()  { local f="$1"; if [ ! -f "$f" ]; then echo "SKIP $f (slice not landed)"; SKIP=$((SKIP+1)); return; fi
-  if node "$f"; then PASS=$((PASS+1)); else echo "FAIL $f"; FAIL=$((FAIL+1)); fi; }
-pin()  { local f="$1"; shift; if [ ! -f "$f" ]; then echo "FAIL $f (pinned neighbour missing)"; FAIL=$((FAIL+1)); return; fi
-  if node "$f" "$@"; then PASS=$((PASS+1)); else echo "FAIL $f $*"; FAIL=$((FAIL+1)); fi; }
-suite(){ local f="$1"; if [ ! -f "$f" ]; then echo "FAIL $f (suite missing)"; FAIL=$((FAIL+1)); return; fi
-  if bash "$f"; then PASS=$((PASS+1)); else echo "FAIL $f"; FAIL=$((FAIL+1)); fi; }
-# 405 tests
-for t in tests/test-405-capability-facts.cjs tests/test-405-fixture-helper-scan.cjs tests/test-405-registered-room.cjs \
-         tests/test-405-rooms-adopt.cjs tests/test-405-receipt.cjs tests/test-405-gate-human-check.cjs \
-         tests/test-405-census-bridge.cjs tests/test-405-app-card.cjs tests/test-405-mcpb.cjs \
-         tests/test-405-mcpb-runtime-reads.cjs tests/test-405-shared-binding.cjs tests/test-405-instructions-bind.cjs \
-         tests/test-405-parity.cjs tests/test-405-release-steps.cjs tests/test-405-theo-cards.cjs; do own "$t"; done
-# Pinned neighbours (must exist; 367 files exist once 367-11/12 are on main, PA-1)
-pin lib/mcp/no-instructions.test.cjs
-pin tests/test-359-prose-budget.cjs
-pin tests/test-270-tool-schema-budget.cjs
-pin tests/test-367-governed-census.cjs
-pin tests/test-367-catchup-mcp.cjs ac2
-pin tests/test-367-catchup-mcp.cjs ac8mcp
-pin tests/test-desktop-stdio-session-binding.cjs
-pin tests/test-room-state-no-registry-regression.cjs
-# Suites step (AC2a.2)
-suite tests/run-all-369.1.sh
-node scripts/run-harness.cjs --policy contract-parity-larry && PASS=$((PASS+1)) || { echo "FAIL harness contract-parity-larry"; FAIL=$((FAIL+1)); }
-echo "PASSED=$PASS FAILED=$FAIL SKIPPED=$SKIP"
-[ "$FAIL" -eq 0 ]
-```
-```
-
-The 367 catchup test takes the group as argv[2] (367 branch tests/test-367-catchup-mcp.cjs:15, :553). There is no tests/run-all-367*.sh and no 400.3 run-all on this base, so 3.2's suite list is corrected to the files above plus tests/run-all-369.1.sh [R3M8].
+tests/run-all-405.sh, r5: as r4.1 (one code fence only) [IR4-N3], with: the own() list gains test-405-unregistered-finder, test-405-shape-parity, test-405-card-text, test-405-framework-player, test-405-next-move; a missing 405 test SKIPs only when the file `.planning/phases/405-claude-desktop-chat-and-code/405-DROPPED-SLICES.txt` names its slice, else it FAILs once the slice is marked built in that file [IR4-N4]; the suites step runs `bash tests/run-all-267.sh`, `run-all-358.sh`, `run-all-365.sh`, `run-all-369.1.sh`, `run-all-383.sh`, `run-all-387.sh` and a loop over `tests/test-400-3-*.cjs` [CD4-M6].
 
 ## 10. Interaction with other phases
 
-- 367 (jsagi-42): build after 367-11 and 367-12 reach origin/main (PA-1). PA-2 leg in tests/test-405-census-bridge.cjs; the 367 census file is not edited.
-- 401, 402: after slices 0 to 9 (OR-9). 402 owns alwaysLoad and deferral (R14 tool overlap).
-- 404: after 401 and 402 overlap work, with chat as a named target; slice 11 depends on it (OR-9).
-- Theo repo: B2.3 hand-off only.
-- 400.3: slice 3 adds the receipt after the 400.3 index (views.cjs:592-597).
-- SEED-039: slice 6 is its bridge face.
+- 367 (jsagi-42): build after 367-11 and 367-12 only (C23). The census is not edited; the wrapper keeps C4 and C5 green (CD4-B1).
+- 401: F1 runs right after the cut (OR-14). F1's frontmatter split rule applies to commands/rooms.md, setup.md and doctor.md before 405 adds keys (program 2d). 401's sweep keeps `pws-brain-mcp` in the three matchers (C5) and does not rewrite the 12 unscoped-name tests (C6).
+- 402: K4 and F2 start now as small plans (OR-15); 400.3-09 folds into 402. 402 gets SP9 (deferral) from slice 0 and the contracts of 3.13.
+- 400.5: owns prompt hooks after 367-11/12 (OR-15); its new tool must be named for the census, test-270 and the extension (3.13).
+- 404: after 401 and 402 overlap; chat target per 3.6 and 3.12 C2; no-agent path (C9).
+- Theo repo: authored Feynman steps (OR-13) and B2.3 hand-offs.
 
 ## 11. Risks (in order)
 
-- R1 The bridge is observed on one Windows machine; slices 5a and 8 add macOS.
-- R2 With no SP3 marker, a first-room birth can still happen in a cloud VM when no registry exists there.
-- R3 Pins outside the registry stop writing (OR-5); `/mos:rooms adopt` is the fix.
-- R4 Part 8 with theo-context and claude.ai Theo connectors holds by text (OR-7).
-- R5 Until the app card exists, ordinary approvals on P4 are model-relayable (OR-4 interim, `mcp_relayed`).
-- R6 The fixture migration of slice 2a touches about 104 test files.
-- R7 Description bytes grow on six tools (measured in slice 3; test-270 AFTER).
-- R8 An injected call can write into a registered room; receipts disclose.
-- R9 The extension and the plugin copies can drift; drift is reported in chat (3.7a) and an older copy cannot write (3.11, OR-10). A person who rolls back on purpose must update again before saving.
-- R10 The app card adds a bearer nonce path; it is void if the model can read the result `_meta` (SP6 c).
-- R11 Several facts rest on secondary sources (S); the fingerprint or a spike confirms each before a slice depends on it.
-- R12 Desktop's built-in runtime may lack `node:sqlite` `timeout` or a usable `process.execPath` (SP7; owner question on B).
-- R13 sqlite-vec per-OS packages enlarge the artifact; the vector leg may degrade.
-- R14 Tool overlap: plugin theo-context, user-scope theo-context and the claude.ai connector can all be present.
-- R15 theo-context outage removes the cards everywhere; doctor shows it; Larry says so.
-- R18 claim_write retry after a Desktop restart can duplicate a claim on P4 (key scope is the session; SP2 leg).
-- R19 With the narrow scope (O9 not ruled), a CLI write through `session.primary` or `room-root` into an unregistered folder still lands, as today.
-- R17 The `next`/`react` removal relies on the AC5a.3 scan; a missed dynamic require would fail at run time (AC5a.4 calls one tool per class).
-- R16 An unsigned extension can be blocked by admin policy or impersonated, if `mcpb sign` is not available.
+R1 to R19 as r4.1, with R6 replaced and R19 removed (OR-11 closes it). New:
+- R6 The fixture migration now touches every test that writes a room (OR-11); the discovery runner sizes it before slice 2.
+- R20 Direct `openRoomDb` callers outside the named hook sites can still write past the schema floor (3.11).
+- R21 OR-11 refuses writes in existing unregistered CLI rooms until the person adopts them; the finder, the SessionStart line and the refusal text are the mitigation.
+- R22 The Feynman rules are lint rules; a card can pass them and still be unclear. LIVE legs of slices 12 to 14 are the check.
+- R23 The GENUI research may change component rules after r5 (r5.1).
+- R24 The gate card (gate-render.cjs) and the lib/hmi renderer objects may be two shapes today; the adapter and the parity test close it in slice 12.
+- R25 The job sentences of the three tools are `status: provisional` in data/mcp-tool-job-sentences.json; a ruling on them would change the card question.
 
 ## 12. Workflow from here
 
-1. EGM design is complete when one Goldfish round is clean (no Blocker, no Major left open). r4.1 has folded in both round-3 reviews; a narrow round 4 checks only the sections r4 and r4.1 changed.
-2. Then a thin `/gsd-plan-phase 405`: the planner reads 405-CONTEXT.md, 405-RESEARCH.md and this design, not the conversation. One plan per slice. The plan checker runs. GSD research and discuss are replaced by the EGM record (no new RESEARCH or CONTEXT is written by GSD).
-3. Plan and run slice 0 (the spikes) first. Record every verdict in 405-SPIKES.md and apply its If A or If B line to this design (a dated r4.x note per change).
-4. Re-plan the build slices after the spike verdicts. A spike whose If B goes to the owner (SP7 runtime or size) stops the dependent slices until the owner answers.
-5. Build only after 367-11 and 367-12 are on origin/main (PA-1 condition 1). Order per OR-9: slices 1 to 10 (10 before 9), then the overlapping parts of 401 and 402, then 404 with chat as a target, then slice 11.
-6. Each slice ends with its gates (section 7) green and a SUMMARY that records agent runs, tokens and findings (project CLAUDE.md EGM note).
+1. EGM design is complete when one Goldfish round is clean. r5 resolves round 4; r5.1 folds in 405-GENUI-RESEARCH.md.
+2. Slice 0 can be planned after r5.1 without another full round (section 6 is self-contained); a narrow round 5 covers 3.2, 3.2b, 3.5, 3.11, 3.12 before the build slices are planned.
+3. Thin `/gsd-plan-phase 405`: the planner reads 405-CONTEXT.md, 405-RESEARCH.md and this design; one plan per slice; the plan checker runs; GSD research and discuss are replaced by the EGM record.
+4. Plan and run slice 0 first (rebase, then tasks 0.0 to 0.10). Record verdicts in 405-SPIKES.md; apply each If line as a dated r5.x note. A NEEDS_HUMAN leg stops its dependent slices until the owner answers.
+5. Re-plan the build slices after the verdicts. Build only after 367-11 and 367-12 are on origin/main and Phase 401 F1 has run (OR-14). Order per OR-9 and section 7.
+6. Each slice ends with its gates green and a SUMMARY with agent runs, tokens and findings.

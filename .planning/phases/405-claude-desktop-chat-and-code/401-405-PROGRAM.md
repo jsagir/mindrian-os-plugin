@@ -6,6 +6,7 @@ base_read: worktree /home/jsagi/dev/MindrianOS-Plugin-405, branch work/405-deskt
 also_read: /home/jsagi/dev/MindrianOS-Plugin-367 (branch work/367-graph-writes-itself at 8cb094add, 32 commits ahead of origin/main); /home/jsagi/dev/MindrianOS-Plugin-release (main at acb4de477) for docs/CLAUDE-SURFACE-MODEL.md and SEED-173
 design_read: 405-DESIGN.md r4 (62,949 bytes, 13:54) for sections 3.10, 3.11, 7, 8, 10, 12; 405-DESIGN-r3.md for the rest; Goldfish R3 implementation-readiness and codebase-details
 marks: PROVEN = read in a file or run here. CITED = a planning file says it; not re-run. GUESS = inference. UNVERIFIED = not run.
+updated: 2026-11-27, second pass after owner rulings OR-11 to OR-21 (405-CONTEXT.md). Sections 2f, 2g, 2h, 3 and 4 are new or redone. Sections 1 and 2a to 2e are the first pass; where they disagree with 2g or 3, the later section holds. Design read for the second pass: 405-DESIGN.md r5 (70,688 bytes).
 rule: owner rulings are locked. This file says where a plan fails a ruling. It does not change a ruling. It changes no other file.
 ---
 
@@ -13,11 +14,13 @@ rule: owner rulings are locked. This file says where a plan fails a ruling. It d
 
 Plain picture. Six phases are six islands. They stand in one sea: the same 22 files, 4 budgets and 1 release train. Five islands were sized before the sea changed (the efficiency study is from 2026-11-24; the chat and Cowork merge and the 405 rulings are from 2026-11-27). So the main risk is not inside an island. It is two islands that change the same file in two directions.
 
-Short result:
-- 23 contradictions between phases (section 2c). 6 of them need an owner answer.
-- 405 is the only phase with a design. It is not ready to plan: Goldfish round 3 gave 8 Blockers and 24 Majors (405-GOLDFISH-R3-implementation-readiness.md header: 4 and 11; 405-GOLDFISH-R3-codebase-details.md header: 4 and 13).
-- The OR-9 order holds in its main line. 4 steps need a move or a new slot (section 2e). They are OWNER items.
-- Three defects that users see today wait behind 405 without a file reason: the card-fire broken promise, the session-start cap, and the frontmatter split (section 2e, E3 and E7).
+Short result (second pass, all rulings applied):
+- 29 contradictions between phases: 23 in section 2c and 6 new ones from the Shape F contract (section 2f). 12 are resolved by ruling or by design r5 (C2, C5, C6, C7, C9, C15, C16, C17, C19, C20, C23, C28), 2 are accepted or partly resolved (C8, C10), 15 stay open as design work (sections 2f and 2g).
+- The first 5 owner items and the 2 Goldfish items are answered (OR-11 to OR-21). 2 light owner items remain (section 4).
+- READY NOW: the 400.1 addendum, the 401 F1 plan, the 402 small plans K4 and F2. Everything else waits on a named gate (section 3).
+- 405 has a design r5. It is not clean: r5.1 waits for a research file that does not exist yet, and OR-20 and OR-21 are not applied.
+- The Shape F family is one contract in the rulings and two contracts in the code (section 2f). Contract v2 must be written before 405 slice 12 and before the 404 CONTEXT.
+- The order has no step out of place after OR-14 and OR-15. Three checks are new (section 2h).
 
 ---
 
@@ -373,76 +376,191 @@ Order check against 401-405-WORKFLOW.md (the locked OR-9 order is not changed he
 
 Result: the main line 405 foundation, then 401 and 402 overlap, then 404, then the 405 end slice is consistent with the edges. No edge runs against it. E3, E4, E5 and E7 are the OWNER items.
 
+### 2f. The Shape F contract (added after OR-17 to OR-21)
+
+Plain picture. A "shape" is the form of one decision moment: approve one thing, pick one move, tick a basket, walk steps in order. OR-21 makes the Shape F family the one language for every such moment in the program. One shape object is made once. Three renderers show it: terminal text, the AskUserQuestion card, the MCP App view.
+
+What exists in code today (PROVEN on work/405-desktop unless marked):
+
+| Part | Where | Fact |
+|---|---|---|
+| Vocabulary | data/hitl-shape-declaration-schema.json (`shape_vocabulary`); docs/HITL-SHAPE-DECLARATION-CONTRACT.md:39, :64-73 (153 lines) | Closed set of ten, F.0 to F.9, plus the literal `none`. F.0 Mini Decision Gate, F.1 Next Move, F.2 Path, F.3 Depth Budget, F.4 Harvest Scope, F.5 Branches, F.6 Plan Review, F.7 Ranked Reach, F.8 Unordered Basket, F.9 Ordered Walk. |
+| Terminal renderers | lib/hmi/shape-f0-renderer.cjs to shape-f9-renderer.cjs (F.6 has 2 files: shape-f6-renderer.cjs 144 lines and shape-f6-plan-review-renderer.cjs 324 lines; shape-f7-breakthrough-renderer.cjs is kept but no longer reached by bare F.7, selector-dispatcher.cjs:332-337); also shape-g-renderer.cjs and shape-h-renderer.cjs | One renderer file per shape. |
+| Dispatcher | lib/hmi/selector-dispatcher.cjs:347 `F_SUBSHAPES` | 11 entries: the ten shapes plus `F.7-dial`. It also adds the AskUserQuestion trailer (`appendAskUserQuestionTrailer`, used at lib/mcp/gate-render.cjs:588). |
+| Capture files | lib/hmi/f1-pick-capture-cli.cjs, f3-depth-capture-cli.cjs, f4-scope-capture-cli.cjs, f8-action-capture-cli.cjs, f9-ordered-capture-cli.cjs | 5 capture files. None for F.0, F.2, F.5, F.6, F.7. |
+| Declarations | frontmatter of commands, skills, agents, pipelines; checked by scripts/check-shape-declaration.cjs (advisory since Phase 210, project CLAUDE.md Part 11) | Counted here, flat `hitl_shape` lines: F.0 34, F.1 77, F.2 2, F.3 4, F.5 4, F.8 67, F.9 18, `none` 4 (sum 210). 38 more files declare `hitl_stages`. 248 declaring files. F.4, F.6 and F.7 have 0 flat declarations; F.6 appears in stages (commands/persona.md:9). The coordinator's count gives F.0 36 and F.8 69; the difference of 2 and 2 is a count-method difference, not checked further. |
+| MCP card object | lib/mcp/gate-render.cjs:76 `SUPERSET_SCHEMA` (`mindrian.gate.superset.v1`), `normalizeCard` (:282) | One canonical card: header, kind (`binding` or `general`), `selectMode` single or multi, options (id, label, description, rank, preview, recommended), subject and evidence ids. It has no field that names the shape. It requires only the F.8 and F.9 renderers (:48-49). |
+| MCP renderers | gate_render ladder: elicitation, AskUserQuestion adapter, text (tool description); MCP App view `ui://mindrian-os/decision/v1.html` (lib/mcp/gate-app.cjs, 22 lines) | The view handles single and multi select with a recommended option (405-DESIGN r5 3.12 inventory). |
+| One answer shape | lib/mcp/gate-render.cjs:347 | Every rung normalizes to `{gate_id, chosen, verdict}`. |
+| Parity precedent | lib/hmi/shape-f3-parity.test.cjs, shape-f4-parity.test.cjs | Per-shape parity tests exist for 2 shapes. |
+| Card-fire | scripts/check-card-fire.cjs:52-54 reads `reached_gate_entries` from the side file (lib/core/card-fire-sidechannel.cjs); :271-301 are text patterns for the backstop | Two signals: shape data from the side file, and a text backstop. |
+
+The gap (PROVEN): "one data contract, three renderers" is not true in code today. There are two contracts. The terminal side has ten shapes, each with its own render output. The MCP side has one card with single or multi select and no shape id. F.2, F.3, F.4, F.6, F.7 and F.9 cannot be expressed in `mindrian.gate.superset.v1` except as a plain list.
+
+Who owns which change (from the owner's assignment in OR-21 and the coordinator's list):
+
+| Phase | Change it owns | Files |
+|---|---|---|
+| 405 | The MCP App renderer (C1 Shape F card, slice 12; click proof, slice 4b) and the chat-only contract fields (`plain_line`, the app nonce). Recommended here: 405 also owns contract v2 (a `shape` field and the per-shape fields on the superset card), because slice 12 builds before 404 starts. See remaining owner item 1. | lib/mcp/gate-render.cjs, lib/mcp/gate-app.cjs, lib/mcp/app-html/decision.html, lib/mcp/tools/gate.cjs, wire snapshots, tests/test-270 |
+| 404 | Recipes declare and emit shapes, not prose prompts. When a recipe changes a flow, the terminal renderer and the AskUserQuestion card follow from the same object. | commands of the pilots and the rollout, lib/hmi renderers, lib/hmi/selector-dispatcher.cjs, lib/core/chain-executor.cjs |
+| 399, 400, 400.2 (done) and 400.2.1 (open) | Hats and persona cards on the same shapes. commands/persona.md declares stages F.6, F.8, F.0, F.5 (:9-18) and draws them through AskUserQuestion from command prose (:146, :188, :288). Declared: yes. Emitted as a shape object: no. | commands/persona.md, scripts/persona-hats.cjs. No phase of 401 to 405 owns this change. See remaining owner item 2. |
+| 401 | F1 protects the declarations. 13 flat `hitl_shape` lines sit after the first inner `---` line today. The fix must leave all 248 declaring files and the per-shape counts unchanged. | commands, skills, agents, scripts/check-shape-declaration.cjs |
+| 402 | The card-fire fix (K4) reads the same shapes: it keys on the side-file shape entries first and keeps the text backstop as a second signal. | scripts/check-card-fire.cjs, lib/core/card-fire-sidechannel.cjs |
+| 403 | Lens agents return shapes as data. A subagent never asks the person (agent protocol rule 1); the main thread renders the shape. | agents/*.md, the lens-worker output contract |
+
+Shape of each recipe moment (from the Theo flow kinds of 400.1-RESEARCH.md K7 and K8; a proposal for 404 and 405, GUESS until designed):
+
+| Moment | Shape |
+|---|---|
+| Steps in a fixed order (ordered-dependency, most frameworks) | F.9 Ordered Walk, or F.2 Path when each step needs the last |
+| Any-order group (6 frameworks; pilot 1 gate G1 "run all 5 or pick steps") | F.8 Unordered Basket |
+| Choice between two steps (2 frameworks; pilot 2 gate G1) | F.5 Branches |
+| Repeat-return ("go back to step 3" or "continue"; 14 frameworks) | F.0 Mini Decision Gate |
+| Filing gate | F.0 |
+| What to do next after the recipe | F.1 Next Move (at most 3 options, MAX_K 3) |
+
+Parity rule (one shape object, three renderers):
+1. A decision moment is one object: `{shape, header, why, options[{id, label, description, recommended}], select rule, order rule, plain_line, subject and evidence ids}`. It is made once, by the recipe or the gate.
+2. The three renderers (terminal text, AskUserQuestion card, MCP App view) take that object and nothing else. No renderer adds, drops or reorders an option.
+3. The text fallback of the MCP App view is the terminal text renderer's output.
+4. Every renderer returns the same answer: `{gate_id, chosen, verdict}`.
+5. A shape change is made in the contract. The MCP App view URI is bumped (hosts cache by URI, 405-DESIGN r5 3.12), the wire snapshot and tests/test-270 move with a stated reason.
+6. Test: one fixture object per shape; for each renderer assert the same header, the same option ids in the same order, the same recommended id and the same answer payload. Extend the existing parity tests (2 shapes today) to all ten.
+7. Chat-only fields (`plain_line`, the nonce) are additive. The terminal renderers ignore them.
+8. Order of authority for what a card says (OR-20): the job, then the Feynman rule, then the research rules. The shape decides the form; it does not decide the words.
+
+Contradictions re-checked (C7 to C10) and new ones (C24 to C29):
+
+| Id | Status after OR-11 to OR-21 | Evidence and what is left |
+|---|---|---|
+| C7 step tool home | RESOLVED by OR-13 and OR-17. In the chat the step surface is the framework player (`framework_play`, 405-DESIGN r5 3.12 C2, 3.13 item 1) with steps from theo-context. The guarded Brain route stays for the CLI and the local Code tab. No free install reaches the guarded Brain. | Left: the Code tab has both routes; 404 must state that the guarded route wins there (OR-13 says it "stays for the CLI and the local Code tab"). |
+| C8 two Theo routes | ACCEPTED by ruling: two routes, split by place. | Left, for 404: R1 (no steps) and R2 (draft) are written for theo-mcp only; the theo-context route needs its own text. theo-context has no authored steps for at least one framework ("The Feynman Test" returned `unknown_framework`, OR-13). Coverage of the 38 registry frameworks on theo-context is UNVERIFIED. In `framework_play` the model copies the steps from the Theo result (r5 3.12 C2), so a step can change on the way; no check is designed. |
+| C9 fan-out needs agents | RESOLVED for the chat by OR-13 (one step per card, no helper agents). | Left: the terminal pilot still uses 5 workers (400.1-RESEARCH.md:196), so the edge 403 to 404 holds for the CLI and is still missing in ROADMAP.md:4482. Parity (OR-21 b): both places show the same F.8 basket for gate G1; only the execution differs. |
+| C10 recipe gate needs the click proof | PARTLY RESOLVED. r5 makes slice 11 depend on SP6 = A and returns SP6 = B to the owner (3.13 item 3). | Left: if SP6 = B, slices 12, 13, 14 and 11 have no card form; OR-13 and OR-17 then cannot be met as worded. |
+| C24 (new) framework player declared `hitl_shape: none` | OPEN. r5 3.12 C2 says "render-only; no write, no fork". OR-21 (d): "think in shapes first". A framework played step by step is an Ordered Walk (F.9); its choice and repeat points are F.5 and F.0. | Fix in the design: the player renders shape objects; `none` only if the tool truly shows no decision. |
+| C25 (new) two contracts, not one | OPEN. PROVEN gap above. Slice 12 AC12.1 says "F.0, F.1, F.8 and the other F shapes the gate vocabulary names"; the gate vocabulary names none (the card has no shape field). | Contract v2 must exist before slice 12 is planned and before the 404 CONTEXT is written. |
+| C26 (new) 404 changes shapes after 405 built the views | OPEN. OR-21: "401-404 change the recipes a bit". Each contract change after slice 12 bumps the view URI and moves the wire snapshot and test-270. | Rule proposed: 404 adds declarations and uses contract fields; a new field goes back to the contract owner. |
+| C27 (new) persona and hat cards are prose, not shape objects | OPEN, unowned. commands/persona.md:146, :188, :288. | Remaining owner item 2. |
+| C28 (new) Feynman lint against job sentences | RESOLVED by OR-20, to be recorded. r5 rule F5: a sentence at most 20 words, an option label at most 6 words. A Phase 400 job sentence has 3 slots (When, I want, so I can) and 400.4 shows it under "Set this job: <label>" (400.4-VERIFICATION.md truth 1). | OR-20: the job wins; the design must record each conflict. r5 applies OR-11 to OR-19 only (its status line); OR-20 and OR-21 are not applied yet. |
+| C29 (new) card-fire text backstop against changed recipe prose | OPEN, small. The backstop patterns match text forms such as a numbered list (check-card-fire.cjs:300-301). 404 rewrites the prose of the commands. | 402 K4 keys on the side-file shape entries (owner assignment); the false-block rate is measured again after the 404 pilots. |
+
+### 2g. Status of C1 to C23 after the rulings
+
+| Id | Status | By |
+|---|---|---|
+| C1 alwaysLoad against the extension | OPEN until spike SP9 (deferral leg) gives a verdict | OR-16; r5 section 6 SP9 |
+| C2 owner items not in the spikes | RESOLVED: L-CW1 dropped, deferral leg added as SP9 | OR-16 |
+| C3 hot 18 against the chat loop | CARRIED as a contract: r5 3.13 names the instruction tools, the 6 writers and the 3 component tools as "loaded up front" | 402 design must apply it |
+| C4 Eureka on enable against count pins | OPEN for the 402 design; r5 3.13 states the rule (same tool list on every machine in a marked process) | 402 |
+| C5, C6 Brain-name sweeps | RESOLVED as a rule in r5 section 10 (keep `pws-brain-mcp`; do not rewrite the 12 tests); the mos-desktop prefix stays UNVERIFIED | 401 plan must carry the keep-list |
+| C7 to C10 | see 2f | |
+| C11 K8 written for Cowork | OPEN: 404 CONTEXT rewrites K8 | 404 |
+| C12, C13 403 independence | OPEN, text: ROADMAP.md:4471 still says independent | main session text fix |
+| C14 instructions budget | OPEN for 401: no bytes for param rules | 401 |
+| C15 dist/ ignore line | RESOLVED: output outside the repo, no .gitignore change | r5 3.7 "Output folder" |
+| C16 double ownership of hooks | RESOLVED | OR-15 |
+| C17 400.5 slot | RESOLVED for the order (after 367-11 and 367-12); ROADMAP.md:4306 text is still stale | OR-15 |
+| C18 tests of other phases under the room rule | WIDER after OR-11: the rule now binds the CLI too; every phase that adds a room-writing test must use the register helper once slice 2 lands | all phases |
+| C19 receipt against 400.3 words | RESOLVED in r5 (AC3.11) | r5 |
+| C20 F1 order | RESOLVED | OR-14 |
+| C21 moving byte pins | OPEN, GUESS; F1 is the first test of it | 401 F1 plan |
+| C22 chat discovery | OPEN, UNVERIFIED | 401 and 402 designs |
+| C23 367 plans 11 to 14 | RESOLVED in r5 ("11 and 12, not 13 or 14"); 401-405-WORKFLOW.md table still says 11 to 14 | text fix |
+
+Totals: 29 contradictions found (23 first, 6 new from the Shape F contract). 12 resolved by ruling or by r5 (C2, C5, C6, C7, C9, C15, C16, C17, C19, C20, C23, C28), 2 accepted or partly resolved (C8, C10), 15 open as design work (C1, C3, C4, C11, C12, C13, C14, C18, C21, C22, C24, C25, C26, C27, C29). 2 of the open ones need an owner answer (C25 and C27, section 4).
+
+### 2h. Order check with all rulings applied
+
+Order as ruled (OR-9, OR-14, OR-15, OR-16):
+
+| Step | Work | Gate | Check |
+|---|---|---|---|
+| now, in parallel | (a) 405 design r5.1 and a narrow round 5; (b) 402 small plans K4 and F2, with 400.3-09 folded in (OR-15); (c) the 401 F1 plan written; (d) contract v2 of Shape F written into the 405 design | none for planning; main is frozen, so (b) is built on a branch | OK. No file of (b) is a 405 file (scripts/check-card-fire.cjs, scripts/session-start). |
+| 0 | beta.95 cut | "CUT DONE" (jsagi-42) | OK |
+| 1 | 401 F1 runs (OR-14); K4 and F2 merge | cut done | Then work/405-desktop rebases: F1 edits commands/rooms.md, setup.md and doctor.md, which slices 2, 5a and 10 edit. The rebase of r5 task 0.0 must come after F1, or it is done twice. |
+| 2 | 405 slice 0: one Desktop session with SP1 to SP9 | r5.1 written; slice 0 plan; rebase | OK. SP9 is "record only" for 405 and is the gate of 402. |
+| 3 | 367-11 and 367-12 on origin/main | next beta | OK. Not 13 or 14. |
+| 3a | 400.5 (OR-15) | step 3 | New check: 400.5 and 405 slice 13 both add 1 tool. The count pin moves 76 to 77 to 78. The second to land re-bases test-270 and the census with its own reason. Both edit scripts/mindrian-mcp-server.cjs. Run them one after the other, not in parallel. |
+| 4 | 405 foundation: slices 1 to 10 and 12 to 14 (10 and 12 to 14 before 9) | steps 1, 2, 3; contract v2 fixed before slice 12 | New check: slices 12 to 14 need SP6 legs a to c (and f for slice 14). SP6 = B drops them and returns OR-13 and OR-17 to the owner. |
+| 5 | 401 and 402 overlap parts; the Brain-name sweep after slice 10 | step 4 merged; SP9 verdict; 400.5 landed | OK |
+| 6 | 404 recipes: emit shapes; chat path through the player | step 5; contract v2 frozen; for the CLI fan-out, 403 Plan B or the existing agents | Edge 403 to 404 still not in the ROADMAP (text). |
+| 7 | 405 slice 11 | step 6; SP6 = A | OK |
+| after step 1 | 403 Plan A (K5 probe, omitClaudeMd) | F1 on main | OK; it is now unblocked early by OR-14. |
+
+Result: with the rulings the order has no step out of place. Three checks are new: the rebase after F1 (step 1), the serial order of 400.5 and slice 13 (step 3a), and contract v2 before slice 12 and before the 404 CONTEXT (step 4, step 6).
+
 ---
 
-## 3. READINESS
+## 3. READINESS (all rulings applied, OR-1 to OR-21)
 
-"Ready for actual work?" per phase and per first step.
+Three words only: READY NOW, READY AFTER <named gate>, NOT READY.
 
-| Phase | Ready? | First step | Exact gate (what must be true) | Gate owner |
-|---|---|---|---|---|
-| 400.1 | DONE as research; not closed | Short addendum: Cowork lines marked superseded; L-DT1 rewritten as a slice 0 leg | Owner item 1 answered | Elephant of 405 writes; owner runs the leg |
-| 401 | NO for the phase. YES for F1 alone if the owner moves it (item 2) | F1 plan: test first, then fix | (1) Owner item 2. (2) Main open after the beta.95 cut. (3) A narrow EGM note on `allowed-tools` coming alive in 109 files. (4) A keep-list for `pws-brain-mcp` and the Part 8 test files among the 12. | Owner (1); jsagi-42 (2); the 401 elephant (3, 4) |
-| 402 | NO | CONTEXT, then EGM design | (1) The deferral leg run on Desktop (item 1). (2) Owner item 3 (400.5 split). (3) 405 foundation merged, except K4 and F2 if item 5 is yes. (4) Version floors read again (research valid until 2026-12-08). | Owner (1, 2, 5); the 405 build (3); the 402 elephant (4) |
-| 402, K4 and F2 only | YES after the cut, if item 5 is yes | Thin plan or 2 quick tasks | Main open; tests named in 400.1-RESEARCH.md:349-350 written first | Owner; jsagi-42 for main |
-| 403 Plan A (probe, omitClaudeMd) | NO; 1 gate | K5 probe run (5 steps, 400.1-RESEARCH.md:149-154) | F1 on main | The 401 F1 plan |
-| 403 Plan B (merges, review loop) | NO | CONTEXT, then EGM design | Plan A verdict; owner item 4 (does 404 need the lens-worker); 400.2.1 order stated | Owner |
-| 404 | NO | CONTEXT, then EGM design | (1) Owner item 4 (step tool home, Theo route, agent path). (2) SP6 and SP7 verdicts. (3) 405 foundation merged. (4) K8 rewritten for the surface model. | Owner (1); owner on Desktop (2); the 405 build (3); the 404 elephant (4) |
-| 405 step 1 (EGM clean round) | IN WORK; not clean | r4.1, then a narrow round 4 | 0 Blocker and 0 Major open; CD3-M1 and CD3-M12 answered by the owner; the dist/ ignore line removed; the branch rebased onto origin/main (surface model doc and SEED-173 present) | The 405 elephant; owner for the 2 findings |
-| 405 slice 0 (spikes) | NO; 2 gates | Thin plan for slice 0 | Step 1 clean; owner item 1 answered (the spike list changes) | The 405 elephant; owner |
-| 405 foundation build | NO | Re-plan after spike verdicts | Slice 0 verdicts recorded in 405-SPIKES.md; 367-11 and 367-12 on origin/main; beta.95 cut done | Owner on Desktop; jsagi-42 |
-| 405 slice 11 | NO | per 404 | 404 pilots done with a chat path; SP6 = A or an owner answer | 404; owner |
-| 400.5 (upstream) | NO; deferred | /gsd-plan-phase 400.5 | ROADMAP text corrected; its slot set (item 3) | Owner |
-| 367 plans 13, 14 (upstream) | BLOCKED on plan 13 | Regenerate the harness manifest | D-367-08 cleared | jsagi-42 |
+| Phase and first step | State | Gate, and who owns it |
+|---|---|---|
+| 400.1: close the research with an addendum (Cowork lines superseded, L-CW1 dropped, L-DT1 is SP9) | READY NOW | none |
+| 401 F1: write the plan (test first, fix, generators, mirrors; keep 248 declaring files and the per-shape counts unchanged) | READY NOW | none; a narrow EGM note on `allowed-tools` coming alive in 109 files goes into the plan |
+| 401 F1: run it | READY AFTER the beta.95 cut ("CUT DONE") | jsagi-42 (OR-14) |
+| 401, the other 6 plans | NOT READY | 405 foundation merged; the Brain-name sweep after slice 10 with the keep-list |
+| 402 small plans K4 (card-fire) and F2 (session-start cap), with 400.3-09 | READY NOW (plan and build on a branch) | OR-15; merge READY AFTER the cut |
+| 402, the rest (alwaysLoad, Eureka on enable, consolidation, opt-in skills) | NOT READY | SP9 verdict (owner on Desktop); 400.5 landed; 405 foundation merged; full EGM; floors read again after 2026-12-08 |
+| 403 Plan A (K5 probe, omitClaudeMd on reviewers) | READY AFTER F1 on main | the 401 F1 plan |
+| 403 Plan B (lens-worker, review loop, shapes returned as data) | NOT READY | EGM round; the shape contract v2; the order with 400.2.1 |
+| 404: write CONTEXT (OR-13, OR-17 to OR-21 fix its chat form; K8 rewritten) | READY AFTER the Shape F contract v2 is written in the 405 design | the 405 elephant; remaining owner item 1 |
+| 404: design and build | NOT READY | SP6 and SP8 verdicts; 405 foundation merged; steps 5 of the order |
+| 405: design r5.1 and narrow round 5 | NOT READY as a clean design (in work) | 405-GENUI-RESEARCH.md does not exist yet (r5 status line); r5 applies OR-11 to OR-19, not OR-20 and OR-21; round 4 on r4.1 gave 1 Blocker and 19 Majors (R4 headers), and no review has read r5; fixes C24 and C25 |
+| 405 slice 0 (spikes SP1 to SP9) | READY AFTER r5.1 and the slice 0 plan (r5 section 12 item 2: no full round needed) and the rebase after F1 | the 405 elephant; then the owner on Desktop |
+| 405 foundation build | NOT READY | spike verdicts; 367-11 and 367-12 on origin/main; F1 run; round 5 clean |
+| 405 slice 11 | NOT READY | 404 pilots; SP6 = A |
+| 400.5: plan | READY AFTER 367-11 and 367-12 on origin/main | jsagi-42; the stale ROADMAP line corrected first |
+| 367 plans 13 and 14 | NOT READY (plan 13 blocked) | stale harness manifest, D-367-08 (jsagi-42) |
+| 400.2.1 (critical bug fix, 0 plans) | NOT READY, no order written | remaining owner item 2 |
 
-The single next action for the owner: answer the 5 owner questions of section 4 on one card. Questions 1 and 4 change the spike list, so they come before the one Desktop session (slice 0, about 20 to 30 minutes with the added legs).
+The single next action for the owner: run the one Desktop spike session (405 slice 0, SP1 to SP9) when the slice 0 plan is handed over. Nothing else in the program waits on the owner today, except the two light questions below, which can ride on the same card as the hand-over.
 
 ---
 
 ## 4. OWNER ITEMS and UNVERIFIED items
 
-### Owner items (one question each; recommendation first)
+### Answered (2026-11-27, 405-CONTEXT.md, LOCKED)
 
-1. Deferral check in the spikes. Recommendation: YES, add it.
-   - Picture: the toolbox has 76 tools. Phase 402 wants to put 18 on the table and leave 58 in the drawer. Nobody has looked whether the Desktop chat opens the drawer by itself.
-   - Question: add one leg to the Desktop spike session that shows which tools the chat and the Code tab can call without a search, and drop the separate Cowork test (there is no separate Cowork now)?
-   - Why it matters: without it, Phase 402's main saving (about 15.5k tokens per session) stays unproven after the spikes, and your ruling R3 keeps it blocked.
+| Item of the first version | Ruling | In one line |
+|---|---|---|
+| 1 deferral leg in the spikes | OR-16 | Yes, one session; the separate Cowork test is dropped |
+| 2 F1 first | OR-14 | F1 runs right after the beta.95 cut, before the 405 build |
+| 3 slot for 400.5 and one owner per hook defect; 5 two bug fixes now | OR-15 | 400.5 owns prompt hooks, after 367-11 and 367-12; 402 owns K4 and F2 and starts them now; 400.3-09 folds into 402 |
+| 4 how a recipe runs in the chat | OR-13, OR-17 to OR-21 | MCP App cards, one step per card, no helper agents; the job first, then the Feynman rule; MCP Apps as the technology; the Shape F family is the one interaction contract |
+| CD3-M1 width of the room rule | OR-11 | Registered rooms only, everywhere, the CLI included |
+| CD3-M12 the extension in RULE 5 | OR-12 | A checked release artifact, not a numbered place |
 
-2. Fix the frontmatter split now. Recommendation: YES, right after the cut, before the 405 build.
-   - Picture: 253 of 255 instruction files have a note line that the host reads as "end of settings". Everything below that line is read as plain text.
-   - Question: may the one mechanical fix (F1) run before the 405 foundation, although it touches 3 command files that 405 also edits?
-   - Why it matters: 405 and 403 add settings to these files. Each new setting below the note line is lost without an error.
+### Remaining owner items (2, both light; recommendation first)
 
-3. A slot for 400.5 and one owner per hook defect. Recommendation: 400.5 lands after 367 plans 11 and 12, before the 401 and 402 overlap; 400.5 owns the prompt hooks (K3, the merge of 4 hooks); 402 owns the card-fire envelope and the session-start cap; 400.3-09 folds into 402.
-   - Picture: three crews are booked to repair the same three pipes.
-   - Question: do you accept this split and this slot?
-   - Why it matters: the ROADMAP still says 400.5 must land before the next cut. It adds one tool to the server that 405 packs and 402 defers.
+1. Who holds the one shape contract. Recommendation: Phase 405 writes contract v2 now (in its design, built in slice 12), and Phase 404 only uses it.
+   - Picture: three screens must show the same form. Today the terminal has ten forms and the chat card knows two (pick one, pick many). Someone must draw the one master form.
+   - Question: may 405 own the master form, with 404 allowed to add recipe declarations but not new fields?
+   - Why it matters: 405 builds the cards before 404 starts. If 404 owns the form, the cards are built twice.
 
-4. How a recipe runs in the Desktop chat. Recommendation: the step tool lives on the room server; in the chat the steps come from theo-context cards (key-free, OR-8); the guarded Brain route stays CLI and Code tab only; the pilots get a no-agent path, so 404 does not wait for 403.
-   - Picture: in the terminal a recipe asks the guarded Brain for steps and sends 5 helpers. In the chat there are no helpers, and the one-click extension has no paid check.
-   - Question: may a chat recipe use theo-context as its step source, and run its steps one by one without helpers?
-   - Why it matters: the other choice lets a free one-click install reach the guarded Brain. That changes decision 1 (the key gates install and update).
+2. Who moves the persona and hat cards onto shape objects. Recommendation: Phase 400.2.1 (the open persona bug-fix phase) does it for the 4 cards of /mos:persona, and runs before 403 Plan B.
+   - Picture: the persona cards already say which form they are, but each is still hand-drawn in the command text.
+   - Question: do you accept 400.2.1 as the owner, and its place before the agent merge of 403?
+   - Why it matters: OR-21 names the hats and persona work. No phase of 401 to 405 holds it, and 400.2.1 and 403 edit the same agent files with no order.
 
-5. Two bug fixes out of the queue. Recommendation: YES.
-   - Picture: a sign says "your choices are coming as a card" and then no card comes. This happened in 88 of 99 cases in 30 days.
-   - Question: may the card-fire fix (drop `continue:false`) and the session-start size cap run now as small plans, apart from the rest of Phase 402?
-   - Why it matters: they touch no 405 file. Today they wait behind the whole 405 foundation.
+Text fixes for the main session (no owner answer needed): ROADMAP.md:4306 (400.5 "before the next cut"), ROADMAP.md:4471 (403 "independent"), ROADMAP.md:4482 (404 has no edge to 403), ROADMAP.md 400.3 ("3 plans"; 10 are built), 401-405-WORKFLOW.md step 3 ("11 to 14").
 
-Carried from 405 Goldfish round 3 (already marked "send to the owner"; not counted above): CD3-M1 (does the registered-room rule also bind the CLI, or only pins and hookless places) and CD3-M12 (is the `.mcpb` a tenth lockstep place or a checked release artifact).
-
-Unowned items found (no phase holds them; no question yet): SEED-173 items (e) the `cowork` label in 819 files and 2 enums, and (g) the doc sweep of the old three-surface text; the Jev voice run after K1 (400.1-RESEARCH.md:319); 400.3 plans 04, 07 and 10 to 16; the 5 open human items of 400.4-VERIFICATION.md and the wicked cut-off of Phase 400.
+Still unowned: SEED-173 items (e) and (g); the Jev voice run after K1; 400.3 plans 04, 07 and 10 to 16; the 5 open human items of 400.4 and the wicked cut-off of 400.
 
 ### UNVERIFIED items
 
-1. Whether the Desktop chat or the Code tab honours `_meta["anthropic/alwaysLoad"]` from an extension server (C1, C2).
-2. Whether theo-context and theo-mcp hold the same steps for a framework; theo-context coverage of the 38 registry frameworks (C8).
-3. The tool prefix of the mos-desktop copy (`plugin_mos_` or `plugin_mos-desktop_`) (C6).
-4. Whether the step-block hash of Step 9.5 changes when the mcp-server-brain lines go (the block holds release.sh:1122-1147; the hash file lists Step 9.5 at its line 134; the hash was not recomputed here).
-5. Whether the 401 bulk edit moves the vi3 byte pins and the 353 band (C21, GUESS).
+1. Whether the Desktop chat or the Code tab honours a deferral mark from an extension server (SP9).
+2. Whether theo-context and theo-mcp hold the same steps; theo-context coverage of the 38 registry frameworks.
+3. The tool prefix of the mos-desktop copy (`plugin_mos_` or `plugin_mos-desktop_`).
+4. Whether the Step 9.5 step-block hash moves when the mcp-server-brain lines go.
+5. Whether the 401 bulk edit moves the vi3 byte pins and the 353 band (GUESS).
 6. Whether an `mcp_tool` hook can call a deferred tool (400.5 against 402).
-7. The owner ruling that defers 400.5: stated by the coordinator; not found in ROADMAP.md or STATE.md on this branch.
-8. The counts GOVERNED 69 and PURE_READ 7: taken from 405-CONTEXT.md PA-2; the two arrays were located (graph-catchup-spawn.cjs:40, :113) but not counted here.
-9. How the chat lists skills, and whether `disable-model-invocation` or a 200 B description cap hides a command there (C22).
-10. Every 405 spike question SP1 to SP8 (405-DESIGN section 6) and the 20 items of 405-RESEARCH.md section 8.
-11. The 400.1 numbers on today's tree: measured at 35afa6d; re-run here only for the frontmatter split (253 of 255), the instructions length (2,000 B), the `continue:false` line (:876), the unscoped-name file count (115) and the mcp-server-brain reference count (54).
-12. No test suite was run for this review.
+7. The counts GOVERNED 69 and PURE_READ 7 (from 405-CONTEXT.md; the arrays were located, not counted).
+8. How the chat lists skills, and whether a description cap or `disable-model-invocation` hides a command there.
+9. How scripts/check-shape-declaration.cjs finds the end of frontmatter (its close rule was not read), so the effect of F1 on its counts is not proven; the F1 plan must compare the counts before and after.
+10. The difference between the shape counts here (F.0 34, F.8 67) and the coordinator's (F.0 36, F.8 69).
+11. Every MCP Apps host fact that rests on a secondary source (OR-18, OR-19), and every 405 spike question SP1 to SP9.
+12. The 400.1 numbers on today's tree, other than the 5 re-run in the first version.
+13. Design r5 was read for sections 3.12, 3.13, 6 (SP9 row), 7, 10, 11, 12 and by keyword; not line by line. No Goldfish review of r5 exists.
+14. No test suite was run for this review.
