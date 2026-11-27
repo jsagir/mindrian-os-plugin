@@ -116,8 +116,8 @@ if [ -n "${MINDRIAN_MCP_FIRST:-}" ]; then
             // .planning/debug/resolved/stop-hook-invalid-hookspecificoutput-schema.md.
             const out = {
               decision: 'block',
-              reason: 'stop-gate-relevant-unanswered',
-              continue: false,
+              // 402 K4-R1, K4-R2: no continue key, so the host continues the turn; the same fixed reason as route 1.
+              reason: 'rendering your choices as a selectable card',
               systemMessage: 'A pending decision needs your input.',
             };
             process.stdout.write(JSON.stringify(out) + '\n');

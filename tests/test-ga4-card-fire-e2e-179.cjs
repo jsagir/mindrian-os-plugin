@@ -118,7 +118,7 @@ ok('(E2E-1) the script exits 0 (never crashes the hook chain)', r1.res.status ==
 ok('(E2E-1) a realistic Stop stdin + ascii-box transcript emits a parseable envelope',
   r1.env && typeof r1.env === 'object');
 ok('(E2E-1) the envelope BLOCKS (decision:block) -- the LIVE cure, no longer a no-op',
-  r1.env.decision === 'block' && r1.env.continue === false);
+  r1.env.decision === 'block' && !('continue' in r1.env));
 // stop-hook-invalid-hookspecificoutput-schema (2026-07-23, 4th occurrence of this
 // defect class): this assertion previously required hookSpecificOutput.additionalContext
 // on the block envelope -- that was asserting the BUG (Stop has no hookSpecificOutput
@@ -534,7 +534,7 @@ const rHuge = runInterceptor({
   session_id: 'e2e-sess-huge',
 });
 ok('(WR-08) a capped read still detects the TAIL box turn and BLOCKS (semantics unchanged)',
-  rHuge.env && rHuge.env.decision === 'block' && rHuge.env.continue === false);
+  rHuge.env && rHuge.env.decision === 'block' && !('continue' in rHuge.env));
 
 // ---------------------------------------------------------------------------
 // (WR-06) a STALE earlier AskUserQuestion must NOT suppress interception of the CURRENT box.
@@ -573,7 +573,7 @@ const rStale = runInterceptor({
 });
 ok('(WR-06) the script exits 0 on the stale-card-then-box transcript', rStale.res.status === 0);
 ok('(WR-06) a stale EARLIER card does NOT suppress the CURRENT box -- it BLOCKS (decision:block)',
-  rStale.env && rStale.env.decision === 'block' && rStale.env.continue === false);
+  rStale.env && rStale.env.decision === 'block' && !('continue' in rStale.env));
 
 // And the converse stays correct: a card fired on the LAST (current) turn still no-ops, even
 // when an earlier turn rendered a box (proves the scope is genuinely last-turn, not first-match).

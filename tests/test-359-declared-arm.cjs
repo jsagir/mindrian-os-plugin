@@ -540,7 +540,7 @@ if (!TRIPWIRES_ONLY) {
       try { envelope = JSON.parse(res.stdout); } catch (_e) { envelope = null; }
       assert.ok(envelope, 'stdout must be parseable JSON; got: ' + res.stdout);
       assert.equal(envelope.decision, 'block');
-      assert.equal(envelope.continue, false);
+      assert.ok(!('continue' in envelope), 'a block envelope has no continue key (402 K4-R1)');
       assert.ok(res.stdout.indexOf('declared-fork-no-card') === -1, 'the internal slug must never reach stdout');
 
       const logPath = path.join(mindrianHome, 'card-fire-intercepts.log');

@@ -1,0 +1,30 @@
+{
+  "ts": 1795778512739,
+  "reason": "bounded-escape-released-after-3-retries",
+  "ran_entries": [
+    "scripts/intent-classifier.cjs"
+  ],
+  "gate_signature_empty": true,
+  "matched_glyph_span_length": 0,
+  "output_text_length": 238,
+  "session_hash": "4b494729de92",
+  "hand_class": "no fork",
+  "synthetic_text": "The build is running and the suite reports when it ends. I will check the result and send one short line with the outcome. The record holds no other detail for this turn. The record holds no other detail for this turn.",
+  "expected_without_key": {
+    "class": "degrade",
+    "log_reason": "bounded-escape-released-after-3-retries",
+    "envelope": {
+      "continue": true,
+      "suppressOutput": true,
+      "reason": "continuing this turn"
+    }
+  },
+  "expected_with_stop_hook_active_true": {
+    "class": "pass",
+    "log_reason": "stop-hook-active-pass",
+    "envelope": {
+      "continue": true,
+      "suppressOutput": true
+    }
+  }
+}
