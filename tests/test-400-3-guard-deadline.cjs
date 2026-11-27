@@ -14,7 +14,7 @@
  *
  * Groups:
  *   unit   D1-D8   lib/core/hook-deadline.cjs and the outage mode deadline_exceeded
- *   hooks  G1-G10  the parent and --inner modes of scripts/part8-egress-guard-hook.cjs and
+ *   hooks  G1-G13  the parent and --inner modes of scripts/part8-egress-guard-hook.cjs and
  *                  scripts/web-credential-guard-hook.cjs
  * Timing arms G2 and G9 (wave 2 Goldfish W2-CD-06): a breach runs the arm once more; the arm fails only on 2
  * breaches and prints each value with the load average (tests/helpers/timing-arm-4003.cjs). No bound is raised.
@@ -283,6 +283,30 @@ function groupHooks() {
     try { pids = Array.from(new Set(fs.readFileSync(marker, 'utf8').split('\n').filter(Boolean))); } catch (_e) { pids = []; }
     check('G10 a --require preload reaches the check: exit 2 with the guard_unavailable sentence, and 2 different pids loaded the preload',
       r.code === 2 && r.stderr.trim() === P8_UNAVAILABLE && pids.length === 2, J({ code: r.code, stderr: r.stderr.slice(0, 200), pids: pids.length }));
+  }
+  // G11-G13 (wave 2 Goldfish W2-D-08 / W2-CD-11): the BASE allow pre-checks run in the parent before the spawn, so a
+  // child that stalls or cannot start never blocks a call that BASE allowed; at the deadline a provably empty payload
+  // follows the guardUnavailable rule (allow). The stall seam and a 1500 ms deadline stand in for a stuck child.
+  const procCount = (log) => { try { return fs.readFileSync(log, 'utf8').split('\n').filter(Boolean).length; } catch (_e) { return 0; } };
+  {
+    const log = path.join(T, 'g11.log');
+    const r = runHook(P8, { tool_name: 'Read', tool_input: { file_path: '/tmp/x' } }, Object.assign({ NODE_OPTIONS: '--require ' + COUNT_PRELOAD, MOS_PERF_COUNT_LOG: log }, STALL));
+    check('G11 part8 hook, a tool that is not Brain-shaped, a stalled child: exit 0, empty stderr, 1 node process (no spawn)',
+      r.code === 0 && r.stderr === '' && procCount(log) === 1, J({ code: r.code, stderr: r.stderr.slice(0, 200), processes: procCount(log), ms: Math.round(r.ms) }));
+  }
+  for (const [label, input] of [['tool_input not an object', { tool_name: 'WebSearch', tool_input: 'dominant design' }], ['tool_input with no string', { tool_name: 'WebSearch', tool_input: { limit: 3 } }]]) {
+    const log = path.join(T, 'g12-' + label.replace(/ /g, '-') + '.log');
+    const r = runHook(WEB, input, Object.assign({ NODE_OPTIONS: '--require ' + COUNT_PRELOAD, MOS_PERF_COUNT_LOG: log }, STALL));
+    check('G12 web hook, ' + label + ', a stalled child: exit 0, empty stderr, 1 node process (no spawn)',
+      r.code === 0 && r.stderr === '' && procCount(log) === 1, J({ code: r.code, stderr: r.stderr.slice(0, 200), processes: procCount(log), ms: Math.round(r.ms) }));
+  }
+  {
+    const before = outageLines().length;
+    const r = runHook(P8, { tool_name: P8_PAYLOAD.tool_name, tool_input: {}, session_id: 'g13' }, STALL);
+    const lines = outageLines();
+    check('G13 part8 hook, a Brain-shaped tool with tool_input {} and a stalled child: the deadline allows (exit 0) as guardUnavailable does, 1 outage line deadline_exceeded',
+      r.code === 0 && r.stderr === '' && lines.length === before + 1 && / deadline_exceeded$/.test(lines[lines.length - 1]),
+      J({ code: r.code, stderr: r.stderr.slice(0, 200), lines: lines.length - before, ms: Math.round(r.ms) }));
   }
 }
 

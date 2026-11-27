@@ -630,6 +630,12 @@ function runParent() {
       return process.exit(0); // the BASE fail-OPEN on garbage stdin (A3).
     }
     if (!payload || typeof payload !== 'object') return process.exit(0);
+    // Wave 2 Goldfish W2-D-08 / W2-CD-11: the BASE allow pre-check runs here, before the spawn, so a child that
+    // stalls or cannot start never blocks a tool that is not Brain-shaped (BASE allowed it at once). When the
+    // sanitizer cannot load, the child decides (it fails closed as at BASE).
+    try {
+      if (!require(SANITIZER_PATH).isBrainShapedTool(payload.tool_name)) return process.exit(0);
+    } catch (_) { /* the child decides */ }
     const hd = require(path.join(LIB_CORE, 'hook-deadline.cjs'));
     const r = hd.runUnderDeadline({ script: __filename, args: ['--inner'], input: raw, deadlineAt: hd.deadlineFor(HOST_BUDGET_MS) });
     if (r.kind === 'done' && (r.status === 0 || r.status === 2)) {
@@ -640,6 +646,8 @@ function runParent() {
     const toolName = typeof payload.tool_name === 'string' ? payload.tool_name : '';
     if (r.kind === 'deadline') {
       try { require(OUTAGE_LOG_PATH).recordGuardOutage(toolName, 'deadline_exceeded'); } catch (_) { /* a failing log never changes a verdict */ }
+      // Wave 2 Goldfish W2-CD-11: the guardUnavailable rule. A provably empty payload has nothing to send, so it is allowed.
+      if (isProvablyEmptyPayload(payload.tool_input)) return allow();
       return block(DEADLINE_SENTENCE);
     }
     return guardUnavailable(toolName, payload.tool_input, 'hook_uncaught');

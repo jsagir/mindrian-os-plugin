@@ -192,6 +192,16 @@ function runParent() {
     }
     if (!payload || typeof payload !== 'object') return allow();
     toolName = typeof payload.tool_name === 'string' ? payload.tool_name : '';
+    // Wave 2 Goldfish W2-D-08 / W2-CD-11: the 2 BASE allow pre-checks run here, before the spawn, so a child that
+    // stalls or cannot start never blocks a call that BASE allowed at once: a tool_input that is not an object, and
+    // a tool_input with no string in it. A collect failure goes to the child (the BASE outage branch).
+    const toolInput = payload.tool_input;
+    if (!toolInput || typeof toolInput !== 'object') return allow();
+    try {
+      const strings = [];
+      collectStrings(toolInput, strings, 0);
+      if (strings.length === 0) return allow();
+    } catch (_) { /* the child decides */ }
     const hd = require(path.join(LIB_CORE, 'hook-deadline.cjs'));
     const r = hd.runUnderDeadline({ script: __filename, args: ['--inner'], input: raw, deadlineAt: hd.deadlineFor(HOST_BUDGET_MS) });
     if (r.kind === 'done' && (r.status === 0 || r.status === 2)) {
