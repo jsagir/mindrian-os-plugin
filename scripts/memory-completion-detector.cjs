@@ -11,7 +11,8 @@
  * On match, fires acrossSession.completeJtbd to write a completed entry + LOCAL graph edge.
  *
  * Pitfall 6 gates (RESEARCH §8):
- *   - Requires cascade.cascade_status === 'completed' (Phase 95 contract)
+ *   - Requires cascade.cascade_status === 'completed' (Phase 95 contract), or
+ *     'partial' with graph_index.status 'ok' (plan 400.3-03)
  *   - Counts each cascade record once (386-15: timestamp|file_path)
  *   - Requires within-session current.confidence >= 0.6
  *   - Manual `/mos:memory complete` is the user override for false negatives
@@ -50,7 +51,12 @@ function detectAndFire(roomDir, roomSlug) {
     // Pitfall 6 gate (a): cascade_status must be 'completed'.
     // Phase 95's bash writer sets cascade_status: "complete" (string literal);
     // accept "complete" or "completed" for forward compatibility.
-    const statusOk = cascade.cascade_status === 'completed' || cascade.cascade_status === 'complete';
+    // Plan 400.3-03 (D-01, D-07): a partial record whose artifact reached the graph is a full cascade that ran, so
+    // a legacy room keeps its completion signal. A failed graph-index and the index-only words are not completions
+    // (plan 02b W7).
+    const partialLanded = cascade.cascade_status === 'partial'
+      && !!cascade.graph_index && typeof cascade.graph_index === 'object' && cascade.graph_index.status === 'ok';
+    const statusOk = cascade.cascade_status === 'completed' || cascade.cascade_status === 'complete' || partialLanded;
     if (!statusOk) return;
 
     // Phase 386-15 (B7): count a cascade record once. last-cascade.json is a
