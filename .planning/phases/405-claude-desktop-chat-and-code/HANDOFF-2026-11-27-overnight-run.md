@@ -19,7 +19,7 @@ for: the next session that runs the 401 to 405 overnight plan
 - `/home/jsagi/dev/MindrianOS-Plugin-402small`, branch `work/402-cardfire-startcap`: K4 and F2 plan in `.planning/quick/261127-k4f-cardfire-and-start-cap/` (check; not pushed).
 
 ## State of each lane when the session stopped
-- L1 405 design: r5 committed. r5.1 (contract v2 part A, research rules part B) was being written; if `405-DESIGN.md` header does not say r5.1, redo it from the instructions in OR-20, OR-21, OR-23 and 401-405-PROGRAM.md sections 2f to 2h. Then one narrow Goldfish round (codebase-details and implementation-readiness) on 3.2/3.2b, 3.5, 3.11, 3.12.
+- L1 405 design: r5.1 is DONE and committed (Shape F contract v2 in 3.12.2; the 15 research rules in 3.12.5; one click mechanism: the app-only tool `gate_click`; tool count 76 to 79). NEXT: one narrow Goldfish round 5 (codebase-details and implementation-readiness) on 3.2, 3.2b, 3.5, 3.11, 3.12.2, 3.12.3, 3.12.5 and slices 4b and 12 to 14; resolve; then thin plans for the build slices after the spike verdicts.
 - L2 405 slice 0: plans `405-00a-PLAN.md` (offline kit) and `405-00b-PLAN.md` (owner script) were being written; check they exist, else re-plan from design section 6.
 - L3 and L4: plans being written (see above); then gsd-executor on each branch; no merge before "CUT DONE".
 - L5 designs: 401 and 402 Elephants were writing `401-*/` and `402-*/` CONTEXT, RESEARCH, DESIGN in the 405 worktree; check which files exist; then one Goldfish round each. 403 Plan B and 404 start after contract v2.
