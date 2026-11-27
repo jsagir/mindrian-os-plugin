@@ -18,6 +18,8 @@
  * Groups: unit (U1-U9), cascade (C1-C10, C10b), hook (H1-H20, H8w).
  *
  * Plan 400.3-06a adds C10 floor, C10b, H19 and H20 (OR-2, OR-4, C10, D-10).
+ * Timing arm H6 (wave 2 Goldfish W2-CD-06): a breach runs the arm once more on a fresh room; the arm fails only on
+ * 2 breaches and prints the wall time with the load average (tests/helpers/timing-arm-4003.cjs).
  * Usage: node tests/test-400-3-room-root-detection.cjs [unit|cascade|hook|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -419,6 +421,9 @@ function hookEnv(home, extra) {
   for (const k of ['CLAUDE_ACTIVE_ROOM', 'CLAUDE_ROOM_DIR', 'CLAUDE_CODE_SESSION_ID', 'MINDRIAN_ACTIVE_SESSION_ID', 'MINDRIAN_MCP_FIRST']) delete env[k];
   return env;
 }
+// Wave 2 Goldfish W2-CD-06: H6 is a timing arm (tests/helpers/timing-arm-4003.cjs).
+const timingArm = require(path.join(__dirname, 'helpers', 'timing-arm-4003.cjs'));
+
 function postWrite(filePath, cwd, home, opts) {
   const o = opts || {};
   const t0 = msNow();
@@ -514,17 +519,22 @@ function groupHook() {
       await stopChild(h);
     }
 
-    // H6
+    // H6 (wave 2 Goldfish W2-CD-06: the full cascade has step timeouts, so a loaded machine can give partial; one
+    // retry on a fresh room, fail on 2 breaches; the wall time is printed with the load average)
     {
-      const y = path.join(root, 'rooms', 'y');
-      mkR1(y, { roomMd: false });
-      const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
-      const side = readSide(y);
-      // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
-      check('H6 a legacy /rooms/ room keeps the full cascade: complete, classification set, queued MINTO advisory',
-        h6.status === 0 && !!side && side.cascade_status === 'complete' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
-          && h6.advisory.indexOf('; cascade partial: ') === -1,
-        JSON.stringify({ advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification }));
+      let h6n = 0;
+      const t = timingArm.timedSync('H6 a legacy /rooms/ room keeps the full cascade: complete, classification set, queued MINTO advisory', 'cascade complete', () => {
+        h6n += 1;
+        const y = path.join(root, 'rooms', h6n === 1 ? 'y' : 'y' + h6n);
+        mkR1(y, { roomMd: false });
+        const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
+        const side = readSide(y);
+        // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
+        const ok = h6.status === 0 && !!side && side.cascade_status === 'complete' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
+          && h6.advisory.indexOf('; cascade partial: ') === -1;
+        return { value: h6.ms, ok, detail: { advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification } };
+      });
+      check(t.label, t.ok, t.detail);
     }
 
     // H7 timing (D-06)

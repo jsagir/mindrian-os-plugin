@@ -271,8 +271,8 @@ async function groupMemory() {
     await stopHolder(h);
   }
 
-  // K6
-  {
+  // K6 (timing arm, W2-CD-06: one retry, fail on 2 breaches)
+  await timedArm('K6 the memory reconcile of fixture L holds the write lock less than 750 ms', '750 ms', async () => {
     const fx = mkFixture('k6', { large: true });
     let p = null;
     try {
@@ -286,11 +286,9 @@ async function groupMemory() {
       await yieldMs(50);
       const pr = await stopProber(p); p = null;
       console.log('400.3-06c memory reconcile hold ms (Linux, 320 files): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
-      check('K6 the memory reconcile of fixture L holds the write lock less than 750 ms (hold ' + pr.longest.toFixed(0) + ' ms)',
-        !!res && res.ok === true && pr.longest < 750 && pr.probes > 0, JSON.stringify({ res: res && { ok: res.ok, reason: res.reason }, pr }));
-    } catch (e) { check('K6 fixture', false, e.message); }
-    if (p) { try { p.kill(); } catch (_e) { /* gone */ } }
-  }
+      return { value: pr.longest, ok: !!res && res.ok === true && pr.longest < 750 && pr.probes > 0, detail: { res: res && { ok: res.ok, reason: res.reason }, pr } };
+    } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -322,22 +320,11 @@ function normalized(R, s) {
   return t === null ? null : t.split(R).join('<R>').replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/g, '<TS>');
 }
 
-// Wave 2 Goldfish W2-CD-06: a timing arm. measure() returns { value, ok, detail }. A breach runs measure() once
-// more; the arm fails only when both runs breach. Each run prints its value and the load average.
+// Wave 2 Goldfish W2-CD-06: the timing arms (K6, F7, F8) use tests/helpers/timing-arm-4003.cjs.
+const timingArm = require(path.join(__dirname, 'helpers', 'timing-arm-4003.cjs'));
 async function timedArm(label, bound, measure) {
-  const runs = [];
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
-    let r;
-    try { r = await measure(); } catch (e) { r = { value: NaN, ok: false, detail: e && e.message }; }
-    let load = 'unknown';
-    try { load = os.loadavg().map((x) => x.toFixed(2)).join(' '); } catch (_e) { /* unknown */ }
-    console.log('  timing ' + label + ' run ' + attempt + ': ' + (Number.isFinite(r.value) ? r.value.toFixed(0) : String(r.value)) + ' ms (bound ' + bound + ' ms, load average ' + load + ')');
-    runs.push(r);
-    if (r.ok) break;
-  }
-  const last = runs[runs.length - 1];
-  check(label + ' (measured ' + runs.map((r) => (Number.isFinite(r.value) ? r.value.toFixed(0) : String(r.value))).join(', ') + ' ms; ' + (last.ok ? (runs.length === 1 ? 'first run' : 'retry after 1 breach') : '2 breaches') + ')',
-    last.ok, JSON.stringify(runs.map((r) => r.detail)));
+  const t = await timingArm.timedAsync(label, bound, measure);
+  check(t.label, t.ok, t.detail);
 }
 
 async function groupFeynman() {
@@ -458,8 +445,8 @@ async function groupFeynman() {
       JSON.stringify({ err: ca.err && ca.err.message, errB: errB && errB.message, linesA, linesB, stderr: ca.stderr.slice(-300), sizeA }));
   }
 
-  // F7
-  {
+  // F7 (timing arm, W2-CD-06: one retry, fail on 2 breaches)
+  await timedArm('F7 runAll on fixture L holds the write lock less than 750 ms', '750 ms', async () => {
     const fx = mkFixture('f7', { large: true });
     let p = null;
     try {
@@ -471,11 +458,10 @@ async function groupFeynman() {
       await yieldMs(50);
       const pr = await stopProber(p); p = null;
       console.log('400.3-06c session-start hold ms (Linux, 320 files): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
-      check('F7 runAll on fixture L holds the write lock less than 750 ms (hold ' + pr.longest.toFixed(0) + ' ms)',
-        !ca.err && pr.longest < 750 && pr.probes > 0, JSON.stringify({ err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) }));
-    } catch (e) { check('F7 fixture', false, e.message); }
-    if (p) { try { p.kill(); } catch (_e) { /* gone */ } }
-  }
+      return { value: pr.longest, ok: !ca.err && pr.longest < 750 && pr.probes > 0, detail: { err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) } };
+    } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
+  });
+
   // F8 (wave 2 Goldfish W2-D-04): the large-room fixture.
   {
     const { buildLargeRoom } = require(path.join(__dirname, 'fixtures', 'large-room', 'build-fixture.cjs'));
@@ -506,7 +492,7 @@ async function groupFeynman() {
       closeRoomDb(openRoomDb(R));
       return { R, artifacts: built.artifacts };
     };
-    await timedArm('F8 runAll on the large-room fixture (2,105 artifacts) holds the write lock less than INDEX_BUSY_MS ' + INDEX_BUSY_MS + ' ms', INDEX_BUSY_MS, async () => {
+    await timedArm('F8 runAll on the large-room fixture (2,105 artifacts) holds the write lock less than INDEX_BUSY_MS ' + INDEX_BUSY_MS + ' ms', INDEX_BUSY_MS + ' ms', async () => {
       const fx = mkLarge();
       let p = null;
       try {

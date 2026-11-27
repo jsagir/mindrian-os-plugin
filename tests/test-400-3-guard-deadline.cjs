@@ -16,6 +16,8 @@
  *   unit   D1-D8   lib/core/hook-deadline.cjs and the outage mode deadline_exceeded
  *   hooks  G1-G10  the parent and --inner modes of scripts/part8-egress-guard-hook.cjs and
  *                  scripts/web-credential-guard-hook.cjs
+ * Timing arms G2 and G9 (wave 2 Goldfish W2-CD-06): a breach runs the arm once more; the arm fails only on 2
+ * breaches and prints each value with the load average (tests/helpers/timing-arm-4003.cjs). No bound is raised.
  * Usage: node tests/test-400-3-guard-deadline.cjs [unit|hooks|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -155,6 +157,9 @@ function runHook(script, input, extra, nodeArgs) {
 }
 function stats(a) { const s = a.slice().sort((x, y) => x - y); return { p50: s[Math.floor((s.length - 1) / 2)], max: s[s.length - 1] }; }
 
+// Wave 2 Goldfish W2-CD-06: G2 and G9 are timing arms (tests/helpers/timing-arm-4003.cjs).
+const timingArm = require(path.join(__dirname, 'helpers', 'timing-arm-4003.cjs'));
+
 function groupHooks() {
   console.log('\n-- group hooks --');
   const STALL = { MOS_HOOK_DEADLINE_TEST_STALL_MS: '10000', MOS_HOOK_DEADLINE_TEST_MS: '1500' };
@@ -169,12 +174,14 @@ function groupHooks() {
       r.code === 2 && r.stderr.trim() === P8_DEADLINE && r.ms < 2500 && lines.length === before + 1 && / brain deadline_exceeded$/.test(lines[lines.length - 1]),
       J({ code: r.code, stderr: r.stderr.slice(0, 200), ms: Math.round(r.ms), lines: lines.length - before }));
   }
-  // G2
+  // G2 (timing arm, wave 2 Goldfish W2-CD-06: one retry, fail on 2 breaches)
   {
-    const r = runHook(P8, P8_PAYLOAD, { MOS_HOOK_DEADLINE_TEST_STALL_MS: '10000' });
-    console.log('G2 measured: ' + r.ms.toFixed(0) + ' ms');
-    check('G2 part8 hook with a stall and the real deadline: exit 2, the same sentence, 3800 ms or more and less than 4800 ms',
-      r.code === 2 && r.stderr.trim() === P8_DEADLINE && r.ms >= 3800 && r.ms < 4800, J({ code: r.code, stderr: r.stderr.slice(0, 200), ms: Math.round(r.ms) }));
+    const t = timingArm.timedSync('G2 part8 hook with a stall and the real deadline: exit 2, the same sentence, 3800 ms or more and less than 4800 ms', '3800-4800 ms', () => {
+      const r = runHook(P8, P8_PAYLOAD, { MOS_HOOK_DEADLINE_TEST_STALL_MS: '10000' });
+      console.log('G2 measured: ' + r.ms.toFixed(0) + ' ms');
+      return { value: r.ms, ok: r.code === 2 && r.stderr.trim() === P8_DEADLINE && r.ms >= 3800 && r.ms < 4800, detail: { code: r.code, stderr: r.stderr.slice(0, 200), ms: Math.round(r.ms) } };
+    });
+    check(t.label, t.ok, t.detail);
   }
   // G3
   {
@@ -239,17 +246,20 @@ function groupHooks() {
       !!found.part8 && !!found.web && found.part8.timeout * 1000 === b8 && found.web.timeout * 1000 === bw && found.part8.onFailure === 'block' && found.web.onFailure === 'block',
       J({ part8: found.part8 && [found.part8.timeout, found.part8.onFailure], web: found.web && [found.web.timeout, found.web.onFailure], b8, bw }));
   }
-  // G9
+  // G9 (timing arm, wave 2 Goldfish W2-CD-06: one retry of the n=10 set, fail on 2 breaches)
   {
-    const p = [];
-    const w = [];
-    const codes = [];
-    for (let i = 0; i < 10; i += 1) { const r = runHook(P8, P8_PAYLOAD, {}); p.push(r.ms); codes.push(r.code); }
-    for (let i = 0; i < 10; i += 1) { const r = runHook(WEB, WEB_PAYLOAD, {}); w.push(r.ms); codes.push(r.code); }
-    const a = stats(p);
-    const b = stats(w);
-    console.log('400.3-05a guard wall ms (Linux, n=10): part8 p50=' + a.p50.toFixed(0) + ' max=' + a.max.toFixed(0) + '; web p50=' + b.p50.toFixed(0) + ' max=' + b.max.toFixed(0) + ' (load average ' + os.loadavg().map((x) => x.toFixed(2)).join(' ') + ')');
-    check('G9 each max is less than 1000 ms and every run exits 0', a.max < 1000 && b.max < 1000 && codes.every((c) => c === 0), J({ a, b, codes }));
+    const t = timingArm.timedSync('G9 each max is less than 1000 ms and every run exits 0', '1000 ms', () => {
+      const p = [];
+      const w = [];
+      const codes = [];
+      for (let i = 0; i < 10; i += 1) { const r = runHook(P8, P8_PAYLOAD, {}); p.push(r.ms); codes.push(r.code); }
+      for (let i = 0; i < 10; i += 1) { const r = runHook(WEB, WEB_PAYLOAD, {}); w.push(r.ms); codes.push(r.code); }
+      const a = stats(p);
+      const b = stats(w);
+      console.log('400.3-05a guard wall ms (Linux, n=10): part8 p50=' + a.p50.toFixed(0) + ' max=' + a.max.toFixed(0) + '; web p50=' + b.p50.toFixed(0) + ' max=' + b.max.toFixed(0) + ' (load average ' + os.loadavg().map((x) => x.toFixed(2)).join(' ') + ')');
+      return { value: Math.max(a.max, b.max), ok: a.max < 1000 && b.max < 1000 && codes.every((c) => c === 0), detail: { a, b, codes } };
+    });
+    check(t.label, t.ok, t.detail);
   }
   // G10
   {
