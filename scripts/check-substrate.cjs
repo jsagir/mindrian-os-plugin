@@ -89,6 +89,13 @@ const ALLOWED_DIRECT_IMPORT = [
   // scaffold (it INVOKES room-birth.cjs birthRoom) and makes ZERO Brain call.
   // Allow-listed alongside graph-derivation.cjs.
   /^lib\/core\/graph-self-heal\.cjs$/,
+  // 2.0.0-beta.95 cut (owner approved on a card, 2026-11-27): the doctor Eureka
+  // smoke probe builds a throwaway room under os.tmpdir(). Since Phase 400.3
+  // wave 2 (W2-CD-10) the navigation door treats a 0-byte room.db as absent and
+  // never fills it, so the probe creates its temp room.db with room-db.cjs
+  // openRoomDb and closes it at once; every read and write after that goes
+  // through the navigation door (openRoomDbForCaller, writeEdge) and insertNode.
+  /^lib\/core\/doctor\/class-s-eureka-smoke\.cjs$/,
   /^tests\//,
   /^tests\/fixtures\//,
   /^scripts\/migrate-/,
