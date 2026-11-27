@@ -13,6 +13,7 @@
  *
  * Groups:
  *   cache  L0-L11  the cache key, the read, the write and the fail-closed rules
+ *          L15     wave 2 Goldfish W2-D-07: stale temp files of a killed writer are removed (older than 60 s)
  *   hook   L12-L14 the part8 hook with a bound session; the Linux timing
  * Usage: node tests/test-400-3-lexicon-cache.cjs [cache|hook|all]   (default all)
  *
@@ -232,6 +233,25 @@ function groupCache() {
     }
     if (!key || key.room !== fs.realpathSync(r11)) bad.push('room');
     check('L11 the key holds the plugin version, the sha256 of the 5 vocabulary files and the realpath of the room', bad.length === 0, J(bad));
+  }
+
+  // L15 (wave 2 Goldfish W2-D-07): a cache write removes the temp files of a killed writer that are older than 60 s.
+  {
+    const r15 = makeRoom('l15room');
+    const dir = path.join(r15, '.mindrian');
+    const stale = path.join(dir, CACHE_NAME + '.99999.a1b2c3d4e5f6.tmp');
+    const fresh = path.join(dir, CACHE_NAME + '.99998.0a0b0c0d0e0f.tmp');
+    const other = path.join(dir, CACHE_NAME + '.notes');
+    for (const f of [stale, fresh, other]) fs.writeFileSync(f, '{"entries":["room words"]}');
+    const old = (Date.now() - 120000) / 1000;
+    fs.utimesSync(stale, old, old);
+    fs.utimesSync(other, old, old);
+    try { fs.unlinkSync(cacheFile(r15)); } catch (_e) { /* none yet */ }
+    lex._resetLexiconCache();
+    lex.loadRoomLexicon(r15);
+    check('L15 a cache write removes a temp file older than 60 s and keeps a fresh temp file and other files',
+      !fs.existsSync(stale) && fs.existsSync(fresh) && fs.existsSync(other) && !!readCache(r15),
+      J({ stale: fs.existsSync(stale), fresh: fs.existsSync(fresh), other: fs.existsSync(other), cache: !!readCache(r15) }));
   }
 }
 function sleep(ms) { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
