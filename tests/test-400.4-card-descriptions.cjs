@@ -67,7 +67,7 @@ async function main() {
     for (const o of all) {
       assert.equal(typeof o.description, 'string', o.id + ' has no description');
       assert.ok(o.description.length >= 1 && o.description.length <= 120, o.id + ' length ' + o.description.length);
-      assert.ok(!/[0-9–—]/.test(o.description), o.id + ' holds a digit or a dash');
+      assert.ok(!/[0-9\u2013\u2014]/.test(o.description), o.id + ' holds a digit or a dash');
       assert.equal(o.description, WANT[o.id], o.id + ' wording');
     }
     assert.equal(DATA.card.description_status, 'approved');

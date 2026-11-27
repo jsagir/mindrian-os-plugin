@@ -4427,9 +4427,9 @@ Plans:
 
 Plans:
 
-- [ ] 400.3-01-PLAN.md - BASE, shared lock backoff, openGraph busyMs and mustExist, artifact_file indexes the filed artifact with honest graph_index and partial (wave 1)
-- [ ] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
-- [ ] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
+- [x] 400.3-01-PLAN.md - BASE, shared lock backoff, openGraph busyMs and mustExist, artifact_file indexes the filed artifact with honest graph_index and partial (wave 1)
+- [x] 400.3-02-PLAN.md - node as the only room resolver (.room-root plus existing room.db), index-only for newly recognised rooms, pending record, Windows path forms in post-write (wave 2)
+- [x] 400.3-02b-PLAN.md - older tests pinned to the new behaviour and the BASE regression after-run; same execute session as 02 (wave 3)
 
 ### Phase 400.3.1: Red tests on main: four pins moved by later work (INSERTED)
 
