@@ -102,18 +102,23 @@ function resolveActiveRoom(rootsOverride) {
 }
 
 /**
- * resolveRoomDb(roomDir) -> sqlite3 handle | null
+ * resolveRoomDb(roomDir, opts) -> sqlite3 handle | null
  *
  * Opens roomDir/.mindrian/room.db (the Phase 109 standard path) via node:sqlite.
  * Returns null on missing file OR if node:sqlite is unavailable; the caller
  * treats null as a soft-fail (timeline is enrichment, not a gate).
+ * Plan 400.3-06c: the one script opener. It opens with a busy timeout (the Phase 276 C4 rule): opts.busyMs when it is a non-negative integer, else DEFAULT_BUSY_MS 5000, through the hook cap (capBusyMs); a missing, 0-byte or non-file room.db is null (roomDbPresent, plan 06a); the callers wait once per run through withRoomTx.
  */
-function resolveRoomDb(roomDir) {
+function resolveRoomDb(roomDir, opts) {
   const dbPath = path.join(roomDir, '.mindrian', 'room.db');
   if (!safeIsFile(dbPath)) return null;
   try {
+    if (!require(path.join(REPO_ROOT, 'lib', 'core', 'room-root.cjs')).roomDbPresent(roomDir)) return null;
+    const busyCap = require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs'));
+    const o = opts && typeof opts === 'object' ? opts : {};
+    const ms = (Number.isInteger(o.busyMs) && o.busyMs >= 0) ? o.busyMs : busyCap.DEFAULT_BUSY_MS;
     const sqlite = require('node:sqlite');
-    return new sqlite.DatabaseSync(dbPath);
+    return new sqlite.DatabaseSync(dbPath, { timeout: busyCap.capBusyMs(ms) });
   } catch (_) {
     return null;
   }
