@@ -189,7 +189,7 @@ merge machinery is a CLI-only shape:
 
 ## The rules that never bend, on any surface
 
-- **Nothing files without the navigator confirming.** Every claim is born
+- **No artifact files until the navigator confirms; the claims are already saved as proposed.** Every claim is born
   `review_status: 'proposed'` at the writer - never auto-confirmed. Only a
   human confirms a truth-claim node (Canon Part 9, role 5).
 - **Agent attribution is forbidden.** A literal `larry`, `brain`, `system`, or

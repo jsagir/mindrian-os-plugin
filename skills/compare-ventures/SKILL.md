@@ -85,9 +85,9 @@ This returns frameworks that co-occur with the current set, plus example project
 
 ### 3. Semantic Search for Similar Ventures
 
-Call `brain_search_semantic` via `mcp__mindrian-brain__brain_search` (if the call returns RESOURCE_EXHAUSTED, skip semantic search and use Neo4j Cypher queries via `mcp__mindrian-brain__read_neo4j_cypher` instead) with:
-- `$search_text` = venture description from room
-- `top_k` = 10
+Call `mcp__mindrian-brain__brain_search` with framework names and the problem type only (nothing that the room holds crosses to the Brain):
+- `query` = the framework names from step 2 and the problem type, in at most 12 words
+- `topK` = 10
 
 This returns semantically similar items from the Brain's embedding index -- ventures, frameworks, and concepts that match the user's work.
 

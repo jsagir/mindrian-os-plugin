@@ -36,7 +36,7 @@ Four steps, nothing more: Check, Confirm, Loader, Verify. Fetching and swapping 
 
 The previous version of this command shelled out to `scripts/self-update install`, which copied files to the cache directory but **did not update `~/.claude/plugins/installed_plugins.json` or `~/.claude/settings.json` `enabledPlugins`**. The result: Claude Code's plugin loader never registered the new version. Slash commands disappeared. Users restarted, saw nothing, and assumed the plugin was broken.
 
-This was confirmed in the field by Aryeh Holtzberg (PWS IRIS 2025) on 2026-04-26 -- and matches multiple known Claude Code issues (#11357, #12457, #14815, #17832).
+This was confirmed by a field report on 2026-04-26 -- and matches multiple known Claude Code issues (#11357, #12457, #14815, #17832).
 
 The fix is structural: defer to Claude Code's native commands. They keep all four registry files in sync. We never reimplement what the platform already does correctly.
 

@@ -783,7 +783,7 @@ individually via its own toggle.
 truncates (D-05) -- a 40-nugget meeting therefore walks several pages of the same card, never
 a silently-truncated set. Do not invent a per-command cap and do not raise `MAX_TOGGLE_N`.
 
-**4. Nothing files until the navigator confirms.** Every claim minted by Step 3 Pass 4
+**4. No artifact files until the navigator confirms; the claims are already saved as proposed.** Every claim minted by Step 3 Pass 4
 (`navigation.writeClaimNode`) is born `review_status: 'proposed'` -- rendering this gate as
 F.8 does not and cannot change that; the writer is the sole mint point (Canon Part 9 role 5).
 Promotion runs only through `navigation.confirmNode` with a non-agent `byUser` resolved from
