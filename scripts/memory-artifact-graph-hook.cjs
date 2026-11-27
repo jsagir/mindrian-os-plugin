@@ -201,12 +201,6 @@ function runHook() {
   }
 }
 
-// Plan 400.3-06c: a busy SQLite failure (SQLITE_BUSY or SQLITE_LOCKED).
-function isBusyError(err) {
-  const rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
-  const msg = err && err.message ? String(err.message) : '';
-  return rc === 5 || rc === 6 || /database (table )?is locked/i.test(msg);
-}
 
 /**
  * reconcileRoom(roomDir, opts) -> { ok: true, result } | { ok: false, reason, detail? }
@@ -247,7 +241,7 @@ function reconcileRoom(roomDir, opts) {
     const result = navigation.withRoomTx(db, () => runner.reconcileMemoryArtifacts(roomDir, reconcileOpts));
     return { ok: true, result: result };
   } catch (err) {
-    if (isBusyError(err)) {
+    if (busyCap.isBusyError(err)) {  // wave 2 Goldfish W2-CD-03: the one busy test
       try { busyCap.noteBusy(); } catch (_e) { /* tolerant */ }
       return { ok: false, reason: 'room_db_busy' };
     }

@@ -136,10 +136,10 @@ function main() {
       return runner.refreshAll(roomDir, { db: db });
     });
   } catch (err) {
-    const rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
-    const busy = rc === 5 || rc === 6 || /database (table )?is locked/i.test(String((err && err.message) || ''));
-    if (!busy) throw err;
-    try { require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
+    // Wave 2 Goldfish W2-CD-03: the one busy test (lib/core/hook-busy-cap.cjs isBusyError).
+    const busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+    if (!busyCap.isBusyError(err)) throw err;
+    try { busyCap.noteBusy(); } catch (_) { /* tolerant */ }
     try { db.close(); } catch (_) {}
     process.stdout.write('room.db is busy (another process is writing). Nothing was refreshed. Run the command again.\n');
     process.exit(0);

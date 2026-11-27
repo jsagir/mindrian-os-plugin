@@ -52,12 +52,6 @@ function openRoomDb(roomDir) {
   } catch (_) { return null; }
 }
 
-// Plan 400.3-06c: a busy SQLite failure (SQLITE_BUSY or SQLITE_LOCKED).
-function isBusyError(err) {
-  var rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
-  var msg = err && err.message ? String(err.message) : '';
-  return rc === 5 || rc === 6 || /database (table )?is locked/i.test(msg);
-}
 
 // Plan 400.3-06c (review B-b, M3): run one block's runner call. With a handle, the call runs inside one
 // navigation.withRoomTx (one wait for the write lock, all or nothing); a busy throw trips the process cap
@@ -69,7 +63,8 @@ function inRoomTx(db, blockName, fn) {
     var navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
     return { value: navigation.withRoomTx(db, fn) };
   } catch (e) {
-    if (!isBusyError(e)) throw e;
+    // Wave 2 Goldfish W2-CD-03: the one busy test (lib/core/hook-busy-cap.cjs isBusyError).
+    if (!require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).isBusyError(e)) throw e;
     try { require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
     process.stderr.write('session-start-reconcile: ' + blockName + ' room_db_busy: skipped\n');
     return { busy: true };

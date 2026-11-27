@@ -222,7 +222,7 @@ function main() {
   try {
     result = navigation.withRoomTx(db, () => refreshInTx(db, roomDir, opts));
   } catch (err) {
-    if (!isBusyError(err)) throw err;
+    if (!require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs')).isBusyError(err)) throw err;  // wave 2 Goldfish W2-CD-03
     try { require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
     try { db.close(); } catch (_) {}
     process.stdout.write('room.db is busy (another process is writing). Nothing was refreshed. Run the command again.\n');
@@ -281,12 +281,6 @@ function refreshInTx(db, roomDir, opts) {
   return result;
 }
 
-// Plan 400.3-06c: a busy SQLite failure (SQLITE_BUSY or SQLITE_LOCKED).
-function isBusyError(err) {
-  const rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
-  const msg = err && err.message ? String(err.message) : '';
-  return rc === 5 || rc === 6 || /database (table )?is locked/i.test(msg);
-}
 
 // ---------- Exports ----------
 
