@@ -1,4 +1,4 @@
-## [Unreleased] -- v2.0.0-beta.94 (in progress)
+## [2.0.0-beta.95] - 2026-11-27
 
 ### Added
 - **The room graph writes itself in Claude Code (Phase 367).** At every turn end and every session start, MindrianOS catches the room's local graph up with the room's files: a file written by a shell command or by a subagent now reaches the graph too, with no reminder and no tool call. The catch-up runs in the background, never blocks the turn, and writes a short status the doctor can read. Desktop and Cowork, and answered cards as decisions, follow in a later beta. <!-- 367-01..06 -->
