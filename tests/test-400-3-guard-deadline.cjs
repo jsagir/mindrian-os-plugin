@@ -179,7 +179,8 @@ function groupHooks() {
     const t = timingArm.timedSync('G2 part8 hook with a stall and the real deadline: exit 2, the same sentence, 3800 ms or more and less than 4800 ms', '3800-4800 ms', () => {
       const r = runHook(P8, P8_PAYLOAD, { MOS_HOOK_DEADLINE_TEST_STALL_MS: '10000' });
       console.log('G2 measured: ' + r.ms.toFixed(0) + ' ms');
-      return { value: r.ms, ok: r.code === 2 && r.stderr.trim() === P8_DEADLINE && r.ms >= 3800 && r.ms < 4800, detail: { code: r.code, stderr: r.stderr.slice(0, 200), ms: Math.round(r.ms) } };
+      const funcOk = r.code === 2 && r.stderr.trim() === P8_DEADLINE;
+      return { value: r.ms, funcOk, ok: funcOk && r.ms >= 3800 && r.ms < 4800, detail: { code: r.code, stderr: r.stderr.slice(0, 200), ms: Math.round(r.ms) } };
     });
     check(t.label, t.ok, t.detail);
   }
@@ -257,7 +258,8 @@ function groupHooks() {
       const a = stats(p);
       const b = stats(w);
       console.log('400.3-05a guard wall ms (Linux, n=10): part8 p50=' + a.p50.toFixed(0) + ' max=' + a.max.toFixed(0) + '; web p50=' + b.p50.toFixed(0) + ' max=' + b.max.toFixed(0) + ' (load average ' + os.loadavg().map((x) => x.toFixed(2)).join(' ') + ')');
-      return { value: Math.max(a.max, b.max), ok: a.max < 1000 && b.max < 1000 && codes.every((c) => c === 0), detail: { a, b, codes } };
+      const funcOk = codes.every((c) => c === 0);
+      return { value: Math.max(a.max, b.max), funcOk, ok: funcOk && a.max < 1000 && b.max < 1000, detail: { a, b, codes } };
     });
     check(t.label, t.ok, t.detail);
   }

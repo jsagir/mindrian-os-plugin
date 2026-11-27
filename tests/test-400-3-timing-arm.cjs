@@ -44,7 +44,7 @@ async function main() {
   const t3 = capture(() => H.timedSync('T3', '100 ms', seq([150, 170], 100)));
   check('T3 two breaches: not ok, both values in the label', t3.out.ok === false && t3.lines.length === 2 && /150, 170 ms; 2 breaches/.test(t3.out.label), JSON.stringify(t3));
   const t4 = capture(() => H.timedSync('T4', '100 ms', seq(['throw', 'throw'], 100)));
-  check('T4 a throw counts as a breach', t4.out.ok === false && /2 breaches/.test(t4.out.label), JSON.stringify(t4));
+  check('T4 a throw is a functional failure: not ok, not retried (W2R-01)', t4.out.ok === false && t4.lines.length === 1 && /functional failure, not retried/.test(t4.out.label), JSON.stringify(t4));
   const orig = console.log;
   const lines5 = [];
   console.log = (...a) => { lines5.push(a.join(' ')); };
@@ -52,6 +52,10 @@ async function main() {
   try { t5 = await H.timedAsync('T5', '100 ms', async () => ({ value: 120, ok: false, detail: null })); } finally { console.log = orig; }
   check('T5 the async form: 2 runs, not ok', t5.ok === false && lines5.length === 2, JSON.stringify({ t5, lines5 }));
   check('T6 each run line prints the value, the bound and the load average', t2.lines.every((l) => / ms \(bound 100 ms, load average [0-9. ]+|unknown\)/.test(l)), JSON.stringify(t2.lines));
+  const t8 = capture(() => { let n = 0; return H.timedSync('T8', '100 ms', () => { n += 1; return n === 1 ? { value: 10, ok: false, funcOk: false, detail: 'func' } : { value: 10, ok: true, funcOk: true, detail: 'pass' }; }); });
+  check('T8 a functional failure fails at once and is not retried (W2R-01)', t8.out.ok === false && t8.lines.length === 1 && /functional failure, not retried/.test(t8.out.label), JSON.stringify(t8));
+  const t9 = capture(() => { let n = 0; return H.timedSync('T9', '100 ms', () => { n += 1; return n === 1 ? { value: 150, ok: false, funcOk: true, detail: 'slow' } : { value: 60, ok: true, funcOk: true, detail: 'pass' }; }); });
+  check('T9 a time breach with the function intact still retries once', t9.out.ok === true && t9.lines.length === 2, JSON.stringify(t9));
   const k1 = fs.readFileSync(path.join(__dirname, 'test-400-3-room-db-opener.cjs'), 'utf8');
   const c10 = fs.readFileSync(path.join(__dirname, 'test-400-3-room-root-detection.cjs'), 'utf8');
   check('T7 K1 and C10 keep their hard bound: plain check() calls, the helper not used in the opener test',

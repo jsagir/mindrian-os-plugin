@@ -530,9 +530,12 @@ function groupHook() {
         const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
         const side = readSide(y);
         // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
-        const ok = h6.status === 0 && !!side && side.cascade_status === 'complete' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
-          && h6.advisory.indexOf('; cascade partial: ') === -1;
-        return { value: h6.ms, ok, detail: { advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification } };
+        // W2R-01: the functional part never retries; only the known load signature (an honest graph-index
+        // write_lock_held partial under a held lock) may run once more.
+        const funcOk = h6.status === 0 && !!side && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
+          && (side.cascade_status === 'complete' || /write_lock_held/.test(h6.advisory));
+        const ok = funcOk && side.cascade_status === 'complete' && h6.advisory.indexOf('; cascade partial: ') === -1;
+        return { value: h6.ms, funcOk, ok, detail: { advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification } };
       });
       check(t.label, t.ok, t.detail);
     }

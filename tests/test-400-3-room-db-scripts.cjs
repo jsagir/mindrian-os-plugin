@@ -286,7 +286,8 @@ async function groupMemory() {
       await yieldMs(50);
       const pr = await stopProber(p); p = null;
       console.log('400.3-06c memory reconcile hold ms (Linux, 320 files): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
-      return { value: pr.longest, ok: !!res && res.ok === true && pr.longest < 750 && pr.probes > 0, detail: { res: res && { ok: res.ok, reason: res.reason }, pr } };
+      const funcOk = !!res && res.ok === true && pr.probes > 0;
+      return { value: pr.longest, funcOk, ok: funcOk && pr.longest < 750, detail: { res: res && { ok: res.ok, reason: res.reason }, pr } };
     } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
   });
 }
@@ -458,7 +459,8 @@ async function groupFeynman() {
       await yieldMs(50);
       const pr = await stopProber(p); p = null;
       console.log('400.3-06c session-start hold ms (Linux, 320 files): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
-      return { value: pr.longest, ok: !ca.err && pr.longest < 750 && pr.probes > 0, detail: { err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) } };
+      const funcOk = !ca.err && pr.probes > 0;
+      return { value: pr.longest, funcOk, ok: funcOk && pr.longest < 750, detail: { err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) } };
     } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
   });
 
@@ -504,7 +506,8 @@ async function groupFeynman() {
         await yieldMs(50);
         const pr = await stopProber(p); p = null;
         console.log('400.3-w2 session-start hold ms (Linux, large-room fixture, ' + fx.artifacts + ' artifacts): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
-        return { value: pr.longest, ok: !ca.err && pr.longest < INDEX_BUSY_MS && pr.probes > 0, detail: { err: ca.err && ca.err.message, pr, total: Math.round(wall) } };
+        const funcOk = !ca.err && pr.probes > 0;
+        return { value: pr.longest, funcOk, ok: funcOk && pr.longest < INDEX_BUSY_MS, detail: { err: ca.err && ca.err.message, pr, total: Math.round(wall) } };
       } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
     });
   }
