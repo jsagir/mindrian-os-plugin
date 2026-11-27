@@ -76,7 +76,10 @@ const MARK = 'PLANTB-4c19';
 // The BEFORE figures of this plan (HEAD baea19a8f, measured 2026-11-08).
 // Plan 374-12 added the page argument to eureka_capability_job_result (schema bytes 47531 -> 47586). Plan 374-13 moved this line
 // once, for the forget tool and the description rewrite: 76 tools, 37764 desc bytes, 47835 schema bytes, 85599 total.
-const BASELINE_BUDGET_LINE = 'budget: 76 tools, 37764 desc bytes, 47835 schema bytes, 85599 total, ~21400 approx tokens (router 9 / atomic 67)';
+// Re-pinned by quick 261126-ter after Phase 400.4 plans 03 (context_assemble cortex_k parameter and description sentence),
+// 05 (whitespace_scan description sentence) and 06 (eureka_graph_project description sentence) grew the tool descriptions.
+// The five job tools are unchanged (the fingerprint assert in B9 still holds). Now: 38236 desc bytes, 48014 schema bytes, 86250 total.
+const BASELINE_BUDGET_LINE = 'budget: 76 tools, 38236 desc bytes, 48014 schema bytes, 86250 total, ~21563 approx tokens (router 9 / atomic 67)';
 
 let failed = 0;
 // The check helper: run one arm, print one line. An arm may throw { skip: reason } to print a skip line.

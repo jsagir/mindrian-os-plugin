@@ -377,9 +377,13 @@ async function main() {
       const hookPart = mainSrc.slice(0, detach);
       assert.equal(hookPart.indexOf('lowerWorkerPriority('), -1);
       assert.equal(hookPart.indexOf('armBackstop('), -1);
-      assert.ok(src.indexOf('os.setPriority') !== -1);
-      assert.ok(src.indexOf('PRIORITY_BELOW_NORMAL') !== -1 && src.indexOf('PRIORITY_LOW') !== -1);
-      assert.ok(src.indexOf('.unref()') !== -1 || src.indexOf('.unref ') !== -1 || src.indexOf("t.unref") !== -1);
+      // Phase 367 (design 5.2 step 3): the two cap bodies moved to lib/core/bg-worker.cjs;
+      // the drain requires them from there.
+      assert.ok(src.indexOf("require('../lib/core/bg-worker.cjs')") !== -1, 'the drain requires bg-worker.cjs');
+      const capSrc = fs.readFileSync(path.join(path.dirname(DRAIN), '..', 'lib', 'core', 'bg-worker.cjs'), 'utf8');
+      assert.ok(capSrc.indexOf('os.setPriority') !== -1);
+      assert.ok(capSrc.indexOf('PRIORITY_BELOW_NORMAL') !== -1 && capSrc.indexOf('PRIORITY_LOW') !== -1);
+      assert.ok(capSrc.indexOf('.unref()') !== -1 || capSrc.indexOf('.unref ') !== -1 || capSrc.indexOf("t.unref") !== -1);
       assert.ok(src.indexOf('MINDRIAN_DERIVE_SKIP') !== -1);
       assert.ok(src.indexOf('process.cpuUsage') !== -1 && src.indexOf('process.resourceUsage') !== -1);
     });
