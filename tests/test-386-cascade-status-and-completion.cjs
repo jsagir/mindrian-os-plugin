@@ -153,9 +153,9 @@ function failingNodeEnv(fx) {
   const fx = mkRoom('rooms');
   const r = runPostWrite(fx);
   const c = readCascade(fx);
-  // Plan 400.3-03, OA-2: a real legacy cascade reports its 2 known faults as partial; plan 400.3-03b re-pins 'complete'.
-  check('W2 a real cascade writes cascade_status partial until plan 400.3-03b fixes the 2 legacy faults',
-    r.status === 0 && c && c.cascade_status === 'partial',
+  // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
+  check('W2 a real cascade keeps cascade_status complete',
+    r.status === 0 && c && c.cascade_status === 'complete',
     'status=' + r.status + ' cascade_status=' + (c && c.cascade_status));
 }
 

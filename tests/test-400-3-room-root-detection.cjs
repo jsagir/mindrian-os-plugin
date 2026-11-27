@@ -520,10 +520,10 @@ function groupHook() {
       mkR1(y, { roomMd: false });
       const h6 = postWrite(path.join(y, 'sec', 'a.md'), y, home, { env: { MOS_NO_DETACHED_DERIVE: '1' } });
       const side = readSide(y);
-      // Plan 400.3-03, OA-2: a real legacy cascade reports its 2 known faults as partial; plan 400.3-03b re-pins 'complete'.
-      check('H6 a legacy /rooms/ room keeps the full cascade: partial until plan 400.3-03b fixes the 2 legacy faults, classification set, queued MINTO advisory',
-        h6.status === 0 && !!side && side.cascade_status === 'partial' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
-          && /; cascade partial: git-commit, artifact-id failed$/.test(h6.advisory),
+      // Plan 400.3-03b re-pinned complete after the 2 legacy faults were fixed (OA-2).
+      check('H6 a legacy /rooms/ room keeps the full cascade: complete, classification set, queued MINTO advisory',
+        h6.status === 0 && !!side && side.cascade_status === 'complete' && side.classification !== null && typeof h6.advisory === 'string' && h6.advisory.indexOf('queued MINTO regen for sec') === 0
+          && h6.advisory.indexOf('; cascade partial: ') === -1,
         JSON.stringify({ advisory: h6.advisory, status: side && side.cascade_status, classification: side && side.classification }));
     }
 
