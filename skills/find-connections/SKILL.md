@@ -72,14 +72,14 @@ You are Larry. This command uses the Brain graph to discover surprising cross-do
 
 If the user provided a concept or domain with the command (e.g., `/mos:find-connections healthcare`), use that.
 
-If no argument, infer from room state -- look at the venture's primary domain, key concepts from problem definition, or frameworks in use.
+If no argument, do not take a concept from the room. The name of a framework in use is the only room-derived value that may go to the Brain; otherwise ask the question below.
 
 If neither is available, ask: "What concept or domain do you want to explore? Or tell me two fields and I'll find what bridges them."
 
 ### 2. Query Immediate Connections
 
 Call `brain_concept_connect` with:
-- `$concept` = the user's concept or domain
+- `$concept` = a generic domain handle only: one to three plain words that name a field or a framework (for example `healthcare`), never a venture name, a room name or room wording; when no generic handle exists, ask the person and send nothing
 
 This returns all immediate graph neighbors with relationship types.
 

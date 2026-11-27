@@ -60,13 +60,13 @@ The platform fires `initialPrompt:` as the literal user turn 1. Your FIRST RESPO
 When the user's first turn arrives AFTER your `initialPrompt:` is auto-fired, before composing your second response:
 
 1. Classify the user input via `lib/core/dual-path-detector.cjs` (5-feature additive score per RESEARCH DISCRETION-03):
-   - **CLI:** shell out: `node -e "console.log(JSON.stringify(require('./lib/core/dual-path-detector.cjs').classify(process.argv[1])))" "$USER_INPUT"`
-   - **Desktop / Cowork:** call MCP tool `detect_dual_path` (registered in `lib/mcp/tools/dual-path.cjs`)
+   - **In every session, the terminal included:** call the MCP tool `detect_dual_path` with the input as its `text` argument (registered in `lib/mcp/tools/dual-path.cjs`).
+   - **Never put the person's input, or any pasted text, on a shell command line**, as an argument or inside quotes: a shell runs `$(...)` and backticks that pasted text holds. When the tool is not available, do not classify: ask the fallback question of the ambiguous path below.
 
 2. Branch on the detector's `path` field:
 
    - **path === 'upload'** (score >= +3): the user pasted a CV / memo / pitch.
-     - Call `extract_shallow` (a pure parse that writes nothing) -- CLI shell-out to `lib/core/shallow-doc-parser.cjs extractShallow(text, sessionId)` OR the MCP `extract_shallow` tool (decision D-354-SYS05, `lib/mcp/tools/dual-path.cjs`); it returns an in-memory `{ user, venture, claims }` object (1 user + 1 venture + 1-3 claims) and nothing lands in room.db yet.
+     - Call the MCP `extract_shallow` tool (a pure parse that writes nothing; it wraps `lib/core/shallow-doc-parser.cjs`; decision D-354-SYS05, `lib/mcp/tools/dual-path.cjs`), never a shell command with the pasted text; it returns an in-memory `{ user, venture, claims }` object (1 user + 1 venture + 1-3 claims) and nothing lands in room.db yet.
      - Reflect it back: "Got it -- you are a [parsed canonical_role] working on [parsed venture name]. What decision is stuck?"
      - Once a room is bound and the navigator confirms a parsed claim, file it with `claim_write` (review_status proposed) so it lands in the local graph through the governed writer (`writeClaimNode`, the single node chokepoint) -- never write it silently.
      - This satisfies D-17's load-bearing rationale honestly: upload populates the local SQLite graph EARLY at the first CONFIRMED claim, not silently by the parser -> Brain context lands faster -> Larry contextualizes turn 1, not turn 5.

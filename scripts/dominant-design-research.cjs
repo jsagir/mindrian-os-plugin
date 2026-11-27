@@ -41,7 +41,9 @@
  *     given (--out must end in .valid.json).
  *   file-pack --pack <dir> --room <roomDir> --domain-slug <slug>
  *              --date <YYYY-MM-DD> [--session <id>] [--room-label <text>]
- *              [--stage <text>] [--json]
+ *              [--stage <text>] [--header-file <file.json>] [--json]
+ *     --header-file (quick 261127-bnd) holds {"room_label": "...", "stage": "..."}
+ *     in place of the 2 flags; an instruction file uses this form only.
  *     Processes every *.valid.json in the pack dir in LANE_IDS order,
  *     writes lane artifacts, files sourced evidence through the Part 9
  *     door with readback, and prints a 4-zone report (JSON with --json).
@@ -59,6 +61,7 @@ const path = require('path');
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 const laneQueries = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'lane-queries.cjs'));
+const flagFileRead = require(path.join(REPO_ROOT, 'lib', 'core', 'flag-file-read.cjs'));
 const evidencePack = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'evidence-pack.cjs'));
 const theoStructure = require(path.join(REPO_ROOT, 'lib', 'core', 'dominant-design', 'theo-structure.cjs'));
 const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
@@ -496,6 +499,27 @@ function renderFilingReport(packResult, opts) {
 }
 
 function cmdFilePack(flags) {
+  // Quick 261127-bnd: --header-file gives the room label and the stage in a JSON
+  // file, so an instruction line never puts them on a shell command line. Every
+  // refusal comes before filePack runs, so a refused call writes nothing.
+  let roomLabel = flags['room-label'];
+  let stage = flags.stage;
+  if (flags['header-file'] !== undefined) {
+    if (flags['room-label'] !== undefined || flags.stage !== undefined) {
+      return { code: 2, err: 'file-pack: give --header-file or --room-label and --stage, not both' };
+    }
+    let header;
+    // Follow-up after the independent verification: the shared read rule of
+    // lib/core/flag-file-read.cjs (a regular file, at most 65536 bytes read from
+    // the open file, never the stat size, no NUL byte), so a FIFO cannot hang.
+    const hr = flagFileRead.readFlagFileText(flags['header-file'], flagFileRead.FLAG_FILE_MAX_BYTES);
+    try { header = hr.ok ? JSON.parse(hr.text) : undefined; } catch (_e) { header = undefined; }
+    if (typeof header !== 'object' || header === null || Array.isArray(header)) {
+      return { code: 2, err: 'file-pack: --header-file needs a readable file that holds a JSON object' };
+    }
+    roomLabel = typeof header.room_label === 'string' ? header.room_label : undefined;
+    stage = typeof header.stage === 'string' ? header.stage : undefined;
+  }
   const opts = {
     pack: flags.pack,
     room: flags.room,
@@ -512,8 +536,8 @@ function cmdFilePack(flags) {
   }
   const roomDirBasename = (typeof flags.room === 'string' && flags.room.length > 0) ? path.basename(flags.room) : 'no room';
   const text = renderFilingReport(result, {
-    roomLabel: flags['room-label'],
-    stage: flags.stage,
+    roomLabel: roomLabel,
+    stage: stage,
     roomDirBasename: roomDirBasename,
   });
   return { code: 0, text: text };

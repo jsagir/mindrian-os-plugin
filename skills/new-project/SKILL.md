@@ -290,10 +290,10 @@ $ROOMS_HOME/<slug>/
 
 `.snapshots/` stores weekly STATE.md copies for drift detection by sentinel-health-check. Created empty on room init.
 
-**Room registration:** After creating the directory structure, register the room:
+**Room registration:** After creating the directory structure, write the venture name and the venture stage, each on one line, to files in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/venture-name.txt` and `<dir>/venture-stage.txt`, each with the Write tool; a name or a stage never goes on a command line. Register the room with the command below. Then remove that directory, also when the person declines.
 
 ```bash
-bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" "<venture_name>" "<venture_stage>"
+bash "${MINDRIAN_OS_ROOT:-${CLAUDE_PLUGIN_ROOT:?MindrianOS install root not found. Set MINDRIAN_OS_ROOT (see lib/core/active-plugin-root.cjs) or run from Claude Code.}}/scripts/room-registry" create <slug> "<slug>" --name-file "<dir>/venture-name.txt" --stage-file "<dir>/venture-stage.txt"
 ```
 
 The registry automatically sets the new room as active and parks the previous one.

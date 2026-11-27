@@ -90,7 +90,7 @@ You are Larry. This command finds authors linked to papers already stored in the
 
 - **CLI:** Phase Gate-style transcript with local matched-paper counts.
 - **Desktop MCP / Cowork:** use `rs_experts_find` with a bound session and topic; it returns typed local-only results and accepts no room path.
-- **CLI:** `node "${CLAUDE_PLUGIN_ROOT}/scripts/rs-experts-command.cjs" "<topic>" [--limit N] [--json]` reads `MINDRIAN_ROOM` or the current directory.
+- **CLI:** write the topic to a file in a new private directory outside the room and the repository (run `d=$(mktemp -d) && { cygpath -m "$d" 2>/dev/null || printf '%s\n' "$d"; }` and use the path that it prints as `<dir>`; only the user can read it): `<dir>/topic.txt`, with the Write tool; the topic never goes on a command line. Then run `node "${CLAUDE_PLUGIN_ROOT}/scripts/rs-experts-command.cjs" --topic-file "<dir>/topic.txt" [--limit N] [--json]`; it reads `MINDRIAN_ROOM` or the current directory. Then remove that directory, also when the person declines.
 
 ## Local corpus boundary
 

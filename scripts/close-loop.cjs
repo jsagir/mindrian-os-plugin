@@ -11,7 +11,7 @@
  *
  * Subcommands (switch-case router on argv[0]; exit 0 ok, 1 refusal or failure, 2 usage):
  *   close         --room <dir> --surface bono|intel-pipeline --payload <file.json> [--run-id <id>] [--session-id <id>]
- *   version-log   --room <dir> --topic <text>
+ *   version-log   --room <dir> --topic <text> | --topic-file <file.json>
  *   offer-experts --hats <file.json>
  *   file-expert   --room <dir> --spec <file.json> --session-id <id>
  *
@@ -38,6 +38,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const navigation = require('../lib/core/navigation.cjs');
+const flagFileRead = require('../lib/core/flag-file-read.cjs');
 const closeLoop = require('../lib/core/close-loop-writer.cjs');
 const supersession = require('../lib/core/temporal/supersession.cjs');
 const expertLibrary = require('../lib/core/expert-library.cjs');
@@ -52,12 +53,13 @@ const REFUSAL_REASONS = Object.freeze([
   'close_failed', 'hats_too_large', 'hats_unreadable', 'hats_not_json', 'hats_not_array',
   'spec_too_large', 'spec_unreadable', 'spec_not_json', 'spec_not_object', 'forbidden_field',
   'session_id_conflict', 'invalid_hat', 'invalid_name', 'invalid_surname', 'expert_write_failed', 'internal_error',
+  'topic_too_large', 'topic_unreadable', 'topic_not_json', 'topic_missing',
 ]);
 
 const USAGE = [
   'usage: node scripts/close-loop.cjs <subcommand> [flags]',
   '  close         --room <dir> --surface bono|intel-pipeline --payload <file.json> [--run-id <id>] [--session-id <id>]',
-  '  version-log   --room <dir> --topic <text>',
+  '  version-log   --room <dir> --topic <text> | --topic-file <file.json>',
   '  offer-experts --hats <file.json>',
   '  file-expert   --room <dir> --spec <file.json> --session-id <id>',
   '  --help, -h    print this text',
@@ -66,7 +68,7 @@ const USAGE = [
 
 const FLAGS = {
   close: { allowed: ['room', 'surface', 'payload', 'run-id', 'session-id'], required: ['room', 'surface', 'payload'] },
-  'version-log': { allowed: ['room', 'topic'], required: ['room', 'topic'] },
+  'version-log': { allowed: ['room', 'topic', 'topic-file'], required: ['room'] },
   'offer-experts': { allowed: ['hats'], required: ['hats'] },
   'file-expert': { allowed: ['room', 'spec', 'session-id'], required: ['room', 'spec', 'session-id'] },
 };
@@ -114,6 +116,14 @@ function parseFlags(sub, argv) {
   for (const req of spec.required) {
     if (typeof out[req] !== 'string' || out[req].length === 0) throw new UsageError('missing required flag --' + req);
   }
+  // Quick 261127-bnd: version-log takes the topic as --topic or as --topic-file (a JSON file
+  // with the key topic), exactly one of the 2, so an instruction line never puts the topic on
+  // a shell command line.
+  if (sub === 'version-log') {
+    const n = (typeof out.topic === 'string' ? 1 : 0) + (typeof out['topic-file'] === 'string' ? 1 : 0);
+    if (n !== 1) throw new UsageError('give exactly one of --topic and --topic-file');
+    if (typeof out.topic === 'string' && out.topic.length === 0) throw new UsageError('missing required flag --topic');
+  }
   return out;
 }
 
@@ -136,15 +146,18 @@ function resolveRoom(value) {
 }
 
 // Input files (payload, hats, spec): size cap, one BOM stripped, JSON.parse in a try.
+// Quick 261127-bnd follow-up: the read is the shared rule of
+// lib/core/flag-file-read.cjs (a regular file, at most MAX_INPUT_BYTES + 1 bytes
+// read from the open file, never the stat size, no NUL byte). The refusal codes
+// stay: a NUL byte is text that is not JSON.
 function readInput(file, kind) {
-  let st;
-  try { st = fs.statSync(path.resolve(file)); } catch (_e) { throw new Refusal(kind + '_unreadable'); }
-  if (!st.isFile()) throw new Refusal(kind + '_unreadable');
-  if (st.size > MAX_INPUT_BYTES) throw new Refusal(kind + '_too_large');
-  let text;
-  try { text = fs.readFileSync(path.resolve(file), 'utf8'); } catch (_e) { throw new Refusal(kind + '_unreadable'); }
-  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-  try { return JSON.parse(text); } catch (e) { throw new Refusal(kind + '_not_json', { detail: scalar(e && e.message, 120) }); }
+  const r = flagFileRead.readFlagFileText(path.resolve(String(file)), MAX_INPUT_BYTES);
+  if (!r.ok) {
+    if (r.reason === 'too_large') throw new Refusal(kind + '_too_large');
+    if (r.reason === 'nul_byte') throw new Refusal(kind + '_not_json', { detail: 'the file holds a NUL byte' });
+    throw new Refusal(kind + '_unreadable');
+  }
+  try { return JSON.parse(r.text); } catch (e) { throw new Refusal(kind + '_not_json', { detail: scalar(e && e.message, 120) }); }
 }
 
 function nodeStatus(db, id) {
@@ -243,7 +256,12 @@ function isoOf(ms) {
 }
 function cmdVersionLog(f) {
   const real = resolveRoom(f.room);
-  const topic = f.topic;
+  let topic = f.topic;
+  if (typeof f['topic-file'] === 'string') {
+    const doc = readInput(f['topic-file'], 'topic');
+    if (!isPlainObject(doc) || typeof doc.topic !== 'string' || doc.topic.length === 0) throw new Refusal('topic_missing');
+    topic = doc.topic;
+  }
   const db = navigation.openRoomDbReadOnlyForCaller(real);
   if (!db) throw new Refusal('room_db_open_failed');
   const lines = [];

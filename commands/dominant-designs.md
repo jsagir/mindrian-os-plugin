@@ -160,10 +160,10 @@ Then run the six phases on top of the kept rows, using the structure named by `s
 
 #### Research mode, filing (only after the navigator says yes)
 
-Ask: "File this to competitive-analysis?" first. On yes, run:
+Ask: "File this to competitive-analysis?" first. On yes, write a JSON object with the keys `room_label` (the room name) and `stage` (the venture stage) to `<scratch>/header.json` with the Write tool, then run:
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/dominant-design-research.cjs" file-pack --pack <scratch> --room <room dir> --domain-slug <slug> --date <YYYY-MM-DD> --room-label "<room name>" --stage "<stage>"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/dominant-design-research.cjs" file-pack --pack <scratch> --room <room dir> --domain-slug <slug> --date <YYYY-MM-DD> --header-file <scratch>/header.json
 ```
 
 This writes one evidence artifact per approved lane under `<room>/competitive-analysis/dominant-designs/` (an empty lane still gets its artifact with its `## Searched, not found` list), files each lane's sourced rows through `navigation.fileEvidenceWithReadback`, and prints the 4-zone filing report. Show that report as-is, including any lane marked NOT LANDED and a missing room.db.
