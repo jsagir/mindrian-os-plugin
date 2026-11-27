@@ -32,7 +32,7 @@ A phase that changes one surface and does not touch Part 8, 9 or 11 may skip ste
 | 0 | beta.95 cut (jsagi-42); main frozen | "CUT DONE" |
 | 1 | 405 EGM design to a clean round | now |
 | 2 | 405 slice 0: plan and run the spikes (owner on Desktop, about 20 min) | step 1 |
-| 3 | 367 plans 11 to 14 reach origin/main (jsagi-42) | next beta |
+| 3 | 367 plans 11 and 12 reach origin/main (jsagi-42); plans 13 and 14 follow | next beta |
 | 4 | 405 foundation: re-plan build slices from spike verdicts, then build (surface truth, refusal, receipts, click-proof gate, .mcpb, Theo cards, release) | steps 2 and 3 |
 | 5 | 401 and 402, the parts that overlap 405 first (alwaysLoad and deferral, shared includes, description cap) | step 4 foundation merged |
 | 6 | 404 recipes, with Desktop chat as a named target | step 5 |
