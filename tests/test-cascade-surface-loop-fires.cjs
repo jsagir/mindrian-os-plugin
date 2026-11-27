@@ -146,7 +146,7 @@ function runBashHook(scriptPath, envelope, env, cwd) {
 
     fs.writeFileSync(target, '---\nname: seed-artifact\n---\n# Body\n# touched ' + Date.now() + '\n');
 
-    const { status } = runBashHook(POST_WRITE,
+    const { status, stdout } = runBashHook(POST_WRITE,
       { tool_name: 'Write', tool_input: { file_path: target } },
       { MINDRIAN_ROOMS_HOME: roomsHome },
       scratch);
@@ -166,8 +166,17 @@ function runBashHook(scriptPath, envelope, env, cwd) {
     // The advisory prefix the SKILL.md trigger keys off is `^post-write: cascade
     // complete` OR `^queued MINTO regen`; the side-channel records cascade_status
     // 'complete' as the in-payload signal the renderer pairs with that prefix.
-    assert.equal(payload.cascade_status, 'complete',
-      label + ': cascade_status must be "complete" (the advisory-prefix companion signal)');
+    // Plan 400.3-03 (OA-2): until plan 400.3-03b fixes the 2 legacy faults
+    // (the extractTitle import and the injectArtifactId argument order), a real
+    // legacy cascade records 'partial' and the section advisory keeps the
+    // 'queued MINTO regen' prefix with the suffix that names the 2 failed steps.
+    // Plan 400.3-03b re-pins 'complete'.
+    assert.equal(payload.cascade_status, 'partial',
+      label + ': cascade_status must be "partial" until plan 400.3-03b fixes the 2 legacy faults');
+    let advisory = '';
+    try { advisory = ((JSON.parse(stdout) || {}).hookSpecificOutput || {}).additionalContext || ''; } catch (_e) { advisory = ''; }
+    assert.ok(advisory.startsWith('queued MINTO regen for ') && advisory.endsWith('; cascade partial: git-commit, artifact-id failed'),
+      label + ': the advisory names exactly the 2 legacy failed steps. Got: ' + JSON.stringify(advisory));
 
     // THE LOOP-FIRES ASSERTION: findings must SURFACE. newFindings non-empty is
     // the renderable signal the SKILL.md keys off (line 102: 1+ items -> present).

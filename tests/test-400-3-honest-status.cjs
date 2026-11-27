@@ -218,8 +218,138 @@ async function groupHook() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Group mcp (the in-process harness of tests/test-400-3-mcp-filing-index.cjs: a fake server with a claude-code
+// client, room_bind, direct handler calls; the room is born under <home>/MindrianRooms/<slug>).
+// OR-9 correction (coordinator decision, 2026-11-27): M1 and M4 assert the readiness refusal of
+// resolveMcpWriteRoom (room_not_ready), because the readiness gate refuses a missing or unreadable room.db
+// before the door of artifact_file is reached. The plan text "M1 unchanged, no_room_db" was wrong.
+// ---------------------------------------------------------------------------
+function makeFakeServer() {
+  const tools = {};
+  return {
+    tools,
+    tool(name, _d, _s, handler) { tools[name] = handler; },
+    registerTool(name, _config, handler) { tools[name] = handler; },
+    server: { getClientVersion() { return { name: 'claude-code', version: '2.1.0' }; }, getClientCapabilities() { return {}; } },
+  };
+}
+function parseRes(res) {
+  const text = res && res.content && res.content[0] && res.content[0].text;
+  if (!text) return null;
+  const marker = text.indexOf('\n\n## Suggested Next');
+  try { return JSON.parse(marker === -1 ? text : text.slice(0, marker)); } catch (_e) { return null; }
+}
+function startDbLockHolder(roomDir, extraArgs) {
+  return new Promise((resolve, reject) => {
+    const child = fork(DB_LOCK_HOLDER, [roomDir].concat(extraArgs || []), { stdio: ['ignore', 'inherit', 'inherit', 'ipc'] });
+    let settled = false;
+    child.on('error', () => {});
+    child.on('message', (m) => { if (m && m.ready && !settled) { settled = true; resolve({ child, mode: m.mode }); } });
+    child.on('exit', (c) => { if (!settled) { settled = true; reject(new Error('room-db-lock-holder-236 exited ' + c + ' before ready')); } });
+  });
+}
+function stopDbLockHolder(h) {
+  return new Promise((resolve) => {
+    if (!h || !h.child || h.child.exitCode !== null || h.child.signalCode !== null) return resolve();
+    h.child.once('exit', () => resolve());
+    try { h.child.send('release'); } catch (_e) { try { h.child.kill(); } catch (_e2) { resolve(); } }
+  });
+}
+function removeRoomDb(roomDir) {
+  for (const f of ['room.db', 'room.db-wal', 'room.db-shm']) {
+    try { fs.rmSync(path.join(roomDir, '.mindrian', f), { force: true }); } catch (_e) { /* best effort */ }
+  }
+}
+
+async function groupMcp() {
+  console.log('\n-- group mcp --');
+  const H = require('./helpers/isolated-home-36925.cjs');
+  const KEYS = ['HOME', 'USERPROFILE', 'MINDRIAN_ROOMS_HOME', 'MINDRIAN_MCP_FIRST', 'CLAUDE_ACTIVE_ROOM', 'CLAUDE_CODE_SESSION_ID', 'MINDRIAN_ACTIVE_SESSION_ID', 'MINDRIAN_BRAIN_URL'];
+  const SAVED = {};
+  for (const k of KEYS) SAVED[k] = process.env[k];
+  const restoreEnv = () => { for (const k of KEYS) { if (SAVED[k] === undefined) delete process.env[k]; else process.env[k] = SAVED[k]; } };
+  try {
+    const iso = H.mkIsolatedHome('4003-03');
+    const isoMr = Object.assign({}, iso, { roomsHome: path.join(iso.home, 'MindrianRooms') });
+    const SLUG = 'm-room';
+    const SESSION = 'sess-4003-03';
+    const room = H.birthFixtureRoom({ iso: isoMr, slug: SLUG, sessionId: '4003-03-birth' });
+    const roomDir = room && room.roomDir;
+    if (!roomDir || !fs.existsSync(roomDir)) { check('M fixture room is born', false, 'roomDir=' + roomDir); return; }
+    process.env.MINDRIAN_BRAIN_URL = 'http://127.0.0.1:9';
+    delete process.env.MINDRIAN_MCP_FIRST;
+    delete process.env.CLAUDE_ACTIVE_ROOM;
+
+    const toolRouter = require(path.join(ROOT, 'lib', 'mcp', 'tool-router.cjs'));
+    const views = require(path.join(ROOT, 'lib', 'mcp', 'tools', 'views.cjs'));
+    const server = makeFakeServer();
+    const ctx = { fallbackRoomDir: null, surface: 'cli' };
+    toolRouter.registerRouterTools(server, path.join(iso.home, 'boot-fallback'), ROOT, { compact: '' }, 'cli');
+    views.register(server, ctx);
+    const bound = parseRes(await server.tools.room_bind({ room: SLUG }, { sessionId: SESSION }));
+    if (!bound || bound.ok !== true) { check('M fixture room_bind binds the session', false, JSON.stringify(bound)); return; }
+    const extra = { sessionId: SESSION };
+    const call = async (args) => parseRes(await server.tools.artifact_file(args, extra));
+    const content = (n) => '---\ntitle: ' + n + '\n---\n\n# ' + n + '\n\nOne prose line.\n';
+    const filed = (n) => fs.existsSync(path.join(roomDir, 'problem-definition', n + '.md'));
+
+    // M5: a refusal before the open.
+    const m5 = await call({ section: 'problem-definition', filename: '..', content: 'x' });
+    check('M5 a refusal before the open (filename ..) gives invalid_filename with no graph_index and no partial key',
+      !!m5 && m5.ok === false && m5.reason === 'invalid_filename' && !Object.prototype.hasOwnProperty.call(m5, 'graph_index')
+        && !Object.prototype.hasOwnProperty.call(m5, 'partial'), JSON.stringify(m5));
+
+    // M2: a held write past the busy wait of the probe.
+    let h = null;
+    try {
+      h = await startDbLockHolder(roomDir);
+      check('M2 the holder holds a write (mode BEGIN IMMEDIATE + write)', h.mode === 'BEGIN IMMEDIATE + write', h.mode);
+      const t0 = msNow();
+      const m2 = await call({ section: 'problem-definition', filename: 'm2', content: content('M2') });
+      const ms = msNow() - t0;
+      console.log('M2 measured artifact_file under a held room.db write: ' + ms.toFixed(0) + ' ms');
+      check('M2 a busy room.db gives ok false, reason room_db_busy, in 4500-8000 ms (measured ' + ms.toFixed(0) + ' ms), and nothing is filed',
+        !!m2 && m2.ok === false && m2.reason === 'room_db_busy' && ms >= 4500 && ms < 8000 && !filed('m2'),
+        JSON.stringify(m2) + ' filed=' + filed('m2'));
+    } catch (e) { check('M2 fixture', false, e.message); }
+    await stopDbLockHolder(h);
+
+    // M3: a short hold that ends in a commit; the probe waits it out.
+    h = null;
+    try {
+      h = await startDbLockHolder(roomDir, ['300', 'commit']);
+      check('M3 the holder holds a write (mode BEGIN IMMEDIATE + write)', h.mode === 'BEGIN IMMEDIATE + write', h.mode);
+      const m3 = await call({ section: 'problem-definition', filename: 'm3', content: content('M3') });
+      check('M3 a hold of 300 ms with commit: ok true and graph_index.ok true',
+        !!m3 && m3.ok === true && !!m3.graph_index && m3.graph_index.ok === true && filed('m3'),
+        JSON.stringify(m3 && { ok: m3.ok, reason: m3.reason, graph_index: m3.graph_index }));
+    } catch (e) { check('M3 fixture', false, e.message); }
+    await new Promise((r) => { if (!h || h.child.exitCode !== null) return r(); h.child.once('exit', r); });
+
+    // M1: room.db removed. The readiness gate refuses before the door (OR-9 correction).
+    removeRoomDb(roomDir);
+    const m1 = await call({ section: 'problem-definition', filename: 'm1', content: content('M1') });
+    check('M1 room.db removed: ok false, reason room_not_ready, not_ready_reason room_db_missing, nothing filed',
+      !!m1 && m1.ok === false && m1.reason === 'room_not_ready' && m1.not_ready_reason === 'room_db_missing' && !filed('m1'),
+      JSON.stringify(m1) + ' filed=' + filed('m1'));
+
+    // M4: room.db replaced by 4096 bytes of 0x41. The readiness gate refuses before the door (OR-9 correction).
+    fs.writeFileSync(path.join(roomDir, '.mindrian', 'room.db'), Buffer.alloc(4096, 0x41));
+    const m4 = await call({ section: 'problem-definition', filename: 'm4', content: content('M4') });
+    check('M4 room.db is garbage: ok false, reason room_not_ready, not_ready_reason room_db_unreadable, nothing filed (never no_room_db)',
+      !!m4 && m4.ok === false && m4.reason === 'room_not_ready' && m4.not_ready_reason === 'room_db_unreadable' && !filed('m4'),
+      JSON.stringify(m4) + ' filed=' + filed('m4'));
+  } catch (e) {
+    check('mcp group harness', false, e && e.stack || String(e));
+  } finally {
+    restoreEnv();
+  }
+}
+
 async function main() {
   if (GROUP === 'hook' || GROUP === 'all') await groupHook();
+  if (GROUP === 'mcp' || GROUP === 'all') await groupMcp();
   console.log('\n' + passed + ' passed, ' + failed + ' failed, ' + knownOpen + ' known-open');
   process.exit(failed === 0 ? 0 : 1);
 }
