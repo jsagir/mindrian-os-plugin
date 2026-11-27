@@ -31,3 +31,9 @@ for: the next session that runs the 401 to 405 overnight plan
 
 ## Open owner items
 None waiting. O11 (remote route for ChatGPT web and mobile) stays unruled; default: not in 405.
+
+## Update: Phase 401 design is written (2026-11-27 late)
+- `.planning/phases/401-hygiene-and-cheap-context-cuts/`: 401-CONTEXT.md, 401-RESEARCH.md, 401-DESIGN.md (7 slices; F1 separate). Slice 1 (keep-list guard test and measuring script) may run any time; slice 2 (remove mcp-server-brain/) after F1 and owner items; slices 3 to 7 wait for the 405 foundation (table in the design).
+- NEXT: one narrow Goldfish round on 401-DESIGN.md (attack points in its section 10).
+- Owner items O1 to O7 for the next owner card (each with a recommendation in 401-DESIGN.md section 9): O1 keep the name mcp-server-brain in history and guard checks (yes); O2 /mos:admin runs one file in that folder: move it to scripts/ (move); O3 delete 2 one-time migration scripts and make the 2 Brain write tools answer "retired" (yes); O4 remove the retired Pinecone tool from 3 agent tool lists (yes); O5 remove 6 expired commands after the 405 foundation, 113 to 107 (yes); O6 description limit 300 B (300 B); O7 move the nav-block trims to Phase 402 (yes).
+- Facts worth keeping: `stamp-firing-block --check` exits 1 today with 11 pending files (cause unverified); lib/memory/brain-server-resolution.test.cjs is red today (3 of 5); measured tool surface 86,250 B against the test-270 pin 85,599.
