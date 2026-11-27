@@ -12,7 +12,12 @@
  * Do not put a table-creation SQL statement in this file (the Phase 108 schema-drift pre-commit guard).
  * Native Windows is UNMEASURED.
  *
- * Groups: memory (K1-K6), feynman (F1-F7).
+ * Groups: memory (K1-K6), feynman (F1-F8).
+ * F8 (wave 2 Goldfish W2-D-04): runAll on the Phase 379.1 large-room fixture (tests/fixtures/large-room/build-fixture.cjs,
+ * 2,105 artifacts, plus 80 sections with FEYNMAN.md and MINTO.md and a .planning tree of 60 phases) holds the write lock less than
+ * graph-ops INDEX_BUSY_MS (500 ms), so a post-write index call that waits INDEX_BUSY_MS is not shut out by it.
+ * Timing arms (wave 2 Goldfish W2-CD-06): a breach runs the arm once more; the arm fails only on 2 breaches, and
+ * prints each measured value with the load average. No bound is raised.
  * Usage: node tests/test-400-3-room-db-scripts.cjs [memory|feynman|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -317,6 +322,24 @@ function normalized(R, s) {
   return t === null ? null : t.split(R).join('<R>').replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/g, '<TS>');
 }
 
+// Wave 2 Goldfish W2-CD-06: a timing arm. measure() returns { value, ok, detail }. A breach runs measure() once
+// more; the arm fails only when both runs breach. Each run prints its value and the load average.
+async function timedArm(label, bound, measure) {
+  const runs = [];
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    let r;
+    try { r = await measure(); } catch (e) { r = { value: NaN, ok: false, detail: e && e.message }; }
+    let load = 'unknown';
+    try { load = os.loadavg().map((x) => x.toFixed(2)).join(' '); } catch (_e) { /* unknown */ }
+    console.log('  timing ' + label + ' run ' + attempt + ': ' + (Number.isFinite(r.value) ? r.value.toFixed(0) : String(r.value)) + ' ms (bound ' + bound + ' ms, load average ' + load + ')');
+    runs.push(r);
+    if (r.ok) break;
+  }
+  const last = runs[runs.length - 1];
+  check(label + ' (measured ' + runs.map((r) => (Number.isFinite(r.value) ? r.value.toFixed(0) : String(r.value))).join(', ') + ' ms; ' + (last.ok ? (runs.length === 1 ? 'first run' : 'retry after 1 breach') : '2 breaches') + ')',
+    last.ok, JSON.stringify(runs.map((r) => r.detail)));
+}
+
 async function groupFeynman() {
   console.log('\n-- group feynman --');
   const cmd = require(TIMELINE_CMD);
@@ -452,6 +475,52 @@ async function groupFeynman() {
         !ca.err && pr.longest < 750 && pr.probes > 0, JSON.stringify({ err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) }));
     } catch (e) { check('F7 fixture', false, e.message); }
     if (p) { try { p.kill(); } catch (_e) { /* gone */ } }
+  }
+  // F8 (wave 2 Goldfish W2-D-04): the large-room fixture.
+  {
+    const { buildLargeRoom } = require(path.join(__dirname, 'fixtures', 'large-room', 'build-fixture.cjs'));
+    const { INDEX_BUSY_MS } = require(path.join(ROOT, 'lib', 'core', 'graph-ops.cjs'));
+    const mkLarge = () => {
+      const top = fs.mkdtempSync(path.join(os.tmpdir(), '4003-w2-f8-'));
+      ROOTS.push(top);
+      const built = buildLargeRoom(top, { slug: 'f8' });
+      const R = built.roomDir;
+      fs.writeFileSync(path.join(R, 'STATE.md'), '# State\n');
+      fs.writeFileSync(path.join(R, 'USER.md'), '---\nrole_blend: researcher\njourney_stage: explore\n---\n# User\n');
+      // The 5 sections of the fixture plus 75 sections of memory files: 80 FEYNMAN.md renders per run.
+      const extra = Array.from({ length: 75 }, (_, i) => 'm' + String(i).padStart(3, '0'));
+      for (const sec of ['problem-definition', 'assumptions', 'decisions', 'research', 'solution-design'].concat(extra)) {
+        fs.mkdirSync(path.join(R, sec), { recursive: true });
+        fs.writeFileSync(path.join(R, sec, 'ROOM.md'), '# ' + sec + '\n');
+        fs.writeFileSync(path.join(R, sec, 'STATE.md'), '# State ' + sec + '\n');
+        fs.writeFileSync(path.join(R, sec, 'MINTO.md'), '---\ngoverning_thought: ' + sec + ' thought\n---\n# MINTO ' + sec + '\n');
+        fs.writeFileSync(path.join(R, sec, 'FEYNMAN.md'), seededFeynman(sec));
+      }
+      for (let i = 0; i < 60; i += 1) {
+        const ph = String(800 + i) + '-p' + i;
+        const d = path.join(R, '.planning', 'phases', ph);
+        fs.mkdirSync(d, { recursive: true });
+        fs.writeFileSync(path.join(d, (800 + i) + '-SPEC.md'), '# Spec ' + i + '\n\n## Requirements\n\n1. **P' + i + '-01**: one\n2. **P' + i + '-02**: two\n');
+        fs.writeFileSync(path.join(d, (800 + i) + '-01-PLAN.md'), '---\nphase: ' + ph + '\nplan: 01\nrequirements: [P' + i + '-01]\n---\n\n# Plan ' + i + '\n');
+      }
+      closeRoomDb(openRoomDb(R));
+      return { R, artifacts: built.artifacts };
+    };
+    await timedArm('F8 runAll on the large-room fixture (2,105 artifacts) holds the write lock less than INDEX_BUSY_MS ' + INDEX_BUSY_MS + ' ms', INDEX_BUSY_MS, async () => {
+      const fx = mkLarge();
+      let p = null;
+      try {
+        p = await startProber(fx.R);
+        await yieldMs(50);
+        const t0 = msNow();
+        const ca = await new Promise((resolve) => setImmediate(() => resolve(captureStderr(() => reconcileMod.runAll(ctxFor(fx))))));
+        const wall = msNow() - t0;
+        await yieldMs(50);
+        const pr = await stopProber(p); p = null;
+        console.log('400.3-w2 session-start hold ms (Linux, large-room fixture, ' + fx.artifacts + ' artifacts): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
+        return { value: pr.longest, ok: !ca.err && pr.longest < INDEX_BUSY_MS && pr.probes > 0, detail: { err: ca.err && ca.err.message, pr, total: Math.round(wall) } };
+      } finally { if (p) { try { p.kill(); } catch (_e) { /* gone */ } } }
+    });
   }
 }
 

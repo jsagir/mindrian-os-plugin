@@ -76,6 +76,24 @@ function inRoomTx(db, blockName, fn) {
   }
 }
 
+// Wave 2 Goldfish W2-D-04: blocks 1 and 2 read FEYNMAN.md, render from room.db (reads need no write lock in WAL)
+// and write the file OUTSIDE the transaction; their only room.db writes are memory events, which the runner puts
+// in a sink. The events are logged in one short withRoomTx after the render, so the write lock is held for the
+// inserts only, not for the file reads and the render. No event: no transaction, no wait.
+function refreshWithEventSink(db, blockName, runRefresh) {
+  if (!db) return { value: runRefresh(null) };
+  var sink = [];
+  var value = runRefresh(sink);
+  if (sink.length === 0) return { value: value };
+  var navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
+  var logged = inRoomTx(db, blockName, function () {
+    for (var i = 0; i < sink.length; i += 1) {
+      try { navigation.logMemoryEvent(db, sink[i].type, sink[i].payload); } catch (_) { /* as the runner: a log failure does not undo the landed write */ }
+    }
+  });
+  return logged.busy ? { value: value, busy: true } : { value: value };
+}
+
 // Block 1: feynman timeline refresh (Phase 124). Plugin root form: pluginRootForNode.
 function refreshTimeline(ctx) {
   try {
@@ -84,7 +102,7 @@ function refreshTimeline(ctx) {
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/timeline-runner.cjs');
     var run;
-    try { run = inRoomTx(db, 'refreshTimeline', function () { return runner.refreshAll(roomDir, { db: db }); }); }
+    try { run = refreshWithEventSink(db, 'refreshTimeline', function (sink) { return runner.refreshAll(roomDir, sink ? { db: db, eventSink: sink } : { db: db }); }); }
     finally { if (db) { try { db.close(); } catch (_) {} } }
     var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
@@ -103,7 +121,7 @@ function refreshDialMemory(ctx) {
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/dial-memory-runner.cjs');
     var run;
-    try { run = inRoomTx(db, 'refreshDialMemory', function () { return runner.refreshAll(roomDir, { db: db }); }); }
+    try { run = refreshWithEventSink(db, 'refreshDialMemory', function (sink) { return runner.refreshAll(roomDir, sink ? { db: db, eventSink: sink } : { db: db }); }); }
     finally { if (db) { try { db.close(); } catch (_) {} } }
     var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
@@ -131,6 +149,8 @@ function reconcileGsdPlanning(ctx) {
         reconcileOpts.planningDir = path.join(pluginRoot, '.planning');
       }
     } catch (_) {}
+    // Wave 2 Goldfish W2-D-04: read every planning file before the transaction (the Phase 367 rule).
+    if (typeof runner.preparePlanningArtifacts === 'function') reconcileOpts.prepared = runner.preparePlanningArtifacts(roomDir, reconcileOpts);
     var run;
     try { run = inRoomTx(db, 'reconcileGsdPlanning', function () { return runner.reconcilePlanningArtifacts(roomDir, reconcileOpts); }); }
     finally { try { db.close(); } catch (_) {} }
@@ -161,6 +181,8 @@ function reconcileMemoryCortex(ctx) {
         reconcileOpts.sectionRoot = pluginRoot;
       }
     } catch (_) {}
+    // Wave 2 Goldfish W2-D-04: read and parse every memory file before the transaction (the Phase 367 rule).
+    if (typeof runner.prepareMemoryArtifacts === 'function') reconcileOpts.prepared = runner.prepareMemoryArtifacts(roomDir, reconcileOpts);
     var run;
     try { run = inRoomTx(db, 'reconcileMemoryCortex', function () { return runner.reconcileMemoryArtifacts(roomDir, reconcileOpts); }); }
     finally { try { db.close(); } catch (_) {} }

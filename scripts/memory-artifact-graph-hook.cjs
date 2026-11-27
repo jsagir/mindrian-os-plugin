@@ -240,6 +240,10 @@ function reconcileRoom(roomDir, opts) {
     } catch (_e) { /* keep the default sectionRoot */ }
     // Call the SAME idempotent reconcile the session-start slot calls, inside one
     // transaction (D-01 belt-and-suspenders: a later session-start never duplicates).
+    // Wave 2 Goldfish W2-D-04: read and parse every memory file BEFORE the
+    // transaction (the Phase 367 read-before-tx rule), so the write lock is held
+    // for the inserts only, not for the file reads.
+    if (typeof runner.prepareMemoryArtifacts === 'function') reconcileOpts.prepared = runner.prepareMemoryArtifacts(roomDir, reconcileOpts);
     const result = navigation.withRoomTx(db, () => runner.reconcileMemoryArtifacts(roomDir, reconcileOpts));
     return { ok: true, result: result };
   } catch (err) {
