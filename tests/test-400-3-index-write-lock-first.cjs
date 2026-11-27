@@ -11,7 +11,7 @@
  * Canon Part 8: fixture rooms only under mkdtemp roots; no network.
  * Native Windows is UNMEASURED.
  *
- * Groups: lock (W1-W6), backfill (B1-B3), presence (E1-E6).
+ * Groups: lock (W1-W6), backfill (B1-B3), presence (E1-E7; E7 wave 2 Goldfish W2-D-09).
  * Usage: node tests/test-400-3-index-write-lock-first.cjs [lock|backfill|presence|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
@@ -264,7 +264,7 @@ async function groupBackfill() {
 }
 
 // ---------------------------------------------------------------------------
-// Group presence (E1-E6)
+// Group presence (E1-E7)
 // ---------------------------------------------------------------------------
 // A room with .room-root, sec/a.md and a 0-byte .mindrian/room.db (no write door ran).
 function mkZeroRoom(parent, name, opts) {
@@ -406,6 +406,23 @@ async function groupPresence() {
     check('E6 openRoomDbForCaller on a 0-byte room.db: null, reason no_room_db, the file stays 0 bytes',
       db === null && sink.indexOf('no_room_db') !== -1 && sizeOf(dbPathOf(room)) === 0,
       JSON.stringify({ db: db === null ? null : 'handle', sink, size: sizeOf(dbPathOf(room)) }));
+  }
+
+  // E7 (wave 2 Goldfish W2-D-09): the window between the presence check and the open. roomDbPresent is made to say
+  // true while room.db is gone (the file was removed after the check). openGraph {mustExist: true} opens with a file:
+  // URI mode=rw, so it throws ROOM_DB_MISSING and creates no room.db (D-10).
+  {
+    const room = path.join(root, 'e7');
+    fs.mkdirSync(path.join(room, '.mindrian'), { recursive: true });
+    const real = roomRoot.roomDbPresent;
+    roomRoot.roomDbPresent = () => true;
+    let err = null;
+    let h = null;
+    try { h = await lazygraph.openGraph(room, { mustExist: true, busyMs: 100 }); } catch (e) { err = e; } finally { roomRoot.roomDbPresent = real; }
+    if (h) { try { await lazygraph.closeGraph(h); } catch (_e) { /* closed */ } }
+    check('E7 the file is gone after the presence check: openGraph mustExist throws ROOM_DB_MISSING and creates no room.db',
+      !h && !!err && err.code === 'ROOM_DB_MISSING' && sizeOf(dbPathOf(room)) === -1,
+      JSON.stringify({ handle: !!h, code: err && err.code, message: err && err.message, size: sizeOf(dbPathOf(room)) }));
   }
 }
 
