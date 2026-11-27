@@ -15,8 +15,8 @@
  *
  * Native Windows is UNMEASURED.
  *
- * Groups: door (O1-O9), consumers (T1-T3).
- * Usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|all]   (default all)
+ * Groups: door (O1-O9), consumers (T1-T3), hookcap (K1, owner answer OA-3).
+ * Usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|all]   (default all)
  *
  * Node built-ins only. Hyphens only.
  */
@@ -32,8 +32,8 @@ const DB_LOCK_HOLDER = path.join(__dirname, 'helpers', 'room-db-lock-holder-236.
 const HOLDER_MODE = 'BEGIN IMMEDIATE + write';
 
 const GROUP = process.argv[2] || 'all';
-if (['door', 'consumers', 'all'].indexOf(GROUP) === -1) {
-  console.error('usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|all]');
+if (['door', 'consumers', 'hookcap', 'all'].indexOf(GROUP) === -1) {
+  console.error('usage: node tests/test-400-3-room-db-opener.cjs [door|consumers|hookcap|all]');
   process.exit(2);
 }
 
@@ -394,9 +394,59 @@ async function groupConsumers() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Group hookcap (K1, owner answer OA-3, 2026-11-27)
+// ---------------------------------------------------------------------------
+// A hook process (hook-busy-cap set to HOOK_BUSY_MS) opens a ready room through openRoomDbForCaller while another
+// process holds a write, then makes N memory-event writes through the one handle. The first busy write waits the
+// cap once and trips it; every later write fails at once.
+const HOOK_WRITES = 4;
+function hookWriterCode() {
+  return [
+    "const path = require('node:path');",
+    'const ROOT = process.argv[1];',
+    "const cap = require(path.join(ROOT, 'lib', 'core', 'hook-busy-cap.cjs'));",
+    'cap.setHookBusyCap(cap.HOOK_BUSY_MS);',
+    "const nav = require(path.join(ROOT, 'lib', 'core', 'navigation.cjs'));",
+    'const db = nav.openRoomDbForCaller(process.argv[2]);',
+    'const out = { opened: !!db, writes: [] };',
+    'if (db) {',
+    '  for (let i = 0; i < Number(process.argv[3]); i++) {',
+    '    const t0 = process.hrtime.bigint();',
+    "    const r = nav.logMemoryEvent(db, 'gate_reached', { offered: 1, source_path: 'system:test-4003-06b' });",
+    '    out.writes.push({ ok: r.ok, ms: Number(process.hrtime.bigint() - t0) / 1e6 });',
+    '  }',
+    '  nav.closeRoomDbForCaller(db);',
+    '}',
+    'process.stdout.write(JSON.stringify(out));',
+  ].join('\n');
+}
+async function groupHookcap() {
+  console.log('\n-- group hookcap --');
+  const room = readyRoom('k1');
+  let h = null;
+  try {
+    h = await startHolder(room);
+    const r = spawnSync(process.execPath, ['-e', hookWriterCode(), ROOT, room, String(HOOK_WRITES)], { encoding: 'utf8', env: process.env, timeout: 60000 });
+    let out = null;
+    try { out = JSON.parse(String(r.stdout).trim()); } catch (_e) { out = null; }
+    const w = (out && out.writes) || [];
+    const msList = w.map((x) => Math.round(x.ms));
+    const total = w.reduce((a, x) => a + x.ms, 0);
+    const first = w[0] || { ok: true, ms: 0 };
+    const rest = w.slice(1);
+    check('K1 ' + HOOK_WRITES + ' busy writes in one hook process wait once (about 750 ms), then fail at once (measured ' + JSON.stringify(msList) + ' ms, total ' + Math.round(total) + ' ms)',
+      !!out && out.opened === true && w.length === HOOK_WRITES && w.every((x) => x.ok === false)
+        && first.ms >= 600 && rest.every((x) => x.ms < 100) && total < 1100,
+      JSON.stringify({ stdout: String(r.stdout).slice(0, 300), stderr: String(r.stderr).slice(-300) }));
+  } catch (e) { check('K1 fixture', false, e.message); }
+  await stopHolder(h);
+}
+
 async function main() {
   if (GROUP === 'door' || GROUP === 'all') await groupDoor();
   if (GROUP === 'consumers' || GROUP === 'all') await groupConsumers();
+  if (GROUP === 'hookcap' || GROUP === 'all') await groupHookcap();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }
