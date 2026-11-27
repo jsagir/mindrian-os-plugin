@@ -207,3 +207,17 @@ VERIFIED: bash tests/run-all-402.sh exit 0, PASS=23 FAIL=0 SKIP=0; lock wait at 
 UNVERIFIED: the host effect in a live session; Windows and macOS lock timing; host versions other than 2.1.332.
 RISKS: the flag-on route has no loop guard (leg R1 blocks a default change); the X1 open case; the known risks above.
 NEXT: Merge the branch after origin/main is integrated, run the gate runner again, and add the CHANGELOG line.
+
+## 11. Follow-up after the staging finding: lock attempts 75 to 50 (2026-11-28)
+
+Instruction: addendum 402-K4F-PLAN-ADDENDUM.md, last section. The staging run had T 4,613 ms and U 1,613 ms at 75 attempts under load from other work. The fixed fallback of K4-R5 applies.
+
+- Test (commit b8530200d): tests/test-402-card-fire-lock-wait.cjs asserts T at most 4,000 ms, the sleep part at most 2,000 ms and U at most 2,000 ms. The held-lock case runs 2 times: quiet arm (W1 to W4) and made-load arm (L1 to L4, 1 busy worker for each CPU core, 12 on this machine). `--arm quiet|load|both`, default both. Each worker stops when its parent ends or after 900 s; the test kills all workers at the end of the arm, on an exception and on exit.
+- Red at 75, load arm, 5 runs: exit 1 in 5 of 5. The failing leg is W0 only (2 x 75 x 20 = 3,000 ms above 2,000 ms). L1 to L4 passed in 5 of 5: T max per run 3,177 / 3,136 / 3,146 / 3,165 / 3,315 ms, U max 315 ms. FACT: the made load did not reproduce the staging failure in 5 runs. The change is kept; the staging record is the evidence (as the decision says).
+- Fix (commit below): `RETRY_LOCK_MAX_ATTEMPTS = 50` in scripts/check-card-fire.cjs; the comment block gives the formula, the 2,000 / 2,000 split, why 50 and the numbers.
+- Green at 50, both arms, 5 runs: exit 0 in 5 of 5 (9 passed, 0 failed each). T max over 5 runs: quiet 2,229 / 2,152 / 2,229 / 2,162 ms; load 2,240 / 2,148 / 2,206 / 2,157 ms (intercept / degrade / pass / stop_hook_active pass); U max 240 ms.
+- tests/test-238-retry-counter-fence.cjs (not edited), 20 runs at 50: exit 0 in 20 of 20; each run exact 200 (leg A), 40 (leg C), 10 (leg D).
+- `bash tests/run-all-402.sh` at 50: exit 0, `Phase 402: PASS=23 FAIL=0 SKIP=0`. Report-only group the same as the baseline: ga4 e2e 179 exit 1 at E2E-1; relevance gate 6 passed, 5 failed; qef hook timeouts 1 FAILED; 359 prose budget 16 passed, 2 failed.
+- Stray load workers after every batch: 0 (pgrep).
+- Evidence files (ignored by git): evidence-lockwait/ in this folder (red-75-load-run1..5, green-50-both-run1..5, test238-50, run-all-402-at-50).
+- Not changed: tests/test-402-card-fire-envelope.cjs still asserts the sleep part at most 3,000 ms; 2,000 ms passes it. The made load is CPU only; disk and memory pressure are not made. Windows and macOS timing stay UNVERIFIED.
