@@ -32,7 +32,7 @@ Scope: one local stdio MCP server that ships three MCP App components (decision 
 | Claude Code Desktop tab | Connectors load. | Plugin local servers load. The tab also loads servers from `claude_desktop_config.json`, `~/.claude.json` and `.mcp.json`. The changelog lists "interactive MCP app widgets in the conversation" among "Code tab features already available in the standard app". A developer issue reports that widgets rendered in Claude Code 2.1.234 and then stopped on 2026-08-20; the issue was closed as not planned. | P: https://code.claude.com/docs/en/desktop (no date on page). P: https://claude.com/docs/cowork/changelog. S: https://github.com/anthropics/claude-code/issues/88370 (opened 2026-08-20). |
 | Claude Code terminal | No iframe surface. UI resources (`ui://`, `text/html;profile=mcp-app`) are hidden from the `@` list because they are "pages for a host application to render rather than content for Claude to read". Tool text is the only output. | Same. | P: https://code.claude.com/docs/en/mcp (search excerpt, no date). |
 | ChatGPT web | Renders UI from remote MCP servers through plugins. "ChatGPT is now fully compatible with the MCP Apps spec" (2026-02-22). | "Can I connect to a local MCP server? Not directly. ChatGPT connects to remote MCP servers." The Secure MCP Tunnel can forward to a stdio server (`--mcp-command`). | P: https://developers.openai.com/plugins/changelog (entry 2026-02-22). P: https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt (search excerpt, no date). P: https://developers.openai.com/api/docs/guides/secure-mcp-tunnels (search excerpt, no date). |
-| ChatGPT desktop | Plugins with UI "must function reliably in ChatGPT on both desktop and mobile, including any UI components". | UNVERIFIED. See the UNVERIFIED section. | P: https://developers.openai.com/plugins/plugin-guidelines (no date on page). |
+| ChatGPT desktop | Plugins with UI "must function reliably in ChatGPT on both desktop and mobile, including any UI components". | The desktop app accepts a STDIO server in Settings, MCP servers (shared Codex host configuration). View rendering from such a server is UNVERIFIED. See section 7. | P: https://developers.openai.com/plugins/plugin-guidelines (no date on page). |
 | ChatGPT mobile | Same rule as above. Picture-in-picture "may be presented as fullscreen" on mobile. | Not possible directly. | P: https://developers.openai.com/plugins/reference (no date on page). |
 
 ### 1.2 Display modes
@@ -279,6 +279,103 @@ One view for both hosts (all P):
 
 ---
 
+## 7. Same chat package in ChatGPT (owner hypothesis)
+
+Hypothesis: the MindrianOS chat package for Claude Desktop (one local stdio MCP server plus three MCP App views) can also run in the ChatGPT desktop chat.
+
+### 7a. Local stdio server or remote only
+
+| Surface | Fact | Source |
+|---|---|---|
+| ChatGPT web | "Can I connect to a local MCP server? Not directly. ChatGPT connects to remote MCP servers." Connection is a public HTTPS MCP endpoint or a Secure MCP Tunnel. | P: https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt (no date on page) |
+| ChatGPT mobile | "Can I connect custom MCP servers on mobile? No - web only." (This is about adding a server. Published plugin UI must still work on mobile.) | P: same help article; P: https://developers.openai.com/plugins/plugin-guidelines |
+| ChatGPT desktop app | The desktop app has "Settings, then select MCP servers ... Add server ... choose STDIO or Streamable HTTP". It shares MCP configuration with the Codex CLI and IDE extension "for the same Codex host". "ChatGPT web doesn't read local Codex configuration files." A plugin can be marked "Desktop only". | P: https://developers.openai.com/codex/mcp (no date on page; read with a query filter, not in full) |
+| Secure MCP Tunnel | A small client runs next to the private server, opens an outbound HTTPS path, and forwards to a stdio command (`--mcp-command`) or an HTTP URL. The client must stay running. It "does not support public plugin submission or distribution". | P: https://developers.openai.com/api/docs/guides/secure-mcp-tunnels (search excerpt, no date) |
+| Public listing | Needs "a stable, publicly reachable HTTPS endpoint" with streamable HTTP. A tunnel or local endpoint is not accepted. | P: https://developers.openai.com/plugins/build/mcp-server (search excerpt, no date) |
+
+What a local-data product needs for ChatGPT:
+1. Web and mobile chat: a remote endpoint. Either a hosted server (then room data leaves the computer, which conflicts with the local-room design) or a Secure MCP Tunnel per user (the room stays local, but each tool call travels through OpenAI's tunnel service, and the user must run `tunnel-client` with a `tunnel_id` and an API key).
+2. Desktop app: a stdio entry in Settings, MCP servers. No tunnel. This is the only path that matches the Claude Desktop shape.
+
+Plans and regions:
+- "Custom MCP server connections and full MCP support are available for ChatGPT Business and Enterprise/Edu customers on ChatGPT web." Business: only admins and owners create and publish. Enterprise/Edu: RBAC permission "Create plugins with MCPs". P: help article.
+- "Pro users can build apps using the Apps SDK. Full MCP is only available to Business and Enterprise/Edu users, currently. Pro users can connect custom MCP servers with read/fetch permissions." P: help article.
+- "Are there geo restrictions? No." P: help article.
+- "You don't need to turn on Developer Mode first." The user must accept a risk warning for each server. P: help article.
+- Plus and Free plans for custom servers: no source found.
+- Plan rules for stdio servers in the desktop app: no source found.
+
+### 7b. MCP Apps features in the ChatGPT host
+
+| Feature | Status in ChatGPT | Source |
+|---|---|---|
+| Standard as a whole | "ChatGPT is now fully compatible with the MCP Apps spec." | P: plugins/changelog (2026-02-22) |
+| `ui://` resource with `text/html;profile=mcp-app` | Supported. | P: https://developers.openai.com/plugins/build/chatgpt-ui |
+| `_meta.ui.resourceUri` | Supported and preferred. | P: chatgpt-ui; plugins/reference |
+| `_meta.ui.visibility` | Supported. Old `openai/visibility` deprecated 2026-07-21. | P: plugins/changelog; plugins/reference |
+| `_meta.ui.csp`, `prefersBorder`, `domain` | Supported. `domain` is required for submission. | P: plugins/reference |
+| `ui/initialize`, `tool-input`, `tool-result` | Supported. Approval-gated input arrives through `tool-input` after approval (2026-05-27). | P: plugins/changelog |
+| `tools/call` from the view | Supported. | P: chatgpt-ui |
+| `ui/message` | Supported. | P: chatgpt-ui |
+| `ui/update-model-context` | Named as "the portable MCP Apps mechanism for updating model-visible context". | P: chatgpt-ui |
+| Host style variables and theme change | Supported since 2026-05-28. | P: plugins/changelog |
+| Display modes | inline, fullscreen, pip. Declare them at initialization. Optional pre-load hint `_meta["openai/ui"].availableDisplayModes`. | P: plugins/reference; ui-guidelines |
+| Still `window.openai` only | Widget state (`widgetState`, `setWidgetState`), modal (`requestModal`), checkout (`requestCheckout`), file helpers, `requestClose`, `setOpenInAppUrl`, `openExternal` redirect targets (`openai/widgetCSP.redirect_domains`), status text (`openai/toolInvocation/*`), `openai/widgetDescription`. | P: plugins/reference; chatgpt-ui |
+
+None of the three MindrianOS views needs a `window.openai`-only feature.
+
+### 7c. How instructions reach the model in ChatGPT
+
+- Server instructions: "ChatGPT now reads MCP server instructions returned during initialization and uses them alongside tool metadata to understand cross-tool workflows, constraints, and server-wide guidance." P: plugins/changelog (2026-05-26).
+- Tool descriptions, schemas and annotations are read from the server. For a workspace, the tool list is a "frozen" snapshot until an admin refreshes it. P: help article.
+- Skills: a ChatGPT plugin can combine "skills, MCP servers, and optional interfaces". The MCP client matrix marks ChatGPT as "Partial" for the Skills over MCP extension and links to "import skills from the MCP server". P: https://developers.openai.com/plugins (search excerpt); P: https://modelcontextprotocol.io/extensions/client-matrix (no date on page).
+- View description for the model: `_meta["openai/widgetDescription"]` on the resource. P: plugins/reference.
+- The user selects the plugin with `@` for a message; selection "applies to the message where you use it, not the entire conversation". P: help article.
+- MCP prompts (`prompts/list`) in ChatGPT: no source found.
+- A persona line in server instructions is guidance, not a system prompt. No source says how strongly ChatGPT follows it.
+
+### 7d. Human confirmation for write tools
+
+| Topic | ChatGPT | Claude | Source |
+|---|---|---|---|
+| Who asks | The host. "ChatGPT asks for confirmation based on app permissions and the action's context." "Some especially risky actions may be blocked instead of being presented for approval." | The host. Claude asks the user to allow a tool unless a saved choice ("Always allow") or the permission setting (Manual, Auto) covers it. | P: help article. P: getting-started.md; app-tools page |
+| User setting | Always ask, before making changes, or only before important changes; per app and global; admins set workspace defaults. | Per tool saved choice; conversation permission setting. | P: plugins/changelog (2026-06-12). P: app-tools page |
+| Input to the decision | Tool annotations (`readOnlyHint`, `destructiveHint`, `openWorldHint`) "help ChatGPT and Codex choose appropriate confirmation and safety behavior. They do not replace authorization, validation, or confirmation in your server." | Prompt names the connector and the tool `title`. | P: https://developers.openai.com/plugins/build/mcp-server. P: app-tools page |
+| View input before approval | `toolInput` can be `null` until the user approves. | Not stated. | P: plugins/reference |
+| Tool call from the view | No source found for a host prompt on `tools/call` from the view. | No prompt for `app.callServerTool` to the view's own server. | P: app-tools page |
+| Deep research | Custom apps: read and fetch only, no write. | Not applicable. | P: help article |
+
+Effect on the decision card: the host confirm dialog and the card are two different gates. A model-visible write tool would show the ChatGPT dialog and then the card, which is a double prompt. Keep the write tool app-only and mark the card-opening tool `readOnlyHint: true`, so the host does not ask and the card click is the one approval. The server check (gate id, option id, single use) stays the real control on both hosts.
+
+### 7e. Same package on both hosts
+
+| Part of the package | Verdict | Reason | Source |
+|---|---|---|---|
+| The three view HTML files (standard bridge only) | Works | ChatGPT is fully compatible with the MCP Apps spec. | P: plugins/changelog 2026-02-22 |
+| `_meta.ui.resourceUri`, `visibility`, `csp`, `prefersBorder` | Works | Same keys on both hosts. | P: plugins/reference |
+| App-only tool for the decision click | Works | `tools/call` from the view and `_meta.ui.visibility` are supported. | P: chatgpt-ui; plugins/reference |
+| `updateModelContext` and `sendMessage` hand-back | Works | Both are in the ChatGPT mapping. Consent behavior of `ui/message` in ChatGPT is not documented. | P: chatgpt-ui |
+| Text fallback in `content` | Works | Required by both. | P: specification; chatgpt-ui |
+| Host theme tokens with fallbacks | Works | ChatGPT sends the standard variables since 2026-05-28. | P: plugins/changelog |
+| Fonts | Needs a change | ChatGPT: no custom fonts; use the system stack. A bundled brand font is against the guideline. | P: ui-guidelines |
+| Inline card limits (2 actions, no nested scroll) | Works | Same rule on both hosts. | P: ui-guidelines; design-guidelines.md |
+| Step player in a larger view | Needs a change | Claude: fullscreen or side panel. ChatGPT: fullscreen or pip. Read `availableDisplayModes`; do not assume. | P: display-modes; plugins/reference |
+| `structuredContent` | Needs a change | ChatGPT gives it to the model verbatim; Claude reads text first. Keep it short and without hidden values; declare `outputSchema`. | P: plugins/reference; app-tools page |
+| Tool annotations | Needs a change | ChatGPT requires explicit `readOnlyHint`, `destructiveHint`, `openWorldHint` on each tool. | P: plugin-guidelines |
+| Server instructions (Larry identity, loop) | Works, with unknown strength | ChatGPT reads server instructions since 2026-05-26. | P: plugins/changelog |
+| Hooks, slash commands, agents | Not possible | These are Claude Code plugin parts. ChatGPT plugins have their own skill format. | P: platform-support.md; https://developers.openai.com/plugins (search excerpt) |
+| Local stdio transport, ChatGPT web and mobile | Not possible | Remote only. A tunnel or a hosted server is needed. | P: help article |
+| Local stdio transport, ChatGPT desktop app | Needs a change | A stdio entry in Settings, MCP servers is possible. The install path differs from Claude Desktop. | P: codex/mcp |
+| View rendering from a local stdio server in the ChatGPT desktop chat | UNVERIFIED | No primary source. One developer says the same server renders "in both VS Code's MCP client and Codex". | S: https://github.com/anthropics/claude-ai-mcp/issues/165 |
+| Custom server access by plan | Needs a change | Full MCP (write tools): Business and Enterprise/Edu on web. Pro: read and fetch only. | P: help article |
+| `ui.domain` | Needs a change | Each host has its own format. Leave it out for local use. | P: getting-started.md; plugins/reference |
+| Public listing in the ChatGPT directory | Not possible with a local server | Needs a stable public HTTPS endpoint and a unique `ui.domain`. | P: plugins/build/mcp-server; plugins/reference |
+| Part 8 boundary | Needs a change | With a tunnel or hosted server, room content in tool results travels through OpenAI infrastructure before it reaches the model. This is a design decision for the owner, not a protocol limit. | P: secure-mcp-tunnels (search excerpt) |
+
+Answer to the hypothesis: the three views and the tool contract are portable. The transport and the install path are not. The ChatGPT desktop app is the only ChatGPT surface that accepts a local stdio server, and view rendering there is not confirmed by a primary source. Run a spike before any promise.
+
+---
+
 ## What this means for the three MindrianOS components
 
 Each rule names its source. "Card" means decision card, step player or next-move card.
@@ -305,7 +402,7 @@ Each rule names its source. "Card" means decision card, step player or next-move
 
 Each item has only a secondary source, only a search excerpt, or no source.
 
-1. ChatGPT desktop app and a local stdio server: a search excerpt of https://developers.openai.com/codex/mcp says "The ChatGPT desktop app, Codex CLI, and IDE extension support MCP servers and share MCP configuration for the same Codex host." The page was not read in full. No source found that says MCP App UI from a local stdio server renders in the ChatGPT desktop app. One GitHub comment says a server "renders correctly as a real iframe in both VS Code's MCP client and Codex" (S: issue 165).
+1. ChatGPT desktop app and a local stdio server: https://developers.openai.com/codex/mcp (P, read with a query filter) says the desktop app can add a STDIO server. No primary source says that MCP App UI from that server renders in the desktop chat. One GitHub comment says a server "renders correctly as a real iframe in both VS Code's MCP client and Codex" (S: issue 165). Needs a spike.
 2. Code tab widgets from a plugin local stdio server: the changelog line and issue 88370 show that widgets render in Claude Code sessions, but no primary page states it for a plugin-bundled stdio server. The changelog version and date for the line were not captured. Needs a spike.
 3. Claude Code terminal shows no widget: inferred from the docs line about UI resources. A secondary post (https://cto4.ai/p/mcp-apps-in-context, about March 2026, search excerpt only) says MCP Apps work in all Claude surfaces "but Claude Code"; this is older than the changelog line.
 4. The cause of the blank-frame reports in Claude Desktop and claude.ai (issue 165, issue 671). Developers propose connector gating, session state, `ui.domain`, `websiteUrl`. No Anthropic statement was found. The current state on 2026-11-27 is unknown.
@@ -321,3 +418,10 @@ Each item has only a secondary source, only a search excerpt, or no source.
 14. The client support matrix page (https://modelcontextprotocol.io/extensions/client-matrix) was read, but the check marks did not survive extraction. The client list in section 1 uses the overview page text instead.
 15. Publication date of "15 lessons learned building ChatGPT Apps": no date found on the page. It uses `window.openai` names, so it predates or ignores the standards-first guidance.
 16. OpenAI "UX principles" page: https://developers.openai.com/plugins/concepts/ux-principles returned 404. The UI guidelines page was used instead.
+17. ChatGPT: custom MCP servers on Free and Plus plans, and plan rules for stdio servers in the desktop app: no source found.
+18. ChatGPT: support for MCP prompts (`prompts/list`): no source found.
+19. ChatGPT: whether `ui/message` from a view needs user consent, and whether `tools/call` from a view to an app-only write tool shows the host confirm dialog: no source found.
+20. ChatGPT: how strongly the model follows MCP server instructions (for example a persona line): no source found.
+21. Secure MCP Tunnel details (stdio forwarding, no public submission) and the public endpoint rule come from search excerpts of OpenAI pages, not from a full read.
+22. ChatGPT skills inside a plugin and "Partial" Skills over MCP support: from a search excerpt and the client matrix link text; the linked section was not read.
+
