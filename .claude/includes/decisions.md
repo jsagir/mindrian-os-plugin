@@ -5,7 +5,7 @@
 | 1 | One-command install; the Brain is part of what installs, and the key gates installing and updating rather than each query. | Larry's methodology comes from the Brain and says so; the entitlement is checked at install and update time, so a keyless session gets an honest refusal and a visible path to a key at that moment, never an imitation; once an install is entitled, methodology queries carry no separate per-query key check. |
 | 2 | ICM-native | The folder structure IS the orchestration. |
 | 3 | GSD state management | STATE.md manages the nested room hierarchy. |
-| 4 | Three surfaces | CLI + Desktop + Cowork. |
+| 4 | Three surfaces: Claude Code CLI, Claude Desktop Code tab, Claude Desktop chat (formerly chat plus Cowork) | Chat and Cowork merged into one Claude (rollout from 2026-09-16), and new Cowork tasks run in Anthropic's cloud since 2026-10-06; MindrianOS runs in full only in local Claude Code (the CLI, or a local Desktop Code-tab session), and a cloud surface reaches the room only through the open Desktop app or Remote Control. Map: docs/CLAUDE-SURFACE-MODEL.md. |
 | 5 | Brain as remote MCP | IP never distributed; users get intelligence, not data. The Brain is remote by design, not optional by default; a keyless session gets an honest refusal, never a silent local substitute. Per-query Brain keys are gone: the entitlement moved to install and update time, and moving the check does not make the Brain local or optional. |
 | 6 | LazyGraph optional | Enhances, never required. |
 | 7 | Pipelines chain through Room | Output becomes the next input's structure (Week 7). |
