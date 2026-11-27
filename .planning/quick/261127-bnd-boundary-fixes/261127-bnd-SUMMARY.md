@@ -104,3 +104,42 @@ STATUS: DONE (Tasks 1 to 10 done; the SUMMARY is the last commit)
 
 ### Open
 - The records of the section "Outside evidence" (a) to (d): OPEN, for the main session.
+
+## Follow-up after the independent verification
+
+The verifier attacked the built branch at e0269b08d. Its main records hold: 0 injection markers, 0 outbound calls, the room database unchanged. It found defects in the new file-flag readers. The verdict file is VERDICTS.txt of the verifier scratch folder (records record-d-*.txt).
+
+### Defects (all in code that this branch added)
+- d1: the size cap trusted the stat size. `rs-experts-command.cjs --topic-file /proc/self/smaps` read 66248 bytes with a cap of 65536.
+- d2: a reader had no regular-file check. `dominant-design-research.cjs file-pack ... --header-file <fifo>` did not end.
+- d3: the bash readers had no cap. A 1 MB one-line file took 83 s in `room-registry create` and in `create-speaker-profile`; a 5 MB file ran 484 s and ignored SIGTERM.
+- d6 (listed, not fixed): templates/import/stage-contracts/03-route.md:29 puts `"{display}"` on a `create-speaker-profile --layout=import` line. The import form has no file flag, so the file-flag rule does not apply. The line is now pinned in tests/test-261127-bnd-shell-text.cjs case X11 with class P2 and count 1 (outside the scanned folders; origin/main has the same line).
+
+### Root cause
+Each node reader checked `statSync(p).size` and then read the whole file, so a pseudo-file with stat size 0 passed the cap and a FIFO blocked the open. The bash readers used `[[ -f ]]` and `read -r` or `tr` on the whole file with no cap, so a large file reached slow later code (a python call with the name as an argument).
+
+### The rule (one rule for the 14 readers)
+- (a) A regular file only. A symlink to a regular file stays allowed: that is the behaviour of the first cut (statSync and `[[ -f ]]` follow a link), and the contract of the plan does not forbid it.
+- (b) At most cap + 1 bytes are read from the open file; more than cap is refused. The stat size is never trusted.
+- (c) So the time does not grow with the file size beyond the cap.
+- (d) A NUL byte is refused.
+- (e) The refusal keeps the existing form and exit code of each script and comes before any write and before any folder is made.
+- Node: new lib/core/flag-file-read.cjs (`readFlagFileBytes`, `readFlagFileText`): statSync, an O_NONBLOCK open, fstat again, a bounded read loop. Used by claim-checks.cjs, rs-experts-command.cjs, close-loop.cjs `readInput` (cap 1048576, the existing cap; a NUL byte gives the existing `<kind>_not_json`), dominant-design-research.cjs `--header-file`, mindrian-tools.cjs `bank-opportunity --file`. room-question.cjs keeps a copy of the same rule, because tests/test-358-b2-cli.cjs L13 pins its require list (no pin moved).
+- Bash: one idiom `_mos_flag_file_read` with the same body in create-speaker-profile, research-speaker and room-registry (`[[ -f ]]`, `head -c 65537 | wc -c`, `tr -cd '\000' | wc -c`, then `head -c 65536`).
+
+### Numbers
+- New test tests/test-261127-bnd-flag-file-read.cjs: 14 readers x 9 cases (fifo, dir, missing, cap + 1 on one line, /proc/kallsyms with stat size 0, NUL byte, 1 MiB + 1 on one line under 2 s, symlink to a valid file, valid file). Each run has a 15 s timeout with SIGKILL.
+- Red before the fix: 91 passed, 35 failed (red/followup-flag-file-read.txt). Green after: 126 passed, 0 failed, 0 skipped (followup-flag-file-read-green.txt). The slowest 1 MiB refusal: 121 ms.
+- The 3 reproductions of the verifier after the fix: the topic file is refused; the FIFO gives exit 2 at once; the 1 MB name file is refused in 0.014 s and no room folder is made.
+- `bash tests/run-all-261127-bnd.sh`: PASS=79 FAIL=0 (78 legs before, plus the new leg).
+- Acceptance (G3 form, the same temp home doctor-home): doctor-after-followup.txt, 21/25 points passed; failed: install-state, version-of-record-published, session-start-active-version, activation-reached-the-wire (the same 4 as doctor-before.txt). G4 form (doctor-before.txt against doctor-after-followup.txt): prints nothing.
+- 41 other tests that call the edited scripts: the results that are not exit 0 are the same on a copy of e0269b08d (same failed sets), except run-all-361 (head 26/3, copy 23/6: the copy has no git folder).
+
+### Commits of the follow-up
+- 0b4338ddc test: the new test, the X11 pin, the runner leg.
+- 7fc917334 fix: lib/core/flag-file-read.cjs and the 9 scripts.
+- The SUMMARY commit (this section).
+
+### Not fixed here (origin/main has the same behaviour)
+- d5: an unbounded recursive query in the graph query tool does not end; the tool has no time limit and no row limit.
+- d4: the old argument form `research-speaker <room> <slug> "--x" "ctx" --list-queries` (a display name that starts with `--`) now goes to the file form and fails. No caller in the repository uses this form.
