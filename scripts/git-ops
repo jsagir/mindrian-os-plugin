@@ -57,15 +57,49 @@ is_git_enabled() {
 
 # Plan 400.3-03b (owner answer OA-4): true only when the room root is the top
 # level of its own repository. A room inside an enclosing work tree is not.
+# Wave 2 Goldfish W2-D-03 / W2-CD-02: no path compare. Git Bash prints
+# --show-toplevel as C:/... while pwd -P prints /c/..., so a string compare
+# skipped every room on native Windows. An empty --show-prefix inside a work
+# tree means the room folder is the top level, in any path form.
 is_own_repo() {
   local room_path="${1:-}"
   if ! is_git_enabled "$room_path"; then
     return 1
   fi
-  local top here
-  top=$(git -C "$room_path" rev-parse --show-toplevel 2>/dev/null) || return 1
-  here=$(cd "$room_path" && pwd -P) || return 1
-  [ -n "$top" ] && [ "$top" = "$here" ]
+  local inside prefix
+  inside=$(git -C "$room_path" rev-parse --is-inside-work-tree 2>/dev/null) || return 1
+  [ "$inside" = "true" ] || return 1
+  prefix=$(git -C "$room_path" rev-parse --show-prefix 2>/dev/null) || return 1
+  [ -z "$prefix" ]
+}
+
+# Wave 2 Goldfish W2-D-03: the physical path of a folder (symlinks resolved).
+real_dir() {
+  local d="${1:-}"
+  if command -v realpath >/dev/null 2>&1; then
+    realpath "$d" 2>/dev/null && return 0
+  fi
+  (cd "$d" 2>/dev/null && pwd -P)
+}
+
+# Wave 2 Goldfish W2-D-03: the file path relative to the room root, with the
+# symlinks of both sides resolved (the folder of the file, not the file, so a
+# symlinked file is staged as a link). Empty when the file is not in the room.
+room_rel_path() {
+  local room_path="${1:-}" file_path="${2:-}"
+  local room_real dir_real base
+  room_real=$(real_dir "$room_path") || return 1
+  dir_real=$(real_dir "$(dirname "$file_path")") || return 1
+  base=$(basename "$file_path")
+  [ -n "$room_real" ] && [ -n "$dir_real" ] || return 1
+  if [ "$dir_real" = "$room_real" ]; then
+    printf '%s\n' "$base"
+    return 0
+  fi
+  case "$dir_real/" in
+    "$room_real"/*) printf '%s\n' "${dir_real#"$room_real"/}/$base" ;;
+    *) return 1 ;;
+  esac
 }
 
 case "$SUBCMD" in
@@ -129,27 +163,33 @@ GITATTR
       echo "skipped: no_file" >&2
       exit 3
     fi
+    # Wave 2 Goldfish W2-D-03: the pathspec is relative to the room root (the
+    # top level), with symlinks resolved on both sides. A file outside the
+    # room fails as add_failed, the same word as BASE.
+    if ! rel_path=$(room_rel_path "$ROOM_PATH" "$FILE_PATH") || [ -z "$rel_path" ]; then
+      echo "failed: add_failed" >&2
+      exit 1
+    fi
     # Auto-generate message if not provided
     if [ -z "$MSG" ]; then
       # Extract section name and filename for provenance
-      rel_path="${FILE_PATH#"$ROOM_PATH"/}"
       section=$(echo "$rel_path" | cut -d'/' -f1)
       filename=$(basename "$FILE_PATH" .md)
       MSG="${section}: ${filename}"
     fi
     # Stage the specific file only (pathspec).
-    if ! git -C "$ROOM_PATH" add -- "$FILE_PATH" 2>/dev/null; then
+    if ! git -C "$ROOM_PATH" add -- "$rel_path" 2>/dev/null; then
       echo "failed: add_failed" >&2
       exit 1
     fi
     # No staged change for that path: nothing to commit.
-    if git -C "$ROOM_PATH" diff --cached --quiet -- "$FILE_PATH" 2>/dev/null; then
+    if git -C "$ROOM_PATH" diff --cached --quiet -- "$rel_path" 2>/dev/null; then
       echo "skipped: nothing_to_commit" >&2
       exit 3
     fi
     # Commit that path only (--no-verify for auto-commits); a change staged
     # elsewhere in the repository stays staged and is not in this commit.
-    if ! git -C "$ROOM_PATH" commit --no-verify -m "$MSG" -- "$FILE_PATH" >/dev/null 2>&1; then
+    if ! git -C "$ROOM_PATH" commit --no-verify -m "$MSG" -- "$rel_path" >/dev/null 2>&1; then
       echo "failed: commit_failed" >&2
       exit 1
     fi

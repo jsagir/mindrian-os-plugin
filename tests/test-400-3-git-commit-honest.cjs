@@ -24,6 +24,10 @@
  *   G8  wave 2 Goldfish W2-D-02: own repository, auto_push auto, a remote whose push hangs 20 s (a pre-push hook):
  *       commitArtifact returns committed within the 5,000 ms post-write budget (BASE: the background push kept
  *       the stdout pipe, so the call waited for the push and timed out as spawn_failed).
+ *   G9  wave 2 Goldfish W2-D-03: a room reached through a symlinked folder: committed true, HEAD lists only the file
+ *       (BASE: the absolute pathspec through the symlink was outside the repository, add_failed).
+ *   G10 wave 2 Goldfish W2-D-03 / W2-CD-02: the own-repository check has no path compare. A git shim prints the
+ *       Git Bash form C:/... for --show-toplevel; the commit still lands (BASE: not_own_repo on that path form).
  * Usage: node tests/test-400-3-git-commit-honest.cjs
  *
  * Node built-ins only. Hyphens only.
@@ -202,6 +206,62 @@ check('G6 a failed commit: {committed: false, failed: true, reason: commit_faile
   check('G8 auto_push auto with a hanging remote: committed true within 5000 ms; HEAD lists only sec/g8.md',
     !!r8 && r8.committed === true && ms8 < 5000 && J(g8files) === J(['sec/g8.md']),
     J({ r8, ms8, g8files, autoPushFromWs: String(ap.stdout).trim() }));
+}
+
+// G9: a room reached through a symlinked folder.
+{
+  const realBase = path.join(W, 'real-g9');
+  fs.mkdirSync(realBase, { recursive: true });
+  const linkBase = path.join(W, 'link-g9');
+  fs.symlinkSync(realBase, linkBase, 'dir');
+  initRepo(path.join(realBase, 'g9'));
+  const g9 = path.join(linkBase, 'g9');
+  const g9f = writeFile(g9, 'sec/g9.md', '# G9\n');
+  const r9 = gitOps.commitArtifact(g9, g9f, 'm9');
+  let g9files = [];
+  try { g9files = headFiles(g9); } catch (_e) { g9files = []; }
+  check('G9 a symlinked room: committed true; HEAD lists only sec/g9.md',
+    r9.committed === true && J(g9files) === J(['sec/g9.md']), J(r9) + ' ' + J(g9files));
+  // The file through the real path, the room through the link: the same repository, the same relative file.
+  const g9b = writeFile(path.join(realBase, 'g9'), 'sec/g9b.md', '# G9b\n');
+  const r9b = gitOps.commitArtifact(g9, g9b, 'm9b');
+  let g9bfiles = [];
+  try { g9bfiles = headFiles(g9); } catch (_e) { g9bfiles = []; }
+  check('G9 the room through the link and the file through the real path: committed true; HEAD lists only sec/g9b.md',
+    r9b.committed === true && J(g9bfiles) === J(['sec/g9b.md']), J(r9b) + ' ' + J(g9bfiles));
+}
+
+// G10: the own-repository check has no path compare (a Git Bash C:/ form of --show-toplevel).
+{
+  const realGit = spawnSync('bash', ['-c', 'command -v git'], { encoding: 'utf8' }).stdout.trim();
+  const shimDir = path.join(W, 'shim-g10');
+  fs.mkdirSync(shimDir, { recursive: true });
+  fs.writeFileSync(path.join(shimDir, 'git'),
+    '#!/usr/bin/env bash\nfor a in "$@"; do if [ "$a" = "--show-toplevel" ]; then echo "C:/Users/u/MindrianRooms/g10"; exit 0; fi; done\nexec ' + JSON.stringify(realGit) + ' "$@"\n',
+    { mode: 0o755 });
+  const g10 = path.join(W, 'g10');
+  initRepo(g10);
+  const g10f = writeFile(g10, 'sec/g10.md', '# G10\n');
+  const pathBefore = process.env.PATH;
+  process.env.PATH = shimDir + path.delimiter + pathBefore;
+  let r10 = null;
+  try { r10 = gitOps.commitArtifact(g10, g10f, 'm10'); } finally { process.env.PATH = pathBefore; }
+  let g10files = [];
+  try { g10files = headFiles(g10); } catch (_e) { g10files = []; }
+  check('G10 --show-toplevel in the C:/ form: committed true; HEAD lists only sec/g10.md',
+    !!r10 && r10.committed === true && J(g10files) === J(['sec/g10.md']), J(r10) + ' ' + J(g10files));
+  // The enclosing-repository case through the same shim stays skipped not_own_repo.
+  process.env.PATH = shimDir + path.delimiter + pathBefore;
+  const g10p = path.join(parent, 'rooms', 'g10p');
+  const g10pf = writeFile(g10p, 'sec/x.md', '# x\n');
+  let r10p = null;
+  try { r10p = gitOps.commitArtifact(g10p, g10pf, 'm10p'); } finally { process.env.PATH = pathBefore; }
+  check('G10 the enclosing-repository room through the shim: skipped not_own_repo',
+    !!r10p && r10p.skipped === true && r10p.reason === 'not_own_repo', J(r10p));
+  const src = fs.readFileSync(GIT_OPS_SCRIPT, 'utf8');
+  const fn = (src.match(/is_own_repo\(\) \{[\s\S]*?\n\}/) || [''])[0];
+  check('G10 is_own_repo uses --is-inside-work-tree and --show-prefix and compares no path',
+    /--is-inside-work-tree/.test(fn) && /--show-prefix/.test(fn) && !/--show-toplevel/.test(fn) && !/pwd -P/.test(fn), fn);
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
