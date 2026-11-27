@@ -16,12 +16,33 @@
 //
 // NO em-dashes in this file (CLAUDE.md HARD RULE); hyphens only.
 
+const fs = require('node:fs');
 const path = require('node:path');
 
 const navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
 const frameProvenance = require(path.join(__dirname, '..', 'lib', 'core', 'frame-provenance.cjs'));
 
 const BOOLEAN_FLAGS = new Set(['json', 'relocate']);
+
+// Quick 261127-bnd: --text-file and --account-file give the text in a file,
+// so an instruction line never puts a person's words on a shell command line.
+// The read rule: a regular file, at most 65536 bytes, UTF-8, one byte order
+// mark removed, one line break at the end removed. Null for a refused file.
+const TEXT_FILE_MAX_BYTES = 65536;
+
+function readTextFile(p) {
+  if (typeof p !== 'string' || p === '') return null;
+  try {
+    const st = fs.statSync(p);
+    if (!st.isFile() || st.size > TEXT_FILE_MAX_BYTES) return null;
+    let t = fs.readFileSync(p, 'utf8');
+    if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
+    t = t.replace(/\r?\n$/, '');
+    return t === '' ? null : t;
+  } catch (_) {
+    return null;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // argv parsing
@@ -61,13 +82,16 @@ function usageText() {
     '  origins [--json]                                list the origin vocabulary',
     '  show [--room <dir>] [--json]                     current question (a waiting change prints first)',
     '  history [--room <dir>] [--json]                  every version, oldest first',
-    '  set [--room <dir>] --origin <id> [--account <words> | --relocate]',
-    '      [--based-on <N>] [--json] <question text>    record or change the question',
+    '  set [--room <dir>] --origin <id> [--account <words> | --account-file <file> | --relocate]',
+    '      [--based-on <N>] [--json] <question text> | --text-file <file>',
+    '                                                   record or change the question',
     '  cancel [--room <dir>] [--json]                    cancel a waiting change',
     '',
     '  --room <dir>       room directory (else the active room)',
     '  --origin <id>      one of: ' + originIds,
     "  --account <words>  the officer's own words on what the old question got wrong",
+    '  --text-file <file>     the question text, read from a file',
+    "  --account-file <file>  the officer's own words, read from a file",
     '  --relocate         mark the change as a new question (no account)',
     '  --based-on <N>     the version this change is based on',
     '  --json             machine-readable output',
@@ -104,7 +128,7 @@ function printRefusal(result, flags) {
     process.stderr.write('  Proposed question: ' + result.proposed.text + '\n');
     process.stderr.write('  ' + frameProvenance.QUESTION_ASK + '\n');
     process.stderr.write(
-      "  Fix: re-run set with --account \"<the officer's own words>\" (files as refines),"
+      "  Fix: re-run set with --account-file <a file with the officer's own words> (files as refines),"
       + ' or --relocate (files as relocates), or run cancel\n'
     );
     if (result.card && typeof result.card.rendered_text === 'string') {
@@ -195,6 +219,23 @@ function cmdHistory(args, db, roomDir) {
 
 function cmdSet(args, db, roomDir) {
   const flags = args.flags;
+  const refuseFile = (msg) => {
+    process.stderr.write(usageText() + '\n');
+    process.stderr.write(msg + '\n');
+    process.exitCode = 2;
+  };
+  if (flags['text-file'] !== undefined) {
+    if (args.text) return refuseFile('Give the question as words or as --text-file, not both');
+    const t = readTextFile(flags['text-file']);
+    if (t === null) return refuseFile('--text-file needs a readable file that is not empty (at most ' + TEXT_FILE_MAX_BYTES + ' bytes)');
+    args.text = t;
+  }
+  if (flags['account-file'] !== undefined) {
+    if (flags.account !== undefined) return refuseFile('Give --account or --account-file, not both');
+    const a = readTextFile(flags['account-file']);
+    if (a === null) return refuseFile('--account-file needs a readable file that is not empty (at most ' + TEXT_FILE_MAX_BYTES + ' bytes)');
+    flags.account = a;
+  }
   if (!args.text) {
     process.stderr.write(usageText() + '\n');
     process.stderr.write('Missing required: question text\n');

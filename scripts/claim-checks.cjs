@@ -24,6 +24,32 @@ const navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation
 const BOOLEAN_FLAGS = new Set(['json', 'resolves-dispute']);
 const REQUIRED_RECORD_FLAGS = ['claim', 'against', 'against-kind', 'rung', 'method', 'result'];
 
+// Quick 261127-bnd: --against-file and --words-file give the text in a file,
+// so an instruction line never puts a person's words on a shell command line.
+// The read rule: a regular file, at most 65536 bytes, UTF-8, one byte order
+// mark removed, one line break at the end removed. Null for a refused file.
+const TEXT_FILE_MAX_BYTES = 65536;
+
+function readTextFile(p) {
+  if (typeof p !== 'string' || p === '') return null;
+  try {
+    const st = fs.statSync(p);
+    if (!st.isFile() || st.size > TEXT_FILE_MAX_BYTES) return null;
+    let t = fs.readFileSync(p, 'utf8');
+    if (t.charCodeAt(0) === 0xfeff) t = t.slice(1);
+    t = t.replace(/\r?\n$/, '');
+    return t === '' ? null : t;
+  } catch (_) {
+    return null;
+  }
+}
+
+function fileInputError(msg) {
+  process.stderr.write(usageText() + '\n');
+  process.stderr.write(msg + '\n');
+  process.exitCode = 2;
+}
+
 // ---------------------------------------------------------------------------
 // argv parsing
 // ---------------------------------------------------------------------------
@@ -63,8 +89,8 @@ function usageText() {
     '  options                        print the four option lists as JSON',
     '  portrait [--room <dir>] [--json]           room counts by state',
     '  list [--room <dir>] [--query <q>] [--limit N] [--json]   claim list',
-    '  show [--room <dir>] <id-or-words> [--json]                claim view',
-    '  record [--room <dir>] --claim <id-or-words> --against <text>',
+    '  show [--room <dir>] <id-or-words> | --words-file <file> [--json]   claim view',
+    '  record [--room <dir>] --claim <id-or-words> --against <text> | --against-file <file>',
     '         --against-kind <kind> --rung <n> --method <m> --result <r>',
     '         [--note-handle <h>] [--resolves-dispute] [--json]',
     '',
@@ -240,6 +266,12 @@ function cmdList(args, db, roomDir) {
 }
 
 function cmdShow(args, db, roomDir) {
+  if (args.flags['words-file'] !== undefined) {
+    if (args.ref) return fileInputError('Give the claim as words or as --words-file, not both');
+    const w = readTextFile(args.flags['words-file']);
+    if (w === null) return fileInputError('--words-file needs a readable file that is not empty (at most ' + TEXT_FILE_MAX_BYTES + ' bytes)');
+    args.ref = w;
+  }
   if (!args.ref) return usageError(['ref']);
   const resolved = resolveClaimRef(db, args.ref);
   if (!resolved.ok) return handleResolveFailure(resolved, args.flags);
@@ -254,6 +286,12 @@ function cmdShow(args, db, roomDir) {
 }
 
 function cmdRecord(args, db, roomDir) {
+  if (args.flags['against-file'] !== undefined) {
+    if (args.flags.against !== undefined) return fileInputError('Give --against or --against-file, not both');
+    const a = readTextFile(args.flags['against-file']);
+    if (a === null) return fileInputError('--against-file needs a readable file that is not empty (at most ' + TEXT_FILE_MAX_BYTES + ' bytes)');
+    args.flags.against = a;
+  }
   const missing = REQUIRED_RECORD_FLAGS.filter((f) => args.flags[f] === undefined);
   if (missing.length > 0) return usageError(missing);
 
