@@ -10,7 +10,7 @@ reviewers:
 raw_counts: {blocker: 9, major: 39, nit: 30}
 merged_counts: {blocker: 7, major: 15}
 outcomes: {FIXED: 19, CUT: 2, CONTESTED: 1, OWNER: 0}
-owner_items: 6 (O1 to O5 ruled as OR-4 to OR-7; O6 open)
+owner_items: 7 (O1 to O5 ruled as OR-4 to OR-7; O6 and O7 open)
 extra_input: 405-BRIDGES.md (owner-requested bridge ideas; secondary sources marked S)
 clean_round: false
 next: 405-DESIGN.md (revision 2), then round 2
@@ -90,4 +90,5 @@ Outcome rule: each merged Blocker and Major has one outcome: FIXED (in r2), CUT 
 | O3 | Build a third artifact, a `.mcpb` extension? | Not now | OR-6: build it now in 405 | 3.7a primary install; 3.7b config route is a fallback built only if SP7 = B; slice 5a; SP7 required; release slice 9 gains the extension lockstep (AC9.6) |
 | O4 | Use only the guarded mindrian-brain route for Theo in chat? | Yes | OR-7: Theo can be more open; Larry may use theo-context (generic method, generative UI cards) in chat; Part 8 still binds | 3.6: THEO instruction line changed (123 bytes; served 1996 bytes, measured); shim changes kept where the shim runs; residual R4 accepted |
 | O5 | Signed egress (B2.2)? | Not in 405 | OR-7: not pursued | B2.2 dropped |
+| O7 (r2.2) | Which Theo URL do MindrianOS users connect for framework cards, and may the plugin ship it with no key? | Ship https://theo-context.onrender.com/mcp in the plugin `.mcp.json`, key-free, because it serves generic method only; the install-time entitlement stays as it is. | open | 3.10 uses a placeholder `<THEO_CONTEXT_URL>` until ruled |
 | O6 | Move Phase 404 ahead of later 405 slices? | No; start 404 after 405 slice 5 | not asked; recommendation stands | section 9 unchanged |
