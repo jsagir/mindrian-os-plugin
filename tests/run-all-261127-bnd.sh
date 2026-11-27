@@ -71,6 +71,7 @@ leg tests/test-261127-bnd-shell-text.cjs
 leg tests/test-261127-bnd-graph-query-readonly.cjs
 leg tests/test-261127-bnd-intel-no-gate.cjs
 leg tests/test-261127-bnd-admin-not-available.cjs
+leg tests/test-261127-bnd-flag-file-read.cjs
 
 # The findings (27).
 leg lib/memory/test-rs-explain-command.cjs
@@ -163,6 +164,7 @@ run "no em-dash or en-dash in 261127-bnd files" bash -c '
     commands/rs-explain.md
     commands/update.md
     commands/whitespace.md
+    lib/core/flag-file-read.cjs
     lib/core/graph-ops.cjs
     lib/core/intel-pipeline.cjs
     lib/core/lazygraph-ops.cjs
@@ -198,6 +200,7 @@ run "no em-dash or en-dash in 261127-bnd files" bash -c '
     tests/run-all-261127-bnd.sh
     tests/test-261127-bnd-admin-not-available.cjs
     tests/test-261127-bnd-command-text.cjs
+    tests/test-261127-bnd-flag-file-read.cjs
     tests/test-261127-bnd-graph-query-readonly.cjs
     tests/test-261127-bnd-intel-no-gate.cjs
     tests/test-261127-bnd-rs-explain-local.cjs

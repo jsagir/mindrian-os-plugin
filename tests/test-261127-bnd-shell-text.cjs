@@ -136,6 +136,16 @@ const PIN_P5 = {
   'skills/vault/SKILL.md\tmindrian-tools.cjs" vault {room-arg} {--path <dir> if provided} {--mode <value> if provided}': 1,
 };
 
+// Pins outside the scanned folders (quick 261127-bnd follow-up, verifier item d6).
+// The line holds a quoted placeholder that is not a safe placeholder (class P2),
+// and origin/main holds the same line. It is not fixed here: it calls the import
+// form `--layout=import` of scripts/create-speaker-profile, which has no file flag.
+// One entry is (file, placeholder, class); the count is the number of lines that
+// hold the placeholder on a create-speaker-profile call.
+const PIN_OUTSIDE = [
+  { rel: 'templates/import/stage-contracts/03-route.md', ph: '"{display}"', cls: 'P2', count: 1 },
+];
+
 // The old lines (origin/main) that class P4 must see, kept as literals.
 const OLD_P4_LINES = [
   'Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/create-speaker-profile" <room_dir> <speaker-slug> <speaker-role> <display-name>`',
@@ -327,6 +337,14 @@ const CASES = [
     const { errors, notes } = ratchet(r.p5, PIN_P5);
     NOTES.push(...notes);
     assert(errors.length === 0, errors.join(' | '));
+  }],
+  ['X11', 'the pins outside the scanned folders hold their count (class P2, d6)', function () {
+    for (const pin of PIN_OUTSIDE) {
+      const p = path.join(REPO, pin.rel);
+      const n = fs.existsSync(p) ? fs.readFileSync(p, 'utf8').split('\n').filter((l) => l.includes('create-speaker-profile') && l.includes(pin.ph)).length : 0;
+      assert(n <= pin.count, pin.rel + ' ' + pin.ph + ' (' + pin.cls + '): count ' + n + ' above pin ' + pin.count);
+      if (n < pin.count) NOTES.push('note: pinned entry gone: ' + pin.rel + ' ' + pin.ph + ' (' + pin.cls + ')');
+    }
   }],
 ];
 
