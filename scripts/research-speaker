@@ -2,7 +2,14 @@
 # research-speaker -- Proactive web research on a newly identified meeting speaker
 #
 # Usage: research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--list-queries] [--approve TOKEN] [--apply]
+#        research-speaker <room_dir> <speaker-slug> --name-file <file> --context-file <file> [--list-queries] [--approve TOKEN] [--apply]
 # Example: research-speaker room/ tyler-chen "Tyler Chen" "EdTech startup building AI tutoring platform"
+#
+# File form (quick 261127-bnd): when argument 3 is absent or starts with --,
+# the name and the context come from files; each line break becomes a space
+# and the ends are trimmed. An instruction file uses the file form only: a
+# shell runs $(...) and backticks that a name or a context on a command line
+# holds. The argument form stays for callers with an argument array.
 #
 # Performs web research on a speaker in the context of the project/room.
 # Outputs research summary to stdout for user confirmation.
@@ -27,6 +34,10 @@ research-speaker -- Proactive web research on a newly identified meeting speaker
 
 USAGE:
   research-speaker <room_dir> <speaker-slug> <display-name> <project-context> [--list-queries] [--approve TOKEN] [--apply]
+  research-speaker <room_dir> <speaker-slug> --name-file <file> --context-file <file> [--list-queries] [--approve TOKEN] [--apply]
+
+  An instruction file uses the file form only: a shell runs $(...) and
+  backticks that a name or a context on a command line holds.
 
 ARGUMENTS:
   room_dir         Path to the room directory (e.g., room/)
@@ -35,6 +46,8 @@ ARGUMENTS:
   project-context  Brief project/venture description for search context
 
 OPTIONS:
+  --name-file FILE     File form: the display name (required in the file form)
+  --context-file FILE  File form: the project context (required in the file form)
   --list-queries   Print the exact searches and the approval token. Sends nothing.
   --approve TOKEN  Send the searches. TOKEN must be the token of the exact list.
                    Without a matching token nothing is sent.
@@ -66,7 +79,7 @@ USAGE
 fi
 
 # Validate arguments
-if [[ $# -lt 4 ]]; then
+if [[ $# -lt 2 ]]; then
   echo "ERROR: At least 4 arguments required: room_dir, speaker-slug, display-name, project-context" >&2
   echo "Run with --help for usage." >&2
   exit 1
@@ -74,12 +87,27 @@ fi
 
 ROOM_DIR="$1"
 SPEAKER_SLUG="$2"
-DISPLAY_NAME="$3"
-PROJECT_CONTEXT="$4"
+FILE_FORM=false
+if [[ $# -lt 3 || "${3:-}" == --* ]]; then
+  FILE_FORM=true
+  DISPLAY_NAME=""
+  PROJECT_CONTEXT=""
+  shift 2
+else
+  if [[ $# -lt 4 ]]; then
+    echo "ERROR: At least 4 arguments required: room_dir, speaker-slug, display-name, project-context" >&2
+    echo "Run with --help for usage." >&2
+    exit 1
+  fi
+  DISPLAY_NAME="$3"
+  PROJECT_CONTEXT="$4"
+  shift 4
+fi
 APPLY_FLAG=""
 LIST_MODE=false
 APPROVE_TOKEN=""
-shift 4
+NAME_FILE=""
+CONTEXT_FILE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --apply) APPLY_FLAG="--apply" ;;
@@ -87,9 +115,36 @@ while [[ $# -gt 0 ]]; do
     --approve)
       if [[ $# -ge 2 ]]; then APPROVE_TOKEN="$2"; shift; fi
       ;;
+    --name-file)
+      if [[ $# -ge 2 ]]; then NAME_FILE="$2"; shift; fi
+      ;;
+    --context-file)
+      if [[ $# -ge 2 ]]; then CONTEXT_FILE="$2"; shift; fi
+      ;;
   esac
   shift
 done
+# Quick 261127-bnd: the file form reads the name and the context from files.
+# The text is data: it is never put in a command line or a program text.
+_rs_file_text() {
+  local f="$1" t
+  [[ -n "$f" && -f "$f" && -r "$f" ]] || return 1
+  t=$(tr '\r\n' '  ' < "$f") || return 1
+  t="${t#"${t%%[![:space:]]*}"}"
+  t="${t%"${t##*[![:space:]]}"}"
+  [[ -n "$t" ]] || return 1
+  printf '%s' "$t"
+}
+if [[ "$FILE_FORM" == true ]]; then
+  if ! DISPLAY_NAME=$(_rs_file_text "$NAME_FILE"); then
+    echo "ERROR: --name-file needs a readable file that is not empty: ${NAME_FILE}" >&2
+    exit 1
+  fi
+  if ! PROJECT_CONTEXT=$(_rs_file_text "$CONTEXT_FILE"); then
+    echo "ERROR: --context-file needs a readable file that is not empty: ${CONTEXT_FILE}" >&2
+    exit 1
+  fi
+fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GATE_CLI="${SCRIPT_DIR}/../lib/core/web-path-gate.cjs"
 

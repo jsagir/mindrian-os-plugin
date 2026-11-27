@@ -7,6 +7,8 @@
 #
 # Subcommands:
 #   create <name> <path> [venture_name] [venture_stage]
+#   create <name> <path> --name-file <file> [--stage-file <file>]   (quick 261127-bnd:
+#          the first line of each file; an instruction file uses this form only)
 #   read <name>
 #   list
 #   update <name> <field> <value>
@@ -444,14 +446,45 @@ case "$SUBCMD" in
   create)
     NAME="${1:-}"
     RPATH="${2:-}"
-    VNAME="${3:-My Venture}"
-    VSTAGE="${4:-Pre-Opportunity}"
+    shift 2 2>/dev/null || shift $#
+    # Quick 261127-bnd: --name-file and --stage-file give the venture name and
+    # stage as the first line of a file; another word is positional as before.
+    _CR_POS=()
+    _CR_NAME_FILE=""
+    _CR_STAGE_FILE=""
+    _CR_NAME_SET=0
+    _CR_STAGE_SET=0
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --name-file) _CR_NAME_FILE="${2:-}"; _CR_NAME_SET=1; shift 2 2>/dev/null || shift $# ;;
+        --stage-file) _CR_STAGE_FILE="${2:-}"; _CR_STAGE_SET=1; shift 2 2>/dev/null || shift $# ;;
+        *) _CR_POS+=("$1"); shift ;;
+      esac
+    done
+    VNAME="${_CR_POS[0]:-My Venture}"
+    VSTAGE="${_CR_POS[1]:-Pre-Opportunity}"
     if [ -z "$NAME" ] || [ -z "$RPATH" ]; then
       echo "[MindrianOS] Cannot create room -- missing name or path." >&2
       echo "  Why: Both a room name and path are required to create a room" >&2
       echo "  Fix: Run /mos:new-project to create a room interactively" >&2
       exit 1
     fi
+    for _cr_flag in name stage; do
+      if [ "$_cr_flag" = name ]; then _cr_set=$_CR_NAME_SET; _cr_file="$_CR_NAME_FILE"; else _cr_set=$_CR_STAGE_SET; _cr_file="$_CR_STAGE_FILE"; fi
+      [ "$_cr_set" = 1 ] || continue
+      _cr_line=""
+      if [ -n "$_cr_file" ] && [ -f "$_cr_file" ] && [ -r "$_cr_file" ]; then
+        IFS= read -r _cr_line < "$_cr_file" || true
+        _cr_line="${_cr_line%$'\r'}"
+      fi
+      if [ -z "$_cr_line" ]; then
+        echo "[MindrianOS] Cannot create room -- the file of --${_cr_flag}-file is missing or empty." >&2
+        echo "  Why: --${_cr_flag}-file needs a readable file whose first line is not empty" >&2
+        echo "  Fix: Write the venture ${_cr_flag} on one line to the file, then run the command again" >&2
+        exit 1
+      fi
+      if [ "$_cr_flag" = name ]; then VNAME="$_cr_line"; else VSTAGE="$_cr_line"; fi
+    done
     # RCA test-birth-registry-leak: refuse BEFORE ensure_registry so a refused
     # create makes no registry dir, no registry file, no ROOMS_HOME/<abs path>
     # nesting, and no session-binding or graph-sync side effect downstream.

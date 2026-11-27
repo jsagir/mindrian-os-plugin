@@ -2,7 +2,13 @@
 # create-speaker-profile -- Create ICM nested folder profile for a new speaker
 #
 # Usage: create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+#        create-speaker-profile <room_dir> <speaker-slug> --role-file <file> --name-file <file>
 # Example: create-speaker-profile room/ tyler-chen researcher "Tyler Chen"
+#
+# File form (quick 261127-bnd): when argument 3 starts with --, the role and
+# the name are the first line of each file. An instruction file uses the file
+# form only: a shell runs $(...) and backticks that a name on a command line
+# holds. The argument form stays for callers with an argument array.
 #
 # Creates the ICM nested folder structure under room/team/{role-plural}/{speaker-slug}/
 # with PROFILE.md, insights/, advice/, connections/, concerns/ subdirectories.
@@ -18,6 +24,10 @@ create-speaker-profile -- Create ICM nested folder profile for a new speaker
 
 USAGE:
   create-speaker-profile <room_dir> <speaker-slug> <speaker-role> <display-name>
+  create-speaker-profile <room_dir> <speaker-slug> --role-file <file> --name-file <file>
+
+  An instruction file uses the file form only: a shell runs $(...) and
+  backticks that a name on a command line holds.
 
 ARGUMENTS:
   room_dir      Path to the room directory (e.g., room/)
@@ -173,6 +183,38 @@ fi
 # Legacy path (unchanged): positional 4-arg invocation
 # ---------------------------------------------------------------------------
 
+# Quick 261127-bnd: the file form reads the role and the name from files.
+# The text is data: it is never put in a command line or a program text.
+_csp_first_line() {
+  local f="$1" l=""
+  [[ -n "$f" && -f "$f" && -r "$f" ]] || return 1
+  IFS= read -r l < "$f" || true
+  l="${l%$'\r'}"
+  [[ -n "$l" ]] || return 1
+  printf '%s' "$l"
+}
+if [[ $# -ge 3 && "$3" == --* ]]; then
+  ROOM_DIR="$1"
+  SPEAKER_SLUG="$2"
+  _CSP_ROLE_FILE=""
+  _CSP_NAME_FILE=""
+  shift 2
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --role-file) _CSP_ROLE_FILE="${2:-}"; shift 2 2>/dev/null || shift $# ;;
+      --name-file) _CSP_NAME_FILE="${2:-}"; shift 2 2>/dev/null || shift $# ;;
+      *) shift ;;
+    esac
+  done
+  if ! SPEAKER_ROLE=$(_csp_first_line "$_CSP_ROLE_FILE"); then
+    echo "ERROR: --role-file needs a readable file that is not empty: ${_CSP_ROLE_FILE}" >&2
+    exit 1
+  fi
+  if ! DISPLAY_NAME=$(_csp_first_line "$_CSP_NAME_FILE"); then
+    echo "ERROR: --name-file needs a readable file that is not empty: ${_CSP_NAME_FILE}" >&2
+    exit 1
+  fi
+else
 # Validate arguments
 if [[ $# -lt 4 ]]; then
   echo "ERROR: 4 arguments required: room_dir, speaker-slug, speaker-role, display-name" >&2
@@ -184,6 +226,7 @@ ROOM_DIR="$1"
 SPEAKER_SLUG="$2"
 SPEAKER_ROLE="$3"
 DISPLAY_NAME="$4"
+fi
 
 # Validate room_dir exists
 if [[ ! -d "$ROOM_DIR" ]]; then
