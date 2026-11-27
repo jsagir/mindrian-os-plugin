@@ -1,0 +1,493 @@
+{
+  "label": "base",
+  "arm": "held-lock",
+  "smoke": false,
+  "head": "819c0904636c2ece19b0822f1c457da94e08ab92",
+  "claude_version": "2.1.332 (Claude Code)",
+  "node": "v22.23.1",
+  "cores": 12,
+  "H": 6,
+  "host_command": "claude -p --input-format stream-json --output-format stream-json --verbose --include-hook-events --replay-user-messages --plugin-dir <repo root> --setting-sources project --model haiku --tools \"\" --session-id <uuid> --debug-file <scratch>/host-debug.log",
+  "removed_env_keys": [
+    "CLAUDECODE",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_SESSION_ID",
+    "MINDRIAN_BRAIN_KEY",
+    "MINDRIAN_EUREKA_ROOT",
+    "MOS_LIVE_LOAD"
+  ],
+  "plugins": [
+    {
+      "name": "mos",
+      "is_repo_root": true
+    },
+    {
+      "name": "cc-plugin-agents-md",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-telemetry",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-privacy",
+      "is_repo_root": false
+    },
+    {
+      "name": "cc-plugin-plugin-authoring",
+      "is_repo_root": false
+    }
+  ],
+  "seed_missed_turn": false,
+  "prompts": [
+    {
+      "i": 1,
+      "token": "t4005-744a44-1",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1313,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [],
+      "trace_exit": null,
+      "wall_ms": 19837
+    },
+    {
+      "i": 2,
+      "token": "t4005-744a44-2",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1154,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8203
+    },
+    {
+      "i": 3,
+      "token": "t4005-744a44-3",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1035,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7968
+    },
+    {
+      "i": 4,
+      "token": "t4005-744a44-4",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1046,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7999
+    },
+    {
+      "i": 5,
+      "token": "t4005-744a44-5",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1168,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8373
+    },
+    {
+      "i": 6,
+      "token": "t4005-744a44-6",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1107,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8206
+    },
+    {
+      "i": 7,
+      "token": "t4005-744a44-7",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1171,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8215
+    },
+    {
+      "i": 8,
+      "token": "t4005-744a44-8",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1178,
+      "overhead_source": "s1_durationMs",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8078
+    },
+    {
+      "i": 9,
+      "token": "t4005-744a44-9",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1042,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8476
+    },
+    {
+      "i": 10,
+      "token": "t4005-744a44-10",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1229,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8658
+    },
+    {
+      "i": 11,
+      "token": "t4005-744a44-11",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1174,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7982
+    },
+    {
+      "i": 12,
+      "token": "t4005-744a44-12",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1138,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8245
+    },
+    {
+      "i": 13,
+      "token": "t4005-744a44-13",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1157,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7947
+    },
+    {
+      "i": 14,
+      "token": "t4005-744a44-14",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1312,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8264
+    },
+    {
+      "i": 15,
+      "token": "t4005-744a44-15",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1142,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7975
+    },
+    {
+      "i": 16,
+      "token": "t4005-744a44-16",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1142,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7784
+    },
+    {
+      "i": 17,
+      "token": "t4005-744a44-17",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1189,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8122
+    },
+    {
+      "i": 18,
+      "token": "t4005-744a44-18",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1291,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 7952
+    },
+    {
+      "i": 19,
+      "token": "t4005-744a44-19",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1049,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8206
+    },
+    {
+      "i": 20,
+      "token": "t4005-744a44-20",
+      "runs": 6,
+      "runs_source": "s2_hook_started",
+      "cancels": 0,
+      "cancels_s1": 0,
+      "cancels_s2": 0,
+      "cancels_s3": 0,
+      "overhead_ms": 1154,
+      "overhead_source": "s2_started_to_response",
+      "skip_note": false,
+      "has_voice_reminder": true,
+      "notes": [
+        "room_db_busy"
+      ],
+      "trace_exit": null,
+      "wall_ms": 8242
+    }
+  ],
+  "per_hook": {
+    "node \"${CLAUDE_PLUGIN_ROOT}/scripts/intent-classifier.cjs\"": {
+      "runs": 20,
+      "cancels": 0,
+      "p95_duration_ms": 1290
+    }
+  },
+  "summary": {
+    "prompts_sent": 20,
+    "results": 20,
+    "cancel_total": 0,
+    "prompts_with_runs_below_H": 0,
+    "runs_source": "s2_hook_started",
+    "p50_overhead_ms": 1154,
+    "p95_overhead_ms": 1312,
+    "skip_note_prompts": [],
+    "loadavg_min": 4.13,
+    "loadavg_max": 14.01,
+    "io_pressure_avg10_max": 0.62,
+    "writer": {
+      "cycles": 0,
+      "busy": 0,
+      "other": 0
+    },
+    "host_pids": 1,
+    "session_ids": [
+      "own"
+    ],
+    "real_rooms_touched": true,
+    "unmapped_attachments": 0
+  },
+  "sources": {
+    "s1_path": "<HOME>/.claude/projects/-tmp-mos-load-400-5-hqE1XU-rooms-load-room-400-5/<UUID>.jsonl",
+    "s2_subtypes_seen": [
+      "hook_progress",
+      "hook_response",
+      "hook_started"
+    ],
+    "s2_field_names": [
+      "exit_code",
+      "hook_event",
+      "hook_id",
+      "hook_name",
+      "outcome",
+      "output",
+      "session_id",
+      "stderr",
+      "stdout",
+      "subtype",
+      "type",
+      "uuid"
+    ],
+    "s3_sample_masked": [
+      "2026-11-27T11:24:12.410Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/admin-command-gate.cjs\"] (plugin mos@inline) finished with status 0 (71ms)",
+      "2026-11-27T11:24:12.420Z [DEBUG] Hooks: UserPromptSubmit [node \"<REPO>/scripts/auto-explore-drain.cjs\"] (plugin mos@inline) finished with status 0 (81ms)",
+      "2026-11-27T11:24:12.420Z [DEBUG] \"Hook UserPromptSubmit (UserPromptSubmit) success:\\n{\\\"continue\\\":true}\""
+    ],
+    "s3_unmapped_cancels": 0,
+    "s4_turns": 0
+  },
+  "trace_turns": null,
+  "marker_after": null,
+  "flags": {
+    "host_started": true,
+    "prompt_timeout": false,
+    "foreign_session": false,
+    "transcript_found": true
+  },
+  "loadavg_start": "4.32 5.14 3.06 3/1516 862281",
+  "verdict": "FAIL",
+  "first_not_ok": "real_rooms_touched"
+}

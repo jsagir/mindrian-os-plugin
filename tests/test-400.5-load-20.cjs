@@ -598,7 +598,8 @@ async function main() {
 }
 
 if (require.main === module) {
-  main().then((code) => { process.exitCode = code; }, (e) => { console.error(e && e.stack ? e.stack : String(e)); process.exitCode = 2; });
+  // Exit explicitly: a per-prompt limit timer or a closed host pipe must not keep the process alive after the result.
+  main().then((code) => { process.exit(code); }, (e) => { console.error(e && e.stack ? e.stack : String(e)); process.exit(2); });
 }
 
 module.exports = { HOST_ARGS, textOf, mapTranscript, countStream, hostEnv, verdict, noteNames, classifyDebugLine };
