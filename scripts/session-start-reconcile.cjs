@@ -52,6 +52,30 @@ function openRoomDb(roomDir) {
   } catch (_) { return null; }
 }
 
+// Plan 400.3-06c: a busy SQLite failure (SQLITE_BUSY or SQLITE_LOCKED).
+function isBusyError(err) {
+  var rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
+  var msg = err && err.message ? String(err.message) : '';
+  return rc === 5 || rc === 6 || /database (table )?is locked/i.test(msg);
+}
+
+// Plan 400.3-06c (review B-b, M3): run one block's runner call. With a handle, the call runs inside one
+// navigation.withRoomTx (one wait for the write lock, all or nothing); a busy throw trips the process cap
+// (noteBusy), writes 'session-start-reconcile: <block> room_db_busy: skipped' and gives { busy: true }. With no
+// handle the call runs as at BASE, outside withRoomTx. Any other throw goes to the block's own catch.
+function inRoomTx(db, blockName, fn) {
+  if (!db) return { value: fn() };
+  try {
+    var navigation = require(path.join(__dirname, '..', 'lib', 'core', 'navigation.cjs'));
+    return { value: navigation.withRoomTx(db, fn) };
+  } catch (e) {
+    if (!isBusyError(e)) throw e;
+    try { require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
+    process.stderr.write('session-start-reconcile: ' + blockName + ' room_db_busy: skipped\n');
+    return { busy: true };
+  }
+}
+
 // Block 1: feynman timeline refresh (Phase 124). Plugin root form: pluginRootForNode.
 function refreshTimeline(ctx) {
   try {
@@ -59,8 +83,10 @@ function refreshTimeline(ctx) {
     if (!roomDir) return;
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/timeline-runner.cjs');
-    var result = runner.refreshAll(roomDir, { db: db });
-    if (db) { try { db.close(); } catch (_) {} }
+    var run;
+    try { run = inRoomTx(db, 'refreshTimeline', function () { return runner.refreshAll(roomDir, { db: db }); }); }
+    finally { if (db) { try { db.close(); } catch (_) {} } }
+    var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
       process.stderr.write('feynman-timeline-refresh: ' + result.refreshed.length + ' section(s) refreshed\n');
     }
@@ -76,8 +102,10 @@ function refreshDialMemory(ctx) {
     if (!roomDir) return;
     var db = openRoomDb(roomDir);
     var runner = require(ctx.pluginRootForNode + '/lib/core/feynman/dial-memory-runner.cjs');
-    var result = runner.refreshAll(roomDir, { db: db });
-    if (db) { try { db.close(); } catch (_) {} }
+    var run;
+    try { run = inRoomTx(db, 'refreshDialMemory', function () { return runner.refreshAll(roomDir, { db: db }); }); }
+    finally { if (db) { try { db.close(); } catch (_) {} } }
+    var result = run.value;
     if (result && result.refreshed && result.refreshed.length > 0) {
       process.stderr.write('dial-memory-refresh: ' + result.refreshed.length + ' section(s) refreshed\n');
     }
@@ -103,8 +131,10 @@ function reconcileGsdPlanning(ctx) {
         reconcileOpts.planningDir = path.join(pluginRoot, '.planning');
       }
     } catch (_) {}
-    var result = runner.reconcilePlanningArtifacts(roomDir, reconcileOpts);
-    try { db.close(); } catch (_) {}
+    var run;
+    try { run = inRoomTx(db, 'reconcileGsdPlanning', function () { return runner.reconcilePlanningArtifacts(roomDir, reconcileOpts); }); }
+    finally { try { db.close(); } catch (_) {} }
+    var result = run.value;
     if (result && result.upserted > 0) {
       process.stderr.write('gsd-planning-reconcile: ' + result.upserted + ' artifact node(s) upserted, '
         + result.requirement_nodes + ' requirement node(s), ' + result.edges + ' lineage edge(s)\n');
@@ -131,8 +161,10 @@ function reconcileMemoryCortex(ctx) {
         reconcileOpts.sectionRoot = pluginRoot;
       }
     } catch (_) {}
-    var result = runner.reconcileMemoryArtifacts(roomDir, reconcileOpts);
-    try { db.close(); } catch (_) {}
+    var run;
+    try { run = inRoomTx(db, 'reconcileMemoryCortex', function () { return runner.reconcileMemoryArtifacts(roomDir, reconcileOpts); }); }
+    finally { try { db.close(); } catch (_) {} }
+    var result = run.value;
     if (result && result.upserted > 0) {
       process.stderr.write('memory-cortex-reconcile: ' + result.upserted + ' memory node(s) upserted, '
         + (result.unchanged || 0) + ' unchanged, '
@@ -174,6 +206,11 @@ function ctxFromEnv(env) {
 }
 
 if (require.main === module) {
+  // Plan 400.3-06c: the process cap keeps the 5000 ms wait for the first block and trips to 0 after the first busy.
+  try {
+    var busyCap = require(path.join(__dirname, '..', 'lib', 'core', 'hook-busy-cap.cjs'));
+    busyCap.setHookBusyCap(busyCap.DEFAULT_BUSY_MS);
+  } catch (_) { /* the default wait stays */ }
   try { runAll(ctxFromEnv(process.env)); } catch (_) { /* best effort: never fail session start */ }
   process.exitCode = 0;
 }

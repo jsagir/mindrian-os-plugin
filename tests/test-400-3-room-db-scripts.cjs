@@ -288,8 +288,176 @@ async function groupMemory() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Group feynman (F1-F7)
+// ---------------------------------------------------------------------------
+function ctxFor(fx) { return { room: fx.R, pluginRootForNode: ROOT, pluginRoot: ROOT }; }
+function captureStderr(fn) {
+  const orig = process.stderr.write.bind(process.stderr);
+  let buf = '';
+  process.stderr.write = (chunk, ...rest) => { buf += String(chunk); return true; };
+  let res; let err = null;
+  try { res = fn(); } catch (e) { err = e; } finally { process.stderr.write = orig; }
+  return { res, err, stderr: buf };
+}
+function spawnReconcile(fx) {
+  const t0 = msNow();
+  const r = spawnSync(process.execPath, [RECONCILE], {
+    cwd: fx.R, env: envFor(fx, { ACTIVE_ROOM_FOR_RECONCILE: fx.R, PLUGIN_ROOT_FOR_NODE_RECONCILE: ROOT, PLUGIN_ROOT_RECONCILE: ROOT }),
+    encoding: 'utf8', timeout: 60000,
+  });
+  return { status: r.status, stderr: String(r.stderr || ''), ms: msNow() - t0 };
+}
+function feynmanBytes(R, s) { try { return fs.readFileSync(path.join(R, s, 'FEYNMAN.md'), 'utf8'); } catch (_e) { return null; } }
+// The FEYNMAN.md text with the room path of the copy and every ISO time stamp replaced, so 2 copies that render at
+// different times compare byte for byte (the runners write the render time as the watermark, for example
+// timeline_last_rendered).
+function normalized(R, s) {
+  const t = feynmanBytes(R, s);
+  return t === null ? null : t.split(R).join('<R>').replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/g, '<TS>');
+}
+
+async function groupFeynman() {
+  console.log('\n-- group feynman --');
+  const cmd = require(TIMELINE_CMD);
+  const reconcileMod = require(RECONCILE);
+
+  // F1
+  {
+    const fx = mkFixture('f1');
+    let h = null;
+    try {
+      h = await startHolder(fx.R);
+      const r = spawnReconcile(fx);
+      check('F1 session-start-reconcile under a held write: exit 0 in less than 7000 ms with room_db_busy on stderr (measured ' + r.ms.toFixed(0) + ' ms)',
+        r.status === 0 && r.ms < 7000 && r.stderr.indexOf('room_db_busy') !== -1, JSON.stringify({ status: r.status, stderr: r.stderr.slice(-400) }));
+    } catch (e) { check('F1 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // F2
+  {
+    const fx = mkFixture('f2');
+    let h = null;
+    try {
+      h = await startHolder(fx.R);
+      const db = cmd.resolveRoomDb(fx.R, { busyMs: 200 });
+      let ms = -1; let threw = false;
+      if (db) {
+        const t0 = msNow();
+        try { db.exec('BEGIN IMMEDIATE'); db.exec('ROLLBACK'); } catch (_e) { threw = true; }
+        ms = msNow() - t0;
+        try { db.close(); } catch (_e) { /* closed */ }
+      }
+      check('F2 resolveRoomDb(R, {busyMs: 200}): BEGIN IMMEDIATE under a held write throws after 150-1500 ms (measured ' + ms.toFixed(0) + ' ms)',
+        !!db && threw && ms >= 150 && ms < 1500, JSON.stringify({ db: !!db, threw, ms }));
+    } catch (e) { check('F2 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // F3
+  {
+    const z = mkFixture('f3z', { db: 'zero' });
+    const n = mkFixture('f3n', { db: 'none' });
+    const dz = cmd.resolveRoomDb(z.R);
+    const dn = cmd.resolveRoomDb(n.R);
+    if (dz) { try { dz.close(); } catch (_e) { /* closed */ } }
+    if (dn) { try { dn.close(); } catch (_e) { /* closed */ } }
+    check('F3 resolveRoomDb returns null for a 0-byte and for a missing room.db', dz === null && dn === null, JSON.stringify({ zero: dz === null, none: dn === null }));
+  }
+
+  // F4
+  {
+    const a = mkFixture('f4a');
+    const b = mkFixture('f4b');
+    let err = null;
+    try {
+      const ca = captureStderr(() => reconcileMod.runAll(ctxFor(a)));
+      if (ca.err) throw ca.err;
+      const runners = {
+        timeline: require(path.join(ROOT, 'lib', 'core', 'feynman', 'timeline-runner.cjs')),
+        dial: require(path.join(ROOT, 'lib', 'core', 'feynman', 'dial-memory-runner.cjs')),
+        planning: require(path.join(ROOT, 'lib', 'core', 'planning', 'reconcile-runner.cjs')),
+        memory: require(path.join(ROOT, 'lib', 'core', 'memory', 'reconcile-memory-runner.cjs')),
+      };
+      const raw = () => new DatabaseSync(dbPathOf(b.R), { timeout: 5000 });
+      let d = raw(); try { runners.timeline.refreshAll(b.R, { db: d }); } finally { d.close(); }
+      d = raw(); try { runners.dial.refreshAll(b.R, { db: d }); } finally { d.close(); }
+      d = raw(); try { runners.planning.reconcilePlanningArtifacts(b.R, { db: d }); } finally { d.close(); }
+      d = raw(); try { runners.memory.reconcileMemoryArtifacts(b.R, { db: d }); } finally { d.close(); }
+    } catch (e) { err = e; }
+    const na = err ? {} : countBy(a.R, 'nodes'); const nb = err ? {} : countBy(b.R, 'nodes');
+    const ea = err ? {} : countBy(a.R, 'edges'); const eb = err ? {} : countBy(b.R, 'edges');
+    const fa = normalized(a.R, 's1'); const fb = normalized(b.R, 's1');
+    check('F4 equivalence: runAll gives the node and edge counts and the FEYNMAN.md of the BASE auto-commit run',
+      !err && JSON.stringify(na) === JSON.stringify(nb) && JSON.stringify(ea) === JSON.stringify(eb) && total(na) > 0 && fa !== null && fa === fb,
+      (err ? err.message : '') + ' ' + JSON.stringify({ na, nb, ea, eb, feynmanEqual: fa === fb }));
+  }
+
+  // F5
+  {
+    const fx = mkFixture('f5');
+    let h = null;
+    try {
+      h = await startHolder(fx.R);
+      const out = [];
+      for (const c of [TIMELINE_CMD, DIAL_CMD]) {
+        const t0 = msNow();
+        const r = spawnSync(process.execPath, [c, '--all'], { cwd: fx.R, env: envFor(fx), encoding: 'utf8', timeout: 60000 });
+        out.push({ cmd: path.basename(c), status: r.status, ms: Math.round(msNow() - t0), busy: String(r.stdout || '').indexOf('room.db is busy') !== -1, stdout: String(r.stdout || '').slice(0, 160) });
+      }
+      check('F5 both refresh commands under a held write: exit 0 in less than 7000 ms with "room.db is busy" (measured ' + out.map((o) => o.ms).join(', ') + ' ms)',
+        out.every((o) => o.status === 0 && o.ms < 7000 && o.busy), JSON.stringify(out));
+    } catch (e) { check('F5 fixture', false, e.message); }
+    await stopHolder(h);
+  }
+
+  // F6
+  for (const kind of ['none', 'zero']) {
+    const a = mkFixture('f6a-' + kind, { db: kind });
+    const b = mkFixture('f6b-' + kind, { db: kind });
+    const ca = captureStderr(() => reconcileMod.runAll(ctxFor(a), [reconcileMod.refreshTimeline, reconcileMod.refreshDialMemory]));
+    let rb = null; let errB = null;
+    try {
+      const t = require(path.join(ROOT, 'lib', 'core', 'feynman', 'timeline-runner.cjs')).refreshAll(b.R, { db: null });
+      const dm = require(path.join(ROOT, 'lib', 'core', 'feynman', 'dial-memory-runner.cjs')).refreshAll(b.R, { db: null });
+      rb = { t: (t && t.refreshed || []).length, d: (dm && dm.refreshed || []).length };
+    } catch (e) { errB = e; }
+    const linesA = (ca.stderr.match(/(feynman-timeline-refresh|dial-memory-refresh): \d+ section\(s\) refreshed/g) || []);
+    const linesB = [];
+    if (rb && rb.t > 0) linesB.push('feynman-timeline-refresh: ' + rb.t + ' section(s) refreshed');
+    if (rb && rb.d > 0) linesB.push('dial-memory-refresh: ' + rb.d + ' section(s) refreshed');
+    const sizeA = sizeOf(dbPathOf(a.R));
+    const dbOk = kind === 'none' ? sizeA === -1 : sizeA === 0;
+    check('F6 (' + kind + ' room.db) blocks 1 and 2 keep the null-handle path: the same refresh lines and FEYNMAN.md, no throw, no withRoomTx error, room.db not created or filled',
+      !ca.err && !errB && JSON.stringify(linesA) === JSON.stringify(linesB) && normalized(a.R, 's1') === normalized(b.R, 's1')
+        && ca.stderr.indexOf('withRoomTx') === -1 && dbOk,
+      JSON.stringify({ err: ca.err && ca.err.message, errB: errB && errB.message, linesA, linesB, stderr: ca.stderr.slice(-300), sizeA }));
+  }
+
+  // F7
+  {
+    const fx = mkFixture('f7', { large: true });
+    let p = null;
+    try {
+      p = await startProber(fx.R);
+      await yieldMs(50);
+      const t0 = msNow();
+      const ca = await new Promise((resolve) => setImmediate(() => resolve(captureStderr(() => reconcileMod.runAll(ctxFor(fx))))));
+      const wall = msNow() - t0;
+      await yieldMs(50);
+      const pr = await stopProber(p); p = null;
+      console.log('400.3-06c session-start hold ms (Linux, 320 files): hold=' + pr.longest.toFixed(0) + ' total=' + wall.toFixed(0));
+      check('F7 runAll on fixture L holds the write lock less than 750 ms (hold ' + pr.longest.toFixed(0) + ' ms)',
+        !ca.err && pr.longest < 750 && pr.probes > 0, JSON.stringify({ err: ca.err && ca.err.message, pr, stderr: ca.stderr.slice(-300) }));
+    } catch (e) { check('F7 fixture', false, e.message); }
+    if (p) { try { p.kill(); } catch (_e) { /* gone */ } }
+  }
+}
+
 async function main() {
   if (GROUP === 'memory' || GROUP === 'all') await groupMemory();
+  if (GROUP === 'feynman' || GROUP === 'all') await groupFeynman();
   console.log('\n' + passed + ' passed, ' + failed + ' failed');
   process.exit(failed === 0 ? 0 : 1);
 }

@@ -215,8 +215,31 @@ function main() {
     return;
   }
 
+  // Plan 400.3-06c: the refresh runs inside one navigation.withRoomTx (one wait for the write lock, all or
+  // nothing); a busy room gives a plain message and exit 0.
+  const navigation = require(path.join(REPO_ROOT, 'lib', 'core', 'navigation.cjs'));
   let result;
   try {
+    result = navigation.withRoomTx(db, () => refreshInTx(db, roomDir, opts));
+  } catch (err) {
+    if (!isBusyError(err)) throw err;
+    try { require(path.join(REPO_ROOT, 'lib', 'core', 'hook-busy-cap.cjs')).noteBusy(); } catch (_) { /* tolerant */ }
+    try { db.close(); } catch (_) {}
+    process.stdout.write('room.db is busy (another process is writing). Nothing was refreshed. Run the command again.\n');
+    process.exit(0);
+    return;
+  } finally {
+    try { db.close(); } catch (_) {}
+  }
+
+  process.stdout.write(renderReport(result) + '\n');
+  process.exit(0);
+}
+
+// Plan 400.3-06c: the refresh body of main, run inside withRoomTx.
+function refreshInTx(db, roomDir, opts) {
+  let result;
+  {
     if (opts.section) {
       const r = runner.refreshSection(roomDir, opts.section, { db: db });
       if (r.status === 'refreshed') {
@@ -254,12 +277,15 @@ function main() {
         result = runner.refreshAll(roomDir, { db: db });
       }
     }
-  } finally {
-    try { db.close(); } catch (_) {}
   }
+  return result;
+}
 
-  process.stdout.write(renderReport(result) + '\n');
-  process.exit(0);
+// Plan 400.3-06c: a busy SQLite failure (SQLITE_BUSY or SQLITE_LOCKED).
+function isBusyError(err) {
+  const rc = err && typeof err.errcode === 'number' ? (err.errcode & 255) : -1;
+  const msg = err && err.message ? String(err.message) : '';
+  return rc === 5 || rc === 6 || /database (table )?is locked/i.test(msg);
 }
 
 // ---------- Exports ----------
