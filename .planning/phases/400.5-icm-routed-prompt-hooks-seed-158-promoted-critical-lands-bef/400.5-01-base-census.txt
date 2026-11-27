@@ -1,0 +1,648 @@
+HEAD 9a5a84efaa4526c267c16bc2b6b26fb580f55676
+NAMED FAIL tests/test-261029-qef-hook-timeouts.cjs exit=1 first=  FAIL A1 shape: only timeout and onFailure differ from a13ab61f1
+NAMED PASS tests/test-385-hook-unwire.cjs
+NAMED PASS tests/test-389-hook-unwire.cjs
+NAMED PASS tests/test-derivation-drain-fires.cjs
+NAMED PASS tests/test-jtbd-hook-integration.cjs
+NAMED FAIL tests/test-3696-operation-doctrine.cjs exit=1 first=FAIL: RT1 a UserPromptSubmit hook runs the per-turn operations for Larry: KNOWN RT1 now passes: flip it to required (no UserPromptSubmit hook calls context_assemble, suggest_next or logs the turn memo
+NAMED PASS tests/test-369-hook-require-graph.cjs
+NAMED PASS lib/memory/brain-derivation-queue.test.cjs
+NAMED PASS lib/memory/minto-debounce-consumer-census.test.cjs
+NAMED FAIL test/83-hook-dispatch.test.cjs exit=1 first=  FAIL hooks.json has PreToolUse entry with Write|Edit|MultiEdit matcher
+NAMED PASS tests/test-391-hooks-contract.cjs
+NAMED FAIL tests/test-3551-tri-polar.cjs exit=1 first=PASS: 8 FAIL: 1
+NAMED FAIL tests/test-346-catalogue-schema.cjs exit=1 first=FAIL 12: every distinct conversation-time hook mechanism is either catalogued or excluded with a reason (enumerate-from-disk partition)
+NAMED PASS tests/test-369-installed-layout.cjs
+NAMED SKIP tests/test-380-installed-layout.cjs
+NAMED FAIL tests/test-connector-tier-d-hooks.cjs exit=1 first=  FAIL CHECK 4 - Part 8: no Brain-client egress in the fire path; generic handles + scalars only
+NAMED PASS tests/test-391-ledger-rows.cjs
+NAMED FAIL tests/test-hmi-compliance-e2e.cjs exit=1 first=  FAIL  11 hooks.json byte-identity for Phase 99/100/103 Stop entries
+NAMED PASS tests/test-quick-260911-juq-hooks-json-top-level.cjs
+NAMED PASS tests/test-388-ship-less.cjs
+NAMED PASS tests/test-admin-gate-hardening.cjs
+NAMED PASS tests/test-198-adapter-budget.test.cjs
+NAMED PASS tests/test-400.4-hook-run-exports.cjs
+NAMED PASS tests/test-400.4-hook-budget.cjs
+NAMED PASS tests/test-400.4-busy-opener.cjs
+NAMED PASS tests/test-261109-intent-classifier-query-count.cjs
+NAMED PASS tests/test-251-suppress-unchanged.cjs
+NAMED PASS tests/test-159-integration-2turn-suppress.cjs
+NAMED PASS tests/test-159-turn-start-wiring.cjs
+NAMED PASS tests/test-acpt-01-engine-fires.cjs
+NAMED FAIL tests/test-261030-a2s-classifier-parity.cjs exit=1 first=(Use `node --trace-warnings ...` to show where the warning was created)
+NAMED PASS tests/test-225-zero-score-gate.cjs
+NAMED PASS tests/test-225-gate-degrade.cjs
+NAMED PASS tests/test-360-picker-policy.cjs
+NAMED PASS tests/test-360-harness-picker.cjs
+NAMED PASS tests/test-active-session-ownership.cjs
+NAMED PASS tests/test-395-offer-is-primary.cjs
+NAMED PASS tests/test-400.4-cold-start-replay.cjs
+NAMED PASS tests/test-400.4-one-voice.cjs
+HOOKS_LIST lib/memory/sessionstart-coordinator.test.cjs
+HOOKS_LIST scripts/check-pending-breakthrough.test.cjs
+HOOKS_LIST tests/test-239-brain-tool-liveness.cjs
+HOOKS_LIST tests/test-239-verify-release-section-18.cjs
+HOOKS_LIST tests/test-251-skeleton-split.cjs
+HOOKS_LIST tests/test-260906-gr1-brain-shaped-tool-gate.cjs
+HOOKS_LIST tests/test-261118-vbv-hook-telemetry-queue.cjs
+HOOKS_LIST tests/test-341-update-collapsed.cjs
+HOOKS_LIST tests/test-355-part8-egress.cjs
+HOOKS_LIST tests/test-359-devonly-tripwire.cjs
+HOOKS_LIST tests/test-369.1-desktop-artifact.cjs
+HOOKS_LIST tests/test-36925-brief-wiring.cjs
+HOOKS_LIST tests/test-3696-isolation.cjs
+HOOKS_LIST tests/test-3696-operation-probe.cjs
+HOOKS_LIST tests/test-370-hook.cjs
+HOOKS_LIST tests/test-370-tripolar.cjs
+HOOKS_LIST tests/test-380-budget.cjs
+HOOKS_LIST tests/test-380-build.cjs
+HOOKS_LIST tests/test-384-perf-harness.cjs
+HOOKS_LIST tests/test-386-web-credential-hook.cjs
+HOOKS_LIST tests/test-391-ledger-2-1-319.cjs
+HOOKS_LIST tests/test-396-theo-route-matrix.cjs
+HOOKS_LIST tests/test-400-3-guard-deadline.cjs
+HOOKS_LIST tests/test-auto-explore-canon-part-8.cjs
+HOOKS_LIST tests/test-auto-explore-fingerprint.cjs
+HOOKS_LIST tests/test-brain-response-sanitize.cjs
+HOOKS_LIST tests/test-btm-theo-is-the-brain.cjs
+HOOKS_LIST tests/test-hmi-poll-hook.cjs
+HOOKS_LIST tests/test-mux-card-before-answer.cjs
+HOOKS_LIST tests/test-post-compact-nav04-closure.cjs
+HOOKS_LIST tests/test-r1-posttooluse-interceptor-spike.cjs
+HOOKS PASS lib/memory/sessionstart-coordinator.test.cjs
+HOOKS FAIL scripts/check-pending-breakthrough.test.cjs exit=1 first=not ok 3 - 120-02 Task 3 Test 12: hook happy-path F.7 surfaced via additionalContext
+HOOKS PASS tests/test-239-brain-tool-liveness.cjs
+HOOKS PASS tests/test-239-verify-release-section-18.cjs
+HOOKS PASS tests/test-251-skeleton-split.cjs
+HOOKS PASS tests/test-260906-gr1-brain-shaped-tool-gate.cjs
+HOOKS PASS tests/test-261118-vbv-hook-telemetry-queue.cjs
+HOOKS PASS tests/test-341-update-collapsed.cjs
+HOOKS PASS tests/test-355-part8-egress.cjs
+HOOKS PASS tests/test-359-devonly-tripwire.cjs
+HOOKS FAIL tests/test-369.1-desktop-artifact.cjs exit=1 first=FAIL: safety the test left the repo git status unchanged -- git status changed during the run
+HOOKS PASS tests/test-36925-brief-wiring.cjs
+HOOKS FAIL tests/test-3696-isolation.cjs exit=1 first=FAIL: B5b every evidence line of the table still holds in the file at the stated line
+HOOKS PASS tests/test-3696-operation-probe.cjs
+HOOKS PASS tests/test-370-hook.cjs
+HOOKS PASS tests/test-370-tripolar.cjs
+HOOKS PASS tests/test-380-budget.cjs
+HOOKS SKIP tests/test-380-build.cjs
+HOOKS FAIL tests/test-384-perf-harness.cjs exit=1 first=  FAIL B9 the real range base..HEAD passes :: 1 phase-guard: 1416 commit(s) checked
+HOOKS PASS tests/test-386-web-credential-hook.cjs
+HOOKS PASS tests/test-391-ledger-2-1-319.cjs
+HOOKS PASS tests/test-396-theo-route-matrix.cjs
+HOOKS PASS tests/test-400-3-guard-deadline.cjs
+HOOKS FAIL tests/test-auto-explore-canon-part-8.cjs exit=1 first=not ok 2 - 117-05 canon-part-8 Test 2: hooks/hooks.json contains mcp__brain_.* matcher invoking brain-response-sanitize-hook.cjs
+HOOKS FAIL tests/test-auto-explore-fingerprint.cjs exit=1 first=not ok 3 - hook with .room-root but no room.db marks Tier 0 in ledger
+HOOKS PASS tests/test-brain-response-sanitize.cjs
+HOOKS PASS tests/test-btm-theo-is-the-brain.cjs
+HOOKS PASS tests/test-hmi-poll-hook.cjs
+HOOKS FAIL tests/test-mux-card-before-answer.cjs exit=1 first=  FAIL S3 every gateLedger.mintGate( call site stores a renderer
+HOOKS PASS tests/test-post-compact-nav04-closure.cjs
+HOOKS PASS tests/test-r1-posttooluse-interceptor-spike.cjs
+FEYN PASS lib/memory/feynman-prompts.test.cjs
+FEYN PASS lib/memory/narrative-schema.test.cjs
+FEYN PASS scripts/vault-section-minto-generator.test.cjs
+FEYN PASS lib/memory/feynman-prompts-drift.test.cjs
+FEYN PASS scripts/vault-section-minto-generator.integration.test.cjs
+FEYN PASS scripts/vault-regenerate-all.test.cjs
+FEYN PASS scripts/generate-presentation.test.cjs
+FEYN PASS scripts/83-scope-injection.test.cjs
+FEYN FAIL test/83-hook-dispatch.test.cjs (exit 1)
+FEYN FAIL test/83-write-scope-check.test.cjs (exit 1)
+FEYN FAIL test/83-intent-classifier.test.cjs (exit 1)
+FEYN PASS test/83-honesty-layer.test.cjs
+FEYN FAIL test/84-smart-notebook-copilot.test.cjs (exit 1)
+FEYN FAIL tests/test-run-hook-cmd.cjs (exit 1)
+FEYN PASS tests/test-brain-client-params.cjs
+FEYN FAIL tests/test-self-update-platform.cjs (exit 1)
+FEYN PASS tests/test-session-start-banner.cjs
+FEYN FAIL test/fixtures/cascade-e2e/cascade-e2e.test.cjs (exit 1)
+FEYN PASS lib/memory/write-lock-atomic.test.cjs
+FEYN FAIL lib/memory/security-trifecta.test.cjs (exit 1)
+FEYN PASS lib/memory/room-minto-hook.test.cjs
+FEYN PASS lib/memory/dashboard-server.test.cjs
+FEYN PASS lib/memory/mcp-input-validation.test.cjs
+FEYN PASS lib/memory/index-artifact-transaction.test.cjs
+FEYN PASS lib/memory/sync-async-entry-points.test.cjs
+FEYN PASS lib/memory/brain-cache-lru.test.cjs
+FEYN PASS lib/memory/bearer-token.test.cjs
+FEYN PASS lib/memory/chat-context.test.cjs
+FEYN PASS lib/memory/feynman-minto-invariants.test.cjs
+FEYN PASS lib/memory/minto-schema-v88.test.cjs
+FEYN PASS lib/memory/minto-migration-v88.test.cjs
+FEYN PASS lib/memory/folder-memory.test.cjs
+FEYN PASS lib/memory/minto-debouncer.test.cjs
+FEYN PASS lib/memory/recompile-room-references.test.cjs
+FEYN PASS lib/memory/vault-section-minto-generator-atomic.test.cjs
+FEYN PASS lib/memory/stamp-artifact-write.test.cjs
+FEYN PASS lib/memory/post-write-triple.test.cjs
+FEYN PASS lib/memory/debouncer-drain-at-prompt.test.cjs
+FEYN PASS lib/memory/minto-debounce-consumer-census.test.cjs
+FEYN PASS lib/memory/on-stop-snapshot.test.cjs
+FEYN PASS lib/memory/triple-context-formatter.test.cjs
+FEYN PASS lib/memory/session-start-triple-injection.test.cjs
+FEYN PASS lib/memory/pre-compact-snapshot.test.cjs
+FEYN PASS lib/memory/post-compact-reinjection.test.cjs
+FEYN FAIL lib/memory/decision-capture.test.cjs (exit 1)
+FEYN PASS lib/memory/record-decision-dual-write.test.cjs
+FEYN PASS lib/memory/feynman-minto-guardian.test.cjs
+FEYN PASS lib/memory/guardian-onstop-reaches-user.test.cjs
+FEYN PASS lib/memory/precommit-real-commit.test.cjs
+FEYN PASS lib/memory/frontmatter-schema-validator.test.cjs
+FEYN PASS lib/memory/async-artifact-auto-commit.test.cjs
+FEYN FAIL lib/memory/query-efficiency-telemetry.test.cjs (exit 1)
+FEYN PASS tests/test-hook-envelope-shape.cjs
+FEYN PASS tests/test-cascade-side-channel.cjs
+FEYN PASS tests/test-room-proactive-side-channel.cjs
+FEYN PASS tests/test-doctor-class-b.cjs
+FEYN PASS tests/test-doctor-class-c.cjs
+FEYN PASS tests/test-cascade-surface-e2e.cjs
+FEYN PASS tests/test-doctor-class-e.cjs
+FEYN PASS tests/test-doctor-class-f.cjs
+FEYN PASS tests/test-generate-section-intelligence.cjs
+FEYN PASS tests/test-doctor-ui-self-compliant.cjs
+FEYN PASS tests/test-doctor-module-contract-parity.cjs
+FEYN PASS tests/test-doctor-card-fire-health.cjs
+FEYN PASS tests/test-doctor-doc-parity.cjs
+FEYN PASS tests/test-232.1-room-graph-density.cjs
+FEYN PASS tests/test-232.1-room-state-density.cjs
+FEYN PASS tests/test-233-graph-derive-health.cjs
+FEYN PASS tests/test-233-graph-derive-heal-retrofit.cjs
+FEYN PASS tests/test-233-derivation-default-gate.cjs
+FEYN PASS tests/test-233-drain-backfill-producer-parity.cjs
+FEYN PASS lib/memory/statusline-minto-segment.test.cjs
+FEYN PASS lib/memory/mos-status-renderer.test.cjs
+FEYN PASS lib/memory/sessionstart-minto-banner.test.cjs
+FEYN PASS lib/memory/brain-md-schema.test.cjs
+FEYN PASS lib/memory/brain-derivation.test.cjs
+FEYN PASS lib/memory/brain-derivation-queue.test.cjs
+FEYN PASS lib/memory/brain-md-staleness.test.cjs
+FEYN PASS lib/memory/session-start-brain-staleness.test.cjs
+FEYN PASS lib/memory/folder-memory-quadruple.test.cjs
+FEYN PASS lib/memory/brain-md-invariants-validator.test.cjs
+FEYN FAIL lib/memory/brain-derive-command.test.cjs (exit 1)
+FEYN FAIL lib/memory/cross-room-aggregator.test.cjs (exit 1)
+FEYN PASS lib/memory/brain-derivation-graceful-degradation.test.cjs
+FEYN PASS lib/memory/test-rs-brain-substrate.cjs
+FEYN PASS lib/memory/test-rs-brain-substrate-shape.cjs
+FEYN PASS lib/memory/test-rs-domain-analyzer.cjs
+FEYN PASS lib/memory/test-rs-query-matrix.cjs
+FEYN PASS lib/memory/test-rs-egress-primitives.cjs
+FEYN FAIL lib/memory/test-rs-fetcher-academic.cjs (exit 1)
+FEYN PASS lib/memory/test-rs-fetcher-patents.cjs
+FEYN PASS lib/memory/test-rs-fetcher-industry.cjs
+FEYN PASS lib/memory/test-rs-fetcher-experts.cjs
+FEYN PASS lib/memory/test-rs-pinecone-bridge.cjs
+FEYN PASS lib/memory/test-rs-preprocessor.cjs
+FEYN PASS lib/memory/test-rs-differential-scorer.cjs
+FEYN PASS lib/memory/test-rs-innovation-classifier.cjs
+FEYN PASS lib/memory/test-rs-breakthrough-scorer.cjs
+FEYN PASS lib/memory/test-rs-thesis-generator.cjs
+FEYN PASS lib/memory/test-rs-neo4j-writer.cjs
+FEYN FAIL lib/memory/test-rs-sqlite-mirror.cjs (exit 1)
+FEYN PASS lib/memory/test-rs-mind-map.cjs
+FEYN PASS lib/memory/test-rs-expert-mapper.cjs
+FEYN PASS lib/memory/test-bridge-writer-enhanced.cjs
+FEYN PASS lib/memory/test-rs-canon-violations.cjs
+FEYN FAIL lib/memory/test-rs-chain-feeder-core.cjs (exit 1)
+FEYN PASS lib/memory/test-rs-chain-feeder-skill-spawn.cjs
+FEYN PASS lib/memory/test-rs-commercial-assessor.cjs
+FEYN FAIL lib/memory/test-rs-nl-to-query.cjs (exit 1)
+FEYN PASS lib/memory/test-rs-query-to-text.cjs
+FEYN PASS lib/memory/test-rs-discovery-engine.cjs
+FEYN PASS lib/memory/test-rs-explain-command.cjs
+FEYN PASS lib/memory/navigation-engine-core.test.cjs
+FEYN PASS lib/memory/user-md-persona.test.cjs
+FEYN FAIL lib/memory/userpromptsubmit-integration.test.cjs (exit 1)
+FEYN PASS lib/memory/skill-activation-router.test.cjs
+FEYN FAIL lib/memory/offer-presenter.test.cjs (exit 1)
+FEYN PASS lib/memory/explain-decision-command.test.cjs
+FEYN PASS lib/memory/explain-decision-footer.test.cjs
+FEYN FAIL lib/memory/problem-type-router.test.cjs (exit 1)
+FEYN PASS lib/memory/framework-chain-composer.test.cjs
+FEYN FAIL lib/memory/nav-dial.test.cjs (exit 1)
+FEYN PASS lib/memory/navigation-invariants.test.cjs
+FEYN PASS lib/memory/statusline-active-room.test.cjs
+FEYN PASS lib/memory/statusline-active-room-write.test.cjs
+FEYN FAIL lib/memory/rs-discovery-engine.test.cjs (exit 1)
+FEYN FAIL lib/memory/brain-server-resolution.test.cjs (exit 1)
+FEYN FAIL lib/memory/mcp-server-brain-deps.test.cjs (exit 1)
+FEYN PASS lib/memory/mcp-stack-fallback.test.cjs
+FEYN PASS lib/memory/room-classifier-strict-mode.test.cjs
+FEYN FAIL lib/memory/heal-command.test.cjs (exit 1)
+FEYN PASS tests/test-operator-state.cjs
+FEYN PASS lib/render/render-v2.test.cjs
+FEYN PASS tests/test-operator-command.cjs
+FEYN PASS tests/test-operator-classifier.cjs
+FEYN PASS tests/test-operator-hooks.cjs
+FEYN PASS tests/test-jtbd-state-io.cjs
+FEYN PASS tests/test-jtbd-taxonomy.cjs
+FEYN PASS tests/test-jtbd-classifier.cjs
+FEYN PASS tests/test-jtbd-command.cjs
+FEYN FAIL tests/test-memory-command.cjs (exit 1)
+FEYN PASS tests/test-jtbd-ui-self-compliant.cjs
+FEYN PASS tests/test-jtbd-hook-integration.cjs
+FEYN PASS tests/test-shape-f6.cjs
+FEYN PASS tests/test-shape-g.cjs
+FEYN PASS tests/test-shape-h.cjs
+FEYN PASS tests/test-selector-dispatcher.cjs
+FEYN PASS tests/test-shape-f6-mode-b.cjs
+FEYN PASS tests/test-shape-f1.cjs
+FEYN PASS tests/test-shape-f2.cjs
+FEYN PASS tests/test-shape-f3.cjs
+FEYN PASS tests/test-shape-f4.cjs
+FEYN PASS tests/test-shape-f5.cjs
+FEYN PASS tests/test-selector-telemetry.cjs
+FEYN PASS tests/test-selector-dispatcher-88-2-04.cjs
+FEYN PASS tests/test-selector-telemetry-dual-surface.cjs
+FEYN PASS tests/test-shape-f0.cjs
+FEYN PASS tests/test-selector-dispatcher-88-2-05.cjs
+FEYN PASS tests/test-decoy-tier.cjs
+FEYN PASS tests/test-shape-f6-plan-review.cjs
+FEYN PASS tests/test-selector-dispatcher-88-2-06.cjs
+FEYN FAIL tests/test-command-jtbd-declarations.cjs (exit 1)
+FEYN PASS tests/test-command-jtbd-coverage.cjs
+FEYN PASS tests/test-command-jtbd-backward-compat.cjs
+FEYN PASS tests/test-render-v2-signature.cjs
+FEYN PASS tests/test-render-v2-compaction.cjs
+FEYN PASS tests/test-render-v2-jtbd-zone4.cjs
+FEYN PASS tests/test-render-v2-provenance.cjs
+FEYN PASS tests/test-render-v2-color-overlay.cjs
+FEYN FAIL lib/memory/render-v2-disposition.test.cjs (exit 1)
+FEYN PASS tests/test-across-session-memory.cjs
+FEYN PASS tests/test-cross-room-memory.cjs
+FEYN PASS tests/test-cross-room-memory-schema-leak.cjs
+FEYN FAIL tests/test-memory-command.cjs (exit 1)
+FEYN PASS tests/test-memory-hook-integration.cjs
+FEYN PASS tests/test-hmi-poll-primitive.cjs
+FEYN PASS tests/test-hmi-status-command.cjs
+FEYN PASS tests/test-hmi-poll-hook.cjs
+FEYN FAIL tests/test-hmi-compliance-e2e.cjs (exit 1)
+FEYN PASS tests/test-stale-settings-migration.cjs
+FEYN PASS tests/test-context-monitor-d02-broadcast.cjs
+FEYN FAIL tests/test-statusline-glyph-isolation.cjs (exit 1)
+FEYN PASS tests/test-doctor-class-g.cjs
+FEYN PASS tests/test-doctor-class-g-fix.cjs
+FEYN PASS tests/test-statusline-banner-suppression.cjs
+FEYN PASS tests/test-fallback-echo-compose.cjs
+FEYN PASS tests/test-fallback-echo-30day.cjs
+FEYN PASS tests/test-onboarding-gate.cjs
+FEYN PASS tests/test-surface-detect.cjs
+FEYN PASS tests/test-reconciliation-table-completeness.cjs
+FEYN PASS tests/test-provenance-contract-schema.cjs
+FEYN PASS tests/test-truth-state-taxonomy.cjs
+FEYN PASS tests/test-aliases-yaml-schema.cjs
+FEYN PASS tests/test-precommit-hook-aliases.cjs
+FEYN FAIL tests/test-canon-crossref-completeness.cjs (exit 1)
+FEYN PASS tests/test-part-9-invariant.cjs
+FEYN PASS tests/test-navigation-migration-views.cjs
+FEYN PASS test_zeroNonSqliteReads_andShapes
+FEYN PASS tests/test-navigation-acceptance.cjs
+FEYN PASS test1_tableCreated
+FEYN PASS test2_setAndGetRoundtrip
+FEYN PASS test3_invalidSetBy
+FEYN PASS test4_unknownNode
+FEYN PASS test5_focusChangedEvent
+FEYN PASS test6_autoFocusRule1Jtbd
+FEYN PASS test7_autoFocusRule2DecisionGate
+FEYN PASS test8_autoFocusRule3RoomRoot
+FEYN PASS tests/test-navigation-focus.cjs
+FEYN PASS test1_emptyCase
+FEYN PASS test2_depth1
+FEYN PASS test3_depth2
+FEYN PASS test4_edgeWeightRanking
+FEYN PASS test5_cycleGuard
+FEYN PASS test6_focusExcluded
+FEYN PASS test7_edgePathParsed
+FEYN PASS test8_provenanceFields
+FEYN PASS tests/test-navigation-neighborhood.cjs
+FEYN PASS tests/test-navigation-perf-10k.cjs
+FEYN PASS test1_enumCount
+FEYN PASS test2_validEnumAcceptance
+FEYN PASS test3_invalidEnumRejection
+FEYN PASS test4_invalidPayload
+FEYN PASS test5_propertiesMerge
+FEYN PASS test6_idCollisionResistance
+FEYN PASS test7_findRecentChangesTimeRange
+FEYN PASS test8_findRecentChangesEventTypeFilter
+FEYN PASS test9_findRecentChangesLimitAndOrdering
+FEYN PASS test10_phase110BrainEventsAccepted
+FEYN PASS tests/test-navigation-memory-events.cjs
+FEYN PASS test1_findContradictionsShape
+FEYN PASS test2_findContradictionsEmpty
+FEYN PASS test3_findUnsupportedSupportsOnly
+FEYN PASS test4_findUnsupportedCausalClaimUnion
+FEYN PASS test5_findBlockingAssumptions
+FEYN PASS test6_findStaleDecisions30day
+FEYN PASS test7_findOpenQuestionsNoEvidence
+FEYN PASS test8_findRelevantOpportunitiesRanking
+FEYN PASS test9_findRelevantOpportunitiesJtbdJaccard
+FEYN PASS test10_findRelevantOpportunitiesTopK
+FEYN PASS test11_noLlmInLoop
+FEYN PASS test12_explanationContainsTypedLabel
+FEYN PASS test13_emptyInputs
+FEYN PASS test14_navigationSurfaceLive
+FEYN PASS tests/test-navigation-insights.cjs
+FEYN PASS test1_subcommandExists
+FEYN PASS test2_allowListAcceptance
+FEYN PASS test3_bannedPatternRejection
+FEYN PASS test4_lazygraphAndMemoryAlsoBanned
+FEYN PASS test5_legacyGrandfather
+FEYN PASS test6_runtimeSoftDefenseJsonl
+FEYN PASS test7_optOutEnvHonored
+FEYN PASS tests/test-navigation-chokepoint-hook.cjs
+FEYN PASS test1_shape
+FEYN PASS test2_packetVersion
+FEYN PASS test3_jobPassthrough
+FEYN PASS test4_roomStageDefault
+FEYN PASS test5_activeContextDefaults
+FEYN PASS test6_focusSummaryTruncation
+FEYN PASS test7_nearestClaimsTopK
+FEYN PASS test8_bankedOpportunitiesScalar
+FEYN PASS test9_constraintsLiteral
+FEYN PASS test10_tokenBudget
+FEYN PASS test11_originStamp
+FEYN PASS test12_privacyModeDefault
+FEYN PASS test13_privacyModePerCallOverride
+FEYN PASS test14_privacyModeConfigRead
+FEYN PASS test15_privacyModeAllowExcerptsCapsDown
+FEYN PASS test16_privacyModeUnrecognizedValue
+FEYN PASS tests/test-navigation-packet-builder.cjs
+FEYN PASS tests/test-navigation-packet-part8-leak.cjs
+FEYN PASS test1_emptyPacketRejection
+FEYN PASS test2_singleSuggestionRoundtrip
+FEYN PASS test3_bulkHundredSuggestions
+FEYN PASS test4_part9Invariant
+FEYN PASS test5_edgeProposalsIngested
+FEYN PASS test6_singleEventPerCall
+FEYN PASS test7_duplicateIdWithinBatchUpserts
+FEYN PASS test8_confidenceDefault
+FEYN PASS test9_sourcePathProvenance
+FEYN PASS tests/test-brain-ingestion-part-9-invariant.cjs
+FEYN PASS test1_shape
+FEYN PASS test2_currentThesisDefault
+FEYN PASS test3_currentThesisFromIdentity
+FEYN PASS test4_evidenceByTier
+FEYN PASS test5_bankedOpportunitiesTopK
+FEYN PASS test6_recentChangesCap
+FEYN PASS test7_compositionNotDuplication
+FEYN PASS test8_phase90RegressionFence
+FEYN PASS tests/test-room-home-vs-brain-derivation-regression.cjs
+FEYN PASS t1_part9HeaderPresent
+FEYN PASS t2_fiveRoleInvariant
+FEYN PASS t3_part9BetweenPart8AndAppendixA
+FEYN PASS t4_part9AmendmentRecordedAndFloorHeld
+FEYN PASS t5_appendixDEntry12
+FEYN PASS t6_mapPart9HeadingDeQualified
+FEYN PASS t7_mapPart9RowsShipped
+FEYN PASS t8_mapCanonReferenceTracksLiveCanon
+FEYN PASS t9_mapVersionHistoryHasV14
+FEYN PASS tests/test-canon-part-9-ratification.cjs
+FEYN PASS tests/test-navigation-migration-idempotent.cjs
+FEYN PASS tests/test-navigation-migration-backfill.cjs
+FEYN PASS tests/test-navigation-migration-coexistence.cjs
+FEYN PASS tests/test-reverse-salient-agent.cjs
+FEYN PASS tests/test-reverse-salient-cascade-emit.cjs
+FEYN PASS tests/test-reverse-salient-f0-integration.cjs
+FEYN PASS tests/test-reverse-salient-persona.cjs
+FEYN PASS tests/test-reverse-salient-telemetry.cjs
+FEYN FAIL tests/test-tension-hook-detection.cjs (exit 1)
+FEYN PASS tests/test-tension-hook-f1-integration.cjs
+FEYN PASS tests/test-tension-hook-decay.cjs
+FEYN PASS tests/test-tension-hook-telemetry.cjs
+FEYN FAIL tests/test-tension-hook-rendering.cjs (exit 1)
+FEYN FAIL tests/test-auto-explore-event-types.cjs (exit 1)
+FEYN FAIL tests/test-auto-explore-fingerprint.cjs (exit 1)
+FEYN PASS tests/test-explored-materials-store.cjs
+FEYN PASS tests/test-auto-explore-fire.cjs
+FEYN PASS tests/test-auto-explore-compose.cjs
+FEYN PASS tests/test-auto-explore-f1-integration.cjs
+FEYN PASS tests/test-auto-explore-canonical-order.cjs
+FEYN PASS tests/test-cross-domain-formula.cjs
+FEYN PASS tests/test-finding-hsi-schema.cjs
+FEYN PASS tests/test-f1-bq-template.cjs
+FEYN PASS tests/test-detection-routing-local-only.cjs
+FEYN PASS tests/test-brain-canon-drift-event.cjs
+FEYN FAIL lib/workflow/command-resolver.test.cjs (exit 1)
+FEYN FAIL lib/memory/command-registry.test.cjs (exit 1)
+FEYN PASS lib/memory/orchestration-projection.test.cjs
+FEYN PASS tests/test-orchestration-projection-part8-boundary.cjs
+FEYN PASS lib/memory/chain-recommender.test.cjs
+FEYN PASS lib/memory/navigation-hook-resolver.test.cjs
+FEYN FAIL lib/memory/suggest-next-workflow.test.cjs (exit 1)
+FEYN FAIL lib/memory/workflow-layer-e2e.test.cjs (exit 1)
+FEYN PASS tests/test-brain-packet-schema-check.cjs
+FEYN PASS tests/test-brain-packet-validation-per-job.cjs
+FEYN PASS tests/test-brain-packet-part8-invariant-per-job.cjs
+FEYN PASS test1_emptyStagedSet
+FEYN PASS test2_bareSendPacketWithoutBuildBrainPacket
+FEYN PASS test3_sendPacketPrecededByBuildBrainPacket
+FEYN PASS test4_allowListedFile
+FEYN PASS test5_nonJsFileSkipped
+FEYN PASS tests/test-brain-packet-precommit-hook.cjs
+FEYN FAIL tests/test-release-bump-algebra.cjs (exit 1)
+FEYN PASS tests/test-install-state-record.cjs
+FEYN PASS tests/test-doctor-class-i.cjs
+FEYN PASS tests/test-doctor-class-j.cjs
+FEYN PASS tests/test-doctor-acceptance.cjs
+FEYN PASS tests/test-doctor-class-g-effective-command.cjs
+FEYN PASS tests/test-cache-prune.cjs
+FEYN PASS tests/test-feynman-timeline-renderer.cjs
+FEYN PASS tests/test-feynman-timeline-empty-state.cjs
+FEYN PASS tests/test-feynman-timeline-runner.cjs
+FEYN PASS tests/test-feynman-timeline-canon-part-9-invariant.cjs
+FEYN PASS lib/memory/sessionstart-coordinator.test.cjs
+FEYN PASS lib/memory/navigation-write-edge.test.cjs
+FEYN PASS lib/memory/navigation-projections.test.cjs
+FEYN FAIL lib/memory/brain-cypher-chain-slice.test.cjs (exit 1)
+FEYN PASS lib/memory/packet-chain-hint.test.cjs
+FEYN PASS lib/memory/packet-schema-validation.test.cjs
+FEYN PASS lib/memory/f-selector-ranker.test.cjs
+FEYN PASS lib/memory/selector-decisions.test.cjs
+FEYN PASS lib/memory/selector-miss.test.cjs
+FEYN FAIL lib/memory/per-command-teaching.test.cjs (exit 1)
+FEYN PASS lib/memory/per-command-jtbd-derivation.test.cjs
+FEYN PASS lib/core/venture-sentence-classifier.test.cjs
+FEYN PASS lib/core/pyramid-seed-agent-contract.test.cjs
+FEYN PASS lib/core/pyramid-seed-budget.test.cjs
+FEYN PASS lib/core/pyramid-seed-dispatcher.test.cjs
+FEYN PASS lib/core/resolve-vercel-key.test.cjs
+FEYN PASS lib/core/mva-vercel-deploy.test.cjs
+FEYN FAIL lib/core/mva-deck-builder.test.cjs (exit 1)
+FEYN PASS lib/conversation/operator.test.cjs
+FEYN PASS lib/core/reward-rule-linter.test.cjs
+FEYN PASS tests/test-room-auto-create-event-types.cjs
+FEYN PASS lib/core/venture-shape-nudge.test.cjs
+FEYN PASS lib/core/room-auto-create.test.cjs
+FEYN PASS tests/test-room-auto-create-fingerprint-integration.cjs
+FEYN PASS lib/core/larry-thinness-acknowledgment.test.cjs
+FEYN PASS lib/core/room-skeleton-scaffold.test.cjs
+FEYN PASS tests/test-room-skeleton-scaffold-integration.cjs
+FEYN PASS tests/test-119-02-auto-explore-fire-wiring.cjs
+FEYN FAIL lib/core/llm-name-suggester.test.cjs (exit 1)
+FEYN PASS lib/core/room-name-validator.test.cjs
+FEYN PASS lib/core/room-discard-cascade.test.cjs
+FEYN PASS lib/core/room-naming-selector.test.cjs
+FEYN PASS tests/test-room-naming-selector-integration.cjs
+FEYN PASS tests/test-breakthrough-event-types.cjs
+FEYN PASS tests/test-breakthrough-edge-types.cjs
+FEYN PASS lib/core/breakthrough/detectors.test.cjs
+FEYN FAIL lib/core/breakthrough/schema.test.cjs (exit 1)
+FEYN PASS lib/hmi/shape-f7-breakthrough-renderer.test.cjs
+FEYN PASS lib/core/breakthrough/scoring.test.cjs
+FEYN PASS lib/core/breakthrough/resurfacing.test.cjs
+FEYN PASS lib/core/breakthrough/canary.test.cjs
+FEYN PASS lib/core/breakthrough/verb-dispatch.test.cjs
+FEYN PASS lib/core/breakthrough/scanner.test.cjs
+FEYN FAIL scripts/check-pending-breakthrough.test.cjs (exit 1)
+FEYN PASS tests/test-breakthrough-d20-end-to-end.cjs
+FEYN PASS lib/core/breakthrough/voice-scaffold.test.cjs
+FEYN PASS lib/core/breakthrough/ethics-fence.test.cjs
+FEYN PASS lib/core/breakthrough/review-queue.test.cjs
+FEYN PASS lib/core/breakthrough/scanner-d17-d18.test.cjs
+FEYN PASS tests/test-breakthrough-d17-voice-audit.cjs
+FEYN PASS tests/test-breakthrough-d18-ethics-fence.cjs
+FEYN PASS lib/core/telemetry/schema.test.cjs
+FEYN PASS lib/core/telemetry/validator.test.cjs
+FEYN PASS lib/core/telemetry/writer.test.cjs
+FEYN PASS scripts/migrate-telemetry-v1.test.cjs
+FEYN PASS tests/test-121-02-selector-pick-capture.cjs
+FEYN PASS tests/test-121-02-tension-engagement-capture.cjs
+FEYN PASS tests/test-121-02-auto-explore-capture.cjs
+FEYN PASS tests/test-121-02-breakthrough-dismissed-capture.cjs
+FEYN PASS tests/test-121-03-empathy-observation.cjs
+FEYN PASS tests/test-121-03-room-receipt-emit.cjs
+FEYN PASS tests/test-121-03-command-invocation-hook.cjs
+FEYN PASS tests/test-121-03-drowning-protection.cjs
+FEYN FAIL tests/127.1-embedding-integrity.test.cjs (exit 1)
+FEYN FAIL tests/127.1-index-config.test.cjs (exit 1)
+FEYN PASS tests/127.1-query-embedder.test.cjs
+FEYN FAIL tests/127.1-graphrag-overlap.test.cjs (exit 1)
+FEYN PASS tests/test-resolve-active-room-canonical.cjs
+FEYN PASS tests/test-129-spine-substrate.cjs
+FEYN PASS test-129-read-surface-events
+FEYN PASS tests/test-129-read-surface-events.cjs
+FEYN PASS tests/test-129-state-transition-events.cjs
+FEYN PASS tests/test-129-workflow-stage-events.cjs
+FEYN PASS test_proactiveLoop_instrumented
+FEYN PASS tests/test-129-spine-acceptance.cjs
+FEYN FAIL tests/test-129.5-confirm-node.cjs (exit 1)
+FEYN PASS test_acceptBranch_promotesViaConfirmNode
+FEYN PASS test_acceptBranch_resolvesUserMdByUser
+FEYN PASS test_acceptBranch_aliasApprove
+FEYN PASS test_acceptBranch_explicitAgentByUserRejected
+FEYN PASS test_acceptBranch_unknownNode
+FEYN PASS test_acceptBranch_invalidDb
+FEYN PASS test_acceptBranch_invalidNodeId
+FEYN PASS test_deferRejectBranches_unchanged
+FEYN PASS test_getConfirmedFacts_returnsConfirmed
+FEYN PASS test_getConfirmedFacts_validatedBackCompat
+FEYN PASS test_disjointness_preserved
+FEYN FAIL tests/test-129.5-truth-machine.cjs (exit 1)
+FEYN PASS tests/test-130-lens-substrate.cjs
+FEYN PASS tests/test-130-lens-engine.cjs
+FEYN PASS tests/test-130-cognitive-migration.cjs
+FEYN FAIL tests/test-130-lens-engine-e2e.cjs (exit 1)
+FEYN PASS tests/test-130.5-corpus-migration.cjs
+FEYN PASS lib/memory/navigation-engine-offer.test.cjs
+FEYN PASS lib/memory/offer-closer.test.cjs
+FEYN FAIL tests/test-135-resolver-no-leak.cjs (exit 1)
+FEYN PASS tests/test-135-decide-wiring-e2e.cjs
+FEYN PASS lib/memory/correlation.test.cjs
+FEYN PASS lib/memory/correlation-label-index.test.cjs
+FEYN PASS lib/memory/chain-recommender-canonical.test.cjs
+FEYN PASS lib/memory/local-chain-recommender.test.cjs
+FEYN PASS lib/memory/spine-events-correlation.test.cjs
+FEYN PASS lib/memory/dual-graph-health.test.cjs
+FEYN PASS lib/memory/brain-derive-curation.test.cjs
+FEYN FAIL tests/test-131-substrate.cjs (exit 1)
+FEYN PASS tests/test-131-context-extractor.cjs
+FEYN PASS tests/test-131-source-lens-driver.cjs
+FEYN PASS tests/test-131-findings-wirer.cjs
+FEYN PASS tests/test-131-isomorphism.cjs
+FEYN FAIL tests/test-131-e2e.cjs (exit 1)
+FEYN PASS lib/memory/curation-batch.test.cjs
+FEYN PASS lib/memory/hypergraph-event-schema.test.cjs
+FEYN PASS lib/memory/curation-132-03-dedup-held-rename.test.cjs
+FEYN PASS lib/memory/curation-132-05-pseudonymize.test.cjs
+FEYN PASS tests/test-help-selector-lanes.cjs
+FEYN PASS tests/test-help-cards-render.cjs
+FEYN FAIL tests/test-help-coverage-gate.cjs (exit 1)
+FEYN PASS tests/test-223-hat-governance.cjs
+FEYN PASS tests/test-223-part8-egress.cjs
+FEYN PASS tests/test-223-close-loop.cjs
+FEYN PASS tests/test-223-supersedes-chain.cjs
+FEYN PASS tests/test-223-intel-pipeline.cjs
+FEYN PASS tests/test-224-migration.cjs
+FEYN PASS tests/test-224-classifier.cjs
+FEYN PASS (11/11)
+FEYN PASS tests/test-224-encoder-skip.cjs
+FEYN PASS (11/11)
+FEYN PASS tests/test-224-per-write-derive.cjs
+FEYN PASS tests/test-224-cost-bound.cjs
+FEYN PASS (16/16)
+FEYN PASS tests/test-224-backfill-idempotent.cjs
+FEYN PASS (6/6)
+FEYN PASS tests/test-224-resolver-fallback.cjs
+FEYN PASS (18/18)
+FEYN PASS tests/test-224-proposed-only.cjs
+FEYN PASS tests/test-225-zero-score-gate.cjs
+FEYN PASS tests/test-225-gate-degrade.cjs
+FEYN PASS tests/test-225-wal-advisory.cjs
+FEYN PASS tests/test-225-answer-narrowing.cjs
+FEYN PASS tests/test-226-null-legs.cjs
+FEYN PASS tests/test-226-rubric-parity.cjs
+FEYN PASS tests/test-226-rejection-replay.cjs
+FEYN PASS tests/test-227-mode-select-checkpoint.cjs
+FEYN PASS tests/test-227-frontdoor-restraint.cjs
+FEYN PASS tests/test-355-direction-convention.cjs
+FEYN FAIL tests/test-355-direction-agreement.cjs (exit 1)
+FEYN PASS tests/test-355-label-cli.cjs
+FEYN PASS tests/test-355-floor-sweep.cjs
+FEYN PASS tests/test-355-naming-honesty.cjs
+FEYN PASS tests/test-355-stamp-truth.cjs
+FEYN PASS tests/test-355-theo-unreachable.cjs
+FEYN PASS tests/test-355-stamp-format.cjs
+FEYN PASS tests/test-355-jev-ceilings.cjs
+FEYN PASS tests/test-355-framework-names.cjs
+FEYN PASS tests/test-355-direction-readers.cjs
+FEYN PASS tests/test-355-fixture-rooms.cjs
+FEYN PASS tests/test-355-theo-capture.cjs
+FEYN PASS tests/test-355-hsi-measurement-record.cjs
+FEYN PASS tests/test-355-producer-whitespace-hsi.cjs
+FEYN PASS tests/test-355-producer-rs-connections.cjs
+FEYN PASS tests/test-355-side-channel-v2.cjs
+FEYN PASS tests/test-355-filing.cjs
+FEYN PASS tests/test-355-part8-egress.cjs
+FEYN PASS tests/test-355-cirs-wiring.cjs
+FEYN PASS tests/test-355-doctor-point.cjs
+FEYN PASS tests/test-355-gate-opportunity-promotion.cjs
+FEYN PASS tests/test-355-sens13-fire-once.cjs
+FEYN PASS tests/test-355-no-decimal.cjs
+FEYN PASS tests/test-355-tri-polar.cjs
+FEYN PASS tests/test-355-stamp-coverage.cjs
+FEYN PASS tests/test-355-hit-rate-record.cjs
+FEYN PASS tests/test-355-jev-calibration-record.cjs
+FEYN PASS tests/test-3551-fixture-room.cjs
+FEYN PASS tests/test-3551-chokepoint.cjs
+FEYN PASS tests/test-3551-delta-classes.cjs
+FEYN PASS tests/test-3551-classify.cjs
+FEYN PASS tests/test-3551-lockstep.cjs
+FEYN PASS tests/test-3551-sensor-fires.cjs
+FEYN PASS tests/test-3551-framing.cjs
+FEYN PASS tests/test-3551-ledger.cjs
+FEYN PASS tests/test-3551-evaluator.cjs
+FEYN PASS tests/test-3551-one-spawner.cjs
+FEYN PASS tests/test-3551-ambient-run.cjs
+FEYN PASS tests/test-3551-hooked-audit.cjs
+FEYN PASS tests/test-3551-child.cjs
+FEYN PASS tests/test-3551-double-card.cjs
+FEYN PASS tests/test-3551-surfacing.cjs
+FEYN PASS tests/test-3551-prose.cjs
+FEYN PASS tests/test-3551-fresh-mtime.cjs
+FEYN PASS tests/test-3551-mcp-fire-once.cjs
+FEYN FAIL tests/test-3551-tri-polar.cjs (exit 1)
+FEYN PASS tests/test-3551-part8-egress.cjs
+FEYN PASS tests/test-3551-concurrency.cjs
+RUNALL400.4 PASSED=104 FAILED=0 KNOWN=6
