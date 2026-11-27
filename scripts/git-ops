@@ -21,6 +21,11 @@
 # Defaults to $PWD.
 
 set -euo pipefail
+# Wave 2 re-review W2R-07: a room's git must never follow an inherited git
+# context (a parent hook or a git alias can export these), and a file name
+# with *, ?, [ or a leading : must never match other files.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_PREFIX
+export GIT_LITERAL_PATHSPECS=1
 
 # Parse workspace dir -- if first arg is a directory and second arg is a known subcommand
 WORK_DIR="$PWD"
